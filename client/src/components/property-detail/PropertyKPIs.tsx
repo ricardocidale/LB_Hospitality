@@ -38,11 +38,11 @@ export default function PropertyKPIs({ yearlyChartData, projectionYears }: Prope
       sublabel: d.Revenue > 0 ? `${((d.GOP / d.Revenue) * 100).toFixed(1)}% margin` : undefined,
     },
     {
-      label: `${label} NOI`,
-      value: d.NOI,
+      label: `${label} ANOI`,
+      value: d.ANOI,
       format: formatCompact,
-      trend: d.NOI > 0 ? "up" : "down",
-      sublabel: d.Revenue > 0 ? `${((d.NOI / d.Revenue) * 100).toFixed(1)}% margin` : undefined,
+      trend: d.ANOI > 0 ? "up" : "down",
+      sublabel: d.Revenue > 0 ? `${((d.ANOI / d.Revenue) * 100).toFixed(1)}% margin` : undefined,
     },
     {
       label: `${label} Cash Flow`,

@@ -95,7 +95,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   const insights: Insight[] = [
     { text: `Markets: ${marketList}`, type: "neutral" as const },
     { text: `${investmentHorizon}-year total revenue`, metric: formatMoney(totalProjectionRevenue), type: "neutral" as const },
-    { text: `${investmentHorizon}-year total NOI`, metric: formatMoney(totalProjectionNOI), type: "neutral" as const },
+    { text: `${investmentHorizon}-year total ANOI`, metric: formatMoney(totalProjectionNOI), type: "neutral" as const },
     { text: `${investmentHorizon}-year total cash flow`, metric: formatMoney(totalProjectionCashFlow), type: "neutral" as const },
   ];
 
@@ -108,7 +108,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
       { category: "Total Initial Equity", values: [totalInitialEquity], indent: 1 },
       { category: "Total Exit Value", values: [totalExitValue], indent: 1 },
       { category: "Total Projected Revenue", values: [totalProjectionRevenue], indent: 1 },
-      { category: "Total Projected NOI", values: [totalProjectionNOI], indent: 1 },
+      { category: "Total Projected ANOI", values: [totalProjectionNOI], indent: 1 },
       { category: "Total Projected Cash Flow", values: [totalProjectionCashFlow], indent: 1 },
       { category: "Portfolio Composition", values: [0], isHeader: true },
       { category: "Properties", values: [totalProperties], indent: 1 },
@@ -345,7 +345,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
             <div className="bg-card rounded-lg border border-border shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground font-display">Revenue & NOI</h3>
+                  <h3 className="text-lg font-semibold text-foreground font-display">Revenue & ANOI</h3>
                   <p className="text-sm text-foreground/50 label-text">{investmentHorizon}-year consolidated projection</p>
                 </div>
                 <div className="flex items-center gap-4 text-xs label-text">
@@ -355,7 +355,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#257D41' }} />
-                    NOI
+                    ANOI
                   </span>
                 </div>
               </div>
@@ -383,7 +383,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     width={60}
                   />
                   <Tooltip
-                    formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'NOI']}
+                    formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'ANOI']}
                     contentStyle={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
                   />
                   <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2} fill="url(#revenueGrad)" dot={false} />
@@ -421,7 +421,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     { label: "Avg Purchase Price", value: formatMoney(avgPurchasePrice) },
                     { label: "Avg Exit Cap Rate", value: `${(avgExitCapRate * 100).toFixed(1)}%`, highlight: true },
                     { label: "Hold Period", value: `${investmentHorizon} Years` },
-                    { label: "NOI Margin", value: `${totalProjectionRevenue > 0 ? ((totalProjectionNOI / totalProjectionRevenue) * 100).toFixed(1) : '0.0'}%`, highlight: true },
+                    { label: "ANOI Margin", value: `${totalProjectionRevenue > 0 ? ((totalProjectionNOI / totalProjectionRevenue) * 100).toFixed(1) : '0.0'}%`, highlight: true },
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
                       <span className="text-sm text-foreground/60 label-text">{row.label}</span>

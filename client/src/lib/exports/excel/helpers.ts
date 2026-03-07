@@ -54,7 +54,7 @@ export function applyHeaderStyle(ws: XLSX.WorkSheet, rows: (string | number)[][]
     const isSection = label === label.toUpperCase() && label.length > 2 && !label.startsWith(' ');
     const isTotalRow = label.toLowerCase().startsWith('total') ||
       label.toLowerCase().includes('gaap net') ||
-      label.toLowerCase().includes('net operating') ||
+      label.toLowerCase().includes('adjusted noi') ||
       label.toLowerCase().includes('gross operating') ||
       label.toLowerCase().includes('net cash flow') ||
       label.toLowerCase().includes('closing cash') ||

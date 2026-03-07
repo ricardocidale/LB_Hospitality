@@ -167,7 +167,7 @@ export function generatePortfolioIncomeData(
   rows.push({ category: "Management Fees", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), isHeader: true });
   rows.push({ category: "Base Fee", values: years.map((_, i) => c(i)?.feeBase ?? 0), indent: 1 });
   rows.push({ category: "Incentive Fee", values: years.map((_, i) => c(i)?.feeIncentive ?? 0), indent: 1 });
-  rows.push({ category: "Net Operating Income", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true });
+  rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true });
 
   rows.push({ category: "Interest Expense", values: years.map((_, i) => c(i)?.interestExpense ?? 0), indent: 1 });
   rows.push({ category: "Depreciation", values: years.map((_, i) => c(i)?.depreciationExpense ?? 0), indent: 1 });
@@ -344,7 +344,7 @@ export function exportPortfolioPDF(
   doc.setFontSize(16);
   doc.text("Performance Chart", 14, 15);
   doc.setFontSize(10);
-  doc.text(`${projectionYears}-Year Revenue, Operating Expenses, and Net Operating Income Trend`, 14, 22);
+  doc.text(`${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`, 14, 22);
 
   const chartData = years.map((year, i) => ({
     label: String(year),
@@ -369,7 +369,7 @@ export function exportPortfolioPDF(
     series: [
       { name: "Revenue", data: chartData, color: "#7C3AED" },
       { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
-      { name: "NOI", data: noiData, color: "#257D41" },
+      { name: "ANOI", data: noiData, color: "#257D41" },
     ],
   });
 

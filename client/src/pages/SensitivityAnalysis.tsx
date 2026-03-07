@@ -400,7 +400,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     const topVar = tornadoData[0];
     if (topVar) {
       insights.push({
-        text: `${topVar.name} has the largest impact on ${tornadoMetric === "irr" ? "IRR" : "NOI"} with a spread of ${topVar.spread.toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`,
+        text: `${topVar.name} has the largest impact on ${tornadoMetric === "irr" ? "IRR" : "ANOI"} with a spread of ${topVar.spread.toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`,
         type: "warning",
         metric: `±${(topVar.spread / 2).toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`,
       });

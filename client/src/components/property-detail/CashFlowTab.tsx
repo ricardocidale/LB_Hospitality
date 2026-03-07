@@ -101,12 +101,12 @@ export default function CashFlowTab({
                 />
                 <Line 
                   type="monotone" 
-                  dataKey="NOI" 
+                  dataKey="ANOI" 
                   stroke="url(#noiCfGradient)" 
                   strokeWidth={3}
                   dot={{ fill: '#257D41', stroke: '#fff', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, fill: '#257D41', stroke: '#fff', strokeWidth: 2 }}
-                  name="Net Operating Income"
+                  name="Adjusted NOI"
                 />
                 <Line 
                   type="monotone" 

@@ -55,7 +55,7 @@ export function StressTestTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InputField label="Annual NOI" value={noi} onChange={setNoi} prefix="$" helpText="Base NOI before stress adjustments" data-testid="input-sens-noi" />
+        <InputField label="Annual ANOI" value={noi} onChange={setNoi} prefix="$" helpText="Base ANOI before stress adjustments" data-testid="input-sens-noi" />
         <InputField label="Loan Amount" value={loanAmount} onChange={setLoanAmount} prefix="$" helpText="Current or proposed loan principal" data-testid="input-sens-loan" />
         <InputField label="Interest Rate" value={rate} onChange={setRate} suffix="%" helpText="Base interest rate before rate shocks" data-testid="input-sens-rate" />
         <InputField label="Amortization (months)" value={amortMonths} onChange={setAmortMonths} helpText="Amortization schedule for the loan" data-testid="input-sens-amort" />

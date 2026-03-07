@@ -105,7 +105,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
 
               {/* NET INCOME */}
               <TableRow className="bg-primary/10 border-border font-bold text-lg">
-                <TableCell className="sticky left-0 bg-primary/20 z-10 border-r border-border">Net Operating Income</TableCell>
+                <TableCell className="sticky left-0 bg-primary/20 z-10 border-r border-border">Adjusted NOI (ANOI)</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.noi)}</TableCell>
                 ))}

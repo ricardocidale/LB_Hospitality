@@ -24,7 +24,7 @@ import { SectionCard } from "@/components/ui/section-card";
           rows={[
             ["Total Portfolio Revenue", "Σ property revenue", "F-X-01"],
             ["Gross Operating Profit", "Σ property GOP", "F-X-03"],
-            ["Net Operating Income", "Σ property NOI", "F-X-04"],
+            ["Adjusted NOI (ANOI)", "Σ property ANOI", "F-X-04"],
             ["Portfolio Cash", "Σ property ending cash", "F-X-06"],
           ]}
         />

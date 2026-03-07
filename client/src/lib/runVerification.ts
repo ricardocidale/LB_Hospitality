@@ -592,7 +592,7 @@ function buildChecksForTestCase(testCase: TestCase): KnownValueCheck[] {
   });
 
   checks.push({
-    label: "NOI",
+    label: "ANOI",
     formula: "GOP − Base Fee − Incentive Fee − FF&E",
     expected: r2(pl.noi),
     calculated: r2(pl.noi),

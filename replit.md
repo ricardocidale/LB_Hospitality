@@ -73,6 +73,8 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - All tests must pass before delivering changes
 - No LLM-computed financial values — engine only
 - Button labels: always "Save", never "Update"
+- ANOI terminology: result after management fees = "Adjusted NOI (ANOI)", never "Net Operating Income (NOI)". Internal field name stays `noi`.
+- Button hover: subtle `hover:scale-[1.01] active:scale-[0.995]` on all buttons — refined, not bouncy
 - All properties: `userId = NULL` (shared portfolio)
 - Ricardo Cidale is sole Admin
 - AI agent name configurable via DB (`aiAgentName`), default "Marcela"

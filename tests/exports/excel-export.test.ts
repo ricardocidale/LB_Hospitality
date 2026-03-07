@@ -154,7 +154,7 @@ describe("Excel helpers", () => {
 
     it("bolds NOI and Net Income rows", () => {
       const rows: (string | number)[][] = [
-        ["Net Operating Income (NOI)", 500000],
+        ["Adjusted NOI (ANOI)", 500000],
         ["GAAP Net Income", 200000],
         ["Gross Operating Profit (GOP)", 800000],
       ];
@@ -221,7 +221,7 @@ describe("buildPropertyISRows", () => {
     const labels = rows.map((r) => String(r[0]).trim());
 
     expect(labels).toContain("Gross Operating Profit (GOP)");
-    expect(labels).toContain("Net Operating Income (NOI)");
+    expect(labels).toContain("Adjusted NOI (ANOI)");
     expect(labels).toContain("GAAP Net Income");
   });
 

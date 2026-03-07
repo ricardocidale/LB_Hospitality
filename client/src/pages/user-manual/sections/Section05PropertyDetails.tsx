@@ -46,7 +46,7 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
             ["Occupancy", "Percentage of rooms occupied in a given period"],
             ["RevPAR", "Revenue Per Available Room = ADR x Occupancy"],
             ["GOP (Gross Operating Profit)", "Total Revenue minus departmental operating expenses"],
-            ["NOI (Net Operating Income)", "GOP minus management fees and FF&E reserve"],
+            ["Adjusted NOI (ANOI)", "GOP minus management fees and FF&E reserve"],
             ["DSCR (Debt Service Coverage Ratio)", "NOI divided by total debt service — measures ability to service debt"],
             ["IRR (Internal Rate of Return)", "Annualized return considering all cash flows including exit"],
             ["Equity Multiple", "Total cash returned to investors divided by equity invested"],

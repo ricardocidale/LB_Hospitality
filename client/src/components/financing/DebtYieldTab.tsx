@@ -47,7 +47,7 @@ export function DebtYieldTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InputField label="Annual NOI" value={noi} onChange={setNoi} prefix="$" helpText="Net Operating Income used to calculate debt yield" data-testid="input-dy-noi" />
+        <InputField label="Annual ANOI" value={noi} onChange={setNoi} prefix="$" helpText="Adjusted NOI used to calculate debt yield" data-testid="input-dy-noi" />
         <InputField label="Loan Amount" value={loanAmount} onChange={setLoanAmount} prefix="$" helpText="Proposed loan amount to evaluate" data-testid="input-dy-loan" />
         <InputField label="Min Debt Yield" value={minYield} onChange={setMinYield} suffix="%" helpText="Lender's minimum debt yield threshold (typically 8–10%)" data-testid="input-dy-min" />
         <InputField label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" helpText="Property purchase price for LTV calculation" data-testid="input-dy-price" />

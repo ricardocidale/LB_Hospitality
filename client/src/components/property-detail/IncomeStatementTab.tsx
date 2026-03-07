@@ -118,12 +118,12 @@ export default function IncomeStatementTab({
                 />
                 <Line 
                   type="monotone" 
-                  dataKey="NOI" 
+                  dataKey="ANOI" 
                   stroke="url(#noiGradient)" 
                   strokeWidth={3}
                   dot={{ fill: '#F4795B', stroke: '#fff', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, fill: '#F4795B', stroke: '#fff', strokeWidth: 2 }}
-                  name="Net Operating Income"
+                  name="Adjusted NOI"
                 />
               </LineChart>
             </ResponsiveContainer>

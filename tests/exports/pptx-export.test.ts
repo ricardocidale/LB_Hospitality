@@ -13,7 +13,7 @@ function makeTableRows(yearCount: number) {
     { category: "  Room Revenue", values: years.map((_, i) => 500000 + i * 50000) },
     { category: "  F&B Revenue", values: years.map((_, i) => 100000 + i * 10000) },
     { category: "Total Revenue", values: years.map((_, i) => 600000 + i * 60000), isBold: true },
-    { category: "Net Operating Income (NOI)", values: years.map((_, i) => 200000 + i * 20000), isBold: true },
+    { category: "Adjusted NOI (ANOI)", values: years.map((_, i) => 200000 + i * 20000), isBold: true },
   ];
   return { years, rows };
 }

@@ -468,7 +468,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="GOP minus management fees and FF&E reserve. The property's income available for debt service and returns." />
+      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.noi)} positive tooltip="GOP minus management fees and FF&E reserve. The property's income available for debt service and returns." />
       <MarginRow label="% of Total Revenue" values={yd.map((y) => y.noi)} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />

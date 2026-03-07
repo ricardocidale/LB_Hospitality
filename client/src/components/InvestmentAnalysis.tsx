@@ -293,7 +293,7 @@ export function InvestmentAnalysis({
                     ))}
                   </TableRow>
                   <TableRow className="bg-muted/5">
-                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Net Operating Income (NOI)</TableCell>
+                    <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">Adjusted NOI (ANOI)</TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => (
                       <TableCell key={y} className="text-right text-sm text-muted-foreground">

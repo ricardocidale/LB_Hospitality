@@ -64,7 +64,7 @@ export function buildPropertyISRows(yearly: YearlyAggregation[]): (string | numb
     ["  Incentive Management Fee", ...yearly.map((y) => y.feeIncentive)],
     ["  FF&E Reserve", ...yearly.map((y) => y.expenseFFE)],
     [],
-    ["Net Operating Income (NOI)", ...yearly.map((y) => y.noi)],
+    ["Adjusted NOI (ANOI)", ...yearly.map((y) => y.noi)],
     [],
     ["BELOW NOI"],
     ["  Interest Expense", ...yearly.map((y) => y.interestExpense)],

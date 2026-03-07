@@ -22,7 +22,7 @@ export interface ChartSeries {
 const PRESET_SERIES: Record<string, ChartSeries> = {
   revenue: { dataKey: "Revenue", name: "Total Revenue", color: "#18181b" },
   gop: { dataKey: "GOP", name: "Gross Operating Profit", color: "#3B82F6" },
-  noi: { dataKey: "NOI", name: "Net Operating Income", color: "#6B7280" },
+  noi: { dataKey: "ANOI", name: "Adjusted NOI (ANOI)", color: "#6B7280" },
   expenses: { dataKey: "Expenses", name: "Total Expenses", color: "#3B82F6" },
   netIncome: { dataKey: "NetIncome", name: "Net Income", color: "#6B7280" },
   cashFlow: { dataKey: "CashFlow", name: "Cash Flow", color: "#8B5CF6" },

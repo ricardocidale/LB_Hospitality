@@ -74,7 +74,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["MOIC", "Multiple on Invested Capital (see Equity Multiple)", "F-R-04", "Returns"],
             ["Monthly Depreciation", "Depreciable Basis / 27.5 / 12", "F-P-12", "Depreciation"],
             ["Net Income", "NOI − Interest − Depreciation − Income Tax", "F-P-14", "Profitability"],
-            ["NOI (Net Operating Income)", "GOP − Management Fees − FF&E Reserve", "F-P-10", "Profitability"],
+            ["ANOI (Adjusted NOI)", "GOP − Management Fees − FF&E Reserve", "F-P-10", "Profitability"],
             ["Occupancy Rate", "Percentage of available rooms sold; ramps from start to max", "—", "Revenue"],
             ["Operating Reserve", "Cash set aside for initial working capital needs", "—", "Capital"],
             ["PMT", "Loan payment formula = P × [r(1+r)^n / ((1+r)^n − 1)]", "F-F-04", "Financing"],

@@ -21,7 +21,7 @@ interface BenchmarkRow {
 
 interface BenchmarkPanelProps {
   property: any;
-  yearlyChartData: { Revenue: number; GOP: number; NOI: number }[];
+  yearlyChartData: { Revenue: number; GOP: number; ANOI: number }[];
 }
 
 function statusIcon(status: BenchmarkRow["status"]) {
@@ -76,9 +76,9 @@ export default function BenchmarkPanel({ property, yearlyChartData }: BenchmarkP
     // NOI Margin (computed from Year 1 data)
     if (yearlyChartData.length > 0) {
       const yr1 = yearlyChartData[0];
-      const noiMargin = yr1.Revenue > 0 ? (yr1.NOI / yr1.Revenue) * 100 : 0;
+      const noiMargin = yr1.Revenue > 0 ? (yr1.ANOI / yr1.Revenue) * 100 : 0;
       result.push({
-        label: "NOI Margin (Yr 1)",
+        label: "ANOI Margin (Yr 1)",
         actual: `${noiMargin.toFixed(1)}%`,
         range: "15%–42%",
         source: "Industry",

@@ -264,6 +264,8 @@ All voice components use `useAdminSignedUrl()` (auto-fetched on mount, refetched
 - **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
 - **Audit persona + doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
 - **Button labels**: Always "Save" for save/update actions (never "Update") — `.claude/rules/ui-patterns.md`
+- **ANOI terminology**: The result after management fees = "Adjusted NOI (ANOI)", never "Net Operating Income (NOI)". Internal field name stays `noi`.
+- **Button hover**: Subtle scale-up on hover (1.01) and press (0.995) — refined, not bouncy. Set in `button.tsx` base cva class.
 - **Session memory**: Update `.claude/rules/session-memory.md` at the end of every session
 - **Read session memory first**: Always read `session-memory.md` and `replit.md` before starting work — `.claude/rules/session-startup.md`
 - **Docs after edits**: Update `.claude` docs and harmonize `replit.md` after any codebase changes — `.claude/rules/documentation.md`

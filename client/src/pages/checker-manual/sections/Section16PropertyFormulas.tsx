@@ -31,7 +31,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["F-P-07", "Total Revenue", "roomRevenue + eventsRevenue + fbRevenue + otherRevenue"],
             ["F-P-08", "Operating Expenses", "Σ (revenueStream × costRateStream)"],
             ["F-P-09", "Gross Operating Profit", "totalRevenue − operatingExpenses"],
-            ["F-P-10", "Net Operating Income", "GOP − baseMgmtFee − incentiveMgmtFee − ffEReserve"],
+            ["F-P-10", "Adjusted NOI (ANOI)", "GOP − baseMgmtFee − incentiveMgmtFee − ffEReserve"],
             ["F-P-11", "Depreciable Basis", "(purchasePrice + improvements) × (1 − landValuePercent)"],
             ["F-P-12", "Depreciation", "depreciableBasis / 27.5 / 12 (monthly straight-line)"],
             ["F-P-13", "Interest Expense", "beginningLoanBalance × monthlyInterestRate"],

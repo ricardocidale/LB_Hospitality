@@ -487,7 +487,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
             <MethodologySection
               id="noi-gop"
               title="GOP and NOI"
-              subtitle="Gross Operating Profit and Net Operating Income"
+              subtitle="Gross Operating Profit and Adjusted NOI"
               icon={BarChart3}
               expanded={expandedSections.has("noi-gop")}
               onToggle={() => toggleSection("noi-gop")}

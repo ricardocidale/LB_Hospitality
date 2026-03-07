@@ -102,7 +102,7 @@ export default function PropertyDetail() {
         year: String(getFiscalYear(y)),
         Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
         GOP: yearData.reduce((a, m) => a + m.gop, 0),
-        NOI: yearData.reduce((a, m) => a + m.noi, 0),
+        ANOI: yearData.reduce((a, m) => a + m.noi, 0),
         CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
       });
     }
@@ -370,8 +370,8 @@ export default function PropertyDetail() {
           color: '#257D41'
         },
         {
-          name: 'NOI',
-          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })),
+          name: 'ANOI',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })),
           color: '#3B82F6'
         },
         {
@@ -391,15 +391,15 @@ export default function PropertyDetail() {
           color: '#3B82F6'
         },
         {
-          name: 'NOI',
-          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })),
+          name: 'ANOI',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })),
           color: '#F4795B'
         }
       ];
       
       const chartTitle = activeTab === "cashflow" 
-        ? `${projectionYears}-Year Revenue, NOI, and Cash Flow Trend`
-        : `${projectionYears}-Year Revenue, GOP, and NOI Trend`;
+        ? `${projectionYears}-Year Revenue, ANOI, and Cash Flow Trend`
+        : `${projectionYears}-Year Revenue, GOP, and ANOI Trend`;
       doc.text(chartTitle, 14, 22);
       
       drawLineChart({
@@ -478,7 +478,7 @@ export default function PropertyDetail() {
       { category: "Marketing", values: yearlyDetails.map(y => y.expenseMarketing), indent: 1 },
       { category: "Property Ops", values: yearlyDetails.map(y => y.expensePropertyOps), indent: 1 },
       { category: "Admin & General", values: yearlyDetails.map(y => y.expenseAdmin), indent: 1 },
-      { category: "Net Operating Income", values: yearlyDetails.map(y => y.noi), isBold: true },
+      { category: "Adjusted NOI (ANOI)", values: yearlyDetails.map(y => y.noi), isBold: true },
     ];
 
     const cfRows = [

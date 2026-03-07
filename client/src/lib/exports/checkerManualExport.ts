@@ -82,7 +82,7 @@ const PROPERTY_FORMULAS = [
   ["F-P-02", "Sold Rooms", "Available Rooms × Occupancy Rate"],
   ["F-P-03", "Room Revenue", "ADR × Sold Rooms"],
   ["F-P-08", "GOP", "Total Revenue − Total Operating Expenses"],
-  ["F-P-10", "NOI", "GOP − Mgmt Fees − FF&E Reserve"],
+  ["F-P-10", "ANOI", "GOP − Mgmt Fees − FF&E Reserve"],
   ["F-P-11", "Depreciable Basis", "Price × (1 − Land%) + Improvements"],
   ["F-P-12", "Monthly Depreciation", "Depreciable Basis / 27.5 / 12"],
   ["F-P-14", "Net Income", "NOI − Interest − Depreciation − Tax"],
@@ -422,7 +422,7 @@ export async function exportFullData(user: ExportUser): Promise<FullDataExportRe
         ["GOP", ...yearly.map(yr => formatMoney(yr.gop))],
         ["Base Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeBase))],
         ["Incentive Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeIncentive))],
-        ["NOI", ...yearly.map(yr => formatMoney(yr.noi))],
+        ["ANOI", ...yearly.map(yr => formatMoney(yr.noi))],
         ["Depreciation", ...yearly.map(yr => formatMoney(yr.depreciationExpense))],
         ["Net Income", ...yearly.map(yr => formatMoney(yr.netIncome))],
       ]);

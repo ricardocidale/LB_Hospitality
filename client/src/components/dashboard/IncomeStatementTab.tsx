@@ -47,7 +47,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
         year: getFiscalYear(i),
         Revenue: c?.revenueTotal ?? 0,
         GOP: c?.gop ?? 0,
-        NOI: c?.noi ?? 0,
+        ANOI: c?.noi ?? 0,
       };
     });
   }, [yearlyConsolidatedCache, projectionYears, getFiscalYear]);
@@ -139,7 +139,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       rows.push({ category: "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), indent: 1, isFormula: true });
     }
 
-    rows.push({ category: "Net Operating Income", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, rowId: "noi" });
+    rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, rowId: "noi" });
     if (expandedRows.has("noi")) {
       rows.push({ category: "= GOP − Management Fees − FF&E Reserve", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {

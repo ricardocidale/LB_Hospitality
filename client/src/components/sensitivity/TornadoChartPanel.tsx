@@ -18,7 +18,7 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-display font-bold text-foreground" data-testid="text-tornado-title">
-              Impact on {tornadoMetric === "irr" ? "IRR" : "NOI"}
+              Impact on {tornadoMetric === "irr" ? "IRR" : "ANOI"}
             </h3>
             <div className="flex rounded-lg border border-border overflow-hidden text-xs">
               <button
@@ -40,7 +40,7 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
           <p className="text-xs text-muted-foreground">
             {tornadoMetric === "irr"
               ? "Which variables have the biggest effect on Levered IRR (pp change)"
-              : "Which variables have the biggest effect on Net Operating Income (% change)"}
+              : "Which variables have the biggest effect on Adjusted NOI (% change)"}
           </p>
         </div>
       </div>

@@ -108,10 +108,10 @@ describe("applyHeaderStyle", () => {
     expect(totalCell.s?.font?.bold).toBe(true);
   });
 
-  it("bolds GAAP Net Income, Net Operating Income, and similar rows", () => {
+  it("bolds GAAP Net Income, Adjusted NOI, and similar rows", () => {
     const labels = [
       "GAAP Net Income",
-      "Net Operating Income",
+      "Adjusted NOI (ANOI)",
       "Gross Operating Profit",
       "Net Cash Flow",
       "Closing Cash Balance",

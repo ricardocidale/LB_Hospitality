@@ -33,7 +33,7 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
             ["Portfolio IRR", "The internal rate of return across all properties combined"],
             ["Portfolio Equity Multiple", "Total distributions and exit proceeds divided by total equity invested"],
             ["Total Revenue", "Consolidated annual revenue across all properties"],
-            ["Portfolio NOI", "Net Operating Income for the entire portfolio"],
+            ["Portfolio ANOI", "Adjusted NOI for the entire portfolio"],
             ["Weighted Avg Occupancy", "Average occupancy weighted by room count across properties"],
             ["Total Equity Invested", "Sum of all equity contributions across the portfolio"],
           ]}

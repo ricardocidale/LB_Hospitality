@@ -1,11 +1,3 @@
-/**
- * navigation-menu.tsx — Multi-level navigation menu (shadcn/ui).
- *
- * Wraps Radix NavigationMenu for top-level site navigation with animated
- * dropdown panels. Exports: NavigationMenu, NavigationMenuList,
- * NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent,
- * NavigationMenuLink, NavigationMenuIndicator, NavigationMenuViewport.
- */
 import * as React from "react"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"

@@ -1,10 +1,3 @@
-/**
- * label.tsx — Accessible form label built on Radix Label (shadcn/ui).
- *
- * Associates text labels with form controls for screen readers.
- * Automatically styled with the platform's typography scale and
- * shows a disabled state when the associated control is disabled.
- */
 "use client"
 
 import * as React from "react"

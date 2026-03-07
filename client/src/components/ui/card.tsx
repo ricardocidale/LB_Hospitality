@@ -1,11 +1,3 @@
-/**
- * card.tsx — Container card with header, content, and footer slots (shadcn/ui).
- *
- * Wraps content in a rounded, bordered panel. Used as the base layout for
- * property cards, form sections, KPI panels, and dialog content throughout
- * the platform. Exports: Card, CardHeader, CardFooter, CardTitle,
- * CardDescription, CardContent.
- */
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -43,7 +35,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("font-display text-lg leading-none tracking-tight", className)}
+    className={cn("font-semibold leading-none tracking-tight", className)}
     {...props}
   />
 ))
@@ -55,7 +47,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("label-text text-muted-foreground", className)}
+    className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
 ))

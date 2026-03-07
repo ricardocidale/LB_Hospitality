@@ -1,9 +1,3 @@
-/**
- * textarea.tsx — Multi-line text input element (shadcn/ui).
- *
- * A styled <textarea> with consistent border, focus ring, and disabled
- * styling. Used for property notes, AI chat input, and description fields.
- */
 import * as React from "react"
 
 import { cn } from "@/lib/utils"

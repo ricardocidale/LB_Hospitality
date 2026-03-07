@@ -1,10 +1,3 @@
-/**
- * toggle.tsx — Single toggle button (shadcn/ui).
- *
- * Wraps Radix Toggle for a press-to-activate/deactivate button. Supports
- * default and outline variants with sm/default/lg sizes. Used individually
- * or inside a ToggleGroup for option selection.
- */
 import * as React from "react"
 import * as TogglePrimitive from "@radix-ui/react-toggle"
 import { cva, type VariantProps } from "class-variance-authority"

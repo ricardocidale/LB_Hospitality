@@ -1,9 +1,3 @@
-/**
- * switch.tsx — Toggle switch input (shadcn/ui).
- *
- * Wraps Radix Switch for boolean on/off controls. Used in admin settings
- * (e.g., enabling features), property toggles, and notification preferences.
- */
 import * as React from "react"
 import * as SwitchPrimitives from "@radix-ui/react-switch"
 

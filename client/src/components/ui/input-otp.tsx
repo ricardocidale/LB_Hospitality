@@ -1,10 +1,3 @@
-/**
- * input-otp.tsx — One-Time Password input with individual digit slots (shadcn/ui).
- *
- * Renders a segmented OTP entry field where each digit gets its own box.
- * Used for two-factor authentication or verification code entry.
- * Exports: InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator.
- */
 import * as React from "react"
 import { OTPInput, OTPInputContext } from "input-otp"
 import { Minus } from "lucide-react"

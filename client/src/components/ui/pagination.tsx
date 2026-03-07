@@ -1,12 +1,3 @@
-/**
- * pagination.tsx — Page navigation controls (shadcn/ui).
- *
- * Renders numbered page links, previous/next arrows, and ellipsis
- * indicators for paginated lists. Used in admin tables and any view
- * with large result sets. Exports: Pagination, PaginationContent,
- * PaginationItem, PaginationLink, PaginationPrevious, PaginationNext,
- * PaginationEllipsis.
- */
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 

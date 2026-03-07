@@ -1,10 +1,3 @@
-/**
- * progress.tsx — Horizontal progress bar (shadcn/ui).
- *
- * Wraps Radix Progress to display a percentage completion indicator.
- * Used for upload progress, research generation progress, and any
- * long-running operation feedback.
- */
 "use client"
 
 import * as React from "react"

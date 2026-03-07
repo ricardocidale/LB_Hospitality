@@ -62,8 +62,14 @@ client/src/features/ai-agent/
 └── types.ts
 ```
 
-### Remaining Known Issues
-- None of the 5 new UI blocks are wired into the app UI yet (no route or tab linking to them)
+### Wiring + Improvements (same session, later)
+- **`/voice` route** — new `VoiceLab` page (`client/src/pages/VoiceLab.tsx`) with 5-tab layout: Voice Orb, Full Chat, Floating Bar, Real-time Transcriber, Speaker. Lazy route in `App.tsx` as `ProtectedRoute`. Framer Motion `AnimatePresence` tab transitions.
+- **Sidebar nav** — "AI Voice Lab" link in Layout.tsx Tools group, gated on `marcelaEnabled || showAiAssistant`.
+- **`conversation-bar.tsx`** — removed `"use client"` Next.js directive; added `signedUrl`, `dynamicVariables`, `agentLabel` props; `startConversation` uses signed URL when provided, falls back to `agentId`; "Customer Support" hardcoded label → `agentLabel ?? "AI Agent"`.
+- **`VoiceChatBar.tsx`** — switched from bare `agentId` to signed URL pattern: fetches fresh URL on connect via `refetchSignedUrl()`, passes `dynamicVariables` (`user_name`, `user_role`, `current_page`) — now consistent with VoiceChatFull/Orb.
+- **`RealtimeTranscriber.tsx`** — fixed `position: fixed` on `BackgroundAura` → `absolute`; `BottomControls` `fixed bottom-8` → `absolute bottom-6`; root container gets `overflow:hidden`, `rounded-xl`, `border`, `min-h-[480px]` — renders correctly inside a card/tab instead of covering the full viewport.
+- **Barrel fix**: `features/ai-agent/index.ts` — `RealtimeTranscriber` → `RealtimeTranscriber01` (matches actual default export name).
+- TypeScript: 0 errors throughout. Commits: `d0020e8`, `f106448`.
 
 ---
 

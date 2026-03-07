@@ -133,7 +133,7 @@ export function ThemePreview() {
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Cards & Badges</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-4 rounded-xl bg-card border border-border shadow-sm">
+            <div className="p-4 rounded-xl bg-card border border-border shadow-sm hover-lift">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Revenue</p>
                 <DollarSign className="w-4 h-4 text-primary" />
@@ -142,7 +142,7 @@ export function ThemePreview() {
               <p className="text-xs text-muted-foreground mt-1">+12.5% from last year</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-card border border-border shadow-sm">
+            <div className="p-4 rounded-xl bg-card border border-border shadow-sm hover-lift">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Occupancy</p>
                 <TrendingUp className="w-4 h-4 text-primary" />
@@ -151,7 +151,7 @@ export function ThemePreview() {
               <p className="text-xs text-muted-foreground mt-1">Above market avg</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-card border border-border shadow-sm">
+            <div className="p-4 rounded-xl bg-card border border-border shadow-sm hover-lift">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Properties</p>
                 <Users className="w-4 h-4 text-primary" />

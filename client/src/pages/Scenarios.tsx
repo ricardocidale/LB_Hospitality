@@ -25,7 +25,7 @@
  */
 import Layout from "@/components/Layout";
 import { AnimatedPage, ScrollReveal, KPIGrid, AnimatedGrid, AnimatedGridItem } from "@/components/graphics";
-import { HoverScale } from "@/components/ui/animated";
+import { TiltCard } from "@/components/ui/animated";
 import { useScenarios, useCreateScenario, useLoadScenario, useUpdateScenario, useDeleteScenario } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -326,7 +326,7 @@ export default function Scenarios() {
               <AnimatedGrid className="grid gap-4">
                 {scenarios?.map((scenario) => (
                   <AnimatedGridItem key={scenario.id}>
-                  <HoverScale scale={1.01}>
+                  <TiltCard intensity={4}>
                   <div
                     className={`p-4 rounded-lg border transition-colors ${
                       compareMode && compareSelection.includes(scenario.id)
@@ -447,7 +447,7 @@ export default function Scenarios() {
                       </div>
                     </div>
                   </div>
-                  </HoverScale>
+                  </TiltCard>
                   </AnimatedGridItem>
                 ))}
               </AnimatedGrid>

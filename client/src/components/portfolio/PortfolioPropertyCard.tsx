@@ -15,7 +15,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Trash2, MapPin, Bed, ArrowRight, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { StaggerItem, HoverScale } from "@/components/ui/animated";
+import { StaggerItem, TiltCard } from "@/components/ui/animated";
 import { AnimatedGridItem } from "@/components/graphics";
 import type { Property } from "@shared/schema";
 
@@ -29,8 +29,8 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
   return (
     <AnimatedGridItem>
     <StaggerItem>
-    <HoverScale>
-    <div className="group relative overflow-hidden rounded-lg flex flex-col bg-card border border-border shadow-sm">
+    <TiltCard intensity={5}>
+    <div className="group relative overflow-hidden rounded-lg flex flex-col bg-card border border-border shadow-sm transition-shadow duration-300 hover:shadow-lg">
       <div className="relative">
         <div className="relative aspect-[16/10] overflow-hidden rounded-t-lg">
           <img 
@@ -136,7 +136,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
         </div>
       </div>
     </div>
-    </HoverScale>
+    </TiltCard>
     </StaggerItem>
     </AnimatedGridItem>
   );

@@ -1,5 +1,5 @@
-import { motion, type Variants } from "framer-motion";
-import { type ReactNode } from "react";
+import { motion, type Variants, useMotionValue, useTransform } from "framer-motion";
+import { type ReactNode, useRef } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/animated";
 
@@ -59,36 +59,65 @@ export function KPIGrid({ items, columns = 4, className, ...props }: KPIGridProp
       data-testid={props["data-testid"]}
     >
       {items.map((item) => (
-        <motion.div
-          key={item.label}
-          variants={itemVariants}
-          className="bg-card/80 border border-primary/10 rounded-lg p-4 sm:p-5 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] hover:shadow-[0_4px_16px_rgba(var(--primary-rgb,159,188,164),0.12)] transition-shadow duration-300"
-        >
-          <div className="flex items-start justify-between mb-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">
-              {item.label}
-            </p>
-            {item.trend && (
-              <span className="flex items-center gap-0.5 flex-shrink-0">
-                {trendIcon(item.trend)}
-                {item.trendLabel && (
-                  <span className={`text-xs font-medium ${item.trend === "up" ? "text-emerald-500" : item.trend === "down" ? "text-red-500" : "text-muted-foreground/40"}`}>
-                    {item.trendLabel}
-                  </span>
-                )}
+        <KPICard key={item.label} item={item} />
+      ))}
+    </motion.div>
+  );
+}
+
+function KPICard({ item }: { item: KPIItem }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-0.5, 0.5], [6, -6]);
+  const rotateY = useTransform(x, [-0.5, 0.5], [-6, 6]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={itemVariants}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      whileHover={{ scale: 1.02, y: -2, boxShadow: "0 8px 24px hsl(var(--primary) / 0.12)", transition: { duration: 0.2 } }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="bg-card/80 border border-primary/10 rounded-lg p-4 sm:p-5 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)] cursor-default"
+    >
+      <div className="flex items-start justify-between mb-1">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">
+          {item.label}
+        </p>
+        {item.trend && (
+          <span className="flex items-center gap-0.5 flex-shrink-0">
+            {trendIcon(item.trend)}
+            {item.trendLabel && (
+              <span className={`text-xs font-medium ${item.trend === "up" ? "text-emerald-500" : item.trend === "down" ? "text-red-500" : "text-muted-foreground/40"}`}>
+                {item.trendLabel}
               </span>
             )}
-          </div>
-          <div className="flex items-baseline gap-2 min-w-0">
-            <span className="text-xl sm:text-2xl font-bold text-foreground truncate">
-              <AnimatedCounter value={item.value} format={item.format || defaultFormat} />
-            </span>
-          </div>
-          {item.sublabel && (
-            <p className="text-xs mt-1 text-muted-foreground/40 truncate">{item.sublabel}</p>
-          )}
-        </motion.div>
-      ))}
+          </span>
+        )}
+      </div>
+      <div className="flex items-baseline gap-2 min-w-0">
+        <span className="text-xl sm:text-2xl font-bold text-foreground truncate">
+          <AnimatedCounter value={item.value} format={item.format || defaultFormat} />
+        </span>
+      </div>
+      {item.sublabel && (
+        <p className="text-xs mt-1 text-muted-foreground/40 truncate">{item.sublabel}</p>
+      )}
     </motion.div>
   );
 }

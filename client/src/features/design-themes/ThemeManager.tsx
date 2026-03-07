@@ -135,7 +135,7 @@ export function ThemeManager() {
           ) : designThemes && designThemes.length > 0 ? (
             <div className="space-y-4">
               {designThemes.map((theme) => (
-                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isDefault ? 'border-primary/30 bg-primary/5' : 'border-border bg-card'}`}>
+                <div key={theme.id} className={`p-5 rounded-2xl border-2 hover-lift ${theme.isDefault ? 'border-primary/30 bg-primary/5' : 'border-border bg-card'}`}>
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-3">

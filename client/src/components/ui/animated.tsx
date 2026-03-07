@@ -209,6 +209,102 @@ export function PulseOnMount({ children, className }: { children: ReactNode; cla
   );
 }
 
+export function TiltCard({ children, className, intensity = 8 }: { children: ReactNode; className?: string; intensity?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-0.5, 0.5], [intensity, -intensity]);
+  const rotateY = useTransform(x, [-0.5, 0.5], [-intensity, intensity]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    x.set(px);
+    y.set(py);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function HoverLift({ children, className, y = -4 }: { children: ReactNode; className?: string; y?: number }) {
+  return (
+    <motion.div
+      whileHover={{ y, scale: 1.01, transition: { type: "spring", stiffness: 400, damping: 25 } }}
+      whileTap={{ scale: 0.99 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function HoverGlow({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <motion.div
+      whileHover={{
+        boxShadow: "0 0 20px hsl(var(--primary) / 0.15), 0 8px 32px hsl(var(--primary) / 0.08)",
+        scale: 1.005,
+        transition: { duration: 0.25 },
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function MagneticHover({ children, className, strength = 0.3 }: { children: ReactNode; className?: string; strength?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    mx.set((e.clientX - centerX) * strength);
+    my.set((e.clientY - centerY) * strength);
+  };
+
+  const handleMouseLeave = () => {
+    mx.set(0);
+    my.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: mx, y: my }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export function AnimatedProgressBar({ value, max = 100, className, color = "bg-primary" }: { value: number; max?: number; className?: string; color?: string }) {
   const percentage = Math.min((value / max) * 100, 100);
   return (

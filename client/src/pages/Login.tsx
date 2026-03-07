@@ -73,7 +73,7 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="bg-card rounded-lg border border-border shadow-sm p-6 sm:p-8">
+        <div className="bg-card rounded-lg border border-border shadow-sm p-6 sm:p-8 hover-glow">
           <div className="mb-6 text-center">
             <h2 className="text-xl font-semibold text-foreground mb-1">Welcome back</h2>
             <p className="text-sm text-muted-foreground">Sign in to access the simulation portal</p>

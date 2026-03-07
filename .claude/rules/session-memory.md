@@ -5,6 +5,32 @@
 
 ---
 
+## Session: March 7, 2026 — ElevenLabs Voice UI Code Quality Fixes (6 issues)
+
+### What Was Done
+6 code quality / correctness issues fixed across the voice UI blocks:
+
+| # | Fix | File |
+|---|-----|------|
+| 1 | `VoiceChatOrb onError`: runtime ElevenLabs session errors now surfaced via `errorMessage` state (was silent `console.error` only) | `VoiceChatOrb.tsx` |
+| 2 | `VoiceChatFull onError`: same — errors now shown in header status area | `VoiceChatFull.tsx` |
+| 3 | `startConversation` stale closure: added `user` to `useCallback` deps in both Orb and Full | `VoiceChatOrb.tsx`, `VoiceChatFull.tsx` |
+| 4 | `VoiceChatFull` double `setMessages([])`: removed redundant clear from `onConnect`/`onDisconnect` — `startConversation` already clears before session; transcript now persists after voice session ends | `VoiceChatFull.tsx` |
+| 5 | `VoiceLab handleTabChange`: removed `activeTab` from deps (callback rebuilt on every switch); dropped redundant `id !== activeTab` guard (switching to same tab is already a no-op) | `VoiceLab.tsx` |
+| 6 | `VoiceChatBar dynamicVariables`: wrapped in `useMemo([user])` to avoid new object reference on every render | `VoiceChatBar.tsx` |
+
+### Key Technical Notes
+- ElevenLabs `onError` callback is typed as `(error: string)` not `(error: unknown)` — `instanceof Error` check causes TS2358; use `typeof error === "string"` check instead
+- `onError` errorMessage is NOT cleared by `onConnect` in Full (errorMessage state cleared separately in `getMicStream` on success)
+- doc/replit harmonization also done in this session: added VoiceLab page, ElevenLabs voice blocks section, fixed admin "5 groups"→"10 tabs", added missing quick commands
+
+### Commits
+- `5453098` — 7 correctness fixes (guard, dead code, race, tab confirm, stale comment, console.logs, description flicker)
+- `c4b383d` — doc harmonization (claude.md + replit.md)
+- `28f7346` — 6 code quality fixes
+
+---
+
 ## Session: March 7, 2026 — ElevenLabs Voice UI Correctness Fixes (7 issues)
 
 ### What Was Done

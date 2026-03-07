@@ -12,7 +12,7 @@
  */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Search, MapPin, FileBarChart, BookOpen, FlaskConical } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Search, MapPin, FileBarChart, BookOpen, FlaskConical, Bot } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         ...(sb("sidebarResearch") && hasManagementAccess ? [{ href: "/research", label: "Research Center", icon: FlaskConical }] : []),
         ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Analysis", icon: BarChart3 }] : []),
         ...(sb("sidebarMapView") && hasManagementAccess ? [{ href: "/map", label: "Map View", icon: MapPin }] : []),
+        ...((global as any)?.marcelaEnabled || (global as any)?.showAiAssistant ? [{ href: "/voice", label: "AI Voice Lab", icon: Bot }] : []),
         ...(sb("sidebarExecutiveSummary") && hasManagementAccess ? [{ href: "/executive-summary", label: "Executive Summary", icon: FileBarChart }] : []),
       ].filter(Boolean),
     },

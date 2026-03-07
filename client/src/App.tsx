@@ -54,6 +54,7 @@ const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 const Help = lazy(() => import("@/pages/Help"));
 const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
 const MapView = lazy(() => import("@/pages/MapView"));
+const VoiceLab = lazy(() => import("@/pages/VoiceLab"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -251,6 +252,9 @@ function Router() {
         <FinancialErrorBoundary>
           <ManagementRoute component={MapView} />
         </FinancialErrorBoundary>
+      </Route>
+      <Route path="/voice">
+        <ProtectedRoute component={VoiceLab} />
       </Route>
       <Route path="/checker-manual">
         <Redirect to="/help" />

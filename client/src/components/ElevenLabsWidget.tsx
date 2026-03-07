@@ -14,6 +14,9 @@ const Orb = lazy(() => import("@/components/ui/orb").then((m) => ({ default: m.O
 const BarVisualizer = lazy(() =>
   import("@/components/ui/bar-visualizer").then((m) => ({ default: m.BarVisualizer }))
 );
+const Matrix = lazy(() =>
+  import("@/components/ui/matrix").then((m) => ({ default: m.Matrix }))
+);
 
 export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolean }) {
   const { data: global } = useGlobalAssumptions();
@@ -77,6 +80,32 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
               demo={true}
               centerAlign={true}
               className="h-10 bg-white/80 backdrop-blur-sm border border-primary/20 rounded-full px-3 shadow-lg"
+            />
+          </div>
+          {signedUrl ? (
+            <elevenlabs-convai signed-url={signedUrl} language={language} variant="tiny" dynamic-variables={dynamicVars} />
+          ) : (
+            <elevenlabs-convai agent-id={agentId} language={language} variant="tiny" dynamic-variables={dynamicVars} />
+          )}
+        </div>
+      </Suspense>
+    );
+  }
+
+  if (variant === "matrix") {
+    return (
+      <Suspense fallback={null}>
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className="cursor-pointer drop-shadow-lg">
+            <Matrix
+              rows={5}
+              cols={10}
+              mode="vu"
+              levels={[0.3, 0.6, 0.9, 0.7, 0.4, 0.8, 0.5, 0.3, 0.7, 0.5]}
+              size={8}
+              gap={1}
+              palette={{ on: "#4a7c5c", off: "#e8f0ea" }}
+              className="rounded-xl overflow-hidden shadow-lg border border-primary/20"
             />
           </div>
           {signedUrl ? (

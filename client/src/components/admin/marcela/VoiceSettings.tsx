@@ -12,6 +12,7 @@ import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, 
 import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
 import { Orb } from "@/components/ui/orb";
 import { BarVisualizer } from "@/components/ui/bar-visualizer";
+import { Matrix } from "@/components/ui/matrix";
 import { useSaveWidgetSettings, useSaveAgentVoice } from "./hooks";
 
 interface VoiceSettingsProps {
@@ -316,6 +317,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 { value: "full", label: "Full", desc: "Expanded panel", preview: null },
                 { value: "orb", label: "Orb", desc: "Animated 3D sphere", preview: "orb" },
                 { value: "bars", label: "Bars", desc: "Live frequency bars", preview: "bars" },
+                { value: "matrix", label: "Matrix", desc: "LED pixel grid", preview: "matrix" },
               ].map((v) => (
                 <button
                   key={v.value}
@@ -338,6 +340,20 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                         maxHeight={100}
                         centerAlign={true}
                         className="h-10 bg-transparent rounded-lg p-0 gap-0.5"
+                      />
+                    </div>
+                  )}
+                  {v.preview === "matrix" && (
+                    <div className="mb-2">
+                      <Matrix
+                        rows={5}
+                        cols={8}
+                        mode="vu"
+                        levels={[0.3, 0.5, 0.7, 0.5, 0.3, 0.6, 0.4, 0.8]}
+                        size={6}
+                        gap={1}
+                        palette={{ on: "#4a7c5c", off: "#e8f0ea" }}
+                        className="rounded-lg overflow-hidden"
                       />
                     </div>
                   )}

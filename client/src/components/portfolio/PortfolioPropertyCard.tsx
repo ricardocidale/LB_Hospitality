@@ -12,8 +12,9 @@
  * Property order can be controlled by the parent (e.g. sort by name or IRR).
  */
 import { formatMoney } from "@/lib/financialEngine";
-import { Trash2, MapPin, Bed, ArrowRight, Calendar } from "lucide-react";
+import { Trash2, MapPin, Bed, ArrowRight, Calendar, Settings } from "lucide-react";
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { StaggerItem, TiltCard } from "@/components/ui/animated";
 import { AnimatedGridItem } from "@/components/graphics";
@@ -99,13 +100,17 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           </div>
         </div>
 
-        <div className="px-5 pb-5 pt-2 border-t border-white/10 flex justify-between items-center">
+        <div className="px-5 pb-5 pt-3 border-t border-border flex items-center justify-between gap-2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button className="relative overflow-hidden p-2 rounded-lg text-background/50 hover:text-red-400 transition-all duration-300 group/del">
-                <div className="absolute inset-0 bg-card/0 group-hover/del:bg-card/5 rounded-lg transition-all duration-300" />
-                <Trash2 className="w-4 h-4 relative" />
-              </button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                data-testid={`button-delete-property-${property.id}`}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -126,13 +131,29 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
             </AlertDialogContent>
           </AlertDialog>
 
-          <Link href={`/property/${property.id}`}>
-            <button 
-              className="relative overflow-hidden px-4 py-2 text-sm font-medium text-white rounded-lg transition-all duration-300 group/btn bg-card/10 border border-white/20 hover:border-white/40"
-            >
-              <span className="relative flex items-center">View Details <ArrowRight className="w-4 h-4 ml-2" /></span>
-            </button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href={`/property/${property.id}/edit`}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs gap-1.5 hover:scale-[1.03] active:scale-[0.97] transition-transform"
+                data-testid={`button-assumptions-${property.id}`}
+              >
+                <Settings className="w-3.5 h-3.5" />
+                Assumptions
+              </Button>
+            </Link>
+            <Link href={`/property/${property.id}`}>
+              <Button
+                size="sm"
+                className="h-8 text-xs gap-1.5 hover:scale-[1.03] active:scale-[0.97] transition-transform"
+                data-testid={`button-details-${property.id}`}
+              >
+                Details
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

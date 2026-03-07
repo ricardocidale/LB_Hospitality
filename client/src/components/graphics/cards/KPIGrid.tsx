@@ -52,7 +52,7 @@ const colClass: Record<number, string> = {
 export function KPIGrid({ items, columns = 4, className, ...props }: KPIGridProps) {
   return (
     <motion.div
-      className={`grid gap-4 sm:gap-5 ${colClass[columns]} ${className || ""}`}
+      className={`grid gap-5 sm:gap-6 ${colClass[columns]} ${className || ""}`}
       variants={containerVariants}
       initial="hidden"
       animate="visible"

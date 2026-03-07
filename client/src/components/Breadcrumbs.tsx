@@ -29,7 +29,7 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
   const path = location.replace(/\/+$/, "") || "/";
 
   if (path === "/") {
-    return [{ label: "Home" }];
+    return [{ label: "Dashboard" }];
   }
 
   const propertyMatch = path.match(/^\/property\/([^/]+)(\/(.+))?$/);
@@ -40,7 +40,7 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
     const propName = prop?.name ?? propId;
 
     const items: BreadcrumbEntry[] = [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Properties", href: "/portfolio" },
     ];
 
@@ -57,104 +57,104 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
 
   const staticRoutes: Record<string, BreadcrumbEntry[]> = {
     "/portfolio": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Properties" },
     ],
     "/company": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Management Co." },
     ],
     "/company/assumptions": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Management Co.", href: "/company" },
       { label: "Assumptions" },
     ],
     "/company/research": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Management Co.", href: "/company" },
       { label: "Research" },
     ],
     "/settings": [
-      { label: "Home", href: "/" },
-      { label: "Settings" },
+      { label: "Dashboard", href: "/" },
+      { label: "Systemwide Assumptions" },
     ],
     "/profile": [
-      { label: "Home", href: "/" },
-      { label: "Profile" },
+      { label: "Dashboard", href: "/" },
+      { label: "My Profile" },
     ],
     "/scenarios": [
-      { label: "Home", href: "/" },
-      { label: "Scenarios" },
+      { label: "Dashboard", href: "/" },
+      { label: "My Scenarios" },
     ],
     "/sensitivity": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Sensitivity Analysis" },
     ],
     "/financing": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Financing Analysis" },
     ],
     "/property-finder": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Property Finder" },
     ],
     "/methodology": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Help" },
     ],
     "/checker-manual": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Checker Manual" },
     ],
     "/admin": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Admin Settings" },
     ],
     "/global/research": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Global Research" },
     ],
     "/compare": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Compare Properties" },
     ],
     "/timeline": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Timeline" },
     ],
     "/map": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Map View" },
     ],
     "/executive-summary": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Executive Summary" },
     ],
     "/help": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Help" },
     ],
     "/research": [
-      { label: "Home", href: "/" },
-      { label: "Research Hub" },
+      { label: "Dashboard", href: "/" },
+      { label: "Research Center" },
     ],
     "/analysis": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Analysis" },
     ],
     "/voice": [
-      { label: "Home", href: "/" },
-      { label: "Voice Lab" },
+      { label: "Dashboard", href: "/" },
+      { label: "AI Voice Lab" },
     ],
     "/admin/logos": [
-      { label: "Home", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Admin Settings", href: "/admin" },
       { label: "Logos" },
     ],
   };
 
   return staticRoutes[path] ?? [
-    { label: "Home", href: "/" },
+    { label: "Dashboard", href: "/" },
     { label: path.slice(1) },
   ];
 }

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History, CheckCircle2, XCircle, Activity, Play } from "lucide-react";
-import { Orb, AgentState } from "@/components/ui/orb";
+import { Orb, AgentState } from "@/features/ai-agent/components/orb";
 import { VoiceSettings } from "./types";
 import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings, useAgentConfig, useConversations, useAdminSignedUrl } from "./hooks";
 import { KnowledgeBaseCard } from "./KnowledgeBase";

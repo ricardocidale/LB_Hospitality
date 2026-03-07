@@ -10,9 +10,9 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save, LayoutTemplate, Phone, Mic } from "lucide-react";
 import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
-import { Orb } from "@/components/ui/orb";
-import { BarVisualizer } from "@/components/ui/bar-visualizer";
-import { Matrix } from "@/components/ui/matrix";
+import { Orb } from "@/features/ai-agent/components/orb";
+import { BarVisualizer } from "@/features/ai-agent/components/bar-visualizer";
+import { Matrix } from "@/features/ai-agent/components/matrix";
 import { useSaveWidgetSettings, useSaveAgentVoice } from "./hooks";
 
 interface VoiceSettingsProps {

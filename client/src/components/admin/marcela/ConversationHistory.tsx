@@ -7,8 +7,8 @@ import {
   Loader2, Inbox, Mic, Keyboard, Copy, Check, AlertCircle,
   BarChart2, CheckCircle2, XCircle, Play,
 } from "lucide-react";
-import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ui/conversation";
-import { Message, MessageContent } from "@/components/ui/message";
+import { Conversation, ConversationContent, ConversationScrollButton } from "@/features/ai-agent/components/conversation";
+import { Message, MessageContent } from "@/features/ai-agent/components/message";
 import { useConversations, useConversation } from "./hooks";
 import {
   AudioPlayerProvider,
@@ -16,7 +16,7 @@ import {
   AudioPlayerProgress,
   AudioPlayerTime,
   AudioPlayerDuration,
-} from "@/components/ui/audio-player";
+} from "@/features/ai-agent/components/audio-player";
 
 function formatDuration(secs?: number) {
   if (!secs) return "—";

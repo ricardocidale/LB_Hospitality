@@ -9,6 +9,7 @@ import { Orb } from "@/features/ai-agent/components/orb";
 import { ShimmeringText } from "@/features/ai-agent/components/shimmering-text";
 import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";
 import { useMarcelaSettings } from "@/features/ai-agent/hooks/use-agent-settings";
+import { useAuth } from "@/lib/auth";
 
 type AgentState = "disconnected" | "connecting" | "connected" | "disconnecting" | null;
 
@@ -22,6 +23,7 @@ export default function VoiceChatOrb({ className }: VoiceChatOrbProps) {
 
   const { data: signedUrl, refetch: refetchSignedUrl } = useAdminSignedUrl();
   const { data: settings } = useMarcelaSettings();
+  const { user } = useAuth();
 
   const agentName = settings?.aiAgentName ?? "Marcela";
 
@@ -48,6 +50,11 @@ export default function VoiceChatOrb({ className }: VoiceChatOrbProps) {
 
       await conversation.startSession({
         signedUrl: freshUrl,
+        dynamicVariables: {
+          user_name: user?.name ?? "Guest",
+          user_role: user?.role ?? "user",
+          current_page: window.location.pathname,
+        },
         onStatusChange: (status) => setAgentState(status.status as AgentState),
       });
     } catch (error) {

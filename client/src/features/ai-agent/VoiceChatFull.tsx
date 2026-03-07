@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";
 import { useMarcelaSettings } from "@/features/ai-agent/hooks/use-agent-settings";
+import { useAuth } from "@/lib/auth";
 
 type AgentState = "disconnected" | "connecting" | "connected" | "disconnecting" | null;
 
@@ -106,6 +107,7 @@ export default function VoiceChatFull({ className }: VoiceChatFullProps) {
 
   const { data: settings } = useMarcelaSettings();
   const { refetch: refetchSignedUrl } = useAdminSignedUrl();
+  const { user } = useAuth();
 
   const agentName = settings?.aiAgentName ?? "Marcela";
 
@@ -159,6 +161,11 @@ export default function VoiceChatFull({ className }: VoiceChatFullProps) {
 
         await conversation.startSession({
           signedUrl,
+          dynamicVariables: {
+            user_name: user?.name ?? "Guest",
+            user_role: user?.role ?? "user",
+            current_page: window.location.pathname,
+          },
           overrides: {
             conversation: { textOnly },
             agent: { firstMessage: textOnly ? "" : undefined },

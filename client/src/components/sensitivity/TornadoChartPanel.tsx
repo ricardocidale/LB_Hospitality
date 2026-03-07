@@ -1,5 +1,6 @@
 import { BarChart3 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, ReferenceLine } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import type { TornadoItem } from "./types";
 
 interface TornadoChartPanelProps {
@@ -7,6 +8,17 @@ interface TornadoChartPanelProps {
   tornadoMetric: "noi" | "irr";
   onMetricChange: (metric: "noi" | "irr") => void;
 }
+
+const tornadoConfig = {
+  positive: {
+    label: "Upside",
+    color: "hsl(var(--chart-3))",
+  },
+  negative: {
+    label: "Downside",
+    color: "hsl(var(--destructive))",
+  },
+} satisfies ChartConfig;
 
 export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }: TornadoChartPanelProps) {
   return (
@@ -46,52 +58,51 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
       </div>
 
       {tornadoData.length > 0 ? (
-        <div className="h-[350px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={tornadoData}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
-              <XAxis
-                type="number"
-                tickFormatter={(val) => `${val > 0 ? "+" : ""}${val.toFixed(1)}%`}
-                tick={{ fontSize: 11, fill: "#6b7280" }}
-                domain={["auto", "auto"]}
-              />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tick={{ fontSize: 12, fill: "#374151", fontWeight: 500 }}
-                width={130}
-              />
-              <Tooltip
-                formatter={(value: number, name: string) => [
-                  `${value > 0 ? "+" : ""}${value.toFixed(2)}${tornadoMetric === "irr" ? "pp" : "%"}`,
+        <ChartContainer config={tornadoConfig} className="h-[350px] w-full">
+          <BarChart
+            accessibilityLayer
+            data={tornadoData}
+            layout="vertical"
+            margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
+          >
+            <CartesianGrid horizontal={false} />
+            <XAxis
+              type="number"
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(val) => `${val > 0 ? "+" : ""}${val.toFixed(1)}%`}
+              domain={["auto", "auto"]}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tickLine={false}
+              axisLine={false}
+              width={130}
+              tick={{ fontSize: 12, fontWeight: 500 }}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent
+                formatter={(value, name) => [
+                  `${Number(value) > 0 ? "+" : ""}${Number(value).toFixed(2)}${tornadoMetric === "irr" ? "pp" : "%"}`,
                   name === "positive" ? "Upside" : "Downside",
                 ]}
-                contentStyle={{
-                  backgroundColor: "rgba(255,255,255,0.95)",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "12px",
-                  fontSize: "12px",
-                }}
-              />
-              <ReferenceLine x={0} stroke="#374151" strokeWidth={1.5} />
-              <Bar dataKey="positive" stackId="tornado" radius={[0, 4, 4, 0]} maxBarSize={28}>
-                {tornadoData.map((_, i) => (
-                  <Cell key={`pos-${i}`} fill="#257D41" fillOpacity={0.8} />
-                ))}
-              </Bar>
-              <Bar dataKey="negative" stackId="tornado" radius={[4, 0, 0, 4]} maxBarSize={28}>
-                {tornadoData.map((_, i) => (
-                  <Cell key={`neg-${i}`} fill="#F4795B" fillOpacity={0.8} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+              />}
+            />
+            <ReferenceLine x={0} stroke="hsl(var(--foreground))" strokeWidth={1.5} strokeOpacity={0.3} />
+            <Bar dataKey="positive" stackId="tornado" radius={[0, 8, 8, 0]} maxBarSize={28}>
+              {tornadoData.map((_, i) => (
+                <Cell key={`pos-${i}`} fill="var(--color-positive)" fillOpacity={0.85} />
+              ))}
+            </Bar>
+            <Bar dataKey="negative" stackId="tornado" radius={[8, 0, 0, 8]} maxBarSize={28}>
+              {tornadoData.map((_, i) => (
+                <Cell key={`neg-${i}`} fill="var(--color-negative)" fillOpacity={0.85} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ChartContainer>
       ) : (
         <div className="h-[350px] flex items-center justify-center text-muted-foreground text-sm">
           No data available
@@ -99,11 +110,11 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
       )}
       <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-emerald-700" />
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: "hsl(var(--chart-3))" }} />
           <span>Upside scenario</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-destructive" />
+          <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: "hsl(var(--destructive))" }} />
           <span>Downside scenario</span>
         </div>
       </div>

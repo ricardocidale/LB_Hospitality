@@ -163,9 +163,9 @@ export default function LogosTab() {
                 if (!a.isDefault && b.isDefault) return 1;
                 return a.name.localeCompare(b.name);
               }).map(logo => (
-                <Card key={logo.id} className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)] group hover:shadow-lg transition-shadow" data-testid={`logo-card-${logo.id}`}>
+                <Card key={logo.id} className="bg-transparent border-none shadow-none group" data-testid={`logo-card-${logo.id}`}>
                   <CardContent className="p-0">
-                    <div className="aspect-square overflow-hidden rounded-t-xl">
+                    <div className="aspect-square overflow-hidden rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
                       <img src={logo.url} alt={logo.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} data-testid={`logo-image-${logo.id}`} />
                     </div>
                     <div className="space-y-2 px-4 py-3">

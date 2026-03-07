@@ -86,10 +86,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     return () => { resetThemeColors(); };
   }, [myBranding?.themeName]);
 
-  // sb ("sidebar boolean") — checks whether a sidebar item is visible.
-  // Admins always see everything; other users only see items whose
-  // globalAssumptions flag hasn't been explicitly set to false.
-  const sb = (key: string) => isAdmin || (global as any)?.[key] !== false;
+  const sb = (key: string) => (global as any)?.[key] !== false;
   const toggleGroup = (label: string) => {
     setExpandedGroups(prev => ({ ...prev, [label]: !prev[label] }));
   };

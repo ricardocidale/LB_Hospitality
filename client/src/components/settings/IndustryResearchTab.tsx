@@ -297,7 +297,7 @@ export function IndustryResearchTab({
 
           <div className="pt-4 border-t border-border">
             <Button
-              className="w-full h-12 text-base font-semibold shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all"
+              className="w-full h-12 text-base font-semibold shadow-lg shadow-primary/20"
               onClick={generateResearch}
               disabled={isGenerating}
               data-testid="button-trigger-global-research"

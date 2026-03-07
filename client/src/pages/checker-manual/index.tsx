@@ -59,9 +59,11 @@ export default function CheckerManual({ embedded }: CheckerManualProps) {
                     data-testid="btn-export-pdf" 
                     onClick={handleExportPDF} 
                     disabled={exportingManual}
-                    variant="default"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 h-9 text-xs font-medium"
                   >
-                    {exportingManual ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <FileDown className="w-4 h-4 mr-2" />}
+                    {exportingManual ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
                     Export Manual PDF
                   </Button>
                   <Button 
@@ -69,8 +71,10 @@ export default function CheckerManual({ embedded }: CheckerManualProps) {
                     onClick={handleFullExport} 
                     disabled={exportingData}
                     variant="outline"
+                    size="sm"
+                    className="gap-2 h-9 text-xs font-medium"
                   >
-                    {exportingData ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}
+                    {exportingData ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
                     Full Data Export
                   </Button>
                 </div>

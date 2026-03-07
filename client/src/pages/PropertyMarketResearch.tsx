@@ -5,7 +5,7 @@ import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api"
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
-import { Loader2, RefreshCw, MapPin, ExternalLink, BookOpen, ArrowLeft, Mail, FileDown } from "lucide-react";
+import { Loader2, RefreshCw, MapPin, ExternalLink, BookOpen, Mail, FileDown } from "lucide-react";
 import { useRoute, useLocation } from "wouter";
 import { format } from "date-fns";
 import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
@@ -63,33 +63,26 @@ export default function PropertyMarketResearch() {
           variant="dark"
           backLink={`/property/${property.id}/edit`}
           actions={
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => setLocation(`/property/${property.id}/edit`)}
-                data-testid="button-back"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </Button>
+            <div className="flex items-center gap-2">
               <a
                 href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="link-google-maps"
               >
-                <Button variant="default">
+                <Button variant="outline" size="sm" className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform">
                   <MapPin className="w-4 h-4" />
                   Google Maps
                   <ExternalLink className="w-3 h-3" />
                 </Button>
               </a>
               <Button
-                variant="default"
+                variant="outline"
+                size="sm"
+                className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform"
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-update-research"
-                style={isGenerating ? { background: 'linear-gradient(135deg, #F4795B 0%, #e0694e 50%, #d45a40 100%)', opacity: 1 } : undefined}
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}
@@ -196,13 +189,14 @@ export default function PropertyMarketResearch() {
                 <p className="text-xs text-amber-700">Research values appear as clickable badges on the edit page</p>
               </div>
             </div>
-            <button
+            <Button
               onClick={generateResearch}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+              variant="default"
+              className="gap-2 shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-transform"
             >
               <RefreshCw className="w-4 h-4" />
               Generate Research
-            </button>
+            </Button>
           </div>
         )}
 

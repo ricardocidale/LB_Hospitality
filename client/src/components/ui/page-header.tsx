@@ -2,6 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export interface PageHeaderProps {
   title: string;
@@ -19,9 +20,9 @@ function PageHeader({ title, subtitle, backLink, actions, className }: PageHeade
         <div className="flex items-center gap-3">
           {backLink && (
             <Link href={backLink}>
-              <button className="p-2 rounded-lg border border-border bg-muted hover:bg-muted transition-colors">
-                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-              </button>
+              <Button variant="outline" size="icon" className="h-9 w-9 hover:scale-[1.03] active:scale-[0.97] transition-transform">
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
             </Link>
           )}
           <div>

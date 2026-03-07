@@ -6,8 +6,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useMarketResearch } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
-import { Loader2, RefreshCw, BookOpen, ArrowLeft, AlertTriangle, Mail, FileDown, DollarSign, Package, Building2, Target, Users, FileText } from "lucide-react";
-import { useLocation } from "wouter";
+import { Loader2, RefreshCw, BookOpen, AlertTriangle, Mail, FileDown, DollarSign, Package, Building2, Target, Users, FileText } from "lucide-react";
+
 import { format } from "date-fns";
 import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
 import { useToast } from "@/hooks/use-toast";
@@ -33,7 +33,7 @@ const TABS = [
 
 export default function CompanyResearch() {
   const { data: research, isLoading, isError } = useMarketResearch("company");
-  const [, setLocation] = useLocation();
+
   const [isEmailing, setIsEmailing] = useState(false);
   const { toast } = useToast();
   const { isGenerating, streamedContent, generateResearch } = useCompanyResearchStream();
@@ -72,20 +72,14 @@ export default function CompanyResearch() {
           variant="light"
           backLink="/company/assumptions"
           actions={
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                onClick={() => setLocation("/company/assumptions")}
-                data-testid="button-back"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </Button>
-              <Button
+                size="sm"
+                className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform"
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-update-research"
-                variant={isGenerating ? "destructive" : "default"}
               >
                 {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update AI Research"}
@@ -239,13 +233,14 @@ function EmptyTabState({ title, description, onGenerate }: { title: string; desc
       </div>
       <h3 className="text-lg font-display text-foreground mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">{description}</p>
-      <button
+      <Button
         onClick={onGenerate}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all text-sm"
+        variant="default"
+        className="gap-2 shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-transform"
       >
         <RefreshCw className="w-4 h-4" />
         Generate Research
-      </button>
+      </Button>
     </div>
   );
 }

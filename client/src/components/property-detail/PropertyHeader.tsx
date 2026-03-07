@@ -12,6 +12,7 @@
  */
 import { Link } from "wouter";
 import { ArrowLeft, MapPin, Settings2, Map } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import type { PropertyHeaderProps } from "./types";
 
@@ -36,9 +37,9 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
         <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <Link href="/portfolio">
-              <button className="relative overflow-hidden p-2 text-foreground rounded-lg transition-all duration-300 group/back bg-primary/10 border border-primary/20 hover:border-primary/40">
-                <ArrowLeft className="relative w-5 h-5" />
-              </button>
+              <Button variant="outline" size="icon" className="h-9 w-9 hover:scale-[1.03] active:scale-[0.97] transition-transform">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
             </Link>
             <div>
               <h1 className="text-lg sm:text-2xl font-display text-foreground">{property.name}</h1>
@@ -59,22 +60,24 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
               const mapQuery = hasAddress ? addressParts.join(", ") : "";
               const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
               return (
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => hasAddress && window.open(mapUrl, "_blank")}
                   disabled={!hasAddress}
                   title={hasAddress ? `View ${mapQuery} on Google Maps` : "No address provided — add address details in Assumptions"}
-                  className={`relative overflow-hidden px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 flex items-center gap-2 ${hasAddress ? "text-foreground group/map cursor-pointer bg-primary/10 border-primary/25 hover:border-primary/40" : "text-muted-foreground/40 cursor-not-allowed bg-muted/20 border-border"}`}
+                  className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform"
                 >
-                  <Map className="relative w-4 h-4" />
-                  <span className="relative">Map</span>
-                </button>
+                  <Map className="w-4 h-4" />
+                  Map
+                </Button>
               );
             })()}
             <Link href={`/property/${propertyId}/edit`}>
-              <button className="relative overflow-hidden px-4 py-2 text-sm font-medium text-foreground rounded-lg transition-all duration-300 group/edit flex items-center gap-2 bg-primary/10 border border-primary/25 hover:border-primary/40">
-                <Settings2 className="relative w-4 h-4" />
-                <span className="relative">Assumptions</span>
-              </button>
+              <Button variant="outline" size="sm" className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform">
+                <Settings2 className="w-4 h-4" />
+                Assumptions
+              </Button>
             </Link>
           </div>
         </div>

@@ -131,7 +131,11 @@
       "Bash(SESSION=\"e05b7f3b1d40765710096c6f7dbbe1af5ad8df6a787617a8132daaac18e8a518\"\n\ncurl -sf \"http://localhost:5000/api/admin/convai/agent\" \\\\\n  -H \"Cookie: session_id=${SESSION}\" | python3 -c \"\nimport sys, json\nd = json.load\\(sys.stdin\\)\ntools = d.get\\('conversation_config',{}\\).get\\('agent',{}\\).get\\('prompt',{}\\).get\\('tools',[]\\)\nprint\\(f'Total tools in agent: {len\\(tools\\)}'\\)\nfor t in tools:\n    print\\(f'  name={t.get\\(\\\\\"name\\\\\"\\)} type={t.get\\(\\\\\"type\\\\\"\\)} keys={list\\(t.keys\\(\\)\\)}'\\)\n\")",
       "Bash(psql $DATABASE_URL -c \"ALTER TABLE global_assumptions ADD COLUMN IF NOT EXISTS marcela_language TEXT NOT NULL DEFAULT 'en';\" 2>&1)",
       "Bash(psql $DATABASE_URL -c \"ALTER TABLE global_assumptions ADD COLUMN IF NOT EXISTS marcela_widget_variant TEXT NOT NULL DEFAULT 'compact';\" 2>&1)",
-      "Bash(printenv | grep -i pass | head -5; printenv | grep -i admin | head -5)"
+      "Bash(printenv | grep -i pass | head -5; printenv | grep -i admin | head -5)",
+      "Bash(pnpm dlx @elevenlabs/cli@latest components list 2>&1)",
+      "Bash(pnpm dlx @elevenlabs/cli@latest components add 2>&1)",
+      "Bash(cd /home/runner/workspace/client && npx @elevenlabs/cli@latest components add orb 2>&1)",
+      "Bash(printf '\\\\x03' | cat && cd /home/runner/workspace && npx @elevenlabs/cli@latest components add orb 2>&1)"
     ]
   }
 }

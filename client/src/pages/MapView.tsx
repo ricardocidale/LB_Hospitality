@@ -7,14 +7,14 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const KNOWN_COORDS: Record<string, [number, number]> = {
-  "medellín, antioquia, colombia": [-75.5636, 6.2518],
-  "medellin, antioquia, colombia": [-75.5636, 6.2518],
+  "medellín, antioquia, colombia": [-75.6266, 6.2553],
+  "medellin, antioquia, colombia": [-75.6266, 6.2553],
   "loch sheldrake, new york, united states": [-74.6571, 41.7701],
-  "highmount, new york, united states": [-74.5071, 42.1301],
-  "eden, utah, united states": [-111.7746, 41.3260],
-  "huntsville, utah, united states": [-111.7699, 41.2597],
-  "cartagena, bolívar, colombia": [-75.5144, 10.3910],
-  "cartagena, bolivar, colombia": [-75.5144, 10.3910],
+  "highmount, new york, united states": [-74.5025, 42.1363],
+  "eden, utah, united states": [-111.8013, 41.3027],
+  "huntsville, utah, united states": [-111.8007, 41.2687],
+  "cartagena, bolívar, colombia": [-75.5465, 10.4235],
+  "cartagena, bolivar, colombia": [-75.5465, 10.4235],
 };
 
 const REGION_COORDS: Record<string, [number, number]> = {

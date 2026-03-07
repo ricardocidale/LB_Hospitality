@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { InsightPanel, type Insight } from "@/components/graphics";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, LineChart, Line } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, LineChart, Line, LabelList } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { DashboardTabProps } from "./types";
 import PortfolioResearchCard from "./PortfolioResearchCard";
 import { formatMoney } from "@/lib/financialEngine";
@@ -271,36 +272,42 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
 
                 <div ref={chartsRef} className="bg-card rounded-lg p-6 border border-border shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={propertyIRRData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} angle={-25} textAnchor="end" height={50} axisLine={false} tickLine={false} />
-                      <YAxis tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} domain={[0, 'auto']} width={45} axisLine={false} tickLine={false} />
-                      <Tooltip
-                        formatter={(value: number) => [`${value.toFixed(1)}%`, 'IRR']}
-                        labelFormatter={(_label: string, payload: Array<{ payload?: { fullName?: string } }>) => payload?.[0]?.payload?.fullName || _label}
-                        contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', fontSize: 12, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
+                  <ChartContainer config={{ irr: { label: "IRR", color: "var(--chart-1)" } } satisfies ChartConfig} className="h-[200px] w-full">
+                    <BarChart data={propertyIRRData} margin={{ top: 20, right: 10, left: 0, bottom: 40 }}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} angle={-25} textAnchor="end" height={50} tick={{ fontSize: 10 }} />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent
+                          hideLabel
+                          formatter={(value) => [`${Number(value).toFixed(1)}%`, 'IRR']}
+                        />}
                       />
-                      <Bar dataKey="irr" radius={[4, 4, 0, 0]} maxBarSize={40} fill="var(--primary)" />
+                      <Bar dataKey="irr" fill="var(--color-irr)" radius={8} maxBarSize={44}>
+                        <LabelList position="top" offset={12} className="fill-foreground" fontSize={12} formatter={(v: number) => `${v}%`} />
+                      </Bar>
                     </BarChart>
-                  </ResponsiveContainer>
+                  </ChartContainer>
                 </div>
 
                 <div className="bg-card rounded-lg p-6 border border-border shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-investment">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Equity by Property</p>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={propertyInvestmentData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} angle={-25} textAnchor="end" height={50} axisLine={false} tickLine={false} />
-                      <YAxis tickFormatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} domain={[0, 'auto']} width={55} axisLine={false} tickLine={false} />
-                      <Tooltip
-                        formatter={(value: number) => [`$${value.toLocaleString()}`, 'Equity Invested']}
-                        labelFormatter={(_label: string, payload: Array<{ payload?: { fullName?: string } }>) => payload?.[0]?.payload?.fullName || _label}
-                        contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', fontSize: 12, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
+                  <ChartContainer config={{ investment: { label: "Equity Invested", color: "var(--chart-2)" } } satisfies ChartConfig} className="h-[200px] w-full">
+                    <BarChart data={propertyInvestmentData} margin={{ top: 20, right: 10, left: 0, bottom: 40 }}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} angle={-25} textAnchor="end" height={50} tick={{ fontSize: 10 }} />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent
+                          hideLabel
+                          formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Equity']}
+                        />}
                       />
-                      <Bar dataKey="investment" radius={[4, 4, 0, 0]} maxBarSize={40} fill="hsl(var(--chart-2))" />
+                      <Bar dataKey="investment" fill="var(--color-investment)" radius={8} maxBarSize={44}>
+                        <LabelList position="top" offset={12} className="fill-foreground" fontSize={11} formatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`} />
+                      </Bar>
                     </BarChart>
-                  </ResponsiveContainer>
+                  </ChartContainer>
                 </div>
               </div>
 

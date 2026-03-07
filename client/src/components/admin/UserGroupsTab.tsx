@@ -72,7 +72,7 @@ export default function UserGroupsTab() {
   const { data: allThemes } = useQuery<Array<{ id: number; name: string; isDefault: boolean }>>({
     queryKey: ["admin", "all-themes"],
     queryFn: async () => {
-      const res = await fetch("/api/design-themes", { credentials: "include" });
+      const res = await fetch("/api/available-themes", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch themes");
       return res.json();
     },

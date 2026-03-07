@@ -54,7 +54,7 @@ export function InfoTooltip({ text, formula, light = false, side = "top", manual
         {manualSection && (
           <a
             href={`/checker-manual#${manualSection}`}
-            className="flex items-center gap-1 mt-1.5 text-[10px] text-primary hover:text-white transition-colors"
+            className="flex items-center gap-1 mt-1.5 text-[10px] text-primary hover:text-primary/80 transition-colors"
             data-testid="info-tooltip-manual-link"
             onClick={(e) => e.stopPropagation()}
           >

@@ -9,9 +9,7 @@
  */
 export default function CateringSection() {
   return (
-    <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
-      <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
       <div className="relative">
       <div className="space-y-4">
         <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">

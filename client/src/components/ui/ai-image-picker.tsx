@@ -180,11 +180,11 @@ export function AIImagePicker({
       "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
       active
         ? isLight
-          ? "bg-primary/20 text-gray-900 border border-primary/40"
-          : "bg-white/20 text-white border border-white/30"
+          ? "bg-primary/20 text-gray-900 border border-gray-200"
+          : "bg-gray-100 text-gray-900 border border-gray-200"
         : isLight
           ? "text-gray-500 hover:text-gray-700 border border-transparent"
-          : "text-white/50 hover:text-white/80 border border-transparent"
+          : "text-gray-500 hover:text-gray-700 border border-transparent"
     );
 
   return (
@@ -207,7 +207,7 @@ export function AIImagePicker({
       </div>
 
       {imageUrl ? (
-        <div className={cn("relative w-full rounded-lg overflow-hidden border", isLight ? "border-primary/20" : "border-white/20", aspectClass)}>
+        <div className={cn("relative w-full rounded-lg overflow-hidden border", isLight ? "border-gray-200" : "border-gray-200", aspectClass)}>
           <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.3"; }} />
           <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={handleRemove} data-testid={`${testId}-remove`}>
             <X className="w-4 h-4" />
@@ -249,7 +249,7 @@ export function AIImagePicker({
             data-testid={`${testId}-prompt`}
             className={cn(
               "resize-none",
-              isLight ? "bg-white border-primary/30 text-gray-900 placeholder:text-gray-400" : ""
+              isLight ? "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400" : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400"
             )}
           />
           <Button
@@ -257,7 +257,7 @@ export function AIImagePicker({
             onClick={handleGenerate}
             disabled={isGenerating || (!prompt.trim() && !defaultPrompt)}
             data-testid={`${testId}-generate`}
-            className="bg-primary/20 border-primary/30 text-gray-700 hover:bg-primary/30"
+            className="bg-primary/20 border-gray-200 text-gray-700 hover:bg-primary/30"
             variant="outline"
           >
             {isGenerating ? (
@@ -289,7 +289,7 @@ export function AIImagePicker({
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://example.com/image.png"
               data-testid={`${testId}-url-input`}
-              className={isLight ? "bg-white border-primary/30" : ""}
+              className={isLight ? "bg-white border-gray-200" : "bg-white border-gray-200"}
             />
             <Button type="button" variant="outline" onClick={handleUrlSubmit} disabled={!urlInput.trim()} data-testid={`${testId}-url-submit`}>
               Apply

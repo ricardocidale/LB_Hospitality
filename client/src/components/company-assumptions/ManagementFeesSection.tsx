@@ -24,9 +24,7 @@ import type { ManagementFeesSectionProps } from "./types";
 
 export default function ManagementFeesSection({ formData, onChange, global, properties, allFeeCategories }: ManagementFeesSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl p-6 bg-white/80 backdrop-blur-xl border border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
-    <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
-    <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-primary/5 blur-xl" />
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
     <div className="relative">
       <div className="space-y-6">
         <h3 className="text-lg font-display text-gray-900 flex items-center">
@@ -34,7 +32,7 @@ export default function ManagementFeesSection({ formData, onChange, global, prop
           <HelpTooltip text="Management fees are defined per property. Each property sets its own Base Fee (% of Revenue) and Incentive Fee (% of GOP). Edit these rates on each property's assumptions page." manualSection="company-formulas" />
         </h3>
         <p className="text-sm text-muted-foreground mb-3">Fee rates are set individually on each property. This table shows the current rates for reference.</p>
-        <div className="rounded-lg border border-primary/20 overflow-hidden">
+        <div className="rounded-lg border border-gray-200 overflow-hidden">
           {(() => {
             const allCatNames = Array.from(new Set(allFeeCategories.filter(c => c.isActive).map(c => c.name)));
             const hasCategoryData = allCatNames.length > 0;
@@ -42,7 +40,7 @@ export default function ManagementFeesSection({ formData, onChange, global, prop
               <div className="overflow-x-auto">
               <table className="w-full text-sm" data-testid="table-property-fee-summary">
                 <thead>
-                  <tr className="bg-primary/10 border-b border-primary/20">
+                  <tr className="bg-primary/10 border-b border-gray-200">
                     <th className="text-left px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">Property</th>
                     {hasCategoryData ? (
                       <>

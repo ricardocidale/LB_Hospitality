@@ -42,8 +42,8 @@ export function ImagePreviewCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-primary/20",
-        "bg-white/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(159,188,164,0.1)]",
+        "group relative overflow-hidden rounded-lg border border-gray-200",
+        "bg-white shadow-sm",
         aspectMap[aspectRatio],
         className
       )}
@@ -63,7 +63,7 @@ export function ImagePreviewCard({
               variant="ghost"
               size="icon"
               onClick={onEdit}
-              className="h-8 w-8 bg-black/40 backdrop-blur-md text-white hover:bg-black/60 hover:text-white"
+              className="h-8 w-8 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900"
               data-testid={`${testId}-edit`}
             >
               <Pencil className="w-3.5 h-3.5" />
@@ -74,7 +74,7 @@ export function ImagePreviewCard({
               variant="ghost"
               size="icon"
               onClick={onDelete}
-              className="h-8 w-8 bg-black/40 backdrop-blur-md text-white hover:bg-red-500/80 hover:text-white"
+              className="h-8 w-8 bg-white border border-gray-200 text-gray-700 hover:bg-red-50 hover:text-red-600"
               data-testid={`${testId}-delete`}
             >
               <Trash2 className="w-3.5 h-3.5" />

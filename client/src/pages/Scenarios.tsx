@@ -29,28 +29,14 @@ import { HoverScale } from "@/components/ui/animated";
 import { useScenarios, useCreateScenario, useLoadScenario, useUpdateScenario, useDeleteScenario } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, FolderOpen, Pencil, Trash2, Plus, Clock, FileStack, Download, Upload, Copy, GitCompareArrows, ArrowRight, Minus, PlusCircle, RefreshCw, AlertTriangle } from "lucide-react";
+import { Loader2, Save, FolderOpen, Pencil, Trash2, Clock, FileStack, Download, Upload, Copy, GitCompareArrows, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatDateTime } from "@/lib/formatters";
-
-/** Diff result shape from GET /api/scenarios/:id1/compare/:id2 */
-interface ScenarioCompareResult {
-  scenario1: { id: number; name: string };
-  scenario2: { id: number; name: string };
-  assumptionDiffs: Array<{ field: string; scenario1: unknown; scenario2: unknown }>;
-  propertyDiffs: Array<{
-    name: string;
-    status: "added" | "removed" | "changed";
-    changes?: Array<{ field: string; scenario1: unknown; scenario2: unknown }>;
-  }>;
-}
+import { SaveScenarioDialog, EditScenarioDialog, CompareResultDialog, type ScenarioCompareResult } from "@/components/scenarios";
 
 export default function Scenarios() {
   const { data: scenarios, isLoading, isError } = useScenarios();
@@ -209,17 +195,6 @@ export default function Scenarios() {
     } finally {
       setCompareLoading(false);
     }
-  };
-
-  /** Format a diff value for display. */
-  const formatDiffValue = (v: unknown): string => {
-    if (v === null || v === undefined) return "—";
-    if (typeof v === "number") {
-      if (Math.abs(v) < 1 && v !== 0) return `${(v * 100).toFixed(1)}%`;
-      return v.toLocaleString();
-    }
-    if (typeof v === "object") return JSON.stringify(v);
-    return String(v);
   };
 
   if (isLoading) {
@@ -481,237 +456,31 @@ export default function Scenarios() {
           </CardContent>
         </Card>
 
-        <Dialog open={isCreating} onOpenChange={setIsCreating}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="font-display">Save Current Configuration</DialogTitle>
-              <DialogDescription className="label-text">
-                Save your current assumptions and properties as a new scenario
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="label-text">Scenario Name</label>
-                <Input
-                  value={newScenarioName}
-                  onChange={(e) => setNewScenarioName(e.target.value)}
-                  placeholder="e.g., Base Case, Optimistic, Conservative"
-                  data-testid="input-scenario-name"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="label-text">Description (optional)</label>
-                <Input
-                  value={newScenarioDescription}
-                  onChange={(e) => setNewScenarioDescription(e.target.value)}
-                  placeholder="Brief description of this scenario"
-                  data-testid="input-scenario-description"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreating(false)}>
-                Cancel
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleCreate}
-                disabled={createScenario.isPending || !newScenarioName.trim()}
-                data-testid="button-save-scenario"
-                className="flex items-center gap-2"
-              >
-                {createScenario.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                Save Scenario
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <SaveScenarioDialog
+          open={isCreating}
+          onOpenChange={setIsCreating}
+          name={newScenarioName}
+          onNameChange={setNewScenarioName}
+          description={newScenarioDescription}
+          onDescriptionChange={setNewScenarioDescription}
+          onSave={handleCreate}
+          isPending={createScenario.isPending}
+        />
 
-        <Dialog open={!!editingScenario} onOpenChange={(open) => !open && setEditingScenario(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="font-display">Edit Scenario</DialogTitle>
-              <DialogDescription className="label-text">
-                Update the name and description of this scenario
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="label-text">Scenario Name</label>
-                <Input
-                  value={editingScenario?.name || ""}
-                  onChange={(e) => setEditingScenario(prev => prev ? { ...prev, name: e.target.value } : null)}
-                  placeholder="Scenario name"
-                  data-testid="input-edit-scenario-name"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="label-text">Description (optional)</label>
-                <Input
-                  value={editingScenario?.description || ""}
-                  onChange={(e) => setEditingScenario(prev => prev ? { ...prev, description: e.target.value } : null)}
-                  placeholder="Brief description"
-                  data-testid="input-edit-scenario-description"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditingScenario(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleUpdate}
-                disabled={updateScenario.isPending || !editingScenario?.name.trim()}
-                data-testid="button-update-scenario"
-                className="flex items-center gap-2"
-              >
-                {updateScenario.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
-                Update
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <EditScenarioDialog
+          scenario={editingScenario}
+          onNameChange={(name) => setEditingScenario(prev => prev ? { ...prev, name } : null)}
+          onDescriptionChange={(desc) => setEditingScenario(prev => prev ? { ...prev, description: desc } : null)}
+          onClose={() => setEditingScenario(null)}
+          onSave={handleUpdate}
+          isPending={updateScenario.isPending}
+        />
 
-        {/* Scenario Comparison Result Dialog */}
-        <Dialog open={compareDialogOpen} onOpenChange={(open) => { if (!open) setCompareDialogOpen(false); }}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="font-display flex items-center gap-2">
-                <GitCompareArrows className="w-5 h-5" />
-                Scenario Comparison
-              </DialogTitle>
-              {compareResult && (
-                <DialogDescription className="label-text">
-                  <span className="font-semibold">{compareResult.scenario1.name}</span>
-                  {" vs "}
-                  <span className="font-semibold">{compareResult.scenario2.name}</span>
-                </DialogDescription>
-              )}
-            </DialogHeader>
-
-            {compareResult && (
-              <div className="space-y-6 py-4">
-                {/* Assumption Diffs */}
-                {compareResult.assumptionDiffs.length > 0 && (
-                  <div>
-                    <h4 className="font-display font-semibold text-sm text-gray-700 mb-2 flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4" />
-                      Assumption Changes ({compareResult.assumptionDiffs.length})
-                    </h4>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="text-xs">Field</TableHead>
-                          <TableHead className="text-xs">{compareResult.scenario1.name}</TableHead>
-                          <TableHead className="text-xs">{compareResult.scenario2.name}</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {compareResult.assumptionDiffs.map((d, i) => (
-                          <TableRow key={i}>
-                            <TableCell className="font-mono text-xs text-gray-600">{d.field}</TableCell>
-                            <TableCell className="font-mono text-xs text-red-600">{formatDiffValue(d.scenario1)}</TableCell>
-                            <TableCell className="font-mono text-xs text-green-700">{formatDiffValue(d.scenario2)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-
-                {/* Properties added (only in scenario 2) */}
-                {compareResult.propertyDiffs.filter(pd => pd.status === "added").length > 0 && (
-                  <div>
-                    <h4 className="font-display font-semibold text-sm text-green-700 mb-2 flex items-center gap-2">
-                      <PlusCircle className="w-4 h-4" />
-                      Only in {compareResult.scenario2.name}
-                    </h4>
-                    <div className="space-y-1">
-                      {compareResult.propertyDiffs.filter(pd => pd.status === "added").map((pd, i) => (
-                        <div key={i} className="text-sm px-3 py-1.5 rounded bg-green-50 border border-green-200 text-green-700">
-                          {pd.name}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Properties removed (only in scenario 1) */}
-                {compareResult.propertyDiffs.filter(pd => pd.status === "removed").length > 0 && (
-                  <div>
-                    <h4 className="font-display font-semibold text-sm text-red-600 mb-2 flex items-center gap-2">
-                      <Minus className="w-4 h-4" />
-                      Only in {compareResult.scenario1.name}
-                    </h4>
-                    <div className="space-y-1">
-                      {compareResult.propertyDiffs.filter(pd => pd.status === "removed").map((pd, i) => (
-                        <div key={i} className="text-sm px-3 py-1.5 rounded bg-red-50 border border-red-200 text-red-700">
-                          {pd.name}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Property-level field changes */}
-                {compareResult.propertyDiffs.filter(pd => pd.status === "changed").length > 0 && (
-                  <div>
-                    <h4 className="font-display font-semibold text-sm text-gray-700 mb-2 flex items-center gap-2">
-                      <RefreshCw className="w-4 h-4" />
-                      Property Changes
-                    </h4>
-                    {compareResult.propertyDiffs.filter(pd => pd.status === "changed").map((pd, i) => (
-                      <div key={i} className="mb-4">
-                        <p className="text-sm font-semibold text-gray-800 mb-1">{pd.name} ({pd.changes?.length ?? 0} changes)</p>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="text-xs">Field</TableHead>
-                              <TableHead className="text-xs">{compareResult.scenario1.name}</TableHead>
-                              <TableHead className="text-xs">{compareResult.scenario2.name}</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {pd.changes?.map((d, j) => (
-                              <TableRow key={j}>
-                                <TableCell className="font-mono text-xs text-gray-600">{d.field}</TableCell>
-                                <TableCell className="font-mono text-xs text-red-600">{formatDiffValue(d.scenario1)}</TableCell>
-                                <TableCell className="font-mono text-xs text-green-700">{formatDiffValue(d.scenario2)}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* No differences */}
-                {compareResult.assumptionDiffs.length === 0 &&
-                 compareResult.propertyDiffs.length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 label-text">These scenarios are identical.</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setCompareDialogOpen(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <CompareResultDialog
+          open={compareDialogOpen}
+          onOpenChange={(open) => { if (!open) setCompareDialogOpen(false); }}
+          result={compareResult}
+        />
       </div>
       </AnimatedPage>
     </Layout>

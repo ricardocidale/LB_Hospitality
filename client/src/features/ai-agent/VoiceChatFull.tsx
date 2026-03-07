@@ -115,7 +115,6 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
 
   const conversation = useConversation({
     onConnect: () => {
-      if (!isTextOnlyModeRef.current) setMessages([]);
       const pending = pendingFirstMessageRef.current;
       if (pending) {
         pendingFirstMessageRef.current = null;
@@ -124,7 +123,6 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
       onSessionChange?.(true);
     },
     onDisconnect: () => {
-      if (!isTextOnlyModeRef.current) setMessages([]);
       setAgentState("disconnected");
       onSessionChange?.(false);
     },
@@ -137,8 +135,8 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
       }
     },
     onError: (error) => {
-      console.error("Error:", error);
       setAgentState("disconnected");
+      setErrorMessage(typeof error === "string" ? error : "Session error");
     },
   });
 
@@ -187,7 +185,7 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
         setMessages([]);
       }
     },
-    [conversation, getMicStream, refetchSignedUrl]
+    [conversation, getMicStream, refetchSignedUrl, user]
   );
 
   const handleCall = useCallback(async () => {

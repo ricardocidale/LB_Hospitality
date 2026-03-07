@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -51,11 +51,11 @@ export default function VoiceChatBar({ className, onSessionChange }: VoiceChatBa
     refetchSignedUrl();
   }, [refetchSignedUrl]);
 
-  const dynamicVariables = {
+  const dynamicVariables = useMemo(() => ({
     user_name: user?.name ?? "Guest",
     user_role: user?.role ?? "user",
     current_page: window.location.pathname,
-  };
+  }), [user]);
 
   return (
     <div className={cn("relative mx-auto h-[600px] w-full", className)}>

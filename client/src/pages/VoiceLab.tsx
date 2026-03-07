@@ -32,12 +32,12 @@ export default function VoiceLab() {
   const hasActiveSessionRef = useRef(false);
 
   const handleTabChange = useCallback((id: TabId) => {
-    if (hasActiveSessionRef.current && id !== activeTab) {
+    if (hasActiveSessionRef.current) {
       if (!window.confirm("A session is active. Switch tabs and end the current session?")) return;
       hasActiveSessionRef.current = false;
     }
     setActiveTab(id);
-  }, [activeTab]);
+  }, []);
 
   const handleSessionChange = useCallback((active: boolean) => {
     hasActiveSessionRef.current = active;

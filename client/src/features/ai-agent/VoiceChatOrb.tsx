@@ -38,8 +38,8 @@ export default function VoiceChatOrb({ className, onSessionChange }: VoiceChatOr
       onSessionChange?.(false);
     },
     onError: (error) => {
-      console.error("Error:", error);
       setAgentState("disconnected");
+      setErrorMessage(typeof error === "string" ? error : "Session error");
     },
   });
 
@@ -70,7 +70,7 @@ export default function VoiceChatOrb({ className, onSessionChange }: VoiceChatOr
         setErrorMessage(error.message);
       }
     }
-  }, [conversation, refetchSignedUrl]);
+  }, [conversation, refetchSignedUrl, user]);
 
   const handleCall = useCallback(() => {
     if (agentState === "disconnected" || agentState === null) {

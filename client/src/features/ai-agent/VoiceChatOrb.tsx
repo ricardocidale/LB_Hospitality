@@ -159,7 +159,7 @@ export default function VoiceChatOrb({ className }: VoiceChatOrbProps) {
 
         <Button
           onClick={handleCall}
-          disabled={isTransitioning || !signedUrl}
+          disabled={isTransitioning}
           size="icon"
           variant={isCallActive ? "secondary" : "default"}
           className="h-12 w-12 rounded-full"

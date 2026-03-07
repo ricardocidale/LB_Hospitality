@@ -6,7 +6,7 @@
  */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic2, MessageSquare, AudioLines, Captions, Music2 } from "lucide-react";
+import { Mic2, MessageSquare, AudioLines, Captions, Music2, Mic } from "lucide-react";
 import Layout from "@/components/Layout";
 import VoiceChatOrb from "@/features/ai-agent/VoiceChatOrb";
 import VoiceChatFull from "@/features/ai-agent/VoiceChatFull";
@@ -16,11 +16,11 @@ import { Speaker } from "@/features/ai-agent/Speaker";
 import { useMarcelaSettings } from "@/features/ai-agent/hooks/use-agent-settings";
 
 const TABS = [
-  { id: "orb",         label: "Voice Orb",    icon: Mic2,           description: "Minimal voice-first interface" },
-  { id: "full",        label: "Full Chat",    icon: MessageSquare,  description: "Chat + voice hybrid" },
-  { id: "bar",         label: "Floating Bar", icon: AudioLines,     description: "Compact inline chat bar" },
-  { id: "transcriber", label: "Transcriber",  icon: Captions,       description: "Real-time speech-to-text" },
-  { id: "speaker",     label: "Speaker",      icon: Music2,         description: "Audio player with waveform" },
+  { id: "orb",         label: "Voice Orb",    icon: Mic2,           description: "Minimal voice-first interface", requiresMic: true  },
+  { id: "full",        label: "Full Chat",    icon: MessageSquare,  description: "Chat + voice hybrid",           requiresMic: false },
+  { id: "bar",         label: "Floating Bar", icon: AudioLines,     description: "Compact inline chat bar",       requiresMic: true  },
+  { id: "transcriber", label: "Transcriber",  icon: Captions,       description: "Real-time speech-to-text",     requiresMic: true  },
+  { id: "speaker",     label: "Speaker",      icon: Music2,         description: "Audio player with waveform",   requiresMic: false },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
@@ -61,6 +61,9 @@ export default function VoiceLab() {
               >
                 <tab.icon className="w-3.5 h-3.5" />
                 {tab.label}
+                {tab.requiresMic && (
+                  <Mic className="w-2.5 h-2.5 opacity-50" />
+                )}
               </button>
             );
           })}
@@ -92,7 +95,7 @@ export default function VoiceLab() {
               </div>
             )}
             {activeTab === "transcriber" && (
-              <div className="max-w-2xl mx-auto">
+              <div className="max-w-2xl mx-auto min-h-[480px]">
                 <RealtimeTranscriber01 />
               </div>
             )}

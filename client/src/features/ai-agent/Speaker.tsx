@@ -52,11 +52,7 @@ import { Card } from "@/components/ui/card"
 import { Orb } from "@/features/ai-agent/components/orb"
 import { Waveform } from "@/features/ai-agent/components/waveform"
 
-const globalAudioState = {
-  isPlaying: false,
-  volume: 0.7,
-  isDark: false,
-}
+// NOTE: globalAudioState intentionally removed — see audioStateRef in SpeakerControls
 
 const PlayButton = memo(
   ({ currentTrackIndex }: { currentTrackIndex: number }) => {
@@ -119,23 +115,27 @@ export function Speaker({ className }: { className?: string }) {
   )
 }
 
+type AudioState = { isPlaying: boolean; volume: number; isDark: boolean }
+
 const SpeakerOrb = memo(
   ({
     seed,
     side,
     isDark,
     audioDataRef,
+    stateRef,
   }: {
     seed: number
     side: "left" | "right"
     isDark: boolean
     audioDataRef: React.RefObject<number[]>
+    stateRef: React.RefObject<AudioState>
   }) => {
     const getInputVolume = useCallback(() => {
       const audioData = audioDataRef?.current || []
       if (
-        !globalAudioState.isPlaying ||
-        globalAudioState.volume === 0 ||
+        !stateRef.current.isPlaying ||
+        stateRef.current.volume === 0 ||
         audioData.length === 0
       )
         return 0
@@ -147,13 +147,13 @@ const SpeakerOrb = memo(
       const avgLow = sum / lowFreqEnd
       const amplified = Math.pow(avgLow, 0.5) * 3.5
       return Math.max(0.2, Math.min(1.0, amplified))
-    }, [audioDataRef])
+    }, [audioDataRef, stateRef])
 
     const getOutputVolume = useCallback(() => {
       const audioData = audioDataRef?.current || []
       if (
-        !globalAudioState.isPlaying ||
-        globalAudioState.volume === 0 ||
+        !stateRef.current.isPlaying ||
+        stateRef.current.volume === 0 ||
         audioData.length === 0
       )
         return 0
@@ -167,7 +167,7 @@ const SpeakerOrb = memo(
       const modifier = side === "left" ? 0.9 : 1.1
       const amplified = Math.pow(avgMid, 0.5) * 4.0
       return Math.max(0.25, Math.min(1.0, amplified * modifier))
-    }, [side, audioDataRef])
+    }, [side, audioDataRef, stateRef])
 
     const colors: [string, string] = useMemo(
       () => (isDark ? ["#A0A0A0", "#232323"] : ["#F4F4F4", "#E0E0E0"]),
@@ -199,9 +199,11 @@ const SpeakerOrbsSection = memo(
   ({
     isDark,
     audioDataRef,
+    stateRef,
   }: {
     isDark: boolean
     audioDataRef: React.RefObject<number[]>
+    stateRef: React.RefObject<AudioState>
   }) => {
     return (
       <div className="mt-8 grid grid-cols-2 gap-8">
@@ -214,6 +216,7 @@ const SpeakerOrbsSection = memo(
                 side="left"
                 isDark={isDark}
                 audioDataRef={audioDataRef}
+                stateRef={stateRef}
               />
             </div>
           </div>
@@ -228,6 +231,7 @@ const SpeakerOrbsSection = memo(
                 side="right"
                 isDark={isDark}
                 audioDataRef={audioDataRef}
+                stateRef={stateRef}
               />
             </div>
           </div>
@@ -340,6 +344,8 @@ function SpeakerControls({
 }) {
   const playerApiRef = playerRef
   const isPlayingRef = useRef(false)
+  // Per-instance audio state — replaces module-level globalAudioState
+  const audioStateRef = useRef<AudioState>({ isPlaying: false, volume: 0.7, isDark: false })
 
   const [volume, setVolume] = useState(0.7)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -607,7 +613,7 @@ function SpeakerControls({
   useEffect(() => {
     const handlePlay = () => {
       isPlayingRef.current = true
-      globalAudioState.isPlaying = true
+      audioStateRef.current.isPlaying = true
 
       if (!analyserRef.current) {
         setTimeout(() => {
@@ -617,7 +623,7 @@ function SpeakerControls({
     }
     const handlePause = () => {
       isPlayingRef.current = false
-      globalAudioState.isPlaying = false
+      audioStateRef.current.isPlaying = false
     }
 
     const checkInterval = setInterval(() => {
@@ -647,14 +653,14 @@ function SpeakerControls({
   }, [ambienceMode, setupAudioContext])
 
   useEffect(() => {
-    globalAudioState.isDark = isDark
+    audioStateRef.current.isDark = isDark
   }, [isDark])
 
   useEffect(() => {
     if (playerApiRef.current.ref.current) {
       playerApiRef.current.ref.current.volume = volume
     }
-    globalAudioState.volume = volume
+    audioStateRef.current.volume = volume
   }, [volume])
 
   useEffect(() => {
@@ -1367,7 +1373,7 @@ function SpeakerControls({
           </Button>
         </div>
 
-        <SpeakerOrbsSection isDark={isDark} audioDataRef={audioDataRef} />
+        <SpeakerOrbsSection isDark={isDark} audioDataRef={audioDataRef} stateRef={audioStateRef} />
 
         <VolumeSlider volume={volume} setVolume={setVolume} />
       </div>

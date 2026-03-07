@@ -35,19 +35,19 @@ interface VoiceChatBarProps {
 export default function VoiceChatBar({ className }: VoiceChatBarProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [sessionSignedUrl, setSessionSignedUrl] = useState<string | undefined>();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { data: settings } = useMarcelaSettings();
-  const { refetch: refetchSignedUrl } = useAdminSignedUrl();
+  // useAdminSignedUrl auto-fetches on mount — data is ready before first click
+  const { data: signedUrl, refetch: refetchSignedUrl } = useAdminSignedUrl();
   const { user } = useAuth();
 
   const agentName = settings?.aiAgentName ?? "Marcela";
 
-  const handleConnect = useCallback(async () => {
-    // Fetch a fresh signed URL for this session
-    const { data: freshUrl } = await refetchSignedUrl();
-    if (freshUrl) setSessionSignedUrl(freshUrl);
+  const handleDisconnect = useCallback(() => {
     setMessages([]);
+    // Pre-fetch the next signed URL so it's ready for the following session
+    refetchSignedUrl();
   }, [refetchSignedUrl]);
 
   const dynamicVariables = {
@@ -65,8 +65,8 @@ export default function VoiceChatBar({ className }: VoiceChatBarProps) {
               {messages.length === 0 ? (
                 <ConversationEmptyState
                   icon={<Orb className="size-12" />}
-                  title="Start a conversation"
-                  description="Tap the phone button or type a message"
+                  title={errorMessage ? "Connection failed" : "Start a conversation"}
+                  description={errorMessage ?? "Tap the phone button or type a message"}
                 />
               ) : (
                 messages.map((message, index) => (
@@ -126,12 +126,12 @@ export default function VoiceChatBar({ className }: VoiceChatBarProps) {
           <div className="absolute right-0 bottom-0 left-0 flex justify-center">
             <ConversationBar
               className="w-full max-w-2xl"
-              signedUrl={sessionSignedUrl}
+              signedUrl={signedUrl}
               agentId={settings?.marcelaAgentId}
               dynamicVariables={dynamicVariables}
               agentLabel={agentName}
-              onConnect={handleConnect}
-              onDisconnect={() => setMessages([])}
+              onConnect={() => { setMessages([]); setErrorMessage(null); }}
+              onDisconnect={handleDisconnect}
               onSendMessage={(message) =>
                 setMessages((prev) => [...prev, { role: "user", content: message }])
               }
@@ -144,7 +144,10 @@ export default function VoiceChatBar({ className }: VoiceChatBarProps) {
                   },
                 ])
               }
-              onError={(error) => console.error("Conversation error:", error)}
+              onError={(error) => {
+                console.error("Conversation error:", error);
+                setErrorMessage(error.message || "Connection failed");
+              }}
             />
           </div>
         </CardContent>

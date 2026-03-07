@@ -98,9 +98,9 @@ describe("checkGAAPCompliance — Full Equity property", () => {
   });
 
   // ASC 470 — Net Income computed without principal for Full Equity
-  it("ASC 470: Net Income = NOI - Interest - Depreciation - Tax (every month)", () => {
+  it("ASC 470: Net Income = ANOI - Interest - Depreciation - Tax (every month)", () => {
     for (const m of monthlyData) {
-      const expected = m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax;
+      const expected = m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax;
       expect(m.netIncome).toBeCloseTo(expected, 2);
     }
     const asc470Checks = report.results.filter(
@@ -112,10 +112,10 @@ describe("checkGAAPCompliance — Full Equity property", () => {
     }
   });
 
-  // ASC 230 — Cash Flow = NOI - Debt Service - Tax
-  it("ASC 230: Cash Flow = NOI - Debt Service - Tax (every month)", () => {
+  // ASC 230 — Cash Flow = ANOI - Debt Service - Tax
+  it("ASC 230: Cash Flow = ANOI - Debt Service - Tax (every month)", () => {
     for (const m of monthlyData) {
-      const expected = m.noi - m.debtPayment - m.incomeTax;
+      const expected = m.anoi - m.debtPayment - m.incomeTax;
       expect(m.cashFlow).toBeCloseTo(expected, 2);
     }
     const asc230Checks = report.results.filter(
@@ -219,8 +219,8 @@ describe("checkGAAPCompliance — Financed property", () => {
 
   it("ASC 470: Net Income excludes principal (includes interest only)", () => {
     for (const m of monthlyData) {
-      // Net Income = NOI - InterestExpense - Depreciation - Tax
-      const expected = m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax;
+      // Net Income = ANOI - InterestExpense - Depreciation - Tax
+      const expected = m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax;
       expect(m.netIncome).toBeCloseTo(expected, 2);
       // Principal is NOT subtracted from net income
       expect(m.principalPayment).toBeGreaterThan(0);
@@ -235,7 +235,7 @@ describe("checkGAAPCompliance — Financed property", () => {
 
   it("ASC 230: Cash Flow correctly includes full debt service (interest + principal)", () => {
     for (const m of monthlyData) {
-      const expected = m.noi - m.debtPayment - m.incomeTax;
+      const expected = m.anoi - m.debtPayment - m.incomeTax;
       expect(m.cashFlow).toBeCloseTo(expected, 2);
     }
     const cfChecks = report.results.filter(
@@ -256,7 +256,7 @@ describe("checkGAAPCompliance — Financed property", () => {
     for (const m of monthlyData) {
       expect(m.interestExpense).toBeGreaterThan(0);
       // interestExpense is subtracted in net income calculation
-      expect(m.netIncome).toBeLessThan(m.noi);
+      expect(m.netIncome).toBeLessThan(m.anoi);
     }
   });
 
@@ -403,9 +403,9 @@ describe("ASC 230 — Operating Cash Flow indirect method", () => {
     const data = generatePropertyProForma(financedProperty, baseGlobal, 12);
     for (const m of data) {
       // operatingCashFlow = netIncome + depreciation
-      // netIncome = NOI - interest - depreciation - tax
-      // So operatingCashFlow = NOI - interest - tax
-      const expected = m.noi - m.interestExpense - m.incomeTax;
+      // netIncome = ANOI - interest - depreciation - tax
+      // So operatingCashFlow = ANOI - interest - tax
+      const expected = m.anoi - m.interestExpense - m.incomeTax;
       expect(m.operatingCashFlow).toBeCloseTo(expected, 2);
     }
   });
@@ -489,8 +489,8 @@ describe("ASC 470 — Debt classification", () => {
   it("principal never appears in net income for financed property", () => {
     const data = generatePropertyProForma(financedProperty, baseGlobal, 12);
     for (const m of data) {
-      // Verify net income = NOI - interest - depreciation - tax (no principal)
-      const expected = m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax;
+      // Verify net income = ANOI - interest - depreciation - tax (no principal)
+      const expected = m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax;
       expect(m.netIncome).toBeCloseTo(expected, 2);
       // Confirm principal > 0 so the test is meaningful
       expect(m.principalPayment).toBeGreaterThan(0);
@@ -928,14 +928,14 @@ describe("Full 10-year projection — GAAP compliance", () => {
 
   it("net income identity holds for all 120 months", () => {
     for (const m of data) {
-      const expected = m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax;
+      const expected = m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax;
       expect(m.netIncome).toBeCloseTo(expected, 2);
     }
   });
 
   it("cash flow identity holds for all 120 months", () => {
     for (const m of data) {
-      const expected = m.noi - m.debtPayment - m.incomeTax;
+      const expected = m.anoi - m.debtPayment - m.incomeTax;
       expect(m.cashFlow).toBeCloseTo(expected, 2);
     }
   });

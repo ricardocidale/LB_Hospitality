@@ -80,11 +80,13 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   const revenueNOIData = Array.from({ length: projectionYears }, (_, y) => {
     const rev = yearlyConsolidatedCache[y]?.revenueTotal ?? 0;
     const noi = yearlyConsolidatedCache[y]?.noi ?? 0;
+    const anoi = yearlyConsolidatedCache[y]?.anoi ?? 0;
     const cf = allPropertyYearlyCF.reduce((sum, propCF) => sum + (propCF[y]?.netCashFlowToInvestors ?? 0), 0);
     return {
       year: getFiscalYear(y),
       revenue: Math.round(rev),
       noi: Math.round(noi),
+      anoi: Math.round(anoi),
       cashFlow: Math.round(cf),
     };
   });
@@ -95,7 +97,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   const insights: Insight[] = [
     { text: `Markets: ${marketList}`, type: "neutral" as const },
     { text: `${investmentHorizon}-year total revenue`, metric: formatMoney(totalProjectionRevenue), type: "neutral" as const },
-    { text: `${investmentHorizon}-year total ANOI`, metric: formatMoney(totalProjectionNOI), type: "neutral" as const },
+    { text: `${investmentHorizon}-year total NOI`, metric: formatMoney(totalProjectionNOI), type: "neutral" as const },
+    { text: `${investmentHorizon}-year total ANOI`, metric: formatMoney(financials.totalProjectionANOI || 0), type: "neutral" as const },
     { text: `${investmentHorizon}-year total cash flow`, metric: formatMoney(totalProjectionCashFlow), type: "neutral" as const },
   ];
 
@@ -108,7 +111,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
       { category: "Total Initial Equity", values: [totalInitialEquity], indent: 1 },
       { category: "Total Exit Value", values: [totalExitValue], indent: 1 },
       { category: "Total Projected Revenue", values: [totalProjectionRevenue], indent: 1 },
-      { category: "Total Projected ANOI", values: [totalProjectionNOI], indent: 1 },
+      { category: "Total Projected NOI", values: [totalProjectionNOI], indent: 1 },
+      { category: "Total Projected ANOI", values: [financials.totalProjectionANOI || 0], indent: 1 },
       { category: "Total Projected Cash Flow", values: [totalProjectionCashFlow], indent: 1 },
       { category: "Portfolio Composition", values: [0], isHeader: true },
       { category: "Properties", values: [totalProperties], indent: 1 },
@@ -345,13 +349,17 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
             <div className="bg-card rounded-lg border border-border shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground font-display">Revenue & ANOI</h3>
+                  <h3 className="text-lg font-semibold text-foreground font-display">Revenue & NOI / ANOI</h3>
                   <p className="text-sm text-foreground/50 label-text">{investmentHorizon}-year consolidated projection</p>
                 </div>
                 <div className="flex items-center gap-4 text-xs label-text">
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--primary)' }} />
                     Revenue
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#10B981' }} />
+                    NOI
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#257D41' }} />
@@ -383,11 +391,12 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     width={60}
                   />
                   <Tooltip
-                    formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'ANOI']}
+                    formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : name === 'noi' ? 'NOI' : 'ANOI']}
                     contentStyle={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
                   />
                   <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2} fill="url(#revenueGrad)" dot={false} />
-                  <Area type="monotone" dataKey="noi" stroke="#257D41" strokeWidth={2.5} fill="url(#noiGrad)" dot={false} />
+                  <Area type="monotone" dataKey="noi" stroke="#10B981" strokeWidth={2} fill="url(#noiGrad)" dot={false} />
+                  <Area type="monotone" dataKey="anoi" stroke="#257D41" strokeWidth={2.5} fill="url(#anoiGrad)" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

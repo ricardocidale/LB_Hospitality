@@ -86,18 +86,19 @@ describe("Golden Value Tests — Penny-Exact Verification", () => {
   const expUtilFixed = revTotal * (0.05 * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT));
   const expOtherCosts = revTotal * 0.05;
   const totalOpEx = expRooms + expFB + expEvents + expOther + expMarketing +
-    expPropOps + expUtilVar + expAdmin + expIT + expInsurance + expTaxes +
-    expUtilFixed + expOtherCosts;
+    expPropOps + expUtilVar + expAdmin + expIT + expUtilFixed + expOtherCosts;
   const gop = revTotal - totalOpEx;
   const feeBase = revTotal * DEFAULT_BASE_MANAGEMENT_FEE_RATE;
   const feeIncentive = Math.max(0, gop * DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE);
-  const noi = gop - feeBase - feeIncentive - expFFE;
+  const agop = gop - feeBase - feeIncentive;
+  const noi = agop - expInsurance - expTaxes;
+  const anoi = noi - expFFE;
   const depBasis = 1_000_000 * (1 - DEFAULT_LAND_VALUE_PERCENT);
   const monthlyDep = depBasis / DEPRECIATION_YEARS / 12;
-  const taxableIncome = noi - monthlyDep;
+  const taxableIncome = anoi - monthlyDep;
   const incomeTax = taxableIncome > 0 ? taxableIncome * DEFAULT_TAX_RATE : 0;
-  const netIncome = noi - monthlyDep - incomeTax;
-  const cashFlow = noi - incomeTax;
+  const netIncome = anoi - monthlyDep - incomeTax;
+  const cashFlow = anoi - incomeTax;
 
   it("month 1 revenue components are penny-exact", () => {
     const m = result[0];
@@ -128,6 +129,7 @@ describe("Golden Value Tests — Penny-Exact Verification", () => {
     expect(m.feeBase).toBeCloseTo(feeBase, PENNY);
     expect(m.feeIncentive).toBeCloseTo(feeIncentive, PENNY);
     expect(m.noi).toBeCloseTo(noi, PENNY);
+    expect(m.anoi).toBeCloseTo(anoi, PENNY);
   });
 
   it("month 1 net income and cash flow are penny-exact", () => {
@@ -144,6 +146,7 @@ describe("Golden Value Tests — Penny-Exact Verification", () => {
       expect(m.revenueTotal).toBeCloseTo(revTotal, PENNY);
       expect(m.gop).toBeCloseTo(gop, PENNY);
       expect(m.noi).toBeCloseTo(noi, PENNY);
+      expect(m.anoi).toBeCloseTo(anoi, PENNY);
       expect(m.cashFlow).toBeCloseTo(cashFlow, PENNY);
     }
   });
@@ -260,7 +263,7 @@ describe("Month-over-Month Continuity Cross-Checks", () => {
     for (const m of result) {
       const totalOpEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
         m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
-        m.expenseAdmin + m.expenseIT + m.expenseInsurance + m.expenseTaxes +
+        m.expenseAdmin + m.expenseIT +
         m.expenseUtilitiesFixed + m.expenseOtherCosts;
       expect(m.gop).toBeCloseTo(m.revenueTotal - totalOpEx, PENNY);
     }
@@ -268,20 +271,24 @@ describe("Month-over-Month Continuity Cross-Checks", () => {
 
   it("NOI = GOP - fees - FFE every month", () => {
     for (const m of result) {
-      expect(m.noi).toBeCloseTo(m.gop - m.feeBase - m.feeIncentive - m.expenseFFE, PENNY);
+      const agop = m.gop - m.feeBase - m.feeIncentive;
+      const noi = agop - m.expenseInsurance - m.expenseTaxes;
+      const anoi = noi - m.expenseFFE;
+      expect(m.noi).toBeCloseTo(noi, PENNY);
+      expect(m.anoi).toBeCloseTo(anoi, PENNY);
     }
   });
 
   it("netIncome = NOI - interest - depreciation - tax every month", () => {
     for (const m of result) {
-      const expected = m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax;
+      const expected = m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax;
       expect(m.netIncome).toBeCloseTo(expected, PENNY);
     }
   });
 
   it("cashFlow = NOI - debtPayment - tax every month", () => {
     for (const m of result) {
-      expect(m.cashFlow).toBeCloseTo(m.noi - m.debtPayment - m.incomeTax, PENNY);
+      expect(m.cashFlow).toBeCloseTo(m.anoi - m.debtPayment - m.incomeTax, PENNY);
     }
   });
 
@@ -301,9 +308,9 @@ describe("Month-over-Month Continuity Cross-Checks", () => {
     for (const m of result) {
       const totalOpEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
         m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
-        m.expenseAdmin + m.expenseIT + m.expenseInsurance + m.expenseTaxes +
+        m.expenseAdmin + m.expenseIT +
         m.expenseUtilitiesFixed + m.expenseOtherCosts;
-      expect(m.totalExpenses).toBeCloseTo(totalOpEx + m.feeBase + m.feeIncentive + m.expenseFFE, PENNY);
+      expect(m.totalExpenses).toBeCloseTo(totalOpEx + m.feeBase + m.feeIncentive + m.expenseInsurance + m.expenseTaxes + m.expenseFFE, PENNY);
     }
   });
 

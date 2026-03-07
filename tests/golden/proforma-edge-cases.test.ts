@@ -48,26 +48,31 @@ describe("Golden Pro-Forma Edge Cases", () => {
       });
     });
 
-    it("calculates NOI correctly: NOI = GOP - fees - FFE", () => {
+    it("calculates NOI correctly: NOI = GOP - MgmtFees - Insurance - Taxes", () => {
       // Hand-calc for first month:
       // RevRooms = 20 * 30.5 * 350 * 0.8 = 170,800
       // Ancillary: Events(30%)=51,240, FB(18%*1.22)=37,507.68, Other(5%)=8,540
       // TotalRev = 170,800 + 51,240 + 37,507.68 + 8,540 = 268,087.68
       const m = result[0];
-      const expectedFees = m.revenueTotal * 0.05 + Math.max(0, m.gop * 0.15);
-      expect(m.noi).toBeCloseTo(m.gop - expectedFees - m.expenseFFE, PENNY);
+      const expectedMgmtFees = m.revenueTotal * 0.05 + Math.max(0, m.gop * 0.15);
+      expect(m.noi).toBeCloseTo(m.gop - expectedMgmtFees - m.expenseInsurance - m.expenseTaxes, PENNY);
     });
 
-    it("calculates tax correctly: Tax = max(0, (NOI - depreciation) * taxRate)", () => {
+    it("calculates ANOI correctly: ANOI = NOI - FFE", () => {
       const m = result[0];
-      const taxable = m.noi - m.depreciationExpense;
+      expect(m.anoi).toBeCloseTo(m.noi - m.expenseFFE, PENNY);
+    });
+
+    it("calculates tax correctly: Tax = max(0, (ANOI - interest - depreciation) * taxRate)", () => {
+      const m = result[0];
+      const taxable = m.anoi - m.interestExpense - m.depreciationExpense;
       const expectedTax = taxable > 0 ? taxable * 0.25 : 0;
       expect(m.incomeTax).toBeCloseTo(expectedTax, PENNY);
     });
 
-    it("calculates ATCF correctly: ATCF = NOI - tax", () => {
+    it("calculates ATCF correctly: ATCF = ANOI - debt - tax", () => {
       result.forEach(m => {
-        expect(m.cashFlow).toBeCloseTo(m.noi - m.incomeTax, PENNY);
+        expect(m.cashFlow).toBeCloseTo(m.anoi - m.debtPayment - m.incomeTax, PENNY);
       });
     });
 
@@ -161,7 +166,7 @@ describe("Golden Pro-Forma Edge Cases", () => {
 
     it("verifies incomeTax is zero when taxable income is negative", () => {
       result.forEach(m => {
-        const taxable = m.noi - m.interestExpense - m.depreciationExpense;
+        const taxable = m.anoi - m.interestExpense - m.depreciationExpense;
         if (taxable < 0) {
           expect(m.incomeTax).toBe(0);
         }

@@ -47,13 +47,15 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
         year: getFiscalYear(i),
         Revenue: c?.revenueTotal ?? 0,
         GOP: c?.gop ?? 0,
-        ANOI: c?.noi ?? 0,
+        AGOP: c?.agop ?? 0,
+        NOI: c?.noi ?? 0,
+        ANOI: c?.anoi ?? 0,
       };
     });
   }, [yearlyConsolidatedCache, projectionYears, getFiscalYear]);
 
   const toggleAll = () => {
-    const allKeys = ["revenue", "expenses", "gop", "fees", "noi"];
+    const allKeys = ["revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
     const allExpanded = allKeys.every(k => expandedRows.has(k));
     if (allExpanded) {
       setExpandedRows(new Set());
@@ -62,7 +64,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     }
   };
 
-  const allRowsExpanded = ["revenue", "expenses", "gop", "fees", "noi"].every(k => expandedRows.has(k));
+  const allRowsExpanded = ["revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"].every(k => expandedRows.has(k));
 
   const generateIncomeStatementData = () => {
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
@@ -93,7 +95,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       if (!data) return 0;
       return data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther +
         data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar +
-        data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseTaxes +
+        data.expenseAdmin + data.expenseIT +
         data.expenseUtilitiesFixed + data.expenseOtherCosts;
     };
 
@@ -112,12 +114,9 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       rows.push({ category: "Property Ops", values: years.map((_, i) => c(i)?.expensePropertyOps ?? 0), indent: 1 });
       rows.push({ category: "Admin & General", values: years.map((_, i) => c(i)?.expenseAdmin ?? 0), indent: 1 });
       rows.push({ category: "IT", values: years.map((_, i) => c(i)?.expenseIT ?? 0), indent: 1 });
-      rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
-      rows.push({ category: "Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
       rows.push({ category: "Utilities", values: years.map((_, i) => (c(i)?.expenseUtilitiesVar ?? 0) + (c(i)?.expenseUtilitiesFixed ?? 0)), indent: 1 });
-      rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1 });
       rows.push({ category: "Other Expenses", values: years.map((_, i) => (c(i)?.expenseOther ?? 0) + (c(i)?.expenseOtherCosts ?? 0)), indent: 1 });
-      rows.push({ category: "= Sum of all departmental + undistributed expenses", values: years.map((_, i) => totalOpEx(i)), indent: 1, isFormula: true });
+      rows.push({ category: "= Sum of departmental + undistributed expenses", values: years.map((_, i) => totalOpEx(i)), indent: 1, isFormula: true });
     }
 
     rows.push({ category: "Gross Operating Profit", values: years.map((_, i) => c(i)?.gop ?? 0), isHeader: true, rowId: "gop" });
@@ -139,9 +138,28 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       rows.push({ category: "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), indent: 1, isFormula: true });
     }
 
-    rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, rowId: "noi" });
+    rows.push({ category: "Adjusted GOP (AGOP)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true, rowId: "agop" });
+    if (expandedRows.has("agop")) {
+      rows.push({ category: "= GOP − Management Fees", values: years.map((_, i) => c(i)?.agop ?? 0), indent: 1, isFormula: true });
+      properties.forEach((prop, idx) => {
+        rows.push({
+          category: prop.name,
+          values: years.map((_, i) => p(idx, i)?.agop ?? 0),
+          indent: 1
+        });
+      });
+    }
+
+    rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), isHeader: true, rowId: "fixed" });
+    if (expandedRows.has("fixed")) {
+      rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
+      rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
+      rows.push({ category: "= Insurance + Property Taxes", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), indent: 1, isFormula: true });
+    }
+
+    rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, rowId: "noi" });
     if (expandedRows.has("noi")) {
-      rows.push({ category: "= GOP − Management Fees − FF&E Reserve", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
+      rows.push({ category: "= AGOP − Fixed Charges", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
           category: prop.name,
@@ -150,7 +168,24 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
         });
       });
     }
-    
+
+    rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), isHeader: true, rowId: "ffe" });
+    if (expandedRows.has("ffe")) {
+      rows.push({ category: "= Reserve for Furniture, Fixtures & Equipment", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1, isFormula: true });
+    }
+
+    rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.anoi ?? 0), isHeader: true, rowId: "anoi" });
+    if (expandedRows.has("anoi")) {
+      rows.push({ category: "= NOI − FF&E Reserve", values: years.map((_, i) => c(i)?.anoi ?? 0), indent: 1, isFormula: true });
+      properties.forEach((prop, idx) => {
+        rows.push({
+          category: prop.name,
+          values: years.map((_, i) => p(idx, i)?.anoi ?? 0),
+          indent: 1
+        });
+      });
+    }
+
     return { years, rows };
   };
 
@@ -198,7 +233,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     <div className="space-y-6">
       <FinancialChart
         data={chartData}
-        series={["revenue", "gop", "noi"]}
+        series={["revenue", "gop", "agop", "noi", "anoi"]}
         title={`Income Statement Trends (${projectionYears}-Year Projection)`}
         id="dashboard-income-chart"
       />

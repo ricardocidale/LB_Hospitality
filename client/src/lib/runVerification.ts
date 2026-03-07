@@ -6,7 +6,7 @@
  *
  * The verification pipeline runs 4 independent check systems on every property:
  *   1. Formula Checker (formulaChecker.ts) — Validates math identities
- *      (e.g., Revenue = ADR × Sold Rooms, NOI = GOP - Fees - FF&E)
+ *      (e.g., Revenue = ADR × Sold Rooms, ANOI = NOI - FF&E)
  *   2. GAAP Compliance Checker (gaapComplianceChecker.ts) — Validates accounting rules
  *      (e.g., principal not in Net Income, depreciation method correct)
  *   3. Full Auditor (financialAuditor.ts) — Independent recalculation of every number
@@ -358,15 +358,12 @@ function computeMonthlyPL(tc: TestCase) {
     eventsRev * DEFAULT_EVENT_EXPENSE_RATE +
     otherRev * DEFAULT_OTHER_EXPENSE_RATE +
     totalRev * (tc.property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) +
-    totalRev * ((tc.property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * DEFAULT_UTILITIES_VARIABLE_SPLIT) +
-    totalRev * (tc.property.costRateFFE ?? DEFAULT_COST_RATE_FFE);
+    totalRev * ((tc.property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * DEFAULT_UTILITIES_VARIABLE_SPLIT);
 
   const fixedExpenses =
     totalRev * (tc.property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) +
     totalRev * (tc.property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) +
     totalRev * (tc.property.costRateIT ?? DEFAULT_COST_RATE_IT) +
-    (totalPropertyValue / 12) * (tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) +
-    (totalPropertyValue / 12) * (tc.property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES) +
     totalRev * ((tc.property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT)) +
     totalRev * (tc.property.costRateOther ?? DEFAULT_COST_RATE_OTHER);
 
@@ -374,8 +371,12 @@ function computeMonthlyPL(tc: TestCase) {
   const gop = totalRev - totalOpEx;
   const baseFee = totalRev * (tc.property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
   const incentiveFee = Math.max(0, gop * (tc.property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
+  const agop = gop - baseFee - incentiveFee;
+  const expenseInsurance = (totalPropertyValue / 12) * (tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE);
+  const expenseTaxes = (totalPropertyValue / 12) * (tc.property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES);
+  const noi = agop - expenseInsurance - expenseTaxes;
   const ffeFee = totalRev * (tc.property.costRateFFE ?? DEFAULT_COST_RATE_FFE);
-  const noi = gop - baseFee - incentiveFee - ffeFee;
+  const anoi = noi - ffeFee;
 
   const landPct = tc.property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const depBasis = (tc.property.purchasePrice || 0) * (1 - landPct) + (tc.property.buildingImprovements || 0);
@@ -388,12 +389,12 @@ function computeMonthlyPL(tc: TestCase) {
     interest = loan * (DEFAULT_INTEREST_RATE / 12);
   }
 
-  const taxableIncome = noi - interest - monthlyDep;
+  const taxableIncome = anoi - interest - monthlyDep;
   const incomeTax = taxableIncome > 0 ? taxableIncome * (tc.property.taxRate ?? DEFAULT_TAX_RATE) : 0;
-  const netIncome = noi - interest - monthlyDep - incomeTax;
-  const cashFlow = noi - tc.expectedMonthlyPayment - incomeTax;
+  const netIncome = anoi - interest - monthlyDep - incomeTax;
+  const cashFlow = anoi - tc.expectedMonthlyPayment - incomeTax;
 
-  return { totalRev, gop, baseFee, incentiveFee, noi, netIncome, cashFlow };
+  return { totalRev, gop, baseFee, incentiveFee, noi, anoi, netIncome, cashFlow };
 }
 
 export const KNOWN_VALUE_TEST_CASES: TestCase[] = [
@@ -592,16 +593,24 @@ function buildChecksForTestCase(testCase: TestCase): KnownValueCheck[] {
   });
 
   checks.push({
-    label: "ANOI",
-    formula: "GOP − Base Fee − Incentive Fee − FF&E",
+    label: "NOI",
+    formula: "AGOP − Insurance − Property Taxes",
     expected: r2(pl.noi),
     calculated: r2(pl.noi),
     passed: true,
   });
 
   checks.push({
+    label: "ANOI",
+    formula: "NOI − FF&E Reserve",
+    expected: r2(pl.anoi),
+    calculated: r2(pl.anoi),
+    passed: true,
+  });
+
+  checks.push({
     label: "Net Income",
-    formula: "NOI − Interest − Depreciation − Income Tax",
+    formula: "ANOI − Interest − Depreciation − Income Tax",
     expected: r2(pl.netIncome),
     calculated: r2(pl.netIncome),
     passed: true,
@@ -609,7 +618,7 @@ function buildChecksForTestCase(testCase: TestCase): KnownValueCheck[] {
 
   checks.push({
     label: "Cash Flow",
-    formula: "NOI − Debt Service − Income Tax",
+    formula: "ANOI − Debt Service − Income Tax",
     expected: r2(pl.cashFlow),
     calculated: r2(pl.cashFlow),
     passed: true,

@@ -59,7 +59,9 @@ export interface FinancialIdentitiesInput {
     revenue?: number;
     total_expenses?: number;
     gop?: number;
+    agop?: number;
     noi: number;
+    anoi?: number;
     interest_expense: number;
     depreciation: number;
     income_tax: number;
@@ -125,8 +127,8 @@ export function validateFinancialIdentities(input: FinancialIdentitiesInput): Fi
   ));
 
   checks.push(makeCheck(
-    "Net Income Derivation", "Net Income = NOI - Interest Expense - Depreciation - Income Tax", "ASC 220",
-    r(is.noi - is.interest_expense - is.depreciation - is.income_tax), r(is.net_income), tol, "material", r,
+    "Net Income Derivation", "Net Income = ANOI - Interest Expense - Depreciation - Income Tax", "ASC 220",
+    r((is.anoi ?? is.noi) - is.interest_expense - is.depreciation - is.income_tax), r(is.net_income), tol, "material", r,
   ));
 
   if (cf.principal_payment !== undefined) {

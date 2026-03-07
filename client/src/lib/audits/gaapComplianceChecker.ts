@@ -59,8 +59,8 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
     
     const depExp = m.depreciationExpense || 0;
     const incomeTax = m.incomeTax || 0;
-    const correctNetIncome = m.noi - m.interestExpense - depExp - incomeTax;
-    const incorrectNetIncome = m.noi - m.debtPayment;
+    const correctNetIncome = m.anoi - m.interestExpense - depExp - incomeTax;
+    const incorrectNetIncome = m.anoi - m.debtPayment;
     
     const isCorrect = Math.abs(m.netIncome - correctNetIncome) < 0.01;
     const wouldBeIncorrect = Math.abs(m.netIncome - incorrectNetIncome) < 0.01 && m.principalPayment > 0;
@@ -69,19 +69,19 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
       passed: isCorrect && !wouldBeIncorrect,
       category: "ASC 470 - Debt",
       rule: "Interest/Principal Separation",
-      description: `Month ${i + 1}: Net Income = NOI - Interest (${m.interestExpense.toFixed(0)}) - Depreciation (${depExp.toFixed(0)}) - Tax (${incomeTax.toFixed(0)})`,
+      description: `Month ${i + 1}: Net Income = ANOI - Interest (${m.interestExpense.toFixed(0)}) - Depreciation (${depExp.toFixed(0)}) - Tax (${incomeTax.toFixed(0)})`,
       details: isCorrect ? "Net Income correctly computed per GAAP (includes depreciation and tax)" : "Net Income calculation may be incorrect",
       severity: "critical"
     });
     
-    const expectedCashFlow = m.noi - m.debtPayment - incomeTax;
+    const expectedCashFlow = m.anoi - m.debtPayment - incomeTax;
     const cashFlowCorrect = Math.abs(m.cashFlow - expectedCashFlow) < 0.01;
     
     results.push({
       passed: cashFlowCorrect,
       category: "ASC 230 - Cash Flows",
       rule: "Debt Service & Tax in Cash Flow",
-      description: `Month ${i + 1}: Cash Flow = NOI - Debt Service (${m.debtPayment.toFixed(0)}) - Tax (${incomeTax.toFixed(0)})`,
+      description: `Month ${i + 1}: Cash Flow = ANOI - Debt Service (${m.debtPayment.toFixed(0)}) - Tax (${incomeTax.toFixed(0)})`,
       details: cashFlowCorrect ? "Cash flow correctly includes debt service and income tax" : "Cash flow calculation may be incorrect",
       severity: "critical"
     });
@@ -164,7 +164,7 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
     const m = monthlyData[i];
     
     // NOI should be before debt service per industry standard
-    const noiBeforeDebt = m.noi + m.interestExpense !== m.netIncome || m.principalPayment === 0;
+    const noiBeforeDebt = m.anoi + m.interestExpense !== m.netIncome || m.principalPayment === 0;
     results.push({
       passed: noiBeforeDebt || m.debtPayment === 0,
       category: "USALI Standard",

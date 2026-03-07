@@ -269,8 +269,8 @@ describe("Free Cash Flow Derivation", () => {
   it("Full Equity: BTCF = NOI - debt service = NOI (no debt)", () => {
     const { results } = generateAndAggregate(baseProperty, baseGlobal, 3);
     for (const r of results) {
-      expect(r.btcf).toBeCloseTo(r.noi - r.debtService, 2);
-      expect(r.btcf).toBeCloseTo(r.noi, 2);
+      expect(r.btcf).toBeCloseTo(r.anoi - r.debtService, 2);
+      expect(r.btcf).toBeCloseTo(r.anoi, 2);
     }
   });
 
@@ -284,7 +284,7 @@ describe("Free Cash Flow Derivation", () => {
     };
     const { results } = generateAndAggregate(financedProp, baseGlobal, 3);
     for (const r of results) {
-      expect(r.btcf).toBeCloseTo(r.noi - r.debtService, 2);
+      expect(r.btcf).toBeCloseTo(r.anoi - r.debtService, 2);
     }
   });
 
@@ -295,10 +295,10 @@ describe("Free Cash Flow Derivation", () => {
     }
   });
 
-  it("taxableIncome = NOI - interest - depreciation", () => {
+  it("taxableIncome = ANOI - interest - depreciation", () => {
     const { results } = generateAndAggregate(baseProperty, baseGlobal, 3);
     for (const r of results) {
-      expect(r.taxableIncome).toBeCloseTo(r.noi - r.interestExpense - r.depreciation, 2);
+      expect(r.taxableIncome).toBeCloseTo(r.anoi - r.interestExpense - r.depreciation, 2);
     }
   });
 });
@@ -426,9 +426,9 @@ describe("Full Equity vs Financed Cash Flow Patterns", () => {
 
   it("Full Equity BTCF = NOI; Financed BTCF = NOI - debt service", () => {
     for (let y = 0; y < years; y++) {
-      expect(equityResult.results[y].btcf).toBeCloseTo(equityResult.results[y].noi, 2);
+      expect(equityResult.results[y].btcf).toBeCloseTo(equityResult.results[y].anoi, 2);
       expect(financedResult.results[y].btcf).toBeCloseTo(
-        financedResult.results[y].noi - financedResult.results[y].debtService,
+        financedResult.results[y].anoi - financedResult.results[y].debtService,
         2
       );
     }
@@ -640,10 +640,10 @@ describe("GAAP Cross-Check Identities on Aggregated Data", () => {
   const years = 10;
   const { results } = generateAndAggregate(baseProperty, baseGlobal, years);
 
-  it("netIncome = NOI - interest - depreciation - taxLiability for each year", () => {
+  it("netIncome = ANOI - interest - depreciation - taxLiability for each year", () => {
     for (const r of results) {
       expect(r.netIncome).toBeCloseTo(
-        r.noi - r.interestExpense - r.depreciation - r.taxLiability,
+        r.anoi - r.interestExpense - r.depreciation - r.taxLiability,
         2
       );
     }
@@ -655,9 +655,9 @@ describe("GAAP Cross-Check Identities on Aggregated Data", () => {
     }
   });
 
-  it("BTCF = NOI - debtService for each year", () => {
+  it("BTCF = ANOI - debtService for each year", () => {
     for (const r of results) {
-      expect(r.btcf).toBeCloseTo(r.noi - r.debtService, 2);
+      expect(r.btcf).toBeCloseTo(r.anoi - r.debtService, 2);
     }
   });
 
@@ -667,9 +667,9 @@ describe("GAAP Cross-Check Identities on Aggregated Data", () => {
     }
   });
 
-  it("taxableIncome = NOI - interest - depreciation for each year", () => {
+  it("taxableIncome = ANOI - interest - depreciation for each year", () => {
     for (const r of results) {
-      expect(r.taxableIncome).toBeCloseTo(r.noi - r.interestExpense - r.depreciation, 2);
+      expect(r.taxableIncome).toBeCloseTo(r.anoi - r.interestExpense - r.depreciation, 2);
     }
   });
 

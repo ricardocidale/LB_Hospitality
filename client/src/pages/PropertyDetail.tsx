@@ -102,7 +102,9 @@ export default function PropertyDetail() {
         year: String(getFiscalYear(y)),
         Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
         GOP: yearData.reduce((a, m) => a + m.gop, 0),
-        ANOI: yearData.reduce((a, m) => a + m.noi, 0),
+        AGOP: yearData.reduce((a, m) => a + m.agop, 0),
+        NOI: yearData.reduce((a, m) => a + m.noi, 0),
+        ANOI: yearData.reduce((a, m) => a + m.anoi, 0),
         CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
       });
     }

@@ -43,9 +43,11 @@ export interface PropertyStatement {
   revenue: number;
   operating_expenses?: number;
   gop?: number;
+  agop?: number;
+  noi: number;
+  anoi?: number;
   management_fees?: number;
   ffe_reserve?: number;
-  noi: number;
   interest_expense?: number;
   depreciation?: number;
   income_tax?: number;
@@ -80,7 +82,10 @@ export interface ConsolidationInput {
 export interface ConsolidationOutput {
   consolidated_revenue: number;
   consolidated_expenses: number;
+  consolidated_gop: number;
+  consolidated_agop: number;
   consolidated_noi: number;
+  consolidated_anoi: number;
   consolidated_net_income: number;
   intercompany_eliminations: {
     management_fees_eliminated: number;
@@ -100,7 +105,10 @@ export function consolidateStatements(input: ConsolidationInput): ConsolidationO
 
   const propRevenue = r(sumField(props, p => p.revenue));
   const propExpenses = r(sumField(props, p => p.operating_expenses ?? 0));
+  const propGOP = r(sumField(props, p => p.gop ?? 0));
+  const propAGOP = r(sumField(props, p => p.agop ?? 0));
   const propNOI = r(sumField(props, p => p.noi));
+  const propANOI = r(sumField(props, p => p.anoi ?? 0));
   const propNetIncome = r(sumField(props, p => p.net_income));
   const propAssets = r(sumField(props, p => p.total_assets ?? 0));
   const propLiabilities = r(sumField(props, p => p.total_liabilities ?? 0));
@@ -109,7 +117,10 @@ export function consolidateStatements(input: ConsolidationInput): ConsolidationO
 
   let consolidated_revenue = propRevenue;
   let consolidated_expenses = propExpenses;
+  let consolidated_gop = propGOP;
+  let consolidated_agop = propAGOP;
   let consolidated_noi = propNOI;
+  let consolidated_anoi = propANOI;
   let consolidated_net_income = propNetIncome;
   let consolidated_assets = propAssets;
   let consolidated_liabilities = propLiabilities;
@@ -139,7 +150,7 @@ export function consolidateStatements(input: ConsolidationInput): ConsolidationO
   const bsBalanced = withinTolerance(consolidated_assets, consolidated_liabilities + consolidated_equity, DEFAULT_TOLERANCE);
 
   return {
-    consolidated_revenue, consolidated_expenses, consolidated_noi, consolidated_net_income,
+    consolidated_revenue, consolidated_expenses, consolidated_gop, consolidated_agop, consolidated_noi, consolidated_anoi, consolidated_net_income,
     intercompany_eliminations: { management_fees_eliminated: feeEliminated, fee_linkage_balanced: feeLinkageBalanced, variance: feeVariance },
     consolidated_assets, consolidated_liabilities, consolidated_equity,
     balance_sheet_balanced: bsBalanced,

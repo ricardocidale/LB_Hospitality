@@ -112,11 +112,12 @@ export function usePortfolioFinancials(
   const stats = useMemo(() => {
     if (!yearlyConsolidatedCache.length || !global) return null;
 
-    let totalProjectionRevenue = 0, totalProjectionNOI = 0, totalProjectionCashFlow = 0;
+    let totalProjectionRevenue = 0, totalProjectionNOI = 0, totalProjectionANOI = 0, totalProjectionCashFlow = 0;
     for (let y = 0; y < projectionYears; y++) {
       const yearData = yearlyConsolidatedCache[y];
       totalProjectionRevenue += yearData.revenueTotal;
       totalProjectionNOI += yearData.noi;
+      totalProjectionANOI += yearData.anoi;
       totalProjectionCashFlow += yearData.cashFlow;
     }
 
@@ -153,6 +154,7 @@ export function usePortfolioFinancials(
     return {
       totalProjectionRevenue,
       totalProjectionNOI,
+      totalProjectionANOI,
       totalProjectionCashFlow,
       portfolioIRR,
       equityMultiple,

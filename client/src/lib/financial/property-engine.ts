@@ -204,7 +204,7 @@ export function generatePropertyProForma(
     // GOP = revenue - dept expenses.
     // feeBase: revenue × flat rate, OR sum of active service fee categories.
     // feeIncentive: GOP × incentive rate, floored at 0 (no negative incentive).
-    // NOI = GOP - feeBase - feeIncentive - FF&E reserve.
+    // USALI Waterfall: AGOP = GOP - fees, NOI = AGOP - fixed charges, ANOI = NOI - FF&E.
     const serviceFeesByCategory: Record<string, number> = {};
     let feeBase: number;
     const activeFeeCategories = property.feeCategories?.filter(c => c.isActive);
@@ -222,11 +222,13 @@ export function generatePropertyProForma(
     const totalOperatingExpenses = 
       expenseRooms + expenseFB + expenseEvents + expenseOther + 
       expenseMarketing + expensePropertyOps + expenseUtilitiesVar + 
-      expenseAdmin + expenseIT + expenseInsurance + expenseTaxes + expenseUtilitiesFixed + expenseOtherCosts;
+      expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseOtherCosts;
       
     const gop = revenueTotal - totalOperatingExpenses;
     const feeIncentive = Math.max(0, gop * (property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
-    const noi = gop - feeBase - feeIncentive - expenseFFE;
+    const agop = gop - feeBase - feeIncentive;
+    const noi = agop - expenseInsurance - expenseTaxes;
+    const anoi = noi - expenseFFE;
     
     // ── Debt service ──────────────────────────────────────────────────────────
     // PMT = principal × rate / (1 - (1+rate)^-n).
@@ -275,17 +277,17 @@ export function generatePropertyProForma(
     const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), buildingValue) : 0;
     const propertyValue = isAcquired ? landValue + buildingValue - accumulatedDepreciation : 0;
 
-    const taxableIncome = noi - interestExpense - depreciationExpense;
+    const taxableIncome = anoi - interestExpense - depreciationExpense;
     const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
-    const netIncome = noi - interestExpense - depreciationExpense - incomeTax;
+    const netIncome = anoi - interestExpense - depreciationExpense - incomeTax;
     
     // ── Cash flow (GAAP indirect method, ASC 230) ────────────────────────────
     // operatingCF = netIncome + depreciation (non-cash add-back).
     // financingCF = -principal (debt repayment is a financing outflow).
-    // cashFlow    = NOI - totalDebtService - incomeTax (before-tax FCF bridge).
+    // cashFlow    = ANOI - totalDebtService - incomeTax (before-tax FCF bridge).
     // Operating reserve is seeded at the acquisition month (monthsSinceAcquisition===0)
     // so it is available to cover pre-ops debt service.
-    const cashFlow = noi - debtPayment - incomeTax;
+    const cashFlow = anoi - debtPayment - incomeTax;
 
     const operatingCashFlow = netIncome + depreciationExpense;
     const financingCashFlow = -principalPayment;
@@ -327,9 +329,11 @@ export function generatePropertyProForma(
       expenseTaxes,
       expenseUtilitiesFixed,
       expenseOtherCosts,
-      totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseFFE,
+      totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes + expenseFFE,
       gop,
+      agop,
       noi,
+      anoi,
       interestExpense,
       principalPayment,
       debtPayment,
@@ -361,7 +365,7 @@ export function generatePropertyProForma(
       for (let y = 0; y < projectionYears; y++) {
         const yearSlice = financials.slice(y * 12, (y + 1) * 12);
         yearlyNOI.push(yearSlice.reduce((sum, m) => sum + m.noi, 0));
-        yearlyOperationalMonths.push(yearSlice.filter(m => m.revenueTotal > 0 || m.noi !== 0).length);
+        yearlyOperationalMonths.push(yearSlice.filter(m => m.revenueTotal > 0 || m.anoi !== 0).length);
       }
 
       const refiLTV = property.refinanceLTV ?? DEFAULT_REFI_LTV;
@@ -428,10 +432,10 @@ export function generatePropertyProForma(
               debtOutstanding = entry.ending_balance;
             }
 
-            const taxableIncome = m.noi - interestExpense - m.depreciationExpense;
+            const taxableIncome = m.anoi - interestExpense - m.depreciationExpense;
             const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
-            const netIncome = m.noi - interestExpense - m.depreciationExpense - incomeTax;
-            const cashFlow = m.noi - debtPayment - incomeTax;
+            const netIncome = m.anoi - interestExpense - m.depreciationExpense - incomeTax;
+            const cashFlow = m.anoi - debtPayment - incomeTax;
             const operatingCashFlow = netIncome + m.depreciationExpense;
             const financingCashFlow = -principalPayment;
 

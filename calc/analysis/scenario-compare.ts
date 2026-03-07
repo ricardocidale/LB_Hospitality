@@ -40,7 +40,10 @@ import { roundCents, sumArray, pctChange } from "../shared/utils.js";
 
 export interface ScenarioMetrics {
   total_revenue?: number[];
+  gop?: number[];
+  agop?: number[];
   noi: number[];
+  anoi?: number[];
   net_income?: number[];
   ending_cash?: number[];
   irr: number;
@@ -66,7 +69,10 @@ export interface ScenarioCompareInput {
 export interface YearlyDelta {
   year: number;
   revenue_delta: number;
+  gop_delta?: number;
+  agop_delta?: number;
   noi_delta: number;
+  anoi_delta?: number;
   net_income_delta: number;
   cash_delta: number;
 }
@@ -116,8 +122,14 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
   for (let y = 0; y < years; y++) {
     const bRev = b.total_revenue?.[y] ?? 0;
     const aRev = a.total_revenue?.[y] ?? 0;
+    const bGOP = b.gop?.[y] ?? 0;
+    const aGOP = a.gop?.[y] ?? 0;
+    const bAGOP = b.agop?.[y] ?? 0;
+    const aAGOP = a.agop?.[y] ?? 0;
     const bNOI = b.noi[y] ?? 0;
     const aNOI = a.noi[y] ?? 0;
+    const bANOI = b.anoi?.[y] ?? 0;
+    const aANOI = a.anoi?.[y] ?? 0;
     const bNI = b.net_income?.[y] ?? 0;
     const aNI = a.net_income?.[y] ?? 0;
     const bCash = b.ending_cash?.[y] ?? 0;
@@ -126,13 +138,17 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
     yearly_deltas.push({
       year: y + 1,
       revenue_delta: roundCents(aRev - bRev),
+      gop_delta: roundCents(aGOP - bGOP),
+      agop_delta: roundCents(aAGOP - bAGOP),
       noi_delta: roundCents(aNOI - bNOI),
+      anoi_delta: roundCents(aANOI - bANOI),
       net_income_delta: roundCents(aNI - bNI),
       cash_delta: roundCents(aCash - bCash),
     });
 
     if (aCash < 0 && bCash >= 0) risk_flags.push(`Alternative scenario produces negative cash in Year ${y + 1}`);
     if (aNOI < 0 && bNOI >= 0) risk_flags.push(`Alternative scenario produces negative NOI in Year ${y + 1}`);
+    if (aANOI < 0 && bANOI >= 0) risk_flags.push(`Alternative scenario produces negative ANOI in Year ${y + 1}`);
   }
 
   if (irr_delta < -200) risk_flags.push(`IRR decreased by ${Math.abs(irr_delta)} bps — significant downside risk`);

@@ -73,7 +73,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - All tests must pass before delivering changes
 - No LLM-computed financial values — engine only
 - Button labels: always "Save", never "Update"
-- ANOI terminology: result after management fees = "Adjusted NOI (ANOI)", never "Net Operating Income (NOI)". Internal field name stays `noi`.
+- USALI four-level waterfall: GOP → AGOP → NOI → ANOI. GOP = Revenue − operating expenses (EXCLUDES insurance/taxes). AGOP = GOP − management fees. NOI = AGOP − insurance − property taxes (fixed charges). ANOI = NOI − FF&E reserve. Internal fields: `gop`, `agop`, `noi`, `anoi`. ANOI is the bottom operating line feeding into netIncome, cashFlow, BTCF, taxableIncome. NOI (proper) used for cap rate valuations.
 - Button hover: `hover:scale-[1.03] active:scale-[0.97]` on all buttons — noticeable bounce
 - All properties: `userId = NULL` (shared portfolio)
 - Ricardo Cidale is sole Admin

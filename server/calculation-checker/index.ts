@@ -114,31 +114,51 @@ export function runIndependentVerification(
       ));
 
       checks.push(check(
-        "NOI = GOP - Fees - FF&E",
+        "AGOP = GOP - Management Fees",
         "P&L",
         "USALI",
-        "GOP - Base Fee - Incentive Fee - FF&E Reserve",
-        m.gop - m.feeBase - m.feeIncentive - m.expenseFFE,
+        "GOP - Base Fee - Incentive Fee",
+        m.gop - m.feeBase - m.feeIncentive,
+        m.agop,
+        "critical"
+      ));
+
+      checks.push(check(
+        "NOI = AGOP - Insurance - Taxes",
+        "P&L",
+        "USALI",
+        "AGOP - Insurance - Property Taxes",
+        m.agop - m.expenseInsurance - m.expenseTaxes,
         m.noi,
         "critical"
       ));
 
       checks.push(check(
-        "Net Income = NOI - Interest - Depreciation - Tax",
+        "ANOI = NOI - FF&E Reserve",
+        "P&L",
+        "USALI",
+        "NOI - FF&E Reserve",
+        m.noi - m.expenseFFE,
+        m.anoi,
+        "critical"
+      ));
+
+      checks.push(check(
+        "Net Income = ANOI - Interest - Depreciation - Tax",
         "P&L",
         "ASC 470 / ASC 360",
-        "NOI - Interest - Depreciation - Income Tax",
-        m.noi - m.interestExpense - m.depreciationExpense - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? DEFAULT_TAX_RATE)),
+        "ANOI - Interest - Depreciation - Income Tax",
+        m.anoi - m.interestExpense - m.depreciationExpense - (Math.max(0, m.anoi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? DEFAULT_TAX_RATE)),
         m.netIncome,
         "critical"
       ));
 
       checks.push(check(
-        "Cash Flow = NOI - Debt Service - Tax",
+        "Cash Flow = ANOI - Debt Service - Tax",
         "Cash Flow",
         "ASC 230",
-        "NOI - Total Debt Payment (interest + principal) - Income Tax",
-        m.noi - m.debtPayment - (Math.max(0, m.noi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? DEFAULT_TAX_RATE)),
+        "ANOI - Total Debt Payment (interest + principal) - Income Tax",
+        m.anoi - m.debtPayment - (Math.max(0, m.anoi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? DEFAULT_TAX_RATE)),
         m.cashFlow,
         "critical"
       ));

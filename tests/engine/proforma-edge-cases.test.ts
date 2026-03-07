@@ -545,7 +545,7 @@ describe("Edge Case: Zero Cost Rates (all costRate fields = 0)", () => {
 
   it("NOI = GOP - management fees - FFE (FFE is 0 here)", () => {
     for (const m of result) {
-      expect(m.noi).toBeCloseTo(m.gop - m.feeBase - m.feeIncentive, 2);
+      expect(m.anoi).toBeCloseTo(m.gop - m.feeBase - m.feeIncentive, 2);
     }
   });
 
@@ -792,14 +792,14 @@ describe("Edge Case: GAAP invariants hold for standard property (all months)", (
 
   it("cashFlow = NOI - debtPayment - incomeTax (every month)", () => {
     for (const m of result) {
-      expect(m.cashFlow).toBeCloseTo(m.noi - m.debtPayment - m.incomeTax, 2);
+      expect(m.cashFlow).toBeCloseTo(m.anoi - m.debtPayment - m.incomeTax, 2);
     }
   });
 
   it("netIncome = NOI - interest - depreciation - tax (every month)", () => {
     for (const m of result) {
       expect(m.netIncome).toBeCloseTo(
-        m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax,
+        m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax,
         2,
       );
     }
@@ -1131,8 +1131,6 @@ describe("Edge Case: GOP and NOI accounting identity", () => {
         m.expenseUtilitiesVar +
         m.expenseAdmin +
         m.expenseIT +
-        m.expenseInsurance +
-        m.expenseTaxes +
         m.expenseUtilitiesFixed +
         m.expenseOtherCosts;
       expect(m.gop).toBeCloseTo(m.revenueTotal - operatingExpenses, 2);
@@ -1141,14 +1139,18 @@ describe("Edge Case: GOP and NOI accounting identity", () => {
 
   it("NOI = GOP - feeBase - feeIncentive - FFE", () => {
     for (const m of result) {
-      expect(m.noi).toBeCloseTo(m.gop - m.feeBase - m.feeIncentive - m.expenseFFE, 2);
+      const agop = m.gop - m.feeBase - m.feeIncentive;
+      const noi = agop - m.expenseInsurance - m.expenseTaxes;
+      const anoi = noi - m.expenseFFE;
+      expect(m.noi).toBeCloseTo(noi, 2);
+      expect(m.anoi).toBeCloseTo(anoi, 2);
     }
   });
 
   it("totalExpenses = operatingExpenses + feeBase + feeIncentive + FFE", () => {
     for (const m of result) {
       expect(m.totalExpenses).toBeCloseTo(
-        m.revenueTotal - m.noi,
+        m.revenueTotal - m.anoi,
         2,
       );
     }

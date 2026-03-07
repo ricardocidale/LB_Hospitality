@@ -160,10 +160,10 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
   });
 
   const dscrValues = yearlyData.map((y) =>
-    y.debtService > 0 ? `${(y.noi / y.debtService).toFixed(2)}x` : "N/A"
+    y.debtService > 0 ? `${(y.anoi / y.debtService).toFixed(2)}x` : "N/A"
   );
   const dscrHighlights = yearlyData.map((y) =>
-    y.debtService > 0 && y.noi / y.debtService < 1.25 ? "text-destructive" : undefined
+    y.debtService > 0 && y.anoi / y.debtService < 1.25 ? "text-destructive" : undefined
   );
 
   const banner = !cashAnalysis.isAdequate ? (

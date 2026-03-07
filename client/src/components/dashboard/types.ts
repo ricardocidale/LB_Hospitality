@@ -19,6 +19,7 @@ export interface DashboardFinancials {
   weightedMetricsByYear: WeightedMetrics[];
   totalProjectionRevenue: number;
   totalProjectionNOI: number;
+  totalProjectionANOI: number;
   totalProjectionCashFlow: number;
   portfolioIRR: number;
   equityMultiple: number;

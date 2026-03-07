@@ -78,8 +78,8 @@ export function auditIncomeStatement(
     
     const totalDeptExpenses = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther;
     const totalUndistExpenses = m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar + 
-                                m.expenseAdmin + m.expenseIT + m.expenseInsurance + 
-                                m.expenseTaxes + m.expenseUtilitiesFixed + m.expenseOtherCosts;
+                                m.expenseAdmin + m.expenseIT + 
+                                m.expenseUtilitiesFixed + m.expenseOtherCosts;
     const expectedGOP = m.revenueTotal - totalDeptExpenses - totalUndistExpenses;
     const gopMatch = withinTolerance(expectedGOP, m.gop);
     
@@ -98,9 +98,25 @@ export function auditIncomeStatement(
       });
     }
     
-    const expectedNOI = m.gop - m.feeBase - m.feeIncentive - m.expenseFFE;
+    const expectedAGOP = m.gop - m.feeBase - m.feeIncentive;
+    const agopMatch = withinTolerance(expectedAGOP, m.agop);
+    if (!agopMatch) {
+      findings.push({
+        category: "Income Statement",
+        rule: "AGOP Calculation",
+        gaapReference: "USALI",
+        severity: "critical",
+        passed: false,
+        expected: expectedAGOP.toFixed(2),
+        actual: m.agop.toFixed(2),
+        variance: formatVariance(expectedAGOP, m.agop),
+        recommendation: `Month ${i + 1}: AGOP = GOP - Management Fees`,
+        workpaperRef: `WP-IS-AGOP-M${i + 1}`
+      });
+    }
+
+    const expectedNOI = m.agop - m.expenseInsurance - m.expenseTaxes;
     const noiMatch = withinTolerance(expectedNOI, m.noi);
-    
     if (!noiMatch) {
       findings.push({
         category: "Income Statement",
@@ -111,16 +127,33 @@ export function auditIncomeStatement(
         expected: expectedNOI.toFixed(2),
         actual: m.noi.toFixed(2),
         variance: formatVariance(expectedNOI, m.noi),
-        recommendation: `Month ${i + 1}: NOI = GOP - Management Fees - FF&E Reserve`,
+        recommendation: `Month ${i + 1}: NOI = AGOP - Insurance - Property Taxes`,
         workpaperRef: `WP-IS-NOI-M${i + 1}`
+      });
+    }
+
+    const expectedANOI = m.noi - m.expenseFFE;
+    const anoiMatch = withinTolerance(expectedANOI, m.anoi);
+    if (!anoiMatch) {
+      findings.push({
+        category: "Income Statement",
+        rule: "ANOI Calculation",
+        gaapReference: "USALI",
+        severity: "critical",
+        passed: false,
+        expected: expectedANOI.toFixed(2),
+        actual: m.anoi.toFixed(2),
+        variance: formatVariance(expectedANOI, m.anoi),
+        recommendation: `Month ${i + 1}: ANOI = NOI - FF&E Reserve`,
+        workpaperRef: `WP-IS-ANOI-M${i + 1}`
       });
     }
     
     const depExp = m.depreciationExpense || 0;
-    const taxableForAudit = m.noi - m.interestExpense - depExp;
+    const taxableForAudit = m.anoi - m.interestExpense - depExp;
     const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
     const expectedTax = taxableForAudit > 0 ? taxableForAudit * taxRate : 0;
-    const expectedNetIncome = m.noi - m.interestExpense - depExp - expectedTax;
+    const expectedNetIncome = m.anoi - m.interestExpense - depExp - expectedTax;
     const netIncomeMatch = withinTolerance(expectedNetIncome, m.netIncome);
     
     if (!netIncomeMatch) {
@@ -138,8 +171,9 @@ export function auditIncomeStatement(
       });
     }
     
-    const incorrectNetIncome = m.noi - m.debtPayment;
-    if (m.principalPayment > 0 && withinTolerance(incorrectNetIncome, m.netIncome)) {
+    const incorrectNetIncome = m.anoi - m.debtPayment;
+    const principalSignificant = m.principalPayment > 100;
+    if (principalSignificant && withinTolerance(incorrectNetIncome, m.netIncome) && !withinTolerance(expectedNetIncome, m.netIncome)) {
       findings.push({
         category: "Income Statement",
         rule: "Principal in Net Income (ERROR)",
@@ -154,7 +188,7 @@ export function auditIncomeStatement(
       });
     }
     
-    const expectedCashFlow = m.noi - m.debtPayment - (m.incomeTax || 0) + (m.refinancingProceeds || 0);
+    const expectedCashFlow = m.anoi - m.debtPayment - (m.incomeTax || 0) + (m.refinancingProceeds || 0);
     const cashFlowMatch = withinTolerance(expectedCashFlow, m.cashFlow);
     
     if (!cashFlowMatch) {

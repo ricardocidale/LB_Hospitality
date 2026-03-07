@@ -75,9 +75,17 @@ describe("calculationChecker — Full Equity property", () => {
     expect(gopCheck).toBeDefined();
     expect(gopCheck!.passed).toBe(true);
 
-    const noiCheck = checks.find(c => c.metric === "NOI = GOP - Fees - FF&E");
+    const agopCheck = checks.find(c => c.metric === "AGOP = GOP - Management Fees");
+    expect(agopCheck).toBeDefined();
+    expect(agopCheck!.passed).toBe(true);
+
+    const noiCheck = checks.find(c => c.metric === "NOI = AGOP - Insurance - Taxes");
     expect(noiCheck).toBeDefined();
     expect(noiCheck!.passed).toBe(true);
+
+    const anoiCheck = checks.find(c => c.metric === "ANOI = NOI - FF&E Reserve");
+    expect(anoiCheck).toBeDefined();
+    expect(anoiCheck!.passed).toBe(true);
   });
 
   it("verifies Cumulative Cash Flow = Ending Cash", () => {

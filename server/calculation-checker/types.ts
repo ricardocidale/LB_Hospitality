@@ -25,6 +25,8 @@ export interface ClientPropertyMonthly {
   revenueTotal: number;
   revenueRooms: number;
   noi: number;
+  anoi: number;
+  agop: number;
   gop: number;
   cashFlow: number;
   feeBase: number;
@@ -53,9 +55,13 @@ export interface IndependentMonthlyResult {
   expenseOther: number;
   totalOperatingExpenses: number;
   gop: number;
+  agop: number;
   feeBase: number;
   feeIncentive: number;
+  expenseInsurance: number;
+  expenseTaxes: number;
   noi: number;
+  anoi: number;
   interestExpense: number;
   principalPayment: number;
   debtPayment: number;

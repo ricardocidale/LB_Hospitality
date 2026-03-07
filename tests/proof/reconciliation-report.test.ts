@@ -35,6 +35,7 @@ interface ReconciliationReport {
   };
   noi_to_fcf_bridge: {
     noi: number;
+    anoi: number;
     less_debt_service: number;
     less_income_tax: number;
     plus_refi_proceeds: number;
@@ -69,6 +70,7 @@ function generateReport(
 ): ReconciliationReport {
   const lastMonth = result[result.length - 1];
   const totalNOI = result.reduce((s, m) => s + m.noi, 0);
+  const totalANOI = result.reduce((s, m) => s + m.anoi, 0);
   const totalDebtService = result.reduce((s, m) => s + m.debtPayment, 0);
   const totalTax = result.reduce((s, m) => s + m.incomeTax, 0);
   const totalCF = result.reduce((s, m) => s + m.cashFlow, 0);
@@ -91,11 +93,12 @@ function generateReport(
 
   const noiBridge = {
     noi: totalNOI,
+    anoi: totalANOI,
     less_debt_service: totalDebtService,
     less_income_tax: totalTax,
     plus_refi_proceeds: totalRefi,
     fcf: totalCF,
-    check_passed: Math.abs(totalNOI - totalDebtService - totalTax + totalRefi - totalCF) < 1,
+    check_passed: Math.abs(totalANOI - totalDebtService - totalTax + totalRefi - totalCF) < 1,
   };
 
   const cashBridge = {
@@ -129,6 +132,7 @@ function generateReport(
     },
     income_statement: {
       noi: y1Months.reduce((s, m) => s + m.noi, 0),
+      anoi: y1Months.reduce((s, m) => s + m.anoi, 0),
       interest_expense: y1Months.reduce((s, m) => s + m.interestExpense, 0),
       depreciation: y1Months.reduce((s, m) => s + m.depreciationExpense, 0),
       income_tax: y1Months.reduce((s, m) => s + m.incomeTax, 0),
@@ -180,6 +184,7 @@ Generated: ${report.timestamp}
 | Item | Amount |
 |------|--------|
 | NOI | ${fmt(report.noi_to_fcf_bridge.noi)} |
+| ANOI | ${fmt(report.noi_to_fcf_bridge.anoi)} |
 | Less: Debt Service | ${fmt(report.noi_to_fcf_bridge.less_debt_service)} |
 | Less: Income Tax | ${fmt(report.noi_to_fcf_bridge.less_income_tax)} |
 | Plus: Refi Proceeds | ${fmt(report.noi_to_fcf_bridge.plus_refi_proceeds)} |

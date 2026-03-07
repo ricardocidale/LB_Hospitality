@@ -438,6 +438,7 @@ export interface YearlyCashFlowResult {
   year: number;
   // Operating Performance
   noi: number;
+  anoi: number;
   interestExpense: number;
   depreciation: number;
   // GAAP Net Income Calculation

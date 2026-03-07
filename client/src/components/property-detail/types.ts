@@ -27,6 +27,8 @@ export interface YearlyChartDataPoint {
   year: string;
   Revenue: number;
   GOP: number;
+  AGOP: number;
+  NOI: number;
   ANOI: number;
   CashFlow: number;
 }

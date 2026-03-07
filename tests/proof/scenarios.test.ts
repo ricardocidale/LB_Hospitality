@@ -52,7 +52,7 @@ describe("Proof Scenario 1: Cash Purchase (Full Equity, No Debt)", () => {
 
   it("NI = NOI - Depreciation - Tax (no interest) every month", () => {
     for (const m of result) {
-      const expected = m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax;
+      const expected = m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax;
       expect(m.netIncome).toBeCloseTo(expected, 2);
     }
   });
@@ -65,7 +65,7 @@ describe("Proof Scenario 1: Cash Purchase (Full Equity, No Debt)", () => {
 
   it("cashFlow = NOI - debtPayment - tax every month", () => {
     for (const m of result) {
-      expect(m.cashFlow).toBeCloseTo(m.noi - m.debtPayment - m.incomeTax, 2);
+      expect(m.cashFlow).toBeCloseTo(m.anoi - m.debtPayment - m.incomeTax, 2);
     }
   });
 
@@ -108,6 +108,7 @@ describe("Proof Scenario 1: Cash Purchase (Full Equity, No Debt)", () => {
       const yearEnd = result[y * 12 + 11];
       const yearMonths = result.slice(y * 12, y * 12 + 12);
       const yearNOI = yearMonths.reduce((s, m) => s + m.noi, 0);
+      const yearANOI = yearMonths.reduce((s, m) => s + m.anoi, 0);
       const yearInterest = yearMonths.reduce((s, m) => s + m.interestExpense, 0);
       const yearDep = yearMonths.reduce((s, m) => s + m.depreciationExpense, 0);
       const yearTax = yearMonths.reduce((s, m) => s + m.incomeTax, 0);
@@ -124,6 +125,7 @@ describe("Proof Scenario 1: Cash Purchase (Full Equity, No Debt)", () => {
         },
         income_statement: {
           noi: yearNOI,
+          anoi: yearANOI,
           interest_expense: yearInterest,
           depreciation: yearDep,
           income_tax: yearTax,
@@ -197,7 +199,7 @@ describe("Proof Scenario 2: Financed Purchase (LTV Binding)", () => {
   it("NI excludes principal (ASC 470) every month", () => {
     for (const m of result) {
       expect(m.netIncome).toBeCloseTo(
-        m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax,
+        m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax,
         2,
       );
     }
@@ -277,7 +279,7 @@ describe("Proof Scenario 3: Cash Purchase → Refinance Year 3", () => {
   it("NI = NOI - Interest - Depreciation - Tax (post-refi)", () => {
     for (let i = refiMonthIndex; i < 120; i++) {
       expect(result[i].netIncome).toBeCloseTo(
-        result[i].noi - result[i].interestExpense - result[i].depreciationExpense - result[i].incomeTax,
+        result[i].anoi - result[i].interestExpense - result[i].depreciationExpense - result[i].incomeTax,
         2,
       );
     }
@@ -343,13 +345,21 @@ describe("Proof Scenario 4: OpCo Fees + SPV Fees (Portfolio Aggregate)", () => {
 
   it("portfolio NOI = independently computed NOI for each property", () => {
     for (let i = 0; i < 120; i++) {
-      const noiA = resultA[i].gop - resultA[i].feeBase - resultA[i].feeIncentive - resultA[i].expenseFFE;
-      const noiB = resultB[i].gop - resultB[i].feeBase - resultB[i].feeIncentive - resultB[i].expenseFFE;
-      expect(resultA[i].noi).toBeCloseTo(noiA, 2);
-      expect(resultB[i].noi).toBeCloseTo(noiB, 2);
+      const agopA = resultA[i].gop - resultA[i].feeBase - resultA[i].feeIncentive;
+      const noiA = agopA - resultA[i].expenseInsurance - resultA[i].expenseTaxes;
+      const anoiA = noiA - resultA[i].expenseFFE;
 
-      const portfolioNOI = resultA[i].noi + resultB[i].noi;
-      expect(portfolioNOI).toBeCloseTo(noiA + noiB, 2);
+      const agopB = resultB[i].gop - resultB[i].feeBase - resultB[i].feeIncentive;
+      const noiB = agopB - resultB[i].expenseInsurance - resultB[i].expenseTaxes;
+      const anoiB = noiB - resultB[i].expenseFFE;
+
+      expect(resultA[i].noi).toBeCloseTo(noiA, 2);
+      expect(resultA[i].anoi).toBeCloseTo(anoiA, 2);
+      expect(resultB[i].noi).toBeCloseTo(noiB, 2);
+      expect(resultB[i].anoi).toBeCloseTo(anoiB, 2);
+
+      const portfolioANOI = resultA[i].anoi + resultB[i].anoi;
+      expect(portfolioANOI).toBeCloseTo(anoiA + anoiB, 2);
     }
   });
 });

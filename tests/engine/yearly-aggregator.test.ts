@@ -321,7 +321,7 @@ describe("Full Equity Property: Zero debt service in yearly aggregation", () => 
 
   it("cashFlow = NOI - incomeTax (no debt deduction) every year", () => {
     for (const y of yearly) {
-      expect(y.cashFlow).toBeCloseTo(y.noi - y.incomeTax, 2);
+      expect(y.cashFlow).toBeCloseTo(y.anoi - y.incomeTax, 2);
     }
   });
 
@@ -368,7 +368,7 @@ describe("Financed Property: Debt service affects cash flow", () => {
 
   it("cashFlow = NOI - debtPayment - incomeTax every year", () => {
     for (const y of yearly) {
-      expect(y.cashFlow).toBeCloseTo(y.noi - y.debtPayment - y.incomeTax, 2);
+      expect(y.cashFlow).toBeCloseTo(y.anoi - y.debtPayment - y.incomeTax, 2);
     }
   });
 
@@ -562,14 +562,14 @@ describe("GAAP Invariants at Yearly Level", () => {
 
   it("cashFlow = NOI - debtPayment - incomeTax every year", () => {
     for (const y of yearly) {
-      expect(y.cashFlow).toBeCloseTo(y.noi - y.debtPayment - y.incomeTax, 2);
+      expect(y.cashFlow).toBeCloseTo(y.anoi - y.debtPayment - y.incomeTax, 2);
     }
   });
 
   it("netIncome = NOI - interest - depreciation - incomeTax every year", () => {
     for (const y of yearly) {
       expect(y.netIncome).toBeCloseTo(
-        y.noi - y.interestExpense - y.depreciationExpense - y.incomeTax, 2,
+        y.anoi - y.interestExpense - y.depreciationExpense - y.incomeTax, 2,
       );
     }
   });
@@ -876,8 +876,8 @@ describe("GOP-to-NOI Relationship at Yearly Level", () => {
 
   it("NOI = GOP - feeBase - feeIncentive - FFE every year", () => {
     for (const y of yearly) {
-      expect(y.noi).toBeCloseTo(
-        y.gop - y.feeBase - y.feeIncentive - y.expenseFFE, 2,
+      expect(y.anoi).toBeCloseTo(
+        y.gop - y.feeBase - y.feeIncentive - y.expenseInsurance - y.expenseTaxes - y.expenseFFE, 2,
       );
     }
   });

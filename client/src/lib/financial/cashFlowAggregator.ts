@@ -50,6 +50,7 @@ export function aggregateCashFlowByYear(
   for (let y = 0; y < years; y++) {
     const yearData = data.slice(y * 12, (y + 1) * 12);
     const noi = yearData.reduce((a, m) => a + m.noi, 0);
+    const anoi = yearData.reduce((a, m) => a + m.anoi, 0);
     const interestExpense = yearData.reduce((a, m) => a + m.interestExpense, 0);
     const principalPayment = yearData.reduce((a, m) => a + m.principalPayment, 0);
     const debtService = yearData.reduce((a, m) => a + m.debtPayment, 0);
@@ -64,8 +65,8 @@ export function aggregateCashFlowByYear(
     const cashFromOperations = operatingCashFlow + workingCapitalChange;
     const freeCashFlow = cashFromOperations;
     const freeCashFlowToEquity = freeCashFlow - principalPayment;
-    const btcf = noi - debtService;
-    const taxableIncome = noi - interestExpense - depreciationExpense;
+    const btcf = anoi - debtService;
+    const taxableIncome = anoi - interestExpense - depreciationExpense;
     const atcf = btcf - taxLiability;
 
     // Capital events (exit only in final year)
@@ -97,6 +98,7 @@ export function aggregateCashFlowByYear(
     results.push({
       year: y,
       noi,
+      anoi,
       interestExpense,
       depreciation: depreciationExpense,
       netIncome,

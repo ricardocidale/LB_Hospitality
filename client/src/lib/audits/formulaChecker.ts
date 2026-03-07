@@ -95,9 +95,9 @@ export function checkPropertyFormulas(monthlyData: MonthlyFinancials[]): Formula
     const totalOperatingExpenses = m.expenseRooms + m.expenseFB + m.expenseEvents + 
       m.expenseOther + m.expenseMarketing + m.expensePropertyOps + 
       m.expenseUtilitiesVar + m.expenseAdmin + m.expenseIT + 
-      m.expenseInsurance + m.expenseTaxes + m.expenseUtilitiesFixed + m.expenseOtherCosts;
+      m.expenseUtilitiesFixed + m.expenseOtherCosts;
     
-    const expectedTotalExpenses = totalOperatingExpenses + m.feeBase + m.feeIncentive + m.expenseFFE;
+    const expectedTotalExpenses = totalOperatingExpenses + m.feeBase + m.feeIncentive + m.expenseInsurance + m.expenseTaxes + m.expenseFFE;
     results.push({
       passed: withinTolerance(expectedTotalExpenses, m.totalExpenses),
       name: `${monthLabel}: Total Expenses Formula`,
@@ -116,14 +116,30 @@ export function checkPropertyFormulas(monthlyData: MonthlyFinancials[]): Formula
       actual: m.gop.toFixed(2)
     });
     
-    // 4. NOI = GOP - Management Fees - FF&E
-    const expectedNOI = m.gop - m.feeBase - m.feeIncentive - m.expenseFFE;
+    // 4. USALI Waterfall: AGOP → NOI → ANOI
+    const expectedAGOP = m.gop - m.feeBase - m.feeIncentive;
+    results.push({
+      passed: withinTolerance(expectedAGOP, m.agop),
+      name: `${monthLabel}: AGOP Formula`,
+      description: "AGOP = GOP - Base Fee - Incentive Fee",
+      expected: expectedAGOP.toFixed(2),
+      actual: m.agop.toFixed(2)
+    });
+    const expectedNOI = m.agop - m.expenseInsurance - m.expenseTaxes;
     results.push({
       passed: withinTolerance(expectedNOI, m.noi),
       name: `${monthLabel}: NOI Formula`,
-      description: "NOI = GOP - Base Fee - Incentive Fee - FF&E Reserve",
+      description: "NOI = AGOP - Insurance - Property Taxes",
       expected: expectedNOI.toFixed(2),
       actual: m.noi.toFixed(2)
+    });
+    const expectedANOI = m.noi - m.expenseFFE;
+    results.push({
+      passed: withinTolerance(expectedANOI, m.anoi),
+      name: `${monthLabel}: ANOI Formula`,
+      description: "ANOI = NOI - FF&E Reserve",
+      expected: expectedANOI.toFixed(2),
+      actual: m.anoi.toFixed(2)
     });
     
     // 5. Debt Service = Interest + Principal
@@ -136,21 +152,21 @@ export function checkPropertyFormulas(monthlyData: MonthlyFinancials[]): Formula
       actual: m.debtPayment.toFixed(2)
     });
     
-    // 6. Net Income = NOI - Interest - Depreciation - Tax (GAAP)
+    // 6. Net Income = ANOI - Interest - Depreciation - Tax (GAAP)
     const depExp = m.depreciationExpense || 0;
     const incomeTax = m.incomeTax || 0;
-    const expectedNetIncome = m.noi - m.interestExpense - depExp - incomeTax;
+    const expectedNetIncome = m.anoi - m.interestExpense - depExp - incomeTax;
     results.push({
       passed: withinTolerance(expectedNetIncome, m.netIncome),
       name: `${monthLabel}: Net Income Formula`,
-      description: "Net Income = NOI - Interest - Depreciation - Income Tax (GAAP)",
+      description: "Net Income = ANOI - Interest - Depreciation - Income Tax (GAAP)",
       expected: expectedNetIncome.toFixed(2),
       actual: m.netIncome.toFixed(2)
     });
     
-    // 7. Cash Flow = NOI - Debt Payment - Tax + Refinancing Proceeds (ASC 230)
+    // 7. Cash Flow = ANOI - Debt Payment - Tax + Refinancing Proceeds (ASC 230)
     const refiProceeds = m.refinancingProceeds || 0;
-    const expectedCashFlow = m.noi - m.debtPayment - incomeTax + refiProceeds;
+    const expectedCashFlow = m.anoi - m.debtPayment - incomeTax + refiProceeds;
     results.push({
       passed: withinTolerance(expectedCashFlow, m.cashFlow),
       name: `${monthLabel}: Cash Flow Formula`,

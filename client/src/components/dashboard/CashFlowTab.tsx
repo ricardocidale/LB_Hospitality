@@ -86,9 +86,10 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
   const chartData = useMemo(() => {
     return years.map((year, y) => {
       const noi = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.noi ?? 0), 0);
+      const anoi = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.anoi ?? 0), 0);
       const fcf = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlow ?? 0), 0);
       const fcfe = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0);
-      return { year, NOI: noi, CashFlow: fcf, FCFE: fcfe };
+      return { year, NOI: noi, ANOI: anoi, CashFlow: fcf, FCFE: fcfe };
     });
   }, [allPropertyYearlyCF, years]);
 
@@ -163,7 +164,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     <div className="space-y-6">
       <FinancialChart
         data={chartData}
-        series={["noi", "cashFlow", "fcfe"]}
+        series={["noi", "anoi", "cashFlow", "fcfe"]}
         title={`Cash Flow Trends (${projectionYears}-Year Projection)`}
         id="dashboard-cashflow-chart"
       />

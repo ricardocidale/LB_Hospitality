@@ -261,8 +261,8 @@ describe("Per-Property Fee Impact on NOI and Cash Flow", () => {
     for (let i = 0; i < 12; i++) {
       const feeDiffBase = resultB[i].feeBase - resultA[i].feeBase;
       const feeDiffIncentive = resultB[i].feeIncentive - resultA[i].feeIncentive;
-      const noiDiff = resultA[i].noi - resultB[i].noi;
-      expect(noiDiff).toBeCloseTo(feeDiffBase + feeDiffIncentive, 2);
+      const agopDiff = resultA[i].agop - resultB[i].agop;
+      expect(agopDiff).toBeCloseTo(feeDiffBase + feeDiffIncentive, 2);
     }
   });
 });

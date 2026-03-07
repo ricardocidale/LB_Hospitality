@@ -63,7 +63,9 @@ export interface YearlyPropertyFinancials {
   // Profitability (SUM)
   totalExpenses: number;
   gop: number;
+  agop: number;
   noi: number;
+  anoi: number;
 
   // Below-the-line (SUM)
   interestExpense: number;
@@ -91,7 +93,7 @@ const SUM_FIELDS = [
   "expenseOtherCosts", "expenseMarketing", "expensePropertyOps",
   "expenseUtilitiesVar", "expenseUtilitiesFixed",
   "expenseAdmin", "expenseIT", "expenseInsurance", "expenseTaxes", "expenseFFE",
-  "feeBase", "feeIncentive", "totalExpenses", "gop", "noi",
+  "feeBase", "feeIncentive", "totalExpenses", "gop", "agop", "noi", "anoi",
   "interestExpense", "depreciationExpense", "incomeTax", "netIncome",
   "principalPayment", "debtPayment", "refinancingProceeds",
   "cashFlow", "operatingCashFlow", "financingCashFlow",
@@ -160,7 +162,9 @@ export function aggregatePropertyByYear(
       feeIncentive: sums.feeIncentive,
       totalExpenses: sums.totalExpenses,
       gop: sums.gop,
+      agop: sums.agop,
       noi: sums.noi,
+      anoi: sums.anoi,
       interestExpense: sums.interestExpense,
       depreciationExpense: sums.depreciationExpense,
       incomeTax: sums.incomeTax,

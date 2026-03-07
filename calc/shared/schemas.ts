@@ -89,7 +89,9 @@ export const financialIdentitiesSchema = z.object({
     revenue: z.number().optional(),
     total_expenses: z.number().optional(),
     gop: z.number().optional(),
+    agop: z.number().optional(),
     noi: z.number(),
+    anoi: z.number().optional(),
     interest_expense: z.number(),
     depreciation: z.number(),
     income_tax: z.number(),
@@ -193,7 +195,10 @@ export const exportVerificationSchema = z.object({
 
 const scenarioMetricsSchema = z.object({
   total_revenue: z.array(z.number()).optional(),
+  gop: z.array(z.number()).optional(),
+  agop: z.array(z.number()).optional(),
   noi: z.array(z.number()),
+  anoi: z.array(z.number()).optional(),
   net_income: z.array(z.number()).optional(),
   ending_cash: z.array(z.number()).optional(),
   irr: z.number(),
@@ -201,6 +206,8 @@ const scenarioMetricsSchema = z.object({
   average_dscr: z.number().optional(),
   exit_value: z.number().optional(),
 });
+
+export { scenarioMetricsSchema };
 
 export const consolidationSchema = z.object({
   consolidation_type: z.enum(["properties_only", "full_entity"]),
@@ -210,9 +217,11 @@ export const consolidationSchema = z.object({
     revenue: z.number(),
     operating_expenses: z.number().optional(),
     gop: z.number().optional(),
+    agop: z.number().optional(),
+    noi: z.number(),
+    anoi: z.number().optional(),
     management_fees: z.number().optional(),
     ffe_reserve: z.number().optional(),
-    noi: z.number(),
     interest_expense: z.number().optional(),
     depreciation: z.number().optional(),
     income_tax: z.number().optional(),

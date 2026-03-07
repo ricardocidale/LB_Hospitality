@@ -182,11 +182,13 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const totalOperatingExpenses =
       expenseRooms + expenseFB + expenseEvents + expenseOther +
       expenseMarketing + expensePropertyOps + expenseUtilitiesVar +
-      expenseAdmin + expenseIT + expenseInsurance + expenseTaxes + expenseUtilitiesFixed + expenseOtherCosts;
+      expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseOtherCosts;
 
     const gop = revenueTotal - totalOperatingExpenses;
     const feeIncentive = Math.max(0, gop * (property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
-    const noi = gop - feeBase - feeIncentive - expenseFFE;
+    const agop = gop - feeBase - feeIncentive;
+    const noi = agop - expenseInsurance - expenseTaxes;
+    const anoi = noi - expenseFFE;
 
     let debtPayment = 0;
     let interestExpense = 0;
@@ -213,10 +215,10 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     }
 
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
-    const taxableIncome = noi - interestExpense - depreciationExpense;
+    const taxableIncome = anoi - interestExpense - depreciationExpense;
     const incomeTax = taxableIncome > 0 ? taxableIncome * (property.taxRate ?? DEFAULT_TAX_RATE) : 0;
-    const netIncome = noi - interestExpense - depreciationExpense - incomeTax;
-    const cashFlow = noi - debtPayment - incomeTax;
+    const netIncome = anoi - interestExpense - depreciationExpense - incomeTax;
+    const cashFlow = anoi - debtPayment - incomeTax;
 
     const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), depreciableBasis) : 0;
     const propertyValue = isAcquired ? landValue + depreciableBasis - accumulatedDepreciation : 0;
@@ -245,9 +247,13 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       expenseOther,
       totalOperatingExpenses,
       gop,
+      agop,
       feeBase,
       feeIncentive,
+      expenseInsurance,
+      expenseTaxes,
       noi,
+      anoi,
       interestExpense,
       principalPayment,
       debtPayment,
@@ -261,7 +267,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       endingCash: cumulativeCash,
       cashShortfall: cumulativeCash < 0,
       expenseFFE,
-      totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseFFE,
+      totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes + expenseFFE,
     });
   }
 

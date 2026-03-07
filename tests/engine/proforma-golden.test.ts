@@ -105,9 +105,9 @@ describe("generatePropertyProForma — golden scenario (Full Equity)", () => {
     });
 
     it("Net Income = NOI - Depreciation - Tax (no interest)", () => {
-      const taxableIncome = m0.noi - m0.depreciationExpense;
+      const taxableIncome = m0.anoi - m0.depreciationExpense;
       const expectedTax = taxableIncome > 0 ? taxableIncome * 0.25 : 0;
-      const expectedNI = m0.noi - m0.depreciationExpense - expectedTax;
+      const expectedNI = m0.anoi - m0.depreciationExpense - expectedTax;
       expect(m0.netIncome).toBeCloseTo(expectedNI, 2);
     });
 
@@ -115,7 +115,7 @@ describe("generatePropertyProForma — golden scenario (Full Equity)", () => {
       // Net income should NOT include any principal component
       // For Full Equity, both are 0 — but verify the relationship
       expect(m0.netIncome).toBeCloseTo(
-        m0.noi - m0.interestExpense - m0.depreciationExpense - m0.incomeTax,
+        m0.anoi - m0.interestExpense - m0.depreciationExpense - m0.incomeTax,
         2
       );
     });
@@ -160,7 +160,7 @@ describe("generatePropertyProForma — golden scenario (Full Equity)", () => {
   describe("cash flow consistency (every month)", () => {
     it("cashFlow = NOI - debtPayment - incomeTax", () => {
       for (const m of result) {
-        expect(m.cashFlow).toBeCloseTo(m.noi - m.debtPayment - m.incomeTax, 2);
+        expect(m.cashFlow).toBeCloseTo(m.anoi - m.debtPayment - m.incomeTax, 2);
       }
     });
 
@@ -242,7 +242,7 @@ describe("generatePropertyProForma — golden scenario (Financed)", () => {
   it("Net Income excludes principal (ASC 470)", () => {
     for (const m of result) {
       expect(m.netIncome).toBeCloseTo(
-        m.noi - m.interestExpense - m.depreciationExpense - m.incomeTax,
+        m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax,
         2
       );
     }

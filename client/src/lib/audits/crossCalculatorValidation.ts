@@ -216,19 +216,19 @@ export function crossValidateFinancingCalculators(
     source: 'Amortization: Interest = Balance × Rate (declining balance)',
   });
 
-  // 7. Net Income Identity: NOI - Interest - Depreciation - Tax = Net Income (GAAP)
+  // 7. Net Income Identity: ANOI - Interest - Depreciation - Tax = Net Income (GAAP)
   let niErrors = 0;
   for (const m of monthlyData) {
-    const taxableIncome = m.noi - m.interestExpense - (m.depreciationExpense || 0);
+    const taxableIncome = m.anoi - m.interestExpense - (m.depreciationExpense || 0);
     const expectedTax = taxableIncome > 0 ? taxableIncome * (m.incomeTax / Math.max(taxableIncome, 0.01)) : 0;
-    const expectedNI = m.noi - m.interestExpense - (m.depreciationExpense || 0) - m.incomeTax;
+    const expectedNI = m.anoi - m.interestExpense - (m.depreciationExpense || 0) - m.incomeTax;
     if (!withinTolerance(m.netIncome, expectedNI)) {
       niErrors++;
     }
   }
   results.push({
     name: 'GAAP: Net Income Identity',
-    description: 'Net Income = NOI − Interest − Depreciation − Tax (per GAAP Income Statement)',
+    description: 'Net Income = ANOI − Interest − Depreciation − Tax (per GAAP Income Statement)',
     passed: niErrors === 0,
     severity: 'critical',
     expected: '0 errors',
@@ -277,7 +277,7 @@ export function crossValidateFinancingCalculators(
   for (const m of monthlyData) {
     const totalOpEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
       m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
-      m.expenseAdmin + m.expenseIT + m.expenseInsurance + m.expenseTaxes +
+      m.expenseAdmin + m.expenseIT +
       m.expenseUtilitiesFixed + m.expenseOtherCosts;
     const expectedGOP = m.revenueTotal - totalOpEx;
     if (!withinTolerance(m.gop, expectedGOP)) {
@@ -294,17 +294,19 @@ export function crossValidateFinancingCalculators(
     source: 'USALI 12th Edition: Gross Operating Profit',
   });
 
-  // 11. NOI Identity: GOP - Mgmt Fees - FFE (USALI)
+  // 11. USALI 4-level waterfall: AGOP → NOI → ANOI
   let noiErrors = 0;
   for (const m of monthlyData) {
-    const expectedNOI = m.gop - m.feeBase - m.feeIncentive - m.expenseFFE;
-    if (!withinTolerance(m.noi, expectedNOI)) {
+    const expectedAGOP = m.gop - m.feeBase - m.feeIncentive;
+    const expectedNOI = m.agop - m.expenseInsurance - m.expenseTaxes;
+    const expectedANOI = m.noi - m.expenseFFE;
+    if (!withinTolerance(m.agop, expectedAGOP) || !withinTolerance(m.noi, expectedNOI) || !withinTolerance(m.anoi, expectedANOI)) {
       noiErrors++;
     }
   }
   results.push({
-    name: 'USALI: NOI Identity',
-    description: 'NOI = GOP − Base Fee − Incentive Fee − FF&E Reserve',
+    name: 'USALI: Waterfall Identity (AGOP → NOI → ANOI)',
+    description: 'AGOP = GOP − Fees; NOI = AGOP − Insurance − Taxes; ANOI = NOI − FF&E',
     passed: noiErrors === 0,
     severity: 'critical',
     expected: '0 errors',

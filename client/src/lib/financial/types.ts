@@ -182,7 +182,9 @@ export interface MonthlyFinancials {
   expenseOtherCosts: number;
   totalExpenses: number;
   gop: number;
+  agop: number;
   noi: number;
+  anoi: number;
   interestExpense: number;
   principalPayment: number;
   debtPayment: number;

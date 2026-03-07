@@ -564,6 +564,7 @@ export default function PropertyDetail() {
               onTabChange={setActiveTab}
               rightContent={
                 <ExportMenu
+                  variant="light"
                   actions={[
                     pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
                     excelAction(() => handleExcelExport()),

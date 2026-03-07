@@ -38,7 +38,6 @@ import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { LayoutDashboard, FileText, Banknote, Scale, TrendingUp as TrendingUpIcon, Loader2, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { PROJECTION_YEARS } from "@/lib/constants";
-import { Dashboard3DBackground } from "@/components/Dashboard3DBackground";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { ExportDialog } from "@/components/ExportDialog";
@@ -268,7 +267,6 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <Dashboard3DBackground />
       <AnimatedPage>
         <div className="relative z-10 max-w-[1600px] mx-auto space-y-8 pb-20">
           <PageHeader
@@ -290,6 +288,7 @@ export default function Dashboard() {
                 ]}
                 rightContent={
                   <ExportMenu
+                    variant="light"
                     actions={[
                       pdfAction(handleExportPDF),
                       excelAction(handleExportExcel),

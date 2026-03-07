@@ -65,7 +65,7 @@ export default function Admin() {
             variant="dark"
             actions={
               activeGroup ? (
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-gray-200">
                   {activeGroup.icon && <activeGroup.icon className="w-3.5 h-3.5 text-white/60" />}
                   <span className="text-xs font-medium text-white/70">{activeGroup.label}</span>
                 </div>

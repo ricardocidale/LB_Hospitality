@@ -1,16 +1,3 @@
-/**
- * InsightPanel.tsx — AI-style insight summary card.
- *
- * Renders a list of tagged insights with type-based icons and colors:
- *   • positive (green check)  — e.g. "Cash position: Adequate"
- *   • negative (red arrow)    — e.g. "Cash shortfall: $120K"
- *   • warning (amber triangle)— e.g. "Occupancy below 60%"
- *   • neutral (sparkles)      — e.g. "Total funding: $500K"
- *
- * Used on property detail and company pages to surface key takeaways
- * from the financial projections without requiring the user to scan
- * the full income statement.
- */
 import { motion } from "framer-motion";
 import { Sparkles, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { type ReactNode } from "react";
@@ -44,13 +31,13 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className={`flex flex-wrap gap-3 ${className || ""}`}
+        className={`flex flex-wrap gap-2 ${className || ""}`}
         data-testid={props["data-testid"]}
       >
         {insights.map((insight, i) => {
           const config = typeConfig[insight.type || "neutral"];
           return (
-            <span key={i} className={`inline-flex items-center gap-1.5 text-xs ${config.color} bg-white/80 rounded-full px-3 py-1.5 border border-gray-100`}>
+            <span key={i} className={`inline-flex items-center gap-1.5 text-xs ${config.color} bg-white rounded-full px-3 py-1.5 border border-gray-200`}>
               {config.icon}
               {insight.text}
               {insight.metric && <span className="font-mono font-semibold">{insight.metric}</span>}
@@ -67,11 +54,11 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className={`rounded-xl p-4 bg-primary/5 border border-primary/10 ${className || ""}`}
+        className={`rounded-lg p-4 bg-gray-50 border border-gray-200 ${className || ""}`}
         data-testid={props["data-testid"]}
       >
         <div className="flex items-center gap-2 mb-2">
-          {icon || <Sparkles className="w-4 h-4 text-primary" />}
+          {icon || <Sparkles className="w-4 h-4 text-gray-500" />}
           <span className="text-sm font-medium text-gray-700">{title || "Key Insights"}</span>
         </div>
         <div className="space-y-1.5">
@@ -94,40 +81,35 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3, duration: 0.5 }}
-      className={`relative overflow-hidden rounded-2xl p-6 bg-white/30 backdrop-blur-md border border-white/30 shadow-[0_8px_32px_rgba(159,188,164,0.08),inset_0_1px_0_rgba(255,255,255,0.4)] ${className || ""}`}
+      transition={{ delay: 0.2, duration: 0.4 }}
+      className={`rounded-lg p-5 bg-white border border-gray-200 shadow-sm ${className || ""}`}
       data-testid={props["data-testid"]}
     >
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/20 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-primary/8 blur-2xl" />
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 via-transparent to-white/10 pointer-events-none" />
-      <div className="relative">
-        <div className="flex items-center gap-2 mb-4">
-          {icon || <Sparkles className="w-5 h-5 text-primary" />}
-          <h3 className="text-lg font-display text-gray-900">{title || "Key Insights"}</h3>
-        </div>
-        <div className="space-y-3">
-          {insights.map((insight, i) => {
-            const config = typeConfig[insight.type || "neutral"];
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + i * 0.1 }}
-                className="flex items-start gap-3"
-              >
-                <div className={`mt-0.5 ${config.color}`}>{config.icon}</div>
-                <p className="text-sm text-gray-700">
-                  {insight.text}
-                  {insight.metric && <span className="font-mono font-semibold ml-1">{insight.metric}</span>}
-                </p>
-              </motion.div>
-            );
-          })}
-        </div>
+      <div className="flex items-center gap-2 mb-3">
+        {icon || <Sparkles className="w-4 h-4 text-gray-500" />}
+        <h3 className="text-sm font-semibold text-gray-900">{title || "Key Insights"}</h3>
+      </div>
+      <div className="space-y-2.5">
+        {insights.map((insight, i) => {
+          const config = typeConfig[insight.type || "neutral"];
+          return (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -4 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + i * 0.08 }}
+              className="flex items-start gap-2.5"
+            >
+              <div className={`mt-0.5 ${config.color}`}>{config.icon}</div>
+              <p className="text-sm text-gray-700">
+                {insight.text}
+                {insight.metric && <span className="font-mono font-semibold ml-1">{insight.metric}</span>}
+              </p>
+            </motion.div>
+          );
+        })}
       </div>
     </motion.div>
   );

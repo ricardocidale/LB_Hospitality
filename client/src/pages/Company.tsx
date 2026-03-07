@@ -181,6 +181,7 @@ export default function Company() {
 
   const exportMenuNode = (
     <ExportMenu
+      variant="light"
       actions={[
         pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
         excelAction(() => handleExcelExport(activeTab, financials, projectionYears, global, fiscalYearStartMonth)),

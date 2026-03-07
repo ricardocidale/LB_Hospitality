@@ -1,10 +1,3 @@
-/**
- * financial-chart.tsx — Configurable line chart for multi-year financial projections.
- *
- * Renders a Recharts LineChart with up to three series (e.g. Revenue, Expenses,
- * Net Income) plotted across projection years. Used on property detail and
- * company pages to visualize trends. Supports a ref for screenshot export.
- */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -27,15 +20,15 @@ export interface ChartSeries {
 }
 
 const PRESET_SERIES: Record<string, ChartSeries> = {
-  revenue: { dataKey: "Revenue", name: "Total Revenue", color: "#257D41", gradientTo: "#34D399" },
-  gop: { dataKey: "GOP", name: "Gross Operating Profit", color: "#3B82F6", gradientTo: "#60A5FA" },
-  noi: { dataKey: "NOI", name: "Net Operating Income", color: "#F4795B", gradientTo: "#FB923C" },
-  expenses: { dataKey: "Expenses", name: "Total Expenses", color: "#3B82F6", gradientTo: "#60A5FA" },
-  netIncome: { dataKey: "NetIncome", name: "Net Income", color: "#F4795B", gradientTo: "#FB923C" },
-  cashFlow: { dataKey: "CashFlow", name: "Cash Flow", color: "#8B5CF6", gradientTo: "#A78BFA" },
-  fcfe: { dataKey: "FCFE", name: "Free Cash Flow to Equity", color: "#F4795B", gradientTo: "#FB923C" },
-  btcf: { dataKey: "BTCF", name: "Before-Tax Cash Flow", color: "#3B82F6", gradientTo: "#60A5FA" },
-  atcf: { dataKey: "ATCF", name: "After-Tax Cash Flow", color: "#F4795B", gradientTo: "#FB923C" },
+  revenue: { dataKey: "Revenue", name: "Total Revenue", color: "#18181b" },
+  gop: { dataKey: "GOP", name: "Gross Operating Profit", color: "#3B82F6" },
+  noi: { dataKey: "NOI", name: "Net Operating Income", color: "#6B7280" },
+  expenses: { dataKey: "Expenses", name: "Total Expenses", color: "#3B82F6" },
+  netIncome: { dataKey: "NetIncome", name: "Net Income", color: "#6B7280" },
+  cashFlow: { dataKey: "CashFlow", name: "Cash Flow", color: "#8B5CF6" },
+  fcfe: { dataKey: "FCFE", name: "Free Cash Flow to Equity", color: "#6B7280" },
+  btcf: { dataKey: "BTCF", name: "Before-Tax Cash Flow", color: "#3B82F6" },
+  atcf: { dataKey: "ATCF", name: "After-Tax Cash Flow", color: "#6B7280" },
 };
 
 export interface FinancialChartProps {
@@ -69,7 +62,6 @@ function FinancialChart({
   tooltipFormatter,
   className,
   chartRef,
-  id,
 }: FinancialChartProps) {
   const resolvedSeries = series.map((s) => {
     if (typeof s === "string") {
@@ -78,86 +70,68 @@ function FinancialChart({
     return s;
   });
 
-  const chartId = id || React.useId().replace(/:/g, "");
-
   return (
     <div
       ref={chartRef}
       className={cn(
-        "relative overflow-hidden rounded-3xl p-6 bg-white shadow-lg border border-gray-100",
+        "rounded-lg p-5 bg-white border border-gray-200 shadow-sm",
         className
       )}
     >
-      <div className="relative">
-        {title && (
-          <h3 className="text-lg font-display text-gray-900 mb-4">{title}</h3>
-        )}
-        {subtitle && (
-          <p className="text-sm text-gray-500 mb-4 -mt-3">{subtitle}</p>
-        )}
-        <div style={{ height }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <defs>
-                {resolvedSeries.map((s, i) => (
-                  <linearGradient
-                    key={`${chartId}-grad-${i}`}
-                    id={`${chartId}-grad-${i}`}
-                    x1="0"
-                    y1="0"
-                    x2="1"
-                    y2="0"
-                  >
-                    <stop offset="0%" stopColor={s.color} />
-                    <stop offset="100%" stopColor={s.gradientTo || s.color} />
-                  </linearGradient>
-                ))}
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-              <XAxis
-                dataKey={xAxisKey}
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={{ stroke: "#E5E7EB" }}
+      {title && (
+        <h3 className="text-sm font-semibold text-gray-900 mb-1">{title}</h3>
+      )}
+      {subtitle && (
+        <p className="text-xs text-gray-500 mb-4">{subtitle}</p>
+      )}
+      <div style={{ height }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+            <XAxis
+              dataKey={xAxisKey}
+              stroke="#9CA3AF"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+            />
+            <YAxis
+              stroke="#9CA3AF"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={yAxisFormatter}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "white",
+                borderColor: "#E5E7EB",
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                fontSize: "13px",
+              }}
+              labelStyle={{ color: "#111827", fontWeight: 600, fontSize: "13px" }}
+              formatter={(value: number) => [
+                tooltipFormatter ? tooltipFormatter(value) : formatMoney(value),
+                "",
+              ]}
+            />
+            <Legend wrapperStyle={{ color: "#374151", fontSize: "12px" }} iconType="circle" />
+            {resolvedSeries.map((s) => (
+              <Line
+                key={s.dataKey}
+                type="monotone"
+                dataKey={s.dataKey}
+                stroke={s.color}
+                strokeWidth={2}
+                name={s.name || s.dataKey}
+                dot={false}
+                activeDot={{ r: 4, fill: s.color, stroke: "#fff", strokeWidth: 2 }}
               />
-              <YAxis
-                stroke="#6B7280"
-                fontSize={12}
-                tickLine={false}
-                axisLine={{ stroke: "#E5E7EB" }}
-                tickFormatter={yAxisFormatter}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "white",
-                  borderColor: "#E5E7EB",
-                  borderRadius: "12px",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                  color: "#111827",
-                }}
-                labelStyle={{ color: "#374151", fontWeight: 600 }}
-                formatter={(value: number) => [
-                  tooltipFormatter ? tooltipFormatter(value) : formatMoney(value),
-                  "",
-                ]}
-              />
-              <Legend wrapperStyle={{ color: "#374151" }} iconType="circle" />
-              {resolvedSeries.map((s, i) => (
-                <Line
-                  key={s.dataKey}
-                  type="monotone"
-                  dataKey={s.dataKey}
-                  stroke={`url(#${chartId}-grad-${i})`}
-                  strokeWidth={3}
-                  name={s.name || s.dataKey}
-                  dot={{ fill: s.color, stroke: "#fff", strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, fill: s.color, stroke: "#fff", strokeWidth: 2 }}
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

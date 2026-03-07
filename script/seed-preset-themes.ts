@@ -117,6 +117,25 @@ const PRESET_THEMES: PresetTheme[] = [
       { rank: 5, name: "Crimson",        hexCode: "#EF4444", description: "CHART: Quinary series — alerts and negative variance." },
     ],
   },
+  {
+    name: "Replit Violet",
+    description:
+      "Inspired by the Replit thinking icon — warm violet-purple primary with clean, modern neutrals. Creative energy meets professional clarity.",
+    isDefault: false,
+    colors: [
+      { rank: 1, name: "Violet",         hexCode: "#7C5CFC", description: "PALETTE: Primary brand color. Warm violet-purple for buttons, active nav, focus rings." },
+      { rank: 2, name: "Deep Indigo",    hexCode: "#5B3FD6", description: "PALETTE: Secondary accent. Deep indigo for contrast badges and emphasis." },
+      { rank: 3, name: "Lavender White", hexCode: "#FAF9FE", description: "PALETTE: Background and card surfaces. Soft lavender-tinted white." },
+      { rank: 4, name: "Dark Plum",      hexCode: "#1E1B2E", description: "PALETTE: Foreground text. Deep plum-charcoal for sharp, readable type." },
+      { rank: 5, name: "Mist Lilac",     hexCode: "#F0EEF6", description: "PALETTE: Muted surfaces. Soft lilac-gray for secondary cards and table alternates." },
+      { rank: 6, name: "Heather",        hexCode: "#D5D1E1", description: "PALETTE: Borders and input outlines. Subtle heather-purple border tone." },
+      { rank: 1, name: "Violet",         hexCode: "#7C5CFC", description: "CHART: Primary series — revenue and key metrics." },
+      { rank: 2, name: "Indigo",         hexCode: "#5B3FD6", description: "CHART: Secondary series — net income and profitability." },
+      { rank: 3, name: "Amber",          hexCode: "#F59E0B", description: "CHART: Tertiary series — warm contrast for cash flow data." },
+      { rank: 4, name: "Teal",           hexCode: "#14B8A6", description: "CHART: Quaternary series — operations and cost metrics." },
+      { rank: 5, name: "Rose",           hexCode: "#F43F5E", description: "CHART: Quinary series — alerts and negative variance." },
+    ],
+  },
 ];
 
 async function main() {

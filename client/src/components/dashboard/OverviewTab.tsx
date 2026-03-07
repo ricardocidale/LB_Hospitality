@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { AnimatedSection, InsightPanel, ScrollReveal, type Insight } from "@/components/graphics";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, LineChart, Line } from "recharts";
 import { DashboardTabProps } from "./types";
 import PortfolioResearchCard from "./PortfolioResearchCard";
 import { formatMoney } from "@/lib/financialEngine";
@@ -17,6 +17,37 @@ function calculateIRR(cashFlows: number[]): number {
   return result.irr_periodic ?? 0;
 }
 
+type ChartMode = "area" | "line";
+
+function ChartModeToggle({ mode, onChange }: { mode: ChartMode; onChange: (m: ChartMode) => void }) {
+  return (
+    <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5" data-testid="chart-mode-toggle">
+      <button
+        onClick={() => onChange("area")}
+        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
+          mode === "area"
+            ? "bg-card text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+        data-testid="toggle-area-chart"
+      >
+        Area
+      </button>
+      <button
+        onClick={() => onChange("line")}
+        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
+          mode === "line"
+            ? "bg-card text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+        data-testid="toggle-line-chart"
+      >
+        Line
+      </button>
+    </div>
+  );
+}
+
 export function OverviewTab({ financials, properties, projectionYears, getFiscalYear }: DashboardTabProps) {
   const {
     yearlyConsolidatedCache,
@@ -31,6 +62,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
     totalProjectionNOI,
     totalProjectionCashFlow
   } = financials;
+
+  const [chartMode, setChartMode] = useState<ChartMode>("area");
 
   const tabContentRef = useRef<HTMLDivElement>(null);
   const chartsRef = useRef<HTMLDivElement>(null);
@@ -203,9 +236,9 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     <svg className="w-48 h-48" viewBox="0 0 200 200">
                       <defs>
                         <linearGradient id="irrTube3D" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="var(--primary)" />
-                          <stop offset="40%" stopColor="#257D41" />
-                          <stop offset="100%" stopColor="#1a5c2e" />
+                          <stop offset="0%" stopColor="hsl(var(--chart-1))" />
+                          <stop offset="50%" stopColor="hsl(var(--chart-2))" />
+                          <stop offset="100%" stopColor="hsl(var(--chart-3))" />
                         </linearGradient>
                       </defs>
                       <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(45,74,94,0.1)" strokeWidth="12" />
@@ -228,12 +261,12 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={propertyIRRData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#6b7280' }} angle={-25} textAnchor="end" height={50} axisLine={false} tickLine={false} />
-                      <YAxis tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 10, fill: '#6b7280' }} domain={[0, 'auto']} width={45} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} angle={-25} textAnchor="end" height={50} axisLine={false} tickLine={false} />
+                      <YAxis tickFormatter={(v: number) => `${v}%`} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} domain={[0, 'auto']} width={45} axisLine={false} tickLine={false} />
                       <Tooltip
                         formatter={(value: number) => [`${value.toFixed(1)}%`, 'IRR']}
                         labelFormatter={(_label: string, payload: Array<{ payload?: { fullName?: string } }>) => payload?.[0]?.payload?.fullName || _label}
-                        contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
+                        contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', fontSize: 12, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
                       />
                       <Bar dataKey="irr" radius={[4, 4, 0, 0]} maxBarSize={40} fill="var(--primary)" />
                     </BarChart>
@@ -245,14 +278,14 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={propertyInvestmentData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#6b7280' }} angle={-25} textAnchor="end" height={50} axisLine={false} tickLine={false} />
-                      <YAxis tickFormatter={(v: number) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}K`} tick={{ fontSize: 10, fill: '#6b7280' }} domain={[0, 'auto']} width={55} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} angle={-25} textAnchor="end" height={50} axisLine={false} tickLine={false} />
+                      <YAxis tickFormatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} domain={[0, 'auto']} width={55} axisLine={false} tickLine={false} />
                       <Tooltip
                         formatter={(value: number) => [`$${value.toLocaleString()}`, 'Equity Invested']}
                         labelFormatter={(_label: string, payload: Array<{ payload?: { fullName?: string } }>) => payload?.[0]?.payload?.fullName || _label}
-                        contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb', fontSize: 12, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
+                        contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', fontSize: 12, boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
                       />
-                      <Bar dataKey="investment" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#257D41" />
+                      <Bar dataKey="investment" radius={[4, 4, 0, 0]} maxBarSize={40} fill="hsl(var(--chart-2))" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -265,9 +298,9 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       <svg className="w-14 h-14" viewBox="0 0 100 100">
                         <defs>
                           <linearGradient id="smallTube3D_eq" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="var(--primary)" />
-                            <stop offset="40%" stopColor="#257D41" />
-                            <stop offset="100%" stopColor="#1a5c2e" />
+                            <stop offset="0%" stopColor="hsl(var(--chart-1))" />
+                            <stop offset="50%" stopColor="hsl(var(--chart-2))" />
+                            <stop offset="100%" stopColor="hsl(var(--chart-3))" />
                           </linearGradient>
                         </defs>
                         <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(45,74,94,0.15)" strokeWidth="6" />
@@ -295,9 +328,9 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       <svg className="w-14 h-14" viewBox="0 0 100 100">
                         <defs>
                           <linearGradient id="smallTube3D_coc" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#c4d8c7" />
-                            <stop offset="40%" stopColor="var(--primary)" />
-                            <stop offset="100%" stopColor="#7da383" />
+                            <stop offset="0%" stopColor="hsl(var(--chart-4))" />
+                            <stop offset="50%" stopColor="hsl(var(--chart-1))" />
+                            <stop offset="100%" stopColor="hsl(var(--chart-3))" />
                           </linearGradient>
                         </defs>
                         <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(45,74,94,0.15)" strokeWidth="6" />
@@ -325,7 +358,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     <p className="text-sm text-foreground/60 label-text">Equity Invested</p>
                   </div>
                   <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-primary to-[#257D41] rounded-full" style={{ width: '100%' }} />
+                    <div className="h-full rounded-full" style={{ width: '100%', background: 'linear-gradient(to right, hsl(var(--chart-1)), hsl(var(--chart-2)))' }} />
                   </div>
                 </div>
 
@@ -349,55 +382,99 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
             <div className="bg-card rounded-lg border border-border shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground font-display">Revenue & NOI / ANOI</h3>
-                  <p className="text-sm text-foreground/50 label-text">{investmentHorizon}-year consolidated projection</p>
+                  <h3 className="text-lg font-semibold text-foreground font-display">Revenue & ANOI</h3>
+                  <p className="text-sm text-muted-foreground label-text">{investmentHorizon}-year consolidated projection</p>
                 </div>
-                <div className="flex items-center gap-4 text-xs label-text">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--primary)' }} />
-                    Revenue
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#10B981' }} />
-                    NOI
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#257D41' }} />
-                    ANOI
-                  </span>
+                <div className="flex items-center gap-5">
+                  <div className="flex items-center gap-4 text-xs label-text">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'hsl(var(--chart-1))' }} />
+                      <span className="text-muted-foreground">Revenue</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'hsl(var(--chart-2))' }} />
+                      <span className="text-muted-foreground">ANOI</span>
+                    </span>
+                  </div>
+                  <ChartModeToggle mode={chartMode} onChange={setChartMode} />
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={280}>
-                <AreaChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.6} />
-                      <stop offset="60%" stopColor="var(--primary)" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.08} />
-                    </linearGradient>
-                    <linearGradient id="noiGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#257D41" stopOpacity={0.65} />
-                      <stop offset="60%" stopColor="#257D41" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#257D41" stopOpacity={0.08} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(45,74,94,0.08)" vertical={false} />
-                  <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    tickFormatter={(v: number) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}K`}
-                    tick={{ fontSize: 11, fill: '#6b7280' }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={60}
-                  />
-                  <Tooltip
-                    formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : name === 'noi' ? 'NOI' : 'ANOI']}
-                    contentStyle={{ borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
-                  />
-                  <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2} fill="url(#revenueGrad)" dot={false} />
-                  <Area type="monotone" dataKey="noi" stroke="#10B981" strokeWidth={2} fill="url(#noiGrad)" dot={false} />
-                  <Area type="monotone" dataKey="anoi" stroke="#257D41" strokeWidth={2.5} fill="url(#anoiGrad)" dot={false} />
-                </AreaChart>
+                {chartMode === "area" ? (
+                  <AreaChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="anoiGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.5} />
+                        <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                    <XAxis
+                      dataKey="year"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis
+                      tickFormatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`}
+                      tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={60}
+                    />
+                    <Tooltip
+                      cursor={false}
+                      formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'ANOI']}
+                      contentStyle={{
+                        borderRadius: 10,
+                        border: '1px solid hsl(var(--border))',
+                        backgroundColor: 'hsl(var(--card))',
+                        fontSize: 12,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                        color: 'hsl(var(--foreground))',
+                      }}
+                    />
+                    <Area type="monotone" dataKey="revenue" fill="url(#revenueGrad)" stroke="none" dot={false} />
+                    <Area type="monotone" dataKey="anoi" fill="url(#anoiGrad)" stroke="none" dot={false} />
+                  </AreaChart>
+                ) : (
+                  <LineChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                    <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                    <XAxis
+                      dataKey="year"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis
+                      tickFormatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`}
+                      tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={60}
+                    />
+                    <Tooltip
+                      cursor={false}
+                      formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'ANOI']}
+                      contentStyle={{
+                        borderRadius: 10,
+                        border: '1px solid hsl(var(--border))',
+                        backgroundColor: 'hsl(var(--card))',
+                        fontSize: 12,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                        color: 'hsl(var(--foreground))',
+                      }}
+                    />
+                    <Line type="monotone" dataKey="revenue" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="anoi" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} />
+                  </LineChart>
+                )}
               </ResponsiveContainer>
             </div>
           </AnimatedSection>

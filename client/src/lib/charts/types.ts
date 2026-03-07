@@ -84,4 +84,5 @@ export interface RadarChartDotsProps extends BaseChartProps {
   axisKey?: string;
   color?: string;
   fillOpacity?: number;
+  gridType?: "polygon" | "circle";
 }

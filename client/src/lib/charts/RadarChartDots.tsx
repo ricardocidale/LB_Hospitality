@@ -13,6 +13,7 @@ export function RadarChartDots({
   axisKey = "axis",
   color,
   fillOpacity = 0.6,
+  gridType = "polygon",
   className,
 }: RadarChartDotsProps) {
   const resolvedColor = color ?? `var(--color-${dataKey})`;
@@ -25,7 +26,7 @@ export function RadarChartDots({
       <RadarChart data={data}>
         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
         <PolarAngleAxis dataKey={axisKey} />
-        <PolarGrid />
+        <PolarGrid gridType={gridType} />
         <Radar
           dataKey={dataKey}
           fill={resolvedColor}

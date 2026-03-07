@@ -1,3 +1,4 @@
+
 /**
  * App.tsx — Root component and routing hub for the hospitality business simulation platform.
  *

@@ -1,4 +1,5 @@
 import { useRef, useCallback } from "react";
+import Layout from "@/components/Layout";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useStore } from "@/lib/store";
 import { KPIGrid } from "@/components/graphics";
@@ -175,6 +176,7 @@ export default function ExecutiveSummary() {
   }, []);
 
   return (
+    <Layout>
     <AnimatedPage>
       <div ref={pageRef} data-testid="executive-summary" className="space-y-6">
         <style>{printStyles}</style>
@@ -308,6 +310,7 @@ export default function ExecutiveSummary() {
         </Card>
       </div>
     </AnimatedPage>
+    </Layout>
   );
 }
 

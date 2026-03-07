@@ -160,7 +160,8 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(npx @elevenlabs/cli@latest components add voice-chat-02 2>&1)",
       "Bash(npx shadcn@latest mcp init --client claude 2>&1)",
-      "Bash(curl -s https://ui.elevenlabs.io/r/audio-player.json | python3 << 'EOF'\nimport json, sys\ndata = json.load\\(sys.stdin\\)\nfor f in data.get\\('files', []\\):\n    content = f['content']\n    idx = content.find\\('exampleTracks'\\)\n    if idx != -1:\n        print\\(content[idx:idx+800]\\)\n        break\nEOF)"
+      "Bash(curl -s https://ui.elevenlabs.io/r/audio-player.json | python3 << 'EOF'\nimport json, sys\ndata = json.load\\(sys.stdin\\)\nfor f in data.get\\('files', []\\):\n    content = f['content']\n    idx = content.find\\('exampleTracks'\\)\n    if idx != -1:\n        print\\(content[idx:idx+800]\\)\n        break\nEOF)",
+      "Bash(npx shadcn@latest add --all --overwrite 2>&1)"
     ]
   }
 }

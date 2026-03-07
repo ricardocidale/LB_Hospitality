@@ -462,7 +462,10 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     />
                     <Tooltip
                       cursor={false}
-                      formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'ANOI']}
+                      formatter={(value: number, name: string) => {
+                        const labels: Record<string, string> = { revenue: "Revenue — Total Revenue", anoi: "ANOI — Adjusted Net Operating Income" };
+                        return [formatMoney(value), labels[name] ?? name];
+                      }}
                       contentStyle={{
                         borderRadius: 10,
                         border: '1px solid hsl(var(--border))',
@@ -494,7 +497,10 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     />
                     <Tooltip
                       cursor={false}
-                      formatter={(value: number, name: string) => [formatMoney(value), name === 'revenue' ? 'Revenue' : 'ANOI']}
+                      formatter={(value: number, name: string) => {
+                        const labels: Record<string, string> = { revenue: "Revenue — Total Revenue", anoi: "ANOI — Adjusted Net Operating Income" };
+                        return [formatMoney(value), labels[name] ?? name];
+                      }}
                       contentStyle={{
                         borderRadius: 10,
                         border: '1px solid hsl(var(--border))',

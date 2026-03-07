@@ -79,11 +79,18 @@ export default function CashFlowTab({
                     color: '#111827',
                   }}
                   labelStyle={{ color: '#374151', fontWeight: 600 }}
-                  formatter={(value: number) => [formatMoney(value), ""]}
+                  formatter={(value: number, name: string) => {
+                    const labels: Record<string, string> = { ANOI: "ANOI — Adjusted Net Operating Income", FCF: "FCF — Free Cash Flow", FCFE: "FCFE — Free Cash Flow to Equity" };
+                    return [formatMoney(value), labels[name] ?? name];
+                  }}
                 />
                 <Legend 
-                  wrapperStyle={{ color: '#374151' }}
+                  wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }}
                   iconType="circle"
+                  formatter={(value: string) => {
+                    const abbr: Record<string, string> = { ANOI: "ANOI", FCF: "FCF", FCFE: "FCFE" };
+                    return abbr[value] ?? value;
+                  }}
                 />
                 <Line 
                   type="monotone" 
@@ -92,7 +99,6 @@ export default function CashFlowTab({
                   strokeWidth={3}
                   dot={{ fill: 'hsl(var(--line-1))', stroke: '#fff', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, fill: 'hsl(var(--line-1))', stroke: '#fff', strokeWidth: 2 }}
-                  name="Adjusted NOI"
                 />
                 <Line 
                   type="monotone" 
@@ -101,7 +107,6 @@ export default function CashFlowTab({
                   strokeWidth={3}
                   dot={{ fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2 }}
-                  name="Free Cash Flow"
                 />
                 <Line 
                   type="monotone" 
@@ -110,7 +115,6 @@ export default function CashFlowTab({
                   strokeWidth={3}
                   dot={{ fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2 }}
-                  name="Free Cash Flow to Equity"
                 />
               </LineChart>
             </ResponsiveContainer>

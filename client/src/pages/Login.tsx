@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
@@ -125,15 +126,15 @@ export default function Login() {
               </div>
             </div>
             
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-10 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+              className="w-full h-10"
               data-testid="button-login"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Login
-            </button>
+            </Button>
           </form>
           
           <p className="text-center text-xs text-muted-foreground mt-6">

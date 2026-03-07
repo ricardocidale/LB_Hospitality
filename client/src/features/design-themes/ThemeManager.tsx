@@ -35,8 +35,11 @@ export function ThemeManager() {
   return (
     <>
     {activeTheme && (
-      <Card className="border-2 border-primary/30 mb-6" data-testid="current-theme-card">
-        <CardHeader className="pb-3">
+      <Card className="relative overflow-hidden bg-card/80 backdrop-blur-xl border-2 border-primary/30 shadow-lg mb-6" data-testid="current-theme-card">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-primary/8 blur-[80px] animate-pulse" style={{ animationDuration: '5s' }} />
+        </div>
+        <CardHeader className="relative pb-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center">
               <Palette className="w-5 h-5 text-primary" />
@@ -47,7 +50,7 @@ export function ThemeManager() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="relative pt-0">
           {activeTheme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
             <div className="mb-4">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Palette</p>
@@ -96,8 +99,12 @@ export function ThemeManager() {
       </Card>
     )}
 
-    <Card>
-      <CardHeader>
+    <Card className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border shadow-2xl">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-secondary/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+      </div>
+      <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xl font-display text-foreground">All Themes</CardTitle>
@@ -115,7 +122,7 @@ export function ThemeManager() {
         </div>
       </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="relative space-y-6">
           {themesLoading ? (
             <div className="text-center py-8">
               <Loader2 className="w-8 h-8 mx-auto text-muted-foreground animate-spin" />

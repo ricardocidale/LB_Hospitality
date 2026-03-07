@@ -4,7 +4,7 @@ import { requireAdmin, requireAuth } from "../../auth";
 import { type InsertGlobalAssumptions } from "@shared/schema";
 import { logAndSendError } from "../helpers";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
-import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation, updateConvaiAgent, createKBDocumentFromFile } from "../../integrations/elevenlabs";
+import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation, updateConvaiAgent, createKBDocumentFromFile, getConversationAudio } from "../../integrations/elevenlabs";
 import { configureMarcelaAgent, buildClientTools, buildServerTools, getBaseUrl } from "../../marcela-agent-config";
 import { uploadKnowledgeBase, getKnowledgeDocumentPreview } from "../../marcela-knowledge-base";
 import multer from "multer";
@@ -309,6 +309,86 @@ export function registerMarcelaRoutes(app: Express) {
       res.json({ success: true });
     } catch (error: any) {
       logAndSendError(res, error.message || "Failed to delete conversation", error);
+    }
+  });
+
+  app.patch("/api/admin/convai/agent/llm", requireAdmin, async (req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
+      const { llm, max_tokens } = req.body;
+      const promptPatch: Record<string, unknown> = {};
+      if (llm !== undefined) promptPatch.llm = llm;
+      if (max_tokens !== undefined) promptPatch.max_tokens = max_tokens;
+      const updated = await updateConvaiAgent(ga.marcelaAgentId, {
+        conversation_config: { agent: { prompt: promptPatch } },
+      });
+      const dbPatch: Partial<Record<string, unknown>> = {};
+      if (llm !== undefined) dbPatch.marcelaLlmModel = llm;
+      if (max_tokens !== undefined) dbPatch.marcelaMaxTokens = max_tokens;
+      if (Object.keys(dbPatch).length) await storage.upsertGlobalAssumptions(dbPatch as any);
+      res.json(updated);
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Failed to update LLM settings", error);
+    }
+  });
+
+  app.patch("/api/admin/convai/agent/voice", requireAdmin, async (req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
+      const { voice_id, model_id, stability, similarity_boost, use_speaker_boost } = req.body;
+      const ttsPatch: Record<string, unknown> = {};
+      if (voice_id !== undefined) ttsPatch.voice_id = voice_id;
+      if (model_id !== undefined) ttsPatch.model_id = model_id;
+      if (stability !== undefined) ttsPatch.stability = stability;
+      if (similarity_boost !== undefined) ttsPatch.similarity_boost = similarity_boost;
+      if (use_speaker_boost !== undefined) ttsPatch.use_speaker_boost = use_speaker_boost;
+      const updated = await updateConvaiAgent(ga.marcelaAgentId, {
+        conversation_config: { tts: ttsPatch },
+      });
+      const dbPatch: Partial<Record<string, unknown>> = {};
+      if (voice_id !== undefined) dbPatch.marcelaVoiceId = voice_id;
+      if (model_id !== undefined) dbPatch.marcelaTtsModel = model_id;
+      if (stability !== undefined) dbPatch.marcelaStability = stability;
+      if (similarity_boost !== undefined) dbPatch.marcelaSimilarityBoost = similarity_boost;
+      if (use_speaker_boost !== undefined) dbPatch.marcelaSpeakerBoost = use_speaker_boost;
+      if (Object.keys(dbPatch).length) await storage.upsertGlobalAssumptions(dbPatch as any);
+      res.json(updated);
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Failed to update voice settings", error);
+    }
+  });
+
+  app.get("/api/admin/convai/conversations/:id/audio", requireAdmin, async (req, res) => {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const { buffer, contentType } = await getConversationAudio(id);
+      res.set("Content-Type", contentType);
+      res.set("Content-Length", buffer.length.toString());
+      res.send(buffer);
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Failed to fetch conversation audio", error);
+    }
+  });
+
+  app.delete("/api/admin/convai/agent/knowledge-base/:docId", requireAdmin, async (req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
+      const docId = Array.isArray(req.params.docId) ? req.params.docId[0] : req.params.docId;
+      const agent = await getConvaiAgent(ga.marcelaAgentId);
+      const kb: any[] = (agent.conversation_config?.agent as any)?.knowledge_base
+        ?? (agent.conversation_config?.agent?.prompt as any)?.knowledge_base ?? [];
+      const updatedKb = kb.filter((doc: any) => doc.id !== docId);
+      const useTopLevel = !!((agent.conversation_config?.agent as any)?.knowledge_base);
+      await updateConvaiAgent(ga.marcelaAgentId, useTopLevel
+        ? { conversation_config: { agent: { knowledge_base: updatedKb } } }
+        : { conversation_config: { agent: { prompt: { knowledge_base: updatedKb } } } }
+      );
+      res.json({ success: true });
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Failed to remove KB document", error);
     }
   });
 

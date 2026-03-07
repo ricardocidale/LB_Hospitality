@@ -3,9 +3,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { MessageSquare, Mic, Brain, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { MessageSquare, Mic, Brain, AlertCircle, Save, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { VoiceSettings, LLM_MODELS } from "./types";
-import { useConversations } from "./hooks";
+import { useConversations, useSaveAgentLlm } from "./hooks";
 
 interface LLMSettingsProps {
   draft: VoiceSettings;
@@ -14,21 +16,49 @@ interface LLMSettingsProps {
 
 export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
   const { data: conversations } = useConversations();
+  const saveAgentLlm = useSaveAgentLlm();
+  const [isDirty, setIsDirty] = useState(false);
+
   const failedCount = (conversations ?? []).filter((c: any) => c.call_successful === "failure").length;
   const total = (conversations ?? []).length;
   const failureRate = total > 0 ? failedCount / total : 0;
   const showTimeoutWarning = total > 0 && failureRate > 0.3;
 
+  const handleModelChange = (v: string) => { updateField("marcelaLlmModel", v); setIsDirty(true); };
+  const handleMaxTokensChange = (v: number) => { updateField("marcelaMaxTokens", v); setIsDirty(true); };
+
+  const handleSave = () => {
+    saveAgentLlm.mutate(
+      { llm: draft.marcelaLlmModel, max_tokens: draft.marcelaMaxTokens },
+      { onSuccess: () => setIsDirty(false) }
+    );
+  };
+
   return (
     <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-display">
-          <Brain className="w-5 h-5 text-primary" />
-          Language Model (LLM)
-        </CardTitle>
-        <CardDescription className="label-text">
-          Configure the AI model that powers the agent's conversation intelligence.
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2 font-display">
+              <Brain className="w-5 h-5 text-primary" />
+              Language Model (LLM)
+            </CardTitle>
+            <CardDescription className="label-text mt-1">
+              Configure the AI model that powers the agent's conversation intelligence.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            {isDirty && (
+              <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
+                Unsaved
+              </Badge>
+            )}
+            <Button size="sm" onClick={handleSave} disabled={!isDirty || saveAgentLlm.isPending} className="gap-1.5 shadow-sm">
+              {saveAgentLlm.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              Save to ElevenLabs
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-5">
         {showTimeoutWarning && (
@@ -45,7 +75,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
         )}
         <div className="space-y-2">
           <Label className="label-text font-medium">Chat Model</Label>
-          <Select value={draft.marcelaLlmModel} onValueChange={(v) => updateField("marcelaLlmModel", v)}>
+          <Select value={draft.marcelaLlmModel} onValueChange={handleModelChange}>
             <SelectTrigger className="bg-white" data-testid="select-marcela-llm">
               <SelectValue />
             </SelectTrigger>
@@ -84,7 +114,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
               min={256}
               max={8192}
               value={draft.marcelaMaxTokens}
-              onChange={(e) => updateField("marcelaMaxTokens", parseInt(e.target.value) || 2048)}
+              onChange={(e) => handleMaxTokensChange(parseInt(e.target.value) || 2048)}
               className="bg-white"
               data-testid="input-marcela-max-tokens"
             />

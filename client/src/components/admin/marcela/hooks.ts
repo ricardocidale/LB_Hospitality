@@ -194,6 +194,82 @@ export function useConversation(id: string | null) {
   });
 }
 
+export function useSaveAgentLlm() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { llm: string; max_tokens?: number }) => {
+      const res = await apiRequest("PATCH", "/api/admin/convai/agent/llm", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "convai-agent"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
+      toast({ title: "LLM settings saved", description: "Model pushed to ElevenLabs." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+
+export function useSaveAgentVoice() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      voice_id?: string; model_id?: string; stability?: number;
+      similarity_boost?: number; use_speaker_boost?: boolean;
+    }) => {
+      const res = await apiRequest("PATCH", "/api/admin/convai/agent/voice", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "convai-agent"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
+      toast({ title: "Voice settings saved", description: "TTS configuration pushed to ElevenLabs." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+
+export function useRemoveKBDocument() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (docId: string) => {
+      const res = await apiRequest("DELETE", `/api/admin/convai/agent/knowledge-base/${docId}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "convai-agent"] });
+      toast({ title: "Document removed", description: "Detached from ElevenLabs agent." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Remove failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+
+export function useAdminSignedUrl() {
+  return useQuery<string>({
+    queryKey: ["admin", "marcela-signed-url"],
+    queryFn: async () => {
+      const res = await fetch("/api/marcela/signed-url", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      return data.signedUrl as string;
+    },
+    staleTime: 10 * 60 * 1000,
+    retry: false,
+  });
+}
+
 export function useUploadKBFile() {
   const { toast } = useToast();
 

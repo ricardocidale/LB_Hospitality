@@ -269,6 +269,20 @@ export async function createKBDocumentFromFile(name: string, fileBuffer: Buffer,
   return response.json() as Promise<KBDocument>;
 }
 
+export async function getConversationAudio(conversationId: string): Promise<{ buffer: Buffer; contentType: string }> {
+  const apiKey = await getCredentials();
+  const response = await fetch(`${CONVAI_BASE}/conversations/${conversationId}/audio`, {
+    headers: { 'xi-api-key': apiKey },
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`ElevenLabs audio error (${response.status}): ${text}`);
+  }
+  const contentType = response.headers.get('content-type') || 'audio/mpeg';
+  const arrayBuffer = await response.arrayBuffer();
+  return { buffer: Buffer.from(arrayBuffer), contentType };
+}
+
 export async function transcribeAudio(audioBuffer: Buffer, filename: string, sttModel?: string): Promise<string> {
   const apiKey = await getCredentials();
 

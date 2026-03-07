@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useProperties } from "@/lib/api";
 import { Link } from "wouter";
-import { MapPin, Building2, DollarSign, Loader2, AlertTriangle, Layers, Navigation } from "lucide-react";
+import { MapPin, Building2, DollarSign, Loader2, AlertTriangle, Layers, Navigation, Mountain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -136,6 +136,7 @@ export default function MapView() {
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [mapStyle, setMapStyle] = useState<keyof typeof MAP_STYLES>("voyager");
+  const [terrain3d, setTerrain3d] = useState(true);
 
   const mappableProperties = properties.filter(hasCompleteAddress);
   const unmappableCount = properties.length - mappableProperties.length;
@@ -215,17 +216,54 @@ export default function MapView() {
       style: MAP_STYLES[mapStyle],
       center: [-75, 10],
       zoom: 3,
-      pitch: 30,
-      bearing: 0,
+      pitch: terrain3d ? 55 : 30,
+      bearing: terrain3d ? -15 : 0,
       antialias: true,
+      maxPitch: 85,
     });
 
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
     map.addControl(new maplibregl.FullscreenControl(), "top-right");
+    map.addControl(new maplibregl.TerrainControl({ source: "terrainSource", exaggeration: 1.5 }), "top-right");
 
     mapRef.current = map;
 
     map.on("load", () => {
+      if (terrain3d) {
+        map.addSource("terrainSource", {
+          type: "raster-dem",
+          tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+          encoding: "terrarium",
+          tileSize: 256,
+          maxzoom: 15,
+        });
+
+        map.setTerrain({ source: "terrainSource", exaggeration: 1.5 });
+
+        map.addLayer({
+          id: "hillshading",
+          source: "terrainSource",
+          type: "hillshade",
+          paint: {
+            "hillshade-illumination-direction": 315,
+            "hillshade-exaggeration": 0.6,
+            "hillshade-shadow-color": "rgba(0,0,0,0.3)",
+            "hillshade-highlight-color": "rgba(255,255,255,0.5)",
+          },
+        });
+
+      }
+
+      map.addLayer({
+        id: "sky",
+        type: "sky" as any,
+        paint: {
+          "sky-type": "atmosphere" as any,
+          "sky-atmosphere-sun": [0, 0] as any,
+          "sky-atmosphere-sun-intensity": 15 as any,
+        } as any,
+      });
+
       updateMarkers(selectedId);
 
       const bounds = new maplibregl.LngLatBounds();
@@ -235,9 +273,11 @@ export default function MapView() {
         map.fitBounds(bounds, {
           padding: { top: 80, bottom: 80, left: 80, right: 80 },
           maxZoom: 8,
-          duration: 2000,
+          duration: 2500,
           essential: true,
-        });
+          pitch: terrain3d ? 55 : 30,
+          bearing: terrain3d ? -15 : 0,
+        } as any);
       }
     });
 
@@ -246,7 +286,7 @@ export default function MapView() {
       mapRef.current = null;
       markersRef.current.clear();
     };
-  }, [loading, geoProperties, mapStyle]);
+  }, [loading, geoProperties, mapStyle, terrain3d]);
 
   useEffect(() => {
     updateMarkers(selectedId);
@@ -256,8 +296,10 @@ export default function MapView() {
       if (geo) {
         mapRef.current.flyTo({
           center: geo.coords,
-          zoom: Math.max(mapRef.current.getZoom(), 7),
-          duration: 1200,
+          zoom: Math.max(mapRef.current.getZoom(), terrain3d ? 10 : 7),
+          pitch: terrain3d ? 60 : 30,
+          bearing: terrain3d ? mapRef.current.getBearing() + 15 : 0,
+          duration: 1800,
           essential: true,
         });
 
@@ -320,6 +362,10 @@ export default function MapView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant={terrain3d ? "default" : "outline"} size="sm" onClick={() => setTerrain3d(!terrain3d)} className="flex items-center gap-1.5 text-xs" data-testid="button-3d-terrain">
+            <Mountain className="w-3.5 h-3.5" />
+            3D Terrain
+          </Button>
           <Button variant="outline" size="sm" onClick={cycleStyle} className="flex items-center gap-1.5 text-xs" data-testid="button-map-style">
             <Layers className="w-3.5 h-3.5" />
             {mapStyle === "streets" ? "Light" : mapStyle === "dark" ? "Dark" : "Voyager"}

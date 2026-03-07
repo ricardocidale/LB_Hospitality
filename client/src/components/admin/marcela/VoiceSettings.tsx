@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save, LayoutTemplate } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
-import { useSaveWidgetSettings } from "./hooks";
+import { useSaveWidgetSettings, useSaveAgentVoice } from "./hooks";
 
 interface VoiceSettingsProps {
   draft: VoiceSettings;
@@ -19,10 +20,27 @@ interface VoiceSettingsProps {
 
 export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProps) {
   const saveWidgetSettings = useSaveWidgetSettings();
+  const saveAgentVoice = useSaveAgentVoice();
   const [avatarDraft, setAvatarDraft] = useState(draft.marcelaAvatarUrl ?? "");
   const [turnDraft, setTurnDraft] = useState(draft.marcelaTurnTimeout ?? 7);
   const [variantDraft, setVariantDraft] = useState(draft.marcelaWidgetVariant ?? "compact");
   const [widgetDirty, setWidgetDirty] = useState(false);
+  const [voiceDirty, setVoiceDirty] = useState(false);
+
+  const handleVoiceField = <K extends keyof VoiceSettings>(key: K, value: VoiceSettings[K]) => {
+    updateField(key, value);
+    setVoiceDirty(true);
+  };
+
+  const handleSaveVoice = () => {
+    saveAgentVoice.mutate({
+      voice_id: draft.marcelaVoiceId,
+      model_id: draft.marcelaTtsModel,
+      stability: draft.marcelaStability,
+      similarity_boost: draft.marcelaSimilarityBoost,
+      use_speaker_boost: draft.marcelaSpeakerBoost,
+    }, { onSuccess: () => setVoiceDirty(false) });
+  };
 
   const handleSaveWidget = () => {
     saveWidgetSettings.mutate(
@@ -35,13 +53,28 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
     <div className="space-y-6">
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-display">
-            <Volume2 className="w-5 h-5 text-primary" />
-            Text-to-Speech (ElevenLabs)
-          </CardTitle>
-          <CardDescription className="label-text">
-            Configure the voice synthesis settings for the agent's spoken responses.
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 font-display">
+                <Volume2 className="w-5 h-5 text-primary" />
+                Text-to-Speech (ElevenLabs)
+              </CardTitle>
+              <CardDescription className="label-text mt-1">
+                Configure the voice synthesis settings for the agent's spoken responses.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              {voiceDirty && (
+                <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
+                  Unsaved
+                </Badge>
+              )}
+              <Button size="sm" onClick={handleSaveVoice} disabled={!voiceDirty || saveAgentVoice.isPending} className="gap-1.5 shadow-sm">
+                {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                Save to ElevenLabs
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -49,7 +82,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
               <Label className="label-text font-medium">Voice ID</Label>
               <Input
                 value={draft.marcelaVoiceId}
-                onChange={(e) => updateField("marcelaVoiceId", e.target.value)}
+                onChange={(e) => handleVoiceField("marcelaVoiceId", e.target.value)}
                 placeholder="ElevenLabs voice ID"
                 className="bg-white font-mono text-sm"
                 data-testid="input-marcela-voice-id"
@@ -58,7 +91,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             </div>
             <div className="space-y-2">
               <Label className="label-text font-medium">TTS Model</Label>
-              <Select value={draft.marcelaTtsModel} onValueChange={(v) => updateField("marcelaTtsModel", v)}>
+              <Select value={draft.marcelaTtsModel} onValueChange={(v) => handleVoiceField("marcelaTtsModel", v)}>
                 <SelectTrigger className="bg-white" data-testid="select-marcela-tts-model">
                   <SelectValue />
                 </SelectTrigger>
@@ -94,7 +127,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 max={1}
                 step={0.05}
                 value={[draft.marcelaStability]}
-                onValueChange={([v]) => updateField("marcelaStability", v)}
+                onValueChange={([v]) => handleVoiceField("marcelaStability", v)}
                 data-testid="slider-marcela-stability"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -118,7 +151,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 max={1}
                 step={0.05}
                 value={[draft.marcelaSimilarityBoost]}
-                onValueChange={([v]) => updateField("marcelaSimilarityBoost", v)}
+                onValueChange={([v]) => handleVoiceField("marcelaSimilarityBoost", v)}
                 data-testid="slider-marcela-similarity"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -142,7 +175,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             </div>
             <Switch
               checked={draft.marcelaSpeakerBoost}
-              onCheckedChange={(v) => updateField("marcelaSpeakerBoost", v)}
+              onCheckedChange={(v) => handleVoiceField("marcelaSpeakerBoost", v)}
               data-testid="switch-marcela-speaker-boost"
             />
           </div>

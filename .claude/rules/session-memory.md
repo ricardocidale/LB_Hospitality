@@ -53,7 +53,7 @@ Added 3 rows to context-loading task map (`ui/financing-tab-components.md`, `ui/
   - No rule `.md` files outside `.claude/rules/`
   - `.replit` contains pointer to `.claude/`
 - **`.replit`**: Added `# Project knowledge: .claude/claude.md` comment on line 1
-- **Doc counts updated**: 26 rules, 2,438 tests in both `claude.md` and `replit.md`
+- **Doc counts updated**: 26 rules, 2,440 tests in both `claude.md` and `replit.md`
 - Commit: `35c1444`, health: ALL CLEAR
 
 ---

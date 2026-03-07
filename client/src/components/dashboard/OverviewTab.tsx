@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { AnimatedSection, InsightPanel, ScrollReveal, type Insight } from "@/components/graphics";
+import { InsightPanel, type Insight } from "@/components/graphics";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, LineChart, Line } from "recharts";
 import { DashboardTabProps } from "./types";
 import PortfolioResearchCard from "./PortfolioResearchCard";
@@ -8,6 +8,8 @@ import { DEFAULT_EXIT_CAP_RATE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { propertyEquityInvested } from "@/lib/financial/equityCalculations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, exportPortfolioPDF, exportPortfolioCSV } from "./dashboardExports";
 import * as XLSX from "xlsx";
@@ -219,12 +221,23 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
         />
       </CardHeader>
       <CardContent ref={tabContentRef} className="relative z-10">
-        <div className="space-y-8">
+        <Accordion type="multiple" defaultValue={["performance", "projection", "composition", "research", "insights"]} className="space-y-4">
 
-          <AnimatedSection>
+          <AccordionItem value="performance" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-3 px-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Investment Performance</span>
+                <InfoTooltip
+                  text="Key return metrics for the entire portfolio across all properties and the full hold period."
+                  formula="IRR = discount rate where NPV of all cash flows = 0"
+                  light
+                  side="right"
+                />
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-4">
             <div className="relative">
               <div className="text-center mb-8">
-                <p className="text-sm font-medium tracking-widest text-foreground/60 uppercase mb-2 label-text">Investment Performance</p>
                 <p className="text-foreground/50 text-sm label-text">
                   <span className="font-mono">{investmentHorizon}</span>-Year Hold | <span className="font-mono">{totalProperties}</span> Properties | <span className="font-mono">{totalRooms}</span> Rooms
                 </p>
@@ -251,7 +264,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-5xl font-bold text-foreground tracking-tight font-mono" data-testid="text-portfolio-irr">{(portfolioIRR * 100).toFixed(1)}%</span>
-                      <span className="text-sm text-foreground/60 font-medium mt-2 label-text">Portfolio IRR</span>
+                      <span className="text-sm text-foreground/60 font-medium mt-2 label-text flex items-center">Portfolio IRR<InfoTooltip text="Internal Rate of Return — the annualized return that makes the net present value of all cash flows equal to zero." formula="NPV = Σ CFₜ / (1 + IRR)ᵗ = 0" light side="bottom" /></span>
                     </div>
                   </div>
                 </div>
@@ -317,7 +330,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-emerald-700 font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
-                      <p className="text-sm text-foreground/60 label-text">Equity Multiple</p>
+                      <p className="text-sm text-foreground/60 label-text flex items-center">Equity Multiple<InfoTooltip text="Total distributions plus residual value divided by total equity invested. A 2.0x multiple means investors received double their investment." formula="EM = (Total Distributions + Exit Value) / Total Equity" light side="right" /></p>
                     </div>
                   </div>
                 </div>
@@ -347,7 +360,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-primary font-mono" data-testid="text-cash-on-cash">{cashOnCash.toFixed(1)}%</p>
-                      <p className="text-sm text-foreground/60 label-text">Cash-on-Cash</p>
+                      <p className="text-sm text-foreground/60 label-text flex items-center">Cash-on-Cash<InfoTooltip text="Annual pre-tax cash flow as a percentage of total equity invested. Measures the yield on your cash investment." formula="CoC = Annual Cash Flow / Total Equity Invested" light side="right" /></p>
                     </div>
                   </div>
                 </div>
@@ -355,7 +368,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
                     <p className="text-2xl font-bold text-foreground font-mono" data-testid="text-equity-invested">{formatMoney(totalInitialEquity)}</p>
-                    <p className="text-sm text-foreground/60 label-text">Equity Invested</p>
+                    <p className="text-sm text-foreground/60 label-text flex items-center">Equity Invested<InfoTooltip text="Total cash equity contributed by investors across all properties, excluding any debt financing." light side="right" /></p>
                   </div>
                   <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: '100%', background: 'linear-gradient(to right, hsl(var(--chart-1)), hsl(var(--chart-2)))' }} />
@@ -365,7 +378,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
                     <p className="text-2xl font-bold text-emerald-700 font-mono" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
-                    <p className="text-sm text-foreground/60 label-text">Projected Exit</p>
+                    <p className="text-sm text-foreground/60 label-text flex items-center">Projected Exit<InfoTooltip text="Estimated total sale proceeds at the end of the hold period, based on projected NOI and exit cap rate." formula="Exit Value = NOI / Exit Cap Rate" light side="right" /></p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -376,9 +389,22 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 </div>
               </div>
             </div>
-          </AnimatedSection>
+            </AccordionContent>
+          </AccordionItem>
 
-          <AnimatedSection>
+          <AccordionItem value="projection" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-3 px-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Revenue & ANOI Projection</span>
+                <InfoTooltip
+                  text="Revenue is total income from all hotel operations. ANOI (Adjusted Net Operating Income) is the bottom operating line after all expenses, management fees, insurance, taxes, and FF&E reserve."
+                  formula="ANOI = Revenue − OpEx − Mgmt Fees − Insurance − Taxes − FF&E"
+                  light
+                  side="right"
+                />
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-4">
             <div className="bg-card rounded-lg border border-border shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -477,22 +503,34 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 )}
               </ResponsiveContainer>
             </div>
-          </AnimatedSection>
+            </AccordionContent>
+          </AccordionItem>
 
-          <AnimatedSection>
+          <AccordionItem value="composition" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-3 px-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Portfolio & Capital Structure</span>
+                <InfoTooltip
+                  text="Composition shows the physical portfolio makeup. Capital Structure breaks down how the investments are funded and what returns are projected."
+                  light
+                  side="right"
+                />
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="bg-card/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
                 <h3 className="text-sm font-semibold text-foreground mb-5 font-display">Portfolio Composition</h3>
                 <div className="space-y-4">
                   {[
-                    { label: "Properties", value: String(totalProperties) },
-                    { label: "Total Rooms", value: String(totalRooms) },
-                    { label: "Avg Rooms/Property", value: avgRoomsPerProperty.toFixed(0) },
-                    { label: "Markets", value: String(Object.keys(marketCounts).length) },
-                    { label: "Avg Daily Rate", value: formatMoney(avgADR), highlight: true },
+                    { label: "Properties", value: String(totalProperties), tip: "Number of hotel assets in the portfolio." },
+                    { label: "Total Rooms", value: String(totalRooms), tip: "Combined room count across all properties." },
+                    { label: "Avg Rooms/Property", value: avgRoomsPerProperty.toFixed(0), tip: "Average number of rooms per hotel — indicates typical asset size." },
+                    { label: "Markets", value: String(Object.keys(marketCounts).length), tip: "Number of distinct geographic markets for diversification." },
+                    { label: "Avg Daily Rate", value: formatMoney(avgADR), highlight: true, tip: "Weighted average ADR across all properties. ADR = Room Revenue / Rooms Sold." },
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
-                      <span className="text-sm text-foreground/60 label-text">{row.label}</span>
+                      <span className="text-sm text-foreground/60 label-text flex items-center">{row.label}<InfoTooltip text={row.tip} light side="right" /></span>
                       <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-emerald-700' : 'text-foreground'}`}>{row.value}</span>
                     </div>
                   ))}
@@ -503,38 +541,63 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <h3 className="text-sm font-semibold text-foreground mb-5 font-display">Capital Structure</h3>
                 <div className="space-y-4">
                   {[
-                    { label: "Total Purchase Price", value: formatMoney(totalPurchasePrice) },
-                    { label: "Avg Purchase Price", value: formatMoney(avgPurchasePrice) },
-                    { label: "Avg Exit Cap Rate", value: `${(avgExitCapRate * 100).toFixed(1)}%`, highlight: true },
-                    { label: "Hold Period", value: `${investmentHorizon} Years` },
-                    { label: "ANOI Margin", value: `${totalProjectionRevenue > 0 ? ((totalProjectionNOI / totalProjectionRevenue) * 100).toFixed(1) : '0.0'}%`, highlight: true },
+                    { label: "Total Purchase Price", value: formatMoney(totalPurchasePrice), tip: "Combined acquisition cost of all hotel properties." },
+                    { label: "Avg Purchase Price", value: formatMoney(avgPurchasePrice), tip: "Mean acquisition cost per property." },
+                    { label: "Avg Exit Cap Rate", value: `${(avgExitCapRate * 100).toFixed(1)}%`, highlight: true, tip: "Capitalization rate used to value properties at sale. Lower cap rate = higher valuation.", formula: "Cap Rate = NOI / Property Value" },
+                    { label: "Hold Period", value: `${investmentHorizon} Years`, tip: "Total planned ownership duration before exit/sale." },
+                    { label: "ANOI Margin", value: `${totalProjectionRevenue > 0 ? ((totalProjectionNOI / totalProjectionRevenue) * 100).toFixed(1) : '0.0'}%`, highlight: true, tip: "ANOI as a percentage of total revenue — measures overall operating efficiency after all charges.", formula: "ANOI Margin = ANOI / Revenue × 100" },
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
-                      <span className="text-sm text-foreground/60 label-text">{row.label}</span>
+                      <span className="text-sm text-foreground/60 label-text flex items-center">{row.label}<InfoTooltip text={row.tip} formula={'formula' in row ? row.formula : undefined} light side="right" /></span>
                       <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-emerald-700' : 'text-foreground'}`}>{row.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-          </AnimatedSection>
+            </AccordionContent>
+          </AccordionItem>
 
-          <ScrollReveal>
+          <AccordionItem value="research" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-3 px-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Market Research</span>
+                <InfoTooltip
+                  text="AI-powered market intelligence and comparable analysis for your portfolio markets."
+                  light
+                  side="right"
+                />
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-4">
             <PortfolioResearchCard
               properties={properties}
               yearlyConsolidatedCache={yearlyConsolidatedCache}
               allPropertyYearlyIS={allPropertyYearlyIS}
             />
-          </ScrollReveal>
+            </AccordionContent>
+          </AccordionItem>
 
-          <ScrollReveal>
+          <AccordionItem value="insights" className="border-none">
+            <AccordionTrigger className="hover:no-underline py-3 px-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Portfolio Insights</span>
+                <InfoTooltip
+                  text="Automated intelligence observations about portfolio performance, diversification, and risk factors."
+                  light
+                  side="right"
+                />
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-4">
             <InsightPanel
               data-testid="insight-dashboard"
               title="Portfolio Insights"
               insights={insights}
             />
-          </ScrollReveal>
-        </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </CardContent>
     </Card>
   );

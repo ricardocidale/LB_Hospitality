@@ -5,13 +5,13 @@
 ## Overview
 Business simulation portal for boutique hotel investment. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant with independent audit/verification engine.
 
-**Codebase:** ~568 source files, ~82,900 lines, 2,438 tests across 113 files.
+**Codebase:** ~568 source files, ~82,900 lines, 2,440 tests across 113 files.
 
 ## Quick Commands
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify
-npm run test:summary   # 2,438 tests, 1-line output
+npm run test:summary   # 2,440 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact
 npm test               # Full test output
 npm run verify         # Full verification (verbose)

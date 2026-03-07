@@ -5,6 +5,44 @@
 
 ---
 
+## Session: March 7, 2026 — AI Agent Feature Module Reorganization (Phases 1–6)
+
+### What Was Done
+- **Phase 1**: Deleted function bodies from `admin/marcela/hooks.ts` → 3-line re-export barrel pointing to `features/ai-agent/hooks/`
+- **Phase 2**: Moved `types.ts` to `features/ai-agent/types.ts` (source of truth); `admin/marcela/types.ts` → barrel using relative path (vitest can't resolve `@/` in direct path imports)
+- **Phase 3**: Moved 17 ElevenLabs UI components from `components/ui/` to `features/ai-agent/components/`; updated cross-imports to relative `./`; barrel `index.ts` uses explicit `export { Orb }` to avoid `AgentState` name collision between `bar-visualizer` and `orb`; old `components/ui/<name>.tsx` files → 3-line barrels
+- **Phase 4**: Moved `ElevenLabsWidget.tsx` to `features/ai-agent/ElevenLabsWidget.tsx`; `components/ElevenLabsWidget.tsx` → default-export barrel
+- **Phase 5**: Skills reorganization — merged `voice-widget/` into `marcela-ai/`; created `ai-agent-admin.md` (feature module map, re-export barrel table, AgentState collision docs, widget variants); updated `SKILL.md` entry point
+- **Phase 6**: Created `features/ai-agent/query-keys.ts` with typed `AI_AGENT_KEYS` constant; all 5 hook files updated to use `AI_AGENT_KEYS` instead of inline string arrays
+- **ElevenLabs docs**: Fetched all 17 MDX component docs from `github.com/elevenlabs/ui` → `.claude/skills/marcela-ai/elevenlabs-components-docs/` with `README.md` index
+- **Cleanup**: Deleted `stat-card.original.tsx` and `OverviewTab.original.tsx` stale files
+- **Rejected**: `npx shadcn@latest init` — existing `components.json` already correct, no need to overwrite
+- TypeScript: 0 errors throughout
+
+### Feature Module Structure (source of truth)
+```
+client/src/features/ai-agent/
+├── components/           # 17 ElevenLabs UI components (source of truth)
+│   └── index.ts          # barrel — explicit export { Orb } to avoid AgentState collision
+├── hooks/                # 5 hook files + index.ts barrel
+├── ElevenLabsWidget.tsx  # source of truth
+├── query-keys.ts         # AI_AGENT_KEYS typed constants
+└── types.ts              # VoiceSettings, TwilioStatus, TTS/STT/LLM constants
+```
+
+### Backward-Compat Barrels (do not add logic)
+- `client/src/components/ui/<17 EL components>.tsx` → `export * from "@/features/ai-agent/components/<name>"`
+- `client/src/components/ElevenLabsWidget.tsx` → `export { default } from "@/features/ai-agent/ElevenLabsWidget"`
+- `client/src/components/admin/marcela/hooks.ts` → `export * from "@/features/ai-agent/hooks"`
+- `client/src/components/admin/marcela/types.ts` → `export * from "../../../features/ai-agent/types"` (relative — vitest compat)
+
+### Known Issues (not yet fixed)
+- 3 marcela admin components (`ConversationHistory.tsx`, `VoiceSettings.tsx`, `MarcelaTab.tsx`) still import from old `components/ui/` EL paths instead of `@/features/ai-agent/components/`
+- `features/ai-agent/` has no root `index.ts` barrel (other features have one)
+- `admin/marcela/index.ts` only exports `MarcelaTab` — sub-tab components not exported
+
+---
+
 ## Session: March 6, 2026 — Deterministic Research Tools & Post-LLM Validation (Phases 2-4)
 
 ### What Was Done

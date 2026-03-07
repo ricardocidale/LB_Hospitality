@@ -121,7 +121,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-10 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+              className="w-full h-10 bg-muted text-foreground text-sm font-medium rounded-lg hover:bg-muted/80 transition-colors disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
               data-testid="button-login"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}

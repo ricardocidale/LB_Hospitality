@@ -20,9 +20,33 @@ import {
   AudioPlayerProgress,
   AudioPlayerProvider,
   AudioPlayerTime,
-  exampleTracks,
   useAudioPlayer,
 } from "@/features/ai-agent/components/audio-player"
+
+// Demo tracks from ElevenLabs — replace with real conversation audio as needed
+const exampleTracks = [
+  {
+    id: "track-1",
+    name: "Aria — The Last Expedition",
+    url: "https://storage.googleapis.com/eleven-public-prod/audio/marketing/aria_the_last_expedition.mp3",
+    title: "The Last Expedition",
+    artist: "Aria · ElevenLabs",
+  },
+  {
+    id: "track-2",
+    name: "Bill — The Valley of Echoes",
+    url: "https://storage.googleapis.com/eleven-public-prod/audio/marketing/bill_the_valley_of_echoes.mp3",
+    title: "The Valley of Echoes",
+    artist: "Bill · ElevenLabs",
+  },
+  {
+    id: "track-3",
+    name: "Sarah — The Last Expedition",
+    url: "https://storage.googleapis.com/eleven-public-prod/audio/marketing/sarah_the_last_expedition.mp3",
+    title: "The Last Expedition",
+    artist: "Sarah · ElevenLabs",
+  },
+] as const
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Orb } from "@/features/ai-agent/components/orb"
@@ -898,8 +922,10 @@ function SpeakerControls({
                 <h3 className="text-foreground truncate text-sm font-medium">
                   {currentTrack.title}
                 </h3>
-                <Link
+                <a
                   href="https://elevenlabs.io/music"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-muted-foreground truncate text-xs"
                 >
                   {currentTrack.artist}

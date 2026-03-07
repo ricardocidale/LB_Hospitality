@@ -67,7 +67,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - `generatePropertyProForma` always returns 10 years (120 months) — slice to `projectionYears * 12`
 - `stripAutoFields` on all `.set()` calls
 - GAAP test rule names must match `gaapComplianceChecker` output
-- Norfolk AI logos: `norfolk-ai-blue.png` (login), `norfolk-ai-wireframe.png` (thin), `norfolk-ai-yellow.png` (alt)
+- Norfolk AI logos: `norfolk-ai-blue.png` (login), `norfolk-ai-wireframe.png` (thin), `norfolk-ai-yellow.png` (alt), `norfolk-ai-white.png` (white icon)
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

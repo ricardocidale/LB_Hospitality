@@ -46,6 +46,9 @@ With 119 skill files, loading everything wastes tokens and slows responses. This
 | Task | Load These Skills | Skip |
 |------|------------------|------|
 | New page or component | `component-library/SKILL.md`, `ui/theme-engine.md` | Finance skills, research |
+| FinancingAnalysis tabs | `ui/financing-tab-components.md` | Finance engine, research |
+| Scenarios dialogs | `ui/scenarios-dialogs.md` | Finance engine, research |
+| SensitivityAnalysis panels | `ui/sensitivity-panels.md`, `finance/irr-analysis.md` | Research, testing |
 | Chart work | `ui/charts.md`, `component-library/SKILL.md` | Finance skills, testing |
 | Graphics enhancement | `ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `rules/graphics-rich-design.md` | Finance skills |
 | Animation patterns | `ui/animation-patterns.md`, `ui/graphics-component-catalog.md` | Finance skills, testing |

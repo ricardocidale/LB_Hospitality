@@ -44,7 +44,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 
-import { applyThemeColors, resetThemeColors, type DesignColor } from "@/lib/themeUtils";
+import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
 
 type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 

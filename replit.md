@@ -59,7 +59,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | Admin page (10 tabs) | `.claude/skills/admin/SKILL.md`, `.claude/skills/admin/ai-agent-admin.md` |
 | Prod migration (sync) | `server/migrations/prod-sync-002.ts` — canonical data enforcement on every boot |
 | AI assistant (Marcela) | `.claude/claude.md` § Marcela AI, `.claude/skills/marcela-ai/SKILL.md` |
-| Design system & themes | `.claude/skills/design-system/SKILL.md`, `.claude/skills/ui/theme-engine.md` |
+| Design system & themes | `client/src/lib/theme/` (reusable module), `.claude/skills/design-system/SKILL.md` |
 | Testing & proof system | `.claude/claude.md` § Testing & Proof System, `.claude/skills/proof-system/SKILL.md` |
 | Rules (26 files) | `.claude/rules/` — session-startup, constants, no-hardcoded, recalculate-on-save, etc. |
 | Session memory | `.claude/rules/session-memory.md` (read first every session) |
@@ -90,7 +90,18 @@ Documented in `.agents/skills/codebase-architecture/SKILL.md`. Key rules:
 ## Preset Themes
 5 admin-selectable themes seeded via `script/seed-preset-themes.ts`:
 Studio Noir, Tuscan Olive Grove, Starlit Harbor, Coastal Breeze, Electric Twilight.
-Theme engine: `client/src/lib/themeUtils.ts` — maps PALETTE rank 1-6, ACCENT rank 1 (→ `--accent-pop`), CHART rank 1-5, LINE rank 1-5 to CSS variables.
+Theme engine: `client/src/lib/theme/` (reusable module) — maps PALETTE rank 1-6, ACCENT rank 1 (→ `--accent-pop`), CHART rank 1-5, LINE rank 1-5 to CSS variables.
+
+### Theme Module Structure (`client/src/lib/theme/`)
+```
+theme/
+├── index.ts        # Barrel export — single import point
+├── types.ts        # ThemeColor, ThemePreset, ColorCategory
+├── color-utils.ts  # hexToHslString, contrastHsl (pure functions)
+├── engine.ts       # applyThemeColors, resetThemeColors, MANAGED_CSS_VARS
+└── presets.ts      # 5 preset palettes + getPresetByName/getPresetNames
+```
+Portable: no DB, no framework dependencies. Import via `@/lib/theme` in any app.
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory). Includes health checks, test runners, verification, seed data, branding tools, and admin utilities.

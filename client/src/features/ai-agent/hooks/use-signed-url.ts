@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { AI_AGENT_KEYS } from "@/features/ai-agent/query-keys";
 
 export function useAdminSignedUrl() {
   return useQuery<string>({
-    queryKey: ["admin", "marcela-signed-url"],
+    queryKey: AI_AGENT_KEYS.signedUrl,
     queryFn: async () => {
       const res = await fetch("/api/marcela/signed-url", { credentials: "include" });
       if (!res.ok) throw new Error("Failed");

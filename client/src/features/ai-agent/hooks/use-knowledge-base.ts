@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { AI_AGENT_KEYS } from "@/features/ai-agent/query-keys";
 
 export function useKnowledgeBaseStatus() {
   return useQuery<{
@@ -8,7 +9,7 @@ export function useKnowledgeBaseStatus() {
     chunkCount: number;
     indexedAt: string | null;
   }>({
-    queryKey: ["admin", "knowledge-base-status"],
+    queryKey: AI_AGENT_KEYS.knowledgeBaseStatus,
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/admin/knowledge-base-status");
       return res.json();
@@ -26,7 +27,7 @@ export function useReindexKnowledgeBase() {
       return res.json();
     },
     onSuccess: (data: { chunksIndexed: number; timeMs: number }) => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "knowledge-base-status"] });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.knowledgeBaseStatus });
       toast({
         title: "Knowledge Base Indexed",
         description: `${data.chunksIndexed} chunks indexed in ${(data.timeMs / 1000).toFixed(1)}s`,
@@ -98,7 +99,7 @@ export function useRemoveKBDocument() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "convai-agent"] });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.convaiAgent });
       toast({ title: "Document removed", description: "Detached from ElevenLabs agent." });
     },
     onError: (err: Error) => {

@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { AI_AGENT_KEYS } from "@/features/ai-agent/query-keys";
 
 export function useAgentConfig() {
   return useQuery<any>({
-    queryKey: ["admin", "convai-agent"],
+    queryKey: AI_AGENT_KEYS.convaiAgent,
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/admin/convai/agent");
       return res.json();
@@ -43,8 +44,8 @@ export function useSaveAgentLlm() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "convai-agent"] });
-      queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.convaiAgent });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.voiceSettings });
       toast({ title: "LLM settings saved", description: "Model pushed to ElevenLabs." });
     },
     onError: (err: Error) => {
@@ -69,8 +70,8 @@ export function useSaveAgentVoice() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "convai-agent"] });
-      queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.convaiAgent });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.voiceSettings });
       toast({ title: "Voice settings saved", description: "TTS configuration pushed to ElevenLabs." });
     },
     onError: (err: Error) => {
@@ -89,8 +90,8 @@ export function useSaveWidgetSettings() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "convai-agent"] });
-      queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.convaiAgent });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.voiceSettings });
       toast({ title: "Widget settings saved", description: "Turn timeout and avatar pushed to ElevenLabs." });
     },
     onError: (err: Error) => {

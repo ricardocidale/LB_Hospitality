@@ -2,10 +2,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { VoiceSettings, TwilioStatus } from "@/features/ai-agent/types";
+import { AI_AGENT_KEYS } from "@/features/ai-agent/query-keys";
 
 export function useMarcelaSettings() {
   return useQuery<VoiceSettings>({
-    queryKey: ["admin", "voice-settings"],
+    queryKey: AI_AGENT_KEYS.voiceSettings,
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/admin/voice-settings");
       return res.json();
@@ -23,7 +24,7 @@ export function useSaveMarcelaSettings() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.voiceSettings });
       queryClient.invalidateQueries({ queryKey: ["global-assumptions"] });
       toast({ title: "AI Agent settings saved", description: "Voice configuration updated successfully." });
     },
@@ -35,7 +36,7 @@ export function useSaveMarcelaSettings() {
 
 export function useTwilioStatus() {
   return useQuery<TwilioStatus>({
-    queryKey: ["admin", "twilio-status"],
+    queryKey: AI_AGENT_KEYS.twilioStatus,
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/admin/twilio-status");
       return res.json();

@@ -117,9 +117,9 @@ export default function DatabaseTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]" data-testid="card-database-sync">
+      <Card className="bg-white border border-gray-200/80 shadow-sm" data-testid="card-database-sync">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2">
+          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
             <Database className="w-5 h-5" /> Database Status
           </CardTitle>
           <CardDescription className="label-text">
@@ -139,46 +139,46 @@ export default function DatabaseTab() {
           {syncResults && (
             <div className="space-y-4 mt-4">
               <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-users-count">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.users ?? "—"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-users-count">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.users ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Users</p>
                 </div>
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-properties-count">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.properties ?? "—"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-properties-count">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.properties ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Properties</p>
                 </div>
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-groups-count">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.userGroups ?? "—"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-groups-count">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.userGroups ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">User Groups</p>
                 </div>
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-companies-count">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.companies ?? "—"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-companies-count">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.companies ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Companies</p>
                 </div>
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-logos-count">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.logos ?? "—"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-logos-count">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.logos ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Logos</p>
                 </div>
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-themes-count">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.themes ?? "—"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-themes-count">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.themes ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Themes</p>
                 </div>
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-asset-descriptions-count">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.assetDescriptions ?? "—"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-asset-descriptions-count">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.assetDescriptions ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Asset Descs</p>
                 </div>
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-fee-categories">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.totalFeeCategories ?? "—"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-fee-categories">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.totalFeeCategories ?? "—"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Fee Categories</p>
                 </div>
-                <div className="bg-primary/5 rounded-xl p-4 text-center" data-testid="stat-global-assumptions">
-                  <p className="text-2xl font-bold text-primary">{syncResults.summary?.hasGlobalAssumptions ? "Yes" : "No"}</p>
+                <div className="bg-gray-50 rounded-xl p-4 text-center" data-testid="stat-global-assumptions">
+                  <p className="text-2xl font-bold text-gray-600">{syncResults.summary?.hasGlobalAssumptions ? "Yes" : "No"}</p>
                   <p className="text-xs text-muted-foreground mt-1">Global Assumptions</p>
                 </div>
               </div>
 
               {syncResults.globalAssumptions && (
-                <Card className="bg-white/60 border-primary/10">
+                <Card className="bg-white border-gray-200/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">Global Assumptions</CardTitle>
                   </CardHeader>
@@ -197,7 +197,7 @@ export default function DatabaseTab() {
               )}
 
               {syncResults.properties?.length > 0 && (
-                <Card className="bg-white/60 border-primary/10">
+                <Card className="bg-white border-gray-200/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">Properties ({syncResults.properties.length})</CardTitle>
                   </CardHeader>
@@ -240,10 +240,10 @@ export default function DatabaseTab() {
         </CardContent>
       </Card>
 
-      <Card className="bg-amber-50/80 backdrop-blur-xl border-amber-300/40 shadow-[0_8px_32px_rgba(245,158,11,0.08)]" data-testid="card-populate-production">
+      <Card className="bg-amber-50 border border-amber-200 shadow-sm" data-testid="card-populate-production">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2 text-amber-800">
-            <Upload className="w-5 h-5" /> Populate Production
+          <CardTitle className="font-display flex items-center gap-2 text-amber-900">
+            <Upload className="w-5 h-5 text-amber-600" /> Populate Production
           </CardTitle>
           <CardDescription className="label-text text-amber-700/80">
             Push development seed values to the production database. Only fills in values that are <strong>not already set</strong> by a user — existing data is never overwritten.
@@ -262,12 +262,12 @@ export default function DatabaseTab() {
         </CardContent>
       </Card>
 
-      <Card className="bg-blue-50/80 backdrop-blur-xl border-blue-300/40 shadow-[0_8px_32px_rgba(59,130,246,0.08)]" data-testid="card-canonical-sync">
+      <Card className="bg-blue-50 border border-blue-200 shadow-sm" data-testid="card-canonical-sync">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2 text-blue-800">
+          <CardTitle className="font-display flex items-center gap-2 text-gray-900">
             <Shield className="w-5 h-5" /> Sync Canonical Data
           </CardTitle>
-          <CardDescription className="label-text text-blue-700/80">
+          <CardDescription className="label-text text-gray-500">
             Enforce canonical database state: correct user roles and groups, clean orphaned records, fix fee category rates, and remove test/duplicate scenarios. Safe to run at any time — protects all legitimate user data.
           </CardDescription>
         </CardHeader>
@@ -275,7 +275,7 @@ export default function DatabaseTab() {
           <GlassButton
             onClick={() => setCanonicalConfirmOpen(true)}
             disabled={canonicalSyncMutation.isPending}
-            className="bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20 text-blue-700"
+            className="bg-gray-100 border-blue-500/30 hover:bg-gray-200 text-blue-700"
             data-testid="button-canonical-sync"
           >
             {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Shield className="w-4 h-4 mr-2" />}
@@ -286,19 +286,19 @@ export default function DatabaseTab() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
               <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-users-fixed">
                 <p className="text-xl font-bold text-blue-700">{canonicalResult.usersFixed ?? 0}</p>
-                <p className="text-xs text-blue-600/70 mt-1">Users Fixed</p>
+                <p className="text-xs text-gray-600/70 mt-1">Users Fixed</p>
               </div>
               <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-orphans-deleted">
                 <p className="text-xl font-bold text-blue-700">{(canonicalResult.orphanedFeeCategoriesDeleted ?? 0) + (canonicalResult.orphanedResearchDeleted ?? 0)}</p>
-                <p className="text-xs text-blue-600/70 mt-1">Orphans Cleaned</p>
+                <p className="text-xs text-gray-600/70 mt-1">Orphans Cleaned</p>
               </div>
               <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-scenarios-cleaned">
                 <p className="text-xl font-bold text-blue-700">{canonicalResult.scenariosCleaned ?? 0}</p>
-                <p className="text-xs text-blue-600/70 mt-1">Scenarios Cleaned</p>
+                <p className="text-xs text-gray-600/70 mt-1">Scenarios Cleaned</p>
               </div>
               <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-fees-fixed">
                 <p className="text-xl font-bold text-blue-700">{canonicalResult.feeCategoriesFixed ?? 0}</p>
-                <p className="text-xs text-blue-600/70 mt-1">Fee Cats Fixed</p>
+                <p className="text-xs text-gray-600/70 mt-1">Fee Cats Fixed</p>
               </div>
               <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-sync-status">
                 <p className="text-xl font-bold text-green-600">
@@ -306,7 +306,7 @@ export default function DatabaseTab() {
                     (canonicalResult.orphanedResearchDeleted ?? 0) + (canonicalResult.scenariosCleaned ?? 0) +
                     (canonicalResult.feeCategoriesFixed ?? 0) === 0 ? "Clean" : "Fixed"}
                 </p>
-                <p className="text-xs text-blue-600/70 mt-1">Status</p>
+                <p className="text-xs text-gray-600/70 mt-1">Status</p>
               </div>
             </div>
           )}
@@ -317,7 +317,7 @@ export default function DatabaseTab() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-blue-500" /> Confirm Canonical Sync
+              <Shield className="w-4 h-4 text-gray-400" /> Confirm Canonical Sync
             </DialogTitle>
             <DialogDescription className="space-y-2">
               <span className="block">This will enforce the canonical database state:</span>

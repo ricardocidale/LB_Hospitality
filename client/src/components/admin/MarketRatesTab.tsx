@@ -133,7 +133,7 @@ export default function MarketRatesTab() {
   return (
     <div className="space-y-6">
       {/* Summary Header */}
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
+      <Card className="bg-white border border-gray-200/80">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -185,13 +185,13 @@ export default function MarketRatesTab() {
       {/* Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          <Loader2 className="w-6 h-6 animate-spin text-gray-600" />
         </div>
       )}
 
       {/* Rate Groups */}
       {Object.entries(grouped).map(([source, sourceRates]) => (
-        <Card key={source} className="bg-white/80 backdrop-blur-xl border-primary/10">
+        <Card key={source} className="bg-white border border-gray-200/60">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               {sourceLabel(source)}
@@ -202,7 +202,7 @@ export default function MarketRatesTab() {
               {sourceRates.map((rate) => (
                 <div
                   key={rate.rateKey}
-                  className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200/60 hover:bg-gray-100 transition-colors"
                   data-testid={`rate-card-${rate.rateKey}`}
                 >
                   <div className="flex items-center gap-3 min-w-0">

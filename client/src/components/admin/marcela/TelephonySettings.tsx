@@ -37,12 +37,12 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
   };
 
   return (
-    <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+    <Card className="bg-white border border-gray-200/80 shadow-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 font-display">
-              <Phone className="w-5 h-5 text-primary" />
+            <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+              <Phone className="w-4 h-4 text-gray-400" />
               Telephony & SMS (Twilio)
             </CardTitle>
             <CardDescription className="label-text mt-1">
@@ -66,8 +66,8 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
       </CardHeader>
       <CardContent className="space-y-5">
         {twilioStatus?.phoneNumber && (
-          <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-            <Label className="label-text font-medium text-primary">Twilio Phone Number</Label>
+          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <Label className="label-text font-medium text-gray-600">Twilio Phone Number</Label>
             <p className="text-lg font-mono font-semibold mt-1" data-testid="text-twilio-phone">
               {twilioStatus.phoneNumber}
             </p>

@@ -78,9 +78,9 @@ export default function NavigationTab() {
   ];
 
   return (
-    <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]" data-testid="card-sidebar-settings">
+    <Card className="bg-white border border-gray-200/80 shadow-sm" data-testid="card-sidebar-settings">
       <CardHeader>
-        <CardTitle className="font-display flex items-center gap-2"><Settings className="w-5 h-5" /> Navigation Visibility</CardTitle>
+        <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Settings className="w-5 h-5" /> Navigation Visibility</CardTitle>
         <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Admin Settings) are always visible.</CardDescription>
       </CardHeader>
       <CardContent className="relative space-y-1">
@@ -89,7 +89,7 @@ export default function NavigationTab() {
           return (
             <div
               key={toggle.key}
-              className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-primary/5 transition-colors"
+              className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-gray-50 transition-colors"
               data-testid={`sidebar-toggle-${toggle.key}`}
             >
               <div className="flex-1 min-w-0">

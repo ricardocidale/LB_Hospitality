@@ -129,7 +129,7 @@ export default function LogosTab() {
     `flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
       active
         ? "bg-gradient-to-b from-primary/15 to-primary/25 border-primary/40 text-gray-900 shadow-sm"
-        : "bg-white/60 border-gray-200 text-gray-500 hover:text-gray-700 hover:border-primary/30 hover:bg-primary/5"
+        : "bg-white border border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50"
     }`;
 
   const isBusy = isGenerating || isEnhancing || isUploadingFile || createLogoMutation.isPending;
@@ -137,11 +137,11 @@ export default function LogosTab() {
   return (
     <>
     <div className="space-y-6">
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="font-display flex items-center gap-2"><Image className="w-5 h-5 text-primary" /> Logo Management</CardTitle>
+              <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Image className="w-4 h-4 text-gray-400" /> Logo Management</CardTitle>
               <CardDescription className="label-text">Upload, create, and manage logos used by companies in the platform</CardDescription>
             </div>
             <Button variant="outline" onClick={() => { resetLogoForm(); setLogoDialogOpen(true); }} className="flex items-center gap-2" data-testid="button-add-logo">
@@ -152,7 +152,7 @@ export default function LogosTab() {
         <CardContent className="relative space-y-4">
           {!adminLogos || adminLogos.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <Image className="w-16 h-16 mx-auto mb-4 text-primary/30" />
+              <Image className="w-16 h-16 mx-auto mb-4 text-gray-600/30" />
               <p className="text-lg mb-1">No logos yet</p>
               <p className="text-sm">Click "Add Logo" to upload or create your first logo.</p>
             </div>
@@ -165,7 +165,7 @@ export default function LogosTab() {
               }).map(logo => (
                 <Card key={logo.id} className="bg-transparent border-none shadow-none group" data-testid={`logo-card-${logo.id}`}>
                   <CardContent className="p-0">
-                    <div className="aspect-square overflow-hidden rounded-2xl shadow-[0_8px_32px_rgba(159,188,164,0.15)]">
+                    <div className="aspect-square overflow-hidden rounded-2xl shadow-sm">
                       <img src={logo.url} alt={logo.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} data-testid={`logo-image-${logo.id}`} />
                     </div>
                     <div className="space-y-2 px-4 py-3">
@@ -209,12 +209,12 @@ export default function LogosTab() {
         <div className="space-y-5 py-2">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-gray-700"><Tag className="w-3.5 h-3.5 text-primary/60" />Logo Name</Label>
-              <Input value={logoName} onChange={(e) => setLogoName(e.target.value)} placeholder="e.g., Company Logo" disabled={isBusy} data-testid="input-logo-name" className="bg-white border-primary/20" />
+              <Label className="flex items-center gap-2 text-gray-700"><Tag className="w-3.5 h-3.5 text-gray-600/60" />Logo Name</Label>
+              <Input value={logoName} onChange={(e) => setLogoName(e.target.value)} placeholder="e.g., Company Logo" disabled={isBusy} data-testid="input-logo-name" className="bg-white border-gray-200" />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-gray-700"><Building2 className="w-3.5 h-3.5 text-primary/60" />Company Name</Label>
-              <Input value={logoCompanyName} onChange={(e) => setLogoCompanyName(e.target.value)} placeholder="e.g., Hotel Group" disabled={isBusy} data-testid="input-logo-company-name" className="bg-white border-primary/20" />
+              <Label className="flex items-center gap-2 text-gray-700"><Building2 className="w-3.5 h-3.5 text-gray-600/60" />Company Name</Label>
+              <Input value={logoCompanyName} onChange={(e) => setLogoCompanyName(e.target.value)} placeholder="e.g., Hotel Group" disabled={isBusy} data-testid="input-logo-company-name" className="bg-white border-gray-200" />
             </div>
           </div>
 
@@ -232,7 +232,7 @@ export default function LogosTab() {
 
           {logoUrl && (
             <div className="relative">
-              <div className="aspect-square max-w-[200px] mx-auto rounded-xl overflow-hidden border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-4">
+              <div className="aspect-square max-w-[200px] mx-auto rounded-xl overflow-hidden border-2 border-gray-200 bg-gradient-to-br from-primary/5 to-primary/10 p-4">
                 <img src={logoUrl} alt="Preview" className="w-full h-full object-contain" />
               </div>
               <button type="button" onClick={() => { setLogoUrl(""); setAiStep("describe"); }} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/90 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-md" data-testid="btn-remove-preview">
@@ -253,7 +253,7 @@ export default function LogosTab() {
                       placeholder="e.g., Modern minimalist logo for a boutique hotel management company with elegant green tones..."
                       rows={3}
                       disabled={isBusy}
-                      className="resize-none bg-white border-primary/20 text-sm"
+                      className="resize-none bg-white border-gray-200 text-sm"
                       data-testid="input-ai-prompt"
                     />
                   </div>
@@ -291,14 +291,14 @@ export default function LogosTab() {
                       <Wand2 className="w-4 h-4 text-amber-600" />
                       <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">AI-Enhanced Prompt</span>
                     </div>
-                    <Textarea value={enhancedPrompt} onChange={(e) => setEnhancedPrompt(e.target.value)} rows={4} className="resize-none bg-white/80 border-amber-200/40 text-sm" data-testid="input-enhanced-prompt" />
+                    <Textarea value={enhancedPrompt} onChange={(e) => setEnhancedPrompt(e.target.value)} rows={4} className="resize-none bg-white border-gray-200 text-sm" data-testid="input-enhanced-prompt" />
                     <p className="text-xs text-gray-400">You can edit the enhanced prompt above</p>
                   </div>
                   <div className="flex gap-2">
                     <Button type="button" variant="outline" onClick={() => { setAiStep("describe"); setEnhancedPrompt(""); }} className="border-gray-200 text-gray-600 hover:bg-gray-50" data-testid="btn-cancel-enhance">
                       <X className="w-4 h-4 mr-1.5" /> Cancel
                     </Button>
-                    <Button type="button" variant="outline" onClick={() => { setAiPrompt(enhancedPrompt); setAiStep("describe"); setEnhancedPrompt(""); }} className="border-primary/30 text-gray-700 hover:bg-primary/5" data-testid="btn-edit-enhanced">
+                    <Button type="button" variant="outline" onClick={() => { setAiPrompt(enhancedPrompt); setAiStep("describe"); setEnhancedPrompt(""); }} className="border-primary/30 text-gray-700 hover:bg-gray-50" data-testid="btn-edit-enhanced">
                       <Pencil className="w-4 h-4 mr-1.5" /> Edit Further
                     </Button>
                     <Button type="button" onClick={() => handleGenerateLogo(enhancedPrompt)} className="flex-1 bg-gradient-to-b from-primary/70 to-primary/90 text-white hover:from-primary/80 hover:to-primary border-0 shadow-sm" data-testid="btn-generate-enhanced">
@@ -312,9 +312,9 @@ export default function LogosTab() {
                 <div className="flex flex-col items-center justify-center py-8 space-y-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                      <Sparkles className="w-6 h-6 text-gray-600 animate-pulse" />
                     </div>
-                    <Loader2 className="w-16 h-16 text-primary/40 animate-spin absolute -top-2 -left-2" />
+                    <Loader2 className="w-16 h-16 text-gray-600/40 animate-spin absolute -top-2 -left-2" />
                   </div>
                   <p className="text-sm font-medium text-gray-700">Generating your logo...</p>
                   <p className="text-xs text-gray-400">Nano Banana is creating your design</p>
@@ -324,10 +324,10 @@ export default function LogosTab() {
           )}
 
           {!logoUrl && logoMode === "import" && (
-            <div className="w-full aspect-square max-h-[220px] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer hover:border-primary/40 hover:bg-primary/[0.02]" onClick={() => !isUploadingFile && fileInputRef.current?.click()}>
+            <div className="w-full aspect-square max-h-[220px] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer hover:border-gray-400 hover:bg-gray-50/30" onClick={() => !isUploadingFile && fileInputRef.current?.click()}>
               {isUploadingFile ? (
                 <>
-                  <Loader2 className="w-10 h-10 text-primary animate-spin mb-2" />
+                  <Loader2 className="w-10 h-10 text-gray-600 animate-spin mb-2" />
                   <p className="text-sm text-muted-foreground">Uploading...</p>
                 </>
               ) : (
@@ -343,7 +343,7 @@ export default function LogosTab() {
           {!logoUrl && logoMode === "url" && (
             <div className="space-y-3">
               <div className="flex gap-2">
-                <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)} placeholder="https://example.com/logo.png" className="bg-white border-primary/20" data-testid="input-logo-url" />
+                <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)} placeholder="https://example.com/logo.png" className="bg-white border-gray-200" data-testid="input-logo-url" />
                 <Button type="button" variant="outline" onClick={() => { setLogoUrl(urlInput.trim()); setUrlInput(""); }} disabled={!urlInput.trim()} className="border-primary/30 text-gray-700" data-testid="btn-apply-url">
                   <Check className="w-4 h-4 mr-1.5" /> Apply
                 </Button>

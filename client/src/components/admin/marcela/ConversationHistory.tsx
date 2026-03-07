@@ -138,7 +138,7 @@ function AudioPlayer({ conversationId }: { conversationId: string }) {
         type="button"
         onClick={handleLoad}
         disabled={loading}
-        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-primary transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-gray-600 transition-colors disabled:opacity-50"
       >
         {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
         {loading ? "Loading…" : "Play"}
@@ -154,7 +154,7 @@ function AudioPlayer({ conversationId }: { conversationId: string }) {
           item={item}
           size="sm"
           variant="ghost"
-          className="h-5 w-5 p-0 text-muted-foreground/60 hover:text-primary"
+          className="h-5 w-5 p-0 text-muted-foreground/60 hover:text-gray-600"
         />
         <AudioPlayerProgress className="w-28" />
         <AudioPlayerTime className="text-[10px]" />
@@ -201,11 +201,11 @@ export function ConversationHistory() {
       {total > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Total", value: total, icon: <BarChart2 className="w-4 h-4 text-primary" />, color: "from-primary/10 to-primary/5" },
+            { label: "Total", value: total, icon: <BarChart2 className="w-4 h-4 text-gray-600" />, color: "from-primary/10 to-primary/5" },
             { label: "Successful", value: successful, icon: <CheckCircle2 className="w-4 h-4 text-green-600" />, color: "from-green-500/10 to-green-500/5" },
-            { label: "Avg Duration", value: formatDuration(avgDuration), icon: <Clock className="w-4 h-4 text-blue-600" />, color: "from-blue-500/10 to-blue-500/5" },
+            { label: "Avg Duration", value: formatDuration(avgDuration), icon: <Clock className="w-4 h-4 text-gray-600" />, color: "from-blue-500/10 to-blue-500/5" },
           ].map((stat) => (
-            <div key={stat.label} className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} border border-primary/10`}>
+            <div key={stat.label} className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} border border-gray-200/60`}>
               <div className="flex items-center gap-1.5 mb-1">
                 {stat.icon}
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">{stat.label}</span>
@@ -216,15 +216,15 @@ export function ConversationHistory() {
         </div>
       )}
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-primary" />
+                <MessageSquare className="w-4 h-4 text-gray-400" />
               </div>
               <div>
-                <CardTitle className="font-display text-base">Conversation History</CardTitle>
+                <CardTitle className="text-sm font-semibold text-gray-900">Conversation History</CardTitle>
                 <CardDescription className="label-text mt-0.5">
                   Recent conversations from the ElevenLabs agent — auto-refreshes every minute
                 </CardDescription>
@@ -246,7 +246,7 @@ export function ConversationHistory() {
                     onClick={() => setFilter(f)}
                     className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors capitalize ${
                       filter === f
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-primary text-gray-600-foreground"
                         : "bg-muted/50 text-muted-foreground hover:bg-muted"
                     }`}
                   >
@@ -281,7 +281,7 @@ export function ConversationHistory() {
                   <button
                     type="button"
                     onClick={() => toggle(conv.conversation_id)}
-                    className="w-full flex items-start gap-3 py-3 px-1 hover:bg-primary/[0.02] rounded-lg transition-colors text-left"
+                    className="w-full flex items-start gap-3 py-3 px-1 hover:bg-gray-50/30 rounded-lg transition-colors text-left"
                   >
                     <div className="shrink-0 text-muted-foreground/40 mt-0.5">
                       {expanded === conv.conversation_id

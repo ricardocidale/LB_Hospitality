@@ -105,10 +105,10 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
 
   if (isLoading) {
     return (
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardContent className="py-16 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
-            <Loader2 className="w-7 h-7 animate-spin text-primary" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gray-100 mb-4">
+            <Loader2 className="w-7 h-7 animate-spin text-gray-600" />
           </div>
           <p className="text-sm text-muted-foreground font-medium">Fetching agent configuration from ElevenLabs...</p>
           <p className="text-xs text-muted-foreground/60 mt-1">This may take a moment on first load</p>
@@ -119,7 +119,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
 
   if (error) {
     return (
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardContent className="py-10">
           <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
@@ -153,15 +153,15 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
           </div>
         </div>
       )}
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-primary" />
+                <FileText className="w-4 h-4 text-gray-400" />
               </div>
               <div>
-                <CardTitle className="font-display text-base">System Prompt</CardTitle>
+                <CardTitle className="text-sm font-semibold text-gray-900">System Prompt</CardTitle>
                 <CardDescription className="label-text mt-0.5">
                   Defines {agentName}'s persona, behavior, and knowledge boundaries
                 </CardDescription>
@@ -178,7 +178,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
                   size="sm"
                   variant="outline"
                   onClick={handleLoadTemplate}
-                  className="gap-1.5 border-primary/20 text-primary hover:bg-primary/5"
+                  className="gap-1.5 border-gray-200 text-gray-600 hover:bg-gray-50"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   Load template
@@ -207,7 +207,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
               value={currentPrompt}
               onChange={(e) => handlePromptChange(e.target.value)}
               placeholder={`You are ${agentName}, an AI assistant for Hospitality Business Group. You help investors understand hotel business simulations...`}
-              className="bg-white/60 min-h-[340px] font-mono text-[13px] leading-relaxed resize-y border-primary/15 focus:border-primary/30 transition-colors"
+              className="bg-white min-h-[340px] font-mono text-[13px] leading-relaxed resize-y border-gray-200 focus:border-gray-300 transition-colors"
               data-testid="textarea-system-prompt"
             />
             <div className="flex items-center justify-between px-1">
@@ -225,7 +225,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
               )}
             </div>
 
-          <div className="p-3 bg-primary/[0.03] rounded-xl border border-primary/10 space-y-2">
+          <div className="p-3 bg-gray-50/50 rounded-xl border border-gray-200/60 space-y-2">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Available dynamic variables — click to copy</p>
             <div className="flex flex-wrap gap-2">
               {DYNAMIC_VARS.map((v) => (
@@ -234,7 +234,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
                   type="button"
                   onClick={() => handleCopyVar(v.name)}
                   title={v.description}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-primary/20 text-xs font-mono text-primary hover:bg-primary/5 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-xs font-mono text-gray-600 hover:bg-gray-50 transition-colors"
                 >
                   {copiedVar === v.name ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3 opacity-50" />}
                   {v.name}
@@ -247,14 +247,14 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-500/5 flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-blue-600" />
+              <MessageSquare className="w-4 h-4 text-gray-400" />
             </div>
             <div>
-              <CardTitle className="font-display text-base">First Message</CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900">First Message</CardTitle>
               <CardDescription className="label-text mt-0.5">
                 The opening greeting when a user begins a conversation with {agentName}
               </CardDescription>
@@ -268,7 +268,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
               value={currentFirstMessage}
               onChange={(e) => handleFirstMessageChange(e.target.value)}
               placeholder={`Hello! I'm ${agentName}, your assistant for Hospitality Business Group...`}
-              className="bg-white/60 border-primary/15 focus:border-primary/30 transition-colors"
+              className="bg-white border-gray-200 focus:border-gray-300 transition-colors"
               data-testid="input-first-message"
             />
           </div>
@@ -281,7 +281,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
               <Label className="label-text font-medium text-xs uppercase tracking-wider text-muted-foreground/70">Default Language</Label>
             </div>
             <Select value={currentLanguage} onValueChange={handleLanguageChange}>
-              <SelectTrigger className="bg-white/60 w-64 border-primary/15 focus:border-primary/30" data-testid="select-agent-language">
+              <SelectTrigger className="bg-white w-64 border-gray-200 focus:border-gray-300" data-testid="select-agent-language">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

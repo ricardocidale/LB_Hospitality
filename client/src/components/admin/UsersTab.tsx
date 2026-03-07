@@ -270,13 +270,13 @@ export default function UsersTab() {
 
   return (
     <>
-    <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+    <Card className="bg-white border border-gray-200/80 shadow-sm">
 
       
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-display">User Management</CardTitle>
+            <CardTitle className="text-base font-semibold text-gray-900">User Management</CardTitle>
             <CardDescription className="label-text">
               {users?.length || 0} registered users
             </CardDescription>
@@ -297,12 +297,12 @@ export default function UsersTab() {
       <CardContent className="relative">
         {usersLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-primary/20 hover:bg-transparent">
+              <TableRow className="border-gray-200 hover:bg-transparent">
                 <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("name")} data-testid="sort-user-name"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User <SortIcon field="name" /></div></TableHead>
                 <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("role")} data-testid="sort-user-role"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role <SortIcon field="role" /></div></TableHead>
                 <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("group")} data-testid="sort-user-group"><div className="flex items-center gap-2"><LayoutGrid className="w-4 h-4" />Group <SortIcon field="group" /></div></TableHead>
@@ -311,7 +311,7 @@ export default function UsersTab() {
             </TableHeader>
             <TableBody>
               {sortedUsers.map((user) => (
-                <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`row-user-${user.id}`}>
+                <TableRow key={user.id} className="border-gray-200 hover:bg-gray-50" data-testid={`row-user-${user.id}`}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
@@ -319,7 +319,7 @@ export default function UsersTab() {
                         <img
                           src={userLogoMap[user.userGroupId]}
                           alt=""
-                          className="w-7 h-7 rounded-md border border-primary/15 bg-white object-contain p-0.5"
+                          className="w-7 h-7 rounded-md border border-gray-200 bg-white object-contain p-0.5"
                           onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
                         />
                       )}
@@ -330,19 +330,19 @@ export default function UsersTab() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-primary/10 text-muted-foreground'}`}>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-gray-100 text-muted-foreground'}`}>
                       {user.role}
                     </span>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{user.userGroupId ? groupNameMap[user.userGroupId] || "—" : "—"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"
+                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-gray-100"
                         onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"
+                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-gray-100"
                         onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
                         data-testid={`button-password-user-${user.id}`}>
                         <Key className="w-4 h-4" />

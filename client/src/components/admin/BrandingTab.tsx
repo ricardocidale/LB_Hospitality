@@ -18,9 +18,9 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Management Company</CardTitle>
+          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-400" /> Management Company</CardTitle>
           <CardDescription className="label-text">Define the management company name and logo used in financial reports and navigation</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -53,9 +53,9 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><Tag className="w-5 h-5 text-primary" /> Asset Type</CardTitle>
+          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Tag className="w-4 h-4 text-gray-400" /> Asset Type</CardTitle>
           <CardDescription className="label-text">Define the type of property being profiled — used across page titles, research prompts, and financial reports</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

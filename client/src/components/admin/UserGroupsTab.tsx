@@ -185,11 +185,11 @@ export default function UserGroupsTab() {
   return (
     <>
     <div className="space-y-6">
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="font-display flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> User Groups</CardTitle>
+              <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Users className="w-4 h-4 text-gray-400" /> User Groups</CardTitle>
               <CardDescription className="label-text">Create groups with a company name and logo. Assign users to groups so they see the group's branding.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => {
@@ -216,20 +216,20 @@ export default function UserGroupsTab() {
                 const groupAssetDesc = assetDescriptions?.find(a => a.id === group.assetDescriptionId);
                 const groupUsers = (users?.filter(u => u.userGroupId === group.id) || []).sort((a, b) => ((a.name || a.email).split(" ")[0]).localeCompare((b.name || b.email).split(" ")[0]));
                 return (
-                  <div key={group.id} className="bg-primary/5 border border-primary/20 rounded-xl p-4" data-testid={`group-card-${group.id}`}>
+                  <div key={group.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4" data-testid={`group-card-${group.id}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         {groupLogo ? (
-                          <div className="w-10 h-10 rounded-lg bg-white border border-primary/20 flex items-center justify-center overflow-hidden">
+                          <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
                             <img src={groupLogo.url} alt={groupLogo.name} className="max-w-full max-h-full object-contain" />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-primary" />
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
+                            <Building2 className="w-4 h-4 text-gray-400" />
                           </div>
                         )}
                         <div>
-                          <h3 className="font-display text-foreground font-medium">{group.name}{group.isDefault && <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">Default</span>}</h3>
+                          <h3 className="font-display text-foreground font-medium">{group.name}{group.isDefault && <span className="ml-2 text-xs bg-gray-200/80 text-gray-600 px-2 py-0.5 rounded">Default</span>}</h3>
                           <p className="text-sm text-muted-foreground">Logo: <span className="text-foreground">{groupLogo ? groupLogo.name : "Default"}</span></p>
                         </div>
                       </div>
@@ -238,7 +238,7 @@ export default function UserGroupsTab() {
                           setEditingGroup(group);
                           setGroupForm({ name: group.name, logoId: group.logoId, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
                           setGroupDialogOpen(true);
-                        }} className="text-primary hover:text-foreground hover:bg-primary/10" data-testid={`button-edit-group-${group.id}`}>
+                        }} className="text-gray-600 hover:text-foreground hover:bg-gray-100" data-testid={`button-edit-group-${group.id}`}>
                           <Pencil className="w-4 h-4" />
                         </Button>
                         {!group.isDefault && (
@@ -253,14 +253,14 @@ export default function UserGroupsTab() {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
-                      {groupTheme && <span className="bg-primary/10 px-2 py-0.5 rounded">Theme: {groupTheme.name}</span>}
-                      {groupAssetDesc && <span className="bg-primary/10 px-2 py-0.5 rounded">Asset: {groupAssetDesc.name}</span>}
-                      <span className="bg-primary/10 px-2 py-0.5 rounded">{groupUsers.length} member{groupUsers.length !== 1 ? "s" : ""}</span>
+                      {groupTheme && <span className="bg-gray-100 px-2 py-0.5 rounded">Theme: {groupTheme.name}</span>}
+                      {groupAssetDesc && <span className="bg-gray-100 px-2 py-0.5 rounded">Asset: {groupAssetDesc.name}</span>}
+                      <span className="bg-gray-100 px-2 py-0.5 rounded">{groupUsers.length} member{groupUsers.length !== 1 ? "s" : ""}</span>
                     </div>
                     {groupUsers.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-3">
                         {groupUsers.map(u => (
-                          <span key={u.id} className="inline-flex items-center gap-1 bg-white/80 border border-primary/20 rounded-full px-3 py-1 text-sm">
+                          <span key={u.id} className="inline-flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-3 py-1 text-sm">
                             <span className="font-medium">{u.name || u.email}</span>
                             <button onClick={() => assignGroupMutation.mutate({ userId: u.id, groupId: null })} className="text-red-400 hover:text-red-600 ml-1" title="Remove from group" data-testid={`button-remove-user-${u.id}-from-group`}>
                               &times;
@@ -279,14 +279,14 @@ export default function UserGroupsTab() {
                       const isAllVisible = activeIds.size === 0;
                       const visibleCount = isAllVisible ? allProperties.length : activeIds.size;
                       return (
-                        <div className="border-t border-primary/10 pt-3 mt-1">
+                        <div className="border-t border-gray-200/60 pt-3 mt-1">
                           <button
                             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left"
                             onClick={() => setExpandedVisibility(isExpanded ? null : group.id)}
                           >
-                            <Eye className="w-4 h-4 text-primary/60" />
+                            <Eye className="w-4 h-4 text-gray-600/60" />
                             <span className="font-medium">Property Visibility</span>
-                            <span className="text-xs bg-primary/10 px-2 py-0.5 rounded ml-1">
+                            <span className="text-xs bg-gray-100 px-2 py-0.5 rounded ml-1">
                               {visibleCount} of {allProperties.length} visible
                             </span>
                             <span className="ml-auto">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</span>
@@ -315,7 +315,7 @@ export default function UserGroupsTab() {
                                   </label>
                                 );
                               })}
-                              <div className="flex gap-2 mt-3 pt-2 border-t border-primary/10">
+                              <div className="flex gap-2 mt-3 pt-2 border-t border-gray-200/60">
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -348,15 +348,15 @@ export default function UserGroupsTab() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2"><UserPlus className="w-5 h-5 text-primary" /> Assign Users to Groups</CardTitle>
+          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><UserPlus className="w-4 h-4 text-gray-400" /> Assign Users to Groups</CardTitle>
           <CardDescription className="label-text">Set which group each user belongs to. Group branding overrides defaults.</CardDescription>
         </CardHeader>
         <CardContent className="relative">
           <Table>
             <TableHeader>
-              <TableRow className="border-primary/20 hover:bg-transparent">
+              <TableRow className="border-gray-200 hover:bg-transparent">
                 <TableHead className="text-muted-foreground">User</TableHead>
                 <TableHead className="text-muted-foreground">Role</TableHead>
                 <TableHead className="text-muted-foreground">Group</TableHead>
@@ -366,7 +366,7 @@ export default function UserGroupsTab() {
               {users?.map(user => {
                 const currentGroup = userGroupsList?.find(g => g.id === user.userGroupId);
                 return (
-                  <TableRow key={user.id} className="border-primary/20 hover:bg-primary/5" data-testid={`group-assign-row-${user.id}`}>
+                  <TableRow key={user.id} className="border-gray-200 hover:bg-gray-50" data-testid={`group-assign-row-${user.id}`}>
                     <TableCell className="text-foreground">
                       <div>
                         <span className="font-medium">{user.name || user.email}</span>
@@ -375,10 +375,10 @@ export default function UserGroupsTab() {
                     </TableCell>
                     <TableCell>
                       <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                        user.role === "admin" ? "bg-primary/20 text-primary" :
-                        user.role === "checker" ? "bg-blue-500/20 text-blue-400" :
+                        user.role === "admin" ? "bg-gray-200/80 text-gray-600" :
+                        user.role === "checker" ? "bg-gray-200 text-blue-400" :
                         user.role === "investor" ? "bg-amber-500/20 text-amber-400" :
-                        "bg-primary/10 text-muted-foreground"
+                        "bg-gray-100 text-muted-foreground"
                       }`}>{user.role}</span>
                     </TableCell>
                     <TableCell>

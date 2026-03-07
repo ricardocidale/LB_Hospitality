@@ -259,16 +259,11 @@ export default function VerificationTab() {
   };
 
   return (
-    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-secondary/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-      </div>
-      
+    <Card className="relative overflow-hidden bg-white border border-gray-200/80 shadow-sm">
       <CardHeader className="relative">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <CardTitle className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-secondary to-gray-800 uppercase">
+            <CardTitle className="text-2xl font-semibold tracking-tight text-gray-900">
               GAAP Financial Verification
             </CardTitle>
             <CardDescription className="text-gray-500 font-medium max-w-2xl">

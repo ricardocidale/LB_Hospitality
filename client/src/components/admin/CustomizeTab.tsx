@@ -48,18 +48,18 @@ export default function CustomizeTab() {
               data-testid={`customize-section-${section.value}`}
               className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 text-left cursor-pointer ${
                 isActive
-                  ? "border-primary bg-primary/5 shadow-[0_4px_20px_rgba(159,188,164,0.15)]"
-                  : "border-gray-200 bg-white hover:border-primary/40 hover:shadow-md"
+                  ? "border-primary bg-gray-50 shadow-sm"
+                  : "border-gray-200 bg-white hover:border-gray-400 hover:shadow-md"
               }`}
             >
               <div className="flex items-center gap-3 mb-1.5">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-                  isActive ? "bg-primary/15 text-primary" : "bg-gray-100 text-gray-500 group-hover:bg-primary/10 group-hover:text-primary"
+                  isActive ? "bg-gray-100 text-gray-600" : "bg-gray-100 text-gray-500 group-hover:bg-gray-100 group-hover:text-gray-600"
                 }`}>
                   <Icon className="w-4.5 h-4.5" />
                 </div>
                 <span className={`text-sm font-semibold transition-colors ${
-                  isActive ? "text-primary" : "text-gray-800"
+                  isActive ? "text-gray-600" : "text-gray-800"
                 }`}>{section.label}</span>
               </div>
               <p className="text-[11px] text-gray-500 leading-relaxed pl-12">{section.description}</p>

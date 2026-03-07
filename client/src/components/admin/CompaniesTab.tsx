@@ -114,11 +114,11 @@ export default function CompaniesTab() {
     <>
     <div className="space-y-6">
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="font-display flex items-center gap-2"><Building2 className="w-5 h-5 text-blue-500" /> SPV Companies</CardTitle>
+              <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-400" /> SPV Companies</CardTitle>
               <CardDescription className="label-text">Manage special purpose vehicle companies for individual properties.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => {
@@ -143,21 +143,21 @@ export default function CompaniesTab() {
                 const companyLogo = adminLogos?.find(l => l.id === company.logoId);
                 const companyUsers = users?.filter(u => u.companyId === company.id) || [];
                 return (
-                  <div key={company.id} className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4" data-testid={`company-card-${company.id}`}>
+                  <div key={company.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4" data-testid={`company-card-${company.id}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         {companyLogo ? (
-                          <div className="w-10 h-10 rounded-lg bg-white border border-blue-500/20 flex items-center justify-center overflow-hidden">
+                          <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
                             <img src={companyLogo.url} alt={companyLogo.name} className="max-w-full max-h-full object-contain" />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                            <Building2 className="w-5 h-5 text-blue-500" />
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
+                            <Building2 className="w-4 h-4 text-gray-400" />
                           </div>
                         )}
                         <div>
                           <h3 className="font-display text-foreground font-medium">{company.name}</h3>
-                          <span className="text-xs px-2 py-0.5 rounded font-mono bg-blue-500/20 text-blue-600">SPV</span>
+                          <span className="text-xs px-2 py-0.5 rounded font-mono bg-gray-200 text-gray-600">SPV</span>
                           {!company.isActive && <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-600 ml-2">Inactive</span>}
                         </div>
                       </div>
@@ -166,7 +166,7 @@ export default function CompaniesTab() {
                           setEditingCompany(company);
                           setCompanyForm({ name: company.name, type: company.type, description: company.description || "", logoId: company.logoId });
                           setCompanyDialogOpen(true);
-                        }} className="text-blue-500 hover:text-foreground hover:bg-blue-500/10" data-testid={`button-edit-company-${company.id}`}>
+                        }} className="text-gray-400 hover:text-foreground hover:bg-gray-100" data-testid={`button-edit-company-${company.id}`}>
                           <Pencil className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => {
@@ -182,13 +182,13 @@ export default function CompaniesTab() {
                       <p className="text-sm text-muted-foreground mb-3">{company.description}</p>
                     )}
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
-                      {companyLogo && <span className="bg-blue-500/10 px-2 py-0.5 rounded">Logo: {companyLogo.name}</span>}
-                      <span className="bg-blue-500/10 px-2 py-0.5 rounded">{companyUsers.length} member{companyUsers.length !== 1 ? "s" : ""}</span>
+                      {companyLogo && <span className="bg-gray-100 px-2 py-0.5 rounded">Logo: {companyLogo.name}</span>}
+                      <span className="bg-gray-100 px-2 py-0.5 rounded">{companyUsers.length} member{companyUsers.length !== 1 ? "s" : ""}</span>
                     </div>
                     {companyUsers.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {companyUsers.map(u => (
-                          <span key={u.id} className="inline-flex items-center gap-1 bg-white/80 border border-blue-500/20 rounded-full px-3 py-1 text-sm">
+                          <span key={u.id} className="inline-flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-3 py-1 text-sm">
                             <span className="font-medium">{u.name || u.email}</span>
                           </span>
                         ))}

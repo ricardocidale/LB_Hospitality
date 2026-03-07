@@ -36,12 +36,12 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
   };
 
   return (
-    <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+    <Card className="bg-white border border-gray-200/80 shadow-sm">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 font-display">
-              <Brain className="w-5 h-5 text-primary" />
+            <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+              <Brain className="w-4 h-4 text-gray-400" />
               Language Model (LLM)
             </CardTitle>
             <CardDescription className="label-text mt-1">

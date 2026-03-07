@@ -16,25 +16,25 @@ export function CheckerActivity({ checkerActivity }: CheckerActivityProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <Card className="bg-white border border-gray-200/80 shadow-sm">
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-primary">{checkerActivity?.summary.totalActions ?? 0}</div>
+            <div className="text-3xl font-bold text-gray-600">{checkerActivity?.summary.totalActions ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-1">Total Actions</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <Card className="bg-white border border-gray-200/80 shadow-sm">
           <CardContent className="p-6 text-center">
             <div className="text-3xl font-bold text-[#4ECDC4]">{checkerActivity?.summary.verificationRuns ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-1">Verification Runs</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <Card className="bg-white border border-gray-200/80 shadow-sm">
           <CardContent className="p-6 text-center">
             <div className="text-3xl font-bold text-[#E8927C]">{checkerActivity?.summary.manualViews ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-1">Manual Reviews</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <Card className="bg-white border border-gray-200/80 shadow-sm">
           <CardContent className="p-6 text-center">
             <div className="text-3xl font-bold text-foreground">{checkerActivity?.summary.exports ?? 0}</div>
             <div className="text-xs text-muted-foreground mt-1">Exports</div>
@@ -43,14 +43,14 @@ export function CheckerActivity({ checkerActivity }: CheckerActivityProps) {
       </div>
 
       {checkerActivity?.checkers && checkerActivity.checkers.length > 0 && (
-        <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <Card className="bg-white border border-gray-200/80 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-xl font-display">Checker Users</CardTitle>
+            <CardTitle className="text-base font-semibold text-gray-900">Checker Users</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
-                <TableRow className="border-primary/20">
+                <TableRow className="border-gray-200">
                   <TableHead className="text-muted-foreground">Email</TableHead>
                   <TableHead className="text-muted-foreground">Name</TableHead>
                   <TableHead className="text-muted-foreground text-center">Actions</TableHead>
@@ -62,7 +62,7 @@ export function CheckerActivity({ checkerActivity }: CheckerActivityProps) {
               </TableHeader>
               <TableBody>
                 {checkerActivity.checkers.map((checker) => (
-                  <TableRow key={checker.id} className="border-primary/20">
+                  <TableRow key={checker.id} className="border-gray-200">
                     <TableCell className="text-foreground font-mono text-sm">{checker.email}</TableCell>
                     <TableCell className="text-foreground/80">{checker.name || "-"}</TableCell>
                     <TableCell className="text-foreground/80 text-center">{checker.totalActions}</TableCell>
@@ -85,9 +85,9 @@ export function CheckerActivity({ checkerActivity }: CheckerActivityProps) {
 
 function RecentCheckerActivity({ checkerActivity, formatDate }: { checkerActivity?: CheckerActivityData, formatDate: (d: string | null) => string }) {
   return (
-    <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+    <Card className="bg-white border border-gray-200/80 shadow-sm">
       <CardHeader>
-        <CardTitle className="text-xl font-display">Recent Checker Activity</CardTitle>
+        <CardTitle className="text-base font-semibold text-gray-900">Recent Checker Activity</CardTitle>
       </CardHeader>
       <CardContent>
         {(!checkerActivity?.recentActivity || checkerActivity.recentActivity.length === 0) ? (
@@ -95,7 +95,7 @@ function RecentCheckerActivity({ checkerActivity, formatDate }: { checkerActivit
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-primary/20">
+              <TableRow className="border-gray-200">
                 <TableHead className="text-muted-foreground">Time</TableHead>
                 <TableHead className="text-muted-foreground">User</TableHead>
                 <TableHead className="text-muted-foreground">Action</TableHead>
@@ -105,7 +105,7 @@ function RecentCheckerActivity({ checkerActivity, formatDate }: { checkerActivit
             </TableHeader>
             <TableBody>
               {checkerActivity.recentActivity.map((log) => (
-                <TableRow key={log.id} className="border-primary/20">
+                <TableRow key={log.id} className="border-gray-200">
                   <TableCell className="text-muted-foreground text-sm whitespace-nowrap">{formatDate(log.createdAt)}</TableCell>
                   <TableCell className="text-foreground font-mono text-sm">{log.userEmail}</TableCell>
                   <TableCell>

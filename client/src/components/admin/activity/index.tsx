@@ -65,7 +65,7 @@ export default function ActivityTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 p-1 bg-primary/5 border border-primary/10 rounded-xl w-fit">
+      <div className="flex items-center gap-2 p-1 bg-gray-50 border border-gray-200/60 rounded-xl w-fit">
         <Button
           variant={activitySubTab === "login" ? "default" : "ghost"}
           size="sm"

@@ -41,14 +41,14 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-violet-500/5 flex items-center justify-center">
               <Database className="w-5 h-5 text-violet-600" />
             </div>
             <div>
-              <CardTitle className="font-display text-base">RAG Knowledge Base</CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900">RAG Knowledge Base</CardTitle>
               <CardDescription className="label-text mt-0.5">
                 In-memory vector embeddings for real-time retrieval during conversations
               </CardDescription>
@@ -100,14 +100,14 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+      <Card className="bg-white border border-gray-200/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <CardTitle className="font-display text-base">ElevenLabs Knowledge Base</CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900">ElevenLabs Knowledge Base</CardTitle>
               <CardDescription className="label-text mt-0.5">
                 Documents attached to {agentName}'s Conversational AI agent for reference during voice and text conversations
               </CardDescription>
@@ -217,8 +217,8 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <FileText className="w-4 h-4 text-primary" />
+                    <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4 text-gray-600" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-medium truncate">{selectedFile.name}</p>

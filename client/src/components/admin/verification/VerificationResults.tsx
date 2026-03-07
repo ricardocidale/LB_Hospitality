@@ -38,7 +38,7 @@ export function VerificationResults({ results }: VerificationResultsProps) {
             {!chk.passed && (
               <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${severityColor(chk.severity)}`}>{chk.severity.toUpperCase()}</span>
             )}
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-secondary font-mono">{chk.gaapRef}</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-200/80 text-secondary font-mono">{chk.gaapRef}</span>
           </div>
           <p className="text-xs text-gray-500 mt-0.5 font-mono">{chk.formula}</p>
         </div>

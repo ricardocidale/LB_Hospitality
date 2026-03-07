@@ -62,15 +62,15 @@ export default function Login() {
 
   return (
     <AnimatedPage>
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background">
       <div className="w-full max-w-sm mx-4">
         <div className="flex flex-col items-center mb-8">
           <div className="mb-3 cursor-pointer" onClick={handleAdminLogin}>
             <LogoSvg size={48} color="hsl(var(--primary))" />
           </div>
-          <h1 className="text-lg font-semibold text-foreground">
-            Hospitality Business Group
-          </h1>
+          <p className="text-[13px] text-muted-foreground/70 tracking-wide text-center max-w-[280px] leading-relaxed">
+            Business Simulation for Hospitality Businesses
+          </p>
         </div>
 
         <div className="bg-card rounded-lg border border-border shadow-sm p-6 sm:p-8">
@@ -135,10 +135,22 @@ export default function Login() {
             Contact your administrator if you need access
           </p>
         </div>
-        
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Business simulation portal for Hospitality Business Group
+      </div>
+
+      <div className="mt-12 flex flex-col items-center gap-2 opacity-40">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
+          Powered by
         </p>
+        <div className="flex items-center gap-2">
+          <img
+            src="/logos/norfolk-ai-wireframe.png"
+            alt="Norfolk AI"
+            className="w-5 h-5 opacity-70"
+          />
+          <span className="text-[11px] font-medium tracking-wide text-muted-foreground">
+            Norfolk AI
+          </span>
+        </div>
       </div>
     </div>
     </AnimatedPage>

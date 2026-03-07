@@ -99,6 +99,26 @@ export function registerMarcelaRoutes(app: Express) {
     }
   });
 
+  app.post("/api/marcela/scribe-token", requireAuth, async (_req, res) => {
+    try {
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      if (!apiKey) return res.status(503).json({ error: "Service not configured" });
+      const response = await fetch("https://api.elevenlabs.io/v1/single-use-token/realtime_scribe", {
+        method: "POST",
+        headers: { "xi-api-key": apiKey },
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        return res.status(response.status).json({ error: text || "Failed to get scribe token" });
+      }
+      const data = await response.json();
+      if (!data.token) return res.status(500).json({ error: "Invalid token response" });
+      res.json({ token: data.token });
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Failed to get scribe token", error);
+    }
+  });
+
   app.get("/api/marcela/signed-url", requireAuth, async (_req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions();

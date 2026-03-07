@@ -12,7 +12,7 @@
  */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Search, MapPin, FileBarChart, BookOpen, FlaskConical, MoreHorizontal } from "lucide-react";
+import { LayoutDashboard, Building2, Briefcase, Settings2, Menu, X, Shield, LogOut, UserCircle, FolderOpen, SearchCheck, BarChart3, Search, MapPin, FileBarChart, BookOpen, FlaskConical } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -22,10 +22,9 @@ import defaultLogo from "@/assets/logo.png";
 import CommandPalette from "@/components/CommandPalette";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
-import FavoritesSidebar from "@/components/Favorites";
+
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import ElevenLabsWidget from "@/components/ElevenLabsWidget";
-import { UserAvatar } from "@/components/ui/user-avatar";
 import {
   Sidebar,
   SidebarContent,
@@ -38,7 +37,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarSeparator,
 } from "@/components/ui/sidebar";
 
 import { applyThemeColors, resetThemeColors, type DesignColor } from "@/lib/themeUtils";
@@ -133,45 +131,18 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
   const sidebarContent = (
     <>
-      <SidebarHeader className="p-4 pb-3">
-        <div className="flex items-center gap-3">
-          <img src={companyLogo} alt={companyName} className="w-8 h-8 object-contain rounded" />
-          <div className="min-w-0">
-            <h1 className="text-sm font-semibold text-sidebar-foreground truncate">{companyName}</h1>
-            <p className="text-[11px] text-sidebar-foreground/50">Business Simulation</p>
-          </div>
+      <SidebarHeader className="px-4 pt-4 pb-2">
+        <div className="flex items-center gap-2.5">
+          <img src={companyLogo} alt={companyName} className="w-7 h-7 object-contain" />
+          <h1 className="text-sm font-semibold text-gray-900 truncate">{companyName}</h1>
         </div>
       </SidebarHeader>
 
-      <div className="mx-3 mb-2 flex items-center gap-2">
-        <button
-          onClick={() => {
-            const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
-            document.dispatchEvent(event);
-          }}
-          className="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sidebar-accent text-sidebar-foreground/40 hover:text-sidebar-foreground/60 text-xs transition-colors border border-sidebar-border"
-          data-testid="button-search"
-        >
-          <Search className="w-3.5 h-3.5" />
-          <span>Search...</span>
-          <kbd className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-sidebar-border text-sidebar-foreground/40 font-mono">⌘K</kbd>
-        </button>
-        <div className="relative">
-          <NotificationCenter />
-        </div>
-      </div>
-
-      <SidebarSeparator className="mx-3" />
-
-      <div className="px-3 pt-2">
-        <FavoritesSidebar />
-      </div>
-
-      <SidebarContent>
+      <SidebarContent className="px-2 pt-1">
         {navGroups.map((group) => (
-          <SidebarGroup key={group.label || "misc"}>
+          <SidebarGroup key={group.label || "misc"} className="py-1">
             {group.label && (
-              <SidebarGroupLabel className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/40 px-3">
+              <SidebarGroupLabel className="text-[11px] font-medium text-gray-400 px-3 pb-0.5">
                 {group.label}
               </SidebarGroupLabel>
             )}
@@ -186,8 +157,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                         isActive={active}
                         tooltip={item.label}
                         className={cn(
-                          "px-3 py-2 rounded-lg transition-colors",
-                          active ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium" : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                          "h-8 px-3 rounded-md text-[13px] transition-colors",
+                          active ? "bg-gray-100 text-gray-900 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                         )}
                       >
                         <Link href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -204,13 +175,12 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="p-3 space-y-2">
-        <SidebarSeparator />
+      <SidebarFooter className="px-2 pb-3 pt-1">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => logout()}
-              className="px-3 py-2 rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+              className="h-8 px-3 rounded-md text-[13px] text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-colors"
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4" />
@@ -218,20 +188,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-
-        <div className="rounded-lg border border-sidebar-border bg-sidebar-accent p-3">
-          <div className="flex items-center gap-3">
-            <UserAvatar firstName={user?.firstName} lastName={user?.lastName} name={user?.name} email={user?.email} size="md" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.name || user?.email || "User"}</p>
-              <p className="text-xs text-sidebar-foreground/50 capitalize">{user?.role || "User"}</p>
-            </div>
-          </div>
-        </div>
-
-        <p className="text-center text-[9px] tracking-wider text-sidebar-foreground/25 pt-1 pb-0.5">
-          powered by Norfolk AI
-        </p>
       </SidebarFooter>
     </>
   );
@@ -260,21 +216,31 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         </div>
 
         <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-          <header className="md:hidden h-14 border-b border-sidebar-border bg-sidebar flex items-center justify-between px-3 sticky top-0 z-30">
+          <header className="h-12 border-b border-gray-200 bg-white flex items-center justify-between px-4 sticky top-0 z-30">
             <div className="flex items-center gap-2 min-w-0">
-              <img src={companyLogo} alt={companyName} className="w-7 h-7 object-contain flex-shrink-0 rounded" />
-              <span className="font-semibold text-sm text-sidebar-foreground truncate">{companyName}</span>
+              <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              </Button>
+              <Breadcrumbs />
             </div>
-            <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={() => setSidebarOpen(!sidebarOpen)}>
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
+                  document.dispatchEvent(event);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-50 text-gray-400 hover:text-gray-600 text-xs transition-colors border border-gray-200"
+                data-testid="button-search"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <kbd className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-400 font-mono">⌘K</kbd>
+              </button>
+              <NotificationCenter />
+            </div>
           </header>
 
           <div className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 md:p-6 lg:p-8 pb-20 md:pb-6 lg:pb-8">
             <div className="w-full max-w-7xl mx-auto">
-              <div className="mb-3 md:mb-4">
-                <Breadcrumbs />
-              </div>
               {children}
             </div>
           </div>

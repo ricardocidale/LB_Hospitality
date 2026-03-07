@@ -89,7 +89,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 
 ---
 
-## Testing & Proof System (2,371 Tests, 112 Files)
+## Testing & Proof System (2,431 Tests, 113 Files)
 
 | Entity Level | Test Domains | Skill |
 |-------------|-------------|-------|
@@ -104,7 +104,7 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Research Calcs | Debt capacity, depreciation basis, property metrics | `tests/calc/research/` |
 | Golden Scenarios | IRR edge cases, DCF/NPV, equity/exit, DSCR loan sizing, depreciation/break-even, stress/waterfall, pro-forma edge cases (65 hand-calculated tests) | `testing/golden-scenarios.md`, `tests/golden/` |
 
-**Commands**: `npm test` (all 2,371), `npm run verify` (7-phase, UNQUALIFIED required)
+**Commands**: `npm test` (all 2,431), `npm run verify` (7-phase, UNQUALIFIED required)
 
 ---
 
@@ -219,6 +219,26 @@ See `.claude/skills/marcela-ai/` and `.claude/skills/twilio-telephony/` for deta
 
 ---
 
+## ElevenLabs Voice UI Blocks
+
+Five production-grade UI components at `/voice` (VoiceLab page), all adapted from Next.js → Vite:
+
+| Component | File | Description |
+|-----------|------|-------------|
+| `VoiceChatOrb` | `features/ai-agent/VoiceChatOrb.tsx` | Orb-centered voice interface, signed URL, WebRTC |
+| `VoiceChatFull` | `features/ai-agent/VoiceChatFull.tsx` | Full chat + voice toggle, text+WebRTC hybrid |
+| `VoiceChatBar` | `features/ai-agent/VoiceChatBar.tsx` | Floating `ConversationBar` with message history |
+| `Speaker` | `features/ai-agent/Speaker.tsx` | Audio player: orb, waveform, playlist, ambience |
+| `RealtimeTranscriber` | `features/ai-agent/RealtimeTranscriber.tsx` | Real-time STT via ElevenLabs Scribe |
+
+All voice components use `useAdminSignedUrl()` (auto-fetched on mount, refetched before each session). Dynamic variables (`user_name`, `user_role`, `current_page`) injected via `useAuth()`. Session state exposed via `onSessionChange(active: boolean)` prop — VoiceLab uses it to confirm before tab switching.
+
+**Hooks**: `use-signed-url.ts`, `use-agent-settings.ts`, `use-scribe-token.ts`
+**Root barrel**: `features/ai-agent/index.ts`
+**Skill**: `.claude/skills/marcela-ai/SKILL.md`, `.claude/skills/elevenlabs-widget/` (SDK reference)
+
+---
+
 ## Key Rules
 
 - **Calculations always highest priority** — never compromise financial accuracy for visuals
@@ -280,6 +300,7 @@ Default role for new users: `partner`.
 | CheckerManual | `/checker-manual` | Checker manual (21 sections) |
 | Help | `/help` | Help and documentation |
 | Login | `/login` | Authentication page |
+| VoiceLab | `/voice` | ElevenLabs voice UI showcase (Orb, Full Chat, Bar, Transcriber, Speaker) |
 
 ---
 

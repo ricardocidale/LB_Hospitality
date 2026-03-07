@@ -13,6 +13,12 @@ npm run dev            # Start dev server (port 5000)
 npm run health         # One-shot: tsc + tests + verify
 npm run test:summary   # 2,431 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact
+npm test               # Full test output
+npm run verify         # Full verification (verbose)
+npm run db:push        # Push schema changes
+npm run lint:summary   # tsc --noEmit, 1-line output
+npm run diff:summary   # Compact git status + diff stat
+npm run test:file -- <path>  # Run single test file
 npm run stats          # Codebase metrics
 npm run audit:quick    # Quick code quality scan
 npm run exports:check  # Find unused exports
@@ -39,7 +45,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | Architecture & tech stack | `.claude/claude.md` § Tech Stack, `.claude/skills/architecture/SKILL.md` |
 | User preferences | `.claude/claude.md` § User Preferences |
 | Financial engine | `.claude/rules/financial-engine.md`, `.claude/skills/finance/SKILL.md` |
-| Admin page (5 groups) | `.claude/skills/admin/SKILL.md`, `.claude/skills/admin/ai-agent-admin.md` |
+| Admin page (10 tabs) | `.claude/skills/admin/SKILL.md`, `.claude/skills/admin/ai-agent-admin.md` |
 | Prod migration (sync) | `server/migrations/prod-sync-002.ts` — canonical data enforcement on every boot |
 | AI assistant (Marcela) | `.claude/claude.md` § Marcela AI, `.claude/skills/marcela-ai/SKILL.md` |
 | Design system & themes | `.claude/skills/design-system/SKILL.md`, `.claude/skills/ui/theme-engine.md` |
@@ -49,6 +55,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | Context loading | `.claude/skills/context-loading/SKILL.md` (task-to-skill router) |
 | Research system | `.claude/skills/research/SKILL.md` |
 | Exports | `.claude/skills/exports/SKILL.md` |
+| Voice UI blocks (5) | `.claude/skills/marcela-ai/SKILL.md` — VoiceChatOrb/Full/Bar, Speaker, Transcriber at `/voice` |
 
 ## Invariants
 - UNQUALIFIED audit opinion required at all times

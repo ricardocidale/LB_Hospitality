@@ -88,7 +88,18 @@ function DashboardScene() {
   );
 }
 
+function isWebGLAvailable(): boolean {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
 export function Dashboard3DBackground() {
+  if (!isWebGLAvailable()) return null;
+
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
       <Suspense fallback={null}>

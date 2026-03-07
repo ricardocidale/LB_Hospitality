@@ -1,7 +1,22 @@
-import { useRef, Suspense, useMemo } from "react";
+import { useRef, Suspense, useMemo, Component, type ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
+
+function isWebGLAvailable(): boolean {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
+class WebGLErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() { return this.state.hasError ? this.props.fallback : this.props.children; }
+}
 
 function Petal({ angle, color }: { angle: number; color: string }) {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -151,22 +166,28 @@ function LogoScene() {
   );
 }
 
-export function Login3DLogo({ size = 200 }: { size?: number }) {
+export function Login3DLogo({ size = 200, fallback }: { size?: number; fallback?: ReactNode }) {
+  if (!isWebGLAvailable()) {
+    return <>{fallback ?? null}</>;
+  }
+
   return (
-    <div style={{ width: size, height: size }} data-testid="logo-3d">
-      <Suspense fallback={
-        <div className="w-full h-full flex items-center justify-center">
-          <div className="w-16 h-16 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-        </div>
-      }>
-        <Canvas
-          camera={{ position: [0, 0, 2.8], fov: 45 }}
-          style={{ width: "100%", height: "100%" }}
-          gl={{ antialias: true, alpha: true }}
-        >
-          <LogoScene />
-        </Canvas>
-      </Suspense>
-    </div>
+    <WebGLErrorBoundary fallback={fallback ?? null}>
+      <div style={{ width: size, height: size }} data-testid="logo-3d">
+        <Suspense fallback={
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+          </div>
+        }>
+          <Canvas
+            camera={{ position: [0, 0, 2.8], fov: 45 }}
+            style={{ width: "100%", height: "100%" }}
+            gl={{ antialias: true, alpha: true }}
+          >
+            <LogoScene />
+          </Canvas>
+        </Suspense>
+      </div>
+    </WebGLErrorBoundary>
   );
 }

@@ -117,7 +117,18 @@ function AdminScene() {
   );
 }
 
+function isWebGLAvailable(): boolean {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
 export function Admin3DBackground() {
+  if (!isWebGLAvailable()) return null;
+
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
       <Suspense fallback={null}>

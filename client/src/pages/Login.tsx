@@ -69,7 +69,7 @@ export default function Login() {
         <div className="flex flex-col items-center mb-6">
           <div className="cursor-pointer" onClick={handleAdminLogin}>
             <Suspense fallback={<LogoSvg size={48} color="hsl(var(--primary))" />}>
-              <Login3DLogo size={160} />
+              <Login3DLogo size={160} fallback={<LogoSvg size={48} color="hsl(var(--primary))" />} />
             </Suspense>
           </div>
           <p className="text-[13px] text-muted-foreground/70 tracking-wide text-center max-w-[280px] leading-relaxed mt-1">

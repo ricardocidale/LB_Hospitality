@@ -477,8 +477,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                         color: 'hsl(var(--foreground))',
                       }}
                     />
-                    <Area type="monotone" dataKey="revenue" fill="url(#revenueGrad)" stroke="none" dot={false} />
-                    <Area type="monotone" dataKey="anoi" fill="url(#anoiGrad)" stroke="none" dot={false} />
+                    <Area type="monotone" dataKey="revenue" fill="url(#revenueGrad)" stroke="hsl(var(--line-1))" strokeWidth={2} dot={{ fill: "hsl(var(--line-1))", stroke: "#fff", strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: "hsl(var(--line-1))", stroke: "#fff", strokeWidth: 2 }} />
+                    <Area type="monotone" dataKey="anoi" fill="url(#anoiGrad)" stroke="hsl(var(--line-2))" strokeWidth={2} dot={{ fill: "hsl(var(--line-2))", stroke: "#fff", strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: "hsl(var(--line-2))", stroke: "#fff", strokeWidth: 2 }} />
                   </AreaChart>
                 ) : (
                   <LineChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>

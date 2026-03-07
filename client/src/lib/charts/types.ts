@@ -75,6 +75,14 @@ export interface DonutInteractiveProps extends BaseChartProps {
 export interface RadarChartItem {
   axis: string;
   value: number;
+  [key: string]: string | number;
+}
+
+export interface RadarSeries {
+  dataKey: string;
+  color: string;
+  fillOpacity?: number;
+  showDots?: boolean;
 }
 
 export interface RadarChartDotsProps extends BaseChartProps {
@@ -85,4 +93,6 @@ export interface RadarChartDotsProps extends BaseChartProps {
   color?: string;
   fillOpacity?: number;
   gridType?: "polygon" | "circle";
+  series?: RadarSeries[];
+  showLegend?: boolean;
 }

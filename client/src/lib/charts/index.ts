@@ -11,6 +11,7 @@ export type {
   DonutChartProps,
   DonutInteractiveProps,
   RadarChartItem,
+  RadarSeries,
   RadarChartDotsProps,
 } from "./types";
 

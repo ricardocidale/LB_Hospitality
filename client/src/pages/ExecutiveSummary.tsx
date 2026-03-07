@@ -15,10 +15,9 @@ import {
   Cell,
   Tooltip,
 } from "recharts";
-import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, csvAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
-import * as XLSX from "xlsx";
 import pptxgen from "pptxgenjs";
 
 const formatMoney = (value: number) =>
@@ -108,18 +107,6 @@ export default function ExecutiveSummary() {
   ];
 
   const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-
-  const handleExportExcel = useCallback(() => {
-    const wb = XLSX.utils.book_new();
-    const kpiSheet = [["Metric", "Value"], ...kpisForExport.map((k) => [k.label, k.value])];
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kpiSheet), "KPIs");
-    const propSheet = [
-      ["Name", "Location", "Market", "Rooms", "ADR", "Occupancy", "Status", "Investment"],
-      ...properties.map((p) => [p.name, p.location, p.market, p.roomCount, formatMoney(p.startAdr), formatPercent(p.startOccupancy), p.status, formatMoney(p.purchasePrice + p.buildingImprovements)]),
-    ];
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(propSheet), "Properties");
-    XLSX.writeFile(wb, "executive-summary.xlsx");
-  }, [kpisForExport, properties]);
 
   const handleExportCSV = useCallback(() => {
     const rows = [
@@ -222,7 +209,6 @@ export default function ExecutiveSummary() {
               <ExportMenu
                 actions={[
                   pdfAction(() => window.print()),
-                  excelAction(handleExportExcel),
                   csvAction(handleExportCSV),
                   pptxAction(handleExportPPTX),
                   pngAction(handleExportPNG),

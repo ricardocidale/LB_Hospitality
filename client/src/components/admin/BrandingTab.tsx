@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, Tag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Building2, Tag, Save } from "lucide-react";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
 import LogoSelector from "./LogoSelector";
 import { ADMIN_TEXTAREA } from "./styles";
@@ -16,6 +18,51 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
   const { data: globalAssumptions } = useGlobalAssumptions();
   const updateGlobalMutation = useUpdateGlobalAssumptions();
 
+  const [companyName, setCompanyName] = useState("");
+  const [companyLogoId, setCompanyLogoId] = useState<number | null>(null);
+  const [assetLogoId, setAssetLogoId] = useState<number | null>(null);
+  const [propertyLabel, setPropertyLabel] = useState("");
+  const [assetDescription, setAssetDescription] = useState("");
+
+  const [companyDirty, setCompanyDirty] = useState(false);
+  const [assetDirty, setAssetDirty] = useState(false);
+
+  useEffect(() => {
+    if (globalAssumptions) {
+      setCompanyName(globalAssumptions.companyName || "Hospitality Business");
+      setCompanyLogoId(globalAssumptions.companyLogoId ?? null);
+      setAssetLogoId(globalAssumptions.assetLogoId ?? null);
+      setPropertyLabel(globalAssumptions.propertyLabel || "Boutique Hotel");
+      setAssetDescription(globalAssumptions.assetDescription || "");
+      setCompanyDirty(false);
+      setAssetDirty(false);
+    }
+  }, [globalAssumptions]);
+
+  const handleSaveCompany = () => {
+    updateGlobalMutation.mutate(
+      { companyName, companyLogoId },
+      {
+        onSuccess: () => {
+          setCompanyDirty(false);
+          toast({ title: "Saved", description: "Management company settings saved." });
+        },
+      }
+    );
+  };
+
+  const handleSaveAsset = () => {
+    updateGlobalMutation.mutate(
+      { assetLogoId, propertyLabel, assetDescription },
+      {
+        onSuccess: () => {
+          setAssetDirty(false);
+          toast({ title: "Saved", description: "Asset type settings saved." });
+        },
+      }
+    );
+  };
+
   return (
     <div className="space-y-6">
       <Card className="bg-white border border-gray-200/80 shadow-sm">
@@ -28,8 +75,8 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
             <div className="space-y-2">
               <Label className="label-text text-gray-700">Company Name</Label>
               <Input
-                value={globalAssumptions?.companyName || "Hospitality Business"}
-                onChange={(e) => updateGlobalMutation.mutate({ companyName: e.target.value })}
+                value={companyName}
+                onChange={(e) => { setCompanyName(e.target.value); setCompanyDirty(true); }}
                 placeholder="Enter management company name"
                 className="bg-white"
                 data-testid="input-company-name"
@@ -38,17 +85,23 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
             </div>
             <LogoSelector
               label="Company Logo"
-              value={globalAssumptions?.companyLogoId ?? null}
-              onChange={(logoId) => {
-                updateGlobalMutation.mutate({ companyLogoId: logoId }, {
-                  onSuccess: () => toast({ title: logoId ? "Logo updated" : "Logo reset", description: logoId ? "Management company logo has been updated." : "Logo has been reset to default." })
-                });
-              }}
+              value={companyLogoId}
+              onChange={(logoId) => { setCompanyLogoId(logoId); setCompanyDirty(true); }}
               showNone={true}
               emptyLabel="Default Logo"
               helpText="Select from Logo Portfolio"
               testId="select-company-logo"
             />
+          </div>
+          <div className="flex justify-end pt-2">
+            <Button
+              onClick={handleSaveCompany}
+              disabled={!companyDirty || updateGlobalMutation.isPending}
+              data-testid="button-save-company"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -61,12 +114,8 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         <CardContent className="space-y-6">
           <LogoSelector
             label="Asset Logo"
-            value={globalAssumptions?.assetLogoId ?? null}
-            onChange={(logoId) => {
-              updateGlobalMutation.mutate({ assetLogoId: logoId }, {
-                onSuccess: () => toast({ title: "Asset logo updated", description: "The asset type logo has been updated." })
-              });
-            }}
+            value={assetLogoId}
+            onChange={(logoId) => { setAssetLogoId(logoId); setAssetDirty(true); }}
             showNone={false}
             useDefaultFallback={true}
             helpText="Select from Logo Portfolio"
@@ -76,8 +125,8 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           <div className="space-y-2">
             <Label className="label-text text-gray-700">Asset Label</Label>
             <Input
-              value={globalAssumptions?.propertyLabel || "Boutique Hotel"}
-              onChange={(e) => updateGlobalMutation.mutate({ propertyLabel: e.target.value })}
+              value={propertyLabel}
+              onChange={(e) => { setPropertyLabel(e.target.value); setAssetDirty(true); }}
               placeholder="e.g., Boutique Hotel, Estate Hotel, Private Estate"
               className="bg-white max-w-md"
               data-testid="input-property-label"
@@ -88,13 +137,24 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           <div className="space-y-2">
             <Label className="label-text text-gray-700">Asset Description</Label>
             <textarea
-              value={globalAssumptions?.assetDescription || ""}
-              onChange={(e) => updateGlobalMutation.mutate({ assetDescription: e.target.value })}
+              value={assetDescription}
+              onChange={(e) => { setAssetDescription(e.target.value); setAssetDirty(true); }}
               placeholder="Describe the type of property in detail to educate the research engines. For example: Independently operated, design-forward boutique hotels with 20-60 rooms, situated on 5+ acres of private grounds. Properties feature curated F&B programs, wellness amenities, and distinctive event spaces for retreats and experiential hospitality."
               className={ADMIN_TEXTAREA}
               data-testid="input-asset-description"
             />
             <p className="text-xs text-muted-foreground">A detailed description that educates the AI research engines on the exact type of property being analyzed — the more specific, the better the research quality</p>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              onClick={handleSaveAsset}
+              disabled={!assetDirty || updateGlobalMutation.isPending}
+              data-testid="button-save-asset"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -138,23 +138,21 @@ describe("checkGAAPCompliance — Full Equity property", () => {
     }
   });
 
-  // ASC 606 — Management fees reasonable
-  it("ASC 606 Fees: Base management fees are reasonable (<= 10% of revenue)", () => {
+  it("ASC 606 Fees: Base management fee rate within industry norms", () => {
     const feeChecks = report.results.filter(
-      (r) => r.category === "ASC 606 - Fees" && r.rule === "Management Fee Recognition"
+      (r) => r.category === "ASC 606 - Fees" && r.rule === "Management Fee Rate"
     );
-    expect(feeChecks.length).toBe(12);
+    expect(feeChecks.length).toBeGreaterThan(0);
     for (const c of feeChecks) {
       expect(c.passed).toBe(true);
     }
   });
 
-  // ASC 606 — Incentive fees non-negative
-  it("ASC 606 Fees: Incentive fees are non-negative", () => {
+  it("ASC 606 Fees: Incentive fee rate within industry norms", () => {
     const incentiveChecks = report.results.filter(
-      (r) => r.category === "ASC 606 - Fees" && r.rule === "Incentive Fee Recognition"
+      (r) => r.category === "ASC 606 - Fees" && (r.rule === "Incentive Fee Rate" || r.rule === "Incentive Fee on Negative GOP")
     );
-    expect(incentiveChecks.length).toBe(12);
+    expect(incentiveChecks.length).toBeGreaterThan(0);
     for (const c of incentiveChecks) {
       expect(c.passed).toBe(true);
     }
@@ -171,36 +169,32 @@ describe("checkGAAPCompliance — Full Equity property", () => {
     }
   });
 
-  // FF&E reserve non-negative
-  it("Industry Practice: FF&E Reserve is non-negative every month", () => {
+  it("Industry Practice: FF&E Reserve rate within industry norms", () => {
     const ffeChecks = report.results.filter(
-      (r) => r.category === "Industry Practice" && r.rule === "FF&E Reserve"
+      (r) => r.category === "Industry Practice" && (r.rule === "FF&E Reserve Rate" || r.rule === "FF&E Reserve")
     );
-    expect(ffeChecks.length).toBe(12);
+    expect(ffeChecks.length).toBeGreaterThan(0);
     for (const c of ffeChecks) {
       expect(c.passed).toBe(true);
     }
   });
 
-  // Matching principle
   it("Matching Principle: Expenses matched to revenue period", () => {
     const matchingChecks = report.results.filter(
       (r) => r.category === "Matching Principle" && r.rule === "Expense Recognition"
     );
-    expect(matchingChecks.length).toBe(12);
+    expect(matchingChecks.length).toBeGreaterThan(0);
     for (const c of matchingChecks) {
       expect(c.passed).toBe(true);
     }
   });
 
-  // ASC 360 — Depreciation info check
-  it("ASC 360: Depreciation period check is present and passes", () => {
+  it("ASC 360: Straight-line depreciation consistency verified", () => {
     const depChecks = report.results.filter(
-      (r) => r.category === "ASC 360 - Property" && r.rule === "Depreciation Period"
+      (r) => r.category === "ASC 360 - Property" && (r.rule === "Straight-Line Consistency" || r.rule === "Depreciation Present")
     );
     expect(depChecks.length).toBe(1);
     expect(depChecks[0].passed).toBe(true);
-    expect(depChecks[0].severity).toBe("info");
   });
 });
 
@@ -295,22 +289,12 @@ describe("checkCashFlowStatement — Full Equity property", () => {
     expect(report.warnings).toBe(0);
   });
 
-  it("contains operating activity checks for indirect method starting point", () => {
-    const startingPointChecks = report.results.filter(
-      (r) => r.category === "ASC 230 - Operating" && r.rule === "Indirect Method Starting Point"
+  it("contains operating cash flow reconciliation checks (indirect method)", () => {
+    const reconciliationChecks = report.results.filter(
+      (r) => r.category === "ASC 230 - Operating" && r.rule === "Indirect Method Reconciliation"
     );
-    expect(startingPointChecks.length).toBe(12);
-    for (const c of startingPointChecks) {
-      expect(c.passed).toBe(true);
-    }
-  });
-
-  it("contains non-cash adjustment checks (depreciation add-back)", () => {
-    const nonCashChecks = report.results.filter(
-      (r) => r.category === "ASC 230 - Operating" && r.rule === "Non-Cash Adjustment"
-    );
-    expect(nonCashChecks.length).toBe(12);
-    for (const c of nonCashChecks) {
+    expect(reconciliationChecks.length).toBe(12);
+    for (const c of reconciliationChecks) {
       expect(c.passed).toBe(true);
     }
   });
@@ -319,7 +303,6 @@ describe("checkCashFlowStatement — Full Equity property", () => {
     const financingChecks = report.results.filter(
       (r) => r.category === "ASC 230 - Financing" && r.rule === "Principal Classification"
     );
-    // Full Equity => principal = 0, so the conditional block is skipped
     expect(financingChecks.length).toBe(0);
   });
 
@@ -366,18 +349,14 @@ describe("checkCashFlowStatement — Financed property", () => {
     }
   });
 
-  it("indirect method starting point check present for every month", () => {
-    const startChecks = report.results.filter(
-      (r) => r.rule === "Indirect Method Starting Point"
+  it("indirect method reconciliation checks present for every month", () => {
+    const reconciliationChecks = report.results.filter(
+      (r) => r.rule === "Indirect Method Reconciliation"
     );
-    expect(startChecks.length).toBe(12);
-  });
-
-  it("non-cash adjustment check present for every month", () => {
-    const nonCashChecks = report.results.filter(
-      (r) => r.rule === "Non-Cash Adjustment"
-    );
-    expect(nonCashChecks.length).toBe(12);
+    expect(reconciliationChecks.length).toBe(12);
+    for (const c of reconciliationChecks) {
+      expect(c.passed).toBe(true);
+    }
   });
 });
 

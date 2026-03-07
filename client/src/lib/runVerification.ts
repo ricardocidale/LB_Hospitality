@@ -205,6 +205,10 @@ export function runFullVerification(
           acquisitionTermYears: property.acquisitionTermYears ?? property.debtAssumptions?.amortizationYears,
           landValuePercent: property.landValuePercent,
           buildingImprovements: property.buildingImprovements,
+          baseManagementFeeRate: property.baseManagementFeeRate,
+          incentiveManagementFeeRate: property.incentiveManagementFeeRate,
+          feeCategories: property.feeCategories,
+          costRateFFE: property.costRateFFE,
         },
         globalAssumptions,
         financials,
@@ -295,30 +299,81 @@ function aggregateToYearly(monthlyData: MonthlyFinancials[]): Array<{
   revenueRooms: number;
   soldRooms: number;
   availableRooms: number;
+  adr: number;
+  occupancy: number;
+  revpar: number;
+  revenueTotal: number;
+  expenseOperating: number;
+  gop: number;
+  feeBase: number;
+  feeIncentive: number;
+  agop: number;
+  expenseInsurance: number;
+  expenseTaxes: number;
+  noi: number;
+  expenseFFE: number;
+  anoi: number;
+  equityMultiple?: number;
+  netIncome?: number;
 }> {
-  const yearlyMap = new Map<number, {
-    revenueRooms: number;
-    soldRooms: number;
-    availableRooms: number;
-  }>();
+  const yearlyMap = new Map<number, any>();
   
   for (let i = 0; i < monthlyData.length; i++) {
     const m = monthlyData[i];
     const year = Math.floor(i / 12) + 1;
     
     if (!yearlyMap.has(year)) {
-      yearlyMap.set(year, { revenueRooms: 0, soldRooms: 0, availableRooms: 0 });
+      yearlyMap.set(year, { 
+        revenueRooms: 0, 
+        soldRooms: 0, 
+        availableRooms: 0,
+        revenueTotal: 0,
+        expenseOperating: 0,
+        gop: 0,
+        feeBase: 0,
+        feeIncentive: 0,
+        agop: 0,
+        expenseInsurance: 0,
+        expenseTaxes: 0,
+        noi: 0,
+        expenseFFE: 0,
+        anoi: 0,
+        netIncome: 0,
+        // We'll calculate ADR, Occ, RevPAR, EquityMultiple at the end
+      });
     }
     
-    const yearly = yearlyMap.get(year)!;
-    yearly.revenueRooms += m.revenueRooms;
-    yearly.soldRooms += m.soldRooms;
-    yearly.availableRooms += m.availableRooms;
+    const y = yearlyMap.get(year)!;
+    y.revenueRooms += m.revenueRooms;
+    y.soldRooms += m.soldRooms;
+    y.availableRooms += m.availableRooms;
+    y.revenueTotal += m.revenueTotal;
+    
+    const totalOperatingExpenses = m.expenseRooms + m.expenseFB + m.expenseEvents + 
+      m.expenseOther + m.expenseMarketing + m.expensePropertyOps + 
+      m.expenseUtilitiesVar + m.expenseAdmin + m.expenseIT + 
+      m.expenseUtilitiesFixed + m.expenseOtherCosts;
+    
+    y.expenseOperating += totalOperatingExpenses;
+    y.gop += m.gop;
+    y.feeBase += m.feeBase;
+    y.feeIncentive += m.feeIncentive;
+    y.agop += m.agop;
+    y.expenseInsurance += m.expenseInsurance;
+    y.expenseTaxes += m.expenseTaxes;
+    y.noi += m.noi;
+    y.expenseFFE += m.expenseFFE;
+    y.anoi += m.anoi;
+    y.netIncome += (m.netIncome || 0);
   }
   
-  return Array.from(yearlyMap.entries()).map(([year, data]) => ({
+  return Array.from(yearlyMap.entries()).map(([year, d]) => ({
     year,
-    ...data
+    ...d,
+    adr: d.soldRooms > 0 ? d.revenueRooms / d.soldRooms : 0,
+    occupancy: d.availableRooms > 0 ? (d.soldRooms / d.availableRooms) * 100 : 0,
+    revpar: d.availableRooms > 0 ? d.revenueRooms / d.availableRooms : 0,
+    equityMultiple: d.netIncome / (d.revenueTotal * 0.1 || 1), // Placeholder for reasonableness check
   }));
 }
 

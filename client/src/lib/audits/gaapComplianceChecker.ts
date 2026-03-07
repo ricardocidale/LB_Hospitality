@@ -88,15 +88,28 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
   }
   
   // 2. DEPRECIATION TREATMENT (ASC 360)
-  // For properties, we calculate depreciation but it may be handled at the SPV level
-  results.push({
-    passed: true,
-    category: "ASC 360 - Property",
-    rule: "Depreciation Period",
-    description: "27.5-year straight-line depreciation for building improvements per IRS guidelines",
-    details: "Building value depreciated over standard residential rental property life",
-    severity: "info"
-  });
+  const depMonths = monthlyData.filter(m => m.depreciationExpense > 0);
+  if (depMonths.length >= 2) {
+    const firstDep = depMonths[0].depreciationExpense;
+    const depConsistent = depMonths.every(m => Math.abs(m.depreciationExpense - firstDep) < 0.01);
+    results.push({
+      passed: depConsistent,
+      category: "ASC 360 - Property",
+      rule: "Straight-Line Consistency",
+      description: `Monthly depreciation ${depConsistent ? "is" : "is NOT"} consistent at $${firstDep.toFixed(2)} across ${depMonths.length} months`,
+      details: depConsistent ? "Straight-line depreciation verified: equal amounts each month" : "Depreciation varies between months — violates straight-line method",
+      severity: "critical"
+    });
+  } else {
+    results.push({
+      passed: depMonths.length > 0 || monthlyData.length === 0,
+      category: "ASC 360 - Property",
+      rule: "Depreciation Present",
+      description: `${depMonths.length} months with depreciation expense recorded`,
+      details: depMonths.length > 0 ? "Depreciation is being recorded" : "No depreciation found — verify property has been acquired",
+      severity: "warning"
+    });
+  }
   
   // 3. REVENUE RECOGNITION (ASC 606)
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
@@ -118,75 +131,108 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    // Expenses should be matched to revenue period
     const hasRevenue = m.revenueTotal > 0;
-    const hasExpenses = m.totalExpenses > 0;
+    const hasVariableExpenses = (m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther) > 0;
     
-    results.push({
-      passed: (hasRevenue && hasExpenses) || (!hasRevenue && !hasExpenses) || (!hasRevenue && hasExpenses),
-      category: "Matching Principle",
-      rule: "Expense Recognition",
-      description: `Month ${i + 1}: Expenses matched to revenue period`,
-      details: hasRevenue ? "Operating expenses recorded in same period as related revenue" : "Pre-opening expenses may be capitalized or expensed per policy",
-      severity: hasRevenue && !hasExpenses ? "warning" : "info"
-    });
+    if (hasRevenue) {
+      results.push({
+        passed: hasVariableExpenses,
+        category: "Matching Principle",
+        rule: "Expense Recognition",
+        description: `Month ${i + 1}: Revenue $${m.revenueTotal.toFixed(0)} ${hasVariableExpenses ? "has" : "MISSING"} matched variable expenses`,
+        details: hasVariableExpenses ? "Variable expenses correctly recorded in same period as revenue" : "Revenue recognized without corresponding variable expenses — matching violation",
+        severity: hasVariableExpenses ? "info" : "critical"
+      });
+    }
   }
   
   // 5. MANAGEMENT FEE CALCULATION
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    // Base fee should be calculated on revenue
-    const baseFeeReasonable = m.feeBase >= 0 && (m.revenueTotal === 0 || m.feeBase <= m.revenueTotal * 0.10);
-    results.push({
-      passed: baseFeeReasonable,
-      category: "ASC 606 - Fees",
-      rule: "Management Fee Recognition",
-      description: `Month ${i + 1}: Base management fee ($${m.feeBase.toFixed(0)}) calculated on total revenue`,
-      details: "Fee expense recognized when earned by management company",
-      severity: "warning"
-    });
+    if (m.revenueTotal > 0) {
+      const baseFeeRate = m.feeBase / m.revenueTotal;
+      const baseFeeReasonable = baseFeeRate >= 0 && baseFeeRate <= 0.15;
+      results.push({
+        passed: baseFeeReasonable,
+        category: "ASC 606 - Fees",
+        rule: "Management Fee Rate",
+        description: `Month ${i + 1}: Base fee rate ${(baseFeeRate * 100).toFixed(1)}% ${baseFeeReasonable ? "within" : "OUTSIDE"} 0-15% range`,
+        details: baseFeeReasonable ? `Fee rate ${(baseFeeRate * 100).toFixed(1)}% is within industry norms` : `Fee rate ${(baseFeeRate * 100).toFixed(1)}% exceeds industry ceiling of 15%`,
+        severity: baseFeeReasonable ? "info" : "warning"
+      });
+    }
     
-    // Incentive fee on NOI/GOP
-    const incentiveFeeReasonable = m.feeIncentive >= 0;
-    results.push({
-      passed: incentiveFeeReasonable,
-      category: "ASC 606 - Fees",
-      rule: "Incentive Fee Recognition",
-      description: `Month ${i + 1}: Incentive fee ($${m.feeIncentive.toFixed(0)}) calculated on performance metrics`,
-      details: "Performance-based fee recognized when conditions met",
-      severity: "warning"
-    });
+    if (m.gop > 0) {
+      const incentiveRate = m.feeIncentive / m.gop;
+      const incentiveReasonable = incentiveRate >= 0 && incentiveRate <= 0.20;
+      results.push({
+        passed: incentiveReasonable,
+        category: "ASC 606 - Fees",
+        rule: "Incentive Fee Rate",
+        description: `Month ${i + 1}: Incentive fee rate ${(incentiveRate * 100).toFixed(1)}% ${incentiveReasonable ? "within" : "OUTSIDE"} 0-20% range`,
+        details: incentiveReasonable ? `Incentive rate ${(incentiveRate * 100).toFixed(1)}% is within industry norms` : `Incentive rate ${(incentiveRate * 100).toFixed(1)}% exceeds industry ceiling`,
+        severity: incentiveReasonable ? "info" : "warning"
+      });
+    } else if (m.gop <= 0 && m.feeIncentive > 0) {
+      results.push({
+        passed: false,
+        category: "ASC 606 - Fees",
+        rule: "Incentive Fee on Negative GOP",
+        description: `Month ${i + 1}: Incentive fee $${m.feeIncentive.toFixed(0)} charged when GOP is $${m.gop.toFixed(0)} (negative/zero)`,
+        details: "Incentive fees must not be charged when GOP is non-positive",
+        severity: "critical"
+      });
+    }
   }
   
   // 6. NOI CALCULATION STANDARD (USALI)
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    // NOI should be before debt service per industry standard
-    const noiBeforeDebt = m.anoi + m.interestExpense !== m.netIncome || m.principalPayment === 0;
-    results.push({
-      passed: noiBeforeDebt || m.debtPayment === 0,
-      category: "USALI Standard",
-      rule: "NOI Definition",
-      description: `Month ${i + 1}: NOI ($${m.noi.toFixed(0)}) calculated before debt service`,
-      details: "Net Operating Income excludes financing costs per USALI",
-      severity: "info"
-    });
+    if (m.revenueTotal > 0) {
+      const totalOpEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
+        m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
+        m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseOtherCosts;
+      const expectedGOP = m.revenueTotal - totalOpEx;
+      const gopCorrect = Math.abs(m.gop - expectedGOP) < 0.01;
+      const noiExcludesDebt = m.noi !== m.noi - m.interestExpense || m.debtPayment === 0;
+      results.push({
+        passed: gopCorrect && noiExcludesDebt,
+        category: "USALI Standard",
+        rule: "NOI Definition",
+        description: `Month ${i + 1}: GOP $${m.gop.toFixed(0)} = Revenue $${m.revenueTotal.toFixed(0)} − OpEx $${totalOpEx.toFixed(0)}`,
+        details: gopCorrect ? "GOP correctly computed before debt service per USALI" : `GOP mismatch: expected $${expectedGOP.toFixed(0)}, got $${m.gop.toFixed(0)}`,
+        severity: gopCorrect ? "info" : "critical"
+      });
+    }
   }
   
   // 7. FF&E RESERVE TREATMENT
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    results.push({
-      passed: m.expenseFFE >= 0,
-      category: "Industry Practice",
-      rule: "FF&E Reserve",
-      description: `Month ${i + 1}: FF&E Reserve ($${m.expenseFFE.toFixed(0)}) set aside for capital expenditures`,
-      details: "Reserve for furniture, fixtures, and equipment replacement",
-      severity: "info"
-    });
+    if (m.revenueTotal > 0) {
+      const ffeRate = m.revenueTotal > 0 ? m.expenseFFE / m.revenueTotal : 0;
+      const ffeReasonable = ffeRate >= 0 && ffeRate <= 0.10;
+      results.push({
+        passed: ffeReasonable,
+        category: "Industry Practice",
+        rule: "FF&E Reserve Rate",
+        description: `Month ${i + 1}: FF&E rate ${(ffeRate * 100).toFixed(1)}% ${ffeReasonable ? "within" : "OUTSIDE"} 0-10% range`,
+        details: ffeReasonable ? `FF&E reserve rate ${(ffeRate * 100).toFixed(1)}% is within industry norms (1-5% typical)` : `FF&E rate exceeds 10% — unusual for hospitality`,
+        severity: ffeReasonable ? "info" : "warning"
+      });
+    } else {
+      results.push({
+        passed: m.expenseFFE === 0,
+        category: "Industry Practice",
+        rule: "FF&E Reserve",
+        description: `Month ${i + 1}: No revenue — FF&E should be $0`,
+        details: m.expenseFFE === 0 ? "Correctly no FF&E reserve when no revenue" : `FF&E $${m.expenseFFE.toFixed(0)} charged with no revenue`,
+        severity: m.expenseFFE === 0 ? "info" : "warning"
+      });
+    }
   }
   
   const passed = results.filter(r => r.passed).length;
@@ -209,59 +255,52 @@ export function checkCashFlowStatement(monthlyData: MonthlyFinancials[]): Compli
   
   // ASC 230 - Statement of Cash Flows Requirements
   
-  // 1. Operating Activities (Indirect Method)
+  // 1. Operating Activities (Indirect Method): Operating CF = Net Income + Depreciation
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    // Starting point should be Net Income
+    const expectedOpCF = m.netIncome + (m.depreciationExpense || 0);
+    const opCFCorrect = Math.abs((m.operatingCashFlow || 0) - expectedOpCF) < 0.01;
     results.push({
-      passed: true,
+      passed: opCFCorrect,
       category: "ASC 230 - Operating",
-      rule: "Indirect Method Starting Point",
-      description: `Month ${i + 1}: Cash flow calculation starts from Net Income ($${m.netIncome.toFixed(0)})`,
-      details: "Indirect method: Start with net income, adjust for non-cash items",
-      severity: "info"
-    });
-    
-    // Add back non-cash charges (depreciation would be added back)
-    results.push({
-      passed: true,
-      category: "ASC 230 - Operating",
-      rule: "Non-Cash Adjustment",
-      description: `Month ${i + 1}: Depreciation added back to operating cash flow`,
-      details: "Depreciation is non-cash expense, added back in cash flow",
-      severity: "info"
+      rule: "Indirect Method Reconciliation",
+      description: `Month ${i + 1}: Operating CF $${(m.operatingCashFlow || 0).toFixed(0)} ${opCFCorrect ? "=" : "≠"} NI $${m.netIncome.toFixed(0)} + Dep $${(m.depreciationExpense || 0).toFixed(0)}`,
+      details: opCFCorrect ? "Operating cash flow correctly reconciles from net income + depreciation add-back" : `Expected $${expectedOpCF.toFixed(0)}, got $${(m.operatingCashFlow || 0).toFixed(0)}`,
+      severity: "critical"
     });
   }
   
-  // 2. Financing Activities
+  // 2. Financing Activities: Financing CF = -Principal
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    // Principal repayment is financing activity
     if (m.principalPayment > 0) {
+      const expectedFinCF = -m.principalPayment;
+      const finCFCorrect = Math.abs((m.financingCashFlow || 0) - expectedFinCF) < 0.01;
       results.push({
-        passed: true,
+        passed: finCFCorrect,
         category: "ASC 230 - Financing",
         rule: "Principal Classification",
-        description: `Month ${i + 1}: Principal repayment ($${m.principalPayment.toFixed(0)}) classified as financing activity`,
-        details: "Debt principal payments are financing cash outflows",
+        description: `Month ${i + 1}: Financing CF $${(m.financingCashFlow || 0).toFixed(0)} ${finCFCorrect ? "=" : "≠"} -Principal $${(-m.principalPayment).toFixed(0)}`,
+        details: finCFCorrect ? "Principal correctly classified as financing outflow" : `Expected $${expectedFinCF.toFixed(0)}, got $${(m.financingCashFlow || 0).toFixed(0)}`,
         severity: "critical"
       });
     }
   }
   
-  // 3. Interest Classification
+  // 3. Interest is in Operating CF (US GAAP: interest paid = operating)
   for (let i = 0; i < Math.min(12, monthlyData.length); i++) {
     const m = monthlyData[i];
     
-    if (m.interestExpense > 0) {
+    if (m.interestExpense > 0 && m.principalPayment > 0) {
+      const interestInOperating = (m.operatingCashFlow || 0) < m.netIncome + (m.depreciationExpense || 0) + m.interestExpense;
       results.push({
-        passed: true,
+        passed: interestInOperating,
         category: "ASC 230 - Operating",
         rule: "Interest Classification",
-        description: `Month ${i + 1}: Interest paid ($${m.interestExpense.toFixed(0)}) classified as operating activity`,
-        details: "Interest payments are operating cash outflows under US GAAP",
+        description: `Month ${i + 1}: Interest $${m.interestExpense.toFixed(0)} included in operating activities (US GAAP)`,
+        details: interestInOperating ? "Interest correctly reduces operating cash flow, not financing" : "Interest may be misclassified",
         severity: "critical"
       });
     }

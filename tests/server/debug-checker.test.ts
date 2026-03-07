@@ -26,13 +26,10 @@ function makeProperty() {
 }
 
 describe("debug checker", () => {
-  it("show failures", () => {
+  it("produces UNQUALIFIED opinion for well-formed property", () => {
     const report = runIndependentVerification([makeProperty()], makeGlobal());
-    console.log("Opinion:", report.summary.auditOpinion, "Failed:", report.summary.totalFailed);
-    const failedChecks = report.propertyResults[0].checks.filter((c: any) => !c.passed);
-    for (const c of failedChecks) {
-      console.log(`  FAIL: ${c.metric} | exp=${c.expected} actual=${c.actual}`);
-    }
-    expect(true).toBe(true);
+    expect(report.summary.totalChecks).toBeGreaterThan(0);
+    expect(report.summary.auditOpinion).toBe("UNQUALIFIED");
+    expect(report.summary.criticalIssues).toBe(0);
   });
 });

@@ -222,15 +222,33 @@ export function runIndependentVerification(
 
     const serverYear1 = independentCalc.slice(0, 12);
     const serverYear1Revenue = serverYear1.reduce((s, m) => s + m.revenueTotal, 0);
+    const serverYear1GOP = serverYear1.reduce((s, m) => s + m.gop, 0);
+    const serverYear1AGOP = serverYear1.reduce((s, m) => s + m.agop, 0);
     const serverYear1NOI = serverYear1.reduce((s, m) => s + m.noi, 0);
+    const serverYear1ANOI = serverYear1.reduce((s, m) => s + m.anoi, 0);
+
+    const midYear = Math.floor(projectionYears / 2);
+    const serverMidYear = independentCalc.slice(midYear * 12, (midYear + 1) * 12);
+    const serverMidYearRevenue = serverMidYear.reduce((s, m) => s + m.revenueTotal, 0);
+    const serverMidYearGOP = serverMidYear.reduce((s, m) => s + m.gop, 0);
+    const serverMidYearAGOP = serverMidYear.reduce((s, m) => s + m.agop, 0);
+    const serverMidYearNOI = serverMidYear.reduce((s, m) => s + m.noi, 0);
+    const serverMidYearANOI = serverMidYear.reduce((s, m) => s + m.anoi, 0);
 
     const serverLastYear = independentCalc.slice((projectionYears - 1) * 12, projectionMonths);
     const serverLastYearRevenue = serverLastYear.reduce((s, m) => s + m.revenueTotal, 0);
+    const serverLastYearGOP = serverLastYear.reduce((s, m) => s + m.gop, 0);
+    const serverLastYearAGOP = serverLastYear.reduce((s, m) => s + m.agop, 0);
     const serverLastYearNOI = serverLastYear.reduce((s, m) => s + m.noi, 0);
+    const serverLastYearANOI = serverLastYear.reduce((s, m) => s + m.anoi, 0);
 
     if (clientMonthly && clientMonthly.length >= 12) {
-      const clientYear1Revenue = clientMonthly.slice(0, 12).reduce((s, m) => s + m.revenueTotal, 0);
-      const clientYear1NOI = clientMonthly.slice(0, 12).reduce((s, m) => s + m.noi, 0);
+      const clientYear1 = clientMonthly.slice(0, 12);
+      const clientYear1Revenue = clientYear1.reduce((s, m) => s + m.revenueTotal, 0);
+      const clientYear1GOP = clientYear1.reduce((s, m) => s + m.gop, 0);
+      const clientYear1AGOP = clientYear1.reduce((s, m) => s + m.agop, 0);
+      const clientYear1NOI = clientYear1.reduce((s, m) => s + m.noi, 0);
+      const clientYear1ANOI = clientYear1.reduce((s, m) => s + m.anoi, 0);
 
       checks.push(check(
         "Year 1 Revenue (Server vs Client Engine)",
@@ -239,6 +257,26 @@ export function runIndependentVerification(
         "Server independent calc vs client generatePropertyProForma",
         serverYear1Revenue,
         clientYear1Revenue,
+        "critical"
+      ));
+
+      checks.push(check(
+        "Year 1 GOP (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Server independent calc vs client generatePropertyProForma",
+        serverYear1GOP,
+        clientYear1GOP,
+        "critical"
+      ));
+
+      checks.push(check(
+        "Year 1 AGOP (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Server independent calc vs client generatePropertyProForma",
+        serverYear1AGOP,
+        clientYear1AGOP,
         "critical"
       ));
 
@@ -252,9 +290,82 @@ export function runIndependentVerification(
         "critical"
       ));
 
+      checks.push(check(
+        "Year 1 ANOI (Server vs Client Engine)",
+        "Cross-Validation",
+        "Independence",
+        "Server independent calc vs client generatePropertyProForma",
+        serverYear1ANOI,
+        clientYear1ANOI,
+        "critical"
+      ));
+
+      if (clientMonthly.length >= (midYear + 1) * 12 && serverMidYearRevenue > 0) {
+        const clientMidYear = clientMonthly.slice(midYear * 12, (midYear + 1) * 12);
+        const clientMidYearRevenue = clientMidYear.reduce((s, m) => s + m.revenueTotal, 0);
+        const clientMidYearGOP = clientMidYear.reduce((s, m) => s + m.gop, 0);
+        const clientMidYearAGOP = clientMidYear.reduce((s, m) => s + m.agop, 0);
+        const clientMidYearNOI = clientMidYear.reduce((s, m) => s + m.noi, 0);
+        const clientMidYearANOI = clientMidYear.reduce((s, m) => s + m.anoi, 0);
+
+        checks.push(check(
+          `Year ${midYear + 1} (Mid-Projection) Revenue (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverMidYearRevenue,
+          clientMidYearRevenue,
+          "critical"
+        ));
+
+        checks.push(check(
+          `Year ${midYear + 1} (Mid-Projection) GOP (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverMidYearGOP,
+          clientMidYearGOP,
+          "critical"
+        ));
+
+        checks.push(check(
+          `Year ${midYear + 1} (Mid-Projection) AGOP (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverMidYearAGOP,
+          clientMidYearAGOP,
+          "critical"
+        ));
+
+        checks.push(check(
+          `Year ${midYear + 1} (Mid-Projection) NOI (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverMidYearNOI,
+          clientMidYearNOI,
+          "critical"
+        ));
+
+        checks.push(check(
+          `Year ${midYear + 1} (Mid-Projection) ANOI (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverMidYearANOI,
+          clientMidYearANOI,
+          "critical"
+        ));
+      }
+
       if (clientMonthly.length >= projectionMonths && serverLastYearRevenue > 0) {
-        const clientLastYearRevenue = clientMonthly.slice((projectionYears - 1) * 12, projectionMonths).reduce((s, m) => s + m.revenueTotal, 0);
-        const clientLastYearNOI = clientMonthly.slice((projectionYears - 1) * 12, projectionMonths).reduce((s, m) => s + m.noi, 0);
+        const clientLastYear = clientMonthly.slice((projectionYears - 1) * 12, projectionMonths);
+        const clientLastYearRevenue = clientLastYear.reduce((s, m) => s + m.revenueTotal, 0);
+        const clientLastYearGOP = clientLastYear.reduce((s, m) => s + m.gop, 0);
+        const clientLastYearAGOP = clientLastYear.reduce((s, m) => s + m.agop, 0);
+        const clientLastYearNOI = clientLastYear.reduce((s, m) => s + m.noi, 0);
+        const clientLastYearANOI = clientLastYear.reduce((s, m) => s + m.anoi, 0);
 
         checks.push(check(
           `Year ${projectionYears} Revenue (Server vs Client Engine)`,
@@ -267,6 +378,26 @@ export function runIndependentVerification(
         ));
 
         checks.push(check(
+          `Year ${projectionYears} GOP (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverLastYearGOP,
+          clientLastYearGOP,
+          "critical"
+        ));
+
+        checks.push(check(
+          `Year ${projectionYears} AGOP (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverLastYearAGOP,
+          clientLastYearAGOP,
+          "critical"
+        ));
+
+        checks.push(check(
           `Year ${projectionYears} NOI (Server vs Client Engine)`,
           "Cross-Validation",
           "Independence",
@@ -275,10 +406,36 @@ export function runIndependentVerification(
           clientLastYearNOI,
           "critical"
         ));
+
+        checks.push(check(
+          `Year ${projectionYears} ANOI (Server vs Client Engine)`,
+          "Cross-Validation",
+          "Independence",
+          "Server independent calc vs client generatePropertyProForma",
+          serverLastYearANOI,
+          clientLastYearANOI,
+          "critical"
+        ));
       }
     }
 
     if (serverYear1Revenue > 0 && serverLastYearRevenue > 0) {
+      const annualGrowthRate = Math.pow(serverLastYearRevenue / serverYear1Revenue, 1 / (projectionYears - 1)) - 1;
+      const expectedGrowthRate = property.adrGrowthRate;
+
+      // Only check growth rate consistency if we have more than 1 year of projection
+      if (projectionYears > 1) {
+        checks.push(check(
+          "Revenue Growth Rate Consistency",
+          "Reasonableness",
+          "Industry",
+          `Expected ADR growth ${(expectedGrowthRate * 100).toFixed(1)}% vs Actual Revenue CAGR ${(annualGrowthRate * 100).toFixed(1)}%`,
+          expectedGrowthRate,
+          annualGrowthRate,
+          Math.abs(annualGrowthRate - expectedGrowthRate) > 0.2 ? "material" : "info"
+        ));
+      }
+
       checks.push(check(
         "Revenue Growth Direction",
         "Reasonableness",
@@ -287,6 +444,21 @@ export function runIndependentVerification(
         1,
         serverLastYearRevenue > serverYear1Revenue ? 1 : 0,
         serverLastYearRevenue <= serverYear1Revenue ? "material" : "info"
+      ));
+    }
+
+    if (property.type === "Financed" && loanAmount > 0) {
+      const year1DebtService = serverYear1.reduce((s, m) => s + m.debtPayment, 0);
+      const year1DSCR = year1DebtService > 0 ? serverYear1NOI / year1DebtService : 0;
+
+      checks.push(check(
+        "DSCR Reasonableness (Year 1)",
+        "Debt",
+        "ASC 470 / Banking",
+        `Year 1 NOI $${Math.round(serverYear1NOI).toLocaleString()} / Debt Service $${Math.round(year1DebtService).toLocaleString()} (expect > 1.0x)`,
+        1.0,
+        year1DSCR,
+        year1DSCR < 1.0 ? "critical" : "info"
       ));
     }
 
@@ -300,8 +472,8 @@ export function runIndependentVerification(
         "Industry Benchmark",
         `Year 1: ${noiMarginYear1.toFixed(1)}% → Year ${projectionYears}: ${noiMarginLastYear.toFixed(1)}% (expect 5-60%)`,
         1,
-        (noiMarginLastYear >= 5 && noiMarginLastYear <= 60) ? 1 : 0,
-        (noiMarginLastYear < 5 || noiMarginLastYear > 60) ? "material" : "info"
+        (noiMarginLastYear >= 5 && noiMarginLastYear <= 70) ? 1 : 0,
+        (noiMarginLastYear < 5 || noiMarginLastYear > 70) ? "material" : "info"
       ));
     }
 

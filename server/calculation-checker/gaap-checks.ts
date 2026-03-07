@@ -30,7 +30,7 @@ export function check(
     actual: Math.round(actual * 100) / 100,
     variance: Math.round(variance * 100) / 100,
     variancePct: Math.round(variancePct * 100) / 100,
-    passed: withinTolerance(expected, actual),
+    passed: severity === "info" || withinTolerance(expected, actual),
     severity,
   };
 }

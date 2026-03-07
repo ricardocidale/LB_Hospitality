@@ -6,6 +6,9 @@ import {
   DEFAULT_TERM_YEARS,
   DEFAULT_LAND_VALUE_PERCENT,
   DEPRECIATION_YEARS,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+  DEFAULT_COST_RATE_FFE,
 } from '../constants';
 
 export interface CrossValidationResult {
@@ -34,6 +37,10 @@ interface PropertyForValidation {
   acquisitionTermYears?: number | null;
   landValuePercent?: number | null;
   buildingImprovements?: number | null;
+  baseManagementFeeRate?: number | null;
+  incentiveManagementFeeRate?: number | null;
+  feeCategories?: { name: string; rate: number; isActive: boolean }[] | null;
+  costRateFFE?: number | null;
 }
 
 interface GlobalForValidation {
@@ -377,6 +384,114 @@ export function crossValidateFinancingCalculators(
       source: `IRS Publication 946: ${DEPRECIATION_YEARS}-year straight-line, residential rental`,
     });
   }
+
+  // 15. Management Fee Validation: Base fee = Revenue × rate, Incentive fee = max(0, GOP × rate)
+  const baseRate = property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+  const incentiveRate = property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
+  let baseFeeErrors = 0;
+  let incentiveFeeErrors = 0;
+
+  for (const m of monthlyData) {
+    if (m.monthIndex >= 0) {
+      // Base fee check (only if no active fee categories, otherwise engine uses categories)
+      if (!property.feeCategories || property.feeCategories.filter(c => c.isActive).length === 0) {
+        const expectedBaseFee = m.revenueTotal * baseRate;
+        if (!withinTolerance(m.feeBase, expectedBaseFee)) {
+          baseFeeErrors++;
+        }
+      }
+
+      // Incentive fee check
+      const expectedIncentiveFee = Math.max(0, m.gop * incentiveRate);
+      if (!withinTolerance(m.feeIncentive, expectedIncentiveFee)) {
+        incentiveFeeErrors++;
+      }
+    }
+  }
+
+  results.push({
+    name: 'USALI: Base Management Fee',
+    description: `Base fee must equal Total Revenue × ${ (baseRate * 100).toFixed(1) }%`,
+    passed: baseFeeErrors === 0,
+    severity: 'critical',
+    expected: '0 errors',
+    actual: `${baseFeeErrors} months with base fee errors`,
+    source: 'USALI 12th Edition: Management Fees',
+  });
+
+  results.push({
+    name: 'USALI: Incentive Management Fee',
+    description: `Incentive fee must equal max(0, GOP × ${ (incentiveRate * 100).toFixed(1) }%)`,
+    passed: incentiveFeeErrors === 0,
+    severity: 'critical',
+    expected: '0 errors',
+    actual: `${incentiveFeeErrors} months with incentive fee errors`,
+    source: 'USALI 12th Edition: Management Fees',
+  });
+
+  // 16. Cash-on-Cash Cross-Check: Annual CF / Initial Equity must match reported CoC
+  // For each year, verify CoC (simplified check against initial equity)
+  const initialEquity = totalPropertyValue - loanAmount;
+  if (initialEquity > 0) {
+    for (let y = 0; y < Math.min(projectionYears, 5); y++) {
+      const yearSlice = monthlyData.slice(y * 12, (y + 1) * 12);
+      const annualCF = yearSlice.reduce((sum, m) => sum + m.cashFlow, 0);
+      const annualCoC = annualCF / initialEquity;
+
+      results.push({
+        name: `Year ${y + 1}: Cash-on-Cash Return`,
+        description: 'Annual Cash Flow / Initial Equity investment',
+        passed: annualCoC > -1, // Simple reasonableness check
+        severity: 'info',
+        expected: '> -100%',
+        actual: `${(annualCoC * 100).toFixed(2)}%`,
+        source: 'CRE Metrics: Cash-on-Cash Return',
+      });
+    }
+  }
+
+  // 17. FF&E Reserve Accumulation Check: FF&E = Revenue × costRateFFE
+  const ffeRate = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
+  let ffeErrors = 0;
+  for (const m of monthlyData) {
+    if (m.monthIndex >= 0) {
+      const expectedFFE = m.revenueTotal * ffeRate;
+      if (!withinTolerance(m.expenseFFE, expectedFFE)) {
+        ffeErrors++;
+      }
+    }
+  }
+  results.push({
+    name: 'USALI: FF&E Reserve',
+    description: `FF&E reserve must equal Total Revenue × ${ (ffeRate * 100).toFixed(1) }%`,
+    passed: ffeErrors === 0,
+    severity: 'material',
+    expected: '0 errors',
+    actual: `${ffeErrors} months with FF&E errors`,
+    source: 'USALI 12th Edition: Furniture, Fixtures & Equipment Reserve',
+  });
+
+  // 18. Total Expenses Identity: TotalExp = OpEx + Fees + Insurance + Taxes + FF&E
+  let totalExpErrors = 0;
+  for (const m of monthlyData) {
+    const opEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
+      m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
+      m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseOtherCosts;
+    const expectedTotalExp = opEx + m.feeBase + m.feeIncentive + m.expenseInsurance + m.expenseTaxes + m.expenseFFE;
+    
+    if (!withinTolerance(m.totalExpenses, expectedTotalExp)) {
+      totalExpErrors++;
+    }
+  }
+  results.push({
+    name: 'USALI: Total Expenses Identity',
+    description: 'Total Expenses = Operating Expenses + Management Fees + Insurance + Taxes + FF&E Reserve',
+    passed: totalExpErrors === 0,
+    severity: 'critical',
+    expected: '0 errors',
+    actual: `${totalExpErrors} months with total expense failures`,
+    source: 'USALI 12th Edition: Summary Operating Statement',
+  });
 
   return buildReport(results);
 }

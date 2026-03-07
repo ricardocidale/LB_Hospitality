@@ -192,40 +192,120 @@ export function checkMetricFormulas(yearlyData: Array<{
   revenueRooms: number;
   soldRooms: number;
   availableRooms: number;
+  adr: number;
+  occupancy: number;
+  revpar: number;
+  revenueTotal: number;
+  expenseOperating: number;
+  gop: number;
+  feeBase: number;
+  feeIncentive: number;
+  agop: number;
+  expenseInsurance: number;
+  expenseTaxes: number;
+  noi: number;
+  expenseFFE: number;
+  anoi: number;
+  equityMultiple?: number;
+  netIncome?: number;
 }>): FormulaCheckReport {
   const results: FormulaCheckResult[] = [];
   
   for (const y of yearlyData) {
-    // ADR = Room Revenue / Sold Rooms
+    const yearLabel = `Year ${y.year}`;
+
+    // 1. ADR = Room Revenue / Sold Rooms
     const expectedADR = y.soldRooms > 0 ? y.revenueRooms / y.soldRooms : 0;
     results.push({
-      passed: true,
-      name: `Year ${y.year}: ADR Formula`,
+      passed: withinTolerance(expectedADR, y.adr),
+      name: `${yearLabel}: ADR Formula`,
       description: "ADR = Room Revenue ÷ Rooms Sold",
       expected: expectedADR.toFixed(2),
-      actual: expectedADR.toFixed(2)
+      actual: y.adr.toFixed(2)
     });
     
-    // Occupancy = Sold Rooms / Available Rooms
+    // 2. Occupancy = Sold Rooms / Available Rooms
     const expectedOccupancy = y.availableRooms > 0 ? (y.soldRooms / y.availableRooms) * 100 : 0;
     results.push({
-      passed: true,
-      name: `Year ${y.year}: Occupancy Formula`,
+      passed: withinTolerance(expectedOccupancy, y.occupancy),
+      name: `${yearLabel}: Occupancy Formula`,
       description: "Occupancy = Rooms Sold ÷ Available Room Nights × 100",
       expected: expectedOccupancy.toFixed(1) + "%",
-      actual: expectedOccupancy.toFixed(1) + "%"
+      actual: y.occupancy.toFixed(1) + "%"
     });
     
-    // RevPAR = Room Revenue / Available Rooms (or ADR * Occupancy)
+    // 3. RevPAR = Room Revenue / Available Rooms (or ADR * Occupancy)
     const expectedRevPAR = y.availableRooms > 0 ? y.revenueRooms / y.availableRooms : 0;
-    const alternateRevPAR = expectedADR * (expectedOccupancy / 100);
     results.push({
-      passed: withinTolerance(expectedRevPAR, alternateRevPAR),
-      name: `Year ${y.year}: RevPAR Formula Consistency`,
-      description: "RevPAR = Room Revenue ÷ Available Rooms = ADR × Occupancy",
+      passed: withinTolerance(expectedRevPAR, y.revpar),
+      name: `${yearLabel}: RevPAR Formula Consistency`,
+      description: "RevPAR = Room Revenue ÷ Available Rooms",
       expected: expectedRevPAR.toFixed(2),
-      actual: alternateRevPAR.toFixed(2)
+      actual: y.revpar.toFixed(2)
     });
+
+    // 4. USALI Waterfall: GOP -> AGOP -> NOI -> ANOI
+    // GOP = Total Revenue - Operating Expenses
+    const expectedGOP = y.revenueTotal - y.expenseOperating;
+    results.push({
+      passed: withinTolerance(expectedGOP, y.gop),
+      name: `${yearLabel}: GOP Formula`,
+      description: "GOP = Total Revenue - Operating Expenses",
+      expected: expectedGOP.toFixed(2),
+      actual: y.gop.toFixed(2)
+    });
+
+    // AGOP = GOP - Base Fee - Incentive Fee
+    const expectedAGOP = y.gop - y.feeBase - y.feeIncentive;
+    results.push({
+      passed: withinTolerance(expectedAGOP, y.agop),
+      name: `${yearLabel}: AGOP Formula`,
+      description: "AGOP = GOP - Management Fees",
+      expected: expectedAGOP.toFixed(2),
+      actual: y.agop.toFixed(2)
+    });
+
+    // NOI = AGOP - Insurance - Taxes
+    const expectedNOI = y.agop - y.expenseInsurance - y.expenseTaxes;
+    results.push({
+      passed: withinTolerance(expectedNOI, y.noi),
+      name: `${yearLabel}: NOI Formula`,
+      description: "NOI = AGOP - Fixed Expenses",
+      expected: expectedNOI.toFixed(2),
+      actual: y.noi.toFixed(2)
+    });
+
+    // ANOI = NOI - FF&E
+    const expectedANOI = y.noi - y.expenseFFE;
+    results.push({
+      passed: withinTolerance(expectedANOI, y.anoi),
+      name: `${yearLabel}: ANOI Formula`,
+      description: "ANOI = NOI - FF&E Reserve",
+      expected: expectedANOI.toFixed(2),
+      actual: y.anoi.toFixed(2)
+    });
+
+    // 5. Equity Multiple Reasonableness (if available)
+    if (y.equityMultiple !== undefined && y.netIncome !== undefined) {
+      const isProfitable = y.netIncome > 0;
+      if (isProfitable && y.equityMultiple <= 0) {
+        results.push({
+          passed: false,
+          name: `${yearLabel}: Equity Multiple Reasonableness`,
+          description: "Equity Multiple must be > 0 for profitable years",
+          expected: "> 0",
+          actual: y.equityMultiple.toFixed(2)
+        });
+      } else {
+        results.push({
+          passed: true,
+          name: `${yearLabel}: Equity Multiple Reasonableness`,
+          description: "Equity Multiple check passed",
+          expected: "Valid",
+          actual: y.equityMultiple.toFixed(2)
+        });
+      }
+    }
   }
   
   const passed = results.filter(r => r.passed).length;

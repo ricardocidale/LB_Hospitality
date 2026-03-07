@@ -163,7 +163,8 @@
       "Bash(curl -s https://ui.elevenlabs.io/r/audio-player.json | python3 << 'EOF'\nimport json, sys\ndata = json.load\\(sys.stdin\\)\nfor f in data.get\\('files', []\\):\n    content = f['content']\n    idx = content.find\\('exampleTracks'\\)\n    if idx != -1:\n        print\\(content[idx:idx+800]\\)\n        break\nEOF)",
       "Bash(npx shadcn@latest add --all --overwrite 2>&1)",
       "Bash(npx shadcn@latest add accordion alert alert-dialog aspect-ratio avatar badge breadcrumb button calendar card carousel chart checkbox collapsible command context-menu dialog drawer dropdown-menu form hover-card input input-otp label menubar navigation-menu pagination popover progress radio-group resizable scroll-area select separator sheet sidebar skeleton slider sonner switch table tabs textarea toggle toggle-group tooltip --overwrite 2>&1 | tail -20)",
-      "Bash(git checkout HEAD -- client/src/components/ui/tabs.tsx)"
+      "Bash(git checkout HEAD -- client/src/components/ui/tabs.tsx)",
+      "Bash(npx shadcn@latest init --preset ad3qkJ7 2>&1)"
     ]
   }
 }

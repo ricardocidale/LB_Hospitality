@@ -195,7 +195,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
   return (
     <SidebarProvider>
-      <div className={cn("min-h-screen font-sans flex w-full", darkMode ? "bg-[#0a0a0f] text-white" : "bg-background text-foreground")}>
+      <div className={cn("min-h-screen font-sans flex w-full overflow-x-hidden", darkMode ? "bg-[#0a0a0f] text-white" : "bg-background text-foreground")}>
         {sidebarOpen && (
           <div 
             className="fixed inset-0 bg-black/20 z-40 md:hidden"

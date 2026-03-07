@@ -119,6 +119,26 @@ export function useUploadKnowledgeBase() {
   });
 }
 
+export function useSaveWidgetSettings() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { turn_timeout?: number; avatar_url?: string }) => {
+      const res = await apiRequest("PATCH", "/api/admin/convai/agent/widget-settings", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "convai-agent"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
+      toast({ title: "Widget settings saved", description: "Turn timeout and avatar pushed to ElevenLabs." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+
 export function useAgentConfig() {
   return useQuery<any>({
     queryKey: ["admin", "convai-agent"],

@@ -7,8 +7,30 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageSquare, Globe, Loader2, Save, RefreshCw, AlertCircle, FileText, Type } from "lucide-react";
+import { MessageSquare, Globe, Loader2, Save, RefreshCw, AlertCircle, FileText, Type, Sparkles, Copy, Check } from "lucide-react";
 import { useAgentConfig, useSaveAgentPrompt } from "./hooks";
+
+const DYNAMIC_VARS = [
+  { name: "{{user_name}}", description: "Full name of the logged-in user" },
+  { name: "{{user_role}}", description: "User's role (admin, partner, investor…)" },
+  { name: "{{current_page}}", description: "Current page path the user is on" },
+];
+
+const DEFAULT_PROMPT_TEMPLATE = `You are a knowledgeable AI assistant for a hospitality investment portal. You help hotel investors and asset managers understand their financial models and navigate the platform.
+
+You are speaking with {{user_name}}, who has the role of {{user_role}}. They are currently on the {{current_page}} page.
+
+Your capabilities:
+- Answer questions about hotel financial metrics (ADR, RevPAR, NOI, IRR, cap rates, DSCR)
+- Explain financial projections, assumptions, and scenarios in the platform
+- Guide users to the right pages and features
+- Help interpret charts, tables, and reports
+
+Guidelines:
+- Be concise and professional. Use hospitality industry terminology appropriately.
+- When you don't know something specific to the user's data, say so clearly.
+- If a user asks to navigate somewhere, guide them to the correct page.
+- Keep responses focused — users are busy professionals reviewing investments.`;
 
 const LANGUAGES = [
   { value: "en", label: "English", region: "Americas / Europe" },
@@ -35,6 +57,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
   const [firstMessageDraft, setFirstMessageDraft] = useState<string | null>(null);
   const [languageDraft, setLanguageDraft] = useState<string | null>(null);
   const [isPromptDirty, setIsPromptDirty] = useState(false);
+  const [copiedVar, setCopiedVar] = useState<string | null>(null);
 
   const agentPrompt = agentConfig?.conversation_config?.agent?.prompt;
   const currentPrompt = promptDraft ?? (agentPrompt as any)?.prompt ?? "";
@@ -53,6 +76,17 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
 
   const handleLanguageChange = (value: string) => {
     setLanguageDraft(value);
+    setIsPromptDirty(true);
+  };
+
+  const handleCopyVar = (varName: string) => {
+    navigator.clipboard.writeText(varName);
+    setCopiedVar(varName);
+    setTimeout(() => setCopiedVar(null), 1500);
+  };
+
+  const handleLoadTemplate = () => {
+    setPromptDraft(DEFAULT_PROMPT_TEMPLATE);
     setIsPromptDirty(true);
   };
 
@@ -129,6 +163,17 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
                   Unsaved changes
                 </Badge>
               )}
+              {!currentPrompt && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleLoadTemplate}
+                  className="gap-1.5 border-primary/20 text-primary hover:bg-primary/5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Load template
+                </Button>
+              )}
               <Button
                 size="sm"
                 onClick={handleSavePrompt}
@@ -169,6 +214,25 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
                 </span>
               )}
             </div>
+
+          <div className="p-3 bg-primary/[0.03] rounded-xl border border-primary/10 space-y-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Available dynamic variables — click to copy</p>
+            <div className="flex flex-wrap gap-2">
+              {DYNAMIC_VARS.map((v) => (
+                <button
+                  key={v.name}
+                  type="button"
+                  onClick={() => handleCopyVar(v.name)}
+                  title={v.description}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-primary/20 text-xs font-mono text-primary hover:bg-primary/5 transition-colors"
+                >
+                  {copiedVar === v.name ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3 opacity-50" />}
+                  {v.name}
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground/50">These are populated at runtime with the user's real data. Paste them into the prompt above.</p>
+          </div>
           </div>
         </CardContent>
       </Card>

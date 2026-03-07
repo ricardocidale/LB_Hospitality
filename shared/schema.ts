@@ -423,6 +423,8 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaSmsEnabled: boolean("marcela_sms_enabled").notNull().default(false),
   marcelaPhoneGreeting: text("marcela_phone_greeting").notNull().default("Hello, this is Marcela from Hospitality Business Group. How can I help you today?"),
   marcelaLanguage: text("marcela_language").notNull().default("en"),
+  marcelaTurnTimeout: integer("marcela_turn_timeout").notNull().default(7),
+  marcelaAvatarUrl: text("marcela_avatar_url").notNull().default(""),
 
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
@@ -566,6 +568,8 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   marcelaSmsEnabled: true,
   marcelaPhoneGreeting: true,
   marcelaLanguage: true,
+  marcelaTurnTimeout: true,
+  marcelaAvatarUrl: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

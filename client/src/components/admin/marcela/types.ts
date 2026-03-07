@@ -18,6 +18,8 @@ export interface VoiceSettings {
   marcelaSmsEnabled: boolean;
   marcelaPhoneGreeting: string;
   marcelaLanguage: string;
+  marcelaTurnTimeout: number;
+  marcelaAvatarUrl: string;
 }
 
 export interface TwilioStatus {

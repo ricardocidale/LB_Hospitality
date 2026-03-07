@@ -27,13 +27,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { GlassButton } from "@/components/ui/glass-button";
-import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, UserPlus, Shield, Mail, LayoutGrid, Calendar, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, UserPlus, Shield, Mail, LayoutGrid, Calendar, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { adminFetch, useAdminLogos } from "./hooks";
 import defaultLogo from "@/assets/logo.png";
 import type { User, UserGroup } from "./types";
+
+type Company = { id: number; name: string; logoId: number | null; isActive: boolean };
 
 type SortField = "name" | "role" | "group";
 type SortDir = "asc" | "desc";
@@ -47,8 +49,8 @@ export default function UsersTab() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", company: "", title: "", role: "partner" as string });
-  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", company: "", title: "", role: "partner" as string, password: "" });
+  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", companyId: null as number | null, title: "", role: "partner" as string });
+  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", companyId: null as number | null, title: "", role: "partner" as string, password: "" });
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
@@ -71,6 +73,28 @@ export default function UsersTab() {
   });
 
   const { data: adminLogos } = useAdminLogos();
+
+  const { data: companiesList } = useQuery<Company[]>({
+    queryKey: ["admin", "companies"],
+    queryFn: async () => {
+      const res = await fetch("/api/companies", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch companies");
+      return res.json();
+    },
+  });
+
+  const companyLogoMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    if (!companiesList || !adminLogos) return map;
+    const logoUrlMap: Record<number, string> = {};
+    adminLogos.forEach(l => { logoUrlMap[l.id] = l.url; });
+    companiesList.forEach(c => {
+      if (c.logoId && logoUrlMap[c.logoId]) {
+        map[c.id] = logoUrlMap[c.logoId];
+      }
+    });
+    return map;
+  }, [companiesList, adminLogos]);
 
   const groupNameMap = useMemo(() => {
     const map: Record<number, string> = {};
@@ -129,7 +153,7 @@ export default function UsersTab() {
   }, [users, sortField, sortDir, groupNameMap]);
 
   const createMutation = useMutation({
-    mutationFn: async (data: { email: string; password: string; firstName?: string; lastName?: string; company?: string; title?: string; role?: string }) => {
+    mutationFn: async (data: { email: string; password: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string }) => {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -145,7 +169,7 @@ export default function UsersTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setDialogOpen(false);
-      setNewUser({ email: "", password: "", firstName: "", lastName: "", company: "", title: "", role: "partner" });
+      setNewUser({ email: "", password: "", firstName: "", lastName: "", companyId: null, title: "", role: "partner" });
       toast({ title: "User Created", description: "New user has been registered." });
     },
     onError: (error: Error) => {
@@ -216,7 +240,7 @@ export default function UsersTab() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: { email?: string; firstName?: string; lastName?: string; company?: string; title?: string; role?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number; data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string } }) => {
       const res = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -314,7 +338,7 @@ export default function UsersTab() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-primary/10"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", company: user.company || "", title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
+                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <Pencil className="w-4 h-4" />
                       </Button>
@@ -364,7 +388,23 @@ export default function UsersTab() {
             <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />First Name</Label><Input value={newUser.firstName} onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })} placeholder="First name" data-testid="input-new-user-firstName" /></div>
             <div className="space-y-2"><Label>Last Name</Label><Input value={newUser.lastName} onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })} placeholder="Last name" data-testid="input-new-user-lastName" /></div>
           </div>
-          <div className="space-y-2"><Label className="flex items-center gap-2"><LayoutGrid className="w-4 h-4 text-gray-500" />Company</Label><Input value={newUser.company} onChange={(e) => setNewUser({ ...newUser, company: e.target.value })} placeholder="Company name" data-testid="input-new-user-company" /></div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-500" />Company</Label>
+            <Select value={newUser.companyId != null ? String(newUser.companyId) : "none"} onValueChange={(v) => setNewUser({ ...newUser, companyId: v === "none" ? null : parseInt(v) })} data-testid="select-new-user-company">
+              <SelectTrigger data-testid="select-new-user-company"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Company</SelectItem>
+                {companiesList?.filter(c => c.isActive).map(c => (
+                  <SelectItem key={c.id} value={String(c.id)}>
+                    <span className="flex items-center gap-2">
+                      {companyLogoMap[c.id] && <img src={companyLogoMap[c.id]} alt="" className="w-5 h-5 rounded object-contain" />}
+                      {c.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={newUser.title} onChange={(e) => setNewUser({ ...newUser, title: e.target.value })} placeholder="Job title" data-testid="input-new-user-title" /></div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Role</Label>
@@ -434,7 +474,23 @@ export default function UsersTab() {
             <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-gray-500" />First Name</Label><Input value={editUser.firstName} onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })} data-testid="input-edit-firstName" /></div>
             <div className="space-y-2"><Label>Last Name</Label><Input value={editUser.lastName} onChange={(e) => setEditUser({ ...editUser, lastName: e.target.value })} data-testid="input-edit-lastName" /></div>
           </div>
-          <div className="space-y-2"><Label className="flex items-center gap-2"><LayoutGrid className="w-4 h-4 text-gray-500" />Company</Label><Input value={editUser.company} onChange={(e) => setEditUser({ ...editUser, company: e.target.value })} data-testid="input-edit-company" /></div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-500" />Company</Label>
+            <Select value={editUser.companyId != null ? String(editUser.companyId) : "none"} onValueChange={(v) => setEditUser({ ...editUser, companyId: v === "none" ? null : parseInt(v) })} data-testid="select-edit-company">
+              <SelectTrigger data-testid="select-edit-company"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Company</SelectItem>
+                {companiesList?.filter(c => c.isActive).map(c => (
+                  <SelectItem key={c.id} value={String(c.id)}>
+                    <span className="flex items-center gap-2">
+                      {companyLogoMap[c.id] && <img src={companyLogoMap[c.id]} alt="" className="w-5 h-5 rounded object-contain" />}
+                      {c.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-gray-500" />Role</Label>
@@ -463,10 +519,10 @@ export default function UsersTab() {
           <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
           <Button variant="outline" onClick={() => {
             if (!selectedUser) return;
-            const data: { email?: string; firstName?: string; lastName?: string; company?: string; title?: string; role?: string } = {
+            const data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string } = {
               firstName: editUser.firstName,
               lastName: editUser.lastName,
-              company: editUser.company,
+              companyId: editUser.companyId,
               title: editUser.title,
             };
             if (editUser.email !== originalEmail) {

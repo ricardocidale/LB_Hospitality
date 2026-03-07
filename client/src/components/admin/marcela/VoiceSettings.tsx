@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -6,8 +7,10 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Volume2, Waves, AudioLines, Zap, Settings2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Volume2, Waves, AudioLines, Zap, Settings2, Timer, ImageIcon, Loader2, Save } from "lucide-react";
 import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
+import { useSaveWidgetSettings } from "./hooks";
 
 interface VoiceSettingsProps {
   draft: VoiceSettings;
@@ -15,6 +18,18 @@ interface VoiceSettingsProps {
 }
 
 export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProps) {
+  const saveWidgetSettings = useSaveWidgetSettings();
+  const [avatarDraft, setAvatarDraft] = useState(draft.marcelaAvatarUrl ?? "");
+  const [turnDraft, setTurnDraft] = useState(draft.marcelaTurnTimeout ?? 7);
+  const [widgetDirty, setWidgetDirty] = useState(false);
+
+  const handleSaveWidget = () => {
+    saveWidgetSettings.mutate(
+      { turn_timeout: turnDraft, avatar_url: avatarDraft },
+      { onSuccess: () => setWidgetDirty(false) }
+    );
+  };
+
   return (
     <div className="space-y-6">
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
@@ -197,6 +212,82 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <p className="text-xs text-muted-foreground">
               Comma-separated chunk sizes (in characters) for WebSocket streaming latency optimization.
               Smaller initial values reduce time to first audio.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/80 backdrop-blur-xl border-primary/20 shadow-[0_8px_32px_rgba(159,188,164,0.1)]">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-violet-500/5 flex items-center justify-center">
+                <Settings2 className="w-5 h-5 text-violet-600" />
+              </div>
+              <div>
+                <CardTitle className="font-display text-base">Widget Settings</CardTitle>
+                <CardDescription className="label-text mt-0.5">
+                  Conversation turn timeout and avatar image — pushed directly to ElevenLabs.
+                </CardDescription>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              onClick={handleSaveWidget}
+              disabled={!widgetDirty || saveWidgetSettings.isPending}
+              className="gap-1.5 shadow-sm"
+            >
+              {saveWidgetSettings.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              Save to ElevenLabs
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="label-text font-medium flex items-center gap-1.5">
+                <Timer className="w-3.5 h-3.5" />
+                Turn Timeout
+              </Label>
+              <Badge variant="outline" className="font-mono text-xs">{turnDraft}s</Badge>
+            </div>
+            <Slider
+              min={3}
+              max={30}
+              step={1}
+              value={[turnDraft]}
+              onValueChange={([v]) => { setTurnDraft(v); setWidgetDirty(true); }}
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>3s — snappy</span>
+              <span>30s — patient</span>
+            </div>
+            <p className="text-xs text-muted-foreground/60">
+              Seconds of silence before the agent takes its turn. 7–12s works well for financial discussions.
+            </p>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <Label className="label-text font-medium flex items-center gap-1.5">
+              <ImageIcon className="w-3.5 h-3.5" />
+              Avatar Image URL
+            </Label>
+            <Input
+              value={avatarDraft}
+              onChange={(e) => { setAvatarDraft(e.target.value); setWidgetDirty(true); }}
+              placeholder="https://example.com/avatar.png"
+              className="bg-white/60 border-primary/15 focus:border-primary/30 transition-colors"
+            />
+            {avatarDraft && (
+              <div className="flex items-center gap-3 p-3 bg-primary/[0.03] rounded-xl border border-primary/10">
+                <img src={avatarDraft} alt="Avatar preview" className="w-10 h-10 rounded-full object-cover border border-primary/20" onError={(e) => (e.currentTarget.style.display = "none")} />
+                <p className="text-xs text-muted-foreground/70">Preview — shown as the widget's avatar bubble.</p>
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground/60">
+              Direct URL to a square image (PNG or JPG recommended). Appears as the circular avatar in the ElevenLabs chat widget.
             </p>
           </div>
         </CardContent>

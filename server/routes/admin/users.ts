@@ -59,7 +59,7 @@ export function registerUserRoutes(app: Express) {
   app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
-      const { email, firstName, lastName, company, title, role } = req.body;
+      const { email, firstName, lastName, company, companyId, title, role } = req.body;
 
       if (role && id === req.user!.id) {
         return res.status(400).json({ error: "You cannot change your own role" });
@@ -70,6 +70,7 @@ export function registerUserRoutes(app: Express) {
       if (firstName !== undefined) profileData.firstName = firstName;
       if (lastName !== undefined) profileData.lastName = lastName;
       if (company !== undefined) profileData.company = company;
+      if (companyId !== undefined) profileData.companyId = companyId;
       if (title !== undefined) profileData.title = title;
 
       if (Object.keys(profileData).length > 0) {

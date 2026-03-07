@@ -159,7 +159,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
             <h1 className="text-3xl font-bold text-foreground" data-testid="text-page-title">
               Property Comparison
             </h1>
-            <p className="text-gray-500 mt-1" data-testid="text-page-subtitle">
+            <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
               Select 2–4 properties to compare assumptions side by side
             </p>
           </div>
@@ -178,12 +178,12 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
         </div>
         )}
 
-        <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+        <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
           <div className="flex items-start gap-3">
             <svg className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
             <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-1">Property Comparison</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <h3 className="text-sm font-semibold text-foreground mb-1">Property Comparison</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Compare up to 4 properties side by side across key assumptions — room count, ADR, occupancy, purchase price, and more. 
                 Best values are highlighted in green to quickly spot which properties have the strongest fundamentals. 
                 Use this to evaluate acquisition targets or benchmark existing portfolio assets.
@@ -192,8 +192,8 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-gray-700 mb-3" data-testid="text-selector-heading">
+        <div className="bg-white rounded-xl border border-border p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-foreground mb-3" data-testid="text-selector-heading">
             Select Properties ({selectedIds.length}/4)
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -207,8 +207,8 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                     checked
                       ? "bg-primary/10 border-primary"
                       : disabled
-                      ? "opacity-50 cursor-not-allowed border-gray-200"
-                      : "border-gray-200 hover:border-primary/40"
+                      ? "opacity-50 cursor-not-allowed border-border"
+                      : "border-border hover:border-primary/40"
                   }`}
                   data-testid={`checkbox-property-${p.id}`}
                 >
@@ -219,7 +219,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                     onChange={() => toggleProperty(p.id)}
                     className="accent-primary w-4 h-4"
                   />
-                  <span className="text-sm font-medium text-gray-800">{p.name}</span>
+                  <span className="text-sm font-medium text-foreground">{p.name}</span>
                 </label>
               );
             })}
@@ -240,8 +240,8 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
             variant="light"
           />
           <ScrollReveal>
-            <div ref={chartRef} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <h3 className="text-lg font-display text-gray-900 mb-4">Performance Comparison</h3>
+            <div ref={chartRef} className="bg-white rounded-xl border border-border shadow-sm p-6">
+              <h3 className="text-lg font-display text-foreground mb-4">Performance Comparison</h3>
               <ResponsiveContainer width="100%" height={320}>
                 <RadarChart data={[
                   { metric: "ADR", ...Object.fromEntries(selectedProperties.map(p => [p.name, Math.min(p.startAdr / 5, 100)])) },
@@ -299,17 +299,17 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
               return insights;
             })()}
           />
-          <div ref={tableRef} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+          <div ref={tableRef} className="bg-white rounded-xl border border-border shadow-sm overflow-x-auto">
             <table className="w-full text-sm" data-testid="table-comparison">
               <thead>
                 <tr>
-                  <th className="text-left px-4 py-3 bg-gray-50 text-gray-600 font-semibold border-b min-w-[160px]">
+                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b min-w-[160px]">
                     Metric
                   </th>
                   {selectedProperties.map((p) => (
                     <th
                       key={p.id}
-                      className="text-center px-4 py-3 border-b bg-gray-100 text-gray-900 font-semibold min-w-[150px]"
+                      className="text-center px-4 py-3 border-b bg-muted text-foreground font-semibold min-w-[150px]"
                       data-testid={`header-property-${p.id}`}
                     >
                       {p.name}
@@ -323,10 +323,10 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                   return (
                     <tr
                       key={metric.key}
-                      className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/60"}
+                      className={idx % 2 === 0 ? "bg-white" : "bg-muted/60"}
                       data-testid={`row-${metric.key}`}
                     >
-                      <td className="px-4 py-3 font-medium text-gray-700 border-r border-gray-100">
+                      <td className="px-4 py-3 font-medium text-foreground border-r border-border">
                         {metric.label}
                       </td>
                       {selectedProperties.map((p) => {
@@ -339,7 +339,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                           <td
                             key={p.id}
                             className={`px-4 py-3 text-center ${
-                              isBest ? "bg-green-50 font-semibold text-green-800" : "text-gray-800"
+                              isBest ? "bg-green-50 font-semibold text-green-800" : "text-foreground"
                             }`}
                             data-testid={`cell-${metric.key}-${p.id}`}
                           >
@@ -355,8 +355,8 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
           </div>
         </>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
-            <p className="text-gray-400 text-lg" data-testid="text-empty-state">
+          <div className="bg-white rounded-xl border border-border p-12 text-center shadow-sm">
+            <p className="text-muted-foreground text-lg" data-testid="text-empty-state">
               {selectedIds.length === 0
                 ? "Select at least 2 properties above to begin comparing."
                 : "Select one more property to start the comparison."}

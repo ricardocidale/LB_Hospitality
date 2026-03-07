@@ -25,16 +25,16 @@ import type { VariableCostsSectionProps } from "./types";
 
 export default function VariableCostsSection({ formData, onChange, global, researchValues }: VariableCostsSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
     <div className="relative">
       <div className="space-y-6">
-        <h3 className="text-lg font-display text-gray-900 flex items-center">
+        <h3 className="text-lg font-display text-foreground flex items-center">
           Variable Costs
           <HelpTooltip text="Costs that scale with property count or revenue" />
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Travel Cost per Client
               <HelpTooltip text="Annual travel expense budget per managed property" />
               <ResearchBadge value={researchValues.travelPerClient?.display} onClick={() => researchValues.travelPerClient && onChange("travelCostPerClient", researchValues.travelPerClient.mid)} sourceType="industry" sourceName="AHLA Lodging Survey" data-testid="badge-travel-per-client" />
@@ -59,7 +59,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               IT/Licensing per Client
               <HelpTooltip text="PMS, revenue management, and software licenses per B&B property" />
               <ResearchBadge value={researchValues.itLicensePerClient?.display} onClick={() => researchValues.itLicensePerClient && onChange("itLicensePerClient", researchValues.itLicensePerClient.mid)} sourceType="industry" sourceName="HFTP Technology Survey" data-testid="badge-it-license" />
@@ -84,7 +84,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Marketing (% of Mgmt Fee Revenue)
               <HelpTooltip text="Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
               <ResearchBadge value={researchValues.marketingRate?.display} onClick={() => researchValues.marketingRate && onChange("marketingRate", researchValues.marketingRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-marketing-rate" />
@@ -109,7 +109,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Misc Operations (% of Mgmt Fee Revenue)
               <HelpTooltip text="General operating expenses as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
               <ResearchBadge value={researchValues.miscOpsRate?.display} onClick={() => researchValues.miscOpsRate && onChange("miscOpsRate", researchValues.miscOpsRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-misc-ops" />

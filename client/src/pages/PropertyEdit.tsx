@@ -390,7 +390,7 @@ export default function PropertyEdit() {
                     <span
                       className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white ${
                         researchFreshness === "fresh" ? "bg-emerald-400" :
-                        researchFreshness === "stale" ? "bg-amber-400" : "bg-gray-400"
+                        researchFreshness === "stale" ? "bg-amber-400" : "bg-muted-foreground"
                       }`}
                       title={
                         researchFreshness === "fresh" ? "Research is up to date" :

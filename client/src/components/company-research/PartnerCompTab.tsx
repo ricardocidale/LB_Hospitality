@@ -41,7 +41,7 @@ export function PartnerCompTab({ content }: PartnerCompTabProps) {
             <MetricCard label="Manager Level" value={aiComp.manager || "N/A"} color={companySectionColors.compensation} />
           </div>
           {aiComp.source && (
-            <p className="text-xs text-gray-500">Source: {aiComp.source}</p>
+            <p className="text-xs text-muted-foreground">Source: {aiComp.source}</p>
           )}
         </SectionCard>
       )}
@@ -50,24 +50,24 @@ export function PartnerCompTab({ content }: PartnerCompTabProps) {
         <p className="text-xs text-muted-foreground mb-4">
           Total compensation ranges (base + bonus) for management company leadership by portfolio maturity.
         </p>
-        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left p-3 text-gray-500 font-medium">Role</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Startup</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Growth</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Mature</th>
+              <tr className="bg-muted border-b border-border">
+                <th className="text-left p-3 text-muted-foreground font-medium">Role</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Startup</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Growth</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Mature</th>
               </tr>
             </thead>
             <tbody>
               {COMP_BENCHMARKS.map((c, i) => (
-                <tr key={i} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <tr key={i} className="border-b border-border hover:bg-muted/50 transition-colors">
                   <td className="p-3">
-                    <div className="text-gray-800 font-medium">{c.role}</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">{c.notes}</div>
+                    <div className="text-foreground font-medium">{c.role}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">{c.notes}</div>
                   </td>
-                  <td className="p-3 text-right text-gray-600 font-mono text-xs">{c.startupRange}</td>
+                  <td className="p-3 text-right text-muted-foreground font-mono text-xs">{c.startupRange}</td>
                   <td className="p-3 text-right text-emerald-600 font-mono text-xs">{c.growthRange}</td>
                   <td className="p-3 text-right text-blue-600 font-mono text-xs">{c.matureRange}</td>
                 </tr>
@@ -81,8 +81,8 @@ export function PartnerCompTab({ content }: PartnerCompTabProps) {
         <div className="space-y-3">
           {COMP_STRUCTURES.map((s, i) => (
             <div key={i} className="bg-primary/5 rounded-lg p-3 border border-primary/10">
-              <h5 className="text-sm font-medium text-gray-800">{s.structure}</h5>
-              <p className="text-xs text-gray-600 mt-1">{s.description}</p>
+              <h5 className="text-sm font-medium text-foreground">{s.structure}</h5>
+              <p className="text-xs text-muted-foreground mt-1">{s.description}</p>
             </div>
           ))}
         </div>

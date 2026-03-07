@@ -98,49 +98,49 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
     const isOpen = openSections[sectionKey];
     return (
       <tr
-        className="cursor-pointer hover:bg-gray-50 border-b border-gray-100 transition-colors"
+        className="cursor-pointer hover:bg-muted border-b border-border transition-colors"
         onClick={() => toggle(sectionKey)}
         data-testid={`ppe-section-${sectionKey}`}
       >
-        <td className="py-3 px-4 font-semibold text-gray-900 flex items-center gap-2">
-          {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+        <td className="py-3 px-4 font-semibold text-foreground flex items-center gap-2">
+          {isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
           {label}
           {tooltip && <HelpTooltip text={tooltip} />}
         </td>
-        <td className="py-3 px-4 text-right font-semibold font-mono text-gray-900">{value}</td>
+        <td className="py-3 px-4 text-right font-semibold font-mono text-foreground">{value}</td>
       </tr>
     );
   };
 
   const DetailRow = ({ label, value, indent, muted, bold, tooltip }: { label: string; value: string; indent?: boolean; muted?: boolean; bold?: boolean; tooltip?: string }) => (
-    <tr className={`border-b border-gray-50 ${bold ? "bg-gray-50" : ""}`}>
-      <td className={`py-2 px-4 ${indent ? "pl-12" : "pl-8"} ${muted ? "text-gray-400" : "text-gray-600"} ${bold ? "font-semibold text-gray-900" : ""}`}>
+    <tr className={`border-b border-border ${bold ? "bg-muted" : ""}`}>
+      <td className={`py-2 px-4 ${indent ? "pl-12" : "pl-8"} ${muted ? "text-muted-foreground" : "text-muted-foreground"} ${bold ? "font-semibold text-foreground" : ""}`}>
         <span className="flex items-center gap-1">
           {label}
           {tooltip && <HelpTooltip text={tooltip} />}
         </span>
       </td>
-      <td className={`py-2 px-4 text-right font-mono ${muted ? "text-gray-400" : "text-gray-600"} ${bold ? "font-semibold text-gray-900" : ""}`}>{value}</td>
+      <td className={`py-2 px-4 text-right font-mono ${muted ? "text-muted-foreground" : "text-muted-foreground"} ${bold ? "font-semibold text-foreground" : ""}`}>{value}</td>
     </tr>
   );
 
   return (
-    <Card className="overflow-hidden bg-white shadow-lg border border-gray-100">
+    <Card className="overflow-hidden bg-white shadow-lg border border-border">
       <CardHeader className="pb-2">
-        <CardTitle className="text-gray-900 flex items-center gap-2">
+        <CardTitle className="text-foreground flex items-center gap-2">
           PP&E / Cost Basis Schedule
           <HelpTooltip text="Shows the underlying asset values, depreciation basis, and fixed-cost anchors used by the financial engine. Click each section to expand details." manualSection="property-formulas" />
         </CardTitle>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           {property.name} — Checker transparency view
         </p>
       </CardHeader>
       <div className="px-6 pb-6">
         <table className="w-full" data-testid="ppe-schedule-table">
           <thead>
-            <tr className="border-b-2 border-gray-200">
-              <th className="text-left py-2 px-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Item</th>
-              <th className="text-right py-2 px-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Value</th>
+            <tr className="border-b-2 border-border">
+              <th className="text-left py-2 px-4 text-sm font-bold text-foreground uppercase tracking-wider">Item</th>
+              <th className="text-right py-2 px-4 text-sm font-bold text-foreground uppercase tracking-wider">Value</th>
             </tr>
           </thead>
           <tbody>
@@ -190,7 +190,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
                 <DetailRow label="Base Monthly Total Revenue" value={fmt(baseMonthlyTotalRev)} bold />
                 <DetailRow label="Base Annual Total Revenue" value={fmt(baseAnnualTotalRev)} bold />
 
-                <tr className="border-b border-gray-50">
+                <tr className="border-b border-border">
                   <td colSpan={2} className="py-3 px-8">
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                       <p className="text-xs font-semibold text-blue-800 mb-2 flex items-center gap-1">

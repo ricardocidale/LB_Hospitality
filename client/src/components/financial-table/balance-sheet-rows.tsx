@@ -89,10 +89,10 @@ interface BalanceSheetFormulaRowProps {
 export function BalanceSheetFormulaRow({ label, amount }: BalanceSheetFormulaRowProps) {
   return (
     <TableRow className="bg-blue-50/40" data-expandable-row="true">
-      <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">
+      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">
         {label}
       </TableCell>
-      <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">
+      <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
         <Money amount={amount} />
       </TableCell>
     </TableRow>

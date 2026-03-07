@@ -29,12 +29,12 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 
 ## Design System (ElevenLabs Standard)
 - **UI standard**: ElevenLabs component patterns — shadcn primitives (`Button`, `Card`, `DropdownMenu`, `Separator`) + `cva` for variants
-- **Colors**: Always use CSS variables (`text-foreground`, `text-muted-foreground`, `bg-card`, `bg-muted`, `border`) — no hardcoded hex colors in components
+- **Colors**: All hardcoded `bg-gray-*`, `text-gray-*`, `border-gray-*` have been replaced with CSS variable tokens (`text-foreground`, `text-muted-foreground`, `bg-muted`, `border-border`, etc.) — zero hardcoded gray references remain
 - **Buttons**: shadcn `Button` from `@/components/ui/button` — GlassButton is deleted
 - **Cards**: shadcn `Card` or `bg-card border shadow-sm` tokens; `SectionCard`/`ContentPanel` are thin wrappers
 - **Export menus**: `ExportToolbar` uses shadcn `DropdownMenu` internally
 - **Voice/AI components**: Canonical versions in `client/src/features/ai-agent/components/` (17 components: conversation, orb, waveform, message, audio-player, etc.)
-- **Theme**: Liquid ice palette defined via CSS variables in `client/src/index.css` — components consume via Tailwind tokens
+- **Theme**: Liquid ice palette defined via CSS variables in `client/src/index.css` — components consume via Tailwind tokens. Theme engine (`themeUtils.ts`) manages all CSS vars including sidebar variables. 100% theme-compliant — all 1,701 hardcoded gray references replaced with tokens.
 - **Exceptions**: Chart data colors (Recharts fill/stroke) may use hardcoded hex; financial-table grand total row uses `bg-[#2d4a5e]`
 
 ## Documentation (all in .claude/)

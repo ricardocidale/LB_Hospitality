@@ -109,11 +109,11 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           <div key={group.id} className="mb-1">
             <div className="px-3 pt-3 pb-1.5">
               <div className="flex items-center gap-2">
-                <GroupIcon className={cn("w-3.5 h-3.5", isGroupActive ? "text-gray-900" : "text-gray-400")} />
+                <GroupIcon className={cn("w-3.5 h-3.5", isGroupActive ? "text-foreground" : "text-muted-foreground")} />
                 <span
                   className={cn(
                     "text-[10.5px] font-semibold uppercase tracking-[0.08em]",
-                    isGroupActive ? "text-gray-900" : "text-gray-400"
+                    isGroupActive ? "text-foreground" : "text-muted-foreground"
                   )}
                 >
                   {group.label}
@@ -136,8 +136,8 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                     className={cn(
                       "relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 group/item cursor-pointer",
                       isActive
-                        ? "bg-gray-900 text-white"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     )}
                   >
                     <Icon
@@ -145,7 +145,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                         "w-[15px] h-[15px] shrink-0 transition-colors",
                         isActive
                           ? "text-white/80"
-                          : "text-gray-400 group-hover/item:text-gray-600"
+                          : "text-muted-foreground group-hover/item:text-muted-foreground"
                       )}
                     />
                     <span
@@ -170,7 +170,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
     <>
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed bottom-4 right-4 z-50 w-12 h-12 rounded-xl bg-gray-900 text-white shadow-lg flex items-center justify-center"
+        className="lg:hidden fixed bottom-4 right-4 z-50 w-12 h-12 rounded-xl bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
         data-testid="admin-mobile-menu-toggle"
       >
         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -192,15 +192,15 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="h-full lg:h-auto bg-white border border-gray-200/80 rounded-none lg:rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 pt-4 pb-3 border-b border-gray-200/80">
+        <div className="h-full lg:h-auto bg-white border border-border/80 rounded-none lg:rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 pt-4 pb-3 border-b border-border/80">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Settings className="w-4 h-4 text-white" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-900">Admin</h3>
-                <p className="text-[11px] text-gray-500">Settings & Configuration</p>
+                <h3 className="text-sm font-semibold text-foreground">Admin</h3>
+                <p className="text-[11px] text-muted-foreground">Settings & Configuration</p>
               </div>
             </div>
           </div>

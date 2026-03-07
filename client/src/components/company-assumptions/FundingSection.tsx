@@ -26,35 +26,35 @@ import type { FundingSectionProps } from "./types";
 
 export default function FundingSection({ formData, onChange, global }: FundingSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
       <div className="relative">
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-4 mb-2">
-            <h3 className="text-lg font-display text-gray-900 flex items-center">
+            <h3 className="text-lg font-display text-foreground flex items-center">
               Funding
               <HelpTooltip text="Initial capital to fund management company operations before fee revenue begins" manualSection="funding-financing" />
             </h3>
           </div>
           <div className="flex items-center gap-3 mb-3">
-            <Label className="text-gray-600 text-sm label-text whitespace-nowrap">Funding Source Name:</Label>
+            <Label className="text-muted-foreground text-sm label-text whitespace-nowrap">Funding Source Name:</Label>
             <Input
               type="text"
               value={formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"}
               onChange={(e) => onChange("fundingSourceLabel", e.target.value)}
               placeholder="e.g., Funding Vehicle, SAFE, Seed, Series A"
-              className="max-w-48 bg-white border-gray-200 text-gray-900"
+              className="max-w-48 bg-white border-border text-foreground"
             />
             <HelpTooltip text="Customize the name of your funding source (e.g., Funding Vehicle, SAFE, Seed, Series A)" />
           </div>
-          <p className="text-gray-600 text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} in two tranches to support operations</p>
+          <p className="text-muted-foreground text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} in two tranches to support operations</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="p-4 bg-primary/10 rounded-lg space-y-4">
-            <h4 className="text-sm font-display text-gray-900">Tranche 1</h4>
+            <h4 className="text-sm font-display text-foreground">Tranche 1</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-gray-700 label-text flex items-center gap-1">Amount<HelpTooltip text="Capital amount raised in the first tranche of funding to cover initial operating expenses before management fee revenue begins." /></Label>
+                <Label className="text-foreground label-text flex items-center gap-1">Amount<HelpTooltip text="Capital amount raised in the first tranche of funding to cover initial operating expenses before management fee revenue begins." /></Label>
                 <EditableValue
                   value={formData.safeTranche1Amount ?? global.safeTranche1Amount}
                   onChange={(v) => onChange("safeTranche1Amount", v)}
@@ -73,20 +73,20 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-700 label-text flex items-center gap-1">Date<HelpTooltip text="Date when the first tranche of funding is received and recorded on the balance sheet." /></Label>
+              <Label className="text-foreground label-text flex items-center gap-1">Date<HelpTooltip text="Date when the first tranche of funding is received and recorded on the balance sheet." /></Label>
               <Input
                 type="date"
                 value={formData.safeTranche1Date ?? global.safeTranche1Date}
                 onChange={(e) => onChange("safeTranche1Date", e.target.value)}
-                className="max-w-40 bg-white border-gray-200 text-gray-900"
+                className="max-w-40 bg-white border-border text-foreground"
               />
             </div>
           </div>
           <div className="p-4 bg-primary/10 rounded-lg space-y-4">
-            <h4 className="text-sm font-display text-gray-900">Tranche 2</h4>
+            <h4 className="text-sm font-display text-foreground">Tranche 2</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-gray-700 label-text flex items-center gap-1">Amount<HelpTooltip text="Capital amount raised in the second tranche of funding, typically deployed as the portfolio grows." /></Label>
+                <Label className="text-foreground label-text flex items-center gap-1">Amount<HelpTooltip text="Capital amount raised in the second tranche of funding, typically deployed as the portfolio grows." /></Label>
                 <EditableValue
                   value={formData.safeTranche2Amount ?? global.safeTranche2Amount}
                   onChange={(v) => onChange("safeTranche2Amount", v)}
@@ -105,26 +105,26 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-gray-700 label-text flex items-center gap-1">Date<HelpTooltip text="Date when the second tranche of funding is received and recorded on the balance sheet." /></Label>
+              <Label className="text-foreground label-text flex items-center gap-1">Date<HelpTooltip text="Date when the second tranche of funding is received and recorded on the balance sheet." /></Label>
               <Input
                 type="date"
                 value={formData.safeTranche2Date ?? global.safeTranche2Date}
                 onChange={(e) => onChange("safeTranche2Date", e.target.value)}
-                className="max-w-40 bg-white border-gray-200 text-gray-900"
+                className="max-w-40 bg-white border-border text-foreground"
               />
             </div>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="mt-4 pt-4 border-t border-border grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <Label className="text-gray-600 text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} Raise</Label>
-            <p className="font-mono font-semibold text-lg text-gray-900">
+            <Label className="text-muted-foreground text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} Raise</Label>
+            <p className="font-mono font-semibold text-lg text-foreground">
               {formatMoney((formData.safeTranche1Amount ?? global.safeTranche1Amount) + (formData.safeTranche2Amount ?? global.safeTranche2Amount))}
             </p>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="flex items-center text-gray-700 label-text">
+              <Label className="flex items-center text-foreground label-text">
                 Valuation Cap
                 <HelpTooltip text="Maximum company valuation for funding conversion" manualSection="funding-financing" />
               </Label>
@@ -147,7 +147,7 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="flex items-center text-gray-700 label-text">
+              <Label className="flex items-center text-foreground label-text">
                 Discount Rate
                 <HelpTooltip text="Discount on share price when funding converts to equity" manualSection="funding-financing" />
               </Label>

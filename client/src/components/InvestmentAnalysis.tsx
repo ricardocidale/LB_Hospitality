@@ -153,7 +153,7 @@ export function InvestmentAnalysis({
         <div className="absolute inset-0 bg-background" />
 
         <div className="relative grid gap-4 md:grid-cols-5">
-          <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+          <div className="bg-white rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Total Equity
               <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." manualSection="investment-returns" />
@@ -161,7 +161,7 @@ export function InvestmentAnalysis({
             <div className="text-2xl font-bold text-foreground font-mono">{formatMoney(totalInitialEquityIA)}</div>
           </div>
 
-          <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+          <div className="bg-white rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Exit Value ({getFiscalYear(projectionYears - 1)})
               <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} manualSection="investment-returns" />
@@ -169,7 +169,7 @@ export function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#059669] font-mono">{formatMoney(totalExitValueIA)}</div>
           </div>
 
-          <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+          <div className="bg-white rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Equity Multiple
               <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." manualSection="investment-returns" manualLabel="MOIC formula in the Manual" />
@@ -177,7 +177,7 @@ export function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#2563EB] font-mono">{equityMultipleIA.toFixed(2)}x</div>
           </div>
 
-          <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+          <div className="bg-white rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Avg Cash-on-Cash
               <HelpTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." />
@@ -185,7 +185,7 @@ export function InvestmentAnalysis({
             <div className="text-2xl font-bold text-[#D97706] font-mono">{cashOnCashIA.toFixed(1)}%</div>
           </div>
 
-          <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm">
+          <div className="bg-white rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Portfolio IRR
               <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." manualSection="investment-returns" manualLabel="IRR methodology in the Manual" />

@@ -73,17 +73,17 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
     : null;
 
   return (
-    <div className="mt-3 pt-3 border-t border-gray-200/60 space-y-3">
+    <div className="mt-3 pt-3 border-t border-border/60 space-y-3">
       <div className="flex items-center gap-2 mb-2">
-        <BookOpen className="w-3.5 h-3.5 text-gray-400" />
-        <span className="text-xs font-medium text-gray-700 uppercase tracking-wider">Industry Benchmarks</span>
+        <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-xs font-medium text-foreground uppercase tracking-wider">Industry Benchmarks</span>
         <span className="text-[10px] text-muted-foreground ml-auto">at $1.5M sample revenue</span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <div className="bg-blue-50/50 border border-blue-200/60 rounded-lg p-2.5">
           <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Fee Range</div>
-          <div className="text-sm font-semibold font-mono text-gray-900 mt-1">
+          <div className="text-sm font-semibold font-mono text-foreground mt-1">
             {(feeBench.lowRate * 100).toFixed(1)}%–{(feeBench.highRate * 100).toFixed(1)}%
           </div>
           <div className="text-[10px] text-muted-foreground mt-0.5">
@@ -99,7 +99,7 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
             : "bg-blue-50/50 border-blue-200/60"
         }`}>
           <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Your Rate</div>
-          <div className="text-sm font-semibold font-mono text-gray-900 mt-1">{(currentRate * 100).toFixed(1)}%</div>
+          <div className="text-sm font-semibold font-mono text-foreground mt-1">{(currentRate * 100).toFixed(1)}%</div>
           <div className="text-[10px] text-muted-foreground mt-0.5">
             {currentRate >= feeBench.lowRate && currentRate <= feeBench.highRate
               ? "Within range"
@@ -109,9 +109,9 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
 
         {waterfall && (
           <>
-            <div className="bg-gray-50/50 border border-gray-200/60 rounded-lg p-2.5">
+            <div className="bg-muted/50 border border-border/60 rounded-lg p-2.5">
               <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Vendor Cost</div>
-              <div className="text-sm font-semibold font-mono text-gray-900 mt-1">${Math.round(waterfall.vendorCost).toLocaleString()}</div>
+              <div className="text-sm font-semibold font-mono text-foreground mt-1">${Math.round(waterfall.vendorCost).toLocaleString()}</div>
               <div className="text-[10px] text-muted-foreground mt-0.5">
                 at {(markup * 100).toFixed(0)}% markup
               </div>
@@ -127,16 +127,16 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
         )}
 
         {!waterfall && (
-          <div className="bg-gray-50/50 border border-gray-200/60 rounded-lg p-2.5 col-span-2">
+          <div className="bg-muted/50 border border-border/60 rounded-lg p-2.5 col-span-2">
             <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Direct Service</div>
-            <div className="text-sm font-mono text-gray-700 mt-1">Full fee = revenue</div>
+            <div className="text-sm font-mono text-foreground mt-1">Full fee = revenue</div>
             <div className="text-[10px] text-muted-foreground mt-0.5">No vendor cost (oversight only)</div>
           </div>
         )}
       </div>
 
       {waterfall?.industryMarkupRange && (
-        <div className="text-xs text-muted-foreground bg-white rounded-lg p-2 border border-gray-100">
+        <div className="text-xs text-muted-foreground bg-white rounded-lg p-2 border border-border">
           Industry markup for {template.name.toLowerCase()}: {(waterfall.industryMarkupRange.low * 100).toFixed(0)}%–{(waterfall.industryMarkupRange.high * 100).toFixed(0)}%
           (mid: {(waterfall.industryMarkupRange.mid * 100).toFixed(0)}%).
           {markup < waterfall.industryMarkupRange.low
@@ -270,7 +270,7 @@ export default function ServicesTab() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-gray-600" />
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -278,10 +278,10 @@ export default function ServicesTab() {
   return (
     <div className="space-y-6">
       {/* Summary Card */}
-      <Card className="bg-gray-50 border border-gray-200/80 shadow-sm">
+      <Card className="bg-muted border border-border/80 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
-            <Package className="w-4 h-4 text-gray-400" />
+          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Package className="w-4 h-4 text-muted-foreground" />
             Centralized Services Model
           </CardTitle>
           <CardDescription className="label-text">
@@ -291,16 +291,16 @@ export default function ServicesTab() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60">
-              <div className="text-2xl font-display font-bold text-gray-900">{activeCount}</div>
+            <div className="bg-white rounded-xl p-4 border border-border/60">
+              <div className="text-2xl font-display font-bold text-foreground">{activeCount}</div>
               <div className="text-xs text-muted-foreground mt-1">Active Services</div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60">
-              <div className="text-2xl font-display font-bold text-gray-600">{centralizedCount}</div>
+            <div className="bg-white rounded-xl p-4 border border-border/60">
+              <div className="text-2xl font-display font-bold text-muted-foreground">{centralizedCount}</div>
               <div className="text-xs text-muted-foreground mt-1">Centralized (pass-through)</div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200/60">
-              <div className="text-2xl font-display font-bold text-gray-600">{directCount}</div>
+            <div className="bg-white rounded-xl p-4 border border-border/60">
+              <div className="text-2xl font-display font-bold text-muted-foreground">{directCount}</div>
               <div className="text-xs text-muted-foreground mt-1">Direct (oversight only)</div>
             </div>
           </div>
@@ -308,12 +308,12 @@ export default function ServicesTab() {
       </Card>
 
       {/* Service Templates List */}
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-gray-400" />
+              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-muted-foreground" />
                 Service Categories
               </CardTitle>
               <CardDescription className="label-text">
@@ -342,8 +342,8 @@ export default function ServicesTab() {
         <CardContent>
           {sorted.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <Package className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-              <p className="font-medium text-gray-500">No service templates configured</p>
+              <Package className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+              <p className="font-medium text-muted-foreground">No service templates configured</p>
               <p className="text-sm mt-1">Add service categories to define what the management company provides to properties.</p>
             </div>
           ) : (
@@ -351,7 +351,7 @@ export default function ServicesTab() {
               {sorted.map((t) => (
                 <div
                   key={t.id}
-                  className={`group bg-gray-50 border border-gray-200 rounded-xl p-4 transition-all duration-200 hover:shadow-md hover:border-gray-300 ${
+                  className={`group bg-muted border border-border rounded-xl p-4 transition-all duration-200 hover:shadow-md hover:border-border ${
                     !t.isActive ? "opacity-50" : ""
                   }`}
                   data-testid={`service-card-${t.id}`}
@@ -360,14 +360,14 @@ export default function ServicesTab() {
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                         t.serviceModel === "centralized"
-                          ? "bg-gray-100 text-gray-600"
-                          : "bg-gray-100 text-gray-500"
+                          ? "bg-muted text-muted-foreground"
+                          : "bg-muted text-muted-foreground"
                       }`}>
                         <Package className="w-5 h-5" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">{t.name}</span>
+                          <span className="font-medium text-foreground">{t.name}</span>
                           <Badge
                             variant={t.serviceModel === "centralized" ? "default" : "secondary"}
                             className="text-[10px] px-1.5 py-0"
@@ -383,7 +383,7 @@ export default function ServicesTab() {
                           {t.serviceModel === "centralized" && (
                             <Tooltip>
                               <TooltipTrigger>
-                                <HelpCircle className="w-3 h-3 text-gray-400" />
+                                <HelpCircle className="w-3 h-3 text-muted-foreground" />
                               </TooltipTrigger>
                               <TooltipContent side="right">
                                 <p className="max-w-xs text-xs">
@@ -404,7 +404,7 @@ export default function ServicesTab() {
                       />
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleResearch(t.id)} data-testid={`button-research-service-${t.id}`}>
-                          <BookOpen className="w-3.5 h-3.5 text-gray-400" />
+                          <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(t)} data-testid={`button-edit-service-${t.id}`}>
                           <Pencil className="w-3.5 h-3.5" />
@@ -471,7 +471,7 @@ export default function ServicesTab() {
               </div>
             </div>
             {form.serviceModel === "centralized" && (
-              <div className="space-y-2 bg-gray-50 rounded-lg p-3 border border-gray-200/60">
+              <div className="space-y-2 bg-muted rounded-lg p-3 border border-border/60">
                 <Label className="text-sm font-medium">Cost-Plus Markup (%)</Label>
                 <p className="text-xs text-muted-foreground">
                   If markup is 20% and the company procures a service for $1.00, the property is charged $1.20.

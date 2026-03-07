@@ -80,10 +80,10 @@ export function Gauge({ value, min = 0, max = 100, label, format, size = "md", c
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
-          <span className={`${s.text} font-bold font-mono text-gray-900`}>{displayValue}</span>
+          <span className={`${s.text} font-bold font-mono text-foreground`}>{displayValue}</span>
         </div>
       </div>
-      <span className={`${s.label} text-gray-500 font-medium mt-1 label-text`}>{label}</span>
+      <span className={`${s.label} text-muted-foreground font-medium mt-1 label-text`}>{label}</span>
     </motion.div>
   );
 }

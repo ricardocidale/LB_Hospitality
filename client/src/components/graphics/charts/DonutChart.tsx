@@ -33,9 +33,9 @@ function CustomTooltip({ active, payload, formatValue }: { active?: boolean; pay
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0];
   return (
-    <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 shadow-lg text-sm">
-      <p className="font-medium text-gray-900">{name}</p>
-      <p className="text-gray-600 font-mono">{formatValue(value)}</p>
+    <div className="bg-white border border-border rounded-lg px-3 py-2 shadow-lg text-sm">
+      <p className="font-medium text-foreground">{name}</p>
+      <p className="text-muted-foreground font-mono">{formatValue(value)}</p>
     </div>
   );
 }
@@ -49,11 +49,11 @@ export function DonutChart({ data, title, subtitle, centerLabel, centerValue, he
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm ${className || ""}`}
+      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm ${className || ""}`}
       data-testid={props["data-testid"]}
     >
-      {title && <h3 className="text-lg font-display text-gray-900 mb-1">{title}</h3>}
-      {subtitle && <p className="text-sm text-gray-500 mb-3 label-text">{subtitle}</p>}
+      {title && <h3 className="text-lg font-display text-foreground mb-1">{title}</h3>}
+      {subtitle && <p className="text-sm text-muted-foreground mb-3 label-text">{subtitle}</p>}
       <div className="relative" style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -84,8 +84,8 @@ export function DonutChart({ data, title, subtitle, centerLabel, centerValue, he
         </ResponsiveContainer>
         {(centerLabel || centerValue) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ marginBottom: 24 }}>
-            {centerValue && <span className="text-2xl font-bold font-mono text-gray-900">{centerValue}</span>}
-            {centerLabel && <span className="text-xs text-gray-500 label-text">{centerLabel}</span>}
+            {centerValue && <span className="text-2xl font-bold font-mono text-foreground">{centerValue}</span>}
+            {centerLabel && <span className="text-xs text-muted-foreground label-text">{centerLabel}</span>}
           </div>
         )}
       </div>

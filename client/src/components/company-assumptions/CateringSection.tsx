@@ -9,16 +9,16 @@
  */
 export default function CateringSection() {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
       <div className="relative">
       <div className="space-y-4">
-        <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
+        <h3 className="text-lg font-display text-foreground flex items-center gap-2">
           Catering Revenue Model
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Catering is modeled as a percentage boost applied to each property's F&B revenue. The catering boost percentage is configured per property on the Property Assumptions page. There are no systemwide catering assumptions.
         </p>
-        <div className="p-3 bg-primary/10 rounded-lg text-sm text-gray-700">
+        <div className="p-3 bg-primary/10 rounded-lg text-sm text-foreground">
           <p className="font-medium mb-1">Formula:</p>
           <p>Total F&B Revenue = Room Revenue × F&B % × (1 + Catering Boost %)</p>
         </div>

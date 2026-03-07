@@ -135,7 +135,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       <SidebarHeader className="px-4 pt-4 pb-2">
         <div className="flex items-center gap-2.5">
           <img src={companyLogo} alt={companyName} className="w-7 h-7 object-contain" />
-          <h1 className="text-sm font-semibold text-gray-900 truncate">{companyName}</h1>
+          <h1 className="text-sm font-semibold text-foreground truncate">{companyName}</h1>
         </div>
       </SidebarHeader>
 
@@ -143,7 +143,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         {navGroups.map((group) => (
           <SidebarGroup key={group.label || "misc"} className="py-1">
             {group.label && (
-              <SidebarGroupLabel className="text-[11px] font-medium text-gray-400 px-3 pb-0.5">
+              <SidebarGroupLabel className="text-[11px] font-medium text-muted-foreground px-3 pb-0.5">
                 {group.label}
               </SidebarGroupLabel>
             )}
@@ -159,7 +159,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                         tooltip={item.label}
                         className={cn(
                           "h-8 px-3 rounded-md text-[13px] transition-colors",
-                          active ? "bg-gray-100 text-gray-900 font-medium" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                          active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         )}
                       >
                         <Link href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -181,7 +181,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => logout()}
-              className="h-8 px-3 rounded-md text-[13px] text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+              className="h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4" />
@@ -217,7 +217,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         </div>
 
         <main className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden">
-          <header className="h-12 border-b border-gray-200 bg-white flex items-center justify-between px-4 sticky top-0 z-20">
+          <header className="h-12 border-b border-border bg-white flex items-center justify-between px-4 sticky top-0 z-20">
             <div className="flex items-center gap-2 min-w-0">
               <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>
                 {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -230,11 +230,11 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                   const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
                   document.dispatchEvent(event);
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-50 text-gray-400 hover:text-gray-600 text-xs transition-colors border border-gray-200"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground hover:text-muted-foreground text-xs transition-colors border border-border"
                 data-testid="button-search"
               >
                 <Search className="w-3.5 h-3.5" />
-                <kbd className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-400 font-mono">⌘K</kbd>
+                <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
               </button>
               <NotificationCenter />
             </div>

@@ -8,22 +8,22 @@ interface VerificationHistoryProps {
 
 export function VerificationHistory({ history }: VerificationHistoryProps) {
   return (
-    <div className="rounded-xl border border-gray-100 overflow-hidden bg-white shadow-sm">
+    <div className="rounded-xl border border-border overflow-hidden bg-white shadow-sm">
       <Table>
-        <TableHeader className="bg-gray-50/50">
+        <TableHeader className="bg-muted/50">
           <TableRow>
-            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500">Timestamp</TableHead>
-            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-center">Opinion</TableHead>
-            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-center">Checks</TableHead>
-            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-center">Passed</TableHead>
-            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-center">Failed</TableHead>
-            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-gray-500 text-right">Status</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Timestamp</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground text-center">Opinion</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground text-center">Checks</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground text-center">Passed</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground text-center">Failed</TableHead>
+            <TableHead className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground text-right">Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {history.map((entry) => (
-            <TableRow key={entry.id} className="hover:bg-gray-50/50 transition-colors">
-              <TableCell className="text-xs font-medium text-gray-700">{formatDateTime(entry.createdAt)}</TableCell>
+            <TableRow key={entry.id} className="hover:bg-muted/50 transition-colors">
+              <TableCell className="text-xs font-medium text-foreground">{formatDateTime(entry.createdAt)}</TableCell>
               <TableCell className="text-center">
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                   entry.auditOpinion === 'UNQUALIFIED' ? 'bg-green-100 text-green-700' :
@@ -33,7 +33,7 @@ export function VerificationHistory({ history }: VerificationHistoryProps) {
                   {entry.auditOpinion}
                 </span>
               </TableCell>
-              <TableCell className="text-xs text-center font-mono text-gray-500">{entry.totalChecks}</TableCell>
+              <TableCell className="text-xs text-center font-mono text-muted-foreground">{entry.totalChecks}</TableCell>
               <TableCell className="text-xs text-center font-mono text-green-600 font-bold">{entry.passed}</TableCell>
               <TableCell className="text-xs text-center font-mono text-red-600 font-bold">{entry.failed}</TableCell>
               <TableCell className="text-right">
@@ -49,7 +49,7 @@ export function VerificationHistory({ history }: VerificationHistoryProps) {
           ))}
           {history.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-8 text-gray-400 text-sm">
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-sm">
                 No verification history found
               </TableCell>
             </TableRow>

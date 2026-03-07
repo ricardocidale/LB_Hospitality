@@ -60,7 +60,7 @@ export function IndustryResearchTab({
 }: IndustryResearchTabProps) {
   return (
     <div className="space-y-6 mt-6">
-      <Card className="bg-white border-gray-200 shadow-sm">
+      <Card className="bg-white border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Globe className="w-5 h-5 text-primary" />
@@ -72,42 +72,42 @@ export function IndustryResearchTab({
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="rounded-xl p-3 bg-emerald-50 border border-emerald-200">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Asset Type</p>
-              <p className="text-sm font-semibold text-gray-900" data-testid="text-research-asset-type">{currentGlobal.propertyLabel || "Boutique Hotel"}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Asset Type</p>
+              <p className="text-sm font-semibold text-foreground" data-testid="text-research-asset-type">{currentGlobal.propertyLabel || "Boutique Hotel"}</p>
             </div>
             <div className="rounded-xl p-3 bg-emerald-50 border border-emerald-200">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Tier</p>
-              <p className="text-sm font-semibold text-gray-900 capitalize" data-testid="text-research-tier">{currentGlobal.assetDefinition?.level || "luxury"}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Tier</p>
+              <p className="text-sm font-semibold text-foreground capitalize" data-testid="text-research-tier">{currentGlobal.assetDefinition?.level || "luxury"}</p>
             </div>
             <div className="rounded-xl p-3 bg-blue-50 border border-blue-200">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Room Range</p>
-              <p className="text-sm font-semibold text-gray-900" data-testid="text-research-rooms">{currentGlobal.assetDefinition?.minRooms ?? 10}–{currentGlobal.assetDefinition?.maxRooms ?? 80}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Room Range</p>
+              <p className="text-sm font-semibold text-foreground" data-testid="text-research-rooms">{currentGlobal.assetDefinition?.minRooms ?? 10}–{currentGlobal.assetDefinition?.maxRooms ?? 80}</p>
             </div>
             <div className="rounded-xl p-3 bg-blue-50 border border-blue-200">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">ADR Range</p>
-              <p className="text-sm font-semibold text-gray-900" data-testid="text-research-adr">${currentGlobal.assetDefinition?.minAdr ?? 150}–${currentGlobal.assetDefinition?.maxAdr ?? 600}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">ADR Range</p>
+              <p className="text-sm font-semibold text-foreground" data-testid="text-research-adr">${currentGlobal.assetDefinition?.minAdr ?? 150}–${currentGlobal.assetDefinition?.maxAdr ?? 600}</p>
             </div>
             <div className="rounded-xl p-3 bg-amber-50 border border-amber-200">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Inflation</p>
-              <p className="text-sm font-semibold text-gray-900" data-testid="text-research-inflation">{((currentGlobal.inflationRate ?? 0.03) * 100).toFixed(1)}%</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Inflation</p>
+              <p className="text-sm font-semibold text-foreground" data-testid="text-research-inflation">{((currentGlobal.inflationRate ?? 0.03) * 100).toFixed(1)}%</p>
             </div>
             <div className="rounded-xl p-3 bg-amber-50 border border-amber-200">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Model Duration</p>
-              <p className="text-sm font-semibold text-gray-900" data-testid="text-research-duration">{currentGlobal.projectionYears ?? 10} years</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Model Duration</p>
+              <p className="text-sm font-semibold text-foreground" data-testid="text-research-duration">{currentGlobal.projectionYears ?? 10} years</p>
             </div>
-            <div className="rounded-xl p-3 bg-gray-50 border border-gray-200 col-span-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-500 mb-1">Features</p>
+            <div className="rounded-xl p-3 bg-muted border border-border col-span-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Features</p>
               <div className="flex flex-wrap gap-1.5" data-testid="text-research-features">
-                {currentGlobal.assetDefinition?.hasFB && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-gray-200">F&B</span>}
-                {currentGlobal.assetDefinition?.hasEvents && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-gray-200">Events</span>}
-                {currentGlobal.assetDefinition?.hasWellness && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-gray-200">Wellness</span>}
+                {currentGlobal.assetDefinition?.hasFB && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-border">F&B</span>}
+                {currentGlobal.assetDefinition?.hasEvents && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-border">Events</span>}
+                {currentGlobal.assetDefinition?.hasWellness && <span className="text-xs bg-white px-2 py-0.5 rounded-full border border-border">Wellness</span>}
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-white border-gray-200 shadow-sm">
+      <Card className="bg-white border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Search className="w-5 h-5 text-primary" />
@@ -192,7 +192,7 @@ export function IndustryResearchTab({
             {researchQuestions.length > 0 && (
               <div className="space-y-2">
                 {researchQuestions.map((q) => (
-                  <div key={q.id} className="group flex items-start gap-2 p-2.5 rounded-lg bg-gray-50 border border-gray-200 hover:border-primary/30 transition-colors" data-testid={`research-question-${q.id}`}>
+                  <div key={q.id} className="group flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border hover:border-primary/30 transition-colors" data-testid={`research-question-${q.id}`}>
                     {editingQuestionId === q.id ? (
                       <div className="flex-1 flex items-start gap-2">
                         <Input
@@ -226,7 +226,7 @@ export function IndustryResearchTab({
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
+                          className="h-8 w-8 p-0 text-muted-foreground hover:text-muted-foreground"
                           onClick={() => setEditingQuestionId(null)}
                           data-testid={`button-cancel-edit-${q.id}`}
                         >
@@ -235,12 +235,12 @@ export function IndustryResearchTab({
                       </div>
                     ) : (
                       <>
-                        <p className="flex-1 text-sm text-gray-700 pt-0.5">{q.question}</p>
+                        <p className="flex-1 text-sm text-foreground pt-0.5">{q.question}</p>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 w-8 p-0 text-gray-400 hover:text-primary hover:bg-white"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-white"
                             onClick={() => {
                               setEditingQuestionId(q.id);
                               setEditingQuestionText(q.question);
@@ -252,7 +252,7 @@ export function IndustryResearchTab({
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 w-8 p-0 text-gray-400 hover:text-destructive hover:bg-white"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-white"
                             onClick={() => deleteQuestion.mutate(q.id)}
                             data-testid={`button-delete-question-${q.id}`}
                           >
@@ -295,7 +295,7 @@ export function IndustryResearchTab({
             </div>
           </div>
 
-          <div className="pt-4 border-t border-gray-100">
+          <div className="pt-4 border-t border-border">
             <Button
               className="w-full h-12 text-base font-semibold shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all"
               onClick={generateResearch}
@@ -330,7 +330,7 @@ export function IndustryResearchTab({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
+            <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap font-sans leading-relaxed">
               {streamedContent}
             </div>
           </CardContent>

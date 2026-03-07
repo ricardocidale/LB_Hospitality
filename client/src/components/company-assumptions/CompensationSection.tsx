@@ -28,19 +28,19 @@ import type { CompensationSectionProps } from "./types";
 
 export default function CompensationSection({ formData, onChange, global, researchValues }: CompensationSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
     <div className="relative">
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-display text-gray-900 flex items-center">
+          <h3 className="text-lg font-display text-foreground flex items-center">
             Compensation
             <HelpTooltip text="Annual salaries for management company team members" />
           </h3>
-          <p className="text-gray-600 text-sm label-text">Configure partner compensation, staff salaries, and staffing tiers</p>
+          <p className="text-muted-foreground text-sm label-text">Configure partner compensation, staff salaries, and staffing tiers</p>
         </div>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Staff Salary (Avg)
               <HelpTooltip text="Average annual salary per staff FTE. Staffing scales based on the tiers configured below." />
               <ResearchBadge value={researchValues.staffSalary?.display} onClick={() => researchValues.staffSalary && onChange("staffSalary", researchValues.staffSalary.mid)} sourceType="industry" sourceName="AHLA Lodging Industry Survey" data-testid="badge-staff-salary" />
@@ -63,28 +63,28 @@ export default function CompensationSection({ formData, onChange, global, resear
           />
         </div>
 
-        <div className="pt-4 border-t border-gray-200">
+        <div className="pt-4 border-t border-border">
           <div className="mb-3">
-            <Label className="flex items-center text-gray-700 label-text font-medium">
+            <Label className="flex items-center text-foreground label-text font-medium">
               Staffing Tiers
               <HelpTooltip text="Define how many full-time employees (FTE) are needed based on the number of properties under management. Each tier sets a maximum property count and the FTE required." />
             </Label>
-            <p className="text-xs text-gray-500 mt-1">Set the FTE headcount for each portfolio size bracket</p>
+            <p className="text-xs text-muted-foreground mt-1">Set the FTE headcount for each portfolio size bracket</p>
           </div>
           <div className="grid grid-cols-1 gap-3">
             <div className="flex items-center gap-3 bg-primary/5 rounded-lg px-3 py-2">
-              <span className="text-sm text-gray-600 w-20 shrink-0">Tier 1:</span>
-              <span className="text-xs text-gray-500">Up to</span>
+              <span className="text-sm text-muted-foreground w-20 shrink-0">Tier 1:</span>
+              <span className="text-xs text-muted-foreground">Up to</span>
               <Input
                 type="number"
                 value={formData.staffTier1MaxProperties ?? global.staffTier1MaxProperties ?? 3}
                 onChange={(e) => onChange("staffTier1MaxProperties", Math.max(1, parseInt(e.target.value) || 3))}
                 min={1}
                 max={20}
-                className="w-16 bg-white border-primary/30 text-gray-900 text-center"
+                className="w-16 bg-white border-primary/30 text-foreground text-center"
                 data-testid="input-tier1-max-properties"
               />
-              <span className="text-xs text-gray-500">properties →</span>
+              <span className="text-xs text-muted-foreground">properties →</span>
               <Input
                 type="number"
                 value={formData.staffTier1Fte ?? global.staffTier1Fte ?? 2.5}
@@ -92,24 +92,24 @@ export default function CompensationSection({ formData, onChange, global, resear
                 min={0.5}
                 max={20}
                 step={0.5}
-                className="w-20 bg-white border-primary/30 text-gray-900 text-center"
+                className="w-20 bg-white border-primary/30 text-foreground text-center"
                 data-testid="input-tier1-fte"
               />
-              <span className="text-xs text-gray-500">FTE</span>
+              <span className="text-xs text-muted-foreground">FTE</span>
             </div>
             <div className="flex items-center gap-3 bg-primary/5 rounded-lg px-3 py-2">
-              <span className="text-sm text-gray-600 w-20 shrink-0">Tier 2:</span>
-              <span className="text-xs text-gray-500">Up to</span>
+              <span className="text-sm text-muted-foreground w-20 shrink-0">Tier 2:</span>
+              <span className="text-xs text-muted-foreground">Up to</span>
               <Input
                 type="number"
                 value={formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? 6}
                 onChange={(e) => onChange("staffTier2MaxProperties", Math.max(1, parseInt(e.target.value) || 6))}
                 min={1}
                 max={30}
-                className="w-16 bg-white border-primary/30 text-gray-900 text-center"
+                className="w-16 bg-white border-primary/30 text-foreground text-center"
                 data-testid="input-tier2-max-properties"
               />
-              <span className="text-xs text-gray-500">properties →</span>
+              <span className="text-xs text-muted-foreground">properties →</span>
               <Input
                 type="number"
                 value={formData.staffTier2Fte ?? global.staffTier2Fte ?? 4.5}
@@ -117,14 +117,14 @@ export default function CompensationSection({ formData, onChange, global, resear
                 min={0.5}
                 max={30}
                 step={0.5}
-                className="w-20 bg-white border-primary/30 text-gray-900 text-center"
+                className="w-20 bg-white border-primary/30 text-foreground text-center"
                 data-testid="input-tier2-fte"
               />
-              <span className="text-xs text-gray-500">FTE</span>
+              <span className="text-xs text-muted-foreground">FTE</span>
             </div>
             <div className="flex items-center gap-3 bg-primary/5 rounded-lg px-3 py-2">
-              <span className="text-sm text-gray-600 w-20 shrink-0">Tier 3:</span>
-              <span className="text-xs text-gray-500">Above {formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? 6} properties →</span>
+              <span className="text-sm text-muted-foreground w-20 shrink-0">Tier 3:</span>
+              <span className="text-xs text-muted-foreground">Above {formData.staffTier2MaxProperties ?? global.staffTier2MaxProperties ?? 6} properties →</span>
               <Input
                 type="number"
                 value={formData.staffTier3Fte ?? global.staffTier3Fte ?? 7.0}
@@ -132,10 +132,10 @@ export default function CompensationSection({ formData, onChange, global, resear
                 min={0.5}
                 max={50}
                 step={0.5}
-                className="w-20 bg-white border-primary/30 text-gray-900 text-center"
+                className="w-20 bg-white border-primary/30 text-foreground text-center"
                 data-testid="input-tier3-fte"
               />
-              <span className="text-xs text-gray-500">FTE</span>
+              <span className="text-xs text-muted-foreground">FTE</span>
             </div>
           </div>
         </div>

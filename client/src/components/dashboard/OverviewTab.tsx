@@ -167,7 +167,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   };
 
   return (
-    <Card className="bg-white border-gray-200 shadow-sm relative overflow-hidden">
+    <Card className="bg-white border-border shadow-sm relative overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
         <CardTitle>Portfolio Overview</CardTitle>
         <ExportMenu
@@ -194,7 +194,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               </div>
 
               <div className="flex flex-col lg:flex-row items-center justify-center gap-8 mb-10">
-                <div className="relative bg-white rounded-lg p-8 border border-gray-200 shadow-sm" data-testid="gauge-portfolio-irr">
+                <div className="relative bg-white rounded-lg p-8 border border-border shadow-sm" data-testid="gauge-portfolio-irr">
                   <div className="relative">
                     <svg className="w-48 h-48" viewBox="0 0 200 200">
                       <defs>
@@ -219,7 +219,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </div>
                 </div>
 
-                <div ref={chartsRef} className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
+                <div ref={chartsRef} className="bg-white rounded-lg p-6 border border-border shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-irr-comparison">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={propertyIRRData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
@@ -236,7 +236,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </ResponsiveContainer>
                 </div>
 
-                <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-investment">
+                <div className="bg-white rounded-lg p-6 border border-border shadow-sm w-full lg:min-w-[340px]" data-testid="chart-property-investment">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Equity by Property</p>
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={propertyInvestmentData} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
@@ -255,7 +255,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               </div>
 
               <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-300">
+                <div className="bg-white rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="relative w-14 h-14 flex-shrink-0">
                       <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -285,7 +285,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-300">
+                <div className="bg-white rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-4 mb-3">
                     <div className="relative w-14 h-14 flex-shrink-0">
                       <svg className="w-14 h-14" viewBox="0 0 100 100">
@@ -315,7 +315,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-300">
+                <div className="bg-white rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
                     <p className="text-2xl font-bold text-foreground font-mono" data-testid="text-equity-invested">{formatMoney(totalInitialEquity)}</p>
                     <p className="text-sm text-foreground/60 label-text">Equity Invested</p>
@@ -325,7 +325,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-300">
+                <div className="bg-white rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
                     <p className="text-2xl font-bold text-[#257D41] font-mono" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
                     <p className="text-sm text-foreground/60 label-text">Projected Exit</p>
@@ -342,7 +342,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           </AnimatedSection>
 
           <AnimatedSection>
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div className="bg-white rounded-lg border border-border shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground font-display">Revenue & NOI</h3>

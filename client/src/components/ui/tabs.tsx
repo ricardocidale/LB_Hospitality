@@ -65,7 +65,7 @@ interface CurrentThemeTabProps {
 
 function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: CurrentThemeTabProps) {
   return (
-    <div className="rounded-xl border border-gray-200/80 bg-white shadow-sm">
+    <div className="rounded-xl border border-border/80 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-1 p-1">
         <div className="flex flex-wrap gap-0.5">
           {tabs.map((tab) => {
@@ -78,15 +78,15 @@ function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: Current
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                   isActive
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
                 data-testid={`tab-${tab.value}`}
               >
                 {Icon && (
                   <Icon className={cn(
                     "w-4 h-4",
-                    isActive ? "text-white" : "text-gray-400"
+                    isActive ? "text-primary-foreground" : "text-muted-foreground"
                   )} />
                 )}
                 <span className="text-xs sm:text-sm">{tab.label}</span>

@@ -198,7 +198,7 @@ export default function Profile() {
         />
 
         {(user.role === "admin" || user.role === "checker") && (
-          <Card className="bg-white border-gray-200 shadow-sm">
+          <Card className="bg-white border-border shadow-sm">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -206,8 +206,8 @@ export default function Profile() {
                     <ClipboardCheck className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-gray-900 font-semibold">Verification & Testing Manual</p>
-                    <p className="text-gray-500 text-sm">Complete guide for financial verification and QA testing</p>
+                    <p className="text-foreground font-semibold">Verification & Testing Manual</p>
+                    <p className="text-muted-foreground text-sm">Complete guide for financial verification and QA testing</p>
                   </div>
                 </div>
                 <Link href="/checker-manual">
@@ -221,28 +221,28 @@ export default function Profile() {
           </Card>
         )}
 
-        <Card className="bg-white border-gray-200 shadow-sm">
+        <Card className="bg-white border-border shadow-sm">
           <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-            <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="flex items-center gap-4 pb-4 border-b border-border">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
                 <User className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <p className="text-lg font-semibold text-gray-900">{user.email}</p>
-                <p className="text-sm text-gray-500 capitalize">{user.role}</p>
+                <p className="text-lg font-semibold text-foreground">{user.email}</p>
+                <p className="text-sm text-muted-foreground capitalize">{user.role}</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700">Email (User ID)</Label>
+                <Label htmlFor="email" className="text-foreground">Email (User ID)</Label>
                 {user.role === "admin" ? (
                   <Input
                     id="email"
                     type="text"
                     value="Admin"
                     disabled
-                    className="bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed"
+                    className="bg-muted border-border text-muted-foreground cursor-not-allowed"
                     data-testid="input-profile-email"
                   />
                 ) : (
@@ -252,7 +252,7 @@ export default function Profile() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="Enter your email"
-                    className="bg-white border-gray-200 text-gray-900"
+                    className="bg-white border-border text-foreground"
                     data-testid="input-profile-email"
                   />
                 )}
@@ -260,49 +260,49 @@ export default function Profile() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-gray-700">First Name</Label>
+                  <Label htmlFor="firstName" className="text-foreground">First Name</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     placeholder="First name"
-                    className="bg-white border-gray-200 text-gray-900"
+                    className="bg-white border-border text-foreground"
                     data-testid="input-profile-firstName"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-gray-700">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-foreground">Last Name</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     placeholder="Last name"
-                    className="bg-white border-gray-200 text-gray-900"
+                    className="bg-white border-border text-foreground"
                     data-testid="input-profile-lastName"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="company" className="text-gray-700">Company</Label>
+                <Label htmlFor="company" className="text-foreground">Company</Label>
                 <Input
                   id="company"
                   value={formData.company}
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                   placeholder="Enter your company name"
-                  className="bg-white border-gray-200 text-gray-900"
+                  className="bg-white border-border text-foreground"
                   data-testid="input-profile-company"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-gray-700">Title</Label>
+                <Label htmlFor="title" className="text-foreground">Title</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Enter your job title"
-                  className="bg-white border-gray-200 text-gray-900"
+                  className="bg-white border-border text-foreground"
                   data-testid="input-profile-title"
                 />
               </div>
@@ -311,16 +311,16 @@ export default function Profile() {
         </Card>
 
         {availableThemes && availableThemes.length > 1 && (
-          <Card className="bg-white border-gray-200 shadow-sm">
+          <Card className="bg-white border-border shadow-sm">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-gray-900">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Palette className="w-5 h-5 text-primary" />
                 Theme Preference
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-gray-700">Select Theme</Label>
+                <Label className="text-foreground">Select Theme</Label>
                 <Select
                   value={myBranding?.selectedThemeId != null ? String(myBranding.selectedThemeId) : "default"}
                   onValueChange={(v) => {
@@ -340,7 +340,7 @@ export default function Profile() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Choose "Group Default" to use the theme assigned by your administrator, or select a specific theme.
                 </p>
               </div>
@@ -350,13 +350,13 @@ export default function Profile() {
                     const isActive = myBranding?.selectedThemeId === theme.id || 
                       (myBranding?.selectedThemeId == null && theme.isDefault);
                     return (
-                      <div key={theme.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${isActive ? 'border-primary bg-primary/5' : 'border-gray-200'}`}>
+                      <div key={theme.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${isActive ? 'border-primary bg-primary/5' : 'border-border'}`}>
                         <div className="flex gap-0.5">
                           {theme.colors.slice(0, 4).map((c, i) => (
                             <div key={i} className="w-3 h-3 rounded-full" style={{ backgroundColor: c.hexCode }} />
                           ))}
                         </div>
-                        <span className="text-xs text-gray-600">{theme.name}</span>
+                        <span className="text-xs text-muted-foreground">{theme.name}</span>
                       </div>
                     );
                   })}
@@ -366,9 +366,9 @@ export default function Profile() {
           </Card>
         )}
 
-        <Card className="bg-white border-gray-200 shadow-sm">
+        <Card className="bg-white border-border shadow-sm">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-gray-900">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Key className="w-5 h-5 text-primary" />
               Change Password
             </CardTitle>
@@ -376,7 +376,7 @@ export default function Profile() {
           <CardContent className="space-y-4">
             <form onSubmit={handlePasswordChange} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword" className="text-gray-700">Current Password</Label>
+                <Label htmlFor="currentPassword" className="text-foreground">Current Password</Label>
                 <div className="relative">
                   <Input
                     id="currentPassword"
@@ -384,13 +384,13 @@ export default function Profile() {
                     value={passwordData.currentPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                     placeholder="Enter current password"
-                    className="bg-white border-gray-200 text-gray-900 pr-10"
+                    className="bg-white border-border text-foreground pr-10"
                     data-testid="input-current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -398,7 +398,7 @@ export default function Profile() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="newPassword" className="text-gray-700">New Password</Label>
+                <Label htmlFor="newPassword" className="text-foreground">New Password</Label>
                 <div className="relative">
                   <Input
                     id="newPassword"
@@ -406,24 +406,24 @@ export default function Profile() {
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                     placeholder="Enter new password"
-                    className="bg-white border-gray-200 text-gray-900 pr-10"
+                    className="bg-white border-border text-foreground pr-10"
                     data-testid="input-new-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Min 8 characters with uppercase, lowercase, and number
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-gray-700">Confirm New Password</Label>
+                <Label htmlFor="confirmPassword" className="text-foreground">Confirm New Password</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
@@ -431,13 +431,13 @@ export default function Profile() {
                     value={passwordData.confirmPassword}
                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                     placeholder="Confirm new password"
-                    className="bg-white border-gray-200 text-gray-900 pr-10"
+                    className="bg-white border-border text-foreground pr-10"
                     data-testid="input-confirm-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

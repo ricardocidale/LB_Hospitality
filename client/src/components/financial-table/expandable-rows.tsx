@@ -56,7 +56,7 @@ export function ExpandableLineItem({
 
   return (
     <>
-      <TableRow className="cursor-pointer hover:bg-gray-50" onClick={onToggle}>
+      <TableRow className="cursor-pointer hover:bg-muted" onClick={onToggle}>
         <TableCell className="pl-6 sticky left-0 bg-white py-1">
           <span className="flex items-center gap-1">
             {expanded ? (
@@ -131,13 +131,13 @@ export function ExpandableMetricRow({
 
   return (
     <>
-      <TableRow className="cursor-pointer hover:bg-gray-50" onClick={onToggle}>
+      <TableRow className="cursor-pointer hover:bg-muted" onClick={onToggle}>
         <TableCell className="pl-6 sticky left-0 bg-white py-1">
           <span className="flex items-center gap-1">
             {expanded ? (
-              <ChevronDown className="w-4 h-4 flex-shrink-0 text-gray-400" />
+              <ChevronDown className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             ) : (
-              <ChevronRight className="w-4 h-4 flex-shrink-0 text-gray-400" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             )}
             {label}
             {tooltip && <HelpTooltip text={tooltip} />}
@@ -217,7 +217,7 @@ export function ExpandableBalanceSheetLineItem({
     <>
       <TableRow
         className={cn(
-          "cursor-pointer hover:bg-gray-50",
+          "cursor-pointer hover:bg-muted",
           isSubtotal && "bg-primary/5",
           isTotal && "bg-primary/10 font-bold"
         )}
@@ -229,9 +229,9 @@ export function ExpandableBalanceSheetLineItem({
         >
           <span className="flex items-center gap-1">
             {expanded ? (
-              <ChevronDown className="w-4 h-4 flex-shrink-0 text-gray-400" />
+              <ChevronDown className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             ) : (
-              <ChevronRight className="w-4 h-4 flex-shrink-0 text-gray-400" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             )}
             {label}
             {tooltip && <HelpTooltip text={tooltip} />}

@@ -25,24 +25,24 @@ import type { PartnerCompSectionProps } from "./types";
 
 export default function PartnerCompSection({ formData, onChange, global, modelStartYear }: PartnerCompSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
       <div className="relative">
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
+          <h3 className="text-lg font-display text-foreground flex items-center gap-2">
             Partner Compensation Schedule
             <HelpTooltip text="Annual total partner compensation and partner count for each year. Individual partner compensation = Total ÷ Partner Count." manualSection="company-formulas" />
           </h3>
-          <p className="text-gray-600 text-sm label-text">Configure total partner compensation and headcount by year</p>
+          <p className="text-muted-foreground text-sm label-text">Configure total partner compensation and headcount by year</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-2 px-2 font-display text-gray-900">Year</th>
-                <th className="text-right py-2 px-2 font-display text-gray-900">Total Partner Comp</th>
-                <th className="text-center py-2 px-2 font-display text-gray-900">Partner Count</th>
-                <th className="text-right py-2 px-2 font-display text-gray-600">Per Partner</th>
+              <tr className="border-b border-border">
+                <th className="text-left py-2 px-2 font-display text-foreground">Year</th>
+                <th className="text-right py-2 px-2 font-display text-foreground">Total Partner Comp</th>
+                <th className="text-center py-2 px-2 font-display text-foreground">Partner Count</th>
+                <th className="text-right py-2 px-2 font-display text-muted-foreground">Per Partner</th>
               </tr>
             </thead>
             <tbody>
@@ -56,8 +56,8 @@ export default function PartnerCompSection({ formData, onChange, global, modelSt
                 const perPartner = countValue > 0 ? compValue / countValue : 0;
                 
                 return (
-                  <tr key={year} className="border-b border-gray-200 last:border-0">
-                    <td className="py-2 px-2 font-medium text-gray-900">Year {year} (<span className="font-mono">{modelStartYear + year - 1}</span>)</td>
+                  <tr key={year} className="border-b border-border last:border-0">
+                    <td className="py-2 px-2 font-medium text-foreground">Year {year} (<span className="font-mono">{modelStartYear + year - 1}</span>)</td>
                     <td className="py-2 px-2 text-right">
                       <EditableValue
                         value={compValue}
@@ -83,7 +83,7 @@ export default function PartnerCompSection({ formData, onChange, global, modelSt
                         </SelectContent>
                       </Select>
                     </td>
-                    <td className="py-2 px-2 text-right text-gray-600 font-mono">
+                    <td className="py-2 px-2 text-right text-muted-foreground font-mono">
                       {formatMoney(perPartner)}
                     </td>
                   </tr>
@@ -92,7 +92,7 @@ export default function PartnerCompSection({ formData, onChange, global, modelSt
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-gray-600 mt-4">
+        <p className="text-xs text-muted-foreground mt-4">
           Total Partner Comp is the annual budget (12 months). Actual spending is automatically prorated for years with fewer operating months (e.g., if operations start mid-year). Per Partner = Total ÷ Count.
         </p>
       </div>

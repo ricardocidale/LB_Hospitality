@@ -61,23 +61,23 @@ export function CompetitiveLandscapeTab({ content }: CompetitiveLandscapeTabProp
         </p>
         <div className="space-y-4">
           {COMPETITOR_TYPES.map((c, i) => (
-            <div key={i} className="bg-white rounded-lg border border-gray-200 p-4">
+            <div key={i} className="bg-white rounded-lg border border-border p-4">
               <div className="flex items-start justify-between gap-4 mb-2">
-                <h4 className="text-sm font-medium text-gray-800">{c.type}</h4>
-                <span className="text-[10px] text-muted-foreground bg-gray-100 rounded-full px-2 py-0.5 whitespace-nowrap">{c.examples}</span>
+                <h4 className="text-sm font-medium text-foreground">{c.type}</h4>
+                <span className="text-[10px] text-muted-foreground bg-muted rounded-full px-2 py-0.5 whitespace-nowrap">{c.examples}</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                 <div className="bg-emerald-50/50 rounded-lg p-2 border border-emerald-100">
                   <span className="font-medium text-emerald-700">Strengths: </span>
-                  <span className="text-gray-700">{c.strengths}</span>
+                  <span className="text-foreground">{c.strengths}</span>
                 </div>
                 <div className="bg-amber-50/50 rounded-lg p-2 border border-amber-100">
                   <span className="font-medium text-amber-700">Weaknesses: </span>
-                  <span className="text-gray-700">{c.weaknesses}</span>
+                  <span className="text-foreground">{c.weaknesses}</span>
                 </div>
                 <div className="bg-blue-50/50 rounded-lg p-2 border border-blue-100">
                   <span className="font-medium text-blue-700">Relevance: </span>
-                  <span className="text-gray-700">{c.relevance}</span>
+                  <span className="text-foreground">{c.relevance}</span>
                 </div>
               </div>
             </div>
@@ -96,8 +96,8 @@ export function CompetitiveLandscapeTab({ content }: CompetitiveLandscapeTabProp
                 <span className="text-xs font-bold text-primary">{i + 1}</span>
               </div>
               <div>
-                <h5 className="text-sm font-medium text-gray-800">{d.strategy}</h5>
-                <p className="text-xs text-gray-600 mt-0.5">{d.description}</p>
+                <h5 className="text-sm font-medium text-foreground">{d.strategy}</h5>
+                <p className="text-xs text-muted-foreground mt-0.5">{d.description}</p>
               </div>
             </div>
           ))}

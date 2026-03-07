@@ -75,6 +75,8 @@ const MANAGED_VARS = [
   "--accent", "--accent-foreground",
   "--border", "--input", "--ring",
   "--chart-1", "--chart-2", "--chart-3", "--chart-4", "--chart-5",
+  "--sidebar-primary", "--sidebar-primary-foreground",
+  "--sidebar-accent", "--sidebar-border", "--sidebar-ring",
 ];
 
 /**
@@ -153,6 +155,20 @@ export function applyThemeColors(colors: DesignColor[]): void {
   charts.forEach((c, i) => {
     if (i < 5) set(`--chart-${i + 1}`, hexToHslString(c.hexCode));
   });
+
+  // Sidebar variables — derive from palette for cohesive branding
+  if (p1) {
+    const hsl = hexToHslString(p1.hexCode);
+    set("--sidebar-primary", hsl);
+    set("--sidebar-primary-foreground", contrastHsl(p1.hexCode));
+    set("--sidebar-ring", hsl);
+  }
+  if (p6) {
+    set("--sidebar-border", hexToHslString(p6.hexCode));
+  }
+  if (p5) {
+    set("--sidebar-accent", hexToHslString(p5.hexCode));
+  }
 }
 
 /** Remove all dynamically injected theme variables, restoring CSS defaults. */

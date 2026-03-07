@@ -20,18 +20,18 @@ export function ManualTable({ headers, rows, variant = "dark" }: ManualTableProp
     <div
       className={cn(
         "overflow-x-auto rounded-lg border",
-        isDark ? "border-gray-200" : "border-gray-200",
+        isDark ? "border-border" : "border-border",
       )}
     >
       <table className="w-full text-sm">
         <thead>
-          <tr className={isDark ? "bg-gray-50" : "bg-gray-50"}>
+          <tr className={isDark ? "bg-muted" : "bg-muted"}>
             {headers.map((h, i) => (
               <th
                 key={i}
                 className={cn(
                   "px-4 py-3 text-left font-semibold whitespace-nowrap",
-                  isDark ? "text-gray-900" : "text-gray-900",
+                  isDark ? "text-foreground" : "text-foreground",
                 )}
               >
                 {h}
@@ -46,8 +46,8 @@ export function ManualTable({ headers, rows, variant = "dark" }: ManualTableProp
               className={cn(
                 "border-t transition-colors",
                 isDark
-                  ? "bg-white border-gray-200 hover:bg-gray-50"
-                  : "border-gray-200 hover:bg-gray-50",
+                  ? "bg-white border-border hover:bg-muted"
+                  : "border-border hover:bg-muted",
               )}
             >
               {row.map((cell, ci) => (
@@ -55,7 +55,7 @@ export function ManualTable({ headers, rows, variant = "dark" }: ManualTableProp
                   key={ci}
                   className={cn(
                     "px-4 py-2.5",
-                    isDark ? "text-gray-700" : "text-gray-700",
+                    isDark ? "text-foreground" : "text-foreground",
                   )}
                 >
                   {cell}

@@ -30,7 +30,7 @@ function statusIcon(status: MarketRateResponse["status"]) {
     case "fresh": return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
     case "warning": return <Clock className="w-4 h-4 text-amber-500" />;
     case "stale": return <AlertTriangle className="w-4 h-4 text-red-500" />;
-    case "missing": return <XCircle className="w-4 h-4 text-gray-400" />;
+    case "missing": return <XCircle className="w-4 h-4 text-muted-foreground" />;
   }
 }
 
@@ -39,7 +39,7 @@ function statusBadge(status: MarketRateResponse["status"]) {
     fresh: "bg-emerald-50 text-emerald-700 border-emerald-200",
     warning: "bg-amber-50 text-amber-700 border-amber-200",
     stale: "bg-red-50 text-red-700 border-red-200",
-    missing: "bg-gray-50 text-gray-500 border-gray-200",
+    missing: "bg-muted text-muted-foreground border-border",
   };
   return (
     <Badge variant="outline" className={`${styles[status]} text-xs`}>
@@ -133,14 +133,14 @@ export default function MarketRatesTab() {
   return (
     <div className="space-y-6">
       {/* Summary Header */}
-      <Card className="bg-white border border-gray-200/80">
+      <Card className="bg-white border border-border/80">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-base font-semibold text-gray-900">Live Market Rates</CardTitle>
+              <CardTitle className="text-base font-semibold text-foreground">Live Market Rates</CardTitle>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {rates?.length ?? 0} rates tracked from FRED, Frankfurter, and manual sources
               </p>
@@ -174,7 +174,7 @@ export default function MarketRatesTab() {
               <span className="text-muted-foreground">stale</span>
             </div>
             <div className="flex items-center gap-1.5 text-sm">
-              <XCircle className="w-4 h-4 text-gray-400" />
+              <XCircle className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium">{missingCount}</span>
               <span className="text-muted-foreground">missing</span>
             </div>
@@ -185,13 +185,13 @@ export default function MarketRatesTab() {
       {/* Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-gray-600" />
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
       )}
 
       {/* Rate Groups */}
       {Object.entries(grouped).map(([source, sourceRates]) => (
-        <Card key={source} className="bg-white border border-gray-200/60">
+        <Card key={source} className="bg-white border border-border/60">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               {sourceLabel(source)}
@@ -202,7 +202,7 @@ export default function MarketRatesTab() {
               {sourceRates.map((rate) => (
                 <div
                   key={rate.rateKey}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200/60 hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted border border-border/60 hover:bg-muted transition-colors"
                   data-testid={`rate-card-${rate.rateKey}`}
                 >
                   <div className="flex items-center gap-3 min-w-0">

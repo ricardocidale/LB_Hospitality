@@ -120,7 +120,7 @@ export function ImageCropDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex items-center justify-center max-h-[60vh] overflow-hidden rounded-lg bg-gray-100">
+        <div className="flex items-center justify-center max-h-[60vh] overflow-hidden rounded-lg bg-muted">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}

@@ -58,11 +58,11 @@ interface Props {
 function FormulaDetailRow({ label, values, colCount }: { label: string; values: string[]; colCount: number }) {
   return (
     <TableRow className="bg-blue-50/40" data-expandable-row="true">
-      <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-gray-500 italic">
+      <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">
         {label}
       </TableCell>
       {values.map((v, i) => (
-        <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-500">
+        <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-muted-foreground">
           {v}
         </TableCell>
       ))}

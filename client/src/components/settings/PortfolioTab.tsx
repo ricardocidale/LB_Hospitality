@@ -16,7 +16,7 @@ export function PortfolioTab({
 }: SettingsTabProps) {
   return (
     <div className="space-y-6 mt-6">
-      <Card className="bg-white border-gray-200 shadow-sm">
+      <Card className="bg-white border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
             <Hotel className="w-5 h-5 text-primary" />
@@ -263,7 +263,7 @@ export function PortfolioTab({
         </CardContent>
       </Card>
 
-      <Card className="bg-white border-gray-200 shadow-sm">
+      <Card className="bg-white border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center font-display">
             Disposition — Defaults for New Properties
@@ -292,7 +292,7 @@ export function PortfolioTab({
         </CardContent>
       </Card>
 
-      <Card className="bg-white border-gray-200 shadow-sm">
+      <Card className="bg-white border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center font-display">
             Acquisition Financing — Defaults for New Properties
@@ -372,7 +372,7 @@ export function PortfolioTab({
         </CardContent>
       </Card>
 
-      <Card className="bg-white border-gray-200 shadow-sm">
+      <Card className="bg-white border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center font-display">
             Refinancing — Defaults for New Properties

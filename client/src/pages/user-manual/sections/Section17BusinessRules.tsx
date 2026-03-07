@@ -50,7 +50,7 @@ export default function Section17BusinessRules({ expanded, onToggle, sectionRef 
           At exit, all properties must be debt-free. Outstanding loan balances are repaid from gross sale proceeds
           before calculating net proceeds to equity.
         </p>
-        <div className="bg-gray-50 rounded p-2 font-mono text-xs mt-2">
+        <div className="bg-muted rounded p-2 font-mono text-xs mt-2">
           <div>Gross Sale Value = Final Year NOI / Exit Cap Rate</div>
           <div>Less: Sales Commission</div>
           <div>Less: Outstanding Debt Balance (must be fully repaid)</div>

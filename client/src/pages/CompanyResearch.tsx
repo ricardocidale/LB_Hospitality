@@ -94,7 +94,7 @@ export default function CompanyResearch() {
 
         {research?.updatedAt && (
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-gray-400" data-testid="text-last-updated">
+            <span className="text-xs text-muted-foreground" data-testid="text-last-updated">
               Last updated: {format(new Date(research.updatedAt), "MMM d, yyyy h:mm a")}
               {research.llmModel && ` · Model: ${research.llmModel}`}
             </span>
@@ -157,10 +157,10 @@ export default function CompanyResearch() {
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
               </div>
-              <p className="text-gray-600 text-sm font-medium">Researching management company standards and benchmarks...</p>
+              <p className="text-muted-foreground text-sm font-medium">Researching management company standards and benchmarks...</p>
             </div>
             {streamedContent && (
-              <pre className="text-xs text-gray-500 whitespace-pre-wrap max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <pre className="text-xs text-muted-foreground whitespace-pre-wrap max-h-40 overflow-y-auto bg-muted rounded-lg p-3 border border-border">
                 {streamedContent.slice(0, 500)}...
               </pre>
             )}
@@ -169,7 +169,7 @@ export default function CompanyResearch() {
 
         {!isGenerating && (
           <Tabs defaultValue="fees" className="w-full">
-            <TabsList className="flex flex-wrap h-auto gap-1 bg-white border border-gray-200 rounded-lg p-1.5">
+            <TabsList className="flex flex-wrap h-auto gap-1 bg-white border border-border rounded-lg p-1.5">
               {TABS.map(tab => (
                 <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-1.5 text-xs data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-lg px-3 py-1.5">
                   <tab.icon className="w-3.5 h-3.5" />
@@ -230,12 +230,12 @@ export default function CompanyResearch() {
 
 function EmptyTabState({ title, description, onGenerate }: { title: string; description: string; onGenerate: () => void }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+    <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
       <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
         <BookOpen className="w-8 h-8 text-primary" />
       </div>
-      <h3 className="text-lg font-display text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto">{description}</p>
+      <h3 className="text-lg font-display text-foreground mb-2">{title}</h3>
+      <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">{description}</p>
       <button
         onClick={onGenerate}
         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all text-sm"

@@ -200,18 +200,18 @@ export default function PropertyFinder() {
         />
 
         {isNoApiKey && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
             <div className="h-1 bg-primary" />
             <div className="p-6 flex items-start gap-4">
               <AlertCircle className="w-6 h-6 text-[#F4795B] flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-gray-900 font-semibold mb-1">API Key Required</h3>
-                <p className="text-gray-600 text-sm mb-3">
+                <h3 className="text-foreground font-semibold mb-1">API Key Required</h3>
+                <p className="text-muted-foreground text-sm mb-3">
                   To search real estate listings, you need a free RapidAPI key. Sign up at{" "}
                   <a href="https://rapidapi.com/apidojo/api/realty-in-us" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-[#7aaa8a] underline">
                     rapidapi.com
                   </a>
-                  , subscribe to the "Realty in US" API (free tier: 100 requests/month), then add your key as <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs text-gray-800">RAPIDAPI_KEY</code> in the Secrets tab.
+                  , subscribe to the "Realty in US" API (free tier: 100 requests/month), then add your key as <code className="bg-muted px-1.5 py-0.5 rounded text-xs text-foreground">RAPIDAPI_KEY</code> in the Secrets tab.
                 </p>
               </div>
             </div>
@@ -219,11 +219,11 @@ export default function PropertyFinder() {
         )}
 
         {searchError && !isNoApiKey && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
             <div className="h-0.5 bg-[#F4795B]/40" />
             <div className="p-4 flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-[#F4795B]" />
-              <p className="text-gray-700 text-sm">{searchError.message}</p>
+              <p className="text-foreground text-sm">{searchError.message}</p>
             </div>
           </div>
         )}
@@ -237,7 +237,7 @@ export default function PropertyFinder() {
         {searchData && (
           <div className="space-y-4" data-testid="table-search-results">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 {searchData.total.toLocaleString()} properties found
               </p>
               {searchData.total > 20 && (
@@ -245,31 +245,31 @@ export default function PropertyFinder() {
                   <button
                     onClick={() => handlePageChange(Math.max(0, searchData.offset - 20))}
                     disabled={searchData.offset === 0}
-                    className="p-1.5 rounded-lg border border-gray-200 disabled:opacity-30 hover:bg-gray-50 transition-colors"
+                    className="p-1.5 rounded-lg border border-border disabled:opacity-30 hover:bg-muted transition-colors"
                     data-testid="btn-prev-page"
                   >
-                    <ChevronLeft className="w-4 h-4 text-gray-600" />
+                    <ChevronLeft className="w-4 h-4 text-muted-foreground" />
                   </button>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     {searchData.offset + 1}-{Math.min(searchData.offset + 20, searchData.total)} of {searchData.total.toLocaleString()}
                   </span>
                   <button
                     onClick={() => handlePageChange(searchData.offset + 20)}
                     disabled={searchData.offset + 20 >= searchData.total}
-                    className="p-1.5 rounded-lg border border-gray-200 disabled:opacity-30 hover:bg-gray-50 transition-colors"
+                    className="p-1.5 rounded-lg border border-border disabled:opacity-30 hover:bg-muted transition-colors"
                     data-testid="btn-next-page"
                   >
-                    <ChevronRight className="w-4 h-4 text-gray-600" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
               )}
             </div>
 
             {searchData.results.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+              <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
                 <Building2 className="w-12 h-12 text-primary/30 mx-auto mb-3" />
-                <p className="text-gray-600 font-medium">No properties found matching your criteria.</p>
-                <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or searching a different location.</p>
+                <p className="text-muted-foreground font-medium">No properties found matching your criteria.</p>
+                <p className="text-muted-foreground text-sm mt-1">Try adjusting your filters or searching a different location.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -294,12 +294,12 @@ export default function PropertyFinder() {
         )}
 
         {!searchData && !searchError && !isSearching && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-16 text-center">
+          <div className="bg-white rounded-lg shadow-sm border border-border p-16 text-center">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-primary/40" />
             </div>
-            <p className="text-gray-600 font-medium">Search for Properties</p>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-muted-foreground font-medium">Search for Properties</p>
+            <p className="text-muted-foreground text-sm mt-1">
               Enter a location above to find large homes and estates with {(global?.propertyLabel || "boutique hotel").toLowerCase()} conversion potential.
             </p>
           </div>
@@ -307,13 +307,13 @@ export default function PropertyFinder() {
 
         <div className="mt-10" data-testid="table-saved-properties">
           <div className="flex items-center gap-4 mb-6">
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-px flex-1 bg-muted" />
             <div className="flex items-center gap-2">
               <Heart className="w-5 h-5 text-[#F4795B]" />
-              <h2 className="text-lg font-display font-bold text-gray-900">Your Favorites</h2>
-              <span className="text-sm text-gray-400">({favorites.length})</span>
+              <h2 className="text-lg font-display font-bold text-foreground">Your Favorites</h2>
+              <span className="text-sm text-muted-foreground">({favorites.length})</span>
             </div>
-            <div className="h-px flex-1 bg-gray-200" />
+            <div className="h-px flex-1 bg-muted" />
           </div>
 
           {isFavoritesLoading ? (
@@ -321,12 +321,12 @@ export default function PropertyFinder() {
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : favorites.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                 <Heart className="w-7 h-7 text-primary/30" />
               </div>
-              <p className="text-gray-500 font-medium">No Saved Properties</p>
-              <p className="text-gray-400 text-sm mt-1">
+              <p className="text-muted-foreground font-medium">No Saved Properties</p>
+              <p className="text-muted-foreground text-sm mt-1">
                 Search for properties and click the heart icon to save them here for later review.
               </p>
             </div>

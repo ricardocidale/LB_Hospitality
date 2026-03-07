@@ -247,7 +247,7 @@ export default function Company() {
           />
           
           <div className="mt-4 mb-2">
-            <Link href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs text-primary hover:bg-gray-50 transition-colors">
+            <Link href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-border text-xs text-primary hover:bg-muted transition-colors">
               <BookOpen className="w-3.5 h-3.5" />
               <span className="font-medium">View Company Research</span>
               <span className="text-primary/60">Fee benchmarks, vendor costs, overhead, competitive landscape</span>
@@ -301,26 +301,26 @@ export default function Company() {
           </TabsContent>
 
           {!cashAnalysis.isAdequate ? (
-            <div className="flex items-start gap-2 text-sm text-gray-600 mt-4" data-testid="banner-company-cash-warning">
+            <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-warning">
               <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
               <p>
                 <span data-testid="text-company-cash-warning-title" className="font-medium text-red-600">Additional Funding Required:</span>{' '}
-                The current {fundingLabel} funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalFunding)}</span> is insufficient to cover operating expenses.
+                The current {fundingLabel} funding of <span className="font-medium text-foreground">{formatMoney(cashAnalysis.totalFunding)}</span> is insufficient to cover operating expenses.
                 Monthly cash position drops to <span className="font-medium text-red-600">{formatMoney(cashAnalysis.minCashPosition)}</span>
                 {cashAnalysis.minCashMonth !== null && <> in month {cashAnalysis.minCashMonth}</>}.
                 {' '}Suggested: Increase {fundingLabel} funding by at least{' '}
-                <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}
+                <span className="font-medium text-foreground">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}
                 <Link href="/company/assumptions" className="font-medium text-secondary hover:underline">Company Assumptions</Link>.
               </p>
             </div>
           ) : (
-            <div className="flex items-start gap-2 text-sm text-gray-600 mt-4" data-testid="banner-company-cash-adequate">
+            <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-adequate">
               <CheckCircle className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
               <p>
                 <span data-testid="text-company-cash-adequate-title" className="font-medium text-secondary">Cash Position Adequate:</span>{' '}
-                The {fundingLabel} funding of <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.totalFunding)}</span> covers all operating costs.
+                The {fundingLabel} funding of <span className="font-medium text-foreground">{formatMoney(cashAnalysis.totalFunding)}</span> covers all operating costs.
                 {cashAnalysis.minCashMonth !== null && (
-                  <> Minimum cash position: <span className="font-medium text-gray-900">{formatMoney(cashAnalysis.minCashPosition)}</span> (month {cashAnalysis.minCashMonth}).</>
+                  <> Minimum cash position: <span className="font-medium text-foreground">{formatMoney(cashAnalysis.minCashPosition)}</span> (month {cashAnalysis.minCashMonth}).</>
                 )}
               </p>
             </div>

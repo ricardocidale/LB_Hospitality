@@ -228,7 +228,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
             transition={{ delay: 0.5, duration: 0.4 }}
             className="w-full"
           >
-            <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
+            <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
                 style={{ background: "linear-gradient(90deg, var(--primary), #38BDF8, var(--primary))" }}

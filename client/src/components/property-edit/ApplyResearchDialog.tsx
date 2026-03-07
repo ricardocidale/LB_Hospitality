@@ -156,18 +156,18 @@ export function ApplyResearchDialog({ open, onOpenChange, draft, researchValues,
         </DialogHeader>
 
         {diffs.length === 0 ? (
-          <div className="py-8 text-center text-sm text-gray-500">
+          <div className="py-8 text-center text-sm text-muted-foreground">
             All property assumptions already match research recommendations.
           </div>
         ) : (
           <div className="space-y-1">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
               <Checkbox
                 checked={selected.size === diffs.length}
                 onCheckedChange={toggleAll}
                 data-testid="checkbox-select-all"
               />
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {selected.size} of {diffs.length} selected
               </span>
             </div>
@@ -175,7 +175,7 @@ export function ApplyResearchDialog({ open, onOpenChange, draft, researchValues,
             {diffs.map((diff) => (
               <label
                 key={diff.propertyField}
-                className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted cursor-pointer transition-colors"
                 data-testid={`apply-field-${diff.propertyField}`}
               >
                 <Checkbox
@@ -183,8 +183,8 @@ export function ApplyResearchDialog({ open, onOpenChange, draft, researchValues,
                   onCheckedChange={() => toggleField(diff.propertyField)}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800">{diff.label}</p>
-                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <p className="text-sm font-medium text-foreground">{diff.label}</p>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <span>{formatValue(diff.currentValue, diff.format)}</span>
                     <ArrowRight className="w-3 h-3 text-primary" />
                     <span className="font-semibold text-primary">

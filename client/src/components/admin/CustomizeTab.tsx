@@ -48,21 +48,21 @@ export default function CustomizeTab() {
               data-testid={`customize-section-${section.value}`}
               className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 text-left cursor-pointer ${
                 isActive
-                  ? "border-primary bg-gray-50 shadow-sm"
-                  : "border-gray-200 bg-white hover:border-gray-400 hover:shadow-md"
+                  ? "border-primary bg-muted shadow-sm"
+                  : "border-border bg-white hover:border-border hover:shadow-md"
               }`}
             >
               <div className="flex items-center gap-3 mb-1.5">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-                  isActive ? "bg-gray-100 text-gray-600" : "bg-gray-100 text-gray-500 group-hover:bg-gray-100 group-hover:text-gray-600"
+                  isActive ? "bg-muted text-muted-foreground" : "bg-muted text-muted-foreground group-hover:bg-muted group-hover:text-muted-foreground"
                 }`}>
                   <Icon className="w-4.5 h-4.5" />
                 </div>
                 <span className={`text-sm font-semibold transition-colors ${
-                  isActive ? "text-gray-600" : "text-gray-800"
+                  isActive ? "text-muted-foreground" : "text-foreground"
                 }`}>{section.label}</span>
               </div>
-              <p className="text-[11px] text-gray-500 leading-relaxed pl-12">{section.description}</p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed pl-12">{section.description}</p>
               {isActive && (
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full" />
               )}

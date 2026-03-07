@@ -65,7 +65,7 @@ export function PrepaymentTab() {
         <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} helpText="Original loan term in months" data-testid="input-prepay-term" />
       </div>
       <div className="space-y-2">
-        <label className="text-xs font-medium text-gray-600">Penalty Type</label>
+        <label className="text-xs font-medium text-muted-foreground">Penalty Type</label>
         <div className="flex gap-2">
           {(["yield_maintenance", "step_down", "defeasance"] as const).map((type) => (
             <button
@@ -75,7 +75,7 @@ export function PrepaymentTab() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 penaltyType === type
                   ? "bg-primary/30 text-primary border border-primary/50"
-                  : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100"
+                  : "bg-muted text-muted-foreground border border-border hover:bg-muted"
               }`}
             >
               {type === "yield_maintenance" ? "Yield Maintenance" : type === "step_down" ? "Step-Down" : "Defeasance"}
@@ -92,7 +92,7 @@ export function PrepaymentTab() {
         </div>
       )}
       {penaltyType === "step_down" && (
-        <p className="text-xs text-gray-400">Using standard 5-4-3-2-1 step-down schedule</p>
+        <p className="text-xs text-muted-foreground">Using standard 5-4-3-2-1 step-down schedule</p>
       )}
       <Button variant="default" onClick={calculate} disabled={loading} data-testid="button-prepay-calculate">
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Shield className="w-4 h-4 mr-2 inline" />}
@@ -110,7 +110,7 @@ export function PrepaymentTab() {
           </div>
           {result.details && (
             <ContentPanel variant="light" title="Penalty Details">
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-sm text-muted-foreground">
                 {result.details.type === "yield_maintenance" && (
                   <>
                     <p>Rate Differential: {formatPct(result.details.rate_differential)}</p>

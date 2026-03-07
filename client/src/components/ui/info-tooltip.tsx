@@ -29,7 +29,7 @@ export function InfoTooltip({ text, formula, light = false, side = "top", manual
           type="button"
           className={`inline-flex items-center justify-center ml-1 cursor-help rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
             light
-              ? "text-gray-400 hover:text-gray-600"
+              ? "text-muted-foreground hover:text-muted-foreground"
               : "text-primary hover:text-[#7A9E82]"
           }`}
           aria-label="Info"
@@ -47,7 +47,7 @@ export function InfoTooltip({ text, formula, light = false, side = "top", manual
       >
         <span>{text}</span>
         {formula && (
-          <code className="block mt-1.5 text-[11px] font-mono text-primary bg-gray-50 rounded px-1.5 py-1">
+          <code className="block mt-1.5 text-[11px] font-mono text-primary bg-muted rounded px-1.5 py-1">
             {formula}
           </code>
         )}

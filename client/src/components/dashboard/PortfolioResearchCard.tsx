@@ -29,7 +29,7 @@ function statusIcon(status: BenchmarkMetric["status"]) {
     case "above": return <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
     case "below": return <TrendingDown className="w-3.5 h-3.5 text-amber-500" />;
     case "within": return <Minus className="w-3.5 h-3.5 text-blue-500" />;
-    default: return <Minus className="w-3.5 h-3.5 text-gray-400" />;
+    default: return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
   }
 }
 
@@ -151,11 +151,11 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
   if (metrics.length === 0) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-lg bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg bg-white border border-border shadow-sm">
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <BookOpen className="w-4 h-4 text-primary" />
-          <h4 className="text-sm font-display text-gray-900">Portfolio Benchmarks</h4>
+          <h4 className="text-sm font-display text-foreground">Portfolio Benchmarks</h4>
           <span className="text-xs text-muted-foreground ml-auto">room-weighted vs. research ranges</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
@@ -167,14 +167,14 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
                 m.status === "within" && "bg-blue-50/50 border-blue-200/60",
                 m.status === "above" && "bg-emerald-50/50 border-emerald-200/60",
                 m.status === "below" && "bg-amber-50/50 border-amber-200/60",
-                m.status === "unknown" && "bg-gray-50/50 border-gray-200/60",
+                m.status === "unknown" && "bg-muted/50 border-border/60",
               )}
             >
               <div className="flex items-center gap-1 mb-1">
                 {statusIcon(m.status)}
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground truncate">{m.label}</span>
               </div>
-              <div className="text-sm font-semibold font-mono text-gray-900">{m.actual}</div>
+              <div className="text-sm font-semibold font-mono text-foreground">{m.actual}</div>
               <div className="text-[10px] text-muted-foreground mt-0.5">{m.range}</div>
             </div>
           ))}

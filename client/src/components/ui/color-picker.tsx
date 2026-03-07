@@ -54,17 +54,17 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
         >
           <div className="flex items-center gap-2">
             <div
-              className="w-5 h-5 rounded border border-gray-300 shadow-sm"
+              className="w-5 h-5 rounded border border-border shadow-sm"
               style={{ backgroundColor: value }}
             />
             <span className="font-mono text-xs uppercase">{value}</span>
           </div>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[280px] p-3" align="start">
         <div className="space-y-3">
-          <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">Theme Colors</div>
+          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Theme Colors</div>
           <div className="space-y-1">
             {PRESET_COLORS.map((row, rowIndex) => (
               <div key={rowIndex} className="flex gap-1">
@@ -74,8 +74,8 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
                     onClick={() => handleColorSelect(color)}
                     className={`w-10 h-7 rounded border-2 transition-all hover:scale-110 hover:z-10 ${
                       value.toUpperCase() === color.toUpperCase()
-                        ? "border-gray-900 ring-2 ring-gray-400"
-                        : "border-gray-200 hover:border-gray-400"
+                        ? "border-foreground ring-2 ring-gray-400"
+                        : "border-border hover:border-border"
                     }`}
                     style={{ backgroundColor: color }}
                     title={color}
@@ -87,7 +87,7 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
           </div>
 
           <div className="pt-2 border-t">
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Custom Color</div>
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Custom Color</div>
             <div className="flex gap-2">
               <input
                 type="color"

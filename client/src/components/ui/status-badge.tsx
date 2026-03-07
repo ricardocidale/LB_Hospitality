@@ -20,7 +20,7 @@ interface StatusBadgeProps {
 
 const dotColors: Record<StatusType, string> = {
   active: "bg-green-500",
-  inactive: "bg-gray-400",
+  inactive: "bg-muted-foreground",
   pending: "bg-amber-500",
   error: "bg-red-500",
   warning: "bg-orange-500",
@@ -28,7 +28,7 @@ const dotColors: Record<StatusType, string> = {
 
 const pulseColors: Record<StatusType, string> = {
   active: "bg-green-400",
-  inactive: "bg-gray-300",
+  inactive: "bg-muted",
   pending: "bg-amber-400",
   error: "bg-red-400",
   warning: "bg-orange-400",
@@ -36,7 +36,7 @@ const pulseColors: Record<StatusType, string> = {
 
 const labelColors: Record<StatusType, string> = {
   active: "text-green-700",
-  inactive: "text-gray-500",
+  inactive: "text-muted-foreground",
   pending: "text-amber-700",
   error: "text-red-700",
   warning: "text-orange-700",

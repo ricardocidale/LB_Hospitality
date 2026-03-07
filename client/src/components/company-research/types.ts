@@ -21,5 +21,5 @@ export const companySectionColors: Record<string, SectionColorScheme> = {
   benchmarks: { accent: "#8B5CF6", bg: "bg-violet-50", border: "border-violet-200", iconBg: "bg-violet-100", iconText: "text-violet-700", badge: "bg-violet-100 text-violet-800" },
   compensation: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700", badge: "bg-amber-100 text-amber-800" },
   contracts: { accent: "#0891B2", bg: "bg-cyan-50", border: "border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-700", badge: "bg-cyan-100 text-cyan-800" },
-  sources: { accent: "#6B7280", bg: "bg-gray-50", border: "border-gray-200", iconBg: "bg-gray-100", iconText: "text-gray-600", badge: "bg-gray-100 text-gray-700" },
+  sources: { accent: "#6B7280", bg: "bg-muted", border: "border-border", iconBg: "bg-muted", iconText: "text-muted-foreground", badge: "bg-muted text-foreground" },
 };

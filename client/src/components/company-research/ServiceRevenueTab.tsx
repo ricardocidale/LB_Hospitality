@@ -44,25 +44,25 @@ export function ServiceRevenueTab({ content }: ServiceRevenueTabProps) {
         <p className="text-xs text-muted-foreground mb-4">
           Industry fee ranges per service type, computed at $1.5M sample property revenue.
         </p>
-        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left p-3 text-gray-500 font-medium">Service</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Low Rate</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Mid Rate</th>
-                <th className="text-right p-3 text-gray-500 font-medium">High Rate</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Annual Fee (Mid)</th>
+              <tr className="bg-muted border-b border-border">
+                <th className="text-left p-3 text-muted-foreground font-medium">Service</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Low Rate</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Mid Rate</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">High Rate</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Annual Fee (Mid)</th>
               </tr>
             </thead>
             <tbody>
               {benchmarks.map(b => (
-                <tr key={b.type} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="p-3 text-gray-800 font-medium">{b.label}</td>
-                  <td className="p-3 text-right text-gray-600 font-mono">{(b.lowRate * 100).toFixed(1)}%</td>
+                <tr key={b.type} className="border-b border-border hover:bg-muted/50 transition-colors">
+                  <td className="p-3 text-foreground font-medium">{b.label}</td>
+                  <td className="p-3 text-right text-muted-foreground font-mono">{(b.lowRate * 100).toFixed(1)}%</td>
                   <td className="p-3 text-right text-emerald-600 font-mono font-medium">{(b.midRate * 100).toFixed(1)}%</td>
-                  <td className="p-3 text-right text-gray-600 font-mono">{(b.highRate * 100).toFixed(1)}%</td>
-                  <td className="p-3 text-right text-gray-900 font-mono">${b.midFee.toLocaleString()}</td>
+                  <td className="p-3 text-right text-muted-foreground font-mono">{(b.highRate * 100).toFixed(1)}%</td>
+                  <td className="p-3 text-right text-foreground font-mono">${b.midFee.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -71,8 +71,8 @@ export function ServiceRevenueTab({ content }: ServiceRevenueTabProps) {
       </SectionCard>
 
       {benchmarks.map(b => (
-        <div key={b.type} className="bg-white rounded-lg border border-gray-200 p-4">
-          <h4 className="text-sm font-medium text-gray-800 mb-2">{b.label}</h4>
+        <div key={b.type} className="bg-white rounded-lg border border-border p-4">
+          <h4 className="text-sm font-medium text-foreground mb-2">{b.label}</h4>
           <div className="grid grid-cols-3 gap-3 mb-2">
             <MetricCard label="Low" value={`${(b.lowRate * 100).toFixed(1)}% ($${b.lowFee.toLocaleString()})`} color={companySectionColors.fees} />
             <MetricCard label="Mid" value={`${(b.midRate * 100).toFixed(1)}% ($${b.midFee.toLocaleString()})`} color={companySectionColors.fees} />

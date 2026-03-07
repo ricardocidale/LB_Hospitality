@@ -60,26 +60,26 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-muted">
       <div className="w-full max-w-sm mx-4">
         <div className="flex flex-col items-center mb-8">
           <div className="mb-3 cursor-pointer" onClick={handleAdminLogin}>
             <LogoSvg size={48} color="#18181b" />
           </div>
-          <h1 className="text-lg font-semibold text-gray-900">
+          <h1 className="text-lg font-semibold text-foreground">
             Hospitality Business Group
           </h1>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 sm:p-8">
+        <div className="bg-white rounded-lg border border-border shadow-sm p-6 sm:p-8">
           <div className="mb-6 text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-1">Welcome back</h2>
-            <p className="text-sm text-gray-500">Sign in to access the simulation portal</p>
+            <h2 className="text-xl font-semibold text-foreground mb-1">Welcome back</h2>
+            <p className="text-sm text-muted-foreground">Sign in to access the simulation portal</p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-900">Email or Username</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-foreground">Email or Username</Label>
               <Input
                 id="email"
                 type="text"
@@ -94,7 +94,7 @@ export default function Login() {
             
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-900">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
               </div>
               <div className="relative">
                 <Input
@@ -110,7 +110,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors"
                   data-testid="button-toggle-password"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -121,7 +121,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-10 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
+              className="w-full h-10 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
               data-testid="button-login"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -129,12 +129,12 @@ export default function Login() {
             </button>
           </form>
           
-          <p className="text-center text-xs text-gray-400 mt-6">
+          <p className="text-center text-xs text-muted-foreground mt-6">
             Contact your administrator if you need access
           </p>
         </div>
         
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-muted-foreground mt-6">
           Business simulation portal for Hospitality Business Group
         </p>
       </div>

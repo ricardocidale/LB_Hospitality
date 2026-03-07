@@ -53,20 +53,20 @@ export default function CompanyIncomeTab({
     <ScrollReveal>
     <div ref={activeTab === 'income' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
       <div>
-        <h3 className="text-lg font-display text-gray-900 mb-4">Income Statement - {global?.companyName || "Hospitality Business Co."}</h3>
+        <h3 className="text-lg font-display text-foreground mb-4">Income Statement - {global?.companyName || "Hospitality Business Co."}</h3>
         <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="border-gray-200">
-              <TableHead className="sticky left-0 bg-gray-50 text-gray-700">Category</TableHead>
+            <TableRow className="border-border">
+              <TableHead className="sticky left-0 bg-muted text-foreground">Category</TableHead>
               {Array.from({ length: projectionYears }, (_, i) => (
-                <TableHead key={i} className="text-right min-w-[100px] text-gray-700">{getFiscalYear(i)}</TableHead>
+                <TableHead key={i} className="text-right min-w-[100px] text-foreground">{getFiscalYear(i)}</TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="bg-gray-50 font-semibold border-gray-200">
-              <TableCell className="sticky left-0 bg-gray-50 text-gray-900">Revenue</TableCell>
+            <TableRow className="bg-muted font-semibold border-border">
+              <TableCell className="sticky left-0 bg-muted text-foreground">Revenue</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
@@ -75,22 +75,22 @@ export default function CompanyIncomeTab({
             </TableRow>
             
             <TableRow 
-              className="cursor-pointer hover:bg-gray-50"
+              className="cursor-pointer hover:bg-muted"
               onClick={() => toggleRow('baseFees')}
               data-testid="row-service-fees"
             >
               <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
                 {expandedRows.has('baseFees') ? (
-                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-500" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Service Fees
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const total = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
-                return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
               })}
             </TableRow>
             
@@ -98,12 +98,12 @@ export default function CompanyIncomeTab({
               const categoryNames = Object.keys(financials[0]?.serviceFeeBreakdown?.byCategory ?? {});
               if (categoryNames.length === 0) {
                 return properties.map((prop, idx) => (
-                  <TableRow key={`base-${prop.id}`} className="bg-gray-50/50">
-                    <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
+                  <TableRow key={`base-${prop.id}`} className="bg-muted/50">
+                    <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">
                       {prop.name}
                     </TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => (
-                      <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">
+                      <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">
                         {formatMoney(getPropertyYearlyBaseFee(idx, y))}
                       </TableCell>
                     ))}
@@ -113,35 +113,35 @@ export default function CompanyIncomeTab({
               return categoryNames.map(catName => (
                 <React.Fragment key={`cat-${catName}`}>
                   <TableRow
-                    className="cursor-pointer hover:bg-gray-50/70"
+                    className="cursor-pointer hover:bg-muted/70"
                     onClick={() => toggleRow(`cat-${catName}`)}
                     data-testid={`row-category-${catName.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     <TableCell className="sticky left-0 bg-white pl-12 flex items-center gap-2 text-sm">
                       {expandedRows.has(`cat-${catName}`) ? (
-                        <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                        <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                       ) : (
-                        <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                       )}
                       {catName}
                     </TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => {
                       const yearData = financials.slice(y * 12, (y + 1) * 12);
                       const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategory?.[catName] ?? 0) + a, 0);
-                      return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                      return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                     })}
                   </TableRow>
                   {expandedRows.has(`cat-${catName}`) && properties.map((prop) => {
                     const propName = prop.name;
                     return (
-                      <TableRow key={`cat-${catName}-prop-${prop.id}`} className="bg-gray-50/30">
-                        <TableCell className="sticky left-0 bg-gray-50/30 pl-[4.5rem] text-xs text-gray-500">
+                      <TableRow key={`cat-${catName}-prop-${prop.id}`} className="bg-muted/30">
+                        <TableCell className="sticky left-0 bg-muted/30 pl-[4.5rem] text-xs text-muted-foreground">
                           {propName}
                         </TableCell>
                         {Array.from({ length: projectionYears }, (_, y) => {
                           const yearData = financials.slice(y * 12, (y + 1) * 12);
                           const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategoryByPropertyId?.[catName]?.[String(prop.id)] ?? 0) + a, 0);
-                          return <TableCell key={y} className="text-right text-xs text-gray-500 font-mono">{formatMoney(total)}</TableCell>;
+                          return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                         })}
                       </TableRow>
                     );
@@ -151,34 +151,34 @@ export default function CompanyIncomeTab({
             })()}
             
             <TableRow 
-              className="cursor-pointer hover:bg-gray-50"
+              className="cursor-pointer hover:bg-muted"
               onClick={() => toggleRow('incentiveFees')}
               data-testid="row-incentive-fees"
             >
               <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
                 {expandedRows.has('incentiveFees') ? (
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-600" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Incentive Fees
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const total = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
-                return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
               })}
             </TableRow>
             
             {expandedRows.has('incentiveFees') && properties.map((prop) => (
-              <TableRow key={`incentive-${prop.id}`} className="bg-gray-50/50">
-                <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">
+              <TableRow key={`incentive-${prop.id}`} className="bg-muted/50">
+                <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">
                   {prop.name}
                 </TableCell>
                 {Array.from({ length: projectionYears }, (_, y) => {
                   const yearData = financials.slice(y * 12, (y + 1) * 12);
                   const total = yearData.reduce((a, m) => (m.incentiveFeeByPropertyId?.[String(prop.id)] ?? 0) + a, 0);
-                  return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                  return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                 })}
               </TableRow>
             ))}
@@ -187,7 +187,7 @@ export default function CompanyIncomeTab({
             {financials.some(m => m.totalVendorCost > 0) && (
               <>
                 <TableRow
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('vendorCosts')}
                   data-testid="row-vendor-costs"
                 >
@@ -226,7 +226,7 @@ export default function CompanyIncomeTab({
                       </TableRow>
                     ));
                 })()}
-                <TableRow className="bg-emerald-50/60 font-semibold border-gray-200">
+                <TableRow className="bg-emerald-50/60 font-semibold border-border">
                   <TableCell className="sticky left-0 bg-emerald-50/60 text-emerald-800">Gross Profit</TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
                     const yearData = financials.slice(y * 12, (y + 1) * 12);
@@ -238,14 +238,14 @@ export default function CompanyIncomeTab({
             )}
 
             <TableRow
-              className="bg-gray-50 font-semibold cursor-pointer hover:bg-gray-100"
+              className="bg-muted font-semibold cursor-pointer hover:bg-muted"
               onClick={() => toggleRow('opex')}
             >
-              <TableCell className="sticky left-0 bg-gray-50 flex items-center gap-2">
+              <TableCell className="sticky left-0 bg-muted flex items-center gap-2">
                 {expandedRows.has('opex') ? (
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-600" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Operating Expenses
               </TableCell>
@@ -258,147 +258,147 @@ export default function CompanyIncomeTab({
             {expandedRows.has('opex') && (
               <>
                 <TableRow 
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('opexComp')}
                 >
                   <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
                     {expandedRows.has('opexComp') ? (
-                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-600" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Compensation
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
                     const yearData = financials.slice(y * 12, (y + 1) * 12);
                     const total = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
-                    return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                    return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                   })}
                 </TableRow>
                 {expandedRows.has('opexComp') && (
                   <>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Partner Compensation</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Partner Compensation</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.partnerCompensation, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Staff Compensation</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Staff Compensation</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.staffCompensation, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                   </>
                 )}
                 <TableRow 
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('opexFixed')}
                 >
                   <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
                     {expandedRows.has('opexFixed') ? (
-                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-600" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Fixed Overhead
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
                     const yearData = financials.slice(y * 12, (y + 1) * 12);
                     const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
-                    return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                    return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                   })}
                 </TableRow>
                 {expandedRows.has('opexFixed') && (
                   <>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Office Lease</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Office Lease</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.officeLease, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Professional Services</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Professional Services</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.professionalServices, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Tech Infrastructure</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Tech Infrastructure</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.techInfrastructure, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Business Insurance</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Business Insurance</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.businessInsurance, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                   </>
                 )}
                 <TableRow 
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-muted"
                   onClick={() => toggleRow('opexVar')}
                 >
                   <TableCell className="sticky left-0 bg-white pl-6 flex items-center gap-2">
                     {expandedRows.has('opexVar') ? (
-                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-600" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Variable Costs
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
                     const yearData = financials.slice(y * 12, (y + 1) * 12);
                     const total = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
-                    return <TableCell key={y} className="text-right text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                    return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                   })}
                 </TableRow>
                 {expandedRows.has('opexVar') && (
                   <>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Travel Costs</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Travel Costs</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.travelCosts, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">IT Licensing</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">IT Licensing</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.itLicensing, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Marketing</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Marketing</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.marketing, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
-                    <TableRow className="bg-gray-50/50">
-                      <TableCell className="sticky left-0 bg-gray-50/50 pl-12 text-sm text-gray-600">Misc Operations</TableCell>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Misc Operations</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.miscOps, 0);
-                        return <TableCell key={y} className="text-right text-sm text-gray-600 font-mono">{formatMoney(total)}</TableCell>;
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
                   </>
@@ -406,14 +406,14 @@ export default function CompanyIncomeTab({
               </>
             )}
             <TableRow>
-              <TableCell className="sticky left-0 bg-white text-xs text-gray-400 italic pl-6">OpEx % of Revenue</TableCell>
+              <TableCell className="sticky left-0 bg-white text-xs text-muted-foreground italic pl-6">OpEx % of Revenue</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const totalExpenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
                 const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                 const pct = totalRevenue > 0 ? (totalExpenses / totalRevenue) * 100 : 0;
                 return (
-                  <TableCell key={y} className="text-right text-xs text-gray-400 italic font-mono px-2">
+                  <TableCell key={y} className="text-right text-xs text-muted-foreground italic font-mono px-2">
                     {totalRevenue > 0 ? `${pct.toFixed(1)}%` : "—"}
                   </TableCell>
                 );
@@ -432,14 +432,14 @@ export default function CompanyIncomeTab({
               })}
             </TableRow>
             <TableRow>
-              <TableCell className="sticky left-0 bg-white text-gray-600">Net Margin</TableCell>
+              <TableCell className="sticky left-0 bg-white text-muted-foreground">Net Margin</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
                 const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                 const margin = totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;
                 return (
-                  <TableCell key={y} className={`text-right text-gray-600 font-mono ${margin < 0 ? 'text-destructive' : ''}`}>
+                  <TableCell key={y} className={`text-right text-muted-foreground font-mono ${margin < 0 ? 'text-destructive' : ''}`}>
                     {margin.toFixed(1)}%
                   </TableCell>
                 );

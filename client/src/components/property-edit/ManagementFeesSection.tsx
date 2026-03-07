@@ -28,22 +28,22 @@ import type { ManagementFeesSectionProps } from "./types";
 
 export default function ManagementFeesSection({ draft, onChange, researchValues, feeDraft, onFeeCategoryChange, totalServiceFeeRate }: ManagementFeesSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
       <div className="relative p-6">
         <div className="mb-6">
-          <h3 className="text-xl font-display text-gray-900 flex items-center">
+          <h3 className="text-xl font-display text-foreground flex items-center">
             Management and Service Fees by Hospitality Management Company
             <HelpTooltip text="Fees paid by this property to the management company. Service fees are broken into categories (each a % of Total Revenue). The Incentive Fee is a % of Gross Operating Profit (GOP) collected when GOP is positive." />
           </h3>
-          <p className="text-gray-600 text-sm label-text">Fees charged by the management company for operating this property</p>
+          <p className="text-muted-foreground text-sm label-text">Fees charged by the management company for operating this property</p>
         </div>
 
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <Label className="text-sm font-semibold text-gray-800 label-text">
+            <Label className="text-sm font-semibold text-foreground label-text">
               Service Fee Categories (% of Total Revenue)
             </Label>
-            <span className={`text-sm font-mono font-semibold ${totalServiceFeeRate > 0.10 ? 'text-amber-600' : 'text-gray-700'}`} data-testid="text-total-service-fee">
+            <span className={`text-sm font-mono font-semibold ${totalServiceFeeRate > 0.10 ? 'text-amber-600' : 'text-foreground'}`} data-testid="text-total-service-fee">
               Total: {(totalServiceFeeRate * 100).toFixed(1)}%
             </span>
           </div>
@@ -61,7 +61,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
               <div key={cat.id} className="space-y-2" data-testid={`fee-category-${cat.name.toLowerCase().replace(/\s+/g, '-')}`}>
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col gap-0.5">
-                    <Label className={`flex items-center label-text gap-1.5 ${cat.isActive ? 'text-gray-700' : 'text-gray-400 line-through'}`}>
+                    <Label className={`flex items-center label-text gap-1.5 ${cat.isActive ? 'text-foreground' : 'text-muted-foreground line-through'}`}>
                       {cat.name}
                       <HelpTooltip text={`${cat.name} service fee = Total Revenue × ${(cat.rate * 100).toFixed(1)}%. Charged monthly as part of the management company's service fees.`} />
                     </Label>
@@ -79,7 +79,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
                     <button
                       type="button"
                       onClick={() => onFeeCategoryChange(idx, "isActive", !cat.isActive)}
-                      className={`w-8 h-5 rounded-full transition-colors ${cat.isActive ? 'bg-primary' : 'bg-gray-300'} relative`}
+                      className={`w-8 h-5 rounded-full transition-colors ${cat.isActive ? 'bg-primary' : 'bg-muted'} relative`}
                       title={cat.isActive ? "Disable this fee" : "Enable this fee"}
                       data-testid={`toggle-fee-${cat.name.toLowerCase().replace(/\s+/g, '-')}`}
                     >
@@ -106,7 +106,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <div className="flex flex-col gap-0.5">
-                  <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                  <Label className="flex items-center label-text text-foreground gap-1.5">
                     Incentive Fee (% of GOP)
                     <HelpTooltip text="Incentive Management Fee = max(0, GOP) × this rate. Only charged when Gross Operating Profit is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
                   </Label>

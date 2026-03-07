@@ -60,34 +60,34 @@ export function SearchForm({
         <div className="p-5 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-2">
-              <Label className="text-gray-700 font-medium text-xs mb-1 block">Location (City, State or Zip)</Label>
+              <Label className="text-foreground font-medium text-xs mb-1 block">Location (City, State or Zip)</Label>
               <Input
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="e.g. Hudson, NY or 12534"
-                className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
+                className="bg-muted border-border text-foreground placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                 data-testid="input-location"
               />
             </div>
             <div>
-              <Label className="text-gray-700 font-medium text-xs mb-1 block">Min Price</Label>
+              <Label className="text-foreground font-medium text-xs mb-1 block">Min Price</Label>
               <Input
                 type="number"
                 value={formData.priceMin}
                 onChange={(e) => setFormData({ ...formData, priceMin: e.target.value })}
                 placeholder="$500,000"
-                className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
+                className="bg-muted border-border text-foreground placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                 data-testid="input-price-min"
               />
             </div>
             <div>
-              <Label className="text-gray-700 font-medium text-xs mb-1 block">Max Price</Label>
+              <Label className="text-foreground font-medium text-xs mb-1 block">Max Price</Label>
               <Input
                 type="number"
                 value={formData.priceMax}
                 onChange={(e) => setFormData({ ...formData, priceMax: e.target.value })}
                 placeholder="$5,000,000"
-                className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
+                className="bg-muted border-border text-foreground placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                 data-testid="input-price-max"
               />
             </div>
@@ -95,36 +95,36 @@ export function SearchForm({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label className="text-gray-700 font-medium text-xs mb-1 block">Min Bedrooms</Label>
+              <Label className="text-foreground font-medium text-xs mb-1 block">Min Bedrooms</Label>
               <Input
                 type="number"
                 value={formData.bedsMin}
                 onChange={(e) => setFormData({ ...formData, bedsMin: e.target.value })}
                 placeholder="5+"
-                className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
+                className="bg-muted border-border text-foreground placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                 data-testid="input-beds-min"
               />
             </div>
             <div>
-              <Label className="text-gray-700 font-medium text-xs mb-1 block">Min Lot Size (acres)</Label>
+              <Label className="text-foreground font-medium text-xs mb-1 block">Min Lot Size (acres)</Label>
               <Input
                 type="number"
                 step="0.5"
                 value={formData.lotSizeMin}
                 onChange={(e) => setFormData({ ...formData, lotSizeMin: e.target.value })}
                 placeholder="1"
-                className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20"
+                className="bg-muted border-border text-foreground placeholder-gray-400 focus:border-primary focus:ring-primary/20"
                 data-testid="input-lot-size-min"
               />
             </div>
             <div>
-              <Label className="text-gray-700 font-medium text-xs mb-1 block">Property Type</Label>
+              <Label className="text-foreground font-medium text-xs mb-1 block">Property Type</Label>
               <Select
                 value={formData.propertyType}
                 onValueChange={(v) => setFormData({ ...formData, propertyType: v })}
               >
                 <SelectTrigger
-                  className="bg-gray-50 border-gray-200 text-gray-900 focus:border-primary focus:ring-primary/20"
+                  className="bg-muted border-border text-foreground focus:border-primary focus:ring-primary/20"
                   data-testid="select-property-type"
                 >
                   <SelectValue placeholder="Any type" />
@@ -150,7 +150,7 @@ export function SearchForm({
                         value={saveSearchName}
                         onChange={(e) => setSaveSearchName(e.target.value)}
                         placeholder="Search name..."
-                        className="bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-primary/20 w-48 h-9 text-sm"
+                        className="bg-muted border-border text-foreground placeholder-gray-400 focus:border-primary focus:ring-primary/20 w-48 h-9 text-sm"
                         data-testid="input-search-name"
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), onSaveSearch())}
                       />
@@ -166,7 +166,7 @@ export function SearchForm({
                       <button
                         type="button"
                         onClick={() => { setShowSaveDialog(false); setSaveSearchName(""); }}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"
+                        className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
                       >
                         <X className="w-4 h-4" />
                       </button>

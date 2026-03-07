@@ -34,7 +34,7 @@ export function ResearchSections({ content }: { content: any }) {
     <div className="space-y-5">
       {content.marketOverview && (
         <SectionCard icon={Building2} title="Market Overview" color={sectionColors.market}>
-          <p className="text-sm text-gray-700 leading-relaxed mb-5">{content.marketOverview.summary}</p>
+          <p className="text-sm text-foreground leading-relaxed mb-5">{content.marketOverview.summary}</p>
           {content.marketOverview.keyMetrics && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {content.marketOverview.keyMetrics.map((m: any, i: number) => (
@@ -47,7 +47,7 @@ export function ResearchSections({ content }: { content: any }) {
 
       {content.stabilizationTimeline && (
         <SectionCard icon={Clock} title="Stabilization Timeline" color={sectionColors.stabilization}>
-          <p className="text-sm text-gray-700 leading-relaxed mb-5">{content.stabilizationTimeline.summary}</p>
+          <p className="text-sm text-foreground leading-relaxed mb-5">{content.stabilizationTimeline.summary}</p>
           {content.stabilizationTimeline.phases && content.stabilizationTimeline.phases.length > 0 && (
             <div className="space-y-3">
               {content.stabilizationTimeline.phases.map((phase: any, i: number) => (
@@ -57,10 +57,10 @@ export function ResearchSections({ content }: { content: any }) {
                   </div>
                   <div className="flex-1 rounded-xl bg-amber-50 border border-amber-200 p-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-semibold text-gray-900">{phase.phase}</span>
+                      <span className="text-sm font-semibold text-foreground">{phase.phase}</span>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-amber-200 text-amber-800 font-medium">{phase.duration}</span>
                     </div>
-                    <p className="text-sm text-gray-600">{phase.description}</p>
+                    <p className="text-sm text-muted-foreground">{phase.description}</p>
                     {phase.occupancyTarget && (
                       <p className="text-xs text-amber-700 mt-1 font-medium">Target Occupancy: {phase.occupancyTarget}</p>
                     )}
@@ -87,27 +87,27 @@ export function ResearchSections({ content }: { content: any }) {
           </div>
           {content.adrAnalysis.rationale && (
             <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-400 mb-5">
-              <p className="text-sm text-gray-700 leading-relaxed">{content.adrAnalysis.rationale}</p>
+              <p className="text-sm text-foreground leading-relaxed">{content.adrAnalysis.rationale}</p>
             </div>
           )}
           {content.adrAnalysis.comparables && content.adrAnalysis.comparables.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Comparable Properties</h4>
-              <div className="rounded-xl border border-gray-200 overflow-hidden">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Comparable Properties</h4>
+              <div className="rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-blue-50/80">
-                      <th className="text-left p-3 text-gray-600 font-semibold">Property</th>
-                      <th className="text-right p-3 text-gray-600 font-semibold">ADR</th>
-                      <th className="text-left p-3 text-gray-600 font-semibold">Type</th>
+                      <th className="text-left p-3 text-muted-foreground font-semibold">Property</th>
+                      <th className="text-right p-3 text-muted-foreground font-semibold">ADR</th>
+                      <th className="text-left p-3 text-muted-foreground font-semibold">Type</th>
                     </tr>
                   </thead>
                   <tbody>
                     {content.adrAnalysis.comparables.map((c: any, i: number) => (
-                      <tr key={i} className="border-t border-gray-100 hover:bg-blue-50/40 transition-colors">
-                        <td className="p-3 text-gray-800 font-medium">{c.name}</td>
+                      <tr key={i} className="border-t border-border hover:bg-blue-50/40 transition-colors">
+                        <td className="p-3 text-foreground font-medium">{c.name}</td>
                         <td className="p-3 text-right font-semibold text-blue-700">{c.adr}</td>
-                        <td className="p-3 text-gray-500">{c.type}</td>
+                        <td className="p-3 text-muted-foreground">{c.type}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -126,22 +126,22 @@ export function ResearchSections({ content }: { content: any }) {
           </div>
           {content.occupancyAnalysis.seasonalPattern && content.occupancyAnalysis.seasonalPattern.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Seasonal Pattern</h4>
-              <div className="rounded-xl border border-gray-200 overflow-hidden">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Seasonal Pattern</h4>
+              <div className="rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-violet-50/80">
-                      <th className="text-left p-3 text-gray-600 font-semibold">Season</th>
-                      <th className="text-right p-3 text-gray-600 font-semibold">Occupancy</th>
-                      <th className="text-left p-3 text-gray-600 font-semibold">Notes</th>
+                      <th className="text-left p-3 text-muted-foreground font-semibold">Season</th>
+                      <th className="text-right p-3 text-muted-foreground font-semibold">Occupancy</th>
+                      <th className="text-left p-3 text-muted-foreground font-semibold">Notes</th>
                     </tr>
                   </thead>
                   <tbody>
                     {content.occupancyAnalysis.seasonalPattern.map((s: any, i: number) => (
-                      <tr key={i} className="border-t border-gray-100 hover:bg-violet-50/40 transition-colors">
-                        <td className="p-3 text-gray-800 font-medium">{s.season}</td>
+                      <tr key={i} className="border-t border-border hover:bg-violet-50/40 transition-colors">
+                        <td className="p-3 text-foreground font-medium">{s.season}</td>
                         <td className="p-3 text-right font-semibold text-violet-700">{s.occupancy}</td>
-                        <td className="p-3 text-gray-500">{s.notes}</td>
+                        <td className="p-3 text-muted-foreground">{s.notes}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -160,7 +160,7 @@ export function ResearchSections({ content }: { content: any }) {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs px-2 py-0.5 rounded-full bg-orange-200 text-orange-800 font-semibold uppercase tracking-wider">Corporate</span>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed">{content.eventDemand.corporateEvents}</p>
+                <p className="text-sm text-foreground leading-relaxed">{content.eventDemand.corporateEvents}</p>
               </div>
             )}
             {content.eventDemand.exoticEvents && (
@@ -168,7 +168,7 @@ export function ResearchSections({ content }: { content: any }) {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs px-2 py-0.5 rounded-full bg-rose-200 text-rose-800 font-semibold uppercase tracking-wider">Exotic & Unique</span>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed">{content.eventDemand.exoticEvents}</p>
+                <p className="text-sm text-foreground leading-relaxed">{content.eventDemand.exoticEvents}</p>
               </div>
             )}
             {content.eventDemand.wellnessRetreats && (
@@ -176,7 +176,7 @@ export function ResearchSections({ content }: { content: any }) {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs px-2 py-0.5 rounded-full bg-teal-200 text-teal-800 font-semibold uppercase tracking-wider">Wellness</span>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed">{content.eventDemand.wellnessRetreats}</p>
+                <p className="text-sm text-foreground leading-relaxed">{content.eventDemand.wellnessRetreats}</p>
               </div>
             )}
             {content.eventDemand.weddingsPrivate && (
@@ -184,7 +184,7 @@ export function ResearchSections({ content }: { content: any }) {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs px-2 py-0.5 rounded-full bg-pink-200 text-pink-800 font-semibold uppercase tracking-wider">Weddings & Private</span>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed">{content.eventDemand.weddingsPrivate}</p>
+                <p className="text-sm text-foreground leading-relaxed">{content.eventDemand.weddingsPrivate}</p>
               </div>
             )}
           </div>
@@ -195,11 +195,11 @@ export function ResearchSections({ content }: { content: any }) {
             </div>
           )}
           {content.eventDemand.keyDrivers && content.eventDemand.keyDrivers.length > 0 && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Key Demand Drivers</h4>
+            <div className="bg-muted rounded-xl p-4 border border-border">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Key Demand Drivers</h4>
               <ul className="space-y-2">
                 {content.eventDemand.keyDrivers.map((d: string, i: number) => (
-                  <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2.5">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center mt-0.5">
                       <span className="text-xs font-bold text-orange-700">{i + 1}</span>
                     </span>
@@ -218,14 +218,14 @@ export function ResearchSections({ content }: { content: any }) {
             <MetricCard label="Recommended Boost" value={content.cateringAnalysis.recommendedBoostPercent || "N/A"} color={sectionColors.catering} confidence={content.cateringAnalysis.confidence} />
             <MetricCard label="Market Range" value={content.cateringAnalysis.marketRange || "N/A"} color={sectionColors.catering} />
             <div className="rounded-xl p-4 border border-fuchsia-200 bg-fuchsia-50">
-              <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-gray-500">Formula</p>
-              <p className="text-sm font-mono text-gray-800">Total F&B = Base F&B × (1 + Boost%)</p>
+              <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-muted-foreground">Formula</p>
+              <p className="text-sm font-mono text-foreground">Total F&B = Base F&B × (1 + Boost%)</p>
             </div>
           </div>
           {content.cateringAnalysis.rationale && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 mb-5">
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Rationale</h4>
-              <p className="text-sm text-gray-600 leading-relaxed">{content.cateringAnalysis.rationale}</p>
+            <div className="bg-muted rounded-xl p-4 border border-border mb-5">
+              <h4 className="text-sm font-semibold text-foreground mb-2">Rationale</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">{content.cateringAnalysis.rationale}</p>
             </div>
           )}
           {content.cateringAnalysis.eventMixBreakdown && (
@@ -235,7 +235,7 @@ export function ResearchSections({ content }: { content: any }) {
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-fuchsia-200 text-fuchsia-800 font-semibold uppercase tracking-wider">Fully Catered</span>
                   </div>
-                  <p className="text-sm text-gray-700 leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.fullyCatered}</p>
+                  <p className="text-sm text-foreground leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.fullyCatered}</p>
                 </div>
               )}
               {content.cateringAnalysis.eventMixBreakdown.partiallyCatered && (
@@ -243,25 +243,25 @@ export function ResearchSections({ content }: { content: any }) {
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-purple-200 text-purple-800 font-semibold uppercase tracking-wider">Partially Catered</span>
                   </div>
-                  <p className="text-sm text-gray-700 leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.partiallyCatered}</p>
+                  <p className="text-sm text-foreground leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.partiallyCatered}</p>
                 </div>
               )}
               {content.cateringAnalysis.eventMixBreakdown.noCatering && (
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="rounded-xl border border-border bg-muted p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 font-semibold uppercase tracking-wider">No Catering</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-foreground font-semibold uppercase tracking-wider">No Catering</span>
                   </div>
-                  <p className="text-sm text-gray-700 leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.noCatering}</p>
+                  <p className="text-sm text-foreground leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.noCatering}</p>
                 </div>
               )}
             </div>
           )}
           {content.cateringAnalysis.factors && content.cateringAnalysis.factors.length > 0 && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Key Factors</h4>
+            <div className="bg-muted rounded-xl p-4 border border-border">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Key Factors</h4>
               <ul className="space-y-2">
                 {content.cateringAnalysis.factors.map((f: string, i: number) => (
-                  <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2.5">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-fuchsia-100 flex items-center justify-center mt-0.5">
                       <span className="text-xs font-bold text-fuchsia-700">{i + 1}</span>
                     </span>
@@ -283,27 +283,27 @@ export function ResearchSections({ content }: { content: any }) {
           </div>
           {content.capRateAnalysis.rationale && (
             <div className="bg-cyan-50 rounded-xl p-4 border-l-4 border-cyan-400 mb-5">
-              <p className="text-sm text-gray-700 leading-relaxed" data-testid="text-cap-rate-rationale">{content.capRateAnalysis.rationale}</p>
+              <p className="text-sm text-foreground leading-relaxed" data-testid="text-cap-rate-rationale">{content.capRateAnalysis.rationale}</p>
             </div>
           )}
           {content.capRateAnalysis.comparables && content.capRateAnalysis.comparables.length > 0 && (
-            <div className="rounded-xl border border-gray-200 overflow-hidden">
+            <div className="rounded-xl border border-border overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-cyan-50/80">
-                    <th className="text-left p-3 text-gray-600 font-semibold">Property</th>
-                    <th className="text-right p-3 text-gray-600 font-semibold">Cap Rate</th>
-                    <th className="text-right p-3 text-gray-600 font-semibold">Sale Year</th>
-                    <th className="text-left p-3 text-gray-600 font-semibold">Notes</th>
+                    <th className="text-left p-3 text-muted-foreground font-semibold">Property</th>
+                    <th className="text-right p-3 text-muted-foreground font-semibold">Cap Rate</th>
+                    <th className="text-right p-3 text-muted-foreground font-semibold">Sale Year</th>
+                    <th className="text-left p-3 text-muted-foreground font-semibold">Notes</th>
                   </tr>
                 </thead>
                 <tbody>
                   {content.capRateAnalysis.comparables.map((c: any, i: number) => (
-                    <tr key={i} className="border-t border-gray-100 hover:bg-cyan-50/40 transition-colors" data-testid={`row-cap-rate-comp-${i}`}>
-                      <td className="p-3 text-gray-800 font-medium">{c.name}</td>
+                    <tr key={i} className="border-t border-border hover:bg-cyan-50/40 transition-colors" data-testid={`row-cap-rate-comp-${i}`}>
+                      <td className="p-3 text-foreground font-medium">{c.name}</td>
                       <td className="p-3 text-right font-semibold text-cyan-700">{c.capRate}</td>
-                      <td className="p-3 text-right text-gray-500">{c.saleYear}</td>
-                      <td className="p-3 text-gray-500">{c.notes}</td>
+                      <td className="p-3 text-right text-muted-foreground">{c.saleYear}</td>
+                      <td className="p-3 text-muted-foreground">{c.notes}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -322,15 +322,15 @@ export function ResearchSections({ content }: { content: any }) {
           </div>
           {content.landValueAllocation.rationale && (
             <div className="bg-stone-50 rounded-xl p-4 border-l-4 border-stone-400 mb-5">
-              <p className="text-sm text-gray-700 leading-relaxed">{content.landValueAllocation.rationale}</p>
+              <p className="text-sm text-foreground leading-relaxed">{content.landValueAllocation.rationale}</p>
             </div>
           )}
           {content.landValueAllocation.factors && content.landValueAllocation.factors.length > 0 && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Key Factors</h4>
+            <div className="bg-muted rounded-xl p-4 border border-border">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Key Factors</h4>
               <ul className="space-y-2">
                 {content.landValueAllocation.factors.map((f: string, i: number) => (
-                  <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2.5">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-stone-100 flex items-center justify-center mt-0.5">
                       <span className="text-xs font-bold text-stone-700">{i + 1}</span>
                     </span>
@@ -353,33 +353,33 @@ export function ResearchSections({ content }: { content: any }) {
           )}
           {content.operatingCostAnalysis.roomRevenueBased && (
             <div className="mb-5">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Room Revenue-Based Costs</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-3">Room Revenue-Based Costs</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {content.operatingCostAnalysis.roomRevenueBased.housekeeping && (
                   <div className={`rounded-xl p-4 border ${sectionColors.operatingCosts.border} ${sectionColors.operatingCosts.bg}`}>
                     <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Housekeeping</p>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Housekeeping</p>
                       {content.operatingCostAnalysis.roomRevenueBased.housekeeping.industryRange && (
                         <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{content.operatingCostAnalysis.roomRevenueBased.housekeeping.industryRange}</span>
                       )}
                     </div>
                     <MetricCard label="Recommended Rate" value={content.operatingCostAnalysis.roomRevenueBased.housekeeping.recommendedRate || "N/A"} color={sectionColors.operatingCosts} confidence={content.operatingCostAnalysis.roomRevenueBased.housekeeping.confidence} />
                     {content.operatingCostAnalysis.roomRevenueBased.housekeeping.rationale && (
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">{content.operatingCostAnalysis.roomRevenueBased.housekeeping.rationale}</p>
+                      <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{content.operatingCostAnalysis.roomRevenueBased.housekeeping.rationale}</p>
                     )}
                   </div>
                 )}
                 {content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales && (
                   <div className={`rounded-xl p-4 border ${sectionColors.operatingCosts.border} ${sectionColors.operatingCosts.bg}`}>
                     <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">F&B Cost of Sales</p>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">F&B Cost of Sales</p>
                       {content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.industryRange && (
                         <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.industryRange}</span>
                       )}
                     </div>
                     <MetricCard label="Recommended Rate" value={content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.recommendedRate || "N/A"} color={sectionColors.operatingCosts} confidence={content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.confidence} />
                     {content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.rationale && (
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">{content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.rationale}</p>
+                      <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.rationale}</p>
                     )}
                   </div>
                 )}
@@ -388,24 +388,24 @@ export function ResearchSections({ content }: { content: any }) {
           )}
           {content.operatingCostAnalysis.totalRevenueBased && (
             <div className="mb-5">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Total Revenue-Based Costs</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-3">Total Revenue-Based Costs</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {Object.entries(content.operatingCostAnalysis.totalRevenueBased).map(([key, item]: [string, any]) => (
                   <div key={key} className={`rounded-xl p-4 border ${sectionColors.operatingCosts.border} ${sectionColors.operatingCosts.bg}`}>
                     <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</p>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</p>
                       {item.industryRange && (
                         <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{item.industryRange}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="text-base font-semibold text-gray-900">{item.recommendedRate || "N/A"}</p>
+                      <p className="text-base font-semibold text-foreground">{item.recommendedRate || "N/A"}</p>
                       {item.confidence && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${sectionColors.operatingCosts.badge}`}>{item.confidence}</span>
                       )}
                     </div>
                     {item.rationale && (
-                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">{item.rationale}</p>
+                      <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{item.rationale}</p>
                     )}
                   </div>
                 ))}
@@ -413,11 +413,11 @@ export function ResearchSections({ content }: { content: any }) {
             </div>
           )}
           {content.operatingCostAnalysis.sources && content.operatingCostAnalysis.sources.length > 0 && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Sources</h4>
+            <div className="bg-muted rounded-xl p-4 border border-border">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Sources</h4>
               <ul className="space-y-1">
                 {content.operatingCostAnalysis.sources.map((s: string, i: number) => (
-                  <li key={i} className="text-xs text-gray-500">{i + 1}. {s}</li>
+                  <li key={i} className="text-xs text-muted-foreground">{i + 1}. {s}</li>
                 ))}
               </ul>
             </div>
@@ -436,7 +436,7 @@ export function ResearchSections({ content }: { content: any }) {
                 )}
                 {content.propertyValueCostAnalysis.insurance.rationale && (
                   <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-slate-400 mt-3">
-                    <p className="text-sm text-gray-700 leading-relaxed">{content.propertyValueCostAnalysis.insurance.rationale}</p>
+                    <p className="text-sm text-foreground leading-relaxed">{content.propertyValueCostAnalysis.insurance.rationale}</p>
                   </div>
                 )}
               </div>
@@ -449,7 +449,7 @@ export function ResearchSections({ content }: { content: any }) {
                 )}
                 {content.propertyValueCostAnalysis.propertyTaxes.rationale && (
                   <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-slate-400 mt-3">
-                    <p className="text-sm text-gray-700 leading-relaxed">{content.propertyValueCostAnalysis.propertyTaxes.rationale}</p>
+                    <p className="text-sm text-foreground leading-relaxed">{content.propertyValueCostAnalysis.propertyTaxes.rationale}</p>
                   </div>
                 )}
               </div>
@@ -484,7 +484,7 @@ export function ResearchSections({ content }: { content: any }) {
             return (
               <div key={key} className="bg-teal-50 rounded-xl p-4 border-l-4 border-teal-400 mb-3">
                 <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider mb-1">{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</p>
-                <p className="text-sm text-gray-700 leading-relaxed">{item.rationale}</p>
+                <p className="text-sm text-foreground leading-relaxed">{item.rationale}</p>
                 {item.industryRange && (
                   <p className="text-xs text-teal-600 mt-1.5 font-medium">Industry Range: {item.industryRange}</p>
                 )}
@@ -504,15 +504,15 @@ export function ResearchSections({ content }: { content: any }) {
           </div>
           {content.incomeTaxAnalysis.rationale && (
             <div className="bg-rose-50 rounded-xl p-4 border-l-4 border-rose-400 mb-5">
-              <p className="text-sm text-gray-700 leading-relaxed">{content.incomeTaxAnalysis.rationale}</p>
+              <p className="text-sm text-foreground leading-relaxed">{content.incomeTaxAnalysis.rationale}</p>
             </div>
           )}
           {content.incomeTaxAnalysis.factors && content.incomeTaxAnalysis.factors.length > 0 && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Key Factors</h4>
+            <div className="bg-muted rounded-xl p-4 border border-border">
+              <h4 className="text-sm font-semibold text-foreground mb-3">Key Factors</h4>
               <ul className="space-y-2">
                 {content.incomeTaxAnalysis.factors.map((f: string, i: number) => (
-                  <li key={i} className="text-sm text-gray-600 flex items-start gap-2.5">
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2.5">
                     <span className="flex-shrink-0 w-5 h-5 rounded-full bg-rose-100 flex items-center justify-center mt-0.5">
                       <span className="text-xs font-bold text-rose-700">{i + 1}</span>
                     </span>
@@ -527,23 +527,23 @@ export function ResearchSections({ content }: { content: any }) {
 
       {content.competitiveSet && content.competitiveSet.length > 0 && (
         <SectionCard icon={Building2} title="Competitive Set" color={sectionColors.competitive}>
-          <div className="rounded-xl border border-gray-200 overflow-hidden">
+          <div className="rounded-xl border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-primary/10">
-                  <th className="text-left p-3 text-gray-600 font-semibold">Property</th>
-                  <th className="text-right p-3 text-gray-600 font-semibold">Rooms</th>
-                  <th className="text-right p-3 text-gray-600 font-semibold">ADR</th>
-                  <th className="text-left p-3 text-gray-600 font-semibold">Positioning</th>
+                  <th className="text-left p-3 text-muted-foreground font-semibold">Property</th>
+                  <th className="text-right p-3 text-muted-foreground font-semibold">Rooms</th>
+                  <th className="text-right p-3 text-muted-foreground font-semibold">ADR</th>
+                  <th className="text-left p-3 text-muted-foreground font-semibold">Positioning</th>
                 </tr>
               </thead>
               <tbody>
                 {content.competitiveSet.map((c: any, i: number) => (
-                  <tr key={i} className="border-t border-gray-100 hover:bg-emerald-50/40 transition-colors">
-                    <td className="p-3 text-gray-800 font-medium">{c.name}</td>
-                    <td className="p-3 text-right text-gray-600">{c.rooms}</td>
+                  <tr key={i} className="border-t border-border hover:bg-emerald-50/40 transition-colors">
+                    <td className="p-3 text-foreground font-medium">{c.name}</td>
+                    <td className="p-3 text-right text-muted-foreground">{c.rooms}</td>
                     <td className="p-3 text-right font-semibold text-emerald-700">{c.adr}</td>
-                    <td className="p-3 text-gray-500">{c.positioning}</td>
+                    <td className="p-3 text-muted-foreground">{c.positioning}</td>
                   </tr>
                 ))}
               </tbody>
@@ -556,15 +556,15 @@ export function ResearchSections({ content }: { content: any }) {
         <SectionCard icon={AlertTriangle} title="Risks & Mitigations" color={sectionColors.risks}>
           <div className="space-y-3">
             {content.risks.map((r: any, i: number) => (
-              <div key={i} className="rounded-xl overflow-hidden border border-gray-200">
+              <div key={i} className="rounded-xl overflow-hidden border border-border">
                 <div className="bg-red-50 px-4 py-3 border-b border-red-100">
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-red-500" />
-                    <p className="text-sm text-gray-800 font-semibold">{r.risk}</p>
+                    <p className="text-sm text-foreground font-semibold">{r.risk}</p>
                   </div>
                 </div>
                 <div className="bg-white px-4 py-3">
-                  <p className="text-sm text-gray-600 leading-relaxed">{r.mitigation}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{r.mitigation}</p>
                 </div>
               </div>
             ))}
@@ -576,8 +576,8 @@ export function ResearchSections({ content }: { content: any }) {
         <SectionCard icon={BookOpen} title="Sources" color={sectionColors.sources}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {content.sources.map((s: string, i: number) => (
-              <div key={i} className="flex items-start gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2.5 border border-gray-100">
-                <span className="text-gray-400 font-semibold">{i + 1}.</span>
+              <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground bg-muted rounded-lg p-2.5 border border-border">
+                <span className="text-muted-foreground font-semibold">{i + 1}.</span>
                 <span>{s}</span>
               </div>
             ))}

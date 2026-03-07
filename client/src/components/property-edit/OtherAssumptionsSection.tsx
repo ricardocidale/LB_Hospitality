@@ -29,20 +29,20 @@ import type { OtherAssumptionsSectionProps } from "./types";
 
 export default function OtherAssumptionsSection({ draft, onChange, researchValues, exitYear }: OtherAssumptionsSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
       <div className="relative p-6">
         <div className="mb-6">
-          <h3 className="text-xl font-display text-gray-900 flex items-center">
+          <h3 className="text-xl font-display text-foreground flex items-center">
             Other Assumptions
             <HelpTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
           </h3>
-          <p className="text-gray-600 text-sm label-text">Exit valuation and tax rate assumptions</p>
+          <p className="text-muted-foreground text-sm label-text">Exit valuation and tax rate assumptions</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:items-end">
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
-                <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                <Label className="flex items-center label-text text-foreground gap-1.5">
                   Exit Cap Rate
                   <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
                   <GaapBadge rule="ASC 360: The exit cap rate determines terminal value for impairment testing. Gain on sale = Sale Price − (Adjusted Basis − Accumulated Depreciation). Depreciation recapture taxed at up to 25% under IRC §1250." />
@@ -65,14 +65,14 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               max={10}
               step={0.1}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Exit Value = Year {exitYear} NOI ÷ {((draft.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}%
             </p>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
-                <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                <Label className="flex items-center label-text text-foreground gap-1.5">
                   Income Tax Rate
                   <HelpTooltip text="Income tax rate for this property's SPV entity, applied to taxable income (NOI minus interest and depreciation) to calculate after-tax cash flow. Set per property to reflect the jurisdiction where the property is located." />
                   <GaapBadge rule="IRC §168: Taxable income = NOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes." />
@@ -95,14 +95,14 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               max={50}
               step={1}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Applied to taxable income (NOI − interest − depreciation)
             </p>
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
-                <Label className="flex items-center label-text text-gray-700 gap-1.5">
+                <Label className="flex items-center label-text text-foreground gap-1.5">
                   Sale Commission
                   <HelpTooltip text="Broker commission percentage applied when this property is sold." />
                 </Label>

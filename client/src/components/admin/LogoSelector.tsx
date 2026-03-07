@@ -44,7 +44,7 @@ export default function LogoSelector({
 
   return (
     <div className="space-y-2">
-      <Label className="label-text text-gray-700">{label}</Label>
+      <Label className="label-text text-foreground">{label}</Label>
       <div className="flex items-center gap-4">
         <div className={LOGO_PREVIEW}>
           <img src={resolvedUrl} alt={label} className="w-full h-full object-contain" />

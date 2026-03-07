@@ -42,15 +42,15 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
         <p className="text-xs text-muted-foreground mb-4">
           Standard vendor markup percentages and effective margins for hospitality management company services.
         </p>
-        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left p-3 text-gray-500 font-medium">Service</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Low Markup</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Mid Markup</th>
-                <th className="text-right p-3 text-gray-500 font-medium">High Markup</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Eff. Margin (Mid)</th>
+              <tr className="bg-muted border-b border-border">
+                <th className="text-left p-3 text-muted-foreground font-medium">Service</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Low Markup</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Mid Markup</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">High Markup</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Eff. Margin (Mid)</th>
               </tr>
             </thead>
             <tbody>
@@ -59,15 +59,15 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
                   ? (w.industryMarkupRange.mid / (1 + w.industryMarkupRange.mid) * 100).toFixed(1)
                   : "—";
                 return (
-                  <tr key={w.type} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                    <td className="p-3 text-gray-800 font-medium">{w.label}</td>
-                    <td className="p-3 text-right text-gray-600 font-mono">
+                  <tr key={w.type} className="border-b border-border hover:bg-muted/50 transition-colors">
+                    <td className="p-3 text-foreground font-medium">{w.label}</td>
+                    <td className="p-3 text-right text-muted-foreground font-mono">
                       {w.industryMarkupRange ? `${(w.industryMarkupRange.low * 100).toFixed(0)}%` : "—"}
                     </td>
                     <td className="p-3 text-right text-emerald-600 font-mono font-medium">
                       {w.industryMarkupRange ? `${(w.industryMarkupRange.mid * 100).toFixed(0)}%` : "—"}
                     </td>
-                    <td className="p-3 text-right text-gray-600 font-mono">
+                    <td className="p-3 text-right text-muted-foreground font-mono">
                       {w.industryMarkupRange ? `${(w.industryMarkupRange.high * 100).toFixed(0)}%` : "—"}
                     </td>
                     <td className="p-3 text-right text-blue-600 font-mono">{midMargin}%</td>
@@ -81,9 +81,9 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
 
       <SectionCard icon={Package} title="Waterfall Example: $10K Vendor Cost at 20% Markup" color={companySectionColors.fees}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 text-center">
+          <div className="bg-muted rounded-lg p-3 border border-border text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Vendor Cost</div>
-            <div className="text-lg font-semibold font-mono text-gray-900">${sampleVendorCost.toLocaleString()}</div>
+            <div className="text-lg font-semibold font-mono text-foreground">${sampleVendorCost.toLocaleString()}</div>
           </div>
           <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Markup (20%)</div>
@@ -91,7 +91,7 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
           </div>
           <div className="bg-primary/5 rounded-lg p-3 border border-primary/20 text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Fee Charged</div>
-            <div className="text-lg font-semibold font-mono text-gray-900">${(sampleVendorCost * 1.2).toLocaleString()}</div>
+            <div className="text-lg font-semibold font-mono text-foreground">${(sampleVendorCost * 1.2).toLocaleString()}</div>
           </div>
           <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200 text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Eff. Margin</div>

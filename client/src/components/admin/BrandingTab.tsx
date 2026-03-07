@@ -65,15 +65,15 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-400" /> Management Company</CardTitle>
+          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" /> Management Company</CardTitle>
           <CardDescription className="label-text">Define the management company name and logo used in financial reports and navigation</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label className="label-text text-gray-700">Company Name</Label>
+              <Label className="label-text text-foreground">Company Name</Label>
               <Input
                 value={companyName}
                 onChange={(e) => { setCompanyName(e.target.value); setCompanyDirty(true); }}
@@ -106,9 +106,9 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Tag className="w-4 h-4 text-gray-400" /> Asset Type</CardTitle>
+          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Tag className="w-4 h-4 text-muted-foreground" /> Asset Type</CardTitle>
           <CardDescription className="label-text">Define the type of property being profiled — used across page titles, research prompts, and financial reports</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -123,7 +123,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           />
 
           <div className="space-y-2">
-            <Label className="label-text text-gray-700">Asset Label</Label>
+            <Label className="label-text text-foreground">Asset Label</Label>
             <Input
               value={propertyLabel}
               onChange={(e) => { setPropertyLabel(e.target.value); setAssetDirty(true); }}
@@ -135,7 +135,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           </div>
 
           <div className="space-y-2">
-            <Label className="label-text text-gray-700">Asset Description</Label>
+            <Label className="label-text text-foreground">Asset Description</Label>
             <textarea
               value={assetDescription}
               onChange={(e) => { setAssetDescription(e.target.value); setAssetDirty(true); }}

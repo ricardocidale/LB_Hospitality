@@ -47,7 +47,7 @@ export function SearchResultCard({
 }) {
   return (
     <div
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group"
+      className="bg-white rounded-2xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow group"
       data-testid={`row-property-${property.externalId}`}
     >
       <div className="h-0.5 bg-gradient-to-r from-primary to-primary/30" />
@@ -55,7 +55,7 @@ export function SearchResultCard({
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-start gap-2">
             <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-            <span className="text-gray-900 font-medium text-sm leading-snug" data-testid={`text-address-${property.externalId}`}>
+            <span className="text-foreground font-medium text-sm leading-snug" data-testid={`text-address-${property.externalId}`}>
               {property.address}
             </span>
           </div>
@@ -63,7 +63,7 @@ export function SearchResultCard({
             {property.imageUrl && (
               <button
                 onClick={() => onToggleImage(property.externalId)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-muted transition-colors"
                 data-testid={`btn-image-${property.externalId}`}
               >
                 <Image className="w-4 h-4 text-primary" />
@@ -72,16 +72,16 @@ export function SearchResultCard({
             <button
               onClick={onToggleFavorite}
               disabled={isSaving}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
               title={isSaved ? "Remove from saved" : "Save property"}
               data-testid={`btn-favorite-${property.externalId}`}
             >
               {isSaving ? (
-                <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
               ) : isSaved ? (
                 <Heart className="w-4 h-4 text-[#F4795B] fill-[#F4795B]" />
               ) : (
-                <Heart className="w-4 h-4 text-gray-300 hover:text-[#F4795B]" />
+                <Heart className="w-4 h-4 text-muted-foreground hover:text-[#F4795B]" />
               )}
             </button>
           </div>
@@ -98,24 +98,24 @@ export function SearchResultCard({
           </div>
         )}
 
-        <p className="text-xl font-bold text-gray-900 mb-3" data-testid={`text-price-${property.externalId}`}>
+        <p className="text-xl font-bold text-foreground mb-3" data-testid={`text-price-${property.externalId}`}>
           {property.price ? formatMoney(property.price) : "—"}
         </p>
 
         <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
           <div className="flex items-center gap-1.5">
             <Bed className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700" data-testid={`text-beds-${property.externalId}`}>{property.beds ?? "—"} beds</span>
+            <span className="text-sm text-foreground" data-testid={`text-beds-${property.externalId}`}>{property.beds ?? "—"} beds</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
             <Bath className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700" data-testid={`text-baths-${property.externalId}`}>{property.baths ?? "—"} baths</span>
+            <span className="text-sm text-foreground" data-testid={`text-baths-${property.externalId}`}>{property.baths ?? "—"} baths</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
             <Ruler className="w-3.5 h-3.5 text-primary" />
-            <span className="text-sm text-gray-700" data-testid={`text-sqft-${property.externalId}`}>{property.sqft ? property.sqft.toLocaleString() : "—"} sqft</span>
+            <span className="text-sm text-foreground" data-testid={`text-sqft-${property.externalId}`}>{property.sqft ? property.sqft.toLocaleString() : "—"} sqft</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">

@@ -238,13 +238,13 @@ export default function Scenarios() {
           variant="light"
         />
 
-        <Card className="relative overflow-hidden bg-white border-gray-200 shadow-sm">
+        <Card className="relative overflow-hidden bg-white border-border shadow-sm">
           
           <CardHeader className="relative">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-display text-gray-900">Saved Scenarios</CardTitle>
-                <CardDescription className="label-text text-gray-500">
+                <CardTitle className="text-xl font-display text-foreground">Saved Scenarios</CardTitle>
+                <CardDescription className="label-text text-muted-foreground">
                   {scenarios?.length === 0 
                     ? "No scenarios saved yet. Save your current configuration to get started."
                     : `${scenarios?.length} scenario${scenarios?.length === 1 ? '' : 's'} saved`
@@ -256,7 +256,7 @@ export default function Scenarios() {
                   variant="ghost"
                   onClick={() => importFileRef.current?.click()}
                   data-testid="button-import-scenario"
-                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
                 >
                   <Upload className="w-4 h-4" />
                   Import
@@ -273,7 +273,7 @@ export default function Scenarios() {
                     variant={compareMode ? "default" : "ghost"}
                     onClick={() => { setCompareMode(!compareMode); setCompareSelection([]); }}
                     data-testid="button-toggle-compare"
-                    className={compareMode ? "" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"}
+                    className={compareMode ? "" : "text-muted-foreground hover:text-foreground hover:bg-muted"}
                   >
                     <GitCompareArrows className="w-4 h-4" />
                     {compareMode ? "Cancel Compare" : "Compare"}
@@ -295,7 +295,7 @@ export default function Scenarios() {
             {/* Compare selection bar */}
             {compareMode && (
               <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
-                <span className="text-gray-700 text-sm">
+                <span className="text-foreground text-sm">
                   {compareSelection.length === 0 && "Select two scenarios to compare"}
                   {compareSelection.length === 1 && "Select one more scenario"}
                   {compareSelection.length === 2 && "Ready to compare"}
@@ -315,9 +315,9 @@ export default function Scenarios() {
 
             {scenarios?.length === 0 ? (
               <div className="text-center py-12">
-                <FileStack className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="label-text text-gray-500 font-medium">No scenarios saved yet</p>
-                <p className="label-text text-gray-400 mt-1">
+                <FileStack className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="label-text text-muted-foreground font-medium">No scenarios saved yet</p>
+                <p className="label-text text-muted-foreground mt-1">
                   Click "Save Current" to save your current assumptions and properties as a scenario
                 </p>
               </div>
@@ -331,7 +331,7 @@ export default function Scenarios() {
                     className={`p-4 rounded-lg border transition-colors ${
                       compareMode && compareSelection.includes(scenario.id)
                         ? "bg-primary/10 border-primary"
-                        : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                        : "bg-muted border-border hover:bg-muted"
                     } ${compareMode ? "cursor-pointer" : ""}`}
                     onClick={compareMode ? () => toggleCompareSelect(scenario.id) : undefined}
                     data-testid={`scenario-card-${scenario.id}`}
@@ -339,7 +339,7 @@ export default function Scenarios() {
                     <div className="flex items-start justify-between gap-4">
                       {compareMode && (
                         <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                          compareSelection.includes(scenario.id) ? "border-primary bg-primary" : "border-gray-300"
+                          compareSelection.includes(scenario.id) ? "border-primary bg-primary" : "border-border"
                         }`}>
                           {compareSelection.includes(scenario.id) && (
                             <span className="text-[10px] font-bold text-white">
@@ -349,11 +349,11 @@ export default function Scenarios() {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-display text-gray-900 truncate">{scenario.name}</h3>
+                        <h3 className="font-display text-foreground truncate">{scenario.name}</h3>
                         {scenario.description && (
-                          <p className="label-text text-gray-500 mt-1 line-clamp-2">{scenario.description}</p>
+                          <p className="label-text text-muted-foreground mt-1 line-clamp-2">{scenario.description}</p>
                         )}
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 font-mono">
                             <Clock className="w-3 h-3" />
                             Saved: {formatDateTime(scenario.updatedAt)}
@@ -381,7 +381,7 @@ export default function Scenarios() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleExport(scenario.id, scenario.name)}
-                          className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+                          className="text-muted-foreground hover:text-foreground hover:bg-muted"
                           title="Export as JSON"
                           data-testid={`button-export-scenario-${scenario.id}`}
                         >
@@ -392,7 +392,7 @@ export default function Scenarios() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleClone(scenario.id, scenario.name)}
-                          className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+                          className="text-muted-foreground hover:text-foreground hover:bg-muted"
                           title="Duplicate"
                           data-testid={`button-clone-scenario-${scenario.id}`}
                         >
@@ -407,7 +407,7 @@ export default function Scenarios() {
                             name: scenario.name,
                             description: scenario.description || ""
                           })}
-                          className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
+                          className="text-muted-foreground hover:text-foreground hover:bg-muted"
                           data-testid={`button-edit-scenario-${scenario.id}`}
                         >
                           <Pencil className="w-4 h-4" />

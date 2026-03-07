@@ -41,7 +41,7 @@ export default function Analysis() {
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                       tab === t.id
                         ? "bg-primary text-white border border-primary"
-                        : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                        : "bg-white text-muted-foreground border border-border hover:bg-muted hover:text-foreground"
                     }`}
                   >
                     <Icon className="w-4 h-4" />

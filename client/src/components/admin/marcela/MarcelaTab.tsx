@@ -68,7 +68,7 @@ export default function MarcelaTab() {
     return (
       <div className="space-y-6 mt-6">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="bg-white border border-gray-200/80">
+          <Card key={i} className="bg-white border border-border/80">
             <CardHeader>
               <div className="h-6 w-48 bg-muted animate-pulse rounded" />
               <div className="h-4 w-72 bg-muted animate-pulse rounded mt-2" />
@@ -102,7 +102,7 @@ export default function MarcelaTab() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 md:grid-cols-8 h-auto p-1 bg-gray-100 border border-gray-200">
+        <TabsList className="grid grid-cols-4 md:grid-cols-8 h-auto p-1 bg-muted border border-border">
           <TabsTrigger value="general" className="py-2 gap-2" data-testid="tab-ai-agent-general">
             <Shield className="w-4 h-4" />
             <span className="hidden md:inline">General</span>
@@ -138,7 +138,7 @@ export default function MarcelaTab() {
             <History className="w-4 h-4" />
             <span className="hidden md:inline">History</span>
             {conversations && conversations.length > 0 && (
-              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-gray-600-foreground text-[9px] font-bold flex items-center justify-center leading-none">
+              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-muted-foreground-foreground text-[9px] font-bold flex items-center justify-center leading-none">
                 {conversations.length > 99 ? "99+" : conversations.length}
               </span>
             )}
@@ -147,15 +147,15 @@ export default function MarcelaTab() {
 
         <div className="mt-6 space-y-6">
           <TabsContent value="general" className="space-y-6 m-0 focus-visible:outline-none">
-            <Card className="bg-white border border-gray-200/80 shadow-sm">
+            <Card className="bg-white border border-border/80 shadow-sm">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                      <Shield className="w-4 h-4 text-gray-400" />
+                      <Shield className="w-4 h-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <CardTitle className="text-sm font-semibold text-gray-900">Agent Status</CardTitle>
+                      <CardTitle className="text-sm font-semibold text-foreground">Agent Status</CardTitle>
                       <CardDescription className="label-text mt-0.5">
                         Enable or disable the AI assistant and voice features globally.
                       </CardDescription>
@@ -176,7 +176,7 @@ export default function MarcelaTab() {
                     value={draft.aiAgentName}
                     onChange={(e) => updateField("aiAgentName", e.target.value)}
                     placeholder="Enter the AI agent's display name"
-                    className="bg-white border-gray-200 focus:border-gray-300 transition-colors max-w-sm"
+                    className="bg-white border-border focus:border-border transition-colors max-w-sm"
                     data-testid="input-ai-agent-name"
                   />
                   <p className="text-xs text-muted-foreground/70 pl-6">
@@ -213,7 +213,7 @@ export default function MarcelaTab() {
               </CardContent>
             </Card>
 
-            <Card className="bg-white border border-gray-200/80 shadow-sm">
+            <Card className="bg-white border border-border/80 shadow-sm">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
@@ -224,7 +224,7 @@ export default function MarcelaTab() {
                     />
                   </div>
                   <div>
-                    <CardTitle className="text-sm font-semibold text-gray-900">ElevenLabs Conversational AI</CardTitle>
+                    <CardTitle className="text-sm font-semibold text-foreground">ElevenLabs Conversational AI</CardTitle>
                     <CardDescription className="label-text mt-0.5">
                       Connect {agentName} to an ElevenLabs agent for voice and text chat with automatic language detection.
                     </CardDescription>
@@ -238,12 +238,12 @@ export default function MarcelaTab() {
                     value={draft.marcelaAgentId}
                     onChange={(e) => updateField("marcelaAgentId", e.target.value)}
                     placeholder="Enter your ElevenLabs Agent ID"
-                    className="bg-white font-mono text-sm border-gray-200 focus:border-gray-300 transition-colors"
+                    className="bg-white font-mono text-sm border-border focus:border-border transition-colors"
                     data-testid="input-ai-agent-id"
                   />
                   <p className="text-xs text-muted-foreground/70">
                     Create an agent at{" "}
-                    <a href="https://elevenlabs.io/app/conversational-ai" target="_blank" rel="noopener noreferrer" className="text-gray-600 underline">
+                    <a href="https://elevenlabs.io/app/conversational-ai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground underline">
                       elevenlabs.io/app/conversational-ai
                     </a>
                     {" "}and paste the Agent ID here.
@@ -283,18 +283,18 @@ export default function MarcelaTab() {
               ];
               const allHealthy = healthItems.every(h => h.ok);
               return (
-                <Card className="bg-white border border-gray-200/80 shadow-sm">
+                <Card className="bg-white border border-border/80 shadow-sm">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                        <Activity className="w-4 h-4 text-gray-600" />
+                      <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-muted-foreground" />
                         Agent Health
                       </CardTitle>
                       <div className="flex items-center gap-2">
                         <Badge variant={allHealthy ? "default" : "outline"} className={allHealthy ? "bg-green-500" : "text-amber-600 border-amber-300 bg-amber-50"}>
                           {allHealthy ? "All systems go" : "Needs attention"}
                         </Badge>
-                        <Button size="sm" variant="outline" onClick={() => setTestOpen(true)} className="gap-1.5 border-gray-200 text-gray-600 hover:bg-gray-50">
+                        <Button size="sm" variant="outline" onClick={() => setTestOpen(true)} className="gap-1.5 border-border text-muted-foreground hover:bg-muted">
                           <Play className="w-3.5 h-3.5" />
                           Test Conversation
                         </Button>
@@ -327,7 +327,7 @@ export default function MarcelaTab() {
               return !allDone ? (
                 <Card className="bg-amber-50 border border-amber-200 shadow-sm">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
                       Setup Checklist
                     </CardTitle>
@@ -345,7 +345,7 @@ export default function MarcelaTab() {
                             <button
                               type="button"
                               onClick={() => setActiveTab(c.tab!)}
-                              className="ml-auto text-[10px] text-gray-600 underline hover:no-underline"
+                              className="ml-auto text-[10px] text-muted-foreground underline hover:no-underline"
                             >
                               Go fix →
                             </button>

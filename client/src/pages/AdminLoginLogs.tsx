@@ -47,14 +47,14 @@ export default function AdminLoginLogs() {
           variant="dark"
         />
 
-        <Card className="relative overflow-hidden bg-white border border-gray-200 shadow-sm rounded-lg">
+        <Card className="relative overflow-hidden bg-white border border-border shadow-sm rounded-lg">
           
           <CardHeader className="relative">
             <div className="flex items-center gap-3">
               <LogIn className="w-5 h-5 text-primary" />
               <div>
-                <CardTitle className="text-xl font-display text-gray-900">Login History</CardTitle>
-                <CardDescription className="label-text text-gray-500">
+                <CardTitle className="text-xl font-display text-foreground">Login History</CardTitle>
+                <CardDescription className="label-text text-muted-foreground">
                   {logs?.length || 0} login records
                 </CardDescription>
               </div>
@@ -64,46 +64,46 @@ export default function AdminLoginLogs() {
           <CardContent className="relative">
             {logs?.length === 0 ? (
               <div className="text-center py-12">
-                <Clock className="w-16 h-16 mx-auto text-gray-200 mb-4" />
-                <p className="label-text text-gray-400">No login activity recorded yet</p>
+                <Clock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="label-text text-muted-foreground">No login activity recorded yet</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-gray-100 hover:bg-transparent">
-                      <TableHead className="text-gray-500 font-display">User</TableHead>
-                      <TableHead className="text-gray-500 font-display">Login Time</TableHead>
-                      <TableHead className="text-gray-500 font-display">Logout Time</TableHead>
-                      <TableHead className="text-gray-500 font-display">Duration</TableHead>
-                      <TableHead className="text-gray-500 font-display">IP Address</TableHead>
+                    <TableRow className="border-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground font-display">User</TableHead>
+                      <TableHead className="text-muted-foreground font-display">Login Time</TableHead>
+                      <TableHead className="text-muted-foreground font-display">Logout Time</TableHead>
+                      <TableHead className="text-muted-foreground font-display">Duration</TableHead>
+                      <TableHead className="text-muted-foreground font-display">IP Address</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {logs?.map((log) => (
-                      <TableRow key={log.id} className="border-gray-100 hover:bg-gray-50" data-testid={`login-log-row-${log.id}`}>
-                        <TableCell className="text-gray-900">
+                      <TableRow key={log.id} className="border-border hover:bg-muted" data-testid={`login-log-row-${log.id}`}>
+                        <TableCell className="text-foreground">
                           <div>
                             <div className="font-medium">{log.userName || log.userEmail}</div>
                             {log.userName && (
-                              <div className="text-xs text-gray-500 label-text">{log.userEmail}</div>
+                              <div className="text-xs text-muted-foreground label-text">{log.userEmail}</div>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="text-gray-700 font-mono text-sm">
+                        <TableCell className="text-foreground font-mono text-sm">
                           {formatDateTime(log.loginAt)}
                         </TableCell>
-                        <TableCell className="text-gray-700 font-mono text-sm">
+                        <TableCell className="text-foreground font-mono text-sm">
                           {log.logoutAt ? formatDateTime(log.logoutAt) : (
                             <span className="text-primary">Active</span>
                           )}
                         </TableCell>
                         <TableCell className="font-mono text-sm">
-                          <span className={log.logoutAt ? "text-gray-700" : "text-primary"}>
+                          <span className={log.logoutAt ? "text-foreground" : "text-primary"}>
                             {formatDuration(log.loginAt, log.logoutAt)}
                           </span>
                         </TableCell>
-                        <TableCell className="text-gray-500 font-mono text-sm">
+                        <TableCell className="text-muted-foreground font-mono text-sm">
                           {log.ipAddress || "-"}
                         </TableCell>
                       </TableRow>

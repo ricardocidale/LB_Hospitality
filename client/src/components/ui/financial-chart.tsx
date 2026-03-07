@@ -74,15 +74,15 @@ function FinancialChart({
     <div
       ref={chartRef}
       className={cn(
-        "rounded-lg p-5 bg-white border border-gray-200 shadow-sm",
+        "rounded-lg p-5 bg-white border border-border shadow-sm",
         className
       )}
     >
       {title && (
-        <h3 className="text-sm font-semibold text-gray-900 mb-1">{title}</h3>
+        <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
       )}
       {subtitle && (
-        <p className="text-xs text-gray-500 mb-4">{subtitle}</p>
+        <p className="text-xs text-muted-foreground mb-4">{subtitle}</p>
       )}
       <div style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">

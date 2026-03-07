@@ -53,12 +53,12 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                <Volume2 className="w-4 h-4 text-gray-400" />
+              <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-muted-foreground" />
                 Text-to-Speech (ElevenLabs)
               </CardTitle>
               <CardDescription className="label-text mt-1">
@@ -184,10 +184,10 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <Settings2 className="w-4 h-4 text-gray-400" />
+          <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Settings2 className="w-4 h-4 text-muted-foreground" />
             Advanced Audio Settings
           </CardTitle>
           <CardDescription className="label-text">
@@ -253,7 +253,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
         </CardContent>
       </Card>
 
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -261,7 +261,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 <Settings2 className="w-5 h-5 text-violet-600" />
               </div>
               <div>
-                <CardTitle className="text-sm font-semibold text-gray-900">Widget Settings</CardTitle>
+                <CardTitle className="text-sm font-semibold text-foreground">Widget Settings</CardTitle>
                 <CardDescription className="label-text mt-0.5">
                   Conversation turn timeout and avatar image — pushed directly to ElevenLabs.
                 </CardDescription>
@@ -324,7 +324,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   key={v.value}
                   type="button"
                   onClick={() => { setVariantDraft(v.value); setWidgetDirty(true); }}
-                  className={`p-3 rounded-xl border text-left transition-all ${variantDraft === v.value ? "border-primary bg-gray-50 shadow-sm" : "border-muted-foreground/20 hover:border-gray-300"}`}
+                  className={`p-3 rounded-xl border text-left transition-all ${variantDraft === v.value ? "border-primary bg-muted shadow-sm" : "border-muted-foreground/20 hover:border-border"}`}
                 >
                   {v.preview === "orb" && (
                     <div className="w-10 h-10 mb-2">
@@ -359,8 +359,8 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                     </div>
                   )}
                   {v.preview === "conversation-bar" && (
-                    <div className="mb-2 flex items-center gap-1.5 bg-muted/60 border border-gray-200/60 rounded-full px-2.5 py-1.5 w-fit">
-                      <Phone className="w-3 h-3 text-gray-600/60" />
+                    <div className="mb-2 flex items-center gap-1.5 bg-muted/60 border border-border/60 rounded-full px-2.5 py-1.5 w-fit">
+                      <Phone className="w-3 h-3 text-muted-foreground/60" />
                       <div className="flex items-end gap-0.5 h-3.5">
                         {[0.4, 0.75, 1, 0.75, 0.4].map((h, idx) => (
                           <div key={idx} className="w-0.5 bg-primary/40 rounded-full" style={{ height: `${h * 14}px` }} />
@@ -369,13 +369,13 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                       <Mic className="w-3 h-3 text-muted-foreground/40" />
                     </div>
                   )}
-                  <p className={`text-xs font-semibold ${variantDraft === v.value ? "text-gray-600" : "text-foreground"}`}>{v.label}</p>
+                  <p className={`text-xs font-semibold ${variantDraft === v.value ? "text-muted-foreground" : "text-foreground"}`}>{v.label}</p>
                   <p className="text-[10px] text-muted-foreground/60 mt-0.5">{v.desc}</p>
                 </button>
               ))}
             </div>
             {(variantDraft === "orb" || variantDraft === "bars" || variantDraft === "matrix" || variantDraft === "conversation-bar") && (
-              <p className="text-[11px] text-gray-600/70 bg-blue-50/60 border border-blue-200/40 rounded-lg px-3 py-2">
+              <p className="text-[11px] text-muted-foreground/70 bg-blue-50/60 border border-blue-200/40 rounded-lg px-3 py-2">
                 {variantDraft === "conversation-bar"
                   ? "Voice Bar replaces the native widget with a full voice + text interface using the @elevenlabs/react SDK (WebRTC)."
                   : "Custom component replaces the native ElevenLabs widget button. Users see the animated visual instead."}
@@ -394,11 +394,11 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
               value={avatarDraft}
               onChange={(e) => { setAvatarDraft(e.target.value); setWidgetDirty(true); }}
               placeholder="https://example.com/avatar.png"
-              className="bg-white border-gray-200 focus:border-gray-300 transition-colors"
+              className="bg-white border-border focus:border-border transition-colors"
             />
             {avatarDraft && (
-              <div className="flex items-center gap-3 p-3 bg-gray-50/50 rounded-xl border border-gray-200/60">
-                <img src={avatarDraft} alt="Avatar preview" className="w-10 h-10 rounded-full object-cover border border-gray-200" onError={(e) => (e.currentTarget.style.display = "none")} />
+              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl border border-border/60">
+                <img src={avatarDraft} alt="Avatar preview" className="w-10 h-10 rounded-full object-cover border border-border" onError={(e) => (e.currentTarget.style.display = "none")} />
                 <p className="text-xs text-muted-foreground/70">Preview — shown as the widget's avatar bubble.</p>
               </div>
             )}

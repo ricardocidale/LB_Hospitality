@@ -14,20 +14,20 @@ export interface PageHeaderProps {
 
 function PageHeader({ title, subtitle, backLink, actions, className }: PageHeaderProps) {
   return (
-    <div className={cn("relative rounded-xl border border-gray-200/80 bg-white shadow-sm p-4 sm:p-5", className)}>
+    <div className={cn("relative rounded-xl border border-border/80 bg-white shadow-sm p-4 sm:p-5", className)}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
           {backLink && (
             <Link href={backLink}>
-              <button className="p-2 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors">
-                <ChevronLeft className="w-4 h-4 text-gray-600" />
+              <button className="p-2 rounded-lg border border-border bg-muted hover:bg-muted transition-colors">
+                <ChevronLeft className="w-4 h-4 text-muted-foreground" />
               </button>
             </Link>
           )}
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">{title}</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground">{title}</h2>
             {subtitle && (
-              <p className="text-xs sm:text-sm mt-0.5 text-gray-500">{subtitle}</p>
+              <p className="text-xs sm:text-sm mt-0.5 text-muted-foreground">{subtitle}</p>
             )}
           </div>
         </div>

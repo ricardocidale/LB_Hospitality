@@ -5,9 +5,9 @@ import { Wrench, Monitor, Server, Cpu, Loader2, RefreshCw, AlertCircle, External
 import { useAgentConfig } from "./hooks";
 
 const TYPE_META: Record<string, { label: string; icon: typeof Monitor; color: string; badge: string }> = {
-  client:  { label: "Client", icon: Monitor, color: "text-gray-600",   badge: "border-blue-200 text-gray-600 bg-blue-50/50" },
+  client:  { label: "Client", icon: Monitor, color: "text-muted-foreground",   badge: "border-blue-200 text-muted-foreground bg-blue-50/50" },
   webhook: { label: "Server", icon: Server,  color: "text-violet-600", badge: "border-violet-200 text-violet-600 bg-violet-50/50" },
-  system:  { label: "System", icon: Cpu,     color: "text-gray-600",    badge: "border-gray-200 text-gray-600 bg-gray-50" },
+  system:  { label: "System", icon: Cpu,     color: "text-muted-foreground",    badge: "border-border text-muted-foreground bg-muted" },
 };
 
 interface ToolsStatusProps {
@@ -19,10 +19,10 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
 
   if (isLoading) {
     return (
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardContent className="py-16 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gray-100 mb-4">
-            <Loader2 className="w-7 h-7 animate-spin text-gray-600" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-muted mb-4">
+            <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" />
           </div>
           <p className="text-sm text-muted-foreground font-medium">Loading tools from ElevenLabs...</p>
         </CardContent>
@@ -32,7 +32,7 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
 
   if (error) {
     return (
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardContent className="py-10">
           <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
@@ -58,18 +58,18 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <Wrench className="w-4 h-4 text-gray-400" />
+                <Wrench className="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
-                <CardTitle className="text-sm font-semibold text-gray-900">Active Tools</CardTitle>
+                <CardTitle className="text-sm font-semibold text-foreground">Active Tools</CardTitle>
                 <CardDescription className="label-text mt-0.5">
                   Tools configured on {agentName} in ElevenLabs — manage them in the{" "}
-                  <a href="https://elevenlabs.io/app/conversational-ai" target="_blank" rel="noopener noreferrer" className="text-gray-600 underline inline-flex items-center gap-0.5">
+                  <a href="https://elevenlabs.io/app/conversational-ai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground underline inline-flex items-center gap-0.5">
                     ElevenLabs dashboard <ExternalLink className="w-3 h-3" />
                   </a>
                 </CardDescription>
@@ -99,7 +99,7 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
                 </div>
                 <div className="grid gap-1">
                   {group.map((tool: any) => (
-                    <div key={tool.name} className="flex items-start gap-3 py-2 px-3 rounded-lg hover:bg-gray-50/30 transition-colors">
+                    <div key={tool.name} className="flex items-start gap-3 py-2 px-3 rounded-lg hover:bg-muted/30 transition-colors">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0 mt-1.5" />
                       <div className="min-w-0">
                         <p className="text-sm font-mono font-medium text-foreground/90">{tool.name}</p>

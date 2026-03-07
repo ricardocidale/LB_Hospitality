@@ -29,7 +29,7 @@ function statusIcon(status: BenchmarkRow["status"]) {
     case "above": return <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
     case "below": return <TrendingDown className="w-3.5 h-3.5 text-amber-500" />;
     case "within": return <Minus className="w-3.5 h-3.5 text-blue-500" />;
-    default: return <Minus className="w-3.5 h-3.5 text-gray-400" />;
+    default: return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
   }
 }
 
@@ -132,11 +132,11 @@ export default function BenchmarkPanel({ property, yearlyChartData }: BenchmarkP
   if (rows.length === 0) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-lg bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg bg-white border border-border shadow-sm">
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <BookOpen className="w-4 h-4 text-primary" />
-          <h4 className="text-sm font-display text-gray-900">Market Benchmarks</h4>
+          <h4 className="text-sm font-display text-foreground">Market Benchmarks</h4>
           <span className="text-xs text-muted-foreground ml-auto">vs. research ranges</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
@@ -148,14 +148,14 @@ export default function BenchmarkPanel({ property, yearlyChartData }: BenchmarkP
                 row.status === "within" && "bg-blue-50/50 border-blue-200/60",
                 row.status === "above" && "bg-emerald-50/50 border-emerald-200/60",
                 row.status === "below" && "bg-amber-50/50 border-amber-200/60",
-                row.status === "unknown" && "bg-gray-50/50 border-gray-200/60",
+                row.status === "unknown" && "bg-muted/50 border-border/60",
               )}
             >
               <div className="flex items-center gap-1 mb-1">
                 {statusIcon(row.status)}
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground truncate">{row.label}</span>
               </div>
-              <div className="text-sm font-semibold font-mono text-gray-900">{row.actual}</div>
+              <div className="text-sm font-semibold font-mono text-foreground">{row.actual}</div>
               <div className="text-[10px] text-muted-foreground mt-0.5">{row.range}</div>
             </div>
           ))}

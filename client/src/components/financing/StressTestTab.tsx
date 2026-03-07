@@ -92,11 +92,11 @@ export function StressTestTab() {
             <table className="w-full text-xs">
               <thead>
                 <tr>
-                  <th className="text-left text-gray-500 p-2 border-b border-gray-200">
+                  <th className="text-left text-muted-foreground p-2 border-b border-border">
                     Rate \ NOI
                   </th>
                   {noiShocks.map((ns) => (
-                    <th key={ns} className="text-center text-gray-500 p-2 border-b border-gray-200">
+                    <th key={ns} className="text-center text-muted-foreground p-2 border-b border-border">
                       {ns > 0 ? `+${ns}%` : `${ns}%`}
                     </th>
                   ))}
@@ -105,7 +105,7 @@ export function StressTestTab() {
               <tbody>
                 {rateShocks.map((rs) => (
                   <tr key={rs}>
-                    <td className="text-gray-700 p-2 border-b border-gray-100 font-medium">
+                    <td className="text-foreground p-2 border-b border-border font-medium">
                       {rs > 0 ? `+${rs}` : rs} bps
                     </td>
                     {noiShocks.map((ns) => {
@@ -117,12 +117,12 @@ export function StressTestTab() {
                       return (
                         <td
                           key={ns}
-                          className={`text-center p-2 border-b border-gray-100 font-mono ${
+                          className={`text-center p-2 border-b border-border font-mono ${
                             !cell.passes
                               ? "bg-red-50 text-red-600"
                               : isBase
                               ? "bg-primary/10 text-primary"
-                              : "text-gray-800"
+                              : "text-foreground"
                           }`}
                           data-testid={`cell-sens-${rs}-${ns}`}
                         >

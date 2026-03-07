@@ -76,7 +76,7 @@ function FinancialTable({
       ref={tableRef}
       className={cn(
         "rounded-lg p-6 shadow-sm border",
-        isDark ? "bg-white border-gray-200" : "bg-white border-gray-100",
+        isDark ? "bg-white border-border" : "bg-white border-border",
         className
       )}
       data-testid={props["data-testid"]}
@@ -85,7 +85,7 @@ function FinancialTable({
         <h3
           className={cn(
             "text-lg font-display mb-4",
-            isDark ? "text-gray-900" : "text-gray-900"
+            isDark ? "text-foreground" : "text-foreground"
           )}
         >
           {title}
@@ -94,11 +94,11 @@ function FinancialTable({
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className={isDark ? "border-gray-200" : "border-gray-200"}>
+            <TableRow className={isDark ? "border-border" : "border-border"}>
               <TableHead
                 className={cn(
                   "sticky left-0",
-                  isDark ? "bg-gray-50 text-gray-700" : "bg-gray-50 text-gray-700"
+                  isDark ? "bg-muted text-foreground" : "bg-muted text-foreground"
                 )}
               >
                 {stickyLabel}
@@ -108,7 +108,7 @@ function FinancialTable({
                   key={i}
                   className={cn(
                     "text-right min-w-[100px]",
-                    isDark ? "text-gray-700" : "text-gray-700"
+                    isDark ? "text-foreground" : "text-foreground"
                   )}
                 >
                   {col}
@@ -128,12 +128,12 @@ function FinancialTable({
 
               const bgClass = row.isSection
                 ? isDark
-                  ? "bg-gray-50 font-semibold"
-                  : "bg-gray-50 font-semibold"
+                  ? "bg-muted font-semibold"
+                  : "bg-muted font-semibold"
                 : row.isSubtotal
                 ? isDark
-                  ? "bg-gray-50 font-semibold"
-                  : "bg-gray-50/50 font-semibold"
+                  ? "bg-muted font-semibold"
+                  : "bg-muted/50 font-semibold"
                 : row.isTotal
                 ? isDark
                   ? "bg-primary/10 font-bold"
@@ -151,7 +151,7 @@ function FinancialTable({
                     className={cn(
                       "sticky left-0",
                       row.bold && "font-semibold",
-                      isDark ? "bg-inherit text-gray-900" : "bg-inherit"
+                      isDark ? "bg-inherit text-foreground" : "bg-inherit"
                     )}
                     style={paddingLeft ? { paddingLeft } : undefined}
                   >
@@ -162,7 +162,7 @@ function FinancialTable({
                       key={colIdx}
                       className={cn(
                         "text-right font-mono",
-                        isDark ? "text-gray-600" : "text-gray-600",
+                        isDark ? "text-muted-foreground" : "text-muted-foreground",
                         typeof val === "number" && val < 0 && "text-destructive"
                       )}
                     >

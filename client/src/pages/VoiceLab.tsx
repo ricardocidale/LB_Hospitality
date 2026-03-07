@@ -48,7 +48,7 @@ export default function VoiceLab() {
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold text-gray-900 font-display">
+          <h1 className="text-2xl font-semibold text-foreground font-display">
             {agentName} — Voice Lab
           </h1>
           <p className="text-sm text-muted-foreground">

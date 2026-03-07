@@ -24,21 +24,21 @@ export function SensitivityComparisonTable({ baseResult, adjustedResult }: Sensi
           <ArrowUpDown className="w-5 h-5 text-secondary" />
         </div>
         <div>
-          <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-comparison-title">
+          <h3 className="text-lg font-display font-bold text-foreground" data-testid="text-comparison-title">
             Base vs. Adjusted Scenario
           </h3>
-          <p className="text-xs text-gray-500">Side-by-side comparison of your current adjustments</p>
+          <p className="text-xs text-muted-foreground">Side-by-side comparison of your current adjustments</p>
         </div>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm" data-testid="table-comparison">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-4 font-medium text-gray-600">Metric</th>
-              <th className="text-right py-3 px-4 font-medium text-gray-600">Base Case</th>
-              <th className="text-right py-3 px-4 font-medium text-gray-600">Adjusted</th>
-              <th className="text-right py-3 px-4 font-medium text-gray-600">Change</th>
+            <tr className="border-b border-border">
+              <th className="text-left py-3 px-4 font-medium text-muted-foreground">Metric</th>
+              <th className="text-right py-3 px-4 font-medium text-muted-foreground">Base Case</th>
+              <th className="text-right py-3 px-4 font-medium text-muted-foreground">Adjusted</th>
+              <th className="text-right py-3 px-4 font-medium text-muted-foreground">Change</th>
             </tr>
           </thead>
           <tbody>
@@ -46,16 +46,16 @@ export function SensitivityComparisonTable({ baseResult, adjustedResult }: Sensi
               const delta = row.adj - row.base;
               const deltaPct = row.base !== 0 ? (delta / Math.abs(row.base)) * 100 : 0;
               return (
-                <tr key={row.label} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
-                  <td className="py-3 px-4 font-medium text-gray-800">{row.label}</td>
-                  <td className="py-3 px-4 text-right font-mono text-gray-600">
+                <tr key={row.label} className="border-b border-border hover:bg-muted/50 transition-colors">
+                  <td className="py-3 px-4 font-medium text-foreground">{row.label}</td>
+                  <td className="py-3 px-4 text-right font-mono text-muted-foreground">
                     {row.fmt === "money" ? formatMoney(row.base) : `${row.base.toFixed(1)}%`}
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-semibold text-gray-900">
+                  <td className="py-3 px-4 text-right font-mono font-semibold text-foreground">
                     {row.fmt === "money" ? formatMoney(row.adj) : `${row.adj.toFixed(1)}%`}
                   </td>
                   <td className={`py-3 px-4 text-right font-mono font-semibold ${
-                    delta > 0 ? "text-secondary" : delta < 0 ? "text-red-600" : "text-gray-400"
+                    delta > 0 ? "text-secondary" : delta < 0 ? "text-red-600" : "text-muted-foreground"
                   }`}>
                     <div className="flex items-center justify-end gap-1">
                       {delta > 0 ? (
@@ -68,7 +68,7 @@ export function SensitivityComparisonTable({ baseResult, adjustedResult }: Sensi
                           ? `${delta >= 0 ? "+" : ""}${formatMoney(delta)}`
                           : `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}pp`}
                       </span>
-                      <span className="text-xs text-gray-400 ml-1">
+                      <span className="text-xs text-muted-foreground ml-1">
                         ({deltaPct >= 0 ? "+" : ""}{deltaPct.toFixed(1)}%)
                       </span>
                     </div>

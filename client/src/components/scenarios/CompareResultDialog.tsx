@@ -43,7 +43,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {/* Assumption diffs */}
             {result.assumptionDiffs.length > 0 && (
               <div>
-                <h4 className="font-display font-semibold text-sm text-gray-700 mb-2 flex items-center gap-2">
+                <h4 className="font-display font-semibold text-sm text-foreground mb-2 flex items-center gap-2">
                   <RefreshCw className="w-4 h-4" />
                   Assumption Changes ({result.assumptionDiffs.length})
                 </h4>
@@ -58,7 +58,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
                   <TableBody>
                     {result.assumptionDiffs.map((d, i) => (
                       <TableRow key={i}>
-                        <TableCell className="font-mono text-xs text-gray-600">{d.field}</TableCell>
+                        <TableCell className="font-mono text-xs text-muted-foreground">{d.field}</TableCell>
                         <TableCell className="font-mono text-xs text-red-600">{formatDiffValue(d.scenario1)}</TableCell>
                         <TableCell className="font-mono text-xs text-green-700">{formatDiffValue(d.scenario2)}</TableCell>
                       </TableRow>
@@ -105,13 +105,13 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {/* Property-level field changes */}
             {result.propertyDiffs.filter(pd => pd.status === "changed").length > 0 && (
               <div>
-                <h4 className="font-display font-semibold text-sm text-gray-700 mb-2 flex items-center gap-2">
+                <h4 className="font-display font-semibold text-sm text-foreground mb-2 flex items-center gap-2">
                   <RefreshCw className="w-4 h-4" />
                   Property Changes
                 </h4>
                 {result.propertyDiffs.filter(pd => pd.status === "changed").map((pd, i) => (
                   <div key={i} className="mb-4">
-                    <p className="text-sm font-semibold text-gray-800 mb-1">{pd.name} ({pd.changes?.length ?? 0} changes)</p>
+                    <p className="text-sm font-semibold text-foreground mb-1">{pd.name} ({pd.changes?.length ?? 0} changes)</p>
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -123,7 +123,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
                       <TableBody>
                         {pd.changes?.map((d, j) => (
                           <TableRow key={j}>
-                            <TableCell className="font-mono text-xs text-gray-600">{d.field}</TableCell>
+                            <TableCell className="font-mono text-xs text-muted-foreground">{d.field}</TableCell>
                             <TableCell className="font-mono text-xs text-red-600">{formatDiffValue(d.scenario1)}</TableCell>
                             <TableCell className="font-mono text-xs text-green-700">{formatDiffValue(d.scenario2)}</TableCell>
                           </TableRow>
@@ -138,7 +138,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {/* No differences */}
             {result.assumptionDiffs.length === 0 && result.propertyDiffs.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-gray-500 label-text">These scenarios are identical.</p>
+                <p className="text-muted-foreground label-text">These scenarios are identical.</p>
               </div>
             )}
           </div>

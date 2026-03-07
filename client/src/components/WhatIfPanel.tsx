@@ -96,21 +96,21 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
         style={{ backgroundColor: "#FFFDF7" }}
         data-testid="what-if-panel"
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800" data-testid="what-if-title">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground" data-testid="what-if-title">
             What-If Analysis
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl leading-none"
+            className="text-muted-foreground hover:text-foreground text-xl leading-none"
             data-testid="what-if-close"
           >
             ✕
           </button>
         </div>
 
-        <div className="px-4 py-2 border-b border-gray-100">
-          <p className="text-sm font-medium text-gray-600" data-testid="what-if-property-name">
+        <div className="px-4 py-2 border-b border-border">
+          <p className="text-sm font-medium text-muted-foreground" data-testid="what-if-property-name">
             {property.name}
           </p>
         </div>
@@ -118,8 +118,8 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium text-gray-700">ADR Growth</label>
-              <span className="font-mono tabular-nums text-sm text-gray-800" data-testid="slider-value-adr-growth">
+              <label className="text-sm font-medium text-foreground">ADR Growth</label>
+              <span className="font-mono tabular-nums text-sm text-foreground" data-testid="slider-value-adr-growth">
                 {(adrGrowthRate * 100).toFixed(1)}%
               </span>
             </div>
@@ -130,11 +130,11 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
               step={0.001}
               value={adrGrowthRate}
               onChange={(e) => setAdrGrowthRate(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer"
+              className="w-full h-2 bg-muted rounded-lg cursor-pointer"
               style={sliderStyle}
               data-testid="slider-adr-growth"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+            <div className="flex justify-between text-xs text-muted-foreground mt-0.5">
               <span>0%</span>
               <span>10%</span>
             </div>
@@ -142,8 +142,8 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium text-gray-700">Start Occupancy</label>
-              <span className="font-mono tabular-nums text-sm text-gray-800" data-testid="slider-value-start-occupancy">
+              <label className="text-sm font-medium text-foreground">Start Occupancy</label>
+              <span className="font-mono tabular-nums text-sm text-foreground" data-testid="slider-value-start-occupancy">
                 {Math.round(startOccupancy * 100)}%
               </span>
             </div>
@@ -154,11 +154,11 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
               step={0.01}
               value={startOccupancy}
               onChange={(e) => setStartOccupancy(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer"
+              className="w-full h-2 bg-muted rounded-lg cursor-pointer"
               style={sliderStyle}
               data-testid="slider-start-occupancy"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+            <div className="flex justify-between text-xs text-muted-foreground mt-0.5">
               <span>40%</span>
               <span>100%</span>
             </div>
@@ -166,8 +166,8 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium text-gray-700">Max Occupancy</label>
-              <span className="font-mono tabular-nums text-sm text-gray-800" data-testid="slider-value-max-occupancy">
+              <label className="text-sm font-medium text-foreground">Max Occupancy</label>
+              <span className="font-mono tabular-nums text-sm text-foreground" data-testid="slider-value-max-occupancy">
                 {Math.round(maxOccupancy * 100)}%
               </span>
             </div>
@@ -178,11 +178,11 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
               step={0.01}
               value={maxOccupancy}
               onChange={(e) => setMaxOccupancy(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer"
+              className="w-full h-2 bg-muted rounded-lg cursor-pointer"
               style={sliderStyle}
               data-testid="slider-max-occupancy"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+            <div className="flex justify-between text-xs text-muted-foreground mt-0.5">
               <span>60%</span>
               <span>100%</span>
             </div>
@@ -190,8 +190,8 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-sm font-medium text-gray-700">Purchase Price</label>
-              <span className="font-mono tabular-nums text-sm text-gray-800" data-testid="slider-value-purchase-price">
+              <label className="text-sm font-medium text-foreground">Purchase Price</label>
+              <span className="font-mono tabular-nums text-sm text-foreground" data-testid="slider-value-purchase-price">
                 ${purchasePrice.toLocaleString()}
               </span>
             </div>
@@ -202,21 +202,21 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
               step={10000}
               value={purchasePrice}
               onChange={(e) => setPurchasePrice(parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer"
+              className="w-full h-2 bg-muted rounded-lg cursor-pointer"
               style={sliderStyle}
               data-testid="slider-purchase-price"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+            <div className="flex justify-between text-xs text-muted-foreground mt-0.5">
               <span>${priceLow.toLocaleString()}</span>
               <span>${priceHigh.toLocaleString()}</span>
             </div>
           </div>
 
-          <div className="border-t border-gray-200 pt-4 space-y-2" data-testid="what-if-results">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Adjusted Values</h3>
+          <div className="border-t border-border pt-4 space-y-2" data-testid="what-if-results">
+            <h3 className="text-sm font-semibold text-foreground mb-2">Adjusted Values</h3>
 
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Adjusted ADR Growth:</span>
+              <span className="text-muted-foreground">Adjusted ADR Growth:</span>
               <span
                 className="font-mono tabular-nums font-medium"
                 style={{ color: changeColor(adrGrowthRate, defaults.adrGrowthRate, true) }}
@@ -227,7 +227,7 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Adjusted Start Occupancy:</span>
+              <span className="text-muted-foreground">Adjusted Start Occupancy:</span>
               <span
                 className="font-mono tabular-nums font-medium"
                 style={{ color: changeColor(startOccupancy, defaults.startOccupancy, true) }}
@@ -238,7 +238,7 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Adjusted Max Occupancy:</span>
+              <span className="text-muted-foreground">Adjusted Max Occupancy:</span>
               <span
                 className="font-mono tabular-nums font-medium"
                 style={{ color: changeColor(maxOccupancy, defaults.maxOccupancy, true) }}
@@ -249,7 +249,7 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Adjusted Purchase Price:</span>
+              <span className="text-muted-foreground">Adjusted Purchase Price:</span>
               <span
                 className="font-mono tabular-nums font-medium"
                 style={{ color: changeColor(purchasePrice, defaults.purchasePrice, false) }}
@@ -261,11 +261,11 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
           </div>
         </div>
 
-        <div className="px-4 py-3 border-t border-gray-200 flex gap-2">
+        <div className="px-4 py-3 border-t border-border flex gap-2">
           <button
             onClick={handleReset}
             disabled={!hasChanges}
-            className="flex-1 px-3 py-2 text-sm font-medium rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 px-3 py-2 text-sm font-medium rounded-md border border-border text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
             data-testid="what-if-reset"
           >
             Reset

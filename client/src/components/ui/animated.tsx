@@ -212,7 +212,7 @@ export function PulseOnMount({ children, className }: { children: ReactNode; cla
 export function AnimatedProgressBar({ value, max = 100, className, color = "bg-primary" }: { value: number; max?: number; className?: string; color?: string }) {
   const percentage = Math.min((value / max) * 100, 100);
   return (
-    <div className={`w-full bg-gray-200 rounded-full h-2.5 overflow-hidden ${className || ""}`}>
+    <div className={`w-full bg-muted rounded-full h-2.5 overflow-hidden ${className || ""}`}>
       <motion.div
         className={`h-full rounded-full ${color}`}
         initial={{ width: 0 }}

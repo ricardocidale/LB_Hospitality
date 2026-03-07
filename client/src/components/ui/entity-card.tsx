@@ -37,8 +37,8 @@ export function EntityCardContainer({
     <Card
       className={cn(
         variant === "featured"
-          ? "bg-white border-gray-200 shadow-sm"
-          : "bg-white border-gray-200 shadow-sm",
+          ? "bg-white border-border shadow-sm"
+          : "bg-white border-border shadow-sm",
         className
       )}
       data-testid={testId}
@@ -98,11 +98,11 @@ export function EntityCardItem({
 }: EntityCardItemProps) {
   const accent = accentColor === "blue" ? "blue-500" : "primary";
   const bgClass = accentColor === "blue" ? "bg-blue-500/5" : "bg-primary/5";
-  const borderClass = accentColor === "blue" ? "border-blue-500/20" : "border-gray-200";
+  const borderClass = accentColor === "blue" ? "border-blue-500/20" : "border-border";
   const iconBgClass = accentColor === "blue" ? "bg-blue-500/10" : "bg-primary/10";
   const editHoverClass = accentColor === "blue" ? "text-blue-500 hover:text-foreground hover:bg-blue-500/10" : "text-primary hover:text-foreground hover:bg-primary/10";
   const metaBgClass = accentColor === "blue" ? "bg-blue-500/10" : "bg-primary/10";
-  const memberBorderClass = accentColor === "blue" ? "border-blue-500/20" : "border-gray-200";
+  const memberBorderClass = accentColor === "blue" ? "border-blue-500/20" : "border-border";
 
   return (
     <div className={cn(bgClass, "border", borderClass, "rounded-lg p-4")} data-testid={testId || `entity-card-${id}`}>

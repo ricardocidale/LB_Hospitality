@@ -59,14 +59,14 @@ interface MarginRowProps {
 export function MarginRow({ label, values, baseValues }: MarginRowProps) {
   return (
     <TableRow>
-      <TableCell className="sticky left-0 bg-white py-0.5 text-xs text-gray-400 italic pl-6">
+      <TableCell className="sticky left-0 bg-white py-0.5 text-xs text-muted-foreground italic pl-6">
         {label}
       </TableCell>
       {values.map((v, i) => {
         const base = baseValues[i] || 0;
         const pctVal = base !== 0 ? (v / base) * 100 : 0;
         return (
-          <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-gray-400 italic px-2">
+          <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-muted-foreground italic px-2">
             {base !== 0 ? `${pctVal.toFixed(1)}%` : "—"}
           </TableCell>
         );
@@ -91,7 +91,7 @@ interface FormulaDetailRowProps {
 export function FormulaDetailRow({ label, values, positive }: FormulaDetailRowProps) {
   return (
     <TableRow className="bg-blue-50/40" data-expandable-row="true">
-      <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">
+      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">
         {label}
       </TableCell>
       {values.map((v, i) => (
@@ -99,7 +99,7 @@ export function FormulaDetailRow({ label, values, positive }: FormulaDetailRowPr
           key={i}
           className={cn(
             "text-right py-0.5 font-mono text-xs",
-            v < 0 ? "text-destructive" : positive ? "text-accent" : "text-gray-500"
+            v < 0 ? "text-destructive" : positive ? "text-accent" : "text-muted-foreground"
           )}
         >
           <Money amount={v} />
@@ -122,7 +122,7 @@ interface PropertyBreakdownRowProps {
 
 export function PropertyBreakdownRow({ propertyName, values }: PropertyBreakdownRowProps) {
   return (
-    <TableRow className="bg-gray-50/50" data-expandable-row="true">
+    <TableRow className="bg-muted/50" data-expandable-row="true">
       <TableCell className="pl-12 py-1 text-sm text-muted-foreground italic">
         {propertyName}
       </TableCell>

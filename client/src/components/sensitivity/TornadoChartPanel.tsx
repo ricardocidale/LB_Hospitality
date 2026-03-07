@@ -17,27 +17,27 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-display font-bold text-gray-900" data-testid="text-tornado-title">
+            <h3 className="text-lg font-display font-bold text-foreground" data-testid="text-tornado-title">
               Impact on {tornadoMetric === "irr" ? "IRR" : "NOI"}
             </h3>
-            <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+            <div className="flex rounded-lg border border-border overflow-hidden text-xs">
               <button
                 onClick={() => onMetricChange("irr")}
-                className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "irr" ? "bg-primary/20 text-primary" : "text-gray-500 hover:text-gray-700"}`}
+                className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "irr" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
                 data-testid="button-tornado-irr"
               >
                 IRR
               </button>
               <button
                 onClick={() => onMetricChange("noi")}
-                className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "noi" ? "bg-primary/20 text-primary" : "text-gray-500 hover:text-gray-700"}`}
+                className={`px-2.5 py-1 font-medium transition-colors ${tornadoMetric === "noi" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
                 data-testid="button-tornado-noi"
               >
                 NOI
               </button>
             </div>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             {tornadoMetric === "irr"
               ? "Which variables have the biggest effect on Levered IRR (pp change)"
               : "Which variables have the biggest effect on Net Operating Income (% change)"}
@@ -93,11 +93,11 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-[350px] flex items-center justify-center text-gray-400 text-sm">
+        <div className="h-[350px] flex items-center justify-center text-muted-foreground text-sm">
           No data available
         </div>
       )}
-      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-gray-500">
+      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-[#257D41]" />
           <span>Upside scenario</span>

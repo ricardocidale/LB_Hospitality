@@ -25,16 +25,16 @@ import type { FixedOverheadSectionProps } from "./types";
 
 export default function FixedOverheadSection({ formData, onChange, global, modelStartYear, researchValues }: FixedOverheadSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
     <div className="relative">
       <div className="space-y-6">
-        <h3 className="text-lg font-display text-gray-900 flex items-center">
+        <h3 className="text-lg font-display text-foreground flex items-center">
           Fixed Overhead (<span className="font-mono">{modelStartYear}</span>)
           <HelpTooltip text="Starting annual costs that escalate yearly at the fixed cost escalation rate" manualSection="company-formulas" />
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Fixed Cost Escalation Rate
               <HelpTooltip text="Annual percentage increase applied to all fixed costs" />
             </Label>
@@ -58,7 +58,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Office Lease
               <HelpTooltip text="Annual rent for corporate office space" />
               <ResearchBadge value={researchValues.officeLease?.display} onClick={() => researchValues.officeLease && onChange("officeLeaseStart", researchValues.officeLease.mid)} sourceType="industry" sourceName="HFTP/AICPA benchmarks" data-testid="badge-office-lease" />
@@ -83,7 +83,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Professional Services
               <HelpTooltip text="Legal, accounting, and consulting fees" />
               <ResearchBadge value={researchValues.professionalServices?.display} onClick={() => researchValues.professionalServices && onChange("professionalServicesStart", researchValues.professionalServices.mid)} sourceType="industry" sourceName="AICPA practice benchmarks" data-testid="badge-professional-services" />
@@ -108,7 +108,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Tech Infrastructure
               <HelpTooltip text="Annual cloud hosting, software, and IT services" />
               <ResearchBadge value={researchValues.techInfra?.display} onClick={() => researchValues.techInfra && onChange("techInfraStart", researchValues.techInfra.mid)} sourceType="industry" sourceName="HFTP Technology Survey" data-testid="badge-tech-infra" />
@@ -133,7 +133,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Business Insurance
               <HelpTooltip text="E&O, liability, and other corporate insurance policies" />
               <ResearchBadge value={researchValues.businessInsurance?.display} onClick={() => researchValues.businessInsurance && onChange("businessInsuranceStart", researchValues.businessInsurance.mid)} sourceType="industry" sourceName="AICPA/industry benchmarks" data-testid="badge-business-insurance" />

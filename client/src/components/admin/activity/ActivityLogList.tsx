@@ -44,20 +44,20 @@ export function ActivityLogList({
 
   return (
     <>
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader className="relative">
-          <CardTitle className="text-base font-semibold text-gray-900">Login Activity</CardTitle>
+          <CardTitle className="text-base font-semibold text-foreground">Login Activity</CardTitle>
           <CardDescription className="label-text">
             {loginLogs?.length || 0} login records | {activeSessionsCount} active sessions
           </CardDescription>
         </CardHeader>
 
         <CardContent className="relative space-y-4">
-          <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200">
+          <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-muted border border-border">
             <div className="flex items-center gap-2">
               <Label className="text-muted-foreground text-sm whitespace-nowrap">User</Label>
               <Select value={loginLogUserFilter || "all"} onValueChange={(v) => setLoginLogUserFilter(v === "all" ? "" : v)}>
-                <SelectTrigger className="bg-gray-100 border-gray-200 text-foreground h-8 w-40 text-sm" data-testid="select-login-log-user-filter"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-muted border-border text-foreground h-8 w-40 text-sm" data-testid="select-login-log-user-filter"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Users</SelectItem>
                   {users?.map(u => (
@@ -72,7 +72,7 @@ export function ActivityLogList({
                 value={loginLogIpFilter}
                 onChange={(e) => setLoginLogIpFilter(e.target.value)}
                 placeholder="Search IP..."
-                className="bg-gray-100 border-gray-200 text-foreground placeholder:text-muted-foreground h-8 w-36 text-sm"
+                className="bg-muted border-border text-foreground placeholder:text-muted-foreground h-8 w-36 text-sm"
                 data-testid="input-login-log-ip-filter"
               />
             </div>
@@ -83,7 +83,7 @@ export function ActivityLogList({
 
           {logsLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
           ) : filteredLogs?.length === 0 ? (
             <div className="text-center py-12">
@@ -95,7 +95,7 @@ export function ActivityLogList({
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-200 hover:bg-transparent">
+                <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User</div></TableHead>
                   <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogIn className="w-4 h-4" />Login Time</div></TableHead>
                   <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogOut className="w-4 h-4" />Logout Time</div></TableHead>
@@ -105,17 +105,17 @@ export function ActivityLogList({
               </TableHeader>
               <TableBody>
                 {filteredLogs?.map((log) => (
-                  <TableRow key={log.id} className="border-gray-200 hover:bg-gray-50" data-testid={`row-log-${log.id}`}>
+                  <TableRow key={log.id} className="border-border hover:bg-muted" data-testid={`row-log-${log.id}`}>
                     <TableRowCell>
                       <div className="font-display">{log.userName || log.userEmail}</div>
                       {log.userName && <div className="text-xs text-muted-foreground">{log.userEmail}</div>}
                     </TableRowCell>
                     <TableRowCell className="text-foreground/80 font-mono text-sm">{formatDateTime(log.loginAt)}</TableRowCell>
                     <TableRowCell className="text-foreground/80 font-mono text-sm">
-                      {log.logoutAt ? formatDateTime(log.logoutAt) : <span className="text-gray-600">Active</span>}
+                      {log.logoutAt ? formatDateTime(log.logoutAt) : <span className="text-muted-foreground">Active</span>}
                     </TableRowCell>
                     <TableRowCell className="font-mono text-sm">
-                      <span className={log.logoutAt ? "text-foreground/80" : "text-gray-600"}>
+                      <span className={log.logoutAt ? "text-foreground/80" : "text-muted-foreground"}>
                         {formatDuration(log.loginAt, log.logoutAt)}
                       </span>
                     </TableRowCell>
@@ -145,9 +145,9 @@ function ActiveSessions({ activeSessionsList }: { activeSessionsList: ActiveSess
   const queryClient = useQueryClient();
 
   return (
-    <Card className="bg-white border border-gray-200/80 shadow-sm mt-6">
+    <Card className="bg-white border border-border/80 shadow-sm mt-6">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold text-gray-900">Active Sessions</CardTitle>
+        <CardTitle className="text-sm font-semibold text-foreground">Active Sessions</CardTitle>
         <CardDescription className="label-text">
           {activeSessionsList.length} active session{activeSessionsList.length !== 1 ? "s" : ""}
         </CardDescription>
@@ -155,16 +155,16 @@ function ActiveSessions({ activeSessionsList }: { activeSessionsList: ActiveSess
       <CardContent className="relative">
         <Table>
           <TableHeader>
-            <TableRow className="border-b border-gray-200 hover:bg-transparent">
-              <TableHead className="text-gray-600 font-semibold text-xs uppercase tracking-wider">User</TableHead>
-              <TableHead className="text-gray-600 font-semibold text-xs uppercase tracking-wider">Session Started</TableHead>
-              <TableHead className="text-gray-600 font-semibold text-xs uppercase tracking-wider">Expires</TableHead>
-              <TableHead className="text-gray-600 font-semibold text-xs uppercase tracking-wider text-right">Action</TableHead>
+            <TableRow className="border-b border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">User</TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Session Started</TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">Expires</TableHead>
+              <TableHead className="text-muted-foreground font-semibold text-xs uppercase tracking-wider text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {activeSessionsList.map((s) => (
-              <TableRow key={s.id} className="border-b border-gray-200/60 hover:bg-gray-50">
+              <TableRow key={s.id} className="border-b border-border/60 hover:bg-muted">
                 <TableRowCell className="text-foreground/80 text-sm">{s.userName || s.userEmail}</TableRowCell>
                 <TableRowCell className="text-muted-foreground font-mono text-xs">{new Date(s.createdAt).toLocaleString()}</TableRowCell>
                 <TableRowCell className="text-muted-foreground font-mono text-xs">{new Date(s.expiresAt).toLocaleString()}</TableRowCell>

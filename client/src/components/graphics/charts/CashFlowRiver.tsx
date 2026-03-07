@@ -32,15 +32,15 @@ interface CashFlowRiverProps {
 function CustomTooltip({ active, payload, label, formatValue }: { active?: boolean; payload?: any[]; label?: string; formatValue: (v: number) => string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-xl text-sm max-w-xs">
-      <p className="font-semibold text-gray-900 mb-2 border-b pb-1">{label}</p>
+    <div className="bg-white border border-border rounded-xl px-4 py-3 shadow-xl text-sm max-w-xs">
+      <p className="font-semibold text-foreground mb-2 border-b pb-1">{label}</p>
       {payload.map((entry: any, i: number) => (
         <div key={i} className="flex items-center justify-between gap-4 py-0.5">
           <span className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
-            <span className="text-gray-600">{entry.name}</span>
+            <span className="text-muted-foreground">{entry.name}</span>
           </span>
-          <span className="font-mono font-medium text-gray-900">{formatValue(entry.value)}</span>
+          <span className="font-mono font-medium text-foreground">{formatValue(entry.value)}</span>
         </div>
       ))}
     </div>
@@ -55,11 +55,11 @@ export function CashFlowRiver({ data, series, title, subtitle, xAxisKey = "year"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm ${className || ""}`}
+      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm ${className || ""}`}
       data-testid={props["data-testid"]}
     >
-      {title && <h3 className="text-lg font-display text-gray-900 mb-1">{title}</h3>}
-      {subtitle && <p className="text-sm text-gray-500 mb-4 label-text">{subtitle}</p>}
+      {title && <h3 className="text-lg font-display text-foreground mb-1">{title}</h3>}
+      {subtitle && <p className="text-sm text-muted-foreground mb-4 label-text">{subtitle}</p>}
       <div style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>

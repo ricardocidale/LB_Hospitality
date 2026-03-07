@@ -24,15 +24,15 @@ import type { ManagementFeesSectionProps } from "./types";
 
 export default function ManagementFeesSection({ formData, onChange, global, properties, allFeeCategories }: ManagementFeesSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
     <div className="relative">
       <div className="space-y-6">
-        <h3 className="text-lg font-display text-gray-900 flex items-center">
+        <h3 className="text-lg font-display text-foreground flex items-center">
           Revenue — Management Fees
           <HelpTooltip text="Management fees are defined per property. Each property sets its own Base Fee (% of Revenue) and Incentive Fee (% of GOP). Edit these rates on each property's assumptions page." manualSection="company-formulas" />
         </h3>
         <p className="text-sm text-muted-foreground mb-3">Fee rates are set individually on each property. This table shows the current rates for reference.</p>
-        <div className="rounded-lg border border-gray-200 overflow-hidden">
+        <div className="rounded-lg border border-border overflow-hidden">
           {(() => {
             const allCatNames = Array.from(new Set(allFeeCategories.filter(c => c.isActive).map(c => c.name)));
             const hasCategoryData = allCatNames.length > 0;
@@ -40,19 +40,19 @@ export default function ManagementFeesSection({ formData, onChange, global, prop
               <div className="overflow-x-auto">
               <table className="w-full text-sm" data-testid="table-property-fee-summary">
                 <thead>
-                  <tr className="bg-primary/10 border-b border-gray-200">
-                    <th className="text-left px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">Property</th>
+                  <tr className="bg-primary/10 border-b border-border">
+                    <th className="text-left px-4 py-2 font-semibold text-foreground whitespace-nowrap">Property</th>
                     {hasCategoryData ? (
                       <>
                         {allCatNames.map(name => (
-                          <th key={name} className="text-right px-3 py-2 font-semibold text-gray-700 whitespace-nowrap text-xs">{name}</th>
+                          <th key={name} className="text-right px-3 py-2 font-semibold text-foreground whitespace-nowrap text-xs">{name}</th>
                         ))}
-                        <th className="text-right px-3 py-2 font-semibold text-gray-700 whitespace-nowrap">Total Service</th>
+                        <th className="text-right px-3 py-2 font-semibold text-foreground whitespace-nowrap">Total Service</th>
                       </>
                     ) : (
-                      <th className="text-right px-4 py-2 font-semibold text-gray-700">Base Fee (% of Revenue)</th>
+                      <th className="text-right px-4 py-2 font-semibold text-foreground">Base Fee (% of Revenue)</th>
                     )}
-                    <th className="text-right px-4 py-2 font-semibold text-gray-700 whitespace-nowrap">Incentive (% of GOP)</th>
+                    <th className="text-right px-4 py-2 font-semibold text-foreground whitespace-nowrap">Incentive (% of GOP)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -64,7 +64,7 @@ export default function ManagementFeesSection({ formData, onChange, global, prop
                       const totalServiceRate = propCats.filter(c => c.isActive).reduce((sum, c) => sum + c.rate, 0);
                       return (
                         <tr key={prop.id} className="border-b border-primary/10 last:border-b-0 hover:bg-primary/5">
-                          <td className="px-4 py-2 text-gray-800 whitespace-nowrap">
+                          <td className="px-4 py-2 text-foreground whitespace-nowrap">
                             <Link href={`/property/${prop.id}/edit`} className="text-primary hover:underline">{prop.name}</Link>
                           </td>
                           {hasCategoryData ? (
@@ -72,17 +72,17 @@ export default function ManagementFeesSection({ formData, onChange, global, prop
                               {allCatNames.map(name => {
                                 const cat = propCats.find(c => c.name === name);
                                 return (
-                                  <td key={name} className={`px-3 py-2 text-right font-mono text-xs ${cat?.isActive ? 'text-gray-700' : 'text-gray-400'}`}>
+                                  <td key={name} className={`px-3 py-2 text-right font-mono text-xs ${cat?.isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
                                     {cat ? formatPercent(cat.rate) : '—'}
                                   </td>
                                 );
                               })}
-                              <td className="px-3 py-2 text-right font-mono font-semibold text-gray-800">{formatPercent(totalServiceRate)}</td>
+                              <td className="px-3 py-2 text-right font-mono font-semibold text-foreground">{formatPercent(totalServiceRate)}</td>
                             </>
                           ) : (
-                            <td className="px-4 py-2 text-right font-mono text-gray-700">{formatPercent(prop.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE)}</td>
+                            <td className="px-4 py-2 text-right font-mono text-foreground">{formatPercent(prop.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE)}</td>
                           )}
-                          <td className="px-4 py-2 text-right font-mono text-gray-700">{formatPercent(prop.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE)}</td>
+                          <td className="px-4 py-2 text-right font-mono text-foreground">{formatPercent(prop.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE)}</td>
                         </tr>
                       );
                     })

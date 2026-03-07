@@ -22,16 +22,16 @@ import type { TaxSectionProps } from "./types";
 
 export default function TaxSection({ formData, onChange, global, researchValues }: TaxSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
       <div className="relative">
       <div className="space-y-4">
-        <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
+        <h3 className="text-lg font-display text-foreground flex items-center gap-2">
           Company Income Tax
           <HelpTooltip text="Income tax rate applied to the management company's positive net income for after-tax cash flow calculations. Each property SPV has its own income tax rate set on its assumptions page." manualSection="company-formulas" />
         </h3>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label className="text-gray-700 label-text flex items-center gap-1">Company Income Tax Rate<HelpTooltip text="Income tax rate applied to the management company's positive net income. This is separate from property-level income taxes, which are set per property on each property's assumptions page." />
+            <Label className="text-foreground label-text flex items-center gap-1">Company Income Tax Rate<HelpTooltip text="Income tax rate applied to the management company's positive net income. This is separate from property-level income taxes, which are set per property on each property's assumptions page." />
               <ResearchBadge value={researchValues.companyTaxRate?.display} onClick={() => researchValues.companyTaxRate && onChange("companyTaxRate", researchValues.companyTaxRate.mid / 100)} sourceType="industry" sourceName="AICPA/IRS benchmarks" data-testid="badge-company-tax" />
             </Label>
             <EditableValue
@@ -50,7 +50,7 @@ export default function TaxSection({ formData, onChange, global, researchValues 
             max={50}
             step={1}
           />
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             Applied to positive net income to calculate after-tax cash flow
           </p>
         </div>

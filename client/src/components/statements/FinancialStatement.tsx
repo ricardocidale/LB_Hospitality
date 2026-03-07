@@ -33,28 +33,28 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
   const first12Months = data.slice(0, 12);
   
   return (
-    <Card className="w-full overflow-hidden rounded-lg bg-white border border-gray-200 shadow-sm">
-      <div className="p-6 border-b border-gray-100">
+    <Card className="w-full overflow-hidden rounded-lg bg-white border border-border shadow-sm">
+      <div className="p-6 border-b border-border">
         <h3 className="text-xl font-display font-semibold text-primary">{title} - {startYear} Pro Forma</h3>
       </div>
       <ScrollArea className="w-full whitespace-nowrap">
         <div className="p-0">
           <Table>
-            <TableHeader className="bg-gray-50">
-              <TableRow className="border-gray-100 hover:bg-transparent">
-                <TableHead className="w-[200px] font-bold text-primary sticky left-0 bg-white z-10 border-r border-gray-100">Line Item</TableHead>
+            <TableHeader className="bg-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="w-[200px] font-bold text-primary sticky left-0 bg-white z-10 border-r border-border">Line Item</TableHead>
                 {first12Months.map((m) => (
                   <TableHead key={m.monthIndex} className="text-right min-w-[120px]">
                     {format(m.date, "MMM yyyy")}
                   </TableHead>
                 ))}
-                <TableHead className="text-right font-bold bg-gray-100/50">{startYear} Total</TableHead>
+                <TableHead className="text-right font-bold bg-muted/50">{startYear} Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {/* OPERATIONAL METRICS */}
-              <TableRow className="bg-muted/30 border-gray-100 font-medium">
-                <TableCell className="sticky left-0 bg-muted/80 z-10 border-r border-gray-100">Occupancy %</TableCell>
+              <TableRow className="bg-muted/30 border-border font-medium">
+                <TableCell className="sticky left-0 bg-muted/80 z-10 border-r border-border">Occupancy %</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right text-muted-foreground font-mono">{(m.occupancy * 100).toFixed(0)}%</TableCell>
                 ))}
@@ -62,29 +62,29 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               </TableRow>
               
               {/* REVENUE SECTION */}
-              <TableRow className="hover:bg-primary/5 border-gray-100">
-                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-gray-100">Room Revenue</TableCell>
+              <TableRow className="hover:bg-primary/5 border-border">
+                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-border">Room Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueRooms)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-gray-50 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueRooms, 0))}</TableCell>
+                <TableCell className="text-right font-bold bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueRooms, 0))}</TableCell>
               </TableRow>
-              <TableRow className="hover:bg-primary/5 border-gray-100">
-                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-gray-100">F&B Revenue</TableCell>
+              <TableRow className="hover:bg-primary/5 border-border">
+                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-border">F&B Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueFB)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-gray-50 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueFB, 0))}</TableCell>
+                <TableCell className="text-right font-bold bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueFB, 0))}</TableCell>
               </TableRow>
-              <TableRow className="hover:bg-primary/5 border-gray-100">
-                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-gray-100">Event Revenue</TableCell>
+              <TableRow className="hover:bg-primary/5 border-border">
+                <TableCell className="font-medium sticky left-0 bg-white dark:bg-black/50 z-10 border-r border-border">Event Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueEvents)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-gray-50 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueEvents, 0))}</TableCell>
+                <TableCell className="text-right font-bold bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueEvents, 0))}</TableCell>
               </TableRow>
-              <TableRow className="bg-primary/5 border-gray-100 font-bold text-primary">
-                <TableCell className="sticky left-0 bg-primary/10 z-10 border-r border-gray-100">Total Revenue</TableCell>
+              <TableRow className="bg-primary/5 border-border font-bold text-primary">
+                <TableCell className="sticky left-0 bg-primary/10 z-10 border-r border-border">Total Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueTotal)}</TableCell>
                 ))}
@@ -95,8 +95,8 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               <TableRow className="h-4 border-none hover:bg-transparent"><TableCell colSpan={14}></TableCell></TableRow>
 
               {/* GOP */}
-              <TableRow className="bg-accent/10 border-gray-100 font-bold">
-                <TableCell className="sticky left-0 bg-accent/20 z-10 border-r border-gray-100">Gross Operating Profit</TableCell>
+              <TableRow className="bg-accent/10 border-border font-bold">
+                <TableCell className="sticky left-0 bg-accent/20 z-10 border-r border-border">Gross Operating Profit</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.gop)}</TableCell>
                 ))}
@@ -104,8 +104,8 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               </TableRow>
 
               {/* NET INCOME */}
-              <TableRow className="bg-primary/10 border-gray-100 font-bold text-lg">
-                <TableCell className="sticky left-0 bg-primary/20 z-10 border-r border-gray-100">Net Operating Income</TableCell>
+              <TableRow className="bg-primary/10 border-border font-bold text-lg">
+                <TableCell className="sticky left-0 bg-primary/20 z-10 border-r border-border">Net Operating Income</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.noi)}</TableCell>
                 ))}
@@ -113,8 +113,8 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               </TableRow>
               
                {/* CASH FLOW */}
-              <TableRow className="bg-green-500/10 border-gray-100 font-bold text-lg">
-                <TableCell className="sticky left-0 bg-green-500/20 z-10 border-r border-gray-100">Cash Flow</TableCell>
+              <TableRow className="bg-green-500/10 border-border font-bold text-lg">
+                <TableCell className="sticky left-0 bg-green-500/20 z-10 border-r border-border">Cash Flow</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className={cn("text-right font-mono", m.cashFlow < 0 ? "text-destructive" : "text-green-700 dark:text-green-400")}>
                     {formatMoney(m.cashFlow)}

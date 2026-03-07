@@ -46,48 +46,48 @@ import type { PropertyEditSectionProps } from "./types";
 
 export default function CapitalStructureSection({ draft, onChange, onNumberChange, globalAssumptions, researchValues }: PropertyEditSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="relative overflow-hidden rounded-lg border border-border bg-white shadow-sm">
       <div className="relative p-6 space-y-5">
         <div>
-          <h3 className="text-xl font-display text-gray-900">Capital Structure</h3>
-          <p className="text-gray-600 text-sm label-text">Purchase and investment details</p>
+          <h3 className="text-xl font-display text-foreground">Capital Structure</h3>
+          <p className="text-muted-foreground text-sm label-text">Purchase and investment details</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
           <div className="space-y-1.5">
-            <Label className="label-text text-gray-700 flex items-center gap-1.5">Purchase Price ($)<HelpTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /><GaapBadge rule="ASC 805: Acquisition cost is the fair value of the total consideration transferred. Includes the purchase price of the asset. The depreciable basis excludes the land allocation." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Purchase Price ($)<HelpTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /><GaapBadge rule="ASC 805: Acquisition cost is the fair value of the total consideration transferred. Includes the purchase price of the asset. The depreciable basis excludes the land allocation." /></Label>
             <Input 
               value={formatMoneyInput(draft.purchasePrice)} 
               onChange={(e) => onNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
-              className="bg-white border-primary/30 text-gray-900"
+              className="bg-white border-primary/30 text-foreground"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="label-text text-gray-700 flex items-center gap-1.5">Building Improvements ($)<HelpTooltip text="Capital improvements and renovation costs added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /><GaapBadge rule="ASC 360 / IRS Pub 946: Capital improvements are added to the depreciable basis and depreciated over 27.5 years (straight-line). They are not expensed immediately." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Building Improvements ($)<HelpTooltip text="Capital improvements and renovation costs added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /><GaapBadge rule="ASC 360 / IRS Pub 946: Capital improvements are added to the depreciable basis and depreciated over 27.5 years (straight-line). They are not expensed immediately." /></Label>
             <Input 
               value={formatMoneyInput(draft.buildingImprovements)} 
               onChange={(e) => onNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
-              className="bg-white border-primary/30 text-gray-900"
+              className="bg-white border-primary/30 text-foreground"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="label-text text-gray-700 flex items-center gap-1.5">Pre-Opening Costs ($)<HelpTooltip text="One-time costs incurred before the property opens: hiring, training, marketing launch, supplies, licensing, and initial inventory." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Pre-Opening Costs ($)<HelpTooltip text="One-time costs incurred before the property opens: hiring, training, marketing launch, supplies, licensing, and initial inventory." /></Label>
             <Input 
               value={formatMoneyInput(draft.preOpeningCosts)} 
               onChange={(e) => onNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
-              className="bg-white border-primary/30 text-gray-900"
+              className="bg-white border-primary/30 text-foreground"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="label-text text-gray-700 flex items-center gap-1.5">Operating Reserve ($)<HelpTooltip text="Cash reserve set aside at acquisition to cover working capital needs during the ramp-up period before the property reaches stabilized operations." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Operating Reserve ($)<HelpTooltip text="Cash reserve set aside at acquisition to cover working capital needs during the ramp-up period before the property reaches stabilized operations." /></Label>
             <Input 
               value={formatMoneyInput(draft.operatingReserve)} 
               onChange={(e) => onNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}
-              className="bg-white border-primary/30 text-gray-900"
+              className="bg-white border-primary/30 text-foreground"
             />
           </div>
           <div className="space-y-1.5">
             <div className="flex flex-col gap-0.5">
-              <Label className="label-text text-gray-700 flex items-center gap-1.5">
+              <Label className="label-text text-foreground flex items-center gap-1.5">
                 Land Value (%)
                 <HelpTooltip text="Percentage of the purchase price allocated to land. Land does not depreciate under IRS rules (Publication 946). Only the building portion is depreciated over 27.5 years. Typical land allocation ranges from 15-40% depending on location and property type." />
                 <GaapBadge rule="IRS Publication 946: Land is NOT depreciable. Only the building portion (Purchase Price × (1 − Land %) + Improvements) is depreciated over 27.5 years using straight-line method. Higher land % = lower depreciation deduction." />
@@ -96,10 +96,10 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-700" data-testid="text-land-value-percent">
+                <span className="text-sm font-medium text-foreground" data-testid="text-land-value-percent">
                   {((draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT) * 100).toFixed(0)}%
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-muted-foreground">
                   Depreciable basis: ${((draft.purchasePrice * (1 - (draft.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT))) + draft.buildingImprovements).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </span>
               </div>
@@ -116,7 +116,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
         </div>
 
         <div className="space-y-3 pt-2">
-          <Label className="label-text text-gray-700 flex items-center gap-1.5">Type of Funding<HelpTooltip text="How the acquisition is financed. Full Equity means 100% cash investment. Financed means a portion is covered by a mortgage loan." /></Label>
+          <Label className="label-text text-foreground flex items-center gap-1.5">Type of Funding<HelpTooltip text="How the acquisition is financed. Full Equity means 100% cash investment. Financed means a portion is covered by a mortgage loan." /></Label>
           <RadioGroup 
             value={draft.type} 
             onValueChange={(v) => onChange("type", v)}
@@ -124,22 +124,22 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Full Equity" id="funding-equity" className="border-white/40 text-white" />
-              <Label htmlFor="funding-equity" className="font-normal cursor-pointer text-gray-700">Full Equity</Label>
+              <Label htmlFor="funding-equity" className="font-normal cursor-pointer text-foreground">Full Equity</Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="Financed" id="funding-financed" className="border-white/40 text-white" />
-              <Label htmlFor="funding-financed" className="font-normal cursor-pointer text-gray-700">Financed</Label>
+              <Label htmlFor="funding-financed" className="font-normal cursor-pointer text-foreground">Financed</Label>
             </div>
           </RadioGroup>
         </div>
 
         {draft.type === "Financed" && (
           <div className="border-t border-white/10 pt-6">
-            <h4 className="font-display mb-4 text-gray-900">Acquisition Financing</h4>
+            <h4 className="font-display mb-4 text-foreground">Acquisition Financing</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /><GaapBadge rule="ASC 470: Debt must be separated into interest expense (Income Statement) and principal repayment (Balance Sheet/Financing Activity). Only interest reduces taxable income." /><ResearchBadge entry={researchValues.acqLtv} sourceType={researchValues.acqLtv?.source === "market" ? "market" : "seed"} sourceName={(researchValues.acqLtv as any)?.sourceName} onClick={() => researchValues.acqLtv && onChange("acquisitionLTV", researchValues.acqLtv.mid / 100)} /></Label>
+                  <Label className="label-text text-foreground flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio: the percentage of the purchase price financed by the lender. Higher LTV means less equity required but more debt service." /><GaapBadge rule="ASC 470: Debt must be separated into interest expense (Income Statement) and principal repayment (Balance Sheet/Financing Activity). Only interest reduces taxable income." /><ResearchBadge entry={researchValues.acqLtv} sourceType={researchValues.acqLtv?.source === "market" ? "market" : "seed"} sourceName={(researchValues.acqLtv as any)?.sourceName} onClick={() => researchValues.acqLtv && onChange("acquisitionLTV", researchValues.acqLtv.mid / 100)} /></Label>
                   <EditableValue
                     value={(draft.acquisitionLTV || DEFAULT_LTV) * 100}
                     onChange={(val) => onChange("acquisitionLTV", val / 100)}
@@ -159,7 +159,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate<HelpTooltip text="Annual interest rate on the acquisition loan. Determines monthly debt service payments." /><ResearchBadge entry={researchValues.acqRate} sourceType={researchValues.acqRate?.source === "market" ? "market" : "seed"} sourceName={(researchValues.acqRate as any)?.sourceName} onClick={() => researchValues.acqRate && onChange("acquisitionInterestRate", researchValues.acqRate.mid / 100)} /></Label>
+                  <Label className="label-text text-foreground flex items-center gap-1.5">Interest Rate<HelpTooltip text="Annual interest rate on the acquisition loan. Determines monthly debt service payments." /><ResearchBadge entry={researchValues.acqRate} sourceType={researchValues.acqRate?.source === "market" ? "market" : "seed"} sourceName={(researchValues.acqRate as any)?.sourceName} onClick={() => researchValues.acqRate && onChange("acquisitionInterestRate", researchValues.acqRate.mid / 100)} /></Label>
                   <EditableValue
                     value={(draft.acquisitionInterestRate || DEFAULT_INTEREST_RATE) * 100}
                     onChange={(val) => onChange("acquisitionInterestRate", val / 100)}
@@ -179,8 +179,8 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan Term<HelpTooltip text="Amortization period for the loan in years. Longer terms reduce monthly payments but increase total interest paid." /></Label>
-                  <span className="text-sm font-mono text-gray-700">{draft.acquisitionTermYears || DEFAULT_TERM_YEARS} yrs</span>
+                  <Label className="label-text text-foreground flex items-center gap-1.5">Loan Term<HelpTooltip text="Amortization period for the loan in years. Longer terms reduce monthly payments but increase total interest paid." /></Label>
+                  <span className="text-sm font-mono text-foreground">{draft.acquisitionTermYears || DEFAULT_TERM_YEARS} yrs</span>
                 </div>
                 <Slider
                   value={[draft.acquisitionTermYears || DEFAULT_TERM_YEARS]}
@@ -192,7 +192,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs<HelpTooltip text="Transaction costs as a percentage of the loan amount: lender fees, appraisal, title insurance, legal fees." /><GaapBadge rule="GAAP: Loan origination costs are capitalized and amortized over the loan term (ASC 310-20). Not expensed immediately. Shown as a reduction of the loan liability on the balance sheet." /></Label>
+                  <Label className="label-text text-foreground flex items-center gap-1.5">Closing Costs<HelpTooltip text="Transaction costs as a percentage of the loan amount: lender fees, appraisal, title insurance, legal fees." /><GaapBadge rule="GAAP: Loan origination costs are capitalized and amortized over the loan term (ASC 310-20). Not expensed immediately. Shown as a reduction of the loan liability on the balance sheet." /></Label>
                   <EditableValue
                     value={(draft.acquisitionClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100}
                     onChange={(val) => onChange("acquisitionClosingCostRate", val / 100)}
@@ -218,7 +218,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
           <div className="border-t border-white/10 pt-6">
             <div className="space-y-4">
               <div className="space-y-3">
-                <Label className="label-text text-gray-700 flex items-center gap-1.5">Will this property be refinanced?<HelpTooltip text="Whether this property will refinance after the initial equity investment. Refinancing allows extracting equity by placing debt on an appreciated asset." /></Label>
+                <Label className="label-text text-foreground flex items-center gap-1.5">Will this property be refinanced?<HelpTooltip text="Whether this property will refinance after the initial equity investment. Refinancing allows extracting equity by placing debt on an appreciated asset." /></Label>
                 <RadioGroup 
                   value={draft.willRefinance || "No"} 
                   onValueChange={(v) => onChange("willRefinance", v)}
@@ -226,21 +226,21 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="Yes" id="refinance-yes" className="border-white/40 text-white" />
-                    <Label htmlFor="refinance-yes" className="font-normal cursor-pointer text-gray-700">Yes</Label>
+                    <Label htmlFor="refinance-yes" className="font-normal cursor-pointer text-foreground">Yes</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="No" id="refinance-no" className="border-white/40 text-white" />
-                    <Label htmlFor="refinance-no" className="font-normal cursor-pointer text-gray-700">No</Label>
+                    <Label htmlFor="refinance-no" className="font-normal cursor-pointer text-foreground">No</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               {draft.willRefinance === "Yes" && (
                 <div className="border-t border-white/10 pt-4">
-                  <h4 className="font-display mb-4 text-gray-900">Refinance Terms</h4>
+                  <h4 className="font-display mb-4 text-foreground">Refinance Terms</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label className="label-text text-gray-700 flex items-center gap-1.5">Refinance Date<HelpTooltip text="When the refinancing occurs. Typically 2-3 years after operations start, once the property has established a track record and appraised value." /></Label>
+                      <Label className="label-text text-foreground flex items-center gap-1.5">Refinance Date<HelpTooltip text="When the refinancing occurs. Typically 2-3 years after operations start, once the property has established a track record and appraised value." /></Label>
                       <Input 
                         type="date" 
                         value={draft.refinanceDate || (() => {
@@ -250,14 +250,14 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
                           return opsDate.toISOString().split('T')[0];
                         })()} 
                         onChange={(e) => onChange("refinanceDate", e.target.value)}
-                        className="bg-white border-primary/30 text-gray-900"
+                        className="bg-white border-primary/30 text-foreground"
                       />
-                      <p className="text-xs text-gray-500">Suggested: {globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS} years after operations start</p>
+                      <p className="text-xs text-muted-foreground">Suggested: {globalAssumptions?.debtAssumptions?.refiPeriodYears ?? DEFAULT_REFI_PERIOD_YEARS} years after operations start</p>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="label-text text-gray-700 flex items-center gap-1.5">Years After Acquisition<HelpTooltip text="Number of years after acquisition before refinancing occurs." /></Label>
-                        <span className="text-sm font-mono text-gray-700" data-testid="text-refinance-years-after-acquisition">{draft.refinanceYearsAfterAcquisition ?? DEFAULT_REFI_PERIOD_YEARS} yrs</span>
+                        <Label className="label-text text-foreground flex items-center gap-1.5">Years After Acquisition<HelpTooltip text="Number of years after acquisition before refinancing occurs." /></Label>
+                        <span className="text-sm font-mono text-foreground" data-testid="text-refinance-years-after-acquisition">{draft.refinanceYearsAfterAcquisition ?? DEFAULT_REFI_PERIOD_YEARS} yrs</span>
                       </div>
                       <Slider
                         data-testid="slider-refinance-years-after-acquisition"
@@ -270,7 +270,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="label-text text-gray-700 flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio for the refinance loan, based on the property's appraised value at the time of refinancing." /><ResearchBadge entry={researchValues.refiLtv} sourceType="seed" onClick={() => researchValues.refiLtv && onChange("refinanceLTV", researchValues.refiLtv.mid / 100)} /></Label>
+                        <Label className="label-text text-foreground flex items-center gap-1.5">LTV<HelpTooltip text="Loan-to-Value ratio for the refinance loan, based on the property's appraised value at the time of refinancing." /><ResearchBadge entry={researchValues.refiLtv} sourceType="seed" onClick={() => researchValues.refiLtv && onChange("refinanceLTV", researchValues.refiLtv.mid / 100)} /></Label>
                         <EditableValue
                           value={(draft.refinanceLTV || DEFAULT_REFI_LTV) * 100}
                           onChange={(val) => onChange("refinanceLTV", val / 100)}
@@ -290,7 +290,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="label-text text-gray-700 flex items-center gap-1.5">Interest Rate<HelpTooltip text="Annual interest rate on the refinance loan." /></Label>
+                        <Label className="label-text text-foreground flex items-center gap-1.5">Interest Rate<HelpTooltip text="Annual interest rate on the refinance loan." /></Label>
                         <EditableValue
                           value={(draft.refinanceInterestRate || DEFAULT_INTEREST_RATE) * 100}
                           onChange={(val) => onChange("refinanceInterestRate", val / 100)}
@@ -310,8 +310,8 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="label-text text-gray-700 flex items-center gap-1.5">Loan Term<HelpTooltip text="Amortization period for the refinance loan in years." /></Label>
-                        <span className="text-sm font-mono text-gray-700">{draft.refinanceTermYears || DEFAULT_TERM_YEARS} yrs</span>
+                        <Label className="label-text text-foreground flex items-center gap-1.5">Loan Term<HelpTooltip text="Amortization period for the refinance loan in years." /></Label>
+                        <span className="text-sm font-mono text-foreground">{draft.refinanceTermYears || DEFAULT_TERM_YEARS} yrs</span>
                       </div>
                       <Slider
                         value={[draft.refinanceTermYears || DEFAULT_TERM_YEARS]}
@@ -323,7 +323,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label className="label-text text-gray-700 flex items-center gap-1.5">Closing Costs<HelpTooltip text="Transaction costs for the refinance as a percentage of the new loan amount." /></Label>
+                        <Label className="label-text text-foreground flex items-center gap-1.5">Closing Costs<HelpTooltip text="Transaction costs for the refinance as a percentage of the new loan amount." /></Label>
                         <EditableValue
                           value={(draft.refinanceClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE) * 100}
                           onChange={(val) => onChange("refinanceClosingCostRate", val / 100)}

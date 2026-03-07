@@ -37,21 +37,21 @@ export function OverheadBenchmarksTab({ content }: OverheadBenchmarksTabProps) {
         <p className="text-xs text-muted-foreground mb-4">
           Typical G&A cost ranges for boutique hotel management companies.
         </p>
-        <div className="bg-white rounded-lg border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left p-3 text-gray-500 font-medium">Category</th>
-                <th className="text-right p-3 text-gray-500 font-medium">Range</th>
-                <th className="text-left p-3 text-gray-500 font-medium">Notes</th>
+              <tr className="bg-muted border-b border-border">
+                <th className="text-left p-3 text-muted-foreground font-medium">Category</th>
+                <th className="text-right p-3 text-muted-foreground font-medium">Range</th>
+                <th className="text-left p-3 text-muted-foreground font-medium">Notes</th>
               </tr>
             </thead>
             <tbody>
               {OVERHEAD_BENCHMARKS.map((b, i) => (
-                <tr key={i} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="p-3 text-gray-800 font-medium">{b.category}</td>
+                <tr key={i} className="border-b border-border hover:bg-muted/50 transition-colors">
+                  <td className="p-3 text-foreground font-medium">{b.category}</td>
                   <td className="p-3 text-right text-emerald-600 font-mono font-medium whitespace-nowrap">{b.range}</td>
-                  <td className="p-3 text-gray-600 text-xs">{b.note}</td>
+                  <td className="p-3 text-muted-foreground text-xs">{b.note}</td>
                 </tr>
               ))}
             </tbody>
@@ -65,8 +65,8 @@ export function OverheadBenchmarksTab({ content }: OverheadBenchmarksTabProps) {
         </p>
         <div className="space-y-4">
           {SCALE_BENCHMARKS.map((s, i) => (
-            <div key={i} className="bg-white rounded-lg border border-gray-200 p-4">
-              <h4 className="text-sm font-medium text-gray-800 mb-2">{s.stage}</h4>
+            <div key={i} className="bg-white rounded-lg border border-border p-4">
+              <h4 className="text-sm font-medium text-foreground mb-2">{s.stage}</h4>
               <div className="grid grid-cols-3 gap-3">
                 <MetricCard label="G&A % of Revenue" value={s.gaPct} color={companySectionColors.compensation} />
                 <MetricCard label="Staff FTE" value={s.staffFTE} color={companySectionColors.benchmarks} />

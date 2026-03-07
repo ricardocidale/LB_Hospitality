@@ -30,17 +30,17 @@ import type { PropertyExpenseRatesSectionProps } from "./types";
 
 export default function PropertyExpenseRatesSection({ formData, onChange, global, researchValues }: PropertyExpenseRatesSectionProps) {
   return (
-    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm">
+    <div className="relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm">
       <div className="relative">
       <div className="space-y-6">
-        <h3 className="text-lg font-display text-gray-900 flex items-center gap-2">
+        <h3 className="text-lg font-display text-foreground flex items-center gap-2">
           Property Expense Rates
           <HelpTooltip text="Default expense rates applied to specific revenue streams at the property level" />
         </h3>
         
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Event Expense Rate (% of Event Revenue)
               <HelpTooltip text="Operating costs for events as a percentage of event revenue (labor, setup, coordination)" />
               <ResearchBadge value={researchValues.eventExpense?.display} onClick={() => researchValues.eventExpense && onChange("eventExpenseRate", researchValues.eventExpense.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-event-expense" />
@@ -65,7 +65,7 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Other Revenue Expense Rate (% of Other Revenue)
               <HelpTooltip text="Operating costs for other revenue (spa, parking, retail) as a percentage of that department's revenue" />
               <ResearchBadge value={researchValues.otherExpenseRate?.display} onClick={() => researchValues.otherExpenseRate && onChange("otherExpenseRate", researchValues.otherExpenseRate.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-other-expense" />
@@ -90,7 +90,7 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="flex items-center text-gray-700 label-text">
+            <Label className="flex items-center text-foreground label-text">
               Utilities Variable Split (% Variable vs Fixed)
               <HelpTooltip text="How much of the utilities expense rate scales with current property revenue (variable) vs stays anchored to Year 1 base revenue (fixed). Example: 60% means 60% of utilities cost varies with occupancy, 40% is fixed overhead." />
               <ResearchBadge value={researchValues.utilitiesVariableSplit?.display} onClick={() => researchValues.utilitiesVariableSplit && onChange("utilitiesVariableSplit", researchValues.utilitiesVariableSplit.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-utilities-split" />
@@ -111,7 +111,7 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
             max={80}
             step={5}
           />
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             Variable utilities scale with revenue, fixed utilities remain constant regardless of occupancy
           </p>
         </div>

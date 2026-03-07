@@ -98,7 +98,7 @@ export default function PropertyMarketResearch() {
 
         {research?.updatedAt && (
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-gray-400" data-testid="text-last-updated">
+            <span className="text-xs text-muted-foreground" data-testid="text-last-updated">
               Last updated: {format(new Date(research.updatedAt), "MMM d, yyyy h:mm a")}
               {research.llmModel && ` · Model: ${research.llmModel}`}
             </span>
@@ -161,10 +161,10 @@ export default function PropertyMarketResearch() {
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
               </div>
-              <p className="text-gray-600 text-sm font-medium">Analyzing market data for {property.name}...</p>
+              <p className="text-muted-foreground text-sm font-medium">Analyzing market data for {property.name}...</p>
             </div>
             {streamedContent && (
-              <pre className="text-xs text-gray-500 whitespace-pre-wrap max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3 border border-gray-200">
+              <pre className="text-xs text-muted-foreground whitespace-pre-wrap max-h-40 overflow-y-auto bg-muted rounded-lg p-3 border border-border">
                 {streamedContent.slice(0, 500)}...
               </pre>
             )}
@@ -172,12 +172,12 @@ export default function PropertyMarketResearch() {
         )}
 
         {!hasResearch && !isGenerating && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+          <div className="bg-white rounded-lg shadow-sm border border-border p-12 text-center">
             <div className="w-20 h-20 mx-auto mb-6 rounded-lg bg-primary/10 flex items-center justify-center">
               <BookOpen className="w-10 h-10 text-primary" />
             </div>
-            <h3 className="text-xl font-display text-gray-900 mb-3">No Market Research Yet</h3>
-            <p className="text-sm text-gray-600 mb-6 max-w-lg mx-auto leading-relaxed">
+            <h3 className="text-xl font-display text-foreground mb-3">No Market Research Yet</h3>
+            <p className="text-sm text-muted-foreground mb-6 max-w-lg mx-auto leading-relaxed">
               Generate AI-powered market analysis for <strong>{property.name}</strong>. The research covers ADR benchmarks, occupancy patterns, competitive set, cap rates, operating costs, event demand, and more — all tailored to <strong>{property.location}</strong>.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto mb-8 text-left">

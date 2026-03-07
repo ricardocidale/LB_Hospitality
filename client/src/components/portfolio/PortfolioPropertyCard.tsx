@@ -63,7 +63,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
               property.status === "Acquired" ? "bg-blue-500 text-white" :
               property.status === "Planned" ? "bg-sky-500 text-white" :
               property.status === "In Negotiation" ? "bg-purple-500 text-white" :
-              property.status === "Pipeline" ? "bg-gray-500 text-white" : "bg-white/20 text-white"
+              property.status === "Pipeline" ? "bg-muted0 text-white" : "bg-white/20 text-white"
             }`}>
               {property.status}
             </span>

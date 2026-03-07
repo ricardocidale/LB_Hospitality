@@ -126,10 +126,10 @@ export default function NotificationCenter() {
       {open && (
         <div
           data-testid="panel-notifications"
-          className="absolute right-0 top-12 w-80 max-h-[420px] rounded-xl overflow-hidden z-50 flex flex-col bg-white border border-gray-200 shadow-lg"
+          className="absolute right-0 top-12 w-80 max-h-[420px] rounded-xl overflow-hidden z-50 flex flex-col bg-white border border-border shadow-lg"
         >
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="text-sm font-semibold text-gray-900">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <span className="text-sm font-semibold text-foreground">
               Notifications
             </span>
             {notifications.length > 0 && (
@@ -147,7 +147,7 @@ export default function NotificationCenter() {
             {notifications.length === 0 ? (
               <div
                 data-testid="text-no-notifications"
-                className="flex items-center justify-center py-12 text-sm text-gray-400"
+                className="flex items-center justify-center py-12 text-sm text-muted-foreground"
               >
                 No notifications
               </div>
@@ -160,7 +160,7 @@ export default function NotificationCenter() {
                     key={n.id}
                     data-testid={`notification-item-${n.id}`}
                     onClick={() => markRead(n.id)}
-                    className="w-full text-left px-4 py-3 flex gap-3 hover:bg-gray-50 transition-colors"
+                    className="w-full text-left px-4 py-3 flex gap-3 hover:bg-muted transition-colors"
                     style={{
                       borderLeft: !n.read
                         ? "3px solid var(--primary)"
@@ -172,13 +172,13 @@ export default function NotificationCenter() {
                       style={{ color: cfg.color }}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {n.title}
                       </p>
-                      <p className="text-xs text-gray-500 line-clamp-2">
+                      <p className="text-xs text-muted-foreground line-clamp-2">
                         {n.message}
                       </p>
-                      <p className="text-[10px] text-gray-400 mt-1">
+                      <p className="text-[10px] text-muted-foreground mt-1">
                         {relativeTime(n.timestamp)}
                       </p>
                     </div>
@@ -189,11 +189,11 @@ export default function NotificationCenter() {
           </div>
 
           {notifications.length > 0 && (
-            <div className="border-t border-gray-100 px-4 py-2">
+            <div className="border-t border-border px-4 py-2">
               <button
                 data-testid="button-clear-all"
                 onClick={clearAll}
-                className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors py-1"
+                className="w-full text-xs text-muted-foreground hover:text-muted-foreground transition-colors py-1"
               >
                 Clear all
               </button>

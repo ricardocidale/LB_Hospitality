@@ -37,13 +37,13 @@ export function InputField({
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-gray-600 flex items-center">
+      <label className="text-xs font-medium text-muted-foreground flex items-center">
         {label}
         {helpText && <HelpTooltip text={helpText} />}
       </label>
       <div className="relative">
         {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
             {prefix}
           </span>
         )}
@@ -55,10 +55,10 @@ export function InputField({
           min={min}
           max={max}
           data-testid={testId}
-          className={`w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 ${prefix ? "pl-7" : ""} ${suffix ? "pr-10" : ""}`}
+          className={`w-full bg-white border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-gray-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 ${prefix ? "pl-7" : ""} ${suffix ? "pr-10" : ""}`}
         />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
             {suffix}
           </span>
         )}

@@ -319,14 +319,14 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
       {totalAssets > 0 && (
         <>
           <tr>
-            <td className="px-4 py-0.5 text-xs text-gray-400 italic pl-6">Debt-to-Assets Ratio</td>
-            <td className="px-4 py-0.5 text-right font-mono text-xs text-gray-400 italic">
+            <td className="px-4 py-0.5 text-xs text-muted-foreground italic pl-6">Debt-to-Assets Ratio</td>
+            <td className="px-4 py-0.5 text-right font-mono text-xs text-muted-foreground italic">
               {(totalLiabilities / totalAssets * 100).toFixed(1)}%
             </td>
           </tr>
           <tr>
-            <td className="px-4 py-0.5 text-xs text-gray-400 italic pl-6">Equity-to-Assets Ratio</td>
-            <td className="px-4 py-0.5 text-right font-mono text-xs text-gray-400 italic">
+            <td className="px-4 py-0.5 text-xs text-muted-foreground italic pl-6">Equity-to-Assets Ratio</td>
+            <td className="px-4 py-0.5 text-right font-mono text-xs text-muted-foreground italic">
               {(totalEquity / totalAssets * 100).toFixed(1)}%
             </td>
           </tr>

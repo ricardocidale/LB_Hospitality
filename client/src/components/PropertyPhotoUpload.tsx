@@ -113,7 +113,7 @@ export function PropertyPhotoUpload({ propertyId, currentImageUrl, onUploadCompl
         size="sm"
         onClick={handleClick}
         disabled={isUploading}
-        className="absolute top-4 right-4 bg-white hover:bg-gray-50 border-gray-200 shadow-sm"
+        className="absolute top-4 right-4 bg-white hover:bg-muted border-border shadow-sm"
         data-testid="button-change-photo"
       >
         {isUploading ? (

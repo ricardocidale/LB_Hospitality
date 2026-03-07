@@ -42,22 +42,22 @@ export function ThemeManager() {
               <Palette className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg font-display text-gray-900">Current Theme</CardTitle>
-              <CardDescription className="label-text text-gray-600">{activeTheme.name}{activeTheme.description ? ` — ${activeTheme.description}` : ''}</CardDescription>
+              <CardTitle className="text-lg font-display text-foreground">Current Theme</CardTitle>
+              <CardDescription className="label-text text-muted-foreground">{activeTheme.name}{activeTheme.description ? ` — ${activeTheme.description}` : ''}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
           {activeTheme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
             <div className="mb-4">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Palette</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Palette</p>
               <div className="flex gap-2 flex-wrap">
                 {activeTheme.colors.filter(c => c.description?.startsWith('PALETTE:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
-                  <div key={`active-palette-${idx}`} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
-                    <div className="w-7 h-7 rounded-md border border-gray-300 shadow-inner" style={{ backgroundColor: color.hexCode }} />
+                  <div key={`active-palette-${idx}`} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted border border-border">
+                    <div className="w-7 h-7 rounded-md border border-border shadow-inner" style={{ backgroundColor: color.hexCode }} />
                     <div>
-                      <p className="text-xs font-medium text-gray-800">{color.name}</p>
-                      <p className="font-mono text-[10px] text-gray-400">{color.hexCode}</p>
+                      <p className="text-xs font-medium text-foreground">{color.name}</p>
+                      <p className="font-mono text-[10px] text-muted-foreground">{color.hexCode}</p>
                     </div>
                   </div>
                 ))}
@@ -66,11 +66,11 @@ export function ThemeManager() {
           )}
           {activeTheme.colors.filter(c => c.description?.startsWith('CHART:')).length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Charts</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Charts</p>
               <div className="flex gap-1.5 flex-wrap">
                 {activeTheme.colors.filter(c => c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
                   <div key={`active-chart-${idx}`} className="group relative">
-                    <div className="w-8 h-8 rounded-md border border-gray-200 shadow-inner cursor-default" style={{ backgroundColor: color.hexCode }} title={`${color.name}: ${color.hexCode}`} />
+                    <div className="w-8 h-8 rounded-md border border-border shadow-inner cursor-default" style={{ backgroundColor: color.hexCode }} title={`${color.name}: ${color.hexCode}`} />
                   </div>
                 ))}
               </div>
@@ -78,14 +78,14 @@ export function ThemeManager() {
           )}
           {activeTheme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).length > 0 && activeTheme.colors.filter(c => c.description?.startsWith('PALETTE:')).length === 0 && (
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Colors</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Colors</p>
               <div className="flex gap-2 flex-wrap">
                 {activeTheme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
-                  <div key={`active-other-${idx}`} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
-                    <div className="w-7 h-7 rounded-md border border-gray-300 shadow-inner" style={{ backgroundColor: color.hexCode }} />
+                  <div key={`active-other-${idx}`} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted border border-border">
+                    <div className="w-7 h-7 rounded-md border border-border shadow-inner" style={{ backgroundColor: color.hexCode }} />
                     <div>
-                      <p className="text-xs font-medium text-gray-800">{color.name}</p>
-                      <p className="font-mono text-[10px] text-gray-400">{color.hexCode}</p>
+                      <p className="text-xs font-medium text-foreground">{color.name}</p>
+                      <p className="font-mono text-[10px] text-muted-foreground">{color.hexCode}</p>
                     </div>
                   </div>
                 ))}
@@ -96,7 +96,7 @@ export function ThemeManager() {
       </Card>
     )}
 
-    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-gray-200 shadow-2xl">
+    <Card className="relative overflow-hidden bg-white/80 backdrop-blur-xl border border-border shadow-2xl">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
         <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-secondary/10 blur-[100px] animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
@@ -105,8 +105,8 @@ export function ThemeManager() {
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-display text-gray-900">All Themes</CardTitle>
-            <CardDescription className="label-text text-gray-600">
+            <CardTitle className="text-xl font-display text-foreground">All Themes</CardTitle>
+            <CardDescription className="label-text text-muted-foreground">
               Define color palettes and design systems for your application
             </CardDescription>
           </div>
@@ -128,16 +128,16 @@ export function ThemeManager() {
           ) : designThemes && designThemes.length > 0 ? (
             <div className="space-y-4">
               {designThemes.map((theme) => (
-                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isDefault ? 'border-secondary bg-primary/10' : 'border-gray-200 bg-white'}`}>
+                <div key={theme.id} className={`p-5 rounded-2xl border-2 ${theme.isDefault ? 'border-secondary bg-primary/10' : 'border-border bg-white'}`}>
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <div className="flex items-center gap-3">
-                        <h3 className="font-display text-lg text-gray-900 font-semibold">{theme.name}</h3>
+                        <h3 className="font-display text-lg text-foreground font-semibold">{theme.name}</h3>
                         {theme.isDefault && (
                           <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-secondary text-white">Default</span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1 max-w-2xl">{theme.description}</p>
+                      <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{theme.description}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button size="sm" variant="outline" onClick={() => setEditingTheme(theme)}>
@@ -160,22 +160,22 @@ export function ThemeManager() {
                     <div className="mb-4">
                       <div className="flex items-center gap-2 mb-3">
                         <Palette className="w-4 h-4 text-secondary" />
-                        <h4 className="font-display text-sm font-semibold text-gray-700">Palette Colors</h4>
+                        <h4 className="font-display text-sm font-semibold text-foreground">Palette Colors</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                         {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
-                          <div key={`palette-${idx}`} className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+                          <div key={`palette-${idx}`} className="p-3 rounded-xl bg-muted border border-border">
                             <div className="flex items-center gap-3 mb-2">
                               <div
-                                className="w-10 h-10 rounded-lg border border-gray-300 shadow-inner"
+                                className="w-10 h-10 rounded-lg border border-border shadow-inner"
                                 style={{ backgroundColor: color.hexCode }}
                               />
                               <div>
-                                <p className="font-medium text-sm text-gray-900">{color.name}</p>
-                                <p className="font-mono text-xs text-gray-500">{color.hexCode}</p>
+                                <p className="font-medium text-sm text-foreground">{color.name}</p>
+                                <p className="font-mono text-xs text-muted-foreground">{color.hexCode}</p>
                               </div>
                             </div>
-                            <p className="text-xs text-gray-600 line-clamp-2">{color.description?.replace('PALETTE: ', '')}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{color.description?.replace('PALETTE: ', '')}</p>
                           </div>
                         ))}
                       </div>
@@ -187,22 +187,22 @@ export function ThemeManager() {
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <Activity className="w-4 h-4 text-[#3B82F6]" />
-                        <h4 className="font-display text-sm font-semibold text-gray-700">Chart Colors</h4>
+                        <h4 className="font-display text-sm font-semibold text-foreground">Chart Colors</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {theme.colors.filter(c => c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
                           <div key={`chart-${idx}`} className="p-3 rounded-xl bg-blue-50 border border-blue-200">
                             <div className="flex items-center gap-3 mb-2">
                               <div
-                                className="w-10 h-10 rounded-lg border border-gray-300 shadow-inner"
+                                className="w-10 h-10 rounded-lg border border-border shadow-inner"
                                 style={{ backgroundColor: color.hexCode }}
                               />
                               <div>
-                                <p className="font-medium text-sm text-gray-900">{color.name}</p>
-                                <p className="font-mono text-xs text-gray-500">{color.hexCode}</p>
+                                <p className="font-medium text-sm text-foreground">{color.name}</p>
+                                <p className="font-mono text-xs text-muted-foreground">{color.hexCode}</p>
                               </div>
                             </div>
-                            <p className="text-xs text-gray-600 line-clamp-2">{color.description?.replace('CHART: ', '')}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{color.description?.replace('CHART: ', '')}</p>
                           </div>
                         ))}
                       </div>
@@ -213,18 +213,18 @@ export function ThemeManager() {
                   {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).length > 0 && (
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                       {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
-                        <div key={`other-${idx}`} className="p-3 rounded-xl bg-gray-50 border border-gray-200">
+                        <div key={`other-${idx}`} className="p-3 rounded-xl bg-muted border border-border">
                           <div className="flex items-center gap-3 mb-2">
                             <div
-                              className="w-10 h-10 rounded-lg border border-gray-300 shadow-inner"
+                              className="w-10 h-10 rounded-lg border border-border shadow-inner"
                               style={{ backgroundColor: color.hexCode }}
                             />
                             <div>
-                              <p className="font-medium text-sm text-gray-900">{color.name}</p>
-                              <p className="font-mono text-xs text-gray-500">{color.hexCode}</p>
+                              <p className="font-medium text-sm text-foreground">{color.name}</p>
+                              <p className="font-mono text-xs text-muted-foreground">{color.hexCode}</p>
                             </div>
                           </div>
-                          <p className="text-xs text-gray-600 line-clamp-2">{color.description}</p>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{color.description}</p>
                         </div>
                       ))}
                     </div>
@@ -234,8 +234,8 @@ export function ThemeManager() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <Palette className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <p className="label-text text-gray-500">No design themes yet. Create your first theme to define your color palette.</p>
+              <Palette className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <p className="label-text text-muted-foreground">No design themes yet. Create your first theme to define your color palette.</p>
             </div>
           )}
         </CardContent>
@@ -252,7 +252,7 @@ export function ThemeManager() {
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label className="flex items-center gap-2 mb-1"><Sparkles className="w-4 h-4 text-gray-500" />Theme Name</Label>
+            <Label className="flex items-center gap-2 mb-1"><Sparkles className="w-4 h-4 text-muted-foreground" />Theme Name</Label>
             <Input
               value={editingTheme ? editingTheme.name : newTheme.name}
               onChange={(e) => editingTheme
@@ -263,7 +263,7 @@ export function ThemeManager() {
             />
           </div>
           <div>
-            <Label className="flex items-center gap-2 mb-1"><Type className="w-4 h-4 text-gray-500" />Description</Label>
+            <Label className="flex items-center gap-2 mb-1"><Type className="w-4 h-4 text-muted-foreground" />Description</Label>
             <textarea
               className="w-full min-h-[80px] p-3 border rounded-lg text-sm resize-none"
               value={editingTheme ? editingTheme.description : newTheme.description}
@@ -323,11 +323,11 @@ export function ThemeManager() {
                   <div key={originalIdx} className="p-3 rounded-lg border bg-white space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col gap-0.5">
-                        <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-gray-200 ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
-                          <ChevronUp className="w-4 h-4 text-gray-500" />
+                        <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-muted ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
+                          <ChevronUp className="w-4 h-4 text-muted-foreground" />
                         </button>
-                        <button type="button" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`p-0.5 rounded hover:bg-gray-200 ${displayIdx === arr.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                        <button type="button" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`p-0.5 rounded hover:bg-muted ${displayIdx === arr.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         </button>
                       </div>
                       <Input value={color.name} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], name: e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="Color name" className="flex-1" />
@@ -393,11 +393,11 @@ export function ThemeManager() {
                   <div key={originalIdx} className="p-3 rounded-lg border bg-white space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col gap-0.5">
-                        <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-gray-200 ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
-                          <ChevronUp className="w-4 h-4 text-gray-500" />
+                        <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-muted ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
+                          <ChevronUp className="w-4 h-4 text-muted-foreground" />
                         </button>
-                        <button type="button" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`p-0.5 rounded hover:bg-gray-200 ${displayIdx === arr.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
+                        <button type="button" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`p-0.5 rounded hover:bg-muted ${displayIdx === arr.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         </button>
                       </div>
                       <Input value={color.name} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], name: e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="Color name" className="flex-1" />

@@ -180,11 +180,11 @@ export function AIImagePicker({
       "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
       active
         ? isLight
-          ? "bg-primary/20 text-gray-900 border border-gray-200"
-          : "bg-gray-100 text-gray-900 border border-gray-200"
+          ? "bg-primary/20 text-foreground border border-border"
+          : "bg-muted text-foreground border border-border"
         : isLight
-          ? "text-gray-500 hover:text-gray-700 border border-transparent"
-          : "text-gray-500 hover:text-gray-700 border border-transparent"
+          ? "text-muted-foreground hover:text-foreground border border-transparent"
+          : "text-muted-foreground hover:text-foreground border border-transparent"
     );
 
   return (
@@ -207,7 +207,7 @@ export function AIImagePicker({
       </div>
 
       {imageUrl ? (
-        <div className={cn("relative w-full rounded-lg overflow-hidden border", isLight ? "border-gray-200" : "border-gray-200", aspectClass)}>
+        <div className={cn("relative w-full rounded-lg overflow-hidden border", isLight ? "border-border" : "border-border", aspectClass)}>
           <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.3"; }} />
           <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={handleRemove} data-testid={`${testId}-remove`}>
             <X className="w-4 h-4" />
@@ -238,7 +238,7 @@ export function AIImagePicker({
       ) : mode === "generate" ? (
         <div className="space-y-3">
           {context && (
-            <p className={cn("text-xs", isLight ? "text-gray-500" : "text-muted-foreground/70")}>{context}</p>
+            <p className={cn("text-xs", isLight ? "text-muted-foreground" : "text-muted-foreground/70")}>{context}</p>
           )}
           <Textarea
             value={prompt}
@@ -249,7 +249,7 @@ export function AIImagePicker({
             data-testid={`${testId}-prompt`}
             className={cn(
               "resize-none",
-              isLight ? "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400" : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400"
+              isLight ? "bg-white border-border text-foreground placeholder:text-muted-foreground" : "bg-white border-border text-foreground placeholder:text-muted-foreground"
             )}
           />
           <Button
@@ -257,7 +257,7 @@ export function AIImagePicker({
             onClick={handleGenerate}
             disabled={isGenerating || (!prompt.trim() && !defaultPrompt)}
             data-testid={`${testId}-generate`}
-            className="bg-primary/20 border-gray-200 text-gray-700 hover:bg-primary/30"
+            className="bg-primary/20 border-border text-foreground hover:bg-primary/30"
             variant="outline"
           >
             {isGenerating ? (
@@ -276,7 +276,7 @@ export function AIImagePicker({
             <p className="text-xs text-red-500">{generationError}</p>
           )}
           {!prompt.trim() && defaultPrompt && (
-            <p className={cn("text-xs", isLight ? "text-gray-500" : "text-muted-foreground/70")}>
+            <p className={cn("text-xs", isLight ? "text-muted-foreground" : "text-muted-foreground/70")}>
               Leave blank to use: "{defaultPrompt}"
             </p>
           )}
@@ -289,7 +289,7 @@ export function AIImagePicker({
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://example.com/image.png"
               data-testid={`${testId}-url-input`}
-              className={isLight ? "bg-white border-gray-200" : "bg-white border-gray-200"}
+              className={isLight ? "bg-white border-border" : "bg-white border-border"}
             />
             <Button type="button" variant="outline" onClick={handleUrlSubmit} disabled={!urlInput.trim()} data-testid={`${testId}-url-submit`}>
               Apply

@@ -45,7 +45,7 @@ function StatusBadge({ status }: { status: "fresh" | "stale" | "missing" }) {
     },
     missing: {
       label: "Missing",
-      className: "bg-gray-100 text-gray-500 border-gray-200",
+      className: "bg-muted text-muted-foreground border-border",
       icon: AlertCircle,
     },
   };
@@ -214,7 +214,7 @@ export default function ResearchHub() {
               <button
                 onClick={generateAllMissing}
                 disabled={isGeneratingAll || missingCount === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-gray-900 border border-gray-900 text-white hover:bg-gray-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary border border-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isGeneratingAll ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -227,9 +227,9 @@ export default function ResearchHub() {
               </button>
               {isGeneratingAll && (
                 <div className="w-full max-w-[220px]">
-                  <div className="h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                     <motion.div
-                      className="h-full rounded-full bg-gray-900"
+                      className="h-full rounded-full bg-primary"
                       initial={{ width: 0 }}
                       animate={{ width: `${(currentGenIndex / totalToGenerate) * 100}%` }}
                       transition={{ duration: 0.4 }}
@@ -249,7 +249,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
+            className="bg-white border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -257,10 +257,10 @@ export default function ResearchHub() {
                   <Building2 className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-display font-semibold text-gray-900">
+                  <h3 className="font-display font-semibold text-foreground">
                     Portfolio Research
                   </h3>
-                  <p className="text-xs text-gray-500 label-text mt-0.5">
+                  <p className="text-xs text-muted-foreground label-text mt-0.5">
                     Per-property market analysis
                   </p>
                 </div>
@@ -269,16 +269,16 @@ export default function ResearchHub() {
 
             <div className="space-y-2 mb-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Fresh</span>
+                <span className="text-muted-foreground">Fresh</span>
                 <span className="font-medium text-emerald-700">{freshCount}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Stale</span>
+                <span className="text-muted-foreground">Stale</span>
                 <span className="font-medium text-amber-700">{staleCount}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Missing</span>
-                <span className="font-medium text-gray-500">{missingCount}</span>
+                <span className="text-muted-foreground">Missing</span>
+                <span className="font-medium text-muted-foreground">{missingCount}</span>
               </div>
             </div>
 
@@ -297,7 +297,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
+            className="bg-white border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -305,10 +305,10 @@ export default function ResearchHub() {
                   <Briefcase className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="font-display font-semibold text-gray-900">
+                  <h3 className="font-display font-semibold text-foreground">
                     Company Research
                   </h3>
-                  <p className="text-xs text-gray-500 label-text mt-0.5">
+                  <p className="text-xs text-muted-foreground label-text mt-0.5">
                     Management company analysis
                   </p>
                 </div>
@@ -316,7 +316,7 @@ export default function ResearchHub() {
               <StatusBadge status={companyStatus.status} />
             </div>
 
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {companyStatus.updatedAt
                 ? `Updated ${formatDate(companyStatus.updatedAt)}`
                 : "Not generated"}
@@ -337,7 +337,7 @@ export default function ResearchHub() {
             variants={cardVariants}
             initial="hidden"
             animate="visible"
-            className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
+            className="bg-white border border-border rounded-lg p-5 shadow-sm group hover:shadow-md transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -345,10 +345,10 @@ export default function ResearchHub() {
                   <Globe className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="font-display font-semibold text-gray-900">
+                  <h3 className="font-display font-semibold text-foreground">
                     Global Research
                   </h3>
-                  <p className="text-xs text-gray-500 label-text mt-0.5">
+                  <p className="text-xs text-muted-foreground label-text mt-0.5">
                     Industry trends & benchmarks
                   </p>
                 </div>
@@ -356,7 +356,7 @@ export default function ResearchHub() {
               <StatusBadge status={globalStatus.status} />
             </div>
 
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               {globalStatus.updatedAt
                 ? `Updated ${formatDate(globalStatus.updatedAt)}`
                 : "Not generated"}
@@ -375,11 +375,11 @@ export default function ResearchHub() {
         {/* Property Research Grid */}
         <div id="property-research" className="space-y-4">
           <div>
-            <h3 className="text-lg font-display font-semibold text-gray-900 flex items-center gap-2">
+            <h3 className="text-lg font-display font-semibold text-foreground flex items-center gap-2">
               <FlaskConical className="w-5 h-5 text-primary" />
               Property Research
             </h3>
-            <p className="text-sm text-gray-500 label-text mt-1">
+            <p className="text-sm text-muted-foreground label-text mt-1">
               Market analysis for each property in your portfolio
             </p>
           </div>
@@ -389,15 +389,15 @@ export default function ResearchHub() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white border border-gray-200 rounded-lg p-12 shadow-sm flex flex-col items-center text-center"
+              className="bg-white border border-border rounded-lg p-12 shadow-sm flex flex-col items-center text-center"
             >
-              <div className="w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center mb-4">
-                <Building2 className="w-7 h-7 text-gray-400" />
+              <div className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4">
+                <Building2 className="w-7 h-7 text-muted-foreground" />
               </div>
-              <h4 className="font-display font-semibold text-gray-700 mb-1">
+              <h4 className="font-display font-semibold text-foreground mb-1">
                 No properties in your portfolio yet
               </h4>
-              <p className="text-sm text-gray-500 max-w-sm">
+              <p className="text-sm text-muted-foreground max-w-sm">
                 Add properties to your portfolio to generate AI-powered market research and competitive analysis.
               </p>
               <Link
@@ -417,7 +417,7 @@ export default function ResearchHub() {
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"
-                  className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm group hover:shadow-md transition-all duration-300"
+                  className="bg-white border border-border rounded-lg overflow-hidden shadow-sm group hover:shadow-md transition-all duration-300"
                 >
                   {/* Property image or fallback */}
                   {prop.imageUrl ? (
@@ -429,18 +429,18 @@ export default function ResearchHub() {
                       />
                     </div>
                   ) : (
-                    <div className="h-32 w-full bg-gray-50 flex items-center justify-center">
-                      <Building2 className="w-10 h-10 text-gray-300" />
+                    <div className="h-32 w-full bg-muted flex items-center justify-center">
+                      <Building2 className="w-10 h-10 text-muted-foreground" />
                     </div>
                   )}
 
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-display font-semibold text-gray-900 truncate" title={prop.name}>
+                        <h4 className="font-display font-semibold text-foreground truncate" title={prop.name}>
                           {prop.name}
                         </h4>
-                        <p className="text-xs text-gray-500 label-text truncate" title={prop.location}>
+                        <p className="text-xs text-muted-foreground label-text truncate" title={prop.location}>
                           {prop.location}
                         </p>
                       </div>
@@ -449,7 +449,7 @@ export default function ResearchHub() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-gray-400 mb-3">
+                    <p className="text-xs text-muted-foreground mb-3">
                       {prop.updatedAt
                         ? `Updated ${formatDate(prop.updatedAt)}`
                         : "Not generated"}
@@ -476,19 +476,19 @@ export default function ResearchHub() {
           transition={{ delay: 0.4, duration: 0.5 }}
         >
           <Link href="/settings">
-            <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex items-center gap-4 hover:bg-gray-50 hover:shadow-md transition-all duration-300 cursor-pointer group">
+            <div className="bg-white border border-border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:bg-muted hover:shadow-md transition-all duration-300 cursor-pointer group">
               <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                 <Settings2 className="w-4.5 h-4.5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-gray-800">
+                <h4 className="text-sm font-semibold text-foreground">
                   Research Configuration
                 </h4>
-                <p className="text-xs text-gray-500 label-text">
+                <p className="text-xs text-muted-foreground label-text">
                   Configure focus areas, target regions, and custom research questions
                 </p>
               </div>
-              <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
+              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
             </div>
           </Link>
         </motion.div>

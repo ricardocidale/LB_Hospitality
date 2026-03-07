@@ -411,7 +411,7 @@ export default function MapView() {
                 className={`rounded-xl border p-3.5 cursor-pointer transition-all duration-300 ${
                   isSelected
                     ? "border-primary bg-primary/5 shadow-lg ring-1 ring-primary/20"
-                    : "border-gray-200 bg-white hover:border-primary/30 hover:shadow-md"
+                    : "border-border bg-white hover:border-primary/30 hover:shadow-md"
                 }`}
                 onClick={() => setSelectedId(property.id)}
                 onDoubleClick={() => window.location.href = `/property/${property.id}`}

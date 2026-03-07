@@ -27,7 +27,7 @@ export function SavedSearchBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="table-saved-searches">
-      <span className="text-xs text-gray-400 mr-1">
+      <span className="text-xs text-muted-foreground mr-1">
         <Bookmark className="w-3.5 h-3.5 inline mr-1" />
         Saved:
       </span>

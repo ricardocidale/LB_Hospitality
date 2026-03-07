@@ -36,7 +36,7 @@ const typeConfig: Record<string, { icon: ReactNode; color: string; bg: string }>
   stabilization: { icon: <Building2 className="w-4 h-4" />, color: "text-emerald-600", bg: "bg-emerald-100" },
   refinance: { icon: <DollarSign className="w-4 h-4" />, color: "text-purple-600", bg: "bg-purple-100" },
   exit: { icon: <ArrowUpRight className="w-4 h-4" />, color: "text-red-600", bg: "bg-red-100" },
-  custom: { icon: <Building2 className="w-4 h-4" />, color: "text-gray-600", bg: "bg-gray-100" },
+  custom: { icon: <Building2 className="w-4 h-4" />, color: "text-muted-foreground", bg: "bg-muted" },
 };
 
 const containerVariants: Variants = {
@@ -54,10 +54,10 @@ export function PropertyTimeline({ milestones, title, className, ...props }: Pro
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-gray-200 shadow-sm ${className || ""}`}
+      className={`relative overflow-hidden rounded-lg p-6 bg-white border border-border shadow-sm ${className || ""}`}
       data-testid={props["data-testid"]}
     >
-      {title && <h3 className="text-lg font-display text-gray-900 mb-6">{title}</h3>}
+      {title && <h3 className="text-lg font-display text-foreground mb-6">{title}</h3>}
       <motion.div
         className="relative"
         variants={containerVariants}
@@ -74,11 +74,11 @@ export function PropertyTimeline({ milestones, title, className, ...props }: Pro
               </div>
               <div className="flex-1 pt-1">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-medium text-gray-900 text-sm">{m.label}</span>
-                  <span className="text-xs text-gray-400 font-mono">{m.date}</span>
+                  <span className="font-medium text-foreground text-sm">{m.label}</span>
+                  <span className="text-xs text-muted-foreground font-mono">{m.date}</span>
                 </div>
-                {m.description && <p className="text-xs text-gray-500 mt-0.5 label-text">{m.description}</p>}
-                {m.value && <p className="text-sm font-mono font-semibold text-gray-800 mt-1">{m.value}</p>}
+                {m.description && <p className="text-xs text-muted-foreground mt-0.5 label-text">{m.description}</p>}
+                {m.value && <p className="text-sm font-mono font-semibold text-foreground mt-1">{m.value}</p>}
               </div>
             </motion.div>
           );

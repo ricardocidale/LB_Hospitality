@@ -44,7 +44,7 @@ export default function CompanyBalanceSheet({
     <ScrollReveal>
     <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-white rounded-2xl p-6 shadow-sm border">
       <div>
-        <h3 className="text-lg font-display text-gray-900 mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(projectionYears - 1)})</h3>
+        <h3 className="text-lg font-display text-foreground mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(projectionYears - 1)})</h3>
         {(() => {
           // Cumulative net income across all projected months = retained earnings
           const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
@@ -72,21 +72,21 @@ export default function CompanyBalanceSheet({
           return (
             <Table>
               <TableBody>
-                <TableRow className="bg-gray-50 font-semibold">
+                <TableRow className="bg-muted font-semibold">
                   <TableCell colSpan={2} className="text-lg font-display text-accent">ASSETS</TableCell>
                 </TableRow>
                 
-                <TableRow className="bg-gray-50">
+                <TableRow className="bg-muted">
                   <TableCell className="font-medium pl-4">Current Assets</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
                 <TableRow 
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-muted"
                   onClick={() => setBsExpanded(prev => ({ ...prev, cash: !prev.cash }))}
                 >
                   <TableCell className="pl-8">
                     <span className="flex items-center gap-1">
-                      {bsExpanded.cash ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                      {bsExpanded.cash ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
                       Cash & Cash Equivalents
                     </span>
                   </TableCell>
@@ -95,28 +95,28 @@ export default function CompanyBalanceSheet({
                 {bsExpanded.cash && (
                   <>
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                      <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">{fundingLabel} Funding (Total)</TableCell>
-                      <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(totalSafeFunding)}</TableCell>
+                      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">{fundingLabel} Funding (Total)</TableCell>
+                      <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(totalSafeFunding)}</TableCell>
                     </TableRow>
                     {safeTranche1 > 0 && (
                       <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                        <TableCell className="pl-16 py-0.5 text-xs text-gray-500 italic">Tranche 1</TableCell>
-                        <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche1)}</TableCell>
+                        <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">Tranche 1</TableCell>
+                        <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(safeTranche1)}</TableCell>
                       </TableRow>
                     )}
                     {safeTranche2 > 0 && (
                       <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                        <TableCell className="pl-16 py-0.5 text-xs text-gray-500 italic">Tranche 2</TableCell>
-                        <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche2)}</TableCell>
+                        <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">Tranche 2</TableCell>
+                        <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(safeTranche2)}</TableCell>
                       </TableRow>
                     )}
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                      <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">+ Cumulative Net Income</TableCell>
-                      <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(cumulativeNetIncome)}</TableCell>
+                      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">+ Cumulative Net Income</TableCell>
+                      <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(cumulativeNetIncome)}</TableCell>
                     </TableRow>
                   </>
                 )}
-                <TableRow className="font-medium bg-gray-50/50">
+                <TableRow className="font-medium bg-muted/50">
                   <TableCell className="pl-4">Total Current Assets</TableCell>
                   <TableCell className="text-right font-mono">{formatMoney(cashBalance)}</TableCell>
                 </TableRow>
@@ -128,21 +128,21 @@ export default function CompanyBalanceSheet({
 
                 <TableRow><TableCell colSpan={2} className="h-4"></TableCell></TableRow>
 
-                <TableRow className="bg-gray-50 font-semibold">
+                <TableRow className="bg-muted font-semibold">
                   <TableCell colSpan={2} className="text-lg font-display text-accent">LIABILITIES</TableCell>
                 </TableRow>
                 
-                <TableRow className="bg-gray-50">
+                <TableRow className="bg-muted">
                   <TableCell className="font-medium pl-4">Long-Term Liabilities</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
                 <TableRow
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-muted"
                   onClick={() => setBsExpanded(prev => ({ ...prev, notes: !prev.notes }))}
                 >
                   <TableCell className="pl-8">
                     <span className="flex items-center gap-1">
-                      {bsExpanded.notes ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                      {bsExpanded.notes ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
                       {fundingLabel} Notes Payable
                     </span>
                   </TableCell>
@@ -152,19 +152,19 @@ export default function CompanyBalanceSheet({
                   <>
                     {safeTranche1 > 0 && (
                       <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                        <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Tranche 1</TableCell>
-                        <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche1)}</TableCell>
+                        <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Tranche 1</TableCell>
+                        <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(safeTranche1)}</TableCell>
                       </TableRow>
                     )}
                     {safeTranche2 > 0 && (
                       <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                        <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Tranche 2</TableCell>
-                        <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(safeTranche2)}</TableCell>
+                        <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Tranche 2</TableCell>
+                        <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(safeTranche2)}</TableCell>
                       </TableRow>
                     )}
                   </>
                 )}
-                <TableRow className="font-medium bg-gray-50/50">
+                <TableRow className="font-medium bg-muted/50">
                   <TableCell className="pl-4">Total Long-Term Liabilities</TableCell>
                   <TableCell className="text-right font-mono">{formatMoney(totalLiabilities)}</TableCell>
                 </TableRow>
@@ -176,17 +176,17 @@ export default function CompanyBalanceSheet({
 
                 <TableRow><TableCell colSpan={2} className="h-4"></TableCell></TableRow>
 
-                <TableRow className="bg-gray-50 font-semibold">
+                <TableRow className="bg-muted font-semibold">
                   <TableCell colSpan={2} className="text-lg font-display text-accent">EQUITY</TableCell>
                 </TableRow>
                 
                 <TableRow
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-muted"
                   onClick={() => setBsExpanded(prev => ({ ...prev, equity: !prev.equity }))}
                 >
                   <TableCell className="pl-4">
                     <span className="flex items-center gap-1">
-                      {bsExpanded.equity ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                      {bsExpanded.equity ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
                       Retained Earnings
                     </span>
                   </TableCell>
@@ -195,16 +195,16 @@ export default function CompanyBalanceSheet({
                 {bsExpanded.equity && (
                   <>
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                      <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Cumulative Revenue</TableCell>
-                      <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(financials.reduce((a, m) => a + m.totalRevenue, 0))}</TableCell>
+                      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Cumulative Revenue</TableCell>
+                      <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(financials.reduce((a, m) => a + m.totalRevenue, 0))}</TableCell>
                     </TableRow>
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                      <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">Less: Cumulative Expenses</TableCell>
-                      <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(-financials.reduce((a, m) => a + m.totalExpenses, 0))}</TableCell>
+                      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Less: Cumulative Expenses</TableCell>
+                      <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(-financials.reduce((a, m) => a + m.totalExpenses, 0))}</TableCell>
                     </TableRow>
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                      <TableCell className="pl-12 py-0.5 text-xs text-gray-500 italic">= Net Income</TableCell>
-                      <TableCell className="text-right py-0.5 font-mono text-xs text-gray-500">{formatMoney(cumulativeNetIncome)}</TableCell>
+                      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">= Net Income</TableCell>
+                      <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(cumulativeNetIncome)}</TableCell>
                     </TableRow>
                   </>
                 )}

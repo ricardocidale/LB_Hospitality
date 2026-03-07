@@ -114,11 +114,11 @@ export default function CompaniesTab() {
     <>
     <div className="space-y-6">
 
-      <Card className="bg-white border border-gray-200/80 shadow-sm">
+      <Card className="bg-white border border-border/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-400" /> SPV Companies</CardTitle>
+              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" /> SPV Companies</CardTitle>
               <CardDescription className="label-text">Manage special purpose vehicle companies for individual properties.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => {
@@ -143,21 +143,21 @@ export default function CompaniesTab() {
                 const companyLogo = adminLogos?.find(l => l.id === company.logoId);
                 const companyUsers = users?.filter(u => u.companyId === company.id) || [];
                 return (
-                  <div key={company.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4" data-testid={`company-card-${company.id}`}>
+                  <div key={company.id} className="bg-muted border border-border rounded-xl p-4" data-testid={`company-card-${company.id}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         {companyLogo ? (
-                          <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
+                          <div className="w-10 h-10 rounded-lg bg-white border border-border flex items-center justify-center overflow-hidden">
                             <img src={companyLogo.url} alt={companyLogo.name} className="max-w-full max-h-full object-contain" />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
-                            <Building2 className="w-4 h-4 text-gray-400" />
+                          <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
+                            <Building2 className="w-4 h-4 text-muted-foreground" />
                           </div>
                         )}
                         <div>
                           <h3 className="font-display text-foreground font-medium">{company.name}</h3>
-                          <span className="text-xs px-2 py-0.5 rounded font-mono bg-gray-200 text-gray-600">SPV</span>
+                          <span className="text-xs px-2 py-0.5 rounded font-mono bg-muted text-muted-foreground">SPV</span>
                           {!company.isActive && <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-600 ml-2">Inactive</span>}
                         </div>
                       </div>
@@ -166,7 +166,7 @@ export default function CompaniesTab() {
                           setEditingCompany(company);
                           setCompanyForm({ name: company.name, type: company.type, description: company.description || "", logoId: company.logoId });
                           setCompanyDialogOpen(true);
-                        }} className="text-gray-400 hover:text-foreground hover:bg-gray-100" data-testid={`button-edit-company-${company.id}`}>
+                        }} className="text-muted-foreground hover:text-foreground hover:bg-muted" data-testid={`button-edit-company-${company.id}`}>
                           <Pencil className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => {
@@ -182,13 +182,13 @@ export default function CompaniesTab() {
                       <p className="text-sm text-muted-foreground mb-3">{company.description}</p>
                     )}
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
-                      {companyLogo && <span className="bg-gray-100 px-2 py-0.5 rounded">Logo: {companyLogo.name}</span>}
-                      <span className="bg-gray-100 px-2 py-0.5 rounded">{companyUsers.length} member{companyUsers.length !== 1 ? "s" : ""}</span>
+                      {companyLogo && <span className="bg-muted px-2 py-0.5 rounded">Logo: {companyLogo.name}</span>}
+                      <span className="bg-muted px-2 py-0.5 rounded">{companyUsers.length} member{companyUsers.length !== 1 ? "s" : ""}</span>
                     </div>
                     {companyUsers.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {companyUsers.map(u => (
-                          <span key={u.id} className="inline-flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full px-3 py-1 text-sm">
+                          <span key={u.id} className="inline-flex items-center gap-1 bg-muted border border-border rounded-full px-3 py-1 text-sm">
                             <span className="font-medium">{u.name || u.email}</span>
                           </span>
                         ))}
@@ -211,11 +211,11 @@ export default function CompaniesTab() {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-gray-500" />Company Name</Label>
+            <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" />Company Name</Label>
             <Input value={companyForm.name} onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })} placeholder="e.g., Norfolk Group" data-testid="input-company-form-name" />
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-gray-500" />Logo</Label>
+            <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-muted-foreground" />Logo</Label>
             <Select value={companyForm.logoId != null ? String(companyForm.logoId) : "none"} onValueChange={(v) => setCompanyForm({ ...companyForm, logoId: v === "none" ? null : parseInt(v) })} data-testid="select-company-logo">
               <SelectTrigger data-testid="trigger-company-logo"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -232,7 +232,7 @@ export default function CompaniesTab() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><FileText className="w-4 h-4 text-gray-500" />Description</Label>
+            <Label className="flex items-center gap-2"><FileText className="w-4 h-4 text-muted-foreground" />Description</Label>
             <Input value={companyForm.description} onChange={(e) => setCompanyForm({ ...companyForm, description: e.target.value })} placeholder="Optional description" data-testid="input-company-form-description" />
           </div>
         </div>

@@ -89,15 +89,15 @@ export default function ActivityFeed() {
     <div data-testid="activity-feed" className="bg-white rounded-xl border shadow-sm p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-gray-700" />
-          <h3 className="text-base font-semibold text-gray-900">Recent Activity</h3>
+          <Activity className="w-5 h-5 text-foreground" />
+          <h3 className="text-base font-semibold text-foreground">Recent Activity</h3>
         </div>
         {events.length > 0 && (
           <Button
             variant="ghost"
             size="sm"
             onClick={clearEvents}
-            className="text-xs text-gray-400 hover:text-gray-600"
+            className="text-xs text-muted-foreground hover:text-muted-foreground"
             data-testid="button-clear-activity"
           >
             Clear
@@ -106,7 +106,7 @@ export default function ActivityFeed() {
       </div>
 
       {recentEvents.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-6">No recent activity</p>
+        <p className="text-sm text-muted-foreground text-center py-6">No recent activity</p>
       ) : (
         <div className="space-y-3">
           {recentEvents.map((event) => {
@@ -121,10 +121,10 @@ export default function ActivityFeed() {
                   <Icon className="w-4 h-4" style={{ color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">{event.title}</p>
-                  <p className="text-xs text-gray-500 truncate">{event.detail}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{event.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{event.detail}</p>
                 </div>
-                <span className="text-xs text-gray-400 whitespace-nowrap shrink-0 mt-0.5">
+                <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0 mt-0.5">
                   {formatRelativeTime(event.timestamp)}
                 </span>
               </div>

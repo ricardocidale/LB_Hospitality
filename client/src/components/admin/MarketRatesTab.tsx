@@ -140,7 +140,7 @@ export default function MarketRatesTab() {
               <TrendingUp className="w-5 h-5 text-white" />
             </div>
             <div>
-              <CardTitle className="font-display text-lg">Live Market Rates</CardTitle>
+              <CardTitle className="text-base font-semibold text-gray-900">Live Market Rates</CardTitle>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {rates?.length ?? 0} rates tracked from FRED, Frankfurter, and manual sources
               </p>

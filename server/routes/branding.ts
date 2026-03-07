@@ -164,7 +164,12 @@ export function register(app: Express) {
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const group = await storage.createUserGroup(validation.data);
+      const data = validation.data;
+      if (!data.themeId) {
+        const defaultTheme = await storage.getDefaultDesignTheme();
+        if (defaultTheme) data.themeId = defaultTheme.id;
+      }
+      const group = await storage.createUserGroup(data);
       res.status(201).json(group);
     } catch (error) {
       logAndSendError(res, "Failed to create user group", error);

@@ -284,12 +284,15 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
     }
   }
 
-  // Assign L+B Brand theme to the default user group (idempotent)
-  if (lbBrandThemeId) {
+  // Assign default theme to ALL user groups that don't have a theme (idempotent)
+  const defaultTheme = await storage.getDefaultDesignTheme();
+  const fallbackThemeId = lbBrandThemeId ?? defaultTheme?.id;
+  if (fallbackThemeId) {
     const groups = await storage.getAllUserGroups();
-    const defaultGroup = groups.find(g => (g as any).isDefault) || groups.find(g => g.name === "General");
-    if (defaultGroup && (defaultGroup as any).themeId !== lbBrandThemeId) {
-      await storage.updateUserGroup(defaultGroup.id, { themeId: lbBrandThemeId });
+    for (const group of groups) {
+      if (!(group as any).themeId) {
+        await storage.updateUserGroup(group.id, { themeId: fallbackThemeId });
+      }
     }
   }
 

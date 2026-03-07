@@ -253,7 +253,10 @@ export default function UserGroupsTab() {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
-                      {groupTheme && <span className="bg-muted px-2 py-0.5 rounded">Theme: {groupTheme.name}</span>}
+                      <span className="bg-muted px-2 py-0.5 rounded flex items-center gap-1">
+                        <Palette className="w-3 h-3" />
+                        Theme: {groupTheme ? groupTheme.name : <span className="italic">None</span>}
+                      </span>
                       {groupAssetDesc && <span className="bg-muted px-2 py-0.5 rounded">Asset: {groupAssetDesc.name}</span>}
                       <span className="bg-muted px-2 py-0.5 rounded">{groupUsers.length} member{groupUsers.length !== 1 ? "s" : ""}</span>
                     </div>

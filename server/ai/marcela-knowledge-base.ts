@@ -2,7 +2,20 @@ import { createKBDocumentFromText, deleteKBDocument, getConvaiAgent, updateConva
 import { storage } from "../storage";
 import { logger } from "../logger";
 
-function buildKnowledgeDocument(): string {
+function pct(v: number | null | undefined): string {
+  if (v == null) return "N/A";
+  return `${(v * 100).toFixed(1)}%`;
+}
+function usd(v: number | null | undefined): string {
+  if (v == null) return "N/A";
+  return `$${Number(v).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+}
+function fmtDate(d: string | Date | null | undefined): string {
+  if (!d) return "N/A";
+  return new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "long" });
+}
+
+async function buildKnowledgeDocument(): Promise<string> {
   const sections: string[] = [];
 
   sections.push(`Hospitality Business Group — Knowledge Base for Marcela
@@ -24,7 +37,7 @@ To get started before management fees kicked in, HBG raised working capital thro
 This portal is a financial simulation tool for modeling boutique hotel investments. Think of it as the single source of truth for all of our financial projections.
 
 Here is what it covers:
-- Full financial projections for each property and the portfolio as a whole — income statements, cash flow statements, and balance sheets, projected over 30 years
+- Full financial projections for each property and the portfolio as a whole — income statements, cash flow statements, and balance sheets, projected over 10 years
 - Investment return metrics like IRR, equity multiple, cash-on-cash return, and NPV
 - Scenario analysis so you can save different sets of assumptions and compare outcomes side by side
 - AI-powered market research to help calibrate property assumptions against real market data
@@ -58,7 +71,7 @@ Help — Contains the User Manual, the Checker Manual, and an interactive guided
 
 Every property goes through four phases:
 
-1. Acquisition — The property is purchased. Closing costs (typically around 2% of the purchase price) get added to the cost basis. If the property uses debt financing, the loan is drawn at this point.
+1. Acquisition — The property is purchased. Closing costs (typically around 2–3% of the purchase price) get added to the cost basis. If the property uses debt financing, the loan is drawn at this point.
 
 2. Operations — This is the ongoing phase. Revenue comes in from rooms, food and beverage, events, and other sources. Expenses go out following standard hotel accounting categories. The property ramps up occupancy over time in steps until it reaches its stabilized level.
 
@@ -135,22 +148,6 @@ Equity investors get their money back through three channels:
 For financed properties, the loan amount equals the purchase price times the LTV ratio. Monthly payments follow standard amortization. The equity required is the purchase price plus closing costs minus the loan amount.
 
 When a property refinances, the new loan is sized based on the property's current value times the refi LTV. The old loan gets paid off, closing costs come out, and the remaining cash is distributed.`);
-
-  sections.push(`Management Company — How It Works
-
-The management company's revenue comes entirely from the fees it charges the properties:
-- Base management fee: a percentage of each property's total revenue
-- Incentive management fee: a percentage of each property's GOP (only charged when GOP is positive)
-
-The company's expenses include:
-- Partner compensation (set per year for each of three partners)
-- Staff costs that scale with the number of properties:
-  - With 1 to 3 properties: 3 partners plus about 2.5 staff
-  - With 4 to 6 properties: 3 partners plus about 4.5 staff
-  - With 7 to 10 properties: 3 partners plus about 7 staff
-- Office rent, insurance, professional services (legal and accounting), travel, IT, and marketing
-
-The SAFE funding provides the working capital bridge. It comes in two tranches of $225,000 each, about a year apart. This money is not revenue — it is future equity that keeps the company running until fee revenue is enough to cover expenses.`);
 
   sections.push(`The Seven Business Rules
 
@@ -247,6 +244,164 @@ I speak English, Portuguese, and Spanish — I will respond in whatever language
 
 One thing to know: I do not calculate financial numbers myself. Every number I share comes directly from the financial engine. I explain and retrieve, but the math is always done by the engine.`);
 
+  try {
+    const ga = await storage.getGlobalAssumptions();
+    if (ga) {
+      sections.push(`Management Company Assumptions — Current Settings
+
+Company name: ${(ga as any).companyName || "Hospitality Management"}
+Model start date: ${fmtDate((ga as any).modelStartDate)}
+Company operations start: ${fmtDate((ga as any).companyOpsStartDate)}
+Projection period: ${(ga as any).projectionYears || 10} years
+Fiscal year starts: Month ${(ga as any).fiscalYearStartMonth || 1}
+
+Fee Structure:
+- Base management fee rate: ${pct((ga as any).baseManagementFee)}
+- Incentive management fee rate: ${pct((ga as any).incentiveManagementFee)}
+- Inflation rate: ${pct((ga as any).inflationRate)}
+- Fixed cost escalation rate: ${pct((ga as any).fixedCostEscalationRate)}
+- Company tax rate: ${pct((ga as any).companyTaxRate)}
+
+SAFE Funding:
+- Tranche 1: ${usd((ga as any).safeTranche1Amount)} on ${fmtDate((ga as any).safeTranche1Date)}
+- Tranche 2: ${usd((ga as any).safeTranche2Amount)} on ${fmtDate((ga as any).safeTranche2Date)}
+- SAFE valuation cap: ${usd((ga as any).safeValuationCap)}
+- SAFE discount rate: ${pct((ga as any).safeDiscountRate)}
+
+Partner Compensation per Partner per Year:
+- Year 1: ${usd((ga as any).partnerCompYear1)} | Year 2: ${usd((ga as any).partnerCompYear2)} | Year 3: ${usd((ga as any).partnerCompYear3)}
+- Year 4: ${usd((ga as any).partnerCompYear4)} | Year 5: ${usd((ga as any).partnerCompYear5)} | Year 6: ${usd((ga as any).partnerCompYear6)}
+- Year 7: ${usd((ga as any).partnerCompYear7)} | Year 8: ${usd((ga as any).partnerCompYear8)} | Year 9: ${usd((ga as any).partnerCompYear9)}
+- Year 10: ${usd((ga as any).partnerCompYear10)}
+
+Partner Count per Year:
+- Year 1: ${(ga as any).partnerCountYear1} | Year 2: ${(ga as any).partnerCountYear2} | Year 3: ${(ga as any).partnerCountYear3}
+- Year 4: ${(ga as any).partnerCountYear4} | Year 5: ${(ga as any).partnerCountYear5} | Year 6: ${(ga as any).partnerCountYear6}
+- Year 7: ${(ga as any).partnerCountYear7} | Year 8: ${(ga as any).partnerCountYear8} | Year 9: ${(ga as any).partnerCountYear9}
+- Year 10: ${(ga as any).partnerCountYear10}
+
+Staffing Tiers:
+- Tier 1 (up to ${(ga as any).staffTier1MaxProperties} properties): ${(ga as any).staffTier1Fte} FTE at ${usd((ga as any).staffSalary)}/year
+- Tier 2 (up to ${(ga as any).staffTier2MaxProperties} properties): ${(ga as any).staffTier2Fte} FTE at ${usd((ga as any).staffSalary)}/year
+- Tier 3 (7+ properties): ${(ga as any).staffTier3Fte} FTE at ${usd((ga as any).staffSalary)}/year
+
+Operating Costs (annual, escalate with inflation):
+- Office lease: ${usd((ga as any).officeLeaseStart)}
+- Professional services (legal & accounting): ${usd((ga as any).professionalServicesStart)}
+- Technology infrastructure: ${usd((ga as any).techInfraStart)}
+- Business insurance: ${usd((ga as any).businessInsuranceStart)}
+- Travel per property: ${usd((ga as any).travelCostPerClient)}
+- IT license per property: ${usd((ga as any).itLicensePerClient)}
+- Marketing rate: ${pct((ga as any).marketingRate)} of revenue
+- Miscellaneous operations: ${pct((ga as any).miscOpsRate)} of revenue`);
+    }
+
+    const properties = await storage.getAllProperties();
+    if (properties && properties.length > 0) {
+      let portfolioSection = `Current Property Portfolio — ${properties.length} Properties\n\nThe portfolio currently contains the following boutique hotel properties:\n`;
+
+      for (const p of properties) {
+        const loc = [p.city, p.stateProvince, p.country].filter(Boolean).join(", ");
+        portfolioSection += `
+Property: ${p.name}
+Location: ${loc || p.location || "N/A"}
+Status: ${p.status || "Planned"}
+Financing type: ${p.type || "Full Equity"}
+Acquisition date: ${fmtDate(p.acquisitionDate)}
+Operations start: ${fmtDate(p.operationsStartDate)}
+Room count: ${p.roomCount}
+Purchase price: ${usd(p.purchasePrice as any)}
+Building improvements: ${usd(p.buildingImprovements as any)}
+Pre-opening costs: ${usd(p.preOpeningCosts as any)}
+Operating reserve: ${usd(p.operatingReserve as any)}
+
+Revenue assumptions:
+- Starting ADR: ${usd(p.startAdr as any)}
+- ADR growth rate: ${pct(Number(p.adrGrowthRate))}
+- Starting occupancy: ${pct(Number(p.startOccupancy))}
+- Maximum (stabilized) occupancy: ${pct(Number(p.maxOccupancy))}
+- Occupancy ramp period: ${p.occupancyRampMonths} months between steps
+- Occupancy growth step: ${pct(Number(p.occupancyGrowthStep))}
+- Stabilization period: ${p.stabilizationMonths} months
+- F&B revenue share: ${pct(Number(p.revShareFB))} of room revenue
+- Events revenue share: ${pct(Number(p.revShareEvents))} of room revenue
+- Other revenue share: ${pct(Number(p.revShareOther))} of room revenue
+- Catering boost: ${pct(Number(p.cateringBoostPercent))}
+
+Expense rates:
+- Rooms department: ${pct(Number(p.costRateRooms))}
+- F&B department: ${pct(Number(p.costRateFB))}
+- Admin & General: ${pct(Number(p.costRateAdmin))}
+- Marketing: ${pct(Number(p.costRateMarketing))}
+- Property operations & maintenance: ${pct(Number(p.costRatePropertyOps))}
+- Utilities: ${pct(Number(p.costRateUtilities))}
+- Insurance: ${pct(Number(p.costRateInsurance))}
+- Property taxes: ${pct(Number(p.costRateTaxes))}
+- IT systems: ${pct(Number(p.costRateIT))}
+- FF&E reserve: ${pct(Number(p.costRateFFE))}
+
+Management fees:
+- Base management fee: ${pct(Number(p.baseManagementFeeRate))}
+- Incentive management fee: ${pct(Number(p.incentiveManagementFeeRate))}
+
+Exit assumptions:
+- Exit cap rate: ${pct(Number(p.exitCapRate))}
+- Income tax rate: ${pct(Number(p.taxRate))}
+- Disposition commission: ${pct(Number(p.dispositionCommission))}
+- Land value percentage: ${pct(Number(p.landValuePercent))}`;
+
+        if (p.acquisitionLTV && Number(p.acquisitionLTV) > 0) {
+          portfolioSection += `
+
+Acquisition financing:
+- LTV ratio: ${pct(Number(p.acquisitionLTV))}
+- Interest rate: ${pct(Number(p.acquisitionInterestRate))}
+- Loan term: ${p.acquisitionTermYears} years
+- Closing cost rate: ${pct(Number(p.acquisitionClosingCostRate))}`;
+        }
+
+        if (p.willRefinance === "Yes") {
+          portfolioSection += `
+
+Refinancing plan:
+- Will refinance: Yes, ${p.refinanceYearsAfterAcquisition} years after acquisition
+- Refinance LTV: ${pct(Number(p.refinanceLTV))}
+- Refinance interest rate: ${pct(Number(p.refinanceInterestRate))}
+- Refinance term: ${p.refinanceTermYears} years
+- Refinance closing cost rate: ${pct(Number(p.refinanceClosingCostRate))}`;
+        }
+
+        portfolioSection += "\n";
+      }
+
+      sections.push(portfolioSection);
+    }
+  } catch (err: any) {
+    logger.error(`Failed to load live data for KB: ${err.message}`, "marcela-kb");
+  }
+
+  sections.push(`User Roles and Permissions
+
+There are four user roles in the portal:
+
+Admin — Full access to everything. Can manage users, configure settings, edit any property, access verification, and manage the AI agent. Ricardo Cidale is the sole admin.
+
+Partner — Can view the full portfolio, edit property assumptions, run scenarios, and use analysis tools. Partners are the primary users of the financial model.
+
+Investor — Read-only access to the portfolio and financial statements. Investors can see the numbers but cannot change assumptions.
+
+Checker — A specialized role focused on verification and audit. Checkers can access the independent audit system and review calculation integrity. They have a dedicated Checker Manual with formula documentation.`);
+
+  sections.push(`Sensitivity Analysis and Scenario Planning
+
+The portal offers multiple ways to stress-test assumptions:
+
+Sensitivity Analysis — Available on the Analysis page. You can see how changes to key inputs (ADR, occupancy, cap rate, expense rates) affect portfolio returns. The tool shows a range of outcomes so you can understand what drives value.
+
+Scenario Comparison — Save the current set of assumptions as a named scenario. Create multiple scenarios (for example, "Base Case," "Optimistic," "Recession") and compare them side by side. Each scenario captures a full snapshot of all global and property assumptions.
+
+What-If Analysis — Change any assumption in the property editor or company assumptions page and see the impact immediately. The entire portfolio recalculates in real time.`);
+
   return sections.join("\n\n---\n\n");
 }
 
@@ -258,7 +413,7 @@ export async function uploadKnowledgeBase(): Promise<{ success: boolean; documen
       return { success: false, error: "No Marcela agent ID configured" };
     }
 
-    const documentText = buildKnowledgeDocument();
+    const documentText = await buildKnowledgeDocument();
     logger.info(`Compiled knowledge base: ${documentText.length} characters`, "marcela-kb");
 
     const existingAgent = await getConvaiAgent(agentId);
@@ -299,8 +454,8 @@ export async function uploadKnowledgeBase(): Promise<{ success: boolean; documen
   }
 }
 
-export function getKnowledgeDocumentPreview(): { sections: number; characters: number; preview: string } {
-  const doc = buildKnowledgeDocument();
+export async function getKnowledgeDocumentPreview(): Promise<{ sections: number; characters: number; preview: string }> {
+  const doc = await buildKnowledgeDocument();
   const sectionCount = doc.split("---").length;
   return {
     sections: sectionCount,

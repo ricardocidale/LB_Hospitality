@@ -43,16 +43,16 @@ describe("Knowledge Base — RAG Context Builder", () => {
 });
 
 describe("Knowledge Base — Document Preview", () => {
-  it("returns sections count, character count, and preview", () => {
-    const preview = getKnowledgeDocumentPreview();
+  it("returns sections count, character count, and preview", async () => {
+    const preview = await getKnowledgeDocumentPreview();
     expect(preview.sections).toBeGreaterThan(10);
     expect(preview.characters).toBeGreaterThan(1000);
     expect(preview.preview.length).toBeLessThanOrEqual(504); // 500 + "..."
     expect(preview.preview.endsWith("...")).toBe(true);
   });
 
-  it("preview starts with company description", () => {
-    const preview = getKnowledgeDocumentPreview();
+  it("preview starts with company description", async () => {
+    const preview = await getKnowledgeDocumentPreview();
     expect(preview.preview).toContain("Hospitality Business Group");
   });
 });

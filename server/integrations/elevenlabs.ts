@@ -235,18 +235,18 @@ export interface KBDocument {
 }
 
 export async function createKBDocumentFromText(name: string, text: string): Promise<KBDocument> {
-  return convaiRequest<KBDocument>('/knowledge-base/documents/create-from-text', {
+  return convaiRequest<KBDocument>('/knowledge-base/text', {
     method: 'POST',
     body: { name, text },
   });
 }
 
 export async function getKBDocument(docId: string): Promise<KBDocument & { status?: string }> {
-  return convaiRequest<KBDocument & { status?: string }>(`/knowledge-base/documents/${docId}`);
+  return convaiRequest<KBDocument & { status?: string }>(`/knowledge-base/${docId}`);
 }
 
 export async function deleteKBDocument(docId: string): Promise<void> {
-  await convaiRequest<void>(`/knowledge-base/documents/${docId}`, { method: 'DELETE' });
+  await convaiRequest<void>(`/knowledge-base/${docId}`, { method: 'DELETE' });
 }
 
 export async function createKBDocumentFromFile(name: string, fileBuffer: Buffer, fileName: string): Promise<KBDocument> {
@@ -255,7 +255,7 @@ export async function createKBDocumentFromFile(name: string, fileBuffer: Buffer,
   formData.append('file', new Blob([fileBuffer]), fileName);
   formData.append('name', name);
 
-  const response = await fetch(`${CONVAI_BASE}/knowledge-base/documents/create-from-file`, {
+  const response = await fetch(`${CONVAI_BASE}/knowledge-base/file`, {
     method: 'POST',
     headers: { 'xi-api-key': apiKey },
     body: formData,

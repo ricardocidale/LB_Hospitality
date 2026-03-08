@@ -183,7 +183,7 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.get("/api/admin/convai/knowledge-base/preview", requireAdmin, async (_req, res) => {
     try {
-      const preview = getKnowledgeDocumentPreview();
+      const preview = await getKnowledgeDocumentPreview();
       res.json(preview);
     } catch (error: any) {
       logAndSendError(res, error.message || "Failed to generate preview", error);

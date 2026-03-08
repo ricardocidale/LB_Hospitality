@@ -7,8 +7,10 @@ declare module "react" {
         React.HTMLAttributes<HTMLElement> & {
           url?: string;
           "agent-id"?: string;
+          "signed-url"?: string;
           "server-location"?: string;
           variant?: string;
+          placement?: string;
           dismissible?: string;
           language?: string;
           "avatar-image-url"?: string;
@@ -29,6 +31,12 @@ declare module "react" {
           "override-first-message"?: string;
           "override-voice-id"?: string;
           "dynamic-variables"?: string;
+          "default-expanded"?: string;
+          "always-expanded"?: string;
+          "text-input"?: string;
+          transcript?: string;
+          "user-id"?: string;
+          "collect-feedback"?: string;
         },
         HTMLElement
       >;

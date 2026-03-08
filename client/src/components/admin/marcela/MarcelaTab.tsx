@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History, CheckCircle2, XCircle, Activity, Play } from "lucide-react";
 import { Orb, AgentState } from "@/features/ai-agent/components/orb";
+import { ConversationBar } from "@/features/ai-agent/components/conversation-bar";
 import { VoiceSettings } from "./types";
 import { useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings, useAgentConfig, useConversations, useAdminSignedUrl } from "./hooks";
 import { KnowledgeBaseCard } from "./KnowledgeBase";
@@ -424,8 +425,10 @@ export default function MarcelaTab() {
                 <p className="text-xs text-muted-foreground/60 text-center px-2">
                   Live conversation — counts against your ElevenLabs quota.
                 </p>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {(React as any).createElement("elevenlabs-convai", { "signed-url": signedUrl, variant: "compact" })}
+                <ConversationBar
+                  signedUrl={signedUrl}
+                  agentLabel={agentName}
+                />
               </>
             ) : (
               <p className="text-xs text-muted-foreground/60 animate-pulse">Generating signed URL…</p>

@@ -3,11 +3,6 @@ import { useGlobalAssumptions } from "@/lib/api/admin";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { registerWidget } from "@elevenlabs/convai-widget-core";
-
-if (!customElements.get("elevenlabs-convai")) {
-  registerWidget();
-}
 
 const Orb = lazy(() => import("./components/orb").then((m) => ({ default: m.Orb })));
 const BarVisualizer = lazy(() =>
@@ -26,7 +21,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   const [location] = useLocation();
 
   const agentId = (global as any)?.marcelaAgentId;
-  const language = (global as any)?.marcelaLanguage || "en";
+  const agentName = (global as any)?.aiAgentName || "Marcela";
   const variant = (global as any)?.marcelaWidgetVariant || "compact";
 
   const shouldActivate = !!(enabled && agentId);
@@ -48,11 +43,11 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   if (!shouldActivate) return null;
 
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "User";
-  const dynamicVars = JSON.stringify({
+  const dynamicVars: Record<string, string> = {
     user_name: fullName,
     user_role: user?.role || "partner",
     current_page: location,
-  });
+  };
 
   if (variant === "orb") {
     return (
@@ -61,9 +56,12 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
           <div className="w-16 h-16 cursor-pointer drop-shadow-lg">
             <Orb colors={["#9fbca4", "#4a7c5c"]} agentState="thinking" seed={42} />
           </div>
-          {signedUrl && (
-            <elevenlabs-convai signed-url={signedUrl} language={language} variant="tiny" dynamic-variables={dynamicVars} />
-          )}
+          <ConversationBarWidget
+            signedUrl={signedUrl}
+            agentId={agentId}
+            dynamicVariables={dynamicVars}
+            agentLabel={agentName}
+          />
         </div>
       </Suspense>
     );
@@ -82,9 +80,12 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
               className="h-10 bg-card/80 backdrop-blur-sm border border-primary/20 rounded-full px-3 shadow-lg"
             />
           </div>
-          {signedUrl && (
-            <elevenlabs-convai signed-url={signedUrl} language={language} variant="tiny" dynamic-variables={dynamicVars} />
-          )}
+          <ConversationBarWidget
+            signedUrl={signedUrl}
+            agentId={agentId}
+            dynamicVariables={dynamicVars}
+            agentLabel={agentName}
+          />
         </div>
       </Suspense>
     );
@@ -106,32 +107,27 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
               className="rounded-xl overflow-hidden shadow-lg border border-primary/20"
             />
           </div>
-          {signedUrl && (
-            <elevenlabs-convai signed-url={signedUrl} language={language} variant="tiny" dynamic-variables={dynamicVars} />
-          )}
+          <ConversationBarWidget
+            signedUrl={signedUrl}
+            agentId={agentId}
+            dynamicVariables={dynamicVars}
+            agentLabel={agentName}
+          />
         </div>
       </Suspense>
     );
   }
-
-  if (variant === "conversation-bar") {
-    return (
-      <Suspense fallback={null}>
-        <div className="fixed bottom-6 right-6 z-50 w-80">
-          <ConversationBarWidget agentId={agentId} />
-        </div>
-      </Suspense>
-    );
-  }
-
-  if (!signedUrl) return null;
 
   return (
-    <elevenlabs-convai
-      signed-url={signedUrl}
-      language={language}
-      variant={variant}
-      dynamic-variables={dynamicVars}
-    />
+    <Suspense fallback={null}>
+      <div className="fixed bottom-6 right-6 z-50 w-80">
+        <ConversationBarWidget
+          signedUrl={signedUrl}
+          agentId={agentId}
+          dynamicVariables={dynamicVars}
+          agentLabel={agentName}
+        />
+      </div>
+    </Suspense>
   );
 }

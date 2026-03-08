@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Building2, LayoutGrid } from "lucide-react";
 import UsersTab from "./UsersTab";
@@ -88,25 +88,36 @@ function CompanyAssignmentTab() {
     return map;
   }, [companiesList, adminLogos]);
 
-  const assignCompanyMutation = useMutation({
-    mutationFn: async ({ userId, companyId }: { userId: number; companyId: number | null }) => {
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, data }: { userId: number; data: Record<string, any> }) => {
       const res = await fetch(`/api/admin/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyId }),
+        body: JSON.stringify(data),
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Failed to assign company");
+      if (!res.ok) throw new Error("Failed to update user");
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      toast({ title: "Company Assigned", description: "User has been assigned to the company." });
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
+
+  const handleCompanyChange = useCallback((userId: number, companyId: number | null) => {
+    updateUserMutation.mutate({ userId, data: { companyId } });
+    toast({ title: "Company Assigned", description: "User has been assigned to the company." });
+  }, [updateUserMutation, toast]);
+
+  const handleTitleBlur = useCallback((userId: number, title: string, original: string | null) => {
+    const trimmed = title.trim();
+    if (trimmed === (original || "")) return;
+    updateUserMutation.mutate({ userId, data: { title: trimmed || null } });
+    toast({ title: "Title Updated", description: "User job title has been saved." });
+  }, [updateUserMutation, toast]);
 
   if (usersLoading) {
     return (
@@ -131,36 +142,36 @@ function CompanyAssignmentTab() {
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
               <TableHead className="text-muted-foreground">User</TableHead>
-              <TableHead className="text-muted-foreground">Role</TableHead>
+              <TableHead className="text-muted-foreground">Job Title</TableHead>
               <TableHead className="text-muted-foreground">Company</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users?.map(user => (
-              <TableRow key={user.id} className="border-border hover:bg-muted" data-testid={`company-assign-row-${user.id}`}>
+            {users?.map((user, idx) => (
+              <TableRow
+                key={user.id}
+                className={`border-border ${idx % 2 === 1 ? "bg-muted/30" : ""}`}
+                data-testid={`company-assign-row-${user.id}`}
+              >
                 <TableCell className="text-foreground">
-                  <div>
-                    <span className="font-medium">{user.name || user.email}</span>
-                    {user.name && <span className="text-muted-foreground text-xs ml-2">{user.email}</span>}
-                  </div>
+                  <span className="font-medium">{user.name || user.email}</span>
                 </TableCell>
                 <TableCell>
-                  <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                    user.role === "admin" ? "bg-muted/80 text-muted-foreground" :
-                    user.role === "checker" ? "bg-muted text-blue-400" :
-                    user.role === "investor" ? "bg-amber-500/20 text-amber-400" :
-                    "bg-muted text-muted-foreground"
-                  }`}>{user.role}</span>
+                  <JobTitleInput
+                    userId={user.id}
+                    value={user.title}
+                    onBlur={handleTitleBlur}
+                  />
                 </TableCell>
                 <TableCell>
                   <Select
                     value={user.companyId != null ? String(user.companyId) : "none"}
                     onValueChange={(v) => {
                       const companyId = v === "none" ? null : parseInt(v);
-                      assignCompanyMutation.mutate({ userId: user.id, companyId });
+                      handleCompanyChange(user.id, companyId);
                     }}
                   >
-                    <SelectTrigger className="h-9 max-w-[200px]" data-testid={`select-user-company-${user.id}`}><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 max-w-[200px] text-sm" data-testid={`select-user-company-${user.id}`}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">No Company</SelectItem>
                       {companiesList?.filter(c => c.isActive).map(c => (
@@ -187,8 +198,31 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminLogos } from "./hooks";
 import type { User, AdminCompany } from "./types";
+
+function JobTitleInput({
+  userId,
+  value,
+  onBlur,
+}: {
+  userId: number;
+  value: string | null;
+  onBlur: (userId: number, title: string, original: string | null) => void;
+}) {
+  const [local, setLocal] = useState(value || "");
+  return (
+    <Input
+      value={local}
+      onChange={(e) => setLocal(e.target.value)}
+      onBlur={() => onBlur(userId, local, value)}
+      placeholder="Optional"
+      className="h-8 text-sm bg-transparent border-border/50 max-w-[180px] placeholder:text-muted-foreground/40"
+      data-testid={`input-job-title-${userId}`}
+    />
+  );
+}

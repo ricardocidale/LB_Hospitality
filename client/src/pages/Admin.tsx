@@ -11,7 +11,6 @@ import { KnowledgeBaseCard } from "@/components/admin/marcela/KnowledgeBase";
 import PeopleTab from "@/components/admin/PeopleTab";
 import BrandingTab from "@/components/admin/BrandingTab";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
-import ServicesTab from "@/components/admin/ServicesTab";
 import RevenueShareTab from "@/components/admin/RevenueShareTab";
 import OtherAssumptionsTab from "@/components/admin/OtherAssumptionsTab";
 import GroupsTab from "@/components/admin/GroupsTab";
@@ -29,8 +28,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   activity:         { title: "Activity",             subtitle: "Login logs, audit trail, and session monitoring" },
   branding:         { title: "Management Company",   subtitle: "Identity and contact information" },
   icp:              { title: "Ideal Customer Profile", subtitle: "Define the target property type for AI research" },
-  services:         { title: "Services",             subtitle: "Centralized services with category toggles and starter fees" },
-  revshare:         { title: "Revenue Share",        subtitle: "Suggested starting values for incentive fees" },
+  revshare:         { title: "Revenue Share",        subtitle: "Service categories, fee defaults, and incentive fees" },
   otherassumptions: { title: "Other Assumptions",    subtitle: "Company-specific inflation and financial defaults" },
   companies:        { title: "Companies",            subtitle: "Manage SPV companies for individual properties" },
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
@@ -51,7 +49,6 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "activity":         return <ActivityTab />;
     case "branding":         return <BrandingTab />;
     case "icp":              return <AssetDefinitionTab />;
-    case "services":         return <ServicesTab />;
     case "revshare":         return <RevenueShareTab />;
     case "otherassumptions": return <OtherAssumptionsTab />;
     case "companies":        return <CompaniesTab />;

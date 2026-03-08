@@ -4,14 +4,14 @@ import { Menu, X, HelpCircle } from "lucide-react";
 import { Link } from "wouter";
 import {
   IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
-  IconUpload, IconPanelLeft, IconProperties, IconPackage, IconTrending,
+  IconUpload, IconPanelLeft, IconProperties, IconTrending,
   IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear,
   IconBriefcase, IconResearch, IconBookOpen, IconPhone,
 } from "@/components/icons/brand-icons";
 
 export type AdminSection =
   | "users" | "activity"
-  | "branding" | "icp" | "services" | "revshare" | "otherassumptions"
+  | "branding" | "icp" | "revshare" | "otherassumptions"
   | "companies" | "groups"
   | "logos" | "themes"
   | "marcela" | "kb" | "twilio"
@@ -40,7 +40,6 @@ const navGroups: NavGroup[] = [
     sections: [
       { value: "branding", label: "Management Company", icon: IconImage },
       { value: "icp", label: "Ideal Customer Profile", icon: IconPeople },
-      { value: "services", label: "Services", icon: IconPackage },
       { value: "revshare", label: "Revenue Share", icon: IconTrending },
       { value: "otherassumptions", label: "Other Assumptions", icon: IconSettingsGear },
     ],

@@ -242,6 +242,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                 <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
               </button>
               <NotificationCenter />
+              <MarcelaWidgetGated />
             </div>
           </header>
 
@@ -289,7 +290,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
         <CommandPalette />
         <GuidedWalkthrough />
-        <MarcelaWidgetGated />
       </div>
     </SidebarProvider>
   );

@@ -148,6 +148,14 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   );
 }
 
+function waitForCustomElement(name: string, timeout = 10000): Promise<void> {
+  if (customElements.get(name)) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`[ElevenLabs] Custom element <${name}> not defined after ${timeout}ms`)), timeout);
+    customElements.whenDefined(name).then(() => { clearTimeout(timer); resolve(); });
+  });
+}
+
 function NativeElevenLabsWidget({
   agentId,
   variant,
@@ -164,22 +172,30 @@ function NativeElevenLabsWidget({
 
   useEffect(() => {
     if (!containerRef.current) return;
+    let cancelled = false;
 
-    if (widgetRef.current) {
-      widgetRef.current.remove();
-      widgetRef.current = null;
-    }
+    waitForCustomElement("elevenlabs-convai")
+      .then(() => {
+        if (cancelled || !containerRef.current) return;
 
-    const widget = document.createElement("elevenlabs-convai");
-    widget.setAttribute("agent-id", agentId);
-    if (variant) widget.setAttribute("variant", variant);
-    if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
-    widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
+        if (widgetRef.current) {
+          widgetRef.current.remove();
+          widgetRef.current = null;
+        }
 
-    containerRef.current.appendChild(widget);
-    widgetRef.current = widget;
+        const widget = document.createElement("elevenlabs-convai");
+        widget.setAttribute("agent-id", agentId);
+        if (variant) widget.setAttribute("variant", variant);
+        if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
+        widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
+
+        containerRef.current!.appendChild(widget);
+        widgetRef.current = widget;
+      })
+      .catch((err) => console.error(err));
 
     return () => {
+      cancelled = true;
       widgetRef.current?.remove();
       widgetRef.current = null;
     };

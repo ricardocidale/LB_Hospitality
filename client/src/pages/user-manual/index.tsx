@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
-import { BookOpen } from "lucide-react";
+import { IconHelp } from "@/components/icons/brand-icons";
 import { USER_MANUAL_SECTIONS } from "./constants";
 import { UserManualTOC } from "./UserManualTOC";
 import { UserManualContent } from "./UserManualContent";
@@ -49,7 +49,7 @@ export default function UserManual({ embedded }: UserManualProps) {
           <div className="p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <BookOpen className="w-6 h-6 text-primary" />
+                <IconHelp className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Welcome to the Hospitality Business Group Portal</h3>

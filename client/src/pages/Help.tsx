@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { ClipboardCheck, FileText, HelpCircle, PlayCircle } from "lucide-react";
+import { IconHelp, IconFileCheck, IconShield, IconActivity } from "@/components/icons/brand-icons";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import CheckerManual from "./CheckerManual";
@@ -34,9 +34,9 @@ export default function Help() {
   }, [queryClient, setShownThisSession, setTourActive]);
 
   const tabs = [
-    { value: "user-manual" as const, label: "User Manual", icon: FileText },
-    ...(isChecker ? [{ value: "checker-manual" as const, label: "Checker Manual", icon: ClipboardCheck }] : []),
-    { value: "guided-tour" as const, label: "Guided Tour", icon: HelpCircle },
+    { value: "user-manual" as const, label: "User Manual", icon: IconFileCheck },
+    ...(isChecker ? [{ value: "checker-manual" as const, label: "Checker Manual", icon: IconShield }] : []),
+    { value: "guided-tour" as const, label: "Guided Tour", icon: IconActivity },
   ];
 
   return (
@@ -68,7 +68,7 @@ export default function Help() {
             <Card className="bg-card border-border shadow-sm rounded-lg">
               <div className="p-8 text-center space-y-6">
                 <div className="w-16 h-16 rounded-lg bg-primary/15 flex items-center justify-center mx-auto">
-                  <PlayCircle className="w-8 h-8 text-primary" />
+                  <IconActivity className="w-8 h-8 text-primary" />
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-xl font-display font-semibold">Interactive Guided Tour</h2>
@@ -81,7 +81,7 @@ export default function Help() {
                   onClick={handleStartTour}
                   data-testid="button-start-guided-tour"
                 >
-                  <PlayCircle className="w-4 h-4" />
+                  <IconActivity className="w-4 h-4" />
                   Start Guided Tour
                 </Button>
               </div>

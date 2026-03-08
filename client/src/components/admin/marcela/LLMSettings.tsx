@@ -8,7 +8,8 @@ import { useState } from "react";
 import { MessageSquare, Mic, Brain, AlertCircle, Save, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VoiceSettings, LLM_MODELS } from "./types";
-import { useConversations, useSaveAgentLlm } from "./hooks";
+import { useConversations } from "@/features/ai-agent/hooks/use-conversations";
+import { useSaveAgentLlm } from "@/features/ai-agent/hooks/use-convai-api";
 
 interface LLMSettingsProps {
   draft: VoiceSettings;

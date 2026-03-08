@@ -15,10 +15,10 @@ import {
 import { Orb, AgentState } from "@/features/ai-agent/components/orb";
 import { ConversationBar } from "@/features/ai-agent/components/conversation-bar";
 import { VoiceSettings } from "./types";
-import {
-  useMarcelaSettings, useTwilioStatus, useSaveMarcelaSettings,
-  useAgentConfig, useConversations, useAdminSignedUrl,
-} from "./hooks";
+import { useMarcelaSettings, useSaveMarcelaSettings, useTwilioStatus } from "@/features/ai-agent/hooks/use-agent-settings";
+import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
+import { useConversations } from "@/features/ai-agent/hooks/use-conversations";
+import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";
 import { KnowledgeBaseCard } from "./KnowledgeBase";
 import { LLMSettings } from "./LLMSettings";
 import { TelephonySettings } from "./TelephonySettings";

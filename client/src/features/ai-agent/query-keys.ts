@@ -6,5 +6,6 @@ export const AI_AGENT_KEYS = {
   conversations:      ["admin", "convai-conversations"]    as const,
   conversation:       (id: string) => ["admin", "convai-conversation", id] as const,
   knowledgeBaseStatus:["admin", "knowledge-base-status"]   as const,
+  knowledgeBaseSources:["admin", "knowledge-base-sources"] as const,
   signedUrl:          ["admin", "marcela-signed-url"]      as const,
 } as const;

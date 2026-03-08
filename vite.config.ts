@@ -32,6 +32,10 @@ export default defineConfig({
       "@analytics": path.resolve(import.meta.dirname, "analytics"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
+    dedupe: ["react", "react-dom"],
+  },
+  optimizeDeps: {
+    include: ["@elevenlabs/react", "react", "react-dom"],
   },
   css: {
     postcss: {

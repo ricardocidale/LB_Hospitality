@@ -39,6 +39,48 @@ export function useReindexKnowledgeBase() {
   });
 }
 
+export interface KBSource {
+  id: string;
+  name: string;
+  category: "Static Reference" | "Live Data" | "Research";
+  size?: number;
+}
+
+export function useKBSources() {
+  return useQuery<KBSource[]>({
+    queryKey: AI_AGENT_KEYS.knowledgeBaseSources,
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/admin/knowledge-base/sources");
+      const data = await res.json();
+      return data.sources ?? data;
+    },
+  });
+}
+
+export function useRebuildKB() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (sources: string[]) => {
+      const res = await apiRequest("POST", "/api/admin/convai/knowledge-base/rebuild", { sources });
+      return res.json();
+    },
+    onSuccess: (data: { success: boolean; documentId?: string }) => {
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.convaiAgent });
+      toast({
+        title: "Knowledge Base Rebuilt",
+        description: data.documentId
+          ? `Document uploaded to ElevenLabs (${data.documentId.slice(0, 8)}...)`
+          : "Knowledge base compiled and uploaded successfully",
+      });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Rebuild Failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+
 export function useUploadKnowledgeBase() {
   const { toast } = useToast();
 

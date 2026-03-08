@@ -1,69 +1,37 @@
 # Data Integrity Invariants
 
-## Shared Row Uniqueness
+## Rule
 
-All portfolio-wide data must be stored as **shared rows** (userId = NULL). These invariants are enforced by `tests/proof/data-integrity.test.ts` and checked by the verification system.
+All portfolio-wide data must be stored as **shared rows** (`userId = NULL`). Violations make data invisible to other users.
 
-### Global Assumptions
+## Two Invariants
 
-- There must be **exactly one** `global_assumptions` row with `userId IS NULL`.
-- Queries for the shared row must always use `ORDER BY id DESC` to guarantee the newest row is returned if duplicates somehow appear.
-- The `upsertGlobalAssumptions()` method reads-then-writes; if duplicates exist, it may silently update the wrong row.
-- **Root cause (Feb 2025):** `getGlobalAssumptions()` had no `ORDER BY`, causing PostgreSQL to return an arbitrary row when duplicates existed.
+**1. Global Assumptions** — Exactly one row with `userId IS NULL`. Always query with `ORDER BY id DESC` to guarantee newest row.
 
-### Properties — Shared Ownership
+**2. Properties** — All properties must have `userId = NULL`. Query uses `WHERE userId = :uid OR userId IS NULL` — non-null userId makes the property invisible to everyone else.
 
-- All portfolio properties must have `userId = NULL` so every authenticated user can see them.
-- The `getAllProperties(userId)` query uses `WHERE userId = :uid OR userId IS NULL`. A property with a non-null `userId` is invisible to all other users.
-- **Root cause (Feb 2025):** Production seeding created Loch Sheldrake with `userId = 1` instead of `NULL`, making it invisible to all non-admin users.
-
-### Defensive Patterns
+## Defensive Patterns
 
 ```typescript
-// CORRECT — always ORDER BY DESC for shared singleton rows
+// CORRECT — ORDER BY DESC on shared singleton
 const [shared] = await db.select().from(globalAssumptions)
   .where(isNull(globalAssumptions.userId))
-  .orderBy(desc(globalAssumptions.id))
-  .limit(1);
+  .orderBy(desc(globalAssumptions.id)).limit(1);
 
-// WRONG — no ORDER BY; PostgreSQL returns arbitrary row
-const [shared] = await db.select().from(globalAssumptions)
-  .where(isNull(globalAssumptions.userId))
-  .limit(1);
-```
-
-```typescript
-// CORRECT — shared property (all users see it)
+// CORRECT — shared property
 await storage.createProperty({ ...data, userId: null });
-
-// WRONG — owned property (only one user sees it)
+// WRONG — owned property (invisible to others)
 await storage.createProperty({ ...data, userId: req.user.id });
 ```
 
-### Scenario Load — Known Risk Area
+## Scenario Load Risk
 
-The `loadScenario()` method in `server/storage.ts` replaces all current properties and global assumptions with a saved snapshot. This is a critical risk area because:
+`loadScenario()` must: restore properties with `userId: null`, update the shared global assumptions row (not create a user-specific one), delete only shared properties (`userId IS NULL`).
 
-1. Restored properties must have `userId: null` (shared), not the logged-in user's ID
-2. Global assumptions must update the shared row, not create a user-specific one
-3. The delete step must target shared properties (`userId IS NULL`), not user-specific ones
+## When Adding New Shared Singleton Tables
 
-**Root cause (Feb 2025):** `loadScenario()` inserted restored properties with the logged-in user's `userId`, making them invisible to all other users. Same class of bug as the Loch Sheldrake seeding issue.
+1. Add `ORDER BY id DESC` to all read queries
+2. Add uniqueness check in `tests/proof/data-integrity.test.ts`
+3. Add migration guard in `server/migrations/` to clean duplicates
 
-### When Adding New Shared Singleton Tables
-
-1. Ensure `ORDER BY id DESC` on all read queries.
-2. Add a uniqueness check in `tests/proof/data-integrity.test.ts`.
-3. Add a migration guard in `server/migrations/` to clean duplicates on deploy.
-
-### Verification
-
-These checks run as part of the financial verification pipeline (`npm run verify:summary`) under the "Data Integrity" phase. Failures produce an **ADVERSE** opinion.
-
-### Checklist
-
-- [ ] Does every shared singleton query include `ORDER BY id DESC`?
-- [ ] Are all new properties created with `userId: null`?
-- [ ] Does scenario load restore properties as shared?
-- [ ] Is there a data-integrity test for the new table?
-- [ ] Does the migration script handle duplicate cleanup?
+Failures produce an **ADVERSE** verification opinion.

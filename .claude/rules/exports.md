@@ -1,53 +1,32 @@
 # Export Parity Rule
 
-Every financial data page **must** offer all six export formats via the `ExportMenu` component. No page may ship with a partial export suite.
+Every financial data page **must** offer all six export formats via `ExportMenu`. No partial suites.
 
-## Required Formats
+## Six Required Formats
 
-| # | Format | Action Helper | Utility |
-|---|--------|---------------|---------|
-| 1 | PDF | `pdfAction` | `jspdf` + `autoTable` + `drawLineChart` |
-| 2 | Excel | `excelAction` | `xlsx` (SheetJS) via `client/src/lib/exports/excelExport.ts` |
-| 3 | CSV | `csvAction` | `downloadCSV` from `client/src/lib/exports/csvExport.ts` |
-| 4 | PowerPoint | `pptxAction` | `pptxgenjs` via `client/src/lib/exports/pptxExport.ts` |
-| 5 | Chart as Image | `chartAction` | `dom-to-image-more` or `captureChartAsImage` |
-| 6 | Table as PNG | `pngAction` | `exportTablePNG` from `client/src/lib/exports/pngExport.ts` |
+PDF (`pdfAction`), Excel (`excelAction`), CSV (`csvAction`), PowerPoint (`pptxAction`), Chart PNG (`chartAction`), Table PNG (`pngAction`)
 
-## Covered Pages
-
-| Page | Scope | Data Generator |
-|------|-------|----------------|
-| Dashboard | Portfolio-level (consolidated) | `client/src/components/dashboard/dashboardExports.ts` |
-| PropertyDetail | Single property | `client/src/lib/exports/excelExport.ts` (property functions) |
-| Company | Management company | `client/src/lib/exports/excelExport.ts` (company functions) |
-
-## Placement Rules
+## Placement
 
 - **Tabbed pages** → `CurrentThemeTab` `rightContent` slot
 - **Non-tabbed pages** → `PageHeader` `actions` slot
 
-## Data Shape
+## Constraints
 
-All export data generators must produce the standard shape:
+1. CSV: always use `downloadCSV()` from `csvExport.ts` — no inline generation
+2. Filenames must include entity name (e.g. `Hotel Loch Sheldrake - Cash Flow.xlsx`)
+3. PPTX: branded title slide (dark navy, sage accent) + metrics cards
+4. PDF/Chart: use `ExportDialog` for orientation selection
+5. Portfolio exports: use generators from `dashboardExports.ts` — never re-derive inline
+6. Excel: apply `#,##0` currency, percentage formatting, bold headers via `excelExport.ts` helpers
+
+## ExportData Shape
 
 ```ts
 interface ExportData {
   years: string[] | number[];
-  rows: {
-    category: string;
-    values: (string | number)[];
-    indent?: number;
-    isBold?: boolean;
-    isHeader?: boolean;
-  }[];
+  rows: { category: string; values: (string | number)[]; indent?: number; isBold?: boolean; isHeader?: boolean; }[];
 }
 ```
 
-## Constraints
-
-1. **No inline CSV generation.** Always use `downloadCSV()` from `csvExport.ts`.
-2. **Filenames must include entity name** — e.g., `portfolio-income-statement.xlsx`, `Hotel Loch Sheldrake - Cash Flow.xlsx`.
-3. **PPTX exports must include** a branded title slide (dark navy, sage accent) and metrics cards.
-4. **PDF and Chart exports** must use `ExportDialog` for orientation selection (landscape/portrait).
-5. **Portfolio exports** must use the shared data generators from `dashboardExports.ts` — never re-derive consolidated data inline.
-6. **Excel workbooks** must apply currency formatting (`#,##0`), percentage formatting, and bold section headers via the shared helpers in `excelExport.ts`.
+Reference: `.claude/skills/exports/SKILL.md` for full implementation guide.

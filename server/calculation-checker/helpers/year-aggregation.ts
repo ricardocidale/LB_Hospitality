@@ -1,4 +1,11 @@
-import type { IndependentMonthlyResult } from "../types";
+/** Minimal shape shared by both IndependentMonthlyResult and ClientPropertyMonthly */
+export interface MonthlyMetrics {
+  revenueTotal: number;
+  gop: number;
+  agop: number;
+  noi: number;
+  anoi: number;
+}
 
 export interface YearMetrics {
   revenue: number;
@@ -12,7 +19,7 @@ export interface YearMetrics {
  * Aggregate the five key P&L metrics across a slice of monthly results.
  * Replaces the repeated `slice() + 5× reduce()` pattern in index.ts.
  */
-export function aggregateYearMetrics(months: IndependentMonthlyResult[]): YearMetrics {
+export function aggregateYearMetrics(months: MonthlyMetrics[]): YearMetrics {
   return {
     revenue: months.reduce((s, m) => s + m.revenueTotal, 0),
     gop:     months.reduce((s, m) => s + m.gop, 0),

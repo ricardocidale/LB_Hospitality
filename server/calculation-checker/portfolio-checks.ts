@@ -10,6 +10,7 @@ import {
   ymNotBefore,
   diffMonthsYM,
 } from "./property-checks";
+import { sumServerPortfolioTotals, sumClientPortfolioTotals } from "./helpers";
 
 export function runCompanyChecks(
   properties: CheckerProperty[],
@@ -21,17 +22,8 @@ export function runCompanyChecks(
   const companyChecks: CheckResult[] = [];
   if (properties.length === 0) return companyChecks;
 
-  let serverTotalRevenue = 0;
-  let serverTotalFeeBase = 0;
-  let serverTotalFeeIncentive = 0;
-
-  for (const propCalc of allIndependentCalcs) {
-    for (const m of propCalc) {
-      serverTotalRevenue += m.revenueTotal;
-      serverTotalFeeBase += m.feeBase;
-      serverTotalFeeIncentive += m.feeIncentive;
-    }
-  }
+  const { revenue: serverTotalRevenue, feeBase: serverTotalFeeBase, feeIncentive: serverTotalFeeIncentive } =
+    sumServerPortfolioTotals(allIndependentCalcs);
 
   let expectedBaseFee = 0;
   let expectedIncentiveFee = 0;
@@ -65,16 +57,8 @@ export function runCompanyChecks(
   ));
 
   if (clientResults && clientResults.length === properties.length) {
-    let clientTotalRevenue = 0;
-    let clientTotalFeeBase = 0;
-    let clientTotalFeeIncentive = 0;
-    for (const propMonthly of clientResults) {
-      for (const m of propMonthly) {
-        clientTotalRevenue += m.revenueTotal;
-        clientTotalFeeBase += m.feeBase;
-        clientTotalFeeIncentive += m.feeIncentive;
-      }
-    }
+    const { revenue: clientTotalRevenue, feeBase: clientTotalFeeBase, feeIncentive: clientTotalFeeIncentive } =
+      sumClientPortfolioTotals(clientResults);
 
     companyChecks.push(check(
       "Portfolio Revenue (Server vs Client Engine)",
@@ -259,19 +243,8 @@ export function runConsolidatedChecks(
   ));
 
   if (clientResults && clientResults.length === properties.length) {
-    let serverPortfolioRevenue = 0;
-    for (const propCalc of allIndependentCalcs) {
-      for (const m of propCalc) {
-        serverPortfolioRevenue += m.revenueTotal;
-      }
-    }
-
-    let clientPortfolioRevenue = 0;
-    for (const propMonthly of clientResults) {
-      for (const m of propMonthly) {
-        clientPortfolioRevenue += m.revenueTotal;
-      }
-    }
+    const { revenue: serverPortfolioRevenue } = sumServerPortfolioTotals(allIndependentCalcs);
+    const { revenue: clientPortfolioRevenue } = sumClientPortfolioTotals(clientResults);
 
     consolidatedChecks.push(check(
       "Consolidated Revenue (Server vs Client Engine)",

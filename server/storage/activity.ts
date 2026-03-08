@@ -1,6 +1,6 @@
 import { activityLogs, verificationRuns, loginLogs, users, sessions, type ActivityLog, type InsertActivityLog, type VerificationRun, type InsertVerificationRun, type LoginLog, type User, type Session } from "@shared/schema";
 import { db } from "../db";
-import { eq, desc, gte, lte, and, lt, gt, type SQL } from "drizzle-orm";
+import { eq, desc, gte, lte, and, lt, gt, count, type SQL } from "drizzle-orm";
 
 /** Filters for querying activity logs (admin panel). */
 export interface ActivityLogFilters {
@@ -66,8 +66,14 @@ export class ActivityStorage {
       .insert(verificationRuns)
       .values(data as typeof verificationRuns.$inferInsert)
       .returning();
-    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    await db.delete(verificationRuns).where(lt(verificationRuns.createdAt, cutoff));
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(verificationRuns);
+    if (total > 50) {
+      const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      await db.delete(verificationRuns).where(lt(verificationRuns.createdAt, cutoff));
+    }
     return run;
   }
 
@@ -120,7 +126,7 @@ export class ActivityStorage {
   }
   
   /** Fetch recent login history (last 90 days) with user info, for the admin panel. */
-  async getLoginLogs(): Promise<(LoginLog & { user: User })[]> {
+  async getLoginLogs(limit = 500): Promise<(LoginLog & { user: User })[]> {
     const ninetyDaysAgo = new Date();
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
     
@@ -129,7 +135,8 @@ export class ActivityStorage {
       .from(loginLogs)
       .innerJoin(users, eq(loginLogs.userId, users.id))
       .where(gte(loginLogs.loginAt, ninetyDaysAgo))
-      .orderBy(desc(loginLogs.loginAt));
+      .orderBy(desc(loginLogs.loginAt))
+      .limit(limit);
     return results.map(r => ({ ...r.login_logs, user: r.users }));
   }
 

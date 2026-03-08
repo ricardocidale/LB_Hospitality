@@ -93,6 +93,60 @@ Rewritten to use `computePropertyMetrics()` from `calc/research/property-metrics
 
 All endpoints use correct schema field names and return structured JSON consumable by the ElevenLabs agent's server tools.
 
+## Context Loading Guide
+
+The Marcela/ElevenLabs feature spans ~17,100 lines of source + ~4,200 lines of docs. Load only what each task needs.
+
+### Always Load First (~450 lines total)
+1. **This file** — feature overview + file map
+2. `client/src/features/ai-agent/types.ts` (109 lines) — all shared types, constants
+3. `client/src/features/ai-agent/index.ts` (9 lines) — barrel exports
+4. `shared/constants.ts` — grep for `DEFAULT_MARCELA` to find defaults
+
+### Large Files — Load Only When Needed
+| File | Lines | Load only when... |
+|------|------:|-------------------|
+| `client/src/features/ai-agent/components/waveform.tsx` | 1,658 | Modifying waveform visualization |
+| `client/src/features/ai-agent/Speaker.tsx` | 1,381 | Modifying TTS playback/streaming |
+| `client/src/features/ai-agent/RealtimeTranscriber.tsx` | 785 | Modifying STT/live transcription |
+| `server/ai/knowledge-base.ts` | 726 | Modifying KB sync with ElevenLabs API |
+| `client/src/features/ai-agent/components/matrix.tsx` | 612 | Modifying matrix visual effect |
+| `server/ai/marcela-knowledge-base.ts` | 465 | Modifying what data goes into KB |
+| `server/routes/twilio.ts` | 349 | Modifying phone/SMS webhooks or WebSocket stream |
+| `server/integrations/elevenlabs.ts` | 305 | Changing voice config or system prompts |
+| `server/ai/marcela-agent-config.ts` | 242 | Adding/changing agent tools or prompts |
+
+### Task → File Routing
+| Task | Files to load |
+|------|--------------|
+| Change voice/audio settings | `server/integrations/elevenlabs.ts`, `shared/schema.ts` (marcela columns), `types.ts` |
+| Add/change agent tools | `server/ai/marcela-agent-config.ts` only |
+| Change system prompt | `server/integrations/elevenlabs.ts` only |
+| Fix waveform/orb/visual | The specific component file only |
+| KB sync issue | `server/ai/knowledge-base.ts` + `marcela-knowledge-base.ts` |
+| Telephony/Twilio (voice) | `server/routes/twilio.ts` + `server/integrations/twilio.ts` + `server/integrations/elevenlabs-audio.ts` |
+| Telephony/Twilio (SMS) | `server/routes/twilio.ts` (SMS webhook section) |
+| Admin UI settings | `.claude/skills/marcela-ai/ai-agent-admin.md` + the specific admin tab component |
+| Audio codec issue | `server/integrations/elevenlabs-audio.ts` (133 lines) only |
+| STT/speech input | `RealtimeTranscriber.tsx` + `components/speech-input.tsx` |
+| Widget variants | `VoiceChatOrb.tsx`, `VoiceChatFull.tsx`, or `VoiceChatBar.tsx` (one at a time) |
+| Voice settings (PATCH API) | `.claude/skills/elevenlabs-widget/SKILL.md` § PATCH Agent Voice |
+| Twilio admin/setup | `.claude/skills/twilio-telephony/admin-config.md` + `twilio-console-setup.md` |
+
+### Key Facts (no file load needed)
+- `AgentState` name collision in `features/ai-agent/components/index.ts` — use explicit `export { Orb }` not `export *`
+- `VoiceChatBar` uses signed URL (not bare `agentId`) — fetched on mount via `useAdminSignedUrl()`
+- Admin DB columns keep `marcela_*` names; only UI labels use dynamic `aiAgentName`
+- All 35 `marcela_*` schema columns map 1:1 to `VoiceSettings` interface in `types.ts`
+- `buildVoiceConfigFromDB(ga)` in `elevenlabs.ts` hydrates server-side `VoiceConfig` from DB row
+- PATCH voice settings use flattened payload (see `elevenlabs-widget/SKILL.md` § PATCH Agent Voice)
+
+### What NOT to Load
+- `.claude/tools/marcela/` JSON schemas — only needed for adding new tools
+- `.claude/skills/elevenlabs/docs/` folder — raw API reference, rarely needed (our skills cover it)
+- `node_modules/@elevenlabs/` — never needed, use skill docs instead
+- The full `elevenlabs-ui-components.md` (455 lines) — use targeted grep instead
+
 ## Related Tools
 - `.claude/tools/marcela/elevenlabs-widget-config.json` — Widget attributes, auth flow, gating, modality modes
 - `.claude/tools/marcela/elevenlabs-sdk-reference.json` — React useConversation hook, callbacks, methods, state

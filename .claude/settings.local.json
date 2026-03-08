@@ -171,7 +171,10 @@
       "Bash(mkdir -p /home/runner/workspace/.claude/archive && cp /home/runner/workspace/.claude/rules/session-memory-archive.md /home/runner/workspace/.claude/archive/session-memory-archive.md && cp /home/runner/workspace/.claude/rules/api-routes.md /home/runner/workspace/.claude/skills/architecture/api-routes.md && cp /home/runner/workspace/.claude/rules/constants-and-config.md /home/runner/workspace/.claude/skills/finance/constants-and-config.md && cp /home/runner/workspace/.claude/rules/release-audit-checklist.md /home/runner/workspace/.claude/skills/proof-system/release-audit-checklist.md && cp /home/runner/workspace/.claude/rules/verification-system.md /home/runner/workspace/.claude/skills/proof-system/verification-system.md && echo \"Copies done\")",
       "Bash(git stash pop 2>&1)",
       "Bash(git stash drop 2>&1)",
-      "WebFetch(domain:www.dropbox.com)"
+      "WebFetch(domain:www.dropbox.com)",
+      "Bash(find /home/runner/workspace -path \"*/.claude\" -prune -o -path \"*/node_modules\" -prune -o -type f \\\\\\( -name \"*marcela*\" -o -name \"*ElevenLabs*\" -o -name \"*elevenlabs*\" -o -name \"*voice*\" -o -name \"*agent*\" \\\\\\) -print 2>/dev/null | grep -v node_modules | grep -v \".claude\" | wc -l)",
+      "Bash(/tmp/marcela_summary.txt:*)",
+      "Read(//tmp/**)"
     ]
   },
   "enableAllProjectMcpServers": true,

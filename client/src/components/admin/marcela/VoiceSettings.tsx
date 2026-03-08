@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Volume2, Waves, AudioLines, Zap, Settings2, Loader2, Save } from "lucide-react";
-import { VoiceSettings, TTS_MODELS, OUTPUT_FORMATS, STT_MODELS } from "./types";
+import { VoiceSettings, OUTPUT_FORMATS, STT_MODELS } from "./types";
 import { useSaveAgentVoice } from "./hooks";
 
 interface VoiceSettingsProps {
@@ -64,36 +64,16 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="label-text font-medium">Voice ID</Label>
-              <Input
-                value={draft.marcelaVoiceId}
-                onChange={(e) => handleVoiceField("marcelaVoiceId", e.target.value)}
-                placeholder="ElevenLabs voice ID"
-                className="bg-card font-mono text-sm"
-                data-testid="input-marcela-voice-id"
-              />
-              <p className="text-xs text-muted-foreground">Default: Jessica (cgSgspJ2msm6clMCkdW9)</p>
-            </div>
-            <div className="space-y-2">
-              <Label className="label-text font-medium">TTS Model</Label>
-              <Select value={draft.marcelaTtsModel} onValueChange={(v) => handleVoiceField("marcelaTtsModel", v)}>
-                <SelectTrigger className="bg-card" data-testid="select-marcela-tts-model">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TTS_MODELS.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      <div className="flex items-center gap-2">
-                        <span>{m.label}</span>
-                        <span className="text-xs text-muted-foreground">— {m.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label className="label-text font-medium">Voice ID</Label>
+            <Input
+              value={draft.marcelaVoiceId}
+              onChange={(e) => handleVoiceField("marcelaVoiceId", e.target.value)}
+              placeholder="ElevenLabs voice ID"
+              className="bg-card font-mono text-sm"
+              data-testid="input-marcela-voice-id"
+            />
+            <p className="text-xs text-muted-foreground">Default: Jessica (cgSgspJ2msm6clMCkdW9)</p>
           </div>
 
           <Separator />

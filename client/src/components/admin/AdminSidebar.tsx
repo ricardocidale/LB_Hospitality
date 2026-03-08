@@ -9,8 +9,8 @@ import {
 
 export type AdminSection =
   | "users" | "groups" | "activity"
-  | "branding" | "asset-definition" | "themes" | "logos" | "navigation"
-  | "companies" | "services" | "market-rates" | "research"
+  | "branding" | "themes" | "logos" | "navigation"
+  | "companies" | "market-rates" | "research"
   | "marcela"
   | "verification" | "database";
 
@@ -46,8 +46,7 @@ const navGroups: NavGroup[] = [
     icon: IconSwatchBook,
     description: "Look, feel & navigation",
     sections: [
-      { value: "branding", label: "Management Company", icon: IconImage },
-      { value: "asset-definition", label: "Asset Definition", icon: IconProperties },
+      { value: "branding", label: "Hospitality Brand", icon: IconImage },
       { value: "themes", label: "Themes", icon: IconSwatchBook },
       { value: "logos", label: "Logos", icon: IconUpload },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
@@ -60,7 +59,6 @@ const navGroups: NavGroup[] = [
     description: "Entities, services & rates",
     sections: [
       { value: "companies", label: "Companies", icon: IconProperties },
-      { value: "services", label: "Services", icon: IconPackage },
       { value: "market-rates", label: "Market Rates", icon: IconTrending },
       { value: "research", label: "Research", icon: FlaskConical },
     ],

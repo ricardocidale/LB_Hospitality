@@ -5,9 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import AdminSidebar, { type AdminSection, navGroups, getGroupForSection } from "@/components/admin/AdminSidebar";
 import {
   UsersTab, CompaniesTab, ActivityTab, VerificationTab,
-  UserGroupsTab, DatabaseTab, MarcelaTab, ServicesTab,
-  MarketRatesTab, ResearchTab, BrandingTab, AssetDefinitionTab
+  UserGroupsTab, DatabaseTab, MarcelaTab,
+  MarketRatesTab, ResearchTab,
 } from "@/components/admin";
+import ManagementCompanyTab from "@/components/admin/ManagementCompanyTab";
 import ThemesTab from "@/components/admin/ThemesTab";
 import LogosTab from "@/components/admin/LogosTab";
 import NavigationTab from "@/components/admin/NavigationTab";
@@ -20,13 +21,11 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   users:        { title: "Users",          subtitle: "Manage user accounts, roles, and passwords" },
   groups:       { title: "User Groups",    subtitle: "Branded groups with shared themes, logos, and labels" },
   activity:     { title: "Activity",       subtitle: "Login logs, audit trail, and session monitoring" },
-  branding:     { title: "Management Company", subtitle: "Identity, contact details, and financial settings for the management entity" },
-  "asset-definition": { title: "Asset Definition", subtitle: "Define property labels, logos, and descriptions for AI research" },
+  branding:     { title: "Hospitality Brand", subtitle: "Identity, asset definition, and centralized services" },
   themes:       { title: "Themes",         subtitle: "Color palettes and visual styles for the platform" },
   logos:        { title: "Logos",           subtitle: "Upload, generate, and manage logo images" },
   navigation:   { title: "Navigation",     subtitle: "Control which sidebar pages are visible to users" },
   companies:    { title: "Companies",      subtitle: "Management company and special purpose vehicles" },
-  services:     { title: "Services",       subtitle: "Service templates, markup rates, and property sync" },
   "market-rates": { title: "Market Rates", subtitle: "Live economic data, FRED/BLS rates, and manual overrides" },
   research:     { title: "Research",       subtitle: "Configure AI research behavior — tools, focus areas, and custom context per event" },
   marcela:      { title: "AI Agent",       subtitle: "Configure Marcela — voice, prompt, tools, and telephony" },
@@ -39,13 +38,11 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "users":        return <UsersTab />;
     case "groups":       return <UserGroupsTab />;
     case "activity":     return <ActivityTab />;
-    case "branding":     return <BrandingTab onNavigate={(tab: string) => { if (tab === "logos") onNavigate("logos"); else if (tab === "themes") onNavigate("themes"); else if (tab === "groups") onNavigate("groups"); }} />;
-    case "asset-definition": return <AssetDefinitionTab />;
+    case "branding":     return <ManagementCompanyTab onNavigate={(tab: string) => { if (tab === "logos") onNavigate("logos"); else if (tab === "themes") onNavigate("themes"); else if (tab === "groups") onNavigate("groups"); }} />;
     case "themes":       return <ThemesTab />;
     case "logos":        return <LogosTab />;
     case "navigation":   return <NavigationTab />;
     case "companies":    return <CompaniesTab />;
-    case "services":     return <ServicesTab />;
     case "market-rates": return <MarketRatesTab />;
     case "research":     return <ResearchTab />;
     case "marcela":      return (

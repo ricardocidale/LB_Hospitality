@@ -49,8 +49,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 Three-tier cascade: `property.inflationRate → companyInflationRate → global.inflationRate`. The `DEFAULT_INFLATION_RATE` constant in `shared/constants.ts` is the single source of truth (0.03). Per-property and per-company rates are nullable; null means use the next level up in the cascade.
 
 ## Admin Sidebar Structure
-- Management Company (formerly Branding): company identity, contact, location, financial info
-- Asset Definition: asset logo, label, description
+- Hospitality Brand (formerly Management Company): sub-tabs for Identity (company identity, contact, location, financial info), Asset Definition (asset logo, label, description), and Services
 - Research: AI model picker, staleness intervals, curated source registry, per-type research config
 
 ## Research Skills

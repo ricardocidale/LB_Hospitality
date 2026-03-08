@@ -148,14 +148,6 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   );
 }
 
-function waitForCustomElement(name: string, timeout = 10000): Promise<void> {
-  if (customElements.get(name)) return Promise.resolve();
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`[ElevenLabs] Custom element <${name}> not defined after ${timeout}ms`)), timeout);
-    customElements.whenDefined(name).then(() => { clearTimeout(timer); resolve(); });
-  });
-}
-
 function NativeElevenLabsWidget({
   agentId,
   variant,
@@ -174,25 +166,25 @@ function NativeElevenLabsWidget({
     if (!containerRef.current) return;
     let cancelled = false;
 
-    waitForCustomElement("elevenlabs-convai")
-      .then(() => {
-        if (cancelled || !containerRef.current) return;
+    // Wait for the custom element registered in main.tsx via the local
+    // @elevenlabs/convai-widget-core package (no external CDN dependency).
+    customElements.whenDefined("elevenlabs-convai").then(() => {
+      if (cancelled || !containerRef.current) return;
 
-        if (widgetRef.current) {
-          widgetRef.current.remove();
-          widgetRef.current = null;
-        }
+      if (widgetRef.current) {
+        widgetRef.current.remove();
+        widgetRef.current = null;
+      }
 
-        const widget = document.createElement("elevenlabs-convai");
-        widget.setAttribute("agent-id", agentId);
-        if (variant) widget.setAttribute("variant", variant);
-        if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
-        widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
+      const widget = document.createElement("elevenlabs-convai");
+      widget.setAttribute("agent-id", agentId);
+      if (variant) widget.setAttribute("variant", variant);
+      if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
+      widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
 
-        containerRef.current!.appendChild(widget);
-        widgetRef.current = widget;
-      })
-      .catch((err) => console.error(err));
+      containerRef.current!.appendChild(widget);
+      widgetRef.current = widget;
+    });
 
     return () => {
       cancelled = true;

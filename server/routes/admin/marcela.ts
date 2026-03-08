@@ -6,12 +6,34 @@ import { logAndSendError } from "../helpers";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
 import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation, updateConvaiAgent, createKBDocumentFromFile, getConversationAudio } from "../../integrations/elevenlabs";
 import { configureMarcelaAgent, buildClientTools, buildServerTools, getBaseUrl } from "../../ai/marcela-agent-config";
-import { uploadKnowledgeBase, getKnowledgeDocumentPreview } from "../../ai/marcela-knowledge-base";
+import { uploadKnowledgeBase, getKnowledgeDocumentPreview, getKBSources } from "../../ai/marcela-knowledge-base";
 import multer from "multer";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 export function registerMarcelaRoutes(app: Express) {
+  app.get("/api/admin/knowledge-base/sources", requireAdmin, async (_req, res) => {
+    try {
+      const sources = await getKBSources();
+      res.json({ sources });
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Failed to fetch KB sources", error);
+    }
+  });
+
+  app.post("/api/admin/convai/knowledge-base/rebuild", requireAdmin, async (req, res) => {
+    try {
+      const { sources } = req.body;
+      const result = await uploadKnowledgeBase(sources);
+      if (result.success) {
+        res.json({ success: true, documentId: result.documentId, message: "Knowledge base rebuilt and uploaded successfully" });
+      } else {
+        res.status(500).json({ error: result.error || "Failed to rebuild knowledge base" });
+      }
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Failed to rebuild knowledge base", error);
+    }
+  });
   app.get("/api/admin/voice-settings", requireAdmin, async (_req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions();

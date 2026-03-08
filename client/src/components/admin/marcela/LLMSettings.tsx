@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
 import { MessageSquare, Mic, Brain, AlertCircle, Save, Loader2 } from "lucide-react";
@@ -85,8 +85,8 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
                 const models = LLM_MODELS.filter((m) => m.provider === provider);
                 if (models.length === 0) return null;
                 return (
-                  <div key={provider}>
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{provider}</div>
+                  <SelectGroup key={provider}>
+                    <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{provider}</SelectLabel>
                     {models.map((m) => (
                       <SelectItem key={m.value} value={m.value}>
                         <div className="flex items-center gap-2">
@@ -95,7 +95,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
                         </div>
                       </SelectItem>
                     ))}
-                  </div>
+                  </SelectGroup>
                 );
               })}
             </SelectContent>

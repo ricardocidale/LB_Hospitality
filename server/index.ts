@@ -134,6 +134,9 @@ app.use((req, res, next) => {
   const { runMigration: runCompaniesTheme001 } = await import("./migrations/companies-theme-001");
   await runCompaniesTheme001();
 
+  const { runIcpConfigMigration } = await import("./migrations/icp-config-001");
+  await runIcpConfigMigration();
+
   await seedAdminUser();
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");

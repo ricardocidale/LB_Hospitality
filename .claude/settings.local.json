@@ -189,7 +189,9 @@
       "WebFetch(domain:elevenlabs.io)",
       "Bash(env | grep -E \"ELEVENLABS|PASSWORD|MARCELA\" | sed 's/=.*/=***/')",
       "WebFetch(domain:www.npmjs.com)",
-      "Bash(cat node_modules/@elevenlabs/convai-widget-core/dist/types/*.d.ts 2>/dev/null | head -200)"
+      "Bash(cat node_modules/@elevenlabs/convai-widget-core/dist/types/*.d.ts 2>/dev/null | head -200)",
+      "Bash(AGENT_ID=\"agent_6401kk0capntfansmn84f58yfrd9\"\ncurl -s \"https://api.elevenlabs.io/v1/convai/agents/${AGENT_ID}\" \\\\\n  -H \"xi-api-key: $ELEVENLABS_API_KEY\" 2>/dev/null | python3 -c \"\nimport sys, json\ndata = json.load\\(sys.stdin\\)\n\n# Widget config\nwidget = data.get\\('widget', data.get\\('platform_settings', {}\\).get\\('widget', {}\\)\\)\nprint\\('=== WIDGET CONFIG ==='\\)\nprint\\(json.dumps\\(widget, indent=2\\)\\)\n\n# Check for platform_settings\nps = data.get\\('platform_settings', {}\\)\nprint\\('\\\\n=== PLATFORM SETTINGS \\(top-level keys\\) ==='\\)\nfor k in ps:\n    if k != 'overrides':\n        print\\(f'  {k}: {json.dumps\\(ps[k], indent=2\\)[:200]}'\\)\n    else:\n        print\\(f'  overrides: {json.dumps\\(ps[k], indent=2\\)[:400]}'\\)\n\" 2>/dev/null)",
+      "Bash(AGENT_ID=\"agent_6401kk0capntfansmn84f58yfrd9\"\ncurl -s \"https://api.elevenlabs.io/v1/convai/agents/${AGENT_ID}\" \\\\\n  -H \"xi-api-key: $ELEVENLABS_API_KEY\" 2>/dev/null | python3 -c \"\nimport sys, json\ndata = json.load\\(sys.stdin\\)\n# Print all top-level keys\nprint\\('Top-level keys:', list\\(data.keys\\(\\)\\)\\)\n# Print platform_settings if it exists\nps = data.get\\('platform_settings', {}\\)\nprint\\('\\\\nplatform_settings keys:', list\\(ps.keys\\(\\)\\)\\)\n# Print widget from platform_settings\nw = ps.get\\('widget', {}\\)\nprint\\('\\\\nWidget config:'\\)\nprint\\(json.dumps\\(w, indent=2\\)\\)\n\" 2>/dev/null)"
     ]
   },
   "enableAllProjectMcpServers": true,

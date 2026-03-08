@@ -96,19 +96,48 @@ export function useSaveAgentVoice() {
   });
 }
 
+export interface WidgetSettingsPayload {
+  // Layout
+  variant?: string;
+  placement?: string;
+  dismissible?: boolean;
+  default_expanded?: boolean;
+  // Avatar
+  avatar_url?: string;
+  avatar_orb_color_1?: string;
+  avatar_orb_color_2?: string;
+  // Features
+  text_input_enabled?: boolean;
+  mic_muting_enabled?: boolean;
+  transcript_enabled?: boolean;
+  conversation_mode_toggle_enabled?: boolean;
+  language_selector?: boolean;
+  // Feedback
+  feedback_mode?: string;
+  // Colors
+  bg_color?: string;
+  text_color?: string;
+  btn_color?: string;
+  btn_text_color?: string;
+  border_color?: string;
+  focus_color?: string;
+  // Turn timeout (synced to conversation_config)
+  turn_timeout?: number;
+}
+
 export function useSaveWidgetSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { turn_timeout?: number; avatar_url?: string; widget_variant?: string }) => {
+    mutationFn: async (data: WidgetSettingsPayload) => {
       const res = await apiRequest("PATCH", "/api/admin/convai/agent/widget-settings", data);
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.convaiAgent });
       queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.voiceSettings });
-      toast({ title: "Widget settings saved", description: "Turn timeout and avatar pushed to ElevenLabs." });
+      toast({ title: "Widget settings saved", description: "Configuration pushed to ElevenLabs." });
     },
     onError: (err: Error) => {
       toast({ title: "Save failed", description: err.message, variant: "destructive" });

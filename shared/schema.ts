@@ -407,6 +407,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   otherExpenseRate: real("other_expense_rate").notNull().default(DEFAULT_OTHER_EXPENSE_RATE),
   utilitiesVariableSplit: real("utilities_variable_split").notNull().default(DEFAULT_UTILITIES_VARIABLE_SPLIT),
   
+  // ICP Configuration — structured numeric/toggle parameters for Ideal Customer Profile
+  icpConfig: jsonb("icp_config").$type<Record<string, any>>(),
+
   // Asset Definition
   assetDefinition: jsonb("asset_definition").notNull().default({
     minRooms: 10,
@@ -616,6 +619,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   eventExpenseRate: true,
   otherExpenseRate: true,
   utilitiesVariableSplit: true,
+  icpConfig: true,
   assetDefinition: true,
   preferredLlm: true,
   sidebarPropertyFinder: true,

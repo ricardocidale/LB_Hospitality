@@ -286,21 +286,78 @@ export function registerMarcelaRoutes(app: Express) {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
 
-      const { turn_timeout, avatar_url, widget_variant } = req.body;
+      const {
+        turn_timeout, avatar_url, variant, placement, dismissible,
+        default_expanded, avatar_orb_color_1, avatar_orb_color_2,
+        text_input_enabled, mic_muting_enabled, transcript_enabled,
+        conversation_mode_toggle_enabled, language_selector,
+        feedback_mode, bg_color, text_color, btn_color, btn_text_color,
+        border_color, focus_color,
+      } = req.body;
+
       const patch: Record<string, unknown> = {};
-      if (turn_timeout !== undefined) patch.conversation_config = { turn: { turn_timeout: Number(turn_timeout) } };
+
+      // Turn timeout goes to conversation_config
+      if (turn_timeout !== undefined) {
+        patch.conversation_config = { turn: { turn_timeout: Number(turn_timeout) } };
+      }
+
+      // Build widget patch — all settings pushed to ElevenLabs widget config
       const widgetPatch: Record<string, unknown> = {};
-      if (avatar_url !== undefined) widgetPatch.avatar = avatar_url ? { type: "url", url: avatar_url } : null;
-      if (widget_variant !== undefined) widgetPatch.variant = widget_variant;
-      if (Object.keys(widgetPatch).length) patch.widget = widgetPatch;
+
+      // Avatar: image URL takes priority; otherwise orb with custom colors
+      if (avatar_url !== undefined) {
+        widgetPatch.avatar = avatar_url
+          ? { type: "image", url: avatar_url }
+          : { type: "orb", color_1: avatar_orb_color_1 || "#2792dc", color_2: avatar_orb_color_2 || "#9ce6e6" };
+      } else if (avatar_orb_color_1 !== undefined || avatar_orb_color_2 !== undefined) {
+        widgetPatch.avatar = {
+          type: "orb",
+          color_1: avatar_orb_color_1 || "#2792dc",
+          color_2: avatar_orb_color_2 || "#9ce6e6",
+        };
+      }
+
+      // Layout
+      if (variant !== undefined) widgetPatch.variant = variant;
+      if (placement !== undefined) widgetPatch.placement = placement;
+      if (dismissible !== undefined) widgetPatch.dismissible = dismissible;
+      if (default_expanded !== undefined) widgetPatch.default_expanded = default_expanded;
+
+      // Features
+      if (text_input_enabled !== undefined) widgetPatch.text_input_enabled = text_input_enabled;
+      if (mic_muting_enabled !== undefined) widgetPatch.mic_muting_enabled = mic_muting_enabled;
+      if (transcript_enabled !== undefined) widgetPatch.transcript_enabled = transcript_enabled;
+      if (conversation_mode_toggle_enabled !== undefined) widgetPatch.conversation_mode_toggle_enabled = conversation_mode_toggle_enabled;
+      if (language_selector !== undefined) widgetPatch.language_selector = language_selector;
+
+      // Feedback
+      if (feedback_mode !== undefined) {
+        widgetPatch.feedback_mode = feedback_mode;
+        if (feedback_mode === "end") {
+          widgetPatch.end_feedback = { type: "rating" };
+        }
+      }
+
+      // Colors
+      if (bg_color !== undefined) widgetPatch.bg_color = bg_color;
+      if (text_color !== undefined) widgetPatch.text_color = text_color;
+      if (btn_color !== undefined) widgetPatch.btn_color = btn_color;
+      if (btn_text_color !== undefined) widgetPatch.btn_text_color = btn_text_color;
+      if (border_color !== undefined) widgetPatch.border_color = border_color;
+      if (focus_color !== undefined) widgetPatch.focus_color = focus_color;
+
+      if (Object.keys(widgetPatch).length) {
+        patch.platform_settings = { ...(patch.platform_settings as Record<string, unknown> || {}), widget: widgetPatch };
+      }
 
       const updated = await updateConvaiAgent(ga.marcelaAgentId, patch);
 
-      // Persist locally
+      // Persist locally (subset that we also store in our DB)
       const dbPatch: Partial<Record<string, unknown>> = {};
       if (turn_timeout !== undefined) dbPatch.marcelaTurnTimeout = Number(turn_timeout);
       if (avatar_url !== undefined) dbPatch.marcelaAvatarUrl = avatar_url;
-      if (widget_variant !== undefined) dbPatch.marcelaWidgetVariant = widget_variant;
+      if (variant !== undefined) dbPatch.marcelaWidgetVariant = variant;
       if (Object.keys(dbPatch).length) await storage.upsertGlobalAssumptions(dbPatch as any);
 
       res.json(updated);

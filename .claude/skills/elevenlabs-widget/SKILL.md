@@ -462,14 +462,13 @@ Replace system prompt, first message, language, or voice per conversation. Must 
 
 ## Telephony Integration
 
-### Twilio (Native Integration)
-See `.claude/skills/twilio-telephony/` for full telephony skill.
-
-### SIP Trunking
-Connect to existing telephony infrastructure via SIP trunk. Configured in ElevenLabs dashboard.
-
-### Batch Outbound Calls
-Trigger multiple calls programmatically via API.
+See `.claude/skills/twilio-telephony/` for comprehensive telephony documentation:
+- `voice-pipeline.md` — WebSocket Media Stream, audio encoding, STT/TTS pipeline
+- `sms-pipeline.md` — Inbound SMS processing, message splitting
+- `admin-config.md` — Schema, admin endpoints, TelephonySettings UI
+- `twilio-console-setup.md` — Webhook configuration, Replit connector
+- `elevenlabs-phone-api.md` — ElevenLabs phone number API, batch calls, SIP trunking
+- `audio-encoding.md` — Mulaw/PCM conversion algorithms
 
 ## Gating Logic (Layout.tsx)
 Widget shows when ALL conditions are true:

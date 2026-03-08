@@ -21,6 +21,18 @@ export interface VoiceSettings {
   marcelaTurnTimeout: number;
   marcelaAvatarUrl: string;
   marcelaWidgetVariant: string;
+  marcelaSpeed: number;
+  marcelaStreamingLatency: number;
+  marcelaTextNormalisation: string;
+  marcelaAsrProvider: string;
+  marcelaInputAudioFormat: string;
+  marcelaBackgroundVoiceDetection: boolean;
+  marcelaTurnEagerness: string;
+  marcelaSpellingPatience: string;
+  marcelaSpeculativeTurn: boolean;
+  marcelaSilenceEndCallTimeout: number;
+  marcelaMaxDuration: number;
+  marcelaCascadeTimeout: number;
 }
 
 export interface TwilioStatus {
@@ -29,26 +41,13 @@ export interface TwilioStatus {
   error?: string;
 }
 
-export const TTS_MODELS = [
-  { value: "eleven_flash_v2_5", label: "Flash v2.5", description: "Lowest latency, ideal for real-time streaming" },
-  { value: "eleven_flash_v2", label: "Flash v2", description: "Low latency, good quality" },
-  { value: "eleven_multilingual_v2", label: "Multilingual v2", description: "High quality, supports 29 languages" },
-  { value: "eleven_turbo_v2_5", label: "Turbo v2.5", description: "Balanced latency and quality" },
-  { value: "eleven_turbo_v2", label: "Turbo v2", description: "Fast generation with good quality" },
-  { value: "eleven_monolingual_v1", label: "Monolingual v1", description: "English only, reliable quality" },
-];
-
-export const STT_MODELS = [
-  { value: "scribe_v1", label: "Scribe v1", description: "ElevenLabs native transcription" },
-];
-
 export const OUTPUT_FORMATS = [
   { value: "pcm_16000", label: "PCM 16kHz", description: "16-bit PCM at 16kHz — optimal for real-time streaming" },
   { value: "pcm_22050", label: "PCM 22.05kHz", description: "16-bit PCM at 22.05kHz — higher quality" },
   { value: "pcm_24000", label: "PCM 24kHz", description: "16-bit PCM at 24kHz — studio quality" },
   { value: "pcm_44100", label: "PCM 44.1kHz", description: "16-bit PCM at 44.1kHz — CD quality" },
   { value: "mp3_44100_128", label: "MP3 128kbps", description: "Compressed audio, higher latency" },
-  { value: "ulaw_8000", label: "μ-law 8kHz", description: "Telephony standard" },
+  { value: "ulaw_8000", label: "u-law 8kHz", description: "Telephony standard" },
 ];
 
 export const LLM_MODELS = [
@@ -93,3 +92,18 @@ export const LLM_MODELS = [
   { value: "grok-beta", label: "Grok Beta", description: "xAI's conversational model", provider: "xAI" },
   { value: "custom-llm", label: "Custom LLM", description: "Use your own LLM endpoint", provider: "Other" },
 ];
+
+export const WIDGET_VARIANTS = [
+  { value: "tiny", label: "Tiny", description: "Minimal interface" },
+  { value: "compact", label: "Compact", description: "Standard interface" },
+  { value: "full", label: "Full", description: "Expanded interface" },
+] as const;
+
+export const WIDGET_PLACEMENTS = [
+  { value: "bottom-right", label: "Bottom Right" },
+  { value: "bottom-left", label: "Bottom Left" },
+  { value: "bottom", label: "Bottom Center" },
+  { value: "top-right", label: "Top Right" },
+  { value: "top-left", label: "Top Left" },
+  { value: "top", label: "Top Center" },
+] as const;

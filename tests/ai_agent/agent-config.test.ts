@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { buildClientTools, buildServerTools, getBaseUrl } from "../../server/ai/marcela-agent-config";
 import { buildVoiceConfigFromDB, MARCELA_VOICE_ID } from "../../server/integrations/elevenlabs";
-import { LLM_MODELS, TTS_MODELS, STT_MODELS, OUTPUT_FORMATS } from "../../client/src/components/admin/marcela/types";
+import { LLM_MODELS, OUTPUT_FORMATS } from "../../client/src/components/admin/marcela/types";
 
 describe("Marcela Agent Config", () => {
   describe("getBaseUrl()", () => {
@@ -118,18 +118,14 @@ describe("Marcela Agent Config", () => {
       }
     });
 
-    it("TTS/STT/Output format registries have no duplicates", () => {
-      for (const registry of [TTS_MODELS, STT_MODELS, OUTPUT_FORMATS]) {
-        const values = registry.map(m => m.value);
-        expect(new Set(values).size).toBe(values.length);
-      }
+    it("Output format registry has no duplicates", () => {
+      const values = OUTPUT_FORMATS.map(m => m.value);
+      expect(new Set(values).size).toBe(values.length);
     });
 
     it("voice config defaults align with registries", () => {
       const config = buildVoiceConfigFromDB({});
       expect(config.voiceId).toBe(MARCELA_VOICE_ID);
-      expect(TTS_MODELS.some(m => m.value === config.ttsModel)).toBe(true);
-      expect(STT_MODELS.some(m => m.value === config.sttModel)).toBe(true);
       expect(OUTPUT_FORMATS.some(m => m.value === config.outputFormat)).toBe(true);
     });
   });

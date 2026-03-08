@@ -62,6 +62,11 @@ import {
   DEFAULT_MARCELA_MAX_TOKENS,
   DEFAULT_MARCELA_MAX_TOKENS_VOICE,
   DEFAULT_MARCELA_TURN_TIMEOUT,
+  DEFAULT_MARCELA_SPEED,
+  DEFAULT_MARCELA_STREAMING_LATENCY,
+  DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT,
+  DEFAULT_MARCELA_MAX_DURATION,
+  DEFAULT_MARCELA_CASCADE_TIMEOUT,
   DEFAULT_MAX_STALENESS_HOURS,
 } from "./constants";
 
@@ -433,6 +438,18 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaTurnTimeout: integer("marcela_turn_timeout").notNull().default(DEFAULT_MARCELA_TURN_TIMEOUT),
   marcelaAvatarUrl: text("marcela_avatar_url").notNull().default(""),
   marcelaWidgetVariant: text("marcela_widget_variant").notNull().default("elevenlabs"),
+  marcelaSpeed: real("marcela_speed").notNull().default(DEFAULT_MARCELA_SPEED),
+  marcelaStreamingLatency: integer("marcela_streaming_latency").notNull().default(DEFAULT_MARCELA_STREAMING_LATENCY),
+  marcelaTextNormalisation: text("marcela_text_normalisation").notNull().default("system_prompt"),
+  marcelaAsrProvider: text("marcela_asr_provider").notNull().default("scribe_realtime"),
+  marcelaInputAudioFormat: text("marcela_input_audio_format").notNull().default("pcm_16000"),
+  marcelaBackgroundVoiceDetection: boolean("marcela_background_voice_detection").notNull().default(false),
+  marcelaTurnEagerness: text("marcela_turn_eagerness").notNull().default("normal"),
+  marcelaSpellingPatience: text("marcela_spelling_patience").notNull().default("auto"),
+  marcelaSpeculativeTurn: boolean("marcela_speculative_turn").notNull().default(false),
+  marcelaSilenceEndCallTimeout: integer("marcela_silence_end_call_timeout").notNull().default(DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT),
+  marcelaMaxDuration: integer("marcela_max_duration").notNull().default(DEFAULT_MARCELA_MAX_DURATION),
+  marcelaCascadeTimeout: integer("marcela_cascade_timeout").notNull().default(DEFAULT_MARCELA_CASCADE_TIMEOUT),
 
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
@@ -579,6 +596,18 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   marcelaTurnTimeout: true,
   marcelaAvatarUrl: true,
   marcelaWidgetVariant: true,
+  marcelaSpeed: true,
+  marcelaStreamingLatency: true,
+  marcelaTextNormalisation: true,
+  marcelaAsrProvider: true,
+  marcelaInputAudioFormat: true,
+  marcelaBackgroundVoiceDetection: true,
+  marcelaTurnEagerness: true,
+  marcelaSpellingPatience: true,
+  marcelaSpeculativeTurn: true,
+  marcelaSilenceEndCallTimeout: true,
+  marcelaMaxDuration: true,
+  marcelaCascadeTimeout: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

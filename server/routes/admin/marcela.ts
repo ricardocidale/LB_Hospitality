@@ -39,6 +39,18 @@ export function registerMarcelaRoutes(app: Express) {
         marcelaTurnTimeout: ga.marcelaTurnTimeout,
         marcelaAvatarUrl: ga.marcelaAvatarUrl,
         marcelaWidgetVariant: ga.marcelaWidgetVariant,
+        marcelaSpeed: ga.marcelaSpeed,
+        marcelaStreamingLatency: ga.marcelaStreamingLatency,
+        marcelaTextNormalisation: ga.marcelaTextNormalisation,
+        marcelaAsrProvider: ga.marcelaAsrProvider,
+        marcelaInputAudioFormat: ga.marcelaInputAudioFormat,
+        marcelaBackgroundVoiceDetection: ga.marcelaBackgroundVoiceDetection,
+        marcelaTurnEagerness: ga.marcelaTurnEagerness,
+        marcelaSpellingPatience: ga.marcelaSpellingPatience,
+        marcelaSpeculativeTurn: ga.marcelaSpeculativeTurn,
+        marcelaSilenceEndCallTimeout: ga.marcelaSilenceEndCallTimeout,
+        marcelaMaxDuration: ga.marcelaMaxDuration,
+        marcelaCascadeTimeout: ga.marcelaCascadeTimeout,
       });
     } catch (error) {
       logAndSendError(res, "Failed to fetch voice settings", error);
@@ -56,6 +68,10 @@ export function registerMarcelaRoutes(app: Express) {
         "marcelaMaxTokensVoice", "marcelaEnabled", "showAiAssistant",
         "marcelaTwilioEnabled", "marcelaSmsEnabled", "marcelaPhoneGreeting", "marcelaLanguage",
         "marcelaTurnTimeout", "marcelaAvatarUrl", "marcelaWidgetVariant",
+        "marcelaSpeed", "marcelaStreamingLatency", "marcelaTextNormalisation",
+        "marcelaAsrProvider", "marcelaInputAudioFormat", "marcelaBackgroundVoiceDetection",
+        "marcelaTurnEagerness", "marcelaSpellingPatience", "marcelaSpeculativeTurn",
+        "marcelaSilenceEndCallTimeout", "marcelaMaxDuration", "marcelaCascadeTimeout",
       ] as const;
       const patch: Partial<Record<string, unknown>> = {};
       for (const field of allowedFields) {

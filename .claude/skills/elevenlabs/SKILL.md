@@ -34,21 +34,7 @@ Comprehensive library of documentation, helper functions, scripts, and examples 
 │   ├── agent-workflows.md              ★ Visual workflow builder & node types
 │   └── ui-components.md               ★ ElevenLabs UI component library (shadcn-based)
 │
-├── ui/                                  ★ UI component implementation skills (14 files)
-│   ├── SKILL.md                         Component library overview & installation
-│   ├── orb.md                           3D animated orb (Three.js, audio-reactive)
-│   ├── conversation.md                  Scrolling chat container (auto-scroll)
-│   ├── message.md                       User/assistant message bubbles
-│   ├── conversation-bar.md             Hybrid text + voice input bar
-│   ├── voice-button.md                 Microphone toggle button
-│   ├── voice-picker.md                 Searchable voice selector dropdown
-│   ├── mic-selector.md                 Microphone device selector
-│   ├── waveform.md                     Waveform, scrubber, mic, live, bar visualizer
-│   ├── speech-input.md                 Real-time STT input (Scribe v2)
-│   ├── audio-player.md                 Audio playback + scrub bar
-│   ├── response.md                     Streaming markdown renderer (Streamdown)
-│   ├── effects.md                      ShimmeringText + Matrix visual effects
-│   └── blocks.md                       Pre-built full-page templates (9 blocks)
+│   (UI component docs consolidated into marcela-ai/elevenlabs-ui-components.md)
 │
 ├── helpers/                              Reusable TypeScript utility functions
 │   ├── index.ts                          Barrel export

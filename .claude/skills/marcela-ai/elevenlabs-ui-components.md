@@ -9,7 +9,7 @@ All components sourced from https://ui.elevenlabs.io/ via `curl -s https://ui.el
 Installed to: `client/src/features/ai-agent/components/` (re-export barrels remain at `client/src/components/ui/` for backward compat)
 Hooks installed to: `client/src/hooks/`
 
-**Full API docs + examples**: `.claude/skills/marcela-ai/elevenlabs-components-docs/` — one `.md` file per component with props table, installation steps, and usage examples fetched directly from the [ElevenLabs UI GitHub repo](https://github.com/elevenlabs/ui). See `elevenlabs-components-docs/README.md` for the component index.
+**Upstream docs**: https://github.com/elevenlabs/ui (`apps/www/content/docs/components/`). Fetch individual component docs with `curl -s https://raw.githubusercontent.com/elevenlabs/ui/main/apps/www/content/docs/components/<name>.mdx`.
 
 ## Installed Components
 

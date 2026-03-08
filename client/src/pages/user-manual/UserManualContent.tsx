@@ -1,37 +1,39 @@
-import { Suspense, lazy } from "react";
-import { USER_MANUAL_SECTIONS } from "./constants";
+import { Suspense, lazy, useMemo } from "react";
+import type { UserManualSection } from "./constants";
 
-const sectionComponents = [
-  lazy(() => import("./sections/Section01GettingStarted")),
-  lazy(() => import("./sections/Section02Navigation")),
-  lazy(() => import("./sections/Section03Dashboard")),
-  lazy(() => import("./sections/Section04Properties")),
-  lazy(() => import("./sections/Section05PropertyDetails")),
-  lazy(() => import("./sections/Section06PropertyImages")),
-  lazy(() => import("./sections/Section07ManagementCompany")),
-  lazy(() => import("./sections/Section08Assumptions")),
-  lazy(() => import("./sections/Section09Scenarios")),
-  lazy(() => import("./sections/Section10Analysis")),
-  lazy(() => import("./sections/Section11PropertyFinder")),
-  lazy(() => import("./sections/Section12Exports")),
-  lazy(() => import("./sections/Section13Marcela")),
-  lazy(() => import("./sections/Section14Profile")),
-  lazy(() => import("./sections/Section15Branding")),
-  lazy(() => import("./sections/Section16Admin")),
-  lazy(() => import("./sections/Section17BusinessRules")),
-];
+const sectionMap: Record<string, React.LazyExoticComponent<React.ComponentType<any>>> = {
+  "getting-started": lazy(() => import("./sections/Section01GettingStarted")),
+  "navigation": lazy(() => import("./sections/Section02Navigation")),
+  "dashboard": lazy(() => import("./sections/Section03Dashboard")),
+  "properties": lazy(() => import("./sections/Section04Properties")),
+  "property-details": lazy(() => import("./sections/Section05PropertyDetails")),
+  "property-images": lazy(() => import("./sections/Section06PropertyImages")),
+  "management-company": lazy(() => import("./sections/Section07ManagementCompany")),
+  "assumptions": lazy(() => import("./sections/Section08Assumptions")),
+  "scenarios": lazy(() => import("./sections/Section09Scenarios")),
+  "analysis": lazy(() => import("./sections/Section10Analysis")),
+  "property-finder": lazy(() => import("./sections/Section11PropertyFinder")),
+  "exports": lazy(() => import("./sections/Section12Exports")),
+  "marcela": lazy(() => import("./sections/Section13Marcela")),
+  "profile": lazy(() => import("./sections/Section14Profile")),
+  "branding": lazy(() => import("./sections/Section15Branding")),
+  "admin": lazy(() => import("./sections/Section16Admin")),
+  "business-constraints": lazy(() => import("./sections/Section17BusinessRules")),
+};
 
 interface UserManualContentProps {
+  sections: UserManualSection[];
   expandedSections: Set<string>;
   toggleSection: (id: string) => void;
   sectionRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
 }
 
-export function UserManualContent({ expandedSections, toggleSection, sectionRefs }: UserManualContentProps) {
+export function UserManualContent({ sections, expandedSections, toggleSection, sectionRefs }: UserManualContentProps) {
   return (
     <main className="flex-1 space-y-4 min-w-0">
-      {USER_MANUAL_SECTIONS.map((section, i) => {
-        const Component = sectionComponents[i];
+      {sections.map((section) => {
+        const Component = sectionMap[section.id];
+        if (!Component) return null;
         return (
           <Suspense key={section.id} fallback={<div className="h-14 rounded-xl bg-muted/30 animate-pulse" />}>
             <Component

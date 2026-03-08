@@ -1,7 +1,22 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect, Component, type ReactNode } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import logoImg from "@/assets/logo.png";
+
+function hasWebGL(): boolean {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
+class WebGLErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() { return this.state.hasError ? this.props.fallback : this.props.children; }
+}
 
 function LogoPlane() {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -23,21 +38,55 @@ function LogoPlane() {
   );
 }
 
-export default function SpinningLogo3D({ size = 64, onClick }: { size?: number; onClick?: () => void }) {
+function CSSFallback({ size, onClick }: { size: number; onClick?: () => void }) {
   return (
     <div
-      style={{ width: size, height: size, cursor: onClick ? "pointer" : "default" }}
+      style={{ width: size, height: size, cursor: onClick ? "pointer" : "default", perspective: "200px" }}
       onClick={onClick}
       data-testid="logo-login"
     >
-      <Canvas
-        camera={{ position: [0, 0, 3], fov: 45 }}
-        gl={{ alpha: true, antialias: true }}
-        style={{ background: "transparent" }}
-      >
-        <ambientLight intensity={1.5} />
-        <LogoPlane />
-      </Canvas>
+      <img
+        src={logoImg}
+        alt="Hospitality Business Group"
+        className="w-full h-full object-contain animate-spherical"
+      />
     </div>
+  );
+}
+
+export default function SpinningLogo3D({ size = 64, onClick }: { size?: number; onClick?: () => void }) {
+  const [webgl, setWebgl] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setWebgl(hasWebGL());
+  }, []);
+
+  if (webgl === null) {
+    return <div style={{ width: size, height: size }} />;
+  }
+
+  const fallback = <CSSFallback size={size} onClick={onClick} />;
+
+  if (!webgl) {
+    return fallback;
+  }
+
+  return (
+    <WebGLErrorBoundary fallback={fallback}>
+      <div
+        style={{ width: size, height: size, cursor: onClick ? "pointer" : "default" }}
+        onClick={onClick}
+        data-testid="logo-login"
+      >
+        <Canvas
+          camera={{ position: [0, 0, 3], fov: 45 }}
+          gl={{ alpha: true, antialias: true }}
+          style={{ background: "transparent" }}
+        >
+          <ambientLight intensity={1.5} />
+          <LogoPlane />
+        </Canvas>
+      </div>
+    </WebGLErrorBoundary>
   );
 }

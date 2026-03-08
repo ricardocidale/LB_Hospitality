@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { IconHelp } from "@/components/icons/brand-icons";
+import { useAuth } from "@/lib/auth";
 import { USER_MANUAL_SECTIONS } from "./constants";
 import { UserManualTOC } from "./UserManualTOC";
 import { UserManualContent } from "./UserManualContent";
@@ -12,8 +13,20 @@ interface UserManualProps {
 }
 
 export default function UserManual({ embedded }: UserManualProps) {
+  const { user, isAdmin } = useAuth();
+  const hasManagementAccess = isAdmin || (user?.role !== "investor");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const visibleSections = useMemo(() =>
+    USER_MANUAL_SECTIONS.filter((s) => {
+      if (s.access === "all") return true;
+      if (s.access === "management") return hasManagementAccess;
+      if (s.access === "admin") return isAdmin;
+      return false;
+    }),
+    [isAdmin, hasManagementAccess]
+  );
 
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => {
@@ -64,8 +77,9 @@ export default function UserManual({ embedded }: UserManualProps) {
         </Card>
 
         <div className="flex gap-6">
-          <UserManualTOC sections={USER_MANUAL_SECTIONS} scrollToSection={scrollToSection} />
+          <UserManualTOC sections={visibleSections} scrollToSection={scrollToSection} />
           <UserManualContent
+            sections={visibleSections}
             expandedSections={expandedSections}
             toggleSection={toggleSection}
             sectionRefs={sectionRefs}

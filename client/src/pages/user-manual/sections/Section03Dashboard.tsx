@@ -1,5 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
+import { Callout } from "@/components/ui/callout";
 import { IconDashboard } from "@/components/icons/brand-icons";
 
 interface SectionProps {
@@ -21,7 +22,7 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
     >
       <p className="text-sm text-muted-foreground">
         The Dashboard provides a high-level overview of the entire portfolio. It shows key performance indicators (KPIs),
-        consolidated financial charts, and summary cards for each property.
+        consolidated financial statements, and summary cards for each property.
       </p>
 
       <div className="bg-muted/50 rounded-lg p-4">
@@ -41,6 +42,64 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
       </div>
 
       <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Consolidated Income Statement</h4>
+        <p className="text-sm text-muted-foreground mb-2">
+          The dashboard includes a full consolidated income statement following the USALI (Uniform System of Accounts for the Lodging Industry) waterfall:
+        </p>
+        <ManualTable
+          variant="light"
+          headers={["Line Item", "Calculation"]}
+          rows={[
+            ["Total Revenue", "= Rooms + Events + F&B + Other"],
+            ["Operating Expenses", "= Sum of departmental + undistributed expenses"],
+            ["Gross Operating Profit (GOP)", "= Total Revenue − Operating Expenses"],
+            ["Management Fees", "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)"],
+            ["Adjusted GOP (AGOP)", "= GOP − Management Fees"],
+            ["Fixed Charges", "= Insurance + Property Taxes"],
+            ["Net Operating Income (NOI)", "= AGOP − Fixed Charges"],
+            ["FF&E Reserve", "= Reserve for Furniture, Fixtures & Equipment"],
+            ["Adjusted NOI (ANOI)", "= NOI − FF&E Reserve"],
+          ]}
+        />
+      </div>
+
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Operational Metrics</h4>
+        <ManualTable
+          variant="light"
+          headers={["Metric", "Calculation"]}
+          rows={[
+            ["ADR (Effective)", "= Room Revenue ÷ Sold Rooms"],
+            ["Occupancy", "= Sold Rooms ÷ Available Rooms"],
+            ["RevPAR", "= Room Revenue ÷ Available Rooms (cross-check: ADR × Occupancy)"],
+          ]}
+        />
+      </div>
+
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Consolidated Cash Flow Statement</h4>
+        <ManualTable
+          variant="light"
+          headers={["Section", "Calculation"]}
+          rows={[
+            ["Cash Flow from Operations (CFO)", "= NOI − Debt Service (Principal + Interest)"],
+            ["Cash Flow from Investing (CFI)", "= Capital Expenditures + Exit Proceeds (if final year)"],
+            ["Cash Flow from Financing (CFF)", "= Refinancing Proceeds − Principal Payments"],
+            ["Net Change in Cash", "= CFO + CFI + CFF"],
+          ]}
+        />
+      </div>
+
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Formula Rows</h4>
+        <p className="text-sm text-muted-foreground">
+          Every calculated subtotal in the income statement and cash flow statement has a clickable
+          "Formula" row. Click the chevron to reveal the exact calculation used to derive that number.
+          This provides full transparency into how every figure is computed.
+        </p>
+      </div>
+
+      <div className="bg-muted/50 rounded-lg p-4">
         <h4 className="font-semibold mb-2">Charts & Visualizations</h4>
         <ul className="text-sm text-muted-foreground space-y-2">
           <li>&#8226; <strong>Revenue & NOI Trend</strong> — year-over-year revenue and NOI across the portfolio</li>
@@ -56,6 +115,11 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
           Click any property card to navigate to its detail page.
         </p>
       </div>
+
+      <Callout variant="light">
+        All consolidated figures aggregate data across the entire portfolio. Individual property breakdowns
+        are available by expanding any row to see per-property values.
+      </Callout>
     </SectionCard>
   );
 }

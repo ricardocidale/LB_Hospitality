@@ -449,11 +449,11 @@ function extractPlatformGuide(): { title: string; content: string; source: strin
     title: "Platform Navigation Guide",
     content: `The platform has the following main pages and features:
 
-Dashboard: Consolidated portfolio overview. Shows KPI cards (IRR, equity multiple, cash-on-cash return, total exit value), income statement, cash flow statement, balance sheet, and investment analysis charts. All values are computed by the financial engine — never hardcoded.
+Dashboard: Consolidated portfolio overview. Shows KPI cards (IRR, equity multiple, cash-on-cash return, total exit value), consolidated income statement with full USALI waterfall (GOP → AGOP → NOI → ANOI), operational metrics (ADR Effective, Occupancy, RevPAR), consolidated cash flow statement (CFO, CFI, CFF), balance sheet, and investment analysis charts. Every calculated subtotal has a clickable "Formula" row that reveals the exact derivation. All values are computed by the financial engine — never hardcoded.
 
 Properties: List of hotel SPVs in the portfolio. Each property has its own detail page with financial projections, and an edit page where you can change property-specific assumptions (ADR, occupancy, room count, financing terms, expense rates).
 
-Property Detail: Shows per-property income statement, cash flow, balance sheet, and investment returns across all projection years. Includes charts and formula transparency accordions.
+Property Detail: Shows per-property income statement with USALI waterfall, cash flow statement (CFO, CFI, CFF, FCF, FCFE, DSCR, cash-on-cash return), balance sheet (assets, liabilities, equity, ratios), and investment returns across all projection years. Includes formula transparency accordions for every derived value — click any "Formula" chevron to see how a number is calculated.
 
 Management Company: The management entity's P&L showing fee revenue (base + incentive fees from each property), operating expenses (partner comp, staff, office, travel), SAFE funding status, and net income.
 
@@ -465,9 +465,11 @@ Settings (Systemwide Assumptions): Four tabs:
 
 Scenarios: Save, load, and compare different assumption sets. Useful for stress testing and sensitivity analysis.
 
-Help: User Manual (16 chapters), Checker Manual (21 sections), and Interactive Guided Tour.
+Help: User Manual (17 chapters — role-filtered so users only see sections relevant to their access level), Checker Manual (21 sections, visible to checkers and admins), and Interactive Guided Tour.
 
-Administration (Admin only): Users, Companies, Activity, Verification, User Groups, Logos, Branding, Themes, Navigation, Database, Marcela (AI assistant settings).`,
+Administration (Admin only): Users, Companies, Activity, Verification, User Groups, Logos, Branding, Themes, Navigation, Database, Marcela (AI assistant settings).
+
+Role-based access: Investors see read-only dashboards and property details. Management users can edit properties, assumptions, scenarios, and run analysis. Checkers can access verification tools. Admins have full system access including user management and AI configuration.`,
     source: "Platform Guide",
     category: "guide",
   });

@@ -7,7 +7,6 @@ import {
   Loader2, Inbox, Mic, Keyboard, Copy, Check, AlertCircle,
   BarChart2, CheckCircle2, XCircle, Play,
 } from "lucide-react";
-import { Conversation, ConversationContent, ConversationScrollButton } from "@/features/ai-agent/components/conversation";
 import { Message, MessageContent } from "@/features/ai-agent/components/message";
 import { useConversations, useConversation } from "./hooks";
 import {
@@ -85,8 +84,8 @@ function ConversationDetail({ id }: { id: string }) {
           {copied ? "Copied" : "Copy transcript"}
         </button>
       </div>
-      <Conversation className="max-h-72">
-        <ConversationContent className="p-0">
+      <div className="max-h-72 overflow-y-auto rounded-lg border border-border/40">
+        <div className="p-0">
           {transcript.map((line: any, i: number) => (
             <Message key={i} from={line.role === "agent" ? "assistant" : "user"} className="py-1.5 px-1">
               <MessageContent variant="contained" className="text-xs leading-relaxed">
@@ -104,9 +103,8 @@ function ConversationDetail({ id }: { id: string }) {
               </MessageContent>
             </Message>
           ))}
-          <ConversationScrollButton />
-        </ConversationContent>
-      </Conversation>
+        </div>
+      </div>
     </div>
   );
 }

@@ -48,6 +48,8 @@ const navGroups: NavGroup[] = [
     description: "Branding & identity",
     sections: [
       { value: "branding", label: "Hospitality Brand", icon: IconImage },
+      { value: "companies", label: "Companies", icon: IconProperties },
+      { value: "research", label: "Research", icon: FlaskConical },
     ],
   },
   {
@@ -58,16 +60,6 @@ const navGroups: NavGroup[] = [
     sections: [
       { value: "themes", label: "Themes", icon: IconSwatchBook },
       { value: "logos", label: "Logos", icon: IconUpload },
-    ],
-  },
-  {
-    id: "business",
-    label: "Business",
-    icon: IconProperties,
-    description: "Entities, services & rates",
-    sections: [
-      { value: "companies", label: "Companies", icon: IconProperties },
-      { value: "research", label: "Research", icon: FlaskConical },
     ],
   },
   {

@@ -1,11 +1,26 @@
 "use client"
 
-import { useEffect, useMemo, useRef } from "react"
+import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useTexture } from "@react-three/drei"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 
 export type AgentState = null | "thinking" | "listening" | "talking"
+
+function hasWebGL(): boolean {
+  try {
+    const c = document.createElement("canvas")
+    return !!(c.getContext("webgl2") || c.getContext("webgl"))
+  } catch {
+    return false
+  }
+}
+
+class WebGLBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { error: boolean }> {
+  state = { error: false }
+  static getDerivedStateFromError() { return { error: true } }
+  render() { return this.state.error ? this.props.fallback : this.props.children }
+}
 
 type OrbProps = {
   colors?: [string, string]
@@ -23,6 +38,22 @@ type OrbProps = {
   className?: string
 }
 
+function CSSFallbackOrb({ colors = ["#CADCFC", "#A0B9D1"], className }: { colors?: [string, string]; className?: string }) {
+  return (
+    <div className={className ?? "relative h-full w-full"}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div
+          className="w-32 h-32 rounded-full animate-pulse"
+          style={{
+            background: `radial-gradient(circle at 40% 40%, ${colors[0]}, ${colors[1]})`,
+            boxShadow: `0 0 60px ${colors[0]}40, 0 0 120px ${colors[1]}20`,
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
 export function Orb({
   colors = ["#CADCFC", "#A0B9D1"],
   colorsRef,
@@ -38,31 +69,38 @@ export function Orb({
   getOutputVolume,
   className,
 }: OrbProps) {
+  const [webgl] = useState(() => hasWebGL())
+  const fallback = <CSSFallbackOrb colors={colors} className={className} />
+
+  if (!webgl) return fallback
+
   return (
-    <div className={className ?? "relative h-full w-full"}>
-      <Canvas
-        resize={{ debounce: resizeDebounce }}
-        gl={{
-          alpha: true,
-          antialias: true,
-          premultipliedAlpha: true,
-        }}
-      >
-        <Scene
-          colors={colors}
-          colorsRef={colorsRef}
-          seed={seed}
-          agentState={agentState}
-          volumeMode={volumeMode}
-          manualInput={manualInput}
-          manualOutput={manualOutput}
-          inputVolumeRef={inputVolumeRef}
-          outputVolumeRef={outputVolumeRef}
-          getInputVolume={getInputVolume}
-          getOutputVolume={getOutputVolume}
-        />
-      </Canvas>
-    </div>
+    <WebGLBoundary fallback={fallback}>
+      <div className={className ?? "relative h-full w-full"}>
+        <Canvas
+          resize={{ debounce: resizeDebounce }}
+          gl={{
+            alpha: true,
+            antialias: true,
+            premultipliedAlpha: true,
+          }}
+        >
+          <Scene
+            colors={colors}
+            colorsRef={colorsRef}
+            seed={seed}
+            agentState={agentState}
+            volumeMode={volumeMode}
+            manualInput={manualInput}
+            manualOutput={manualOutput}
+            inputVolumeRef={inputVolumeRef}
+            outputVolumeRef={outputVolumeRef}
+            getInputVolume={getInputVolume}
+            getOutputVolume={getOutputVolume}
+          />
+        </Canvas>
+      </div>
+    </WebGLBoundary>
   )
 }
 

@@ -142,7 +142,8 @@ export default function MarcelaTab() {
   const elevenLabsOk = !agentConfigError && agentConfig !== undefined;
   const signedUrlOk = !!signedUrl;
   const promptOk = !!(agentConfig?.conversation_config?.agent?.prompt?.prompt);
-  const kbDocs: any[] = (agentConfig?.conversation_config?.agent as any)?.knowledge_base ?? [];
+  const kbDocs: any[] = (agentConfig?.conversation_config?.agent as any)?.knowledge_base
+    ?? (agentConfig?.conversation_config?.agent?.prompt as any)?.knowledge_base ?? [];
   const kbOk = kbDocs.length > 0;
   const twilioOk = !!twilioStatus?.connected;
   const agentIdOk = !!draft.marcelaAgentId;

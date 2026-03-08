@@ -54,37 +54,6 @@ export function OtherTab({
         </CardContent>
       </Card>
 
-      <Card className="bg-card border-border shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center font-display">
-            AI Research Model
-            <HelpTooltip text="Choose which AI model powers the market research feature. Different models have different strengths — OpenAI GPT models are great for structured data, Claude excels at reasoning, and Gemini offers fast analysis." />
-          </CardTitle>
-          <CardDescription className="label-text">Select the AI model used for generating market research reports.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 max-w-sm">
-            <Label className="label-text flex items-center gap-1">Preferred Model <HelpTooltip text="The AI model used for generating market research. Each model has different strengths for analysis." /></Label>
-            <Select
-              value={currentGlobal.preferredLlm || "gpt-4o"}
-              onValueChange={(value) => handleGlobalChange("preferredLlm", value)}
-            >
-              <SelectTrigger className="bg-card" data-testid="select-preferred-llm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gpt-4o">OpenAI GPT-4o</SelectItem>
-                <SelectItem value="gpt-4o-mini">OpenAI GPT-4o Mini</SelectItem>
-                <SelectItem value="claude-sonnet-4-5">Claude Sonnet 4.5</SelectItem>
-                <SelectItem value="claude-haiku-4-5">Claude Haiku 4.5</SelectItem>
-                <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
-                <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
       <SaveButton 
         onClick={handleSaveGlobal} 
         disabled={!globalDraft} 

@@ -24,6 +24,7 @@ import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_TAX_RATE,
   DEFAULT_COMMISSION_RATE,
+  DEFAULT_INFLATION_RATE,
 } from "@/lib/constants";
 import type { OtherAssumptionsSectionProps } from "./types";
 
@@ -98,6 +99,32 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
             <p className="text-xs text-muted-foreground mt-1">
               Applied to taxable income (NOI − interest − depreciation)
             </p>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col gap-0.5">
+                <Label className="flex items-center label-text text-foreground gap-1.5">
+                  Inflation Rate
+                  <HelpTooltip text="Annual inflation rate for this property. Escalates fixed operating costs and serves as the floor for revenue growth. If left blank, the global system default is used." />
+                </Label>
+                <ResearchBadge entry={researchValues.inflationRate} onClick={() => researchValues.inflationRate && onChange("inflationRate", researchValues.inflationRate.mid / 100)} />
+              </div>
+              <EditableValue
+                value={draft.inflationRate != null ? draft.inflationRate * 100 : DEFAULT_INFLATION_RATE * 100}
+                onChange={(val) => onChange("inflationRate", val / 100)}
+                format="percent"
+                min={0}
+                max={20}
+                step={0.1}
+              />
+            </div>
+            <Slider 
+              value={[(draft.inflationRate ?? DEFAULT_INFLATION_RATE) * 100]}
+              onValueChange={(vals: number[]) => onChange("inflationRate", vals[0] / 100)}
+              min={0}
+              max={20}
+              step={0.1}
+            />
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">

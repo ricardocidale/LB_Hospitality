@@ -45,5 +45,16 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - Ricardo Cidale is sole Admin
 - Button labels: always "Save", never "Update"
 
+## Inflation System
+Three-tier cascade: `property.inflationRate → companyInflationRate → global.inflationRate`. The `DEFAULT_INFLATION_RATE` constant in `shared/constants.ts` is the single source of truth (0.03). Per-property and per-company rates are nullable; null means use the next level up in the cascade.
+
+## Admin Sidebar Structure
+- Management Company (formerly Branding): company identity, contact, location, financial info
+- Asset Definition: asset logo, label, description
+- Research: AI model picker, staleness intervals, curated source registry, per-type research config
+
+## Research Skills
+Property sub-skills: local-economics, insurance-costs, marketing-costs. Company: outsourcing/make-vs-buy analysis. Global: FX, capital markets, ESG. Source registry in `shared/constants.ts` (`RESEARCH_SOURCES`).
+
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

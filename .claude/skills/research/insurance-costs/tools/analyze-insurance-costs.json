@@ -1,0 +1,22 @@
+{
+  "name": "analyze_insurance_costs",
+  "description": "Research hospitality-specific insurance benchmarks, liability coverage, and property insurance premiums for a specific location and property type. Source: Marsh McLennan, Insurance Information Institute.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "location": {
+        "type": "string",
+        "description": "City, State or Region"
+      },
+      "property_type": {
+        "type": "string",
+        "description": "Boutique Hotel, Luxury Estate, etc."
+      },
+      "property_value": {
+        "type": "number",
+        "description": "Acquisition price + improvements"
+      }
+    },
+    "required": ["location", "property_type"]
+  }
+}

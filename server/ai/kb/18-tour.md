@@ -14,7 +14,7 @@ Step 3 — Management Company
 Next, define the management company assumptions — staffing tiers, partner compensation, base and incentive fee structures, and funding instruments. The management company earns fees from the properties you just set up. You can see the company P&L here showing fee revenue minus operating costs.
 
 Step 4 — Systemwide Assumptions (Settings)
-Review and adjust the global settings that apply across all properties — tax rates, inflation, depreciation schedules, and other defaults. These ensure consistency across your entire portfolio. Settings include the discount rate, projection period, fiscal year, SAFE funding terms, and partner compensation schedules.
+Review and adjust the global settings that apply across all properties — tax rates, global inflation default, depreciation schedules, and other defaults. These ensure consistency across your entire portfolio, though specific properties and the management company can override their own inflation rates. Settings include the discount rate, projection period, fiscal year, SAFE funding terms, and partner compensation schedules.
 
 Step 5 — Scenarios (Save & Compare)
 Save your current assumptions as a named scenario so you can come back to it later. Create multiple scenarios to compare different strategies — like varying occupancy ramps or financing structures. Each scenario is a full snapshot of every assumption in the model.

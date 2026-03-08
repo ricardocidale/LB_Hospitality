@@ -174,7 +174,19 @@
       "WebFetch(domain:www.dropbox.com)",
       "Bash(find /home/runner/workspace -path \"*/.claude\" -prune -o -path \"*/node_modules\" -prune -o -type f \\\\\\( -name \"*marcela*\" -o -name \"*ElevenLabs*\" -o -name \"*elevenlabs*\" -o -name \"*voice*\" -o -name \"*agent*\" \\\\\\) -print 2>/dev/null | grep -v node_modules | grep -v \".claude\" | wc -l)",
       "Bash(/tmp/marcela_summary.txt:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "WebFetch(domain:docs.replit.com)",
+      "WebFetch(domain:replit.com)",
+      "WebFetch(domain:blog.replit.com)",
+      "Bash(gh api /orgs/replit/repos --paginate --jq '.[].full_name' 2>/dev/null | grep -i -E \"elevenlabs|twilio|connector|integration\" | head -30)",
+      "Bash(gh api /orgs/replit/repos --paginate --jq '.[].name' 2>/dev/null | head -50)",
+      "Bash(gh api /repos/louisjoecodes/elevenlabs-twilio-i-o/contents/.replit 2>/dev/null | python3 -c \"import sys,json,base64; d=json.load\\(sys.stdin\\); print\\(base64.b64decode\\(d['content']\\).decode\\(\\)\\)\" 2>/dev/null || echo \"Could not fetch\")",
+      "Bash(gh api /repos/louisjoecodes/elevenlabs-twilio-i-o/git/trees/main?recursive=1 2>/dev/null | python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(t['path']\\) for t in d.get\\('tree',[]\\)]\" 2>/dev/null || echo \"Could not fetch tree\")",
+      "Bash(gh api /repos/nibodev/elevenlabs-twilio-i-o/git/trees/main?recursive=1 2>/dev/null | python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(t['path']\\) for t in d.get\\('tree',[]\\)]\" 2>/dev/null)",
+      "WebFetch(domain:ask.replit.com)",
+      "WebFetch(domain:www.digitalapplied.com)",
+      "WebFetch(domain:blog.helpviber.com)",
+      "WebFetch(domain:elevenlabs.io)"
     ]
   },
   "enableAllProjectMcpServers": true,

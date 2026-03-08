@@ -47,6 +47,7 @@ export {
   DEFAULT_FIXED_COST_ESCALATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
   DEFAULT_PROJECTION_YEARS,
+  DEFAULT_INFLATION_RATE,
 } from "@shared/constants";
 
 // Loan defaults — typical commercial real estate financing terms

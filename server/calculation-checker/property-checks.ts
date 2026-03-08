@@ -115,7 +115,8 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     if (isOperational) {
       currentAdr = property.startAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
     }
-    const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
+    const effectiveInflation = property.inflationRate ?? global.inflationRate;
+    const fixedEscalationRate = global.fixedCostEscalationRate ?? effectiveInflation;
     const fixedCostFactor = Math.pow(1 + fixedEscalationRate, opsYear);
 
     let occupancy = 0;

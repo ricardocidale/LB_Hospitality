@@ -169,12 +169,19 @@ export const DAYS_PER_MONTH = 30.5;
 export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
 
 // ──────────────────────────────────────────────────────────
-// COST ESCALATION & TAXES
+// INFLATION & COST ESCALATION
 // ──────────────────────────────────────────────────────────
+
+// System-wide default inflation rate (CPI-based).
+// This is the global fallback; individual properties and the management
+// company may override with their own location-specific rates.
+// Cascade order:  property.inflationRate → companyInflationRate → this value
+export const DEFAULT_INFLATION_RATE = 0.03;
 
 // Annual escalation rate for fixed operating expenses (office lease,
 // insurance, professional services). Applied as compound growth each year.
-export const DEFAULT_FIXED_COST_ESCALATION_RATE = 0.03;
+// Defaults to the system inflation rate when not explicitly overridden.
+export const DEFAULT_FIXED_COST_ESCALATION_RATE = DEFAULT_INFLATION_RATE;
 
 // Corporate income tax rate applied to the management company's net income.
 // Used to compute after-tax free cash flow at the company level.
@@ -239,6 +246,16 @@ export const DEFAULT_MAX_STALENESS_HOURS = 24;
 // ──────────────────────────────────────────────────────────
 
 export const DEFAULT_RESEARCH_TIME_HORIZON = "10-year";
+
+export const RESEARCH_SOURCES = [
+  { name: "STR", category: "Hospitality", url: "https://str.com" },
+  { name: "CBRE Hotels", category: "Hospitality", url: "https://www.cbre.com/industries/hotels" },
+  { name: "HVS", category: "Hospitality", url: "https://hvs.com" },
+  { name: "PKF Trends", category: "Hospitality", url: "https://www.pkfhotels.com" },
+  { name: "FRED", category: "Economics", url: "https://fred.stlouisfed.org" },
+  { name: "BLS", category: "Economics", url: "https://www.bls.gov" },
+  { name: "USALI", category: "Operations", url: "https://www.hftp.org/resources/usali" },
+] as const;
 
 export const DEFAULT_RESEARCH_EVENT_CONFIG = {
   enabled: true,

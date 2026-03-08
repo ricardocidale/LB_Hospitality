@@ -1,6 +1,6 @@
 ---
 name: Company Research
-description: You are a hospitality management consulting expert specializing in hotel management company structures, GAAP-compliant fee arrangements, and indust...
+description: You are a hospitality management consulting expert specializing in hotel management company structures, GAAP-compliant fee arrangements, outsourcing analysis, and industry benchmarks.
 ---
 
 # Company Research Skill
@@ -13,15 +13,33 @@ The platform's asset type is defined by `globalAssumptions.propertyLabel` (defau
 
 ## Objective
 
-Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a hospitality management company.
+Provide comprehensive research on hotel management company fee structures, GAAP standards, industry benchmarks, and outsourcing strategies (Make-vs-Buy) for a hospitality management company.
 
 ## Research Areas
 
-1. **Management Fees**: Base management fee structures (ASC 606 revenue recognition), incentive management fee (IMF) structures and triggers
-2. **GAAP Standards**: GAAP-compliant fee recognition standards relevant to hotel management
-3. **Industry Benchmarks**: Operating expense ratios by department (USALI format), revenue per room benchmarks
-4. **Compensation**: Management company compensation benchmarks
-5. **Contract Terms**: Typical contract terms and duration
+1. **Management Fee Structures**: 
+   - Base management fee benchmarks (% of Total Revenue)
+   - Incentive management fee (IMF) structures (e.g., % of GOP, NOI, or AGOP)
+   - Fee structures for specialty operators (wellness, retreat-focused)
+   - Comparison of fee models: % of Revenue vs. Fixed Fee vs. Per-Key Fee
+
+2. **Outsourcing & Vendor Pricing**:
+   - Categories for outsourcing: IT, Accounting, HR, Maintenance, Laundry, Landscaping, Security, Food Procurement, Marketing/PR.
+   - Market pricing for common hospitality vendors.
+   - Benefits and risks of "make-vs-buy" for critical departments.
+   - Compensation benchmarks for in-house staff (GM, Department Heads).
+
+3. **GAAP Standards (ASC 606)**: 
+   - GAAP-compliant fee recognition standards.
+   - Treatment of pass-through costs and centralized service reimbursements.
+
+4. **Industry Benchmarks (USALI)**: 
+   - Operating expense ratios by department (Rooms, F&B, G&A, Marketing, POM, Utilities).
+   - Revenue per room benchmarks and RevPAR penetration.
+
+5. **Contract Terms**: 
+   - Typical contract durations, renewal options, and termination clauses (with and without cause).
+   - Non-compete and area of protection (AOP) standards.
 
 ## Output Schema
 
@@ -42,6 +60,13 @@ Provide comprehensive research on hotel management company fee structures, GAAP 
       "gaapReference": "string",
       "sources": [{ "source": "string", "data": "string" }]
     }
+  },
+  "outsourcingAnalysis": {
+    "recommendedOutsourced": ["string"],
+    "vendorPricingBenchmarks": [
+      { "category": "string", "priceRange": "string", "unit": "string" }
+    ],
+    "makeVsBuyGuidance": "string"
   },
   "gaapStandards": [
     { "standard": "string", "reference": "string", "application": "string" }
@@ -74,5 +99,6 @@ Provide comprehensive research on hotel management company fee structures, GAAP 
 
 - Fee structures must reference GAAP standards (ASC 606)
 - Industry benchmarks should use USALI format
-- Cite authoritative sources (AHLA, STR, HVS, PKF)
+- Cite authoritative sources (AHLA, STR, HVS, PKF, CBRE)
 - Compensation data should reflect current market conditions
+- Outsourcing recommendations must consider asset-specific operational complexity

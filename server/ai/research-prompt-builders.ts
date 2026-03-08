@@ -34,6 +34,7 @@ export interface ResearchParams {
     customQuestions?: string;
     inflationRate?: number;
     modelDurationYears?: number;
+    customSources?: { name: string; url?: string; category: string }[];
   };
   // Admin-configured per-event overrides (from global_assumptions.researchConfig)
   eventConfig?: {
@@ -44,7 +45,20 @@ export interface ResearchParams {
     customInstructions?: string;
     customQuestions?: string;
     enabledTools?: string[];
+    customSources?: { name: string; url?: string; category: string }[];
   };
+}
+
+/** Build the curated source block appended to all prompt types. */
+function buildSourceRegistryBlock(ecSources?: any[], rvSources?: any[]): string {
+  const sources = ecSources?.length ? ecSources : rvSources?.length ? rvSources : [];
+  if (!sources || sources.length === 0) return "";
+
+  let suffix = "\n\nCurated Data Sources (prioritize these):\n";
+  sources.forEach((s: any) => {
+    suffix += `- ${s.name} (${s.category})${s.url ? `: ${s.url}` : ""}\n`;
+  });
+  return suffix;
 }
 
 function formatAssetDefinition(bd: ResearchParams["assetDefinition"], label: string): string {
@@ -97,7 +111,7 @@ export function buildUserPrompt(params: ResearchParams): string {
   const label = pl || "boutique hotel";
 
   if (type === "property" && propertyContext) {
-    return `Analyze the market for this ${label.toLowerCase()} property:
+    let prompt = `Analyze the market for this ${label.toLowerCase()} property:
 - Property: ${propertyContext.name}
 - Location: ${propertyContext.location}
 - Market: ${propertyContext.market}
@@ -112,10 +126,13 @@ ${formatAssetDefinition(bd, label)}
 Use the available tools to gather data on each analysis dimension, then synthesize your findings into the required JSON format. Call each tool to build your analysis, then provide the final synthesized research as a JSON object.
 
 IMPORTANT: For every recommended metric, include a "confidence" field with one of: "conservative" (below-market/cautious), "moderate" (market-aligned with strong comps), or "aggressive" (above-market/optimistic). This applies to adrAnalysis, occupancyAnalysis, capRateAnalysis, cateringAnalysis, landValueAllocation, incomeTaxAnalysis, and every cost category in operatingCostAnalysis, propertyValueCostAnalysis, and managementServiceFeeAnalysis.${buildEventConfigSuffix(ec)}`;
+
+    prompt += buildSourceRegistryBlock(ec?.customSources, params.researchVariables?.customSources);
+    return prompt;
   }
 
   if (type === "company") {
-    return `Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a ${label.toLowerCase()} management company.
+    let prompt = `Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a ${label.toLowerCase()} management company.
 
 ${formatAssetDefinition(bd, label + " asset")}
 
@@ -127,6 +144,9 @@ Research the following areas for management companies that specialize in this ty
 5. Management company compensation benchmarks
 6. Typical contract terms and duration
 Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.${buildEventConfigSuffix(ec)}`;
+
+    prompt += buildSourceRegistryBlock(ec?.customSources, params.researchVariables?.customSources);
+    return prompt;
   }
 
   // global
@@ -182,6 +202,8 @@ Focus specifically on management companies specializing in ${label.toLowerCase()
   if (ec?.customInstructions?.trim()) {
     prompt += `\n\nAdditional context from admin:\n${ec.customInstructions.trim()}`;
   }
+
+  prompt += buildSourceRegistryBlock(ec?.customSources, rv?.customSources);
 
   return prompt;
 }

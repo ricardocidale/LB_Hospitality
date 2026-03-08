@@ -10,7 +10,7 @@ Property Editor — This is where you change a property's assumptions. Things li
 
 Company — Shows the management company's profit and loss. You can see how much fee revenue is coming in from each property, what the operating expenses look like (partner compensation, staff costs, office, travel), and whether the SAFE funding is still needed.
 
-Company Assumptions — The global settings that apply across the whole model: discount rate, inflation, tax rates, hold period, management fee percentages, and SAFE funding amounts.
+Company Assumptions — The global settings that apply across the whole model: discount rate, global inflation, tax rates, hold period, management fee percentages, and SAFE funding amounts. Inflation follows a 3-tier cascade (Property → Company → Global).
 
 Analysis — Financial analysis tools including sensitivity analysis, financing comparisons, and an executive summary. This is where you can stress-test assumptions.
 

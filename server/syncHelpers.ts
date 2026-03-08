@@ -26,6 +26,7 @@ import {
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   SEED_DEBT_ASSUMPTIONS,
+  DEFAULT_INFLATION_RATE,
 } from "../shared/constants";
 
 export interface SyncResults {
@@ -38,7 +39,7 @@ export interface SyncResults {
 
 export const SEED_GLOBAL_ASSUMPTIONS = {
   modelStartDate: "2026-04-01",
-  inflationRate: 0.03,
+  inflationRate: DEFAULT_INFLATION_RATE,
   baseManagementFee: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   incentiveManagementFee: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   staffSalary: 75000,
@@ -58,7 +59,7 @@ export const SEED_GLOBAL_ASSUMPTIONS = {
   standardAcqPackage: { monthsToOps: 6, purchasePrice: 3800000, preOpeningCosts: 200000, operatingReserve: 250000, buildingImprovements: 1200000 },
   debtAssumptions: SEED_DEBT_ASSUMPTIONS,
   commissionRate: DEFAULT_COMMISSION_RATE,
-  fixedCostEscalationRate: 0.03,
+  fixedCostEscalationRate: DEFAULT_INFLATION_RATE,
   safeTranche1Amount: 1000000,
   safeTranche1Date: "2026-06-01",
   safeTranche2Amount: 1000000,

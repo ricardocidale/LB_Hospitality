@@ -22,6 +22,7 @@ import { apiRequest } from "@/lib/queryClient";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COMMISSION_RATE,
+  DEFAULT_INFLATION_RATE,
 } from "@shared/constants";
 
 /** Table of contents for the Checker Manual — each section maps to a chapter of the app. */
@@ -108,6 +109,7 @@ const TESTING_PHASES = [
 
 const REQUIRED_GLOBAL_FIELDS = [
   "modelStartDate", "companyOpsStartDate", "inflationRate",
+  "companyInflationRate", "fixedCostEscalationRate",
   "safeTranche1Amount", "exitCapRate",
 ];
 
@@ -374,8 +376,9 @@ export async function exportFullData(user: { email?: string; role?: string; comp
     ["Projection Years", String(projYears)],
     ["Company Ops Start", global.companyOpsStartDate || "—"],
     ["Fiscal Year Start Month", String(global.fiscalYearStartMonth ?? 1)],
-    ["Inflation Rate", `${((global.inflationRate ?? 0.03) * 100).toFixed(1)}%`],
-    ["Fixed Cost Escalation", `${((global.fixedCostEscalationRate ?? 0.03) * 100).toFixed(1)}%`],
+    ["Global Inflation Rate", `${((global.inflationRate ?? DEFAULT_INFLATION_RATE) * 100).toFixed(1)}%`],
+    ["Company Inflation Rate", global.companyInflationRate ? `${(global.companyInflationRate * 100).toFixed(1)}%` : "Global Default"],
+    ["Fixed Cost Escalation Override", global.fixedCostEscalationRate ? `${(global.fixedCostEscalationRate * 100).toFixed(1)}%` : "Global Default"],
     ["Management Fees", "Per-property (see property details)"],
     ["Funding Tranche 1", formatMoney(global.safeTranche1Amount ?? 0)],
     ["Funding Tranche 1 Date", global.safeTranche1Date || "—"],

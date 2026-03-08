@@ -69,8 +69,9 @@ Fiscal year starts: Month ${(ga as any).fiscalYearStartMonth || 1}
 Fee Structure:
 - Base management fee rate: ${pct((ga as any).baseManagementFee)}
 - Incentive management fee rate: ${pct((ga as any).incentiveManagementFee)}
-- Inflation rate: ${pct((ga as any).inflationRate)}
-- Fixed cost escalation rate: ${pct((ga as any).fixedCostEscalationRate)}
+- Global default inflation rate: ${pct((ga as any).inflationRate)}
+- Company-specific inflation rate: ${pct((ga as any).companyInflationRate) || "Using Global Default"}
+- Fixed cost escalation override: ${pct((ga as any).fixedCostEscalationRate) || "Using Inflation Rate"}
 - Company tax rate: ${pct((ga as any).companyTaxRate)}
 
 SAFE Funding:
@@ -132,6 +133,7 @@ Revenue assumptions:
 - Starting ADR: ${usd(p.startAdr as any)}
 - ADR growth rate: ${pct(Number(p.adrGrowthRate))}
 - Starting occupancy: ${pct(Number(p.startOccupancy))}
+- Per-property inflation override: ${p.inflationRate ? pct(Number(p.inflationRate)) : "Using Global Default"}
 - Maximum (stabilized) occupancy: ${pct(Number(p.maxOccupancy))}
 - Occupancy ramp period: ${p.occupancyRampMonths} months between steps
 - Occupancy growth step: ${pct(Number(p.occupancyGrowthStep))}

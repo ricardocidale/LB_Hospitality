@@ -40,6 +40,18 @@ const TOOL_PROMPTS: Record<string, ToolPromptBuilder> = {
 
   analyze_income_tax: (input) =>
     `Tax context: SPV entity in ${input.location}, ${input.market_region || "North America"}, ${input.entity_type || "LLC"}, $${(input.purchase_price || 0).toLocaleString()} property value. Tax = NOI - Interest - Depreciation. Provide combined effective rate, federal/state/local breakdown, entity structure notes, and hospitality-specific incentives.`,
+
+  analyze_outsourcing_make_vs_buy: (input) =>
+    `Make-vs-buy context: Service: ${input.service_name}, In-house labor: $${input.in_house_labor || 0}/yr, Benefits rate: ${input.benefits_rate || 0.25}, Vendor price: $${input.vendor_price || 0}/yr, Oversight hours: ${input.oversight_hours || 2}/wk, Manager rate: $${input.manager_rate || 50}/hr, Unit count: ${input.unit_count || 20}. Use compute_make_vs_buy for financial comparison and recommendation. Provide market benchmarks for this service type.`,
+
+  analyze_local_economics: (input) =>
+    `Local economic context: ${input.location} (${input.market_region || "North America"}). Focus on inflation rates (CPI), interest rates (SOFR, Prime, Mortgage), and general economic health. Research FRED and BLS data for this specific location. Provide inflationRate and interestRate for this market.`,
+
+  analyze_insurance_costs: (input) =>
+    `Insurance context: ${input.location}, property type: ${input.property_type || "boutique hotel"}, estimated property value: $${(input.property_value || 0).toLocaleString()}. Research hospitality insurance benchmarks, liability coverage, and property insurance premiums for this location. Provide insuranceCostRate as % of property value.`,
+
+  analyze_marketing_costs: (input) =>
+    `Marketing context: ${input.location}, property level: ${input.property_level || "luxury"}. Research hospitality marketing costs, digital spend, OTA commissions, and direct booking costs for this property level. Provide marketingCostRate as % of total revenue.`,
 };
 
 export async function handleToolCall(name: string, input: Record<string, any>): Promise<string> {

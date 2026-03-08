@@ -105,6 +105,33 @@ export function extractResearchValues(content: Record<string, any>): Record<stri
     if (v) vals.incomeTax = entry(v);
   }
 
+  // Local Economics
+  const lea = c.localEconomics;
+  if (lea) {
+    if (lea.inflationRate) {
+      const pct = parsePct(lea.inflationRate);
+      if (pct != null) vals.inflationRate = entry({ display: lea.inflationRate, mid: pct });
+    }
+    if (lea.interestRate) {
+      const pct = parsePct(lea.interestRate);
+      if (pct != null) vals.interestRate = entry({ display: lea.interestRate, mid: pct });
+    }
+  }
+
+  // Insurance Costs
+  const ica = c.insuranceCosts;
+  if (ica?.insuranceCostRate) {
+    const pct = parsePct(ica.insuranceCostRate);
+    if (pct != null) vals.costInsurance = entry({ display: ica.insuranceCostRate, mid: pct });
+  }
+
+  // Marketing Costs
+  const mca = c.marketingCosts;
+  if (mca?.marketingCostRate) {
+    const pct = parsePct(mca.marketingCostRate);
+    if (pct != null) vals.costMarketing = entry({ display: mca.marketingCostRate, mid: pct });
+  }
+
   // ADR growth
   const adrGrowth = c.adrAnalysis?.recommendedGrowthRate ?? c.adrAnalysis?.annualGrowthRate;
   if (adrGrowth) { const pct = parsePct(adrGrowth); if (pct != null) vals.adrGrowth = entry({ display: adrGrowth, mid: pct }); }

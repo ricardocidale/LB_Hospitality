@@ -21,8 +21,11 @@ Provide comprehensive hospitality industry research covering market size, trends
 2. **Event Hospitality**: Wellness retreats, corporate events, yoga retreats, relationship/couples retreats market data
 3. **Financial Benchmarks**: ADR, occupancy, RevPAR trends for the asset type
 4. **Investment Returns**: Capitalization rates and investment return benchmarks
-5. **Debt Market**: Current hotel lending conditions for acquisitions
-6. **Emerging Trends**: New developments in experiential hospitality
+5. **Debt & Capital Markets**: Current hotel lending conditions, interest rate trends, and capital allocation for hospitality
+6. **Currency & FX**: Global exchange rate trends affecting cross-border travel and investment
+7. **ESG & Sustainability**: Regulatory requirements, green certifications, and sustainability-linked financing
+8. **Emerging Trends**: New developments in experiential hospitality
+9. **Regulatory Landscape**: Expanded view of zoning, hospitality taxes, and environmental regulations
 
 ## Output Schema
 
@@ -72,13 +75,30 @@ Provide comprehensive hospitality industry research covering market size, trends
       { "segment": "string", "range": "string", "trend": "string" }
     ]
   },
-  "debtMarket": {
-    "currentRates": "string",
-    "ltvRange": "string",
-    "terms": "string",
-    "outlook": "string"
+  "capitalMarkets": {
+    "debtMarket": {
+      "currentRates": "string",
+      "ltvRange": "string",
+      "terms": "string",
+      "outlook": "string"
+    },
+    "interestRateTrends": ["string"],
+    "equitySentiment": "string"
   },
-  "regulatoryEnvironment": ["string"],
+  "currencyAndFX": {
+    "majorPairs": [
+      { "pair": "string", "trend": "string", "impact": "string" }
+    ],
+    "crossBorderInvestment": "string"
+  },
+  "esgAndSustainability": {
+    "regulatoryRequirements": ["string"],
+    "certifications": ["string"],
+    "financingImpact": "string"
+  },
+  "regulatoryEnvironment": [
+    { "category": "string", "detail": "string", "impact": "string" }
+  ],
   "sources": ["string"]
 }
 ```

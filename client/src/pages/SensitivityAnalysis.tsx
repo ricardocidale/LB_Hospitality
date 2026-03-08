@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
-import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
+import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAULT_INFLATION_RATE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -44,9 +44,9 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     return [
       { id: "occupancy", label: "Max Occupancy", unit: "%", step: 1, range: [-20, 20], defaultValue: 0, description: "Adjust maximum occupancy rate up or down" },
       { id: "adrGrowth", label: "ADR Growth Rate", unit: "%", step: 0.5, range: [-5, 5], defaultValue: 0, description: "Adjust annual ADR growth rate" },
-      { id: "expenseGrowth", label: "Expense Escalation", unit: "%", step: 0.5, range: [-3, 5], defaultValue: 0, description: "Adjust fixed cost escalation rate" },
+      { id: "expenseGrowth", label: "Expense Escalation", unit: "%", step: 0.5, range: [-3, 5], defaultValue: 0, description: "Adjust fixed cost escalation rate (impacts properties using default inflation)" },
       { id: "exitCapRate", label: "Exit Cap Rate", unit: "%", step: 0.25, range: [-3, 3], defaultValue: 0, description: "Adjust exit cap rate (higher = lower value)" },
-      { id: "inflation", label: "Inflation Rate", unit: "%", step: 0.5, range: [-3, 5], defaultValue: 0, description: "Adjust general inflation rate" },
+      { id: "inflation", label: "Inflation Rate", unit: "%", step: 0.5, range: [-3, 5], defaultValue: 0, description: "Adjust general inflation rate (impacts properties using default inflation)" },
       { id: "interestRate", label: "Interest Rate", unit: "%", step: 0.25, range: [-3, 5], defaultValue: 0, description: "Adjust debt financing interest rate" },
     ];
   }, [global]);
@@ -86,7 +86,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           inflationRate: Math.max(0, global.inflationRate + (overrides.inflation ?? 0) / 100),
           fixedCostEscalationRate: Math.max(
             0,
-            (global.fixedCostEscalationRate ?? 0.03) + (overrides.expenseGrowth ?? 0) / 100
+            (global.fixedCostEscalationRate ?? DEFAULT_INFLATION_RATE) + (overrides.expenseGrowth ?? 0) / 100
           ),
         };
 

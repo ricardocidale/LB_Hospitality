@@ -25,3 +25,5 @@ export { default as MarcelaTab } from "./MarcelaTab";
 export { default as ServicesTab } from "./ServicesTab";
 export { default as MarketRatesTab } from "./MarketRatesTab";
 export { default as ResearchTab } from "./ResearchTab";
+export { default as AssetDefinitionTab } from "./AssetDefinitionTab";
+export { default as BrandingTab } from "./BrandingTab";

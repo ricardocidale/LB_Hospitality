@@ -31,6 +31,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["type", "Capital structure (Full Equity / Financed)", "— (required)", "text"],
             ["acquisitionDate", "Date property is acquired", "— (required)", "date"],
             ["operationsStartDate", "Date hotel operations begin", "— (required)", "date"],
+            ["inflationRate", "Per-property annual inflation override (null = global default)", "null", "%"],
           ]}
         />
         <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Capital Structure</h3>

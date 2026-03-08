@@ -291,12 +291,15 @@ export interface ResearchEventConfig {
   customInstructions: string;     // free-text context appended to the system prompt
   customQuestions: string;        // specific questions the LLM must address
   enabledTools: string[];         // subset of tool names; empty array = all tools enabled
+  refreshIntervalDays?: number;   // days before research is considered stale (default: 7)
 }
 
 export interface ResearchConfig {
   property?: Partial<ResearchEventConfig>;
   company?:  Partial<ResearchEventConfig>;
   global?:   Partial<ResearchEventConfig>;
+  preferredLlm?: string;
+  customSources?: { name: string; url?: string; category: string }[];
 }
 
 export const globalAssumptions = pgTable("global_assumptions", {
@@ -314,6 +317,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   fiscalYearStartMonth: integer("fiscal_year_start_month").notNull().default(1), // 1 = January, 4 = April, etc.
   inflationRate: real("inflation_rate").notNull(),
   fixedCostEscalationRate: real("fixed_cost_escalation_rate").notNull().default(DEFAULT_FIXED_COST_ESCALATION_RATE),
+
+  // Company-specific inflation rate (nullable — NULL means use global inflationRate)
+  companyInflationRate: real("company_inflation_rate"),
   
   // Revenue variables
   baseManagementFee: real("base_management_fee").notNull(),
@@ -411,7 +417,21 @@ export const globalAssumptions = pgTable("global_assumptions", {
   
   // AI Research Settings
   preferredLlm: text("preferred_llm").notNull().default("claude-sonnet-4-5"),
-  
+
+  // Management Company Contact & Identity
+  companyPhone: text("company_phone"),
+  companyEmail: text("company_email"),
+  companyWebsite: text("company_website"),
+  companyEin: text("company_ein"),
+  companyFoundingYear: integer("company_founding_year"),
+
+  // Management Company Location
+  companyStreetAddress: text("company_street_address"),
+  companyCity: text("company_city"),
+  companyStateProvince: text("company_state_province"),
+  companyCountry: text("company_country"),
+  companyZipPostalCode: text("company_zip_postal_code"),
+
   // Display Settings
   showCompanyCalculationDetails: boolean("show_company_calculation_details").notNull().default(true),
   showPropertyCalculationDetails: boolean("show_property_calculation_details").notNull().default(true),
@@ -732,6 +752,9 @@ export const properties = pgTable("properties", {
   
   // Tax Rate (for calculating after-tax free cash flow)
   taxRate: real("tax_rate").notNull().default(DEFAULT_TAX_RATE),
+
+  // Per-property inflation rate (nullable — NULL means use global default)
+  inflationRate: real("inflation_rate"),
   
   // Disposition (per-property sale commission)
   dispositionCommission: real("disposition_commission").notNull().default(DEFAULT_COMMISSION_RATE),

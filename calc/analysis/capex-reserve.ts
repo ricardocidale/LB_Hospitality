@@ -44,7 +44,7 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, sumArray } from "../shared/utils.js";
-import { DEFAULT_COST_RATE_FFE } from "../../shared/constants.js";
+import { DEFAULT_COST_RATE_FFE, DEFAULT_INFLATION_RATE } from "../../shared/constants.js";
 
 export interface CapexCategory {
   label: string;
@@ -108,10 +108,8 @@ export function computeCapexReserve(input: CapexReserveInput): CapexReserveOutpu
   const ratio = (v: number) => roundTo(v, RATIO_ROUNDING);
 
   const ffeRate = input.ffe_reserve_rate ?? DEFAULT_COST_RATE_FFE;
-  const DEFAULT_REVENUE_GROWTH = 0.03;
-  const DEFAULT_INFLATION = 0.03;
-  const revenueGrowth = input.revenue_growth_rate ?? DEFAULT_REVENUE_GROWTH;
-  const inflationRate = input.inflation_rate ?? DEFAULT_INFLATION;
+  const revenueGrowth = input.revenue_growth_rate ?? DEFAULT_INFLATION_RATE;
+  const inflationRate = input.inflation_rate ?? DEFAULT_INFLATION_RATE;
   const initialBalance = input.initial_reserve_balance ?? 0;
 
   const annual_reserve_amount = r(input.annual_revenue * ffeRate);

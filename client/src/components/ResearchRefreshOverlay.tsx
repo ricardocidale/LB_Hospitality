@@ -201,52 +201,51 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
 
   const refreshResearch = useCallback(async () => {
     try {
-      const res = await fetch("/api/properties", { credentials: "include" });
-      if (!res.ok) { onComplete(); return; }
-      const props = await res.json();
-      if (!props || props.length === 0) { onComplete(); return; }
+      // 1. Fetch Refresh Config & Properties
+      const [configRes, propRes] = await Promise.all([
+        fetch("/api/research/refresh-config", { credentials: "include" }),
+        fetch("/api/properties", { credentials: "include" }),
+      ]);
 
+      const config = configRes.ok ? await configRes.json() : {};
+      const props = propRes.ok ? await propRes.json() : [];
+      
+      const totalSteps = props.length + 2; // +1 for company, +1 for global
+      let completedSteps = 0;
       setTotalProperties(props.length);
       setPhase("researching");
 
-      for (let i = 0; i < props.length; i++) {
-        if (abortRef.current) break;
-        const prop = props[i];
-        setCurrentProperty(prop.name || `Property ${i + 1}`);
-        setProgress(Math.round(((i) / props.length) * 100));
-
+      const checkStale = async (type: "property" | "company" | "global", id?: number) => {
+        const url = id ? `/api/research/property?propertyId=${id}` : `/api/market-research?type=${type}`;
         try {
-          const checkRes = await fetch(`/api/research/property?propertyId=${prop.id}`, { credentials: "include" });
-          if (checkRes.ok) {
-            const existing = await checkRes.json();
+          const res = await fetch(url, { credentials: "include" });
+          if (res.ok) {
+            const existing = await res.json();
             if (existing && existing.updatedAt) {
               const isSeedData = existing.llmModel === "seed-data";
               if (!isSeedData) {
                 const age = Date.now() - new Date(existing.updatedAt).getTime();
-                const sevenDays = 7 * 24 * 60 * 60 * 1000;
-                if (age < sevenDays) {
-                  setCompletedCount(i + 1);
-                  continue;
-                }
+                const intervalDays = config[type]?.refreshIntervalDays ?? 7;
+                const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
+                return age >= intervalMs;
               }
             }
           }
-        } catch { /* property research fetch optional */ }
+        } catch { /* optional check */ }
+        return true;
+      };
 
+      const generate = async (type: "property" | "company" | "global", id?: number, context?: any) => {
         try {
-          const genRes = await fetch("/api/research/generate", {
+          const res = await fetch("/api/research/generate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({
-              type: "property",
-              propertyId: prop.id,
-              propertyContext: { name: prop.name, location: prop.location, market: prop.market, roomCount: prop.roomCount },
-            }),
+            body: JSON.stringify({ type, propertyId: id, propertyContext: context }),
           });
 
-          if (genRes.ok && genRes.headers.get("content-type")?.includes("text/event-stream")) {
-            const reader = genRes.body?.getReader();
+          if (res.ok && res.headers.get("content-type")?.includes("text/event-stream")) {
+            const reader = res.body?.getReader();
             if (reader) {
               const decoder = new TextDecoder();
               while (true) {
@@ -257,9 +256,45 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
               }
             }
           }
-        } catch { /* research generation stream optional */ }
+        } catch { /* optional gen */ }
+      };
 
+      // 2. Refresh Property Research
+      for (let i = 0; i < props.length; i++) {
+        if (abortRef.current) break;
+        const prop = props[i];
+        setCurrentProperty(prop.name || `Property ${i + 1}`);
+        setProgress(Math.round((completedSteps / totalSteps) * 100));
+
+        const isStale = await checkStale("property", prop.id);
+        if (isStale) {
+          await generate("property", prop.id, {
+            name: prop.name,
+            location: prop.location,
+            market: prop.market,
+            roomCount: prop.roomCount,
+          });
+        }
+        completedSteps++;
         setCompletedCount(i + 1);
+      }
+
+      // 3. Refresh Company Research
+      if (!abortRef.current) {
+        setCurrentProperty("Company Benchmarks");
+        setProgress(Math.round((completedSteps / totalSteps) * 100));
+        const isStale = await checkStale("company");
+        if (isStale) await generate("company");
+        completedSteps++;
+      }
+
+      // 4. Refresh Global Research
+      if (!abortRef.current) {
+        setCurrentProperty("Global Market Trends");
+        setProgress(Math.round((completedSteps / totalSteps) * 100));
+        const isStale = await checkStale("global");
+        if (isStale) await generate("global");
+        completedSteps++;
       }
 
       setProgress(100);

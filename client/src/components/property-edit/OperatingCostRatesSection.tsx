@@ -55,7 +55,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">
             Operating Cost Rates
-            <HelpTooltip text="Operating cost rates grouped by their calculation basis. Some costs are percentages of Room Revenue, others of Total Revenue. Fixed costs (Admin & General, Property Ops, IT) use a base Year 1 dollar amount that escalates annually with the Inflation Escalator Factor. Insurance and Property Taxes are based on property value (Purchase Price + Building Improvements) adjusted by inflation." />
+            <HelpTooltip text="Operating cost rates grouped by their calculation basis. Some costs are percentages of Room Revenue, others of Total Revenue. Fixed costs (Admin & General, Property Ops, IT) use a base Year 1 dollar amount that escalates annually with the Inflation Escalator Factor. Uses property inflation rate if set, otherwise the global default. Insurance and Property Taxes are based on property value (Purchase Price + Building Improvements) adjusted by inflation." />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Expense allocation as percentage of revenue</p>
         </div>
@@ -142,7 +142,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Admin & General<HelpTooltip text="Admin & General expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering management salaries, accounting, legal, HR, and office operations. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI A&G Department." /></Label>
+                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Admin & General<HelpTooltip text="Admin & General expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering management salaries, accounting, legal, HR, and office operations. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. Uses property inflation rate if set, otherwise the global default. USALI A&G Department." /></Label>
                         <ResearchBadge entry={researchValues.costAdmin} onClick={() => researchValues.costAdmin && onChange("costRateAdmin", researchValues.costAdmin.mid / 100)} />
                       </div>
                       <EditableValue
@@ -165,7 +165,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Property Ops<HelpTooltip text="Property Ops expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering engineering, repairs, grounds maintenance, and facilities. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. USALI POM Department." /></Label>
+                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Property Ops<HelpTooltip text="Property Ops expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost covering engineering, repairs, grounds maintenance, and facilities. The dollar amount is set in Year 1 and escalates annually with the Inflation Escalator Factor. Uses property inflation rate if set, otherwise the global default. USALI POM Department." /></Label>
                         <ResearchBadge entry={researchValues.costPropertyOps} onClick={() => researchValues.costPropertyOps && onChange("costRatePropertyOps", researchValues.costPropertyOps.mid / 100)} />
                       </div>
                       <EditableValue
@@ -253,7 +253,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Other<HelpTooltip text="Other expenses = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for miscellaneous operating expenses not categorized elsewhere. Escalates annually with the Inflation Escalator Factor." /></Label>
+                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Other<HelpTooltip text="Other expenses = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. A fixed cost for miscellaneous operating expenses not categorized elsewhere. Escalates annually with the Inflation Escalator Factor. Uses property inflation rate if set, otherwise the global default." /></Label>
                         <ResearchBadge entry={researchValues.costOther} onClick={() => researchValues.costOther && onChange("costRateOther", researchValues.costOther.mid / 100)} />
                       </div>
                       <EditableValue
@@ -299,7 +299,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-foreground flex items-center gap-1">IT<HelpTooltip text="IT expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. Covers property-level IT needs — WiFi, in-room tech, PMS, and basic support. Escalates annually with the Inflation Escalator Factor." /></Label>
+                        <Label className="text-sm label-text text-foreground flex items-center gap-1">IT<HelpTooltip text="IT expense = (Year 1 Total Revenue ÷ 12) × this rate × annual escalation factor. Covers property-level IT needs — WiFi, in-room tech, PMS, and basic support. Escalates annually with the Inflation Escalator Factor. Uses property inflation rate if set, otherwise the global default." /></Label>
                         <ResearchBadge entry={researchValues.costIT} onClick={() => researchValues.costIT && onChange("costRateIT", researchValues.costIT.mid / 100)} />
                       </div>
                       <EditableValue
@@ -329,7 +329,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Insurance<HelpTooltip text="Insurance expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers property liability, damage, workers' comp, and business interruption coverage. Escalates annually with the Inflation Escalator Factor." /><GaapBadge rule="GAAP Matching Principle: Insurance premiums are expensed as incurred over the policy period. Prepaid portions are recorded as current assets and amortized monthly. Not capitalizable into property basis." /></Label>
+                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Insurance<HelpTooltip text="Insurance expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers property liability, damage, workers' comp, and business interruption coverage. Escalates annually with the Inflation Escalator Factor. Uses property inflation rate if set, otherwise the global default." /><GaapBadge rule="GAAP Matching Principle: Insurance premiums are expensed as incurred over the policy period. Prepaid portions are recorded as current assets and amortized monthly. Not capitalizable into property basis." /></Label>
                         <ResearchBadge entry={researchValues.costInsurance} onClick={() => researchValues.costInsurance && onChange("costRateInsurance", researchValues.costInsurance.mid / 100)} />
                       </div>
                       <EditableValue
@@ -352,7 +352,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Property Taxes<HelpTooltip text="Property tax expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers real estate taxes and assessments. Escalates annually with the Inflation Escalator Factor." /><GaapBadge rule="IRC §164: Property taxes are fully deductible as an operating expense for income tax purposes. Based on assessed value, not market value. Reassessment may occur upon sale or significant improvement." /></Label>
+                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Property Taxes<HelpTooltip text="Property tax expense = (Purchase Price + Building Improvements) ÷ 12 × this rate × annual escalation factor. Based on total property value, not revenue. Covers real estate taxes and assessments. Escalates annually with the Inflation Escalator Factor. Uses property inflation rate if set, otherwise the global default." /><GaapBadge rule="IRC §164: Property taxes are fully deductible as an operating expense for income tax purposes. Based on assessed value, not market value. Reassessment may occur upon sale or significant improvement." /></Label>
                         <ResearchBadge entry={researchValues.costPropertyTaxes} onClick={() => researchValues.costPropertyTaxes && onChange("costRateTaxes", researchValues.costPropertyTaxes.mid / 100)} />
                       </div>
                       <EditableValue

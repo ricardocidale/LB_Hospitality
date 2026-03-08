@@ -6,9 +6,8 @@ import AdminSidebar, { type AdminSection, navGroups, getGroupForSection } from "
 import {
   UsersTab, CompaniesTab, ActivityTab, VerificationTab,
   UserGroupsTab, DatabaseTab, MarcelaTab, ServicesTab,
-  MarketRatesTab, ResearchTab
+  MarketRatesTab, ResearchTab, BrandingTab, AssetDefinitionTab
 } from "@/components/admin";
-import BrandingTab from "@/components/admin/BrandingTab";
 import ThemesTab from "@/components/admin/ThemesTab";
 import LogosTab from "@/components/admin/LogosTab";
 import NavigationTab from "@/components/admin/NavigationTab";
@@ -21,7 +20,8 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   users:        { title: "Users",          subtitle: "Manage user accounts, roles, and passwords" },
   groups:       { title: "User Groups",    subtitle: "Branded groups with shared themes, logos, and labels" },
   activity:     { title: "Activity",       subtitle: "Login logs, audit trail, and session monitoring" },
-  branding:     { title: "Branding",       subtitle: "Company name, logo, property labels, and asset descriptions" },
+  branding:     { title: "Management Company", subtitle: "Identity, contact details, and financial settings for the management entity" },
+  "asset-definition": { title: "Asset Definition", subtitle: "Define property labels, logos, and descriptions for AI research" },
   themes:       { title: "Themes",         subtitle: "Color palettes and visual styles for the platform" },
   logos:        { title: "Logos",           subtitle: "Upload, generate, and manage logo images" },
   navigation:   { title: "Navigation",     subtitle: "Control which sidebar pages are visible to users" },
@@ -40,6 +40,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "groups":       return <UserGroupsTab />;
     case "activity":     return <ActivityTab />;
     case "branding":     return <BrandingTab onNavigate={(tab: string) => { if (tab === "logos") onNavigate("logos"); else if (tab === "themes") onNavigate("themes"); else if (tab === "groups") onNavigate("groups"); }} />;
+    case "asset-definition": return <AssetDefinitionTab />;
     case "themes":       return <ThemesTab />;
     case "logos":        return <LogosTab />;
     case "navigation":   return <NavigationTab />;

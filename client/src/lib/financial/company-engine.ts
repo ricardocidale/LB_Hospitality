@@ -91,9 +91,10 @@ export function generateCompanyProForma(
       ? (currentYear - opsStartParsed.year) * 12 + (currentMonth - opsStartParsed.month)
       : 0;
     const companyOpsYear = Math.floor(monthsSinceCompanyOps / 12);
-    const fixedEscalationRate = global.fixedCostEscalationRate ?? global.inflationRate;
+    const companyInflation = global.companyInflationRate ?? global.inflationRate;
+    const fixedEscalationRate = global.fixedCostEscalationRate ?? companyInflation;
     const fixedCostFactor = Math.pow(1 + fixedEscalationRate, companyOpsYear);
-    const variableCostFactor = Math.pow(1 + global.inflationRate, companyOpsYear);
+    const variableCostFactor = Math.pow(1 + companyInflation, companyOpsYear);
     
     let totalPropertyRevenue = 0;
     let totalPropertyGOP = 0;

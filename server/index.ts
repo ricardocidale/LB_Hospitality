@@ -128,6 +128,9 @@ app.use((req, res, next) => {
   const { runMigration: runResearchConfig001 } = await import("./migrations/research-config-001");
   await runResearchConfig001();
 
+  const { runMigration: runInflationPerEntity001 } = await import("./migrations/inflation-per-entity-001");
+  await runInflationPerEntity001();
+
   await seedAdminUser();
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");

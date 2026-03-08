@@ -9,7 +9,7 @@ import {
 
 export type AdminSection =
   | "users" | "groups" | "activity"
-  | "branding" | "themes" | "logos" | "navigation"
+  | "branding" | "asset-definition" | "themes" | "logos" | "navigation"
   | "companies" | "services" | "market-rates" | "research"
   | "marcela"
   | "verification" | "database";
@@ -46,7 +46,8 @@ const navGroups: NavGroup[] = [
     icon: IconSwatchBook,
     description: "Look, feel & navigation",
     sections: [
-      { value: "branding", label: "Branding", icon: IconImage },
+      { value: "branding", label: "Management Company", icon: IconImage },
+      { value: "asset-definition", label: "Asset Definition", icon: IconProperties },
       { value: "themes", label: "Themes", icon: IconSwatchBook },
       { value: "logos", label: "Logos", icon: IconUpload },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },

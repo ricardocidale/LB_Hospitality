@@ -77,6 +77,7 @@ import { computeCapRateValuation } from "./research/cap-rate-valuation.js";
 import { computeCostBenchmarks } from "./research/cost-benchmarks.js";
 import { computeServiceFee } from "./research/service-fee.js";
 import { computeMarkupWaterfall } from "./research/markup-waterfall.js";
+import { computeMakeVsBuy } from "./research/make-vs-buy.js";
 
 type ToolInput = Record<string, unknown>;
 type ToolFn = (input: never) => unknown;
@@ -124,6 +125,7 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
   compute_cost_benchmarks: withRounding(computeCostBenchmarks as ToolFn),
   compute_service_fee: wrap(computeServiceFee as ToolFn),
   compute_markup_waterfall: wrap(computeMarkupWaterfall as ToolFn),
+  compute_make_vs_buy: withRounding(computeMakeVsBuy as ToolFn),
 };
 
 /**

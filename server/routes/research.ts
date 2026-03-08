@@ -24,10 +24,14 @@ export function register(app: Express) {
       const allResearch = await storage.getAllMarketResearch(req.user!.id);
       const allProperties = await storage.getAllProperties(req.user!.id);
 
-      const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-      const getStatus = (updatedAt: Date | null | undefined): "fresh" | "stale" | "missing" => {
+      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      const researchConfig = (ga?.researchConfig as ResearchConfig) ?? {};
+
+      const getStatus = (updatedAt: Date | null | undefined, type: 'property' | 'company' | 'global'): "fresh" | "stale" | "missing" => {
         if (!updatedAt) return "missing";
-        return Date.now() - new Date(updatedAt).getTime() < SEVEN_DAYS ? "fresh" : "stale";
+        const intervalDays = researchConfig[type]?.refreshIntervalDays ?? 7;
+        const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
+        return Date.now() - new Date(updatedAt).getTime() < intervalMs ? "fresh" : "stale";
       };
 
       // Property research status
@@ -48,7 +52,7 @@ export function register(app: Express) {
           name: p.name,
           location: p.location,
           imageUrl: p.imageUrl,
-          status: getStatus(r?.updatedAt),
+          status: getStatus(r?.updatedAt, "property"),
           updatedAt: r?.updatedAt?.toISOString() || null,
           llmModel: r?.llmModel || null,
         };
@@ -60,8 +64,8 @@ export function register(app: Express) {
 
       res.json({
         properties: propertyStatuses,
-        company: { status: getStatus(companyResearch?.updatedAt), updatedAt: companyResearch?.updatedAt?.toISOString() || null },
-        global: { status: getStatus(globalResearch?.updatedAt), updatedAt: globalResearch?.updatedAt?.toISOString() || null },
+        company: { status: getStatus(companyResearch?.updatedAt, "company"), updatedAt: companyResearch?.updatedAt?.toISOString() || null },
+        global: { status: getStatus(globalResearch?.updatedAt, "global"), updatedAt: globalResearch?.updatedAt?.toISOString() || null },
       });
     } catch (error) {
       logAndSendError(res, "Failed to fetch research status", error);
@@ -110,13 +114,14 @@ export function register(app: Express) {
       }
 
       const ga = await storage.getGlobalAssumptions(req.user!.id);
-      const model = ga?.preferredLlm || "claude-sonnet-4-20250514";
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
+      
       // Resolve admin-configured event config for this research type
       const researchConfig = (ga?.researchConfig as ResearchConfig) ?? {};
-      const rawEventConfig = researchConfig[type as keyof ResearchConfig];
-      const eventConfig: ResearchEventConfig = { ...DEFAULT_RESEARCH_EVENT_CONFIG, ...rawEventConfig };
+      const model = researchConfig.preferredLlm || ga?.preferredLlm || "claude-sonnet-4-20250514";
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+      const rawEventConfig = researchConfig[type as 'property' | 'company' | 'global'];
+      const eventConfig: ResearchEventConfig = { ...DEFAULT_RESEARCH_EVENT_CONFIG, ...(rawEventConfig ?? {}) };
 
       // If admin disabled this research type, block the request
       if (!eventConfig.enabled) {
@@ -211,6 +216,16 @@ export function register(app: Express) {
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to email PDF", error);
+    }
+  });
+
+  app.get("/api/research/refresh-config", requireAuth, async (req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions(req.user!.id);
+      if (!ga) return res.status(404).json({ error: "No global assumptions found" });
+      res.json((ga.researchConfig as ResearchConfig) ?? {});
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch research refresh config", error);
     }
   });
 

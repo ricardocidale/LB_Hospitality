@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Globe, Search, MessageSquare, Check, X, Pencil, Trash2, RefreshCw, Plus, Loader2 } from "lucide-react";
+import { DEFAULT_INFLATION_RATE } from "@shared/constants";
 import { SettingsTabProps } from "./types";
 
 interface IndustryResearchTabProps extends SettingsTabProps {
@@ -89,7 +90,7 @@ export function IndustryResearchTab({
             </div>
             <div className="rounded-xl p-3 bg-amber-50 border border-amber-200">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Inflation</p>
-              <p className="text-sm font-semibold text-foreground" data-testid="text-research-inflation">{((currentGlobal.inflationRate ?? 0.03) * 100).toFixed(1)}%</p>
+              <p className="text-sm font-semibold text-foreground" data-testid="text-research-inflation">{((currentGlobal.inflationRate ?? DEFAULT_INFLATION_RATE) * 100).toFixed(1)}%</p>
             </div>
             <div className="rounded-xl p-3 bg-amber-50 border border-amber-200">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Model Duration</p>

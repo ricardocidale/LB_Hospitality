@@ -1,6 +1,7 @@
 import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INFLATION_RATE,
 } from "@shared/constants";
 import type { CheckResult, CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, ClientPropertyMonthly } from "./types";
 import { check } from "./gaap-checks";
@@ -133,7 +134,8 @@ export function runCompanyChecks(
     if (hasStartedOps) {
       const monthsSinceOps = diffMonthsYM(currentYM, opsStartYM);
       const companyOpsYear = Math.floor(monthsSinceOps / 12);
-      const fixedEscRate = globalAssumptions.fixedCostEscalationRate ?? globalAssumptions.inflationRate ?? 0.03;
+      const companyInflation = globalAssumptions.companyInflationRate ?? globalAssumptions.inflationRate ?? DEFAULT_INFLATION_RATE;
+      const fixedEscRate = globalAssumptions.fixedCostEscalationRate ?? companyInflation;
       const fixedFactor = Math.pow(1 + fixedEscRate, companyOpsYear);
 
       const partnerCompByYear = [

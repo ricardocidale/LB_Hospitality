@@ -17,6 +17,9 @@ export const PROPERTY_RESEARCH_SKILLS = [
   "property-value-costs",
   "management-service-fees",
   "income-tax",
+  "local-economics",
+  "insurance-costs",
+  "marketing-costs",
 ];
 
 export const SKILL_FOLDER_MAP: Record<string, string | string[]> = {

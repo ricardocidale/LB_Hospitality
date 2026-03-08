@@ -1,12 +1,13 @@
 
   import { runIndependentVerification } from "./server/calculation-checker/index.ts";
+  import { DEFAULT_INFLATION_RATE } from "./shared/constants.ts";
 
   function makeGlobal(overrides = {}) {
     return {
       modelStartDate: "2026-01-01",
       projectionYears: 2,
-      inflationRate: 0.02,
-      fixedCostEscalationRate: 0.02,
+      inflationRate: DEFAULT_INFLATION_RATE,
+      fixedCostEscalationRate: DEFAULT_INFLATION_RATE,
       ...overrides,
     };
   }

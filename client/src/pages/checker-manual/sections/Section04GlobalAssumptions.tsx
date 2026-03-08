@@ -33,12 +33,14 @@ import { SectionCard } from "@/components/ui/section-card";
             ["fiscalYearStartMonth", "Month number when fiscal year begins (1=Jan)", "1", "count (1–12)", "Both"],
           ]}
         />
-        <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Inflation & Escalation</h3>
+        <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Inflation & Escalation (3-Tier Cascade)</h3>
+        <p className="text-xs text-muted-foreground mb-2">Inflation follows a hierarchical fallback: 1. Per-Property/Company rate → 2. Global company rate → 3. Global inflation rate.</p>
         <ManualTable
           headers={["Variable", "Description", "Default", "Unit", "Affects"]}
           rows={[
-            ["inflationRate", "Annual inflation rate for salaries and variable costs", "3%", "%", "Both"],
-            ["fixedCostEscalationRate", "Annual escalation for Mgmt Co. fixed overhead", "3%", "%", "Mgmt Co."],
+            ["inflationRate", "Global default annual inflation rate (base fallback)", "3%", "%", "Both"],
+            ["companyInflationRate", "Management Company specific inflation rate", "null", "%", "Mgmt Co."],
+            ["fixedCostEscalationRate", "Specific override for fixed overhead escalation", "null", "%", "Both"],
           ]}
         />
         <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Management Fees (Per-Property)</h3>

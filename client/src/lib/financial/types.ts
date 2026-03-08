@@ -45,6 +45,7 @@ export interface PropertyInput {
   acquisitionInterestRate?: number | null;
   acquisitionTermYears?: number | null;
   taxRate?: number | null;
+  inflationRate?: number | null;
   // Refinance
   willRefinance?: string | null;
   refinanceDate?: string | null;
@@ -93,6 +94,7 @@ export interface GlobalInput {
   companyOpsStartDate?: string;
   fiscalYearStartMonth?: number;
   inflationRate: number;
+  companyInflationRate?: number;
   fixedCostEscalationRate?: number;
   marketingRate: number;
   // Funding Instrument

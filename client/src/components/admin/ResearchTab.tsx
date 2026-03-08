@@ -498,7 +498,7 @@ export default function ResearchTab() {
           <div className="space-y-2 max-w-sm">
             <Label className="text-sm font-medium flex items-center gap-1">Preferred Model <HelpTooltip text="The AI model used for generating market research. Each model has different strengths for analysis." /></Label>
             <Select
-              value={draft.preferredLlm || "gpt-4o"}
+              value={draft.preferredLlm || "claude-sonnet-4-6"}
               onValueChange={(value) => {
                 setDraft(prev => ({ ...prev, preferredLlm: value }));
                 setIsDirty(true);
@@ -508,16 +508,18 @@ export default function ResearchTab() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="o3">OpenAI o3</SelectItem>
-                <SelectItem value="o4-mini">OpenAI o4-mini</SelectItem>
-                <SelectItem value="gpt-4.1">OpenAI GPT-4.1</SelectItem>
-                <SelectItem value="gpt-4.1-mini">OpenAI GPT-4.1 Mini</SelectItem>
-                <SelectItem value="gpt-4.1-nano">OpenAI GPT-4.1 Nano</SelectItem>
-                <SelectItem value="gpt-4o">OpenAI GPT-4o</SelectItem>
-                <SelectItem value="claude-sonnet-4">Claude Sonnet 4</SelectItem>
+                <SelectItem value="gpt-5.4">OpenAI GPT-5.4</SelectItem>
+                <SelectItem value="gpt-5.4-pro">OpenAI GPT-5.4 Pro</SelectItem>
+                <SelectItem value="gpt-5.3-chat-latest">OpenAI GPT-5.3 Instant</SelectItem>
+                <SelectItem value="gpt-5.2">OpenAI GPT-5.2</SelectItem>
+                <SelectItem value="o3-pro">OpenAI o3-pro</SelectItem>
+                <SelectItem value="o3-mini">OpenAI o3-mini</SelectItem>
+                <SelectItem value="claude-opus-4-6">Claude Opus 4.6</SelectItem>
+                <SelectItem value="claude-sonnet-4-6">Claude Sonnet 4.6</SelectItem>
                 <SelectItem value="claude-sonnet-4-5">Claude Sonnet 4.5</SelectItem>
-                <SelectItem value="claude-haiku-4">Claude Haiku 4</SelectItem>
-                <SelectItem value="gemini-2.5-pro">Gemini 2.5 Pro</SelectItem>
+                <SelectItem value="claude-haiku-4-5">Claude Haiku 4.5</SelectItem>
+                <SelectItem value="gemini-3.1-pro-preview">Gemini 3.1 Pro</SelectItem>
+                <SelectItem value="gemini-3-flash-preview">Gemini 3 Flash</SelectItem>
                 <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
               </SelectContent>
             </Select>

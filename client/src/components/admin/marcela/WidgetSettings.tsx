@@ -7,13 +7,10 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Save, Loader2, LayoutTemplate, Timer, ImageIcon, Phone, Mic,
-  MessageSquareText, Palette,
+  Save, Loader2, LayoutTemplate, Timer, ImageIcon,
+  MessageSquareText, Palette, Minimize2, Maximize2, Square,
 } from "lucide-react";
 import { VoiceSettings } from "./types";
-import { Orb } from "@/features/ai-agent/components/orb";
-import { BarVisualizer } from "@/features/ai-agent/components/bar-visualizer";
-import { Matrix } from "@/features/ai-agent/components/matrix";
 import { useSaveWidgetSettings } from "@/features/ai-agent/hooks/use-convai-api";
 
 interface WidgetSettingsProps {
@@ -22,20 +19,34 @@ interface WidgetSettingsProps {
 }
 
 const WIDGET_VARIANTS = [
-  { value: "elevenlabs", label: "ElevenLabs", desc: "Default embeddable widget", preview: "elevenlabs" },
-  { value: "compact", label: "Compact", desc: "Icon + label", preview: null },
-  { value: "full", label: "Full", desc: "Expanded panel", preview: null },
-  { value: "orb", label: "Orb", desc: "Animated 3D sphere", preview: "orb" },
-  { value: "bars", label: "Bars", desc: "Live frequency bars", preview: "bars" },
-  { value: "matrix", label: "Matrix", desc: "LED pixel grid", preview: "matrix" },
-  { value: "conversation-bar", label: "Voice Bar", desc: "Full voice + text input", preview: "conversation-bar" },
+  {
+    value: "compact",
+    label: "Compact",
+    desc: "Floating bubble with chat panel. Default.",
+    icon: Minimize2,
+    default: true,
+  },
+  {
+    value: "full",
+    label: "Full",
+    desc: "Always-visible expanded panel with voice & text.",
+    icon: Maximize2,
+    default: false,
+  },
+  {
+    value: "tiny",
+    label: "Tiny",
+    desc: "Minimal floating icon, expands on click.",
+    icon: Square,
+    default: false,
+  },
 ];
 
 export function WidgetSettingsComponent({ draft, updateField }: WidgetSettingsProps) {
   const saveWidgetSettings = useSaveWidgetSettings();
   const [avatarDraft, setAvatarDraft] = useState(draft.marcelaAvatarUrl ?? "");
   const [turnDraft, setTurnDraft] = useState(draft.marcelaTurnTimeout ?? 7);
-  const [variantDraft, setVariantDraft] = useState(draft.marcelaWidgetVariant ?? "elevenlabs");
+  const [variantDraft, setVariantDraft] = useState(draft.marcelaWidgetVariant ?? "compact");
   const [widgetDirty, setWidgetDirty] = useState(false);
 
   const handleSaveWidget = () => {
@@ -57,7 +68,7 @@ export function WidgetSettingsComponent({ draft, updateField }: WidgetSettingsPr
               <div>
                 <CardTitle className="text-sm font-semibold text-foreground">Widget Style</CardTitle>
                 <CardDescription className="label-text mt-0.5">
-                  Choose how the AI agent appears to users on the page.
+                  Choose how the AI agent appears to users. All variants use the native ElevenLabs widget with built-in voice/text, language menus, and feedback.
                 </CardDescription>
               </div>
             </div>
@@ -79,81 +90,34 @@ export function WidgetSettingsComponent({ draft, updateField }: WidgetSettingsPr
               <LayoutTemplate className="w-3.5 h-3.5" />
               Widget Variant
             </Label>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {WIDGET_VARIANTS.map((v) => (
-                <button
-                  key={v.value}
-                  type="button"
-                  onClick={() => { setVariantDraft(v.value); setWidgetDirty(true); }}
-                  data-testid={`widget-variant-${v.value}`}
-                  className={`p-3 rounded-xl border text-left transition-all ${variantDraft === v.value ? "border-primary bg-muted shadow-sm ring-1 ring-primary/30" : "border-muted-foreground/20 hover:border-border"}`}
-                >
-                  {v.preview === "elevenlabs" && (
-                    <ElevenLabsPreview />
-                  )}
-                  {v.preview === "orb" && (
-                    <div className="w-10 h-10 mb-2">
-                      <Orb colors={["#9fbca4", "#4a7c5c"]} agentState="thinking" seed={7} />
-                    </div>
-                  )}
-                  {v.preview === "bars" && (
-                    <div className="mb-2">
-                      <BarVisualizer
-                        state="speaking"
-                        barCount={8}
-                        demo={true}
-                        minHeight={20}
-                        maxHeight={100}
-                        centerAlign={true}
-                        className="h-10 bg-transparent rounded-lg p-0 gap-0.5"
-                      />
-                    </div>
-                  )}
-                  {v.preview === "matrix" && (
-                    <div className="mb-2">
-                      <Matrix
-                        rows={5}
-                        cols={8}
-                        mode="vu"
-                        levels={[0.3, 0.5, 0.7, 0.5, 0.3, 0.6, 0.4, 0.8]}
-                        size={6}
-                        gap={1}
-                        palette={{ on: "#4a7c5c", off: "#e8f0ea" }}
-                        className="rounded-lg overflow-hidden"
-                      />
-                    </div>
-                  )}
-                  {v.preview === "conversation-bar" && (
-                    <div className="mb-2 flex items-center gap-1.5 bg-muted/60 border border-border/60 rounded-full px-2.5 py-1.5 w-fit">
-                      <Phone className="w-3 h-3 text-muted-foreground/60" />
-                      <div className="flex items-end gap-0.5 h-3.5">
-                        {[0.4, 0.75, 1, 0.75, 0.4].map((h, idx) => (
-                          <div key={idx} className="w-0.5 bg-primary/40 rounded-full" style={{ height: `${h * 14}px` }} />
-                        ))}
+            <div className="grid grid-cols-3 gap-3">
+              {WIDGET_VARIANTS.map((v) => {
+                const Icon = v.icon;
+                return (
+                  <button
+                    key={v.value}
+                    type="button"
+                    onClick={() => { setVariantDraft(v.value); setWidgetDirty(true); }}
+                    data-testid={`widget-variant-${v.value}`}
+                    className={`p-4 rounded-xl border text-left transition-all ${variantDraft === v.value ? "border-primary bg-muted shadow-sm ring-1 ring-primary/30" : "border-muted-foreground/20 hover:border-border"}`}
+                  >
+                    <div className="mb-2 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-black to-gray-800 flex items-center justify-center shadow-sm">
+                        <Icon className="w-4 h-4 text-white" />
                       </div>
-                      <Mic className="w-3 h-3 text-muted-foreground/40" />
                     </div>
-                  )}
-                  <p className={`text-xs font-semibold ${variantDraft === v.value ? "text-primary" : "text-foreground"}`}>{v.label}</p>
-                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">{v.desc}</p>
-                  {v.value === "elevenlabs" && (
-                    <Badge variant="secondary" className="mt-1 text-[9px] px-1.5 py-0 h-4">Default</Badge>
-                  )}
-                </button>
-              ))}
+                    <p className={`text-xs font-semibold ${variantDraft === v.value ? "text-primary" : "text-foreground"}`}>{v.label}</p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-0.5">{v.desc}</p>
+                    {v.default && (
+                      <Badge variant="secondary" className="mt-1.5 text-[9px] px-1.5 py-0 h-4">Default</Badge>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-            {variantDraft === "elevenlabs" && (
-              <p className="text-[11px] text-muted-foreground/70 bg-blue-50/60 border border-blue-200/40 rounded-lg px-3 py-2">
-                Uses the standard ElevenLabs embeddable widget with built-in chat UI, voice/text toggle, and feedback collection. This is the same widget you would get from the ElevenLabs dashboard.
-              </p>
-            )}
-            {(variantDraft === "orb" || variantDraft === "bars" || variantDraft === "matrix" || variantDraft === "conversation-bar") && (
-              <p className="text-[11px] text-muted-foreground/70 bg-blue-50/60 border border-blue-200/40 rounded-lg px-3 py-2">
-                {variantDraft === "conversation-bar"
-                  ? "Voice Bar replaces the native widget with a full voice + text interface using the @elevenlabs/react SDK (WebRTC)."
-                  : "Custom component replaces the native ElevenLabs widget button. Users see the animated visual instead."}
-              </p>
-            )}
+            <p className="text-[11px] text-muted-foreground/70 bg-blue-50/60 border border-blue-200/40 rounded-lg px-3 py-2">
+              All variants use the native ElevenLabs widget with built-in chat UI, voice/text toggle, language menus, feedback collection, and markdown support.
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -224,16 +188,6 @@ export function WidgetSettingsComponent({ draft, updateField }: WidgetSettingsPr
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function ElevenLabsPreview() {
-  return (
-    <div className="mb-2 flex flex-col items-center">
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-black to-gray-800 flex items-center justify-center shadow-md">
-        <MessageSquareText className="w-5 h-5 text-white" />
-      </div>
     </div>
   );
 }

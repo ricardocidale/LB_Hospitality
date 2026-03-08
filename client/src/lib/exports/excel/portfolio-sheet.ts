@@ -1,4 +1,3 @@
-import * as XLSX from "xlsx";
 import {
   MonthlyFinancials,
   CompanyMonthlyFinancials,
@@ -17,7 +16,7 @@ import {
  * Download a Balance Sheet as Excel — either for a single property or the
  * consolidated portfolio.
  */
-export function exportPropertyBalanceSheet(
+export async function exportPropertyBalanceSheet(
   properties: LoanParams[],
   globalAssumptions: any,
   allProFormas: { property: LoanParams; data: MonthlyFinancials[] }[],
@@ -27,6 +26,7 @@ export function exportPropertyBalanceSheet(
   title: string,
   propertyIndex?: number
 ) {
+  const XLSX = await import("xlsx");
   const yearLabels: string[] = [];
   for (let y = 0; y < years; y++) {
     yearLabels.push(String(getFiscalYearForModelYear(modelStartDate, fiscalYearStartMonth, y)));
@@ -164,27 +164,28 @@ export function exportPropertyBalanceSheet(
     dataRows.push(row);
   }
 
-  const ws = XLSX.utils.aoa_to_sheet(dataRows);
+  const ws = (XLSX as any).utils.aoa_to_sheet(dataRows);
   setColumnWidths(ws, [30, ...yearLabels.map(() => 16)]);
-  applyCurrencyFormat(ws, dataRows);
-  applyHeaderStyle(ws, dataRows);
+  await applyCurrencyFormat(ws, dataRows);
+  await applyHeaderStyle(ws, dataRows);
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Balance Sheet");
+  const wb = (XLSX as any).utils.book_new();
+  (XLSX as any).utils.book_append_sheet(wb, ws, "Balance Sheet");
 
   const safeName = title.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
-  downloadWorkbook(wb, `${safeName} - Balance Sheet.xlsx`);
+  await downloadWorkbook(wb, `${safeName} - Balance Sheet.xlsx`);
 }
 
 /**
  * Download the Management Company Income Statement as Excel.
  */
-export function exportCompanyIncomeStatement(
+export async function exportCompanyIncomeStatement(
   data: CompanyMonthlyFinancials[],
   years: number,
   modelStartDate: string,
   fiscalYearStartMonth: number
 ) {
+  const XLSX = await import("xlsx");
   const yearLabels: string[] = [];
   const yearlyData: {
     label: string;
@@ -303,26 +304,27 @@ export function exportCompanyIncomeStatement(
     ["Cash Flow", ...yearlyData.map((y) => y.cashFlow)],
   );
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [35, ...yearLabels.map(() => 16)]);
-  applyCurrencyFormat(ws, rows);
-  applyHeaderStyle(ws, rows);
+  await applyCurrencyFormat(ws, rows);
+  await applyHeaderStyle(ws, rows);
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Company Income Statement");
+  const wb = (XLSX as any).utils.book_new();
+  (XLSX as any).utils.book_append_sheet(wb, ws, "Company Income Statement");
 
-  downloadWorkbook(wb, "Management Company - Income Statement.xlsx");
+  await downloadWorkbook(wb, "Management Company - Income Statement.xlsx");
 }
 
 /**
  * Download the Management Company Cash Flow Statement as Excel.
  */
-export function exportCompanyCashFlow(
+export async function exportCompanyCashFlow(
   data: CompanyMonthlyFinancials[],
   years: number,
   modelStartDate: string,
   fiscalYearStartMonth: number
 ) {
+  const XLSX = await import("xlsx");
   const yearLabels: string[] = [];
   const yearlyData: {
     label: string;
@@ -426,21 +428,21 @@ export function exportCompanyCashFlow(
     ["Closing Cash Balance", ...closingCash],
   );
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [45, ...yearLabels.map(() => 16)]);
-  applyCurrencyFormat(ws, rows);
-  applyHeaderStyle(ws, rows);
+  await applyCurrencyFormat(ws, rows);
+  await applyHeaderStyle(ws, rows);
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Company Cash Flow");
+  const wb = (XLSX as any).utils.book_new();
+  (XLSX as any).utils.book_append_sheet(wb, ws, "Company Cash Flow");
 
-  downloadWorkbook(wb, "Management Company - Cash Flow.xlsx");
+  await downloadWorkbook(wb, "Management Company - Cash Flow.xlsx");
 }
 
 /**
  * Download the Management Company Balance Sheet as Excel.
  */
-export function exportCompanyBalanceSheet(
+export async function exportCompanyBalanceSheet(
   data: CompanyMonthlyFinancials[],
   safeTranche1Amount: number,
   safeTranche2Amount: number,
@@ -448,6 +450,7 @@ export function exportCompanyBalanceSheet(
   fiscalYearStartMonth: number,
   years: number
 ) {
+  const XLSX = await import("xlsx");
   const cumulativeNetIncome = data.reduce((a, m) => a + m.netIncome, 0);
   const totalSafeFunding = safeTranche1Amount + safeTranche2Amount;
   const cashBalance = totalSafeFunding + cumulativeNetIncome;
@@ -481,13 +484,13 @@ export function exportCompanyBalanceSheet(
     ["TOTAL LIABILITIES + EQUITY", totalLiabilities + totalEquity],
   ];
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [35, 18]);
-  applyCurrencyFormat(ws, rows);
-  applyHeaderStyle(ws, rows);
+  await applyCurrencyFormat(ws, rows);
+  await applyHeaderStyle(ws, rows);
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Company Balance Sheet");
+  const wb = (XLSX as any).utils.book_new();
+  (XLSX as any).utils.book_append_sheet(wb, ws, "Company Balance Sheet");
 
-  downloadWorkbook(wb, "Management Company - Balance Sheet.xlsx");
+  await downloadWorkbook(wb, "Management Company - Balance Sheet.xlsx");
 }

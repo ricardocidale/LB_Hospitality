@@ -42,17 +42,15 @@ export interface IRRVectorInput {
   include_exit?: boolean;
 }
 
-export interface IRRVectorValidation {
-  has_negative: boolean;
-  has_positive: boolean;
-  has_exit: boolean;
-  sign_changes: number;
-  is_valid: boolean;
-}
-
 export interface IRRVectorOutput {
   cash_flow_vector: number[];
-  validation: IRRVectorValidation;
+  validation: {
+    has_negative: boolean;
+    has_positive: boolean;
+    has_exit: boolean;
+    sign_changes: number;
+    is_valid: boolean;
+  };
   warnings: string[];
 }
 

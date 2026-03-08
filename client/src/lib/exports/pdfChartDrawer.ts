@@ -13,8 +13,6 @@
  *   - Centered legend at the bottom
  *   - Customizable value formatter (defaults to "$X.XM")
  */
-import jsPDF from 'jspdf';
-
 interface ChartData {
   label: string;
   value: number;
@@ -27,7 +25,7 @@ interface ChartSeries {
 }
 
 interface DrawChartOptions {
-  doc: jsPDF;
+  doc: any;
   x: number;
   y: number;
   width: number;
@@ -43,7 +41,8 @@ interface DrawChartOptions {
  * dashed grid lines, colored data lines with dots, and a centered legend.
  */
 export function drawLineChart(options: DrawChartOptions): void {
-  const { doc, x, y, width, height, title, series, formatValue = (v) => `$${(v / 1000000).toFixed(1)}M` } = options;
+  const { doc: docAny, x, y, width, height, title, series, formatValue = (v) => `$${(v / 1000000).toFixed(1)}M` } = options;
+  const doc = docAny as any;
 
   doc.setFillColor(255, 255, 255);
   doc.rect(x, y, width, height, 'F');

@@ -135,99 +135,13 @@ export interface ScenarioResponse {
   updatedAt: string;
 }
 
-export interface ResearchAnalysisSection {
-  recommendedRange?: string;
-  recommendedBoostPercent?: string;
-  recommendedPercent?: string;
-  rampUpTimeline?: string;
-  [key: string]: string | undefined;
-}
-
-export interface OperatingCostCategoryResearch {
-  recommendedRate?: string;
-  industryRange?: string;
-  rationale?: string;
-  [key: string]: string | undefined;
-}
-
-export interface OperatingCostAnalysis {
-  roomRevenueBased?: {
-    housekeeping?: OperatingCostCategoryResearch;
-    fbCostOfSales?: OperatingCostCategoryResearch;
-  };
-  totalRevenueBased?: {
-    adminGeneral?: OperatingCostCategoryResearch;
-    propertyOps?: OperatingCostCategoryResearch;
-    utilities?: OperatingCostCategoryResearch;
-    ffeReserve?: OperatingCostCategoryResearch;
-    marketing?: OperatingCostCategoryResearch;
-    it?: OperatingCostCategoryResearch;
-    other?: OperatingCostCategoryResearch;
-  };
-  totalOperatingCostRatio?: string;
-  sources?: string[];
-  [key: string]: any;
-}
-
-export interface PropertyValueCostAnalysis {
-  insurance?: OperatingCostCategoryResearch & { coverageNotes?: string };
-  propertyTaxes?: OperatingCostCategoryResearch & { jurisdictionNotes?: string };
-  sources?: string[];
-  [key: string]: any;
-}
-
-export interface ManagementServiceFeeAnalysis {
-  serviceFeeCategories?: {
-    marketing?: OperatingCostCategoryResearch;
-    it?: OperatingCostCategoryResearch;
-    accounting?: OperatingCostCategoryResearch;
-    reservations?: OperatingCostCategoryResearch;
-    generalManagement?: OperatingCostCategoryResearch;
-  };
-  incentiveFee?: OperatingCostCategoryResearch & { basis?: string };
-  totalServiceFeeRate?: string;
-  sources?: string[];
-  [key: string]: any;
-}
-
-export interface IncomeTaxAnalysis {
-  recommendedRate?: string;
-  rateBreakdown?: {
-    federal?: string;
-    state?: string;
-    local?: string;
-  };
-  effectiveRange?: string;
-  entityNotes?: string;
-  jurisdictionNotes?: string;
-  rationale?: string;
-  sources?: string[];
-  [key: string]: any;
-}
-
-export interface MarketResearchContent {
-  adrAnalysis?: ResearchAnalysisSection;
-  capRateAnalysis?: ResearchAnalysisSection;
-  cateringAnalysis?: ResearchAnalysisSection;
-  landValueAllocation?: ResearchAnalysisSection;
-  occupancyAnalysis?: ResearchAnalysisSection;
-  compensationAnalysis?: ResearchAnalysisSection;
-  staffingAnalysis?: ResearchAnalysisSection;
-  overheadAnalysis?: ResearchAnalysisSection;
-  operatingCostAnalysis?: OperatingCostAnalysis;
-  propertyValueCostAnalysis?: PropertyValueCostAnalysis;
-  managementServiceFeeAnalysis?: ManagementServiceFeeAnalysis;
-  incomeTaxAnalysis?: IncomeTaxAnalysis;
-  [key: string]: any;
-}
-
 export interface MarketResearchResponse {
   id: number;
   userId: number | null;
   type: string;
   propertyId: number | null;
   title: string;
-  content: MarketResearchContent;
+  content: any;
   llmModel: string | null;
   createdAt: string;
   updatedAt: string;

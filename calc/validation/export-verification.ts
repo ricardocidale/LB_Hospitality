@@ -49,30 +49,26 @@ export interface ExportVerificationInput {
   actual_property_count?: number;
 }
 
-export interface ExportCheck {
-  check: string;
-  passed: boolean;
-  details: string;
-}
-
-export interface ValueMismatch {
-  label: string;
-  expected: number;
-  actual: number;
-  variance: number;
-}
-
 export interface ExportVerificationOutput {
   all_passed: boolean;
-  checks: ExportCheck[];
+  checks: Array<{
+    check: string;
+    passed: boolean;
+    details: string;
+  }>;
   missing_sections: string[];
-  value_mismatches: ValueMismatch[];
+  value_mismatches: Array<{
+    label: string;
+    expected: number;
+    actual: number;
+    variance: number;
+  }>;
 }
 
 export function verifyExport(input: ExportVerificationInput): ExportVerificationOutput {
-  const checks: ExportCheck[] = [];
+  const checks: Array<{ check: string; passed: boolean; details: string }> = [];
   const missing_sections: string[] = [];
-  const value_mismatches: ValueMismatch[] = [];
+  const value_mismatches: Array<{ label: string; expected: number; actual: number; variance: number }> = [];
 
   checks.push({
     check: "Export Format Valid",

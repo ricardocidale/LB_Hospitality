@@ -1,9 +1,6 @@
 import { formatMoney } from "@/lib/financialEngine";
 import { format } from "date-fns";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
-import * as XLSX from "xlsx";
 import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
@@ -223,12 +220,13 @@ export function generatePortfolioInvestmentData(
   return { years, rows };
 }
 
-export function exportPortfolioExcel(
+export async function exportPortfolioExcel(
   years: number[],
   incomeRows: ExportRow[],
   cashFlowRows: ExportRow[]
-): void {
-  const wb = XLSX.utils.book_new();
+): Promise<void> {
+  const XLSX = await import("xlsx");
+  const wb = (XLSX as any).utils.book_new();
 
   const incomeWsData = [
     ["Income Statement", ...years.map(String)],
@@ -237,10 +235,10 @@ export function exportPortfolioExcel(
       ...row.values,
     ]),
   ];
-  const incomeWs = XLSX.utils.aoa_to_sheet(incomeWsData);
+  const incomeWs = (XLSX as any).utils.aoa_to_sheet(incomeWsData);
   incomeWs["!cols"] = [{ wch: 38 }, ...years.map(() => ({ wch: 16 }))];
-  applyPortfolioExcelFormat(incomeWs, incomeWsData);
-  XLSX.utils.book_append_sheet(wb, incomeWs, "Income Statement");
+  await applyPortfolioExcelFormat(incomeWs, incomeWsData);
+  (XLSX as any).utils.book_append_sheet(wb, incomeWs, "Income Statement");
 
   const cfWsData = [
     ["Cash Flow", ...years.map(String)],
@@ -249,19 +247,20 @@ export function exportPortfolioExcel(
       ...row.values,
     ]),
   ];
-  const cfWs = XLSX.utils.aoa_to_sheet(cfWsData);
+  const cfWs = (XLSX as any).utils.aoa_to_sheet(cfWsData);
   cfWs["!cols"] = [{ wch: 38 }, ...years.map(() => ({ wch: 16 }))];
-  applyPortfolioExcelFormat(cfWs, cfWsData);
-  XLSX.utils.book_append_sheet(wb, cfWs, "Cash Flow");
+  await applyPortfolioExcelFormat(cfWs, cfWsData);
+  (XLSX as any).utils.book_append_sheet(wb, cfWs, "Cash Flow");
 
-  XLSX.writeFile(wb, "Portfolio - Financial Statements.xlsx");
+  (XLSX as any).writeFile(wb, "Portfolio - Financial Statements.xlsx");
 }
 
-function applyPortfolioExcelFormat(ws: XLSX.WorkSheet, rows: (string | number)[][]): void {
+async function applyPortfolioExcelFormat(ws: any, rows: (string | number)[][]): Promise<void> {
+  const XLSX = await import("xlsx");
   const currencyFormat = "#,##0";
   for (let r = 0; r < rows.length; r++) {
     for (let c = 1; c < rows[r].length; c++) {
-      const cellRef = XLSX.utils.encode_cell({ r, c });
+      const cellRef = (XLSX as any).utils.encode_cell({ r, c });
       const cell = ws[cellRef];
       if (cell && typeof cell.v === "number") {
         cell.z = currencyFormat;
@@ -271,7 +270,7 @@ function applyPortfolioExcelFormat(ws: XLSX.WorkSheet, rows: (string | number)[]
     const isSection = !label.startsWith(" ") && label.length > 2;
     if (isSection) {
       for (let c = 0; c < rows[r].length; c++) {
-        const cellRef = XLSX.utils.encode_cell({ r, c });
+        const cellRef = (XLSX as any).utils.encode_cell({ r, c });
         const cell = ws[cellRef];
         if (cell) {
           if (!cell.s) cell.s = {};
@@ -298,14 +297,16 @@ export function exportPortfolioCSV(
   downloadCSV(csvContent, filename);
 }
 
-export function exportPortfolioPDF(
+export async function exportPortfolioPDF(
   orientation: "landscape" | "portrait",
   projectionYears: number,
   years: number[],
   rows: ExportRow[],
   getYearlyConsolidated: (i: number) => YearlyPropertyFinancials,
   title: string
-): void {
+): Promise<void> {
+  const jsPDF = (await import("jspdf")).default;
+  const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
 
   doc.setFontSize(18);
@@ -379,7 +380,7 @@ export function exportPortfolioPDF(
 export const dashboardExports = {
   generatePortfolioIncomeData,
 
-  exportToPDF: ({
+  exportToPDF: async ({
     propertyName,
     projectionYears,
     years,
@@ -394,26 +395,27 @@ export const dashboardExports = {
     getYearlyConsolidated: (i: number) => any;
     title?: string;
   }) => {
-    exportPortfolioPDF("landscape", projectionYears, years, rows, getYearlyConsolidated, title);
+    await exportPortfolioPDF("landscape", projectionYears, years, rows, getYearlyConsolidated, title);
   },
 
   exportToCSV: (years: number[], rows: ExportRow[], filename = "portfolio-income-statement.csv") => {
     exportPortfolioCSV(years, rows, filename);
   },
 
-  exportToExcel: (years: number[], rows: ExportRow[], filename = "portfolio-income-statement.xlsx", sheetName = "Income Statement") => {
-    const wb = XLSX.utils.book_new();
+  exportToExcel: async (years: number[], rows: ExportRow[], filename = "portfolio-income-statement.xlsx", sheetName = "Income Statement") => {
+    const XLSX = await import("xlsx");
+    const wb = (XLSX as any).utils.book_new();
     const wsData = [
       ["Category", ...years.map(String)],
       ...rows.map(row => [row.category, ...row.values]),
     ];
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
-    XLSX.writeFile(wb, filename);
+    const ws = (XLSX as any).utils.aoa_to_sheet(wsData);
+    (XLSX as any).utils.book_append_sheet(wb, ws, sheetName);
+    (XLSX as any).writeFile(wb, filename);
   },
 
-  exportToPPTX: (data: any) => {
-    originalExportPortfolioPPTX(data);
+  exportToPPTX: async (data: any) => {
+    await originalExportPortfolioPPTX(data);
   },
 
   exportToPNG: (ref: React.RefObject<HTMLElement>, filename = "portfolio-income-statement.png") => {

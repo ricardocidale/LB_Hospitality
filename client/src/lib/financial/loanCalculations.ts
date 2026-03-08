@@ -72,7 +72,7 @@ export interface LoanCalculation {
   commissionRate: number;
 }
 
-export interface RefinanceCalculation {
+interface RefinanceCalculation {
   refiYear: number;
   refiProceeds: number;
   refiLoanAmount: number;
@@ -81,12 +81,6 @@ export interface RefinanceCalculation {
   refiTermYears: number;
   refiMonthlyRate: number;
   refiTotalPayments: number;
-}
-
-export interface YearlyDebtService {
-  debtService: number;
-  interestExpense: number;
-  principalPayment: number;
 }
 
 import { startOfMonth } from "date-fns";
@@ -332,6 +326,12 @@ export function getOutstandingDebtAtYear(
     return getRefiOutstandingBalance(refi, year);
   }
   return getAcquisitionOutstandingBalance(loan, year);
+}
+
+export interface YearlyDebtService {
+  debtService: number;
+  interestExpense: number;
+  principalPayment: number;
 }
 
 /**

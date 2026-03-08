@@ -9,22 +9,8 @@ import {
 } from "./types";
 import { invalidateAllFinancialQueries } from "./properties";
 
-export interface ResearchStatusResponse {
-  properties: Array<{
-    propertyId: number;
-    name: string;
-    location: string;
-    imageUrl: string | null;
-    status: "fresh" | "stale" | "missing";
-    updatedAt: string | null;
-    llmModel: string | null;
-  }>;
-  company: { status: "fresh" | "stale" | "missing"; updatedAt: string | null };
-  global: { status: "fresh" | "stale" | "missing"; updatedAt: string | null };
-}
-
 export function useResearchStatus() {
-  return useQuery<ResearchStatusResponse>({
+  return useQuery<any>({
     queryKey: ["research", "status"],
     queryFn: async () => {
       const res = await fetch("/api/research/status");

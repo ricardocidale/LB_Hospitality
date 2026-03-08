@@ -99,7 +99,7 @@ export default function ResearchHub() {
     if (!properties || !researchStatus) return;
 
     const missingProps = researchStatus.properties.filter(
-      (p) => p.status === "missing"
+      (p: any) => p.status === "missing"
     );
     if (missingProps.length === 0) return;
 
@@ -199,9 +199,9 @@ export default function ResearchHub() {
   const companyStatus = researchStatus?.company ?? { status: "missing" as const, updatedAt: null };
   const globalStatus = researchStatus?.global ?? { status: "missing" as const, updatedAt: null };
 
-  const freshCount = propertyStatuses.filter((p) => p.status === "fresh").length;
-  const staleCount = propertyStatuses.filter((p) => p.status === "stale").length;
-  const missingCount = propertyStatuses.filter((p) => p.status === "missing").length;
+  const freshCount = propertyStatuses.filter((p: any) => p.status === "fresh").length;
+  const staleCount = propertyStatuses.filter((p: any) => p.status === "stale").length;
+  const missingCount = propertyStatuses.filter((p: any) => p.status === "missing").length;
 
   return (
     <Layout>
@@ -411,7 +411,7 @@ export default function ResearchHub() {
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {propertyStatuses.map((prop, index) => (
+              {propertyStatuses.map((prop: any, index: number) => (
                 <motion.div
                   key={prop.propertyId}
                   custom={index + 3}

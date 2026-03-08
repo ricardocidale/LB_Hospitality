@@ -52,34 +52,16 @@ export interface ScenarioMetrics {
   exit_value?: number;
 }
 
-export interface AssumptionChange {
-  field: string;
-  baseline_value: string;
-  alternative_value: string;
-}
-
 export interface ScenarioCompareInput {
   baseline_label: string;
   alternative_label: string;
-  assumption_changes?: AssumptionChange[];
+  assumption_changes?: Array<{
+    field: string;
+    baseline_value: string;
+    alternative_value: string;
+  }>;
   baseline_metrics: ScenarioMetrics;
   alternative_metrics: ScenarioMetrics;
-}
-
-export interface YearlyDelta {
-  year: number;
-  revenue_delta: number;
-  gop_delta?: number;
-  agop_delta?: number;
-  noi_delta: number;
-  anoi_delta?: number;
-  net_income_delta: number;
-  cash_delta: number;
-}
-
-export interface SensitivityRanking {
-  assumption: string;
-  impact_on_irr_bps: number;
 }
 
 export interface ScenarioCompareOutput {
@@ -91,9 +73,21 @@ export interface ScenarioCompareOutput {
     cumulative_noi_pct_change: number;
     exit_value_delta: number;
   };
-  yearly_deltas: YearlyDelta[];
+  yearly_deltas: Array<{
+    year: number;
+    revenue_delta: number;
+    gop_delta?: number;
+    agop_delta?: number;
+    noi_delta: number;
+    anoi_delta?: number;
+    net_income_delta: number;
+    cash_delta: number;
+  }>;
   risk_flags: string[];
-  sensitivity_ranking: SensitivityRanking[];
+  sensitivity_ranking: Array<{
+    assumption: string;
+    impact_on_irr_bps: number;
+  }>;
 }
 
 export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOutput {
@@ -116,7 +110,10 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
   const cumulative_noi_pct_change = pctChange(baseNOI, altNOI);
 
   const years = Math.max(b.noi.length, a.noi.length);
-  const yearly_deltas: YearlyDelta[] = [];
+  const yearly_deltas: Array<{
+    year: number; revenue_delta: number; gop_delta: number; agop_delta: number;
+    noi_delta: number; anoi_delta: number; net_income_delta: number; cash_delta: number;
+  }> = [];
   const risk_flags: string[] = [];
 
   for (let y = 0; y < years; y++) {
@@ -153,7 +150,7 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
 
   if (irr_delta < -200) risk_flags.push(`IRR decreased by ${Math.abs(irr_delta)} bps — significant downside risk`);
 
-  const sensitivity_ranking: SensitivityRanking[] = [];
+  const sensitivity_ranking: Array<{ assumption: string; impact_on_irr_bps: number }> = [];
   if (input.assumption_changes && input.assumption_changes.length > 0) {
     const perAssumptionImpact = Math.abs(irr_delta) / input.assumption_changes.length;
     for (const change of input.assumption_changes) {

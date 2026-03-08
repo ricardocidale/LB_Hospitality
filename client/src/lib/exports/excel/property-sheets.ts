@@ -1,4 +1,3 @@
-import * as XLSX from "xlsx";
 import {
   MonthlyFinancials,
   CompanyMonthlyFinancials,
@@ -84,32 +83,33 @@ export function buildPropertyISRows(yearly: YearlyAggregation[]): (string | numb
 /**
  * Download a single-property Income Statement as an Excel file.
  */
-export function exportPropertyIncomeStatement(
+export async function exportPropertyIncomeStatement(
   data: MonthlyFinancials[],
   propertyName: string,
   years: number,
   modelStartDate: string,
   fiscalYearStartMonth: number
 ) {
+  const XLSX = await import("xlsx");
   const yearly = aggregateByYear(data, years, modelStartDate, fiscalYearStartMonth);
   const rows = buildPropertyISRows(yearly);
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [30, ...yearly.map(() => 16)]);
-  applyCurrencyFormat(ws, rows);
-  applyHeaderStyle(ws, rows);
+  await applyCurrencyFormat(ws, rows);
+  await applyHeaderStyle(ws, rows);
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Income Statement");
+  const wb = (XLSX as any).utils.book_new();
+  (XLSX as any).utils.book_append_sheet(wb, ws, "Income Statement");
 
   const safeName = propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
-  downloadWorkbook(wb, `${safeName} - Income Statement.xlsx`);
+  await downloadWorkbook(wb, `${safeName} - Income Statement.xlsx`);
 }
 
 /**
  * Download a single-property Cash Flow Statement (ASC 230 format) as Excel.
  */
-export function exportPropertyCashFlow(
+export async function exportPropertyCashFlow(
   data: MonthlyFinancials[],
   property: LoanParams,
   global: GlobalLoanParams | undefined,
@@ -118,6 +118,7 @@ export function exportPropertyCashFlow(
   modelStartDate: string,
   fiscalYearStartMonth: number
 ) {
+  const XLSX = await import("xlsx");
   const yearly = aggregateByYear(data, years, modelStartDate, fiscalYearStartMonth);
   const cfData = aggregateCashFlowByYear(data, property, global, years);
   const loan = calculateLoanParams(property, global);
@@ -181,22 +182,22 @@ export function exportPropertyCashFlow(
     ["  Free Cash Flow to Equity (FCFE)", ...s.fcfe],
   ];
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [38, ...yearly.map(() => 16)]);
-  applyCurrencyFormat(ws, rows);
-  applyHeaderStyle(ws, rows);
+  await applyCurrencyFormat(ws, rows);
+  await applyHeaderStyle(ws, rows);
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Cash Flow");
+  const wb = (XLSX as any).utils.book_new();
+  (XLSX as any).utils.book_append_sheet(wb, ws, "Cash Flow");
 
   const safeName = propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
-  downloadWorkbook(wb, `${safeName} - Cash Flow.xlsx`);
+  await downloadWorkbook(wb, `${safeName} - Cash Flow.xlsx`);
 }
 
 /**
  * Download a multi-sheet Excel workbook for a single property.
  */
-export function exportFullPropertyWorkbook(
+export async function exportFullPropertyWorkbook(
   data: MonthlyFinancials[],
   property: LoanParams,
   properties: LoanParams[],
@@ -209,22 +210,23 @@ export function exportFullPropertyWorkbook(
   fiscalYearStartMonth: number,
   propertyIndex: number
 ) {
+  const XLSX = await import("xlsx");
   const yearly = aggregateByYear(data, years, modelStartDate, fiscalYearStartMonth);
   const cfData = aggregateCashFlowByYear(data, property, global, years);
   const loan = calculateLoanParams(property, global);
   const acquisitionYear = getAcquisitionYear(loan);
   const totalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
 
-  const wb = XLSX.utils.book_new();
+  const wb = (XLSX as any).utils.book_new();
   const safeName = propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
 
   // Income Statement sheet — uses shared row builder
   const isRows = buildPropertyISRows(yearly);
-  const isWs = XLSX.utils.aoa_to_sheet(isRows);
+  const isWs = (XLSX as any).utils.aoa_to_sheet(isRows);
   setColumnWidths(isWs, [30, ...yearly.map(() => 16)]);
-  applyCurrencyFormat(isWs, isRows);
-  applyHeaderStyle(isWs, isRows);
-  XLSX.utils.book_append_sheet(wb, isWs, "Income Statement");
+  await applyCurrencyFormat(isWs, isRows);
+  await applyHeaderStyle(isWs, isRows);
+  (XLSX as any).utils.book_append_sheet(wb, isWs, "Income Statement");
 
   // Cash Flow sheet — uses shared CF sections computation
   const s = computeCashFlowSections(yearly, cfData, loan, acquisitionYear, totalPropertyCost, years);
@@ -256,11 +258,11 @@ export function exportFullPropertyWorkbook(
     ["Opening Cash Balance", ...s.openingCash],
     ["Closing Cash Balance", ...s.closingCash],
   ];
-  const cfWs = XLSX.utils.aoa_to_sheet(cfRows);
+  const cfWs = (XLSX as any).utils.aoa_to_sheet(cfRows);
   setColumnWidths(cfWs, [38, ...yearly.map(() => 16)]);
-  applyCurrencyFormat(cfWs, cfRows);
-  applyHeaderStyle(cfWs, cfRows);
-  XLSX.utils.book_append_sheet(wb, cfWs, "Cash Flow");
+  await applyCurrencyFormat(cfWs, cfRows);
+  await applyHeaderStyle(cfWs, cfRows);
+  (XLSX as any).utils.book_append_sheet(wb, cfWs, "Cash Flow");
 
-  downloadWorkbook(wb, `${safeName} - Full Workbook.xlsx`);
+  await downloadWorkbook(wb, `${safeName} - Full Workbook.xlsx`);
 }

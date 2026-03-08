@@ -49,18 +49,6 @@ export function variance(a: number, b: number): number {
   return Math.abs(a - b);
 }
 
-export function countBySeverity<T extends { severity: string }>(
-  items: T[],
-  predicate?: (item: T) => boolean,
-): Record<string, number> {
-  const filtered = predicate ? items.filter(predicate) : items;
-  const counts: Record<string, number> = {};
-  for (const item of filtered) {
-    counts[item.severity] = (counts[item.severity] ?? 0) + 1;
-  }
-  return counts;
-}
-
 export function pctChange(baseline: number, alternative: number): number {
   if (baseline === 0) return 0;
   return roundCents(((alternative - baseline) / baseline) * 100);

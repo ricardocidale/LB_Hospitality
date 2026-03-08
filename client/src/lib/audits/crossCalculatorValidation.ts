@@ -1,15 +1,16 @@
 import type { MonthlyFinancials } from '../financialEngine';
 import { pmt } from '@calc/shared/pmt';
 import {
-  DEFAULT_LTV,
-  DEFAULT_INTEREST_RATE,
-  DEFAULT_TERM_YEARS,
   DEFAULT_LAND_VALUE_PERCENT,
-  DEPRECIATION_YEARS,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_COST_RATE_FFE,
-} from '../constants';
+} from '@shared/constants';
+
+const DEFAULT_LTV = 0.75;
+const DEFAULT_INTEREST_RATE = 0.07;
+const DEFAULT_TERM_YEARS = 30;
+const DEPRECIATION_YEARS = 27.5;
 
 export interface CrossValidationResult {
   name: string;

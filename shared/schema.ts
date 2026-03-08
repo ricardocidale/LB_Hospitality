@@ -166,7 +166,10 @@ export const userGroups = pgTable("user_groups", {
   assetDescriptionId: integer("asset_description_id"),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("user_groups_logo_id_idx").on(table.logoId),
+  index("user_groups_theme_id_idx").on(table.themeId),
+]);
 
 export const insertUserGroupSchema = z.object({
   name: z.string().min(1),
@@ -211,7 +214,10 @@ export const users = pgTable("users", {
   hideTourPrompt: boolean("hide_tour_prompt").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("users_company_id_idx").on(table.companyId),
+  index("users_user_group_id_idx").on(table.userGroupId),
+]);
 
 export const VALID_USER_ROLES = ["admin", "partner", "checker", "investor"] as const;
 export type UserRole = typeof VALID_USER_ROLES[number];

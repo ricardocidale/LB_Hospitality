@@ -15,7 +15,6 @@
  * Color palette follows the brand guidelines (sage green,
  * dark green, warm neutrals).
  */
-import pptxgen from "pptxgenjs";
 import { format } from "date-fns";
 
 const SAGE = "9FBCA4";
@@ -33,10 +32,11 @@ interface SlideTableRow {
 }
 
 /** Create a dark-background title slide with brand name, report title, and date. */
-function addTitleSlide(pres: pptxgen, title: string, subtitle: string, companyName: string) {
+function addTitleSlide(pres: any, title: string, subtitle: string, companyName: string) {
+  const pptxgen = (pres as any).constructor;
   const slide = pres.addSlide();
   slide.background = { color: "1a2a3a" };
-  slide.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: SAGE } });
+  slide.addShape(pptxgen.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: SAGE } });
   slide.addText(companyName, {
     x: 0.5, y: 1.5, w: 9, h: 0.6,
     fontSize: 28, fontFace: "Arial", color: SAGE, bold: true,
@@ -59,13 +59,14 @@ function addTitleSlide(pres: pptxgen, title: string, subtitle: string, companyNa
  * Create a slide showing KPI metric cards in a 3-column grid layout.
  * Each card displays a large formatted value with a descriptive label below it.
  */
-function addMetricsSlide(pres: pptxgen, title: string, metrics: { label: string; value: string }[]) {
+function addMetricsSlide(pres: any, title: string, metrics: { label: string; value: string }[]) {
+  const pptxgen = (pres as any).constructor;
   const slide = pres.addSlide();
   slide.addText(title, {
     x: 0.5, y: 0.3, w: 9, h: 0.5,
     fontSize: 20, fontFace: "Arial", color: DARK_GREEN, bold: true,
   });
-  slide.addShape(pres.ShapeType.rect, { x: 0.5, y: 0.85, w: 9, h: 0.02, fill: { color: SAGE } });
+  slide.addShape(pptxgen.ShapeType.rect, { x: 0.5, y: 0.85, w: 9, h: 0.02, fill: { color: SAGE } });
 
   const cols = 3;
   const cardW = 2.8;
@@ -80,7 +81,7 @@ function addMetricsSlide(pres: pptxgen, title: string, metrics: { label: string;
     const x = startX + col * (cardW + gapX);
     const y = startY + row * (cardH + 0.15);
 
-    slide.addShape(pres.ShapeType.rect, {
+    slide.addShape(pptxgen.ShapeType.rect, {
       x, y, w: cardW, h: cardH,
       fill: { color: "F5F9F6" },
       line: { color: SAGE, width: 1 },
@@ -117,12 +118,13 @@ function formatVal(v: string | number): string {
  * get a tinted background; total rows are bolded.
  */
 function addFinancialTableSlide(
-  pres: pptxgen,
+  pres: any,
   title: string,
   years: string[],
   rows: SlideTableRow[],
   maxYearsPerSlide = 5
 ) {
+  const pptxgen = (pres as any).constructor;
   for (let startCol = 0; startCol < years.length; startCol += maxYearsPerSlide) {
     const endCol = Math.min(startCol + maxYearsPerSlide, years.length);
     const sliceYears = years.slice(startCol, endCol);
@@ -138,7 +140,7 @@ function addFinancialTableSlide(
 
     const colW = 1.4;
     const labelW = 10 - sliceYears.length * colW - 0.3;
-    const headerRow: pptxgen.TableCell[] = [
+    const headerRow: any[] = [
       { text: "", options: { fill: { color: SAGE }, fontFace: "Arial", fontSize: 8, color: WHITE, bold: true } },
       ...sliceYears.map((y) => ({
         text: y,
@@ -146,7 +148,7 @@ function addFinancialTableSlide(
       })),
     ];
 
-    const tableRows: pptxgen.TableRow[] = [headerRow];
+    const tableRows: any[] = [headerRow];
     const filteredRows = rows.filter((r) => r.category !== "");
 
     filteredRows.forEach((row) => {
@@ -161,7 +163,7 @@ function addFinancialTableSlide(
       const label = (row.indent ? "  ".repeat(row.indent) : "") + row.category;
       const bgColor = isSectionHeader ? "EFF5F0" : WHITE;
 
-      const cells: pptxgen.TableCell[] = [
+      const cells: any[] = [
         {
           text: label,
           options: {
@@ -220,8 +222,9 @@ export interface PortfolioExportData {
  * Includes title slide, investment summary KPIs, and four financial tables
  * (Income Statement, Cash Flow, Balance Sheet, Investment Analysis).
  */
-export function exportPortfolioPPTX(data: PortfolioExportData, companyName = "Hospitality Business Group") {
-  const pres = new pptxgen();
+export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "Hospitality Business Group") {
+  const pptxgen = (await import("pptxgenjs")).default;
+  const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
   pres.title = "Portfolio Investment Report";
@@ -261,8 +264,9 @@ export interface PropertyExportData {
  * Generate and download a single-property financial report as a PowerPoint deck.
  * Includes title slide plus Income Statement, Cash Flow, and Balance Sheet tables.
  */
-export function exportPropertyPPTX(data: PropertyExportData, companyName = "Hospitality Business Group") {
-  const pres = new pptxgen();
+export async function exportPropertyPPTX(data: PropertyExportData, companyName = "Hospitality Business Group") {
+  const pptxgen = (await import("pptxgenjs")).default;
+  const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
   pres.title = `${data.propertyName} Financial Report`;
@@ -288,8 +292,9 @@ export interface CompanyExportData {
  * Generate and download a management company financial report as a PowerPoint deck.
  * Includes title slide plus Income Statement, Cash Flow, and Balance Sheet tables.
  */
-export function exportCompanyPPTX(data: CompanyExportData, companyName = "Hospitality Business Group") {
-  const pres = new pptxgen();
+export async function exportCompanyPPTX(data: CompanyExportData, companyName = "Hospitality Business Group") {
+  const pptxgen = (await import("pptxgenjs")).default;
+  const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
   pres.title = "Management Company Financial Report";

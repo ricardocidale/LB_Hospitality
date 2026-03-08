@@ -1,5 +1,3 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import domtoimage from 'dom-to-image-more';
 import { formatMoney } from "@/lib/financialEngine";
@@ -19,6 +17,8 @@ export const exportCompanyPDF = async (
   yearlyChartData: any[],
   orientation: 'landscape' | 'portrait' = 'landscape'
 ) => {
+  const jsPDF = (await import("jspdf")).default;
+  const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
   const pageWidth = orientation === 'landscape' ? 297 : 210;
   const chartWidth = pageWidth - 28;

@@ -14,17 +14,6 @@
 import { YearlyPropertyFinancials } from "./yearlyAggregator";
 import { YearlyCashFlowResult } from "./loanCalculations";
 
-export interface CashFlowSections {
-  cashFromOperations: number[];
-  cashFromInvesting: number[];
-  cashFromFinancing: number[];
-  netChangeCash: number[];
-  openingCash: number[];
-  closingCash: number[];
-  fcf: number[];
-  fcfe: number[];
-}
-
 /**
  * Compute all cash flow sections for a property over the projection period.
  *
@@ -42,7 +31,7 @@ export function computeCashFlowSections(
   acquisitionYear: number,
   totalPropertyCost: number,
   years: number,
-): CashFlowSections {
+) {
   const cashFromOperations: number[] = [];
   const cashFromInvesting: number[] = [];
   const cashFromFinancing: number[] = [];

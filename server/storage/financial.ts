@@ -1,6 +1,6 @@
 import { globalAssumptions, scenarios, propertyFeeCategories, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
 import { db } from "../db";
-import { eq, desc, isNull } from "drizzle-orm";
+import { eq, desc, isNull, inArray } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 
 export class FinancialStorage {
@@ -100,22 +100,32 @@ export class FinancialStorage {
         await tx.insert(globalAssumptions).values({ ...gaData, userId: null } as typeof globalAssumptions.$inferInsert);
       }
 
-      const currentProps = await tx.select().from(properties)
-        .where(isNull(properties.userId));
-      for (const prop of currentProps) {
-        await tx.delete(properties).where(eq(properties.id, prop.id));
-      }
+      await tx.delete(properties).where(isNull(properties.userId));
+
+      const insertedProperties: Array<{ id: number; name: string }> = [];
       for (const prop of savedProperties) {
         const { id, createdAt, updatedAt, userId: _uid, ...propData } = prop;
         const [inserted] = await tx.insert(properties).values({ ...propData, userId: null } as typeof properties.$inferInsert).returning();
+        insertedProperties.push({ id: inserted.id, name: prop.name as string });
+      }
 
-        const propName = prop.name as string;
-        const feeCats = savedFeeCategories?.[propName];
-        if (feeCats && feeCats.length > 0) {
-          for (const cat of feeCats) {
-            const { id: _catId, propertyId: _propId, createdAt: _catCreated, ...catData } = cat;
-            await tx.insert(propertyFeeCategories).values({ ...catData, propertyId: inserted.id } as typeof propertyFeeCategories.$inferInsert);
+      if (savedFeeCategories) {
+        const feeCategoryValues: any[] = [];
+        for (const prop of insertedProperties) {
+          const feeCats = savedFeeCategories[prop.name];
+          if (feeCats && feeCats.length > 0) {
+            for (const cat of feeCats) {
+              const { id: _catId, propertyId: _propId, createdAt: _catCreated, ...catData } = cat;
+              feeCategoryValues.push({ ...catData, propertyId: prop.id });
+            }
           }
+        }
+
+        if (feeCategoryValues.length > 0) {
+          // Clean up old fee categories for these properties first to avoid duplicates
+          const propIds = insertedProperties.map(p => p.id);
+          await tx.delete(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, propIds));
+          await tx.insert(propertyFeeCategories).values(feeCategoryValues as any);
         }
       }
     });
@@ -158,16 +168,14 @@ export class FinancialStorage {
     const { DEFAULT_SERVICE_FEE_CATEGORIES } = await import("@shared/constants");
     const existing = await this.getFeeCategoriesByProperty(propertyId);
     if (existing.length > 0) return existing;
-    const results: FeeCategory[] = [];
-    for (const cat of DEFAULT_SERVICE_FEE_CATEGORIES) {
-      const [created] = await db.insert(propertyFeeCategories).values({
-        propertyId,
-        name: cat.name,
-        rate: cat.rate,
-        sortOrder: cat.sortOrder,
-      }).returning();
-      results.push(created);
-    }
-    return results;
+
+    const values = DEFAULT_SERVICE_FEE_CATEGORIES.map(cat => ({
+      propertyId,
+      name: cat.name,
+      rate: cat.rate,
+      sortOrder: cat.sortOrder,
+    }));
+
+    return await db.insert(propertyFeeCategories).values(values).returning();
   }
 }

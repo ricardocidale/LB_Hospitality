@@ -154,10 +154,10 @@ export function runFullVerification(
   properties: any[],
   globalAssumptions: any
 ): VerificationResults {
-  const formulaReports: FormulaCheckReport[] = [];
-  const complianceReports: ComplianceReport[] = [];
-  const auditReports: AuditReport[] = [];
-  const crossReports: CrossValidationReport[] = [];
+  const formulaReports: any[] = [];
+  const complianceReports: any[] = [];
+  const auditReports: any[] = [];
+  const crossReports: any[] = [];
   
   const globalAuditInput = convertToGlobalAuditInput(globalAssumptions);
   
@@ -364,7 +364,6 @@ function aggregateToYearly(monthlyData: MonthlyFinancials[]): Array<{
     equityMultiple: d.netIncome / (d.revenueTotal * 0.1 || 1), // Placeholder for reasonableness check
   }));
 }
-
 export function printVerificationResults(_results: VerificationResults): void {
   // Results are returned programmatically via the VerificationResults interface.
   // No console output in production — callers should read the returned object.

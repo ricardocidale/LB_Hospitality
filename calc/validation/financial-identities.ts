@@ -80,7 +80,22 @@ export interface FinancialIdentitiesInput {
   rounding_policy: RoundingPolicy;
 }
 
-export interface IdentityCheck {
+export interface FinancialIdentitiesOutput {
+  all_passed: boolean;
+  checks: Array<{
+    identity: string;
+    formula: string;
+    gaap_reference: string;
+    expected: number;
+    actual: number;
+    variance: number;
+    passed: boolean;
+    severity: "critical" | "material" | "minor";
+  }>;
+  opinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE";
+}
+
+interface IdentityCheck {
   identity: string;
   formula: string;
   gaap_reference: string;
@@ -89,12 +104,6 @@ export interface IdentityCheck {
   variance: number;
   passed: boolean;
   severity: "critical" | "material" | "minor";
-}
-
-export interface FinancialIdentitiesOutput {
-  all_passed: boolean;
-  checks: IdentityCheck[];
-  opinion: "UNQUALIFIED" | "QUALIFIED" | "ADVERSE";
 }
 
 function makeCheck(

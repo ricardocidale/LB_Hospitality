@@ -34,9 +34,8 @@ export interface FormulaCheckResult {
   passed: boolean;
   name: string;
   description: string;
-  expected?: number | string;
-  actual?: number | string;
-  tolerance?: number;
+  expected: string;
+  actual: string;
 }
 
 export interface FormulaCheckReport {

@@ -24,30 +24,6 @@ import {
   DEFAULT_COMMISSION_RATE,
 } from "@shared/constants";
 
-export interface ExportUser {
-  email?: string;
-  role?: string;
-  companyName?: string;
-}
-
-export interface ManualExportResult {
-  success: boolean;
-  status?: "completed" | "error";
-  error?: string;
-}
-
-export interface FullDataExportResult {
-  success: boolean;
-  warnings: string[];
-  includedStatements: string[];
-  propertyCount: number;
-  companyIncluded: boolean;
-  projectionYears: number;
-  exportTimestamp: string;
-  status: "completed" | "completed-with-warnings" | "failed" | "error";
-  error?: string;
-}
-
 /** Table of contents for the Checker Manual — each section maps to a chapter of the app. */
 const MANUAL_SECTIONS = [
   "1. Application Overview",
@@ -150,7 +126,7 @@ function brandedHeader(doc: any, pageW: number, height: number) {
  * document listing all formulas, business rules, and testing phases. This
  * allows an auditor to independently verify any number the system produces.
  */
-export async function exportManualPDF(user: ExportUser): Promise<ManualExportResult> {
+export async function exportManualPDF(user: { email?: string; role?: string; companyName?: string }): Promise<{ success: boolean; status?: "completed" | "error"; error?: string }> {
   try {
   const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
     import("jspdf"),
@@ -279,9 +255,29 @@ function validateData(properties: any[], global: any): string[] {
  * The result object reports success/failure, included statements, property
  * count, and any data quality warnings.
  */
-export async function exportFullData(user: ExportUser): Promise<FullDataExportResult> {
+export async function exportFullData(user: { email?: string; role?: string; companyName?: string }): Promise<{
+  success: boolean;
+  warnings: string[];
+  includedStatements: string[];
+  propertyCount: number;
+  companyIncluded: boolean;
+  projectionYears: number;
+  exportTimestamp: string;
+  status: "completed" | "completed-with-warnings" | "failed" | "error";
+  error?: string;
+}> {
   const exportTimestamp = new Date().toISOString();
-  const base: Omit<FullDataExportResult, "success" | "status"> = {
+  const base: Omit<{
+    success: boolean;
+    warnings: string[];
+    includedStatements: string[];
+    propertyCount: number;
+    companyIncluded: boolean;
+    projectionYears: number;
+    exportTimestamp: string;
+    status: "completed" | "completed-with-warnings" | "failed" | "error";
+    error?: string;
+  }, "success" | "status"> = {
     warnings: [],
     includedStatements: [],
     propertyCount: 0,

@@ -81,7 +81,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {["Google", "OpenAI", "Anthropic", "ElevenLabs"].map((provider) => {
+              {["ElevenLabs", "Google", "OpenAI", "Anthropic", "xAI", "Other"].map((provider) => {
                 const models = LLM_MODELS.filter((m) => m.provider === provider);
                 if (models.length === 0) return null;
                 return (

@@ -98,8 +98,8 @@ export function ImageCropDialog({
       const croppedFile = await cropImageToFile(imgRef.current, completedCrop, fileName, fileType);
       onCropComplete(croppedFile);
       onOpenChange(false);
-    } catch {
-      // silently fail — user can retry
+    } catch (error) {
+      console.error("Image cropping failed:", error);
     } finally {
       setIsCropping(false);
     }

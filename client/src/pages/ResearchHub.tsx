@@ -64,7 +64,8 @@ function formatDate(dateStr: string | null): string {
   if (!dateStr) return "Not generated";
   try {
     return format(new Date(dateStr), "MMM d, yyyy 'at' h:mm a");
-  } catch {
+  } catch (error) {
+    // Fallback if date parsing fails
     return "Not generated";
   }
 }

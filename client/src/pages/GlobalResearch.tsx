@@ -93,7 +93,9 @@ export default function GlobalResearch() {
               if (data.done) {
                 queryClient.invalidateQueries({ queryKey: ["research", "global"] });
               }
-            } catch { /* incomplete SSE chunk */ }
+            } catch (error) {
+              /* incomplete SSE chunk - safely skip */
+            }
           }
         }
       }

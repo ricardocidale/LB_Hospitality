@@ -8,6 +8,7 @@
 import { db } from "../db";
 import { marketRates } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { logger } from "../logger";
 
 interface RateDefinition {
   rateKey: string;
@@ -143,5 +144,5 @@ export async function seedMarketRates(): Promise<void> {
     });
   }
 
-  console.log(`Seeded ${RATE_DEFINITIONS.length} market rate definitions`);
+  logger.info(`Seeded ${RATE_DEFINITIONS.length} market rate definitions`, "seed");
 }

@@ -1,5 +1,6 @@
 import { db } from "../db";
 import { properties, marketResearch } from "@shared/schema";
+import { logger } from "../logger";
 
 export function getHudsonEstateResearch() {
   return {
@@ -582,10 +583,10 @@ export async function seedMissingMarketResearch() {
 
     if (toInsert.length > 0) {
       await db.insert(marketResearch).values(toInsert);
-      console.log(`Seeded market research for ${toInsert.length} properties: ${missingNames.join(", ")}`);
+      logger.info(`Seeded market research for ${toInsert.length} properties: ${missingNames.join(", ")}`, "seed");
     }
   } catch (err) {
-    console.error("Error seeding market research:", err);
+    logger.error(`Error seeding market research: ${err}`, "seed");
   }
 }
 

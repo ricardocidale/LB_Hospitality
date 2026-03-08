@@ -1,5 +1,6 @@
 import { db } from "../db";
 import { properties, globalAssumptions, propertyFeeCategories } from "@shared/schema";
+import { logger } from "../logger";
 import {
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
@@ -90,7 +91,7 @@ export async function seedGlobalAssumptions() {
     otherExpenseRate: DEFAULT_OTHER_EXPENSE_RATE,
     utilitiesVariableSplit: DEFAULT_UTILITIES_VARIABLE_SPLIT,
   });
-  console.log("Seeded global assumptions");
+  logger.info("Seeded global assumptions", "seed");
 }
 
 export async function seedProperties() {
@@ -364,7 +365,7 @@ export async function seedProperties() {
   ]);
   
   const seededProperties = await db.select().from(properties);
-  console.log(`Seeded ${seededProperties.length} properties`);
+  logger.info(`Seeded ${seededProperties.length} properties`, "seed");
 }
 
 export async function seedFeeCategories() {
@@ -391,6 +392,6 @@ export async function seedFeeCategories() {
       });
     }
   }
-  console.log(`Seeded fee categories for ${allProps.length} properties`);
+  logger.info(`Seeded fee categories for ${allProps.length} properties`, "seed");
 }
 

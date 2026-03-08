@@ -180,7 +180,7 @@ export function register(app: Express) {
               files.push(fullPath);
             }
           }
-        } catch { /* ignore unreadable dirs */ }
+        } catch (error) { /* ignore unreadable dirs - safe to skip in design check */ }
         return files;
       }
 

@@ -136,7 +136,8 @@ export default function PropertyMarketResearch() {
                         } else {
                           toast({ title: "Email failed", description: result.error || "Could not send email.", variant: "destructive" });
                         }
-                      } catch {
+                      } catch (error) {
+                        console.error("Failed to email research PDF:", error);
                         toast({ title: "Email failed", description: "Could not send email.", variant: "destructive" });
                       } finally {
                         setIsEmailing(false);

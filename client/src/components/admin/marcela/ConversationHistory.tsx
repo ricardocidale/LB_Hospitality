@@ -123,7 +123,8 @@ function AudioPlayer({ conversationId }: { conversationId: string }) {
       if (!res.ok) throw new Error("Audio unavailable");
       const blob = await res.blob();
       setSrc(URL.createObjectURL(blob));
-    } catch {
+    } catch (error) {
+      console.error("Failed to load conversation audio:", error);
       setUnavailable(true);
     } finally {
       setLoading(false);

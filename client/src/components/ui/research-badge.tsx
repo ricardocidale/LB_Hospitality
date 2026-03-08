@@ -76,7 +76,8 @@ function formatTooltip(sourceType: BadgeSourceType, sourceName?: string, sourceD
     try {
       const d = new Date(sourceDate);
       parts.push(`updated ${d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`);
-    } catch {
+    } catch (error) {
+      // Fallback to raw date string if parsing fails
       parts.push(`updated ${sourceDate}`);
     }
   }

@@ -1,5 +1,6 @@
 import { db } from "../db";
 import { logos, companies } from "@shared/schema";
+import { logger } from "../logger";
 
 export async function seedDefaultLogos() {
   const existingLogos = await db.select().from(logos);
@@ -31,7 +32,7 @@ export async function seedDefaultLogos() {
       isDefault: false,
     },
   ]);
-  console.log("Seeded default logos: HBG (default) + 3 Norfolk AI variants");
+  logger.info("Seeded default logos: HBG (default) + 3 Norfolk AI variants", "seed");
 }
 
 export async function seedCompanies() {
@@ -47,5 +48,5 @@ export async function seedCompanies() {
   for (const c of companiesToSeed) {
     await db.insert(companies).values(c);
   }
-  console.log("Seeded default companies");
+  logger.info("Seeded default companies", "seed");
 }

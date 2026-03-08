@@ -3,6 +3,7 @@ import { users } from "@shared/schema";
 import { eq, isNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { userGroups } from "@shared/schema";
+import { logger } from "../logger";
 
 export async function seedUsers() {
   const existingAdmin = await db.select().from(users).where(eq(users.email, "admin")).limit(1);
@@ -15,7 +16,7 @@ export async function seedUsers() {
       lastName: "Cidale",
       role: "admin",
     });
-    console.log("Created admin user (email: admin, password: admin123)");
+    logger.info("Created admin user (email: admin, password: admin123)", "seed");
   }
 }
 
@@ -27,10 +28,10 @@ export async function seedUserGroups() {
     const existingGeneral = existing.find(g => g.name === "General");
     if (existingGeneral) {
       await db.update(userGroups).set({ isDefault: true }).where(eq(userGroups.id, existingGeneral.id));
-      console.log("Marked existing 'General' group as default");
+      logger.info("Marked existing 'General' group as default", "seed");
     } else {
       await db.insert(userGroups).values({ name: "General", isDefault: true });
-      console.log("Created default 'General' user group");
+      logger.info("Created default 'General' user group", "seed");
     }
   }
 
@@ -63,7 +64,7 @@ export async function seedUserGroups() {
         await db.update(users).set({ userGroupId: groupMap[groupName] }).where(eq(users.id, u.id));
       }
     }
-    console.log("Seeded user groups: KIT Capital Group + The Norfolk AI Group");
+    logger.info("Seeded user groups: KIT Capital Group + The Norfolk AI Group", "seed");
   }
 
   const [defaultGroup] = await db.select().from(userGroups).where(eq(userGroups.isDefault, true));
@@ -71,7 +72,7 @@ export async function seedUserGroups() {
     const unassigned = await db.select().from(users).where(isNull(users.userGroupId));
     if (unassigned.length > 0) {
       await db.update(users).set({ userGroupId: defaultGroup.id }).where(isNull(users.userGroupId));
-      console.log(`Assigned ${unassigned.length} unassigned user(s) to '${defaultGroup.name}' group`);
+      logger.info(`Assigned ${unassigned.length} unassigned user(s) to '${defaultGroup.name}' group`, "seed");
     }
   }
 }

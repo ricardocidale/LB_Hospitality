@@ -5,7 +5,7 @@
 ## Overview
 Business simulation portal for boutique hotel investment. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant with independent audit/verification engine.
 
-**Codebase:** ~635 source files, ~97,400 lines, 2,460 tests across 116 files.
+**Codebase:** ~656 source files, ~100,400 lines, 2,460 tests across 116 files.
 
 ## Quick Commands
 ```bash
@@ -25,7 +25,7 @@ npm run exports:check  # Find unused exports
 ```
 
 ## Tech Stack
-React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs
+React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Three.js (raw — no R3F except ElevenLabs orb), framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs
 
 ## Design System (ElevenLabs Standard)
 - shadcn primitives + `cva` for variants. 100% CSS variable tokens — zero hardcoded grays/colors.

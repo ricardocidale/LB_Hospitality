@@ -191,7 +191,8 @@ export default function CompanyAssumptions() {
         description: "Company assumptions have been updated.",
       });
       setLocation("/company");
-    } catch {
+    } catch (error) {
+      console.error("Failed to save company assumptions:", error);
       toast({
         title: "Error",
         description: "Failed to save company assumptions.",

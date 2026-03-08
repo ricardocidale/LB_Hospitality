@@ -137,7 +137,8 @@ export function useEnhanceLogoPrompt() {
       if (!res.ok) throw new Error("Failed to enhance prompt");
       const data = await res.json();
       return data.enhanced;
-    } catch {
+    } catch (error) {
+      console.error("Failed to enhance logo prompt:", error);
       return null;
     } finally {
       setIsEnhancing(false);
@@ -162,7 +163,8 @@ export function useGenerateLogoImage() {
       if (!res.ok) throw new Error("Failed to generate logo");
       const data = await res.json();
       return data.objectPath;
-    } catch {
+    } catch (error) {
+      console.error("Failed to enhance logo prompt:", error);
       return null;
     } finally {
       setIsGenerating(false);

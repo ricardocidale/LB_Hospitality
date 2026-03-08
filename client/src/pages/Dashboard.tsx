@@ -117,8 +117,8 @@ export default function Dashboard() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch {
-      // silent
+    } catch (error) {
+      console.error("Chart PNG export failed:", error);
     }
   }, [activeTab]);
 

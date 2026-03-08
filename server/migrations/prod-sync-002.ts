@@ -1,8 +1,9 @@
 import { db } from "../db";
 import { users, properties, propertyFeeCategories, scenarios, marketResearch } from "@shared/schema";
 import { eq, sql, notInArray, and, ne } from "drizzle-orm";
+import { logger } from "../logger";
 
-const TAG = "[migration] prod-sync-002";
+const TAG = "prod-sync-002";
 
 const CANONICAL_USERS: Record<string, { role: "admin" | "partner" | "checker"; userGroupId: number }> = {
   "admin":                         { role: "admin",   userGroupId: 2 },
@@ -59,12 +60,12 @@ export async function runProdSync002(): Promise<SyncResult> {
         role: canonical.role,
         userGroupId: canonical.userGroupId,
       }).where(eq(users.id, user.id));
-      console.log(`${TAG}: fixed user "${user.email}" — ${fixes.join(", ")}`);
+      logger.info(`${TAG}: fixed user "${user.email}" — ${fixes.join(", ")}`, "migration");
       result.usersFixed++;
     }
   }
   if (result.usersFixed === 0) {
-    console.log(`${TAG}: all user roles/groups already canonical`);
+    logger.info(`${TAG}: all user roles/groups already canonical`, "migration");
   }
 
   // ── 2. Clean orphaned fee categories ──
@@ -75,7 +76,7 @@ export async function runProdSync002(): Promise<SyncResult> {
       .returning({ id: propertyFeeCategories.id });
     result.orphanedFeeCategoriesDeleted = orphanedFees.length;
     if (orphanedFees.length > 0) {
-      console.log(`${TAG}: deleted ${orphanedFees.length} orphaned fee category row(s)`);
+      logger.info(`${TAG}: deleted ${orphanedFees.length} orphaned fee category row(s)`, "migration");
     }
   }
 
@@ -89,7 +90,7 @@ export async function runProdSync002(): Promise<SyncResult> {
       .returning({ id: marketResearch.id });
     result.orphanedResearchDeleted = orphanedResearch.length;
     if (orphanedResearch.length > 0) {
-      console.log(`${TAG}: deleted ${orphanedResearch.length} orphaned market research row(s)`);
+      logger.info(`${TAG}: deleted ${orphanedResearch.length} orphaned market research row(s)`, "migration");
     }
   }
 
@@ -99,7 +100,7 @@ export async function runProdSync002(): Promise<SyncResult> {
     .where(eq(scenarios.name, "Test Verification Scenario"))
     .returning({ id: scenarios.id });
   if (testScenarios.length > 0) {
-    console.log(`${TAG}: deleted ${testScenarios.length} test verification scenario(s)`);
+    logger.info(`${TAG}: deleted ${testScenarios.length} test verification scenario(s)`, "migration");
     result.scenariosCleaned += testScenarios.length;
   }
 
@@ -114,7 +115,7 @@ export async function runProdSync002(): Promise<SyncResult> {
       ))
       .returning({ id: scenarios.id, userId: scenarios.userId });
     if (nonAdminBase.length > 0) {
-      console.log(`${TAG}: deleted ${nonAdminBase.length} "Base" scenario(s) from non-admin users`);
+      logger.info(`${TAG}: deleted ${nonAdminBase.length} "Base" scenario(s) from non-admin users`, "migration");
       result.scenariosCleaned += nonAdminBase.length;
     }
   }
@@ -145,12 +146,12 @@ export async function runProdSync002(): Promise<SyncResult> {
     for (const id of deleteIds) {
       await db.delete(scenarios).where(eq(scenarios.id, id));
     }
-    console.log(`${TAG}: user ${userId} had ${list.length} "Development" scenarios, kept id=${keepId}, deleted ${deleteIds.length}`);
+    logger.info(`${TAG}: user ${userId} had ${list.length} "Development" scenarios, kept id=${keepId}, deleted ${deleteIds.length}`, "migration");
     result.scenariosCleaned += deleteIds.length;
   }
 
   if (result.scenariosCleaned === 0) {
-    console.log(`${TAG}: scenarios already clean`);
+    logger.info(`${TAG}: scenarios already clean`, "migration");
   }
 
   // ── 5. Enforce canonical fee categories per property ──
@@ -174,22 +175,22 @@ export async function runProdSync002(): Promise<SyncResult> {
           isActive: true,
           sortOrder: canon.sortOrder,
         });
-        console.log(`${TAG}: added missing fee "${canon.name}" for "${prop.name}"`);
+        logger.info(`${TAG}: added missing fee "${canon.name}" for "${prop.name}"`, "migration");
         result.feeCategoriesFixed++;
       } else if (ex.rate !== canon.rate || ex.sortOrder !== canon.sortOrder) {
         await db.update(propertyFeeCategories).set({
           rate: canon.rate,
           sortOrder: canon.sortOrder,
         }).where(eq(propertyFeeCategories.id, ex.id));
-        console.log(`${TAG}: corrected fee "${canon.name}" for "${prop.name}" (rate: ${ex.rate}→${canon.rate})`);
+        logger.info(`${TAG}: corrected fee "${canon.name}" for "${prop.name}" (rate: ${ex.rate}→${canon.rate})`, "migration");
         result.feeCategoriesFixed++;
       }
     }
   }
   if (result.feeCategoriesFixed === 0) {
-    console.log(`${TAG}: fee categories already canonical`);
+    logger.info(`${TAG}: fee categories already canonical`, "migration");
   }
 
-  console.log(`${TAG}: complete`);
+  logger.info(`${TAG}: complete`, "migration");
   return result;
 }

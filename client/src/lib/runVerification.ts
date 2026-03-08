@@ -183,18 +183,6 @@ export function runFullVerification(
       const auditReport = runFullAudit(propertyAuditInput, globalAuditInput, financials);
       auditReports.push(auditReport);
       
-      if (typeof process !== "undefined" && process.env?.AUDIT_DIAG) {
-        console.log(`[AUDIT-DIAG] ${property.name}: ${auditReport.opinion} (${auditReport.totalPassed}/${auditReport.totalPassed + auditReport.totalFailed})`);
-        for (const s of auditReport.sections) {
-          if (s.failed > 0) {
-            console.log(`[AUDIT-DIAG]   FAIL ${s.name}: ${s.passed}/${s.passed + s.failed}`);
-            for (const f of s.findings.filter((finding: AuditFinding) => !finding.passed)) {
-              console.log(`[AUDIT-DIAG]     ${f.workpaperRef}: exp=${f.expected} act=${f.actual} var=${f.variance}`);
-            }
-          }
-        }
-      }
-      
       // Run cross-calculator validation (IRS, GAAP, USALI authoritative checks)
       const crossReport = crossValidateFinancingCalculators(
         {

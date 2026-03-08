@@ -640,7 +640,7 @@ export async function indexKnowledgeBase(): Promise<{ chunksIndexed: number; tim
 
   indexingPromise = (async () => {
     const start = Date.now();
-    console.log("[Knowledge Base] Starting indexing...");
+    logger.info("Starting indexing...", "knowledge-base");
 
     const allChunks: { title: string; content: string; source: string; category: string }[] = [];
 
@@ -651,7 +651,7 @@ export async function indexKnowledgeBase(): Promise<{ chunksIndexed: number; tim
     const assetChunks = await loadAttachedAssets();
     allChunks.push(...assetChunks);
 
-    console.log(`[Knowledge Base] ${allChunks.length} chunks extracted, generating embeddings...`);
+    logger.info(`${allChunks.length} chunks extracted, generating embeddings...`, "knowledge-base");
 
     const texts = allChunks.map(c => `${c.title}\n\n${c.content}`);
     const embeddings = await generateEmbeddings(texts);
@@ -663,7 +663,7 @@ export async function indexKnowledgeBase(): Promise<{ chunksIndexed: number; tim
 
     indexedAt = new Date();
     const timeMs = Date.now() - start;
-    console.log(`[Knowledge Base] Indexed ${knowledgeCache.length} chunks in ${timeMs}ms`);
+    logger.info(`Indexed ${knowledgeCache.length} chunks in ${timeMs}ms`, "knowledge-base");
 
     return { chunksIndexed: knowledgeCache.length, timeMs };
   })().finally(() => {
@@ -678,7 +678,7 @@ export async function retrieveRelevantChunks(query: string, topK: number = TOP_K
     if (indexingPromise) {
       await indexingPromise;
     } else {
-      indexKnowledgeBase().catch(e => console.error("[Knowledge Base] Background indexing failed:", e));
+      indexKnowledgeBase().catch(e => logger.error(`Background indexing failed: ${e instanceof Error ? e.message : String(e)}`, "knowledge-base"));
       return [];
     }
   }

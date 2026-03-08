@@ -45,7 +45,9 @@ async function fetchBranding(): Promise<BrandingData> {
   try {
     const res = await fetch("/api/branding", { credentials: "include" });
     if (res.ok) return await res.json();
-  } catch { /* branding fetch optional */ }
+  } catch (error) {
+    /* branding fetch optional - fallback to defaults */
+  }
   return { userName: "", companyName: "", logoUrl: null };
 }
 
@@ -61,7 +63,8 @@ async function loadLogoImage(url: string): Promise<string | null> {
       reader.onerror = () => resolve(null);
       reader.readAsDataURL(blob);
     });
-  } catch {
+  } catch (error) {
+    console.error("Failed to load logo image:", error);
     return null;
   }
 }

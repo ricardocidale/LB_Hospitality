@@ -297,7 +297,8 @@ async function buildContextPrompt(userId?: number): Promise<string> {
     }
 
     return parts.length > 0 ? "\n\n" + parts.join("\n") : "";
-  } catch {
+  } catch (error) {
+    console.error("Error building context prompt:", error);
     return "";
   }
 }
@@ -307,7 +308,8 @@ async function getUserRole(userId?: number): Promise<string> {
   try {
     const user = await storage.getUserById(userId);
     return user?.role || "partner";
-  } catch {
+  } catch (error) {
+    console.error("Error getting user role:", error);
     return "partner";
   }
 }
@@ -504,7 +506,7 @@ export function registerChatRoutes(app: Express): void {
           (audioBase64: string) => {
             try {
               res.write(`data: ${JSON.stringify({ type: "audio", data: audioBase64 })}\n\n`);
-            } catch { /* connection closed */ }
+            } catch (error) { /* connection closed - safe to ignore */ }
           },
           {
             outputFormat: voiceConfig.outputFormat,
@@ -560,7 +562,8 @@ export function registerChatRoutes(app: Express): void {
       }
       const phoneNumber = await getTwilioFromPhoneNumber();
       res.json({ enabled: true, phoneNumber });
-    } catch {
+    } catch (error) {
+      console.error("Error fetching Twilio phone number:", error);
       res.json({ enabled: false, phoneNumber: null });
     }
   });

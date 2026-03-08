@@ -5,11 +5,12 @@ import { seedGlobalAssumptions, seedProperties, seedFeeCategories } from "./prop
 import { seedDefaultLogos, seedCompanies } from "./branding";
 import { seedMissingMarketResearch, getHudsonEstateResearch, getEdenSummitResearch, getAustinHillsideResearch, getCasaMedellinResearch, getBlueRidgeResearch } from "./research";
 import { seedServiceTemplates } from "./services";
+import { logger } from "../logger";
 
 export async function seed() {
   const forceReseed = process.argv.includes("--force");
   
-  console.log("Starting database seed...");
+  logger.info("Starting database seed...", "seed");
 
   // Check if data already exists
   const existingGlobal = await db.select().from(globalAssumptions).limit(1);
@@ -17,14 +18,14 @@ export async function seed() {
 
   if (existingGlobal.length > 0 || existingProperties.length > 0) {
     if (forceReseed) {
-      console.log("Force mode: Clearing existing data...");
+      logger.info("Force mode: Clearing existing data...", "seed");
       await db.delete(marketResearch);
       await db.delete(properties);
       await db.delete(globalAssumptions);
-      console.log("Existing data cleared.");
+      logger.info("Existing data cleared.", "seed");
     } else {
-      console.log("Database already has data. Skipping seed to prevent duplicates.");
-      console.log("To force re-seed, run: npx tsx server/seed.ts --force");
+      logger.info("Database already has data. Skipping seed to prevent duplicates.", "seed");
+      logger.info("To force re-seed, run: npx tsx server/seed.ts --force", "seed");
       return;
     }
   }
@@ -91,7 +92,7 @@ export async function seed() {
     }
   ];
   await db.insert(marketResearch).values(marketResearchEntries);
-  console.log(`Seeded market research for ${marketResearchEntries.length} properties`);
+  logger.info(`Seeded market research for ${marketResearchEntries.length} properties`, "seed");
 
   // Seed branding & groups
   await seedDefaultLogos();
@@ -101,7 +102,7 @@ export async function seed() {
   // Seed service templates
   await seedServiceTemplates();
 
-  console.log("Database seed completed successfully!");
+  logger.info("Database seed completed successfully!", "seed");
 }
 
 export {

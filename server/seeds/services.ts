@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { companyServiceTemplates } from "@shared/schema";
 import { DEFAULT_SERVICE_TEMPLATES } from "@shared/constants";
+import { logger } from "../logger";
 
 /**
  * Seed the company_service_templates table with default categories.
@@ -9,7 +10,7 @@ import { DEFAULT_SERVICE_TEMPLATES } from "@shared/constants";
 export async function seedServiceTemplates(): Promise<void> {
   const existing = await db.select().from(companyServiceTemplates).limit(1);
   if (existing.length > 0) {
-    console.log("Service templates already exist, skipping seed.");
+    logger.info("Service templates already exist, skipping seed.", "seed");
     return;
   }
 
@@ -23,5 +24,5 @@ export async function seedServiceTemplates(): Promise<void> {
   }));
 
   await db.insert(companyServiceTemplates).values(values);
-  console.log(`Seeded ${values.length} company service templates`);
+  logger.info(`Seeded ${values.length} company service templates`, "seed");
 }

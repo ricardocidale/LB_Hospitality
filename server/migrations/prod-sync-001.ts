@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { globalAssumptions, designThemes, properties } from "@shared/schema";
 import { isNull, eq, isNotNull, sql } from "drizzle-orm";
+import { logger } from "../logger";
 
 async function ensureColumn(table: string, column: string, definition: string): Promise<void> {
   const check = await db.execute(sql.raw(
@@ -8,12 +9,12 @@ async function ensureColumn(table: string, column: string, definition: string): 
   ));
   if ((check as any).rows?.length === 0 || (Array.isArray(check) && check.length === 0)) {
     await db.execute(sql.raw(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`));
-    console.log(`[migration] added ${table}.${column}`);
+    logger.info(`added ${table}.${column}`, "migration");
   }
 }
 
 export async function runProdSync001(): Promise<void> {
-  const tag = "[migration] prod-sync-001";
+  const tag = "prod-sync-001";
 
   await ensureColumn("users", "hide_tour_prompt", "boolean NOT NULL DEFAULT false");
 
@@ -31,9 +32,9 @@ export async function runProdSync001(): Promise<void> {
       await db.delete(globalAssumptions).where(eq(globalAssumptions.id, id));
     }
 
-    console.log(`${tag}: deleted ${deleteIds.length} duplicate global_assumptions row(s) (kept id=${keepId}, deleted ids=${deleteIds.join(",")})`);
+    logger.info(`${tag}: deleted ${deleteIds.length} duplicate global_assumptions row(s) (kept id=${keepId}, deleted ids=${deleteIds.join(",")})`, "migration");
   } else {
-    console.log(`${tag}: global_assumptions already clean (${gaRows.length} shared row)`);
+    logger.info(`${tag}: global_assumptions already clean (${gaRows.length} shared row)`, "migration");
   }
 
   const ownedProps = await db
@@ -44,10 +45,10 @@ export async function runProdSync001(): Promise<void> {
   if (ownedProps.length > 0) {
     for (const prop of ownedProps) {
       await db.update(properties).set({ userId: null }).where(eq(properties.id, prop.id));
-      console.log(`${tag}: set property "${prop.name}" (id=${prop.id}) userId from ${prop.userId} to NULL (shared)`);
+      logger.info(`${tag}: set property "${prop.name}" (id=${prop.id}) userId from ${prop.userId} to NULL (shared)`, "migration");
     }
   } else {
-    console.log(`${tag}: all properties already shared (userId=NULL)`);
+    logger.info(`${tag}: all properties already shared (userId=NULL)`, "migration");
   }
 
   const dtRows = await db
@@ -69,15 +70,15 @@ export async function runProdSync001(): Promise<void> {
         if (id !== keepId) {
           await db.delete(designThemes).where(eq(designThemes.id, id));
           dtDeleted++;
-          console.log(`${tag}: deleted duplicate design_theme "${name}" id=${id} (kept id=${keepId})`);
+          logger.info(`${tag}: deleted duplicate design_theme "${name}" id=${id} (kept id=${keepId})`, "migration");
         }
       }
     }
   }
 
   if (dtDeleted === 0) {
-    console.log(`${tag}: design_themes already clean (no duplicates)`);
+    logger.info(`${tag}: design_themes already clean (no duplicates)`, "migration");
   }
 
-  console.log(`${tag}: complete`);
+  logger.info(`${tag}: complete`, "migration");
 }

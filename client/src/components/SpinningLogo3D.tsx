@@ -10,9 +10,9 @@ function LogoPlane() {
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.getElapsedTime();
-    meshRef.current.rotation.y = Math.sin(t * 0.4) * 0.6;
-    meshRef.current.rotation.x = Math.cos(t * 0.3) * 0.3;
-    meshRef.current.rotation.z = Math.sin(t * 0.2) * 0.1;
+    meshRef.current.rotation.y = Math.sin(t * 0.8) * 0.6;
+    meshRef.current.rotation.x = Math.cos(t * 0.6) * 0.3;
+    meshRef.current.rotation.z = Math.sin(t * 0.4) * 0.1;
   });
 
   return (

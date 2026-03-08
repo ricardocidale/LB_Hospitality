@@ -54,7 +54,7 @@ export default function UsersTab() {
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [sortField, setSortField] = useState<SortField>("name");
+  const [sortField, setSortField] = useState<SortField>("group");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
@@ -143,6 +143,9 @@ export default function UsersTab() {
           const ga = (a.userGroupId ? groupNameMap[a.userGroupId] : "") || "";
           const gb = (b.userGroupId ? groupNameMap[b.userGroupId] : "") || "";
           cmp = ga.localeCompare(gb);
+          if (cmp === 0) {
+            cmp = (a.name || a.email).localeCompare(b.name || b.email);
+          }
           break;
         }
       }

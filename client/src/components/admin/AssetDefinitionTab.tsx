@@ -1,370 +1,330 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Tag, Save } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Save, Copy, Check } from "lucide-react";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
 import { ADMIN_TEXTAREA } from "./styles";
+import {
+  type IcpConfig,
+  type IcpDescriptive,
+  type Priority,
+  DEFAULT_ICP_CONFIG,
+  DEFAULT_ICP_DESCRIPTIVE,
+  PARAMETER_SECTIONS,
+  DESCRIPTIVE_SECTIONS,
+  PRIORITY_LABELS,
+  generateIcpPrompt,
+} from "./icp-config";
 
-const DEFAULT_ICP_DESCRIPTION = `IDEAL CUSTOMER PROFILE — TARGET PROPERTY DEFINITION
+function PrioritySelect({ value, onChange }: { value: Priority; onChange: (v: Priority) => void }) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as Priority)}
+      className="h-8 rounded border border-border bg-card px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring min-w-[100px]"
+    >
+      {(Object.entries(PRIORITY_LABELS) as [Priority, string][]).map(([k, label]) => (
+        <option key={k} value={k}>{label}</option>
+      ))}
+    </select>
+  );
+}
 
-This document defines the ideal property acquisition target for the management company. It is served as context to AI research engines, financial modeling, ADR estimation, revenue mix projections, vendor service scoping, and market analysis. Each attribute is classified as MUST HAVE (M) or NICE TO HAVE (N).
+function CurrencyInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const display = value >= 1000 ? value.toLocaleString() : String(value);
+  const [local, setLocal] = useState(display);
 
-═══════════════════════════════════════════════════
-1. PROPERTY TYPE & POSITIONING
-═══════════════════════════════════════════════════
-(M) Luxury boutique hotel, estate hotel, hacienda, lodge, manor, or large private estate suitable for conversion into a full-service hospitality operation
-(M) Property must convey exclusivity, architectural character, and a strong sense of place
-(M) Operational or readily convertible to hospitality use (not raw land)
-(M) Chain-affiliated or conventional box hotels are excluded
-(N) Historic or heritage designation acceptable if renovation flexibility exists
-(N) Unique architectural provenance (colonial, farmhouse, mid-century modern, Mediterranean)
+  useEffect(() => {
+    setLocal(value >= 1000 ? value.toLocaleString() : String(value));
+  }, [value]);
 
-═══════════════════════════════════════════════════
-2. SIZE, CAPACITY & PHYSICAL DIMENSIONS
-═══════════════════════════════════════════════════
+  return (
+    <Input
+      value={local}
+      onChange={(e) => {
+        const raw = e.target.value.replace(/[^0-9]/g, "");
+        setLocal(raw ? Number(raw).toLocaleString() : "");
+      }}
+      onBlur={() => {
+        const num = Number(local.replace(/[^0-9]/g, "")) || 0;
+        onChange(num);
+      }}
+      className="h-8 text-xs bg-card w-[110px] text-right tabular-nums"
+    />
+  );
+}
 
-Guest Rooms & Suites:
-(M) 10–50 guest rooms or suites (sweet spot: 20–30 rooms)
-(M) Minimum 2 master suites (400+ sq ft each) with en-suite bathrooms
-(N) 3–5 master suites preferred for premium ADR positioning
-(M) All guest rooms must have private bathrooms (minimum 1 per room)
-(N) Mix of room types: standard kings, premium suites, family suites, honeymoon/bridal suite
-
-Bedrooms & Bathrooms (Total Property):
-(M) 15–55 total bedrooms including guest rooms and staff/owner quarters
-(M) 15–55 total bathrooms (at least 1:1 ratio to bedrooms)
-(N) 2–4 additional half-baths in public/common areas
-
-Land & Built Area:
-(M) Total land area: 5–100+ acres; minimum 5 acres for privacy buffer and outdoor programming
-(M) Built area: 8,000–40,000+ sq ft of usable interior space
-(N) 15,000–25,000 sq ft is the ideal range for operational efficiency
-(M) Zoned or zone-convertible for commercial hospitality use
-
-Living & Common Areas:
-(M) At least 2 distinct living/lounge areas for guest use (lobby/great room + secondary lounge)
-(M) Dedicated dining room or dining area seating 30–60 guests
-(N) Library, reading room, or quiet lounge
-(N) Game room, media room, or entertainment lounge
-(N) Wine cellar or tasting room
-
-Event Capacity:
-(M) Indoor event space for 50–150 guests (ballroom, great hall, or convertible space)
-(M) Outdoor event space for 80–200 guests (lawn, terrace, garden, courtyard)
-(N) Multiple distinct venue options for simultaneous events
-(N) Covered outdoor pavilion or tent-ready flat area
-(M) Adequate parking: 30–80+ spaces, or valet-ready circular drive
-
-═══════════════════════════════════════════════════
-3. OPERATIONAL FACILITIES (HOSPITALITY INFRASTRUCTURE)
-═══════════════════════════════════════════════════
-
-Kitchen & Food Service:
-(M) Commercial or semi-commercial kitchen (1,000+ sq ft) with hood ventilation, grease trap, walk-in cooler/freezer
-(M) Prep area, dish pit, dry storage, and receiving dock
-(N) Secondary prep kitchen or pantry kitchen for events
-(N) Outdoor cooking area (wood-fired oven, grill station, smoker)
-(M) Health department compliant or readily upgradeable to code
-
-Storage & Back-of-House:
-(M) Housekeeping storage: linen closets, laundry room with commercial washers/dryers
-(M) Maintenance workshop and general storage (1,000+ sq ft)
-(M) Receiving/loading area for vendor deliveries
-(N) Climate-controlled wine/beverage storage
-(N) Dedicated IT/server room or closet
-
-Staff & Operations:
-(M) Staff quarters or break room (on-site or adjacent housing for 4–8 key staff)
-(M) Administrative office space (front desk, back office, manager's office)
-(N) Staff housing: 2–4 separate units or converted barn/casita for live-in staff
-(N) Employee parking separate from guest parking
-
-═══════════════════════════════════════════════════
-4. AMENITIES & GUEST FACILITIES
-═══════════════════════════════════════════════════
-
-Aquatic & Wellness:
-(M) Swimming pool (minimum 400 sq ft surface area)
-(N) Second pool or infinity/plunge pool
-(N) Hot tub or jacuzzi (1–2 units)
-(N) Spa facility: 2–4 treatment rooms, sauna, steam room, relaxation lounge
-(N) Cold plunge pool or hydrotherapy circuit
-(N) Yoga/meditation pavilion or studio
-
-Fitness & Recreation:
-(N) Gym/fitness center (500–1,500 sq ft with cardio + weights)
-(N) Tennis court (1–2 courts, hard or clay surface)
-(N) Pickleball court (1–2 courts)
-(N) Basketball half-court
-(N) Bocce ball, croquet lawn, or putting green
-(N) Hiking/walking trails on property
-
-Equestrian & Agricultural:
-(N) Horse barn/stable (4–12+ stalls)
-(N) Riding arena or paddock
-(N) Pasture/turnout areas (5–20+ acres)
-(N) Tack room, feed storage, wash bay
-(N) Vegetable garden, herb garden, or small farm (farm-to-table programming)
-(N) Orchard, vineyard, or olive grove
-
-Outbuildings & Ancillary Structures:
-(N) Casitas, cottages, or guesthouses (2–6 units for premium-rate standalone accommodations)
-(N) Barn or converted barn for events, dining, or guest use
-(N) Glamping platforms, A-frames, or treehouses for ancillary revenue
-(N) Greenhouse or conservatory
-(N) Garage: 4–10+ bays for property vehicles, guest overflow, equipment
-(N) Chapel, gazebo, or ceremony structure
-(N) Fire pit areas, outdoor amphitheater, or stargazing deck
-
-═══════════════════════════════════════════════════
-5. PROPERTY CONDITION & AGE
-═══════════════════════════════════════════════════
-(M) Structural condition: good to excellent; no foundation, roof, or load-bearing issues
-(M) Roof age: less than 15 years old or recently replaced
-(M) HVAC: functional central or zoned system; upgradeable to modern efficiency standards
-(M) Plumbing: copper or PEX; no polybutylene or galvanized pipes requiring full replacement
-(M) Electrical: 200+ amp service, up to code or readily upgradeable
-(N) Property age: 10–100+ years (character properties preferred; new construction is acceptable if architecturally distinctive)
-(N) Recent renovations within last 10 years are a strong plus
-(M) No active pest infestation, mold, asbestos, or lead paint issues
-(M) Estimated renovation/FF&E budget must stay under $3M for conversion to hotel standard
-
-═══════════════════════════════════════════════════
-6. GROUNDS, TOPOGRAPHY & VEGETATION
-═══════════════════════════════════════════════════
-(M) Topography: gentle rolling hills, flat meadows, or terraced hillside; no extreme slopes requiring retaining walls
-(N) Mature landscaping: established trees (oaks, maples, palms, olive trees, or region-appropriate)
-(N) Manicured gardens, flowering borders, hedgerows for privacy
-(N) Water feature: pond, creek, lake frontage, or fountain
-(N) Mountain, valley, ocean, vineyard, or pastoral views
-(M) Yard/grounds must support outdoor events, dining, and recreation without major grading
-(N) Irrigation system for landscaping
-
-═══════════════════════════════════════════════════
-7. PRIVACY & SECURITY
-═══════════════════════════════════════════════════
-(M) Near-total privacy: property not visible from public roads; setback of 200+ ft minimum
-(M) Perimeter fencing, walls, hedgerows, or natural tree line providing visual and acoustic screening
-(N) Gated entry with intercom or staffed gatehouse
-(N) Security camera system or infrastructure for one
-(N) Private road or long driveway approach (500+ ft)
-(M) No shared driveways, easements, or right-of-way issues that compromise exclusivity
-
-═══════════════════════════════════════════════════
-8. LOCATION & ACCESSIBILITY
-═══════════════════════════════════════════════════
-
-Airport Proximity:
-(M) Within 60 minutes of a regional or international airport
-(N) Within 30 minutes of a major international airport (preferred)
-(N) Private airstrip on or adjacent to property
-
-Hospital & Medical:
-(M) Within 30 minutes of a hospital or urgent care facility
-(N) Within 15 minutes preferred
-
-Transportation & Rideshare:
-(M) Rideshare services (Uber/Lyft) available in the area
-(M) Property accessible by paved road year-round
-(N) Within 15 minutes of a town or village with shops, restaurants, pharmacies
-(N) Proximity to scenic drives, wine trails, or recreational corridors
-
-Tourism Demand Generators:
-(M) Proximity to tourism attractions (wine regions, mountains, beaches, cultural landmarks, national parks, culinary destinations)
-(N) Established wedding/event destination market
-(N) Existing tourism infrastructure (tour operators, activity providers, transportation services)
-
-═══════════════════════════════════════════════════
-9. PREFERRED GEOGRAPHIES
-═══════════════════════════════════════════════════
-
-United States:
-• Northeast: Hudson Valley NY, Berkshires MA, Catskills NY, Litchfield Hills CT, Bucks County PA
-• Southeast: Asheville NC, Charleston SC, Savannah GA, Florida Gulf Coast, Charlottesville VA
-• Southwest: Austin TX Hill Country, Sedona AZ, Santa Fe NM, Fredericksburg TX
-• West: Napa/Sonoma CA, Park City/Eden UT, Jackson Hole WY, Bend OR, San Juan Islands WA
-
-Latin America:
-• Colombia: Medellín, Cartagena, Coffee Triangle (Eje Cafetero), Santa Marta/Tayrona, Villa de Leyva
-• Mexico: San Miguel de Allende, Oaxaca, Riviera Nayarit, Tulum, Valle de Guadalupe
-• Costa Rica: Guanacaste, Central Valley, Osa Peninsula
-
-EMEA:
-• France: Provence, Loire Valley, Bordeaux, Côte d'Azur, Dordogne
-• UAE: Dubai (boutique/estate concepts in Jumeirah, Al Barari, Hatta)
-• Portugal: Alentejo, Douro Valley, Algarve
-• Italy: Tuscany, Umbria, Amalfi Coast, Lake Como
-• Spain: Mallorca, Andalusia, Basque Country
-
-═══════════════════════════════════════════════════
-10. FINANCIAL PARAMETERS & REVENUE BENCHMARKS
-═══════════════════════════════════════════════════
-
-Acquisition & Investment:
-(M) Acquisition price: $2M–$8M (target sweet spot: $3M–$5M)
-(M) Total investment (acquisition + renovation + FF&E): $3M–$12M
-(M) Renovation/conversion budget: $500K–$3M
-(M) FF&E budget: $15,000–$30,000 per room
-
-Revenue Benchmarks (research should validate per-market):
-(M) Target ADR: $200–$500/night depending on market and positioning
-(M) Stabilized occupancy: 55%–75% (12–18 month ramp)
-(M) RevPAR target: $130–$350/night at stabilization
-
-Revenue Mix (as % of Room Revenue — research should estimate per-property):
-• Food & Beverage: 35%–60% of room revenue (full-service dining, bar, room service, catering)
-• Events (weddings, retreats, corporate): 25%–50% of room revenue
-• Spa & Wellness: 8%–15% of room revenue (if spa facility exists)
-• Other Services (activities, tours, retail, experiences): 5%–12% of room revenue
-• Total ancillary revenue target: 40%–70% of room revenue
-
-Fee Structure:
-• Base management fee: 8%–10% of total revenue
-• Incentive management fee: 10%–15% of GOP above threshold
-• Exit cap rate expectation: 8%–10%
-• Target IRR: 15%+ over a 7–10 year hold
-• Target equity multiple: 2.0x–3.0x
-
-═══════════════════════════════════════════════════
-11. VENDOR & MANAGED SERVICES (VIA MANAGEMENT COMPANY)
-═══════════════════════════════════════════════════
-
-The management company coordinates third-party vendor services to each property. Research should estimate costs for these services in each market:
-
-Technology & IT Services:
-• Property Management System (PMS), channel manager, booking engine
-• Wi-Fi infrastructure (guest and back-of-house networks)
-• Point-of-sale systems for F&B, spa, retail
-• Security/surveillance systems
-• Smart room technology (keyless entry, climate, lighting)
-• IT support and managed services contract
-
-Housekeeping & Laundry:
-• Daily housekeeping staffing (in-house or outsourced)
-• Commercial laundry service or on-site laundry operations
-• Deep cleaning and turnover crews for events
-• Pest control and property sanitation
-
-Grounds & Maintenance:
-• Landscaping and grounds maintenance
-• Pool and spa maintenance
-• HVAC and mechanical systems maintenance
-• Painting, carpentry, and general property upkeep
-
-Professional Services:
-• Accounting and bookkeeping
-• Legal and compliance
-• Insurance (property, liability, workers' comp, business interruption)
-• Marketing, PR, and digital advertising
-• Revenue management and dynamic pricing
-
-Food & Beverage Vendors:
-• Food purveyors and specialty suppliers
-• Beverage distributors (wine, spirits, beer)
-• Equipment maintenance (kitchen, refrigeration)
-
-═══════════════════════════════════════════════════
-12. REGULATORY & COMPLIANCE
-═══════════════════════════════════════════════════
-(M) Clear zoning for hospitality/commercial use, or demonstrable path to re-zoning within 6 months
-(M) Building permits and renovation regulations must allow conversion within 6–18 months
-(M) No environmental remediation (wetlands, superfund, brownfield) or title encumbrances
-(M) Fire code compliance or clear path to compliance (sprinklers, exits, alarms)
-(M) ADA/accessibility compliance or feasible retrofit plan
-(M) Health department and food service licensing achievable
-(N) Liquor license available or transferable in the jurisdiction
-(N) Short-term rental / hotel operating permits straightforward in the municipality
-
-═══════════════════════════════════════════════════
-13. EXCLUSIONS
-═══════════════════════════════════════════════════
-• Properties requiring more than $3M in structural renovation
-• Urban high-rise or mid-rise buildings
-• Properties in flood zones, wildfire extreme zones, or with unresolved environmental issues
-• Locations more than 2 hours from a commercial airport
-• Properties below 5 rooms or above 80 rooms
-• Timeshare, fractional ownership, or condo-hotel structures
-• Properties with active litigation, liens, or title disputes
-• Gated communities with HOA restrictions on commercial use
-• Properties without year-round road access`;
+function NumberInput({ value, onChange, step }: { value: number; onChange: (v: number) => void; step?: number }) {
+  return (
+    <Input
+      type="number"
+      value={value}
+      step={step || 1}
+      onChange={(e) => onChange(Number(e.target.value) || 0)}
+      className="h-8 text-xs bg-card w-[80px] text-right tabular-nums"
+    />
+  );
+}
 
 export default function AssetDefinitionTab() {
   const { toast } = useToast();
-  const { data: globalAssumptions } = useGlobalAssumptions();
-  const updateGlobalMutation = useUpdateGlobalAssumptions();
+  const { data: ga } = useGlobalAssumptions();
+  const updateMutation = useUpdateGlobalAssumptions();
 
   const [propertyLabel, setPropertyLabel] = useState("");
-  const [assetDescription, setAssetDescription] = useState("");
-  const [assetDirty, setAssetDirty] = useState(false);
+  const [config, setConfig] = useState<IcpConfig>(DEFAULT_ICP_CONFIG);
+  const [desc, setDesc] = useState<IcpDescriptive>(DEFAULT_ICP_DESCRIPTIVE);
+  const [dirty, setDirty] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (globalAssumptions) {
-      setPropertyLabel(globalAssumptions.propertyLabel || "Boutique Hotel");
-      setAssetDescription(globalAssumptions.assetDescription || DEFAULT_ICP_DESCRIPTION);
-      setAssetDirty(false);
+    if (ga) {
+      setPropertyLabel(ga.propertyLabel || "Boutique Hotel");
+      if (ga.icpConfig) {
+        setConfig({ ...DEFAULT_ICP_CONFIG, ...(ga.icpConfig as Partial<IcpConfig>) });
+        if ((ga.icpConfig as any)._descriptive) {
+          setDesc({ ...DEFAULT_ICP_DESCRIPTIVE, ...((ga.icpConfig as any)._descriptive as Partial<IcpDescriptive>) });
+        }
+      }
+      setDirty(false);
     }
-  }, [globalAssumptions]);
+  }, [ga]);
 
-  const handleSaveAsset = () => {
-    updateGlobalMutation.mutate(
-      { propertyLabel, assetDescription },
+  const updateConfig = useCallback(<K extends keyof IcpConfig>(key: K, value: IcpConfig[K]) => {
+    setConfig((prev) => ({ ...prev, [key]: value }));
+    setDirty(true);
+  }, []);
+
+  const updateDesc = useCallback(<K extends keyof IcpDescriptive>(key: K, value: string) => {
+    setDesc((prev) => ({ ...prev, [key]: value }));
+    setDirty(true);
+  }, []);
+
+  const generatedPrompt = useMemo(
+    () => generateIcpPrompt(config, desc, propertyLabel),
+    [config, desc, propertyLabel]
+  );
+
+  const handleSave = () => {
+    const icpConfig = { ...config, _descriptive: desc };
+    updateMutation.mutate(
+      { propertyLabel, assetDescription: generatedPrompt, icpConfig },
       {
         onSuccess: () => {
-          setAssetDirty(false);
-          toast({ title: "Saved", description: "Ideal Customer Profile saved." });
+          setDirty(false);
+          toast({ title: "Saved", description: "ICP profile and generated context saved." });
         },
       }
     );
   };
 
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(generatedPrompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card className="bg-card border border-border/80 shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Tag className="w-4 h-4 text-muted-foreground" /> Ideal Customer Profile — Asset Definition</CardTitle>
-          <CardDescription className="label-text">Define the target property profile — used across page titles, AI research prompts, and financial reports</CardDescription>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-foreground">
+            Ideal Customer Profile — Asset Definition
+          </CardTitle>
+          <p className="text-xs text-muted-foreground mt-1">
+            Define the target property profile with deterministic parameters and descriptive context.
+            The generated prompt combines both into an optimized context served to AI research engines.
+          </p>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label className="label-text text-foreground">ICP Label</Label>
-            <Input
-              value={propertyLabel}
-              onChange={(e) => { setPropertyLabel(e.target.value); setAssetDirty(true); }}
-              placeholder="e.g., Boutique Hotel, Estate Hotel, Private Estate"
-              className="bg-card max-w-md"
-              data-testid="input-property-label"
-            />
-            <p className="text-xs text-muted-foreground">A one-line label for the target property type — appears in the UI and feeds into AI research prompts</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="label-text text-foreground">ICP Description (context)</Label>
-            <textarea
-              value={assetDescription}
-              onChange={(e) => { setAssetDescription(e.target.value); setAssetDirty(true); }}
-              placeholder="Describe the ideal target property in detail to educate the research engines."
-              className={ADMIN_TEXTAREA}
-              rows={40}
-              data-testid="input-asset-description"
-            />
-            <p className="text-xs text-muted-foreground">Comprehensive description of the ideal target property — educates AI research engines on size, location, pricing, amenities, and exclusion criteria</p>
-          </div>
-
-          <div className="flex justify-end pt-2">
+        <CardContent className="space-y-4">
+          <div className="flex items-end gap-4">
+            <div className="flex-1 max-w-md space-y-1">
+              <Label className="label-text text-foreground text-xs">ICP Label</Label>
+              <Input
+                value={propertyLabel}
+                onChange={(e) => { setPropertyLabel(e.target.value); setDirty(true); }}
+                placeholder="e.g., Boutique Hotel"
+                className="bg-card h-8 text-sm"
+                data-testid="input-property-label"
+              />
+            </div>
             <Button
-              onClick={handleSaveAsset}
-              disabled={!assetDirty || updateGlobalMutation.isPending}
-              data-testid="button-save-asset"
+              onClick={handleSave}
+              disabled={!dirty || updateMutation.isPending}
+              size="sm"
+              data-testid="button-save-icp"
             >
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="w-3.5 h-3.5 mr-1.5" />
               Save
             </Button>
           </div>
+
+          <Tabs defaultValue="parameters" className="w-full">
+            <TabsList className="w-full grid grid-cols-3 h-9">
+              <TabsTrigger value="parameters" className="text-xs" data-testid="tab-parameters">
+                Parameters
+              </TabsTrigger>
+              <TabsTrigger value="descriptive" className="text-xs" data-testid="tab-descriptive">
+                Descriptive
+              </TabsTrigger>
+              <TabsTrigger value="context" className="text-xs" data-testid="tab-context">
+                Generated Context
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="parameters" className="mt-3">
+              <ParametersTab config={config} updateConfig={updateConfig} />
+            </TabsContent>
+
+            <TabsContent value="descriptive" className="mt-3">
+              <DescriptiveTab desc={desc} updateDesc={updateDesc} />
+            </TabsContent>
+
+            <TabsContent value="context" className="mt-3">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    This is the combined prompt that will be served to the LLM.
+                    It merges all parameters and descriptive inputs into an optimized context.
+                  </p>
+                  <Button variant="ghost" size="sm" onClick={handleCopy} className="text-xs h-7 gap-1">
+                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    {copied ? "Copied" : "Copy"}
+                  </Button>
+                </div>
+                <pre
+                  className="whitespace-pre-wrap text-xs leading-relaxed font-mono text-foreground/90 bg-muted/40 border border-border rounded p-4 max-h-[600px] overflow-y-auto"
+                  data-testid="text-generated-context"
+                >
+                  {generatedPrompt}
+                </pre>
+                <p className="text-xs text-muted-foreground italic">
+                  {generatedPrompt.length.toLocaleString()} characters
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function ParametersTab({
+  config,
+  updateConfig,
+}: {
+  config: IcpConfig;
+  updateConfig: <K extends keyof IcpConfig>(key: K, value: IcpConfig[K]) => void;
+}) {
+  return (
+    <div className="space-y-1">
+      <p className="text-xs text-muted-foreground mb-3">
+        All numeric values are editable. Defaults are suggested starting points based on the current portfolio.
+      </p>
+      {PARAMETER_SECTIONS.map((section) => (
+        <details key={section.title} className="group border-b border-border/50">
+          <summary className="flex items-center justify-between cursor-pointer py-2 px-1 text-xs font-medium text-foreground/80 hover:text-foreground select-none">
+            <span>{section.title}</span>
+            <span className="text-[10px] text-muted-foreground group-open:hidden">
+              {section.fields.length} fields
+            </span>
+          </summary>
+          <div className="pb-3 pl-1 pr-1">
+            <table className="w-full">
+              <tbody>
+                {section.fields.map((field) => (
+                  <tr key={field.key} className="border-b border-border/20 last:border-0">
+                    <td className="py-1.5 pr-3 text-xs text-muted-foreground whitespace-nowrap w-[200px]">
+                      {field.label}
+                    </td>
+                    <td className="py-1.5">
+                      <div className="flex items-center gap-1.5">
+                        {field.type === "priority" ? (
+                          <PrioritySelect
+                            value={config[field.key as keyof IcpConfig] as Priority}
+                            onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
+                          />
+                        ) : field.type === "currency" ? (
+                          <>
+                            <span className="text-xs text-muted-foreground">$</span>
+                            <CurrencyInput
+                              value={config[field.key as keyof IcpConfig] as number}
+                              onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
+                            />
+                          </>
+                        ) : (
+                          <NumberInput
+                            value={config[field.key as keyof IcpConfig] as number}
+                            onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
+                            step={field.suffix === "%" && !field.key.includes("Share") ? 1 : undefined}
+                          />
+                        )}
+                        {field.pair && (
+                          <>
+                            <span className="text-[10px] text-muted-foreground">{field.pairLabel}</span>
+                            {field.type === "currency" ? (
+                              <>
+                                <span className="text-xs text-muted-foreground">$</span>
+                                <CurrencyInput
+                                  value={config[field.pair as keyof IcpConfig] as number}
+                                  onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
+                                />
+                              </>
+                            ) : (
+                              <NumberInput
+                                value={config[field.pair as keyof IcpConfig] as number}
+                                onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
+                              />
+                            )}
+                          </>
+                        )}
+                        {field.suffix && (
+                          <span className="text-[10px] text-muted-foreground ml-0.5">{field.suffix}</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+function DescriptiveTab({
+  desc,
+  updateDesc,
+}: {
+  desc: IcpDescriptive;
+  updateDesc: <K extends keyof IcpDescriptive>(key: K, value: string) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-muted-foreground">
+        Qualitative descriptions and preferences. These are combined with the numeric parameters
+        to produce the full ICP context.
+      </p>
+      {DESCRIPTIVE_SECTIONS.map((section) => (
+        <div key={section.key} className="space-y-1.5">
+          <Label className="text-xs font-medium text-foreground/80">{section.label}</Label>
+          <textarea
+            value={desc[section.key]}
+            onChange={(e) => updateDesc(section.key, e.target.value)}
+            rows={section.rows}
+            className={ADMIN_TEXTAREA + " text-xs"}
+            data-testid={`input-icp-${section.key}`}
+          />
+          <p className="text-[10px] text-muted-foreground">{section.help}</p>
+        </div>
+      ))}
     </div>
   );
 }

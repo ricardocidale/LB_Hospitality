@@ -91,6 +91,7 @@ import {
   acquisitionLoanAmount,
   acqMonthsFromModelStart as sharedAcqMonths,
 } from "./equityCalculations";
+import { outstandingBalance, debtServiceForPeriod } from "./amortization";
 
 // Import constants from shared module
 import {
@@ -197,21 +198,9 @@ export function getAcquisitionOutstandingBalance(
 ): number {
   if (loan.loanAmount === 0) return 0;
   const endOfYearMonth = (yearEnd + 1) * 12;
-  
-  // No debt exists before acquisition
   if (endOfYearMonth <= loan.acqMonthsFromModelStart) return 0;
-  
   const monthsPaid = Math.max(0, Math.min(endOfYearMonth - loan.acqMonthsFromModelStart, loan.totalPayments));
-  if (monthsPaid <= 0) return loan.loanAmount;
-  const remainingPayments = loan.totalPayments - monthsPaid;
-  if (remainingPayments <= 0) return 0;
-  
-  // Handle zero interest rate (straight-line principal reduction)
-  if (loan.monthlyRate === 0) {
-    return loan.loanAmount - (loan.monthlyPayment * monthsPaid);
-  }
-  
-  return loan.monthlyPayment * (1 - Math.pow(1 + loan.monthlyRate, -remainingPayments)) / loan.monthlyRate;
+  return outstandingBalance(loan.monthlyPayment, loan.monthlyRate, monthsPaid, loan.totalPayments, loan.loanAmount);
 }
 
 /**
@@ -300,16 +289,7 @@ export function getRefiOutstandingBalance(
   const yearsFromRefi = yearEnd - refi.refiYear + 1;
   if (yearsFromRefi < 0) return refi.refiLoanAmount;
   const monthsPaid = Math.min(yearsFromRefi * 12, refi.refiTotalPayments);
-  if (monthsPaid <= 0) return refi.refiLoanAmount;
-  const remainingPayments = refi.refiTotalPayments - monthsPaid;
-  if (remainingPayments <= 0) return 0;
-  
-  // Handle zero interest rate (straight-line principal reduction)
-  if (refi.refiMonthlyRate === 0) {
-    return refi.refiLoanAmount - (refi.refiMonthlyPayment * monthsPaid);
-  }
-  
-  return refi.refiMonthlyPayment * (1 - Math.pow(1 + refi.refiMonthlyRate, -remainingPayments)) / refi.refiMonthlyRate;
+  return outstandingBalance(refi.refiMonthlyPayment, refi.refiMonthlyRate, monthsPaid, refi.refiTotalPayments, refi.refiLoanAmount);
 }
 
 /**
@@ -357,44 +337,25 @@ export function calculateYearlyDebtService(
   const yearEndMonth = (year + 1) * 12;
   
   if (refi.refiYear >= 0 && year >= refi.refiYear && refi.refiLoanAmount > 0) {
-    const yearsFromRefi = year - refi.refiYear;
-    const monthsFromRefi = yearsFromRefi * 12;
-    let refiBalance = refi.refiLoanAmount;
-    for (let pm = 0; pm < monthsFromRefi; pm++) {
-      const interest = refiBalance * refi.refiMonthlyRate;
-      const principal = refi.refiMonthlyPayment - interest;
-      refiBalance = Math.max(0, refiBalance - principal);
-    }
-    
-    for (let m = 0; m < 12; m++) {
-      const interest = refiBalance * refi.refiMonthlyRate;
-      const principal = refi.refiMonthlyPayment - interest;
-      yearlyInterest += interest;
-      yearlyPrincipal += principal;
-      refiBalance = Math.max(0, refiBalance - principal);
-    }
+    const skipMonths = (year - refi.refiYear) * 12;
+    const { interest, principal } = debtServiceForPeriod(
+      refi.refiMonthlyPayment, refi.refiMonthlyRate, skipMonths, 12, refi.refiLoanAmount
+    );
+    yearlyInterest = interest;
+    yearlyPrincipal = principal;
     yearlyDebtService = refi.refiMonthlyPayment * 12;
   } else if (loan.loanAmount > 0) {
-    const loanPaymentsThisYear = Math.min(12, 
+    const loanPaymentsThisYear = Math.min(12,
       Math.max(0, Math.min(yearEndMonth, loan.acqMonthsFromModelStart + loan.totalPayments) - Math.max(yearStartMonth, loan.acqMonthsFromModelStart))
     );
-    
+
     if (loanPaymentsThisYear > 0) {
-      const paymentsMadeBefore = Math.max(0, yearStartMonth - loan.acqMonthsFromModelStart);
-      let remainingBalance = loan.loanAmount;
-      for (let pm = 0; pm < paymentsMadeBefore; pm++) {
-        const interest = remainingBalance * loan.monthlyRate;
-        const principal = loan.monthlyPayment - interest;
-        remainingBalance = Math.max(0, remainingBalance - principal);
-      }
-      
-      for (let m = 0; m < loanPaymentsThisYear; m++) {
-        const interestPayment = remainingBalance * loan.monthlyRate;
-        const principalPayment = loan.monthlyPayment - interestPayment;
-        yearlyInterest += interestPayment;
-        yearlyPrincipal += principalPayment;
-        remainingBalance = Math.max(0, remainingBalance - principalPayment);
-      }
+      const skipMonths = Math.max(0, yearStartMonth - loan.acqMonthsFromModelStart);
+      const { interest, principal } = debtServiceForPeriod(
+        loan.monthlyPayment, loan.monthlyRate, skipMonths, loanPaymentsThisYear, loan.loanAmount
+      );
+      yearlyInterest = interest;
+      yearlyPrincipal = principal;
       yearlyDebtService = loan.monthlyPayment * loanPaymentsThisYear;
     }
   }

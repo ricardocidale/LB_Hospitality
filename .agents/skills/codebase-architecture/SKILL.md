@@ -39,13 +39,89 @@ client/src/
 ### Rule: features/ = self-contained, components/ = shared
 - `features/` modules own their hooks, types, components, and API calls
 - `components/` contains shared UI used across multiple pages
-- `components/ui/` contains shadcn primitives — never modify these except via shadcn CLI
+- `components/ui/` contains shadcn primitives + custom app components (see catalog below)
 
 ### Rule: Import direction
 - Pages import from features, components, hooks, and lib
 - Features may import from lib and components/ui, NOT from other features
 - Components may import from lib and components/ui
 - lib has no UI imports
+
+## UI Component Catalog (`components/ui/`)
+
+### shadcn Primitives (standard — do not modify except via shadcn CLI)
+`Accordion`, `AlertDialog`, `Alert`, `AspectRatio`, `Avatar`, `Badge`, `Breadcrumb`, `Button`, `Calendar`, `Card`, `Carousel`, `Chart`, `Checkbox`, `Collapsible`, `Command`, `ContextMenu`, `Dialog`, `Drawer`, `DropdownMenu`, `Form`, `HoverCard`, `Input`, `InputOTP`, `Label`, `Menubar`, `NavigationMenu`, `Pagination`, `Popover`, `Progress`, `RadioGroup`, `Resizable`, `ScrollArea`, `Select`, `Separator`, `Sheet`, `Sidebar`, `Skeleton`, `Slider`, `Sonner`, `Switch`, `Table`, `Tabs` (CAUTION: has custom `CurrentThemeTab` at bottom — never overwrite), `Textarea`, `Toast`, `Toaster`, `Toggle`, `ToggleGroup`, `Tooltip`
+
+### Tooltips (3 types)
+| Component | Icon | Import | Use For |
+|-----------|------|--------|---------|
+| `Tooltip` + `TooltipTrigger` + `TooltipContent` | Custom | `@/components/ui/tooltip` | Base primitive — use when you need a fully custom trigger element |
+| `HelpTooltip` | `?` (HelpCircle) | `@/components/ui/help-tooltip` | Financial table line items — internal transparency feature. Props: `text`, `light?`, `side?`, `manualSection?`, `manualLabel?` |
+| `InfoTooltip` | `i` (Info) | `@/components/ui/info-tooltip` | Form input fields — concept definitions. Props: `text`, `formula?` (renders monospace code block), `light?`, `side?`, `manualSection?`, `manualLabel?` |
+
+### Buttons & Actions
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `SaveButton` | `@/components/ui/save-button` | Standard save button with loading state. Props: `onClick`, `disabled`, `isPending`, `label?` |
+| `ButtonGroup` | `@/components/ui/button-group` | Group related buttons with `ButtonGroupText` for labels |
+| `ExportMenu` | `@/components/ui/export-toolbar` | Dropdown menu with export actions. Use with `pdfAction()`, `csvAction()`, `excelAction()`, `pptxAction()`, `pngAction()` helpers |
+
+### Cards & Containers
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `StatCard` | `@/components/ui/stat-card` | KPI card with label, value, trend. Props: `title`, `value`, `format?` ("money"/"percent"/"number"/"text"), `trend?`, `icon?` |
+| `SectionCard` | `@/components/ui/section-card` | Titled card section with optional actions. Props: `title`, `description?`, `children`, `actions?` |
+| `EntityCardContainer` | `@/components/ui/entity-card` | Card for entity lists (properties, companies). Handles click, selection, actions |
+| `ContentPanel` | `@/components/ui/content-panel` | Full-width content container with consistent padding |
+| `PageHeader` | `@/components/ui/page-header` | Page title bar with optional back link and action buttons. Props: `title`, `subtitle?`, `backLink?`, `actions?` |
+| `Callout` | `@/components/ui/callout` | Alert box with severity. Props: `severity` ("warning"/"critical"/"info"/"success"), `variant` ("dark"/"light"), `title?`, `children` |
+| `Empty` | `@/components/ui/empty` | Empty state placeholder with `EmptyHeader`, `EmptyMedia`, composable sub-components |
+
+### Form Components
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `FieldSet` / `FieldGroup` / `FieldLegend` | `@/components/ui/field` | Semantic form grouping with consistent spacing |
+| `InputGroup` | `@/components/ui/input-group` | Input with prefix/suffix addons (e.g., "$" prefix, "%" suffix) |
+| `NativeSelect` | `@/components/ui/native-select` | Native `<select>` element (use when shadcn Select is overkill) |
+| `EditableValue` | `@/components/ui/editable-value` | Inline-editable numeric value. Props: `value`, `onChange`, `format` ("percent"/"dollar"/"months"/"number") |
+| `ColorPicker` | `@/components/ui/color-picker` | Color swatch picker with preset colors + custom hex input. Props: `value`, `onChange` |
+| `ImageCropDialog` | `@/components/ui/image-crop-dialog` | Dialog for cropping uploaded images before saving |
+| `AIImagePicker` | `@/components/ui/ai-image-picker` | Multi-mode image input: upload, AI generate, or paste URL. Props: `onSelect`, `aspectRatio?` |
+
+### Badges & Status
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `StatusBadge` | `@/components/ui/status-badge` | Dot + label badge. Props: `status` ("active"/"inactive"/"pending"/"error"/"warning"), `label?` |
+| `GaapBadge` | `@/components/ui/gaap-badge` | GAAP compliance rule badge. Props: `rule`, `className?` |
+| `ResearchBadge` | `@/components/ui/research-badge` | Data source badge. Props: `source` ("market"/"industry"/"ai"/"seed"), `entries?` |
+
+### Financial & Data
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `FinancialChart` | `@/components/ui/financial-chart` | Multi-series line/bar chart. Props: `data`, `series` (string[] or ChartSeries[]), `title?` |
+| `FinancialTable` | `@/components/ui/financial-table` | Generic financial data table. Props: `columns` (FinancialTableColumn[]), `rows` (FinancialTableRow[]) |
+| `ManualTable` | `@/components/ui/manual-table` | Simple table for documentation/manuals. Props: `headers`, `rows`, `variant?` ("dark"/"light") |
+
+### Media & Visual
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `ImagePreviewCard` | `@/components/ui/image-preview-card` | Image thumbnail with aspect ratio options. Props: `src`, `alt`, `aspect?` |
+| `AnimatedLogo` | `@/components/ui/animated-logo` | Logo with animation modes. Props: `src`, `mode` ("none"/"pulse"/"glow"/"spin"/"bounce"), `size?` |
+| `UserAvatar` | `@/components/ui/user-avatar` | User avatar with initials fallback. Props: `name`, `avatarUrl?`, `size?` ("sm"/"md"/"lg") |
+| `Spinner` | `@/components/ui/spinner` | Loading spinner SVG |
+
+### Animation
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `FadeIn`, `FadeInUp`, `ScaleIn`, `SlideIn` | `@/components/ui/animated` | Framer-motion wrapper components. Props: `delay?`, `duration?`, `className?` |
+| `StaggerContainer`, `AnimatedCounter`, `HoverScale` | `@/components/ui/animated` | Container stagger, number counter animation, hover scale effect |
+
+### Utility
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `Kbd` / `KbdGroup` | `@/components/ui/kbd` | Keyboard shortcut display (`⌘K` style) |
+| `DirectionProvider` / `useDirection` | `@/components/ui/direction` | LTR/RTL context provider |
+| `TypographyH1`–`H4`, `TypographyP`, `TypographyLead`, `TypographyLarge` | `@/components/ui/typography` | Semantic typography components with consistent styles |
 
 ## Barrel Files (index.ts)
 

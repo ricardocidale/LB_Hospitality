@@ -239,10 +239,11 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 
 ### Rules
 1. Every financial line item (revenue, expense, fee, metric) should have a `tooltip` explaining what it is and how it's calculated
-2. Tooltips describe the **formula or source**, not just a label restatement (e.g., "Calculated as Room Count × Days × ADR × Occupancy" not "Revenue from rooms")
-3. In `LineItem` / `MetricRow` / `SubtotalRow` components: pass `tooltip` prop — the `?` icon renders automatically when `useCalcDetails()` is true
-4. In the consolidated dashboard: tooltips render always (no toggle gating) via inline `HelpTooltip` in the row render
-5. Tooltip text must never include actual computed values — only formula descriptions and parameter names
+2. Use `HelpTooltip` (`?` icon) for financial tables, `InfoTooltip` (`i` icon) for form inputs — see `codebase-architecture` skill for the full tooltip catalog
+3. Tooltips describe the **formula or source**, not just a label restatement (e.g., "Calculated as Room Count × Days × ADR × Occupancy" not "Revenue from rooms")
+4. In `LineItem` / `MetricRow` / `SubtotalRow` components: pass `tooltip` prop — the `?` icon renders automatically when `useCalcDetails()` is true
+5. In the consolidated dashboard: tooltips render always (no toggle gating) via inline `HelpTooltip` in the row render
+6. Tooltip text must never include actual computed values — only formula descriptions and parameter names
 
 ### Covered Line Items
 **Revenue:** Room Revenue, F&B Revenue, Event Revenue, Other Revenue

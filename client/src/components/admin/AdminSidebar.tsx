@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, FlaskConical } from "lucide-react";
+import { Menu, X, FlaskConical, HelpCircle } from "lucide-react";
+import { Link } from "wouter";
 import {
   IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconPackage, IconTrending,
@@ -44,12 +45,11 @@ const navGroups: NavGroup[] = [
     id: "platform",
     label: "Platform",
     icon: IconSwatchBook,
-    description: "Look, feel & navigation",
+    description: "Look, feel & branding",
     sections: [
       { value: "branding", label: "Hospitality Brand", icon: IconImage },
       { value: "themes", label: "Themes", icon: IconSwatchBook },
       { value: "logos", label: "Logos", icon: IconUpload },
-      { value: "navigation", label: "Navigation", icon: IconPanelLeft },
     ],
   },
   {
@@ -76,10 +76,11 @@ const navGroups: NavGroup[] = [
     id: "system",
     label: "System",
     icon: IconShield,
-    description: "Verification & database",
+    description: "Verification, database & navigation",
     sections: [
       { value: "verification", label: "Verification", icon: IconFileCheck },
       { value: "database", label: "Database", icon: IconDatabase },
+      { value: "navigation", label: "Navigation", icon: IconPanelLeft },
     ],
   },
 ];
@@ -101,25 +102,21 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
   const activeGroup = getGroupForSection(activeSection);
 
   const sidebarContent = (
-    <nav className="flex flex-col gap-1 py-3 px-3">
+    <nav className="flex flex-col gap-0.5 py-3 px-3">
       {navGroups.map((group) => {
         const isGroupActive = group.id === activeGroup;
-        const GroupIcon = group.icon;
 
         return (
-          <div key={group.id} className="mb-1">
-            <div className="px-3 pt-3 pb-1.5">
-              <div className="flex items-center gap-2">
-                <GroupIcon className={cn("w-3.5 h-3.5", isGroupActive ? "text-foreground" : "text-muted-foreground")} />
-                <span
-                  className={cn(
-                    "text-[10.5px] font-semibold uppercase tracking-[0.08em]",
-                    isGroupActive ? "text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  {group.label}
-                </span>
-              </div>
+          <div key={group.id} className="mb-0.5">
+            <div className="px-3 pt-4 pb-1">
+              <span
+                className={cn(
+                  "text-[11px] font-medium",
+                  isGroupActive ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                {group.label}
+              </span>
             </div>
 
             <div className="space-y-0.5">
@@ -143,7 +140,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                   >
                     <Icon
                       className={cn(
-                        "w-[15px] h-[15px] shrink-0 transition-colors",
+                        "w-4 h-4 shrink-0 transition-colors",
                         isActive
                           ? "text-foreground"
                           : "text-muted-foreground group-hover/item:text-muted-foreground"
@@ -164,6 +161,17 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           </div>
         );
       })}
+
+      <div className="mt-1 pt-2 border-t border-border/60">
+        <Link
+          href="/help"
+          data-testid="admin-nav-help"
+          className="relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 text-muted-foreground hover:bg-accent hover:text-foreground"
+        >
+          <HelpCircle className="w-4 h-4 shrink-0" />
+          <span className="text-[13px] font-normal">Help</span>
+        </Link>
+      </div>
     </nav>
   );
 

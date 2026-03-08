@@ -116,9 +116,9 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     {
       label: "Settings",
       items: [
-        ...(hasManagementAccess ? [{ href: "/settings", label: "Systemwide Assumptions", icon: IconSettings }] : []),
         { href: "/profile", label: "My Profile", icon: IconProfile },
         ...(sb("sidebarScenarios") && hasManagementAccess ? [{ href: "/scenarios", label: "My Scenarios", icon: IconScenarios }] : []),
+        ...(hasManagementAccess ? [{ href: "/settings", label: "Systemwide Assumptions", icon: IconSettings }] : []),
       ],
     },
     {

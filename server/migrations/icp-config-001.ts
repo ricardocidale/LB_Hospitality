@@ -1,11 +1,17 @@
-import { sql } from "drizzle-orm";
 import { db } from "../db";
-import { log } from "../logging";
+import { sql } from "drizzle-orm";
+import { logger } from "../logger";
 
-export async function runIcpConfigMigration() {
-  await db.execute(sql`
-    ALTER TABLE global_assumptions
-    ADD COLUMN IF NOT EXISTS icp_config jsonb
-  `);
-  log("info", "[icp-config-001] Migration complete", "server");
+const TAG = "icp-config-001";
+
+export async function runIcpConfigMigration(): Promise<void> {
+  try {
+    await db.execute(sql`
+      ALTER TABLE global_assumptions
+      ADD COLUMN IF NOT EXISTS icp_config jsonb
+    `);
+    logger.info("Migration complete", TAG);
+  } catch (error) {
+    logger.error(`Migration failed: ${error}`, TAG);
+  }
 }

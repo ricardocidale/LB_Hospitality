@@ -101,7 +101,31 @@ export class UserStorage {
    */
   async getSession(sessionId: string): Promise<(Session & { user: User }) | undefined> {
     const [result] = await db
-      .select()
+      .select({
+        sessions: {
+          id: sessions.id,
+          userId: sessions.userId,
+          expiresAt: sessions.expiresAt,
+          createdAt: sessions.createdAt,
+        },
+        users: {
+          id: users.id,
+          email: users.email,
+          passwordHash: users.passwordHash,
+          role: users.role,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          company: users.company,
+          companyId: users.companyId,
+          title: users.title,
+          userGroupId: users.userGroupId,
+          selectedThemeId: users.selectedThemeId,
+          phoneNumber: users.phoneNumber,
+          hideTourPrompt: users.hideTourPrompt,
+          createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
+        },
+      })
       .from(sessions)
       .innerJoin(users, eq(sessions.userId, users.id))
       .where(and(eq(sessions.id, sessionId), gt(sessions.expiresAt, new Date())));

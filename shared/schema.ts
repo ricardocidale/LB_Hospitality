@@ -432,7 +432,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaLanguage: text("marcela_language").notNull().default("en"),
   marcelaTurnTimeout: integer("marcela_turn_timeout").notNull().default(DEFAULT_MARCELA_TURN_TIMEOUT),
   marcelaAvatarUrl: text("marcela_avatar_url").notNull().default(""),
-  marcelaWidgetVariant: text("marcela_widget_variant").notNull().default("compact"),
+  marcelaWidgetVariant: text("marcela_widget_variant").notNull().default("elevenlabs"),
 
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [

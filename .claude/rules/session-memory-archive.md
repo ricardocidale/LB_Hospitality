@@ -85,6 +85,32 @@ Older sessions moved here to reduce token cost. Only referenced when investigati
 
 ---
 
+## Session: March 7, 2026 — Multiple Sessions (Export Parity, Skill Files, ElevenLabs UI, Refactors, Docs)
+- Export parity: Added ExportMenu (6 formats) to SensitivityAnalysis, ExecutiveSummary, ComparisonView
+- Large page extraction: FinancingAnalysis (~720→90 lines), Scenarios (~719→350), SensitivityAnalysis (~712→200); skill files created for all 3
+- ElevenLabs UI blocks installed + adapted (Next.js→Vite): VoiceChatOrb, VoiceChatFull, VoiceChatBar, Speaker, RealtimeTranscriber; VoiceLab page added at `/voice`
+- AI Agent feature module reorganized: 17 EL components moved to `features/ai-agent/components/`; backward-compat barrels in `components/ui/`; `query-keys.ts` with `AI_AGENT_KEYS`
+- Docs + architecture: `statements/` dir, `server/ai/`, `server/data/` reorganization; JSDoc on 9 critical files
+- 7 voice UI correctness fixes + 6 code quality fixes; `claude-is-sole-truth.md` rule + 7 proof tests; doc harmonization
+
+## Session: March 6, 2026 — Centralized Services, AI Agent Admin Tab, Hardening, Research Tools
+- Centralized Services Model: `calc/services/`, `serviceTemplates` schema, ServicesTab admin UI, Company P&L Cost of Services row; 63 tests
+- AI Agent admin tab (7 sub-tabs): PromptEditor, ToolsStatus, enhanced KnowledgeBase with file upload; `aiAgentName` DB column
+- Codebase hardening: 27 storage layer tests, 10 E2E scenario tests, 31 recalc enforcement checks, `sendError()`/`logAndSendError()` helpers
+- Research tools: 5 deterministic tools (`calc/research/`), post-LLM validation layer (`validate-research.ts`), slimmed TOOL_PROMPTS
+
+## Session: February 24–26, 2026 — Admin Refactor, Marcela Multi-Channel, Source-of-Truth Harmonization
+- Admin.tsx refactored: 3,235-line monolith → 10 tab components + 87-line shell; `script/seed-production.sql` added
+- Marcela AI multi-channel: RAG KB (`server/ai/knowledge-base.ts`), Twilio Voice WebSocket, Twilio SMS, telephony admin tab
+- Source-of-truth harmonization: `claude.md` stats fixed, 4 SKILL.md entry points created, `replit.md` rewritten as slim pointer
+
+## Session: February 16, 2026 — Token Optimization, Mobile Responsive, Test Coverage
+- Rule consolidation: 25 rules → 18 by merging related rules; session memory compressed
+- Mobile responsive skills created: 4 files in `.claude/skills/mobile-responsive/`
+- Added 101 tests (1401→1502); fixed projectionYears≥2 bug; underfunding changed to info severity
+
+---
+
 ## Session: February 14, 2026 — Industry Research & Marcela AI
 
 ### Industry Research Tab (Settings Page)

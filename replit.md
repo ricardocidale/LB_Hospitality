@@ -37,7 +37,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 |-------|----------|
 | Architecture & tech stack | `.claude/claude.md` § Tech Stack |
 | Financial engine | `.claude/rules/financial-engine.md` |
-| Admin page (10 tabs) | `.claude/skills/admin/SKILL.md` |
+| Admin page (10 tabs + AI Agent 9 sub-tabs) | `.claude/skills/admin/SKILL.md` |
 | AI assistant (Marcela) | `.claude/claude.md` § Marcela AI, `.claude/skills/marcela-ai/SKILL.md` |
 | ElevenLabs architecture | `.claude/skills/codebase-architecture/SKILL.md` § ElevenLabs / AI Agent Architecture |
 | ElevenLabs SDK reference | `.claude/skills/elevenlabs-widget/` |

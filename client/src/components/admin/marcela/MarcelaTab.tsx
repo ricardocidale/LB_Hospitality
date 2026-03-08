@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History, CheckCircle2, XCircle, Activity, Play } from "lucide-react";
+import { Shield, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone, User, History, CheckCircle2, XCircle, Activity, Play, LayoutTemplate } from "lucide-react";
 import { Orb, AgentState } from "@/features/ai-agent/components/orb";
 import { ConversationBar } from "@/features/ai-agent/components/conversation-bar";
 import { VoiceSettings } from "./types";
@@ -20,6 +20,7 @@ import { VoiceSettingsComponent } from "./VoiceSettings";
 import { PromptEditor } from "./PromptEditor";
 import { ToolsStatus } from "./ToolsStatus";
 import { ConversationHistory } from "./ConversationHistory";
+import { WidgetSettingsComponent } from "./WidgetSettings";
 
 export default function MarcelaTab() {
   const { data: globalData, isLoading } = useMarcelaSettings();
@@ -103,7 +104,7 @@ export default function MarcelaTab() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-4 md:grid-cols-8 h-auto p-1 bg-muted border border-border">
+        <TabsList className="grid grid-cols-5 md:grid-cols-9 h-auto p-1 bg-muted border border-border">
           <TabsTrigger value="general" className="py-2 gap-2" data-testid="tab-ai-agent-general">
             <Shield className="w-4 h-4" />
             <span className="hidden md:inline">General</span>
@@ -118,6 +119,10 @@ export default function MarcelaTab() {
           <TabsTrigger value="voice" className="py-2 gap-2" data-testid="tab-ai-agent-voice">
             <Mic className="w-4 h-4" />
             <span className="hidden md:inline">Voice</span>
+          </TabsTrigger>
+          <TabsTrigger value="widget" className="py-2 gap-2" data-testid="tab-ai-agent-widget">
+            <LayoutTemplate className="w-4 h-4" />
+            <span className="hidden md:inline">Widget</span>
           </TabsTrigger>
           <TabsTrigger value="llm" className="py-2 gap-2" data-testid="tab-ai-agent-llm">
             <Brain className="w-4 h-4" />
@@ -366,6 +371,13 @@ export default function MarcelaTab() {
 
           <TabsContent value="voice" className="space-y-6 m-0 focus-visible:outline-none">
             <VoiceSettingsComponent
+              draft={draft}
+              updateField={updateField}
+            />
+          </TabsContent>
+
+          <TabsContent value="widget" className="space-y-6 m-0 focus-visible:outline-none">
+            <WidgetSettingsComponent
               draft={draft}
               updateField={updateField}
             />

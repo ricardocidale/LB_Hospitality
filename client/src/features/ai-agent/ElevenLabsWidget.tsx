@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { useGlobalAssumptions } from "@/lib/api/admin";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
@@ -22,9 +22,11 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
 
   const agentId = (global as any)?.marcelaAgentId;
   const agentName = (global as any)?.aiAgentName || "Marcela";
-  const variant = (global as any)?.marcelaWidgetVariant || "compact";
+  const variant = (global as any)?.marcelaWidgetVariant || "elevenlabs";
 
   const shouldActivate = !!(enabled && agentId);
+
+  const isNativeWidget = variant === "elevenlabs" || variant === "full" || variant === "compact" || variant === "tiny";
 
   const { data: signedUrl } = useQuery<string>({
     queryKey: ["marcela-signed-url"],
@@ -34,7 +36,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       const data = await res.json();
       return data.signedUrl as string;
     },
-    enabled: shouldActivate,
+    enabled: shouldActivate && !isNativeWidget,
     staleTime: 10 * 60 * 1000,
     refetchInterval: 10 * 60 * 1000,
     retry: 1,
@@ -48,6 +50,10 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
     user_role: user?.role || "partner",
     current_page: location,
   };
+
+  if (isNativeWidget) {
+    return <NativeElevenLabsWidget agentId={agentId} dynamicVars={dynamicVars} />;
+  }
 
   if (variant === "orb") {
     return (
@@ -130,4 +136,46 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       </div>
     </Suspense>
   );
+}
+
+function NativeElevenLabsWidget({
+  agentId,
+  dynamicVars,
+}: {
+  agentId: string;
+  dynamicVars: Record<string, string>;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const widgetRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    import("@elevenlabs/convai-widget-core");
+  }, []);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    if (widgetRef.current) {
+      widgetRef.current.remove();
+    }
+
+    const widget = document.createElement("elevenlabs-convai");
+    widget.setAttribute("agent-id", agentId);
+    widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
+    containerRef.current.appendChild(widget);
+    widgetRef.current = widget;
+
+    return () => {
+      widget.remove();
+      widgetRef.current = null;
+    };
+  }, [agentId]);
+
+  useEffect(() => {
+    if (widgetRef.current) {
+      widgetRef.current.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
+    }
+  }, [dynamicVars.user_name, dynamicVars.user_role, dynamicVars.current_page]);
+
+  return <div ref={containerRef} data-testid="elevenlabs-native-widget" />;
 }

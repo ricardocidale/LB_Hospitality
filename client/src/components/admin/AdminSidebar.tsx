@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, FlaskConical, HelpCircle } from "lucide-react";
+import { Menu, X, FlaskConical, HelpCircle, ImageIcon } from "lucide-react";
 import { Link } from "wouter";
 import {
   IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
@@ -59,7 +59,7 @@ const navGroups: NavGroup[] = [
     description: "Themes & logos",
     sections: [
       { value: "themes", label: "Themes", icon: IconSwatchBook },
-      { value: "logos", label: "Logos", icon: IconUpload },
+      { value: "logos", label: "Logos", icon: ImageIcon },
     ],
   },
   {

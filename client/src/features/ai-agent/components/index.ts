@@ -1,8 +1,10 @@
 // Import AgentState directly from "./orb" when needed (it's a visual-state type).
 export * from "./audio-player";
+export * from "./bar-visualizer";
 export * from "./conversation";
 export * from "./conversation-bar";
 export * from "./live-waveform";
+export * from "./matrix";
 export * from "./message";
 export * from "./mic-selector";
 export * from "./response";

@@ -4,6 +4,7 @@ export * from "./KnowledgeBase";
 export * from "./LLMSettings";
 export * from "./PromptEditor";
 export * from "./TelephonySettings";
+export * from "./ToolsStatus";
 export * from "./VoiceSettings";
 export * from "./WidgetAppearance";
 export * from "./WidgetInteraction";

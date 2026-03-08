@@ -52,6 +52,25 @@ Twilio sends JSON messages with these events:
 | `media` | `{ payload: "<base64 mulaw>" }` | Audio chunk (mulaw 8kHz) |
 | `stop` | — | Stream ended |
 
+### Twilio Chunk Timing
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Chunk interval | 20ms | Twilio sends one chunk every 20ms |
+| Bytes per chunk | 160 | 160 bytes of mulaw per chunk |
+| Bytes per second | 8,000 | 160 bytes × 50 chunks/sec |
+| `SILENCE_TIMEOUT_MS` | 2,000ms | Time after last chunk before processing |
+| `MIN_AUDIO_BYTES` | 1,600 | Minimum buffer to process (~200ms) |
+
+### Silence Detection Flow
+1. Media chunk arrives → push to `audioBuffer[]`
+2. Clear existing `silenceTimer`
+3. Set new `silenceTimer = setTimeout(process, 2000ms)`
+4. If no new chunks arrive for 2000ms → timer fires
+5. Check: `audioBuffer.length > 0` AND `!isProcessing`
+6. Check: concatenated buffer >= 1,600 bytes (0.2s minimum)
+7. If passes → set `isProcessing = true`, process audio
+8. After processing → set `isProcessing = false`, ready for next utterance
+
 ### Audio Processing Flow
 
 1. **Receive mulaw chunks**: Buffer incoming `media` events into `audioBuffer[]`

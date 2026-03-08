@@ -42,6 +42,21 @@ Inbound SMS messages are processed through OpenAI (non-streaming) and replied vi
 ### Error Handling
 On any error, returns: `<Response><Message>Sorry, I encountered an error. Please try again.</Message></Response>`
 
+## SMS Segment Calculation
+
+Twilio charges per segment. Segment sizes depend on character encoding:
+
+| Encoding | Single Segment | Multi-Segment | When Used |
+|----------|---------------|---------------|-----------|
+| GSM-7 | 160 chars | 153 chars/segment | ASCII, Latin characters |
+| UCS-2 | 70 chars | 67 chars/segment | Unicode, emoji |
+
+**Formula:** `if length <= single_limit: 1 segment; else: ceil(length / multi_limit)`
+
+**Our limits:**
+- App max reply: **1,500 chars** (truncated before sending)
+- Twilio max body: **1,600 chars** (split at word boundaries if exceeded)
+
 ## sendSMS Helper — `server/integrations/twilio.ts`
 
 For outbound SMS (admin test messages, notifications):
@@ -59,7 +74,7 @@ async function sendSMS(to: string, body: string): Promise<{ success: boolean; si
 ### Message Splitting Logic
 ```
 if remaining > MAX_SMS_LENGTH (1600):
-  split at last space before 1600 chars
+  split at last space before 1600 chars (lastIndexOf(' ', 1600))
   send segment
   continue with rest
 ```

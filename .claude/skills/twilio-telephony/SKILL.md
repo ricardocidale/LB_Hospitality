@@ -6,12 +6,12 @@ Marcela (the AI assistant) is accessible via three channels: web widget, phone c
 ## Sub-Skills
 | File | What It Covers |
 |------|---------------|
-| `voice-pipeline.md` | WebSocket Media Stream protocol, audio encoding (mulaw↔PCM), TTS streaming, silence detection |
-| `sms-pipeline.md` | Inbound SMS webhook, LLM processing, reply formatting, message splitting |
+| `voice-pipeline.md` | WebSocket Media Stream protocol, chunk timing, silence detection, audio processing flow, TTS streaming |
+| `sms-pipeline.md` | Inbound SMS webhook, LLM processing, reply formatting, segment calculation, message splitting |
 | `admin-config.md` | Schema columns, admin API endpoints, TelephonySettings UI component, test SMS |
 | `twilio-console-setup.md` | Twilio Console webhook configuration, Replit connector credentials |
 | `elevenlabs-phone-api.md` | ElevenLabs phone number management, batch calls, dynamic variables, conversation initiation webhooks |
-| `audio-encoding.md` | Mulaw/PCM conversion algorithms, WAV construction, sample rate conversion |
+| `audio-encoding.md` | Format specs table, buffer size formulas, pipeline chains, mulaw/PCM algorithms, G.711 constants + segment table |
 
 ## Architecture Overview
 
@@ -56,12 +56,52 @@ Marcela (the AI assistant) is accessible via three channels: web widget, phone c
 | `client/src/features/ai-agent/hooks/use-agent-settings.ts` | `useTwilioStatus()`, `useSendTestSms()` hooks |
 | `client/src/features/ai-agent/types.ts` | `TwilioStatus` interface |
 
-## Channel Summary
-| Channel | Webhook | Audio | LLM | Conversation |
-|---------|---------|-------|-----|-------------|
-| Web | Widget (signed URL) | Browser mic → ElevenLabs ConvAI | ElevenLabs-managed | Via ElevenLabs |
-| Phone | `/api/twilio/voice/incoming` | Mulaw 8kHz ↔ PCM via WebSocket | OpenAI (streamed) | `channel: "phone"` |
-| SMS | `/api/twilio/sms/incoming` | N/A (text only) | OpenAI (non-streaming) | `channel: "sms"` |
+## Channel Routing Matrix
+
+| Channel | Endpoint | Auth | Response | LLM Mode | Voice | DB Channel | File |
+|---------|----------|------|----------|----------|-------|------------|------|
+| Web text | `POST /api/conversations/:id/messages` | Session cookie | SSE stream | Streaming | No | `web` | `server/replit_integrations/chat/routes.ts` |
+| Web voice | `POST /api/conversations/:id/voice` | Session cookie | SSE + audio chunks | Streaming | Yes | `web` | `server/replit_integrations/chat/routes.ts` |
+| Phone | `POST /api/twilio/voice/incoming` + `WSS /api/twilio/voice/stream` | Public (caller ID lookup) | TwiML + WebSocket Media Stream | Streaming | Yes | `phone` | `server/routes/twilio.ts` |
+| SMS | `POST /api/twilio/sms/incoming` | Public (phone lookup) | TwiML `<Message>` | Non-streaming | No | `sms` | `server/routes/twilio.ts` |
+
+### Admin Endpoints
+| Endpoint | Auth | Returns | File |
+|----------|------|---------|------|
+| `GET /api/admin/twilio-status` | Admin only | `{ connected, phoneNumber, error }` | `server/routes/admin.ts` |
+| `POST /api/admin/send-notification` | Admin only | Send test SMS `{ to, message }` | `server/routes/admin.ts` |
+
+## Prompt Composition by Channel
+
+| Channel | Role | Prompt Parts | File |
+|---------|------|-------------|------|
+| Web text | Admin | `SYSTEM_PROMPT` + `ADMIN_ADDITION` + `contextPrompt(userId)` | `chat/routes.ts` |
+| Web text | Other | `SYSTEM_PROMPT` + `contextPrompt(userId)` | `chat/routes.ts` |
+| Web voice | Admin | `SYSTEM_PROMPT` + `ADMIN_ADDITION` + `VOICE_ADDITION` + `contextPrompt(userId)` | `chat/routes.ts` |
+| Web voice | Other | `SYSTEM_PROMPT` + `VOICE_ADDITION` + `contextPrompt(userId)` | `chat/routes.ts` |
+| Phone | Admin | `base_prompt` + `PHONE_ADDITION` + `admin_note` + `contextPrompt(userId)` | `twilio.ts` |
+| Phone | Other | `base_prompt` + `PHONE_ADDITION` + `contextPrompt(userId)` | `twilio.ts` |
+| Phone | Anonymous | `base_prompt` + `PHONE_ADDITION` + `contextPrompt()` | `twilio.ts` |
+| SMS | Admin | `base_prompt` + `SMS_ADDITION` + `admin_note` + `contextPrompt(userId)` | `twilio.ts` |
+| SMS | Other | `base_prompt` + `SMS_ADDITION` + `contextPrompt(userId)` | `twilio.ts` |
+| SMS | Anonymous | `base_prompt` + `SMS_ADDITION` + `contextPrompt()` | `twilio.ts` |
+
+### Prompt Size Estimates
+| Part | ~Chars | Notes |
+|------|--------|-------|
+| `SYSTEM_PROMPT` | 3,500 | Full platform knowledge, 120+ lines |
+| `base_prompt` | 400 | Persona + no-LLM-calc rule only |
+| `ADMIN_ADDITION` | 1,200 | Admin capabilities |
+| `VOICE_ADDITION` | 500 | Concise speech rules |
+| `PHONE_ADDITION` | 400 | 1-3 sentence rule |
+| `SMS_ADDITION` | 350 | 300-char target rule |
+| `contextPrompt` | 500–3,000 | Varies by portfolio size |
+
+### Context Data Sources
+| Channel | Includes |
+|---------|----------|
+| Web | Global assumptions, properties, team members, AI research reports |
+| Phone/SMS | Global assumptions, properties (lighter — no team or research) |
 
 ## Quick Reference
 

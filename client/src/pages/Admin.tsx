@@ -13,6 +13,7 @@ import ThemesTab from "@/components/admin/ThemesTab";
 import LogosTab from "@/components/admin/LogosTab";
 import NavigationTab from "@/components/admin/NavigationTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   users:        { title: "Users",          subtitle: "Manage user accounts, roles, and passwords" },
@@ -42,7 +43,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "companies":    return <CompaniesTab />;
     case "services":     return <ServicesTab />;
     case "market-rates": return <MarketRatesTab />;
-    case "marcela":      return <MarcelaTab />;
+    case "marcela":      return <ErrorBoundary fallback={<div className="p-8 text-center text-muted-foreground">AI Agent configuration failed to load. Please reload the page.</div>}><MarcelaTab /></ErrorBoundary>;
     case "verification": return <VerificationTab />;
     case "database":     return <DatabaseTab />;
     default:             return null;

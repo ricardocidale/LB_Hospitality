@@ -1,9 +1,35 @@
 "use client"
 
-import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
-import { useTexture } from "@react-three/drei"
+import { Component, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
+
+function generateNoiseTexture(size = 256): THREE.DataTexture {
+  const data = new Uint8Array(size * size * 4)
+  const grid = 16
+  const gs = size / grid
+  const vals = new Float32Array((grid + 1) * (grid + 1))
+  for (let i = 0; i < vals.length; i++) vals[i] = Math.random()
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const gx = x / gs, gy = y / gs
+      const x0 = Math.floor(gx), y0 = Math.floor(gy)
+      const fx = gx - x0, fy = gy - y0
+      const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy)
+      const stride = grid + 1
+      const v = (vals[y0 * stride + x0] * (1 - sx) + vals[y0 * stride + x0 + 1] * sx) * (1 - sy) +
+                (vals[(y0 + 1) * stride + x0] * (1 - sx) + vals[(y0 + 1) * stride + x0 + 1] * sx) * sy
+      const idx = (y * size + x) * 4
+      const val = Math.floor(v * 255)
+      data[idx] = val; data[idx + 1] = val; data[idx + 2] = val; data[idx + 3] = 255
+    }
+  }
+  const tex = new THREE.DataTexture(data, size, size, THREE.RGBAFormat)
+  tex.wrapS = THREE.RepeatWrapping
+  tex.wrapT = THREE.RepeatWrapping
+  tex.needsUpdate = true
+  return tex
+}
 
 export type AgentState = null | "thinking" | "listening" | "talking"
 
@@ -85,19 +111,21 @@ export function Orb({
             premultipliedAlpha: true,
           }}
         >
-          <Scene
-            colors={colors}
-            colorsRef={colorsRef}
-            seed={seed}
-            agentState={agentState}
-            volumeMode={volumeMode}
-            manualInput={manualInput}
-            manualOutput={manualOutput}
-            inputVolumeRef={inputVolumeRef}
-            outputVolumeRef={outputVolumeRef}
-            getInputVolume={getInputVolume}
-            getOutputVolume={getOutputVolume}
-          />
+          <Suspense fallback={null}>
+            <Scene
+              colors={colors}
+              colorsRef={colorsRef}
+              seed={seed}
+              agentState={agentState}
+              volumeMode={volumeMode}
+              manualInput={manualInput}
+              manualOutput={manualOutput}
+              inputVolumeRef={inputVolumeRef}
+              outputVolumeRef={outputVolumeRef}
+              getInputVolume={getInputVolume}
+              getOutputVolume={getOutputVolume}
+            />
+          </Suspense>
         </Canvas>
       </div>
     </WebGLBoundary>
@@ -136,9 +164,7 @@ function Scene({
   const targetColor1Ref = useRef(new THREE.Color(colors[0]))
   const targetColor2Ref = useRef(new THREE.Color(colors[1]))
   const animSpeedRef = useRef(0.1)
-  const perlinNoiseTexture = useTexture(
-    "https://storage.googleapis.com/eleven-public-cdn/images/perlin-noise.png"
-  )
+  const perlinNoiseTexture = useMemo(() => generateNoiseTexture(256), [])
 
   const agentRef = useRef<AgentState>(agentState)
   const modeRef = useRef<"auto" | "manual">(volumeMode)
@@ -269,8 +295,6 @@ function Scene({
   }, [gl])
 
   const uniforms = useMemo(() => {
-    perlinNoiseTexture.wrapS = THREE.RepeatWrapping
-    perlinNoiseTexture.wrapT = THREE.RepeatWrapping
     const isDark =
       typeof document !== "undefined" &&
       document.documentElement.classList.contains("dark")

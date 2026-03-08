@@ -275,7 +275,9 @@ function Router() {
           </FinancialErrorBoundary>
         </Route>
         <Route path="/voice">
-          <ProtectedRoute component={VoiceLab} />
+          <ErrorBoundary fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">Voice Lab failed to load. Please reload the page.</p></div>}>
+            <ProtectedRoute component={VoiceLab} />
+          </ErrorBoundary>
         </Route>
         <Route path="/checker-manual">
           <Redirect to="/help" />

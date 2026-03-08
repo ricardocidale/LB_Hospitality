@@ -11,10 +11,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Shield, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone,
   User, History, CheckCircle2, XCircle, Play, LayoutTemplate,
+  AlertTriangle, RefreshCw, Radio,
 } from "lucide-react";
 import { Orb, AgentState } from "@/features/ai-agent/components/orb";
 import { ConversationBar } from "@/features/ai-agent/components/conversation-bar";
 import { VoiceSettings } from "./types";
+import { useToast } from "@/hooks/use-toast";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useMarcelaSettings, useSaveMarcelaSettings, useTwilioStatus } from "@/features/ai-agent/hooks/use-agent-settings";
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 import { useConversations } from "@/features/ai-agent/hooks/use-conversations";
@@ -74,12 +77,13 @@ function StatusChecklist({ items, onNavigate }: { items: ChecklistItem[]; onNavi
 }
 
 export default function MarcelaTab() {
-  const { data: globalData, isLoading } = useMarcelaSettings();
+  const { toast } = useToast();
+  const { data: globalData, isLoading, isError, refetch } = useMarcelaSettings();
   const { data: twilioStatus } = useTwilioStatus();
   const saveMutation = useSaveMarcelaSettings();
   const { data: agentConfig, error: agentConfigError } = useAgentConfig();
   const { data: conversations } = useConversations();
-  const { data: signedUrl } = useAdminSignedUrl();
+  const { data: signedUrl, isLoading: signedUrlLoading, isError: signedUrlError } = useAdminSignedUrl();
   const [testOpen, setTestOpen] = useState(false);
   const [orbAgentState, setOrbAgentState] = useState<AgentState>(null);
 
@@ -102,6 +106,12 @@ export default function MarcelaTab() {
     return () => clearInterval(id);
   }, [testOpen]);
 
+  useEffect(() => {
+    if (signedUrlError) {
+      toast({ title: "Widget signed URL failed", description: "ElevenLabs signed URL could not be generated. Check the agent ID and API key.", variant: "destructive" });
+    }
+  }, [signedUrlError]);
+
   const updateField = <K extends keyof VoiceSettings>(key: K, value: VoiceSettings[K]) => {
     if (!draft) return;
     setDraft({ ...draft, [key]: value });
@@ -116,7 +126,7 @@ export default function MarcelaTab() {
     }
   };
 
-  if (isLoading || !draft) {
+  if (isLoading || (!isError && !draft)) {
     return (
       <div className="space-y-6 mt-6">
         {[1, 2, 3].map((i) => (
@@ -133,6 +143,22 @@ export default function MarcelaTab() {
             </CardContent>
           </Card>
         ))}
+      </div>
+    );
+  }
+
+  if (isError || !draft) {
+    return (
+      <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
+        <AlertTriangle className="w-10 h-10 text-amber-500" />
+        <div>
+          <p className="font-semibold text-foreground">Failed to load AI Agent settings</p>
+          <p className="text-sm text-muted-foreground mt-1">Check your connection or try again.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Retry
+        </Button>
       </div>
     );
   }
@@ -325,6 +351,43 @@ export default function MarcelaTab() {
                 )}
               </CardContent>
             </Card>
+
+            <Card className="bg-card border border-border/80 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Radio className="w-4 h-4 text-muted-foreground" />
+                  Widget Status
+                </CardTitle>
+                <CardDescription className="label-text mt-0.5">
+                  Live connection diagnostics for the {agentName} widget.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Agent ID</span>
+                  {agentIdOk
+                    ? <span className="flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" />Configured</span>
+                    : <span className="flex items-center gap-1 text-xs text-muted-foreground"><XCircle className="w-3.5 h-3.5 text-red-400" />Missing</span>
+                  }
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Signed URL</span>
+                  {signedUrlLoading
+                    ? <span className="text-xs text-muted-foreground animate-pulse">Generating…</span>
+                    : signedUrlError
+                    ? <span className="flex items-center gap-1 text-xs text-destructive"><XCircle className="w-3.5 h-3.5" />Failed</span>
+                    : signedUrl
+                    ? <span className="flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" />Ready</span>
+                    : <span className="text-xs text-muted-foreground">Unavailable</span>
+                  }
+                </div>
+                {signedUrlError && (
+                  <p className="text-xs text-destructive pt-1">
+                    Check the ElevenLabs agent ID and API key — signed URL generation failed.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="prompt" className="space-y-6 m-0 focus-visible:outline-none">
@@ -360,7 +423,18 @@ export default function MarcelaTab() {
           </TabsContent>
 
           <TabsContent value="conversations" className="space-y-6 m-0 focus-visible:outline-none">
-            <ConversationHistory />
+            <ErrorBoundary fallback={
+              <div className="p-6 rounded-xl border border-amber-200/60 bg-amber-50/40 flex flex-col items-center gap-3 text-center">
+                <AlertTriangle className="w-8 h-8 text-amber-500" />
+                <div>
+                  <p className="font-medium text-foreground text-sm">Conversation history failed to load</p>
+                  <p className="text-xs text-muted-foreground mt-1">An error occurred in this section. Other tabs are unaffected.</p>
+                </div>
+                <button onClick={() => window.location.reload()} className="text-xs underline text-muted-foreground hover:text-foreground">Reload page</button>
+              </div>
+            }>
+              <ConversationHistory />
+            </ErrorBoundary>
           </TabsContent>
         </div>
       </Tabs>

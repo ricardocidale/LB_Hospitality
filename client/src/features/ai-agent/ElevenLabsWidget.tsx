@@ -149,24 +149,33 @@ function NativeElevenLabsWidget({
   const widgetRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    import("@elevenlabs/convai-widget-core");
-  }, []);
-
-  useEffect(() => {
     if (!containerRef.current) return;
+    let cancelled = false;
 
-    if (widgetRef.current) {
-      widgetRef.current.remove();
-    }
+    (async () => {
+      try {
+        await import("@elevenlabs/convai-widget-core");
+      } catch (err) {
+        console.error("[ElevenLabs] Widget module failed to load:", err);
+        return;
+      }
+      if (cancelled || !containerRef.current) return;
 
-    const widget = document.createElement("elevenlabs-convai");
-    widget.setAttribute("agent-id", agentId);
-    widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
-    containerRef.current.appendChild(widget);
-    widgetRef.current = widget;
+      if (widgetRef.current) {
+        widgetRef.current.remove();
+        widgetRef.current = null;
+      }
+
+      const widget = document.createElement("elevenlabs-convai");
+      widget.setAttribute("agent-id", agentId);
+      widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
+      containerRef.current.appendChild(widget);
+      widgetRef.current = widget;
+    })();
 
     return () => {
-      widget.remove();
+      cancelled = true;
+      widgetRef.current?.remove();
       widgetRef.current = null;
     };
   }, [agentId]);

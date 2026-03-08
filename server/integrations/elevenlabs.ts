@@ -1,40 +1,12 @@
 import { ElevenLabsClient } from 'elevenlabs';
 import WebSocket from 'ws';
 
-let connectionSettings: any;
-
 async function getCredentials() {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  const xReplitToken = process.env.REPL_IDENTITY
-    ? 'repl ' + process.env.REPL_IDENTITY
-    : process.env.WEB_REPL_RENEWAL
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL
-    : null;
-
-  if (xReplitToken && hostname) {
-    try {
-      connectionSettings = await fetch(
-        'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=elevenlabs',
-        {
-          headers: {
-            'Accept': 'application/json',
-            'X-Replit-Token': xReplitToken
-          }
-        }
-      ).then(res => res.json()).then(data => data.items?.[0]);
-
-      if (connectionSettings?.settings?.api_key) {
-        return connectionSettings.settings.api_key;
-      }
-    } catch {
-    }
-  }
-
   if (process.env.ELEVENLABS_API_KEY) {
     return process.env.ELEVENLABS_API_KEY;
   }
 
-  throw new Error('ElevenLabs not connected');
+  throw new Error('ElevenLabs API key not configured — set ELEVENLABS_API_KEY');
 }
 
 export async function getUncachableElevenLabsClient() {

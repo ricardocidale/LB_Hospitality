@@ -114,14 +114,16 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 TTS Model Family
               </CardTitle>
               <CardDescription className="label-text mt-1">
-                Select the ElevenLabs Model Family used for text-to-speech generation.{" "}
+                Select the ElevenLabs TTS model for Marcela's voice. See{" "}
+                <code className="text-[10px] font-mono bg-muted px-1 py-0.5 rounded">.claude/skills/codebase-architecture/SKILL.md</code>{" "}
+                § ElevenLabs for architecture details.{" "}
                 <a
                   href="https://elevenlabs.io/docs/overview/capabilities/text-to-speech"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline inline-flex items-center gap-0.5"
                 >
-                  Compare models <ExternalLink className="w-3 h-3" />
+                  ElevenLabs docs <ExternalLink className="w-3 h-3" />
                 </a>
               </CardDescription>
             </div>
@@ -201,8 +203,10 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                           <TooltipTrigger asChild>
                             <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
-                          <TooltipContent side="right" className="max-w-xs">
-                            <p className="text-xs">Audio tags guide the V3 model's vocal delivery. The LLM can output these as inline cues like [laughs] or [whispers]. Max 20 tags.</p>
+                          <TooltipContent side="right" className="max-w-sm">
+                            <p className="text-xs font-semibold mb-1">Suggested Audio Tags (V3 Only)</p>
+                            <p className="text-xs mb-1.5">Audio tags guide Marcela's vocal delivery. The LLM outputs these as inline cues like [laughs] or [whispers] during conversation. Max 20 tags.</p>
+                            <p className="text-xs text-muted-foreground">Configuration: <span className="font-mono text-[10px]">.claude/skills/codebase-architecture/SKILL.md</span> § ElevenLabs. Voice settings are synced live to the ElevenLabs ConvAI agent via the admin API.</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

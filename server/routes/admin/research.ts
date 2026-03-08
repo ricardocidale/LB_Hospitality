@@ -16,10 +16,18 @@ const researchEventConfigSchema = z.object({
   refreshIntervalDays: z.number().min(3).max(14).optional(),
 }).strict();
 
+const customSourceSchema = z.object({
+  name: z.string(),
+  url: z.string().optional(),
+  category: z.string(),
+});
+
 const researchConfigSchema = z.object({
   property: researchEventConfigSchema.optional(),
   company: researchEventConfigSchema.optional(),
   global: researchEventConfigSchema.optional(),
+  preferredLlm: z.string().optional(),
+  customSources: z.array(customSourceSchema).optional(),
 }).strict();
 
 export function registerResearchConfigRoutes(app: Express) {
@@ -50,6 +58,8 @@ export function registerResearchConfigRoutes(app: Express) {
         property: incoming.property !== undefined ? { ...current.property, ...incoming.property } : current.property,
         company:  incoming.company  !== undefined ? { ...current.company,  ...incoming.company  } : current.company,
         global:   incoming.global   !== undefined ? { ...current.global,   ...incoming.global   } : current.global,
+        preferredLlm: incoming.preferredLlm ?? current.preferredLlm,
+        customSources: incoming.customSources ?? current.customSources,
       };
 
       await storage.upsertGlobalAssumptions({ researchConfig: merged } as InsertGlobalAssumptions);

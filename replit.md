@@ -56,5 +56,12 @@ Three-tier cascade: `property.inflationRate → companyInflationRate → global.
 ## Research Skills
 Property sub-skills: local-economics, insurance-costs, marketing-costs. Company: outsourcing/make-vs-buy analysis. Global: FX, capital markets, ESG. Source registry in `shared/constants.ts` (`RESEARCH_SOURCES`).
 
+## Common Pitfall: Strict Zod Schemas on Admin Save Routes
+When adding new fields to any admin config (research, voice, etc.), **always** add the field to the backend Zod validation schema AND the merge logic. Backend `.strict()` schemas reject unknown fields silently — the frontend sends the data, Zod strips/rejects it, and saves fail. Checklist:
+1. Add field to TypeScript interface in `shared/schema.ts`
+2. Add field to the Zod schema in the backend route (watch for `.strict()`)
+3. Add field to the merge/spread logic in the PUT/PATCH handler
+4. Test a round-trip save from the UI
+
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

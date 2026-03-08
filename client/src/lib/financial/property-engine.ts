@@ -142,7 +142,7 @@ export function generatePropertyProForma(
     // occupancyRampMonths until it reaches maxOccupancy.
     let occupancy = 0;
     if (isOperational) {
-      const rampMonths = property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS;
+      const rampMonths = Math.max(1, property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS);
       const rampSteps = Math.floor(monthsSinceOps / rampMonths);
       occupancy = Math.min(
         property.maxOccupancy,

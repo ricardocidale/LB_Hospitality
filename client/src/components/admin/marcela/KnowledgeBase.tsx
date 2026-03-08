@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { BookOpen, Loader2, Upload, FileUp, CheckCircle2, AlertCircle, FileText, Trash2 } from "lucide-react";
+import { BookOpen, Loader2, Upload, FileUp, CheckCircle2, FileText, Trash2 } from "lucide-react";
 import { useUploadKBFile, useAgentConfig, useRemoveKBDocument } from "./hooks";
 
 interface KnowledgeBaseCardProps {
@@ -52,15 +52,6 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
-        {!hasElevenlabsDocs && agentConfig !== undefined && (
-          <div className="flex items-start gap-3 p-3.5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs font-semibold text-amber-900">No documents attached to ElevenLabs agent</p>
-              <p className="text-xs text-amber-700/80 mt-0.5">Upload documents below so {agentName} can reference them during conversations.</p>
-            </div>
-          </div>
-        )}
         {hasElevenlabsDocs && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">

@@ -74,13 +74,6 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
           </div>
         )}
 
-        {!twilioStatus?.connected && (
-          <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-            <p className="text-sm text-amber-800">
-              Twilio is not connected. Please configure the Twilio integration in your Replit project settings to enable phone and SMS features.
-            </p>
-          </div>
-        )}
 
         <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
           <div>

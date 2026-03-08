@@ -1,21 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   MessageSquare, RefreshCw, ChevronDown, ChevronRight, Clock,
   Loader2, Inbox, Mic, Keyboard, Copy, Check, AlertCircle,
-  BarChart2, CheckCircle2, XCircle, Play,
+  BarChart2, CheckCircle2, XCircle, Play, Pause,
 } from "lucide-react";
-import { Message, MessageContent } from "@/features/ai-agent/components/message";
 import { useConversations, useConversation } from "./hooks";
-import {
-  AudioPlayerProvider,
-  AudioPlayerButton,
-  AudioPlayerProgress,
-  AudioPlayerTime,
-  AudioPlayerDuration,
-} from "@/features/ai-agent/components/audio-player";
 
 function formatDuration(secs?: number) {
   if (!secs) return "—";
@@ -37,82 +29,12 @@ function statusColor(status: string) {
   return "border-muted-foreground/20 text-muted-foreground bg-muted/30";
 }
 
-function ConversationDetail({ id }: { id: string }) {
-  const { data, isLoading } = useConversation(id);
-  const [copied, setCopied] = useState(false);
-
-  if (isLoading) {
-    return (
-      <div className="py-6 flex justify-center">
-        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  const transcript: any[] = data?.transcript ?? [];
-  const terminationReason = data?.metadata?.termination_reason;
-
-  if (!transcript.length) {
-    return <p className="text-xs text-muted-foreground/60 py-4 text-center">No transcript available.</p>;
-  }
-
-  const handleCopyTranscript = () => {
-    const text = transcript
-      .map((line: any) => `${line.role === "agent" ? "Agent" : "User"}: ${line.message}`)
-      .join("\n");
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-
-  return (
-    <div className="space-y-2 pt-2">
-      {terminationReason && (
-        <div className="flex items-start gap-2 p-2.5 bg-red-50/80 rounded-lg border border-red-200/60 text-xs text-red-700">
-          <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-          <span>{terminationReason}</span>
-        </div>
-      )}
-      <div className="flex items-center justify-between">
-        <AudioPlayer conversationId={id} />
-        <button
-          type="button"
-          onClick={handleCopyTranscript}
-          className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-        >
-          {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-          {copied ? "Copied" : "Copy transcript"}
-        </button>
-      </div>
-      <div className="max-h-72 overflow-y-auto rounded-lg border border-border/40">
-        <div className="p-0">
-          {transcript.map((line: any, i: number) => (
-            <Message key={i} from={line.role === "agent" ? "assistant" : "user"} className="py-1.5 px-1">
-              <MessageContent variant="contained" className="text-xs leading-relaxed">
-                {line.message}
-                <div className="flex items-center gap-1.5 mt-1 opacity-50">
-                  {line.time_in_call_secs != null && (
-                    <span className="text-[10px]">{line.time_in_call_secs}s</span>
-                  )}
-                  {line.source_medium === "text"
-                    ? <Keyboard className="w-2.5 h-2.5" />
-                    : line.role === "user"
-                      ? <Mic className="w-2.5 h-2.5" />
-                      : null}
-                </div>
-              </MessageContent>
-            </Message>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AudioPlayer({ conversationId }: { conversationId: string }) {
+function NativeAudioPlayer({ conversationId }: { conversationId: string }) {
   const [src, setSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleLoad = async () => {
     setLoading(true);
@@ -121,11 +43,19 @@ function AudioPlayer({ conversationId }: { conversationId: string }) {
       if (!res.ok) throw new Error("Audio unavailable");
       const blob = await res.blob();
       setSrc(URL.createObjectURL(blob));
-    } catch (error) {
-      console.error("Failed to load conversation audio:", error);
+    } catch {
       setUnavailable(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
     }
   };
 
@@ -138,6 +68,7 @@ function AudioPlayer({ conversationId }: { conversationId: string }) {
         onClick={handleLoad}
         disabled={loading}
         className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors disabled:opacity-50"
+        data-testid={`button-load-audio-${conversationId}`}
       >
         {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
         {loading ? "Loading…" : "Play"}
@@ -145,22 +76,132 @@ function AudioPlayer({ conversationId }: { conversationId: string }) {
     );
   }
 
-  const item = { id: conversationId, src };
   return (
-    <AudioPlayerProvider>
-      <div className="flex items-center gap-2">
-        <AudioPlayerButton
-          item={item}
-          size="sm"
-          variant="ghost"
-          className="h-5 w-5 p-0 text-muted-foreground/60 hover:text-muted-foreground"
-        />
-        <AudioPlayerProgress className="w-28" />
-        <AudioPlayerTime className="text-[10px]" />
-        <span className="text-[10px] text-muted-foreground/30">/</span>
-        <AudioPlayerDuration className="text-[10px]" />
+    <div className="flex items-center gap-2">
+      <audio
+        ref={audioRef}
+        src={src}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+        preload="metadata"
+      />
+      <button
+        type="button"
+        onClick={togglePlay}
+        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+        data-testid={`button-toggle-audio-${conversationId}`}
+      >
+        {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+        {isPlaying ? "Pause" : "Play"}
+      </button>
+    </div>
+  );
+}
+
+function ConversationDetail({ id }: { id: string }) {
+  const { data, isLoading } = useConversation(id);
+  const [copied, setCopied] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="py-6 flex justify-center">
+        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
       </div>
-    </AudioPlayerProvider>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="py-6 text-center">
+        <AlertCircle className="w-5 h-5 text-muted-foreground/40 mx-auto mb-2" />
+        <p className="text-xs text-muted-foreground/60">Could not load conversation details</p>
+      </div>
+    );
+  }
+
+  const transcript: any[] = data.transcript ?? [];
+  const analysis = data.analysis ?? {};
+  const summary = analysis.transcript_summary || data.metadata?.call_summary;
+  const evaluation = analysis.evaluation_criteria_results;
+
+  const handleCopy = () => {
+    const text = transcript
+      .map((line: any) => `[${line.role}]: ${line.message}`)
+      .join("\n");
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <div className="space-y-3">
+      {summary && (
+        <div className="p-3 bg-muted/40 rounded-xl border border-border/60">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60 mb-1">Summary</p>
+          <p className="text-xs text-foreground/80 leading-relaxed">{summary}</p>
+        </div>
+      )}
+
+      {evaluation && (
+        <div className="flex flex-wrap gap-1.5">
+          {Object.entries(evaluation).map(([key, result]: [string, any]) => (
+            <Badge
+              key={key}
+              variant="outline"
+              className={`text-[10px] ${result?.result === "success" ? "border-green-200 text-green-700 bg-green-50/50" : "border-muted-foreground/20"}`}
+            >
+              {key}: {result?.result || "—"}
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <NativeAudioPlayer conversationId={id} />
+          <span className="text-[10px] text-muted-foreground/40">
+            {transcript.length} messages
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleCopy}
+          className="h-6 px-2 gap-1 text-[10px] text-muted-foreground/50 hover:text-muted-foreground"
+          data-testid={`button-copy-transcript-${id}`}
+        >
+          {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+          {copied ? "Copied" : "Copy"}
+        </Button>
+      </div>
+
+      {transcript.length > 0 && (
+        <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1">
+          {transcript.map((line: any, i: number) => (
+            <div
+              key={i}
+              className={`flex gap-2.5 p-2 rounded-lg text-xs ${
+                line.role === "user" ? "bg-muted/30" : "bg-card"
+              }`}
+            >
+              <div className={`shrink-0 mt-0.5 flex items-center gap-1 ${
+                line.role === "user" ? "text-muted-foreground/50" : "text-primary/60"
+              }`}>
+                {line.role === "user" ? "You" : "AI"}
+                {line.time_in_call_secs !== undefined && (
+                  <span className="text-[10px] text-muted-foreground/30">{line.time_in_call_secs}s</span>
+                )}
+                {line.source_medium === "text"
+                  ? <Keyboard className="w-2.5 h-2.5" />
+                  : line.role === "user" ? <Mic className="w-2.5 h-2.5" /> : null}
+              </div>
+              <p className="text-foreground/80 leading-relaxed">{line.message}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -237,46 +278,44 @@ export function ConversationHistory() {
           {total > 0 && (
             <div className="flex gap-1.5 pt-1 flex-wrap">
               {(["all", "done", "failed", "in-progress"] as FilterType[]).map((f) => {
-                const count = f === "all" ? total : counts[f];
+                const count = f === "all" ? total : counts[f as keyof typeof counts];
                 return (
-                  <button
+                  <Button
                     key={f}
-                    type="button"
+                    variant={filter === f ? "default" : "outline"}
+                    size="sm"
                     onClick={() => setFilter(f)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors capitalize ${
-                      filter === f
-                        ? "bg-primary text-muted-foreground-foreground"
-                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                    }`}
+                    className="h-6 px-2 text-[10px] gap-1"
+                    data-testid={`filter-${f}`}
                   >
-                    {f === "all" ? "All" : f} ({count})
-                  </button>
+                    {f === "all" ? "All" : f === "done" ? "Done" : f === "failed" ? "Failed" : "Active"}
+                    <span className="opacity-60">{count}</span>
+                  </Button>
                 );
               })}
             </div>
           )}
         </CardHeader>
-
         <CardContent>
-          {isLoading ? (
-            <div className="py-12 flex flex-col items-center gap-3 text-muted-foreground/50">
-              <Loader2 className="w-6 h-6 animate-spin" />
-              <p className="text-sm">Loading conversations...</p>
+          {isLoading && (
+            <div className="py-12 flex justify-center">
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             </div>
-          ) : !total ? (
-            <div className="py-12 flex flex-col items-center gap-3 text-muted-foreground/50">
-              <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center">
-                <Inbox className="w-7 h-7" />
-              </div>
-              <p className="text-sm font-medium">No conversations yet</p>
-              <p className="text-xs text-center max-w-xs">Once users start chatting with the agent, conversations will appear here.</p>
+          )}
+
+          {!isLoading && filtered.length === 0 && (
+            <div className="py-12 text-center">
+              <Inbox className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground/60 font-medium">
+                {total === 0 ? "No conversations yet" : "No conversations match this filter"}
+              </p>
             </div>
-          ) : filtered.length === 0 ? (
-            <p className="text-xs text-muted-foreground/60 py-8 text-center">No {filter} conversations.</p>
-          ) : (
-            <div className="divide-y divide-primary/5">
+          )}
+
+          {!isLoading && filtered.length > 0 && (
+            <div className="divide-y divide-border/60">
               {filtered.map((conv: any) => (
-                <div key={conv.conversation_id}>
+                <div key={conv.conversation_id} data-testid={`conversation-${conv.conversation_id}`}>
                   <button
                     type="button"
                     onClick={() => toggle(conv.conversation_id)}

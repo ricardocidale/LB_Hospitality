@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MessageSquare, Globe, Loader2, Save, RefreshCw, AlertCircle, FileText, Type, Sparkles, Copy, Check } from "lucide-react";
+
 import { useAgentConfig, useSaveAgentPrompt } from "./hooks";
 
 const DYNAMIC_VARS = [
@@ -144,15 +145,6 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
 
   return (
     <div className="space-y-6">
-      {promptIsEmpty && (
-        <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-amber-900">No system prompt configured</p>
-            <p className="text-xs text-amber-700/80 mt-0.5">The agent has no instructions or persona. Use "Load template" to get started, then customize and save.</p>
-          </div>
-        </div>
-      )}
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">

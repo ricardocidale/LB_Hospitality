@@ -274,10 +274,10 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         />
       </ExpandableMetricRow>
 
-      <LineItem label="Room Revenue"        values={yd.map((y) => y.revenueRooms)} />
-      <LineItem label="Food & Beverage"     values={yd.map((y) => y.revenueFB)} />
-      <LineItem label="Events & Functions"   values={yd.map((y) => y.revenueEvents)} />
-      <LineItem label="Other Revenue"        values={yd.map((y) => y.revenueOther)} />
+      <LineItem label="Room Revenue"        values={yd.map((y) => y.revenueRooms)} tooltip="Income from guest room bookings. Calculated as Room Count × Days × ADR × Occupancy." />
+      <LineItem label="Food & Beverage"     values={yd.map((y) => y.revenueFB)} tooltip="Income from restaurants, bars, room service, and catering. Calculated as a percentage of Room Revenue (F&B Rev Share), boosted by the catering factor." />
+      <LineItem label="Events & Functions"   values={yd.map((y) => y.revenueEvents)} tooltip="Income from conferences, weddings, and banquet bookings. Calculated as a percentage of Room Revenue (Events Rev Share)." />
+      <LineItem label="Other Revenue"        values={yd.map((y) => y.revenueOther)} tooltip="Income from spa, parking, retail, and ancillary services. Calculated as a percentage of Room Revenue (Other Rev Share)." />
       <SubtotalRow label="Total Revenue"     values={yd.map((y) => y.revenueTotal)} positive />
 
       <SpacerRow colSpan={colSpan} />

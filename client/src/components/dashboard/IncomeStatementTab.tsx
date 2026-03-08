@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
 import { ChevronRight, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
-import { CalcDetailsProvider } from "@/components/financial-table-rows";
+import { CalcDetailsProvider, useCalcDetails } from "@/components/financial-table-rows";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData } from "./dashboardExports";
@@ -85,7 +86,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
   const generateIncomeStatementData = (overrideExpanded?: Set<string>, excludeFormulas?: boolean) => {
     const activeExpanded = overrideExpanded ?? expandedRows;
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
-    const rows: { category: string; values: number[]; displayValues?: string[]; isHeader?: boolean; indent?: number; rowId?: string; isFormula?: boolean; formulaId?: string }[] = [];
+    const rows: { category: string; values: number[]; displayValues?: string[]; isHeader?: boolean; indent?: number; rowId?: string; isFormula?: boolean; formulaId?: string; tooltip?: string }[] = [];
     
     const c = (i: number) => yearlyConsolidatedCache[i];
     const p = (idx: number, i: number) => allPropertyYearlyIS[idx]?.[i];
@@ -189,10 +190,10 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
     rows.push({ category: "Total Revenue", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), isHeader: true, rowId: "revenue" });
     if (activeExpanded.has("revenue")) {
-      rows.push({ category: "Room Revenue", values: years.map((_, i) => c(i)?.revenueRooms ?? 0), indent: 1 });
-      rows.push({ category: "Event Revenue", values: years.map((_, i) => c(i)?.revenueEvents ?? 0), indent: 1 });
-      rows.push({ category: "F&B Revenue", values: years.map((_, i) => c(i)?.revenueFB ?? 0), indent: 1 });
-      rows.push({ category: "Other Revenue", values: years.map((_, i) => c(i)?.revenueOther ?? 0), indent: 1 });
+      rows.push({ category: "Room Revenue", values: years.map((_, i) => c(i)?.revenueRooms ?? 0), indent: 1, tooltip: "Income from guest room bookings. Calculated as Room Count × Days × ADR × Occupancy." });
+      rows.push({ category: "Event Revenue", values: years.map((_, i) => c(i)?.revenueEvents ?? 0), indent: 1, tooltip: "Income from conferences, weddings, and banquet bookings. Calculated as a percentage of Room Revenue (Events Rev Share)." });
+      rows.push({ category: "F&B Revenue", values: years.map((_, i) => c(i)?.revenueFB ?? 0), indent: 1, tooltip: "Income from restaurants, bars, room service, and catering. Calculated as a percentage of Room Revenue (F&B Rev Share), boosted by the catering factor." });
+      rows.push({ category: "Other Revenue", values: years.map((_, i) => c(i)?.revenueOther ?? 0), indent: 1, tooltip: "Income from spa, parking, retail, and ancillary services. Calculated as a percentage of Room Revenue (Other Rev Share)." });
       pushRow({ category: "= Rooms + Events + F&B + Other", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), indent: 1, isFormula: true });
 
       properties.forEach((prop, idx) => {
@@ -477,6 +478,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                               expandedRows.has(row.rowId) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
                             )}
                             {row.category}
+                            {row.tooltip && <HelpTooltip text={row.tooltip} />}
                           </div>
                         </TableCell>
                         {row.values.map((val, vIdx) => (

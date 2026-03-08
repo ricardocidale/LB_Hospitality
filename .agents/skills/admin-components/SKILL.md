@@ -219,6 +219,36 @@ Engine: `client/src/lib/themeUtils.ts` (`applyThemeColors()` / `resetThemeColors
 
 Applied in: `client/src/components/Layout.tsx` via `useEffect` on branding query.
 
+## Help Tooltip Explainers (`?` Icons)
+
+The `?` tooltip pattern is an **internal transparency feature** — it explains how each financial line item is calculated, giving users confidence in the numbers without needing to read external documentation.
+
+### Component
+```tsx
+import { HelpTooltip } from "@/components/ui/help-tooltip";
+
+<HelpTooltip text="Income from guest room bookings. Calculated as Room Count × Days × ADR × Occupancy." />
+```
+
+### Where They Appear
+| Location | Component | Gated By |
+|----------|-----------|----------|
+| Property Income Statement | `YearlyIncomeStatement.tsx` | `useCalcDetails()` (toggle) |
+| Consolidated Dashboard | `IncomeStatementTab.tsx` | Always visible |
+| Property Balance Sheet | `ConsolidatedBalanceSheet.tsx` | `useCalcDetails()` |
+
+### Rules
+1. Every financial line item (revenue, expense, fee, metric) should have a `tooltip` explaining what it is and how it's calculated
+2. Tooltips describe the **formula or source**, not just a label restatement (e.g., "Calculated as Room Count × Days × ADR × Occupancy" not "Revenue from rooms")
+3. In `LineItem` / `MetricRow` / `SubtotalRow` components: pass `tooltip` prop — the `?` icon renders automatically when `useCalcDetails()` is true
+4. In the consolidated dashboard: tooltips render always (no toggle gating) via inline `HelpTooltip` in the row render
+5. Tooltip text must never include actual computed values — only formula descriptions and parameter names
+
+### Covered Line Items
+**Revenue:** Room Revenue, F&B Revenue, Event Revenue, Other Revenue
+**Metrics:** ADR (Rate), ADR (Effective), Occupancy, RevPAR, Total Rooms Available
+**Expenses:** All operating expense categories (Housekeeping, F&B, Events, Marketing, Property Ops, Admin & General, IT, Utilities)
+
 ## Conventions
 
 1. Every admin tab uses shared hooks from `hooks.ts` — no inline fetches

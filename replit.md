@@ -62,6 +62,8 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 - All properties: `userId = NULL` (shared portfolio)
 - Ricardo Cidale is sole Admin
 - AI agent name configurable via DB (`aiAgentName`), default "Marcela"
+- `?` tooltip explainers on all financial line items — internal transparency feature (see admin-components skill)
+- Occupancy ramp: `Math.max(1, rampMonths)` safeguard against division-by-zero
 
 ## Session Patterns
 - `generatePropertyProForma` always returns 10 years (120 months) — slice to `projectionYears * 12`

@@ -13,6 +13,12 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 - Round 3: Slimmed 10 remaining large rules files; moved 4 reference docs to skills/; total rules auto-loaded context ~4,203 → ~850 lines (-80%)
 - Moved: `api-routes.md`→`skills/architecture/`, `constants-and-config.md`→`skills/finance/`, `release-audit-checklist.md`→`skills/proof-system/`, `verification-system.md`→`skills/proof-system/`
 
+## Session: March 8, 2026 — Admin Research Configuration Tab
+- New Admin "Research" tab (13th tab) — per-event control over AI research (property/company/global)
+- Config stored in `global_assumptions.researchConfig` (JSONB); new `ResearchEventConfig` / `ResearchConfig` types in schema
+- New files: `server/routes/admin/research.ts`, `server/migrations/research-config-001.ts`, `client/src/components/admin/ResearchTab.tsx`
+- Updated: `research-precision.md` (tool count 7→9, added admin config docs), `recalculate-on-save.md`, `admin/SKILL.md` (12→13 tabs)
+
 ## Session: March 8, 2026 — Codebase Architecture Skill + ElevenLabs Docs + Rule Enforcement
 - Documented 80+ UI components in `codebase-architecture/SKILL.md`; added ChartTooltip as 4th tooltip type
 - Documented full ElevenLabs/Marcela architecture (35 files, 7 widget variants, 22 API endpoints, 18 tools)

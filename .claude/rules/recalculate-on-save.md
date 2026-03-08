@@ -17,7 +17,7 @@ Any mutation touching: global assumptions, property assumptions, fee categories,
 
 ## Exempt Mutations (no recalculation needed)
 
-Design themes, logos, asset descriptions, profile updates, session management, property finder favorites.
+Design themes, logos, asset descriptions, profile updates, session management, property finder favorites, admin research config (`useSaveResearchConfig` — affects prompt behavior only, not financial calculations).
 
 ## Enforcement
 

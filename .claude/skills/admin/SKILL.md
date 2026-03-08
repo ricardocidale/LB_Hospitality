@@ -1,12 +1,12 @@
 ---
 name: admin
-description: Admin page architecture. 12-tab shell pattern, extraction guide, API routes, shared types, AI Agent dashboard, Services tab.
+description: Admin page architecture. 13-tab shell pattern, extraction guide, API routes, shared types, AI Agent dashboard, Services tab, Research configuration.
 ---
 
 # Admin Page — Entry Point
 
 ## Purpose
-Documents the Admin Settings page architecture — refactored from a 3,235-line monolith into 12 standalone tab components + 87-line shell.
+Documents the Admin Settings page architecture — refactored from a 3,235-line monolith into 13 standalone tab components + shell.
 
 ## Sub-Skills
 | File | What It Covers |
@@ -20,13 +20,17 @@ Documents the Admin Settings page architecture — refactored from a 3,235-line 
 | `ai-agent-admin.md` | AI Agent tab: 7-tab dashboard, components, hooks, API endpoints |
 
 ## Key Files
-- `client/src/pages/Admin.tsx` — 87-line shell (tab navigation only)
-- `client/src/components/admin/` — 12 tab components + barrel export + shared types
-- `server/routes/admin.ts` — Admin API routes
+- `client/src/pages/Admin.tsx` — shell (tab navigation only)
+- `client/src/components/admin/` — 13 tab components + barrel export + shared types
+- `server/routes/admin/index.ts` — Admin router (registers all sub-routers)
 - `server/routes/admin/marcela.ts` — AI Agent admin API + ConvAI proxy endpoints
+- `server/routes/admin/research.ts` — Research config GET/PUT endpoints
 
-## Tabs
-Users, Companies, Activity, Verification, User Groups, Logos, Branding, Themes, Navigation, Services, AI Agent, Database
+## Tabs (13)
+Users, Groups, Activity, Branding, Themes, Logos, Navigation, Companies, Services, Market Rates, **Research**, AI Agent, Verification, Database
+
+## Research Tab
+Per-event control over AI research: enable/disable, focus areas, regions, time horizon, custom instructions, custom questions, deterministic tool selection. Config stored in `global_assumptions.researchConfig` (JSONB). See `rules/research-precision.md`.
 
 ## AI Agent Tab (7 sub-tabs)
 The AI Agent tab is a comprehensive dashboard with its own sub-navigation:

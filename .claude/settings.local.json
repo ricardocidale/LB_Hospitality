@@ -187,7 +187,9 @@
       "WebFetch(domain:www.digitalapplied.com)",
       "WebFetch(domain:blog.helpviber.com)",
       "WebFetch(domain:elevenlabs.io)",
-      "Bash(env | grep -E \"ELEVENLABS|PASSWORD|MARCELA\" | sed 's/=.*/=***/')"
+      "Bash(env | grep -E \"ELEVENLABS|PASSWORD|MARCELA\" | sed 's/=.*/=***/')",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(cat node_modules/@elevenlabs/convai-widget-core/dist/types/*.d.ts 2>/dev/null | head -200)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
-import { FlaskConical } from "lucide-react";
+import { Menu, X, FlaskConical } from "lucide-react";
 import {
   IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconPackage, IconTrending,

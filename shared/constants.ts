@@ -250,10 +250,6 @@ export const DEFAULT_RESEARCH_EVENT_CONFIG = {
   enabledTools: [] as string[],
 };
 
-// ──────────────────────────────────────────────────────────
-// SEED DEBT ASSUMPTIONS
-// ──────────────────────────────────────────────────────────
-
 export const SEED_DEBT_ASSUMPTIONS = {
   acqLTV: 0.75,             // Acquisition loan-to-value (75% LTV means 25% equity down)
   refiLTV: 0.75,            // Refinance loan-to-value

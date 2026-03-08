@@ -15,11 +15,11 @@ export async function* generateResearchWithToolsStream(
 ): AsyncGenerator<{ type: "content" | "done" | "error"; data: string }> {
   const systemPrompt = loadSkill(params.type);
   const allTools = loadToolDefinitions();
-  // Filter tools to admin-configured subset when specified; empty = all enabled
   const enabledTools = params.eventConfig?.enabledTools ?? [];
-  const tools = enabledTools.length > 0
+  const filteredTools = enabledTools.length > 0
     ? allTools.filter((t) => enabledTools.includes(t.name))
     : allTools;
+  const tools = filteredTools.length > 0 ? filteredTools : allTools;
   const userPrompt = buildUserPrompt(params);
 
   let messages: Anthropic.MessageParam[] = [

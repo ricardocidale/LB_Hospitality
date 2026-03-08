@@ -1,15 +1,3 @@
-/**
- * ResearchTab.tsx — Admin configuration for AI research events.
- *
- * Per-event control over the three research types (property / company / global):
- *   - Enable / disable the research type
- *   - Focus areas injected as bulleted guidance into the prompt
- *   - Geographic regions scope
- *   - Investment time horizon
- *   - Custom instructions appended to the system prompt
- *   - Custom questions the LLM must address
- *   - Which of the 9 deterministic tools are active (empty = all)
- */
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -67,16 +55,16 @@ function mergeConfig(saved: Partial<ResearchEventConfig> | undefined): ResearchE
   return { ...DEFAULT_EVENT_CONFIG, ...saved };
 }
 
-// ─── Tag Input ───────────────────────────────────────────────────────────────
-
 function TagInput({
   tags,
   onChange,
   placeholder,
+  testIdPrefix,
 }: {
   tags: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;
+  testIdPrefix: string;
 }) {
   const [input, setInput] = useState("");
 
@@ -92,23 +80,25 @@ function TagInput({
     <div className="space-y-2">
       <div className="flex gap-2">
         <Input
+          data-testid={`input-${testIdPrefix}`}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }}
           placeholder={placeholder}
           className="h-8 text-sm"
         />
-        <Button type="button" size="sm" variant="outline" onClick={add} className="h-8 px-2">
+        <Button data-testid={`button-add-${testIdPrefix}`} type="button" size="sm" variant="outline" onClick={add} className="h-8 px-2">
           <Plus className="w-3.5 h-3.5" />
         </Button>
       </div>
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs gap-1 pr-1">
+            <Badge key={tag} variant="secondary" className="text-xs gap-1 pr-1" data-testid={`badge-${testIdPrefix}-${tag}`}>
               {tag}
               <button
                 type="button"
+                data-testid={`button-remove-${testIdPrefix}-${tag}`}
                 onClick={() => onChange(tags.filter((t) => t !== tag))}
                 className="hover:text-destructive transition-colors"
               >
@@ -122,8 +112,6 @@ function TagInput({
   );
 }
 
-// ─── Event Config Section ────────────────────────────────────────────────────
-
 function EventConfigSection({
   type,
   config,
@@ -134,7 +122,6 @@ function EventConfigSection({
   onChange: (updated: ResearchEventConfig) => void;
 }) {
   const meta = EVENT_META[type];
-  const Icon = meta.icon;
 
   function patch(partial: Partial<ResearchEventConfig>) {
     onChange({ ...config, ...partial });
@@ -153,13 +140,13 @@ function EventConfigSection({
 
   return (
     <div className="space-y-5">
-      {/* Enable toggle */}
       <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
         <div className="space-y-0.5">
           <Label className="text-sm font-medium">Enable {meta.label}</Label>
-          <p className="text-xs text-muted-foreground">{meta.description}</p>
+          <p className="text-xs text-muted-foreground" data-testid={`text-description-${type}`}>{meta.description}</p>
         </div>
         <Switch
+          data-testid={`switch-enable-${type}`}
           checked={config.enabled}
           onCheckedChange={(v) => patch({ enabled: v })}
         />
@@ -167,7 +154,6 @@ function EventConfigSection({
 
       {config.enabled && (
         <>
-          {/* Focus Areas */}
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-1.5">
               <FlaskConical className="w-3.5 h-3.5 text-muted-foreground" />
@@ -180,10 +166,10 @@ function EventConfigSection({
               tags={config.focusAreas ?? []}
               onChange={(v) => patch({ focusAreas: v })}
               placeholder="Add focus area (press Enter)"
+              testIdPrefix={`${type}-focus`}
             />
           </div>
 
-          {/* Regions */}
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
@@ -196,31 +182,31 @@ function EventConfigSection({
               tags={config.regions ?? []}
               onChange={(v) => patch({ regions: v })}
               placeholder="Add region (press Enter)"
+              testIdPrefix={`${type}-region`}
             />
           </div>
 
-          {/* Time Horizon */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Investment Horizon</Label>
             <Select value={config.timeHorizon ?? "10-year"} onValueChange={(v) => patch({ timeHorizon: v })}>
-              <SelectTrigger className="w-40 h-8 text-sm">
+              <SelectTrigger data-testid={`select-horizon-${type}`} className="w-40 h-8 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {TIME_HORIZONS.map((h) => (
-                  <SelectItem key={h.value} value={h.value}>{h.label}</SelectItem>
+                  <SelectItem key={h.value} value={h.value} data-testid={`option-horizon-${type}-${h.value}`}>{h.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Custom Instructions */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Custom Instructions</Label>
             <p className="text-xs text-muted-foreground">
               Appended to the system prompt as additional context.
             </p>
             <Textarea
+              data-testid={`textarea-instructions-${type}`}
               value={config.customInstructions ?? ""}
               onChange={(e) => patch({ customInstructions: e.target.value })}
               placeholder="e.g. Prioritize markets with strong corporate retreat demand..."
@@ -229,13 +215,13 @@ function EventConfigSection({
             />
           </div>
 
-          {/* Custom Questions */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Custom Questions</Label>
             <p className="text-xs text-muted-foreground">
               Specific questions the LLM must address in its research output.
             </p>
             <Textarea
+              data-testid={`textarea-questions-${type}`}
               value={config.customQuestions ?? ""}
               onChange={(e) => patch({ customQuestions: e.target.value })}
               placeholder="e.g. What is the impact of remote work trends on corporate retreat demand?"
@@ -244,7 +230,6 @@ function EventConfigSection({
             />
           </div>
 
-          {/* Deterministic Tools */}
           {type === "property" && (
             <div className="space-y-3">
               <div>
@@ -260,10 +245,10 @@ function EventConfigSection({
                     <div key={tool.name} className="flex items-start gap-2.5">
                       <Checkbox
                         id={`${type}-${tool.name}`}
+                        data-testid={`checkbox-tool-${tool.name}`}
                         checked={isChecked}
                         onCheckedChange={(v) => {
                           if (allToolsEnabled) {
-                            // First selection: enable all except unchecked
                             const allNames = DETERMINISTIC_TOOLS.map((t) => t.name);
                             patch({ enabledTools: v ? allNames : allNames.filter((n) => n !== tool.name) });
                           } else {
@@ -283,6 +268,7 @@ function EventConfigSection({
               </div>
               {!allToolsEnabled && (
                 <Button
+                  data-testid="button-reset-tools"
                   type="button"
                   variant="ghost"
                   size="sm"
@@ -299,8 +285,6 @@ function EventConfigSection({
     </div>
   );
 }
-
-// ─── Main Tab ────────────────────────────────────────────────────────────────
 
 export default function ResearchTab() {
   const { toast } = useToast();
@@ -334,7 +318,7 @@ export default function ResearchTab() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16">
+      <div className="flex items-center justify-center py-16" data-testid="status-loading">
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
@@ -343,8 +327,7 @@ export default function ResearchTab() {
   const types: ResearchType[] = ["property", "company", "global"];
 
   return (
-    <div className="space-y-5">
-      {/* Header card */}
+    <div className="space-y-5" data-testid="research-config-tab">
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -353,13 +336,14 @@ export default function ResearchTab() {
                 <FlaskConical className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-base font-display">Research Configuration</CardTitle>
+                <CardTitle className="text-base font-display" data-testid="text-research-title">Research Configuration</CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Control AI research behavior per event type — tools, focus, context, and questions
                 </p>
               </div>
             </div>
             <Button
+              data-testid="button-save-research"
               onClick={handleSave}
               disabled={!isDirty || saveMutation.isPending}
               size="sm"
@@ -372,7 +356,6 @@ export default function ResearchTab() {
         </CardHeader>
       </Card>
 
-      {/* Per-event accordions */}
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
         <CardContent className="pt-5">
           <Accordion type="multiple" className="space-y-2">
@@ -386,8 +369,9 @@ export default function ResearchTab() {
                   key={type}
                   value={type}
                   className="border border-border/60 rounded-xl px-4 data-[state=open]:border-primary/30"
+                  data-testid={`accordion-${type}`}
                 >
-                  <AccordionTrigger className="py-3 hover:no-underline">
+                  <AccordionTrigger className="py-3 hover:no-underline" data-testid={`trigger-${type}`}>
                     <div className="flex items-center gap-3">
                       <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
                       <div className="text-left">
@@ -396,16 +380,17 @@ export default function ResearchTab() {
                           <Badge
                             variant={config.enabled ? "default" : "secondary"}
                             className="text-[10px] h-4 px-1.5"
+                            data-testid={`badge-status-${type}`}
                           >
                             {config.enabled ? "enabled" : "disabled"}
                           </Badge>
                           {(config.focusAreas ?? []).length > 0 && (
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[10px] text-muted-foreground" data-testid={`text-focus-count-${type}`}>
                               {config.focusAreas!.length} focus area{config.focusAreas!.length > 1 ? "s" : ""}
                             </span>
                           )}
                           {(config.enabledTools ?? []).length > 0 && (
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[10px] text-muted-foreground" data-testid={`text-tools-count-${type}`}>
                               {config.enabledTools!.length}/{DETERMINISTIC_TOOLS.length} tools
                             </span>
                           )}

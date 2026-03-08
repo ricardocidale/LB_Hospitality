@@ -113,50 +113,7 @@ Use `secret__` prefix for sensitive variables (auth tokens, private IDs) — the
 
 ## Guardrails
 
-### System Prompt Guardrails
-
-Use the `# Guardrails` heading — models pay extra attention to it:
-
-```
-# Guardrails
-
-- Never share customer data across conversations
-- Never process refunds over $500 without supervisor approval
-- Acknowledge when you don't know an answer instead of guessing
-- If a customer becomes abusive, politely end the conversation
-```
-
-### Platform Guardrails
-
-| Guardrail | Effect | Latency |
-|-----------|--------|---------|
-| Focus Guardrail | Keeps agent on-topic throughout conversation | Minimal |
-| Manipulation Detection | Blocks prompt injection attempts | None (concurrent) |
-| Content Filtering | Prevents inappropriate content | None (concurrent) |
-| Custom Guardrails | Your business-specific rules | None (concurrent) |
-
-### Custom Guardrail Configuration
-
-```typescript
-platform_settings: {
-  guardrails: {
-    version: "1",
-    prompt_injection: { isEnabled: true },
-    custom: {
-      guardrails: [{
-        name: "No financial advice",
-        prompt: "Block any content providing specific investment recommendations or tax guidance",
-        model: "gemini-2.5-flash-lite"
-      }]
-    }
-  }
-}
-```
-
-Exit strategies for custom guardrails:
-- **Terminate** — end conversation immediately
-- **Transfer to agent** — hand off to another AI agent
-- **Transfer to person** — connect to human support
+See `guardrails.md` for full reference (system prompt hardening, focus guardrail, manipulation detection, content filtering, custom guardrails with API examples).
 
 ## Evaluation and Monitoring
 

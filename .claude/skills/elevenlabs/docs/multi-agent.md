@@ -266,34 +266,9 @@ tools: [
 ]
 ```
 
-## Agent Workflows (Visual Builder)
+## Agent Workflows
 
-ElevenLabs also offers a visual workflow builder for complex conversation flows within a single agent.
-
-### Node Types
-
-| Node | Purpose |
-|------|---------|
-| **Subagent** | Modify agent behavior at specific points (change prompt, voice, tools) |
-| **Tool** | Execute server/client tools inline |
-| **Condition** | Branch based on conversation state or variables |
-| **Transfer** | Hand off to another agent or phone number |
-
-### When to Use Workflows vs Multi-Agent Transfer
-
-| Scenario | Use |
-|----------|-----|
-| Different domains (billing vs support) | Multi-agent transfer |
-| Different steps in same domain (qualify → book → confirm) | Workflow or chain transfer |
-| Complex branching within one conversation | Workflow |
-| Independent, reusable specialist agents | Multi-agent transfer |
-
-### Workflow Advantages
-
-- Visual design interface
-- Subagent nodes modify behavior without creating separate agents
-- Built-in condition branching
-- All within a single agent configuration
+For the visual workflow builder (node types, subagents, conditions, branching), see `agent-workflows.md`.
 
 ## Testing Multi-Agent Systems
 

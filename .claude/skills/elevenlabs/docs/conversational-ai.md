@@ -134,16 +134,7 @@ for (const agent of agents.agents) {
 
 ## Deployment Options
 
-| Method | Package | Best For |
-|--------|---------|----------|
-| React SDK | `@elevenlabs/react` | React/Next.js apps (full control) |
-| Client SDK | `@elevenlabs/client` | Vanilla JS/TS apps |
-| Widget (npm) | `@elevenlabs/convai-widget-core` | React apps (drop-in) |
-| Widget (CDN) | `@elevenlabs/convai-widget-embed` | Simple HTML pages |
-| Phone | Twilio / SIP | Voice calls |
-| WhatsApp | Meta Business API | WhatsApp messaging/calls |
-
-See dedicated docs for each: `react-sdk.md`, `client-sdk.md`, `widget.md`, `twilio.md`, `whatsapp.md`
+See `overview.md` for package selection guide. Dedicated docs: `client-sdk.md`, `whatsapp.md`. Project-specific: `elevenlabs-widget/SKILL.md`, `twilio-telephony/SKILL.md`.
 
 ## Conversations
 
@@ -185,21 +176,9 @@ await client.conversationalAi.conversations.feedback.post("conversation_id", {
 await client.conversationalAi.conversations.delete("conversation_id");
 ```
 
-## Signed URLs & Conversation Tokens
+## Signed URLs & Tokens
 
-### Signed URL (WebSocket connections)
-```typescript
-const { signedUrl } = await client.conversationalAi.conversations.getSignedUrl({
-  agentId: "agent_id",
-});
-// Expires in 15 minutes
-```
-
-### Conversation Token (WebRTC connections)
-```bash
-GET https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=AGENT_ID
-Headers: xi-api-key: YOUR_API_KEY
-```
+Signed URLs (WebSocket, 15-min expiry) and Conversation Tokens (WebRTC) — see `elevenlabs-widget/SKILL.md` for project-specific implementation.
 
 ## Agent Versioning
 

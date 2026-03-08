@@ -104,10 +104,29 @@ API requests are rate-limited per account tier. Handle 429 responses with expone
 
 ## Data Residency
 
-Available regions:
-- `"us"` (default) — United States
-- `"global"` — Global (same as US)
-- `"eu-residency"` — European Union
-- `"in-residency"` — India
+Regions: `"us"` (default), `"global"`, `"eu-residency"`, `"in-residency"`. Configure via SDK options or agent settings.
 
-Configure via SDK options or agent settings.
+## Models Quick Reference
+
+### TTS Models
+| Model | ID | Latency | Languages | Notes |
+|-------|-----|---------|-----------|-------|
+| Flash v2.5 | `eleven_flash_v2_5` | ~75ms | 32 | 50% cheaper, best for real-time |
+| Multilingual v2 | `eleven_multilingual_v2` | ~200ms | 29 | Highest quality |
+| Turbo v2.5 | `eleven_turbo_v2_5` | ~100ms | 32 | Balance |
+
+### STT Models
+| Model | ID | Notes |
+|-------|-----|-------|
+| Scribe v1 | `scribe_v1` | Standard |
+| Scribe v2 | `scribe_v2` | Improved accuracy, diarization, audio events |
+
+### LLM Models (Conversational AI)
+| Provider | Models |
+|----------|--------|
+| OpenAI | `gpt-4.1`, `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo` |
+| Anthropic | `claude-sonnet-4-20250514`, `claude-3.5-sonnet` |
+| Google | `gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-pro` |
+| Groq | `llama-3.3-70b`, `llama-3.1-8b` |
+
+Full model list with languages: see `elevenlabs-widget/SKILL.md` § LLM Models.

@@ -9,30 +9,23 @@ Comprehensive library of documentation, helper functions, scripts, and examples 
 ├── SKILL.md                              ← You are here
 ├── marcela-config.md                     Project-specific Marcela config
 │
-├── docs/                                 Reference documentation
-│   ├── overview.md                       Platform overview, packages, repos
-│   ├── models.md                         TTS, STT, and LLM models reference
+├── docs/                                 Reference documentation (16 files)
+│   ├── overview.md                       Platform overview, packages, repos, models quick ref
 │   ├── text-to-speech.md                 TTS: convert, stream, timestamps, formats
 │   ├── speech-to-text.md                 STT: Scribe models, diarization, events
 │   ├── voices.md                         Voice management: list, clone, settings
-│   ├── conversational-ai.md             Agent lifecycle: create, update, deploy
-│   ├── react-sdk.md                      @elevenlabs/react — useConversation hook
+│   ├── conversational-ai.md             Agent lifecycle: create, update, conversations API
 │   ├── client-sdk.md                     @elevenlabs/client — vanilla JS/TS SDK
-│   ├── widget.md                         Web component embed & customization
-│   ├── authentication.md                 API keys, signed URLs, conversation tokens
 │   ├── knowledge-base.md                 RAG, documents, indexing
 │   ├── tools.md                          Client, server, MCP, system tools
-│   ├── phone-numbers.md                  Phone number management, batch calls
-│   ├── twilio.md                         Twilio voice integration
-│   ├── whatsapp.md                       WhatsApp messaging & calls
+│   ├── whatsapp.md                       WhatsApp messaging & calls (future channel)
 │   ├── webhooks.md                       Webhook types, security, handlers
-│   ├── agent-design.md                   ★ Agent design best practices & architecture
-│   ├── prompting-guide.md               ★ Prompt engineering for agents
-│   ├── prompt-templates.md              ★ Ready-to-use prompt templates (7 use cases)
-│   ├── multi-agent.md                   ★ Multi-agent transfers & orchestration patterns
-│   ├── guardrails.md                    ★ Safety, manipulation detection, custom rules
-│   ├── agent-workflows.md              ★ Visual workflow builder & node types
-│   └── ui-components.md               ★ ElevenLabs UI component library (shadcn-based)
+│   ├── agent-design.md                   Agent design best practices & architecture
+│   ├── prompting-guide.md               Prompt engineering principles (refs prompt-templates)
+│   ├── prompt-templates.md              Ready-to-use prompt templates (7 use cases)
+│   ├── multi-agent.md                   Multi-agent transfers & orchestration patterns
+│   ├── guardrails.md                    Safety, manipulation detection, custom rules
+│   └── agent-workflows.md              Visual workflow builder & node types
 │
 │   (UI component docs consolidated into marcela-ai/elevenlabs-ui-components.md)
 │
@@ -71,7 +64,7 @@ Comprehensive library of documentation, helper functions, scripts, and examples 
     └── multi-agent-system.ts            ★ Complete multi-agent setup (hotel & support examples)
 ```
 
-★ = New in this update (agent design, prompting, multi-agent)
+Docs removed (covered by project skills): authentication.md, react-sdk.md, widget.md, twilio.md, phone-numbers.md, models.md, ui-components.md
 
 ## Quick Start
 

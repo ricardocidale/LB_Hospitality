@@ -1,172 +1,20 @@
-# System Architecture
+# Architecture Rules
 
-## Overview
+> Full reference (diagrams, file maps, data flow, auth details): `.claude/skills/architecture/SKILL.md`
 
-The Hospitality Business Business Simulation Portal is a full-stack TypeScript application structured as a monorepo with shared types between client and server.
+## Stack (never deviate without explicit approval)
 
-## Architecture Diagram
+- **Frontend**: React 18 + TypeScript, Wouter routing, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Framer Motion, Three.js
+- **Backend**: Node.js, Express 5, TypeScript (ESM), esbuild, Drizzle ORM, PostgreSQL (Neon), Zod
+- **AI**: Gemini 2.5 Flash (primary image gen), OpenAI gpt-image-1 (fallback), Anthropic Claude (verification/research)
+- **Exports**: jsPDF, xlsx, pptxgenjs, dom-to-image-more
+- **Hosting**: Replit (object storage, secrets, deployments)
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                      CLIENT (React)                      │
-│                                                          │
-│  Pages ──► Financial Engine ──► Charts & Tables           │
-│    │              │                                       │
-│    │         constants.ts ◄── Single source of truth      │
-│    │              │                                       │
-│    └──► TanStack Query ──► API Layer ──► Express Server   │
-└─────────────────────────────────────────────────────────┘
-                            │
-┌─────────────────────────────────────────────────────────┐
-│                    SERVER (Express 5)                     │
-│                                                          │
-│  routes.ts ──► storage.ts ──► Drizzle ORM ──► PostgreSQL  │
-│      │                                                    │
-│      ├──► auth.ts (sessions, bcrypt)                      │
-│      ├──► calculationChecker.ts (independent verification)│
-│      ├──► AI providers (OpenAI, Anthropic, Gemini)        │
-│      └──► replit_integrations/ (image gen, object storage)│
-└─────────────────────────────────────────────────────────┘
-```
+## Core Design Constraints
 
-## Frontend Architecture
-
-### Framework Stack
-- **React 18** with TypeScript for type safety
-- **Wouter** for lightweight client-side routing
-- **TanStack React Query** for server state management (caching, refetching)
-- **Zustand** for local UI state where needed
-
-### UI Component Library
-- **shadcn/ui** built on **Radix UI** primitives for accessible, composable components
-- **Tailwind CSS v4** with custom design tokens and `class-variance-authority`
-- **Recharts** for all financial charts and data visualization
-- **Lucide React** for iconography
-
-### Font System
-- **Playfair Display** (serif) for headings and display text
-- **Inter** for UI labels, data tables, and body text
-
-### Key Frontend Files
-| File | Purpose |
-|------|---------|
-| `client/src/pages/Dashboard.tsx` | Portfolio overview with charts and KPIs |
-| `client/src/pages/PropertyDetail.tsx` | Individual property financial analysis |
-| `client/src/pages/Company.tsx` | Management company P&L and projections |
-| `client/src/pages/CompanyAssumptions.tsx` | Global model configuration UI |
-| `client/src/pages/PropertyEdit.tsx` | Property-level assumption editing |
-| `client/src/pages/Admin.tsx` | User management, verification, login logs |
-| `client/src/lib/financialEngine.ts` | Core financial calculation engine |
-| `client/src/lib/constants.ts` | All named constants and defaults |
-| `client/src/lib/loanCalculations.ts` | Loan amortization and refinance logic |
-| `client/src/lib/runVerification.ts` | Client-side verification orchestration |
-| `client/src/lib/financialAuditor.ts` | GAAP audit engine |
-
-### Feature Modules (`client/src/features/`)
-
-Self-contained feature folders for functionality outside the core financial engine. Each feature has its own components, hooks, and barrel `index.ts`.
-
-| Feature | Path | Contents |
-|---------|------|----------|
-| Property Images | `features/property-images/` | `PropertyImagePicker.tsx` (upload + AI generate component), `useGenerateImage.ts` (hook), `index.ts` (barrel) |
-| Design Themes | `features/design-themes/` | `ThemeManager.tsx` (theme CRUD UI), `useDesignThemes.ts` (query + mutation hooks), `types.ts` (interfaces), `index.ts` (barrel) |
-
-## Backend Architecture
-
-### Server Stack
-- **Node.js** runtime with **Express 5**
-- **TypeScript** with ESM modules
-- **esbuild** for server bundling
-
-### API Pattern
-RESTful endpoints organized by domain:
-- `/api/auth/*` - Authentication
-- `/api/admin/*` - Admin operations (user management, user groups, seeding, verification)
-- `/api/global-assumptions` - Model configuration
-- `/api/properties/*` - Property CRUD
-- `/api/scenarios/*` - Scenario save/load
-- `/api/research/*` - AI market research
-- `/api/generate-image`, `/api/generate-property-image` - AI image generation (gpt-image-1)
-- `/api/uploads/*` - Object storage file uploads
-
-### Data Layer
-- **Drizzle ORM** with PostgreSQL dialect
-- Schema defined in `shared/schema.ts` (single source of truth)
-- **Zod** schemas auto-generated from Drizzle for request validation
-- Storage interface pattern (`IStorage` in `server/storage.ts`) abstracts DB access
-
-### Authentication
-- Session-based auth with bcrypt password hashing
-- Sessions stored in PostgreSQL `sessions` table (id, userId, expiresAt)
-- Cookie-based session management
-- Three database roles: `admin` (full access), `user` (standard access), `checker` (verification access)
-- Checker access: `requireChecker` middleware grants verification endpoint access to `admin` role OR email `"checker@norfolkgroup.io"`
-- **User Groups**: Users can be assigned to groups (user_groups table) for multi-tenant branding. Each group has a companyName, optional logo, theme, and asset description. Branding resolution: user-level > group-level > system default. Layout sidebar dynamically displays the resolved company name and logo.
-- Rate limiting on login attempts (by IP address)
-- IP tracking for login history (`login_logs` table)
-- Admin and checker users auto-created/updated on every server start via `seedAdminUser()` in `server/auth.ts`
-
-## Data Flow
-
-### Financial Projection Pipeline
-```
-User Input (UI)
-    │
-    ▼
-Global Assumptions (DB) + Property Data (DB)
-    │
-    ▼
-financialEngine.ts → generatePropertyProForma()
-    │
-    ▼
-MonthlyFinancials[] (120+ months of projections)
-    │
-    ├──► Dashboard charts (aggregated portfolio view)
-    ├──► Property detail tables (individual analysis)
-    ├──► Company P&L (management company roll-up)
-    ├──► Balance sheet (consolidated view)
-    └──► Cash flow statement (GAAP indirect method)
-```
-
-### Verification Pipeline
-```
-Global Assumptions + Properties
-    │
-    ├──► Client-side: financialAuditor.ts (GAAP compliance checks)
-    │                  formulaChecker.ts (formula integrity)
-    │                  gaapComplianceChecker.ts (ASC standard compliance)
-    │
-    └──► Server-side: calculationChecker.ts (independent recalculation)
-                       │
-                       └──► AI verification (methodology review via LLM)
-```
-
-## Server Integrations (`server/replit_integrations/`)
-
-External service integrations provided by the Replit platform:
-
-| Integration | Path | Purpose |
-|-------------|------|---------|
-| Image Generation | `image/` | AI image generation via OpenAI `gpt-image-1` (`generateImageBuffer()`, `editImages()`) |
-| Object Storage | `object_storage/` | File uploads via presigned URLs, object serving, ACL policies |
-
-### Image Generation Flow
-```
-Client (PropertyImagePicker)
-    │
-    ▼
-POST /api/generate-property-image (prompt)
-    │
-    ├──► generateImageBuffer(prompt) → OpenAI gpt-image-1 → PNG buffer
-    │
-    └──► Upload buffer to object storage via presigned URL
-         │
-         └──► Return { objectPath: "/objects/uploads/uuid" }
-```
-
-## Deployment
-
-- Hosted on Replit with automatic HTTPS
-- PostgreSQL database (Neon-backed)
-- Object storage for file uploads (logos, photos, AI-generated images)
-- Environment secrets managed through Replit Secrets
+1. **Two-entity model**: Property SPVs (individual hotels) + Management Company (OpCo). Never conflate them.
+2. **Shared schema**: `shared/schema.ts` is the single source of truth for all types. Client and server both import from it.
+3. **Storage interface**: All DB access goes through `IStorage` in `server/storage/`. Never query Drizzle directly from routes.
+4. **Independent verification**: `server/calculationChecker.ts` must NEVER import from the client engine (`financialEngine.ts`). Independence is the point.
+5. **Feature modules**: Self-contained features go in `client/src/features/<name>/` with their own components, hooks, and `index.ts` barrel.
+6. **API prefix**: All server endpoints under `/api/`. RESTful, organized by domain (`/api/auth/`, `/api/admin/`, `/api/properties/`, etc.).

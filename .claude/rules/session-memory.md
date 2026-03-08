@@ -8,6 +8,13 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 8, 2026 — Context Unburden (Round 2)
+- Slimmed `architecture.md` 172→20 lines, `financial-engine.md` 214→43, `database-seeding.md` 209→27
+- Merged `no-hardcoded-assumptions.md` + `no-hardcoded-admin-config.md` → `no-hardcoded-values.md` (48 lines)
+- Slimmed `claude.md` 522→127 lines (TOC + pointers); `session-memory.md` 619→40 lines
+- Populated `MEMORY.md` at `/home/runner/.claude/projects/.../memory/MEMORY.md` with stable project facts
+- Total auto-loaded context: ~3,681 → ~1,346 lines (-63% from original baseline)
+
 ## Session: March 8, 2026 — Codebase Architecture Skill + ElevenLabs Docs + Rule Enforcement
 - Documented 80+ UI components in `codebase-architecture/SKILL.md`; added ChartTooltip as 4th tooltip type
 - Documented full ElevenLabs/Marcela architecture (35 files, 7 widget variants, 22 API endpoints, 18 tools)

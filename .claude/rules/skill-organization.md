@@ -81,8 +81,7 @@ Each rule governs one or more skill domains. When working in a domain, load both
 | Rule | Governs These Skills | Enforcement |
 |------|---------------------|-------------|
 | `graphics-rich-design.md` | `ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `ui/animation-patterns.md`, `ui/charts.md`, `3d-graphics/SKILL.md` | Every page must have graphics per checklist |
-| `no-hardcoded-assumptions.md` | `finance/*`, `coding-conventions/SKILL.md` | No literal financial values in code |
-| `no-hardcoded-admin-config.md` | `multi-tenancy/SKILL.md`, `design-system/SKILL.md` | No literal admin config values in code |
+| `no-hardcoded-values.md` | `finance/*`, `multi-tenancy/SKILL.md`, `design-system/SKILL.md` | No literal financial or admin-config values in code |
 | `recalculate-on-save.md` | `architecture/SKILL.md`, `finance/calculation-chain.md` | All save mutations invalidate financial queries |
 | `financial-engine.md` | `finance/*` (all skills) | Mandatory business rules + immutable constants |
 | `database-seeding.md` | `database-environments/SKILL.md` | Seeding invariants |

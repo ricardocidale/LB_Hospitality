@@ -2,399 +2,114 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470) with IRS depreciation rules and an independent audit/verification engine. Built and hosted entirely on Replit.
-
-**Codebase:** ~635 source files, ~97,200 lines of code, 2,460 tests across 116 files.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~635 source files, ~97,200 lines, 2,460 tests across 116 files. Hosted on Replit.
 
 ---
 
 ## User Preferences
 
-- Preferred communication style: Simple, everyday language. Detailed user — ask lots of clarifying questions before implementing features. Do not assume; confirm requirements first.
-- **TOP PRIORITY: Calculations and correct reports are always the highest priority.** Financial accuracy must never be compromised for visual or UI enhancements. The automated proof system (2,460 tests) must always pass.
-- Always format money as money (currency format with commas and appropriate precision).
-- All skills must be stored under `.claude/` directory (e.g., `.claude/skills/`, `.claude/manuals/`, `.claude/tools/`). Never place skills elsewhere.
-- The company name is "Hospitality Business Group" (or "Hospitality Business" for short).
-- When updating features, always update the corresponding skills (`.claude/skills/`) and manuals (`.claude/manuals/`) documentation.
-- **All UI components must reference a theme** via the theme engine (`.claude/skills/ui/theme-engine.md`). The app supports multiple themes including user-created themes.
+- Simple, everyday language. Ask clarifying questions before implementing — do not assume.
+- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 2,460-test proof system must always pass.
+- Always format money as currency (commas, appropriate precision).
+- All skills stored under `.claude/` only (never elsewhere).
+- Company name is "Hospitality Business Group" (or "Hospitality Business" for short).
+- Update skills and manuals after every feature change.
+- All UI components must reference a theme via the theme engine.
 - New UI features get their own skill file in `.claude/skills/ui/`.
-- Create skills when they can help divide tasks and reduce context. Always in `.claude/`.
-- `.claude/claude.md` is the master documentation file. `replit.md` is a slim pointer that references this file. Keep all detailed content here.
-- **Button Label Consistency:** Always use "Save" for all save/update actions — never "Update". See `.claude/rules/ui-patterns.md`.
-- **100% Session Memory:** All decisions, changes, and context must be saved to `.claude/rules/session-memory.md` at the end of every session to persist across chat resets.
-- **Reusable UI Tools:** Whenever building a new feature, extract reusable components and document them in `.claude/skills/ui/reusable-components.md`.
-- **Every financial line item** should have a ? tooltip explanation (HelpTooltip or InfoTooltip as appropriate).
-- **Every page must be graphics-rich** — use charts, animations, and visual elements on every page.
-- **Context reduction is mandatory.** Every refactor or feature must produce skills, helper functions, scripts, and tools that reduce future context requirements. A 50-line skill file is always preferable to re-reading 1,600 lines of source. See `.claude/rules/context-reduction.md`.
-- **Always build reusable tools.** When implementing any feature or fix, extract reusable components, hooks, utilities, and scripts whenever possible. Avoid one-off inline solutions — if it could be used twice, make it a tool.
-- **Always improve architectural elegance.** Every task is an opportunity to improve the codebase's file/folder structure, naming conventions, module boundaries, and overall organization. Proactively consolidate, rename, and restructure when it makes the code cleaner — never leave entropy behind.
-- **Premium design, always.** Every page must look like a $50K+ bespoke financial platform — never generic AI-template design. Animated numbers, micro-interactions, glassmorphism depth, staggered reveals, skeleton loading, choreographed transitions. No flat cards, no static numbers, no default Recharts styling. See `.claude/rules/premium-design.md`.
-- **Always update claude.md after every task.** After completing any task (feature, fix, refactor, config change), update `.claude/claude.md` and `replit.md` to reflect the change. This is mandatory — no exceptions.
+- **Button Label Consistency:** Always "Save" — never "Update". See `rules/ui-patterns.md`.
+- **100% Session Memory:** Save decisions to `rules/session-memory.md` at session end.
+- **Every financial line item** should have a ? tooltip (HelpTooltip or InfoTooltip).
+- **Every page must be graphics-rich** — charts, animations, visual elements required.
+- **Context reduction is mandatory.** Every refactor must produce skills, helpers, scripts. See `rules/context-reduction.md`.
+- **Premium design, always.** $50K+ bespoke financial platform feel. See `rules/premium-design.md`.
+- **Always update claude.md after every task.** Mandatory — no exceptions.
 
 ---
 
 ## Current Theme
 
-**Tuscan Olive Grove** is the default theme (olive-sage). 5 preset themes available: Studio Noir, Tuscan Olive Grove, Starlit Harbor, Coastal Breeze, Electric Twilight. Theme engine maps PALETTE rank 1-6, ACCENT rank 1 (→ `--accent-pop`), CHART rank 1-5, LINE rank 1-5 to CSS variables. See `.claude/skills/ui/theme-engine.md` for token structure.
+**Tuscan Olive Grove** (olive-sage) is default. 5 presets available. See `.claude/skills/ui/theme-engine.md`.
 
 ---
 
 ## Context Loading Protocol
 
-With 126 skill files, **never load all skills at once**. Use the context-loading skill (`.claude/skills/context-loading/SKILL.md`) to find the minimum required skill set for any task. Quick rules:
-- **Financial calc fix** → load the specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
-- **UI/visual work** → load `component-library/SKILL.md` + `ui/theme-engine.md` + the specific UI skill
-- **Testing work** → load `testing/SKILL.md` + the relevant sub-skill only
-- **Export work** → load `exports/SKILL.md` or the specific export skill
-- **Cross-domain work** → load minimum from each domain (2–4 skills max per domain)
+With 126+ skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
+- **Financial calc** → specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
+- **UI/visual** → `component-library/SKILL.md` + `ui/theme-engine.md` + specific UI skill
+- **Testing** → `testing/SKILL.md` + relevant sub-skill only
+- **Cross-domain** → 2–4 skills max per domain
 
 ---
 
 ## Skill Router
 
-All detailed documentation lives in focused skills. Load the relevant skill before working.
-
 | Domain | Skill Path | What It Covers |
 |--------|-----------|---------------|
-| Context Loading | `.claude/skills/context-loading/SKILL.md` | Task-to-skill map, loading tiers, anti-patterns, session checklist |
+| Context Loading | `.claude/skills/context-loading/SKILL.md` | Task-to-skill map, loading tiers |
 | Architecture | `.claude/skills/architecture/SKILL.md` | Tech stack, two-entity model, file organization |
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
-| Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system (Fluid Glass active), user-created themes, token structure |
-| Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab, etc. |
-| Reusable UI | `.claude/skills/ui/reusable-components.md` | AIImagePicker, AnimatedLogo, StatusBadge, ImagePreviewCard, EntityCard |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,460 tests, 87 golden tests (8 files), verification commands |
-| Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage at property, consolidated, and management company levels |
+| Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
+| Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,460 tests, 87 golden tests, verification commands |
+| Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
-| Multi-Tenancy | `.claude/skills/multi-tenancy/SKILL.md` | Users, user groups, logos, themes, branding resolution |
-| Tool Schemas | `.claude/skills/tool-schemas/SKILL.md` | Tool organization, schema conventions |
-| Coding Conventions | `.claude/skills/coding-conventions/SKILL.md` | Style rules, finance code rules, audit doctrine |
+| Multi-Tenancy | `.claude/skills/multi-tenancy/SKILL.md` | Users, groups, logos, themes, branding resolution |
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
-| Codebase Architecture | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, barrel files, re-export wrappers, UI component catalog (80+), ElevenLabs/AI agent full architecture |
-| Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel component architecture, shared hooks, styles, tooltip patterns |
-| Marcela AI | `.claude/skills/marcela-ai/` | Multi-channel assistant architecture, audio pipeline |
-| Twilio Telephony | `.claude/skills/twilio-telephony/` | Voice webhooks, SMS webhooks, Media Streams, audio encoding |
-| Voice Widget UX | `.claude/skills/marcela-ai/voice-ux-patterns.md` | Voice state machine, waveform, barge-in, error handling |
-| Property Finder | `.claude/skills/property-finder/SKILL.md` | RapidAPI property search integration |
-| Finance (16 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
-| Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, catering, auto-refresh, research questions CRUD, etc. |
-| Chart Library (9) | `.claude/skills/charts/SKILL.md` | Reusable chart components: Bar, Line, Donut, Radar, Radial — props, variants, tooltip patterns |
-| UI Blocks | `.claude/skills/ui-blocks/SKILL.md` | shadcn block reference: dashboard-01, sidebar-07, login-03/04 — layout patterns |
-| UI: Charts (legacy) | `.claude/skills/ui/charts.md` | Line/bar chart styling + Waterfall, Heat Map, Radar chart specs |
-| UI: Portfolio Pages | `.claude/skills/ui/portfolio-pages.md` | Comparison, Timeline, Map, Executive Summary pages |
-| UI: Composite Pages | `.claude/skills/ui/composite-tabbed-pages.md` | Merging pages into unified tabbed views (Analysis, Properties+Map) |
-| UI: Interactions | `.claude/skills/ui/interactions.md` | What-If sliders, Variance Analysis, Guided Walkthrough, Inline Editing |
-| UI: Navigation | `.claude/skills/ui/navigation.md` | Command Palette, Breadcrumbs, Favorites, Activity Feed, Dark Mode |
-| UI: Brand Icons | `client/src/components/icons/brand-icons.tsx` | Custom duotone SVG icons for all nav/tabs (35 icons) |
-| UI: Image & Media | `.claude/skills/ui/property-image-picker.md`, `ui/reusable-components.md` | AIImagePicker, PropertyImagePicker, AnimatedLogo |
-| UI: Graphics | `.claude/skills/ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `ui/animation-patterns.md` | Reusable graphics components, page visual minimums, animation patterns |
-| Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, device testing, responsive helpers |
-| UI: Other (14) | `.claude/skills/ui/` | Glass components, buttons, sliders, tabs, page-header, callout, etc. |
-| Manuals | `.claude/manuals/` | Checker manual (21 sections), user manual (16 sections) |
-| Tools | `.claude/tools/` | Analysis, financing, returns, validation, UI tool schemas |
-| Rules (26) | `.claude/rules/` | Session-startup, documentation, ui-patterns, audit persona, constants, DB seeding, API routes, graphics-rich design, architecture, financial engine, verification, skill organization, session memory, exports, etc. |
+| Codebase Arch | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, UI component catalog (80+), ElevenLabs architecture |
+| Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel hooks, styles, tooltip patterns |
+| Admin (10 tabs) | `.claude/skills/admin/SKILL.md` | 10-tab shell pattern, extraction guide, API routes |
+| Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
+| Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
+| Finance (17 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
+| Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, etc. |
+| Chart Library | `.claude/skills/charts/SKILL.md` | 9 reusable chart components |
+| Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, responsive helpers |
+| UI (27 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation |
+| API Routes | `.claude/skills/architecture/api-routes.md` | All REST endpoints (load when writing API code) |
+| Constants Ref | `.claude/skills/finance/constants-and-config.md` | All named constants and protected fields |
+| Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |
+| Release Checklist | `.claude/skills/proof-system/release-audit-checklist.md` | Pre-release audit (load for releases) |
+| Rules (20) | `.claude/rules/` | All behavioral constraints |
 
 ---
 
-## Testing & Proof System (2,431 Tests, 113 Files)
+## Testing & Proof System (2,460 Tests, 116 Files)
 
-| Entity Level | Test Domains | Skill |
-|-------------|-------------|-------|
-| Individual Property | IS, CF, BS, trial balance, reconciliation, ASC 230 identities, pro forma golden | `testing/property-statements.md` |
-| Consolidated Portfolio | Portfolio aggregation, intercompany eliminations, portfolio IRR | `testing/consolidated-statements.md` |
-| Management Company | Company pro forma, fee linkage, funding instruments, cash balance | `testing/management-company.md` |
-| Returns Analysis | IRR, NPV, MOIC, sensitivity, portfolio IRR, refi/exit vectors | `testing/analysis-returns.md` |
-| DCF/FCF Analysis | FCF computation, FCFE two-method reconciliation | `testing/analysis-dcf-fcf.md` |
-| Financing & Debt | Acquisition sizing, closing costs, refi schedule, funding engine | `testing/financing-refinance-funding.md` |
-| Engine Unit Tests | Cash flow aggregator, yearly aggregator, equity calculations, loan calculations, GAAP compliance, edge cases | `tests/engine/` |
-| Validation | Assumption consistency, funding gates, export verification | `tests/calc/validation/` |
-| Research Calcs | Debt capacity, depreciation basis, property metrics | `tests/calc/research/` |
-| Golden Scenarios | IRR edge cases, DCF/NPV, equity/exit, DSCR loan sizing, depreciation/break-even, stress/waterfall, pro-forma edge cases (65 hand-calculated tests) | `testing/golden-scenarios.md`, `tests/golden/` |
+| Level | Domains | Skill |
+|-------|---------|-------|
+| Individual Property | IS, CF, BS, trial balance, reconciliation, ASC 230 | `testing/property-statements.md` |
+| Consolidated Portfolio | Aggregation, eliminations, portfolio IRR | `testing/consolidated-statements.md` |
+| Management Company | Company pro forma, fee linkage, funding | `testing/management-company.md` |
+| Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
+| Golden Scenarios | 65 hand-calculated reference tests | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 2,431), `npm run verify` (7-phase, UNQUALIFIED required)
-
----
-
-## AI Image Generation
-
-- **Primary model:** Nano Banana (`gemini-2.5-flash-image`) via Replit's Gemini AI Integration
-- **Fallback model:** OpenAI `gpt-image-1` via Replit's OpenAI AI Integration
-- **Generic component:** `AIImagePicker` (`client/src/components/ui/ai-image-picker.tsx`) — three modes: upload, AI generate, URL input. Configurable aspect ratio, dark/light variants.
-- **Property-specific wrapper:** `PropertyImagePicker` (`client/src/features/property-images/PropertyImagePicker.tsx`) — wraps AIImagePicker with auto-prompt from property name + location.
-- **AnimatedLogo:** `client/src/components/ui/animated-logo.tsx` — SVG wrapper for raster images with animation support (pulse, glow, spin, bounce).
-- **Login page logo:** Uses the original `logo.png` with a slow CSS rotation (`spin 12s linear infinite`). No 3D/WebGL — just the real company logo spinning gently.
-- **Server endpoint:** `POST /api/generate-property-image` — generates image, uploads to Replit Object Storage, returns `objectPath`.
-- **Server client:** `server/replit_integrations/image/client.ts` — uses `generateContent` with `gemini-2.5-flash-image` model, falls back to OpenAI.
-
----
-
-## Custom Brand Icon System
-
-All navigation and tab icons use a custom **duotone SVG icon set** (`client/src/components/icons/brand-icons.tsx`) instead of standard Lucide icons. This gives the app a distinctive visual identity.
-
-- **Style:** Each icon has stroked outlines (1.75px, round caps/joins) + semi-transparent filled shapes (12% opacity) for a duotone effect
-- **Interface:** All icons accept standard SVG props + optional `size` prop, matching the Lucide component API for drop-in use
-- **Coverage:** ~35 custom icons covering sidebar nav, mobile bottom nav, dashboard tabs, property detail tabs, company tabs, analysis tabs, financing tabs, command palette, and admin sidebar
-- **File:** `client/src/components/icons/brand-icons.tsx` — single file, all exports named `Icon*` (e.g., `IconDashboard`, `IconProperties`, `IconBot`)
-- **Rule:** New navigation/tab icons should be added to this file following the same duotone pattern. Lucide icons are still fine for inline UI elements (chevrons, close buttons, loaders, alerts) but **all navigation and tab icons must use the brand set**.
-
----
-
-## Consolidated Formula Accordion Architecture
-
-Dashboard consolidated financial statements use a **3-level accordion** pattern for calculation transparency:
-
-- **Level 1:** `ExpandableLineItem` / `ExpandableMetricRow` — consolidated total with chevron
-- **Level 2:** `FormulaDetailRow` — consolidated formula (e.g., "Σ(Room Revenue) ÷ Σ(Sold Rooms) = Weighted ADR")
-- **Level 3:** `PropertyBreakdownRow` — per-property contributions
-
-### Shared Components
-- `FormulaDetailRow` and `PropertyBreakdownRow` exported from `client/src/components/financial-table/` (re-exported via `financial-table-rows.tsx` for backward compatibility)
-- Financial table components split into modular directory: `context.tsx`, `common-rows.tsx`, `expandable-rows.tsx`, `balance-sheet-rows.tsx`, `specialized-rows.tsx`, `table-shell.tsx`
-- Visibility controlled by `CalcDetailsProvider` context (Calculation Transparency toggles)
-
----
-
-## Research Badge Defaults (Database-Backed, Location-Aware)
-
-Research values are stored in the `research_values` JSONB column on each property, generated location-aware at creation time via `server/researchSeeds.ts` with 25+ regional profiles. Sources: CBRE Trends 2024-2025, STR/CoStar, HVS, Highland Group Boutique Hotel Report 2025. Location detection uses pattern matching on location/streetAddress/city/stateProvince/market fields. Each entry has `{ display, mid, source }` where source = `'seed'` (location defaults), `'ai'` (AI research override), or `'none'` (hidden). Generic fallback: ADR $193, Occupancy 69%, Cap Rate 8.5% (national averages). When AI research runs, it overrides seeded defaults with `source='ai'`. Frontend (`PropertyEdit.tsx`) reads from `property.researchValues`, falling back to generic defaults if absent.
-
----
-
-## Admin Page Structure
-
-Admin Settings page (`/admin`) — **refactored from 3,235-line monolith into 10 standalone tab components + 87-line shell**.
-
-- **Shell:** `client/src/pages/Admin.tsx` — tab navigation only, no business logic
-- **Barrel export:** `client/src/components/admin/index.ts`
-- **Shared types:** `client/src/components/admin/types.ts` (17 interfaces)
-
-| Tab | Component | Purpose |
-|-----|-----------|---------|
-| Users | `UsersTab.tsx` | User CRUD, add/edit/password dialogs |
-| Companies | `CompaniesTab.tsx` | SPV management, mgmt company config |
-| Activity | `ActivityTab.tsx` | Login logs, activity feed, checker activity (3 sub-tabs) |
-| Verification | `VerificationTab.tsx` | Auto-verification, AI review, PDF export |
-| User Groups | `UserGroupsTab.tsx` | Group CRUD, user-to-group assignment |
-| Logos | `LogosTab.tsx` | Logo CRUD with AI image picker |
-| Branding | `BrandingTab.tsx` | Global branding config (`onNavigate` prop for cross-tab nav) |
-| Themes | `ThemesTab.tsx` | Wraps ThemeManager |
-| Navigation | `NavigationTab.tsx` | Sidebar toggle config |
-| Marcela | `MarcelaTab.tsx` | Voice/LLM/telephony/SMS config, knowledge base, test SMS |
-| Database | `DatabaseTab.tsx` | Sync status, seed execution |
-
-Each tab owns its data fetching, mutations, dialogs, and state (no prop drilling from shell). Logo Management is a tab within Admin (not a separate sidebar link). The Branding tab shows a read-only logo summary with a "Manage Logos" button linking to the Logos tab.
-
-### Production Seed Script
-- `script/seed-production.sql` — comprehensive SQL to seed production DB (401 lines)
-- Covers 11 persistent tables (companies, logos, user_groups, design_themes, users, global_assumptions, properties, property_fee_categories, market_research, research_questions, saved_searches)
-- Uses `OVERRIDING SYSTEM VALUE` for identity columns, resets sequences, idempotent with `ON CONFLICT DO NOTHING`
-
----
-
-## Marcela AI — Multi-Channel Conversational Assistant
-
-Marcela is the AI assistant operating across three channels: web (text + voice), phone (Twilio Voice), and SMS (Twilio SMS). All settings managed from Admin > Marcela tab.
-
-### Channels
-| Channel | Entry Point | LLM | Voice | DB Channel |
-|---------|-------------|-----|-------|------------|
-| Web Text | `POST /api/conversations/:id/messages` | GPT-4.1 streaming | No | `"web"` |
-| Web Voice | `POST /api/conversations/:id/voice` | GPT-4.1 streaming | STT+TTS via SSE | `"web"` |
-| Phone | `POST /api/twilio/voice/incoming` → WS `/api/twilio/voice/stream` | GPT-4.1 streaming | STT+TTS via Twilio Media Stream | `"phone"` |
-| SMS | `POST /api/twilio/sms/incoming` | GPT-4.1 (non-streaming) | No | `"sms"` |
-
-### Key Files
-- `server/replit_integrations/chat/routes.ts` — Web text+voice endpoints, system prompts, context builder
-- `server/routes/twilio.ts` — Phone+SMS webhooks, WebSocket Media Stream handler, audio conversion
-- `server/integrations/elevenlabs.ts` — ElevenLabs STT, streaming TTS WebSocket, voice config builder
-- `server/integrations/twilio.ts` — Twilio client, phone number, status check, sendSMS helper
-- `server/knowledge-base.ts` — RAG knowledge base: in-memory embeddings, cosine similarity retrieval
-- `client/src/components/AIChatWidget.tsx` — Chat widget with voice, channel badges, state machine
-- `client/src/components/admin/MarcelaTab.tsx` — Admin config: voice, LLM, telephony, knowledge base
-
-### RAG Knowledge Base
-- In-memory embedding-based retrieval (OpenAI `text-embedding-3-small`)
-- Content: User Manual, Checker Manual, Business Model Spec, Market Research, platform guides, attached assets
-- Chunks ~800 chars with 100-char overlap; cosine similarity top-K (6 text, 4 voice/phone/SMS)
-- Lazy indexed on first query; admin reindex via `POST /api/admin/knowledge-base-reindex`
-- Status endpoint: `GET /api/admin/knowledge-base-status`
-
-### Admin Marcela Tab
-- Voice Settings: Voice ID, TTS/STT models, output format, stability, similarity boost, speaker boost, chunk schedule
-- LLM Settings: Model selection, max tokens (text/voice)
-- Telephony & SMS: Enable/disable toggles, phone greeting, webhook URLs, Twilio connection status, test SMS
-- Knowledge Base: Status badge, chunk count, last-indexed time, reindex button
-- Outbound SMS: `POST /api/admin/send-notification`
-
-### Voice UX (Web Widget)
-- State machine: idle → recording → processing → thinking → speaking (barge-in loops to recording)
-- WaveformVisualizer during recording, VoiceStateIndicator with animated labels
-- Error fallback with retry from stored blob
-
-### Critical Rule
-**Marcela must NEVER compute financial values herself.** All financial data comes from the calculation engine.
-
-See `.claude/skills/marcela-ai/` and `.claude/skills/twilio-telephony/` for detailed implementation docs.
-
----
-
-## ElevenLabs Voice UI Blocks
-
-Five production-grade UI components at `/voice` (VoiceLab page), all adapted from Next.js → Vite:
-
-| Component | File | Description |
-|-----------|------|-------------|
-| `VoiceChatOrb` | `features/ai-agent/VoiceChatOrb.tsx` | Orb-centered voice interface, signed URL, WebRTC |
-| `VoiceChatFull` | `features/ai-agent/VoiceChatFull.tsx` | Full chat + voice toggle, text+WebRTC hybrid |
-| `VoiceChatBar` | `features/ai-agent/VoiceChatBar.tsx` | Floating `ConversationBar` with message history |
-| `Speaker` | `features/ai-agent/Speaker.tsx` | Audio player: orb, waveform, playlist, ambience |
-| `RealtimeTranscriber` | `features/ai-agent/RealtimeTranscriber.tsx` | Real-time STT via ElevenLabs Scribe |
-
-All voice components use `useAdminSignedUrl()` (auto-fetched on mount, refetched before each session). Dynamic variables (`user_name`, `user_role`, `current_page`) injected via `useAuth()`. Session state exposed via `onSessionChange(active: boolean)` prop — VoiceLab uses it to confirm before tab switching.
-
-**Hooks**: `use-signed-url.ts`, `use-agent-settings.ts`, `use-scribe-token.ts`
-**Root barrel**: `features/ai-agent/index.ts`
-**Skill**: `.claude/skills/marcela-ai/SKILL.md`, `.claude/skills/elevenlabs-widget/` (SDK reference)
-
----
-
-## Reusable Chart Library (9 Components)
-
-**Path:** `client/src/lib/charts/` | **Import:** `@/lib/charts` | **Skill:** `.claude/skills/charts/SKILL.md`
-
-| Component | Description | Key Props |
-|-----------|-------------|-----------|
-| `BarChartCard` | Horizontal/vertical bar with labels | `layout`, `showLabel`, `barRadius` |
-| `LineChartDotsColors` | Single-series line, per-point colored dots | `strokeColor` |
-| `LineChartMulti` | Multi-series line chart | `series`, `xAxisFormatter` |
-| `DonutChart` | Donut with center value label | `centerValue`, `centerLabel` |
-| `DonutChartInteractive` | Donut with dropdown selector | `centerLabel`, `id` |
-| `RadarChartDots` | Single/multi-series radar, polygon/circle grid | `gridType`, `series`, `showLegend` |
-| `RadialChart` | Concentric arcs with labels | `showLabels`, `showBackground` |
-| `RadialGauge` | Gauge with center value, shaped ring | `centerValue`, `centerLabel`, `endAngle` |
-| `RadialStacked` | Stacked half-circle with center total | `series`, `cornerRadius` |
-
-All use `ChartConfig` with `satisfies ChartConfig`, CSS vars `var(--chart-1)` through `var(--chart-5)`. Tooltip patterns: `indicator="line"`, `hideLabel`, `icon` in config, custom `formatter` with totals.
-
----
-
-## UI Block Reference Patterns
-
-**Skill:** `.claude/skills/ui-blocks/SKILL.md`
-
-Fetched shadcn blocks for reference (not wired into routing):
-- **dashboard-01:** Sidebar + header + stats cards + interactive chart + data table (`app/dashboard/`, `chart-area-interactive.tsx`, `data-table.tsx`, `nav-*.tsx`)
-- **sidebar-07:** Inset sidebar, collapsible nav groups, user menu, team switcher (`app-sidebar.tsx`, `nav-main.tsx`, `nav-user.tsx`, `team-switcher.tsx`)
-- **login-03:** Centered card login with social buttons (`login-form.tsx`)
-- **login-04:** Wide split-panel login with image side (`login-form.tsx` — overwrote login-03)
-
-Layout patterns documented in skill: centered login, split-panel login, sidebar+content, dashboard content grid.
+**Commands**: `npm test` (all 2,460) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
 ## Key Rules
 
 - **Calculations always highest priority** — never compromise financial accuracy for visuals
-- **All UI references a theme** — see theme engine skill
 - **No raw hex in components** — use CSS variable tokens
-- **All buttons use GlassButton**, all pages use PageHeader, all exports use ExportMenu
+- **All buttons GlassButton**, all pages PageHeader, all exports ExportMenu
 - **No mock data** in production paths
 - **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
-- **Audit persona + doctrine**: `.claude/rules/audit-persona.md` mandatory for finance work
-- **Button labels**: Always "Save" for save/update actions (never "Update") — `.claude/rules/ui-patterns.md`
-- **ANOI terminology**: The result after management fees = "Adjusted NOI (ANOI)", never "Net Operating Income (NOI)". Internal field name stays `noi`.
-- **Button hover**: Subtle scale-up on hover (1.01) and press (0.995) — refined, not bouncy. Set in `button.tsx` base cva class.
-- **Session memory**: Update `.claude/rules/session-memory.md` at the end of every session
-- **Read session memory first**: Always read `session-memory.md` and `replit.md` before starting work — `.claude/rules/session-startup.md`
-- **Docs after edits**: Update `.claude` docs and harmonize `replit.md` after any codebase changes — `.claude/rules/documentation.md`
-- **Every page must be graphics-rich**: Charts, animations, visual elements required
+- **ANOI terminology**: After-fee NOI = "Adjusted NOI (ANOI)". Internal field stays `noi`.
+- **Marcela must NEVER compute financial values** — all data from the calculation engine
 
 ---
 
 ## User Roles
 
-Four roles with hierarchical access:
-
-| Role | Access Level |
-|------|-------------|
-| `admin` | Full access — all pages + Admin Settings panel |
-| `partner` | Management-level — Dashboard, Properties, Company, Settings, Reports (no Admin) |
-| `checker` | Financial verification — same as Partner, plus verification tools and checker manual |
-| `investor` | Limited — Dashboard, Properties, Profile, Help only |
-
-Default role for new users: `partner`.
-
----
-
-## Pages (client/src/pages/)
-
-| Page | Route | Description |
-|------|-------|-------------|
-| Dashboard | `/` | Portfolio overview with 3D graphics, KPIs, activity feed |
-| Portfolio | `/portfolio` | Property list with favorites + Map View tab |
-| PropertyDetail | `/property/:id` | Individual property financial analysis |
-| PropertyEdit | `/property/:id/edit` | Edit property assumptions |
-| PropertyMarketResearch | `/property/:id/research` | AI-powered property research |
-| Company | `/company` | Management company financials + Investment Analysis (IRR) |
-| CompanyAssumptions | `/company/assumptions` | Management company assumptions |
-| CompanyResearch | `/company/research` | Management company research |
-| Analysis | `/analysis` | Unified page: Sensitivity + Financing + Executive Summary (tabs) |
-| SensitivityAnalysis | (embedded in Analysis) | Sensitivity analysis tables |
-| FinancingAnalysis | (embedded in Analysis) | DSCR, debt yield, loan sizing |
-| ExecutiveSummary | (embedded in Analysis) | Printable portfolio summary |
-| MapView | (tab in Portfolio) | Geographic property card grid |
-| ComparisonView | `/compare` | Side-by-side property comparison |
-| TimelineView | `/timeline` | Chronological portfolio timeline |
-| Scenarios | `/scenarios` | Scenario management |
-| PropertyFinder | `/property-finder` | RapidAPI property search |
-| GlobalResearch | `/global/research` | Global market research |
-| Settings | `/settings` | Themes, preferences, calculation transparency |
-| Profile | `/profile` | User profile, theme selection |
-| Admin | `/admin` | Admin Settings (10 tabs — see Admin Page Structure above) |
-| Methodology | `/methodology` | User manual |
-| CheckerManual | `/checker-manual` | Checker manual (21 sections) |
-| Help | `/help` | Help and documentation |
-| Login | `/login` | Authentication page |
-| VoiceLab | `/voice` | ElevenLabs voice UI showcase (Orb, Full Chat, Bar, Transcriber, Speaker) |
-
----
-
-## Calculation Transparency
-
-Two toggles in **Systemwide Assumptions > Other tab** control formula help visibility:
-- `showCompanyCalculationDetails` — Management Company reports
-- `showPropertyCalculationDetails` — Property reports
-
-When ON (default), every financial line item shows a ? icon explaining its formula and meaning. When OFF, clean investor-ready view.
-
----
-
-## UI Features (17+ enhancements)
-
-| Feature | Component | Location |
-|---------|-----------|----------|
-| Command Palette | CommandPalette.tsx | Ctrl+K global search |
-| Breadcrumbs | Breadcrumbs.tsx | Route-aware contextual breadcrumbs |
-| Notification Center | NotificationCenter.tsx | Bell icon dropdown + Zustand store |
-| Favorites | Favorites.tsx | Star toggle + sidebar widget |
-| Activity Feed | ActivityFeed.tsx | Dashboard recent actions widget |
-| Heat Map | charts/HeatMap.tsx | Color-coded portfolio metric grid |
-| Waterfall Chart | charts/WaterfallChart.tsx | Stacked bar cumulative flows |
-| Radar Chart | charts/RadarChart.tsx | Spider chart with normalization |
-| Comparison View | ComparisonView.tsx | Side-by-side property comparison page |
-| Timeline View | TimelineView.tsx | Chronological portfolio timeline page |
-| Map View | MapView.tsx | Geographic property card grid (tab in Portfolio) |
-| Executive Summary | ExecutiveSummary.tsx | Printable portfolio overview (tab in Analysis) |
-| Composite Tabbed Pages | Analysis.tsx, Portfolio.tsx | Unified pages merging standalone components via embedded mode |
-| What-If Panel | WhatIfPanel.tsx | Slider-based assumption adjustments |
-| Variance Analysis | VarianceAnalysis.tsx | Property variance comparison |
-| Guided Walkthrough | GuidedWalkthrough.tsx | Step-by-step spotlight tour |
-| Inline Editing | inline-editing skill | In-place value editing |
-| AIImagePicker | ai-image-picker.tsx | Three-mode image input (upload, AI generate, URL) |
-| AnimatedLogo | animated-logo.tsx | SVG-wrapped logo with animation support |
-| Financial Statements | FinancialStatement.tsx, YearlyIncomeStatement.tsx, etc. | GAAP-compliant statements |
+| Role | Access |
+|------|--------|
+| `admin` | Full — all pages + Admin Settings |
+| `partner` | Management-level — no Admin panel |
+| `checker` | Partner + verification tools |
+| `investor` | Limited — Dashboard, Properties, Profile, Help |
 
 ---
 
@@ -402,121 +117,11 @@ When ON (default), every financial line item shows a ? icon explaining its formu
 
 ```bash
 npm run dev            # Start dev server (port 5000)
-npm run health         # One-shot: tsc + tests + verify (~4 lines output)
-npm run test:summary   # Run all 2,460 tests, 1-line output on pass
+npm run health         # tsc + tests + verify (~4 lines)
+npm run test:summary   # All 2,460 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact output
-npm test               # Run all 2,460 tests (full output)
-npm run verify         # Full 7-phase financial verification (verbose)
 npm run db:push        # Push schema changes
-npm run lint:summary   # tsc --noEmit with 1-line output
 npm run diff:summary   # Compact git status + diff stat
-npm run test:file -- <path>  # Run single test file with summary output
-npm run stats          # Codebase metrics: files, lines, tests, TS errors (~12 lines)
-npm run audit:quick    # Quick code quality scan
-npm run exports:check  # Find unused public exports from calc/ and lib/
+npm run test:file -- <path>  # Single test file
+npm run stats          # Codebase metrics
 ```
-
----
-
-## Integrations (Replit-Managed)
-
-All integrations are managed through Replit's platform, handling API keys and secret rotation automatically.
-
-### AI Integrations (no external API keys needed)
-| Integration | Model | Purpose |
-|-------------|-------|---------|
-| Google Gemini | `gemini-2.5-flash-image` | Primary AI image generation (Nano Banana) |
-| Google Gemini | `gemini-2.5-flash` | Market research analysis |
-| OpenAI | `gpt-image-1` | Fallback AI image generation |
-| Anthropic Claude | `claude-sonnet` | Financial methodology review, market research |
-
-### Connected Services
-| Integration | Purpose |
-|-------------|---------|
-| Google Sheets | Spreadsheet connectivity |
-| Gmail | Email notifications |
-| Google Drive | Document storage |
-| Google Docs | Document connectivity |
-| Google Calendar | Calendar integration |
-| Stripe | Payment processing |
-| Twilio | Voice calls (Media Streams WebSocket) + SMS (inbound/outbound) |
-| ElevenLabs | Speech-to-Text (Scribe v1) + Text-to-Speech (WebSocket streaming) |
-| Replit Auth | "Log in with Replit" authentication |
-| GitHub | Source control |
-
-### Infrastructure (Replit-Provided)
-| Service | Purpose |
-|---------|---------|
-| PostgreSQL (Neon) | Primary database — auto-configured `DATABASE_URL` |
-| Object Storage (GCS) | Image uploads, AI-generated assets, exported documents |
-| Secrets Management | Encrypted storage for `ADMIN_PASSWORD`, `CHECKER_PASSWORD`, `REYNALDO_PASSWORD` |
-| Deployments | Automatic TLS, health checks, `.replit.app` domain |
-
----
-
-## Tech Stack
-
-- **Frontend**: React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts
-- **Backend**: Node.js, Express 5, TypeScript (ESM), esbuild
-- **Data**: Drizzle ORM, PostgreSQL (Neon), Zod validation
-- **3D/Animation**: Three.js (@react-three/fiber, drei, postprocessing), framer-motion
-- **AI**: Google Gemini, OpenAI, Anthropic Claude (via Replit AI Integrations)
-- **Exports**: jsPDF, xlsx, pptxgenjs, dom-to-image-more
-- **Fonts**: Playfair Display (headings) + Inter (UI/data)
-- **Hosting**: Replit Deployments
-
----
-
-## Branding Architecture
-
-Branding resolution flows: **User → User Group → Default**.
-
-- **Logos** are standalone entities carrying both a visual image and a `companyName`.
-- **User Groups** reference a logo, theme, and asset description.
-- **Users** inherit branding from their assigned User Group.
-- **Theme override**: Users can select a different theme on their Profile page.
-- **Company name** comes from the logo (not the group). Picking a logo sets the company name.
-- **Two separate "company name" concepts**: `logo.companyName` is branding identity; `globalAssumptions.companyName` is the Management Company entity name in financial modeling.
-
-See `.claude/skills/multi-tenancy/SKILL.md` for full details.
-
----
-
-## Reusable Chart Module (`client/src/lib/charts/`)
-
-Portable chart component library. 6 components, single import via `@/lib/charts`. Depends only on `@/components/ui/chart` (shadcn primitive) and `recharts`.
-
-### Components
-| Component | File | Pattern |
-|-----------|------|---------|
-| `BarChartCard` | `BarChartCard.tsx` | Horizontal/vertical bar, `radius={8}`, `LabelList`, `CartesianGrid` |
-| `LineChartDotsColors` | `LineChartDotsColors.tsx` | Single-series, custom colored `Dot` render prop (`r={5}`), `type="natural"` |
-| `LineChartMulti` | `LineChartMulti.tsx` | Multi-series, one `<Line>` per series, `dot={{ fill }}`, `activeDot={{ r:6 }}`, `XAxis` with formatter |
-| `DonutChart` | `DonutChart.tsx` | `PieChart` + `Pie` with center `<Label>` (bold value + subtitle), `innerRadius={60}` |
-| `DonutChartInteractive` | `DonutChartInteractive.tsx` | Donut + `Select` dropdown, `activeShape` double-`Sector` highlight, dynamic center label |
-| `RadarChartDots` | `RadarChartDots.tsx` | `RadarChart` + `PolarGrid` + `PolarAngleAxis`, `fillOpacity={0.6}`, `dot={{ r:4 }}` |
-
-### Shared conventions
-- All use `ChartContainer`/`ChartTooltip`/`ChartTooltipContent` from `@/components/ui/chart`
-- Config uses `satisfies ChartConfig` with `color: "var(--chart-N)"` per series/slice
-- `ChartTooltip cursor={false}`, `CartesianGrid vertical={false}`
-- CSS variable colors: `var(--color-seriesName)` mapped from config
-- Types exported from `types.ts`, barrel from `index.ts`
-
----
-
-## Export System (ExportDialog + ExportVersion)
-
-- **ExportDialog** (`client/src/components/ExportDialog.tsx`): Modal gate for PDF/PPTX/PNG exports. Exports `ExportVersion = "short" | "extended"` type.
-- **ExportVersion**: `"short"` = summary/headers only (accordions collapsed, formula rows excluded). `"extended"` = all sections expanded (formula rows excluded — data rows only).
-- **Props**: `open`, `onClose`, `onExport(orientation, version)`, `title`, `showVersionOption`.
-- **Integration**: PDF/PPTX/PNG set `pendingExportAction` → open dialog → `handleVersionExport(orientation, version)` → version-aware data → export. CSV/Excel bypass dialog.
-- **IncomeStatementTab**: `generateIncomeStatementData(overrideExpanded?, excludeFormulas?)` with `getVersionRows(version)`.
-- **CashFlowTab/BalanceSheetTab**: Same dialog-gate pattern.
-
----
-
-## Norfolk AI Logos
-- `norfolk-ai-wireframe.png` — thin outline strokes, dim on dark backgrounds (avoid for login)
-- `norfolk-ai-blue.png` — solid fill, good visibility (used on login page)
-- `norfolk-ai-yellow.png` — alternate color variant

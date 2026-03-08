@@ -4,9 +4,10 @@ import { PageHeader } from "@/components/ui/page-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AdminSidebar, { type AdminSection, navGroups, getGroupForSection } from "@/components/admin/AdminSidebar";
 import {
-  UsersTab, CompaniesTab, ActivityTab, VerificationTab,
-  UserGroupsTab, DatabaseTab, MarcelaTab,
+  CompaniesTab, ActivityTab, VerificationTab,
+  DatabaseTab, MarcelaTab,
 } from "@/components/admin";
+import PeopleTab from "@/components/admin/PeopleTab";
 import ManagementCompanyTab from "@/components/admin/ManagementCompanyTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import ThemesTab from "@/components/admin/ThemesTab";
@@ -18,8 +19,7 @@ import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
-  users:        { title: "Users",          subtitle: "Manage user accounts, roles, and passwords" },
-  groups:       { title: "User Groups",    subtitle: "Branded groups with shared themes, logos, and labels" },
+  groups:       { title: "Groups",          subtitle: "Manage users and group assignments" },
   activity:     { title: "Activity",       subtitle: "Login logs, audit trail, and session monitoring" },
   branding:     { title: "Hospitality Brand", subtitle: "Identity, asset definition, and centralized services" },
   themes:       { title: "Themes",         subtitle: "Color palettes and visual styles for the platform" },
@@ -34,8 +34,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
 
 function SectionContent({ section, onNavigate }: { section: AdminSection; onNavigate: (s: AdminSection) => void }) {
   switch (section) {
-    case "users":        return <UsersTab />;
-    case "groups":       return <UserGroupsTab />;
+    case "groups":       return <PeopleTab />;
     case "activity":     return <ActivityTab />;
     case "branding":     return <ManagementCompanyTab onNavigate={(tab: string) => { if (tab === "logos") onNavigate("logos"); else if (tab === "themes") onNavigate("themes"); else if (tab === "groups") onNavigate("groups"); }} />;
     case "themes":       return <ThemesTab />;

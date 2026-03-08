@@ -9,7 +9,7 @@ import {
 } from "@/components/icons/brand-icons";
 
 export type AdminSection =
-  | "users" | "groups" | "activity"
+  | "groups" | "activity"
   | "branding" | "themes" | "logos" | "navigation"
   | "companies" | "research"
   | "marcela"
@@ -36,7 +36,6 @@ const navGroups: NavGroup[] = [
     icon: IconPeople,
     description: "Users, groups & activity",
     sections: [
-      { value: "users", label: "Users", icon: IconUserCog },
       { value: "groups", label: "Groups", icon: IconPeople },
       { value: "activity", label: "Activity", icon: IconActivity },
     ],

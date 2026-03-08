@@ -1,125 +1,55 @@
 # Skill File Organization Standards
 
-## Rule
-
-All skill files must follow consistent organization, naming, and placement conventions. Skills are the executable documentation of how features work — they must be findable, up-to-date, and cross-referenced with their governing rules.
-
-## Directory Structure
-
-```
-.claude/
-├── claude.md                  # Master doc (always loaded)
-├── rules/                     # Enforceable constraints (25 files)
-├── skills/                    # How-to documentation (126 files)
-│   ├── context-loading/       # Skill router (load first)
-│   ├── architecture/          # System architecture
-│   ├── coding-conventions/    # Code style rules
-│   ├── component-library/     # UI component catalog
-│   ├── database-environments/ # DB setup and migrations
-│   ├── design-system/         # Colors, typography, tokens
-│   ├── exports/               # PDF, Excel, PPTX, PNG, CSV
-│   ├── finance/               # 16 financial calculation skills
-│   ├── multi-tenancy/         # User groups, branding, roles
-│   ├── proof-system/          # Test framework, verification
-│   ├── property-finder/       # RapidAPI property search
-│   ├── research/              # 17 AI research skills
-│   ├── source-code/           # Full source file map
-│   ├── testing/               # 7 test coverage skills
-│   ├── tool-schemas/          # Tool JSON schema conventions
-│   ├── ui/                    # 27 UI skills (charts, graphics, components, image picker)
-│   ├── mobile-responsive/     # 4 mobile/tablet responsive design skills
-│   ├── 3d-graphics/           # Three.js / React Three Fiber
-│   ├── marcela-ai/            # Multi-channel AI assistant (architecture, audio pipeline, voice UX, ElevenLabs components, admin)
-│   ├── twilio-telephony/      # Twilio Voice + SMS integration
-│   ├── admin/                 # Admin page architecture (10-tab shell pattern)
-│   ├── admin-components/      # Admin panel shared hooks, styles, tooltip patterns
-│   └── codebase-architecture/ # Client folder structure, barrel files, UI component catalog (80+), ElevenLabs architecture
-├── tools/                     # Tool schemas (JSON)
-│   ├── analysis/              # Break-even, consolidation, scenario
-│   ├── financing/             # DSCR, debt yield, prepayment, IRR
-│   ├── returns/               # IRR vector, DCF, equity multiple
-│   ├── ui/                    # Compare, theme, variance
-│   └── validation/            # Assumption checks, funding gates
-├── commands/                  # 8 slash commands
-├── manuals/                   # Checker manual + user manual
-│   ├── checker-manual/        # 15 sections + formulas + tools
-│   └── user-manual/           # 16 sections
-└── scripts/                   # SQL and utility scripts
-```
+> Full directory tree: `.claude/skills/` — each subdirectory has a `SKILL.md` entry point.
 
 ## Placement Rules
 
-1. **No loose files in `.claude/skills/`** — Every skill file belongs in a subdirectory. If a file doesn't fit an existing subdirectory, create one or place it in the most relevant existing one.
-2. **UI skills go in `ui/`** — All visual, animation, chart, graphics, layout, and component skills belong under `.claude/skills/ui/`.
-3. **Finance skills go in `finance/`** — All calculation, statement, and financial logic skills belong under `.claude/skills/finance/`.
-4. **Research skills go in `research/`** — All AI research and market analysis skills belong under `.claude/skills/research/`.
-5. **Testing skills go in `testing/`** — All test coverage and test methodology skills belong under `.claude/skills/testing/`.
+1. **No loose files in `.claude/skills/`** — every skill belongs in a subdirectory
+2. **UI skills → `ui/`**, Finance skills → `finance/`, Research → `research/`, Testing → `testing/`
+3. **Rule files → `.claude/rules/`** only; skills → `.claude/skills/` only
+4. **Session history → `.claude/archive/`**, reference docs → appropriate skills subdirectory
 
 ## Naming Conventions
 
-| Type | Convention | Example |
-|------|-----------|---------|
-| Directory SKILL.md | `SKILL.md` (uppercase) | `architecture/SKILL.md` |
-| Sub-skills | `kebab-case.md` | `income-statement.md` |
-| Rule files | `kebab-case.md` | `no-hardcoded-assumptions.md` |
-| Tool schemas | `kebab-case.json` or `.js` | `calculate-dscr.json` |
-| Command files | `kebab-case.md` | `add-constant.md` |
+- Directory entry points: `SKILL.md` (uppercase)
+- Sub-skills & rules: `kebab-case.md`
+- Tool schemas: `kebab-case.json`
 
-## Required Sections in Skill Files
+## Required Sections in Every SKILL.md
 
-Every SKILL.md should include:
-1. **YAML frontmatter** with `name` and `description`
-2. **Purpose** — What the skill covers
-3. **Key files** — Source files this skill documents
-4. **Related rules** — Which `.claude/rules/` files govern this skill's domain
-5. **Examples** — Usage patterns or code snippets
+1. YAML frontmatter (`name`, `description`)
+2. Purpose — what the skill covers
+3. Key files — source files documented
+4. Related rules — which `.claude/rules/` files govern this domain
+5. Examples — usage patterns or code snippets
 
 ## Rules-to-Skills Cross-Reference
 
-Each rule governs one or more skill domains. When working in a domain, load both the rule AND the skill:
-
-| Rule | Governs These Skills | Enforcement |
-|------|---------------------|-------------|
-| `graphics-rich-design.md` | `ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `ui/animation-patterns.md`, `ui/charts.md`, `3d-graphics/SKILL.md` | Every page must have graphics per checklist |
-| `no-hardcoded-values.md` | `finance/*`, `multi-tenancy/SKILL.md`, `design-system/SKILL.md` | No literal financial or admin-config values in code |
-| `recalculate-on-save.md` | `architecture/SKILL.md`, `finance/calculation-chain.md` | All save mutations invalidate financial queries |
-| `financial-engine.md` | `finance/*` (all skills) | Mandatory business rules + immutable constants |
+| Rule | Governs | Enforcement |
+|------|---------|-------------|
+| `graphics-rich-design.md` | `ui/graphics-component-catalog.md`, `ui/animation-patterns.md`, `3d-graphics/SKILL.md` | Every page must have graphics |
+| `no-hardcoded-values.md` | `finance/*`, `multi-tenancy/SKILL.md` | No literal financial or admin values |
+| `recalculate-on-save.md` | `architecture/SKILL.md`, `finance/calculation-chain.md` | All saves invalidate financial queries |
+| `financial-engine.md` | `finance/*` | Mandatory business rules + immutable constants |
 | `database-seeding.md` | `database-environments/SKILL.md` | Seeding invariants |
-| `architecture.md` | `architecture/SKILL.md`, `source-code/SKILL.md` | System architecture decisions |
-| `audit-persona.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | Audit doctrine and verification mindset |
-| `session-startup.md` | `context-loading/SKILL.md` | Session init + architect calls include all rules |
-| `documentation.md` | All skills | Source-of-truth hierarchy + docs-after-edits protocol |
-| `ui-patterns.md` | `ui/entity-cards.md` | Button labels + entity card layout consistency |
+| `architecture.md` | `architecture/SKILL.md`, `source-code/SKILL.md` | Stack constraints |
+| `audit-persona.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | Audit doctrine |
+| `documentation.md` | All skills | Docs-after-edits protocol |
+| `ui-patterns.md` | `ui/entity-cards.md` | Button labels + entity card layout |
 
-## Reference Docs (load on demand, not auto-loaded)
-
-These live in `.claude/skills/` or `.claude/archive/` — load only when needed:
+## Reference Docs (load on demand)
 
 | File | Location | Load When |
 |------|----------|-----------|
-| API Routes reference | `skills/architecture/api-routes.md` | Writing/debugging API endpoints |
-| Constants & config tables | `skills/finance/constants-and-config.md` | Adding/changing constants |
-| Verification system detail | `skills/proof-system/verification-system.md` | Verification/audit work |
-| Release audit checklist | `skills/proof-system/release-audit-checklist.md` | Pre-release reviews |
+| API Routes | `skills/architecture/api-routes.md` | Writing/debugging API endpoints |
+| Constants tables | `skills/finance/constants-and-config.md` | Adding/changing constants |
+| Verification detail | `skills/proof-system/verification-system.md` | Audit/verification work |
+| Release checklist | `skills/proof-system/release-audit-checklist.md` | Pre-release reviews |
 | Session history | `.claude/archive/session-memory-archive.md` | Investigating past decisions |
-| `graphics-rich-design.md` | `mobile-responsive/SKILL.md`, `mobile-responsive/device-testing-checklist.md` | Graphics must render on all devices |
-| `skill-organization.md` | All skills | Skill file structure and naming |
-| `context-reduction.md` | All skills, all refactors | Every refactor/feature must produce supporting skills, helpers, scripts, and tools |
-| `premium-design.md` | `ui/*`, `3d-graphics/SKILL.md`, `mobile-responsive/SKILL.md` | Premium bespoke design: animated numbers, micro-interactions, glassmorphism, staggered reveals, skeleton loading |
 
 ## When Creating New Skills
 
-1. Check if a related subdirectory exists — use it
-2. If not, create one with a `SKILL.md` as the entry point
-3. Add the new skill to `context-loading/SKILL.md` task-to-skill map
-4. Add a row to the Skill Router in `claude.md`
-5. Reference the governing rule(s) in the skill's "Related rules" section
-6. If the skill introduces a new domain, consider whether a new rule is needed
-
-## Verification
-
-On any audit or code review that touches `.claude/`:
-1. Run `find .claude/skills -maxdepth 1 -name "*.md"` — should return 0 files (no loose skills)
-2. Verify every rule in the cross-reference table above has its listed skills present
-3. Verify `context-loading/SKILL.md` reflects the current directory structure
-4. Verify `claude.md` Skill Router is up to date
+1. Check if a related subdirectory exists — use it; if not, create one with a `SKILL.md`
+2. Add the skill to `context-loading/SKILL.md` task-to-skill map
+3. Add a row to the Skill Router in `claude.md`
+4. Reference governing rule(s) in the skill's "Related rules" section

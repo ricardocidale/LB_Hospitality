@@ -167,11 +167,12 @@
       "Bash(npx shadcn@latest init --preset ad3qkJ7 2>&1)",
       "Bash(for f in ComparisonView ExecutiveSummary FinancingAnalysis Portfolio TimelineView Scenarios)",
       "Bash(do)",
-      "Read(//home/runner/workspace/client/src/pages/**)"
+      "Read(//home/runner/workspace/client/src/pages/**)",
+      "Bash(mkdir -p /home/runner/workspace/.claude/archive && cp /home/runner/workspace/.claude/rules/session-memory-archive.md /home/runner/workspace/.claude/archive/session-memory-archive.md && cp /home/runner/workspace/.claude/rules/api-routes.md /home/runner/workspace/.claude/skills/architecture/api-routes.md && cp /home/runner/workspace/.claude/rules/constants-and-config.md /home/runner/workspace/.claude/skills/finance/constants-and-config.md && cp /home/runner/workspace/.claude/rules/release-audit-checklist.md /home/runner/workspace/.claude/skills/proof-system/release-audit-checklist.md && cp /home/runner/workspace/.claude/rules/verification-system.md /home/runner/workspace/.claude/skills/proof-system/verification-system.md && echo \"Copies done\")"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "shadcn"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

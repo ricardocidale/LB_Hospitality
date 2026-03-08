@@ -439,7 +439,7 @@ export async function uploadKnowledgeBase(): Promise<{ success: boolean; documen
         agent: {
           prompt: {
             knowledge_base: [
-              { type: "file", id: doc.id, name: "HBG-Marcela-KB" },
+              { type: "text", id: doc.id, name: "HBG-Marcela-KB", usage_mode: "auto" },
             ],
           },
         },

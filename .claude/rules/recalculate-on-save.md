@@ -1,79 +1,26 @@
 # Recalculate on Save
 
-## Rule
+Every financial mutation's `onSuccess` MUST call `invalidateAllFinancialQueries(queryClient)` from `@/lib/api`. Never hand-pick individual query keys.
 
-Every time the user saves any assumption, property value, fee category, or configuration that affects financial outputs, the entire application must recalculate all financial reports. There is no partial recalculation — all reports regenerate from current data.
+```typescript
+// CORRECT
+import { invalidateAllFinancialQueries } from "@/lib/api";
+onSuccess: () => { invalidateAllFinancialQueries(queryClient); }
+
+// WRONG — misses properties, scenarios, research...
+onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] }); }
+```
 
 ## What Triggers Recalculation
 
-Any save/mutation that touches:
-- Global assumptions (company assumptions page)
-- Property assumptions (ADR, occupancy, cost rates, revenue shares, etc.)
-- Fee categories (base fees, incentive fees, service categories)
-- Property creation or deletion
-- Funding amounts or dates
-- Partner compensation or staffing tiers
-- Overhead or variable cost parameters
-- Tax rates, exit cap rates, commission rates
-- Expense rates (event, other revenue, utilities split)
-- Sidebar visibility or display settings (they live in global assumptions)
-- Scenario save, load, or delete
+Any mutation touching: global assumptions, property assumptions, fee categories, property create/delete, funding, partner comp, staffing, overhead, tax/exit/commission rates, scenario save/load/delete.
 
-## How It Works
+## Exempt Mutations (no recalculation needed)
 
-A centralized helper function `invalidateAllFinancialQueries` in `client/src/lib/api.ts` invalidates ALL financial query keys at once. Every financial mutation must call this helper — never hand-pick individual query keys.
-
-```typescript
-// CORRECT — use the centralized helper (defined in api.ts)
-import { invalidateAllFinancialQueries } from "@/lib/api";
-
-onSuccess: () => {
-  invalidateAllFinancialQueries(queryClient);
-}
-
-// WRONG — cherry-picking individual keys
-onSuccess: () => {
-  queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
-  // Missing: properties, feeCategories, scenarios, research...
-}
-```
-
-### Query Keys Covered
-
-The `ALL_FINANCIAL_QUERY_KEYS` array in `api.ts` includes these base prefixes:
-- `["globalAssumptions"]`
-- `["properties"]` — also invalidates `["properties", id]` for any id
-- `["feeCategories"]` — also invalidates `["feeCategories", propertyId]` and `["feeCategories", "all"]`
-- `["scenarios"]`
-- `["research"]` — also invalidates `["research", type, propertyId]` variants
-
-React Query uses **partial/fuzzy key matching** by default (no `exact: true`), so invalidating `["properties"]` automatically covers all sub-keys like `["properties", 5]`.
-
-When adding new financial data queries, either nest them under one of these existing prefixes, or add a new base key to `ALL_FINANCIAL_QUERY_KEYS`.
-
-### Non-Financial Mutations (Exempt)
-
-These mutations do NOT require full recalculation:
-- Prospective favorites (property finder saves)
-- Saved searches
-- Design themes (visual only)
-- Logos and asset descriptions (branding only)
-- Profile updates (name, email, password)
-- Session management
+Design themes, logos, asset descriptions, profile updates, session management, property finder favorites.
 
 ## Enforcement
 
-This rule is verified automatically by `tests/proof/recalculation-enforcement.test.ts`, which runs as part of the verification pipeline (`npm run verify:summary`, "Recalc Enforcement" phase). The test performs:
+`tests/proof/recalculation-enforcement.test.ts` — static analysis verifying every financial mutation calls the helper. Failures produce ADVERSE verification opinion.
 
-1. **Static analysis**: Every mutation hook in `api.ts` that creates, updates, or deletes financial data must call `invalidateAllFinancialQueries` in its `onSuccess` callback.
-2. **Completeness check**: `ALL_FINANCIAL_QUERY_KEYS` must include all financial query keys used across the codebase.
-3. **Bypass detection**: No direct `queryClient.invalidateQueries()` calls may bypass the centralized helper for financial data.
-
-Failures in this test produce an **ADVERSE** verification opinion.
-
-## Why
-
-Financial reports are interconnected. A change to any single assumption can cascade through:
-- Property-level P&L → Management fee revenue → Company P&L → Company cash flow → Balance sheet → All summary dashboards
-
-Partial invalidation risks showing stale numbers alongside fresh ones, which breaks the integrity of the financial model.
+When adding new financial queries: nest under an existing key prefix in `ALL_FINANCIAL_QUERY_KEYS` (in `api.ts`), or add a new base key to that array.

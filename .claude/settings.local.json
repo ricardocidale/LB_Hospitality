@@ -186,7 +186,8 @@
       "WebFetch(domain:ask.replit.com)",
       "WebFetch(domain:www.digitalapplied.com)",
       "WebFetch(domain:blog.helpviber.com)",
-      "WebFetch(domain:elevenlabs.io)"
+      "WebFetch(domain:elevenlabs.io)",
+      "Bash(env | grep -E \"ELEVENLABS|PASSWORD|MARCELA\" | sed 's/=.*/=***/')"
     ]
   },
   "enableAllProjectMcpServers": true,

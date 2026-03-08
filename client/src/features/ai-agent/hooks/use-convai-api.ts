@@ -61,10 +61,23 @@ export function useSaveAgentVoice() {
   return useMutation({
     mutationFn: async (data: {
       voice_id?: string;
-      model_id?: string;
       stability?: number;
       similarity_boost?: number;
       use_speaker_boost?: boolean;
+      speed?: number;
+      agent_output_audio_format?: string;
+      optimize_streaming_latency?: number;
+      text_normalisation_type?: string;
+      asr_provider?: string;
+      user_input_audio_format?: string;
+      background_voice_detection?: boolean;
+      turn_eagerness?: string;
+      spelling_patience?: string;
+      speculative_turn?: boolean;
+      turn_timeout?: number;
+      silence_end_call_timeout?: number;
+      max_duration_seconds?: number;
+      cascade_timeout_seconds?: number;
     }) => {
       const res = await apiRequest("PATCH", "/api/admin/convai/agent/voice", data);
       return res.json();
@@ -72,7 +85,7 @@ export function useSaveAgentVoice() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.convaiAgent });
       queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.voiceSettings });
-      toast({ title: "Voice settings saved", description: "TTS configuration pushed to ElevenLabs." });
+      toast({ title: "Voice settings saved", description: "Configuration pushed to ElevenLabs." });
     },
     onError: (err: Error) => {
       toast({ title: "Save failed", description: err.message, variant: "destructive" });

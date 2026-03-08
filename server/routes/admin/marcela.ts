@@ -357,22 +357,75 @@ export function registerMarcelaRoutes(app: Express) {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
-      const { voice_id, model_id, stability, similarity_boost, use_speaker_boost } = req.body;
+      const {
+        voice_id, stability, similarity_boost, use_speaker_boost, speed,
+        agent_output_audio_format, optimize_streaming_latency, text_normalisation_type,
+        asr_provider, user_input_audio_format, background_voice_detection,
+        turn_eagerness, spelling_patience, speculative_turn,
+        turn_timeout, silence_end_call_timeout,
+        max_duration_seconds, cascade_timeout_seconds,
+      } = req.body;
+
       const ttsPatch: Record<string, unknown> = {};
       if (voice_id !== undefined) ttsPatch.voice_id = voice_id;
-      if (model_id !== undefined) ttsPatch.model_id = model_id;
       if (stability !== undefined) ttsPatch.stability = stability;
       if (similarity_boost !== undefined) ttsPatch.similarity_boost = similarity_boost;
-      if (use_speaker_boost !== undefined) ttsPatch.use_speaker_boost = use_speaker_boost;
-      const updated = await updateConvaiAgent(ga.marcelaAgentId, {
-        conversation_config: { tts: ttsPatch },
-      });
+      if (speed !== undefined) ttsPatch.speed = speed;
+      if (agent_output_audio_format !== undefined) ttsPatch.agent_output_audio_format = agent_output_audio_format;
+      if (optimize_streaming_latency !== undefined) ttsPatch.optimize_streaming_latency = optimize_streaming_latency;
+      if (text_normalisation_type !== undefined) ttsPatch.text_normalisation_type = text_normalisation_type;
+
+      const asrPatch: Record<string, unknown> = {};
+      if (asr_provider !== undefined) asrPatch.provider = asr_provider;
+      if (user_input_audio_format !== undefined) asrPatch.user_input_audio_format = user_input_audio_format;
+
+      const vadPatch: Record<string, unknown> = {};
+      if (background_voice_detection !== undefined) vadPatch.background_voice_detection = background_voice_detection;
+
+      const turnPatch: Record<string, unknown> = {};
+      if (turn_eagerness !== undefined) turnPatch.turn_eagerness = turn_eagerness;
+      if (spelling_patience !== undefined) turnPatch.spelling_patience = spelling_patience;
+      if (speculative_turn !== undefined) turnPatch.speculative_turn = speculative_turn;
+      if (turn_timeout !== undefined) turnPatch.turn_timeout = turn_timeout;
+      if (silence_end_call_timeout !== undefined) turnPatch.silence_end_call_timeout = silence_end_call_timeout;
+
+      const convPatch: Record<string, unknown> = {};
+      if (max_duration_seconds !== undefined) convPatch.max_duration_seconds = max_duration_seconds;
+
+      const promptPatch: Record<string, unknown> = {};
+      if (cascade_timeout_seconds !== undefined) promptPatch.cascade_timeout_seconds = cascade_timeout_seconds;
+
+      const convaiPatch: Record<string, unknown> = {};
+      if (Object.keys(ttsPatch).length) convaiPatch.tts = ttsPatch;
+      if (Object.keys(asrPatch).length) convaiPatch.asr = asrPatch;
+      if (Object.keys(vadPatch).length) convaiPatch.vad = vadPatch;
+      if (Object.keys(turnPatch).length) convaiPatch.turn = turnPatch;
+      if (Object.keys(convPatch).length) convaiPatch.conversation = convPatch;
+      if (Object.keys(promptPatch).length) convaiPatch.agent = { prompt: promptPatch };
+
+      const updated = Object.keys(convaiPatch).length
+        ? await updateConvaiAgent(ga.marcelaAgentId, { conversation_config: convaiPatch })
+        : {};
+
       const dbPatch: Partial<Record<string, unknown>> = {};
       if (voice_id !== undefined) dbPatch.marcelaVoiceId = voice_id;
-      if (model_id !== undefined) dbPatch.marcelaTtsModel = model_id;
       if (stability !== undefined) dbPatch.marcelaStability = stability;
       if (similarity_boost !== undefined) dbPatch.marcelaSimilarityBoost = similarity_boost;
       if (use_speaker_boost !== undefined) dbPatch.marcelaSpeakerBoost = use_speaker_boost;
+      if (speed !== undefined) dbPatch.marcelaSpeed = speed;
+      if (agent_output_audio_format !== undefined) dbPatch.marcelaOutputFormat = agent_output_audio_format;
+      if (optimize_streaming_latency !== undefined) dbPatch.marcelaStreamingLatency = optimize_streaming_latency;
+      if (text_normalisation_type !== undefined) dbPatch.marcelaTextNormalisation = text_normalisation_type;
+      if (asr_provider !== undefined) dbPatch.marcelaAsrProvider = asr_provider;
+      if (user_input_audio_format !== undefined) dbPatch.marcelaInputAudioFormat = user_input_audio_format;
+      if (background_voice_detection !== undefined) dbPatch.marcelaBackgroundVoiceDetection = background_voice_detection;
+      if (turn_eagerness !== undefined) dbPatch.marcelaTurnEagerness = turn_eagerness;
+      if (spelling_patience !== undefined) dbPatch.marcelaSpellingPatience = spelling_patience;
+      if (speculative_turn !== undefined) dbPatch.marcelaSpeculativeTurn = speculative_turn;
+      if (turn_timeout !== undefined) dbPatch.marcelaTurnTimeout = turn_timeout;
+      if (silence_end_call_timeout !== undefined) dbPatch.marcelaSilenceEndCallTimeout = silence_end_call_timeout;
+      if (max_duration_seconds !== undefined) dbPatch.marcelaMaxDuration = max_duration_seconds;
+      if (cascade_timeout_seconds !== undefined) dbPatch.marcelaCascadeTimeout = cascade_timeout_seconds;
       if (Object.keys(dbPatch).length) await storage.upsertGlobalAssumptions(dbPatch as any);
       res.json(updated);
     } catch (error: any) {

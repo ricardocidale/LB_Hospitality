@@ -8,8 +8,8 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Volume2, Waves, AudioLines, Zap, Settings2, Loader2, Save } from "lucide-react";
-import { VoiceSettings, OUTPUT_FORMATS, STT_MODELS } from "./types";
+import { Volume2, Waves, AudioLines, Zap, Gauge, Timer, Clock, Settings2, Loader2, Save } from "lucide-react";
+import { VoiceSettings, OUTPUT_FORMATS } from "./types";
 import { useSaveAgentVoice } from "./hooks";
 
 interface VoiceSettingsProps {
@@ -29,10 +29,14 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
   const handleSaveVoice = () => {
     saveAgentVoice.mutate({
       voice_id: draft.marcelaVoiceId,
-      model_id: draft.marcelaTtsModel,
       stability: draft.marcelaStability,
       similarity_boost: draft.marcelaSimilarityBoost,
       use_speaker_boost: draft.marcelaSpeakerBoost,
+      speed: draft.marcelaSpeed,
+      agent_output_audio_format: draft.marcelaOutputFormat,
+      turn_timeout: draft.marcelaTurnTimeout,
+      silence_end_call_timeout: draft.marcelaSilenceEndCallTimeout,
+      max_duration_seconds: draft.marcelaMaxDuration,
     }, { onSuccess: () => setVoiceDirty(false) });
   };
 
@@ -44,10 +48,10 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <div>
               <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Volume2 className="w-4 h-4 text-muted-foreground" />
-                Text-to-Speech (ElevenLabs)
+                Voice Synthesis
               </CardTitle>
               <CardDescription className="label-text mt-1">
-                Configure the voice synthesis settings for the agent's spoken responses.
+                Core voice settings pushed to ElevenLabs. Fine-tune additional TTS/ASR options in the ElevenLabs dashboard.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -58,7 +62,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
               )}
               <Button size="sm" onClick={handleSaveVoice} disabled={!voiceDirty || saveAgentVoice.isPending} className="gap-1.5 shadow-sm">
                 {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                Save to ElevenLabs
+                Save
               </Button>
             </div>
           </div>
@@ -73,7 +77,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
               className="bg-card font-mono text-sm"
               data-testid="input-marcela-voice-id"
             />
-            <p className="text-xs text-muted-foreground">Default: Jessica (cgSgspJ2msm6clMCkdW9)</p>
+            <p className="text-xs text-muted-foreground">Default: Jessica Anne Bogart (cgSgspJ2msm6clMCkdW9)</p>
           </div>
 
           <Separator />
@@ -126,6 +130,31 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 <span>Closer to original voice</span>
               </div>
             </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="label-text font-medium flex items-center gap-1.5">
+                  <Gauge className="w-3.5 h-3.5" />
+                  Speed
+                </Label>
+                <Badge variant="outline" className="font-mono text-xs">
+                  {draft.marcelaSpeed.toFixed(2)}x
+                </Badge>
+              </div>
+              <Slider
+                min={0.5}
+                max={2.0}
+                step={0.05}
+                value={[draft.marcelaSpeed]}
+                onValueChange={([v]) => handleVoiceField("marcelaSpeed", v)}
+                data-testid="slider-marcela-speed"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Slower</span>
+                <span>Normal (1.0x)</span>
+                <span>Faster</span>
+              </div>
+            </div>
           </div>
 
           <Separator />
@@ -153,67 +182,100 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
         <CardHeader>
           <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Settings2 className="w-4 h-4 text-muted-foreground" />
-            Advanced Audio Settings
+            Conversation Settings
           </CardTitle>
           <CardDescription className="label-text">
-            Low-level audio pipeline configuration for streaming and transcription.
+            Timeouts and audio pipeline configuration. Additional turn-taking, ASR, and VAD settings are managed in the ElevenLabs dashboard.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="label-text font-medium">Output Format</Label>
-              <Select value={draft.marcelaOutputFormat} onValueChange={(v) => updateField("marcelaOutputFormat", v)}>
-                <SelectTrigger className="bg-card" data-testid="select-marcela-output-format">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {OUTPUT_FORMATS.map((f) => (
-                    <SelectItem key={f.value} value={f.value}>
-                      <div className="flex items-center gap-2">
-                        <span>{f.label}</span>
-                        <span className="text-xs text-muted-foreground">— {f.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="label-text font-medium">STT Model</Label>
-              <Select value={draft.marcelaSttModel} onValueChange={(v) => updateField("marcelaSttModel", v)}>
-                <SelectTrigger className="bg-card" data-testid="select-marcela-stt-model">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {STT_MODELS.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      <div className="flex items-center gap-2">
-                        <span>{m.label}</span>
-                        <span className="text-xs text-muted-foreground">— {m.description}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label className="label-text font-medium">Output Format</Label>
+            <Select value={draft.marcelaOutputFormat} onValueChange={(v) => handleVoiceField("marcelaOutputFormat", v)}>
+              <SelectTrigger className="bg-card" data-testid="select-marcela-output-format">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {OUTPUT_FORMATS.map((f) => (
+                  <SelectItem key={f.value} value={f.value}>
+                    <div className="flex items-center gap-2">
+                      <span>{f.label}</span>
+                      <span className="text-xs text-muted-foreground">— {f.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Separator />
 
-          <div className="space-y-2">
-            <Label className="label-text font-medium">Chunk Length Schedule</Label>
-            <Input
-              value={draft.marcelaChunkSchedule}
-              onChange={(e) => updateField("marcelaChunkSchedule", e.target.value)}
-              placeholder="120,160,250,290"
-              className="bg-card font-mono text-sm"
-              data-testid="input-marcela-chunk-schedule"
-            />
-            <p className="text-xs text-muted-foreground">
-              Comma-separated chunk sizes (in characters) for WebSocket streaming latency optimization.
-              Smaller initial values reduce time to first audio.
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="label-text font-medium flex items-center gap-1.5">
+                <Timer className="w-3.5 h-3.5" />
+                Turn Timeout
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={1}
+                  max={30}
+                  value={draft.marcelaTurnTimeout}
+                  onChange={(e) => handleVoiceField("marcelaTurnTimeout", parseInt(e.target.value) || 7)}
+                  className="bg-card"
+                  data-testid="input-marcela-turn-timeout"
+                />
+                <span className="text-xs text-muted-foreground whitespace-nowrap">sec</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Wait time for user response before agent speaks again
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="label-text font-medium flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                Silence End Call
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={10}
+                  max={600}
+                  value={draft.marcelaSilenceEndCallTimeout}
+                  onChange={(e) => handleVoiceField("marcelaSilenceEndCallTimeout", parseInt(e.target.value) || 30)}
+                  className="bg-card"
+                  data-testid="input-marcela-silence-end-call"
+                />
+                <span className="text-xs text-muted-foreground whitespace-nowrap">sec</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                End call after this many seconds of silence
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="label-text font-medium flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" />
+                Max Duration
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={60}
+                  max={3600}
+                  value={draft.marcelaMaxDuration}
+                  onChange={(e) => handleVoiceField("marcelaMaxDuration", parseInt(e.target.value) || 600)}
+                  className="bg-card"
+                  data-testid="input-marcela-max-duration"
+                />
+                <span className="text-xs text-muted-foreground whitespace-nowrap">sec</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Maximum conversation length
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>

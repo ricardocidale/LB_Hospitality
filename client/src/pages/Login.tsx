@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import bgImage from "@/assets/hotel-party.jpg";
-import logoImg from "@/assets/logo.png";
+import SpinningLogo3D from "@/components/SpinningLogo3D";
 
 export default function Login() {
   const { login } = useAuth();
@@ -71,13 +71,8 @@ export default function Login() {
               <form onSubmit={handleSubmit} className="p-6 md:p-8">
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col items-center text-center">
-                    <div className="cursor-pointer mb-2" onClick={handleAdminLogin}>
-                      <img
-                        src={logoImg}
-                        alt="Hospitality Business Group"
-                        className="w-16 h-16 object-contain drop-shadow-[0_0_12px_rgba(159,188,164,0.4)] animate-spherical"
-                        data-testid="logo-login"
-                      />
+                    <div className="mb-2 drop-shadow-[0_0_12px_rgba(159,188,164,0.4)]">
+                      <SpinningLogo3D size={72} onClick={handleAdminLogin} />
                     </div>
                     <h1 className="text-2xl font-bold font-display" data-testid="text-welcome">Welcome back</h1>
                     <p className="text-balance text-muted-foreground">

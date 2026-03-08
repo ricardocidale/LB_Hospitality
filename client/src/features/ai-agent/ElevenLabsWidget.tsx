@@ -164,35 +164,22 @@ function NativeElevenLabsWidget({
 
   useEffect(() => {
     if (!containerRef.current) return;
-    let cancelled = false;
 
-    (async () => {
-      try {
-        await import("@elevenlabs/convai-widget-core");
-      } catch (err) {
-        console.error("[ElevenLabs] Widget module failed to load:", err);
-        return;
-      }
-      if (cancelled || !containerRef.current) return;
+    if (widgetRef.current) {
+      widgetRef.current.remove();
+      widgetRef.current = null;
+    }
 
-      if (widgetRef.current) {
-        widgetRef.current.remove();
-        widgetRef.current = null;
-      }
+    const widget = document.createElement("elevenlabs-convai");
+    widget.setAttribute("agent-id", agentId);
+    if (variant) widget.setAttribute("variant", variant);
+    if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
+    widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
 
-      const widget = document.createElement("elevenlabs-convai");
-      widget.setAttribute("agent-id", agentId);
-
-      if (variant) widget.setAttribute("variant", variant);
-      if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
-      widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
-
-      containerRef.current.appendChild(widget);
-      widgetRef.current = widget;
-    })();
+    containerRef.current.appendChild(widget);
+    widgetRef.current = widget;
 
     return () => {
-      cancelled = true;
       widgetRef.current?.remove();
       widgetRef.current = null;
     };

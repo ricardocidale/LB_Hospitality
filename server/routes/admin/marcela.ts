@@ -398,6 +398,7 @@ export function registerMarcelaRoutes(app: Express) {
       const {
         voice_id, stability, similarity_boost, use_speaker_boost, speed,
         agent_output_audio_format, optimize_streaming_latency, text_normalisation_type,
+        model_id, expressive_mode, suggested_audio_tags,
         asr_provider, user_input_audio_format, background_voice_detection,
         turn_eagerness, spelling_patience, speculative_turn,
         turn_timeout, silence_end_call_timeout,
@@ -412,6 +413,9 @@ export function registerMarcelaRoutes(app: Express) {
       if (agent_output_audio_format !== undefined) ttsPatch.agent_output_audio_format = agent_output_audio_format;
       if (optimize_streaming_latency !== undefined) ttsPatch.optimize_streaming_latency = optimize_streaming_latency;
       if (text_normalisation_type !== undefined) ttsPatch.text_normalisation_type = text_normalisation_type;
+      if (model_id !== undefined) ttsPatch.model_id = model_id;
+      if (expressive_mode !== undefined) ttsPatch.expressive_mode = expressive_mode;
+      if (suggested_audio_tags !== undefined) ttsPatch.suggested_audio_tags = suggested_audio_tags;
 
       const asrPatch: Record<string, unknown> = {};
       if (asr_provider !== undefined) asrPatch.provider = asr_provider;
@@ -454,6 +458,7 @@ export function registerMarcelaRoutes(app: Express) {
       if (agent_output_audio_format !== undefined) dbPatch.marcelaOutputFormat = agent_output_audio_format;
       if (optimize_streaming_latency !== undefined) dbPatch.marcelaStreamingLatency = optimize_streaming_latency;
       if (text_normalisation_type !== undefined) dbPatch.marcelaTextNormalisation = text_normalisation_type;
+      if (model_id !== undefined) dbPatch.marcelaTtsModel = model_id;
       if (asr_provider !== undefined) dbPatch.marcelaAsrProvider = asr_provider;
       if (user_input_audio_format !== undefined) dbPatch.marcelaInputAudioFormat = user_input_audio_format;
       if (background_voice_detection !== undefined) dbPatch.marcelaBackgroundVoiceDetection = background_voice_detection;

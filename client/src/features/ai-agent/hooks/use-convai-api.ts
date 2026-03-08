@@ -68,6 +68,9 @@ export function useSaveAgentVoice() {
       agent_output_audio_format?: string;
       optimize_streaming_latency?: number;
       text_normalisation_type?: string;
+      model_id?: string;
+      expressive_mode?: boolean;
+      suggested_audio_tags?: string[];
       asr_provider?: string;
       user_input_audio_format?: string;
       background_voice_detection?: boolean;

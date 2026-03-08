@@ -41,6 +41,19 @@ export interface TwilioStatus {
   error?: string;
 }
 
+export const TTS_MODEL_FAMILIES = [
+  { value: "eleven_v3_conversational", label: "V3 Conversational", description: "Ultra-low latency, context-aware delivery, 70+ languages", badge: "Alpha" },
+  { value: "eleven_flash_v2_5", label: "Flash v2.5", description: "Fastest model, optimized for real-time streaming" },
+  { value: "eleven_multilingual_v2", label: "Multilingual v2", description: "High quality multilingual voice synthesis" },
+] as const;
+
+export const SUGGESTED_AUDIO_TAGS_OPTIONS = [
+  "Patient", "Laughing", "US accent", "Sighs", "Concerned",
+  "Excited", "Chuckles", "Coughs", "French accent", "Whispering",
+  "Sad", "Angry", "Disappointed", "Enthusiastic", "Serious",
+  "Singing", "Cheerful", "Nervous", "Hesitant", "Calm",
+] as const;
+
 export const OUTPUT_FORMATS = [
   { value: "pcm_16000", label: "PCM 16kHz", description: "16-bit PCM at 16kHz — optimal for real-time streaming" },
   { value: "pcm_22050", label: "PCM 22.05kHz", description: "16-bit PCM at 22.05kHz — higher quality" },

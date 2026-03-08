@@ -145,7 +145,12 @@ export interface ConvaiAgent {
   name: string;
   conversation_config?: {
     agent?: { prompt?: { prompt?: string }; first_message?: string; language?: string };
-    tts?: { voice_id?: string; model_id?: string };
+    tts?: {
+      voice_id?: string;
+      model_id?: string;
+      expressive_mode?: boolean;
+      suggested_audio_tags?: string[];
+    };
     conversation?: { text_only?: boolean };
   };
 }

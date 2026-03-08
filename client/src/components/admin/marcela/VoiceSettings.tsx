@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,10 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Volume2, Waves, AudioLines, Zap, Gauge, Timer, Clock, Settings2, Loader2, Save } from "lucide-react";
-import { VoiceSettings, OUTPUT_FORMATS } from "./types";
-import { useSaveAgentVoice } from "@/features/ai-agent/hooks/use-convai-api";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Volume2, Waves, AudioLines, Zap, Gauge, Timer, Clock, Settings2, Loader2, Save, Music, Sparkles, Info, X, Plus, ExternalLink } from "lucide-react";
+import { VoiceSettings, OUTPUT_FORMATS, TTS_MODEL_FAMILIES, SUGGESTED_AUDIO_TAGS_OPTIONS } from "./types";
+import { useAgentConfig, useSaveAgentVoice } from "@/features/ai-agent/hooks/use-convai-api";
 
 interface VoiceSettingsProps {
   draft: VoiceSettings;
@@ -20,6 +21,64 @@ interface VoiceSettingsProps {
 export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProps) {
   const saveAgentVoice = useSaveAgentVoice();
   const [voiceDirty, setVoiceDirty] = useState(false);
+
+  const { data: agentConfig, isLoading: agentLoading } = useAgentConfig();
+
+  const liveTts = agentConfig?.conversation_config?.tts;
+  const liveModelId = liveTts?.model_id ?? "eleven_flash_v2_5";
+  const liveExpressiveMode = liveTts?.expressive_mode ?? false;
+  const liveAudioTags: string[] = liveTts?.suggested_audio_tags ?? [];
+
+  const [modelId, setModelId] = useState(liveModelId);
+  const [expressiveMode, setExpressiveMode] = useState(liveExpressiveMode);
+  const [audioTags, setAudioTags] = useState<string[]>(liveAudioTags);
+  const [ttsDirty, setTtsDirty] = useState(false);
+
+  useEffect(() => {
+    if (!agentLoading && agentConfig) {
+      setModelId(liveModelId);
+      setExpressiveMode(liveExpressiveMode);
+      setAudioTags(liveAudioTags);
+      setTtsDirty(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agentLoading, agentConfig?.agent_id]);
+
+  const isV3 = modelId === "eleven_v3_conversational";
+
+  const handleModelChange = useCallback((value: string) => {
+    setModelId(value);
+    if (value === "eleven_v3_conversational") {
+      setExpressiveMode(true);
+    }
+    setTtsDirty(true);
+  }, []);
+
+  const handleExpressiveToggle = useCallback((value: boolean) => {
+    setExpressiveMode(value);
+    setTtsDirty(true);
+  }, []);
+
+  const toggleTag = useCallback((tag: string) => {
+    setAudioTags(prev => {
+      const next = prev.includes(tag) ? prev.filter(t => t !== tag) : prev.length < 20 ? [...prev, tag] : prev;
+      return next;
+    });
+    setTtsDirty(true);
+  }, []);
+
+  const removeTag = useCallback((tag: string) => {
+    setAudioTags(prev => prev.filter(t => t !== tag));
+    setTtsDirty(true);
+  }, []);
+
+  const handleSaveTts = () => {
+    saveAgentVoice.mutate({
+      model_id: modelId,
+      expressive_mode: isV3 ? expressiveMode : undefined,
+      suggested_audio_tags: isV3 ? audioTags : undefined,
+    }, { onSuccess: () => setTtsDirty(false) });
+  };
 
   const handleVoiceField = <K extends keyof VoiceSettings>(key: K, value: VoiceSettings[K]) => {
     updateField(key, value);
@@ -40,8 +99,162 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
     }, { onSuccess: () => setVoiceDirty(false) });
   };
 
+  const selectedModel = TTS_MODEL_FAMILIES.find(m => m.value === modelId);
+  const selectedTags = audioTags;
+  const availableTags = SUGGESTED_AUDIO_TAGS_OPTIONS.filter(t => !selectedTags.includes(t));
+
   return (
     <div className="space-y-6">
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Music className="w-4 h-4 text-muted-foreground" />
+                TTS Model Family
+              </CardTitle>
+              <CardDescription className="label-text mt-1">
+                Select the ElevenLabs Model Family used for text-to-speech generation.{" "}
+                <a
+                  href="https://elevenlabs.io/docs/overview/capabilities/text-to-speech"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline inline-flex items-center gap-0.5"
+                >
+                  Compare models <ExternalLink className="w-3 h-3" />
+                </a>
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              {ttsDirty && (
+                <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
+                  Unsaved
+                </Badge>
+              )}
+              <Button size="sm" onClick={handleSaveTts} disabled={!ttsDirty || saveAgentVoice.isPending} className="gap-1.5 shadow-sm" data-testid="button-save-tts-model">
+                {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                Save
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {agentLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Loading live configuration from ElevenLabs...
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Select value={modelId} onValueChange={handleModelChange}>
+                  <SelectTrigger className="bg-card" data-testid="select-tts-model-family">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TTS_MODEL_FAMILIES.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        <div className="flex items-center gap-2">
+                          <span>{m.label}</span>
+                          {"badge" in m && m.badge && (
+                            <Badge variant="outline" className="text-xs px-1.5 py-0 font-normal">{m.badge}</Badge>
+                          )}
+                          <span className="text-xs text-muted-foreground">— {m.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedModel && (
+                  <p className="text-xs text-muted-foreground">
+                    Model ID: <code className="font-mono bg-muted px-1 py-0.5 rounded">{selectedModel.value}</code>
+                  </p>
+                )}
+              </div>
+
+              {isV3 && (
+                <>
+                  <Separator />
+
+                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+                    <div>
+                      <Label className="label-text font-medium flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        Expressive mode
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Context-aware delivery that adapts tone across conversational turns
+                      </p>
+                    </div>
+                    <Switch
+                      checked={expressiveMode}
+                      onCheckedChange={handleExpressiveToggle}
+                      data-testid="switch-expressive-mode"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-1.5">
+                      <Label className="label-text font-medium">Suggested audio tags</Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-xs">
+                            <p className="text-xs">Audio tags guide the V3 model's vocal delivery. The LLM can output these as inline cues like [laughs] or [whispers]. Max 20 tags.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <span className="text-xs text-muted-foreground ml-auto">{selectedTags.length}/20</span>
+                    </div>
+
+                    {selectedTags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedTags.map(tag => (
+                          <Badge
+                            key={tag}
+                            variant="default"
+                            className="text-xs px-2 py-0.5 gap-1 cursor-pointer hover:bg-primary/80"
+                            onClick={() => removeTag(tag)}
+                            data-testid={`badge-audio-tag-active-${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                          >
+                            {tag}
+                            <X className="w-3 h-3" />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-1.5">
+                      {availableTags.map(tag => (
+                        <Badge
+                          key={tag}
+                          variant="outline"
+                          className="text-xs px-2 py-0.5 gap-1 cursor-pointer hover:bg-accent transition-colors"
+                          onClick={() => toggleTag(tag)}
+                          data-testid={`badge-audio-tag-${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                        >
+                          <Plus className="w-3 h-3" />
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40 rounded-lg">
+                    <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-2">
+                      <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                      Voice settings (Stability, Speed, Similarity) are not customizable for V3 models.
+                    </p>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -51,7 +264,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 Voice Synthesis
               </CardTitle>
               <CardDescription className="label-text mt-1">
-                Core voice settings pushed to ElevenLabs. Fine-tune additional TTS/ASR options in the ElevenLabs dashboard.
+                Core voice settings pushed to ElevenLabs.{isV3 ? " These controls are disabled for V3 models." : ""}
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -60,14 +273,14 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   Unsaved
                 </Badge>
               )}
-              <Button size="sm" onClick={handleSaveVoice} disabled={!voiceDirty || saveAgentVoice.isPending} className="gap-1.5 shadow-sm">
+              <Button size="sm" onClick={handleSaveVoice} disabled={!voiceDirty || saveAgentVoice.isPending || isV3} className="gap-1.5 shadow-sm">
                 {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                 Save
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className={`space-y-5 ${isV3 ? "opacity-50 pointer-events-none" : ""}`}>
           <div className="space-y-2">
             <Label className="label-text font-medium">Voice ID</Label>
             <Input

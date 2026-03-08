@@ -294,12 +294,20 @@ export interface ResearchEventConfig {
   refreshIntervalDays?: number;   // days before research is considered stale (default: 7)
 }
 
+export interface AiModelEntry {
+  id: string;
+  label: string;
+  provider: "openai" | "anthropic" | "google";
+}
+
 export interface ResearchConfig {
   property?: Partial<ResearchEventConfig>;
   company?:  Partial<ResearchEventConfig>;
   global?:   Partial<ResearchEventConfig>;
   preferredLlm?: string;
   customSources?: { name: string; url?: string; category: string }[];
+  cachedModels?: AiModelEntry[];
+  cachedModelsAt?: string;
 }
 
 export const globalAssumptions = pgTable("global_assumptions", {

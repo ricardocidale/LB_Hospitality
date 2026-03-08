@@ -99,6 +99,7 @@ const NON_FINANCIAL_MUTATIONS = [
   "useRefreshAllRates",
   "useOverrideRate",
   "useSaveResearchConfig",  // Admin research prompt config — does not affect financial calculations
+  "useRefreshAiModels",     // Admin AI model list refresh — does not affect financial calculations
 ];
 
 describe("Recalculation Enforcement", () => {

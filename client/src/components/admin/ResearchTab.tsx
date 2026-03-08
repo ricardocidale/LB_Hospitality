@@ -11,9 +11,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { Loader2, Save, FlaskConical, Building2, Globe, MapPin, Plus, X, Brain, ExternalLink, Library } from "lucide-react";
-import { useResearchConfig, useSaveResearchConfig } from "@/lib/api/admin";
-import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
+import { Loader2, Save, FlaskConical, Building2, Globe, MapPin, Plus, X, Brain, ExternalLink, Library, RefreshCw } from "lucide-react";
+import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
+import type { ResearchConfig, ResearchEventConfig, AiModelEntry } from "@shared/schema";
 import { RESEARCH_SOURCES } from "@shared/constants";
 
 const TIME_HORIZONS = [
@@ -415,10 +415,22 @@ function SourcesSection({
   );
 }
 
+const FALLBACK_MODELS: AiModelEntry[] = [
+  { id: "claude-opus-4-6", label: "Anthropic Claude Opus 4.6", provider: "anthropic" },
+  { id: "claude-sonnet-4-6", label: "Anthropic Claude Sonnet 4.6", provider: "anthropic" },
+  { id: "claude-sonnet-4-5", label: "Anthropic Claude Sonnet 4.5", provider: "anthropic" },
+  { id: "claude-haiku-4-5", label: "Anthropic Claude Haiku 4.5", provider: "anthropic" },
+  { id: "gpt-5.4", label: "OpenAI GPT 5.4", provider: "openai" },
+  { id: "gpt-5.4-pro", label: "OpenAI GPT 5.4 Pro", provider: "openai" },
+  { id: "o3-pro", label: "OpenAI o3 Pro", provider: "openai" },
+  { id: "gemini-2.5-flash", label: "Google Gemini 2.5 Flash", provider: "google" },
+];
+
 export default function ResearchTab() {
   const { toast } = useToast();
   const { data: savedConfig, isLoading } = useResearchConfig();
   const saveMutation = useSaveResearchConfig();
+  const refreshModels = useRefreshAiModels();
 
   const [draft, setDraft] = useState<ResearchConfig>({});
   const [isDirty, setIsDirty] = useState(false);
@@ -487,42 +499,102 @@ export default function ResearchTab() {
 
       <Card className="bg-card border-border shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base font-display">
-            <Brain className="w-5 h-5 text-primary" />
-            AI Research Model
-            <HelpTooltip text="Choose which AI model powers the market research feature. Different models have different strengths — OpenAI GPT models are great for structured data, Claude excels at reasoning, and Gemini offers fast analysis." />
-          </CardTitle>
-          <CardDescription className="text-xs">Select the AI model used for generating market research reports.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 max-w-sm">
-            <Label className="text-sm font-medium flex items-center gap-1">Preferred Model <HelpTooltip text="The AI model used for generating market research. Each model has different strengths for analysis." /></Label>
-            <Select
-              value={draft.preferredLlm || "claude-sonnet-4-6"}
-              onValueChange={(value) => {
-                setDraft(prev => ({ ...prev, preferredLlm: value }));
-                setIsDirty(true);
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-base font-display">
+                <Brain className="w-5 h-5 text-primary" />
+                AI Research Model
+                <HelpTooltip text="Choose which AI model powers the market research feature. Use Refresh Models to pull the latest available models from OpenAI, Anthropic, and Google." />
+              </CardTitle>
+              <CardDescription className="text-xs mt-1">
+                Select the AI model used for generating market research reports.
+                {draft.cachedModelsAt && (
+                  <span className="text-muted-foreground ml-1">
+                    Models last refreshed {new Date(draft.cachedModelsAt).toLocaleDateString()}.
+                  </span>
+                )}
+              </CardDescription>
+            </div>
+            <Button
+              data-testid="button-refresh-models"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              disabled={refreshModels.isPending}
+              onClick={async () => {
+                try {
+                  const result = await refreshModels.mutateAsync();
+                  setDraft(prev => ({
+                    ...prev,
+                    cachedModels: result.models,
+                    cachedModelsAt: result.fetchedAt,
+                  }));
+                  toast({ title: `Loaded ${result.models.length} models from providers` });
+                } catch {
+                  toast({ title: "Failed to refresh models", variant: "destructive" });
+                }
               }}
             >
-              <SelectTrigger className="bg-card h-9" data-testid="select-preferred-llm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gpt-5.4">OpenAI GPT-5.4</SelectItem>
-                <SelectItem value="gpt-5.4-pro">OpenAI GPT-5.4 Pro</SelectItem>
-                <SelectItem value="gpt-5.3-chat-latest">OpenAI GPT-5.3 Instant</SelectItem>
-                <SelectItem value="gpt-5.2">OpenAI GPT-5.2</SelectItem>
-                <SelectItem value="o3-pro">OpenAI o3-pro</SelectItem>
-                <SelectItem value="o3-mini">OpenAI o3-mini</SelectItem>
-                <SelectItem value="claude-opus-4-6">Claude Opus 4.6</SelectItem>
-                <SelectItem value="claude-sonnet-4-6">Claude Sonnet 4.6</SelectItem>
-                <SelectItem value="claude-sonnet-4-5">Claude Sonnet 4.5</SelectItem>
-                <SelectItem value="claude-haiku-4-5">Claude Haiku 4.5</SelectItem>
-                <SelectItem value="gemini-3.1-pro-preview">Gemini 3.1 Pro</SelectItem>
-                <SelectItem value="gemini-3-flash-preview">Gemini 3 Flash</SelectItem>
-                <SelectItem value="gemini-2.5-flash">Gemini 2.5 Flash</SelectItem>
-              </SelectContent>
-            </Select>
+              {refreshModels.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Refresh Models
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 max-w-md">
+            <Label className="text-sm font-medium flex items-center gap-1">Preferred Model <HelpTooltip text="The AI model used for generating market research. Each model has different strengths for analysis." /></Label>
+            {(() => {
+              const models = (draft.cachedModels && draft.cachedModels.length > 0) ? draft.cachedModels : FALLBACK_MODELS;
+              const grouped = {
+                anthropic: models.filter(m => m.provider === "anthropic"),
+                openai: models.filter(m => m.provider === "openai"),
+                google: models.filter(m => m.provider === "google"),
+              };
+              const currentValue = draft.preferredLlm || "claude-sonnet-4-6";
+              const hasCurrentInList = models.some(m => m.id === currentValue);
+              return (
+                <Select
+                  value={currentValue}
+                  onValueChange={(value) => {
+                    setDraft(prev => ({ ...prev, preferredLlm: value }));
+                    setIsDirty(true);
+                  }}
+                >
+                  <SelectTrigger className="bg-card h-9" data-testid="select-preferred-llm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {!hasCurrentInList && (
+                      <SelectItem value={currentValue}>{currentValue} (current)</SelectItem>
+                    )}
+                    {grouped.anthropic.length > 0 && (
+                      <>
+                        <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Anthropic</div>
+                        {grouped.anthropic.map(m => (
+                          <SelectItem key={m.id} value={m.id} data-testid={`option-model-${m.id}`}>{m.label}</SelectItem>
+                        ))}
+                      </>
+                    )}
+                    {grouped.openai.length > 0 && (
+                      <>
+                        <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">OpenAI</div>
+                        {grouped.openai.map(m => (
+                          <SelectItem key={m.id} value={m.id} data-testid={`option-model-${m.id}`}>{m.label}</SelectItem>
+                        ))}
+                      </>
+                    )}
+                    {grouped.google.length > 0 && (
+                      <>
+                        <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Google</div>
+                        {grouped.google.map(m => (
+                          <SelectItem key={m.id} value={m.id} data-testid={`option-model-${m.id}`}>{m.label}</SelectItem>
+                        ))}
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+              );
+            })()}
           </div>
         </CardContent>
       </Card>

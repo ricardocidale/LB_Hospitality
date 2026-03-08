@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GlobalResponse, ResearchQuestion } from "./types";
-import type { ResearchConfig } from "@shared/schema";
+import type { ResearchConfig, AiModelEntry } from "@shared/schema";
 import { invalidateAllFinancialQueries } from "./properties";
 
 async function fetchGlobalAssumptions(): Promise<GlobalResponse> {
@@ -113,6 +113,18 @@ export function useSaveResearchConfig() {
         body: JSON.stringify(config),
       });
       if (!res.ok) throw new Error("Failed to save research config");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-research-config"] }),
+  });
+}
+
+export function useRefreshAiModels() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<{ models: AiModelEntry[]; fetchedAt: string }> => {
+      const res = await fetch("/api/admin/ai-models/refresh", { method: "POST" });
+      if (!res.ok) throw new Error("Failed to refresh AI models");
       return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-research-config"] }),

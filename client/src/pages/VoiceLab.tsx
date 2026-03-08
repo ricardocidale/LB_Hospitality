@@ -4,16 +4,69 @@
  * Exposes three chat interface variants (Orb, Full, Bar) in tabs, plus
  * a real-time speech transcriber and a standalone audio player/speaker demo.
  */
-import { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic2, MessageSquare, AudioLines, Captions, Music2, Mic } from "lucide-react";
+import { Mic2, MessageSquare, AudioLines, Captions, Music2, Mic, AlertTriangle, RefreshCw } from "lucide-react";
 import Layout from "@/components/Layout";
-import VoiceChatOrb from "@/features/ai-agent/VoiceChatOrb";
-import VoiceChatFull from "@/features/ai-agent/VoiceChatFull";
-import VoiceChatBar from "@/features/ai-agent/VoiceChatBar";
-import RealtimeTranscriber01 from "@/features/ai-agent/RealtimeTranscriber";
-import { Speaker } from "@/features/ai-agent/Speaker";
+import { Button } from "@/components/ui/button";
 import { useMarcelaSettings } from "@/features/ai-agent/hooks/use-agent-settings";
+
+// Lazy-load heavy ElevenLabs/Three.js components so a failure in one tab
+// doesn't crash the entire page and the initial bundle stays small.
+const VoiceChatOrb = React.lazy(() => import("@/features/ai-agent/VoiceChatOrb"));
+const VoiceChatFull = React.lazy(() => import("@/features/ai-agent/VoiceChatFull"));
+const VoiceChatBar = React.lazy(() => import("@/features/ai-agent/VoiceChatBar"));
+const RealtimeTranscriber01 = React.lazy(() => import("@/features/ai-agent/RealtimeTranscriber"));
+const Speaker = React.lazy(() => import("@/features/ai-agent/Speaker").then(m => ({ default: m.Speaker })));
+
+// ── Per-tab error boundary ───────────────────────────────────────────────────
+interface TabErrorBoundaryState { hasError: boolean; error: Error | null }
+
+class TabErrorBoundary extends React.Component<
+  { children: React.ReactNode; tabName: string },
+  TabErrorBoundaryState
+> {
+  state: TabErrorBoundaryState = { hasError: false, error: null };
+  static getDerivedStateFromError(error: Error) { return { hasError: true, error }; }
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error(`[VoiceLab/${this.props.tabName}]`, error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+          <AlertTriangle className="h-10 w-10 text-amber-500" />
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">
+              {this.props.tabName} failed to load
+            </p>
+            <p className="text-xs text-muted-foreground max-w-sm">
+              {this.state.error?.message || "An unexpected error occurred."}
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => this.setState({ hasError: false, error: null })}
+          >
+            <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+            Retry
+          </Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Suspense fallback for lazy-loaded tabs
+function TabSkeleton() {
+  return (
+    <div className="flex items-center justify-center py-24">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    </div>
+  );
+}
 
 const TABS = [
   { id: "orb",         label: "Voice Orb",    icon: Mic2,           description: "Minimal voice-first interface", requiresMic: true  },
@@ -105,27 +158,31 @@ export default function VoiceLab() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.18 }}
           >
-            {activeTab === "orb" && (
-              <VoiceChatOrb className="max-w-sm mx-auto" onSessionChange={handleSessionChange} />
-            )}
-            {activeTab === "full" && (
-              <VoiceChatFull className="max-w-2xl mx-auto" onSessionChange={handleSessionChange} />
-            )}
-            {activeTab === "bar" && (
-              <div className="max-w-2xl mx-auto">
-                <VoiceChatBar onSessionChange={handleSessionChange} />
-              </div>
-            )}
-            {activeTab === "transcriber" && (
-              <div className="max-w-2xl mx-auto min-h-[480px]">
-                <RealtimeTranscriber01 />
-              </div>
-            )}
-            {activeTab === "speaker" && (
-              <div className="max-w-sm mx-auto">
-                <Speaker />
-              </div>
-            )}
+            <TabErrorBoundary tabName={TABS.find(t => t.id === activeTab)?.label ?? activeTab}>
+              <Suspense fallback={<TabSkeleton />}>
+                {activeTab === "orb" && (
+                  <VoiceChatOrb className="max-w-sm mx-auto" onSessionChange={handleSessionChange} />
+                )}
+                {activeTab === "full" && (
+                  <VoiceChatFull className="max-w-2xl mx-auto" onSessionChange={handleSessionChange} />
+                )}
+                {activeTab === "bar" && (
+                  <div className="max-w-2xl mx-auto">
+                    <VoiceChatBar onSessionChange={handleSessionChange} />
+                  </div>
+                )}
+                {activeTab === "transcriber" && (
+                  <div className="max-w-2xl mx-auto min-h-[480px]">
+                    <RealtimeTranscriber01 />
+                  </div>
+                )}
+                {activeTab === "speaker" && (
+                  <div className="max-w-sm mx-auto">
+                    <Speaker />
+                  </div>
+                )}
+              </Suspense>
+            </TabErrorBoundary>
           </motion.div>
         </AnimatePresence>
       </div>

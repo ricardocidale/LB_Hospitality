@@ -1,96 +1,189 @@
-/**
- * ResearchRefreshOverlay.tsx — Full-screen loading overlay during AI research generation.
- *
- * When the user triggers a property or company research refresh, this overlay
- * covers the viewport with an animated 3D scene (glowing spheres, stars,
- * orbiting particles) while the LLM streams structured JSON via SSE. The
- * overlay fades out once the stream completes. It uses Framer Motion for
- * 2D transitions and React Three Fiber for the WebGL animation.
- */
-import { useState, useEffect, useRef, useCallback, Suspense } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, MeshDistortMaterial, MeshWobbleMaterial, Stars } from "@react-three/drei";
+import { useState, useEffect, useRef, useCallback, type RefObject } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
-import { useAuth } from "@/lib/auth";
 
-function GlowingSphere({ position, color, speed, distort }: { position: [number, number, number]; color: string; speed: number; distort: number }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * speed * 0.3;
-      meshRef.current.rotation.y = state.clock.elapsedTime * speed * 0.5;
+function ThreeBackground({ containerRef }: { containerRef: RefObject<HTMLDivElement | null> }) {
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let webgl = false;
+    try {
+      const testCanvas = document.createElement("canvas");
+      webgl = !!(testCanvas.getContext("webgl2") || testCanvas.getContext("webgl"));
+    } catch { /* no webgl */ }
+    if (!webgl) return;
+
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || window.innerHeight;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
+    camera.position.z = 6;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+    scene.add(ambient);
+
+    const cssVar = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim();
+    const primaryColor = cssVar ? new THREE.Color(cssVar) : new THREE.Color("#8A9A7B");
+
+    const pointLight1 = new THREE.PointLight(primaryColor, 1, 20);
+    pointLight1.position.set(5, 5, 5);
+    scene.add(pointLight1);
+    const pointLight2 = new THREE.PointLight(0x38bdf8, 0.5, 20);
+    pointLight2.position.set(-5, -3, 3);
+    scene.add(pointLight2);
+    const pointLight3 = new THREE.PointLight(0xf97066, 0.3, 20);
+    pointLight3.position.set(0, 3, -5);
+    scene.add(pointLight3);
+
+    const sphereGeo = new THREE.IcosahedronGeometry(1, 4);
+    const spheres: THREE.Mesh[] = [];
+    const sphereConfigs = [
+      { pos: [0, 0, 0], color: primaryColor, speed: 1.5, scale: 1 },
+      { pos: [-2.5, 1, -1], color: new THREE.Color(0x38bdf8), speed: 1, scale: 0.7 },
+      { pos: [2.5, -0.5, -1], color: new THREE.Color(0xf97066), speed: 1.2, scale: 0.6 },
+    ];
+    for (const cfg of sphereConfigs) {
+      const mat = new THREE.MeshStandardMaterial({
+        color: cfg.color,
+        transparent: true,
+        opacity: 0.5,
+        roughness: 0.2,
+        metalness: 0.8,
+      });
+      const mesh = new THREE.Mesh(sphereGeo, mat);
+      mesh.position.set(cfg.pos[0], cfg.pos[1], cfg.pos[2]);
+      mesh.scale.setScalar(cfg.scale);
+      mesh.userData = { speed: cfg.speed, baseY: cfg.pos[1] };
+      scene.add(mesh);
+      spheres.push(mesh);
     }
-  });
-  return (
-    <Float speed={speed} rotationIntensity={0.4} floatIntensity={1.5}>
-      <mesh ref={meshRef} position={position}>
-        <icosahedronGeometry args={[1, 4]} />
-        <MeshDistortMaterial color={color} speed={speed * 2} distort={distort} roughness={0.2} metalness={0.8} transparent opacity={0.7} />
-      </mesh>
-    </Float>
-  );
-}
 
-function DataOrb({ position, color }: { position: [number, number, number]; color: string }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2 + position[0]) * 0.3;
-      meshRef.current.scale.setScalar(0.8 + Math.sin(state.clock.elapsedTime * 3 + position[2]) * 0.2);
+    const ringGeo = new THREE.TorusGeometry(1, 0.02, 16, 100);
+    const rings: THREE.Mesh[] = [];
+    const ringConfigs = [
+      { radius: 2, color: primaryColor, speed: 1 },
+      { radius: 3, color: new THREE.Color(0x38bdf8), speed: 0.7 },
+      { radius: 3.8, color: new THREE.Color(0xf97066), speed: 0.5 },
+    ];
+    for (const cfg of ringConfigs) {
+      const mat = new THREE.MeshStandardMaterial({
+        color: cfg.color,
+        transparent: true,
+        opacity: 0.4,
+      });
+      const mesh = new THREE.Mesh(ringGeo, mat);
+      mesh.scale.setScalar(cfg.radius);
+      mesh.userData = { speed: cfg.speed };
+      scene.add(mesh);
+      rings.push(mesh);
     }
-  });
-  return (
-    <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[0.15, 16, 16]} />
-      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} transparent opacity={0.8} />
-    </mesh>
-  );
-}
 
-function WobbleRing({ radius, color, speed }: { radius: number; color: string; speed: number }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = Math.PI / 2 + Math.sin(state.clock.elapsedTime * speed) * 0.2;
-      meshRef.current.rotation.z = state.clock.elapsedTime * speed * 0.3;
+    const particleGeo = new THREE.SphereGeometry(0.08, 12, 12);
+    const particles: THREE.Mesh[] = [];
+    for (let i = 0; i < 12; i++) {
+      const angle = (i / 12) * Math.PI * 2;
+      const r = 2.5 + Math.sin(i * 1.5) * 0.5;
+      const colors = [primaryColor, new THREE.Color(0x38bdf8), new THREE.Color(0xf97066), new THREE.Color(0xffd700)];
+      const mat = new THREE.MeshStandardMaterial({
+        color: colors[i % 4],
+        emissive: colors[i % 4],
+        emissiveIntensity: 0.5,
+        transparent: true,
+        opacity: 0.8,
+      });
+      const mesh = new THREE.Mesh(particleGeo, mat);
+      const px = Math.cos(angle) * r;
+      const py = Math.sin(angle) * r * 0.4;
+      const pz = Math.sin(angle) * r * 0.3;
+      mesh.position.set(px, py, pz);
+      mesh.userData = { baseY: py, baseX: px, angle, r };
+      scene.add(mesh);
+      particles.push(mesh);
     }
-  });
-  return (
-    <mesh ref={meshRef}>
-      <torusGeometry args={[radius, 0.02, 16, 100]} />
-      <MeshWobbleMaterial factor={0.3} speed={speed} color={color} transparent opacity={0.4} />
-    </mesh>
-  );
-}
 
-function Scene() {
-  return (
-    <>
-      <ambientLight intensity={0.3} />
-      <pointLight position={[5, 5, 5]} intensity={1} color="var(--primary)" />
-      <pointLight position={[-5, -3, 3]} intensity={0.5} color="#38BDF8" />
-      <pointLight position={[0, 3, -5]} intensity={0.3} color="#F97066" />
-      <Stars radius={50} depth={50} count={1500} factor={3} saturation={0.5} fade speed={1} />
-      <GlowingSphere position={[0, 0, 0]} color="var(--primary)" speed={1.5} distort={0.4} />
-      <GlowingSphere position={[-2.5, 1, -1]} color="#38BDF8" speed={1} distort={0.3} />
-      <GlowingSphere position={[2.5, -0.5, -1]} color="#F97066" speed={1.2} distort={0.35} />
-      <WobbleRing radius={2} color="var(--primary)" speed={1} />
-      <WobbleRing radius={3} color="#38BDF8" speed={0.7} />
-      <WobbleRing radius={3.8} color="#F97066" speed={0.5} />
-      {Array.from({ length: 12 }).map((_, i) => {
-        const angle = (i / 12) * Math.PI * 2;
-        const r = 2.5 + Math.sin(i * 1.5) * 0.5;
-        return (
-          <DataOrb
-            key={i}
-            position={[Math.cos(angle) * r, Math.sin(angle) * r * 0.4, Math.sin(angle) * r * 0.3]}
-            color={["var(--primary)", "#38BDF8", "#F97066", "#FFD700"][i % 4]}
-          />
-        );
-      })}
-    </>
-  );
+    const starsGeo = new THREE.BufferGeometry();
+    const starPositions = new Float32Array(1500 * 3);
+    for (let i = 0; i < 1500; i++) {
+      const r2 = 10 + Math.random() * 40;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      starPositions[i * 3] = r2 * Math.sin(phi) * Math.cos(theta);
+      starPositions[i * 3 + 1] = r2 * Math.sin(phi) * Math.sin(theta);
+      starPositions[i * 3 + 2] = r2 * Math.cos(phi);
+    }
+    starsGeo.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+    const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.5 });
+    const stars = new THREE.Points(starsGeo, starsMat);
+    scene.add(stars);
+
+    const clock = new THREE.Clock();
+    let animId = 0;
+
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      for (const s of spheres) {
+        const sp = s.userData.speed as number;
+        s.rotation.x = t * sp * 0.3;
+        s.rotation.y = t * sp * 0.5;
+        s.position.y = (s.userData.baseY as number) + Math.sin(t * sp) * 0.3;
+      }
+
+      for (const r of rings) {
+        const sp = r.userData.speed as number;
+        r.rotation.x = Math.PI / 2 + Math.sin(t * sp) * 0.2;
+        r.rotation.z = t * sp * 0.3;
+      }
+
+      for (const p of particles) {
+        const baseY = p.userData.baseY as number;
+        const baseX = p.userData.baseX as number;
+        p.position.y = baseY + Math.sin(t * 2 + baseX) * 0.3;
+        p.scale.setScalar(0.8 + Math.sin(t * 3 + (p.userData.angle as number)) * 0.2);
+      }
+
+      stars.rotation.y = t * 0.02;
+
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    const onResize = () => {
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", onResize);
+      renderer.dispose();
+      sphereGeo.dispose();
+      ringGeo.dispose();
+      particleGeo.dispose();
+      starsGeo.dispose();
+      starsMat.dispose();
+      for (const s of spheres) (s.material as THREE.Material).dispose();
+      for (const r of rings) (r.material as THREE.Material).dispose();
+      for (const p of particles) (p.material as THREE.Material).dispose();
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+    };
+  }, [containerRef]);
+
+  return null;
 }
 
 interface ResearchRefreshOverlayProps {
@@ -101,10 +194,10 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
   const [progress, setProgress] = useState(0);
   const [currentProperty, setCurrentProperty] = useState("");
   const [phase, setPhase] = useState<"loading" | "researching" | "done">("loading");
-  const [properties, setProperties] = useState<any[]>([]);
   const [totalProperties, setTotalProperties] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
   const abortRef = useRef(false);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   const refreshResearch = useCallback(async () => {
     try {
@@ -113,7 +206,6 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
       const props = await res.json();
       if (!props || props.length === 0) { onComplete(); return; }
 
-      setProperties(props);
       setTotalProperties(props.length);
       setPhase("researching");
 
@@ -194,12 +286,8 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
         className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
         style={{ background: "#0a0f1e" }}
       >
-        <div className="absolute inset-0">
-          <Suspense fallback={null}>
-            <Canvas camera={{ position: [0, 0, 6], fov: 60 }}>
-              <Scene />
-            </Canvas>
-          </Suspense>
+        <div ref={bgRef} className="absolute inset-0">
+          <ThreeBackground containerRef={bgRef} />
         </div>
 
         <div className="relative z-10 flex flex-col items-center gap-6 max-w-md text-center px-6">

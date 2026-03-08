@@ -36,7 +36,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
   switch (section) {
     case "users":        return <PeopleTab />;
     case "activity":     return <ActivityTab />;
-    case "branding":     return <ManagementCompanyTab onNavigate={(tab: string) => { if (tab === "logos") onNavigate("logos"); else if (tab === "themes") onNavigate("themes"); else if (tab === "groups") onNavigate("groups"); }} />;
+    case "branding":     return <ManagementCompanyTab onNavigate={(tab: string) => { if (tab === "logos") onNavigate("logos"); else if (tab === "themes") onNavigate("themes"); else if (tab === "users") onNavigate("users"); }} />;
     case "themes":       return <ThemesTab />;
     case "logos":        return <LogosTab />;
     case "navigation":   return <NavigationTab />;

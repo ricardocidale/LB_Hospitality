@@ -10,10 +10,9 @@ import {
 
 export type AdminSection =
   | "users" | "activity"
-  | "branding" | "themes" | "logos" | "navigation"
-  | "companies" | "research"
+  | "branding" | "companies" | "logos"
   | "marcela"
-  | "verification" | "database";
+  | "research" | "themes" | "navigation" | "verification" | "database";
 
 interface SectionItem {
   value: AdminSection;
@@ -31,6 +30,17 @@ interface NavGroup {
 
 const navGroups: NavGroup[] = [
   {
+    id: "brand",
+    label: "Brand",
+    icon: IconImage,
+    description: "Identity, companies & logos",
+    sections: [
+      { value: "branding", label: "Hospitality Brand", icon: IconImage },
+      { value: "companies", label: "Companies", icon: IconProperties },
+      { value: "logos", label: "Logos", icon: ImageIcon },
+    ],
+  },
+  {
     id: "people",
     label: "People",
     icon: IconPeople,
@@ -38,27 +48,6 @@ const navGroups: NavGroup[] = [
     sections: [
       { value: "users", label: "Users", icon: IconPeople },
       { value: "activity", label: "Activity", icon: IconActivity },
-    ],
-  },
-  {
-    id: "platform",
-    label: "Brand",
-    icon: IconSwatchBook,
-    description: "Branding & identity",
-    sections: [
-      { value: "branding", label: "Hospitality Brand", icon: IconImage },
-      { value: "companies", label: "Companies", icon: IconProperties },
-      { value: "research", label: "Research", icon: FlaskConical },
-    ],
-  },
-  {
-    id: "design",
-    label: "Design",
-    icon: IconSwatchBook,
-    description: "Themes & logos",
-    sections: [
-      { value: "themes", label: "Themes", icon: IconSwatchBook },
-      { value: "logos", label: "Logos", icon: ImageIcon },
     ],
   },
   {
@@ -74,11 +63,13 @@ const navGroups: NavGroup[] = [
     id: "system",
     label: "System",
     icon: IconShield,
-    description: "Verification, database & navigation",
+    description: "Research, design & infrastructure",
     sections: [
+      { value: "research", label: "Research", icon: FlaskConical },
+      { value: "themes", label: "Themes", icon: IconSwatchBook },
+      { value: "navigation", label: "Navigation", icon: IconPanelLeft },
       { value: "verification", label: "Verification", icon: IconFileCheck },
       { value: "database", label: "Database", icon: IconDatabase },
-      { value: "navigation", label: "Navigation", icon: IconPanelLeft },
     ],
   },
 ];
@@ -87,7 +78,7 @@ function getGroupForSection(section: AdminSection): string {
   for (const group of navGroups) {
     if (group.sections.some((s) => s.value === section)) return group.id;
   }
-  return "people";
+  return "brand";
 }
 
 interface AdminSidebarProps {

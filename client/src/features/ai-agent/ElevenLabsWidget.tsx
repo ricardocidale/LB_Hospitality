@@ -29,7 +29,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
 
   const isNativeWidget = variant === "elevenlabs" || variant === "full" || variant === "compact" || variant === "tiny";
 
-  // Fetch signed URL for ALL variants — authenticated access requires wss:// signed URL
+  // Fetch signed URL only for custom variants that need authenticated hooks
   const { data: signedUrl } = useQuery<string>({
     queryKey: ["marcela-signed-url"],
     queryFn: async () => {
@@ -38,7 +38,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       const data = await res.json();
       return data.signedUrl as string;
     },
-    enabled: shouldActivate,
+    enabled: shouldActivate && !isNativeWidget,
     staleTime: 10 * 60 * 1000,
     refetchInterval: 10 * 60 * 1000,
     retry: 1,
@@ -54,13 +54,10 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   };
 
   if (isNativeWidget) {
-    // Don't mount until signed URL is ready — avoids unauthenticated fallback connection
-    if (!signedUrl) return null;
     const elementVariant = variant === "full" ? "expanded" : variant === "elevenlabs" ? undefined : variant;
     return (
       <NativeElevenLabsWidget
         agentId={agentId}
-        signedUrl={signedUrl}
         variant={elementVariant}
         avatarUrl={avatarUrl}
         dynamicVars={dynamicVars}
@@ -153,13 +150,11 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
 
 function NativeElevenLabsWidget({
   agentId,
-  signedUrl,
   variant,
   avatarUrl,
   dynamicVars,
 }: {
   agentId: string;
-  signedUrl: string; // guaranteed by parent guard — always truthy on mount
   variant?: string;
   avatarUrl?: string;
   dynamicVars: Record<string, string>;
@@ -167,13 +162,6 @@ function NativeElevenLabsWidget({
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLElement | null>(null);
 
-  // Ref keeps the signed URL current without triggering remounts.
-  // Signed URLs refresh every 10 min; updating the ref avoids killing active conversations.
-  const signedUrlRef = useRef(signedUrl);
-  signedUrlRef.current = signedUrl;
-
-  // Single sequential async effect: load module first, then create element.
-  // Dep array is [agentId] only — remount when agent changes, not when URL refreshes.
   useEffect(() => {
     if (!containerRef.current) return;
     let cancelled = false;
@@ -193,8 +181,7 @@ function NativeElevenLabsWidget({
       }
 
       const widget = document.createElement("elevenlabs-convai");
-      // Always use signed URL — parent guard ensures it's available
-      widget.setAttribute("url", signedUrlRef.current);
+      widget.setAttribute("agent-id", agentId);
 
       if (variant) widget.setAttribute("variant", variant);
       if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
@@ -210,7 +197,7 @@ function NativeElevenLabsWidget({
       widgetRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId]); // intentionally omits signedUrl — use ref to avoid 10-min remount
+  }, [agentId]);
 
   useEffect(() => {
     if (widgetRef.current) {

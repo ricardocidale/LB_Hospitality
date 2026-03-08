@@ -329,17 +329,16 @@ describe(".claude is the sole source of truth (claude-is-sole-truth)", () => {
     ).toHaveLength(0);
   });
 
-  it(".replit exists and contains a pointer to .claude/claude.md", () => {
-    const replitFile = path.join(ROOT, ".replit");
-    expect(fs.existsSync(replitFile), ".replit must exist").toBe(true);
-    if (!fs.existsSync(replitFile)) return;
-    const content = fs.readFileSync(replitFile, "utf-8");
+  it("replit.md exists and contains a pointer to .claude/claude.md", () => {
+    expect(fs.existsSync(replitMd), "replit.md must exist").toBe(true);
+    if (!fs.existsSync(replitMd)) return;
+    const content = fs.readFileSync(replitMd, "utf-8");
     const hasPointer =
       content.includes(".claude/claude.md") ||
       content.includes(".claude/");
     expect(
       hasPointer,
-      ".replit must contain a comment pointing to .claude/ as the project knowledge source"
+      "replit.md must contain a pointer to .claude/ as the project knowledge source"
     ).toBe(true);
   });
 

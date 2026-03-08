@@ -52,12 +52,15 @@ client/src/
 ### shadcn Primitives (standard — do not modify except via shadcn CLI)
 `Accordion`, `AlertDialog`, `Alert`, `AspectRatio`, `Avatar`, `Badge`, `Breadcrumb`, `Button`, `Calendar`, `Card`, `Carousel`, `Chart`, `Checkbox`, `Collapsible`, `Command`, `ContextMenu`, `Dialog`, `Drawer`, `DropdownMenu`, `Form`, `HoverCard`, `Input`, `InputOTP`, `Label`, `Menubar`, `NavigationMenu`, `Pagination`, `Popover`, `Progress`, `RadioGroup`, `Resizable`, `ScrollArea`, `Select`, `Separator`, `Sheet`, `Sidebar`, `Skeleton`, `Slider`, `Sonner`, `Switch`, `Table`, `Tabs` (CAUTION: has custom `CurrentThemeTab` at bottom — never overwrite), `Textarea`, `Toast`, `Toaster`, `Toggle`, `ToggleGroup`, `Tooltip`
 
-### Tooltips (3 types)
+### Tooltips (4 types)
 | Component | Icon | Import | Use For |
 |-----------|------|--------|---------|
-| `Tooltip` + `TooltipTrigger` + `TooltipContent` | Custom | `@/components/ui/tooltip` | Base primitive — use when you need a fully custom trigger element |
+| `Tooltip` + `TooltipTrigger` + `TooltipContent` | Custom | `@/components/ui/tooltip` | Base Radix primitive — use when you need a fully custom trigger element |
 | `HelpTooltip` | `?` (HelpCircle) | `@/components/ui/help-tooltip` | Financial table line items — internal transparency feature. Props: `text`, `light?`, `side?`, `manualSection?`, `manualLabel?` |
 | `InfoTooltip` | `i` (Info) | `@/components/ui/info-tooltip` | Form input fields — concept definitions. Props: `text`, `formula?` (renders monospace code block), `light?`, `side?`, `manualSection?`, `manualLabel?` |
+| `ChartTooltip` + `ChartTooltipContent` | None (hover) | `@/components/ui/chart` | Recharts data-point hover tooltips inside charts. Used by all chart components in `lib/charts/`. Props: `cursor?`, `content` (pass `<ChartTooltipContent hideLabel? indicator? nameKey? />`) |
+
+**Chart Tooltip usage** — Every chart in `lib/charts/` uses `ChartTooltip` + `ChartTooltipContent` from the shadcn chart system. These show formatted values when hovering over data points, bars, or slices. The `FinancialChart` component (`components/ui/financial-chart.tsx`) also uses the Recharts `Tooltip` directly with a `tooltipFormatter` prop for custom value formatting (defaults to `formatMoney`).
 
 ### Buttons & Actions
 | Component | Import | Description |

@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, FlaskConical, HelpCircle, ImageIcon, Coins, Percent, BookOpen, Phone } from "lucide-react";
+import { Menu, X, HelpCircle } from "lucide-react";
 import { Link } from "wouter";
 import {
   IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconPackage, IconTrending,
   IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear,
-  IconBriefcase,
+  IconBriefcase, IconResearch, IconBookOpen, IconPhone,
 } from "@/components/icons/brand-icons";
 
 export type AdminSection =
   | "users" | "activity"
   | "branding" | "icp" | "services" | "revshare" | "otherassumptions"
   | "companies" | "groups"
-  | "design"
+  | "logos" | "themes"
   | "marcela" | "kb" | "twilio"
   | "research" | "navigation" | "verification" | "database";
 
@@ -62,7 +62,8 @@ const navGroups: NavGroup[] = [
     icon: IconSwatchBook,
     description: "Logos & themes",
     sections: [
-      { value: "design", label: "Design", icon: IconSwatchBook },
+      { value: "logos", label: "Logos", icon: IconImage },
+      { value: "themes", label: "Themes", icon: IconSwatchBook },
     ],
   },
   {
@@ -72,8 +73,8 @@ const navGroups: NavGroup[] = [
     description: "Marcela configuration",
     sections: [
       { value: "marcela", label: "Configuration", icon: IconBot },
-      { value: "kb", label: "Knowledge Base", icon: BookOpen },
-      { value: "twilio", label: "Twilio", icon: Phone },
+      { value: "kb", label: "Knowledge Base", icon: IconBookOpen },
+      { value: "twilio", label: "Twilio", icon: IconPhone },
     ],
   },
   {
@@ -82,7 +83,7 @@ const navGroups: NavGroup[] = [
     icon: IconShield,
     description: "Research & infrastructure",
     sections: [
-      { value: "research", label: "Research", icon: FlaskConical },
+      { value: "research", label: "Research", icon: IconResearch },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
       { value: "verification", label: "Verification", icon: IconFileCheck },
       { value: "database", label: "Database", icon: IconDatabase },

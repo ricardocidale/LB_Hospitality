@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Building2, LayoutGrid } from "lucide-react";
+import { Users, Building2, LayoutGrid, Loader2 } from "lucide-react";
+import { IconPeople, IconProperties, IconUserCog } from "@/components/icons/brand-icons";
 import UsersTab from "./UsersTab";
 import UserGroupsTab from "./UserGroupsTab";
 
@@ -23,15 +24,15 @@ export default function PeopleTab({ initialTab }: PeopleTabProps) {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-3 h-auto p-1 bg-muted border border-border" data-testid="tabs-people">
           <TabsTrigger value="users" className="py-2.5 gap-2" data-testid="tab-people-users">
-            <Users className="w-4 h-4" />
+            <IconPeople className="w-4 h-4" />
             <span className="hidden sm:inline">Users</span>
           </TabsTrigger>
           <TabsTrigger value="company-assignment" className="py-2.5 gap-2" data-testid="tab-people-company-assignment">
-            <Building2 className="w-4 h-4" />
+            <IconProperties className="w-4 h-4" />
             <span className="hidden sm:inline">Company Assignment</span>
           </TabsTrigger>
           <TabsTrigger value="group-assignment" className="py-2.5 gap-2" data-testid="tab-people-group-assignment">
-            <LayoutGrid className="w-4 h-4" />
+            <IconUserCog className="w-4 h-4" />
             <span className="hidden sm:inline">Group Assignment</span>
           </TabsTrigger>
         </TabsList>
@@ -133,7 +134,7 @@ function CompanyAssignmentTab() {
     <Card className="bg-card border border-border/80 shadow-sm">
       <CardHeader>
         <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-          <Building2 className="w-4 h-4 text-muted-foreground" /> Company Assignment
+          <IconProperties className="w-4 h-4 text-muted-foreground" /> Company Assignment
         </CardTitle>
         <CardDescription className="label-text">Assign users to management companies.</CardDescription>
       </CardHeader>
@@ -200,7 +201,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminLogos } from "./hooks";
 import type { User, AdminCompany } from "./types";

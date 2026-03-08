@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Users, Pencil, Building2, Palette, Image, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Plus, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { IconPeople, IconProperties, IconPencil, IconTrash, IconPalette, IconImage, IconBuilding } from "@/components/icons/brand-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import type { Logo, UserGroup, AssetDesc } from "./types";
@@ -159,7 +160,7 @@ export default function GroupsTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" /> User Groups</CardTitle>
+              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconPeople className="w-4 h-4 text-muted-foreground" /> User Groups</CardTitle>
               <CardDescription className="label-text">Create and manage groups with custom branding, themes, and asset labels.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => {
@@ -174,7 +175,7 @@ export default function GroupsTab() {
         <CardContent className="relative space-y-4">
           {(!userGroupsList || userGroupsList.length === 0) ? (
             <div className="text-center py-8 text-muted-foreground">
-              <Users className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <IconPeople className="w-10 h-10 mx-auto mb-2 opacity-40" />
               <p>No user groups created yet.</p>
               <p className="text-sm">Create a group to define custom branding for your users.</p>
             </div>
@@ -194,7 +195,7 @@ export default function GroupsTab() {
                           </div>
                         ) : (
                           <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
-                            <Building2 className="w-4 h-4 text-muted-foreground" />
+                            <IconBuilding className="w-4 h-4 text-muted-foreground" />
                           </div>
                         )}
                         <div>
@@ -208,7 +209,7 @@ export default function GroupsTab() {
                           setGroupForm({ name: group.name, logoId: group.logoId, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
                           setGroupDialogOpen(true);
                         }} className="text-muted-foreground hover:text-foreground hover:bg-muted" data-testid={`button-edit-group-${group.id}`}>
-                          <Pencil className="w-4 h-4" />
+                          <IconPencil className="w-4 h-4" />
                         </Button>
                         {!group.isDefault && (
                           <Button variant="ghost" size="sm" onClick={() => {
@@ -216,17 +217,22 @@ export default function GroupsTab() {
                               deleteGroupMutation.mutate(group.id);
                             }
                           }} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-group-${group.id}`}>
-                            <Trash2 className="w-4 h-4" />
+                            <IconTrash className="w-4 h-4" />
                           </Button>
                         )}
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
-                      <span className="bg-muted px-2 py-0.5 rounded flex items-center gap-1">
-                        <Palette className="w-3 h-3" />
+                      <span className="bg-muted px-2 py-0.5 rounded flex items-center gap-1 border border-border/40">
+                        <IconPalette className="w-3 h-3 text-muted-foreground/70" />
                         Theme: {groupTheme ? groupTheme.name : <span className="italic">None</span>}
                       </span>
-                      {groupAssetDesc && <span className="bg-muted px-2 py-0.5 rounded">Asset: {groupAssetDesc.name}</span>}
+                      {groupAssetDesc && (
+                        <span className="bg-muted px-2 py-0.5 rounded flex items-center gap-1 border border-border/40">
+                          <IconProperties className="w-3 h-3 text-muted-foreground/70" />
+                          Asset: {groupAssetDesc.name}
+                        </span>
+                      )}
                     </div>
 
                     {/* Property Visibility */}
@@ -315,11 +321,11 @@ export default function GroupsTab() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" />Group Name</Label>
+              <Label className="flex items-center gap-2 text-sm font-medium"><IconPeople className="w-4 h-4 text-muted-foreground/80" /> Group Name</Label>
               <Input value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="e.g., KIT Capital Team" data-testid="input-group-name" />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-muted-foreground" />Logo (includes company name)</Label>
+              <Label className="flex items-center gap-2 text-sm font-medium"><IconImage className="w-4 h-4 text-muted-foreground/80" /> Logo (includes company name)</Label>
               <Select value={groupForm.logoId != null ? String(groupForm.logoId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, logoId: v === "default" ? null : parseInt(v) })}>
                 <SelectTrigger data-testid="select-group-logo"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -336,7 +342,7 @@ export default function GroupsTab() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-muted-foreground" />Theme</Label>
+              <Label className="flex items-center gap-2 text-sm font-medium"><IconPalette className="w-4 h-4 text-muted-foreground/80" /> Theme</Label>
               <Select value={groupForm.themeId != null ? String(groupForm.themeId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, themeId: v === "default" ? null : parseInt(v) })}>
                 <SelectTrigger data-testid="select-group-theme"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -348,7 +354,7 @@ export default function GroupsTab() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" />Asset Description (Property Label)</Label>
+              <Label className="flex items-center gap-2 text-sm font-medium"><IconProperties className="w-4 h-4 text-muted-foreground/80" /> Asset Description (Property Label)</Label>
               <Select value={groupForm.assetDescriptionId != null ? String(groupForm.assetDescriptionId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, assetDescriptionId: v === "default" ? null : parseInt(v) })}>
                 <SelectTrigger data-testid="select-group-asset-desc"><SelectValue /></SelectTrigger>
                 <SelectContent>

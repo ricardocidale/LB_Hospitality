@@ -11,7 +11,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { Loader2, Save, FlaskConical, Building2, Globe, MapPin, Plus, X, Brain, ExternalLink, Library, RefreshCw } from "lucide-react";
+import { Loader2, Save, Plus, X, Brain, ExternalLink, Library, RefreshCw } from "lucide-react";
+import { IconResearch, IconProperties, IconGlobe, IconMapPin } from "@/components/icons/brand-icons";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
 import type { ResearchConfig, ResearchEventConfig, AiModelEntry } from "@shared/schema";
 import { RESEARCH_SOURCES } from "@shared/constants";
@@ -38,9 +39,9 @@ const DETERMINISTIC_TOOLS = [
 type ResearchType = "property" | "company" | "global";
 
 const EVENT_META: Record<ResearchType, { label: string; icon: React.ComponentType<{ className?: string }>; description: string }> = {
-  property: { label: "Property Research",   icon: Building2,    description: "Per-property market analysis triggered from property pages" },
-  company:  { label: "Company Research",    icon: FlaskConical, description: "Management company fee structures and industry benchmarks" },
-  global:   { label: "Global Research",     icon: Globe,        description: "Industry-wide trends, market conditions, and investment outlook" },
+  property: { label: "Property Research",   icon: IconProperties,    description: "Per-property market analysis triggered from property pages" },
+  company:  { label: "Company Research",    icon: IconResearch, description: "Management company fee structures and industry benchmarks" },
+  global:   { label: "Global Research",     icon: IconGlobe,        description: "Industry-wide trends, market conditions, and investment outlook" },
 };
 
 const DEFAULT_EVENT_CONFIG: ResearchEventConfig = {
@@ -190,7 +191,7 @@ function EventConfigSection({
 
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-1.5">
-              <FlaskConical className="w-3.5 h-3.5 text-muted-foreground" />
+              <IconResearch className="w-3.5 h-3.5 text-muted-foreground" />
               Focus Areas
             </Label>
             <p className="text-xs text-muted-foreground">
@@ -206,7 +207,7 @@ function EventConfigSection({
 
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+              <IconMapPin className="w-3.5 h-3.5 text-muted-foreground" />
               Geographic Regions
             </Label>
             <p className="text-xs text-muted-foreground">
@@ -474,7 +475,7 @@ export default function ResearchTab() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FlaskConical className="w-5 h-5 text-primary" />
+                <IconResearch className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <CardTitle className="text-base font-display" data-testid="text-research-title">Research Configuration</CardTitle>

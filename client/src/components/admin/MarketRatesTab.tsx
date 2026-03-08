@@ -16,7 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, RefreshCw, Save, TrendingUp, Clock, AlertTriangle, CheckCircle2, XCircle, Pencil } from "lucide-react";
+import { Loader2, RefreshCw, Save, Clock, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { IconTrending, IconPencil } from "@/components/icons/brand-icons";
 import {
   useMarketRates,
   useRefreshRate,
@@ -137,7 +138,7 @@ export default function MarketRatesTab() {
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
+              <IconTrending className="w-5 h-5 text-white" />
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-foreground">Live Market Rates</CardTitle>
@@ -261,7 +262,7 @@ export default function MarketRatesTab() {
                             className="h-7 w-7"
                             onClick={() => openOverride(rate)}
                           >
-                            <Pencil className="w-3.5 h-3.5" />
+                            <IconPencil className="w-3.5 h-3.5" />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>Manual override</TooltipContent>

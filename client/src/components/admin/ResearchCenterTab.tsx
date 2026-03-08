@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FlaskConical, TrendingUp } from "lucide-react";
+import { IconResearch, IconTrending } from "@/components/icons/brand-icons";
 import ResearchTab from "./ResearchTab";
 import MarketRatesTab from "./MarketRatesTab";
 
@@ -23,11 +23,11 @@ export default function ResearchCenterTab({ initialTab }: ResearchCenterTabProps
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-2 h-auto p-1 bg-muted border border-border" data-testid="tabs-research-center">
           <TabsTrigger value="research" className="py-2.5 gap-2" data-testid="tab-research-config">
-            <FlaskConical className="w-4 h-4" />
+            <IconResearch className="w-4 h-4" />
             <span className="hidden sm:inline">Research</span>
           </TabsTrigger>
           <TabsTrigger value="market-rates" className="py-2.5 gap-2" data-testid="tab-market-rates">
-            <TrendingUp className="w-4 h-4" />
+            <IconTrending className="w-4 h-4" />
             <span className="hidden sm:inline">Market Rates</span>
           </TabsTrigger>
         </TabsList>

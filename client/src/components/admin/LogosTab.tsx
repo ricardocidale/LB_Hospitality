@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Building2, Image, Tag, Save, Star, Sparkles, HardDrive, Link as LinkIcon, Wand2, Pencil, ArrowRight, X, Check } from "lucide-react";
+import { Loader2, Plus, Save, Star, Sparkles, HardDrive, Link, Wand2, ArrowRight, X, Check } from "lucide-react";
+import { IconTrash, IconProperties, IconImage, IconTag, IconPencil } from "@/components/icons/brand-icons";
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";
 import { ImageCropDialog } from "@/components/ui/image-crop-dialog";
@@ -141,7 +142,7 @@ export default function LogosTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Image className="w-4 h-4 text-muted-foreground" /> Logo Management</CardTitle>
+              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconImage className="w-4 h-4 text-muted-foreground" /> Logo Management</CardTitle>
               <CardDescription className="label-text">Upload, create, and manage logos used by companies in the platform</CardDescription>
             </div>
             <Button variant="outline" onClick={() => { resetLogoForm(); setLogoDialogOpen(true); }} className="flex items-center gap-2" data-testid="button-add-logo">
@@ -152,7 +153,7 @@ export default function LogosTab() {
         <CardContent className="relative space-y-4">
           {!adminLogos || adminLogos.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <Image className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
+              <IconImage className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
               <p className="text-lg mb-1">No logos yet</p>
               <p className="text-sm">Click "Add Logo" to upload or create your first logo.</p>
             </div>
@@ -176,13 +177,13 @@ export default function LogosTab() {
                             {logo.isDefault && <Star className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
                           </h3>
                           <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
-                            <Building2 className="w-3.5 h-3.5" />
+                            <IconProperties className="w-3.5 h-3.5" />
                             {logo.companyName}
                           </p>
                         </div>
                         {!logo.isDefault && (
                           <Button variant="ghost" size="sm" onClick={() => setDeleteLogoConfirmId(logo.id)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10 flex-shrink-0" data-testid={`button-delete-logo-${logo.id}`}>
-                            <Trash2 className="w-4 h-4" />
+                            <IconTrash className="w-4 h-4" />
                           </Button>
                         )}
                       </div>
@@ -209,11 +210,11 @@ export default function LogosTab() {
         <div className="space-y-5 py-2">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-foreground"><Tag className="w-3.5 h-3.5 text-muted-foreground/60" />Logo Name</Label>
+              <Label className="flex items-center gap-2 text-foreground"><IconTag className="w-3.5 h-3.5 text-muted-foreground/60" />Logo Name</Label>
               <Input value={logoName} onChange={(e) => setLogoName(e.target.value)} placeholder="e.g., Company Logo" disabled={isBusy} data-testid="input-logo-name" className="bg-card border-border" />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-foreground"><Building2 className="w-3.5 h-3.5 text-muted-foreground/60" />Company Name</Label>
+              <Label className="flex items-center gap-2 text-foreground"><IconProperties className="w-3.5 h-3.5 text-muted-foreground/60" />Company Name</Label>
               <Input value={logoCompanyName} onChange={(e) => setLogoCompanyName(e.target.value)} placeholder="e.g., Hotel Group" disabled={isBusy} data-testid="input-logo-company-name" className="bg-card border-border" />
             </div>
           </div>
@@ -226,7 +227,7 @@ export default function LogosTab() {
               <HardDrive className="w-4 h-4" /> Import Logo
             </button>
             <button type="button" disabled={isBusy} onClick={() => { setLogoMode("url"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("url", logoMode === "url")} data-testid="btn-mode-url">
-              <LinkIcon className="w-4 h-4" /> URL Logo
+              <Link className="w-4 h-4" /> URL Logo
             </button>
           </div>
 
@@ -299,7 +300,7 @@ export default function LogosTab() {
                       <X className="w-4 h-4 mr-1.5" /> Cancel
                     </Button>
                     <Button type="button" variant="outline" onClick={() => { setAiPrompt(enhancedPrompt); setAiStep("describe"); setEnhancedPrompt(""); }} className="border-primary/30 text-foreground hover:bg-muted" data-testid="btn-edit-enhanced">
-                      <Pencil className="w-4 h-4 mr-1.5" /> Edit Further
+                      <IconPencil className="w-4 h-4 mr-1.5" /> Edit Further
                     </Button>
                     <Button type="button" onClick={() => handleGenerateLogo(enhancedPrompt)} className="flex-1 bg-gradient-to-b from-primary/70 to-primary/90 text-primary-foreground hover:from-primary/80 hover:to-primary border-0 shadow-sm" data-testid="btn-generate-enhanced">
                       <ArrowRight className="w-4 h-4 mr-1.5" /> Generate Logo
@@ -388,7 +389,7 @@ export default function LogosTab() {
             data-testid="button-confirm-delete-logo"
             className="flex items-center gap-2"
           >
-            {deleteLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            {deleteLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconTrash className="w-4 h-4" />}
             Delete
           </Button>
         </DialogFooter>

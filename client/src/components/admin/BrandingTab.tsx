@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Building2, Save, Phone, Mail, Globe, Hash, Calendar, MapPin, Percent } from "lucide-react";
+import { Save, Phone, Globe, Hash, Calendar, Percent } from "lucide-react";
+import { IconProperties, IconMail, IconMapPin } from "@/components/icons/brand-icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
 import LogoSelector from "./LogoSelector";
 
@@ -79,7 +80,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           <Card className="bg-card border border-border/80 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-muted-foreground" /> Identity
+                <IconProperties className="w-4 h-4 text-muted-foreground" /> Identity
               </CardTitle>
               <CardDescription className="label-text">Core branding for the management entity</CardDescription>
             </CardHeader>
@@ -118,7 +119,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="label-text text-foreground flex items-center gap-2"><Mail className="w-3 h-3" /> Email</Label>
+                  <Label className="label-text text-foreground flex items-center gap-2"><IconMail className="w-3 h-3" /> Email</Label>
                   <Input
                     value={form.companyEmail}
                     onChange={(e) => updateField("companyEmail", e.target.value)}
@@ -191,7 +192,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           <Card className="bg-card border border-border/80 shadow-sm h-full">
             <CardHeader>
               <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-muted-foreground" /> Headquarters Location
+                <IconMapPin className="w-4 h-4 text-muted-foreground" /> Headquarters Location
               </CardTitle>
               <CardDescription className="label-text">Primary business address</CardDescription>
             </CardHeader>

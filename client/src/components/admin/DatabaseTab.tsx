@@ -28,7 +28,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Database, RefreshCw, Upload, AlertTriangle, CheckCircle2, XCircle, Shield } from "lucide-react";
+import { Loader2, RefreshCw, Upload, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { IconDatabase, IconShield } from "@/components/icons/brand-icons";
 
 export default function DatabaseTab() {
   const { toast } = useToast();
@@ -119,7 +120,7 @@ export default function DatabaseTab() {
       <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-database-sync">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Database className="w-5 h-5" /> Database Status
+            <IconDatabase className="w-5 h-5" /> Database Status
           </CardTitle>
           <CardDescription className="label-text">
             View current database entity counts, global assumptions, and property details.
@@ -266,7 +267,7 @@ export default function DatabaseTab() {
       <Card className="bg-blue-50 border border-blue-200 shadow-sm" data-testid="card-canonical-sync">
         <CardHeader>
           <CardTitle className="font-display flex items-center gap-2 text-foreground">
-            <Shield className="w-5 h-5" /> Sync Canonical Data
+            <IconShield className="w-5 h-5" /> Sync Canonical Data
           </CardTitle>
           <CardDescription className="label-text text-muted-foreground">
             Enforce canonical database state: correct user roles and groups, clean orphaned records, fix fee category rates, and remove test/duplicate scenarios. Safe to run at any time — protects all legitimate user data.
@@ -280,7 +281,7 @@ export default function DatabaseTab() {
             className="bg-muted border-blue-500/30 hover:bg-muted text-blue-700"
             data-testid="button-canonical-sync"
           >
-            {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Shield className="w-4 h-4 mr-2" />}
+            {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconShield className="w-4 h-4 mr-2" />}
             Sync Now
           </Button>
 
@@ -319,7 +320,7 @@ export default function DatabaseTab() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-muted-foreground" /> Confirm Canonical Sync
+              <IconShield className="w-4 h-4 text-muted-foreground" /> Confirm Canonical Sync
             </DialogTitle>
             <DialogDescription className="space-y-2">
               <span className="block">This will enforce the canonical database state:</span>
@@ -338,7 +339,7 @@ export default function DatabaseTab() {
               className="bg-blue-500 hover:bg-blue-600 text-white"
               data-testid="button-confirm-canonical"
             >
-              {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconShield className="w-4 h-4 mr-2" />}
               Yes, Sync Now
             </Button>
           </DialogFooter>

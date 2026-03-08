@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Image, Palette } from "lucide-react";
+import { IconImage, IconPalette } from "@/components/icons/brand-icons";
 import LogosTab from "./LogosTab";
 import ThemesTab from "./ThemesTab";
 
@@ -19,11 +19,11 @@ export default function DesignTab() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-2 h-auto p-1 bg-muted border border-border" data-testid="tabs-design">
           <TabsTrigger value="logos" className="py-2.5 gap-2" data-testid="tab-logos">
-            <Image className="w-4 h-4" />
+            <IconImage className="w-4 h-4" />
             <span>Logos</span>
           </TabsTrigger>
           <TabsTrigger value="themes" className="py-2.5 gap-2" data-testid="tab-themes">
-            <Palette className="w-4 h-4" />
+            <IconPalette className="w-4 h-4" />
             <span>Themes</span>
           </TabsTrigger>
         </TabsList>

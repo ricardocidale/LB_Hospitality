@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Users, Clock, Activity, FileCheck } from "lucide-react";
+import { Clock, Activity, FileCheck } from "lucide-react";
+import { IconPeople, IconActivity, IconFileCheck } from "@/components/icons/brand-icons";
 import type { User, LoginLog, ActivityLogEntry, CheckerActivityData, ActiveSession, ActivitySubView } from "../types";
 import { ActivityLogList } from "./ActivityLogList";
 import { ActivityFeed } from "./ActivityFeed";
@@ -83,7 +84,7 @@ export default function ActivityTab() {
           className="rounded-lg font-display"
           data-testid="button-activity-subtab-feed"
         >
-          <Activity className="w-4 h-4 mr-2" />
+          <IconActivity className="w-4 h-4 mr-2" />
           Activity Feed
         </Button>
         <Button
@@ -93,7 +94,7 @@ export default function ActivityTab() {
           className="rounded-lg font-display"
           data-testid="button-activity-subtab-checker"
         >
-          <FileCheck className="w-4 h-4 mr-2" />
+          <IconFileCheck className="w-4 h-4 mr-2" />
           Checker Activity
         </Button>
       </div>

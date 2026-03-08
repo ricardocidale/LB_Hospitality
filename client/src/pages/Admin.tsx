@@ -15,7 +15,8 @@ import ServicesTab from "@/components/admin/ServicesTab";
 import RevenueShareTab from "@/components/admin/RevenueShareTab";
 import OtherAssumptionsTab from "@/components/admin/OtherAssumptionsTab";
 import GroupsTab from "@/components/admin/GroupsTab";
-import DesignTab from "@/components/admin/DesignTab";
+import LogosTab from "@/components/admin/LogosTab";
+import ThemesTab from "@/components/admin/ThemesTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
@@ -33,7 +34,8 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   otherassumptions: { title: "Other Assumptions",    subtitle: "Company-specific inflation and financial defaults" },
   companies:        { title: "Companies",            subtitle: "Manage SPV companies for individual properties" },
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
-  design:           { title: "Design",               subtitle: "Logos, color themes, and visual identity" },
+  logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
+  themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
   marcela:          { title: "AI Agent",             subtitle: "Configure Marcela — voice, prompt, tools, and telephony" },
   kb:               { title: "Knowledge Base",       subtitle: "Marcela's knowledge base documents and data" },
   twilio:           { title: "Twilio",               subtitle: "Phone and SMS telephony configuration" },
@@ -54,7 +56,8 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "otherassumptions": return <OtherAssumptionsTab />;
     case "companies":        return <CompaniesTab />;
     case "groups":           return <GroupsTab />;
-    case "design":           return <DesignTab />;
+    case "logos":            return <LogosTab />;
+    case "themes":           return <ThemesTab />;
     case "navigation":       return <NavigationTab />;
     case "research":         return <ResearchCenterTab />;
     case "marcela":          return (

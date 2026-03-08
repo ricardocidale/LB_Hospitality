@@ -26,7 +26,19 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Trash2, Users, Key, Eye, EyeOff, Pencil, UserPlus, Shield, Mail, LayoutGrid, Calendar, Settings, Save, ArrowUp, ArrowDown, ArrowUpDown, Building2 } from "lucide-react";
+import { Loader2, Eye, EyeOff, Calendar, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { 
+  IconPeople, 
+  IconTrash, 
+  IconKey, 
+  IconPencil, 
+  IconUserPlus, 
+  IconShield, 
+  IconMail, 
+  IconUserCog, 
+  IconSettingsGear, 
+  IconProperties 
+} from "@/components/icons/brand-icons";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -285,11 +297,11 @@ export default function UsersTab() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => { if (confirm("Reset ALL user passwords to the default admin password?")) resetAllPasswordsMutation.mutate(); }} disabled={resetAllPasswordsMutation.isPending} data-testid="button-reset-all-passwords">
-              {resetAllPasswordsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+              {resetAllPasswordsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
               Reset All Passwords
             </Button>
             <Button variant="default" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
-              <UserPlus className="w-4 h-4" />
+              <IconUserPlus className="w-4 h-4" />
               Add User
             </Button>
           </div>
@@ -305,15 +317,15 @@ export default function UsersTab() {
           <Table>
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("name")} data-testid="sort-user-name"><div className="flex items-center gap-2"><Users className="w-4 h-4" />User <SortIcon field="name" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("role")} data-testid="sort-user-role"><div className="flex items-center gap-2"><Shield className="w-4 h-4" />Role <SortIcon field="role" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("group")} data-testid="sort-user-group"><div className="flex items-center gap-2"><LayoutGrid className="w-4 h-4" />Group <SortIcon field="group" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display text-right"><div className="flex items-center justify-end gap-2"><Settings className="w-4 h-4" />Actions</div></TableHead>
+                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("name")} data-testid="sort-user-name"><div className="flex items-center gap-2"><IconPeople className="w-4 h-4" />User <SortIcon field="name" /></div></TableHead>
+                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("role")} data-testid="sort-user-role"><div className="flex items-center gap-2"><IconShield className="w-4 h-4" />Role <SortIcon field="role" /></div></TableHead>
+                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("group")} data-testid="sort-user-group"><div className="flex items-center gap-2"><IconUserCog className="w-4 h-4" />Group <SortIcon field="group" /></div></TableHead>
+                <TableHead className="text-muted-foreground font-display text-right"><div className="flex items-center justify-end gap-2"><IconSettingsGear className="w-4 h-4" />Actions</div></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedUsers.map((user) => (
-                <TableRow key={user.id} className="border-border hover:bg-muted" data-testid={`row-user-${user.id}`}>
+              {sortedUsers.map((user, idx) => (
+                <TableRow key={user.id} className={`border-border hover:bg-muted/50 ${idx % 2 === 1 ? "bg-muted/30" : ""}`} data-testid={`row-user-${user.id}`}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
@@ -342,18 +354,18 @@ export default function UsersTab() {
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
                         onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
-                        <Pencil className="w-4 h-4" />
+                        <IconPencil className="w-4 h-4" />
                       </Button>
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
                         onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
                         data-testid={`button-password-user-${user.id}`}>
-                        <Key className="w-4 h-4" />
+                        <IconKey className="w-4 h-4" />
                       </Button>
                       {user.role !== 'admin' && (
                         <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                           onClick={() => deleteMutation.mutate(user.id)}
                           data-testid={`button-delete-user-${user.id}`}>
-                          <Trash2 className="w-4 h-4" />
+                          <IconTrash className="w-4 h-4" />
                         </Button>
                       )}
                     </div>
@@ -374,11 +386,11 @@ export default function UsersTab() {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" />Email</Label>
+            <Label className="flex items-center gap-2"><IconMail className="w-4 h-4 text-muted-foreground" />Email</Label>
             <Input value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="user@example.com" data-testid="input-new-user-email" />
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Key className="w-4 h-4 text-muted-foreground" />Password</Label>
+            <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />Password</Label>
             <div className="relative">
               <Input type={showNewUserPassword ? "text" : "password"} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Secure password" data-testid="input-new-user-password" />
               <button type="button" onClick={() => setShowNewUserPassword(!showNewUserPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-new-password">
@@ -387,11 +399,11 @@ export default function UsersTab() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" />First Name</Label><Input value={newUser.firstName} onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })} placeholder="First name" data-testid="input-new-user-firstName" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><IconPeople className="w-4 h-4 text-muted-foreground" />First Name</Label><Input value={newUser.firstName} onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })} placeholder="First name" data-testid="input-new-user-firstName" /></div>
             <div className="space-y-2"><Label>Last Name</Label><Input value={newUser.lastName} onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })} placeholder="Last name" data-testid="input-new-user-lastName" /></div>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" />Company</Label>
+            <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Company</Label>
             <Select value={newUser.companyId != null ? String(newUser.companyId) : "none"} onValueChange={(v) => setNewUser({ ...newUser, companyId: v === "none" ? null : parseInt(v) })} data-testid="select-new-user-company">
               <SelectTrigger data-testid="select-new-user-company"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -407,9 +419,9 @@ export default function UsersTab() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-muted-foreground" />Title</Label><Input value={newUser.title} onChange={(e) => setNewUser({ ...newUser, title: e.target.value })} placeholder="Job title" data-testid="input-new-user-title" /></div>
+          <div className="space-y-2"><Label className="flex items-center gap-2"><IconShield className="w-4 h-4 text-muted-foreground" />Title</Label><Input value={newUser.title} onChange={(e) => setNewUser({ ...newUser, title: e.target.value })} placeholder="Job title" data-testid="input-new-user-title" /></div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-muted-foreground" />Role</Label>
+            <Label className="flex items-center gap-2"><IconShield className="w-4 h-4 text-muted-foreground" />Role</Label>
             <Select value={newUser.role} onValueChange={(v) => setNewUser({ ...newUser, role: v })} data-testid="select-new-user-role">
               <SelectTrigger data-testid="select-new-user-role"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -439,7 +451,7 @@ export default function UsersTab() {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>New Password</Label>
+            <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />New Password</Label>
             <div className="relative">
               <Input type={showChangePassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" data-testid="input-new-password" />
               <button type="button" onClick={() => setShowChangePassword(!showChangePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-change-password">
@@ -451,7 +463,7 @@ export default function UsersTab() {
         <DialogFooter>
           <Button variant="outline" onClick={() => setPasswordDialogOpen(false)} data-testid="button-cancel-password">Cancel</Button>
           <Button variant="outline" onClick={() => selectedUser && passwordMutation.mutate({ id: selectedUser.id, password: newPassword })} disabled={passwordMutation.isPending || !newPassword} data-testid="button-update-password" className="flex items-center gap-2">
-            {passwordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+            {passwordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
             Update Password
           </Button>
         </DialogFooter>
@@ -471,13 +483,13 @@ export default function UsersTab() {
               Created {formatDateTime(selectedUser.createdAt)}
             </div>
           )}
-          <div className="space-y-2"><Label className="flex items-center gap-2"><Mail className="w-4 h-4 text-muted-foreground" />Email</Label><Input value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} data-testid="input-edit-email" /></div>
+          <div className="space-y-2"><Label className="flex items-center gap-2"><IconMail className="w-4 h-4 text-muted-foreground" />Email</Label><Input value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} data-testid="input-edit-email" /></div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2"><Label className="flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" />First Name</Label><Input value={editUser.firstName} onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })} data-testid="input-edit-firstName" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><IconPeople className="w-4 h-4 text-muted-foreground" />First Name</Label><Input value={editUser.firstName} onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })} data-testid="input-edit-firstName" /></div>
             <div className="space-y-2"><Label>Last Name</Label><Input value={editUser.lastName} onChange={(e) => setEditUser({ ...editUser, lastName: e.target.value })} data-testid="input-edit-lastName" /></div>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" />Company</Label>
+            <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Company</Label>
             <Select value={editUser.companyId != null ? String(editUser.companyId) : "none"} onValueChange={(v) => setEditUser({ ...editUser, companyId: v === "none" ? null : parseInt(v) })} data-testid="select-edit-company">
               <SelectTrigger data-testid="select-edit-company"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -493,9 +505,9 @@ export default function UsersTab() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2"><Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-muted-foreground" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
+          <div className="space-y-2"><Label className="flex items-center gap-2"><IconShield className="w-4 h-4 text-muted-foreground" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Shield className="w-4 h-4 text-muted-foreground" />Role</Label>
+            <Label className="flex items-center gap-2"><IconShield className="w-4 h-4 text-muted-foreground" />Role</Label>
             <Select value={editUser.role} onValueChange={(v) => setEditUser({ ...editUser, role: v })} data-testid="select-edit-user-role">
               <SelectTrigger data-testid="select-edit-user-role"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -507,7 +519,7 @@ export default function UsersTab() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Key className="w-4 h-4 text-muted-foreground" />Password</Label>
+            <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />Password</Label>
             <div className="relative">
               <Input type={showEditPassword ? "text" : "password"} value={editUser.password} onChange={(e) => setEditUser({ ...editUser, password: e.target.value })} placeholder="Leave blank to keep current" data-testid="input-edit-password" />
               <button type="button" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-edit-password">

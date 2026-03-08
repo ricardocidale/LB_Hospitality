@@ -27,6 +27,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2, Plus, Trash2, Users, Pencil, Building2, UserPlus, Palette, Tag, Image, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { IconPeople, IconProperties, IconUserPlus, IconPencil, IconTrash, IconPalette, IconImage } from "@/components/icons/brand-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import type { User, Logo, UserGroup, AssetDesc } from "./types";
@@ -189,7 +190,7 @@ export default function UserGroupsTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" /> User Groups</CardTitle>
+              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconPeople className="w-4 h-4 text-muted-foreground" /> User Groups</CardTitle>
               <CardDescription className="label-text">Create groups with a company name and logo. Assign users to groups so they see the group's branding.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => {
@@ -204,7 +205,7 @@ export default function UserGroupsTab() {
         <CardContent className="relative space-y-4">
           {(!userGroupsList || userGroupsList.length === 0) ? (
             <div className="text-center py-8 text-muted-foreground">
-              <Users className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <IconPeople className="w-10 h-10 mx-auto mb-2 opacity-40" />
               <p>No user groups created yet.</p>
               <p className="text-sm">Create a group to assign a company name and logo to one or more users.</p>
             </div>
@@ -225,7 +226,7 @@ export default function UserGroupsTab() {
                           </div>
                         ) : (
                           <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
-                            <Building2 className="w-4 h-4 text-muted-foreground" />
+                            <IconProperties className="w-4 h-4 text-muted-foreground" />
                           </div>
                         )}
                         <div>
@@ -239,7 +240,7 @@ export default function UserGroupsTab() {
                           setGroupForm({ name: group.name, logoId: group.logoId, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
                           setGroupDialogOpen(true);
                         }} className="text-muted-foreground hover:text-foreground hover:bg-muted" data-testid={`button-edit-group-${group.id}`}>
-                          <Pencil className="w-4 h-4" />
+                          <IconPencil className="w-4 h-4" />
                         </Button>
                         {!group.isDefault && (
                           <Button variant="ghost" size="sm" onClick={() => {
@@ -247,17 +248,17 @@ export default function UserGroupsTab() {
                               deleteGroupMutation.mutate(group.id);
                             }
                           }} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-group-${group.id}`}>
-                            <Trash2 className="w-4 h-4" />
+                            <IconTrash className="w-4 h-4" />
                           </Button>
                         )}
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
                       <span className="bg-muted px-2 py-0.5 rounded flex items-center gap-1">
-                        <Palette className="w-3 h-3" />
+                        <IconPalette className="w-3 h-3" />
                         Theme: {groupTheme ? groupTheme.name : <span className="italic">None</span>}
                       </span>
-                      {groupAssetDesc && <span className="bg-muted px-2 py-0.5 rounded">Asset: {groupAssetDesc.name}</span>}
+                      {groupAssetDesc && <span className="bg-muted px-2 py-0.5 rounded flex items-center gap-1"><IconProperties className="w-3 h-3" />Asset: {groupAssetDesc.name}</span>}
                       <span className="bg-muted px-2 py-0.5 rounded">{groupUsers.length} member{groupUsers.length !== 1 ? "s" : ""}</span>
                     </div>
                     {groupUsers.length > 0 && (
@@ -353,7 +354,7 @@ export default function UserGroupsTab() {
 
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><UserPlus className="w-4 h-4 text-muted-foreground" /> Assign Users to Groups</CardTitle>
+          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconUserPlus className="w-4 h-4 text-muted-foreground" /> Assign Users to Groups</CardTitle>
           <CardDescription className="label-text">Set which group each user belongs to. Group branding overrides defaults.</CardDescription>
         </CardHeader>
         <CardContent className="relative">
@@ -361,45 +362,38 @@ export default function UserGroupsTab() {
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
                 <TableHead className="text-muted-foreground">User</TableHead>
-                <TableHead className="text-muted-foreground">Role</TableHead>
-                <TableHead className="text-muted-foreground">Group</TableHead>
+                <TableHead className="text-muted-foreground text-right">Group</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users?.map(user => {
+              {users?.map((user, idx) => {
                 const currentGroup = userGroupsList?.find(g => g.id === user.userGroupId);
                 return (
-                  <TableRow key={user.id} className="border-border hover:bg-muted" data-testid={`group-assign-row-${user.id}`}>
+                  <TableRow key={user.id} className={`border-border hover:bg-muted ${idx % 2 === 1 ? "bg-muted/30" : ""}`} data-testid={`group-assign-row-${user.id}`}>
                     <TableCell className="text-foreground">
                       <div>
                         <span className="font-medium">{user.name || user.email}</span>
                         {user.name && <span className="text-muted-foreground text-xs ml-2">{user.email}</span>}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                        user.role === "admin" ? "bg-muted/80 text-muted-foreground" :
-                        user.role === "checker" ? "bg-muted text-blue-400" :
-                        user.role === "investor" ? "bg-amber-500/20 text-amber-400" :
-                        "bg-muted text-muted-foreground"
-                      }`}>{user.role}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={user.userGroupId != null ? String(user.userGroupId) : "none"}
-                        onValueChange={(v) => {
-                          const groupId = v === "none" ? null : parseInt(v);
-                          assignGroupMutation.mutate({ userId: user.id, groupId });
-                        }}
-                      >
-                        <SelectTrigger className="h-9 max-w-[200px]" data-testid={`select-user-group-${user.id}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No Group</SelectItem>
-                          {userGroupsList?.map(g => (
-                            <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end">
+                        <Select
+                          value={user.userGroupId != null ? String(user.userGroupId) : "none"}
+                          onValueChange={(v) => {
+                            const groupId = v === "none" ? null : parseInt(v);
+                            assignGroupMutation.mutate({ userId: user.id, groupId });
+                          }}
+                        >
+                          <SelectTrigger className="h-9 w-[200px]" data-testid={`select-user-group-${user.id}`}><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">No Group</SelectItem>
+                            {userGroupsList?.map(g => (
+                              <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -418,11 +412,11 @@ export default function UserGroupsTab() {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Users className="w-4 h-4 text-muted-foreground" />Group Name</Label>
+            <Label className="flex items-center gap-2"><IconPeople className="w-4 h-4 text-muted-foreground" />Group Name</Label>
             <Input value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="e.g., KIT Capital Team" data-testid="input-group-name" />
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-muted-foreground" />Logo (includes company name)</Label>
+            <Label className="flex items-center gap-2"><IconImage className="w-4 h-4 text-muted-foreground" />Logo (includes company name)</Label>
             <Select value={groupForm.logoId != null ? String(groupForm.logoId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, logoId: v === "default" ? null : parseInt(v) })} data-testid="select-group-logo">
               <SelectTrigger data-testid="select-group-logo"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -439,7 +433,7 @@ export default function UserGroupsTab() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-muted-foreground" />Theme</Label>
+            <Label className="flex items-center gap-2"><IconPalette className="w-4 h-4 text-muted-foreground" />Theme</Label>
             <Select value={groupForm.themeId != null ? String(groupForm.themeId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, themeId: v === "default" ? null : parseInt(v) })} data-testid="select-group-theme">
               <SelectTrigger data-testid="select-group-theme"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -451,7 +445,7 @@ export default function UserGroupsTab() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-muted-foreground" />Asset Description</Label>
+            <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Asset Description</Label>
             <Select value={groupForm.assetDescriptionId != null ? String(groupForm.assetDescriptionId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, assetDescriptionId: v === "default" ? null : parseInt(v) })} data-testid="select-group-asset-desc">
               <SelectTrigger data-testid="select-group-asset-desc"><SelectValue /></SelectTrigger>
               <SelectContent>

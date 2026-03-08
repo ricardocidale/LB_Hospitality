@@ -21,7 +21,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Plus, Pencil, Trash2, RefreshCw, Save, Package, ArrowRightLeft, HelpCircle, Building2, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Plus, RefreshCw, Save, ArrowRightLeft, HelpCircle, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  IconPencil,
+  IconTrash,
+  IconPackage,
+  IconProperties
+} from "@/components/icons/brand-icons";
 import {
   useServiceTemplates,
   useCreateServiceTemplate,
@@ -281,7 +287,7 @@ export default function ServicesTab() {
       <Card className="bg-muted border border-border/80 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Package className="w-4 h-4 text-muted-foreground" />
+            <IconPackage className="w-4 h-4 text-muted-foreground" />
             Centralized Services Model
           </CardTitle>
           <CardDescription className="label-text">
@@ -313,7 +319,7 @@ export default function ServicesTab() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-muted-foreground" />
+                <IconProperties className="w-4 h-4 text-muted-foreground" />
                 Service Categories
               </CardTitle>
               <CardDescription className="label-text">
@@ -342,7 +348,7 @@ export default function ServicesTab() {
         <CardContent>
           {sorted.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <Package className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+              <IconPackage className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
               <p className="font-medium text-muted-foreground">No service templates configured</p>
               <p className="text-sm mt-1">Add service categories to define what the management company provides to properties.</p>
             </div>
@@ -363,7 +369,7 @@ export default function ServicesTab() {
                           ? "bg-muted text-muted-foreground"
                           : "bg-muted text-muted-foreground"
                       }`}>
-                        <Package className="w-5 h-5" />
+                        <IconPackage className="w-5 h-5" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
@@ -407,10 +413,10 @@ export default function ServicesTab() {
                           <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(t)} data-testid={`button-edit-service-${t.id}`}>
-                          <Pencil className="w-3.5 h-3.5" />
+                          <IconPencil className="w-3.5 h-3.5" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteConfirmId(t.id)} data-testid={`button-delete-service-${t.id}`}>
-                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          <IconTrash className="w-3.5 h-3.5 text-destructive" />
                         </Button>
                       </div>
                     </div>
@@ -532,7 +538,7 @@ export default function ServicesTab() {
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              <Trash2 className="w-4 h-4 mr-1" />
+              <IconTrash className="w-4 h-4 mr-1" />
               Delete
             </Button>
           </DialogFooter>

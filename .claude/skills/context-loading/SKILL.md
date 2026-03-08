@@ -118,6 +118,16 @@ With 119 skill files, loading everything wastes tokens and slows responses. This
 | Admin API route work | `admin/admin-api-routes.md`, `rules/api-routes.md` | Finance skills |
 | Admin shell restructure | `admin/admin-shell-template.md`, `admin/admin-refactor-map.md` | Finance skills |
 | Admin types/shared code | `admin/admin-refactor-map.md` | Finance, UI skills |
+| Admin components/hooks/styles | `admin-components/SKILL.md` | Finance skills |
+
+#### Codebase Architecture & UI Components
+| Task | Load These Skills | Skip |
+|------|------------------|------|
+| Barrel files / import paths | `codebase-architecture/SKILL.md` | Finance, research |
+| UI component lookup | `codebase-architecture/SKILL.md` § UI Component Catalog | Finance, research |
+| ElevenLabs architecture | `codebase-architecture/SKILL.md` § ElevenLabs | Finance, research |
+| Module boundaries / re-exports | `codebase-architecture/SKILL.md` | Finance, research |
+| Tooltip system | `codebase-architecture/SKILL.md` § Tooltips, `admin-components/SKILL.md` § Tooltip Explainers | Finance |
 
 #### Database & Infrastructure
 | Task | Load These Skills | Skip |

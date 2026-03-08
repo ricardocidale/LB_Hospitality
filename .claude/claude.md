@@ -71,6 +71,8 @@ All detailed documentation lives in focused skills. Load the relevant skill befo
 | Coding Conventions | `.claude/skills/coding-conventions/SKILL.md` | Style rules, finance code rules, audit doctrine |
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
+| Codebase Architecture | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, barrel files, re-export wrappers, UI component catalog (80+), ElevenLabs/AI agent full architecture |
+| Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel component architecture, shared hooks, styles, tooltip patterns |
 | Marcela AI | `.claude/skills/marcela-ai/` | Multi-channel assistant architecture, audio pipeline |
 | Twilio Telephony | `.claude/skills/twilio-telephony/` | Voice webhooks, SMS webhooks, Media Streams, audio encoding |
 | Voice Widget UX | `.claude/skills/marcela-ai/voice-ux-patterns.md` | Voice state machine, waveform, barge-in, error handling |

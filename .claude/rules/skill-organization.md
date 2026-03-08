@@ -31,7 +31,9 @@ All skill files must follow consistent organization, naming, and placement conve
 │   ├── 3d-graphics/           # Three.js / React Three Fiber
 │   ├── marcela-ai/            # Multi-channel AI assistant (architecture, audio pipeline, voice UX, ElevenLabs components, admin)
 │   ├── twilio-telephony/      # Twilio Voice + SMS integration
-│   └── admin/                 # Admin page architecture (10-tab shell pattern)
+│   ├── admin/                 # Admin page architecture (10-tab shell pattern)
+│   ├── admin-components/      # Admin panel shared hooks, styles, tooltip patterns
+│   └── codebase-architecture/ # Client folder structure, barrel files, UI component catalog (80+), ElevenLabs architecture
 ├── tools/                     # Tool schemas (JSON)
 │   ├── analysis/              # Break-even, consolidation, scenario
 │   ├── financing/             # DSCR, debt yield, prepayment, IRR

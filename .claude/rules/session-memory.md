@@ -5,6 +5,34 @@
 
 ---
 
+## Session: March 8, 2026 — Codebase Architecture Skill + ElevenLabs Documentation + Rule Enforcement
+
+### What Was Done
+- **UI Component Catalog**: Documented all 80+ components in `client/src/components/ui/` in `codebase-architecture/SKILL.md` — shadcn primitives, 4 tooltip types, buttons, cards, forms, badges, financial data, media, animation, utility components. Each with import path, description, and key props.
+- **Chart Tooltips**: Added `ChartTooltip` + `ChartTooltipContent` as the 4th tooltip type (Recharts hover tooltips used by all 9 chart components).
+- **ElevenLabs Architecture**: Comprehensive documentation of entire Marcela AI system — 4 NPM packages, full `features/ai-agent/` file tree (35 files), 7 widget variants, VoiceLab page, server modules (`elevenlabs.ts`, `elevenlabs-audio.ts`, `marcela-agent-config.ts`, knowledge base), 22 admin API endpoints, 18 Convai tools, connection flows (Web/Phone/SMS), model reference.
+- **Skill Location Enforcement**: Moved `admin-components/` and `codebase-architecture/` from `.agents/skills/` to `.claude/skills/` per rule: "All skills must be stored under `.claude/` directory."
+- **Rule Enforcement**: Updated `claude.md` Skill Router (2 new entries), `context-loading/SKILL.md` task map (2 new sections), `skill-organization.md` directory tree, `replit.md` references. Deleted `.agents/` directory.
+- **`replit.md` Harmonized**: All references point to `.claude/skills/`. Key References table updated with ElevenLabs architecture, SDK reference, Twilio, admin components, UI catalog.
+
+### Files Created/Moved
+- `.claude/skills/codebase-architecture/SKILL.md` (moved from `.agents/skills/`)
+- `.claude/skills/admin-components/SKILL.md` (moved from `.agents/skills/`)
+
+### Files Modified
+- `.claude/claude.md` — Skill Router: +2 rows (Codebase Architecture, Admin Components)
+- `.claude/skills/context-loading/SKILL.md` — Task map: +2 sections (Admin components, Codebase Architecture & UI Components)
+- `.claude/rules/skill-organization.md` — Directory tree: +2 entries
+- `.claude/rules/session-memory.md` — This entry
+- `replit.md` — References updated `.agents/` → `.claude/`
+
+### Rules Enforced
+- `claude-is-sole-truth.md` — All skills under `.claude/`, `replit.md` is slim pointer
+- `skill-organization.md` — Skills have YAML frontmatter, proper directory placement
+- `documentation.md` — Updated claude.md, replit.md, session-memory after edits
+
+---
+
 ## Session: March 7, 2026 — Export parity for ExecutiveSummary and ComparisonView
 
 ### What Was Done

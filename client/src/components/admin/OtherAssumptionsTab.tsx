@@ -39,8 +39,12 @@ export default function OtherAssumptionsTab() {
     );
   };
 
-  const updateField = (field: keyof typeof form, value: any) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+  const updateInflation = (rawValue: string) => {
+    if (rawValue === "") {
+      setForm(prev => ({ ...prev, companyInflationRate: null }));
+    } else {
+      setForm(prev => ({ ...prev, companyInflationRate: parseFloat(rawValue) / 100 }));
+    }
     setIsDirty(true);
   };
 
@@ -60,17 +64,22 @@ export default function OtherAssumptionsTab() {
             <Label className="label-text text-foreground flex items-center gap-2">
               Company Inflation Rate
             </Label>
-            <Input
-              type="number"
-              step="0.001"
-              value={form.companyInflationRate === null ? "" : form.companyInflationRate}
-              onChange={(e) => updateField("companyInflationRate", e.target.value === "" ? null : parseFloat(e.target.value))}
-              placeholder="Default (Global)"
-              className="bg-card"
-              data-testid="input-company-inflation-rate"
-            />
+            <div className="relative">
+              <Input
+                type="number"
+                step="0.1"
+                value={form.companyInflationRate === null ? "" : parseFloat((form.companyInflationRate * 100).toFixed(4))}
+                onChange={(e) => updateInflation(e.target.value)}
+                placeholder="Default (Global)"
+                className="bg-card pr-8"
+                data-testid="input-company-inflation-rate"
+              />
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted-foreground text-sm">
+                %
+              </div>
+            </div>
             <p className="text-[10px] text-muted-foreground">
-              Overrides global inflation for management company overhead calculations. 
+              e.g. 3 for 3%. Overrides global inflation for management company overhead calculations. 
               Falls back to global inflation if left empty.
             </p>
           </div>

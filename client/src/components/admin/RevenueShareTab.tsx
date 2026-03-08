@@ -42,8 +42,8 @@ export default function RevenueShareTab() {
     );
   };
 
-  const updateField = (field: keyof typeof form, value: number) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+  const updateField = (field: keyof typeof form, pctValue: number) => {
+    setForm(prev => ({ ...prev, [field]: pctValue / 100 }));
     setIsDirty(true);
   };
 
@@ -74,10 +74,10 @@ export default function RevenueShareTab() {
               <div className="relative">
                 <Input
                   type="number"
-                  step="0.001"
-                  value={form.baseManagementFee}
+                  step="0.1"
+                  value={parseFloat((form.baseManagementFee * 100).toFixed(4))}
                   onChange={(e) => updateField("baseManagementFee", parseFloat(e.target.value) || 0)}
-                  placeholder="0.03"
+                  placeholder="8.5"
                   className="bg-card pr-8"
                   data-testid="input-base-management-fee"
                 />
@@ -85,7 +85,7 @@ export default function RevenueShareTab() {
                   %
                 </div>
               </div>
-              <p className="text-[10px] text-muted-foreground italic">e.g. 0.03 for 3%</p>
+              <p className="text-[10px] text-muted-foreground italic">e.g. 8.5 for 8.5%</p>
             </div>
           </CardContent>
         </Card>
@@ -105,10 +105,10 @@ export default function RevenueShareTab() {
               <div className="relative">
                 <Input
                   type="number"
-                  step="0.001"
-                  value={form.incentiveManagementFee}
+                  step="0.1"
+                  value={parseFloat((form.incentiveManagementFee * 100).toFixed(4))}
                   onChange={(e) => updateField("incentiveManagementFee", parseFloat(e.target.value) || 0)}
-                  placeholder="0.10"
+                  placeholder="12"
                   className="bg-card pr-8"
                   data-testid="input-incentive-management-fee"
                 />
@@ -116,7 +116,7 @@ export default function RevenueShareTab() {
                   %
                 </div>
               </div>
-              <p className="text-[10px] text-muted-foreground italic">e.g. 0.10 for 10%</p>
+              <p className="text-[10px] text-muted-foreground italic">e.g. 12 for 12%</p>
             </div>
           </CardContent>
         </Card>

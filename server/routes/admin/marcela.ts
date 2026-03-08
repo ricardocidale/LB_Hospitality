@@ -34,46 +34,23 @@ export function registerMarcelaRoutes(app: Express) {
       logAndSendError(res, error.message || "Failed to rebuild knowledge base", error);
     }
   });
+  // All AI agent fields from global_assumptions — pick by prefix to avoid
+  // manually listing 30+ fields (and missing new ones when schema grows).
+  const AI_AGENT_FIELDS = [
+    "aiAgentName", "showAiAssistant",
+  ] as const;
+  const MARCELA_PREFIX = "marcela";
+
   app.get("/api/admin/voice-settings", requireAdmin, async (_req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
-      res.json({
-        aiAgentName: ga.aiAgentName,
-        marcelaAgentId: ga.marcelaAgentId,
-        marcelaVoiceId: ga.marcelaVoiceId,
-        marcelaTtsModel: ga.marcelaTtsModel,
-        marcelaSttModel: ga.marcelaSttModel,
-        marcelaOutputFormat: ga.marcelaOutputFormat,
-        marcelaStability: ga.marcelaStability,
-        marcelaSimilarityBoost: ga.marcelaSimilarityBoost,
-        marcelaSpeakerBoost: ga.marcelaSpeakerBoost,
-        marcelaChunkSchedule: ga.marcelaChunkSchedule,
-        marcelaLlmModel: ga.marcelaLlmModel,
-        marcelaMaxTokens: ga.marcelaMaxTokens,
-        marcelaMaxTokensVoice: ga.marcelaMaxTokensVoice,
-        marcelaEnabled: ga.marcelaEnabled,
-        showAiAssistant: ga.showAiAssistant,
-        marcelaTwilioEnabled: ga.marcelaTwilioEnabled,
-        marcelaSmsEnabled: ga.marcelaSmsEnabled,
-        marcelaPhoneGreeting: ga.marcelaPhoneGreeting,
-        marcelaLanguage: ga.marcelaLanguage,
-        marcelaTurnTimeout: ga.marcelaTurnTimeout,
-        marcelaAvatarUrl: ga.marcelaAvatarUrl,
-        marcelaWidgetVariant: ga.marcelaWidgetVariant,
-        marcelaSpeed: ga.marcelaSpeed,
-        marcelaStreamingLatency: ga.marcelaStreamingLatency,
-        marcelaTextNormalisation: ga.marcelaTextNormalisation,
-        marcelaAsrProvider: ga.marcelaAsrProvider,
-        marcelaInputAudioFormat: ga.marcelaInputAudioFormat,
-        marcelaBackgroundVoiceDetection: ga.marcelaBackgroundVoiceDetection,
-        marcelaTurnEagerness: ga.marcelaTurnEagerness,
-        marcelaSpellingPatience: ga.marcelaSpellingPatience,
-        marcelaSpeculativeTurn: ga.marcelaSpeculativeTurn,
-        marcelaSilenceEndCallTimeout: ga.marcelaSilenceEndCallTimeout,
-        marcelaMaxDuration: ga.marcelaMaxDuration,
-        marcelaCascadeTimeout: ga.marcelaCascadeTimeout,
-      });
+      const result: Record<string, unknown> = {};
+      for (const key of AI_AGENT_FIELDS) result[key] = (ga as any)[key];
+      for (const key of Object.keys(ga)) {
+        if (key.startsWith(MARCELA_PREFIX)) result[key] = (ga as any)[key];
+      }
+      res.json(result);
     } catch (error) {
       logAndSendError(res, "Failed to fetch voice settings", error);
     }

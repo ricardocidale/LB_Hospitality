@@ -13,7 +13,7 @@ import {
   Save, Loader2, MessageSquareText, Mic, Eye, Languages,
   ThumbsUp, Timer, ToggleLeft, Maximize2,
 } from "lucide-react";
-import { useAgentConfig, useSaveWidgetSettings, type WidgetSettingsPayload } from "@/features/ai-agent/hooks/use-convai-api";
+import { useAgentConfig, useSaveWidgetSettings, type WidgetSettingsPayload } from "./hooks";
 import { VoiceSettings } from "./types";
 
 const FEEDBACK_MODES = [

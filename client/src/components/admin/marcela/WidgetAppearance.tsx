@@ -12,7 +12,7 @@ import {
   Save, Loader2, LayoutTemplate, ImageIcon,
   Minimize2, Maximize2, Square, MapPin, Paintbrush,
 } from "lucide-react";
-import { useAgentConfig, useSaveWidgetSettings, type WidgetSettingsPayload } from "@/features/ai-agent/hooks/use-convai-api";
+import { useAgentConfig, useSaveWidgetSettings, type WidgetSettingsPayload } from "./hooks";
 
 const VARIANTS = [
   { value: "compact", label: "Compact", desc: "Floating bubble, expands on click", icon: Minimize2, default: true },

@@ -43,11 +43,20 @@ const navGroups: NavGroup[] = [
   },
   {
     id: "platform",
-    label: "Platform",
+    label: "Brand",
     icon: IconSwatchBook,
-    description: "Look, feel & branding",
+    description: "Branding & identity",
     sections: [
       { value: "branding", label: "Hospitality Brand", icon: IconImage },
+    ],
+  },
+  {
+    id: "design",
+    label: "Design",
+    icon: IconSwatchBook,
+    description: "Themes & logos",
+    sections: [
+      { value: "themes", label: "Themes", icon: IconSwatchBook },
       { value: "logos", label: "Logos", icon: IconUpload },
     ],
   },
@@ -78,7 +87,6 @@ const navGroups: NavGroup[] = [
     sections: [
       { value: "verification", label: "Verification", icon: IconFileCheck },
       { value: "database", label: "Database", icon: IconDatabase },
-      { value: "themes", label: "Themes", icon: IconSwatchBook },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
     ],
   },

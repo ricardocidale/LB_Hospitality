@@ -58,7 +58,6 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
   }, [yearlyConsolidatedCache, projectionYears, getFiscalYear]);
 
   const [expandedFormulas, setExpandedFormulas] = useState<Set<string>>(new Set());
-
   const toggleFormula = (formulaId: string) => {
     setExpandedFormulas(prev => {
       const newSet = new Set(prev);
@@ -72,7 +71,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
   };
 
   const toggleAll = () => {
-    const allKeys = ["revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
+    const allKeys = ["metrics", "revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
     const allExpanded = allKeys.every(k => expandedRows.has(k));
     if (allExpanded) {
       setExpandedRows(new Set());
@@ -81,12 +80,12 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     }
   };
 
-  const allRowsExpanded = ["revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"].every(k => expandedRows.has(k));
+  const allRowsExpanded = ["metrics", "revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"].every(k => expandedRows.has(k));
 
   const generateIncomeStatementData = (overrideExpanded?: Set<string>, excludeFormulas?: boolean) => {
     const activeExpanded = overrideExpanded ?? expandedRows;
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
-    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; rowId?: string; isFormula?: boolean; formulaId?: string }[] = [];
+    const rows: { category: string; values: number[]; displayValues?: string[]; isHeader?: boolean; indent?: number; rowId?: string; isFormula?: boolean; formulaId?: string }[] = [];
     
     const c = (i: number) => yearlyConsolidatedCache[i];
     const p = (idx: number, i: number) => allPropertyYearlyIS[idx]?.[i];
@@ -95,6 +94,98 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       if (excludeFormulas && row.isFormula) return;
       rows.push(row);
     };
+
+    rows.push({ category: "Operational Metrics", values: years.map(() => 0), displayValues: years.map(() => ""), isHeader: true, rowId: "metrics" });
+    if (activeExpanded.has("metrics")) {
+      rows.push({
+        category: "Total Rooms Available",
+        values: years.map((_, i) => c(i)?.availableRooms ?? 0),
+        indent: 1,
+        displayValues: years.map((_, i) => (c(i)?.availableRooms ?? 0).toLocaleString())
+      });
+
+      const adrVals = years.map((_, i) => {
+        const sold = c(i)?.soldRooms ?? 0;
+        return sold > 0 ? (c(i)?.revenueRooms ?? 0) / sold : 0;
+      });
+      rows.push({
+        category: "ADR (Effective)",
+        values: adrVals,
+        indent: 1,
+        displayValues: adrVals.map(v => v > 0 ? `$${v.toFixed(2)}` : "-")
+      });
+      pushRow({
+        category: "= Room Revenue ÷ Sold Rooms",
+        values: adrVals,
+        indent: 1,
+        isFormula: true,
+        displayValues: years.map((_, i) => {
+          const sold = c(i)?.soldRooms ?? 0;
+          const rev = c(i)?.revenueRooms ?? 0;
+          return sold > 0 ? `${formatMoney(rev)} ÷ ${sold.toLocaleString()}` : "-";
+        })
+      });
+
+      const occVals = years.map((_, i) => {
+        const sold = c(i)?.soldRooms ?? 0;
+        const avail = c(i)?.availableRooms ?? 0;
+        return avail > 0 ? sold / avail : 0;
+      });
+      rows.push({
+        category: "Occupancy",
+        values: occVals,
+        indent: 1,
+        displayValues: occVals.map(v => `${(v * 100).toFixed(1)}%`)
+      });
+      pushRow({
+        category: "= Sold Rooms ÷ Available Rooms",
+        values: occVals,
+        indent: 1,
+        isFormula: true,
+        displayValues: years.map((_, i) => {
+          const sold = c(i)?.soldRooms ?? 0;
+          const avail = c(i)?.availableRooms ?? 0;
+          return avail > 0 ? `${sold.toLocaleString()} ÷ ${avail.toLocaleString()}` : "-";
+        })
+      });
+
+      const revparVals = years.map((_, i) => {
+        const rev = c(i)?.revenueRooms ?? 0;
+        const avail = c(i)?.availableRooms ?? 0;
+        return avail > 0 ? rev / avail : 0;
+      });
+      rows.push({
+        category: "RevPAR",
+        values: revparVals,
+        indent: 1,
+        displayValues: revparVals.map(v => v > 0 ? `$${v.toFixed(2)}` : "-")
+      });
+      pushRow({
+        category: "= Room Revenue ÷ Available Rooms",
+        values: revparVals,
+        indent: 1,
+        isFormula: true,
+        displayValues: years.map((_, i) => {
+          const rev = c(i)?.revenueRooms ?? 0;
+          const avail = c(i)?.availableRooms ?? 0;
+          return avail > 0 ? `${formatMoney(rev)} ÷ ${avail.toLocaleString()}` : "-";
+        })
+      });
+      pushRow({
+        category: "Cross-check: ADR × Occupancy",
+        values: revparVals,
+        indent: 1,
+        isFormula: true,
+        displayValues: years.map((_, i) => {
+          const sold = c(i)?.soldRooms ?? 0;
+          const avail = c(i)?.availableRooms ?? 0;
+          const rev = c(i)?.revenueRooms ?? 0;
+          const adr = sold > 0 ? rev / sold : 0;
+          const occ = avail > 0 ? sold / avail : 0;
+          return avail > 0 ? `$${adr.toFixed(2)} × ${(occ * 100).toFixed(1)}%` : "-";
+        })
+      });
+    }
 
     rows.push({ category: "Total Revenue", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), isHeader: true, rowId: "revenue" });
     if (activeExpanded.has("revenue")) {
@@ -214,7 +305,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
   const { years, rows } = generateIncomeStatementData();
 
-  const allRowKeys = ["revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
+  const allRowKeys = ["metrics", "revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
   const allExpandedSet = new Set(allRowKeys);
   const emptySet = new Set<string>();
 
@@ -362,7 +453,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                               </TableCell>
                               {row.values.map((val, vIdx) => (
                                 <TableCell key={vIdx} className="text-right font-mono text-xs text-muted-foreground py-0.5">
-                                  {formatMoney(val)}
+                                  {row.displayValues?.[vIdx] ?? formatMoney(val)}
                                 </TableCell>
                               ))}
                             </TableRow>
@@ -390,7 +481,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                         </TableCell>
                         {row.values.map((val, vIdx) => (
                           <TableCell key={vIdx} className="text-right font-mono">
-                            {formatMoney(val)}
+                            {row.displayValues?.[vIdx] ?? formatMoney(val)}
                           </TableCell>
                         ))}
                       </TableRow>

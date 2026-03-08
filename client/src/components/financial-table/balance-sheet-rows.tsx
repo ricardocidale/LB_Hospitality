@@ -2,6 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
 import { TableRow, TableCell } from "@/components/ui/table";
+import { ChevronRight, ChevronDown } from "lucide-react";
 
 /* ═══════════════════════════════════════════════
    8. BalanceSheetSection
@@ -87,14 +88,32 @@ interface BalanceSheetFormulaRowProps {
 }
 
 export function BalanceSheetFormulaRow({ label, amount }: BalanceSheetFormulaRowProps) {
+  const [open, setOpen] = React.useState(false);
   return (
-    <TableRow className="bg-blue-50/40" data-expandable-row="true">
-      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">
-        {label}
-      </TableCell>
-      <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
-        <Money amount={amount} />
-      </TableCell>
-    </TableRow>
+    <>
+      <TableRow
+        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+        data-expandable-row="true"
+        onClick={() => setOpen(v => !v)}
+      >
+        <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            <span className="italic">Formula</span>
+          </div>
+        </TableCell>
+        <TableCell className="py-0.5" />
+      </TableRow>
+      {open && (
+        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+          <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
+            {label}
+          </TableCell>
+          <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+            <Money amount={amount} />
+          </TableCell>
+        </TableRow>
+      )}
+    </>
   );
 }

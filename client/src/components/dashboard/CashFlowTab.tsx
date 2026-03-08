@@ -36,9 +36,18 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     yearlyConsolidatedCache
   } = financials;
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [expandedFormulas, setExpandedFormulas] = useState<Set<string>>(new Set());
   const tableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [pendingExportAction, setPendingExportAction] = useState<string>("");
+
+  const toggleFormula = (id: string) => {
+    setExpandedFormulas(prev => {
+      const s = new Set(prev);
+      if (s.has(id)) s.delete(id); else s.add(id);
+      return s;
+    });
+  };
 
   const toggleRow = (rowId: string) => {
     setExpandedRows(prev => {
@@ -53,7 +62,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
   };
 
   const toggleAll = () => {
-    const allKeys = ["cfo", "cfi", "cff"];
+    const allKeys = ["metrics", "cfo", "cfi", "cff"];
     const allExpanded = allKeys.every(k => expandedRows.has(k));
     if (allExpanded) {
       setExpandedRows(new Set());
@@ -62,7 +71,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     }
   };
 
-  const allRowsExpanded = ["cfo", "cfi", "cff"].every(k => expandedRows.has(k));
+  const allRowsExpanded = ["metrics", "cfo", "cfi", "cff"].every(k => expandedRows.has(k));
 
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
 
@@ -246,16 +255,33 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   </TableRow>
                   {expandedRows.has("cfo") && (
                     <>
-                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground italic">
-                          = NOI − Debt Service (Principal + Interest)
+                      <TableRow
+                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        data-expandable-row="true"
+                        onClick={() => toggleFormula("cfo-formula")}
+                      >
+                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            {expandedFormulas.has("cfo-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                            <span className="italic">Formula</span>
+                          </div>
                         </TableCell>
-                        {consolidatedCFO.map((val, i) => (
-                          <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
-                            {formatMoney(val)}
-                          </TableCell>
+                        {consolidatedCFO.map((_, i) => (
+                          <TableCell key={i} className="py-0.5" />
                         ))}
                       </TableRow>
+                      {expandedFormulas.has("cfo-formula") && (
+                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                            = NOI − Debt Service (Principal + Interest)
+                          </TableCell>
+                          {consolidatedCFO.map((val, i) => (
+                            <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                              {formatMoney(val)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      )}
                       {properties.map((prop, idx) => (
                         <TableRow key={idx}>
                           <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
@@ -282,16 +308,33 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   </TableRow>
                   {expandedRows.has("cfi") && (
                     <>
-                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground italic">
-                          = Capital Expenditures + Exit Proceeds (if final year)
+                      <TableRow
+                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        data-expandable-row="true"
+                        onClick={() => toggleFormula("cfi-formula")}
+                      >
+                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            {expandedFormulas.has("cfi-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                            <span className="italic">Formula</span>
+                          </div>
                         </TableCell>
-                        {consolidatedCFI.map((val, i) => (
-                          <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
-                            {formatMoney(val)}
-                          </TableCell>
+                        {consolidatedCFI.map((_, i) => (
+                          <TableCell key={i} className="py-0.5" />
                         ))}
                       </TableRow>
+                      {expandedFormulas.has("cfi-formula") && (
+                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                            = Capital Expenditures + Exit Proceeds (if final year)
+                          </TableCell>
+                          {consolidatedCFI.map((val, i) => (
+                            <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                              {formatMoney(val)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      )}
                       {properties.map((prop, idx) => (
                         <TableRow key={idx}>
                           <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>
@@ -318,16 +361,33 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   </TableRow>
                   {expandedRows.has("cff") && (
                     <>
-                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground italic">
-                          = Refinancing Proceeds − Principal Payments
+                      <TableRow
+                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        data-expandable-row="true"
+                        onClick={() => toggleFormula("cff-formula")}
+                      >
+                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            {expandedFormulas.has("cff-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                            <span className="italic">Formula</span>
+                          </div>
                         </TableCell>
-                        {consolidatedCFF.map((val, i) => (
-                          <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
-                            {formatMoney(val)}
-                          </TableCell>
+                        {consolidatedCFF.map((_, i) => (
+                          <TableCell key={i} className="py-0.5" />
                         ))}
                       </TableRow>
+                      {expandedFormulas.has("cff-formula") && (
+                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                            = Refinancing Proceeds − Principal Payments
+                          </TableCell>
+                          {consolidatedCFF.map((val, i) => (
+                            <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                              {formatMoney(val)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      )}
                       {properties.map((prop, idx) => (
                         <TableRow key={idx}>
                           <TableCell className="pl-10 sticky left-0 bg-card z-10">{prop.name}</TableCell>

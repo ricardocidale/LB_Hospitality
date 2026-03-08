@@ -261,14 +261,27 @@ IMPORTANT: For every recommended metric, include a "confidence" field with one o
   }
   
   if (type === "company") {
-    return `Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a ${label.toLowerCase()} management company focused on:
+    return `Provide comprehensive research on hotel management company fee structures, GAAP standards, and industry benchmarks for a ${label.toLowerCase()} management company.
+
+${label} asset definition: ${bd.description || "Independently operated, design-forward properties with curated guest experiences."}
+- Property level: ${bd.level || "luxury"}
+- Room range: ${bd.minRooms}–${bd.maxRooms} rooms
+- ADR range: $${bd.minAdr}–$${bd.maxAdr}
+- Features: ${[bd.hasFB && "F&B operations", bd.hasEvents && "event hosting", bd.hasWellness && "wellness programming"].filter(Boolean).join(", ") || "standard hospitality"}
+- Event locations: ${bd.eventLocations ?? 2}
+- Max event capacity: ${bd.maxEventCapacity ?? 150} people
+- Acreage: ${bd.acreage ?? 5} acres
+- Privacy: ${bd.privacyLevel || "high"}
+- Parking: ${bd.parkingSpaces ?? 50} spaces
+
+Research the following areas for management companies that specialize in this type of property:
 1. Base management fee structures and industry norms (ASC 606 revenue recognition)
 2. Incentive management fee (IMF) structures and triggers
 3. GAAP-compliant fee recognition standards
 4. Operating expense ratios by department (USALI format)
 5. Management company compensation benchmarks
 6. Typical contract terms and duration
-Focus specifically on ${label.toLowerCase()}s specializing in unique events like wellness retreats, corporate retreats, and experiential hospitality.`;
+Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.`;
   }
   
   // global
@@ -293,6 +306,7 @@ Focus specifically on ${label.toLowerCase()}s specializing in unique events like
   
   prompt += `\nResearch Parameters:
 - Asset type: ${label} (${bd.level || "luxury"} tier)
+- Asset definition: ${bd.description || "Independently operated, design-forward properties with curated guest experiences."}
 - Room range: ${bd.minRooms}–${bd.maxRooms} rooms
 - ADR range: $${bd.minAdr}–$${bd.maxAdr}
 - Features: ${[bd.hasFB && "F&B operations", bd.hasEvents && "event hosting", bd.hasWellness && "wellness programming"].filter(Boolean).join(", ")}

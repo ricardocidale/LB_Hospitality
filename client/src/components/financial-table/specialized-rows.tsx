@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { TableRow, TableCell } from "@/components/ui/table";
+import { ChevronRight, ChevronDown } from "lucide-react";
 import { useCalcDetails } from "./context";
 
 /* ═══════════════════════════════════════════════
@@ -89,23 +90,43 @@ interface FormulaDetailRowProps {
 }
 
 export function FormulaDetailRow({ label, values, positive }: FormulaDetailRowProps) {
+  const [open, setOpen] = React.useState(false);
   return (
-    <TableRow className="bg-blue-50/40" data-expandable-row="true">
-      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">
-        {label}
-      </TableCell>
-      {values.map((v, i) => (
-        <TableCell
-          key={i}
-          className={cn(
-            "text-right py-0.5 font-mono text-xs",
-            v < 0 ? "text-destructive" : positive ? "text-accent" : "text-muted-foreground"
-          )}
-        >
-          <Money amount={v} />
+    <>
+      <TableRow
+        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+        data-expandable-row="true"
+        onClick={() => setOpen(v => !v)}
+      >
+        <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            <span className="italic">Formula</span>
+          </div>
         </TableCell>
-      ))}
-    </TableRow>
+        {values.map((_, i) => (
+          <TableCell key={i} className="py-0.5" />
+        ))}
+      </TableRow>
+      {open && (
+        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+          <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
+            {label}
+          </TableCell>
+          {values.map((v, i) => (
+            <TableCell
+              key={i}
+              className={cn(
+                "text-right py-0.5 font-mono text-xs",
+                v < 0 ? "text-destructive" : positive ? "text-accent" : "text-muted-foreground"
+              )}
+            >
+              <Money amount={v} />
+            </TableCell>
+          ))}
+        </TableRow>
+      )}
+    </>
   );
 }
 

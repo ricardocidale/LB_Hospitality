@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import bgImage from "@/assets/hotel-party.jpg";
 import logoImg from "@/assets/logo.png";
 
@@ -63,63 +63,29 @@ export default function Login() {
   };
 
   return (
-    <AnimatedPage>
-      <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
-        <img
-          src={bgImage}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
-
-        <div className="relative z-10 w-full max-w-[420px] mx-4">
-          <div
-            className="relative rounded-3xl p-8 sm:p-10"
-            style={{
-              background: "linear-gradient(135deg, rgba(220,235,245,0.12) 0%, rgba(200,225,240,0.08) 40%, rgba(180,210,230,0.06) 100%)",
-              backdropFilter: "blur(24px) saturate(1.4)",
-              WebkitBackdropFilter: "blur(24px) saturate(1.4)",
-              border: "1px solid rgba(255,255,255,0.18)",
-              boxShadow: "0 0 0 1px rgba(255,255,255,0.05) inset, 0 8px 40px rgba(0,0,0,0.25), 0 0 80px rgba(159,188,164,0.08)",
-            }}
-            data-testid="ice-chip-card"
-          >
-            <div
-              className="absolute inset-0 rounded-3xl pointer-events-none"
-              style={{
-                background: "linear-gradient(170deg, rgba(255,255,255,0.12) 0%, transparent 40%, rgba(255,255,255,0.03) 100%)",
-              }}
-            />
-            <div
-              className="absolute top-0 left-[10%] right-[10%] h-[1px] rounded-full pointer-events-none"
-              style={{
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-              }}
-            />
-
-            <div className="relative flex flex-col items-center">
-              <div className="cursor-pointer mb-1" onClick={handleAdminLogin}>
-                <img
-                  src={logoImg}
-                  alt="Hospitality Business Group"
-                  className="w-20 h-20 object-contain animate-[spin_12s_linear_infinite] drop-shadow-[0_0_20px_rgba(159,188,164,0.5)]"
-                  data-testid="logo-login"
-                />
-              </div>
-              <p className="text-[13px] text-white/60 tracking-wide text-center max-w-[280px] leading-relaxed mb-8">
-                Business Simulation for Hospitality Businesses
-              </p>
-
-              <div className="w-full rounded-2xl border border-white/15 bg-white/[0.07] backdrop-blur-sm p-6 sm:p-7">
-                <div className="mb-6 text-center">
-                  <h2 className="text-xl font-semibold text-white mb-1">Welcome back</h2>
-                  <p className="text-sm text-white/50">Sign in to access the simulation portal</p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-white/80">Email or Username</Label>
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-3xl">
+        <div className="flex flex-col gap-6">
+          <Card className="overflow-hidden">
+            <CardContent className="grid p-0 md:grid-cols-2">
+              <form onSubmit={handleSubmit} className="p-6 md:p-8">
+                <div className="flex flex-col gap-6">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="cursor-pointer mb-2" onClick={handleAdminLogin}>
+                      <img
+                        src={logoImg}
+                        alt="Hospitality Business Group"
+                        className="w-16 h-16 object-contain drop-shadow-[0_0_12px_rgba(159,188,164,0.4)] animate-spherical"
+                        data-testid="logo-login"
+                      />
+                    </div>
+                    <h1 className="text-2xl font-bold font-display" data-testid="text-welcome">Welcome back</h1>
+                    <p className="text-balance text-muted-foreground">
+                      Sign in to access the simulation portal
+                    </p>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email or Username</Label>
                     <Input
                       id="email"
                       type="text"
@@ -127,14 +93,12 @@ export default function Login() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="m@example.com"
                       required
-                      className="h-10 bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-primary/60 focus:ring-primary/30"
                       data-testid="input-email"
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password" className="text-sm font-medium text-white/80">Password</Label>
+                  <div className="grid gap-2">
+                    <div className="flex items-center">
+                      <Label htmlFor="password">Password</Label>
                     </div>
                     <div className="relative">
                       <Input
@@ -144,55 +108,57 @@ export default function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
                         required
-                        className="h-10 bg-white/10 border-white/20 text-white placeholder:text-white/30 pr-10 focus:border-primary/60 focus:ring-primary/30"
+                        className="pr-10"
                         data-testid="input-password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         data-testid="button-toggle-password"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
-
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-10"
+                    className="w-full"
                     data-testid="button-login"
                   >
-                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Login
                   </Button>
-                </form>
-
-                <p className="text-center text-xs text-white/40 mt-6">
-                  Contact your administrator if you need access
-                </p>
-              </div>
-
-              <div className="mt-8 flex flex-col items-center gap-2">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-white/35 font-medium">
-                  Powered by
-                </p>
-                <div className="flex items-center gap-2.5">
-                  <img
-                    src="/logos/norfolk-ai-white.png"
-                    alt="Norfolk AI"
-                    className="w-7 h-7 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]"
-                  />
-                  <span className="text-xs font-semibold tracking-wide text-white/70">
-                    Norfolk AI
-                  </span>
+                  <div className="text-center text-sm text-muted-foreground">
+                    Contact your administrator if you need access
+                  </div>
                 </div>
+              </form>
+              <div className="relative hidden bg-muted md:block">
+                <img
+                  src={bgImage}
+                  alt="Boutique hotel event space"
+                  className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                />
               </div>
-            </div>
+            </CardContent>
+          </Card>
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">
+              Powered by
+            </span>
+            <img
+              src="/logos/norfolk-ai-blue.png"
+              alt="Norfolk AI"
+              className="w-5 h-5 opacity-60"
+            />
+            <span className="text-xs font-semibold tracking-wide text-muted-foreground/60">
+              Norfolk AI
+            </span>
           </div>
         </div>
       </div>
-    </AnimatedPage>
+    </div>
   );
 }

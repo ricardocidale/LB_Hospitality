@@ -14,7 +14,7 @@ import { VoiceSettings } from "./types";
 import { Orb } from "@/features/ai-agent/components/orb";
 import { BarVisualizer } from "@/features/ai-agent/components/bar-visualizer";
 import { Matrix } from "@/features/ai-agent/components/matrix";
-import { useSaveWidgetSettings } from "./hooks";
+import { useSaveWidgetSettings } from "@/features/ai-agent/hooks/use-convai-api";
 
 interface WidgetSettingsProps {
   draft: VoiceSettings;

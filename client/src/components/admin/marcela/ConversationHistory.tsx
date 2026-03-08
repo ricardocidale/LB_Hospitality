@@ -7,7 +7,7 @@ import {
   Loader2, Inbox, Mic, Keyboard, Copy, Check, AlertCircle,
   BarChart2, CheckCircle2, XCircle, Play, Pause,
 } from "lucide-react";
-import { useConversations, useConversation } from "./hooks";
+import { useConversations, useConversation } from "@/features/ai-agent/hooks/use-conversations";
 
 function formatDuration(secs?: number) {
   if (!secs) return "—";
@@ -214,7 +214,7 @@ export function ConversationHistory() {
 
   const toggle = (id: string) => setExpanded(prev => prev === id ? null : id);
 
-  const all = conversations ?? [];
+  const all = Array.isArray(conversations) ? conversations : [];
   const total = all.length;
   const successful = all.filter((c: any) => c.call_successful === "success").length;
   const failed = all.filter((c: any) => c.call_successful === "failure").length;

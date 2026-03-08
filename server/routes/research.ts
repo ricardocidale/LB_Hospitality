@@ -7,6 +7,8 @@ import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, ex
 import { validateResearchValues } from "../../calc/research/validate-research";
 import { sendResearchEmail } from "../integrations/gmail";
 import Anthropic from "@anthropic-ai/sdk";
+import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
+import { DEFAULT_RESEARCH_EVENT_CONFIG } from "../../shared/constants";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -111,6 +113,16 @@ export function register(app: Express) {
       const model = ga?.preferredLlm || "claude-sonnet-4-20250514";
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+      // Resolve admin-configured event config for this research type
+      const researchConfig = (ga?.researchConfig as ResearchConfig) ?? {};
+      const rawEventConfig = researchConfig[type as keyof ResearchConfig];
+      const eventConfig: ResearchEventConfig = { ...DEFAULT_RESEARCH_EVENT_CONFIG, ...rawEventConfig };
+
+      // If admin disabled this research type, block the request
+      if (!eventConfig.enabled) {
+        return res.status(403).json({ error: `Research type "${type}" is disabled by admin configuration.` });
+      }
+
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
@@ -126,6 +138,7 @@ export function register(app: Express) {
         assetDefinition: adWithGlobal,
         researchVariables,
         propertyLabel: ga?.propertyLabel,
+        eventConfig,
       };
 
       const stream = generateResearchWithToolsStream(params, anthropic, model);

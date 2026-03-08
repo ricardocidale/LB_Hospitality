@@ -35,6 +35,16 @@ export interface ResearchParams {
     inflationRate?: number;
     modelDurationYears?: number;
   };
+  // Admin-configured per-event overrides (from global_assumptions.researchConfig)
+  eventConfig?: {
+    enabled?: boolean;
+    focusAreas?: string[];
+    regions?: string[];
+    timeHorizon?: string;
+    customInstructions?: string;
+    customQuestions?: string;
+    enabledTools?: string[];
+  };
 }
 
 function formatAssetDefinition(bd: ResearchParams["assetDefinition"], label: string): string {
@@ -55,8 +65,35 @@ function formatAssetDefinition(bd: ResearchParams["assetDefinition"], label: str
 - Parking: ${bd.parkingSpaces ?? 50} spaces`;
 }
 
+/** Build the admin-config suffix block appended to all prompt types. */
+function buildEventConfigSuffix(ec: ResearchParams["eventConfig"]): string {
+  if (!ec) return "";
+  let suffix = "";
+
+  const focusAreas = ec.focusAreas?.length ? ec.focusAreas : null;
+  const regions = ec.regions?.length ? ec.regions : null;
+
+  if (focusAreas) {
+    suffix += `\n\nAdmin-specified focus areas (address all of these):\n`;
+    focusAreas.forEach((a) => { suffix += `- ${a}\n`; });
+  }
+  if (regions) {
+    suffix += `\nAdmin-specified geographic scope: ${regions.join(", ")}`;
+  }
+  if (ec.timeHorizon) {
+    suffix += `\nInvestment horizon: ${ec.timeHorizon}`;
+  }
+  if (ec.customInstructions?.trim()) {
+    suffix += `\n\nAdditional context from admin:\n${ec.customInstructions.trim()}`;
+  }
+  if (ec.customQuestions?.trim()) {
+    suffix += `\n\nAdmin-required questions to address:\n${ec.customQuestions.trim()}`;
+  }
+  return suffix;
+}
+
 export function buildUserPrompt(params: ResearchParams): string {
-  const { type, propertyContext, assetDefinition: bd, propertyLabel: pl } = params;
+  const { type, propertyContext, assetDefinition: bd, propertyLabel: pl, eventConfig: ec } = params;
   const label = pl || "boutique hotel";
 
   if (type === "property" && propertyContext) {
@@ -74,7 +111,7 @@ ${formatAssetDefinition(bd, label)}
 
 Use the available tools to gather data on each analysis dimension, then synthesize your findings into the required JSON format. Call each tool to build your analysis, then provide the final synthesized research as a JSON object.
 
-IMPORTANT: For every recommended metric, include a "confidence" field with one of: "conservative" (below-market/cautious), "moderate" (market-aligned with strong comps), or "aggressive" (above-market/optimistic). This applies to adrAnalysis, occupancyAnalysis, capRateAnalysis, cateringAnalysis, landValueAllocation, incomeTaxAnalysis, and every cost category in operatingCostAnalysis, propertyValueCostAnalysis, and managementServiceFeeAnalysis.`;
+IMPORTANT: For every recommended metric, include a "confidence" field with one of: "conservative" (below-market/cautious), "moderate" (market-aligned with strong comps), or "aggressive" (above-market/optimistic). This applies to adrAnalysis, occupancyAnalysis, capRateAnalysis, cateringAnalysis, landValueAllocation, incomeTaxAnalysis, and every cost category in operatingCostAnalysis, propertyValueCostAnalysis, and managementServiceFeeAnalysis.${buildEventConfigSuffix(ec)}`;
   }
 
   if (type === "company") {
@@ -89,13 +126,16 @@ Research the following areas for management companies that specialize in this ty
 4. Operating expense ratios by department (USALI format)
 5. Management company compensation benchmarks
 6. Typical contract terms and duration
-Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.`;
+Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.${buildEventConfigSuffix(ec)}`;
   }
 
   // global
   const rv = params.researchVariables;
-  const regions = rv?.regions?.length ? rv.regions.join(", ") : "North America and Latin America";
-  const timeHorizon = rv?.timeHorizon || "5 years";
+
+  // eventConfig overrides researchVariables when present
+  const regions = (ec?.regions?.length ? ec.regions : rv?.regions?.length ? rv.regions : null)
+    ?.join(", ") ?? "North America and Latin America";
+  const timeHorizon = ec?.timeHorizon || rv?.timeHorizon || "5 years";
 
   const defaultFocusAreas = [
     "Market Overview & Trends",
@@ -105,7 +145,7 @@ Focus specifically on management companies specializing in ${label.toLowerCase()
     "Debt Market Conditions",
     "Emerging Trends",
   ];
-  const focusAreas = rv?.focusAreas?.length ? rv.focusAreas : defaultFocusAreas;
+  const focusAreas = (ec?.focusAreas?.length ? ec.focusAreas : rv?.focusAreas?.length ? rv.focusAreas : null) ?? defaultFocusAreas;
 
   let prompt = `Provide comprehensive ${label.toLowerCase()} industry research covering:\n`;
   focusAreas.forEach((area, i) => { prompt += `${i + 1}. ${area}\n`; });
@@ -134,8 +174,13 @@ Focus specifically on management companies specializing in ${label.toLowerCase()
 
   prompt += `\n\nInclude specific data points, market sizes, growth rates, and cite sources.`;
 
-  if (rv?.customQuestions) {
-    prompt += `\n\nAdditional research questions to address:\n${rv.customQuestions}`;
+  // customQuestions: eventConfig takes precedence over researchVariables
+  const customQ = ec?.customQuestions?.trim() || rv?.customQuestions;
+  if (customQ) {
+    prompt += `\n\nAdditional research questions to address:\n${customQ}`;
+  }
+  if (ec?.customInstructions?.trim()) {
+    prompt += `\n\nAdditional context from admin:\n${ec.customInstructions.trim()}`;
   }
 
   return prompt;

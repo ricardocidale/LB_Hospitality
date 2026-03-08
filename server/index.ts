@@ -125,6 +125,9 @@ app.use((req, res, next) => {
   const { runProdSync002 } = await import("./migrations/prod-sync-002");
   await runProdSync002();
 
+  const { runMigration: runResearchConfig001 } = await import("./migrations/research-config-001");
+  await runResearchConfig001();
+
   await seedAdminUser();
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");

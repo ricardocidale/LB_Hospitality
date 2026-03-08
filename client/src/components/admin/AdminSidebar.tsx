@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import { FlaskConical } from "lucide-react";
 import {
   IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconPackage, IconTrending,
@@ -10,7 +11,7 @@ import {
 export type AdminSection =
   | "users" | "groups" | "activity"
   | "branding" | "themes" | "logos" | "navigation"
-  | "companies" | "services" | "market-rates"
+  | "companies" | "services" | "market-rates" | "research"
   | "marcela"
   | "verification" | "database";
 
@@ -61,6 +62,7 @@ const navGroups: NavGroup[] = [
       { value: "companies", label: "Companies", icon: IconProperties },
       { value: "services", label: "Services", icon: IconPackage },
       { value: "market-rates", label: "Market Rates", icon: IconTrending },
+      { value: "research", label: "Research", icon: FlaskConical },
     ],
   },
   {

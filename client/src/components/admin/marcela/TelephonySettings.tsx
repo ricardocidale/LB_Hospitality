@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, CheckCircle2, XCircle, MessageCircle, ExternalLink, Copy, Send, Loader2 } from "lucide-react";
 import { VoiceSettings, TwilioStatus } from "./types";
-import { useSendTestSms } from "./hooks";
+import { useSendTestSms } from "@/features/ai-agent/hooks/use-agent-settings";
 
 interface TelephonySettingsProps {
   draft: VoiceSettings;

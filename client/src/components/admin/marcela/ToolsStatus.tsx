@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Wrench, Monitor, Server, Cpu, Loader2, RefreshCw, AlertCircle, ExternalLink } from "lucide-react";
-import { useAgentConfig } from "./hooks";
+import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 
 const TYPE_META: Record<string, { label: string; icon: typeof Monitor; color: string; badge: string }> = {
   client:  { label: "Client", icon: Monitor, color: "text-muted-foreground",   badge: "border-blue-200 text-muted-foreground bg-blue-50/50" },

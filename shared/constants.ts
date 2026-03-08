@@ -233,6 +233,24 @@ export const DEFAULT_MARCELA_CASCADE_TIMEOUT = 5;
 export const DEFAULT_MAX_STALENESS_HOURS = 24;
 
 // ──────────────────────────────────────────────────────────
+// RESEARCH CONFIGURATION DEFAULTS
+// Per-event admin configuration for the AI research system.
+// enabledTools: empty array = all 9 tools enabled (no filtering).
+// ──────────────────────────────────────────────────────────
+
+export const DEFAULT_RESEARCH_TIME_HORIZON = "10-year";
+
+export const DEFAULT_RESEARCH_EVENT_CONFIG = {
+  enabled: true,
+  focusAreas: [] as string[],
+  regions: [] as string[],
+  timeHorizon: DEFAULT_RESEARCH_TIME_HORIZON,
+  customInstructions: "",
+  customQuestions: "",
+  enabledTools: [] as string[],
+};
+
+// ──────────────────────────────────────────────────────────
 // SEED DEBT ASSUMPTIONS
 // ──────────────────────────────────────────────────────────
 

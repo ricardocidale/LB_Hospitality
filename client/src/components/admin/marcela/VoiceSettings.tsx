@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Volume2, Waves, AudioLines, Zap, Gauge, Timer, Clock, Settings2, Loader2, Save } from "lucide-react";
 import { VoiceSettings, OUTPUT_FORMATS } from "./types";
-import { useSaveAgentVoice } from "./hooks";
+import { useSaveAgentVoice } from "@/features/ai-agent/hooks/use-convai-api";
 
 interface VoiceSettingsProps {
   draft: VoiceSettings;

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GlobalResponse, ResearchQuestion } from "./types";
+import type { ResearchConfig } from "@shared/schema";
 import { invalidateAllFinancialQueries } from "./properties";
 
 async function fetchGlobalAssumptions(): Promise<GlobalResponse> {
@@ -88,5 +89,32 @@ export function useDeleteResearchQuestion() {
       return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["research-questions"] }),
+  });
+}
+
+export function useResearchConfig() {
+  return useQuery<ResearchConfig>({
+    queryKey: ["admin-research-config"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/research-config");
+      if (!res.ok) throw new Error("Failed to fetch research config");
+      return res.json();
+    },
+  });
+}
+
+export function useSaveResearchConfig() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (config: ResearchConfig) => {
+      const res = await fetch("/api/admin/research-config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(config),
+      });
+      if (!res.ok) throw new Error("Failed to save research config");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-research-config"] }),
   });
 }

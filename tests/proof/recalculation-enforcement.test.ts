@@ -98,6 +98,7 @@ const NON_FINANCIAL_MUTATIONS = [
   "useRefreshRate",
   "useRefreshAllRates",
   "useOverrideRate",
+  "useSaveResearchConfig",  // Admin research prompt config — does not affect financial calculations
 ];
 
 describe("Recalculation Enforcement", () => {
@@ -208,7 +209,8 @@ describe("Recalculation Enforcement", () => {
 
       // Non-financial keys that are OK to exclude
       const nonFinancialKeys = new Set([
-        "research-questions", // Research questions have their own invalidation
+        "research-questions",     // Research questions have their own invalidation
+        "admin-research-config",  // Admin research prompt config — does not affect financial calculations
       ]);
 
       for (const prefix of financialQueryPrefixes) {

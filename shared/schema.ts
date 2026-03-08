@@ -279,6 +279,26 @@ export type Session = typeof sessions.$inferSelect;
 //
 // Per-user: each user can have their own assumptions (for scenario isolation).
 // If a user has no specific assumptions, the system falls back to the shared row.
+
+// --- RESEARCH CONFIGURATION TYPES ---
+// Stored as JSONB in global_assumptions.researchConfig.
+// Controls per-event AI research behavior: which tools run, what context is injected.
+export interface ResearchEventConfig {
+  enabled: boolean;               // whether this research type is active
+  focusAreas: string[];           // injected into prompt as bulleted focus areas
+  regions: string[];              // geographic scope guidance
+  timeHorizon: string;            // e.g. "5-year", "10-year"
+  customInstructions: string;     // free-text context appended to the system prompt
+  customQuestions: string;        // specific questions the LLM must address
+  enabledTools: string[];         // subset of tool names; empty array = all tools enabled
+}
+
+export interface ResearchConfig {
+  property?: Partial<ResearchEventConfig>;
+  company?:  Partial<ResearchEventConfig>;
+  global?:   Partial<ResearchEventConfig>;
+}
+
 export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
@@ -451,6 +471,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaMaxDuration: integer("marcela_max_duration").notNull().default(DEFAULT_MARCELA_MAX_DURATION),
   marcelaCascadeTimeout: integer("marcela_cascade_timeout").notNull().default(DEFAULT_MARCELA_CASCADE_TIMEOUT),
 
+  // Research Configuration — per-event admin control over AI research behavior
+  researchConfig: jsonb("research_config").$type<ResearchConfig>().default({}),
+
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
@@ -608,6 +631,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   marcelaSilenceEndCallTimeout: true,
   marcelaMaxDuration: true,
   marcelaCascadeTimeout: true,
+  researchConfig: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

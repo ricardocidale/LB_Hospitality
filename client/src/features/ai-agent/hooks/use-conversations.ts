@@ -7,7 +7,8 @@ export function useConversations() {
     queryKey: AI_AGENT_KEYS.conversations,
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/admin/convai/conversations");
-      return res.json();
+      const data = await res.json();
+      return data.conversations ?? data;
     },
     refetchInterval: 60_000,
     retry: false,

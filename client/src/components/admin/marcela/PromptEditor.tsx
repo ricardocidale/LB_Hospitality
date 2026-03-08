@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MessageSquare, Globe, Loader2, Save, RefreshCw, AlertCircle, FileText, Type, Sparkles, Copy, Check } from "lucide-react";
 
-import { useAgentConfig, useSaveAgentPrompt } from "./hooks";
+import { useAgentConfig, useSaveAgentPrompt } from "@/features/ai-agent/hooks/use-convai-api";
 
 const DYNAMIC_VARS = [
   { name: "{{user_name}}", description: "Full name of the logged-in user" },

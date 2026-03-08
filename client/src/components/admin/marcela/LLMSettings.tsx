@@ -21,8 +21,9 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
   const saveAgentLlm = useSaveAgentLlm();
   const [isDirty, setIsDirty] = useState(false);
 
-  const failedCount = (conversations ?? []).filter((c: any) => c.call_successful === "failure").length;
-  const total = (conversations ?? []).length;
+  const convList = Array.isArray(conversations) ? conversations : [];
+  const failedCount = convList.filter((c: any) => c.call_successful === "failure").length;
+  const total = convList.length;
   const failureRate = total > 0 ? failedCount / total : 0;
   const showTimeoutWarning = total > 0 && failureRate > 0.3;
 

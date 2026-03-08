@@ -6,7 +6,7 @@ import AdminSidebar, { type AdminSection, navGroups, getGroupForSection } from "
 import {
   UsersTab, CompaniesTab, ActivityTab, VerificationTab,
   UserGroupsTab, DatabaseTab, MarcelaTab, ServicesTab,
-  MarketRatesTab
+  MarketRatesTab, ResearchTab
 } from "@/components/admin";
 import BrandingTab from "@/components/admin/BrandingTab";
 import ThemesTab from "@/components/admin/ThemesTab";
@@ -26,6 +26,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   companies:    { title: "Companies",      subtitle: "Management company and special purpose vehicles" },
   services:     { title: "Services",       subtitle: "Service templates, markup rates, and property sync" },
   "market-rates": { title: "Market Rates", subtitle: "Live economic data, FRED/BLS rates, and manual overrides" },
+  research:     { title: "Research",       subtitle: "Configure AI research behavior — tools, focus areas, and custom context per event" },
   marcela:      { title: "AI Agent",       subtitle: "Configure Marcela — voice, prompt, tools, and telephony" },
   verification: { title: "Verification",   subtitle: "Independent GAAP financial audit and compliance" },
   database:     { title: "Database",       subtitle: "Entity monitoring, seed data, and canonical sync" },
@@ -43,6 +44,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "companies":    return <CompaniesTab />;
     case "services":     return <ServicesTab />;
     case "market-rates": return <MarketRatesTab />;
+    case "research":     return <ResearchTab />;
     case "marcela":      return <ErrorBoundary fallback={<div className="p-8 text-center text-muted-foreground">AI Agent configuration failed to load. Please reload the page.</div>}><MarcelaTab /></ErrorBoundary>;
     case "verification": return <VerificationTab />;
     case "database":     return <DatabaseTab />;

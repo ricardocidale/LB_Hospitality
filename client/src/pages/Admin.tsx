@@ -19,7 +19,7 @@ import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
-  groups:       { title: "Groups",          subtitle: "Manage users and group assignments" },
+  users:        { title: "Users",            subtitle: "Manage user accounts and group assignments" },
   activity:     { title: "Activity",       subtitle: "Login logs, audit trail, and session monitoring" },
   branding:     { title: "Hospitality Brand", subtitle: "Identity, asset definition, and centralized services" },
   themes:       { title: "Themes",         subtitle: "Color palettes and visual styles for the platform" },
@@ -34,7 +34,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
 
 function SectionContent({ section, onNavigate }: { section: AdminSection; onNavigate: (s: AdminSection) => void }) {
   switch (section) {
-    case "groups":       return <PeopleTab />;
+    case "users":        return <PeopleTab />;
     case "activity":     return <ActivityTab />;
     case "branding":     return <ManagementCompanyTab onNavigate={(tab: string) => { if (tab === "logos") onNavigate("logos"); else if (tab === "themes") onNavigate("themes"); else if (tab === "groups") onNavigate("groups"); }} />;
     case "themes":       return <ThemesTab />;
@@ -63,7 +63,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
 }
 
 export default function Admin() {
-  const [activeSection, setActiveSection] = useState<AdminSection>("groups");
+  const [activeSection, setActiveSection] = useState<AdminSection>("users");
 
   const meta = sectionMeta[activeSection];
   const activeGroupId = getGroupForSection(activeSection);

@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { FlaskConical } from "lucide-react";
+  import { IconVerify } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="testing-methodology"
         title="15. Testing Methodology"
-        icon={FlaskConical}
+        icon={IconVerify}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

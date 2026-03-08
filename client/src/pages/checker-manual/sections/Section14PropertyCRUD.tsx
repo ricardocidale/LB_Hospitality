@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Plus } from "lucide-react";
+  import { IconImage } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="property-crud"
         title="14. Property CRUD & Images"
-        icon={Plus}
+        icon={IconImage}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

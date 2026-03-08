@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Calculator } from "lucide-react";
+  import { IconCalculator } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="property-formulas"
         title="16. Property Financial Formulas"
-        icon={Calculator}
+        icon={IconCalculator}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { BookOpen, Settings } from "lucide-react";
+  import { IconHelp, IconSettings } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="app-overview"
         title="1. Application Overview"
-        icon={BookOpen}
+        icon={IconHelp}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

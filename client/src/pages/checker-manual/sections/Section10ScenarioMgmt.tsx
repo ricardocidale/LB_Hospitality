@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { FolderOpen } from "lucide-react";
+  import { IconScenarios } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="scenario-mgmt"
         title="10. Scenario Management"
-        icon={FolderOpen}
+        icon={IconScenarios}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

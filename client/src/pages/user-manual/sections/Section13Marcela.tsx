@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { Callout } from "@/components/ui/callout";
-import { MessageCircle } from "lucide-react";
+import { IconBot } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section13Marcela({ expanded, onToggle, sectionRef }: Sec
     <SectionCard
       id="marcela"
       title="13. Marcela AI Assistant"
-      icon={MessageCircle}
+      icon={IconBot}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

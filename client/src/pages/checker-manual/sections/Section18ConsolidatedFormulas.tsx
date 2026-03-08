@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { PieChart } from "lucide-react";
+  import { IconAnalysis } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="consolidated-formulas"
         title="18. Consolidated Portfolio Formulas"
-        icon={PieChart}
+        icon={IconAnalysis}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

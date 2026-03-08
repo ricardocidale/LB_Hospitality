@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Hotel } from "lucide-react";
+  import { IconProperties } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="property-portfolio"
         title="3. Property Portfolio (SPVs)"
-        icon={Hotel}
+        icon={IconProperties}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

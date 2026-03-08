@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { UserCircle } from "lucide-react";
+  import { IconProfile } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="my-profile"
         title="11. My Profile"
-        icon={UserCircle}
+        icon={IconProfile}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { Callout } from "@/components/ui/callout";
-import { ShieldCheck } from "lucide-react";
+import { IconVerify } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section17BusinessRules({ expanded, onToggle, sectionRef 
     <SectionCard
       id="business-constraints"
       title="17. Business Rules & Constraints"
-      icon={ShieldCheck}
+      icon={IconVerify}
       variant="light"
       className="border-primary/30 bg-primary/5"
       expanded={expanded}

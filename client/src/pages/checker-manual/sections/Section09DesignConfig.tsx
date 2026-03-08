@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Palette } from "lucide-react";
+  import { IconSwatchBook } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="design-config"
         title="9. Design Configuration"
-        icon={Palette}
+        icon={IconSwatchBook}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

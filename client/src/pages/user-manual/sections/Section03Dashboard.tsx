@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
-import { LayoutDashboard } from "lucide-react";
+import { IconDashboard } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
     <SectionCard
       id="dashboard"
       title="3. Dashboard"
-      icon={LayoutDashboard}
+      icon={IconDashboard}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

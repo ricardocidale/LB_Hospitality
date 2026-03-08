@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
-import { BarChart3 } from "lucide-react";
+import { IconInvestment } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
     <SectionCard
       id="property-details"
       title="5. Property Details & Financials"
-      icon={BarChart3}
+      icon={IconInvestment}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

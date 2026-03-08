@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { DollarSign } from "lucide-react";
+  import { IconCashFlow } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="funding-financing"
         title="20. Funding, Financing & Refinancing"
-        icon={DollarSign}
+        icon={IconCashFlow}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

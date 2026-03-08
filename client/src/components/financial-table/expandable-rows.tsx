@@ -158,7 +158,7 @@ export function ExpandableBalanceSheetLineItem({
         className={cn(
           "cursor-pointer hover:bg-muted",
           isSubtotal && "bg-primary/5",
-          isTotal && "bg-primary/10 font-bold"
+          isTotal && "bg-primary/10 font-medium"
         )}
         onClick={onToggle}
       >

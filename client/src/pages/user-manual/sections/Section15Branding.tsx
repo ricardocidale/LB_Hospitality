@@ -1,5 +1,5 @@
 import { SectionCard } from "@/components/ui/section-card";
-import { Palette } from "lucide-react";
+import { IconSwatchBook } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -12,7 +12,7 @@ export default function Section15Branding({ expanded, onToggle, sectionRef }: Se
     <SectionCard
       id="branding"
       title="15. Branding & Themes"
-      icon={Palette}
+      icon={IconSwatchBook}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

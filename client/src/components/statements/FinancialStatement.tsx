@@ -42,13 +42,13 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
           <Table>
             <TableHeader className="bg-muted">
               <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="w-[200px] font-bold text-primary sticky left-0 bg-card z-10 border-r border-border">Line Item</TableHead>
+                <TableHead className="w-[200px] font-medium text-primary sticky left-0 bg-card z-10 border-r border-border">Line Item</TableHead>
                 {first12Months.map((m) => (
                   <TableHead key={m.monthIndex} className="text-right min-w-[120px]">
                     {format(m.date, "MMM yyyy")}
                   </TableHead>
                 ))}
-                <TableHead className="text-right font-bold bg-muted/50">{startYear} Total</TableHead>
+                <TableHead className="text-right font-medium bg-muted/50">{startYear} Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -58,7 +58,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right text-muted-foreground font-mono">{(m.occupancy * 100).toFixed(0)}%</TableCell>
                 ))}
-                 <TableCell className="text-right font-bold">-</TableCell>
+                 <TableCell className="text-right font-medium">-</TableCell>
               </TableRow>
               
               {/* REVENUE SECTION */}
@@ -67,23 +67,23 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueRooms)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueRooms, 0))}</TableCell>
+                <TableCell className="text-right font-medium bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueRooms, 0))}</TableCell>
               </TableRow>
               <TableRow className="hover:bg-primary/5 border-border">
                 <TableCell className="font-medium sticky left-0 bg-card dark:bg-foreground/50 z-10 border-r border-border">F&B Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueFB)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueFB, 0))}</TableCell>
+                <TableCell className="text-right font-medium bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueFB, 0))}</TableCell>
               </TableRow>
               <TableRow className="hover:bg-primary/5 border-border">
                 <TableCell className="font-medium sticky left-0 bg-card dark:bg-foreground/50 z-10 border-r border-border">Event Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueEvents)}</TableCell>
                 ))}
-                <TableCell className="text-right font-bold bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueEvents, 0))}</TableCell>
+                <TableCell className="text-right font-medium bg-muted font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.revenueEvents, 0))}</TableCell>
               </TableRow>
-              <TableRow className="bg-primary/5 border-border font-bold text-primary">
+              <TableRow className="bg-primary/5 border-border font-medium text-primary">
                 <TableCell className="sticky left-0 bg-primary/10 z-10 border-r border-border">Total Revenue</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.revenueTotal)}</TableCell>
@@ -95,7 +95,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               <TableRow className="h-4 border-none hover:bg-transparent"><TableCell colSpan={14}></TableCell></TableRow>
 
               {/* GOP */}
-              <TableRow className="bg-accent/10 border-border font-bold">
+              <TableRow className="bg-accent/10 border-border font-medium">
                 <TableCell className="sticky left-0 bg-accent/20 z-10 border-r border-border">Gross Operating Profit</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.gop)}</TableCell>
@@ -104,7 +104,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               </TableRow>
 
               {/* NET INCOME */}
-              <TableRow className="bg-primary/10 border-border font-bold text-lg">
+              <TableRow className="bg-primary/10 border-border font-medium text-lg">
                 <TableCell className="sticky left-0 bg-primary/20 z-10 border-r border-border">Adjusted NOI (ANOI)</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.noi)}</TableCell>
@@ -113,7 +113,7 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               </TableRow>
               
                {/* CASH FLOW */}
-              <TableRow className="bg-green-500/10 border-border font-bold text-lg">
+              <TableRow className="bg-green-500/10 border-border font-medium text-lg">
                 <TableCell className="sticky left-0 bg-green-500/20 z-10 border-r border-border">Cash Flow</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className={cn("text-right font-mono", m.cashFlow < 0 ? "text-destructive" : "text-green-700 dark:text-green-400")}>

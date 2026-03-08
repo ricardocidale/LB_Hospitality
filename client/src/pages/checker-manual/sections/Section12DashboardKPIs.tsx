@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { BarChart3 } from "lucide-react";
+  import { IconDashboard } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="dashboard-kpis"
         title="12. Dashboard & KPIs"
-        icon={BarChart3}
+        icon={IconDashboard}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

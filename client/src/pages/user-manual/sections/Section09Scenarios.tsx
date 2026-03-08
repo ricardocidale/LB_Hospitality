@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { Callout } from "@/components/ui/callout";
-import { FolderOpen } from "lucide-react";
+import { IconScenarios } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section09Scenarios({ expanded, onToggle, sectionRef }: S
     <SectionCard
       id="scenarios"
       title="9. Scenarios"
-      icon={FolderOpen}
+      icon={IconScenarios}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

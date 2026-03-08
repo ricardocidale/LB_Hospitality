@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Landmark } from "lucide-react";
+  import { IconInvestment } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="investment-returns"
         title="19. Investment Returns (DCF/FCF/IRR)"
-        icon={Landmark}
+        icon={IconInvestment}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

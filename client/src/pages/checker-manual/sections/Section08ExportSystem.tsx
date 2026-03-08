@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Download } from "lucide-react";
+  import { IconExport } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="export-system"
         title="8. Export System"
-        icon={Download}
+        icon={IconExport}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

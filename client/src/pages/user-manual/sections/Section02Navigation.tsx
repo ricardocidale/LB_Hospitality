@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
 import { Callout } from "@/components/ui/callout";
-import { Navigation } from "lucide-react";
+import { IconPanelLeft } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -14,7 +14,7 @@ export default function Section02Navigation({ expanded, onToggle, sectionRef }: 
     <SectionCard
       id="navigation"
       title="2. Navigating the Portal"
-      icon={Navigation}
+      icon={IconPanelLeft}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { Callout } from "@/components/ui/callout";
-import { Hotel } from "lucide-react";
+import { IconProperties } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section04Properties({ expanded, onToggle, sectionRef }: 
     <SectionCard
       id="properties"
       title="4. Properties"
-      icon={Hotel}
+      icon={IconProperties}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

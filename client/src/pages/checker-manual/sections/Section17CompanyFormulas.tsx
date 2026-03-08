@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Briefcase } from "lucide-react";
+  import { IconBriefcase } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="company-formulas"
         title="17. Management Company Formulas"
-        icon={Briefcase}
+        icon={IconBriefcase}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

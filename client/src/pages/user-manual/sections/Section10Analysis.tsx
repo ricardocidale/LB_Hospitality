@@ -1,5 +1,5 @@
 import { SectionCard } from "@/components/ui/section-card";
-import { BarChart3 } from "lucide-react";
+import { IconAnalysis } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -12,7 +12,7 @@ export default function Section10Analysis({ expanded, onToggle, sectionRef }: Se
     <SectionCard
       id="analysis"
       title="10. Analysis Tools"
-      icon={BarChart3}
+      icon={IconAnalysis}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

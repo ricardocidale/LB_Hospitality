@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Settings, FileText } from "lucide-react";
+  import { IconIncomeStatement } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="financial-statements"
         title="7. Financial Statements"
-        icon={FileText}
+        icon={IconIncomeStatement}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
 import { Callout } from "@/components/ui/callout";
-import { Settings } from "lucide-react";
+import { IconSettings } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -14,7 +14,7 @@ export default function Section08Assumptions({ expanded, onToggle, sectionRef }:
     <SectionCard
       id="assumptions"
       title="8. Systemwide Assumptions"
-      icon={Settings}
+      icon={IconSettings}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

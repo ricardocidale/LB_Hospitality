@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Brain } from "lucide-react";
+  import { IconResearch } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="ai-research"
         title="13. AI Research & Calibration"
-        icon={Brain}
+        icon={IconResearch}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

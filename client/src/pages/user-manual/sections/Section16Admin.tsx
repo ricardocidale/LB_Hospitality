@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
-import { Shield } from "lucide-react";
+import { IconShield } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section16Admin({ expanded, onToggle, sectionRef }: Secti
     <SectionCard
       id="admin"
       title="16. Admin Settings"
-      icon={Shield}
+      icon={IconShield}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

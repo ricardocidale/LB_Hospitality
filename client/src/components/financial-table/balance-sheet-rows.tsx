@@ -17,7 +17,7 @@ interface BalanceSheetSectionProps {
 export function BalanceSheetSection({ label, colSpan }: BalanceSheetSectionProps) {
   return (
     <TableRow className="bg-muted/30">
-      <TableCell colSpan={colSpan} className="font-bold text-accent">
+      <TableCell colSpan={colSpan} className="font-medium text-accent">
         {label}
       </TableCell>
     </TableRow>
@@ -57,7 +57,7 @@ export function BalanceSheetLineItem({
     <TableRow
       className={cn(
         isSubtotal && "bg-primary/5",
-        isTotal && "bg-primary/10 font-bold"
+        isTotal && "bg-primary/10 font-medium"
       )}
     >
       <TableCell

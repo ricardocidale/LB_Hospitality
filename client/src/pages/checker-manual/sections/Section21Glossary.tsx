@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { BookOpen, Hotel, BookOpenCheck } from "lucide-react";
+  import { IconHelp } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="glossary"
         title="21. Glossary"
-        icon={BookOpenCheck}
+        icon={IconHelp}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

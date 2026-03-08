@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
-import { Building2 } from "lucide-react";
+import { IconBriefcase } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section07ManagementCompany({ expanded, onToggle, section
     <SectionCard
       id="management-company"
       title="7. Management Company"
-      icon={Building2}
+      icon={IconBriefcase}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

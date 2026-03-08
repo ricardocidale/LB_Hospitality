@@ -1,6 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
-import { Download } from "lucide-react";
+import { IconExport } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -13,7 +13,7 @@ export default function Section12Exports({ expanded, onToggle, sectionRef }: Sec
     <SectionCard
       id="exports"
       title="12. Exports & Reports"
-      icon={Download}
+      icon={IconExport}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

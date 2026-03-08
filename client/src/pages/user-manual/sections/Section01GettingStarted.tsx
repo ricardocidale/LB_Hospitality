@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { ManualTable } from "@/components/ui/manual-table";
 import { Callout } from "@/components/ui/callout";
-import { LogIn } from "lucide-react";
+import { IconActivity } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -14,7 +14,7 @@ export default function Section01GettingStarted({ expanded, onToggle, sectionRef
     <SectionCard
       id="getting-started"
       title="1. Getting Started"
-      icon={LogIn}
+      icon={IconActivity}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

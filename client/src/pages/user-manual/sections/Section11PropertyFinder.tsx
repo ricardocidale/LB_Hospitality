@@ -1,5 +1,5 @@
 import { SectionCard } from "@/components/ui/section-card";
-import { Search } from "lucide-react";
+import { IconPropertyFinder } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -12,7 +12,7 @@ export default function Section11PropertyFinder({ expanded, onToggle, sectionRef
     <SectionCard
       id="property-finder"
       title="11. Property Finder"
-      icon={Search}
+      icon={IconPropertyFinder}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

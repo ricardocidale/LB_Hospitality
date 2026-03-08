@@ -1,5 +1,5 @@
 import { SectionCard } from "@/components/ui/section-card";
-import { UserCircle } from "lucide-react";
+import { IconProfile } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -12,7 +12,7 @@ export default function Section14Profile({ expanded, onToggle, sectionRef }: Sec
     <SectionCard
       id="profile"
       title="14. My Profile"
-      icon={UserCircle}
+      icon={IconProfile}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

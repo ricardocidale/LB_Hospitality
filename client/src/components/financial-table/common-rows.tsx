@@ -31,7 +31,7 @@ export function SectionHeader({
   const showDetails = useCalcDetails();
   return (
     <TableRow className="bg-muted">
-      <TableCell colSpan={colSpan} className={cn("font-bold py-2", textColor)}>
+      <TableCell colSpan={colSpan} className={cn("font-medium py-2", textColor)}>
         <span className="flex items-center gap-1.5">
           {label}
           {showDetails && tooltip && <HelpTooltip text={tooltip} />}
@@ -76,7 +76,7 @@ export function SubtotalRow({
   const cellStyle = labelBg ? { backgroundColor: labelBg } : rowStyle;
 
   return (
-    <TableRow style={rowStyle} className="font-semibold">
+    <TableRow style={rowStyle} className="font-medium">
       <TableCell className="sticky left-0 py-1.5" style={cellStyle}>
         <span className="flex items-center gap-1">
           {label}

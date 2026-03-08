@@ -57,6 +57,20 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     });
   }, [yearlyConsolidatedCache, projectionYears, getFiscalYear]);
 
+  const [expandedFormulas, setExpandedFormulas] = useState<Set<string>>(new Set());
+
+  const toggleFormula = (formulaId: string) => {
+    setExpandedFormulas(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(formulaId)) {
+        newSet.delete(formulaId);
+      } else {
+        newSet.add(formulaId);
+      }
+      return newSet;
+    });
+  };
+
   const toggleAll = () => {
     const allKeys = ["revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
     const allExpanded = allKeys.every(k => expandedRows.has(k));
@@ -72,7 +86,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
   const generateIncomeStatementData = (overrideExpanded?: Set<string>, excludeFormulas?: boolean) => {
     const activeExpanded = overrideExpanded ?? expandedRows;
     const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
-    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; rowId?: string; isFormula?: boolean }[] = [];
+    const rows: { category: string; values: number[]; isHeader?: boolean; indent?: number; rowId?: string; isFormula?: boolean; formulaId?: string }[] = [];
     
     const c = (i: number) => yearlyConsolidatedCache[i];
     const p = (idx: number, i: number) => allPropertyYearlyIS[idx]?.[i];
@@ -316,26 +330,50 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                 <TableBody>
                   {rows.map((row, idx) => {
                     if (row.isFormula) {
+                      const fId = row.formulaId ?? `formula-${idx}`;
+                      const isOpen = expandedFormulas.has(fId);
                       return (
-                        <TableRow key={idx} className="bg-blue-50/40" data-expandable-row="true">
-                          <TableCell
-                            className="sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground italic"
-                            style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1}rem` }}
+                        <React.Fragment key={idx}>
+                          <TableRow
+                            className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                            onClick={() => toggleFormula(fId)}
+                            data-expandable-row="true"
                           >
-                            {row.category}
-                          </TableCell>
-                          {row.values.map((val, vIdx) => (
-                            <TableCell key={vIdx} className="text-right font-mono text-xs text-muted-foreground py-0.5">
-                              {formatMoney(val)}
+                            <TableCell
+                              className="sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground"
+                              style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1}rem` }}
+                            >
+                              <div className="flex items-center gap-1.5">
+                                {isOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                                <span className="italic">Formula</span>
+                              </div>
                             </TableCell>
-                          ))}
-                        </TableRow>
+                            {row.values.map((_, vIdx) => (
+                              <TableCell key={vIdx} className="py-0.5" />
+                            ))}
+                          </TableRow>
+                          {isOpen && (
+                            <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                              <TableCell
+                                className="sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic"
+                                style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1 + 1.25}rem` }}
+                              >
+                                {row.category}
+                              </TableCell>
+                              {row.values.map((val, vIdx) => (
+                                <TableCell key={vIdx} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                                  {formatMoney(val)}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          )}
+                        </React.Fragment>
                       );
                     }
                     return (
                       <TableRow 
                         key={idx} 
-                        className={row.isHeader ? "bg-muted/30 font-bold cursor-pointer hover:bg-muted/50" : ""}
+                        className={row.isHeader ? "bg-muted/30 font-medium cursor-pointer hover:bg-muted/50" : ""}
                         onClick={() => row.rowId && toggleRow(row.rowId)}
                         style={{ cursor: row.rowId ? 'pointer' : 'default' }}
                       >

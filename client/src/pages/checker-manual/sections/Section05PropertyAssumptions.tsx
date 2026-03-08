@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Sliders } from "lucide-react";
+  import { IconSettingsGear } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="property-assumptions"
         title="5. Property-Level Assumptions"
-        icon={Sliders}
+        icon={IconSettingsGear}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

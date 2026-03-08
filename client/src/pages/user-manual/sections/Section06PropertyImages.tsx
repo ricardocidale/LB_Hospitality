@@ -1,5 +1,5 @@
 import { SectionCard } from "@/components/ui/section-card";
-import { ImagePlus } from "lucide-react";
+import { IconImage } from "@/components/icons/brand-icons";
 
 interface SectionProps {
   expanded: boolean;
@@ -12,7 +12,7 @@ export default function Section06PropertyImages({ expanded, onToggle, sectionRef
     <SectionCard
       id="property-images"
       title="6. Property Images"
-      icon={ImagePlus}
+      icon={IconImage}
       variant="light"
       expanded={expanded}
       onToggle={onToggle}

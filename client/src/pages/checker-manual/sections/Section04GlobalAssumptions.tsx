@@ -1,7 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { Hotel, Settings } from "lucide-react";
+  import { IconSettings } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -14,7 +14,7 @@ import { SectionCard } from "@/components/ui/section-card";
       <SectionCard
         id="global-assumptions"
         title="4. Global Assumptions"
-        icon={Settings}
+        icon={IconSettings}
         expanded={expanded}
         onToggle={onToggle}
         sectionRef={sectionRef}

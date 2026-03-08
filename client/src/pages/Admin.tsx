@@ -63,7 +63,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
 }
 
 export default function Admin() {
-  const [activeSection, setActiveSection] = useState<AdminSection>("users");
+  const [activeSection, setActiveSection] = useState<AdminSection>("groups");
 
   const meta = sectionMeta[activeSection];
   const activeGroupId = getGroupForSection(activeSection);

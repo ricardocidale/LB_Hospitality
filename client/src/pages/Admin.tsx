@@ -7,6 +7,7 @@ import {
   CompaniesTab, ActivityTab, VerificationTab,
   DatabaseTab, MarcelaTab,
 } from "@/components/admin";
+import { KnowledgeBaseCard } from "@/components/admin/marcela/KnowledgeBase";
 import PeopleTab from "@/components/admin/PeopleTab";
 import BrandingTab from "@/components/admin/BrandingTab";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
@@ -82,7 +83,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
             Reload page
           </Button>
         </div>
-      }><MarcelaTab initialTab="kb" /></ErrorBoundary>
+      }><KnowledgeBaseCard agentName="Marcela" /></ErrorBoundary>
     );
     case "twilio":           return (
       <ErrorBoundary fallback={
@@ -96,7 +97,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
             Reload page
           </Button>
         </div>
-      }><MarcelaTab initialTab="twilio" /></ErrorBoundary>
+      }><MarcelaTab initialTab="channels" /></ErrorBoundary>
     );
     case "verification":     return <VerificationTab />;
     case "database":         return <DatabaseTab />;

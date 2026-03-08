@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Shield, MessageSquare, Mic, Brain, Wrench, BookOpen, Phone,
-  User, History, CheckCircle2, XCircle, Play, LayoutTemplate,
-  AlertTriangle, RefreshCw, Radio,
+  Shield, Mic, Brain, Phone, User, History,
+  CheckCircle2, XCircle, Play, Palette, MousePointerClick,
+  AlertTriangle, RefreshCw, Radio, Info,
 } from "lucide-react";
 import { Orb, AgentState } from "@/features/ai-agent/components/orb";
 import { ConversationBar } from "@/features/ai-agent/components/conversation-bar";
@@ -22,20 +22,17 @@ import { useMarcelaSettings, useSaveMarcelaSettings, useTwilioStatus } from "@/f
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 import { useConversations } from "@/features/ai-agent/hooks/use-conversations";
 import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";
-import { KnowledgeBaseCard } from "./KnowledgeBase";
 import { LLMSettings } from "./LLMSettings";
 import { TelephonySettings } from "./TelephonySettings";
 import { VoiceSettingsComponent } from "./VoiceSettings";
 import { PromptEditor } from "./PromptEditor";
-import { ToolsStatus } from "./ToolsStatus";
 import { ConversationHistory } from "./ConversationHistory";
-import { WidgetSettingsComponent } from "./WidgetSettings";
+import { WidgetAppearance } from "./WidgetAppearance";
+import { WidgetInteraction } from "./WidgetInteraction";
 
-interface ChecklistItem {
-  label: string;
-  ok: boolean;
-  tab?: string;
-}
+// ── Status Checklist ──────────────────────────────────────────────────────────
+
+interface ChecklistItem { label: string; ok: boolean; tab?: string }
 
 function StatusChecklist({ items, onNavigate }: { items: ChecklistItem[]; onNavigate: (tab: string) => void }) {
   return (
@@ -76,9 +73,9 @@ function StatusChecklist({ items, onNavigate }: { items: ChecklistItem[]; onNavi
   );
 }
 
-interface MarcelaTabProps {
-  initialTab?: string;
-}
+// ── Main Component ────────────────────────────────────────────────────────────
+
+interface MarcelaTabProps { initialTab?: string }
 
 export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
   const { toast } = useToast();
@@ -95,15 +92,8 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
   const [isDirty, setIsDirty] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab || "general");
 
-  useEffect(() => {
-    if (initialTab) setActiveTab(initialTab);
-  }, [initialTab]);
-
-  useEffect(() => {
-    if (globalData && !draft) {
-      setDraft({ ...globalData });
-    }
-  }, [globalData, draft]);
+  useEffect(() => { if (initialTab) setActiveTab(initialTab); }, [initialTab]);
+  useEffect(() => { if (globalData && !draft) setDraft({ ...globalData }); }, [globalData, draft]);
 
   useEffect(() => {
     if (!testOpen) { setOrbAgentState(null); return; }
@@ -127,12 +117,10 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
   };
 
   const handleSave = () => {
-    if (draft) {
-      saveMutation.mutate(draft, {
-        onSuccess: () => setIsDirty(false),
-      });
-    }
+    if (draft) saveMutation.mutate(draft, { onSuccess: () => setIsDirty(false) });
   };
+
+  // ── Loading / Error states ──────────────────────────────────────────────────
 
   if (isLoading || (!isError && !draft)) {
     return (
@@ -164,15 +152,15 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
           <p className="text-sm text-muted-foreground mt-1">Check your connection or try again.</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
-          <RefreshCw className="w-4 h-4" />
-          Retry
+          <RefreshCw className="w-4 h-4" /> Retry
         </Button>
       </div>
     );
   }
 
-  const agentName = draft.aiAgentName || "AI Agent";
+  // ── Derived state ───────────────────────────────────────────────────────────
 
+  const agentName = draft.aiAgentName || "AI Agent";
   const elevenLabsOk = !agentConfigError && agentConfig !== undefined;
   const signedUrlOk = !!signedUrl;
   const promptOk = !!(agentConfig?.conversation_config?.agent?.prompt?.prompt);
@@ -186,30 +174,40 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
     { label: "Agent ID", ok: agentIdOk, tab: "general" },
     { label: "ElevenLabs API", ok: elevenLabsOk, tab: "general" },
     { label: "Signed URL", ok: signedUrlOk },
-    { label: "System prompt", ok: promptOk, tab: "prompt" },
-    { label: "Knowledge base", ok: kbOk, tab: "kb" },
-    { label: "Twilio", ok: twilioOk, tab: "twilio" },
+    { label: "System prompt", ok: promptOk, tab: "intelligence" },
+    { label: "Knowledge base", ok: kbOk },
+    { label: "Twilio", ok: twilioOk, tab: "channels" },
   ];
+
+  // ── Tab definitions ─────────────────────────────────────────────────────────
+
+  const tabs = [
+    { value: "general",      label: "General",      icon: Shield },
+    { value: "intelligence",  label: "Intelligence", icon: Brain },
+    { value: "voice",         label: "Voice",        icon: Mic },
+    { value: "appearance",    label: "Appearance",   icon: Palette },
+    { value: "interaction",   label: "Interaction",  icon: MousePointerClick },
+    { value: "channels",      label: "Channels",     icon: Phone },
+    { value: "history",       label: "History",      icon: History },
+  ];
+
+  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-6 mt-6">
+      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div>
           <h2 className="text-2xl font-display font-bold text-foreground">AI Agent Configuration</h2>
-          <p className="text-muted-foreground text-sm">Manage {agentName} — voice, prompt, tools, knowledge base, and telephony.</p>
+          <p className="text-muted-foreground text-sm">Manage {agentName} — intelligence, voice, appearance, and channels.</p>
         </div>
         <div className="flex items-center gap-3">
           {draft.marcelaAgentId && (
             <Button size="sm" variant="outline" onClick={() => setTestOpen(true)} className="gap-1.5 border-border text-muted-foreground hover:bg-muted" data-testid="button-test-conversation">
-              <Play className="w-3.5 h-3.5" />
-              Test
+              <Play className="w-3.5 h-3.5" /> Test
             </Button>
           )}
-          <SaveButton
-            onClick={handleSave}
-            disabled={!isDirty}
-            isPending={saveMutation.isPending}
-          />
+          <SaveButton onClick={handleSave} disabled={!isDirty} isPending={saveMutation.isPending} />
         </div>
       </div>
 
@@ -217,63 +215,36 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
         <StatusChecklist items={checklistItems} onNavigate={setActiveTab} />
       )}
 
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 md:grid-cols-9 h-auto p-1 bg-muted border border-border">
-          <TabsTrigger value="general" className="py-2 gap-2" data-testid="tab-ai-agent-general">
-            <Shield className="w-4 h-4" />
-            <span className="hidden md:inline">General</span>
-          </TabsTrigger>
-          <TabsTrigger value="prompt" className="py-2 gap-2" data-testid="tab-ai-agent-prompt">
-            <MessageSquare className="w-4 h-4" />
-            <span className="hidden md:inline">Prompt</span>
-          </TabsTrigger>
-          <TabsTrigger value="voice" className="py-2 gap-2" data-testid="tab-ai-agent-voice">
-            <Mic className="w-4 h-4" />
-            <span className="hidden md:inline">Voice</span>
-          </TabsTrigger>
-          <TabsTrigger value="widget" className="py-2 gap-2" data-testid="tab-ai-agent-widget">
-            <LayoutTemplate className="w-4 h-4" />
-            <span className="hidden md:inline">Widget</span>
-          </TabsTrigger>
-          <TabsTrigger value="llm" className="py-2 gap-2" data-testid="tab-ai-agent-llm">
-            <Brain className="w-4 h-4" />
-            <span className="hidden md:inline">LLM</span>
-          </TabsTrigger>
-          <TabsTrigger value="tools" className="py-2 gap-2" data-testid="tab-ai-agent-tools">
-            <Wrench className="w-4 h-4" />
-            <span className="hidden md:inline">Tools</span>
-          </TabsTrigger>
-          <TabsTrigger value="kb" className="py-2 gap-2" data-testid="tab-ai-agent-kb">
-            <BookOpen className="w-4 h-4" />
-            <span className="hidden md:inline">KB</span>
-          </TabsTrigger>
-          <TabsTrigger value="twilio" className="py-2 gap-2" data-testid="tab-ai-agent-twilio">
-            <Phone className="w-4 h-4" />
-            <span className="hidden md:inline">Twilio</span>
-          </TabsTrigger>
-          <TabsTrigger value="conversations" className="py-2 gap-2 relative" data-testid="tab-ai-agent-conversations">
-            <History className="w-4 h-4" />
-            <span className="hidden md:inline">History</span>
-            {conversations && conversations.length > 0 && (
-              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
-                {conversations.length > 99 ? "99+" : conversations.length}
-              </span>
-            )}
-          </TabsTrigger>
+        <TabsList className="grid grid-cols-4 md:grid-cols-7 h-auto p-1 bg-muted border border-border">
+          {tabs.map((t) => (
+            <TabsTrigger
+              key={t.value}
+              value={t.value}
+              className="py-2 gap-2"
+              data-testid={`tab-ai-agent-${t.value}`}
+            >
+              <t.icon className="w-4 h-4" />
+              <span className="hidden md:inline text-xs">{t.label}</span>
+              {t.value === "history" && conversations && conversations.length > 0 && (
+                <span className="min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
+                  {conversations.length > 99 ? "99+" : conversations.length}
+                </span>
+              )}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <div className="mt-6 space-y-6">
+          {/* ── General ────────────────────────────────────────────────────── */}
           <TabsContent value="general" className="space-y-6 m-0 focus-visible:outline-none">
             <Card className="bg-card border border-border/80 shadow-sm">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
-                      <Orb
-                        colors={["#9fbca4", "#4a7c5c"]}
-                        agentState={agentConfig ? "thinking" : null}
-                        seed={42}
-                      />
+                      <Orb colors={["#9fbca4", "#4a7c5c"]} agentState={agentConfig ? "thinking" : null} seed={42} />
                     </div>
                     <div>
                       <CardTitle className="text-sm font-semibold text-foreground">Agent Identity</CardTitle>
@@ -318,36 +289,23 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                     Create an agent at{" "}
                     <a href="https://elevenlabs.io/app/conversational-ai" target="_blank" rel="noopener noreferrer" className="text-muted-foreground underline">
                       elevenlabs.io/app/conversational-ai
-                    </a>
-                    {" "}and paste the Agent ID here.
+                    </a>{" "}and paste the Agent ID here.
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/40 to-muted/20 rounded-xl border border-muted/60">
                   <div>
                     <Label className="label-text font-medium">AI Chat Widget</Label>
-                    <p className="text-xs text-muted-foreground/70 mt-0.5">
-                      Show the {agentName} chat bubble on all pages for logged-in users
-                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">Show the {agentName} chat bubble on all pages for logged-in users</p>
                   </div>
-                  <Switch
-                    checked={draft.showAiAssistant}
-                    onCheckedChange={(v) => updateField("showAiAssistant", v)}
-                    data-testid="switch-show-ai-assistant"
-                  />
+                  <Switch checked={draft.showAiAssistant} onCheckedChange={(v) => updateField("showAiAssistant", v)} data-testid="switch-show-ai-assistant" />
                 </div>
                 <div className="flex items-center justify-between p-4 bg-gradient-to-r from-muted/40 to-muted/20 rounded-xl border border-muted/60">
                   <div>
                     <Label className="label-text font-medium">Voice Conversations</Label>
-                    <p className="text-xs text-muted-foreground/70 mt-0.5">
-                      Allow users to speak with {agentName} using microphone input and audio playback
-                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-0.5">Allow users to speak with {agentName} using microphone input and audio playback</p>
                   </div>
-                  <Switch
-                    checked={draft.marcelaEnabled}
-                    onCheckedChange={(v) => updateField("marcelaEnabled", v)}
-                    data-testid="switch-ai-agent-enabled"
-                  />
+                  <Switch checked={draft.marcelaEnabled} onCheckedChange={(v) => updateField("marcelaEnabled", v)} data-testid="switch-ai-agent-enabled" />
                 </div>
 
                 {agentConfig?.name && (
@@ -360,11 +318,11 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
               </CardContent>
             </Card>
 
+            {/* Widget Status */}
             <Card className="bg-card border border-border/80 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Radio className="w-4 h-4 text-muted-foreground" />
-                  Widget Status
+                  <Radio className="w-4 h-4 text-muted-foreground" /> Widget Status
                 </CardTitle>
                 <CardDescription className="label-text mt-0.5">
                   Live connection diagnostics for the {agentName} widget.
@@ -375,8 +333,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                   <span className="text-muted-foreground">Agent ID</span>
                   {agentIdOk
                     ? <span className="flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" />Configured</span>
-                    : <span className="flex items-center gap-1 text-xs text-muted-foreground"><XCircle className="w-3.5 h-3.5 text-red-400" />Missing</span>
-                  }
+                    : <span className="flex items-center gap-1 text-xs text-muted-foreground"><XCircle className="w-3.5 h-3.5 text-red-400" />Missing</span>}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Signed URL</span>
@@ -386,8 +343,13 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                     ? <span className="flex items-center gap-1 text-xs text-destructive"><XCircle className="w-3.5 h-3.5" />Failed</span>
                     : signedUrl
                     ? <span className="flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" />Ready</span>
-                    : <span className="text-xs text-muted-foreground">Unavailable</span>
-                  }
+                    : <span className="text-xs text-muted-foreground">Unavailable</span>}
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">ElevenLabs API</span>
+                  {elevenLabsOk
+                    ? <span className="flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" />Connected</span>
+                    : <span className="flex items-center gap-1 text-xs text-destructive"><XCircle className="w-3.5 h-3.5" />Error</span>}
                 </div>
                 {signedUrlError && (
                   <p className="text-xs text-destructive pt-1">
@@ -396,41 +358,52 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                 )}
               </CardContent>
             </Card>
+
+            {/* Tools summary (read-only) */}
+            {agentConfig?.conversation_config?.agent?.prompt?.tools && (
+              <div className="flex gap-3 p-3 bg-muted/30 border border-border/60 rounded-lg">
+                <Info className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <p className="text-[11px] text-muted-foreground">
+                  <span className="font-medium text-foreground">
+                    {(agentConfig.conversation_config.agent.prompt.tools as any[]).length} tools
+                  </span>{" "}
+                  registered on ElevenLabs. Tools are managed in the{" "}
+                  <a href="https://elevenlabs.io/app/conversational-ai" target="_blank" rel="noopener noreferrer" className="underline">
+                    ElevenLabs dashboard
+                  </a>.
+                </p>
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent value="prompt" className="space-y-6 m-0 focus-visible:outline-none">
+          {/* ── Intelligence (Prompt + LLM) ──────────────────────────────── */}
+          <TabsContent value="intelligence" className="space-y-6 m-0 focus-visible:outline-none">
             <PromptEditor agentName={agentName} />
+            <LLMSettings draft={draft} updateField={updateField} />
           </TabsContent>
 
+          {/* ── Voice ──────────────────────────────────────────────────────── */}
           <TabsContent value="voice" className="space-y-6 m-0 focus-visible:outline-none">
             <VoiceSettingsComponent draft={draft} updateField={updateField} />
           </TabsContent>
 
-          <TabsContent value="widget" className="space-y-6 m-0 focus-visible:outline-none">
-            <WidgetSettingsComponent draft={draft} updateField={updateField} />
+          {/* ── Appearance ─────────────────────────────────────────────────── */}
+          <TabsContent value="appearance" className="space-y-6 m-0 focus-visible:outline-none">
+            <WidgetAppearance />
           </TabsContent>
 
-          <TabsContent value="llm" className="space-y-6 m-0 focus-visible:outline-none">
-            <LLMSettings draft={draft} updateField={updateField} />
+          {/* ── Interaction ────────────────────────────────────────────────── */}
+          <TabsContent value="interaction" className="space-y-6 m-0 focus-visible:outline-none">
+            <WidgetInteraction draft={draft} updateField={updateField} />
           </TabsContent>
 
-          <TabsContent value="tools" className="space-y-6 m-0 focus-visible:outline-none">
-            <ToolsStatus agentName={agentName} />
+          {/* ── Channels ───────────────────────────────────────────────────── */}
+          <TabsContent value="channels" className="space-y-6 m-0 focus-visible:outline-none">
+            <TelephonySettings draft={draft} updateField={updateField} twilioStatus={twilioStatus} />
           </TabsContent>
 
-          <TabsContent value="kb" className="space-y-6 m-0 focus-visible:outline-none">
-            <KnowledgeBaseCard agentName={agentName} />
-          </TabsContent>
-
-          <TabsContent value="twilio" className="space-y-6 m-0 focus-visible:outline-none">
-            <TelephonySettings
-              draft={draft}
-              updateField={updateField}
-              twilioStatus={twilioStatus}
-            />
-          </TabsContent>
-
-          <TabsContent value="conversations" className="space-y-6 m-0 focus-visible:outline-none">
+          {/* ── History ────────────────────────────────────────────────────── */}
+          <TabsContent value="history" className="space-y-6 m-0 focus-visible:outline-none">
             <ErrorBoundary fallback={
               <div className="p-6 rounded-xl border border-amber-200/60 bg-amber-50/40 flex flex-col items-center gap-3 text-center">
                 <AlertTriangle className="w-8 h-8 text-amber-500" />
@@ -447,6 +420,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
         </div>
       </Tabs>
 
+      {/* Test Conversation Dialog */}
       <Dialog open={testOpen} onOpenChange={setTestOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -454,27 +428,18 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
           </DialogHeader>
           <div className="flex flex-col items-center gap-3 py-2">
             <div className="w-28 h-28">
-              <Orb
-                colors={["#9fbca4", "#4a7c5c"]}
-                agentState={orbAgentState}
-                seed={42}
-              />
+              <Orb colors={["#9fbca4", "#4a7c5c"]} agentState={orbAgentState} seed={42} />
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold font-display">{agentName}</p>
-              <p className="text-[11px] text-muted-foreground/60 capitalize">
-                {orbAgentState ?? "idle"}
-              </p>
+              <p className="text-[11px] text-muted-foreground/60 capitalize">{orbAgentState ?? "idle"}</p>
             </div>
             {signedUrl ? (
               <>
                 <p className="text-xs text-muted-foreground/60 text-center px-2">
                   Live conversation — counts against your ElevenLabs quota.
                 </p>
-                <ConversationBar
-                  signedUrl={signedUrl}
-                  agentLabel={agentName}
-                />
+                <ConversationBar signedUrl={signedUrl} agentLabel={agentName} />
               </>
             ) : (
               <p className="text-xs text-muted-foreground/60 animate-pulse">Generating signed URL…</p>

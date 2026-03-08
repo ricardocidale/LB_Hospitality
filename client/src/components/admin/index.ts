@@ -22,6 +22,5 @@ export { default as UserGroupsTab } from "./UserGroupsTab";
 export { default as CustomizeTab } from "./CustomizeTab";
 export { default as DatabaseTab } from "./DatabaseTab";
 export { default as MarcelaTab } from "./MarcelaTab";
-export { default as MarketRatesTab } from "./MarketRatesTab";
-export { default as ResearchTab } from "./ResearchTab";
 export { default as ManagementCompanyTab } from "./ManagementCompanyTab";
+export { default as ResearchCenterTab } from "./ResearchCenterTab";

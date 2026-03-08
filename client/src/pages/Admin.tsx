@@ -6,9 +6,9 @@ import AdminSidebar, { type AdminSection, navGroups, getGroupForSection } from "
 import {
   UsersTab, CompaniesTab, ActivityTab, VerificationTab,
   UserGroupsTab, DatabaseTab, MarcelaTab,
-  MarketRatesTab, ResearchTab,
 } from "@/components/admin";
 import ManagementCompanyTab from "@/components/admin/ManagementCompanyTab";
+import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import ThemesTab from "@/components/admin/ThemesTab";
 import LogosTab from "@/components/admin/LogosTab";
 import NavigationTab from "@/components/admin/NavigationTab";
@@ -26,8 +26,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   logos:        { title: "Logos",           subtitle: "Upload, generate, and manage logo images" },
   navigation:   { title: "Navigation",     subtitle: "Control which sidebar pages are visible to users" },
   companies:    { title: "Companies",      subtitle: "Management company and special purpose vehicles" },
-  "market-rates": { title: "Market Rates", subtitle: "Live economic data, FRED/BLS rates, and manual overrides" },
-  research:     { title: "Research",       subtitle: "Configure AI research behavior — tools, focus areas, and custom context per event" },
+  research:     { title: "Research Center", subtitle: "AI research configuration and live market rate monitoring" },
   marcela:      { title: "AI Agent",       subtitle: "Configure Marcela — voice, prompt, tools, and telephony" },
   verification: { title: "Verification",   subtitle: "Independent GAAP financial audit and compliance" },
   database:     { title: "Database",       subtitle: "Entity monitoring, seed data, and canonical sync" },
@@ -43,8 +42,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "logos":        return <LogosTab />;
     case "navigation":   return <NavigationTab />;
     case "companies":    return <CompaniesTab />;
-    case "market-rates": return <MarketRatesTab />;
-    case "research":     return <ResearchTab />;
+    case "research":     return <ResearchCenterTab />;
     case "marcela":      return (
       <ErrorBoundary fallback={
         <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">

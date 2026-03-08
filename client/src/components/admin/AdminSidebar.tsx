@@ -11,7 +11,7 @@ import {
 export type AdminSection =
   | "users" | "groups" | "activity"
   | "branding" | "themes" | "logos" | "navigation"
-  | "companies" | "market-rates" | "research"
+  | "companies" | "research"
   | "marcela"
   | "verification" | "database";
 
@@ -58,7 +58,6 @@ const navGroups: NavGroup[] = [
     description: "Entities, services & rates",
     sections: [
       { value: "companies", label: "Companies", icon: IconProperties },
-      { value: "market-rates", label: "Market Rates", icon: IconTrending },
       { value: "research", label: "Research", icon: FlaskConical },
     ],
   },

@@ -1,7 +1,7 @@
 # Session Memory
 
 **Read this file + `replit.md` at session start. Update at session end.**
-**Older sessions archived in `.claude/rules/session-memory-archive.md`.**
+**Older sessions archived in `.claude/archive/session-memory-archive.md`.**
 
 ## Format Rule
 Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sessions older than the last two on every session end.

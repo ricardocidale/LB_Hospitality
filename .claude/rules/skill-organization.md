@@ -84,17 +84,25 @@ Each rule governs one or more skill domains. When working in a domain, load both
 | `no-hardcoded-assumptions.md` | `finance/*`, `coding-conventions/SKILL.md` | No literal financial values in code |
 | `no-hardcoded-admin-config.md` | `multi-tenancy/SKILL.md`, `design-system/SKILL.md` | No literal admin config values in code |
 | `recalculate-on-save.md` | `architecture/SKILL.md`, `finance/calculation-chain.md` | All save mutations invalidate financial queries |
-| `financial-engine.md` | `finance/*` (all 16 skills) | Engine architecture and calculation rules |
-| `constants-and-config.md` | `finance/*`, `coding-conventions/SKILL.md` | Named constants in `shared/constants.ts` |
-| `database-seeding.md` | `database-environments/SKILL.md`, `research/location-aware-seeding/` | Seed data standards |
-| `api-routes.md` | `architecture/SKILL.md` | API route naming and middleware conventions |
+| `financial-engine.md` | `finance/*` (all skills) | Mandatory business rules + immutable constants |
+| `database-seeding.md` | `database-environments/SKILL.md` | Seeding invariants |
 | `architecture.md` | `architecture/SKILL.md`, `source-code/SKILL.md` | System architecture decisions |
 | `audit-persona.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | Audit doctrine and verification mindset |
 | `session-startup.md` | `context-loading/SKILL.md` | Session init + architect calls include all rules |
 | `documentation.md` | All skills | Source-of-truth hierarchy + docs-after-edits protocol |
 | `ui-patterns.md` | `ui/entity-cards.md` | Button labels + entity card layout consistency |
-| `verification-system.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | GAAP verification pipeline |
-| `release-audit-checklist.md` | `proof-system/SKILL.md`, `testing/SKILL.md`, `exports/SKILL.md` | Pre-release audit + rule compliance checks |
+
+## Reference Docs (load on demand, not auto-loaded)
+
+These live in `.claude/skills/` or `.claude/archive/` — load only when needed:
+
+| File | Location | Load When |
+|------|----------|-----------|
+| API Routes reference | `skills/architecture/api-routes.md` | Writing/debugging API endpoints |
+| Constants & config tables | `skills/finance/constants-and-config.md` | Adding/changing constants |
+| Verification system detail | `skills/proof-system/verification-system.md` | Verification/audit work |
+| Release audit checklist | `skills/proof-system/release-audit-checklist.md` | Pre-release reviews |
+| Session history | `.claude/archive/session-memory-archive.md` | Investigating past decisions |
 | `graphics-rich-design.md` | `mobile-responsive/SKILL.md`, `mobile-responsive/device-testing-checklist.md` | Graphics must render on all devices |
 | `skill-organization.md` | All skills | Skill file structure and naming |
 | `context-reduction.md` | All skills, all refactors | Every refactor/feature must produce supporting skills, helpers, scripts, and tools |

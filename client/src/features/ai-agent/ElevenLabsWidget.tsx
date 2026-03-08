@@ -54,7 +54,8 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   };
 
   if (isNativeWidget) {
-    // Map internal variant names to ElevenLabs element variant attribute values
+    // Don't mount until signed URL is ready — avoids unauthenticated fallback connection
+    if (!signedUrl) return null;
     const elementVariant = variant === "full" ? "expanded" : variant === "elevenlabs" ? undefined : variant;
     return (
       <NativeElevenLabsWidget
@@ -158,7 +159,7 @@ function NativeElevenLabsWidget({
   dynamicVars,
 }: {
   agentId: string;
-  signedUrl?: string;
+  signedUrl: string; // guaranteed by parent guard — always truthy on mount
   variant?: string;
   avatarUrl?: string;
   dynamicVars: Record<string, string>;
@@ -166,8 +167,13 @@ function NativeElevenLabsWidget({
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLElement | null>(null);
 
+  // Ref keeps the signed URL current without triggering remounts.
+  // Signed URLs refresh every 10 min; updating the ref avoids killing active conversations.
+  const signedUrlRef = useRef(signedUrl);
+  signedUrlRef.current = signedUrl;
+
   // Single sequential async effect: load module first, then create element.
-  // Re-runs when agentId or signedUrl changes (signed URLs expire every 10 min).
+  // Dep array is [agentId] only — remount when agent changes, not when URL refreshes.
   useEffect(() => {
     if (!containerRef.current) return;
     let cancelled = false;
@@ -187,14 +193,8 @@ function NativeElevenLabsWidget({
       }
 
       const widget = document.createElement("elevenlabs-convai");
-
-      // Use signed URL (authenticated) when available; fall back to public agent-id
-      if (signedUrl) {
-        widget.setAttribute("url", signedUrl);
-      } else {
-        console.warn("[ElevenLabs] No signed URL — connecting with public agent-id (unauthenticated)");
-        widget.setAttribute("agent-id", agentId);
-      }
+      // Always use signed URL — parent guard ensures it's available
+      widget.setAttribute("url", signedUrlRef.current);
 
       if (variant) widget.setAttribute("variant", variant);
       if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
@@ -209,7 +209,8 @@ function NativeElevenLabsWidget({
       widgetRef.current?.remove();
       widgetRef.current = null;
     };
-  }, [agentId, signedUrl]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agentId]); // intentionally omits signedUrl — use ref to avoid 10-min remount
 
   useEffect(() => {
     if (widgetRef.current) {

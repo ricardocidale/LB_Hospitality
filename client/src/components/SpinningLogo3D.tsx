@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect, Component, type ReactNode } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import logoImg from "@/assets/logo.png";
 
@@ -18,26 +17,6 @@ class WebGLErrorBoundary extends Component<{ fallback: ReactNode; children: Reac
   render() { return this.state.hasError ? this.props.fallback : this.props.children; }
 }
 
-function LogoPlane() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const texture = useLoader(THREE.TextureLoader, logoImg);
-
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    const t = state.clock.getElapsedTime();
-    meshRef.current.rotation.y = Math.sin(t * 0.8) * 0.6;
-    meshRef.current.rotation.x = Math.cos(t * 0.6) * 0.3;
-    meshRef.current.rotation.z = Math.sin(t * 0.4) * 0.1;
-  });
-
-  return (
-    <mesh ref={meshRef}>
-      <planeGeometry args={[2.4, 2.4]} />
-      <meshBasicMaterial map={texture} transparent alphaTest={0.1} side={THREE.DoubleSide} />
-    </mesh>
-  );
-}
-
 function CSSFallback({ size, onClick }: { size: number; onClick?: () => void }) {
   return (
     <div
@@ -51,6 +30,77 @@ function CSSFallback({ size, onClick }: { size: number; onClick?: () => void }) 
         className="w-full h-full object-contain animate-spherical"
       />
     </div>
+  );
+}
+
+function ThreeCanvas({ size, onClick }: { size: number; onClick?: () => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
+    camera.position.z = 3;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(size, size);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const light = new THREE.AmbientLight(0xffffff, 1.5);
+    scene.add(light);
+
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(logoImg);
+    const geometry = new THREE.PlaneGeometry(2.4, 2.4);
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      alphaTest: 0.1,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    const clock = new THREE.Clock();
+    let animId = 0;
+
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+      mesh.rotation.y = Math.sin(t * 0.8) * 0.6;
+      mesh.rotation.x = Math.cos(t * 0.6) * 0.3;
+      mesh.rotation.z = Math.sin(t * 0.4) * 0.1;
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    cleanupRef.current = () => {
+      cancelAnimationFrame(animId);
+      renderer.dispose();
+      geometry.dispose();
+      material.dispose();
+      texture.dispose();
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+    };
+
+    return () => {
+      cleanupRef.current?.();
+    };
+  }, [size]);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{ width: size, height: size, cursor: onClick ? "pointer" : "default" }}
+      onClick={onClick}
+      data-testid="logo-login"
+    />
   );
 }
 
@@ -73,20 +123,7 @@ export default function SpinningLogo3D({ size = 64, onClick }: { size?: number; 
 
   return (
     <WebGLErrorBoundary fallback={fallback}>
-      <div
-        style={{ width: size, height: size, cursor: onClick ? "pointer" : "default" }}
-        onClick={onClick}
-        data-testid="logo-login"
-      >
-        <Canvas
-          camera={{ position: [0, 0, 3], fov: 45 }}
-          gl={{ alpha: true, antialias: true }}
-          style={{ background: "transparent" }}
-        >
-          <ambientLight intensity={1.5} />
-          <LogoPlane />
-        </Canvas>
-      </div>
+      <ThreeCanvas size={size} onClick={onClick} />
     </WebGLErrorBoundary>
   );
 }

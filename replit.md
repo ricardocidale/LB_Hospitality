@@ -39,17 +39,17 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | Financial engine | `.claude/rules/financial-engine.md` |
 | Admin page (10 tabs) | `.claude/skills/admin/SKILL.md` |
 | AI assistant (Marcela) | `.claude/claude.md` § Marcela AI, `.claude/skills/marcela-ai/SKILL.md` |
-| ElevenLabs architecture | `.agents/skills/codebase-architecture/SKILL.md` § ElevenLabs / AI Agent Architecture |
+| ElevenLabs architecture | `.claude/skills/codebase-architecture/SKILL.md` § ElevenLabs / AI Agent Architecture |
 | ElevenLabs SDK reference | `.claude/skills/elevenlabs-widget/` |
 | Twilio telephony | `.claude/skills/twilio-telephony/` |
 | Design system & themes | `client/src/lib/theme/`, `.claude/skills/design-system/SKILL.md` |
 | Chart library (9 components) | `client/src/lib/charts/`, `.claude/skills/charts/SKILL.md` |
-| UI component catalog (80+) | `.agents/skills/codebase-architecture/SKILL.md` § UI Component Catalog |
+| UI component catalog (80+) | `.claude/skills/codebase-architecture/SKILL.md` § UI Component Catalog |
 | UI block patterns | `.claude/skills/ui-blocks/SKILL.md` |
 | Export system | `client/src/components/ExportDialog.tsx`, `.claude/skills/exports/SKILL.md` |
 | Testing & proof system | `.claude/claude.md` § Testing & Proof System |
-| Codebase architecture | `.agents/skills/codebase-architecture/SKILL.md` |
-| Admin components & hooks | `.agents/skills/admin-components/SKILL.md` |
+| Codebase architecture | `.claude/skills/codebase-architecture/SKILL.md` |
+| Admin components & hooks | `.claude/skills/admin-components/SKILL.md` |
 
 ## Reusable Modules (Portable)
 | Module | Path | Import | Components |

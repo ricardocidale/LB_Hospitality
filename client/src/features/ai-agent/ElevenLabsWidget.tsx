@@ -23,11 +23,13 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   const agentId = (global as any)?.marcelaAgentId;
   const agentName = (global as any)?.aiAgentName || "Marcela";
   const variant = (global as any)?.marcelaWidgetVariant || "elevenlabs";
+  const avatarUrl = (global as any)?.marcelaAvatarUrl as string | undefined;
 
   const shouldActivate = !!(enabled && agentId);
 
   const isNativeWidget = variant === "elevenlabs" || variant === "full" || variant === "compact" || variant === "tiny";
 
+  // Fetch signed URL for ALL variants — authenticated access requires wss:// signed URL
   const { data: signedUrl } = useQuery<string>({
     queryKey: ["marcela-signed-url"],
     queryFn: async () => {
@@ -36,7 +38,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
       const data = await res.json();
       return data.signedUrl as string;
     },
-    enabled: shouldActivate && !isNativeWidget,
+    enabled: shouldActivate,
     staleTime: 10 * 60 * 1000,
     refetchInterval: 10 * 60 * 1000,
     retry: 1,
@@ -52,7 +54,17 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   };
 
   if (isNativeWidget) {
-    return <NativeElevenLabsWidget agentId={agentId} dynamicVars={dynamicVars} />;
+    // Map internal variant names to ElevenLabs element variant attribute values
+    const elementVariant = variant === "full" ? "expanded" : variant === "elevenlabs" ? undefined : variant;
+    return (
+      <NativeElevenLabsWidget
+        agentId={agentId}
+        signedUrl={signedUrl}
+        variant={elementVariant}
+        avatarUrl={avatarUrl}
+        dynamicVars={dynamicVars}
+      />
+    );
   }
 
   if (variant === "orb") {
@@ -140,14 +152,22 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
 
 function NativeElevenLabsWidget({
   agentId,
+  signedUrl,
+  variant,
+  avatarUrl,
   dynamicVars,
 }: {
   agentId: string;
+  signedUrl?: string;
+  variant?: string;
+  avatarUrl?: string;
   dynamicVars: Record<string, string>;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLElement | null>(null);
 
+  // Single sequential async effect: load module first, then create element.
+  // Re-runs when agentId or signedUrl changes (signed URLs expire every 10 min).
   useEffect(() => {
     if (!containerRef.current) return;
     let cancelled = false;
@@ -167,8 +187,19 @@ function NativeElevenLabsWidget({
       }
 
       const widget = document.createElement("elevenlabs-convai");
-      widget.setAttribute("agent-id", agentId);
+
+      // Use signed URL (authenticated) when available; fall back to public agent-id
+      if (signedUrl) {
+        widget.setAttribute("url", signedUrl);
+      } else {
+        console.warn("[ElevenLabs] No signed URL — connecting with public agent-id (unauthenticated)");
+        widget.setAttribute("agent-id", agentId);
+      }
+
+      if (variant) widget.setAttribute("variant", variant);
+      if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
       widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
+
       containerRef.current.appendChild(widget);
       widgetRef.current = widget;
     })();
@@ -178,7 +209,7 @@ function NativeElevenLabsWidget({
       widgetRef.current?.remove();
       widgetRef.current = null;
     };
-  }, [agentId]);
+  }, [agentId, signedUrl]);
 
   useEffect(() => {
     if (widgetRef.current) {

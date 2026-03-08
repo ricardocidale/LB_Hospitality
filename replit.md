@@ -49,12 +49,16 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 Three-tier cascade: `property.inflationRate → companyInflationRate → global.inflationRate`. The `DEFAULT_INFLATION_RATE` constant in `shared/constants.ts` is the single source of truth (0.03). Per-property and per-company rates are nullable; null means use the next level up in the cascade.
 
 ## Admin Sidebar Structure
-Four categories + Help link:
-- **Brand**: Hospitality Brand (sub-tabs: Identity, Asset Definition, Services), Companies (SPV management), Logos (logo library)
-- **People**: Users (sub-tabs: Users, Group Assignment), Activity (Login Log, Activity Feed, Checker Activity)
-- **AI Agent**: Configuration (9 sub-tabs: General, Prompt, Voice, Widget, Tools, Knowledge, Conversations, Twilio, SMS)
-- **System**: Research (sub-tabs: Research, Market Rates), Themes, Navigation, Verification, Database
+Five categories + Logs + Help:
+- **Brand**: Management Company (Identity/contact), Ideal Customer Profile (asset type definition), Services (category toggles + starter fees), Revenue Share (suggested incentive fees), Other Assumptions (company inflation)
+- **Business**: Users (sub-tabs: Users, Company Assignment, Group Assignment), Companies (CRUD with logo + theme), Groups (CRUD with logo, theme, asset description, property visibility)
+- **Design**: Design (sub-tabs: Logos, Themes)
+- **AI Agent**: Configuration (9 sub-tabs), Knowledge Base (direct to KB tab), Twilio (direct to telephony tab)
+- **System**: Research (sub-tabs: Research, Market Rates), Navigation, Verification, Database
+- **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
 - Help link at bottom (navigates to /help)
+
+Companies table now includes `theme_id` column for per-company theme assignment.
 
 ## Research Skills
 Property sub-skills: local-economics, insurance-costs, marketing-costs. Company: outsourcing/make-vs-buy analysis. Global: FX, capital markets, ESG. Source registry in `shared/constants.ts` (`RESEARCH_SOURCES`).

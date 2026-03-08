@@ -76,7 +76,11 @@ function StatusChecklist({ items, onNavigate }: { items: ChecklistItem[]; onNavi
   );
 }
 
-export default function MarcelaTab() {
+interface MarcelaTabProps {
+  initialTab?: string;
+}
+
+export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
   const { toast } = useToast();
   const { data: globalData, isLoading, isError, refetch } = useMarcelaSettings();
   const { data: twilioStatus } = useTwilioStatus();
@@ -89,7 +93,11 @@ export default function MarcelaTab() {
 
   const [draft, setDraft] = useState<VoiceSettings | null>(null);
   const [isDirty, setIsDirty] = useState(false);
-  const [activeTab, setActiveTab] = useState("general");
+  const [activeTab, setActiveTab] = useState(initialTab || "general");
+
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
 
   useEffect(() => {
     if (globalData && !draft) {

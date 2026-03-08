@@ -209,17 +209,14 @@ export async function configureMarcelaAgent(): Promise<{ success: boolean; error
     const ga = await storage.getGlobalAssumptions();
     const agentId = (ga as any)?.marcelaAgentId;
     if (!agentId) {
-      logger.info("No agent ID configured, skipping tool registration", "marcela-config");
+      logger.info("No agent ID configured, skipping configuration", "marcela-config");
       return { success: true };
     }
 
-    const baseUrl = getBaseUrl();
-    logger.info(`Configuring agent ${agentId} with tools (base: ${baseUrl})`, "marcela-config");
+    logger.info(`Configuring agent ${agentId} (LLM model only — tools managed in ElevenLabs dashboard)`, "marcela-config");
 
-    const clientTools = buildClientTools();
-    const serverTools = buildServerTools(baseUrl);
-    const allTools = [...clientTools, ...serverTools];
-
+    // Only sync the LLM model setting. Tools are managed natively in ElevenLabs
+    // dashboard — we no longer push custom client/server tools from the app.
     await updateConvaiAgent(agentId, {
       conversation_config: {
         agent: {
@@ -227,13 +224,12 @@ export async function configureMarcelaAgent(): Promise<{ success: boolean; error
             llm: {
               model: (ga as any)?.marcelaLlmModel || "gemini-2.0-flash-001",
             },
-            tools: allTools,
           },
         },
       },
     });
 
-    logger.info(`Agent configured with ${allTools.length} tools (${clientTools.length} client + ${serverTools.length} server)`, "marcela-config");
+    logger.info(`Agent LLM model synced`, "marcela-config");
     return { success: true };
   } catch (error: any) {
     logger.error(`Error configuring agent: ${error.message}`, "marcela-config");

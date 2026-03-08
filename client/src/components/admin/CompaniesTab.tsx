@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Pencil, Building2, Save, Image, FileText } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil, Building2, Save, Image, FileText, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { User, Logo, AdminCompany } from "./types";
 
@@ -34,7 +34,7 @@ export default function CompaniesTab() {
 
   const [companyDialogOpen, setCompanyDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<AdminCompany | null>(null);
-  const [companyForm, setCompanyForm] = useState({ name: "", type: "spv" as string, description: "", logoId: null as number | null });
+  const [companyForm, setCompanyForm] = useState({ name: "", type: "spv" as string, description: "", logoId: null as number | null, themeId: null as number | null });
 
   const { data: users } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -54,6 +54,15 @@ export default function CompaniesTab() {
     },
   });
 
+  const { data: allThemes } = useQuery<Array<{ id: number; name: string; isDefault: boolean }>>({
+    queryKey: ["admin", "all-themes"],
+    queryFn: async () => {
+      const res = await fetch("/api/available-themes", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch themes");
+      return res.json();
+    },
+  });
+
   const { data: adminCompanies } = useQuery<AdminCompany[]>({
     queryKey: ["admin", "companies"],
     queryFn: async () => {
@@ -66,7 +75,7 @@ export default function CompaniesTab() {
   const spvCompanies = adminCompanies?.filter(c => c.type !== "management") || [];
 
   const createCompanyMutation = useMutation({
-    mutationFn: async (data: { name: string; type: string; description?: string | null; logoId?: number | null }) => {
+    mutationFn: async (data: { name: string; type: string; description?: string | null; logoId?: number | null; themeId?: number | null }) => {
       const res = await fetch("/api/companies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to create company");
       return res.json();
@@ -75,14 +84,14 @@ export default function CompaniesTab() {
       queryClient.invalidateQueries({ queryKey: ["admin", "companies"] });
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       setCompanyDialogOpen(false);
-      setCompanyForm({ name: "", type: "spv", description: "", logoId: null });
+      setCompanyForm({ name: "", type: "spv", description: "", logoId: null, themeId: null });
       setEditingCompany(null);
       toast({ title: "Company Created", description: "Company has been created." });
     },
   });
 
   const updateCompanyMutation = useMutation({
-    mutationFn: async ({ id, ...data }: { id: number; name?: string; type?: string; description?: string | null; logoId?: number | null }) => {
+    mutationFn: async ({ id, ...data }: { id: number; name?: string; type?: string; description?: string | null; logoId?: number | null; themeId?: number | null }) => {
       const res = await fetch(`/api/companies/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to update company");
       return res.json();
@@ -123,7 +132,7 @@ export default function CompaniesTab() {
             </div>
             <Button variant="outline" onClick={() => {
               setEditingCompany(null);
-              setCompanyForm({ name: "", type: "spv", description: "", logoId: null });
+              setCompanyForm({ name: "", type: "spv", description: "", logoId: null, themeId: null });
               setCompanyDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-company">
               <Plus className="w-4 h-4" /> New SPV
@@ -141,6 +150,7 @@ export default function CompaniesTab() {
             <div className="space-y-4">
               {spvCompanies.map(company => {
                 const companyLogo = adminLogos?.find(l => l.id === company.logoId);
+                const companyTheme = allThemes?.find(t => t.id === company.themeId);
                 const companyUsers = users?.filter(u => u.companyId === company.id) || [];
                 return (
                   <div key={company.id} className="bg-muted border border-border rounded-xl p-4" data-testid={`company-card-${company.id}`}>
@@ -164,7 +174,7 @@ export default function CompaniesTab() {
                       <div className="flex items-center gap-1">
                         <Button variant="ghost" size="sm" onClick={() => {
                           setEditingCompany(company);
-                          setCompanyForm({ name: company.name, type: company.type, description: company.description || "", logoId: company.logoId });
+                          setCompanyForm({ name: company.name, type: company.type, description: company.description || "", logoId: company.logoId, themeId: company.themeId });
                           setCompanyDialogOpen(true);
                         }} className="text-muted-foreground hover:text-foreground hover:bg-muted" data-testid={`button-edit-company-${company.id}`}>
                           <Pencil className="w-4 h-4" />
@@ -183,6 +193,10 @@ export default function CompaniesTab() {
                     )}
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
                       {companyLogo && <span className="bg-muted px-2 py-0.5 rounded">Logo: {companyLogo.name}</span>}
+                      <span className="bg-muted px-2 py-0.5 rounded flex items-center gap-1">
+                        <Palette className="w-3 h-3" />
+                        Theme: {companyTheme ? companyTheme.name : <span className="italic">None</span>}
+                      </span>
                       <span className="bg-muted px-2 py-0.5 rounded">{companyUsers.length} member{companyUsers.length !== 1 ? "s" : ""}</span>
                     </div>
                     {companyUsers.length > 0 && (
@@ -226,6 +240,20 @@ export default function CompaniesTab() {
                       <img src={logo.url} alt="" className="w-5 h-5 rounded object-contain shrink-0" />
                       {logo.name}{logo.isDefault ? " (Default)" : ""}
                     </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-muted-foreground" />Theme</Label>
+            <Select value={companyForm.themeId != null ? String(companyForm.themeId) : "none"} onValueChange={(v) => setCompanyForm({ ...companyForm, themeId: v === "none" ? null : parseInt(v) })} data-testid="select-company-theme">
+              <SelectTrigger data-testid="trigger-company-theme"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Theme</SelectItem>
+                {allThemes?.map(theme => (
+                  <SelectItem key={theme.id} value={String(theme.id)}>
+                    {theme.name}{theme.isDefault ? " (Default)" : ""}
                   </SelectItem>
                 ))}
               </SelectContent>

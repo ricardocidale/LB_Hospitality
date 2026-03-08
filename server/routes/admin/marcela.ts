@@ -228,6 +228,20 @@ export function registerMarcelaRoutes(app: Express) {
     }
   });
 
+  // Download the full KB as a plain text file for manual upload to ElevenLabs
+  app.get("/api/admin/convai/knowledge-base/download", requireAdmin, async (_req, res) => {
+    try {
+      const { buildKnowledgeDocument } = await import("../../ai/marcela-knowledge-base");
+      const content = await buildKnowledgeDocument();
+      const filename = `HBG-Knowledge-Base-${new Date().toISOString().split("T")[0]}.txt`;
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(content);
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Failed to generate KB download", error);
+    }
+  });
+
   app.post("/api/admin/convai/knowledge-base/upload", requireAdmin, async (_req, res) => {
     try {
       const result = await uploadKnowledgeBase();

@@ -75,6 +75,7 @@ export interface AdminCompany {
   type: string;
   description: string | null;
   logoId: number | null;
+  themeId: number | null;
   isActive: boolean;
   createdAt: string;
 }

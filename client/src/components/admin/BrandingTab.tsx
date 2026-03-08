@@ -30,7 +30,6 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
     companyStateProvince: "",
     companyCountry: "",
     companyZipPostalCode: "",
-    companyInflationRate: null as number | null,
   });
 
   const [isDirty, setIsDirty] = useState(false);
@@ -50,7 +49,6 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         companyStateProvince: globalAssumptions.companyStateProvince || "",
         companyCountry: globalAssumptions.companyCountry || "",
         companyZipPostalCode: globalAssumptions.companyZipPostalCode || "",
-        companyInflationRate: globalAssumptions.companyInflationRate ?? null,
       });
       setIsDirty(false);
     }
@@ -182,19 +180,6 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
                     className="bg-card"
                     data-testid="input-company-founding-year"
                   />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label className="label-text text-foreground flex items-center gap-2"><Percent className="w-3 h-3" /> Company Inflation Rate</Label>
-                  <Input
-                    type="number"
-                    step="0.001"
-                    value={form.companyInflationRate === null ? "" : form.companyInflationRate}
-                    onChange={(e) => updateField("companyInflationRate", e.target.value === "" ? null : parseFloat(e.target.value))}
-                    placeholder="Default (Global)"
-                    className="bg-card"
-                    data-testid="input-company-inflation-rate"
-                  />
-                  <p className="text-[10px] text-muted-foreground">Overrides global inflation for management company overhead calculations</p>
                 </div>
               </div>
             </CardContent>

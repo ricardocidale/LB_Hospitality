@@ -24,3 +24,4 @@ export { default as DatabaseTab } from "./DatabaseTab";
 export { default as MarcelaTab } from "./MarcelaTab";
 export { default as ManagementCompanyTab } from "./ManagementCompanyTab";
 export { default as ResearchCenterTab } from "./ResearchCenterTab";
+export { default as DesignTab } from "./DesignTab";

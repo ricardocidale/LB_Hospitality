@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, FlaskConical, HelpCircle, ImageIcon } from "lucide-react";
+import { Menu, X, FlaskConical, HelpCircle, ImageIcon, Coins, Percent, BookOpen, Phone } from "lucide-react";
 import { Link } from "wouter";
 import {
   IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconPackage, IconTrending,
   IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear,
+  IconBriefcase,
 } from "@/components/icons/brand-icons";
 
 export type AdminSection =
   | "users" | "activity"
-  | "branding" | "companies" | "logos"
-  | "marcela"
-  | "research" | "themes" | "navigation" | "verification" | "database";
+  | "branding" | "icp" | "services" | "revshare" | "otherassumptions"
+  | "companies" | "groups"
+  | "design"
+  | "marcela" | "kb" | "twilio"
+  | "research" | "navigation" | "verification" | "database";
 
 interface SectionItem {
   value: AdminSection;
@@ -33,21 +36,33 @@ const navGroups: NavGroup[] = [
     id: "brand",
     label: "Brand",
     icon: IconImage,
-    description: "Identity, companies & logos",
+    description: "Management company & services",
     sections: [
-      { value: "branding", label: "Hospitality Brand", icon: IconImage },
-      { value: "companies", label: "Companies", icon: IconProperties },
-      { value: "logos", label: "Logos", icon: ImageIcon },
+      { value: "branding", label: "Management Company", icon: IconImage },
+      { value: "icp", label: "Ideal Customer Profile", icon: IconPeople },
+      { value: "services", label: "Services", icon: IconPackage },
+      { value: "revshare", label: "Revenue Share", icon: IconTrending },
+      { value: "otherassumptions", label: "Other Assumptions", icon: IconSettingsGear },
     ],
   },
   {
-    id: "people",
-    label: "People",
-    icon: IconPeople,
-    description: "Users, groups & activity",
+    id: "business",
+    label: "Business",
+    icon: IconBriefcase,
+    description: "Users, companies & groups",
     sections: [
       { value: "users", label: "Users", icon: IconPeople },
-      { value: "activity", label: "Activity", icon: IconActivity },
+      { value: "companies", label: "Companies", icon: IconProperties },
+      { value: "groups", label: "Groups", icon: IconUserCog },
+    ],
+  },
+  {
+    id: "design",
+    label: "Design",
+    icon: IconSwatchBook,
+    description: "Logos & themes",
+    sections: [
+      { value: "design", label: "Design", icon: IconSwatchBook },
     ],
   },
   {
@@ -57,16 +72,17 @@ const navGroups: NavGroup[] = [
     description: "Marcela configuration",
     sections: [
       { value: "marcela", label: "Configuration", icon: IconBot },
+      { value: "kb", label: "Knowledge Base", icon: BookOpen },
+      { value: "twilio", label: "Twilio", icon: Phone },
     ],
   },
   {
     id: "system",
     label: "System",
     icon: IconShield,
-    description: "Research, design & infrastructure",
+    description: "Research & infrastructure",
     sections: [
       { value: "research", label: "Research", icon: FlaskConical },
-      { value: "themes", label: "Themes", icon: IconSwatchBook },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
       { value: "verification", label: "Verification", icon: IconFileCheck },
       { value: "database", label: "Database", icon: IconDatabase },
@@ -101,7 +117,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
               <span
                 className={cn(
                   "text-[11px] font-medium",
-                  isGroupActive ? "text-foreground" : "text-muted-foreground"
+                  isGroupActive ? "text-primary" : "text-primary/60"
                 )}
               >
                 {group.label}
@@ -150,6 +166,44 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           </div>
         );
       })}
+
+      <div className="mt-1 pt-2 border-t border-border/60">
+        <div className="px-3 pt-2 pb-1">
+          <span className="text-[11px] font-medium text-primary/60">
+            Logs
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            onSectionChange("activity");
+            setMobileOpen(false);
+          }}
+          data-testid="admin-nav-activity"
+          className={cn(
+            "relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 group/item cursor-pointer",
+            activeSection === "activity"
+              ? "bg-muted text-foreground font-medium"
+              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+          )}
+        >
+          <IconActivity
+            className={cn(
+              "w-4 h-4 shrink-0 transition-colors",
+              activeSection === "activity"
+                ? "text-foreground"
+                : "text-muted-foreground group-hover/item:text-muted-foreground"
+            )}
+          />
+          <span
+            className={cn(
+              "text-[13px] transition-colors truncate",
+              activeSection === "activity" ? "font-medium" : "font-normal"
+            )}
+          >
+            Activity
+          </span>
+        </button>
+      </div>
 
       <div className="mt-1 pt-2 border-t border-border/60">
         <Link

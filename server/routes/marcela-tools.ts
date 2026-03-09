@@ -6,12 +6,16 @@ import {
   DEFAULT_COMMISSION_RATE,
 } from "../../shared/constants";
 
-// Loan defaults (client-only constants, duplicated here for debt snapshot)
-const DEFAULT_LTV = 0.75;
-const DEFAULT_INTEREST_RATE = 0.09;
-const DEFAULT_TERM_YEARS = 25;
+import {
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
+} from "../../shared/constants";
 
-const MARCELA_TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET || "marcela-server-tools-key";
+const MARCELA_TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET;
+if (!MARCELA_TOOLS_SECRET) {
+  console.warn("[marcela-tools] MARCELA_TOOLS_SECRET env var not set — tools endpoint will reject all requests");
+}
 
 function verifyToolsAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers["x-marcela-tools-secret"] || req.headers["authorization"];
@@ -19,7 +23,7 @@ function verifyToolsAuth(req: Request, res: Response, next: NextFunction) {
     ? authHeader.replace(/^Bearer\s+/i, "")
     : "";
 
-  if (token === MARCELA_TOOLS_SECRET) {
+  if (MARCELA_TOOLS_SECRET && token === MARCELA_TOOLS_SECRET) {
     return next();
   }
   res.status(401).json({ error: "Unauthorized" });

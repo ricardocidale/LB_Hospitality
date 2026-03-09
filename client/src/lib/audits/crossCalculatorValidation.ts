@@ -7,10 +7,12 @@ import {
   DEFAULT_COST_RATE_FFE,
 } from '@shared/constants';
 
-const DEFAULT_LTV = 0.75;
-const DEFAULT_INTEREST_RATE = 0.07;
-const DEFAULT_TERM_YEARS = 30;
-const DEPRECIATION_YEARS = 27.5;
+import {
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
+  DEPRECIATION_YEARS,
+} from '../constants';
 
 export interface CrossValidationResult {
   name: string;

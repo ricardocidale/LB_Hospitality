@@ -227,8 +227,11 @@ export function generateCompanyProForma(
     
     const totalExpenses = partnerCompensation + staffCompensation + officeLease + professionalServices +
       techInfrastructure + businessInsurance + travelCosts + itLicensing + marketing + miscOps;
-    
-    const netIncome = totalRevenue - totalVendorCost - totalExpenses;
+
+    const preTaxIncome = totalRevenue - totalVendorCost - totalExpenses;
+    const companyTaxRate = global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE;
+    const companyIncomeTax = preTaxIncome > 0 ? preTaxIncome * companyTaxRate : 0;
+    const netIncome = preTaxIncome - companyIncomeTax;
     
     let safeFunding1 = 0;
     let safeFunding2 = 0;
@@ -266,6 +269,8 @@ export function generateCompanyProForma(
       marketing,
       miscOps,
       totalExpenses,
+      preTaxIncome,
+      companyIncomeTax,
       netIncome,
       safeFunding,
       safeFunding1,

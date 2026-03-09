@@ -238,6 +238,8 @@ export interface CompanyMonthlyFinancials {
   marketing: number;
   miscOps: number;
   totalExpenses: number;
+  preTaxIncome: number;
+  companyIncomeTax: number;
   netIncome: number;
   safeFunding: number;
   safeFunding1: number;

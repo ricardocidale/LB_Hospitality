@@ -4,6 +4,17 @@ Older sessions moved here to reduce token cost. Only referenced when investigati
 
 ---
 
+## Session: March 9, 2026 — Magic UI Special Effects + ElevenLabs Orb Integration
+- Added 9 Magic UI components; `NumberTicker` preferred over `AnimatedCounter`
+- New skill: `.claude/skills/ui/magic-ui.md`
+
+## Session: March 8, 2026 — Context Unburden + Admin Research + Codebase Architecture
+- Slimmed rules from ~4,203→~850 lines (-80%); moved 4 reference docs to skills/
+- New Admin "Research" tab (13th); config in `global_assumptions.researchConfig` (JSONB)
+- Documented 80+ UI components, ElevenLabs architecture (35 files)
+
+---
+
 ## Session: February 14, 2026
 
 ### Per-Property Financing Architecture Migration

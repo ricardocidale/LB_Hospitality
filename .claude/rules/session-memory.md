@@ -8,21 +8,19 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 9, 2026 — Golden Scenario Battery (4 scenarios, 168 new tests)
+- Built 4 golden test files: full-statement (55), pre-ops gap (23), multi-property (29), company aggregation (61)
+- Full statement: Golden Lodge (20 rooms $200 financed) + company + consolidated intercompany elimination
+- Edge cases: 6-month pre-ops gap with reserve, 3-property portfolio with delayed ops, staffing tier transitions
+- Company aggregation: 2 properties (Alpine Inn cash + Harbor Hotel financed), fee aggregation, BS identity, portfolio sums
+- Tests 2,503→2,671 (117 files, 269 golden). All saved to memory: `golden-scenarios.md`. Health ALL CLEAR.
+
 ## Session: March 9, 2026 — Comprehensive Audit V3 (Deterministic Accuracy)
 - 6-phase audit: v2 regression, hand-calculated IRR golden, pipeline trace, BS identity fix, company/consolidated, full suite
 - Fixed Critical bug: `server/calculation-checker/property-checks.ts` debtOutstanding missing current month principal
 - Added A=L+E (ASC 210) check to both client auditor and server checker — closed deferred finding 3-1
 - New: `tests/golden/irr-golden-hand-calculated.test.ts` (15 tests), `tests/golden/pipeline-trace.test.ts` (20 tests)
 - Tests 2,448→2,503, all passing, UNQUALIFIED. Full report: `.claude/skills/proof-system/comprehensive-audit-v3-2026-03-09.md`
-
-## Session: March 9, 2026 — Magic UI Special Effects + ElevenLabs Orb Integration
-- Added 9 Magic UI components; `NumberTicker` preferred over `AnimatedCounter`
-- New skill: `.claude/skills/ui/magic-ui.md`
-
-## Session: March 8, 2026 — Context Unburden + Admin Research + Codebase Architecture
-- Slimmed rules from ~4,203→~850 lines (-80%); moved 4 reference docs to skills/
-- New Admin "Research" tab (13th); config in `global_assumptions.researchConfig` (JSONB)
-- Documented 80+ UI components, ElevenLabs architecture (35 files)
 
 ---
 
@@ -48,3 +46,5 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 - **`AgentState` name collision** in `features/ai-agent/components/index.ts` — use explicit `export { Orb }` not `export *`
 - **`VoiceChatBar`** uses signed URL (not bare `agentId`) — fetched on mount via `useAdminSignedUrl()`
 - **Next.js → Vite**: remove `"use client"`, replace server actions with Express endpoints, `<style jsx>` → `<style>`
+- **Company unprofitable with 1 small property** — correct behavior, not a bug (partner comp $45K > fee rev ~$19K)
+- **Golden scenario design**: 0% growth/inflation for traceability, hand-values at file top, test both values + identities

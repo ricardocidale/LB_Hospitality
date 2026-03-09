@@ -48,12 +48,12 @@ export {
   DEFAULT_COMPANY_TAX_RATE,
   DEFAULT_PROJECTION_YEARS,
   DEFAULT_INFLATION_RATE,
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
 } from "@shared/constants";
 
-// Loan defaults — typical commercial real estate financing terms
-export const DEFAULT_LTV = 0.75;
-export const DEFAULT_INTEREST_RATE = 0.09;
-export const DEFAULT_TERM_YEARS = 25;
+// Re-export loan defaults from shared (no longer duplicated here)
 export const DEFAULT_REFI_LTV = 0.65;
 export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
 export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;

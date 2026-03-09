@@ -5,7 +5,8 @@ import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api"
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
-import { Loader2, RefreshCw, MapPin, ExternalLink, BookOpen, Mail, FileDown } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconRefreshCw, IconMapPin, IconExternalLink, IconBookOpen, IconMail, IconFileDown } from "@/components/icons";
 import { useRoute, useLocation } from "wouter";
 import { format } from "date-fns";
 import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";

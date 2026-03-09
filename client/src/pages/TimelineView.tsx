@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useStore } from "@/lib/store";
-import { Building2, Play, Calendar, MapPin } from "lucide-react";
+import { IconBuilding2, IconPlay, IconCalendar, IconMapPin } from "@/components/icons";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 interface TimelineEvent {

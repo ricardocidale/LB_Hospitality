@@ -17,10 +17,8 @@ import {
   type SavedProspectiveProperty,
   type SavedSearchData,
 } from "@/lib/api";
-import {
-  Search, Heart, AlertCircle, Building2, Loader2,
-  ChevronLeft, ChevronRight,
-} from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { IconHeart, IconAlertCircle, IconBuilding2 } from "@/components/icons";
 import {
   SearchResultCard,
   FavoriteCard,

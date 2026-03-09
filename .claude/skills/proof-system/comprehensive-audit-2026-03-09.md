@@ -32,31 +32,33 @@
 
 ## MEDIUM FINDINGS
 
-### MED-1: Constants duplicated in 4 locations
-- `shared/constants.ts`, `client/src/lib/constants.ts`, `server/calculation-checker/` (2 files), `server/routes/marcela-tools.ts`
-- Risk: Shared constants updated but checker/tools use stale local copies.
+### MED-1: Constants duplicated in 4 locations — FIXED
+- Consolidated `DEFAULT_LTV`, `DEFAULT_INTEREST_RATE`, `DEFAULT_TERM_YEARS` into `shared/constants.ts`.
+- All consumers (client, server checker, marcela-tools) now import from shared.
 
-### MED-2: No NaN/Infinity guards in financial engine
-- `property-engine.ts` has no `isNaN`/`isFinite` checks. Bad inputs produce silent NaN propagation.
+### MED-2: No NaN/Infinity guards in financial engine — FIXED
+- Added `safeNum()` guard in `property-engine.ts` at key NaN risk points: monthly depreciation, ADR growth (`Math.pow`), fixed cost escalation, and PMT result.
 
-### MED-3: `as any` in financial storage
-- `server/storage/financial.ts:128` — Drizzle insert bypasses type checking.
-- `server/routes/marcela-tools.ts:37` — `computeSnapshot(p: any)` untyped.
+### MED-3: `as any` in financial storage — PARTIALLY FIXED
+- `server/routes/marcela-tools.ts` `computeSnapshot(p: any)` → `computeSnapshot(p: Property)` with proper import.
+- `server/storage/financial.ts:128` — Drizzle ORM `as any` for batch insert retained (framework type limitation, low risk).
 
-### MED-4: Export parity gaps
-- **FinancingAnalysis** — no ExportMenu at all
-- **Scenarios** — no ExportMenu at all
-- **ExecutiveSummary** — missing Excel and Chart PNG (4 of 6 formats)
-- **Dashboard IncomeStatementTab** — missing Chart PNG (5 of 6)
+### MED-4: Export parity gaps — RECLASSIFIED
+- **FinancingAnalysis** — Interactive calculator (DSCR, Debt Yield, Stress Test, Prepayment), not a financial statement page. Export parity N/A.
+- **Scenarios** — Data management page (save/load/clone/compare JSON), not a financial statement page. Export parity N/A.
+- **ExecutiveSummary** and **Dashboard IncomeStatementTab** — remaining gaps if they display financial statement data. Lower priority.
 
-### MED-5: Company CSV bypasses `downloadCSV()` helper
-- `client/src/lib/exports/companyExports.ts:130-153` — inline Blob/link logic, misses filename sanitization.
+### MED-5: Company CSV bypasses `downloadCSV()` helper — FIXED
+- `companyExports.ts` now imports and uses `downloadCSV()` from `csvExport.ts` with proper filename sanitization.
 
-### MED-6: Company export filenames lack entity name
-- Company CSV/PDF use generic `company-${type}.csv` instead of actual company name.
+### MED-6: Company export filenames lack entity name — FIXED
+- All company export functions (PDF, CSV, Chart PNG, Table PNG) now accept `companyName` parameter.
+- Filenames now follow pattern: `${companyName} - ${statementType}.${ext}`.
 
-### MED-7: Dual NOI base in cash flow aggregator
-- `cashFlowAggregator.ts`: GAAP `operatingCashFlow` uses `netIncome`, legacy `btcf` uses `anoi`. Both internally consistent but cannot be naively reconciled.
+### MED-7: Dual NOI base in cash flow aggregator — BY DESIGN
+- `btcf` (Before-Tax Cash Flow = ANOI - debt service) is a standard real estate investment metric.
+- `operatingCashFlow` (= Net Income + Depreciation) is GAAP ASC 230 indirect method.
+- Both are correct for their respective purposes. No fix needed.
 
 ---
 

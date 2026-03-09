@@ -29,7 +29,8 @@ import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch
 import { useMarketRates } from "@/lib/api/market-rates";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, BookOpen, AlertTriangle, Wand2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconBookOpen, IconAlertTriangle, IconWand2 } from "@/components/icons";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Link, useRoute, useLocation } from "wouter";

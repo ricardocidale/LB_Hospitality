@@ -172,7 +172,7 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
           market: propData.market,
         });
       }
-      await storage.createProperty({ ...propData, researchValues } as any);
+      await storage.createProperty({ ...propData, researchValues, userId: null } as any);
       results.properties.created++;
     } else {
       const updates = fillMissingFields(existing as any, propData, ["id", "createdAt", "updatedAt", "userId", "name"]);

@@ -142,4 +142,12 @@ export {
   IconWrench,
   IconXCircle,
   IconZap,
+  IconBanknote,
+  IconLayers,
+  IconPieChart,
+  IconShieldCheck,
+  IconHeart,
+  IconUserCircle,
+  IconFlaskConical,
+  IconBookOpenCheck,
 } from "./brand-icons";

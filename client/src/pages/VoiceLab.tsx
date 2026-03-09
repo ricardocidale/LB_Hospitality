@@ -6,7 +6,7 @@
  */
 import React, { useCallback, useRef, useState, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic2, MessageSquare, AudioLines, Captions, Music2, Mic, AlertTriangle, RefreshCw } from "lucide-react";
+import { IconMic2, IconMessageSquare, IconAudioLines, IconCaptions, IconMusic2, IconMic, IconAlertTriangle, IconRefreshCw } from "@/components/icons";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useMarcelaSettings } from "@/features/ai-agent/hooks/use-agent-settings";

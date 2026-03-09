@@ -92,10 +92,11 @@ export class FinancialStorage {
       const { id: _gaId, createdAt: _gaCreated, updatedAt: _gaUpdated, userId: _gaUser, ...gaData } = savedAssumptions;
 
       const existingShared = await tx.select().from(globalAssumptions)
-        .where(isNull(globalAssumptions.userId));
+        .where(isNull(globalAssumptions.userId))
+        .orderBy(desc(globalAssumptions.id));
       if (existingShared.length > 0) {
         await tx.update(globalAssumptions).set({ ...gaData, updatedAt: new Date() })
-          .where(eq(globalAssumptions.id, existingShared[existingShared.length - 1].id));
+          .where(eq(globalAssumptions.id, existingShared[0].id));
       } else {
         await tx.insert(globalAssumptions).values({ ...gaData, userId: null } as typeof globalAssumptions.$inferInsert);
       }

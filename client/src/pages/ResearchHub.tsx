@@ -12,21 +12,11 @@ import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useCallback, useRef } from "react";
+import { Check, Loader2, ArrowRight } from "lucide-react";
 import {
-  FlaskConical,
-  Building2,
-  Briefcase,
-  Globe,
-  RefreshCw,
-  Check,
-  Clock,
-  AlertCircle,
-  ExternalLink,
-  Loader2,
-  BookOpen,
-  Settings2,
-  ArrowRight,
-} from "lucide-react";
+  IconFlaskConical, IconBuilding2, IconBriefcase, IconGlobe, IconRefreshCw,
+  IconClock, IconAlertCircle, IconExternalLink, IconBookOpen, IconSettings2,
+} from "@/components/icons";
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { motion } from "framer-motion";

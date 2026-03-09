@@ -4,21 +4,21 @@ import { Card } from "@/components/ui/card";
 import { ManualTable } from "@/components/ui/manual-table";
 import { Callout } from "@/components/ui/callout";
 import {
-  Calculator,
-  TrendingUp,
-  Building2,
-  DollarSign,
-  PieChart,
-  BarChart3,
-  Wallet,
-  Info,
-  Layers,
-  ArrowRightLeft,
-  BookOpen,
-  Banknote,
-  RefreshCw,
-  ShieldCheck,
-} from "lucide-react";
+  IconCalculator,
+  IconTrendingUp,
+  IconBuilding2,
+  IconDollarSign,
+  IconPieChart,
+  IconBarChart3,
+  IconWallet,
+  IconInfo,
+  IconLayers,
+  IconArrowRightLeft,
+  IconBookOpen,
+  IconBanknote,
+  IconRefreshCw,
+  IconShieldCheck,
+} from "@/components/icons";
 import {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,

@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Home } from "lucide-react";
+import { IconAlertCircle, IconHome } from "@/components/icons";
 import { Link } from "wouter";
 import { useAuth } from "@/lib/auth";
 import Layout from "@/components/Layout";

@@ -1,9 +1,9 @@
-import { LucideIcon } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
 
 export interface ManualSection {
   id: string;
   title: string;
-  icon: LucideIcon;
+  icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
 }
 
 export interface CheckerManualProps {

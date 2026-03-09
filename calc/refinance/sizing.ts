@@ -17,6 +17,7 @@ export function resolvePropertyValue(valuation: PropertyValuation): number {
   if (valuation.method === "direct") {
     return valuation.property_value_at_refi;
   }
+  if (valuation.cap_rate === 0) return 0;
   return valuation.stabilized_noi / valuation.cap_rate;
 }
 

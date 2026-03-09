@@ -11,9 +11,9 @@ Research skills must be focused and minimal. Any calculation expressible as a fo
 3. **Helpers prevent duplication** — parsing logic, confidence scoring centralized in `server/aiResearch.ts`
 4. **New tools must be registered** — schema in `.claude/tools/research/`, implementation in `calc/research/`, registered in `calc/dispatch.ts`
 
-## Deterministic Tools (9)
+## Deterministic Tools (10)
 
-`compute_property_metrics`, `compute_depreciation_basis`, `compute_debt_capacity`, `compute_occupancy_ramp`, `compute_adr_projection`, `compute_cap_rate_valuation`, `compute_cost_benchmarks`, `compute_service_fee`, `compute_markup_waterfall`
+`compute_property_metrics`, `compute_depreciation_basis`, `compute_debt_capacity`, `compute_occupancy_ramp`, `compute_adr_projection`, `compute_cap_rate_valuation`, `compute_cost_benchmarks`, `compute_service_fee`, `compute_markup_waterfall`, `compute_make_vs_buy`
 
 Reference: `.claude/skills/research/SKILL.md` for full input/output specs.
 
@@ -22,7 +22,7 @@ Reference: `.claude/skills/research/SKILL.md` for full input/output specs.
 Admins can configure per-event research behavior via Admin → Research tab:
 - Enable/disable each research type (property/company/global)
 - Inject focus areas, regions, time horizon, custom instructions, custom questions
-- Restrict which of the 9 tools are active per event type
+- Restrict which of the 10 tools are active per event type
 
 Config stored in `global_assumptions.researchConfig` (JSONB). Loaded in `server/routes/research.ts` and threaded into `generateResearchWithToolsStream()`. The `eventConfig` field on `ResearchParams` carries these overrides into `research-prompt-builders.ts`.
 

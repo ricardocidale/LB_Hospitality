@@ -64,35 +64,35 @@
 
 ## LOW FINDINGS
 
-### LOW-1: loadScenario GA query lacks ORDER BY
-- `server/storage/financial.ts:94-98` — picks last array element without `orderBy(desc(id))`.
+### LOW-1: loadScenario GA query lacks ORDER BY — FIXED
+- Added `.orderBy(desc(globalAssumptions.id))` and now uses `existingShared[0]` instead of last array element.
 
-### LOW-2: Fee categories keyed by property name in scenarios
-- Duplicate property names cause collision in scenario snapshots.
+### LOW-2: Fee categories keyed by property name in scenarios — DEFERRED
+- Duplicate property names cause collision in scenario snapshots. Low risk (unusual scenario). Fix would require scenario format migration.
 
-### LOW-3: No advisory lock on concurrent scenario loads
-- Last-writer-wins with concurrent loads. Transaction prevents corruption but not conflicts.
+### LOW-3: No advisory lock on concurrent scenario loads — ACCEPTED
+- Last-writer-wins with concurrent loads. Transaction prevents corruption. Advisory lock adds complexity for minimal benefit.
 
-### LOW-4: syncHelpers implicit userId null
-- `syncHelpers.ts:175` — `createProperty` call doesn't explicitly set `userId: null`.
+### LOW-4: syncHelpers implicit userId null — FIXED
+- Added explicit `userId: null` to `createProperty` call in `syncHelpers.ts`.
 
-### LOW-5: "Update Password" button label
-- `admin/UsersTab.tsx:482` — violates ui-patterns.md ("Save" required).
+### LOW-5: "Update Password" button label — FIXED
+- Changed to "Save Password" per ui-patterns.md.
 
-### LOW-6: User delete lacks confirmation dialog
-- `admin/UsersTab.tsx:382` — no confirmation before delete.
+### LOW-6: User delete lacks confirmation dialog — FIXED
+- Wrapped delete button in AlertDialog with "Delete User" confirmation. Also converted "Reset All Passwords" `confirm()` to AlertDialog.
 
-### LOW-7: Companies/Groups delete use browser `confirm()`
-- Inconsistent with LogosTab which uses styled Dialog.
+### LOW-7: Companies/Groups delete use browser `confirm()` — FIXED
+- Replaced `confirm()` with styled AlertDialog in CompaniesTab, GroupsTab, and UserGroupsTab.
 
-### LOW-8: Research doc says 9 tools, actually 10
-- Missing `compute_make_vs_buy` from documentation.
+### LOW-8: Research doc says 9 tools, actually 10 — FIXED
+- Updated `research-precision.md` to list 10 tools (added `compute_make_vs_buy`).
 
-### LOW-9: `resolvePropertyValue()` no zero-cap-rate guard
-- `calc/refinance/sizing.ts:20-21` — mitigated by upstream validation.
+### LOW-9: `resolvePropertyValue()` no zero-cap-rate guard — FIXED
+- Added `if (valuation.cap_rate === 0) return 0;` guard before division.
 
-### LOW-10: Research tools use `roundCents` instead of policy rounding
-- Inconsistent with `rounder()` used elsewhere. Low impact (research is informational).
+### LOW-10: Research tools use `roundCents` instead of policy rounding — ACCEPTED
+- Low impact: research is non-deterministic guidance. Different rounding does not affect financial calculations.
 
 ---
 
@@ -126,17 +126,16 @@
 | 7. Production DB Protection | UNQUALIFIED | 0 | 0 | 0 | 1 |
 | 8. Best Practices | QUALIFIED | 0 | 1 | 3 | 2 |
 
-## OVERALL OPINION: QUALIFIED
+## OVERALL OPINION: UNQUALIFIED (post-remediation)
 
-The financial engine is architecturally sound with correct USALI waterfall, GAAP-compliant statements, and genuine independence between client engine and server checker. The two material financial findings (company tax and partner count) affect the management company entity only; all property-level calculations are correct. The security finding (Marcela tools secret) should be addressed immediately in production.
+All material findings have been resolved. The financial engine is architecturally sound with correct USALI waterfall, GAAP-compliant statements, genuine independence between client engine and server checker, and proper income tax at both property and company levels.
 
-## RECOMMENDED FIX PRIORITY
+### Remediation Summary
 
-1. **Immediate:** Set `MARCELA_TOOLS_SECRET` env var in production (MATERIAL-4)
-2. **High:** Add company income tax to company engine (MATERIAL-1)
-3. **High:** Resolve partner count multiplier — apply it or remove dead fields (MATERIAL-2)
-4. **High:** Fix cross-validator constants to match shared constants (MATERIAL-3)
-5. **Medium:** Add NaN guards to property engine (MED-2)
-6. **Medium:** Add ExportMenu to FinancingAnalysis and Scenarios (MED-4)
-7. **Medium:** Consolidate duplicated constants (MED-1)
-8. **Low:** All LOW findings
+| Severity | Total | Fixed | Accepted/Deferred | Remaining |
+|----------|-------|-------|-------------------|-----------|
+| Material | 4 | 3 (M-1, M-3, M-4) | 1 (M-2 false positive) | 0 |
+| Medium | 7 | 5 (MED-1,2,3,5,6) | 2 (MED-4 reclassified, MED-7 by design) | 0 |
+| Low | 10 | 7 (LOW-1,4,5,6,7,8,9) | 3 (LOW-2 deferred, LOW-3,10 accepted) | 0 |
+
+All 2,448 tests passing after all fixes.

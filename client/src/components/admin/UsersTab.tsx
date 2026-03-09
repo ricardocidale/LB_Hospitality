@@ -26,7 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Eye, EyeOff, Calendar, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Loader2, Eye, EyeOff, Calendar, Save, ArrowUp, ArrowDown, ArrowUpDown, ChevronDown } from "lucide-react";
 import { 
   IconPeople, 
   IconTrash, 
@@ -51,6 +51,12 @@ type Company = { id: number; name: string; logoId: number | null; isActive: bool
 type SortField = "name" | "role" | "group";
 type SortDir = "asc" | "desc";
 
+interface UsersByGroup {
+  groupId: number | null;
+  groupName: string;
+  users: User[];
+}
+
 export default function UsersTab() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -66,8 +72,9 @@ export default function UsersTab() {
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [sortField, setSortField] = useState<SortField>("group");
+  const [sortField, setSortField] = useState<SortField>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set(["__all__"]));
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -140,9 +147,8 @@ export default function UsersTab() {
     return sortDir === "asc" ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />;
   };
 
-  const sortedUsers = useMemo(() => {
-    if (!users) return [];
-    const sorted = [...users].sort((a, b) => {
+  const sortUsers = (list: User[]) => {
+    return [...list].sort((a, b) => {
       let cmp = 0;
       switch (sortField) {
         case "name":
@@ -155,16 +161,46 @@ export default function UsersTab() {
           const ga = (a.userGroupId ? groupNameMap[a.userGroupId] : "") || "";
           const gb = (b.userGroupId ? groupNameMap[b.userGroupId] : "") || "";
           cmp = ga.localeCompare(gb);
-          if (cmp === 0) {
-            cmp = (a.name || a.email).localeCompare(b.name || b.email);
-          }
+          if (cmp === 0) cmp = (a.name || a.email).localeCompare(b.name || b.email);
           break;
         }
       }
       return sortDir === "asc" ? cmp : -cmp;
     });
-    return sorted;
-  }, [users, sortField, sortDir, groupNameMap]);
+  };
+
+  const groupedUsers = useMemo((): UsersByGroup[] => {
+    if (!users) return [];
+    const byGroup = new Map<number | null, User[]>();
+    users.forEach((u) => {
+      const gid = u.userGroupId ?? null;
+      if (!byGroup.has(gid)) byGroup.set(gid, []);
+      byGroup.get(gid)!.push(u);
+    });
+    const groups: UsersByGroup[] = [];
+    const sortedGroupIds = Array.from(byGroup.keys()).sort((a, b) => {
+      const na = a != null ? (groupNameMap[a] || "") : "zzz";
+      const nb = b != null ? (groupNameMap[b] || "") : "zzz";
+      return na.localeCompare(nb);
+    });
+    for (const gid of sortedGroupIds) {
+      groups.push({
+        groupId: gid,
+        groupName: gid != null ? (groupNameMap[gid] || `Group ${gid}`) : "Unassigned",
+        users: sortUsers(byGroup.get(gid)!),
+      });
+    }
+    return groups;
+  }, [users, groupNameMap, sortField, sortDir]);
+
+  const toggleGroup = (key: string) => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   const createMutation = useMutation({
     mutationFn: async (data: { email: string; password: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string }) => {
@@ -314,66 +350,106 @@ export default function UsersTab() {
             <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("name")} data-testid="sort-user-name"><div className="flex items-center gap-2"><IconPeople className="w-4 h-4" />User <SortIcon field="name" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("role")} data-testid="sort-user-role"><div className="flex items-center gap-2"><IconShield className="w-4 h-4" />Role <SortIcon field="role" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("group")} data-testid="sort-user-group"><div className="flex items-center gap-2"><IconUserCog className="w-4 h-4" />Group <SortIcon field="group" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display text-right"><div className="flex items-center justify-end gap-2"><IconSettingsGear className="w-4 h-4" />Actions</div></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedUsers.map((user, idx) => (
-                <TableRow key={user.id} className={`border-border hover:bg-muted/50 ${idx % 2 === 1 ? "bg-muted/30" : ""}`} data-testid={`row-user-${user.id}`}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
-                      {user.userGroupId && userLogoMap[user.userGroupId] && (
+          <div className="space-y-0">
+            {groupedUsers.map((group, gIdx) => {
+              const groupKey = group.groupId != null ? String(group.groupId) : "__unassigned__";
+              const isOpen = openGroups.has("__all__") || openGroups.has(groupKey);
+              return (
+                <div key={groupKey} className={`border-b border-border/60 ${gIdx % 2 === 1 ? "bg-muted/20" : ""}`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpenGroups((prev) => {
+                        const next = new Set(prev);
+                        next.delete("__all__");
+                        if (next.has(groupKey)) next.delete(groupKey);
+                        else next.add(groupKey);
+                        return next;
+                      });
+                    }}
+                    className="flex items-center justify-between w-full py-3 px-3 text-left hover:bg-muted/40 transition-colors group"
+                    data-testid={`accordion-group-${groupKey}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {group.groupId != null && userLogoMap[group.groupId] && (
                         <img
-                          src={userLogoMap[user.userGroupId]}
+                          src={userLogoMap[group.groupId]}
                           alt=""
-                          className="w-7 h-7 rounded-md border border-border bg-card object-contain p-0.5"
+                          className="w-6 h-6 rounded-md border border-border bg-card object-contain p-0.5"
                           onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
                         />
                       )}
-                      <div>
-                        <div className="font-display font-medium">{user.name || user.email}</div>
-                        {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}
-                      </div>
+                      <span className="text-sm font-semibold text-foreground group-hover:text-foreground/90">
+                        {group.groupName}
+                      </span>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-muted text-muted-foreground'}`}>
-                      {user.role}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{user.userGroupId ? groupNameMap[user.userGroupId] || "—" : "—"}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
-                        data-testid={`button-edit-user-${user.id}`}>
-                        <IconPencil className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                        onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
-                        data-testid={`button-password-user-${user.id}`}>
-                        <IconKey className="w-4 h-4" />
-                      </Button>
-                      {user.role !== 'admin' && (
-                        <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                          onClick={() => deleteMutation.mutate(user.id)}
-                          data-testid={`button-delete-user-${user.id}`}>
-                          <IconTrash className="w-4 h-4" />
-                        </Button>
-                      )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-muted-foreground tabular-nums">
+                        {group.users.length} {group.users.length === 1 ? "user" : "users"}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-3 pb-3">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-border hover:bg-transparent">
+                            <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("name")} data-testid="sort-user-name"><div className="flex items-center gap-2"><IconPeople className="w-4 h-4" />User <SortIcon field="name" /></div></TableHead>
+                            <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("role")} data-testid="sort-user-role"><div className="flex items-center gap-2"><IconShield className="w-4 h-4" />Role <SortIcon field="role" /></div></TableHead>
+                            <TableHead className="text-muted-foreground font-display text-right"><div className="flex items-center justify-end gap-2"><IconSettingsGear className="w-4 h-4" />Actions</div></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {group.users.map((user, idx) => (
+                            <TableRow key={user.id} className={`border-border hover:bg-muted/50 ${idx % 2 === 1 ? "bg-muted/30" : ""}`} data-testid={`row-user-${user.id}`}>
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
+                                  <div>
+                                    <div className="font-display font-medium">{user.name || user.email}</div>
+                                    {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}
+                                    {user.title && <div className="text-[11px] text-muted-foreground/70">{user.title}</div>}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-muted text-muted-foreground'}`}>
+                                  {user.role}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                                    onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
+                                    data-testid={`button-edit-user-${user.id}`}>
+                                    <IconPencil className="w-4 h-4" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                                    onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
+                                    data-testid={`button-password-user-${user.id}`}>
+                                    <IconKey className="w-4 h-4" />
+                                  </Button>
+                                  {user.role !== 'admin' && (
+                                    <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                      onClick={() => deleteMutation.mutate(user.id)}
+                                      data-testid={`button-delete-user-${user.id}`}>
+                                      <IconTrash className="w-4 h-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         )}
       </CardContent>
     </Card>

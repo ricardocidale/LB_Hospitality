@@ -52,6 +52,7 @@ With 119 skill files, loading everything wastes tokens and slows responses. This
 | Chart work | `ui/charts.md`, `component-library/SKILL.md` | Finance skills, testing |
 | Graphics enhancement | `ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `rules/graphics-rich-design.md` | Finance skills |
 | Animation patterns | `ui/animation-patterns.md`, `ui/graphics-component-catalog.md` | Finance skills, testing |
+| Magic UI effects (particles, meteors, ripple, etc.) | `ui/magic-ui.md` | Finance skills, testing |
 | Financial table styling | `ui/financial-table-styling.md`, `ui/theme-engine.md` | Finance engine skills |
 | Navigation / sidebar | `ui/navigation.md`, `component-library/SKILL.md` | Finance skills |
 | Export UI (buttons, menus) | `exports/SKILL.md`, `component-library/SKILL.md` | Finance skills |

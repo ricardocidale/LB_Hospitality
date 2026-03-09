@@ -53,6 +53,21 @@ import { KPIGrid, DonutChart, CashFlowRiver, Gauge, PropertyTimeline, InsightPan
 | `HeatMap` | Period × metric color grid |
 | `FinancialChart` | Multi-series line chart with presets (in `ui/financial-chart.tsx`) |
 
+### Special Effects (Magic UI)
+All in `client/src/components/ui/` — full reference in `.claude/skills/ui/magic-ui.md`
+
+| Component | Import | Effect |
+|-----------|--------|--------|
+| `Particles` | `@/components/ui/particles` | Mouse-interactive particle background |
+| `NumberTicker` | `@/components/ui/number-ticker` | Spring-physics counting number |
+| `BlurFade` | `@/components/ui/blur-fade` | Blur-in reveal on mount/scroll |
+| `ShimmerButton` | `@/components/ui/shimmer-button` | Shimmer-sweep CTA button |
+| `AnimatedGradientText` | `@/components/ui/animated-gradient-text` | Gradient-shift text animation |
+| `Ripple` | `@/components/ui/ripple` | Concentric expanding rings |
+| `AuroraText` | `@/components/ui/aurora-text` | Aurora color-shift heading |
+| `AnimatedBeam` | `@/components/ui/animated-beam` | SVG beam connecting two elements |
+| `Meteors` | `@/components/ui/meteors` | Falling-streak card background |
+
 ## Usage Examples
 
 ### KPI Row on Dashboard

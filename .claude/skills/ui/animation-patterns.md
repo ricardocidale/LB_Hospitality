@@ -108,6 +108,24 @@ For rich, multi-layered hover effects used on the Dashboard, see these dedicated
 - **kpi-grid-hover.md** — KPIGrid dual-layer hover (framer-motion + Tailwind group)
 - **radial-glow-overlay.md** — Inner radial gradient overlay with theme-specific presets
 
+## Magic UI Effects (Supplemental Library)
+
+Nine special-effects components from [Magic UI](https://magicui.design) are available in `client/src/components/ui/`. They **extend** the existing system — existing wrappers above are unchanged.
+
+| Component | Import | Best For |
+|-----------|--------|---------|
+| `BlurFade` | `@/components/ui/blur-fade` | Blur-in section reveals (alternative to `AnimatedSection`) |
+| `NumberTicker` | `@/components/ui/number-ticker` | Animated financial numbers (preferred over `AnimatedCounter` for new work) |
+| `Particles` | `@/components/ui/particles` | Interactive particle backgrounds |
+| `Meteors` | `@/components/ui/meteors` | Falling-streak card backgrounds |
+| `Ripple` | `@/components/ui/ripple` | Idle/loading waiting states |
+| `AuroraText` | `@/components/ui/aurora-text` | Hero/display headings |
+| `AnimatedGradientText` | `@/components/ui/animated-gradient-text` | Section title gradients |
+| `ShimmerButton` | `@/components/ui/shimmer-button` | Shimmer CTA buttons |
+| `AnimatedBeam` | `@/components/ui/animated-beam` | SVG beams between two elements |
+
+Full usage examples → `.claude/skills/ui/magic-ui.md`
+
 ## Performance Notes
 
 - `AnimatedPage` uses `will-change: auto` — safe for all pages

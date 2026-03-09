@@ -199,7 +199,8 @@
       "mcp__shadcn__search_items_in_registries",
       "WebFetch(domain:magicui.design)",
       "Bash(npx shadcn@latest add \"https://magicui.design/r/particles\" --overwrite 2>&1)",
-      "Bash(npx shadcn@latest add \"https://magicui.design/r/number-ticker\" --overwrite 2>&1)"
+      "Bash(npx shadcn@latest add \"https://magicui.design/r/number-ticker\" --overwrite 2>&1)",
+      "Bash(npx shadcn@latest add \"https://magicui.design/r/animated-gradient-text\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/ripple\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/aurora-text\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/animated-beam\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/meteors\" --overwrite 2>&1)"
     ]
   },
   "enableAllProjectMcpServers": true,

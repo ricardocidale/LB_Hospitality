@@ -14,14 +14,15 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2, Plus, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
-import { IconPeople, IconProperties, IconPencil, IconTrash, IconPalette, IconImage, IconBuilding } from "@/components/icons/brand-icons";
+import { IconPeople, IconProperties, IconPencil, IconTrash, IconPalette, IconBuilding } from "@/components/icons/brand-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import type { Logo, UserGroup, AssetDesc } from "./types";
 import type { Property } from "@shared/schema";
 
-type GroupUser = { id: number; email: string; firstName: string | null; lastName: string | null; name: string | null; role: string; userGroupId: number | null; company: string | null; title: string | null };
+type GroupUser = { id: number; email: string; firstName: string | null; lastName: string | null; name: string | null; role: string; userGroupId: number | null; company: string | null; companyId: number | null; title: string | null };
+type Company = { id: number; name: string; logoId: number | null; isActive: boolean };
 
 export default function GroupsTab() {
   const { toast } = useToast();
@@ -31,7 +32,6 @@ export default function GroupsTab() {
   const [editingGroup, setEditingGroup] = useState<UserGroup | null>(null);
   const [groupForm, setGroupForm] = useState({ 
     name: "", 
-    logoId: null as number | null, 
     themeId: null as number | null, 
     assetDescriptionId: null as number | null 
   });
@@ -43,6 +43,15 @@ export default function GroupsTab() {
     queryFn: async () => {
       const res = await fetch("/api/logos", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch logos");
+      return res.json();
+    },
+  });
+
+  const { data: companies } = useQuery<Company[]>({
+    queryKey: ["admin", "companies"],
+    queryFn: async () => {
+      const res = await fetch("/api/companies", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch companies");
       return res.json();
     },
   });
@@ -125,7 +134,7 @@ export default function GroupsTab() {
   });
 
   const createGroupMutation = useMutation({
-    mutationFn: async (data: { name: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
+    mutationFn: async (data: { name: string; themeId?: number | null; assetDescriptionId?: number | null }) => {
       const res = await fetch("/api/user-groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to create group");
       return res.json();
@@ -133,14 +142,14 @@ export default function GroupsTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "user-groups"] });
       setGroupDialogOpen(false);
-      setGroupForm({ name: "", logoId: null, themeId: null, assetDescriptionId: null });
+      setGroupForm({ name: "", themeId: null, assetDescriptionId: null });
       setEditingGroup(null);
       toast({ title: "Group Created", description: "User group has been created." });
     },
   });
 
   const updateGroupMutation = useMutation({
-    mutationFn: async ({ id, ...data }: { id: number; name?: string; logoId?: number | null; themeId?: number | null; assetDescriptionId?: number | null }) => {
+    mutationFn: async ({ id, ...data }: { id: number; name?: string; themeId?: number | null; assetDescriptionId?: number | null }) => {
       const res = await fetch(`/api/user-groups/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
       if (!res.ok) throw new Error("Failed to update group");
       return res.json();
@@ -177,7 +186,7 @@ export default function GroupsTab() {
             </div>
             <Button variant="outline" onClick={() => {
               setEditingGroup(null);
-              setGroupForm({ name: "", logoId: null, themeId: null, assetDescriptionId: null });
+              setGroupForm({ name: "", themeId: null, assetDescriptionId: null });
               setGroupDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-group">
               <Plus className="w-4 h-4" /> New Group
@@ -194,31 +203,35 @@ export default function GroupsTab() {
           ) : (
             <div className="space-y-4">
               {userGroupsList.map(group => {
-                const groupLogo = adminLogos?.find(l => l.id === group.logoId);
                 const groupTheme = allThemes?.find(t => t.id === group.themeId);
                 const groupAssetDesc = assetDescriptions?.find(a => a.id === group.assetDescriptionId);
+                const members = (allUsers ?? []).filter(u => u.userGroupId === group.id);
+                const memberCompanyIds = Array.from(new Set(members.map(m => m.companyId).filter((id): id is number => id != null)));
+                const singleCompany = memberCompanyIds.length === 1 ? companies?.find(c => c.id === memberCompanyIds[0]) : null;
+                const derivedLogo = singleCompany?.logoId ? adminLogos?.find(l => l.id === singleCompany.logoId) : null;
+                const initials = group.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
                 return (
                   <div key={group.id} className="bg-muted border border-border rounded-xl p-4" data-testid={`group-card-${group.id}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        {groupLogo ? (
+                        {derivedLogo ? (
                           <div className="w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center overflow-hidden">
-                            <img src={groupLogo.url} alt={groupLogo.name} className="max-w-full max-h-full object-contain" />
+                            <img src={derivedLogo.url} alt={derivedLogo.name} className="max-w-full max-h-full object-contain" />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
-                            <IconBuilding className="w-4 h-4 text-muted-foreground" />
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 border border-border flex items-center justify-center">
+                            <span className="text-xs font-semibold text-primary">{initials}</span>
                           </div>
                         )}
                         <div>
                           <h3 className="font-display text-foreground font-medium">{group.name}{group.isDefault && <span className="ml-2 text-xs bg-muted/80 text-muted-foreground px-2 py-0.5 rounded">Default</span>}</h3>
-                          <p className="text-sm text-muted-foreground">Logo: <span className="text-foreground">{groupLogo ? groupLogo.name : "Default"}</span></p>
+                          <p className="text-sm text-muted-foreground">{derivedLogo ? <>Logo: <span className="text-foreground">{singleCompany?.name}</span></> : members.length > 0 ? <span className="italic">Mixed companies</span> : <span className="italic">No members</span>}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
                         <Button variant="ghost" size="sm" onClick={() => {
                           setEditingGroup(group);
-                          setGroupForm({ name: group.name, logoId: group.logoId, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
+                          setGroupForm({ name: group.name, themeId: group.themeId, assetDescriptionId: group.assetDescriptionId });
                           setGroupDialogOpen(true);
                         }} className="text-muted-foreground hover:text-foreground hover:bg-muted" data-testid={`button-edit-group-${group.id}`}>
                           <IconPencil className="w-4 h-4" />
@@ -248,10 +261,7 @@ export default function GroupsTab() {
                     </div>
 
                     {/* Group Members */}
-                    {(() => {
-                      const members = (allUsers ?? []).filter(u => u.userGroupId === group.id);
-                      if (members.length === 0) return null;
-                      return (
+                    {members.length > 0 && (
                         <div className="border-t border-border/60 pt-3 mt-1 mb-1">
                           <div className="flex items-center gap-2 mb-2">
                             <IconPeople className="w-3.5 h-3.5 text-muted-foreground/60" />
@@ -269,8 +279,7 @@ export default function GroupsTab() {
                             ))}
                           </div>
                         </div>
-                      );
-                    })()}
+                    )}
 
                     {/* Property Visibility */}
                     {allProperties && allProperties.length > 0 && (() => {
@@ -361,23 +370,7 @@ export default function GroupsTab() {
               <Label className="flex items-center gap-2 text-sm font-medium"><IconPeople className="w-4 h-4 text-muted-foreground/80" /> Group Name</Label>
               <Input value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="e.g., KIT Capital Team" data-testid="input-group-name" />
             </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-sm font-medium"><IconImage className="w-4 h-4 text-muted-foreground/80" /> Logo (includes company name)</Label>
-              <Select value={groupForm.logoId != null ? String(groupForm.logoId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, logoId: v === "default" ? null : parseInt(v) })}>
-                <SelectTrigger data-testid="select-group-logo"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default Logo</SelectItem>
-                  {adminLogos?.map(logo => (
-                    <SelectItem key={logo.id} value={String(logo.id)}>
-                      <span className="flex items-center gap-2">
-                        <img src={logo.url} alt="" className="w-5 h-5 rounded object-contain shrink-0" />
-                        {logo.name}{logo.isDefault ? " (Default)" : ""}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <p className="text-xs text-muted-foreground italic">Logo is derived automatically from the company if all members share the same company.</p>
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-sm font-medium"><IconPalette className="w-4 h-4 text-muted-foreground/80" /> Theme</Label>
               <Select value={groupForm.themeId != null ? String(groupForm.themeId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, themeId: v === "default" ? null : parseInt(v) })}>

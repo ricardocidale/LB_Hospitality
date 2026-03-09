@@ -164,7 +164,7 @@ As an admin, this user has full system access. You can help them with administra
 - Guide branding setup: logos, themes, company names per User Group
 - Help configure navigation visibility and sidebar settings
 - Assist with database sync status and seed data management
-- Help manage SPV companies and management company configuration
+- Help manage companies of interest and management company configuration
 
 **Data Oversight:**
 - Provide summaries of portfolio-wide data (properties, users, assumptions)

@@ -8,7 +8,7 @@
  *   • ADR (Average Daily Rate — the nightly rack rate)
  *   • Purchase price and optional renovation budget
  *   • Hero image — either a URL or AI-generated via the PropertyImagePicker
- *   • Optional SPV company assignment
+ *   • Optional company assignment
  *
  * On submit, the form data is POSTed to the API which creates the property
  * row with default assumptions (global defaults merged with user inputs).

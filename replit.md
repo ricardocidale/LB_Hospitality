@@ -62,6 +62,9 @@ Note: The old "Services" sidebar item was merged into "Revenue Share" — all se
 
 Companies table now includes `theme_id` column for per-company theme assignment.
 
+## Logo Assignment Policy
+Logos are assigned to **companies only**, not to groups. Groups derive their display logo automatically: if all members belong to the same company and that company has a logo, the company logo is shown; otherwise an initials-based pseudo logo is displayed. The branding resolution chain for users is: user's company logo → default system logo.
+
 ## Research Skills
 Property sub-skills: local-economics, insurance-costs, marketing-costs. Company: outsourcing/make-vs-buy analysis. Global: FX, capital markets, ESG. Source registry in `shared/constants.ts` (`RESEARCH_SOURCES`).
 

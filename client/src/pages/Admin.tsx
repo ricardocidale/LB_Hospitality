@@ -30,7 +30,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   icp:              { title: "Ideal Customer Profile", subtitle: "Define the target property type for AI research" },
   revshare:         { title: "Revenue Share",        subtitle: "Service categories, fee defaults, and incentive fees" },
   otherassumptions: { title: "Other Assumptions",    subtitle: "Company-specific inflation and financial defaults" },
-  companies:        { title: "Companies",            subtitle: "Manage SPV companies for individual properties" },
+  companies:        { title: "Companies",            subtitle: "Manage companies of interest" },
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },

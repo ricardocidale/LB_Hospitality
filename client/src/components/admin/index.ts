@@ -6,8 +6,8 @@
  * provides platform-wide configuration:
  *
  *   • UsersTab        – CRUD for user accounts, role assignment, password resets
- *   • CompaniesTab    – manage the management company entity and SPV (Special
- *                       Purpose Vehicle) companies that own individual properties
+ *   • CompaniesTab    – manage the management company entity and companies
+ *                       of interest (investors, partners, stakeholders)
  *   • ActivityTab     – login audit log, activity feed, and checker usage analytics
  *   • VerificationTab – independent GAAP financial verification with PDF export
  *   • UserGroupsTab   – group users for branded experiences (logo, theme, asset desc)

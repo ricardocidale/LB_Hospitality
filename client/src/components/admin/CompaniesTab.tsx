@@ -4,14 +4,13 @@
  * In this platform, "companies" are legal entities:
  *   • Management Company — the operating entity that manages properties
  *     and earns management fees (there is typically one per platform instance)
- *   • SPV (Special Purpose Vehicle) — a single-asset entity created for
- *     each property acquisition. SPVs isolate liability and simplify
- *     ownership structures for investors.
+ *   • Companies of Interest — entities relevant to the business simulation
+ *     (investors, partners, SPVs, or other stakeholders).
  *
  * This tab lets admins:
- *   • Create new SPV companies
+ *   • Create new companies of interest
  *   • Edit company names and metadata
- *   • Assign properties to SPVs
+ *   • Assign logos and themes
  *   • Delete companies (with cascade warnings)
  *
  * Data flows: GET/POST/PATCH/DELETE /api/admin/companies
@@ -72,7 +71,7 @@ export default function CompaniesTab() {
     },
   });
 
-  const spvCompanies = adminCompanies?.filter(c => c.type !== "management") || [];
+  const companiesOfInterest = adminCompanies?.filter(c => c.type !== "management") || [];
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: { name: string; type: string; description?: string | null; logoId?: number | null; themeId?: number | null }) => {
@@ -127,28 +126,28 @@ export default function CompaniesTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" /> SPV Companies</CardTitle>
-              <CardDescription className="label-text">Manage special purpose vehicle companies for individual properties.</CardDescription>
+              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" /> Companies of Interest</CardTitle>
+              <CardDescription className="label-text">Manage companies relevant to the business simulation.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => {
               setEditingCompany(null);
               setCompanyForm({ name: "", type: "spv", description: "", logoId: null, themeId: null });
               setCompanyDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-company">
-              <Plus className="w-4 h-4" /> New SPV
+              <Plus className="w-4 h-4" /> New Company
             </Button>
           </div>
         </CardHeader>
         <CardContent className="relative space-y-4">
-          {spvCompanies.length === 0 ? (
+          {companiesOfInterest.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Building2 className="w-10 h-10 mx-auto mb-2 opacity-40" />
-              <p>No SPV companies created yet.</p>
-              <p className="text-sm">Create an SPV to represent individual property entities.</p>
+              <p>No companies of interest created yet.</p>
+              <p className="text-sm">Add companies relevant to the business simulation.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {spvCompanies.map(company => {
+              {companiesOfInterest.map(company => {
                 const companyLogo = adminLogos?.find(l => l.id === company.logoId);
                 const companyTheme = allThemes?.find(t => t.id === company.themeId);
                 const companyUsers = users?.filter(u => u.companyId === company.id) || [];
@@ -167,7 +166,7 @@ export default function CompaniesTab() {
                         )}
                         <div>
                           <h3 className="font-display text-foreground font-medium">{company.name}</h3>
-                          <span className="text-xs px-2 py-0.5 rounded font-mono bg-muted text-muted-foreground">SPV</span>
+                          <span className="text-xs px-2 py-0.5 rounded font-mono bg-muted text-muted-foreground">Company</span>
                           {!company.isActive && <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-600 ml-2">Inactive</span>}
                         </div>
                       </div>
@@ -220,8 +219,8 @@ export default function CompaniesTab() {
     <Dialog open={companyDialogOpen} onOpenChange={setCompanyDialogOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="font-display">{editingCompany ? "Edit SPV" : "Create SPV"}</DialogTitle>
-          <DialogDescription className="label-text">{editingCompany ? "Update SPV company details" : "Create a new SPV company with a name and logo"}</DialogDescription>
+          <DialogTitle className="font-display">{editingCompany ? "Edit Company" : "New Company"}</DialogTitle>
+          <DialogDescription className="label-text">{editingCompany ? "Update company details" : "Add a new company of interest"}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">

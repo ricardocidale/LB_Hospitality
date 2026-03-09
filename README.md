@@ -121,7 +121,7 @@ This hierarchy is enforced by the financial engine and verified by the proof sys
 |-------|---------|
 | `users` | User accounts with roles (admin, partner, checker, investor) |
 | `sessions` | Express session storage for authentication |
-| `companies` | SPV companies (one per property) |
+| `companies` | Companies of interest |
 | `properties` | Hotel properties with financial assumptions |
 | `global_assumptions` | Company-wide default assumptions |
 | `property_fee_categories` | Custom fee/expense categories per property |
@@ -434,7 +434,7 @@ The Administration page (`/admin`) is organized into these tabs:
 | Tab | Purpose |
 |-----|---------|
 | **Users** | Create, edit, delete users; manage roles and passwords |
-| **Companies** | Manage SPV companies for individual properties |
+| **Companies** | Manage companies of interest |
 | **Activity** | View user activity logs and audit trail |
 | **Verification** | Run and view financial verification results |
 | **User Groups** | Manage multi-tenant groups with branding assignments |

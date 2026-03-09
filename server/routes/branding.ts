@@ -23,16 +23,14 @@ export function register(app: Express) {
 
       if (u.companyId) {
         const comp = await storage.getCompany(u.companyId);
-        if (comp) companyName = comp.name;
-      }
-
-      if (u.userGroupId) {
-        const group = await storage.getUserGroup(u.userGroupId);
-        if (group?.logoId) {
-          const logo = await storage.getLogo(group.logoId);
-          if (logo) {
-            logoUrl = logo.url;
-            if (logo.companyName) companyName = logo.companyName;
+        if (comp) {
+          companyName = comp.name;
+          if (comp.logoId) {
+            const logo = await storage.getLogo(comp.logoId);
+            if (logo) {
+              logoUrl = logo.url;
+              if (logo.companyName) companyName = logo.companyName;
+            }
           }
         }
       }
@@ -67,24 +65,27 @@ export function register(app: Express) {
         resolvedTheme = await storage.getDesignTheme(u.selectedThemeId);
       }
 
-      // 2. Group-level theme
-      if (!resolvedTheme && u.userGroupId) {
-        const group = await storage.getUserGroup(u.userGroupId);
-        if (group) {
-          if (group.logoId) {
-            const logo = await storage.getLogo(group.logoId);
-            if (logo) {
-              logoUrl = logo.url;
-              if (logo.companyName) groupCompanyName = logo.companyName;
-            }
-          }
-          if (group.themeId) {
-            resolvedTheme = await storage.getDesignTheme(group.themeId);
+      // 2. Company-level logo
+      if (u.companyId) {
+        const comp = await storage.getCompany(u.companyId);
+        if (comp?.logoId) {
+          const logo = await storage.getLogo(comp.logoId);
+          if (logo) {
+            logoUrl = logo.url;
+            if (logo.companyName) groupCompanyName = logo.companyName;
           }
         }
       }
 
-      // 3. System default theme
+      // 3. Group-level theme
+      if (!resolvedTheme && u.userGroupId) {
+        const group = await storage.getUserGroup(u.userGroupId);
+        if (group?.themeId) {
+          resolvedTheme = await storage.getDesignTheme(group.themeId);
+        }
+      }
+
+      // 4. System default theme
       if (!resolvedTheme) {
         resolvedTheme = await storage.getDefaultDesignTheme();
       }

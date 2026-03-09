@@ -2,24 +2,13 @@ import { useEffect, useRef } from "react";
 import { useGlobalAssumptions } from "@/lib/api/admin";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
+import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";
 
-/**
- * Renders the native ElevenLabs <elevenlabs-convai> widget.
- *
- * The widget automatically fetches its full configuration from ElevenLabs
- * (variant, placement, avatar, colors, text labels, language presets,
- * feedback mode, etc.) using the agent-id. All those settings are managed
- * in the ElevenLabs dashboard or pushed via the API from our Admin panel.
- *
- * We only pass HTML attributes for:
- *  - agent-id (required)
- *  - dynamic-variables (runtime user context)
- *  - avatar-image-url (local override if admin sets one)
- */
 export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolean }) {
   const { data: global } = useGlobalAssumptions();
   const { user } = useAuth();
   const [location] = useLocation();
+  const { data: signedUrl } = useAdminSignedUrl();
 
   const agentId = (global as any)?.marcelaAgentId;
   const avatarUrl = (global as any)?.marcelaAvatarUrl as string | undefined;
@@ -38,6 +27,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   return (
     <NativeElevenLabsWidget
       agentId={agentId}
+      signedUrl={signedUrl}
       avatarUrl={avatarUrl}
       dynamicVars={dynamicVars}
     />
@@ -46,10 +36,12 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
 
 function NativeElevenLabsWidget({
   agentId,
+  signedUrl,
   avatarUrl,
   dynamicVars,
 }: {
   agentId: string;
+  signedUrl?: string;
   avatarUrl?: string;
   dynamicVars: Record<string, string>;
 }) {
@@ -57,11 +49,9 @@ function NativeElevenLabsWidget({
   const widgetRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !signedUrl) return;
     let cancelled = false;
 
-    // Wait for the custom element registered in main.tsx via the local
-    // @elevenlabs/convai-widget-core package (no external CDN dependency).
     customElements.whenDefined("elevenlabs-convai").then(() => {
       if (cancelled || !containerRef.current) return;
 
@@ -72,6 +62,7 @@ function NativeElevenLabsWidget({
 
       const widget = document.createElement("elevenlabs-convai");
       widget.setAttribute("agent-id", agentId);
+      widget.setAttribute("signed-url", signedUrl);
       if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
       widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
 
@@ -85,7 +76,7 @@ function NativeElevenLabsWidget({
       widgetRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentId]);
+  }, [agentId, signedUrl]);
 
   useEffect(() => {
     if (widgetRef.current) {

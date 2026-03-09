@@ -1,5 +1,6 @@
 import { db } from "../db";
-import { logos, companies } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import { logos, companies, designThemes } from "@shared/schema";
 import { logger } from "../logger";
 
 export async function seedDefaultLogos() {
@@ -36,6 +37,9 @@ export async function seedDefaultLogos() {
 }
 
 export async function seedCompanies() {
+  const [defaultTheme] = await db.select().from(designThemes).where(eq(designThemes.isDefault, true));
+  const defaultThemeId = defaultTheme?.id ?? null;
+
   const existing = await db.select().from(companies);
   const existingNames = new Set(existing.map(c => c.name));
 
@@ -51,11 +55,21 @@ export async function seedCompanies() {
   let added = 0;
   for (const c of companiesToSeed) {
     if (!existingNames.has(c.name)) {
-      await db.insert(companies).values(c);
+      await db.insert(companies).values({ ...c, themeId: defaultThemeId });
       added++;
     }
   }
   if (added > 0) {
-    logger.info(`Seeded ${added} new companies`, "seed");
+    logger.info(`Seeded ${added} new companies (themeId=${defaultThemeId})`, "seed");
+  }
+
+  if (defaultThemeId) {
+    const noTheme = existing.filter(c => c.themeId == null);
+    for (const c of noTheme) {
+      await db.update(companies).set({ themeId: defaultThemeId }).where(eq(companies.id, c.id));
+    }
+    if (noTheme.length > 0) {
+      logger.info(`Assigned default theme to ${noTheme.length} existing companies`, "seed");
+    }
   }
 }

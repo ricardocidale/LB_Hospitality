@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Building2, LayoutGrid, Loader2 } from "lucide-react";
 import { IconPeople, IconProperties, IconUserCog } from "@/components/icons/brand-icons";
 import UsersTab from "./UsersTab";
-import UserGroupsTab from "./UserGroupsTab";
 
 interface PeopleTabProps {
   initialTab?: string;
@@ -46,7 +45,7 @@ export default function PeopleTab({ initialTab }: PeopleTabProps) {
         </TabsContent>
 
         <TabsContent value="group-assignment" className="mt-6">
-          <UserGroupsTab />
+          <GroupAssignmentTab />
         </TabsContent>
       </Tabs>
     </div>
@@ -203,7 +202,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminLogos } from "./hooks";
-import type { User, AdminCompany } from "./types";
+import { UserAvatar } from "@/components/ui/user-avatar";
+import type { User, UserGroup, AdminCompany } from "./types";
 
 function JobTitleInput({
   userId,
@@ -224,5 +224,156 @@ function JobTitleInput({
       className="h-8 text-sm bg-transparent border-border/50 max-w-[180px] placeholder:text-muted-foreground/40"
       data-testid={`input-job-title-${userId}`}
     />
+  );
+}
+
+function GroupAssignmentTab() {
+  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
+    queryKey: ["admin", "users"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/users", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch users");
+      return res.json();
+    },
+  });
+
+  const { data: userGroupsList } = useQuery<UserGroup[]>({
+    queryKey: ["admin", "user-groups"],
+    queryFn: async () => {
+      const res = await fetch("/api/user-groups", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch user groups");
+      return res.json();
+    },
+  });
+
+  const { data: adminLogos } = useAdminLogos();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const groupLogoMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    if (!userGroupsList || !adminLogos) return map;
+    const logoUrlMap: Record<number, string> = {};
+    adminLogos.forEach(l => { logoUrlMap[l.id] = l.url; });
+    userGroupsList.forEach(g => {
+      if (g.logoId && logoUrlMap[g.logoId]) {
+        map[g.id] = logoUrlMap[g.logoId];
+      }
+    });
+    return map;
+  }, [userGroupsList, adminLogos]);
+
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, userGroupId }: { userId: number; userGroupId: number | null }) => {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userGroupId }),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to update user");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const handleGroupChange = useCallback((userId: number, userGroupId: number | null) => {
+    updateUserMutation.mutate({ userId, userGroupId });
+    toast({ title: "Group Assigned", description: "User group assignment updated." });
+  }, [updateUserMutation, toast]);
+
+  const groupNameMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    userGroupsList?.forEach(g => { map[g.id] = g.name; });
+    return map;
+  }, [userGroupsList]);
+
+  const sortedUsers = useMemo(() => {
+    if (!users) return [];
+    return [...users].sort((a, b) => {
+      const ga = a.userGroupId ? (groupNameMap[a.userGroupId] || "") : "zzz";
+      const gb = b.userGroupId ? (groupNameMap[b.userGroupId] || "") : "zzz";
+      const cmp = ga.localeCompare(gb);
+      if (cmp !== 0) return cmp;
+      return (a.name || a.email).localeCompare(b.name || b.email);
+    });
+  }, [users, groupNameMap]);
+
+  if (usersLoading) {
+    return (
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="bg-card border border-border/80 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+          <IconUserCog className="w-4 h-4 text-muted-foreground" /> Group Assignment
+        </CardTitle>
+        <CardDescription className="label-text">Assign users to groups. Groups are managed under the Groups menu item.</CardDescription>
+      </CardHeader>
+      <CardContent className="relative">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground">User</TableHead>
+              <TableHead className="text-muted-foreground">Group</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedUsers.map((user, idx) => (
+              <TableRow
+                key={user.id}
+                className={`border-border ${idx % 2 === 1 ? "bg-muted/30" : ""}`}
+                data-testid={`group-assign-row-${user.id}`}
+              >
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
+                    <div>
+                      <span className="font-medium text-foreground">{user.name || user.email}</span>
+                      {user.title && <div className="text-[11px] text-muted-foreground/70">{user.title}</div>}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Select
+                    value={user.userGroupId != null ? String(user.userGroupId) : "none"}
+                    onValueChange={(v) => {
+                      const groupId = v === "none" ? null : parseInt(v);
+                      handleGroupChange(user.id, groupId);
+                    }}
+                  >
+                    <SelectTrigger className="h-8 max-w-[220px] text-sm" data-testid={`select-user-group-${user.id}`}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No Group</SelectItem>
+                      {userGroupsList?.map(g => (
+                        <SelectItem key={g.id} value={String(g.id)}>
+                          <span className="flex items-center gap-2">
+                            {groupLogoMap[g.id] && <img src={groupLogoMap[g.id]} alt="" className="w-5 h-5 rounded object-contain shrink-0" />}
+                            {g.name}
+                            {g.isDefault && <span className="text-[10px] text-muted-foreground ml-1">(Default)</span>}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

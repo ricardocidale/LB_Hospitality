@@ -805,3 +805,129 @@ export function IconClock(p: IconProps) {
     </svg>
   );
 }
+
+export function IconFileText(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" {...F} />
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" {...S} fill="none" />
+      <path d="M14 2v6h6" {...S} />
+      <path d="M16 13H8" {...S} />
+      <path d="M16 17H8" {...S} />
+      <path d="M10 9H8" {...S} />
+    </svg>
+  );
+}
+
+export function IconFileDown(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" {...F} />
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" {...S} fill="none" />
+      <path d="M14 2v6h6" {...S} />
+      <path d="M12 18v-6" {...S} />
+      <path d="M9 15l3 3 3-3" {...S} />
+    </svg>
+  );
+}
+
+export function IconFileSpreadsheet(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" {...F} />
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" {...S} fill="none" />
+      <path d="M14 2v6h6" {...S} />
+      <path d="M8 13h2" {...S} />
+      <path d="M8 17h2" {...S} />
+      <path d="M14 13h2" {...S} />
+      <path d="M14 17h2" {...S} />
+    </svg>
+  );
+}
+
+export function IconFileStack(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M16 2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" {...F} />
+      <path d="M16 2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" {...S} fill="none" />
+      <path d="M4 7v11a2 2 0 0 0 2 2h8" {...S} />
+      <path d="M2 10v8a2 2 0 0 0 2 2h8" {...S} />
+    </svg>
+  );
+}
+
+export function IconFileBarChart(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" {...F} />
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" {...S} fill="none" />
+      <path d="M14 2v6h6" {...S} />
+      <path d="M8 18v-4" {...S} />
+      <path d="M12 18v-6" {...S} />
+      <path d="M16 18v-2" {...S} />
+    </svg>
+  );
+}
+
+export function IconFolderOpen(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M2 19V6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v2" {...S} />
+      <path d="M2 19l2.4-7.2A2 2 0 0 1 6.3 10h15.4a1 1 0 0 1 .95 1.32l-2.5 7.36A2 2 0 0 1 18.25 20H4a2 2 0 0 1-2-1z" {...F} />
+      <path d="M2 19l2.4-7.2A2 2 0 0 1 6.3 10h15.4a1 1 0 0 1 .95 1.32l-2.5 7.36A2 2 0 0 1 18.25 20H4a2 2 0 0 1-2-1z" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconClipboardCheck(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="5" y="2" width="14" height="20" rx="2" {...F} />
+      <rect x="5" y="2" width="14" height="20" rx="2" {...S} fill="none" />
+      <path d="M9 2h6v3H9z" {...S} fill="none" />
+      <path d="M9 14l2 2 4-4" {...S} />
+    </svg>
+  );
+}
+
+export function IconCopy(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="9" y="9" width="13" height="13" rx="2" {...F} />
+      <rect x="9" y="9" width="13" height="13" rx="2" {...S} fill="none" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" {...S} />
+    </svg>
+  );
+}
+
+export function IconDownload(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" {...S} />
+      <path d="M7 10l5 5 5-5" {...S} />
+      <path d="M12 15V3" {...S} />
+      <rect x="3" y="15" width="18" height="6" rx="2" {...F} />
+    </svg>
+  );
+}
+
+export function IconReceipt(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 3 2V2l-3 2-3-2-3 2-3-2-3 2-3-2z" {...F} />
+      <path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 3 2V2l-3 2-3-2-3 2-3-2-3 2-3-2z" {...S} fill="none" />
+      <path d="M8 10h8" {...S} />
+      <path d="M8 14h4" {...S} />
+    </svg>
+  );
+}

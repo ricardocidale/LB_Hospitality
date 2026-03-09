@@ -65,6 +65,22 @@ Quick reference:
 - Dark glass for dashboards/entity views; light for assumptions/research/discovery
 - Playfair Display for headings, Inter for UI/data text
 
+## Special Effects (Magic UI)
+
+9 special-effects components from Magic UI. All in `client/src/components/ui/`. Full reference: `.claude/skills/ui/magic-ui.md`
+
+| Component | Import | Use For |
+|-----------|--------|---------|
+| `Particles` | `@/components/ui/particles` | Interactive particle backgrounds |
+| `NumberTicker` | `@/components/ui/number-ticker` | Animated financial numbers (preferred over `AnimatedCounter`) |
+| `BlurFade` | `@/components/ui/blur-fade` | Blur-in section reveals |
+| `ShimmerButton` | `@/components/ui/shimmer-button` | Shimmer CTA buttons |
+| `AnimatedGradientText` | `@/components/ui/animated-gradient-text` | Gradient-shift headings |
+| `Ripple` | `@/components/ui/ripple` | Idle/loading waiting states |
+| `AuroraText` | `@/components/ui/aurora-text` | Aurora color-shift hero headings |
+| `AnimatedBeam` | `@/components/ui/animated-beam` | SVG beams between elements |
+| `Meteors` | `@/components/ui/meteors` | Falling-streak card backgrounds |
+
 ## UI Component Skills
 
 Individual component skills live in `.claude/skills/ui/`:
@@ -72,6 +88,6 @@ Individual component skills live in `.claude/skills/ui/`:
 accordion-formula-rows, animation-patterns, button-system, calculation-transparency,
 callout, charts, composite-tabbed-pages, entity-cards, financial-table-styling,
 glass-components, graphics-component-catalog, help-tooltip, info-icons, interactions,
-manual-table, navigation, notification-center, page-enhancement-checklist, page-header,
-portfolio-pages, property-image-picker, research-badges, reusable-components,
+magic-ui, manual-table, navigation, notification-center, page-enhancement-checklist,
+page-header, portfolio-pages, property-image-picker, research-badges, reusable-components,
 section-card, slider, tab-bar-system, theme-engine

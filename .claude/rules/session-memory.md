@@ -13,6 +13,12 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 - Round 3: Slimmed 10 remaining large rules files; moved 4 reference docs to skills/; total rules auto-loaded context ~4,203 → ~850 lines (-80%)
 - Moved: `api-routes.md`→`skills/architecture/`, `constants-and-config.md`→`skills/finance/`, `release-audit-checklist.md`→`skills/proof-system/`, `verification-system.md`→`skills/proof-system/`
 
+## Session: March 9, 2026 — Magic UI Special Effects + ElevenLabs Orb Integration
+- Added 9 Magic UI components to `client/src/components/ui/`: particles, number-ticker, blur-fade, shimmer-button, animated-gradient-text, ripple, aurora-text, animated-beam, meteors
+- `components/ui/orb.tsx` is a re-export wrapper → canonical orb is `features/ai-agent/components/orb.tsx` (superior: local Perlin noise, WebGL fallback, error boundary)
+- New skill: `.claude/skills/ui/magic-ui.md`; updated: animation-patterns.md, graphics-component-catalog.md, context-loading/SKILL.md
+- `NumberTicker` preferred over `AnimatedCounter` for new financial number displays
+
 ## Session: March 8, 2026 — Admin Research Configuration Tab
 - New Admin "Research" tab (13th tab) — per-event control over AI research (property/company/global)
 - Config stored in `global_assumptions.researchConfig` (JSONB); new `ResearchEventConfig` / `ResearchConfig` types in schema

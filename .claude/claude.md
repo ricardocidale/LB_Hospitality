@@ -67,7 +67,7 @@ With 126+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, etc. |
 | Chart Library | `.claude/skills/charts/SKILL.md` | 9 reusable chart components |
 | Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, responsive helpers |
-| UI (27 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation |
+| UI (28 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation, Magic UI effects |
 | API Routes | `.claude/skills/architecture/api-routes.md` | All REST endpoints (load when writing API code) |
 | Constants Ref | `.claude/skills/finance/constants-and-config.md` | All named constants and protected fields |
 | Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |

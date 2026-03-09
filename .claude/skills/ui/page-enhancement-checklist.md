@@ -25,6 +25,14 @@ Use this checklist when building or enhancing any page to ensure it meets the gr
 | Period × metric grid | `HeatMap` |
 | Revenue-to-NOI bridge | `WaterfallChart` |
 | Grid of property/scenario cards | `AnimatedGrid` + `AnimatedGridItem` + `HoverScale` |
+| Animated financial KPI number | `NumberTicker` (preferred over `AnimatedCounter` for new work) |
+| Hero / display heading | `AuroraText` or `AnimatedGradientText` |
+| Idle or loading waiting state | `Ripple` |
+| Background particle effect | `Particles` |
+| Card or section background accent | `Meteors` |
+| Content reveal on scroll | `BlurFade` (alternative to `AnimatedSection`) |
+| Primary CTA button with flair | `ShimmerButton` |
+| Data flow / connection diagram | `AnimatedBeam` |
 
 ## Import
 

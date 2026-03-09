@@ -119,6 +119,19 @@ client/src/
 | `FadeIn`, `FadeInUp`, `ScaleIn`, `SlideIn` | `@/components/ui/animated` | Framer-motion wrapper components. Props: `delay?`, `duration?`, `className?` |
 | `StaggerContainer`, `AnimatedCounter`, `HoverScale` | `@/components/ui/animated` | Container stagger, number counter animation, hover scale effect |
 
+### Special Effects (Magic UI) — full reference: `.claude/skills/ui/magic-ui.md`
+| Component | Import | Description |
+|-----------|--------|-------------|
+| `Particles` | `@/components/ui/particles` | Mouse-interactive canvas particle background |
+| `NumberTicker` | `@/components/ui/number-ticker` | Spring-physics counting number — preferred over `AnimatedCounter` for new financial displays |
+| `BlurFade` | `@/components/ui/blur-fade` | Blur-in reveal on mount or scroll entry |
+| `ShimmerButton` | `@/components/ui/shimmer-button` | Light-sweep shimmer CTA button |
+| `AnimatedGradientText` | `@/components/ui/animated-gradient-text` | Animated gradient-shift text |
+| `Ripple` | `@/components/ui/ripple` | Concentric expanding ring animation |
+| `AuroraText` | `@/components/ui/aurora-text` | Aurora color-shift display heading |
+| `AnimatedBeam` | `@/components/ui/animated-beam` | SVG animated beam connecting two refs |
+| `Meteors` | `@/components/ui/meteors` | CSS falling-streak card background |
+
 ### Utility
 | Component | Import | Description |
 |-----------|--------|-------------|

@@ -49,9 +49,10 @@ const LANGUAGES = [
 
 interface PromptEditorProps {
   agentName: string;
+  companyName: string;
 }
 
-export function PromptEditor({ agentName }: PromptEditorProps) {
+export function PromptEditor({ agentName, companyName }: PromptEditorProps) {
   const { data: agentConfig, isLoading, error, refetch } = useAgentConfig();
   const savePromptMutation = useSaveAgentPrompt();
 
@@ -199,7 +200,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
             <Textarea
               value={currentPrompt}
               onChange={(e) => handlePromptChange(e.target.value)}
-              placeholder={`You are ${agentName}, an AI assistant for Hospitality Business Group. You help investors understand hotel business simulations...`}
+              placeholder={`You are ${agentName}, an AI assistant for ${companyName}. You help investors understand hotel business simulations...`}
               className="bg-card min-h-[340px] font-mono text-[13px] leading-relaxed resize-y border-border focus:border-border transition-colors"
               data-testid="textarea-system-prompt"
             />
@@ -260,7 +261,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
             <Input
               value={currentFirstMessage}
               onChange={(e) => handleFirstMessageChange(e.target.value)}
-              placeholder={`Hello! I'm ${agentName}, your assistant for Hospitality Business Group...`}
+              placeholder={`Hello! I'm ${agentName}, your assistant for ${companyName}...`}
               className="bg-card border-border focus:border-border transition-colors"
               data-testid="input-first-message"
             />

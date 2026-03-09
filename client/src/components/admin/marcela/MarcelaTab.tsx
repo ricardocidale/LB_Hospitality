@@ -15,6 +15,7 @@ import { VoiceSettings } from "./types";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useMarcelaSettings, useSaveMarcelaSettings, useTwilioStatus } from "@/features/ai-agent/hooks/use-agent-settings";
+import { useGlobalAssumptions } from "../hooks";
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 import { useConversations } from "@/features/ai-agent/hooks/use-conversations";
 import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";
@@ -156,6 +157,8 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
 
   // ── Derived state ───────────────────────────────────────────────────────────
 
+  const { data: globalAssumptions } = useGlobalAssumptions();
+  const companyName = globalAssumptions?.companyName || "the company";
   const agentName = draft.aiAgentName || "AI Agent";
   const elevenLabsOk = !agentConfigError && agentConfig !== undefined;
   const signedUrlOk = !!signedUrl;
@@ -374,7 +377,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
 
           {/* ── Intelligence (Prompt + LLM) ──────────────────────────────── */}
           <TabsContent value="intelligence" className="space-y-6 m-0 focus-visible:outline-none">
-            <PromptEditor agentName={agentName} />
+            <PromptEditor agentName={agentName} companyName={companyName} />
             <LLMSettings draft={draft} updateField={updateField} />
           </TabsContent>
 
@@ -395,7 +398,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
 
           {/* ── Channels ───────────────────────────────────────────────────── */}
           <TabsContent value="channels" className="space-y-6 m-0 focus-visible:outline-none">
-            <TelephonySettings draft={draft} updateField={updateField} twilioStatus={twilioStatus} />
+            <TelephonySettings draft={draft} updateField={updateField} twilioStatus={twilioStatus} companyName={companyName} />
           </TabsContent>
 
           {/* ── History ────────────────────────────────────────────────────── */}

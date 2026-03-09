@@ -17,14 +17,15 @@ interface TelephonySettingsProps {
   draft: VoiceSettings;
   updateField: <K extends keyof VoiceSettings>(key: K, value: VoiceSettings[K]) => void;
   twilioStatus?: TwilioStatus;
+  companyName: string;
 }
 
-export function TelephonySettings({ draft, updateField, twilioStatus }: TelephonySettingsProps) {
+export function TelephonySettings({ draft, updateField, twilioStatus, companyName }: TelephonySettingsProps) {
   const { toast } = useToast();
   const sendTestSms = useSendTestSms();
   const [testSmsTo, setTestSmsTo] = useState("");
   const agentName = draft.aiAgentName || "AI Agent";
-  const [testSmsBody, setTestSmsBody] = useState(`Hello from ${agentName}! This is a test message from Hospitality Business Group.`);
+  const [testSmsBody, setTestSmsBody] = useState(`Hello from ${agentName}! This is a test message from ${companyName}.`);
 
   const baseUrl = typeof window !== "undefined"
     ? `${window.location.protocol}//${window.location.host}`

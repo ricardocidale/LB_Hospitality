@@ -23,6 +23,7 @@ import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COMMISSION_RATE,
   DEFAULT_INFLATION_RATE,
+  DEFAULT_COMPANY_TAX_RATE,
 } from "@shared/constants";
 
 /** Table of contents for the Checker Manual — each section maps to a chapter of the app. */
@@ -386,7 +387,7 @@ export async function exportFullData(user: { email?: string; role?: string; comp
     ["Funding Tranche 2 Date", global.safeTranche2Date || "—"],
     ["Exit Cap Rate", `${((global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}%`],
     ["Sales Commission", `Per Property (default ${(DEFAULT_COMMISSION_RATE * 100).toFixed(1)}%)`],
-    ["Company Income Tax Rate", `${((global.companyTaxRate ?? 0.30) * 100).toFixed(1)}%`],
+    ["Company Income Tax Rate", `${((global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE) * 100).toFixed(1)}%`],
     ["Partner Base Compensation", formatMoney(global.partnerBaseCompensation ?? 15000)],
     ["Partner Comp Cap", formatMoney(global.partnerCompensationCap ?? 30000)],
   ]);

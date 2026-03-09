@@ -56,7 +56,7 @@ export default function NavigationTab() {
       if (context?.prev) queryClient.setQueryData(["globalAssumptions"], context.prev);
       toast({ title: "Error", description: "Failed to save sidebar settings.", variant: "destructive" });
     },
-    onSettled: () => {
+    onSuccess: () => {
       invalidateAllFinancialQueries(queryClient);
       toast({ title: "Sidebar updated", description: "Navigation visibility saved for all users." });
     },

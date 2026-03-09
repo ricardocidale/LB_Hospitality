@@ -138,7 +138,7 @@ export function generatePropertyProForma(
     const monthsSinceOps = isOperational ? differenceInMonths(currentDate, opsStart) : 0;
 
     const opsYear = Math.floor(monthsSinceOps / 12);
-    const currentAdr = safeNum(baseAdr * Math.pow(1 + property.adrGrowthRate, opsYear));
+    const currentAdr = safeNum(baseAdr * Math.pow(1 + (property.adrGrowthRate ?? 0), opsYear));
     const effectiveInflation = property.inflationRate ?? global.inflationRate;
     const fixedEscalationRate = global.fixedCostEscalationRate ?? effectiveInflation;
     const fixedCostFactor = safeNum(Math.pow(1 + fixedEscalationRate, opsYear));

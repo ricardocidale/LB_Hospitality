@@ -13,5 +13,7 @@ export { computeADRProjection } from "./adr-projection.js";
 export { computeCapRateValuation } from "./cap-rate-valuation.js";
 export { computeCostBenchmarks } from "./cost-benchmarks.js";
 export { computeMakeVsBuy } from "./make-vs-buy.js";
+export { computeServiceFee } from "./service-fee.js";
+export { computeMarkupWaterfall } from "./markup-waterfall.js";
 export { validateResearchValues } from "./validate-research.js";
 export type { ValidatedResearchValues } from "./validate-research.js";

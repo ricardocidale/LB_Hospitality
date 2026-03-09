@@ -27,6 +27,7 @@ import {
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   SEED_DEBT_ASSUMPTIONS,
   DEFAULT_INFLATION_RATE,
+  DEFAULT_COMPANY_TAX_RATE,
 } from "../shared/constants";
 
 export interface SyncResults {
@@ -66,7 +67,7 @@ export const SEED_GLOBAL_ASSUMPTIONS = {
   safeTranche2Date: "2027-04-01",
   safeValuationCap: DEFAULT_SAFE_VALUATION_CAP,
   safeDiscountRate: DEFAULT_SAFE_DISCOUNT_RATE,
-  companyTaxRate: 0.3,
+  companyTaxRate: DEFAULT_COMPANY_TAX_RATE,
   companyOpsStartDate: "2026-06-01",
   fiscalYearStartMonth: 1,
   companyName: "Hospitality Business Group",

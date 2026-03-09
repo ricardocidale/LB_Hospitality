@@ -28,6 +28,8 @@ import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   SEED_DEBT_ASSUMPTIONS,
+  DEFAULT_INFLATION_RATE,
+  DEFAULT_COMPANY_TAX_RATE,
 } from "@shared/constants";
 
 export async function seedGlobalAssumptions() {
@@ -35,10 +37,10 @@ export async function seedGlobalAssumptions() {
     modelStartDate: "2026-04-01",
     companyOpsStartDate: "2026-06-01",
     fiscalYearStartMonth: 1,
-    inflationRate: 0.03,
-    fixedCostEscalationRate: 0.03,
-    baseManagementFee: 0.085,
-    incentiveManagementFee: 0.12,
+    inflationRate: DEFAULT_INFLATION_RATE,
+    fixedCostEscalationRate: DEFAULT_INFLATION_RATE,
+    baseManagementFee: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+    incentiveManagementFee: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     safeTranche1Amount: 1000000,
     safeTranche1Date: "2026-06-01",
     safeTranche2Amount: 1000000,
@@ -83,7 +85,7 @@ export async function seedGlobalAssumptions() {
       buildingImprovements: 1200000,
     },
     debtAssumptions: SEED_DEBT_ASSUMPTIONS,
-    companyTaxRate: 0.3,
+    companyTaxRate: DEFAULT_COMPANY_TAX_RATE,
     companyName: "Hospitality Business Group",
     exitCapRate: DEFAULT_EXIT_CAP_RATE,
     salesCommissionRate: DEFAULT_COMMISSION_RATE,

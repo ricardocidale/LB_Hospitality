@@ -128,8 +128,7 @@ export function generateCompanyProForma(
       const pf = propertyFinancials[i];
       if (m < pf.length) {
         const propId = String(properties[i].id ?? i);
-        const propIncentiveFee = properties[i].incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
-        const propIncentive = Math.max(0, pf[m].gop * propIncentiveFee);
+        const propIncentive = pf[m].feeIncentive;
         incentiveFeeRevenue += propIncentive;
         incentiveFeeByPropertyId[propId] = propIncentive;
         

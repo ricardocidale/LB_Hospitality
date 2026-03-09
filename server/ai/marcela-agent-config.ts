@@ -14,7 +14,10 @@ export function getBaseUrl(): string {
   return `http://localhost:${process.env.PORT || 5000}`;
 }
 
-const TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET || "marcela-server-tools-key";
+const TOOLS_SECRET = process.env.MARCELA_TOOLS_SECRET || "";
+if (!TOOLS_SECRET) {
+  console.warn("[marcela-agent-config] MARCELA_TOOLS_SECRET env var not set — agent tool calls will be rejected");
+}
 
 export function buildClientTools() {
   return [

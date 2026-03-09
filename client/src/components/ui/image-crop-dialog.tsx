@@ -3,7 +3,8 @@ import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from
 import "react-image-crop/dist/ReactCrop.css";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Crop as CropIcon, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconCrop as CropIcon } from "@/components/icons";
 
 interface ImageCropDialogProps {
   open: boolean;

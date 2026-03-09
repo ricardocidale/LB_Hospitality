@@ -13,7 +13,8 @@ import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Upload, Sparkles, X, Link as LinkIcon } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import { IconUpload, IconSparkles, IconLink as LinkIcon } from "@/components/icons";
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -191,11 +192,11 @@ export function AIImagePicker({
     <div className={cn("space-y-3", className)} data-testid={testId}>
       <div className="flex gap-2 flex-wrap">
         <button type="button" onClick={() => setMode("upload")} disabled={isBusy} className={modeButtonClass(mode === "upload")}>
-          <Upload className="w-3.5 h-3.5" />
+          <IconUpload className="w-3.5 h-3.5" />
           {uploadLabel}
         </button>
         <button type="button" onClick={() => setMode("generate")} disabled={isBusy} className={modeButtonClass(mode === "generate")}>
-          <Sparkles className="w-3.5 h-3.5" />
+          <IconSparkles className="w-3.5 h-3.5" />
           {generateLabel}
         </button>
         {showUrlMode && (
@@ -229,7 +230,7 @@ export function AIImagePicker({
             </>
           ) : (
             <>
-              <Upload className="w-10 h-10 text-muted-foreground/50 mb-2" />
+              <IconUpload className="w-10 h-10 text-muted-foreground/50 mb-2" />
               <p className="text-sm text-muted-foreground">Click to upload image</p>
               <p className="text-xs text-muted-foreground/70 mt-1">Max size: {maxSizeMB}MB</p>
             </>
@@ -267,7 +268,7 @@ export function AIImagePicker({
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
+                <IconSparkles className="w-4 h-4 mr-2" />
                 Generate Image
               </>
             )}

@@ -9,7 +9,8 @@
  */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Star, Building2, FileText, Eye, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { IconStar, IconBuilding2, IconFileText, IconEye } from "@/components/icons";
 import { useState } from "react";
 
 export interface FavoriteItem {
@@ -72,7 +73,7 @@ export function FavoritesStar({ item, className }: { item: FavoriteItem; classNa
           : "text-background/30 hover:text-primary"
       } ${className ?? ""}`}
     >
-      <Star
+      <IconStar
         className="w-4 h-4"
         fill={favorited ? "currentColor" : "none"}
       />
@@ -81,9 +82,9 @@ export function FavoritesStar({ item, className }: { item: FavoriteItem; classNa
 }
 
 const typeIcon = {
-  property: Building2,
-  page: FileText,
-  view: Eye,
+  property: IconBuilding2,
+  page: IconFileText,
+  view: IconEye,
 };
 
 function getHref(item: FavoriteItem) {
@@ -101,7 +102,7 @@ export default function FavoritesSidebar() {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors duration-200"
       >
-        <Star className="w-3.5 h-3.5" />
+        <IconStar className="w-3.5 h-3.5" />
         <span>Favorites</span>
         <ChevronDown
           className={`w-3.5 h-3.5 ml-auto transition-transform duration-200 ${

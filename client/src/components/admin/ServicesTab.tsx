@@ -21,13 +21,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, Plus, RefreshCw, Save, ArrowRightLeft, HelpCircle, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
-import {
-  IconPencil,
-  IconTrash,
-  IconPackage,
-  IconProperties
-} from "@/components/icons/brand-icons";
+import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { IconPlus, IconRefreshCw, IconSave, IconArrowRightLeft, IconHelpCircle, IconBookOpen, IconPencil, IconTrash, IconPackage, IconProperties } from "@/components/icons";
 import {
   useServiceTemplates,
   useCreateServiceTemplate,
@@ -81,7 +76,7 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
   return (
     <div className="mt-3 pt-3 border-t border-border/60 space-y-3">
       <div className="flex items-center gap-2 mb-2">
-        <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+        <IconBookOpen className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="text-xs font-medium text-foreground uppercase tracking-wider">Industry Benchmarks</span>
         <span className="text-[10px] text-muted-foreground ml-auto">at $1.5M sample revenue</span>
       </div>
@@ -330,7 +325,7 @@ export default function ServicesTab() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="sm" onClick={handleSync} disabled={syncMutation.isPending}>
-                    {syncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <ArrowRightLeft className="w-4 h-4 mr-1" />}
+                    {syncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <IconArrowRightLeft className="w-4 h-4 mr-1" />}
                     Sync to Properties
                   </Button>
                 </TooltipTrigger>
@@ -339,7 +334,7 @@ export default function ServicesTab() {
                 </TooltipContent>
               </Tooltip>
               <Button size="sm" onClick={openCreate}>
-                <Plus className="w-4 h-4 mr-1" />
+                <IconPlus className="w-4 h-4 mr-1" />
                 Add Service
               </Button>
             </div>
@@ -389,7 +384,7 @@ export default function ServicesTab() {
                           {t.serviceModel === "centralized" && (
                             <Tooltip>
                               <TooltipTrigger>
-                                <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                                <IconHelpCircle className="w-3 h-3 text-muted-foreground" />
                               </TooltipTrigger>
                               <TooltipContent side="right">
                                 <p className="max-w-xs text-xs">
@@ -410,7 +405,7 @@ export default function ServicesTab() {
                       />
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleResearch(t.id)} data-testid={`button-research-service-${t.id}`}>
-                          <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+                          <IconBookOpen className="w-3.5 h-3.5 text-muted-foreground" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(t)} data-testid={`button-edit-service-${t.id}`}>
                           <IconPencil className="w-3.5 h-3.5" />
@@ -514,7 +509,7 @@ export default function ServicesTab() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
               {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              <Save className="w-4 h-4 mr-1" />
+              <IconSave className="w-4 h-4 mr-1" />
               Save
             </Button>
           </DialogFooter>

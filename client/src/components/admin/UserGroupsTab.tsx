@@ -27,8 +27,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Plus, Trash2, Users, Pencil, Building2, UserPlus, Palette, Tag, Image, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
-import { IconPeople, IconProperties, IconUserPlus, IconPencil, IconTrash, IconPalette, IconImage } from "@/components/icons/brand-icons";
+import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  IconPlus, IconTrash, IconUsers, IconPencil, IconBuilding2, IconUserPlus,
+  IconPalette, IconTag, IconImage, IconSave, IconEye, IconPeople, IconProperties,
+} from "@/components/icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import type { User, Logo, UserGroup, AssetDesc } from "./types";
@@ -199,7 +202,7 @@ export default function UserGroupsTab() {
               setGroupForm({ name: "", logoId: null, themeId: null, assetDescriptionId: null });
               setGroupDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-group">
-              <Plus className="w-4 h-4" /> New Group
+              <IconPlus className="w-4 h-4" /> New Group
             </Button>
           </div>
         </CardHeader>
@@ -303,7 +306,7 @@ export default function UserGroupsTab() {
                             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left"
                             onClick={() => setExpandedVisibility(isExpanded ? null : group.id)}
                           >
-                            <Eye className="w-4 h-4 text-muted-foreground/60" />
+                            <IconEye className="w-4 h-4 text-muted-foreground/60" />
                             <span className="font-medium">Property Visibility</span>
                             <span className="text-xs bg-muted px-2 py-0.5 rounded ml-1">
                               {visibleCount} of {allProperties.length} visible
@@ -345,7 +348,7 @@ export default function UserGroupsTab() {
                                   }}
                                   className="flex items-center gap-1"
                                 >
-                                  {setGroupPropertiesMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                  {setGroupPropertiesMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <IconSave className="w-3 h-3" />}
                                   Save
                                 </Button>
                                 {pending && (
@@ -481,7 +484,7 @@ export default function UserGroupsTab() {
               createGroupMutation.mutate(groupForm);
             }
           }} disabled={!groupForm.name || createGroupMutation.isPending || updateGroupMutation.isPending} data-testid="button-save-group" className="flex items-center gap-2">
-            {(createGroupMutation.isPending || updateGroupMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {(createGroupMutation.isPending || updateGroupMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             {editingGroup ? "Save" : "Create"}
           </Button>
         </DialogFooter>

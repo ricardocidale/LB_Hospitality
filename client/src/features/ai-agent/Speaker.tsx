@@ -2,16 +2,7 @@
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import {
-  Music,
-  SkipBack,
-  SkipForward,
-  Sparkles,
-  Volume,
-  Volume1,
-  Volume2,
-  VolumeX,
-} from "lucide-react"
+import { IconMusic, IconSkipBack, IconSkipForward, IconSparkles, IconVolume, IconVolume1, IconVolume2, IconVolumeX } from "@/components/icons";
 
 import { cn } from "@/lib/utils"
 import {
@@ -256,10 +247,10 @@ const VolumeSlider = memo(
     const [isDragging, setIsDragging] = useState(false)
 
     const getVolumeIcon = () => {
-      if (volume === 0) return VolumeX
-      if (volume <= 0.33) return Volume
-      if (volume <= 0.66) return Volume1
-      return Volume2
+      if (volume === 0) return IconVolumeX
+      if (volume <= 0.33) return IconVolume
+      if (volume <= 0.66) return IconVolume1
+      return IconVolume2
     }
 
     const VolumeIcon = getVolumeIcon()
@@ -948,7 +939,7 @@ function SpeakerControls({
                   )}
                   onClick={() => setAmbienceMode(!ambienceMode)}
                 >
-                  <Sparkles className="h-4 w-4" />
+                  <IconSparkles className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -956,7 +947,7 @@ function SpeakerControls({
                   className="text-muted-foreground hover:text-foreground h-8 w-8"
                   onClick={() => setShowTrackList(!showTrackList)}
                 >
-                  <Music className="h-4 w-4" />
+                  <IconMusic className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -1357,7 +1348,7 @@ function SpeakerControls({
             className="border-border bg-background hover:bg-muted h-10 w-10 rounded-full"
             onClick={prevTrack}
           >
-            <SkipBack className="text-muted-foreground h-4 w-4" />
+            <IconSkipBack className="text-muted-foreground h-4 w-4" />
           </Button>
 
           <PlayButton currentTrackIndex={currentTrackIndex} />
@@ -1368,7 +1359,7 @@ function SpeakerControls({
             className="border-border bg-background hover:bg-muted h-10 w-10 rounded-full"
             onClick={nextTrack}
           >
-            <SkipForward className="text-muted-foreground h-4 w-4" />
+            <IconSkipForward className="text-muted-foreground h-4 w-4" />
           </Button>
         </div>
 

@@ -18,7 +18,7 @@
  * Reuses SectionCard and MetricCard from property-research for visual
  * consistency, but with its own companySectionColors palette.
  */
-import { DollarSign, Scale, Briefcase, Users, FileText, BookOpen, Receipt, Calculator } from "lucide-react";
+import { IconDollarSign, IconScale, IconBriefcase, IconUsers, IconFileText, IconBookOpen, IconReceipt, IconCalculator } from "@/components/icons";
 import { SectionCard } from "../property-research/SectionCard";
 import { MetricCard } from "../property-research/MetricCard";
 import { companySectionColors } from "./types";
@@ -27,7 +27,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
   return (
     <>
       {content.managementFees && (
-        <SectionCard icon={DollarSign} title="Management Fee Research" color={companySectionColors.fees}>
+        <SectionCard icon={IconDollarSign} title="Management Fee Research" color={companySectionColors.fees}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {content.managementFees.baseFee && (
               <div className="space-y-3">
@@ -105,7 +105,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.gaapStandards && content.gaapStandards.length > 0 && (
-        <SectionCard icon={Scale} title="GAAP Standards & References" color={companySectionColors.gaap}>
+        <SectionCard icon={IconScale} title="GAAP Standards & References" color={companySectionColors.gaap}>
           <div className="space-y-3">
             {content.gaapStandards.map((s: any, i: number) => (
               <div key={i} className="bg-blue-50 rounded-lg p-4 border border-blue-100">
@@ -125,7 +125,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.industryBenchmarks && (
-        <SectionCard icon={Briefcase} title="Industry Benchmarks" color={companySectionColors.benchmarks}>
+        <SectionCard icon={IconBriefcase} title="Industry Benchmarks" color={companySectionColors.benchmarks}>
           {content.industryBenchmarks.operatingExpenseRatios && content.industryBenchmarks.operatingExpenseRatios.length > 0 && (
             <div className="mb-6">
               <h4 className="text-sm font-medium text-foreground mb-3">Operating Expense Ratios (USALI)</h4>
@@ -167,7 +167,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.compensationBenchmarks && (
-        <SectionCard icon={Users} title="Compensation Benchmarks" color={companySectionColors.compensation}>
+        <SectionCard icon={IconUsers} title="Compensation Benchmarks" color={companySectionColors.compensation}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
             <MetricCard label="General Manager" value={content.compensationBenchmarks.gm || "N/A"} color={companySectionColors.compensation} />
             <MetricCard label="Director Level" value={content.compensationBenchmarks.director || "N/A"} color={companySectionColors.compensation} />
@@ -180,7 +180,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.contractTerms && content.contractTerms.length > 0 && (
-        <SectionCard icon={FileText} title="Typical Contract Terms" color={companySectionColors.contracts}>
+        <SectionCard icon={IconFileText} title="Typical Contract Terms" color={companySectionColors.contracts}>
           <div className="bg-card rounded-lg border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
@@ -205,17 +205,17 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.companyIncomeTax && (
-        <SectionCard icon={Receipt} title="Company Income Tax" color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", light: "bg-rose-100" }}>
+        <SectionCard icon={IconReceipt} title="Company Income Tax" color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-700", badge: "bg-rose-100 text-rose-800" }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-            <MetricCard label="Recommended Tax Rate" value={content.companyIncomeTax.recommendedRate || "N/A"} color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", light: "bg-rose-100" }} confidence={content.companyIncomeTax.confidence} />
+            <MetricCard label="Recommended Tax Rate" value={content.companyIncomeTax.recommendedRate || "N/A"} color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-700", badge: "bg-rose-100 text-rose-800" }} confidence={content.companyIncomeTax.confidence} />
             {content.companyIncomeTax.effectiveRange && (
-              <MetricCard label="Effective Range" value={content.companyIncomeTax.effectiveRange} color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", light: "bg-rose-100" }} />
+              <MetricCard label="Effective Range" value={content.companyIncomeTax.effectiveRange} color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-700", badge: "bg-rose-100 text-rose-800" }} />
             )}
           </div>
           {content.companyIncomeTax.calculationMethodology && (
             <div className="bg-amber-50 rounded-xl p-4 border-l-4 border-amber-400 mb-5">
               <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                <Calculator className="h-4 w-4 text-amber-600" />
+                <IconCalculator className="h-4 w-4 text-amber-600" />
                 How Company Income Tax Is Calculated
               </h4>
               <p className="text-sm text-foreground leading-relaxed">{content.companyIncomeTax.calculationMethodology}</p>
@@ -235,7 +235,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.sources && content.sources.length > 0 && (
-        <SectionCard icon={BookOpen} title="Sources" color={companySectionColors.sources}>
+        <SectionCard icon={IconBookOpen} title="Sources" color={companySectionColors.sources}>
           <ul className="space-y-1">
             {content.sources.map((s: string, i: number) => (
               <li key={i} className="text-xs text-muted-foreground">· {s}</li>

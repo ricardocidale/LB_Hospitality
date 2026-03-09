@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { Copy } from "lucide-react"
+import { IconCopy } from "@/components/icons";
 
 import { cn } from "@/lib/utils"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -775,7 +775,7 @@ const TranscriberTranscript = React.memo(
             }}
             aria-label="Copy transcript"
           >
-            <Copy className="h-4 w-4" />
+            <IconCopy className="h-4 w-4" />
           </Button>
         )}
       </div>

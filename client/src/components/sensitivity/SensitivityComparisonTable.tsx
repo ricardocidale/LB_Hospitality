@@ -1,4 +1,5 @@
-import { ArrowUpDown, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
+import { IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { formatMoney } from "@/lib/financialEngine";
 import type { ScenarioResult } from "./types";
 
@@ -59,9 +60,9 @@ export function SensitivityComparisonTable({ baseResult, adjustedResult }: Sensi
                   }`}>
                     <div className="flex items-center justify-end gap-1">
                       {delta > 0 ? (
-                        <TrendingUp className="w-3.5 h-3.5" />
+                        <IconTrendingUp className="w-3.5 h-3.5" />
                       ) : delta < 0 ? (
-                        <TrendingDown className="w-3.5 h-3.5" />
+                        <IconTrendingDown className="w-3.5 h-3.5" />
                       ) : null}
                       <span>
                         {row.fmt === "money"

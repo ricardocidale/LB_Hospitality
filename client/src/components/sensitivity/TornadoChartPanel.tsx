@@ -1,4 +1,4 @@
-import { BarChart3 } from "lucide-react";
+import { IconBarChart3 } from "@/components/icons";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, ReferenceLine } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import type { TornadoItem } from "./types";
@@ -25,7 +25,7 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
     <div className="bg-card/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
-          <BarChart3 className="w-5 h-5 text-secondary" />
+          <IconBarChart3 className="w-5 h-5 text-secondary" />
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">

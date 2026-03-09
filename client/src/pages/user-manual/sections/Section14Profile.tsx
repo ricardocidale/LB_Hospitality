@@ -1,7 +1,5 @@
 import { SectionCard } from "@/components/ui/section-card";
-import { IconProfile } from "@/components/icons/brand-icons";
-
-interface SectionProps {
+import { IconProfile } from "@/components/icons";interface SectionProps {
   expanded: boolean;
   onToggle: () => void;
   sectionRef: (el: HTMLDivElement | null) => void;

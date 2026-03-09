@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Eye, Bell, Check, X, Search, ChevronDown, Star, TrendingUp, Users, DollarSign, AlertCircle } from "lucide-react";
+import { Check, X, Search, ChevronDown } from "lucide-react";
+import { IconEye, IconBell, IconStar, IconTrendingUp, IconUsers, IconDollarSign, IconAlertCircle } from "@/components/icons";
 
 export function ThemePreview() {
   const [previewOpen, setPreviewOpen] = useState(true);
@@ -16,7 +17,7 @@ export function ThemePreview() {
         className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors flex items-center justify-center gap-2"
         data-testid="button-show-preview"
       >
-        <Eye className="w-4 h-4" />
+        <IconEye className="w-4 h-4" />
         Show Live Preview
       </button>
     );
@@ -28,7 +29,7 @@ export function ThemePreview() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center">
-              <Eye className="w-5 h-5 text-primary" />
+              <IconEye className="w-5 h-5 text-primary" />
             </div>
             <div>
               <CardTitle className="text-lg font-display text-foreground">Live Preview</CardTitle>
@@ -83,20 +84,20 @@ export function ThemePreview() {
             <div className="w-44 rounded-lg border border-border bg-popover shadow-md overflow-hidden">
               <div className="p-1">
                 <div className="px-3 py-2 rounded-md bg-muted text-foreground text-sm font-medium flex items-center gap-2">
-                  <Star className="w-4 h-4 text-primary" />
+                  <IconStar className="w-4 h-4 text-primary" />
                   Dashboard
                 </div>
                 <div className="px-3 py-2 rounded-md text-muted-foreground text-sm flex items-center gap-2 hover:bg-muted/50 cursor-default">
-                  <Users className="w-4 h-4" />
+                  <IconUsers className="w-4 h-4" />
                   Portfolio
                 </div>
                 <div className="px-3 py-2 rounded-md text-muted-foreground text-sm flex items-center gap-2 hover:bg-muted/50 cursor-default">
-                  <TrendingUp className="w-4 h-4" />
+                  <IconTrendingUp className="w-4 h-4" />
                   Analysis
                 </div>
                 <Separator className="my-1" />
                 <div className="px-3 py-2 rounded-md text-muted-foreground text-sm flex items-center gap-2 hover:bg-muted/50 cursor-default">
-                  <DollarSign className="w-4 h-4" />
+                  <IconDollarSign className="w-4 h-4" />
                   Financing
                 </div>
               </div>
@@ -120,7 +121,7 @@ export function ThemePreview() {
                 </div>
                 <Separator className="my-1" />
                 <div className="px-3 py-2 rounded-md text-destructive text-sm flex items-center gap-2 hover:bg-destructive/10 cursor-default">
-                  <AlertCircle className="w-3.5 h-3.5" />
+                  <IconAlertCircle className="w-3.5 h-3.5" />
                   Delete Property
                 </div>
               </div>
@@ -136,7 +137,7 @@ export function ThemePreview() {
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm hover-lift">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Revenue</p>
-                <DollarSign className="w-4 h-4 text-primary" />
+                <IconDollarSign className="w-4 h-4 text-primary" />
               </div>
               <p className="text-2xl font-semibold text-foreground">$1.2M</p>
               <p className="text-xs text-muted-foreground mt-1">+12.5% from last year</p>
@@ -145,7 +146,7 @@ export function ThemePreview() {
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm hover-lift">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Occupancy</p>
-                <TrendingUp className="w-4 h-4 text-primary" />
+                <IconTrendingUp className="w-4 h-4 text-primary" />
               </div>
               <p className="text-2xl font-semibold text-foreground">78%</p>
               <p className="text-xs text-muted-foreground mt-1">Above market avg</p>
@@ -154,7 +155,7 @@ export function ThemePreview() {
             <div className="p-4 rounded-xl bg-card border border-border shadow-sm hover-lift">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Properties</p>
-                <Users className="w-4 h-4 text-primary" />
+                <IconUsers className="w-4 h-4 text-primary" />
               </div>
               <p className="text-2xl font-semibold text-foreground">5</p>
               <p className="text-xs text-muted-foreground mt-1">Active portfolio</p>
@@ -183,7 +184,7 @@ export function ThemePreview() {
           <div className="space-y-2">
             <div className="flex items-start gap-3 p-3 rounded-lg border border-border bg-card shadow-sm">
               <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Bell className="w-4 h-4 text-primary" />
+                <IconBell className="w-4 h-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">Assumptions Updated</p>

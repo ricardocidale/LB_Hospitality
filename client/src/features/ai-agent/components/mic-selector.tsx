@@ -1,7 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Check, ChevronsUpDown, Mic, MicOff } from "lucide-react"
+import { Check, ChevronsUpDown } from "lucide-react";
+import { IconMic, IconMicOff } from "@/components/icons";
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -105,9 +106,9 @@ export function MicSelector({
           disabled={loading || disabled}
         >
           {isMuted ? (
-            <MicOff className="h-4 w-4 flex-shrink-0" />
+            <IconMicOff className="h-4 w-4 flex-shrink-0" />
           ) : (
-            <Mic className="h-4 w-4 flex-shrink-0" />
+            <IconMic className="h-4 w-4 flex-shrink-0" />
           )}
           <span className="flex-1 truncate text-left">
             {currentDevice.label}
@@ -149,9 +150,9 @@ export function MicSelector({
                 className="h-8 gap-2"
               >
                 {isMuted ? (
-                  <MicOff className="h-4 w-4" />
+                  <IconMicOff className="h-4 w-4" />
                 ) : (
-                  <Mic className="h-4 w-4" />
+                  <IconMic className="h-4 w-4" />
                 )}
                 <span className="text-sm">{isMuted ? "Unmute" : "Mute"}</span>
               </Button>

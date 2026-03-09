@@ -1,13 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ComponentProps } from "react";
 import { useConversation } from "@elevenlabs/react";
-import {
-  AudioLinesIcon,
-  CheckIcon,
-  CopyIcon,
-  PhoneOffIcon,
-  SendIcon,
-} from "lucide-react";
+import { CheckIcon } from "lucide-react";
+import { IconAudioLinesIcon, IconCopyIcon, IconPhoneOffIcon, IconSendIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -351,7 +346,7 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
                         {copiedIndex === index ? (
                           <CheckIcon className="size-4" />
                         ) : (
-                          <CopyIcon className="size-4" />
+                          <IconCopyIcon className="size-4" />
                         )}
                       </ChatAction>
                     </ChatActions>
@@ -382,7 +377,7 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
             className="rounded-full"
             disabled={!textInput.trim() || isTransitioning}
           >
-            <SendIcon className="size-4" />
+            <IconSendIcon className="size-4" />
             <span className="sr-only">Send message</span>
           </Button>
           {!isCallActive ? (
@@ -393,7 +388,7 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
               className="relative shrink-0 rounded-full"
               disabled={isTransitioning}
             >
-              <AudioLinesIcon className="size-4" />
+              <IconAudioLinesIcon className="size-4" />
               <span className="sr-only">Start voice call</span>
             </Button>
           ) : (
@@ -404,7 +399,7 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
               className="relative shrink-0 rounded-full"
               disabled={isTransitioning}
             >
-              <PhoneOffIcon className="size-4" />
+              <IconPhoneOffIcon className="size-4" />
               <span className="sr-only">End call</span>
             </Button>
           )}

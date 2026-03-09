@@ -10,7 +10,8 @@
  * while saved searches are being fetched on mount.
  */
 import type { SavedSearchData } from "@/lib/api";
-import { Bookmark, Loader2, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import { IconBookmark } from "@/components/icons";
 
 export function SavedSearchBar({
   savedSearches,
@@ -28,7 +29,7 @@ export function SavedSearchBar({
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="table-saved-searches">
       <span className="text-xs text-muted-foreground mr-1">
-        <Bookmark className="w-3.5 h-3.5 inline mr-1" />
+        <IconBookmark className="w-3.5 h-3.5 inline mr-1" />
         Saved:
       </span>
       {savedSearches.map((search) => (

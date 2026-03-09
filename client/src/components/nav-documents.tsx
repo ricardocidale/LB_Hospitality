@@ -1,9 +1,6 @@
-import {
-  FolderIcon,
-  MoreHorizontalIcon,
-  ShareIcon,
-  type LucideIcon,
-} from "lucide-react"
+import { type LucideIcon, MoreHorizontalIcon } from "lucide-react";
+type AnyIcon = LucideIcon | ((props: any) => React.JSX.Element);
+import { IconFolderIcon, IconShareIcon } from "@/components/icons";
 
 import {
   DropdownMenu,
@@ -27,7 +24,7 @@ export function NavDocuments({
   items: {
     name: string
     url: string
-    icon: LucideIcon
+    icon: AnyIcon
   }[]
 }) {
   const { isMobile } = useSidebar()
@@ -60,11 +57,11 @@ export function NavDocuments({
                 align={isMobile ? "end" : "start"}
               >
                 <DropdownMenuItem>
-                  <FolderIcon />
+                  <IconFolderIcon />
                   <span>Open</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <ShareIcon />
+                  <IconShareIcon />
                   <span>Share</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

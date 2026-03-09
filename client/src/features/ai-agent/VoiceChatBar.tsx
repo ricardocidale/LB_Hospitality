@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
+import { IconCopyIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -103,7 +104,7 @@ export default function VoiceChatBar({ className, onSessionChange }: VoiceChatBa
                                 {copiedIndex === index ? (
                                   <CheckIcon className="size-4" />
                                 ) : (
-                                  <CopyIcon className="size-4" />
+                                  <IconCopyIcon className="size-4" />
                                 )}
                                 <span className="sr-only">
                                   {copiedIndex === index ? "Copied!" : "Copy"}

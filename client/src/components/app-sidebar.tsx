@@ -1,23 +1,9 @@
 "use client"
 
 import * as React from "react"
-import {
-  ArrowUpCircleIcon,
-  BarChartIcon,
-  CameraIcon,
-  ClipboardListIcon,
-  DatabaseIcon,
-  FileCodeIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  HelpCircleIcon,
-  LayoutDashboardIcon,
-  ListIcon,
-  SearchIcon,
-  SettingsIcon,
-  UsersIcon,
-} from "lucide-react"
+import { ArrowUpCircleIcon, ListIcon, SearchIcon } from "lucide-react";
+import type { IconProps } from "@/components/icons";
+import { IconBarChartIcon, IconCameraIcon, IconClipboardListIcon, IconDatabaseIcon, IconFileCodeIcon, IconFileIcon, IconFileTextIcon, IconFolderIcon, IconHelpCircleIcon, IconLayoutDashboardIcon, IconListIcon, IconSettingsIcon, IconUsersIcon } from "@/components/icons";
 
 import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
@@ -43,33 +29,33 @@ const data = {
     {
       title: "Dashboard",
       url: "#",
-      icon: LayoutDashboardIcon,
+      icon: IconLayoutDashboardIcon,
     },
     {
       title: "Lifecycle",
       url: "#",
-      icon: ListIcon,
+      icon: IconListIcon,
     },
     {
       title: "Analytics",
       url: "#",
-      icon: BarChartIcon,
+      icon: IconBarChartIcon,
     },
     {
       title: "Projects",
       url: "#",
-      icon: FolderIcon,
+      icon: IconFolderIcon,
     },
     {
       title: "Team",
       url: "#",
-      icon: UsersIcon,
+      icon: IconUsersIcon,
     },
   ],
   navClouds: [
     {
       title: "Capture",
-      icon: CameraIcon,
+      icon: IconCameraIcon,
       isActive: true,
       url: "#",
       items: [
@@ -85,7 +71,7 @@ const data = {
     },
     {
       title: "Proposal",
-      icon: FileTextIcon,
+      icon: IconFileTextIcon,
       url: "#",
       items: [
         {
@@ -100,7 +86,7 @@ const data = {
     },
     {
       title: "Prompts",
-      icon: FileCodeIcon,
+      icon: IconFileCodeIcon,
       url: "#",
       items: [
         {
@@ -118,12 +104,12 @@ const data = {
     {
       title: "Settings",
       url: "#",
-      icon: SettingsIcon,
+      icon: IconSettingsIcon,
     },
     {
       title: "Get Help",
       url: "#",
-      icon: HelpCircleIcon,
+      icon: IconHelpCircleIcon,
     },
     {
       title: "Search",
@@ -135,17 +121,17 @@ const data = {
     {
       name: "Data Library",
       url: "#",
-      icon: DatabaseIcon,
+      icon: IconDatabaseIcon,
     },
     {
       name: "Reports",
       url: "#",
-      icon: ClipboardListIcon,
+      icon: IconClipboardListIcon,
     },
     {
       name: "Word Assistant",
       url: "#",
-      icon: FileIcon,
+      icon: IconFileIcon,
     },
   ],
 }

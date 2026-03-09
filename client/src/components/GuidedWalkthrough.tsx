@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronRight, ChevronLeft, HelpCircle, Compass } from "lucide-react";
+import { X, ChevronRight, ChevronLeft } from "lucide-react";
+import { IconHelpCircle, IconCompass } from "@/components/icons";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
@@ -65,7 +66,7 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
 
         <div className="flex flex-col items-center text-center space-y-6">
           <div className="w-14 h-14 rounded-lg bg-primary/15 flex items-center justify-center">
-            <Compass className="w-7 h-7 text-primary" />
+            <IconCompass className="w-7 h-7 text-primary" />
           </div>
 
           <div className="space-y-2.5">
@@ -317,7 +318,7 @@ export function WalkthroughTrigger() {
     >
       <div className="absolute inset-0 bg-card/0 group-hover:bg-card/5 transition-all duration-300 rounded-lg" />
       <div className="relative w-8 h-8 rounded-lg bg-card/5 group-hover:bg-card/10 flex items-center justify-center transition-all duration-300">
-        <HelpCircle className="w-4 h-4 transition-all duration-300" />
+        <IconHelpCircle className="w-4 h-4 transition-all duration-300" />
       </div>
       <span className="relative">Guided Tour</span>
     </button>

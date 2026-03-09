@@ -5,7 +5,7 @@
  * This tab provides static industry knowledge as a baseline; AI research can overlay
  * market-specific competitive intelligence when generated.
  */
-import { Target } from "lucide-react";
+import { IconTarget } from "@/components/icons";
 import { SectionCard } from "../property-research/SectionCard";
 import { companySectionColors } from "./types";
 
@@ -55,7 +55,7 @@ const DIFFERENTIATION_STRATEGIES = [
 export function CompetitiveLandscapeTab({ content }: CompetitiveLandscapeTabProps) {
   return (
     <div className="space-y-6">
-      <SectionCard icon={Target} title="Competitor Landscape" color={companySectionColors.contracts}>
+      <SectionCard icon={IconTarget} title="Competitor Landscape" color={companySectionColors.contracts}>
         <p className="text-xs text-muted-foreground mb-4">
           Four categories of competitors in the boutique hotel management space.
         </p>
@@ -85,7 +85,7 @@ export function CompetitiveLandscapeTab({ content }: CompetitiveLandscapeTabProp
         </div>
       </SectionCard>
 
-      <SectionCard icon={Target} title="Differentiation Strategies" color={companySectionColors.fees}>
+      <SectionCard icon={IconTarget} title="Differentiation Strategies" color={companySectionColors.fees}>
         <p className="text-xs text-muted-foreground mb-4">
           How a boutique management company can stand out in a crowded market.
         </p>

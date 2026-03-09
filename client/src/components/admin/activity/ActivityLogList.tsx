@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableBody as UITableBody, TableCell as UITableCell } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Clock, LogIn, LogOut, Monitor } from "lucide-react";
-import { IconPeople } from "@/components/icons/brand-icons";
+import { Loader2 } from "lucide-react";
+import { IconClock, IconLogIn, IconLogOut, IconMonitor, IconPeople } from "@/components/icons";
 import { formatDateTime, formatDuration } from "@/lib/formatters";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -88,7 +88,7 @@ export function ActivityLogList({
             </div>
           ) : filteredLogs?.length === 0 ? (
             <div className="text-center py-12">
-              <Clock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <IconClock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
               <p className="label-text">
                 {loginLogs?.length === 0 ? "No login activity recorded yet" : "No logs match the current filters"}
               </p>
@@ -98,10 +98,10 @@ export function ActivityLogList({
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconPeople className="w-4 h-4" />User</div></TableHead>
-                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogIn className="w-4 h-4" />Login Time</div></TableHead>
-                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogOut className="w-4 h-4" />Logout Time</div></TableHead>
-                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Clock className="w-4 h-4" />Duration</div></TableHead>
-                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Monitor className="w-4 h-4" />IP Address</div></TableHead>
+                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconLogIn className="w-4 h-4" />Login Time</div></TableHead>
+                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconLogOut className="w-4 h-4" />Logout Time</div></TableHead>
+                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconClock className="w-4 h-4" />Duration</div></TableHead>
+                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconMonitor className="w-4 h-4" />IP Address</div></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -185,7 +185,7 @@ function ActiveSessions({ activeSessionsList }: { activeSessionsList: ActiveSess
                     }}
                     data-testid={`button-force-logout-${s.id.slice(0, 8)}`}
                   >
-                    <LogOut className="w-4 h-4 mr-1" />
+                    <IconLogOut className="w-4 h-4 mr-1" />
                     Force Logout
                   </Button>
                 </TableRowCell>

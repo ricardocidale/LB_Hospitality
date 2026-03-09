@@ -14,10 +14,8 @@
  */
 import { formatMoney } from "@/lib/financialEngine";
 import type { PropertyFinderResult } from "@/lib/api";
-import {
-  Heart, ExternalLink, Bed, Bath, Ruler, Trees,
-  MapPin, Loader2, Image,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconHeart, IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconImage } from "@/components/icons";
 
 function PropertyTypeLabel(type: string | null): string {
   if (!type) return "";
@@ -54,7 +52,7 @@ export function SearchResultCard({
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <IconMapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="text-foreground font-medium text-sm leading-snug" data-testid={`text-address-${property.externalId}`}>
               {property.address}
             </span>
@@ -66,7 +64,7 @@ export function SearchResultCard({
                 className="p-1.5 rounded-lg hover:bg-muted transition-colors"
                 data-testid={`btn-image-${property.externalId}`}
               >
-                <Image className="w-4 h-4 text-primary" />
+                <IconImage className="w-4 h-4 text-primary" />
               </button>
             )}
             <button
@@ -79,9 +77,9 @@ export function SearchResultCard({
               {isSaving ? (
                 <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
               ) : isSaved ? (
-                <Heart className="w-4 h-4 text-destructive fill-destructive" />
+                <IconHeart className="w-4 h-4 text-destructive fill-destructive" />
               ) : (
-                <Heart className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                <IconHeart className="w-4 h-4 text-muted-foreground hover:text-destructive" />
               )}
             </button>
           </div>
@@ -104,22 +102,22 @@ export function SearchResultCard({
 
         <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
           <div className="flex items-center gap-1.5">
-            <Bed className="w-3.5 h-3.5 text-primary" />
+            <IconBed className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-foreground" data-testid={`text-beds-${property.externalId}`}>{property.beds ?? "—"} beds</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Bath className="w-3.5 h-3.5 text-primary" />
+            <IconBath className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-foreground" data-testid={`text-baths-${property.externalId}`}>{property.baths ?? "—"} baths</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Ruler className="w-3.5 h-3.5 text-primary" />
+            <IconRuler className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-foreground" data-testid={`text-sqft-${property.externalId}`}>{property.sqft ? property.sqft.toLocaleString() : "—"} sqft</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Trees className="w-3.5 h-3.5 text-primary" />
+            <IconTrees className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm font-semibold text-secondary" data-testid={`text-acres-${property.externalId}`}>{property.lotSizeAcres ?? "—"} acres</span>
           </div>
         </div>
@@ -138,7 +136,7 @@ export function SearchResultCard({
               className="text-xs text-primary hover:text-secondary flex items-center gap-1"
               data-testid={`link-listing-${property.externalId}`}
             >
-              View Listing <ExternalLink className="w-3 h-3" />
+              View Listing <IconExternalLink className="w-3 h-3" />
             </a>
           )}
         </div>

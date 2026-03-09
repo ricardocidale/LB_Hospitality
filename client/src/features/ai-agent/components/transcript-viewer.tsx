@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react"
 import type { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api/types/CharacterAlignmentResponseModel"
-import { Pause, Play } from "lucide-react"
+import { IconPause, IconPlay } from "@/components/icons";
 
 import { cn } from "@/lib/utils"
 import {
@@ -319,7 +319,7 @@ function TranscriptViewerPlayPauseButton({
   ...props
 }: TranscriptViewerPlayPauseButtonProps) {
   const { isPlaying, play, pause } = useTranscriptViewerContext()
-  const Icon = isPlaying ? Pause : Play
+  const Icon = isPlaying ? IconPause : IconPlay
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (isPlaying) pause()

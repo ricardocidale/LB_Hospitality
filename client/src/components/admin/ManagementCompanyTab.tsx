@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Tag, Package } from "lucide-react";
+import { IconBuilding2, IconTag, IconPackage } from "@/components/icons";
 import BrandingTab from "./BrandingTab";
 import AssetDefinitionTab from "./AssetDefinitionTab";
 import ServicesTab from "./ServicesTab";
@@ -25,15 +25,15 @@ export default function ManagementCompanyTab({ onNavigate, initialTab }: Managem
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-3 h-auto p-1 bg-muted border border-border" data-testid="tabs-mgmt-company">
           <TabsTrigger value="identity" className="py-2.5 gap-2" data-testid="tab-mgmt-identity">
-            <Building2 className="w-4 h-4" />
+            <IconBuilding2 className="w-4 h-4" />
             <span className="hidden sm:inline">Identity</span>
           </TabsTrigger>
           <TabsTrigger value="asset" className="py-2.5 gap-2" data-testid="tab-mgmt-asset">
-            <Tag className="w-4 h-4" />
+            <IconTag className="w-4 h-4" />
             <span className="hidden sm:inline">Asset Definition</span>
           </TabsTrigger>
           <TabsTrigger value="services" className="py-2.5 gap-2" data-testid="tab-mgmt-services">
-            <Package className="w-4 h-4" />
+            <IconPackage className="w-4 h-4" />
             <span className="hidden sm:inline">Services</span>
           </TabsTrigger>
         </TabsList>

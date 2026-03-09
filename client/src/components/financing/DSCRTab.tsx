@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
-import { Loader2, Calculator } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconCalculator } from "@/components/icons";
 import { formatMoney } from "@/lib/financialEngine";
 import { Gauge, DonutChart, InsightPanel } from "@/components/graphics";
 import { InputField, formatPct, formatRatio } from "./InputField";
@@ -68,7 +69,7 @@ export function DSCRTab() {
         variant="default"
         data-testid="button-dscr-calculate"
       >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Calculator className="w-4 h-4 mr-2 inline" />}
+        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <IconCalculator className="w-4 h-4 mr-2 inline" />}
         Calculate Max Loan
       </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}

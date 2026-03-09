@@ -11,7 +11,8 @@
  * compact badges so users get immediate context at a glance.
  */
 import { Link } from "wouter";
-import { ArrowLeft, MapPin, Settings2, Map } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { IconMapPin, IconSettings2, IconMap } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import type { PropertyHeaderProps } from "./types";
@@ -44,7 +45,7 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
             <div>
               <h1 className="text-lg sm:text-2xl font-display text-foreground">{property.name}</h1>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-foreground/70 text-sm mt-1 label-text">
-                <span className="flex items-center gap-1"><MapPin className="w-4 h-4 text-primary" /> {property.location}</span>
+                <span className="flex items-center gap-1"><IconMapPin className="w-4 h-4 text-primary" /> {property.location}</span>
                 <span className="font-mono">{property.roomCount} Rooms</span>
                 <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-medium">
                   {getStatusLabel(property.status)}
@@ -68,14 +69,14 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
                   title={hasAddress ? `View ${mapQuery} on Google Maps` : "No address provided — add address details in Assumptions"}
                   className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform"
                 >
-                  <Map className="w-4 h-4" />
+                  <IconMap className="w-4 h-4" />
                   Map
                 </Button>
               );
             })()}
             <Link href={`/property/${propertyId}/edit`}>
               <Button variant="outline" size="sm" className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform">
-                <Settings2 className="w-4 h-4" />
+                <IconSettings2 className="w-4 h-4" />
                 Assumptions
               </Button>
             </Link>

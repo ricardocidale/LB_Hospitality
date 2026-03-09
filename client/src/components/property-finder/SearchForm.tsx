@@ -17,9 +17,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Search, Loader2, X, Bookmark, Save,
-} from "lucide-react";
+import { Search, Loader2, X } from "lucide-react";
+import { IconBookmark, IconSave } from "@/components/icons";
 
 export interface SearchFormData {
   location: string;
@@ -161,7 +160,7 @@ export function SearchForm({
                         className="p-2 rounded-lg bg-primary hover:bg-primary/80 text-primary-foreground transition-colors"
                         data-testid="btn-confirm-save-search"
                       >
-                        {isSaveSearchPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                        {isSaveSearchPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
                       </button>
                       <button
                         type="button"
@@ -178,7 +177,7 @@ export function SearchForm({
                       className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
                       data-testid="btn-save-search"
                     >
-                      <Bookmark className="w-3.5 h-3.5" /> Save This Search
+                      <IconBookmark className="w-3.5 h-3.5" /> Save This Search
                     </button>
                   )}
                 </>

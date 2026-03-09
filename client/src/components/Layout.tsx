@@ -12,12 +12,8 @@
  */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Menu, X, LogOut, Search } from "lucide-react";
-import {
-  IconDashboard, IconProperties, IconBriefcase, IconSettings,
-  IconShield, IconProfile, IconScenarios, IconPropertyFinder,
-  IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch, IconBot,
-} from "@/components/icons/brand-icons";
+import { X, Search } from "lucide-react";
+import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch, IconBot } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -189,7 +185,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
               className="h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               data-testid="button-logout"
             >
-              <LogOut className="w-4 h-4" />
+              <IconLogOut className="w-4 h-4" />
               <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -225,7 +221,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           <header className="h-12 shrink-0 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-10">
             <div className="flex items-center gap-2 min-w-0">
               <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                {sidebarOpen ? <X className="w-4 h-4" /> : <IconMenu className="w-4 h-4" />}
               </Button>
               <Breadcrumbs />
             </div>

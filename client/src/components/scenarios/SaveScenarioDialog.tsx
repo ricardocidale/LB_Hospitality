@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Save } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconSave } from "@/components/icons";
 
 interface SaveScenarioDialogProps {
   open: boolean;
@@ -64,7 +65,7 @@ export function SaveScenarioDialog({
             data-testid="button-save-scenario"
             className="flex items-center gap-2"
           >
-            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             Save Scenario
           </Button>
         </DialogFooter>

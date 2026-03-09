@@ -1,9 +1,7 @@
 import { SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { IconIncomeStatement } from "@/components/icons/brand-icons";
-
-  interface SectionProps {
+  import { IconIncomeStatement } from "@/components/icons";interface SectionProps {
     expanded: boolean;
     onToggle: () => void;
     sectionRef: (el: HTMLDivElement | null) => void;

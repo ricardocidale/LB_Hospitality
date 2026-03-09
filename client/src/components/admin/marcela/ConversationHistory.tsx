@@ -2,11 +2,8 @@ import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  MessageSquare, RefreshCw, ChevronDown, ChevronRight, Clock,
-  Loader2, Inbox, Mic, Keyboard, Copy, Check, AlertCircle,
-  BarChart2, CheckCircle2, XCircle, Play, Pause,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, Check } from "lucide-react";
+import { IconMessageSquare, IconRefreshCw, IconClock, IconInbox, IconMic, IconKeyboard, IconCopy, IconAlertCircle, IconBarChart2, IconCheckCircle2, IconXCircle, IconPlay, IconPause } from "@/components/icons";
 import { useConversations, useConversation } from "@/features/ai-agent/hooks/use-conversations";
 
 function formatDuration(secs?: number) {
@@ -70,7 +67,7 @@ function NativeAudioPlayer({ conversationId }: { conversationId: string }) {
         className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors disabled:opacity-50"
         data-testid={`button-load-audio-${conversationId}`}
       >
-        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
+        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <IconPlay className="w-3 h-3" />}
         {loading ? "Loading…" : "Play"}
       </button>
     );
@@ -92,7 +89,7 @@ function NativeAudioPlayer({ conversationId }: { conversationId: string }) {
         className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
         data-testid={`button-toggle-audio-${conversationId}`}
       >
-        {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+        {isPlaying ? <IconPause className="w-3 h-3" /> : <IconPlay className="w-3 h-3" />}
         {isPlaying ? "Pause" : "Play"}
       </button>
     </div>
@@ -114,7 +111,7 @@ function ConversationDetail({ id }: { id: string }) {
   if (!data) {
     return (
       <div className="py-6 text-center">
-        <AlertCircle className="w-5 h-5 text-muted-foreground/40 mx-auto mb-2" />
+        <IconAlertCircle className="w-5 h-5 text-muted-foreground/40 mx-auto mb-2" />
         <p className="text-xs text-muted-foreground/60">Could not load conversation details</p>
       </div>
     );
@@ -171,7 +168,7 @@ function ConversationDetail({ id }: { id: string }) {
           className="h-6 px-2 gap-1 text-[10px] text-muted-foreground/50 hover:text-muted-foreground"
           data-testid={`button-copy-transcript-${id}`}
         >
-          {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+          {copied ? <Check className="w-3 h-3 text-green-500" /> : <IconCopy className="w-3 h-3" />}
           {copied ? "Copied" : "Copy"}
         </Button>
       </div>
@@ -193,8 +190,8 @@ function ConversationDetail({ id }: { id: string }) {
                   <span className="text-[10px] text-muted-foreground/30">{line.time_in_call_secs}s</span>
                 )}
                 {line.source_medium === "text"
-                  ? <Keyboard className="w-2.5 h-2.5" />
-                  : line.role === "user" ? <Mic className="w-2.5 h-2.5" /> : null}
+                  ? <IconKeyboard className="w-2.5 h-2.5" />
+                  : line.role === "user" ? <IconMic className="w-2.5 h-2.5" /> : null}
               </div>
               <p className="text-foreground/80 leading-relaxed">{line.message}</p>
             </div>
@@ -241,9 +238,9 @@ export function ConversationHistory() {
       {total > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Total", value: total, icon: <BarChart2 className="w-4 h-4 text-muted-foreground" />, color: "from-primary/10 to-primary/5" },
-            { label: "Successful", value: successful, icon: <CheckCircle2 className="w-4 h-4 text-green-600" />, color: "from-green-500/10 to-green-500/5" },
-            { label: "Avg Duration", value: formatDuration(avgDuration), icon: <Clock className="w-4 h-4 text-muted-foreground" />, color: "from-blue-500/10 to-blue-500/5" },
+            { label: "Total", value: total, icon: <IconBarChart2 className="w-4 h-4 text-muted-foreground" />, color: "from-primary/10 to-primary/5" },
+            { label: "Successful", value: successful, icon: <IconCheckCircle2 className="w-4 h-4 text-green-600" />, color: "from-green-500/10 to-green-500/5" },
+            { label: "Avg Duration", value: formatDuration(avgDuration), icon: <IconClock className="w-4 h-4 text-muted-foreground" />, color: "from-blue-500/10 to-blue-500/5" },
           ].map((stat) => (
             <div key={stat.label} className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} border border-border/60`}>
               <div className="flex items-center gap-1.5 mb-1">
@@ -261,7 +258,7 @@ export function ConversationHistory() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                <IconMessageSquare className="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
                 <CardTitle className="text-sm font-semibold text-foreground">Conversation History</CardTitle>
@@ -271,7 +268,7 @@ export function ConversationHistory() {
               </div>
             </div>
             <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => refetch()} disabled={isFetching}>
-              <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
+              <IconRefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin" : ""}`} />
             </Button>
           </div>
 
@@ -305,7 +302,7 @@ export function ConversationHistory() {
 
           {!isLoading && filtered.length === 0 && (
             <div className="py-12 text-center">
-              <Inbox className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+              <IconInbox className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground/60 font-medium">
                 {total === 0 ? "No conversations yet" : "No conversations match this filter"}
               </p>
@@ -339,12 +336,12 @@ export function ConversationHistory() {
                       </div>
                       <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                         <span className="text-[11px] text-muted-foreground/50 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />{formatTime(conv.start_time_unix_secs)}
+                          <IconClock className="w-3 h-3" />{formatTime(conv.start_time_unix_secs)}
                         </span>
                         <span className="text-[11px] text-muted-foreground/50">{formatDuration(conv.call_duration_secs)}</span>
                         {conv.call_successful === "failure" && (
                           <span className="text-[10px] text-red-500/70 flex items-center gap-0.5">
-                            <XCircle className="w-3 h-3" /> failed
+                            <IconXCircle className="w-3 h-3" /> failed
                           </span>
                         )}
                       </div>

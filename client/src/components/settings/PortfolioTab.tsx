@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { Hotel } from "lucide-react";
+import { IconHotel } from "@/components/icons";
 import { DEFAULT_COMMISSION_RATE, DEFAULT_LTV, DEFAULT_ACQ_CLOSING_COST_RATE, DEFAULT_REFI_LTV, DEFAULT_REFI_CLOSING_COST_RATE } from "@/lib/constants";
 import { SettingsTabProps } from "./types";
 
@@ -19,7 +19,7 @@ export function PortfolioTab({
       <Card className="bg-card border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
-            <Hotel className="w-5 h-5 text-primary" />
+            <IconHotel className="w-5 h-5 text-primary" />
             General Property Description
             <HelpTooltip text="Defines the target property profile for the portfolio. These parameters guide market research searches, comp set analysis, and financial benchmarks." manualSection="global-assumptions" />
           </CardTitle>

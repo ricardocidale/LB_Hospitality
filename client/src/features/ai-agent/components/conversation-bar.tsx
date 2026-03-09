@@ -1,14 +1,7 @@
 import * as React from "react"
 import { useConversation } from "@elevenlabs/react"
-import {
-  ArrowUpIcon,
-  ChevronDown,
-  Keyboard,
-  Mic,
-  MicOff,
-  PhoneIcon,
-  XIcon,
-} from "lucide-react"
+import { ChevronDown, XIcon, ArrowUpIcon, PhoneIcon } from "lucide-react";
+import { IconKeyboard, IconMic, IconMicOff } from "@/components/icons";
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -294,7 +287,7 @@ export const ConversationBar = React.forwardRef<
                     className={cn(isMuted ? "bg-foreground/5" : "")}
                     disabled={!isConnected}
                   >
-                    {isMuted ? <MicOff /> : <Mic />}
+                    {isMuted ? <IconMicOff /> : <IconMic />}
                   </Button>
                   <Button
                     variant="ghost"
@@ -304,7 +297,7 @@ export const ConversationBar = React.forwardRef<
                     className="relative"
                     disabled={!isConnected}
                   >
-                    <Keyboard
+                    <IconKeyboard
                       className={
                         "h-5 w-5 transform-gpu transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] " +
                         (keyboardOpen

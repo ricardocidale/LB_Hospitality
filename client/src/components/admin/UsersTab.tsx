@@ -27,19 +27,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Eye, EyeOff, Calendar, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
-import { 
-  IconPeople, 
-  IconTrash, 
-  IconKey, 
-  IconPencil, 
-  IconUserPlus, 
-  IconShield, 
-  IconMail, 
-  IconUserCog, 
-  IconSettingsGear, 
-  IconProperties 
-} from "@/components/icons/brand-icons";
+import { Loader2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { IconEye, IconEyeOff, IconCalendar, IconSave, IconPeople, IconTrash, IconKey, IconPencil, IconUserPlus, IconShield, IconMail, IconUserCog, IconSettingsGear, IconProperties } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -407,7 +396,7 @@ export default function UsersTab() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete User</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete "{user.username}"? This action cannot be undone.
+                                Are you sure you want to delete "{user.email}"? This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -445,7 +434,7 @@ export default function UsersTab() {
             <div className="relative">
               <Input type={showNewUserPassword ? "text" : "password"} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Secure password" data-testid="input-new-user-password" />
               <button type="button" onClick={() => setShowNewUserPassword(!showNewUserPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-new-password">
-                {showNewUserPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showNewUserPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -487,7 +476,7 @@ export default function UsersTab() {
         <DialogFooter>
           <Button variant="outline" onClick={() => setDialogOpen(false)} data-testid="button-cancel-add-user">Cancel</Button>
           <Button variant="outline" onClick={() => createMutation.mutate(newUser)} disabled={createMutation.isPending || !newUser.email || !newUser.password} data-testid="button-create-user" className="flex items-center gap-2">
-            {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             Save
           </Button>
         </DialogFooter>
@@ -506,7 +495,7 @@ export default function UsersTab() {
             <div className="relative">
               <Input type={showChangePassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" data-testid="input-new-password" />
               <button type="button" onClick={() => setShowChangePassword(!showChangePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-change-password">
-                {showChangePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showChangePassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -530,7 +519,7 @@ export default function UsersTab() {
         <div className="space-y-4 py-4">
           {selectedUser?.createdAt && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
-              <Calendar className="w-3.5 h-3.5" />
+              <IconCalendar className="w-3.5 h-3.5" />
               Created {formatDateTime(selectedUser.createdAt)}
             </div>
           )}
@@ -574,7 +563,7 @@ export default function UsersTab() {
             <div className="relative">
               <Input type={showEditPassword ? "text" : "password"} value={editUser.password} onChange={(e) => setEditUser({ ...editUser, password: e.target.value })} placeholder="Leave blank to keep current" data-testid="input-edit-password" />
               <button type="button" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-edit-password">
-                {showEditPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showEditPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
               </button>
             </div>
             <p className="text-xs text-muted-foreground">Leave blank to keep the current password unchanged</p>
@@ -601,7 +590,7 @@ export default function UsersTab() {
             }
             editMutation.mutate({ id: selectedUser.id, data });
           }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">
-            {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             Save
           </Button>
         </DialogFooter>

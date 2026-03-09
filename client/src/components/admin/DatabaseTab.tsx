@@ -28,9 +28,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, RefreshCw, Upload, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
-import { IconDatabase, IconShield } from "@/components/icons/brand-icons";
-
+import { Loader2 } from "lucide-react";
+import { IconRefreshCw, IconUpload, IconAlertTriangle, IconCheckCircle2, IconXCircle, IconDatabase, IconShield } from "@/components/icons";
 export default function DatabaseTab() {
   const { toast } = useToast();
   const [syncResults, setSyncResults] = useState<Record<string, any> | null>(null);
@@ -133,7 +132,7 @@ export default function DatabaseTab() {
             disabled={checkSyncStatus.isPending}
             data-testid="button-check-status"
           >
-            {checkSyncStatus.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            {checkSyncStatus.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconRefreshCw className="w-4 h-4 mr-2" />}
             Check Status
           </Button>
 
@@ -226,7 +225,7 @@ export default function DatabaseTab() {
                             <TableCell className="text-right font-mono">{((prop.baseManagementFeeRate ?? 0) * 100).toFixed(1)}%</TableCell>
                             <TableCell className="text-right font-mono">{((prop.exitCapRate ?? 0) * 100).toFixed(1)}%</TableCell>
                             <TableCell className="text-center">
-                              {prop.hasResearchValues ? <CheckCircle2 className="w-4 h-4 text-green-500 mx-auto" /> : <XCircle className="w-4 h-4 text-red-400 mx-auto" />}
+                              {prop.hasResearchValues ? <IconCheckCircle2 className="w-4 h-4 text-green-500 mx-auto" /> : <IconXCircle className="w-4 h-4 text-red-400 mx-auto" />}
                             </TableCell>
                             <TableCell className="text-center font-mono">{prop.feeCategories?.length ?? 0}</TableCell>
                           </TableRow>
@@ -244,7 +243,7 @@ export default function DatabaseTab() {
       <Card className="bg-amber-50 border border-amber-200 shadow-sm" data-testid="card-populate-production">
         <CardHeader>
           <CardTitle className="font-display flex items-center gap-2 text-amber-900">
-            <Upload className="w-5 h-5 text-amber-600" /> Populate Production
+            <IconUpload className="w-5 h-5 text-amber-600" /> Populate Production
           </CardTitle>
           <CardDescription className="label-text text-amber-700/80">
             Push development seed values to the production database. Only fills in values that are <strong>not already set</strong> by a user — existing data is never overwritten.
@@ -258,7 +257,7 @@ export default function DatabaseTab() {
             className="bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-700"
             data-testid="button-sync-database"
           >
-            {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+            {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconUpload className="w-4 h-4 mr-2" />}
             Fill Missing Values
           </Button>
         </CardContent>
@@ -350,7 +349,7 @@ export default function DatabaseTab() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" /> Confirm Production Fill
+              <IconAlertTriangle className="w-5 h-5 text-amber-500" /> Confirm Production Fill
             </DialogTitle>
             <DialogDescription>
               This will populate global assumptions, properties, fee categories, and design themes with seed values <strong>only where they are currently empty</strong>. Any values already set by users will not be changed. Users and user groups will be created if missing.

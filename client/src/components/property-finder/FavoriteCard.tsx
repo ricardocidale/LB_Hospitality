@@ -14,10 +14,8 @@
  */
 import { formatMoney } from "@/lib/financialEngine";
 import type { SavedProspectiveProperty } from "@/lib/api";
-import {
-  ExternalLink, Bed, Bath, Ruler, Trees,
-  MapPin, Loader2, StickyNote, X, Save, Trash2,
-} from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import { IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconStickyNote, IconSave, IconTrash } from "@/components/icons";
 
 function PropertyTypeLabel(type: string | null): string {
   if (!type) return "";
@@ -62,7 +60,7 @@ export function FavoriteCard({
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <IconMapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="text-foreground font-medium text-sm leading-snug">{property.address}</span>
           </div>
           <button
@@ -75,7 +73,7 @@ export function FavoriteCard({
             {isRemoving ? (
               <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
             ) : (
-              <Trash2 className="w-4 h-4 text-destructive/70 hover:text-destructive" />
+              <IconTrash className="w-4 h-4 text-destructive/70 hover:text-destructive" />
             )}
           </button>
         </div>
@@ -86,22 +84,22 @@ export function FavoriteCard({
 
         <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
           <div className="flex items-center gap-1.5">
-            <Bed className="w-3.5 h-3.5 text-primary" />
+            <IconBed className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-foreground">{property.beds ?? "—"} beds</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Bath className="w-3.5 h-3.5 text-primary" />
+            <IconBath className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-foreground">{property.baths ?? "—"} baths</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Ruler className="w-3.5 h-3.5 text-primary" />
+            <IconRuler className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-foreground">{property.sqft ? property.sqft.toLocaleString() : "—"} sqft</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
           <div className="flex items-center gap-1.5">
-            <Trees className="w-3.5 h-3.5 text-primary" />
+            <IconTrees className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm font-semibold text-secondary">{property.lotSizeAcres ?? "—"} acres</span>
           </div>
         </div>
@@ -120,7 +118,7 @@ export function FavoriteCard({
               className="text-xs text-primary hover:text-secondary flex items-center gap-1"
               data-testid={`link-saved-listing-${property.id}`}
             >
-              View Listing <ExternalLink className="w-3 h-3" />
+              View Listing <IconExternalLink className="w-3 h-3" />
             </a>
           )}
         </div>
@@ -144,7 +142,7 @@ export function FavoriteCard({
                 className="p-1.5 rounded-lg hover:bg-primary/10 text-primary"
                 data-testid={`btn-save-notes-${property.id}`}
               >
-                <Save className="w-3.5 h-3.5" />
+                <IconSave className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={onCancelEditing}
@@ -160,7 +158,7 @@ export function FavoriteCard({
               title={property.notes || "Click to add notes"}
               data-testid={`btn-edit-notes-${property.id}`}
             >
-              <StickyNote className="w-3 h-3 inline mr-1" />
+              <IconStickyNote className="w-3 h-3 inline mr-1" />
               {property.notes || <span className="italic">Add notes...</span>}
             </button>
           )}

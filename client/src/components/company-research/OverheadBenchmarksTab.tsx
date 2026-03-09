@@ -4,7 +4,7 @@
  * Shows fixed and variable overhead norms at different portfolio scales,
  * using the company assumption seed defaults as baseline benchmarks.
  */
-import { Building2 } from "lucide-react";
+import { IconBuilding2 } from "@/components/icons";
 import { SectionCard } from "../property-research/SectionCard";
 import { MetricCard } from "../property-research/MetricCard";
 import { companySectionColors } from "./types";
@@ -33,7 +33,7 @@ const SCALE_BENCHMARKS = [
 export function OverheadBenchmarksTab({ content }: OverheadBenchmarksTabProps) {
   return (
     <div className="space-y-6">
-      <SectionCard icon={Building2} title="Fixed & Variable Overhead Benchmarks" color={companySectionColors.compensation}>
+      <SectionCard icon={IconBuilding2} title="Fixed & Variable Overhead Benchmarks" color={companySectionColors.compensation}>
         <p className="text-xs text-muted-foreground mb-4">
           Typical G&A cost ranges for boutique hotel management companies.
         </p>
@@ -59,7 +59,7 @@ export function OverheadBenchmarksTab({ content }: OverheadBenchmarksTabProps) {
         </div>
       </SectionCard>
 
-      <SectionCard icon={Building2} title="Overhead by Portfolio Scale" color={companySectionColors.benchmarks}>
+      <SectionCard icon={IconBuilding2} title="Overhead by Portfolio Scale" color={companySectionColors.benchmarks}>
         <p className="text-xs text-muted-foreground mb-4">
           How G&A overhead ratio and staffing change as the portfolio grows.
         </p>

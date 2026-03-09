@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import type { ElevenLabs } from "@elevenlabs/elevenlabs-js"
-import { Check, ChevronsUpDown, Pause, Play } from "lucide-react"
+import { Check, ChevronsUpDown } from "lucide-react";
+import { IconPause, IconPlay } from "@/components/icons";
 
 import { cn } from "@/lib/utils"
 import {
@@ -165,9 +166,9 @@ function VoicePickerItem({
         {preview && isHovered && (
           <div className="pointer-events-none absolute inset-0 flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground/40 backdrop-blur-sm transition-opacity hover:bg-foreground/50">
             {isPlaying ? (
-              <Pause className="size-3 text-white" />
+              <IconPause className="size-3 text-white" />
             ) : (
-              <Play className="size-3 text-white" />
+              <IconPlay className="size-3 text-white" />
             )}
           </div>
         )}

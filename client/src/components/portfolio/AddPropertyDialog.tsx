@@ -21,7 +21,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconPlus } from "@/components/icons";
 import { PropertyImagePicker } from "@/features/property-images";
 import { CurrencyInput } from "./CurrencyInput";
 
@@ -357,7 +358,7 @@ export function AddPropertyDialog({
             </>
           ) : (
             <>
-              <Plus className="w-4 h-4" />
+              <IconPlus className="w-4 h-4" />
               Add Property
             </>
           )}

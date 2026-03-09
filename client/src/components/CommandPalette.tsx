@@ -19,13 +19,7 @@ import {
 } from "@/components/ui/command";
 import { useStore } from "@/lib/store";
 import { Search } from "lucide-react";
-import {
-  IconDashboard, IconProperties, IconBriefcase, IconSettings,
-  IconAnalysis, IconCalculator, IconProfile, IconScenarios,
-  IconExport, IconVerify, IconRefresh,
-} from "@/components/icons/brand-icons";
-
-const navigationItems = [
+import { IconDashboard, IconProperties, IconBriefcase, IconSettings, IconAnalysis, IconCalculator, IconProfile, IconScenarios, IconExport, IconVerify, IconRefresh } from "@/components/icons";const navigationItems = [
   { label: "Dashboard", href: "/", icon: IconDashboard },
   { label: "Properties", href: "/portfolio", icon: IconProperties },
   { label: "Management Co.", href: "/company", icon: IconBriefcase },

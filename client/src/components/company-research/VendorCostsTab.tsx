@@ -5,7 +5,7 @@
  * using deterministic tools from calc/research.
  */
 import { useMemo } from "react";
-import { Package } from "lucide-react";
+import { IconPackage } from "@/components/icons";
 import { SectionCard } from "../property-research/SectionCard";
 import { companySectionColors } from "./types";
 import { computeMarkupWaterfall } from "@calc/research/markup-waterfall";
@@ -38,7 +38,7 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
 
   return (
     <div className="space-y-6">
-      <SectionCard icon={Package} title="Industry Markup Ranges by Service Type" color={companySectionColors.benchmarks}>
+      <SectionCard icon={IconPackage} title="Industry Markup Ranges by Service Type" color={companySectionColors.benchmarks}>
         <p className="text-xs text-muted-foreground mb-4">
           Standard vendor markup percentages and effective margins for hospitality management company services.
         </p>
@@ -79,7 +79,7 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
         </div>
       </SectionCard>
 
-      <SectionCard icon={Package} title="Waterfall Example: $10K Vendor Cost at 20% Markup" color={companySectionColors.fees}>
+      <SectionCard icon={IconPackage} title="Waterfall Example: $10K Vendor Cost at 20% Markup" color={companySectionColors.fees}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-muted rounded-lg p-3 border border-border text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Vendor Cost</div>

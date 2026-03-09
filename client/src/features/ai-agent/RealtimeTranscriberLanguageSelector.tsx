@@ -1,7 +1,8 @@
 
 
 import { useState } from "react"
-import { ChevronDown, Globe } from "lucide-react"
+import { ChevronDown } from "lucide-react";
+import { IconGlobe } from "@/components/icons";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -113,7 +114,7 @@ export function LanguageSelector({
           disabled={disabled}
         >
           <span className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
+            <IconGlobe className="h-4 w-4" />
             {selectedName}
           </span>
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -132,7 +133,7 @@ export function LanguageSelector({
                   setOpen(false)
                 }}
               >
-                <Globe className="mr-2 h-4 w-4" />
+                <IconGlobe className="mr-2 h-4 w-4" />
                 Auto-detect
               </CommandItem>
               {LANGUAGE_OPTIONS.map((language) => (

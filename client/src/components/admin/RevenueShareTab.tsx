@@ -27,16 +27,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { Loader2 } from "lucide-react";
 import {
-  Loader2, Plus, Save, Info, Percent, Coins,
-  ArrowRightLeft, HelpCircle, BookOpen, RefreshCw,
-} from "lucide-react";
-import {
-  IconPencil,
-  IconTrash,
-  IconPackage,
-  IconTrending,
-} from "@/components/icons/brand-icons";
+  IconPlus, IconSave, IconInfo, IconPercent, IconDollarSign, IconArrowRightLeft,
+  IconHelpCircle, IconBookOpen, IconRefreshCw, IconPencil, IconTrash, IconPackage, IconTrending,
+} from "@/components/icons";
 import {
   useServiceTemplates,
   useCreateServiceTemplate,
@@ -110,7 +105,7 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
   return (
     <div className="mt-3 pt-3 border-t border-border/60 space-y-3">
       <div className="flex items-center gap-2 mb-2">
-        <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+        <IconBookOpen className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="text-xs font-medium text-foreground uppercase tracking-wider">Industry Benchmarks</span>
         <span className="text-[10px] text-muted-foreground ml-auto">at $1.5M sample revenue</span>
       </div>
@@ -341,7 +336,7 @@ export default function RevenueShareTab() {
   return (
     <div className="space-y-6 pb-20">
       <Alert className="bg-primary/5 border-primary/20">
-        <Info className="h-4 w-4 text-primary" />
+        <IconInfo className="h-4 w-4 text-primary" />
         <AlertTitle className="text-primary font-semibold">How Revenue Share Works</AlertTitle>
         <AlertDescription className="text-primary/80 space-y-2">
           <p>
@@ -407,7 +402,7 @@ export default function RevenueShareTab() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="sm" onClick={handleSync} disabled={syncMutation.isPending} data-testid="button-sync-templates">
-                    {syncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <ArrowRightLeft className="w-4 h-4 mr-1" />}
+                    {syncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <IconArrowRightLeft className="w-4 h-4 mr-1" />}
                     Sync to Properties
                   </Button>
                 </TooltipTrigger>
@@ -416,7 +411,7 @@ export default function RevenueShareTab() {
                 </TooltipContent>
               </Tooltip>
               <Button size="sm" onClick={openCreate} data-testid="button-add-service">
-                <Plus className="w-4 h-4 mr-1" />
+                <IconPlus className="w-4 h-4 mr-1" />
                 Add Service
               </Button>
             </div>
@@ -467,7 +462,7 @@ export default function RevenueShareTab() {
                             {t.serviceModel === "centralized" && (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                                  <IconHelpCircle className="w-3 h-3 text-muted-foreground" />
                                 </TooltipTrigger>
                                 <TooltipContent side="right">
                                   <p className="max-w-xs text-xs">
@@ -480,7 +475,7 @@ export default function RevenueShareTab() {
                             {t.serviceModel === "direct" && (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                                  <IconHelpCircle className="w-3 h-3 text-muted-foreground" />
                                 </TooltipTrigger>
                                 <TooltipContent side="right">
                                   <p className="max-w-xs text-xs">
@@ -501,7 +496,7 @@ export default function RevenueShareTab() {
                         />
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleResearch(t.id)} data-testid={`button-research-service-${t.id}`}>
-                            <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+                            <IconBookOpen className="w-3.5 h-3.5 text-muted-foreground" />
                           </Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(t)} data-testid={`button-edit-service-${t.id}`}>
                             <IconPencil className="w-3.5 h-3.5" />
@@ -536,7 +531,7 @@ export default function RevenueShareTab() {
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Coins className="w-4 h-4 text-muted-foreground" />
+            <IconDollarSign className="w-4 h-4 text-muted-foreground" />
             Incentive Management Fee
             <HelpTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from GOP to arrive at Adjusted Gross Operating Profit (AGOP), which flows through to NOI and ANOI." />
           </CardTitle>
@@ -549,7 +544,7 @@ export default function RevenueShareTab() {
           <div className="flex items-end gap-4 max-w-md">
             <div className="space-y-2 flex-1">
               <Label className="label-text text-foreground flex items-center gap-2">
-                <Percent className="w-3 h-3" /> Default Incentive Fee
+                <IconPercent className="w-3 h-3" /> Default Incentive Fee
               </Label>
               <div className="relative">
                 <Input
@@ -577,7 +572,7 @@ export default function RevenueShareTab() {
               disabled={!incentiveDirty || updateGlobalMutation.isPending}
               data-testid="button-save-incentive"
             >
-              {updateGlobalMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+              {updateGlobalMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <IconSave className="w-4 h-4 mr-1" />}
               Save
             </Button>
           </div>
@@ -588,7 +583,7 @@ export default function RevenueShareTab() {
       <Card className="bg-muted/50 border border-border/60 shadow-sm">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-3">
-            <HelpCircle className="w-4 h-4 text-muted-foreground" />
+            <IconHelpCircle className="w-4 h-4 text-muted-foreground" />
             <span className="text-xs font-medium text-foreground uppercase tracking-wider">USALI Waterfall Impact</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-center text-xs">
@@ -709,7 +704,7 @@ export default function RevenueShareTab() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSaveTemplate} disabled={createMutation.isPending || updateMutation.isPending} data-testid="button-save-service">
               {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              <Save className="w-4 h-4 mr-1" />
+              <IconSave className="w-4 h-4 mr-1" />
               Save
             </Button>
           </DialogFooter>

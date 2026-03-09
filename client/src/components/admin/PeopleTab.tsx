@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Building2, LayoutGrid, Loader2 } from "lucide-react";
-import { IconPeople, IconProperties, IconUserCog } from "@/components/icons/brand-icons";
+import { Loader2 } from "lucide-react";
+import { IconUsers, IconBuilding2, IconLayoutGrid, IconPeople, IconProperties, IconUserCog } from "@/components/icons";
 import UsersTab from "./UsersTab";
 
 interface PeopleTabProps {

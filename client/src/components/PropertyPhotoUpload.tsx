@@ -12,7 +12,8 @@
  */
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconCamera } from "@/components/icons";
 import { useUpload } from "@/hooks/use-upload";
 import { useUpdateProperty } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -123,7 +124,7 @@ export function PropertyPhotoUpload({ propertyId, currentImageUrl, onUploadCompl
           </>
         ) : (
           <>
-            <Camera className="w-4 h-4 mr-2" />
+            <IconCamera className="w-4 h-4 mr-2" />
             Change Photo
           </>
         )}

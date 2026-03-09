@@ -1,4 +1,5 @@
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconSparkles } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 
 interface AIReviewPanelProps {
@@ -23,7 +24,7 @@ export function AIReviewPanel({ review, loading, onRun }: AIReviewPanelProps) {
           disabled={loading}
           className="flex items-center gap-2 text-xs font-bold text-secondary hover:text-secondary/80 transition-colors disabled:opacity-50"
         >
-          {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+          {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <IconSparkles className="w-3 h-3" />}
           REFRESH AI REVIEW
         </button>
       </div>
@@ -38,7 +39,7 @@ export function AIReviewPanel({ review, loading, onRun }: AIReviewPanelProps) {
       {review && (
         <div className="p-6 rounded-2xl bg-secondary/5 border border-secondary/10 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Sparkles className="w-12 h-12 text-secondary" />
+            <IconSparkles className="w-12 h-12 text-secondary" />
           </div>
           <div className="prose prose-sm max-w-none text-foreground leading-relaxed whitespace-pre-wrap font-serif italic text-lg">
             {review}

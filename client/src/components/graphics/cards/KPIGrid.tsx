@@ -1,6 +1,7 @@
 import { motion, type Variants, useMotionValue, useTransform } from "framer-motion";
 import { type ReactNode, useRef } from "react";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Minus } from "lucide-react";
+import { IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { AnimatedCounter } from "@/components/ui/animated";
 
 export interface KPIItem {
@@ -24,8 +25,8 @@ interface KPIGridProps {
 const defaultFormat = (n: number) => n.toLocaleString();
 
 const trendIcon = (trend?: "up" | "down" | "neutral") => {
-  if (trend === "up") return <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
-  if (trend === "down") return <TrendingDown className="w-3.5 h-3.5 text-red-500" />;
+  if (trend === "up") return <IconTrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
+  if (trend === "down") return <IconTrendingDown className="w-3.5 h-3.5 text-red-500" />;
   return <Minus className="w-3.5 h-3.5 text-primary/40" />;
 };
 

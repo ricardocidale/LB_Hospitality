@@ -11,8 +11,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { Loader2, Save, Plus, X, Brain, ExternalLink, Library, RefreshCw } from "lucide-react";
-import { IconResearch, IconProperties, IconGlobe, IconMapPin } from "@/components/icons/brand-icons";
+import { Loader2, X } from "lucide-react";
+import { IconSave, IconPlus, IconBrain, IconExternalLink, IconLibrary, IconRefreshCw, IconResearch, IconProperties, IconGlobe, IconMapPin } from "@/components/icons";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
 import type { ResearchConfig, ResearchEventConfig, AiModelEntry } from "@shared/schema";
 import { RESEARCH_SOURCES } from "@shared/constants";
@@ -91,7 +91,7 @@ function TagInput({
           className="h-8 text-sm"
         />
         <Button data-testid={`button-add-${testIdPrefix}`} type="button" size="sm" variant="outline" onClick={add} className="h-8 px-2">
-          <Plus className="w-3.5 h-3.5" />
+          <IconPlus className="w-3.5 h-3.5" />
         </Button>
       </div>
       {tags.length > 0 && (
@@ -334,7 +334,7 @@ function SourcesSection({
     <div className="space-y-6">
       <div className="space-y-3">
         <Label className="text-sm font-semibold flex items-center gap-2">
-          <Library className="w-4 h-4 text-primary" />
+          <IconLibrary className="w-4 h-4 text-primary" />
           System Curated Sources
         </Label>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -347,7 +347,7 @@ function SourcesSection({
               {source.url && (
                 <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline flex items-center gap-1">
                   {source.url.replace("https://", "")}
-                  <ExternalLink className="w-2.5 h-2.5" />
+                  <IconExternalLink className="w-2.5 h-2.5" />
                 </a>
               )}
             </div>
@@ -357,7 +357,7 @@ function SourcesSection({
 
       <div className="space-y-4">
         <Label className="text-sm font-semibold flex items-center gap-2">
-          <Plus className="w-4 h-4 text-primary" />
+          <IconPlus className="w-4 h-4 text-primary" />
           Custom Research Sources
         </Label>
         
@@ -491,7 +491,7 @@ export default function ResearchTab() {
               size="sm"
               className="gap-2"
             >
-              {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
               Save
             </Button>
           </div>
@@ -503,7 +503,7 @@ export default function ResearchTab() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2 text-base font-display">
-                <Brain className="w-5 h-5 text-primary" />
+                <IconBrain className="w-5 h-5 text-primary" />
                 AI Research Model
                 <HelpTooltip text="Choose which AI model powers the market research feature. Use Refresh Models to pull the latest available models from OpenAI, Anthropic, and Google." />
               </CardTitle>
@@ -536,7 +536,7 @@ export default function ResearchTab() {
                 }
               }}
             >
-              {refreshModels.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              {refreshModels.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
               Refresh Models
             </Button>
           </div>
@@ -659,7 +659,7 @@ export default function ResearchTab() {
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
         <CardHeader>
           <CardTitle className="text-base font-display flex items-center gap-2">
-            <Library className="w-5 h-5 text-primary" />
+            <IconLibrary className="w-5 h-5 text-primary" />
             Curated Source Registry
           </CardTitle>
           <CardDescription className="text-xs">

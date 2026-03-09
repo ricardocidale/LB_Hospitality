@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IconResearch, IconTrending } from "@/components/icons/brand-icons";
-import ResearchTab from "./ResearchTab";
+import { IconResearch, IconTrending } from "@/components/icons";import ResearchTab from "./ResearchTab";
 import MarketRatesTab from "./MarketRatesTab";
 
 interface ResearchCenterTabProps {

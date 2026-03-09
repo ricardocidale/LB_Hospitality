@@ -6,7 +6,8 @@
  * research seed ranges. Zero API calls — reads existing property data.
  */
 import { useMemo } from "react";
-import { BookOpen, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Minus } from "lucide-react";
+import { IconBookOpen, IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
@@ -26,8 +27,8 @@ interface PortfolioResearchCardProps {
 
 function statusIcon(status: BenchmarkMetric["status"]) {
   switch (status) {
-    case "above": return <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
-    case "below": return <TrendingDown className="w-3.5 h-3.5 text-amber-500" />;
+    case "above": return <IconTrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
+    case "below": return <IconTrendingDown className="w-3.5 h-3.5 text-amber-500" />;
     case "within": return <Minus className="w-3.5 h-3.5 text-blue-500" />;
     default: return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
   }
@@ -154,7 +155,7 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
     <div className="relative overflow-hidden rounded-lg bg-card border border-border shadow-sm">
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <BookOpen className="w-4 h-4 text-primary" />
+          <IconBookOpen className="w-4 h-4 text-primary" />
           <h4 className="text-sm font-display text-foreground">Portfolio Benchmarks</h4>
           <span className="text-xs text-muted-foreground ml-auto">room-weighted vs. research ranges</span>
         </div>

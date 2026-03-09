@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Save, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconSave } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -29,7 +30,7 @@ export function SaveButton({
       {isPending ? (
         <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
-        <Save className="w-4 h-4" />
+        <IconSave className="w-4 h-4" />
       )}
       {children}
     </Button>

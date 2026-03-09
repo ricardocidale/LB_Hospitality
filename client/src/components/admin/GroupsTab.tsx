@@ -14,8 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Plus, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
-import { IconPeople, IconProperties, IconPencil, IconTrash, IconPalette, IconBuilding } from "@/components/icons/brand-icons";
+import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { IconPlus, IconSave, IconEye, IconPeople, IconProperties, IconPencil, IconTrash, IconPalette, IconBuilding } from "@/components/icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -190,7 +190,7 @@ export default function GroupsTab() {
               setGroupForm({ name: "", themeId: null, assetDescriptionId: null });
               setGroupDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-group">
-              <Plus className="w-4 h-4" /> New Group
+              <IconPlus className="w-4 h-4" /> New Group
             </Button>
           </div>
         </CardHeader>
@@ -310,7 +310,7 @@ export default function GroupsTab() {
                             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left"
                             onClick={() => setExpandedVisibility(isExpanded ? null : group.id)}
                           >
-                            <Eye className="w-4 h-4 text-muted-foreground/60" />
+                            <IconEye className="w-4 h-4 text-muted-foreground/60" />
                             <span className="font-medium">Property Visibility</span>
                             <span className="text-xs bg-muted px-2 py-0.5 rounded ml-1">
                               {visibleCount} of {allProperties.length} visible
@@ -352,7 +352,7 @@ export default function GroupsTab() {
                                   }}
                                   className="flex items-center gap-1"
                                 >
-                                  {setGroupPropertiesMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                  {setGroupPropertiesMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <IconSave className="w-3 h-3" />}
                                   Save
                                 </Button>
                                 {pending && (

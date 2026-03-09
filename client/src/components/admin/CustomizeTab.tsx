@@ -12,7 +12,7 @@
  * component that was previously its own top-level tab.
  */
 import { useState } from "react";
-import { Image, SwatchBook, Upload, PanelLeft } from "lucide-react";
+import { IconImage, IconSwatchBook, IconUpload, IconPanelLeft } from "@/components/icons";
 import BrandingTab from "./BrandingTab";
 import ThemesTab from "./ThemesTab";
 import LogosTab from "./LogosTab";
@@ -21,10 +21,10 @@ import NavigationTab from "./NavigationTab";
 type CustomizeSection = "branding" | "themes" | "logos" | "navigation";
 
 const sections: { value: CustomizeSection; label: string; icon: React.ComponentType<{ className?: string }>; description: string }[] = [
-  { value: "branding", label: "Branding", icon: Image, description: "Company name, logo, and asset labels" },
-  { value: "themes", label: "Themes", icon: SwatchBook, description: "Color palettes and visual styles" },
-  { value: "logos", label: "Logos", icon: Upload, description: "Upload and manage logo images" },
-  { value: "navigation", label: "Navigation", icon: PanelLeft, description: "Sidebar visibility for non-admin users" },
+  { value: "branding", label: "Branding", icon: IconImage, description: "Company name, logo, and asset labels" },
+  { value: "themes", label: "Themes", icon: IconSwatchBook, description: "Color palettes and visual styles" },
+  { value: "logos", label: "Logos", icon: IconUpload, description: "Upload and manage logo images" },
+  { value: "navigation", label: "Navigation", icon: IconPanelLeft, description: "Sidebar visibility for non-admin users" },
 ];
 
 export default function CustomizeTab() {

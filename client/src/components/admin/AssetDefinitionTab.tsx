@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Save, Copy, Check, ChevronDown, HelpCircle } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
+import { IconSave, IconCopy, IconHelpCircle } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
 import { ADMIN_TEXTAREA } from "./styles";
 import {
@@ -114,7 +115,7 @@ function HelpTooltip({ text }: { text: string }) {
       <Tooltip>
         <TooltipTrigger asChild>
           <button type="button" className="text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-1 shrink-0">
-            <HelpCircle className="w-3.5 h-3.5" />
+            <IconHelpCircle className="w-3.5 h-3.5" />
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">
@@ -213,7 +214,7 @@ export default function AssetDefinitionTab() {
               size="sm"
               data-testid="button-save-icp"
             >
-              <Save className="w-3.5 h-3.5 mr-1.5" />
+              <IconSave className="w-3.5 h-3.5 mr-1.5" />
               Save
             </Button>
           </div>
@@ -247,7 +248,7 @@ export default function AssetDefinitionTab() {
                     It merges all parameters and descriptive inputs into an optimized context.
                   </p>
                   <Button variant="ghost" size="sm" onClick={handleCopy} className="text-xs h-7 gap-1">
-                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    {copied ? <Check className="w-3 h-3" /> : <IconCopy className="w-3 h-3" />}
                     {copied ? "Copied" : "Copy"}
                   </Button>
                 </div>

@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2Icon, PhoneIcon, PhoneOffIcon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
+import { IconPhoneIcon, IconPhoneOffIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -186,7 +187,7 @@ export default function VoiceChatOrb({ className, onSessionChange }: VoiceChatOr
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.5 }}
               >
-                <PhoneOffIcon className="h-5 w-5" />
+                <IconPhoneOffIcon className="h-5 w-5" />
               </motion.div>
             ) : (
               <motion.div
@@ -195,7 +196,7 @@ export default function VoiceChatOrb({ className, onSessionChange }: VoiceChatOr
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.5 }}
               >
-                <PhoneIcon className="h-5 w-5" />
+                <IconPhoneIcon className="h-5 w-5" />
               </motion.div>
             )}
           </AnimatePresence>

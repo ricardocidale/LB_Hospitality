@@ -9,10 +9,8 @@ import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  Save, Loader2, MessageSquareText, Mic, Eye, Languages,
-  ThumbsUp, Timer, ToggleLeft, Maximize2,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconSave, IconMessageSquareText, IconMic, IconEye, IconLanguages, IconThumbsUp, IconTimer, IconToggleLeft, IconMaximize2 } from "@/components/icons";
 import { useAgentConfig, useSaveWidgetSettings, type WidgetSettingsPayload } from "./hooks";
 import { VoiceSettings } from "./types";
 
@@ -65,7 +63,7 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center">
-                <ToggleLeft className="w-5 h-5 text-emerald-600" />
+                <IconToggleLeft className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <CardTitle className="text-sm font-semibold text-foreground">Input &amp; Output</CardTitle>
@@ -75,7 +73,7 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
               </div>
             </div>
             <Button size="sm" onClick={handleSave} disabled={!dirty || save.isPending} className="gap-1.5 shadow-sm">
-              {save.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              {save.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
               Save
             </Button>
           </div>
@@ -83,35 +81,35 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-8">
             <FeatureToggle
-              icon={<MessageSquareText className="w-4 h-4" />}
+              icon={<IconMessageSquareText className="w-4 h-4" />}
               label="Text Input"
               desc="Users can type messages in addition to speaking"
               checked={d.text_input_enabled ?? true}
               onChange={(v) => update("text_input_enabled", v)}
             />
             <FeatureToggle
-              icon={<Mic className="w-4 h-4" />}
+              icon={<IconMic className="w-4 h-4" />}
               label="Mic Muting"
               desc="Users can mute their microphone during conversation"
               checked={d.mic_muting_enabled ?? false}
               onChange={(v) => update("mic_muting_enabled", v)}
             />
             <FeatureToggle
-              icon={<Eye className="w-4 h-4" />}
+              icon={<IconEye className="w-4 h-4" />}
               label="Transcript"
               desc="Show real-time conversation transcript"
               checked={d.transcript_enabled ?? true}
               onChange={(v) => update("transcript_enabled", v)}
             />
             <FeatureToggle
-              icon={<Languages className="w-4 h-4" />}
+              icon={<IconLanguages className="w-4 h-4" />}
               label="Language Selector"
               desc="Show language menu in the widget header"
               checked={d.language_selector ?? true}
               onChange={(v) => update("language_selector", v)}
             />
             <FeatureToggle
-              icon={<MessageSquareText className="w-4 h-4" />}
+              icon={<IconMessageSquareText className="w-4 h-4" />}
               label="Voice / Text Toggle"
               desc="Let users switch between voice and text modes"
               checked={d.conversation_mode_toggle_enabled ?? false}
@@ -126,7 +124,7 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-500/5 flex items-center justify-center">
-              <ThumbsUp className="w-5 h-5 text-amber-600" />
+              <IconThumbsUp className="w-5 h-5 text-amber-600" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Feedback Collection</CardTitle>
@@ -157,7 +155,7 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-500/5 flex items-center justify-center">
-              <Timer className="w-5 h-5 text-blue-600" />
+              <IconTimer className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Behavior</CardTitle>
@@ -172,7 +170,7 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="label-text font-medium flex items-center gap-1.5 text-xs">
-                <Timer className="w-3.5 h-3.5" /> Turn Timeout
+                <IconTimer className="w-3.5 h-3.5" /> Turn Timeout
               </Label>
               <Badge variant="outline" className="font-mono text-xs">{d.turn_timeout ?? 7}s</Badge>
             </div>
@@ -195,14 +193,14 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
           {/* Display toggles */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <FeatureToggle
-              icon={<Maximize2 className="w-4 h-4" />}
+              icon={<IconMaximize2 className="w-4 h-4" />}
               label="Dismissible"
               desc="Users can minimize the widget"
               checked={d.dismissible ?? true}
               onChange={(v) => update("dismissible", v)}
             />
             <FeatureToggle
-              icon={<Maximize2 className="w-4 h-4" />}
+              icon={<IconMaximize2 className="w-4 h-4" />}
               label="Start Expanded"
               desc="Widget opens expanded on page load"
               checked={d.default_expanded ?? false}

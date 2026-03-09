@@ -2,8 +2,7 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { ContentPanel } from "@/components/ui/content-panel";
-import { IconCalculator, IconTrending, IconAnalysis, IconShield } from "@/components/icons/brand-icons";
-import { AnimatedPage, ScrollReveal } from "@/components/graphics";
+import { IconCalculator, IconTrending, IconAnalysis, IconShield } from "@/components/icons";import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { DSCRTab, DebtYieldTab, StressTestTab, PrepaymentTab } from "@/components/financing";
 
 type TabId = "dscr" | "debt-yield" | "sensitivity" | "prepayment";

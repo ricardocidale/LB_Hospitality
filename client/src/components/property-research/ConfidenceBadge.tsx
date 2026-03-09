@@ -4,15 +4,17 @@
  * Displays a small colored pill indicating whether the AI's recommended
  * value is conservative, moderate, or aggressive relative to market data.
  */
+import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
-import { Shield, Check, AlertTriangle } from "lucide-react";
+import { Check } from "lucide-react";
+import { IconShield, IconAlertTriangle } from "@/components/icons";
 
 type Confidence = "conservative" | "moderate" | "aggressive";
 
-const CONFIDENCE_CONFIG: Record<Confidence, { label: string; icon: typeof Shield; className: string; title: string }> = {
+const CONFIDENCE_CONFIG: Record<Confidence, { label: string; icon: ComponentType<{ className?: string }>; className: string; title: string }> = {
   conservative: {
     label: "Conservative",
-    icon: Shield,
+    icon: IconShield,
     className: "text-blue-700 bg-blue-50 border-blue-200",
     title: "Below market average — lower risk estimate",
   },
@@ -24,7 +26,7 @@ const CONFIDENCE_CONFIG: Record<Confidence, { label: string; icon: typeof Shield
   },
   aggressive: {
     label: "Aggressive",
-    icon: AlertTriangle,
+    icon: IconAlertTriangle,
     className: "text-amber-700 bg-amber-50 border-amber-200",
     title: "Above market average — higher risk estimate",
   },

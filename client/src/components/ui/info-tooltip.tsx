@@ -5,7 +5,7 @@
  * includes an external link for further reading. Used next to financial
  * input fields to explain concepts like "ADR", "Cap Rate", or "FF&E Reserve".
  */
-import { Info, ExternalLink } from "lucide-react";
+import { IconInfo, IconExternalLink } from "@/components/icons";
 import {
   Tooltip,
   TooltipTrigger,
@@ -35,7 +35,7 @@ export function InfoTooltip({ text, formula, light = false, side = "top", manual
           aria-label="Info"
           data-testid="info-tooltip-trigger"
         >
-          <Info className="w-3.5 h-3.5" />
+          <IconInfo className="w-3.5 h-3.5" />
         </button>
       </TooltipTrigger>
       <TooltipContent
@@ -58,7 +58,7 @@ export function InfoTooltip({ text, formula, light = false, side = "top", manual
             data-testid="info-tooltip-manual-link"
             onClick={(e) => e.stopPropagation()}
           >
-            <ExternalLink className="w-3 h-3" />
+            <IconExternalLink className="w-3 h-3" />
             {manualLabel || "Learn more in the Manual"}
           </a>
         )}

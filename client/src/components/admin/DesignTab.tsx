@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IconImage, IconPalette } from "@/components/icons/brand-icons";
-import LogosTab from "./LogosTab";
+import { IconImage, IconPalette } from "@/components/icons";import LogosTab from "./LogosTab";
 import ThemesTab from "./ThemesTab";
 
 export default function DesignTab() {

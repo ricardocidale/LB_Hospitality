@@ -11,7 +11,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bell, Info, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { IconBell, IconInfo, IconCheckCircle, IconAlertTriangle, IconXCircle } from "@/components/icons";
 
 export interface Notification {
   id: string;
@@ -66,12 +66,12 @@ export const useNotificationStore = create<NotificationState>()(
 
 const TYPE_CONFIG: Record<
   Notification["type"],
-  { icon: typeof Info; color: string }
+  { icon: typeof IconInfo; color: string }
 > = {
-  info: { icon: Info, color: "var(--primary)" },
-  success: { icon: CheckCircle, color: "#257D41" },
-  warning: { icon: AlertTriangle, color: "#F59E0B" },
-  error: { icon: XCircle, color: "#EF4444" },
+  info: { icon: IconInfo, color: "var(--primary)" },
+  success: { icon: IconCheckCircle, color: "#257D41" },
+  warning: { icon: IconAlertTriangle, color: "#F59E0B" },
+  error: { icon: IconXCircle, color: "#EF4444" },
 };
 
 function relativeTime(timestamp: number): string {
@@ -112,7 +112,7 @@ export default function NotificationCenter() {
         onClick={() => setOpen((o) => !o)}
         className="relative w-10 h-10 rounded-lg flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-border transition-all duration-200"
       >
-        <Bell className="w-4 h-4 text-sidebar-foreground/50" />
+        <IconBell className="w-4 h-4 text-sidebar-foreground/50" />
         {count > 0 && (
           <span
             data-testid="badge-unread-count"

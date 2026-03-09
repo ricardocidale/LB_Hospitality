@@ -200,7 +200,11 @@
       "WebFetch(domain:magicui.design)",
       "Bash(npx shadcn@latest add \"https://magicui.design/r/particles\" --overwrite 2>&1)",
       "Bash(npx shadcn@latest add \"https://magicui.design/r/number-ticker\" --overwrite 2>&1)",
-      "Bash(npx shadcn@latest add \"https://magicui.design/r/animated-gradient-text\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/ripple\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/aurora-text\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/animated-beam\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/meteors\" --overwrite 2>&1)"
+      "Bash(npx shadcn@latest add \"https://magicui.design/r/animated-gradient-text\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/ripple\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/aurora-text\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/animated-beam\" --overwrite 2>&1 && \\\\\nnpx shadcn@latest add \"https://magicui.design/r/meteors\" --overwrite 2>&1)",
+      "Bash(for dir in analysis financing funding refinance research returns services shared validation)",
+      "Bash(do echo \"=== calc/$dir ===\")",
+      "Read(//home/runner/workspace/calc/**)",
+      "Bash(echo \"=== CLIENT LIBRARY MODULES ===\" && du -sh /home/runner/workspace/client/src/lib/* 2>/dev/null | head -15)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -14,7 +14,8 @@ import {
   useState,
 } from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
-import { Check, PauseIcon, PlayIcon, Settings } from "lucide-react"
+import { Check } from "lucide-react";
+import { IconPauseIcon, IconPlayIcon, IconSettings } from "@/components/icons";
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -406,9 +407,9 @@ const PlayButton = ({
     type="button"
   >
     {playing ? (
-      <PauseIcon className={cn("size-4", loading && "opacity-0")} aria-hidden="true" />
+      <IconPauseIcon className={cn("size-4", loading && "opacity-0")} aria-hidden="true" />
     ) : (
-      <PlayIcon className={cn("size-4", loading && "opacity-0")} aria-hidden="true" />
+      <IconPlayIcon className={cn("size-4", loading && "opacity-0")} aria-hidden="true" />
     )}
     {loading && (
       <div className="absolute inset-0 flex items-center justify-center rounded-[inherit]">
@@ -482,7 +483,7 @@ export function AudioPlayerSpeed({
           aria-label="Playback speed"
           {...props}
         >
-          <Settings className="size-4" />
+          <IconSettings className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[120px]">

@@ -1,8 +1,6 @@
 import { SectionCard } from "@/components/ui/section-card";
 import { Callout } from "@/components/ui/callout";
-import { IconScenarios } from "@/components/icons/brand-icons";
-
-interface SectionProps {
+import { IconScenarios } from "@/components/icons";interface SectionProps {
   expanded: boolean;
   onToggle: () => void;
   sectionRef: (el: HTMLDivElement | null) => void;

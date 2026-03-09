@@ -23,7 +23,8 @@
 import { useState } from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown, ChevronRight, Info } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { IconInfo } from "@/components/icons";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT } from "@shared/constants";
 import { DEFAULT_LTV } from "@/lib/financial/loanCalculations";
@@ -194,7 +195,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
                   <td colSpan={2} className="py-3 px-8">
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                       <p className="text-xs font-semibold text-blue-800 mb-2 flex items-center gap-1">
-                        <Info className="w-3.5 h-3.5" /> Fixed Cost Rates Applied to Base Revenue
+                        <IconInfo className="w-3.5 h-3.5" /> Fixed Cost Rates Applied to Base Revenue
                       </p>
                       <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-blue-700">
                         <span>Property Operations: {pct(costRatePropertyOps)} → {fmt(baseMonthlyTotalRev * costRatePropertyOps)}/mo</span>

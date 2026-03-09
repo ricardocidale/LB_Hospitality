@@ -8,7 +8,8 @@ import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Wand2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { IconWand2 } from "@/components/icons";
 
 /**
  * Maps research value keys to property field names, labels, and divisors.
@@ -147,7 +148,7 @@ export function ApplyResearchDialog({ open, onOpenChange, draft, researchValues,
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Wand2 className="w-5 h-5 text-primary" />
+            <IconWand2 className="w-5 h-5 text-primary" />
             Apply Research Values
           </DialogTitle>
           <DialogDescription>
@@ -206,7 +207,7 @@ export function ApplyResearchDialog({ open, onOpenChange, draft, researchValues,
             disabled={selected.size === 0}
             data-testid="button-apply-research"
           >
-            <Wand2 className="w-4 h-4" />
+            <IconWand2 className="w-4 h-4" />
             Apply {selected.size} {selected.size === 1 ? "Value" : "Values"}
           </Button>
         </DialogFooter>

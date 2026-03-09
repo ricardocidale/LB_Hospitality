@@ -35,21 +35,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import {
-  CheckCircle2Icon,
-  CheckCircleIcon,
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-  ColumnsIcon,
-  GripVerticalIcon,
-  LoaderIcon,
-  MoreVerticalIcon,
-  PlusIcon,
-  TrendingUpIcon,
-} from "lucide-react"
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, GripVerticalIcon, LoaderIcon, MoreVerticalIcon } from "lucide-react";
+import { IconCheckCircle2Icon, IconCheckCircleIcon, IconColumnsIcon, IconPlusIcon, IconTrendingUpIcon } from "@/components/icons";;
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -197,7 +184,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3"
       >
         {row.original.status === "Done" ? (
-          <CheckCircle2Icon className="text-green-500 dark:text-green-400" />
+          <IconCheckCircle2Icon className="text-green-500 dark:text-green-400" />
         ) : (
           <LoaderIcon />
         )}
@@ -453,7 +440,7 @@ export function DataTable({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                <ColumnsIcon />
+                <IconColumnsIcon />
                 <span className="hidden lg:inline">Customize Columns</span>
                 <span className="lg:hidden">Columns</span>
                 <ChevronDownIcon />
@@ -484,7 +471,7 @@ export function DataTable({
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" size="sm">
-            <PlusIcon />
+            <IconPlusIcon />
             <span className="hidden lg:inline">Add Section</span>
           </Button>
         </div>
@@ -725,7 +712,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               <div className="grid gap-2">
                 <div className="flex gap-2 font-medium leading-none">
                   Trending up by 5.2% this month{" "}
-                  <TrendingUpIcon className="size-4" />
+                  <IconTrendingUpIcon className="size-4" />
                 </div>
                 <div className="text-muted-foreground">
                   Showing total visitors for the last 6 months. This is just

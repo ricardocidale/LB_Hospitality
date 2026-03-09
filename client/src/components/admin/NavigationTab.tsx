@@ -20,8 +20,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { IconSettingsGear } from "@/components/icons/brand-icons";
-import { invalidateAllFinancialQueries } from "@/lib/api";
+import { IconSettingsGear } from "@/components/icons";import { invalidateAllFinancialQueries } from "@/lib/api";
 
 export default function NavigationTab() {
   const { toast } = useToast();

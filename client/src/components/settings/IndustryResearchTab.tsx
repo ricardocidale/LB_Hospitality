@@ -5,7 +5,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { Globe, Search, MessageSquare, Check, X, Pencil, Trash2, RefreshCw, Plus, Loader2 } from "lucide-react";
+import { Search, Check, X, Loader2 } from "lucide-react";
+import { IconGlobe, IconMessageSquare, IconPencil, IconTrash, IconRefreshCw, IconPlus } from "@/components/icons";
 import { DEFAULT_INFLATION_RATE } from "@shared/constants";
 import { SettingsTabProps } from "./types";
 
@@ -64,7 +65,7 @@ export function IndustryResearchTab({
       <Card className="bg-card border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
-            <Globe className="w-5 h-5 text-primary" />
+            <IconGlobe className="w-5 h-5 text-primary" />
             Your Model Context
             <HelpTooltip text="These values come from your systemwide assumptions and are automatically included in the research prompt so the AI tailors its analysis to your portfolio." />
           </CardTitle>
@@ -185,7 +186,7 @@ export function IndustryResearchTab({
 
           <div className="space-y-3">
             <Label className="label-text font-medium flex items-center gap-1">
-              <MessageSquare className="w-4 h-4" />
+              <IconMessageSquare className="w-4 h-4" />
               Custom Research Questions
               <HelpTooltip text="Add specific research questions or qualifiers for the AI to address. Each question is sent to the AI as part of the research prompt." />
             </Label>
@@ -248,7 +249,7 @@ export function IndustryResearchTab({
                             }}
                             data-testid={`button-edit-question-${q.id}`}
                           >
-                            <Pencil className="w-3.5 h-3.5" />
+                            <IconPencil className="w-3.5 h-3.5" />
                           </Button>
                           <Button
                             size="sm"
@@ -257,7 +258,7 @@ export function IndustryResearchTab({
                             onClick={() => deleteQuestion.mutate(q.id)}
                             data-testid={`button-delete-question-${q.id}`}
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <IconTrash className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       </>
@@ -291,7 +292,7 @@ export function IndustryResearchTab({
                 }}
                 data-testid="button-add-research-question"
               >
-                {createQuestion.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                {createQuestion.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconPlus className="w-4 h-4" />}
               </Button>
             </div>
           </div>
@@ -305,12 +306,12 @@ export function IndustryResearchTab({
             >
               {isGenerating ? (
                 <>
-                  <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
+                  <IconRefreshCw className="w-5 h-5 mr-2 animate-spin" />
                   Generating Market Analysis...
                 </>
               ) : (
                 <>
-                  <RefreshCw className="w-5 h-5 mr-2" />
+                  <IconRefreshCw className="w-5 h-5 mr-2" />
                   Regenerate Industry Research
                 </>
               )}
@@ -326,7 +327,7 @@ export function IndustryResearchTab({
         <Card className="border-primary/30 bg-primary/5 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-display flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 animate-spin text-primary" />
+              <IconRefreshCw className="w-4 h-4 animate-spin text-primary" />
               Real-time Generation
             </CardTitle>
           </CardHeader>

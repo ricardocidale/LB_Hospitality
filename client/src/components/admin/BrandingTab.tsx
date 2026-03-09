@@ -4,8 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Save, Phone, Globe, Hash, Calendar, Percent } from "lucide-react";
-import { IconProperties, IconMail, IconMapPin } from "@/components/icons/brand-icons";
+import { IconSave, IconPhone, IconGlobe, IconHash, IconCalendar, IconPercent, IconProperties, IconMail, IconMapPin } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
 import LogoSelector from "./LogoSelector";
 
@@ -112,7 +111,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           <Card className="bg-card border border-border/80 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Phone className="w-4 h-4 text-muted-foreground" /> Contact Information
+                <IconPhone className="w-4 h-4 text-muted-foreground" /> Contact Information
               </CardTitle>
               <CardDescription className="label-text">Official contact details for reports and correspondence</CardDescription>
             </CardHeader>
@@ -129,7 +128,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="label-text text-foreground flex items-center gap-2"><Phone className="w-3 h-3" /> Phone</Label>
+                  <Label className="label-text text-foreground flex items-center gap-2"><IconPhone className="w-3 h-3" /> Phone</Label>
                   <Input
                     value={form.companyPhone}
                     onChange={(e) => updateField("companyPhone", e.target.value)}
@@ -139,7 +138,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label className="label-text text-foreground flex items-center gap-2"><Globe className="w-3 h-3" /> Website</Label>
+                  <Label className="label-text text-foreground flex items-center gap-2"><IconGlobe className="w-3 h-3" /> Website</Label>
                   <Input
                     value={form.companyWebsite}
                     onChange={(e) => updateField("companyWebsite", e.target.value)}
@@ -155,7 +154,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           <Card className="bg-card border border-border/80 shadow-sm">
             <CardHeader>
               <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Hash className="w-4 h-4 text-muted-foreground" /> Financial & Regulatory
+                <IconHash className="w-4 h-4 text-muted-foreground" /> Financial & Regulatory
               </CardTitle>
               <CardDescription className="label-text">Corporate identification and fiscal settings</CardDescription>
             </CardHeader>
@@ -172,7 +171,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="label-text text-foreground flex items-center gap-2"><Calendar className="w-3 h-3" /> Founding Year</Label>
+                  <Label className="label-text text-foreground flex items-center gap-2"><IconCalendar className="w-3 h-3" /> Founding Year</Label>
                   <Input
                     type="number"
                     value={form.companyFoundingYear || ""}
@@ -266,7 +265,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           className="shadow-xl rounded-full px-8 h-12 flex items-center gap-2"
           data-testid="button-save-branding"
         >
-          <Save className="w-5 h-5" />
+          <IconSave className="w-5 h-5" />
           {updateGlobalMutation.isPending ? "Saving..." : "Save Changes"}
         </Button>
       </div>

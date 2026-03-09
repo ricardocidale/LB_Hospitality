@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Save, Star, Sparkles, HardDrive, Link, Wand2, ArrowRight, X, Check } from "lucide-react";
-import { IconTrash, IconProperties, IconImage, IconTag, IconPencil } from "@/components/icons/brand-icons";
+import { Loader2, ArrowRight, X, Check } from "lucide-react";
+import { IconPlus, IconSave, IconStar, IconSparkles, IconHardDrive, IconLink, IconWand2, IconTrash, IconProperties, IconImage, IconTag, IconPencil } from "@/components/icons";
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";
 import { ImageCropDialog } from "@/components/ui/image-crop-dialog";
@@ -146,7 +146,7 @@ export default function LogosTab() {
               <CardDescription className="label-text">Upload, create, and manage logos used by companies in the platform</CardDescription>
             </div>
             <Button variant="outline" onClick={() => { resetLogoForm(); setLogoDialogOpen(true); }} className="flex items-center gap-2" data-testid="button-add-logo">
-              <Plus className="w-4 h-4" /> Add Logo
+              <IconPlus className="w-4 h-4" /> Add Logo
             </Button>
           </div>
         </CardHeader>
@@ -174,7 +174,7 @@ export default function LogosTab() {
                         <div className="min-w-0 flex-1">
                           <h3 className="font-display font-medium text-foreground truncate flex items-center gap-2">
                             {logo.name}
-                            {logo.isDefault && <Star className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                            {logo.isDefault && <IconStar className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
                           </h3>
                           <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
                             <IconProperties className="w-3.5 h-3.5" />
@@ -221,13 +221,13 @@ export default function LogosTab() {
 
           <div className="flex gap-2">
             <button type="button" disabled={isBusy} onClick={() => { setLogoMode("generate"); setLogoUrl(""); }} className={modeBtn("generate", logoMode === "generate")} data-testid="btn-mode-generate">
-              <Sparkles className="w-4 h-4" /> Generate Logo
+              <IconSparkles className="w-4 h-4" /> Generate Logo
             </button>
             <button type="button" disabled={isBusy} onClick={() => { setLogoMode("import"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("import", logoMode === "import")} data-testid="btn-mode-import">
-              <HardDrive className="w-4 h-4" /> Import Logo
+              <IconHardDrive className="w-4 h-4" /> Import Logo
             </button>
             <button type="button" disabled={isBusy} onClick={() => { setLogoMode("url"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("url", logoMode === "url")} data-testid="btn-mode-url">
-              <Link className="w-4 h-4" /> URL Logo
+              <IconLink className="w-4 h-4" /> URL Logo
             </button>
           </div>
 
@@ -260,11 +260,11 @@ export default function LogosTab() {
                   </div>
                   <div className="flex gap-2">
                     <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={handleEnhancePrompt} className="flex-1 bg-gradient-to-b from-amber-50 to-amber-100/80 border-amber-200/60 text-amber-800 hover:from-amber-100 hover:to-amber-200/80 hover:border-amber-300 transition-all" data-testid="btn-enhance-prompt">
-                      <Wand2 className="w-4 h-4 mr-2" />
+                      <IconWand2 className="w-4 h-4 mr-2" />
                       Enhance with AI
                     </Button>
                     <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={() => handleGenerateLogo(aiPrompt.trim())} className="flex-1 bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-foreground hover:from-primary/20 hover:to-primary/30 transition-all" data-testid="btn-generate-direct">
-                      <Sparkles className="w-4 h-4 mr-2" />
+                      <IconSparkles className="w-4 h-4 mr-2" />
                       Generate Logo
                     </Button>
                   </div>
@@ -276,7 +276,7 @@ export default function LogosTab() {
                 <div className="flex flex-col items-center justify-center py-8 space-y-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-                      <Wand2 className="w-6 h-6 text-amber-600 animate-pulse" />
+                      <IconWand2 className="w-6 h-6 text-amber-600 animate-pulse" />
                     </div>
                     <Loader2 className="w-16 h-16 text-amber-400 animate-spin absolute -top-2 -left-2" />
                   </div>
@@ -289,7 +289,7 @@ export default function LogosTab() {
                 <div className="space-y-3">
                   <div className="rounded-xl border border-amber-200/60 bg-gradient-to-b from-amber-50/50 to-white p-4 space-y-2">
                     <div className="flex items-center gap-2 mb-1">
-                      <Wand2 className="w-4 h-4 text-amber-600" />
+                      <IconWand2 className="w-4 h-4 text-amber-600" />
                       <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">AI-Enhanced Prompt</span>
                     </div>
                     <Textarea value={enhancedPrompt} onChange={(e) => setEnhancedPrompt(e.target.value)} rows={4} className="resize-none bg-card border-border text-sm" data-testid="input-enhanced-prompt" />
@@ -313,7 +313,7 @@ export default function LogosTab() {
                 <div className="flex flex-col items-center justify-center py-8 space-y-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-muted-foreground animate-pulse" />
+                      <IconSparkles className="w-6 h-6 text-muted-foreground animate-pulse" />
                     </div>
                     <Loader2 className="w-16 h-16 text-muted-foreground/40 animate-spin absolute -top-2 -left-2" />
                   </div>
@@ -333,7 +333,7 @@ export default function LogosTab() {
                 </>
               ) : (
                 <>
-                  <HardDrive className="w-10 h-10 text-muted-foreground mb-3" />
+                  <IconHardDrive className="w-10 h-10 text-muted-foreground mb-3" />
                   <p className="text-sm text-muted-foreground font-medium">Click to import logo</p>
                   <p className="text-xs text-muted-foreground mt-1">PNG, JPG, SVG — Max 5MB</p>
                 </>
@@ -367,7 +367,7 @@ export default function LogosTab() {
             className="bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-foreground hover:from-primary/20 hover:to-primary/30 flex items-center gap-2"
             data-testid="button-save-logo"
           >
-            {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             Save Logo
           </Button>
         </DialogFooter>

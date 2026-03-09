@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Sparkles, FileDown, Download } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconCheckCircle2, IconXCircle, IconAlertTriangle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { formatMoney } from "@/lib/financialEngine";
 import jsPDF from "jspdf";
@@ -277,7 +278,7 @@ export default function VerificationTab() {
                 data-testid="button-export-pdf"
                 className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-full text-xs font-bold shadow-sm hover:shadow-md hover:border-secondary/20 transition-all group"
               >
-                <FileDown className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
+                <IconFileDown className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
                 EXPORT PDF REPORT
               </button>
             )}
@@ -287,7 +288,7 @@ export default function VerificationTab() {
               data-testid="button-run-verification"
               className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground rounded-full text-xs font-bold shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 group"
             >
-              {runVerification.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PlayCircle className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />}
+              {runVerification.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconPlayCircle className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />}
               RUN FULL AUDIT
             </button>
           </div>
@@ -295,10 +296,10 @@ export default function VerificationTab() {
 
         <div className="flex items-center gap-1 mt-6 p-1 bg-muted rounded-full w-fit border border-border">
           {[
-            { id: "results", label: "Verification Results", icon: CheckCircle2 },
-            { id: "history", label: "Audit History", icon: Download },
-            { id: "ai", label: "AI Narrative", icon: Sparkles },
-            { id: "design", label: "Design Coverage", icon: AlertTriangle }
+            { id: "results", label: "Verification Results", icon: IconCheckCircle2 },
+            { id: "history", label: "Audit History", icon: IconDownload },
+            { id: "ai", label: "AI Narrative", icon: IconSparkles },
+            { id: "design", label: "Design Coverage", icon: IconAlertTriangle }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -326,7 +327,7 @@ export default function VerificationTab() {
             <div className="relative">
               <div className="w-16 h-16 rounded-full border-4 border-secondary/20 border-t-secondary animate-spin" />
               <div className="absolute inset-0 flex items-center justify-center">
-                <PlayCircle className="w-6 h-6 text-secondary animate-pulse" />
+                <IconPlayCircle className="w-6 h-6 text-secondary animate-pulse" />
               </div>
             </div>
             <div className="text-center space-y-2">
@@ -351,7 +352,7 @@ export default function VerificationTab() {
                         }`}>
                           {verificationResults.summary.auditOpinion}
                         </span>
-                        {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <CheckCircle2 className="w-5 h-5 text-secondary" /> : <XCircle className="w-5 h-5 text-red-500" />}
+                        {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -385,7 +386,7 @@ export default function VerificationTab() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
-                  <PlayCircle className="w-12 h-12 opacity-20" />
+                  <IconPlayCircle className="w-12 h-12 opacity-20" />
                   <p className="text-sm font-medium">Click "Run Full Audit" to start the verification process.</p>
                 </div>
               )

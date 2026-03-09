@@ -24,13 +24,14 @@ import {
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+  DEFAULT_PROJECTION_YEARS,
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
 } from "@shared/constants";
 import type { CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, YearMonth } from "./types";
 
-const PROJECTION_YEARS = 10;
-const DEFAULT_LTV = 0.75;
-const DEFAULT_INTEREST_RATE = 0.09;
-const DEFAULT_TERM_YEARS = 25;
+const PROJECTION_YEARS = DEFAULT_PROJECTION_YEARS;
 
 const TOLERANCE = 0.001;
 

@@ -1682,3 +1682,117 @@ export function IconSquare(p: IconProps) {
     </svg>
   );
 }
+
+export function IconArrowRightLeft(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M21 7H3" {...S} />
+      <path d="M18 4l3 3-3 3" {...S} />
+      <path d="M3 17h18" {...S} />
+      <path d="M6 20l-3-3 3-3" {...S} />
+    </svg>
+  );
+}
+
+export function IconArrowUpRight(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M7 17L17 7" {...S} />
+      <path d="M7 7h10v10" {...S} />
+    </svg>
+  );
+}
+
+export function IconGitCompareArrows(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="5" cy="6" r="3" {...F} />
+      <circle cx="5" cy="6" r="3" {...S} fill="none" />
+      <circle cx="19" cy="18" r="3" {...F} />
+      <circle cx="19" cy="18" r="3" {...S} fill="none" />
+      <path d="M12 2l-3 3 3 3" {...S} />
+      <path d="M9 5h7a4 4 0 0 1 4 4v4" {...S} />
+      <path d="M12 22l3-3-3-3" {...S} />
+      <path d="M15 19H8a4 4 0 0 1-4-4v-4" {...S} />
+    </svg>
+  );
+}
+
+export function IconCrop(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M6 2v4" {...S} />
+      <path d="M18 22v-4" {...S} />
+      <rect x="6" y="6" width="12" height="12" rx="1" {...F} />
+      <path d="M6 6h14v12H6z" {...S} fill="none" />
+      <path d="M2 6h4" {...S} />
+      <path d="M18 18h4" {...S} />
+    </svg>
+  );
+}
+
+export function IconEyeOff(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" {...S} />
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" {...S} />
+      <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" {...S} />
+      <path d="M1 1l22 22" {...S} />
+    </svg>
+  );
+}
+
+export function IconRefreshCw(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M3 12a9 9 0 0 1 15-6.7L21 8" {...S} />
+      <path d="M21 3v5h-5" {...S} />
+      <path d="M21 12a9 9 0 0 1-15 6.7L3 16" {...S} />
+      <path d="M3 21v-5h5" {...S} />
+    </svg>
+  );
+}
+
+export function IconTimer(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="12" cy="13" r="8" {...F} />
+      <circle cx="12" cy="13" r="8" {...S} fill="none" />
+      <path d="M12 9v4l2 2" {...S} />
+      <path d="M10 2h4" {...S} />
+      <path d="M12 2v3" {...S} />
+    </svg>
+  );
+}
+
+export function IconUtensilsCrossed(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M2.27 21.7s9.87-9.87 4.67-15.06C2.27 2.27 2.27 2.27 2.27 2.27" {...S} />
+      <path d="M3.69 20.32l2.82-2.82" {...S} />
+      <path d="M19.5 2.5l-7 7 3 3 7-7" {...S} />
+      <path d="M12 12l9 9" {...S} />
+      <path d="M20 2l2 2" {...S} />
+      <circle cx="7" cy="7" r="3" {...F} />
+    </svg>
+  );
+}
+
+export function IconWaves(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" {...S} />
+      <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" {...S} />
+      <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" {...S} />
+    </svg>
+  );
+}

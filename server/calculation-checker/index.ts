@@ -5,6 +5,10 @@ import {
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_TAX_RATE,
+  DEFAULT_PROJECTION_YEARS,
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
 } from "@shared/constants";
 import type {
   VerificationReport,
@@ -29,10 +33,7 @@ import {
   addCrossValidationChecks,
 } from "./helpers";
 
-const PROJECTION_YEARS = 10;
-const DEFAULT_LTV = 0.75;
-const DEFAULT_INTEREST_RATE = 0.09;
-const DEFAULT_TERM_YEARS = 25;
+const PROJECTION_YEARS = DEFAULT_PROJECTION_YEARS;
 
 /**
  * Run the full independent verification suite across all properties and the company.

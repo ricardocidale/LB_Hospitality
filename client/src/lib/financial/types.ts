@@ -141,6 +141,8 @@ export interface GlobalInput {
   eventExpenseRate?: number;
   otherExpenseRate?: number;
   utilitiesVariableSplit?: number;
+  // Tax
+  companyTaxRate?: number;
   // Exit & Sale
   exitCapRate?: number;
   salesCommissionRate?: number;

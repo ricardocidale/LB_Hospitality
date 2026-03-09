@@ -1427,3 +1427,136 @@ export function IconBrain(p: IconProps) {
     </svg>
   );
 }
+
+export function IconHome(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" {...F} />
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" {...S} fill="none" />
+      <path d="M9 22V12h6v10" {...S} />
+    </svg>
+  );
+}
+
+export function IconHotel(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" {...F} />
+      <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" {...S} fill="none" />
+      <path d="M9 22V18h6v4" {...S} />
+      <rect x="8" y="6" width="3" height="3" rx="0.5" {...S} fill="none" />
+      <rect x="13" y="6" width="3" height="3" rx="0.5" {...S} fill="none" />
+      <rect x="8" y="11" width="3" height="3" rx="0.5" {...S} fill="none" />
+      <rect x="13" y="11" width="3" height="3" rx="0.5" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconBed(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M2 4v16" {...S} />
+      <path d="M2 8h18a2 2 0 0 1 2 2v10" {...S} />
+      <path d="M2 17h20" {...S} />
+      <rect x="6" y="11" width="5" height="3" rx="1" {...F} />
+      <rect x="6" y="11" width="5" height="3" rx="1" {...S} fill="none" />
+      <rect x="13" y="11" width="5" height="3" rx="1" {...F} />
+      <rect x="13" y="11" width="5" height="3" rx="1" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconBuilding2(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="4" y="2" width="16" height="20" rx="2" {...F} />
+      <rect x="4" y="2" width="16" height="20" rx="2" {...S} fill="none" />
+      <path d="M9 22V12h6v10" {...S} />
+      <rect x="8" y="6" width="3" height="2.5" rx="0.5" {...S} fill="none" />
+      <rect x="13" y="6" width="3" height="2.5" rx="0.5" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconMap(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" {...F} />
+      <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" {...S} fill="none" />
+      <path d="M8 2v16" {...S} />
+      <path d="M16 6v16" {...S} />
+    </svg>
+  );
+}
+
+export function IconMountain(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M8 3l-6 18h20L14 7l-3 4-3-8z" {...F} />
+      <path d="M8 3l-6 18h20L14 7l-3 4-3-8z" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconCompass(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="12" cy="12" r="10" {...F} />
+      <circle cx="12" cy="12" r="10" {...S} fill="none" />
+      <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" {...F} opacity="0.3" />
+      <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconCalendar(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="3" y="4" width="18" height="18" rx="2" {...F} />
+      <rect x="3" y="4" width="18" height="18" rx="2" {...S} fill="none" />
+      <path d="M16 2v4" {...S} />
+      <path d="M8 2v4" {...S} />
+      <path d="M3 10h18" {...S} />
+      <circle cx="8" cy="15" r="0.75" fill="currentColor" opacity="0.35" />
+      <circle cx="12" cy="15" r="0.75" fill="currentColor" opacity="0.35" />
+      <circle cx="16" cy="15" r="0.75" fill="currentColor" opacity="0.35" />
+    </svg>
+  );
+}
+
+export function IconPresentation(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="2" y="3" width="20" height="14" rx="2" {...F} />
+      <rect x="2" y="3" width="20" height="14" rx="2" {...S} fill="none" />
+      <path d="M8 21l4-4 4 4" {...S} />
+      <path d="M12 17v-4" {...S} />
+      <path d="M7 10l3-3 2 2 4-4" {...S} />
+    </svg>
+  );
+}
+
+export function IconLayoutGrid(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" {...F} />
+      <rect x="3" y="3" width="7" height="7" rx="1.5" {...S} fill="none" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" {...F} />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" {...S} fill="none" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" {...F} />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" {...S} fill="none" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" {...F} />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" {...S} fill="none" />
+    </svg>
+  );
+}

@@ -5,32 +5,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save, Copy, Check } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Save, Copy, Check, ChevronDown, HelpCircle } from "lucide-react";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
 import { ADMIN_TEXTAREA } from "./styles";
 import {
   type IcpConfig,
   type IcpDescriptive,
   type Priority,
+  type UnitType,
   DEFAULT_ICP_CONFIG,
   DEFAULT_ICP_DESCRIPTIVE,
   PARAMETER_SECTIONS,
   DESCRIPTIVE_SECTIONS,
   PRIORITY_LABELS,
+  UNIT_DEFS,
   generateIcpPrompt,
 } from "./icp-config";
 
-function PrioritySelect({ value, onChange }: { value: Priority; onChange: (v: Priority) => void }) {
+function PriorityBadge({ value, onChange }: { value: Priority; onChange?: (v: Priority) => void }) {
+  if (onChange) {
+    return (
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value as Priority)}
+        className={`h-6 rounded-full border text-[10px] font-medium px-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring ${
+          value === "must"
+            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+            : value === "nice"
+              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+              : "bg-red-500/10 text-red-500 dark:text-red-400 border-red-500/20"
+        }`}
+        data-testid="select-priority"
+      >
+        {(Object.entries(PRIORITY_LABELS) as [Priority, string][]).map(([k, label]) => (
+          <option key={k} value={k}>{label}</option>
+        ))}
+      </select>
+    );
+  }
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value as Priority)}
-      className="h-8 rounded border border-border bg-card px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring min-w-[100px]"
-    >
-      {(Object.entries(PRIORITY_LABELS) as [Priority, string][]).map(([k, label]) => (
-        <option key={k} value={k}>{label}</option>
-      ))}
-    </select>
+    <span className={`inline-flex items-center h-5 rounded-full text-[10px] font-medium px-2 ${
+      value === "must"
+        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        : value === "nice"
+          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+          : "bg-red-500/10 text-red-500 dark:text-red-400"
+    }`}>
+      {PRIORITY_LABELS[value]}
+    </span>
   );
 }
 
@@ -53,7 +76,7 @@ function CurrencyInput({ value, onChange }: { value: number; onChange: (v: numbe
         const num = Number(local.replace(/[^0-9]/g, "")) || 0;
         onChange(num);
       }}
-      className="h-8 text-xs bg-card w-[110px] text-right tabular-nums"
+      className="h-7 text-xs bg-card w-[110px] text-right tabular-nums"
     />
   );
 }
@@ -65,8 +88,40 @@ function NumberInput({ value, onChange, step }: { value: number; onChange: (v: n
       value={value}
       step={step || 1}
       onChange={(e) => onChange(Number(e.target.value) || 0)}
-      className="h-8 text-xs bg-card w-[80px] text-right tabular-nums"
+      className="h-7 text-xs bg-card w-[80px] text-right tabular-nums"
     />
+  );
+}
+
+function UnitLabel({ unitType, suffix }: { unitType?: UnitType; suffix?: string }) {
+  if (unitType && unitType !== "none") {
+    const def = UNIT_DEFS[unitType];
+    return (
+      <span className="text-[10px] text-muted-foreground ml-1 whitespace-nowrap">
+        {def.imperial}
+      </span>
+    );
+  }
+  if (suffix) {
+    return <span className="text-[10px] text-muted-foreground ml-1 whitespace-nowrap">{suffix}</span>;
+  }
+  return null;
+}
+
+function HelpTooltip({ text }: { text: string }) {
+  return (
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button type="button" className="text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-1 shrink-0">
+            <HelpCircle className="w-3.5 h-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">
+          {text}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -116,7 +171,7 @@ export default function AssetDefinitionTab() {
       {
         onSuccess: () => {
           setDirty(false);
-          toast({ title: "Saved", description: "ICP profile and generated context saved." });
+          toast({ title: "Saved", description: "Amenities profile and generated context saved." });
         },
       }
     );
@@ -163,10 +218,10 @@ export default function AssetDefinitionTab() {
             </Button>
           </div>
 
-          <Tabs defaultValue="parameters" className="w-full">
+          <Tabs defaultValue="amenities" className="w-full">
             <TabsList className="w-full grid grid-cols-3 h-9">
-              <TabsTrigger value="parameters" className="text-xs" data-testid="tab-parameters">
-                Parameters
+              <TabsTrigger value="amenities" className="text-xs" data-testid="tab-amenities">
+                Amenities
               </TabsTrigger>
               <TabsTrigger value="descriptive" className="text-xs" data-testid="tab-descriptive">
                 Descriptive
@@ -176,8 +231,8 @@ export default function AssetDefinitionTab() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="parameters" className="mt-3">
-              <ParametersTab config={config} updateConfig={updateConfig} />
+            <TabsContent value="amenities" className="mt-3">
+              <AmenitiesTab config={config} updateConfig={updateConfig} />
             </TabsContent>
 
             <TabsContent value="descriptive" className="mt-3">
@@ -214,87 +269,135 @@ export default function AssetDefinitionTab() {
   );
 }
 
-function ParametersTab({
+function AmenitiesTab({
   config,
   updateConfig,
 }: {
   config: IcpConfig;
   updateConfig: <K extends keyof IcpConfig>(key: K, value: IcpConfig[K]) => void;
 }) {
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+
+  const toggleSection = (title: string) => {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  };
+
   return (
-    <div className="space-y-1">
-      <p className="text-xs text-muted-foreground mb-3">
+    <div className="space-y-0">
+      <p className="text-xs text-muted-foreground mb-4">
         All numeric values are editable. Defaults are suggested starting points based on the current portfolio.
+        Each feature is marked as <span className="font-medium text-emerald-600 dark:text-emerald-400">Required</span> or <span className="font-medium text-amber-600 dark:text-amber-400">Nice to Have</span>.
       </p>
-      {PARAMETER_SECTIONS.map((section) => (
-        <details key={section.title} className="group border-b border-border/50">
-          <summary className="flex items-center justify-between cursor-pointer py-2 px-1 text-xs font-medium text-foreground/80 hover:text-foreground select-none">
-            <span>{section.title}</span>
-            <span className="text-[10px] text-muted-foreground group-open:hidden">
-              {section.fields.length} fields
-            </span>
-          </summary>
-          <div className="pb-3 pl-1 pr-1">
-            <table className="w-full">
-              <tbody>
-                {section.fields.map((field) => (
-                  <tr key={field.key} className="border-b border-border/20 last:border-0">
-                    <td className="py-1.5 pr-3 text-xs text-muted-foreground whitespace-nowrap w-[200px]">
-                      {field.label}
-                    </td>
-                    <td className="py-1.5">
-                      <div className="flex items-center gap-1.5">
-                        {field.type === "priority" ? (
-                          <PrioritySelect
-                            value={config[field.key as keyof IcpConfig] as Priority}
-                            onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
-                          />
-                        ) : field.type === "currency" ? (
-                          <>
-                            <span className="text-xs text-muted-foreground">$</span>
-                            <CurrencyInput
-                              value={config[field.key as keyof IcpConfig] as number}
-                              onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
-                            />
-                          </>
-                        ) : (
-                          <NumberInput
-                            value={config[field.key as keyof IcpConfig] as number}
-                            onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
-                            step={field.suffix === "%" && !field.key.includes("Share") ? 1 : undefined}
-                          />
-                        )}
-                        {field.pair && (
-                          <>
-                            <span className="text-[10px] text-muted-foreground">{field.pairLabel}</span>
-                            {field.type === "currency" ? (
-                              <>
-                                <span className="text-xs text-muted-foreground">$</span>
-                                <CurrencyInput
-                                  value={config[field.pair as keyof IcpConfig] as number}
-                                  onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
-                                />
-                              </>
-                            ) : (
-                              <NumberInput
-                                value={config[field.pair as keyof IcpConfig] as number}
-                                onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
+      {PARAMETER_SECTIONS.map((section, sIdx) => {
+        const isOpen = openSections.has(section.title);
+        return (
+          <div key={section.title} className={`border-b border-border/60 ${sIdx % 2 === 1 ? "bg-muted/20" : ""}`}>
+            <button
+              type="button"
+              onClick={() => toggleSection(section.title)}
+              className="flex items-center justify-between w-full py-3 px-3 text-left hover:bg-muted/40 transition-colors group"
+              data-testid={`accordion-${section.title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+            >
+              <span className="text-sm font-semibold text-foreground group-hover:text-foreground/90">
+                {section.title}
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-muted-foreground tabular-nums">
+                  {section.fields.length} {section.fields.length === 1 ? "feature" : "features"}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+              </div>
+            </button>
+
+            {isOpen && (
+              <div className="px-3 pb-3">
+                <table className="w-full">
+                  <tbody>
+                    {section.fields.map((field, rowIdx) => {
+                      const priority: Priority = field.type === "priority"
+                        ? (config[field.key as keyof IcpConfig] as Priority)
+                        : field.linkedPriority
+                          ? (config[field.linkedPriority as keyof IcpConfig] as Priority)
+                          : "must";
+
+                      return (
+                        <tr
+                          key={field.key}
+                          className={`border-b border-border/20 last:border-0 ${rowIdx % 2 === 1 ? "bg-muted/30" : ""}`}
+                          data-testid={`row-amenity-${field.key}`}
+                        >
+                          <td className="py-2 pr-2 w-[32px] align-middle">
+                            {field.type === "priority" ? (
+                              <PriorityBadge
+                                value={config[field.key as keyof IcpConfig] as Priority}
+                                onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
                               />
+                            ) : (
+                              <PriorityBadge value={priority} />
                             )}
-                          </>
-                        )}
-                        {field.suffix && (
-                          <span className="text-[10px] text-muted-foreground ml-0.5">{field.suffix}</span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          </td>
+                          <td className="py-2 pr-3 text-xs text-foreground/80 whitespace-nowrap align-middle">
+                            <div className="flex items-center">
+                              <span>{field.label}</span>
+                              {field.help && <HelpTooltip text={field.help} />}
+                            </div>
+                          </td>
+                          <td className="py-2 align-middle">
+                            {field.type === "priority" ? null : (
+                              <div className="flex items-center gap-1.5 justify-end">
+                                {field.type === "currency" ? (
+                                  <>
+                                    <span className="text-xs text-muted-foreground">$</span>
+                                    <CurrencyInput
+                                      value={config[field.key as keyof IcpConfig] as number}
+                                      onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
+                                    />
+                                  </>
+                                ) : (
+                                  <NumberInput
+                                    value={config[field.key as keyof IcpConfig] as number}
+                                    onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
+                                    step={field.suffix === "%" && !field.key.includes("Share") ? 1 : undefined}
+                                  />
+                                )}
+                                {field.pair && (
+                                  <>
+                                    <span className="text-[10px] text-muted-foreground">{field.pairLabel}</span>
+                                    {field.type === "currency" ? (
+                                      <>
+                                        <span className="text-xs text-muted-foreground">$</span>
+                                        <CurrencyInput
+                                          value={config[field.pair as keyof IcpConfig] as number}
+                                          onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
+                                        />
+                                      </>
+                                    ) : (
+                                      <NumberInput
+                                        value={config[field.pair as keyof IcpConfig] as number}
+                                        onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
+                                      />
+                                    )}
+                                  </>
+                                )}
+                                <UnitLabel unitType={field.unitType} suffix={field.suffix} />
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        </details>
-      ))}
+        );
+      })}
     </div>
   );
 }

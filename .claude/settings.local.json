@@ -197,7 +197,9 @@
       "Bash(npx shadcn@latest registry add @tests/schema/ 2>&1)",
       "mcp__shadcn__get_project_registries",
       "mcp__shadcn__search_items_in_registries",
-      "WebFetch(domain:magicui.design)"
+      "WebFetch(domain:magicui.design)",
+      "Bash(npx shadcn@latest add \"https://magicui.design/r/particles\" --overwrite 2>&1)",
+      "Bash(npx shadcn@latest add \"https://magicui.design/r/number-ticker\" --overwrite 2>&1)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -206,7 +206,7 @@ export default function Profile() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <ClipboardCheck className="w-5 h-5 text-primary" />
+                    <IconClipboardCheck className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-foreground font-semibold">Verification & Testing Manual</p>
@@ -215,7 +215,7 @@ export default function Profile() {
                 </div>
                 <Link href="/checker-manual">
                   <Button variant="default" data-testid="button-checker-manual">
-                    <ClipboardCheck className="w-4 h-4" />
+                    <IconClipboardCheck className="w-4 h-4" />
                     Open Manual
                   </Button>
                 </Link>
@@ -228,7 +228,7 @@ export default function Profile() {
           <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div className="flex items-center gap-4 pb-4 border-b border-border">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                <User className="w-8 h-8 text-primary" />
+                <IconUser className="w-8 h-8 text-primary" />
               </div>
               <div>
                 <p className="text-lg font-semibold text-foreground">{user.email}</p>
@@ -317,7 +317,7 @@ export default function Profile() {
           <Card className="bg-card border-border shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-foreground">
-                <Palette className="w-5 h-5 text-primary" />
+                <IconPalette className="w-5 h-5 text-primary" />
                 Theme Preference
               </CardTitle>
             </CardHeader>
@@ -372,7 +372,7 @@ export default function Profile() {
         <Card className="bg-card border-border shadow-sm">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-foreground">
-              <Key className="w-5 h-5 text-primary" />
+              <IconKey className="w-5 h-5 text-primary" />
               Change Password
             </CardTitle>
           </CardHeader>
@@ -395,7 +395,7 @@ export default function Profile() {
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showCurrentPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -417,7 +417,7 @@ export default function Profile() {
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showNewPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -442,7 +442,7 @@ export default function Profile() {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showConfirmPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -454,7 +454,7 @@ export default function Profile() {
                   disabled={passwordMutation.isPending || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
                   data-testid="button-change-password"
                 >
-                  {passwordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
+                  {passwordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
                   Update Password
                 </Button>
               </div>

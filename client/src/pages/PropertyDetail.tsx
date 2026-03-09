@@ -142,7 +142,7 @@ export default function PropertyDetail() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load property data. Please try refreshing the page.</p>
         </div>
       </Layout>

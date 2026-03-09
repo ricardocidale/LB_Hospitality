@@ -1,11 +1,10 @@
 import { SectionCard } from "@/components/ui/section-card";
-import { LucideIcon } from "lucide-react";
 
 interface MethodologySectionProps {
   id: string;
   title: string;
   subtitle: string;
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string }>;
   className?: string;
   expanded: boolean;
   onToggle: () => void;

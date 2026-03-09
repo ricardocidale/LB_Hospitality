@@ -12,7 +12,7 @@ function NotFoundContent() {
     <Card className="w-full max-w-md mx-auto">
       <CardContent className="pt-6">
         <div className="flex mb-4 gap-2">
-          <AlertCircle className="h-8 w-8 text-red-500" />
+          <IconAlertCircle className="h-8 w-8 text-red-500" />
           <h1 className="text-2xl font-bold text-foreground">Page Not Found</h1>
         </div>
 
@@ -22,7 +22,7 @@ function NotFoundContent() {
 
         <Link href="/">
           <Button className="mt-6" data-testid="button-go-home">
-            <Home className="w-4 h-4" />
+            <IconHome className="w-4 h-4" />
             Go to Dashboard
           </Button>
         </Link>

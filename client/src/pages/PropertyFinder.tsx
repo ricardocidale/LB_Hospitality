@@ -203,7 +203,7 @@ export default function PropertyFinder() {
           <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
             <div className="h-1 bg-primary" />
             <div className="p-6 flex items-start gap-4">
-              <AlertCircle className="w-6 h-6 text-destructive flex-shrink-0 mt-0.5" />
+              <IconAlertCircle className="w-6 h-6 text-destructive flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="text-foreground font-semibold mb-1">API Key Required</h3>
                 <p className="text-muted-foreground text-sm mb-3">
@@ -222,7 +222,7 @@ export default function PropertyFinder() {
           <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
             <div className="h-0.5 bg-destructive/40" />
             <div className="p-4 flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-destructive" />
+              <IconAlertCircle className="w-5 h-5 text-destructive" />
               <p className="text-foreground text-sm">{searchError.message}</p>
             </div>
           </div>
@@ -267,7 +267,7 @@ export default function PropertyFinder() {
 
             {searchData.results.length === 0 ? (
               <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
-                <Building2 className="w-12 h-12 text-primary/30 mx-auto mb-3" />
+                <IconBuilding2 className="w-12 h-12 text-primary/30 mx-auto mb-3" />
                 <p className="text-muted-foreground font-medium">No properties found matching your criteria.</p>
                 <p className="text-muted-foreground text-sm mt-1">Try adjusting your filters or searching a different location.</p>
               </div>
@@ -309,7 +309,7 @@ export default function PropertyFinder() {
           <div className="flex items-center gap-4 mb-6">
             <div className="h-px flex-1 bg-muted" />
             <div className="flex items-center gap-2">
-              <Heart className="w-5 h-5 text-destructive" />
+              <IconHeart className="w-5 h-5 text-destructive" />
               <h2 className="text-lg font-display font-bold text-foreground">Your Favorites</h2>
               <span className="text-sm text-muted-foreground">({favorites.length})</span>
             </div>
@@ -323,7 +323,7 @@ export default function PropertyFinder() {
           ) : favorites.length === 0 ? (
             <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <Heart className="w-7 h-7 text-primary/30" />
+                <IconHeart className="w-7 h-7 text-primary/30" />
               </div>
               <p className="text-muted-foreground font-medium">No Saved Properties</p>
               <p className="text-muted-foreground text-sm mt-1">

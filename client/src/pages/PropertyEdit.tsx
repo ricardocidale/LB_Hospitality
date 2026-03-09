@@ -304,7 +304,7 @@ export default function PropertyEdit() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load property data. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -389,7 +389,7 @@ export default function PropertyEdit() {
               <Link href={`/property/${propertyId}/research`} className="text-inherit no-underline">
                 <Button variant="default" data-testid="button-market-research">
                   <span className="relative">
-                    <BookOpen className="w-4 h-4" />
+                    <IconBookOpen className="w-4 h-4" />
                     <span
                       className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white ${
                         researchFreshness === "fresh" ? "bg-emerald-400" :
@@ -410,7 +410,7 @@ export default function PropertyEdit() {
                   onClick={() => setShowApplyDialog(true)}
                   data-testid="button-apply-research"
                 >
-                  <Wand2 className="w-4 h-4" />
+                  <IconWand2 className="w-4 h-4" />
                   Apply Research
                 </Button>
               )}

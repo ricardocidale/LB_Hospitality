@@ -78,7 +78,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
         <div className="flex flex-col gap-10">
           {events.map((evt, i) => {
             const isLeft = i % 2 === 0;
-            const Icon = evt.type === "acquisition" ? Building2 : Play;
+            const Icon = evt.type === "acquisition" ? IconBuilding2 : IconPlay;
             const label =
               evt.type === "acquisition"
                 ? `${evt.propertyName} - Acquisition`
@@ -137,7 +137,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
                         }}
                         data-testid={`timeline-date-${i}`}
                       >
-                        <Calendar className="w-3 h-3" />
+                        <IconCalendar className="w-3 h-3" />
                         {formatDate(evt.date)}
                       </span>
                     </div>
@@ -147,7 +147,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
                     </h3>
 
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                      <MapPin className="w-3 h-3" />
+                      <IconMapPin className="w-3 h-3" />
                       <span data-testid={`timeline-location-${i}`}>{evt.location}</span>
                     </div>
 

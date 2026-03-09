@@ -275,9 +275,9 @@ export default function Settings() {
         <Tabs value={settingsTab} onValueChange={setSettingsTab} className="w-full">
           <CurrentThemeTab
             tabs={[
-              { value: 'portfolio', label: 'Portfolio', icon: Hotel },
-              { value: 'macro', label: 'Macro', icon: Globe },
-              { value: 'other', label: 'Other', icon: Sliders },
+              { value: 'portfolio', label: 'Portfolio', icon: IconHotel },
+              { value: 'macro', label: 'Macro', icon: IconGlobe },
+              { value: 'other', label: 'Other', icon: IconSliders },
               { value: 'research', label: 'Industry Research', icon: Search }
             ]}
             activeTab={settingsTab}

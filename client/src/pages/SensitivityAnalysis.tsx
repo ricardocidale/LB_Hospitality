@@ -469,7 +469,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
           <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <Sliders className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              <IconSliders className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <h3 className="text-sm font-semibold text-foreground mb-1">What is Sensitivity Analysis?</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">

@@ -1,11 +1,10 @@
 import { Card } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
 
 interface MethodologyTOCProps {
   sections: Array<{
     id: string;
     title: string;
-    icon: LucideIcon;
+    icon: React.ComponentType<{ className?: string }>;
   }>;
   onScrollToSection: (id: string) => void;
 }

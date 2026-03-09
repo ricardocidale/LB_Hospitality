@@ -212,7 +212,7 @@ export default function Scenarios() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load scenarios. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -259,7 +259,7 @@ export default function Scenarios() {
                   data-testid="button-import-scenario"
                   className="text-muted-foreground hover:text-foreground hover:bg-muted"
                 >
-                  <Upload className="w-4 h-4" />
+                  <IconUpload className="w-4 h-4" />
                   Import
                 </Button>
                 <input
@@ -276,7 +276,7 @@ export default function Scenarios() {
                     data-testid="button-toggle-compare"
                     className={compareMode ? "" : "text-muted-foreground hover:text-foreground hover:bg-muted"}
                   >
-                    <GitCompareArrows className="w-4 h-4" />
+                    <IconGitCompareArrows className="w-4 h-4" />
                     {compareMode ? "Cancel Compare" : "Compare"}
                   </Button>
                 )}
@@ -285,7 +285,7 @@ export default function Scenarios() {
                   onClick={() => setIsCreating(true)}
                   data-testid="button-new-scenario"
                 >
-                  <Save className="w-4 h-4" />
+                  <IconSave className="w-4 h-4" />
                   Save As
                 </Button>
               </div>
@@ -308,7 +308,7 @@ export default function Scenarios() {
                   onClick={handleCompare}
                   data-testid="button-run-compare"
                 >
-                  {compareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitCompareArrows className="w-4 h-4" />}
+                  {compareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconGitCompareArrows className="w-4 h-4" />}
                   Compare
                 </Button>
               </div>
@@ -316,7 +316,7 @@ export default function Scenarios() {
 
             {scenarios?.length === 0 ? (
               <div className="text-center py-12">
-                <FileStack className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <IconFileStack className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                 <p className="label-text text-muted-foreground font-medium">No scenarios saved yet</p>
                 <p className="label-text text-muted-foreground mt-1">
                   Click "Save Current" to save your current assumptions and properties as a scenario
@@ -356,7 +356,7 @@ export default function Scenarios() {
                         )}
                         <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 font-mono">
-                            <Clock className="w-3 h-3" />
+                            <IconClock className="w-3 h-3" />
                             Saved: {formatDateTime(scenario.updatedAt)}
                           </span>
                           <span className="font-mono">{(scenario.properties as any[])?.length || 0} properties</span>
@@ -373,7 +373,7 @@ export default function Scenarios() {
                             {loadScenario.isPending ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <FolderOpen className="w-4 h-4" />
+                              <IconFolderOpen className="w-4 h-4" />
                             )}
                             Load
                           </Button>
@@ -386,7 +386,7 @@ export default function Scenarios() {
                           title="Export as JSON"
                           data-testid={`button-export-scenario-${scenario.id}`}
                         >
-                          <Download className="w-4 h-4" />
+                          <IconDownload className="w-4 h-4" />
                         </Button>
 
                         <Button
@@ -397,7 +397,7 @@ export default function Scenarios() {
                           title="Duplicate"
                           data-testid={`button-clone-scenario-${scenario.id}`}
                         >
-                          <Copy className="w-4 h-4" />
+                          <IconCopy className="w-4 h-4" />
                         </Button>
 
                         <Button
@@ -411,7 +411,7 @@ export default function Scenarios() {
                           className="text-muted-foreground hover:text-foreground hover:bg-muted"
                           data-testid={`button-edit-scenario-${scenario.id}`}
                         >
-                          <Pencil className="w-4 h-4" />
+                          <IconPencil className="w-4 h-4" />
                         </Button>
 
                         {scenario.name !== "Base" && (
@@ -423,7 +423,7 @@ export default function Scenarios() {
                                 className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                 data-testid={`button-delete-scenario-${scenario.id}`}
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <IconTrash className="w-4 h-4" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>

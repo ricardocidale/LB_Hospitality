@@ -1,12 +1,11 @@
 import { SectionCard } from "@/components/ui/section-card";
-import { LucideIcon } from "lucide-react";
 import { DEPRECIATION_YEARS } from "@/lib/constants";
 
 interface AuditSectionsProps {
   expandedSections: Set<string>;
   toggleSection: (id: string) => void;
   sectionRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 export function AuditSections({ 

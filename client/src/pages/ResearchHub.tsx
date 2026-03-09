@@ -31,12 +31,12 @@ function StatusBadge({ status }: { status: "fresh" | "stale" | "missing" }) {
     stale: {
       label: "Stale",
       className: "bg-amber-50 text-amber-700 border-amber-200",
-      icon: Clock,
+      icon: IconClock,
     },
     missing: {
       label: "Missing",
       className: "bg-muted text-muted-foreground border-border",
-      icon: AlertCircle,
+      icon: IconAlertCircle,
     },
   };
   const c = config[status];
@@ -176,7 +176,7 @@ export default function ResearchHub() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertCircle className="w-8 h-8 text-destructive" />
+          <IconAlertCircle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">
             Failed to load research status. Please try refreshing the page.
           </p>
@@ -210,7 +210,7 @@ export default function ResearchHub() {
                 {isGeneratingAll ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <RefreshCw className="w-4 h-4" />
+                  <IconRefreshCw className="w-4 h-4" />
                 )}
                 {isGeneratingAll
                   ? `Generating ${currentGenIndex} of ${totalToGenerate}...`
@@ -245,7 +245,7 @@ export default function ResearchHub() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-blue-600" />
+                  <IconBuilding2 className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">
@@ -293,7 +293,7 @@ export default function ResearchHub() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center">
-                  <Briefcase className="w-5 h-5 text-purple-600" />
+                  <IconBriefcase className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">
@@ -318,7 +318,7 @@ export default function ResearchHub() {
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               View Research
-              <ExternalLink className="w-3.5 h-3.5" />
+              <IconExternalLink className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
 
@@ -333,7 +333,7 @@ export default function ResearchHub() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-emerald-600" />
+                  <IconGlobe className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">
@@ -358,7 +358,7 @@ export default function ResearchHub() {
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               View Research
-              <ExternalLink className="w-3.5 h-3.5" />
+              <IconExternalLink className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
         </div>
@@ -367,7 +367,7 @@ export default function ResearchHub() {
         <div id="property-research" className="space-y-4">
           <div>
             <h3 className="text-lg font-display font-semibold text-foreground flex items-center gap-2">
-              <FlaskConical className="w-5 h-5 text-primary" />
+              <IconFlaskConical className="w-5 h-5 text-primary" />
               Property Research
             </h3>
             <p className="text-sm text-muted-foreground label-text mt-1">
@@ -383,7 +383,7 @@ export default function ResearchHub() {
               className="bg-card border border-border rounded-lg p-12 shadow-sm flex flex-col items-center text-center"
             >
               <div className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4">
-                <Building2 className="w-7 h-7 text-muted-foreground" />
+                <IconBuilding2 className="w-7 h-7 text-muted-foreground" />
               </div>
               <h4 className="font-display font-semibold text-foreground mb-1">
                 No properties in your portfolio yet
@@ -421,7 +421,7 @@ export default function ResearchHub() {
                     </div>
                   ) : (
                     <div className="h-32 w-full bg-muted flex items-center justify-center">
-                      <Building2 className="w-10 h-10 text-muted-foreground" />
+                      <IconBuilding2 className="w-10 h-10 text-muted-foreground" />
                     </div>
                   )}
 
@@ -451,7 +451,7 @@ export default function ResearchHub() {
                       className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
                       View Research
-                      <ExternalLink className="w-3.5 h-3.5" />
+                      <IconExternalLink className="w-3.5 h-3.5" />
                     </Link>
                   </div>
                 </motion.div>
@@ -469,7 +469,7 @@ export default function ResearchHub() {
           <Link href="/settings">
             <div className="bg-card border border-border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:bg-muted hover:shadow-md transition-all duration-300 cursor-pointer group">
               <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-                <Settings2 className="w-4.5 h-4.5 text-primary" />
+                <IconSettings2 className="w-4.5 h-4.5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-semibold text-foreground">

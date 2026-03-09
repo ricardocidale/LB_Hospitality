@@ -215,7 +215,7 @@ export default function Portfolio() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load portfolio data. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -242,7 +242,7 @@ export default function Portfolio() {
               onAcquisitionDateChange={handleAcquisitionDateChange}
               trigger={
                 <Button variant="outline" data-testid="button-add-property">
-                  <Plus className="w-4 h-4" />
+                  <IconPlus className="w-4 h-4" />
                   Add Property
                 </Button>
               }

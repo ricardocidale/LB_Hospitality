@@ -1,16 +1,16 @@
 ---
 name: Testing & Proof System
-description: Documents the full 2558-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
+description: Documents the full 2610-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 ---
 
 # Testing & Proof System — Master Skill
 
 ## Purpose
-Documents the full 2558-test automated verification system (114 files). Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
+Documents the full 2610-test automated verification system (116 files). Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 
 ## Commands
 ```bash
-npm test                              # Run all 2558 tests
+npm test                              # Run all 2610 tests
 npm run verify                        # Full 7-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/statements/      # Statement tests only
 npx vitest run tests/analytics/       # Analytics/returns tests only
@@ -19,12 +19,12 @@ npx vitest run tests/financing/       # Acquisition financing tests only
 npx vitest run tests/refinance/       # Refinancing tests only
 npx vitest run tests/funding/         # Funding instrument tests only
 npx vitest run tests/proof/           # Proof system (scenarios + hardcoded detection)
-npx vitest run tests/golden/          # Golden hand-calculated scenarios (155 tests, ~3s)
+npx vitest run tests/golden/          # Golden hand-calculated scenarios (207 tests, ~3s)
 npx vitest run tests/calc/validation/ # Validation tests only
 npx vitest run tests/auth/            # Auth utility tests only
 ```
 
-## Test Suite Map (114 files, 2558 tests)
+## Test Suite Map (116 files, 2610 tests)
 
 ### By Domain
 
@@ -87,7 +87,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 
 ## Maintenance Rules
 
-1. **All 2558 tests must pass before any merge** — run `npm test`
+1. **All 2610 tests must pass before any merge** — run `npm test`
 2. **New financial calculations require new tests** — add to the appropriate domain directory
 3. **New calculators require golden tests** — add hand-calculated reference values in `tests/golden/`
 4. **New constants go in `shared/constants.ts`** — never inline magic numbers

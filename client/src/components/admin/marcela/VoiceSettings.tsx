@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Volume2, Waves, AudioLines, Zap, Gauge, Timer, Clock, Settings2, Loader2, Save, Music, Sparkles, Info, X, Plus, ExternalLink } from "lucide-react";
 import { VoiceSettings, OUTPUT_FORMATS, TTS_MODEL_FAMILIES, SUGGESTED_AUDIO_TAGS_OPTIONS } from "./types";
+import { DEFAULT_MARCELA_STABILITY, DEFAULT_MARCELA_SIMILARITY_BOOST, DEFAULT_MARCELA_SPEED, DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT, DEFAULT_MARCELA_MAX_DURATION, DEFAULT_MARCELA_TURN_TIMEOUT } from "@shared/constants";
 import { useAgentConfig, useSaveAgentVoice } from "@/features/ai-agent/hooks/use-convai-api";
 
 interface VoiceSettingsProps {
@@ -307,14 +308,14 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   Stability
                 </Label>
                 <Badge variant="outline" className="font-mono text-xs">
-                  {draft.marcelaStability.toFixed(2)}
+                  {(draft.marcelaStability ?? DEFAULT_MARCELA_STABILITY).toFixed(2)}
                 </Badge>
               </div>
               <Slider
                 min={0}
                 max={1}
                 step={0.05}
-                value={[draft.marcelaStability]}
+                value={[draft.marcelaStability ?? DEFAULT_MARCELA_STABILITY]}
                 onValueChange={([v]) => handleVoiceField("marcelaStability", v)}
                 data-testid="slider-marcela-stability"
               />
@@ -331,14 +332,14 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   Similarity Boost
                 </Label>
                 <Badge variant="outline" className="font-mono text-xs">
-                  {draft.marcelaSimilarityBoost.toFixed(2)}
+                  {(draft.marcelaSimilarityBoost ?? DEFAULT_MARCELA_SIMILARITY_BOOST).toFixed(2)}
                 </Badge>
               </div>
               <Slider
                 min={0}
                 max={1}
                 step={0.05}
-                value={[draft.marcelaSimilarityBoost]}
+                value={[draft.marcelaSimilarityBoost ?? DEFAULT_MARCELA_SIMILARITY_BOOST]}
                 onValueChange={([v]) => handleVoiceField("marcelaSimilarityBoost", v)}
                 data-testid="slider-marcela-similarity"
               />
@@ -355,14 +356,14 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   Speed
                 </Label>
                 <Badge variant="outline" className="font-mono text-xs">
-                  {draft.marcelaSpeed.toFixed(2)}x
+                  {(draft.marcelaSpeed ?? DEFAULT_MARCELA_SPEED).toFixed(2)}x
                 </Badge>
               </div>
               <Slider
                 min={0.5}
                 max={2.0}
                 step={0.05}
-                value={[draft.marcelaSpeed]}
+                value={[draft.marcelaSpeed ?? DEFAULT_MARCELA_SPEED]}
                 onValueChange={([v]) => handleVoiceField("marcelaSpeed", v)}
                 data-testid="slider-marcela-speed"
               />
@@ -438,8 +439,8 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   type="number"
                   min={1}
                   max={30}
-                  value={draft.marcelaTurnTimeout}
-                  onChange={(e) => handleVoiceField("marcelaTurnTimeout", parseInt(e.target.value) || 7)}
+                  value={draft.marcelaTurnTimeout ?? DEFAULT_MARCELA_TURN_TIMEOUT}
+                  onChange={(e) => handleVoiceField("marcelaTurnTimeout", parseInt(e.target.value) || DEFAULT_MARCELA_TURN_TIMEOUT)}
                   className="bg-card"
                   data-testid="input-marcela-turn-timeout"
                 />
@@ -460,8 +461,8 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   type="number"
                   min={10}
                   max={600}
-                  value={draft.marcelaSilenceEndCallTimeout}
-                  onChange={(e) => handleVoiceField("marcelaSilenceEndCallTimeout", parseInt(e.target.value) || 30)}
+                  value={draft.marcelaSilenceEndCallTimeout ?? DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT}
+                  onChange={(e) => handleVoiceField("marcelaSilenceEndCallTimeout", parseInt(e.target.value) || DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT)}
                   className="bg-card"
                   data-testid="input-marcela-silence-end-call"
                 />
@@ -482,8 +483,8 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   type="number"
                   min={60}
                   max={3600}
-                  value={draft.marcelaMaxDuration}
-                  onChange={(e) => handleVoiceField("marcelaMaxDuration", parseInt(e.target.value) || 600)}
+                  value={draft.marcelaMaxDuration ?? DEFAULT_MARCELA_MAX_DURATION}
+                  onChange={(e) => handleVoiceField("marcelaMaxDuration", parseInt(e.target.value) || DEFAULT_MARCELA_MAX_DURATION)}
                   className="bg-card"
                   data-testid="input-marcela-max-duration"
                 />

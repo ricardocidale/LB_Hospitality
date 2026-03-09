@@ -138,6 +138,9 @@ app.use((req, res, next) => {
   const { runIcpConfigMigration } = await import("./migrations/icp-config-001");
   await runIcpConfigMigration();
 
+  const { runMarcelaVoice001 } = await import("./migrations/marcela-voice-001");
+  await runMarcelaVoice001();
+
   await seedAdminUser();
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");

@@ -931,3 +931,128 @@ export function IconReceipt(p: IconProps) {
     </svg>
   );
 }
+
+export function IconMic(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="9" y="2" width="6" height="11" rx="3" {...F} />
+      <rect x="9" y="2" width="6" height="11" rx="3" {...S} fill="none" />
+      <path d="M19 10v1a7 7 0 0 1-14 0v-1" {...S} />
+      <path d="M12 18v4" {...S} />
+      <path d="M8 22h8" {...S} />
+    </svg>
+  );
+}
+
+export function IconMic2(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" {...F} />
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" {...S} fill="none" />
+      <path d="M19 10v1a7 7 0 0 1-14 0v-1" {...S} />
+      <path d="M12 18v4" {...S} />
+      <path d="M8 22h8" {...S} />
+    </svg>
+  );
+}
+
+export function IconMicOff(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="9" y="2" width="6" height="11" rx="3" {...F} />
+      <rect x="9" y="2" width="6" height="11" rx="3" {...S} fill="none" />
+      <path d="M19 10v1a7 7 0 0 1-11.46 5.38" {...S} />
+      <path d="M5 10v1a7 7 0 0 0 .54 2.7" {...S} />
+      <path d="M12 18v4" {...S} />
+      <path d="M8 22h8" {...S} />
+      <path d="M2 2l20 20" {...S} />
+    </svg>
+  );
+}
+
+export function IconMusic(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="6" cy="18" r="3" {...F} />
+      <circle cx="6" cy="18" r="3" {...S} fill="none" />
+      <path d="M9 18V5l12-2v13" {...S} />
+      <circle cx="18" cy="16" r="3" {...F} />
+      <circle cx="18" cy="16" r="3" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconMusic2(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="8" cy="18" r="4" {...F} />
+      <circle cx="8" cy="18" r="4" {...S} fill="none" />
+      <path d="M12 18V2l7 4" {...S} />
+    </svg>
+  );
+}
+
+export function IconAudioLines(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M2 10v4" {...S} />
+      <path d="M6 6v12" {...S} />
+      <path d="M10 3v18" {...S} />
+      <path d="M14 8v8" {...S} />
+      <path d="M18 5v14" {...S} />
+      <path d="M22 10v4" {...S} />
+    </svg>
+  );
+}
+
+export function IconVolume2(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M11 5L6 9H2v6h4l5 4V5z" {...F} />
+      <path d="M11 5L6 9H2v6h4l5 4V5z" {...S} fill="none" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" {...S} />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" {...S} />
+    </svg>
+  );
+}
+
+export function IconPlay(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <polygon points="5,3 19,12 5,21" {...F} />
+      <polygon points="5,3 19,12 5,21" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconPause(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="6" y="4" width="4" height="16" rx="1" {...F} />
+      <rect x="6" y="4" width="4" height="16" rx="1" {...S} fill="none" />
+      <rect x="14" y="4" width="4" height="16" rx="1" {...F} />
+      <rect x="14" y="4" width="4" height="16" rx="1" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconPlayCircle(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="12" cy="12" r="10" {...F} />
+      <circle cx="12" cy="12" r="10" {...S} fill="none" />
+      <polygon points="10,8 16,12 10,16" {...F} opacity="0.3" />
+      <polygon points="10,8 16,12 10,16" {...S} fill="none" />
+    </svg>
+  );
+}

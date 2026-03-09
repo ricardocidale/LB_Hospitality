@@ -79,6 +79,7 @@ const PUBLIC_API_PATHS = new Set([
 
 const PUBLIC_API_PREFIXES = [
   "/api/marcela-tools/",
+  "/api/letter-logo/",
 ];
 
 app.use((req: Request, res: Response, next: NextFunction) => {

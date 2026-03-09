@@ -6,6 +6,20 @@ import { fromZodError } from "zod-validation-error";
 import { fullName, logAndSendError } from "./helpers";
 import { z } from "zod";
 
+function generateLetterLogoSvg(letter: string, companyName: string): string {
+  const ch = (letter || "?").charAt(0).toUpperCase();
+  let hash = 0;
+  for (let i = 0; i < companyName.length; i++) hash = (hash * 31 + companyName.charCodeAt(i)) & 0x7fffffff;
+  const hue = hash % 360;
+  const bg = `hsl(${hue}, 35%, 45%)`;
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">`,
+    `<rect width="200" height="200" rx="32" fill="${bg}"/>`,
+    `<text x="100" y="100" dy=".35em" text-anchor="middle" fill="#fff" font-family="system-ui,sans-serif" font-size="96" font-weight="600">${ch}</text>`,
+    `</svg>`,
+  ].join("");
+}
+
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
   // LOGOS, ASSET DESCRIPTIONS, USER GROUPS, COMPANIES
@@ -195,6 +209,14 @@ export function register(app: Express) {
     }
   });
 
+  app.get("/api/letter-logo/:name", (req, res) => {
+    const name = decodeURIComponent(req.params.name);
+    const letter = name.charAt(0);
+    res.setHeader("Content-Type", "image/svg+xml");
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    res.send(generateLetterLogoSvg(letter, name));
+  });
+
   // Companies CRUD
   app.get("/api/companies", requireAuth, async (req, res) => {
     try {
@@ -211,7 +233,18 @@ export function register(app: Express) {
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const company = await storage.createCompany(validation.data);
+      const data = { ...validation.data };
+      if (!data.themeId) {
+        const defaultTheme = await storage.getDefaultDesignTheme();
+        if (defaultTheme) data.themeId = defaultTheme.id;
+      }
+      const company = await storage.createCompany(data);
+      if (!data.logoId) {
+        const logoUrl = `/api/letter-logo/${encodeURIComponent(company.name)}`;
+        const logo = await storage.createLogo({ name: company.name, companyName: company.name, url: logoUrl });
+        await storage.updateCompany(company.id, { logoId: logo.id });
+        company.logoId = logo.id;
+      }
       res.status(201).json(company);
     } catch (error) {
       logAndSendError(res, "Failed to create company", error);

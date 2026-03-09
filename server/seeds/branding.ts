@@ -72,4 +72,19 @@ export async function seedCompanies() {
       logger.info(`Assigned default theme to ${noTheme.length} existing companies`, "seed");
     }
   }
+
+  const allCompanies = await db.select().from(companies);
+  const allLogos = await db.select().from(logos);
+  const logosById = new Map(allLogos.map(l => [l.id, l]));
+  let logosCreated = 0;
+  for (const c of allCompanies) {
+    if (c.logoId && logosById.has(c.logoId)) continue;
+    const logoUrl = `/api/letter-logo/${encodeURIComponent(c.name)}`;
+    const [logo] = await db.insert(logos).values({ name: c.name, companyName: c.name, url: logoUrl, isDefault: false }).returning();
+    await db.update(companies).set({ logoId: logo.id }).where(eq(companies.id, c.id));
+    logosCreated++;
+  }
+  if (logosCreated > 0) {
+    logger.info(`Created ${logosCreated} letter logos for companies without logos`, "seed");
+  }
 }

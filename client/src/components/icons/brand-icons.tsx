@@ -1056,3 +1056,111 @@ export function IconPlayCircle(p: IconProps) {
     </svg>
   );
 }
+
+export function IconMessageCircle(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" {...F} />
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconMessageSquare(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" {...F} />
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconSend(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M22 2L11 13" {...S} />
+      <path d="M22 2l-7 20-4-9-9-4 20-7z" {...F} />
+      <path d="M22 2l-7 20-4-9-9-4 20-7z" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconExternalLink(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" {...S} />
+      <path d="M15 3h6v6" {...S} />
+      <path d="M10 14L21 3" {...S} />
+      <rect x="3" y="6" width="13" height="15" rx="2" {...F} />
+    </svg>
+  );
+}
+
+export function IconLink(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" {...S} />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" {...S} />
+    </svg>
+  );
+}
+
+export function IconMenu(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M4 6h16" {...S} />
+      <path d="M4 12h16" {...S} />
+      <path d="M4 18h16" {...S} />
+    </svg>
+  );
+}
+
+export function IconBookmark(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" {...F} />
+      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconCamera(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2v11z" {...F} />
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2v11z" {...S} fill="none" />
+      <circle cx="12" cy="13" r="4" {...S} fill="none" />
+      <circle cx="12" cy="13" r="1.5" fill="currentColor" opacity="0.3" />
+    </svg>
+  );
+}
+
+export function IconCaptions(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="1" y="4" width="22" height="16" rx="2.5" {...F} />
+      <rect x="1" y="4" width="22" height="16" rx="2.5" {...S} fill="none" />
+      <path d="M7 15h4M13 15h4" {...S} />
+      <path d="M7 11h10" {...S} />
+    </svg>
+  );
+}
+
+export function IconNavigation(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <polygon points="3,11 22,2 13,21 11,13" {...F} />
+      <polygon points="3,11 22,2 13,21 11,13" {...S} fill="none" />
+    </svg>
+  );
+}

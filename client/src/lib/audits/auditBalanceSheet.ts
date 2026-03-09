@@ -2,6 +2,7 @@ import { MonthlyFinancials } from "../financialEngine";
 import { differenceInMonths, startOfMonth } from "date-fns";
 import {
   DEFAULT_LAND_VALUE_PERCENT,
+  DEFAULT_LTV,
   DEPRECIATION_YEARS,
 } from '../constants';
 import type { AuditFinding, AuditSection, PropertyAuditInput, GlobalAuditInput } from "./types";
@@ -79,6 +80,74 @@ export function auditBalanceSheet(
     }
   }
 
+  // ── A = L + E identity check (ASC 210) ──────────────────────────────────
+  const totalPropValue = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
+  const isFinanced = property.type === "Financed" || (property.acquisitionLTV != null && property.acquisitionLTV > 0);
+  const originalLoanAmount = isFinanced ? totalPropValue * (property.acquisitionLTV ?? DEFAULT_LTV) : 0;
+  const initialEquity = totalPropValue - originalLoanAmount + (property.operatingReserve || 0);
+
+  let cumulativeNetIncome = 0;
+  let cumulativeRefiEquityAdj = 0;
+  let failedIdentity = 0;
+
+  for (let i = 0; i < monthlyData.length; i++) {
+    const m = monthlyData[i];
+    if (i < acqMonthIndex) continue;
+
+    cumulativeNetIncome += (m.netIncome || 0);
+
+    // Refinancing proceeds increase cash (assets) and new debt increases liabilities,
+    // but closing costs are not captured in net income.
+    // The observed debtChange = newLoanEnding - prevDebt includes both the refi jump and
+    // the first month's amortization on the new loan. To isolate the pure refi debt jump
+    // (newLoanBeginning - prevDebt), we undo the amortization: refiDebtJump = rawDebtChange + principal.
+    // Then equity adjustment = proceeds - refiDebtJump = -closingCosts.
+    if ((m.refinancingProceeds || 0) !== 0) {
+      const prevDebt = i > 0 ? (monthlyData[i - 1].debtOutstanding || 0) : 0;
+      const rawDebtChange = (m.debtOutstanding || 0) - prevDebt;
+      const refiDebtJump = rawDebtChange + (m.principalPayment || 0);
+      cumulativeRefiEquityAdj += (m.refinancingProceeds || 0) - refiDebtJump;
+    }
+
+    const totalAssets = (m.endingCash || 0) + (m.propertyValue || 0);
+    const totalLiabilities = m.debtOutstanding || 0;
+    const derivedEquity = initialEquity + cumulativeNetIncome + cumulativeRefiEquityAdj;
+    const gap = Math.abs(totalAssets - totalLiabilities - derivedEquity);
+
+    if (gap > AUDIT_TOLERANCE_DOLLARS) {
+      failedIdentity++;
+      if (failedIdentity <= 3) {
+        findings.push({
+          category: "Balance Sheet",
+          rule: "Assets = Liabilities + Equity (ASC 210)",
+          gaapReference: "ASC 210 / FASB Conceptual Framework",
+          severity: "critical",
+          passed: false,
+          expected: (totalLiabilities + derivedEquity).toFixed(2),
+          actual: totalAssets.toFixed(2),
+          variance: formatVariance(totalLiabilities + derivedEquity, totalAssets),
+          recommendation: `Month ${i + 1}: Assets ($${totalAssets.toFixed(0)}) ≠ Liabilities ($${totalLiabilities.toFixed(0)}) + Equity ($${derivedEquity.toFixed(0)}); gap = $${gap.toFixed(2)}`,
+          workpaperRef: `WP-BS-ALE-M${i + 1}`
+        });
+      }
+    }
+  }
+
+  if (failedIdentity > 3) {
+    findings.push({
+      category: "Balance Sheet",
+      rule: "Assets = Liabilities + Equity (ASC 210)",
+      gaapReference: "ASC 210 / FASB Conceptual Framework",
+      severity: "critical",
+      passed: false,
+      expected: "All months balance",
+      actual: `${failedIdentity} months failed`,
+      variance: `${failedIdentity} of ${totalChecked} months`,
+      recommendation: "Balance sheet identity A=L+E has systematic variance — review equity derivation or debt tracking",
+      workpaperRef: "WP-BS-ALE-SUMMARY"
+    });
+  }
+
   if (failedPropertyValue > 3) {
     findings.push({
       category: "Balance Sheet",
@@ -94,7 +163,7 @@ export function auditBalanceSheet(
     });
   }
 
-  if (failedPropertyValue === 0 && failedEquity === 0) {
+  if (failedPropertyValue === 0 && failedEquity === 0 && failedIdentity === 0) {
     findings.push({
       category: "Balance Sheet",
       rule: "Balance Sheet Reconciliation",
@@ -102,7 +171,7 @@ export function auditBalanceSheet(
       severity: "info",
       passed: true,
       expected: "All balance sheet checks passed",
-      actual: `Property value and cash flow reconciled for ${totalChecked} months`,
+      actual: `Property value, cash flow, and A=L+E identity reconciled for ${totalChecked} months`,
       variance: "N/A",
       recommendation: "Balance sheet is properly reconciled with independent calculations",
       workpaperRef: "WP-BS-OK"

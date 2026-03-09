@@ -8,28 +8,21 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
-## Session: March 8, 2026 — Context Unburden (Rounds 2–3)
-- Round 2: `architecture.md` 172→20, `financial-engine.md` 214→43, `database-seeding.md` 209→27, merged no-hardcoded files → 48 lines, `claude.md` 522→127, `session-memory.md` 619→40, MEMORY.md populated
-- Round 3: Slimmed 10 remaining large rules files; moved 4 reference docs to skills/; total rules auto-loaded context ~4,203 → ~850 lines (-80%)
-- Moved: `api-routes.md`→`skills/architecture/`, `constants-and-config.md`→`skills/finance/`, `release-audit-checklist.md`→`skills/proof-system/`, `verification-system.md`→`skills/proof-system/`
+## Session: March 9, 2026 — Comprehensive Audit V3 (Deterministic Accuracy)
+- 6-phase audit: v2 regression, hand-calculated IRR golden, pipeline trace, BS identity fix, company/consolidated, full suite
+- Fixed Critical bug: `server/calculation-checker/property-checks.ts` debtOutstanding missing current month principal
+- Added A=L+E (ASC 210) check to both client auditor and server checker — closed deferred finding 3-1
+- New: `tests/golden/irr-golden-hand-calculated.test.ts` (15 tests), `tests/golden/pipeline-trace.test.ts` (20 tests)
+- Tests 2,448→2,503, all passing, UNQUALIFIED. Full report: `.claude/skills/proof-system/comprehensive-audit-v3-2026-03-09.md`
 
 ## Session: March 9, 2026 — Magic UI Special Effects + ElevenLabs Orb Integration
-- Added 9 Magic UI components to `client/src/components/ui/`: particles, number-ticker, blur-fade, shimmer-button, animated-gradient-text, ripple, aurora-text, animated-beam, meteors
-- `components/ui/orb.tsx` is a re-export wrapper → canonical orb is `features/ai-agent/components/orb.tsx` (superior: local Perlin noise, WebGL fallback, error boundary)
-- New skill: `.claude/skills/ui/magic-ui.md`; updated: animation-patterns.md, graphics-component-catalog.md, context-loading/SKILL.md
-- `NumberTicker` preferred over `AnimatedCounter` for new financial number displays
+- Added 9 Magic UI components; `NumberTicker` preferred over `AnimatedCounter`
+- New skill: `.claude/skills/ui/magic-ui.md`
 
-## Session: March 8, 2026 — Admin Research Configuration Tab
-- New Admin "Research" tab (13th tab) — per-event control over AI research (property/company/global)
-- Config stored in `global_assumptions.researchConfig` (JSONB); new `ResearchEventConfig` / `ResearchConfig` types in schema
-- New files: `server/routes/admin/research.ts`, `server/migrations/research-config-001.ts`, `client/src/components/admin/ResearchTab.tsx`
-- Updated: `research-precision.md` (tool count 7→9, added admin config docs), `recalculate-on-save.md`, `admin/SKILL.md` (12→13 tabs)
-
-## Session: March 8, 2026 — Codebase Architecture Skill + ElevenLabs Docs + Rule Enforcement
-- Documented 80+ UI components in `codebase-architecture/SKILL.md`; added ChartTooltip as 4th tooltip type
-- Documented full ElevenLabs/Marcela architecture (35 files, 7 widget variants, 22 API endpoints, 18 tools)
-- Moved `admin-components/` and `codebase-architecture/` skills from `.agents/skills/` → `.claude/skills/`; deleted `.agents/`
-- Updated `claude.md` Skill Router (+2), `context-loading/SKILL.md` (+2 sections), `skill-organization.md`, `replit.md`
+## Session: March 8, 2026 — Context Unburden + Admin Research + Codebase Architecture
+- Slimmed rules from ~4,203→~850 lines (-80%); moved 4 reference docs to skills/
+- New Admin "Research" tab (13th); config in `global_assumptions.researchConfig` (JSONB)
+- Documented 80+ UI components, ElevenLabs architecture (35 files)
 
 ---
 

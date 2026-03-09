@@ -590,34 +590,49 @@ describe("ASC 606 — Revenue recognition", () => {
 });
 
 // ===========================================================================
-// 9. Balance sheet equation: A = L + E
+// 9. Balance sheet equation: A = L + E (independently derived equity)
 // ===========================================================================
 describe("Balance sheet equation — Assets = Liabilities + Equity", () => {
-  it("Full Equity: propertyValue + cash = equity (no debt)", () => {
+  it("Full Equity: A=L+E with independently derived equity (no debt)", () => {
     const data = generatePropertyProForma(fullEquityProperty, baseGlobal, 12);
+    // Independently derive equity: initialEquity + cumulative net income
+    const totalPropertyValue = fullEquityProperty.purchasePrice + (fullEquityProperty.buildingImprovements ?? 0);
+    const operatingReserve = fullEquityProperty.operatingReserve ?? 0;
+    // Full Equity => no loan
+    const initialEquity = totalPropertyValue + operatingReserve;
+
+    let cumulativeNetIncome = 0;
     for (const m of data) {
-      // Assets = propertyValue + endingCash
-      // Liabilities = debtOutstanding (0 for full equity)
-      // Equity = Assets - Liabilities
-      const assets = m.propertyValue + m.endingCash;
-      const liabilities = m.debtOutstanding;
-      const equity = assets - liabilities;
-      // equity should be positive for a healthy property
-      expect(equity).toBeDefined();
-      expect(liabilities).toBe(0);
+      cumulativeNetIncome += m.netIncome;
+      const totalAssets = m.endingCash + m.propertyValue;
+      const totalLiabilities = m.debtOutstanding;
+      const derivedEquity = initialEquity + cumulativeNetIncome;
+
+      expect(totalLiabilities).toBe(0);
+      expect(totalAssets).toBeCloseTo(totalLiabilities + derivedEquity, 2);
     }
   });
 
-  it("Financed: debtOutstanding is a liability reducing equity", () => {
+  it("Financed: A=L+E with independently derived equity (with debt)", () => {
     const data = generatePropertyProForma(financedProperty, baseGlobal, 12);
+    // Independently derive equity
+    const purchasePrice = financedProperty.purchasePrice;
+    const totalPropertyValue = purchasePrice + (financedProperty.buildingImprovements ?? 0);
+    const ltv = financedProperty.acquisitionLTV ?? 0.75;
+    const originalLoanAmount = totalPropertyValue * ltv;
+    const operatingReserve = financedProperty.operatingReserve ?? 0;
+    const initialEquity = totalPropertyValue - originalLoanAmount + operatingReserve;
+
+    let cumulativeNetIncome = 0;
     for (const m of data) {
       expect(m.debtOutstanding).toBeGreaterThan(0);
-      const assets = m.propertyValue + m.endingCash;
-      const liabilities = m.debtOutstanding;
-      // Equity = Assets - Liabilities
-      const equity = assets - liabilities;
-      // The balance sheet identity holds (equity can be negative due to depreciation + debt)
-      expect(assets).toBeCloseTo(liabilities + equity, 2);
+      cumulativeNetIncome += m.netIncome;
+      const totalAssets = m.endingCash + m.propertyValue;
+      const totalLiabilities = m.debtOutstanding;
+      const derivedEquity = initialEquity + cumulativeNetIncome;
+
+      // This is the real A=L+E verification — not tautological
+      expect(totalAssets).toBeCloseTo(totalLiabilities + derivedEquity, 2);
     }
   });
 });

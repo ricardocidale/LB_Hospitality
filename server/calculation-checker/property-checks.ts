@@ -206,14 +206,16 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     if (isAcquired && property.type === "Financed" && originalLoanAmount > 0) {
       debtPayment = monthlyPayment;
       let remainingBalance = originalLoanAmount;
+      // Amortize through prior months to get beginning-of-month balance
       for (let m = 0; m < monthsSinceAcquisition && m < totalPayments; m++) {
         const monthInterest = remainingBalance * monthlyRate;
         const monthPrincipal = monthlyPayment - monthInterest;
         remainingBalance = Math.max(0, remainingBalance - monthPrincipal);
       }
-      debtOutstanding = remainingBalance;
+      // Current month: interest on beginning balance, then reduce by principal
       interestExpense = remainingBalance * monthlyRate;
       principalPayment = monthlyPayment - interestExpense;
+      debtOutstanding = Math.max(0, remainingBalance - principalPayment);
     }
 
     const depreciationExpense = isAcquired ? monthlyDepreciation : 0;

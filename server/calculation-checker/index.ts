@@ -303,6 +303,33 @@ export function runIndependentVerification(
       ));
     }
 
+    // ── A = L + E identity check (ASC 210) ──────────────────────────────────
+    const initialEquity = checkPropertyValue - loanAmount + (property.operatingReserve ?? 0);
+    let cumulativeNetIncome = 0;
+    let aleFailedMonths = 0;
+    const acquisitionIndex = independentCalc.findIndex((m) => m.propertyValue > 0);
+
+    for (let mi = 0; mi < independentCalc.length; mi++) {
+      const m = independentCalc[mi];
+      if (mi < acquisitionIndex) continue;
+      cumulativeNetIncome += m.netIncome;
+      const totalAssets = m.endingCash + m.propertyValue;
+      const totalLiabilities = m.debtOutstanding;
+      const derivedEquity = initialEquity + cumulativeNetIncome;
+      const gap = Math.abs(totalAssets - totalLiabilities - derivedEquity);
+      if (gap > 1.0) aleFailedMonths++;
+    }
+
+    checks.push(check(
+      "Balance Sheet Identity A=L+E",
+      "Balance Sheet",
+      "ASC 210",
+      `Assets = Liabilities + Equity for all ${independentCalc.length - Math.max(acquisitionIndex, 0)} post-acquisition months; failed = ${aleFailedMonths}`,
+      0,
+      aleFailedMonths,
+      "critical"
+    ));
+
     const endingCash = independentCalc[independentCalc.length - 1]?.endingCash || 0;
     const cumulativeCashFlow = independentCalc.reduce((sum, m) => sum + m.cashFlow, 0);
     const reserveSeed = property.operatingReserve ?? 0;

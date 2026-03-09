@@ -66,8 +66,8 @@ interface CurrentThemeTabProps {
 function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: CurrentThemeTabProps) {
   return (
     <div className="rounded-xl border border-border/80 bg-card shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-1 p-1">
-        <div className="flex flex-wrap gap-0.5">
+      <div className="flex items-center justify-between gap-1 p-1">
+        <div className="flex overflow-x-auto scrollbar-hide gap-0.5 min-w-0">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.value;
             const Icon = tab.icon;
@@ -76,7 +76,7 @@ function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: Current
                 key={tab.value}
                 onClick={() => onTabChange(tab.value)}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
+                  "flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap shrink-0",
                   isActive
                     ? "bg-accent text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
@@ -85,7 +85,7 @@ function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: Current
               >
                 {Icon && (
                   <Icon className={cn(
-                    "w-4 h-4",
+                    "w-4 h-4 shrink-0",
                     isActive ? "text-foreground" : "text-muted-foreground"
                   )} />
                 )}
@@ -95,7 +95,7 @@ function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: Current
           })}
         </div>
         {rightContent && (
-          <div className="flex items-center gap-2 pr-1">
+          <div className="flex items-center gap-2 pr-1 shrink-0">
             {rightContent}
           </div>
         )}

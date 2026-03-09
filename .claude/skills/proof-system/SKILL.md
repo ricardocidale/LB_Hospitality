@@ -1,19 +1,19 @@
 ---
 name: proof-system
-description: Automated financial proof system with 2371 tests, 5 structural golden scenarios, and 65 hand-calculated golden reference tests. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
+description: Automated financial proof system with 2671 tests, 5 structural golden scenarios, and 269 hand-calculated golden reference tests. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
 ---
 
 # Automated Financial Proof System
 
 ## Purpose
-Eliminates human Excel verification. Code proves itself correct through 2371 automated tests across 5 structural golden scenarios, 65 hand-calculated golden reference tests, input-to-output pipeline verification, and magic number detection.
+Eliminates human Excel verification. Code proves itself correct through 2671 automated tests across 5 structural golden scenarios, 269 hand-calculated golden reference tests, input-to-output pipeline verification, and magic number detection.
 
 ## Commands
 ```bash
-npm test                          # Run all 2371 tests
+npm test                          # Run all 2671 tests
 npm run verify                    # Full 7-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/proof/       # Run only proof tests
-npx vitest run tests/golden/      # Run 65 hand-calculated golden tests (~3s)
+npx vitest run tests/golden/      # Run 269 hand-calculated golden tests (~3s)
 npx tsx tests/proof/verify-runner.ts  # 7-phase orchestrator directly
 ```
 
@@ -111,12 +111,12 @@ For per-statement and per-analysis test coverage, see:
 | Analysis: Returns | `.claude/skills/testing/analysis-returns.md` | IRR, NPV, MOIC, sensitivity |
 | Analysis: DCF/FCF | `.claude/skills/testing/analysis-dcf-fcf.md` | FCF, FCFE reconciliation |
 | Financing & Refinancing | `.claude/skills/testing/financing-refinance-funding.md` | Debt, refi, funding instruments |
-| **Golden Scenarios** | **`.claude/skills/testing/golden-scenarios.md`** | **65 hand-calculated tests: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity multiple, pro-forma edge cases** |
+| **Golden Scenarios** | **`.claude/skills/testing/golden-scenarios.md`** | **269 hand-calculated tests: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity multiple, pro-forma edge cases** |
 
 ## Maintenance
-1. Run `npm test` — all 2371 tests must pass
+1. Run `npm test` — all 2671 tests must pass
 2. Run `npm run verify` — all 7 phases must pass
-3. Run `npx vitest run tests/golden/` — 65 hand-calculated tests must pass (~3s)
+3. Run `npx vitest run tests/golden/` — 269 hand-calculated tests must pass (~3s)
 4. Check `test-artifacts/*.md` for UNQUALIFIED opinions
 5. New constants go in `shared/constants.ts` (never inline magic numbers)
 6. New calculators require golden tests with hand-calculated reference values

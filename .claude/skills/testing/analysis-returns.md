@@ -132,4 +132,4 @@ npx vitest run tests/analytics/hotel-scenario-golden.test.ts # Hotel golden scen
 - `.claude/skills/finance/irr-analysis.md` — IRR calculation methodology
 - `.claude/skills/finance/dcf-analysis.md` — DCF/terminal value methodology
 - `.claude/skills/testing/analysis-dcf-fcf.md` — FCF/FCFE test coverage
-- `.claude/skills/testing/golden-scenarios.md` — 65 hand-calculated golden tests (IRR edge cases, DCF/NPV, DSCR, equity multiple, exit valuation, depreciation, break-even, stress test, waterfall, pro-forma edge cases)
+- `.claude/skills/testing/golden-scenarios.md` — 269 hand-calculated golden tests (IRR edge cases, DCF/NPV, DSCR, equity multiple, exit valuation, depreciation, break-even, stress test, waterfall, pro-forma edge cases, full statements, company aggregation)

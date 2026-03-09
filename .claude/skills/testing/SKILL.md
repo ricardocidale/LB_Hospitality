@@ -1,16 +1,16 @@
 ---
 name: Testing & Proof System
-description: Documents the full 2610-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
+description: Documents the full 2671-test automated verification system. Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 ---
 
 # Testing & Proof System — Master Skill
 
 ## Purpose
-Documents the full 2610-test automated verification system (116 files). Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
+Documents the full 2671-test automated verification system (117 files). Every financial statement, analysis, and engine calculation has dedicated tests that prove correctness without manual Excel verification.
 
 ## Commands
 ```bash
-npm test                              # Run all 2610 tests
+npm test                              # Run all 2671 tests
 npm run verify                        # Full 7-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/statements/      # Statement tests only
 npx vitest run tests/analytics/       # Analytics/returns tests only
@@ -24,7 +24,7 @@ npx vitest run tests/calc/validation/ # Validation tests only
 npx vitest run tests/auth/            # Auth utility tests only
 ```
 
-## Test Suite Map (116 files, 2610 tests)
+## Test Suite Map (117 files, 2671 tests)
 
 ### By Domain
 
@@ -37,7 +37,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 | Refinancing | `tests/refinance/` | 6 | ~35 | Refi sizing, schedule, flags, payoff, calculator, golden |
 | Funding | `tests/funding/` | 5 | ~25 | Funding engine, gates, timeline, equity rollforward, golden |
 | Proof | `tests/proof/` | 4 | ~140 | 5 golden scenarios, input verification, hardcoded detection, reconciliation |
-| **Golden** | **`tests/golden/`** | **7** | **65** | **Hand-calculated reference values: IRR edge cases, DCF/NPV, equity multiple, exit valuation, DSCR, depreciation, break-even, stress test, waterfall, pro-forma edge cases** |
+| **Golden** | **`tests/golden/`** | **13** | **269** | **Hand-calculated reference values: IRR edge cases, DCF/NPV, equity multiple, exit valuation, DSCR, depreciation, break-even, stress test, waterfall, pro-forma edge cases, full statements, pre-ops gap, multi-property, company aggregation** |
 | Validation | `tests/calc/validation/` | 3 | ~212 | Assumption consistency, funding gates, export verification |
 | Auth | `tests/auth/` | 1 | ~1 | Auth utility functions |
 
@@ -59,7 +59,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 | Analysis: Returns | `testing/analysis-returns.md` | IRR, NPV, MOIC, sensitivity, portfolio IRR, refi/exit vectors |
 | Analysis: DCF/FCF | `testing/analysis-dcf-fcf.md` | FCF, FCFE computation and two-method reconciliation |
 | Financing & Refinancing | `testing/financing-refinance-funding.md` | Debt sizing, closing costs, refi schedules, funding instruments |
-| **Golden Scenarios** | **`testing/golden-scenarios.md`** | **65 hand-calculated reference tests across 7 files: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity, pro-forma edge cases** |
+| **Golden Scenarios** | **`testing/golden-scenarios.md`** | **269 hand-calculated reference tests across 13 files: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity, pro-forma edge cases, full statements, pre-ops gap, multi-property, company aggregation** |
 
 ## Key Invariants (All Tested)
 
@@ -87,7 +87,7 @@ npx vitest run tests/auth/            # Auth utility tests only
 
 ## Maintenance Rules
 
-1. **All 2610 tests must pass before any merge** — run `npm test`
+1. **All 2671 tests must pass before any merge** — run `npm test`
 2. **New financial calculations require new tests** — add to the appropriate domain directory
 3. **New calculators require golden tests** — add hand-calculated reference values in `tests/golden/`
 4. **New constants go in `shared/constants.ts`** — never inline magic numbers

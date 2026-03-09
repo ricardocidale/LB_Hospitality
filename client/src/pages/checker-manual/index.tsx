@@ -1,5 +1,8 @@
-;
-import { IconDatabase, IconFileDown, useEffect, useRef, useState } from "@/components/icons/brand-icons";
+import { useState, useRef, useEffect } from "react";
+import Layout from "@/components/Layout";
+import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Loader2, FileDown, Database } from "lucide-react";
 import { Callout } from "@/components/ui/callout";
 import { SECTIONS } from "./constants";
 import { TableOfContents } from "./TableOfContents";
@@ -60,7 +63,7 @@ export default function CheckerManual({ embedded }: CheckerManualProps) {
                     size="sm"
                     className="gap-2 h-9 text-xs font-medium"
                   >
-                    {exportingManual ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconFileDown className="w-4 h-4" />}
+                    {exportingManual ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
                     Export Manual PDF
                   </Button>
                   <Button 
@@ -71,7 +74,7 @@ export default function CheckerManual({ embedded }: CheckerManualProps) {
                     size="sm"
                     className="gap-2 h-9 text-xs font-medium"
                   >
-                    {exportingData ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconDatabase className="w-4 h-4" />}
+                    {exportingData ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
                     Full Data Export
                   </Button>
                 </div>

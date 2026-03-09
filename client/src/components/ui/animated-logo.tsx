@@ -5,9 +5,8 @@
  * none, pulse, glow, spin, or bounce. Used in the sidebar header and
  * splash/loading screens.
  */
-;
-import { useId, useState } from "react";
-import { IconBuilding } from "@/components/icons/brand-icons";
+import { useState, useId } from "react";
+import { Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type AnimationMode = "none" | "pulse" | "glow" | "spin" | "bounce";
@@ -49,7 +48,7 @@ export function AnimatedLogo({
         style={{ width: size, height: size }}
         data-testid={testId}
       >
-        <IconBuilding className="text-primary" style={{ width: size * 0.5, height: size * 0.5 }} />
+        <Building2 className="text-primary" style={{ width: size * 0.5, height: size * 0.5 }} />
       </div>
     );
   }

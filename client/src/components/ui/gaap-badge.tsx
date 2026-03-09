@@ -1,6 +1,5 @@
-import { IconInfo } from "@/components/icons/brand-icons";
 import * as React from "react";
-;
+import { Info } from "lucide-react";
 import {
   Tooltip,
   TooltipTrigger,
@@ -21,7 +20,7 @@ export function GaapBadge({ rule, className }: GaapBadgeProps) {
           aria-label="GAAP/IRS rule"
           data-testid="gaap-badge"
         >
-          <IconInfo className="w-3 h-3 text-white" />
+          <Info className="w-3 h-3 text-white" />
         </span>
       </TooltipTrigger>
       <TooltipContent

@@ -1,4 +1,6 @@
-import { IconTrending, TabsContent, TabsList, TabsTrigger } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { IconResearch, IconTrending } from "@/components/icons/brand-icons";
 import ResearchTab from "./ResearchTab";
 import MarketRatesTab from "./MarketRatesTab";
 

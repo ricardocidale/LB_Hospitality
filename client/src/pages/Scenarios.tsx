@@ -6,7 +6,7 @@
  * experiment with different sets of inputs and come back to previous versions.
  *
  * Key capabilities:
- *   • IconSave As — snapshot the current global assumptions + all properties into a
+ *   • Save As — snapshot the current global assumptions + all properties into a
  *     named scenario. Useful for creating "Base Case", "Optimistic", "Conservative"
  *     versions of the model.
  *   • Load — restore a saved scenario, overwriting the current live data. This is
@@ -15,7 +15,7 @@
  *   • Delete — remove a scenario (the "Base" scenario cannot be deleted).
  *   • Export / Import — download a scenario as JSON or upload one from a file.
  *     This enables sharing model configurations between users or environments.
- *   • Clone — duplicate a scenario with a "(IconCopy)" suffix for quick forking.
+ *   • Clone — duplicate a scenario with a "(Copy)" suffix for quick forking.
  *   • Compare — select two scenarios and see a diff of assumption changes and
  *     property additions/removals/changes. The diff is fetched from the server
  *     via GET /api/scenarios/:id1/compare/:id2.
@@ -23,9 +23,14 @@
  * The page shows KPIs (total scenario count, latest save date) and a card list
  * of all saved scenarios with action buttons.
  */
-import { AnimatedGrid, AnimatedGridItem, IconAlertTriangle, IconClock, IconCopy, IconDownload, IconFileStack, IconFolderOpen, IconGitCompareArrows, IconLoader, IconPencil, IconSave, IconTrash, IconUpload } from "@/components/icons/brand-icons";
 import Layout from "@/components/Layout";
-;
+import { AnimatedPage, ScrollReveal, KPIGrid, AnimatedGrid, AnimatedGridItem } from "@/components/graphics";
+import { TiltCard } from "@/components/ui/animated";
+import { useScenarios, useCreateScenario, useLoadScenario, useUpdateScenario, useDeleteScenario } from "@/lib/api";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, Save, FolderOpen, Pencil, Trash2, Clock, FileStack, Download, Upload, Copy, GitCompareArrows, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -109,7 +114,7 @@ export default function Scenarios() {
   const [compareLoading, setCompareLoading] = useState(false);
   const [compareDialogOpen, setCompareDialogOpen] = useState(false);
 
-  /** IconDownload a scenario as a JSON file (excludes images for size). */
+  /** Download a scenario as a JSON file (excludes images for size). */
   const handleExport = async (id: number, name: string) => {
     try {
       const res = await fetch(`/api/scenarios/${id}/export`, { credentials: "include" });
@@ -127,13 +132,13 @@ export default function Scenarios() {
     }
   };
 
-  /** Duplicate a scenario with " (IconCopy)" suffix. */
+  /** Duplicate a scenario with " (Copy)" suffix. */
   const handleClone = async (id: number, name: string) => {
     try {
       const res = await fetch(`/api/scenarios/${id}/clone`, { method: "POST", credentials: "include" });
       if (!res.ok) throw new Error("Failed to clone scenario");
       queryClient.invalidateQueries({ queryKey: ["/api/scenarios"] });
-      toast({ title: "Cloned", description: `"${name} (IconCopy)" created` });
+      toast({ title: "Cloned", description: `"${name} (Copy)" created` });
     } catch (error) {
       toast({ title: "Error", description: "Failed to clone scenario", variant: "destructive" });
     }
@@ -196,7 +201,7 @@ export default function Scenarios() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <IconLoader className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -206,7 +211,7 @@ export default function Scenarios() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <IconAlertTriangle className="w-8 h-8 text-destructive" />
+          <AlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load scenarios. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -219,7 +224,7 @@ export default function Scenarios() {
       <div className="space-y-8">
         <PageHeader 
           title="Scenarios" 
-          subtitle="IconSave and load different versions of your assumptions and properties"
+          subtitle="Save and load different versions of your assumptions and properties"
           variant="dark"
         />
 
@@ -241,7 +246,7 @@ export default function Scenarios() {
                 <CardTitle className="text-xl font-display text-foreground">Saved Scenarios</CardTitle>
                 <CardDescription className="label-text text-muted-foreground">
                   {scenarios?.length === 0 
-                    ? "No scenarios saved yet. IconSave your current configuration to get started."
+                    ? "No scenarios saved yet. Save your current configuration to get started."
                     : `${scenarios?.length} scenario${scenarios?.length === 1 ? '' : 's'} saved`
                   }
                 </CardDescription>
@@ -253,7 +258,7 @@ export default function Scenarios() {
                   data-testid="button-import-scenario"
                   className="text-muted-foreground hover:text-foreground hover:bg-muted"
                 >
-                  <IconUpload className="w-4 h-4" />
+                  <Upload className="w-4 h-4" />
                   Import
                 </Button>
                 <input
@@ -270,7 +275,7 @@ export default function Scenarios() {
                     data-testid="button-toggle-compare"
                     className={compareMode ? "" : "text-muted-foreground hover:text-foreground hover:bg-muted"}
                   >
-                    <IconGitCompareArrows className="w-4 h-4" />
+                    <GitCompareArrows className="w-4 h-4" />
                     {compareMode ? "Cancel Compare" : "Compare"}
                   </Button>
                 )}
@@ -279,8 +284,8 @@ export default function Scenarios() {
                   onClick={() => setIsCreating(true)}
                   data-testid="button-new-scenario"
                 >
-                  <IconSave className="w-4 h-4" />
-                  IconSave As
+                  <Save className="w-4 h-4" />
+                  Save As
                 </Button>
               </div>
             </div>
@@ -302,7 +307,7 @@ export default function Scenarios() {
                   onClick={handleCompare}
                   data-testid="button-run-compare"
                 >
-                  {compareLoading ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconGitCompareArrows className="w-4 h-4" />}
+                  {compareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitCompareArrows className="w-4 h-4" />}
                   Compare
                 </Button>
               </div>
@@ -310,10 +315,10 @@ export default function Scenarios() {
 
             {scenarios?.length === 0 ? (
               <div className="text-center py-12">
-                <IconFileStack className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <FileStack className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                 <p className="label-text text-muted-foreground font-medium">No scenarios saved yet</p>
                 <p className="label-text text-muted-foreground mt-1">
-                  Click "IconSave Current" to save your current assumptions and properties as a scenario
+                  Click "Save Current" to save your current assumptions and properties as a scenario
                 </p>
               </div>
             ) : (
@@ -350,7 +355,7 @@ export default function Scenarios() {
                         )}
                         <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1 font-mono">
-                            <IconClock className="w-3 h-3" />
+                            <Clock className="w-3 h-3" />
                             Saved: {formatDateTime(scenario.updatedAt)}
                           </span>
                           <span className="font-mono">{(scenario.properties as any[])?.length || 0} properties</span>
@@ -365,9 +370,9 @@ export default function Scenarios() {
                             data-testid={`button-load-scenario-${scenario.id}`}
                           >
                             {loadScenario.isPending ? (
-                              <IconLoader className="w-4 h-4 animate-spin" />
+                              <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <IconFolderOpen className="w-4 h-4" />
+                              <FolderOpen className="w-4 h-4" />
                             )}
                             Load
                           </Button>
@@ -380,7 +385,7 @@ export default function Scenarios() {
                           title="Export as JSON"
                           data-testid={`button-export-scenario-${scenario.id}`}
                         >
-                          <IconDownload className="w-4 h-4" />
+                          <Download className="w-4 h-4" />
                         </Button>
 
                         <Button
@@ -391,7 +396,7 @@ export default function Scenarios() {
                           title="Duplicate"
                           data-testid={`button-clone-scenario-${scenario.id}`}
                         >
-                          <IconCopy className="w-4 h-4" />
+                          <Copy className="w-4 h-4" />
                         </Button>
 
                         <Button
@@ -405,7 +410,7 @@ export default function Scenarios() {
                           className="text-muted-foreground hover:text-foreground hover:bg-muted"
                           data-testid={`button-edit-scenario-${scenario.id}`}
                         >
-                          <IconPencil className="w-4 h-4" />
+                          <Pencil className="w-4 h-4" />
                         </Button>
 
                         {scenario.name !== "Base" && (
@@ -417,7 +422,7 @@ export default function Scenarios() {
                                 className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                 data-testid={`button-delete-scenario-${scenario.id}`}
                               >
-                                <IconTrash className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>

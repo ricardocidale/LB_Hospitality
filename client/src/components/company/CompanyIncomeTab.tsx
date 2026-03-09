@@ -21,9 +21,10 @@
  * The table renders one column per projection year. Each row shows the dollar
  * amount and (for expense rows) the percentage of total revenue.
  */
-import { IconChevronDown, formatMoney } from "@/components/icons/brand-icons";
 import React, { useState } from "react";
-;
+import { formatMoney } from "@/lib/financialEngine";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
 import type { CompanyTabProps } from "./types";
 
@@ -80,9 +81,9 @@ export default function CompanyIncomeTab({
             >
               <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                 {expandedRows.has('baseFees') ? (
-                  <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Service Fees
               </TableCell>
@@ -118,9 +119,9 @@ export default function CompanyIncomeTab({
                   >
                     <TableCell className="sticky left-0 bg-card pl-12 flex items-center gap-2 text-sm">
                       {expandedRows.has(`cat-${catName}`) ? (
-                        <IconChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                        <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                       ) : (
-                        <IconChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                       )}
                       {catName}
                     </TableCell>
@@ -156,9 +157,9 @@ export default function CompanyIncomeTab({
             >
               <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                 {expandedRows.has('incentiveFees') ? (
-                  <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Incentive Fees
               </TableCell>
@@ -192,9 +193,9 @@ export default function CompanyIncomeTab({
                 >
                   <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2 text-amber-700">
                     {expandedRows.has('vendorCosts') ? (
-                      <IconChevronDown className="w-4 h-4 text-amber-500" />
+                      <ChevronDown className="w-4 h-4 text-amber-500" />
                     ) : (
-                      <IconChevronRight className="w-4 h-4 text-amber-500" />
+                      <ChevronRight className="w-4 h-4 text-amber-500" />
                     )}
                     Cost of Centralized Services
                   </TableCell>
@@ -242,9 +243,9 @@ export default function CompanyIncomeTab({
             >
               <TableCell className="sticky left-0 bg-muted flex items-center gap-2">
                 {expandedRows.has('opex') ? (
-                  <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Operating Expenses
               </TableCell>
@@ -262,9 +263,9 @@ export default function CompanyIncomeTab({
                 >
                   <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('opexComp') ? (
-                      <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Compensation
                   </TableCell>
@@ -300,9 +301,9 @@ export default function CompanyIncomeTab({
                 >
                   <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('opexFixed') ? (
-                      <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Fixed Overhead
                   </TableCell>
@@ -354,9 +355,9 @@ export default function CompanyIncomeTab({
                 >
                   <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('opexVar') ? (
-                      <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Variable Costs
                   </TableCell>

@@ -3,8 +3,7 @@
  *
  * Shows compensation ranges by firm type, AUM, and growth stage.
  */
-;
-import { IconPeople } from "@/components/icons/brand-icons";
+import { Users } from "lucide-react";
 import { SectionCard } from "../property-research/SectionCard";
 import { MetricCard } from "../property-research/MetricCard";
 import { companySectionColors } from "./types";
@@ -35,7 +34,7 @@ export function PartnerCompTab({ content }: PartnerCompTabProps) {
   return (
     <div className="space-y-6">
       {aiComp && (
-        <SectionCard icon={IconPeople} title="AI Research: Compensation Data" color={companySectionColors.compensation}>
+        <SectionCard icon={Users} title="AI Research: Compensation Data" color={companySectionColors.compensation}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
             <MetricCard label="General Manager" value={aiComp.gm || "N/A"} color={companySectionColors.compensation} />
             <MetricCard label="Director Level" value={aiComp.director || "N/A"} color={companySectionColors.compensation} />
@@ -47,7 +46,7 @@ export function PartnerCompTab({ content }: PartnerCompTabProps) {
         </SectionCard>
       )}
 
-      <SectionCard icon={IconPeople} title="Partner Compensation by Growth Stage" color={companySectionColors.compensation}>
+      <SectionCard icon={Users} title="Partner Compensation by Growth Stage" color={companySectionColors.compensation}>
         <p className="text-xs text-muted-foreground mb-4">
           Total compensation ranges (base + bonus) for management company leadership by portfolio maturity.
         </p>
@@ -78,7 +77,7 @@ export function PartnerCompTab({ content }: PartnerCompTabProps) {
         </div>
       </SectionCard>
 
-      <SectionCard icon={IconPeople} title="Compensation Structures" color={companySectionColors.fees}>
+      <SectionCard icon={Users} title="Compensation Structures" color={companySectionColors.fees}>
         <div className="space-y-3">
           {COMP_STRUCTURES.map((s, i) => (
             <div key={i} className="bg-primary/5 rounded-lg p-3 border border-primary/10">

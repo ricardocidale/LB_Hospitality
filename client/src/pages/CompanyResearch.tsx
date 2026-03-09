@@ -1,6 +1,13 @@
-;
+import { useState } from "react";
+import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useMarketResearch } from "@/lib/api";
+import { PageHeader } from "@/components/ui/page-header";
+import { ExportToolbar } from "@/components/ui/export-toolbar";
+import { Loader2, RefreshCw, BookOpen, AlertTriangle, Mail, FileDown, DollarSign, Package, Building2, Target, Users, FileText } from "lucide-react";
 
-import { IconAlertTriangle, IconBookOpen, IconBuilding, IconDollarSign, IconFileDown, IconFileText, IconLoader, IconMail, IconPackage, IconPeople, IconRefresh, IconTarget, TabsContent } from "@/components/icons/brand-icons";
 import { format } from "date-fns";
 import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
 import { useToast } from "@/hooks/use-toast";
@@ -15,13 +22,13 @@ import {
 } from "@/components/company-research";
 
 const TABS = [
-  { value: "fees", label: "Management Fees", icon: IconDollarSign },
-  { value: "services", label: "Service Revenue", icon: IconPackage },
-  { value: "vendor", label: "Vendor Costs", icon: IconPackage },
-  { value: "overhead", label: "Overhead", icon: IconBuilding },
-  { value: "competitive", label: "Competitive", icon: IconTarget },
-  { value: "partner-comp", label: "Partner Comp", icon: IconPeople },
-  { value: "full-research", label: "Full Research", icon: IconFileText },
+  { value: "fees", label: "Management Fees", icon: DollarSign },
+  { value: "services", label: "Service Revenue", icon: Package },
+  { value: "vendor", label: "Vendor Costs", icon: Package },
+  { value: "overhead", label: "Overhead", icon: Building2 },
+  { value: "competitive", label: "Competitive", icon: Target },
+  { value: "partner-comp", label: "Partner Comp", icon: Users },
+  { value: "full-research", label: "Full Research", icon: FileText },
 ];
 
 export default function CompanyResearch() {
@@ -35,7 +42,7 @@ export default function CompanyResearch() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <IconLoader className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -45,7 +52,7 @@ export default function CompanyResearch() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <IconAlertTriangle className="w-8 h-8 text-destructive" />
+          <AlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load company research. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -74,7 +81,7 @@ export default function CompanyResearch() {
                 disabled={isGenerating}
                 data-testid="button-update-research"
               >
-                {isGenerating ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconRefresh className="w-4 h-4" />}
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update AI Research"}
               </Button>
             </div>
@@ -93,7 +100,7 @@ export default function CompanyResearch() {
                 actions={[
                   {
                     label: "Download PDF",
-                    icon: <IconFileDown className="w-3.5 h-3.5" />,
+                    icon: <FileDown className="w-3.5 h-3.5" />,
                     onClick: () => downloadResearchPDF({
                       type: "company",
                       title: "Management Company Research",
@@ -107,7 +114,7 @@ export default function CompanyResearch() {
                   },
                   {
                     label: isEmailing ? "Sending..." : "Email PDF",
-                    icon: <IconMail className="w-3.5 h-3.5" />,
+                    icon: <Mail className="w-3.5 h-3.5" />,
                     onClick: async () => {
                       if (isEmailing) return;
                       setIsEmailing(true);
@@ -144,7 +151,7 @@ export default function CompanyResearch() {
           <div className="bg-card rounded-lg shadow-sm border border-emerald-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                <IconLoader className="w-4 h-4 animate-spin text-emerald-700" />
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
               </div>
               <p className="text-muted-foreground text-sm font-medium">Researching management company standards and benchmarks...</p>
             </div>
@@ -222,7 +229,7 @@ function EmptyTabState({ title, description, onGenerate }: { title: string; desc
   return (
     <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
       <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
-        <IconBookOpen className="w-8 h-8 text-primary" />
+        <BookOpen className="w-8 h-8 text-primary" />
       </div>
       <h3 className="text-lg font-display text-foreground mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">{description}</p>
@@ -231,7 +238,7 @@ function EmptyTabState({ title, description, onGenerate }: { title: string; desc
         variant="default"
         className="gap-2 shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-transform"
       >
-        <IconRefresh className="w-4 h-4" />
+        <RefreshCw className="w-4 h-4" />
         Generate Research
       </Button>
     </div>

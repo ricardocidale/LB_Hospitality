@@ -1,9 +1,8 @@
-;
-
-import { IconActivity, IconClock, IconFileCheck, IconPeople } from "@/components/icons/brand-icons";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Clock, Activity, FileCheck } from "lucide-react";
+import { IconPeople, IconActivity, IconFileCheck } from "@/components/icons/brand-icons";
 import type { User, LoginLog, ActivityLogEntry, CheckerActivityData, ActiveSession, ActivitySubView } from "../types";
 import { ActivityLogList } from "./ActivityLogList";
 import { ActivityFeed } from "./ActivityFeed";
@@ -75,7 +74,7 @@ export default function ActivityTab() {
           className="rounded-lg font-display"
           data-testid="button-activity-subtab-login"
         >
-          <IconClock className="w-4 h-4 mr-2" />
+          <Clock className="w-4 h-4 mr-2" />
           Login Log
         </Button>
         <Button

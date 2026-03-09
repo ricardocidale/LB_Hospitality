@@ -4,8 +4,7 @@
  * Displays an image with hover-reveal action buttons for editing or removing
  * the image. Used in property photo management and AI image picker flows.
  */
-;
-import { IconPencil, IconTrash } from "@/components/icons/brand-icons";
+import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +66,7 @@ export function ImagePreviewCard({
               className="h-8 w-8 bg-card border border-border text-foreground hover:bg-muted hover:text-foreground"
               data-testid={`${testId}-edit`}
             >
-              <IconPencil className="w-3.5 h-3.5" />
+              <Pencil className="w-3.5 h-3.5" />
             </Button>
           )}
           {onDelete && (
@@ -78,7 +77,7 @@ export function ImagePreviewCard({
               className="h-8 w-8 bg-card border border-border text-foreground hover:bg-red-50 hover:text-red-600"
               data-testid={`${testId}-delete`}
             >
-              <IconTrash className="w-3.5 h-3.5" />
+              <Trash2 className="w-3.5 h-3.5" />
             </Button>
           )}
         </div>

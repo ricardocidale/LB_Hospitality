@@ -21,9 +21,10 @@
  * Summary cards at the top show opening cash, operating cash, funding
  * received, partner draws, and closing cash for the selected year.
  */
-import { IconChevronDown, formatMoney } from "@/components/icons/brand-icons";
 import React from "react";
-;
+import { formatMoney } from "@/lib/financialEngine";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
 import type { CompanyTabProps } from "./types";
 
@@ -86,9 +87,9 @@ export default function CompanyCashFlowTab({
             >
               <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-10">
                 {expandedRows.has('cfBaseFees') ? (
-                  <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Service Fees
               </TableCell>
@@ -122,9 +123,9 @@ export default function CompanyCashFlowTab({
                   >
                     <TableCell className="sticky left-0 bg-card pl-14 flex items-center gap-2 text-sm">
                       {expandedRows.has(`cf-cat-${catName}`) ? (
-                        <IconChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                        <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
                       ) : (
-                        <IconChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                       )}
                       {catName}
                     </TableCell>
@@ -155,9 +156,9 @@ export default function CompanyCashFlowTab({
             >
               <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-10">
                 {expandedRows.has('cfIncentiveFees') ? (
-                  <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Incentive Fees
               </TableCell>
@@ -185,9 +186,9 @@ export default function CompanyCashFlowTab({
             >
               <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-6">
                 {expandedRows.has('cfOutflows') ? (
-                  <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 Cash Paid for Operating Expenses
               </TableCell>
@@ -205,9 +206,9 @@ export default function CompanyCashFlowTab({
                 >
                   <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('cfComp') ? (
-                      <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Compensation
                   </TableCell>
@@ -243,9 +244,9 @@ export default function CompanyCashFlowTab({
                 >
                   <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('cfFixed') ? (
-                      <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Fixed Overhead
                   </TableCell>
@@ -297,9 +298,9 @@ export default function CompanyCashFlowTab({
                 >
                   <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2">
                     {expandedRows.has('cfVar') ? (
-                      <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Variable Costs
                   </TableCell>
@@ -387,9 +388,9 @@ export default function CompanyCashFlowTab({
             >
               <TableCell className="sticky left-0 bg-card flex items-center gap-2 pl-6">
                 {expandedRows.has('cfSafe') ? (
-                  <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 ) : (
-                  <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
                 {fundingLabel} Funding Received
               </TableCell>

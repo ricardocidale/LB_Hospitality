@@ -1,7 +1,9 @@
 /**
  * UserGroupsTab.tsx — Branded user group management.
  *
- * User Groups enable white-labeling: each group can have its own logo, * color theme, and "asset description" (the label used for properties, * e.g. "Luxury Resort" vs. "Boutique Hotel"). When a user belongs to a
+ * User Groups enable white-labeling: each group can have its own logo,
+ * color theme, and "asset description" (the label used for properties,
+ * e.g. "Luxury Resort" vs. "Boutique Hotel"). When a user belongs to a
  * group, the platform's UI adapts to show that group's branding.
  *
  * Admin capabilities:
@@ -15,33 +17,19 @@
  * serves multiple hotel brands or investor groups, each seeing their
  * own branded experience.
  */
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  Card, CardContent, CardDescription, CardHeader, CardTitle 
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Dialog, DialogContent, DialogDescription, DialogFooter, 
-  DialogHeader, DialogTitle 
-} from "@/components/ui/dialog";
-import { 
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
-} from "@/components/ui/select";
-import { 
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Loader2, Plus, Trash2, Users, Pencil, Building2, UserPlus, Palette, Tag, Image, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { IconPeople, IconProperties, IconUserPlus, IconPencil, IconTrash, IconPalette, IconImage } from "@/components/icons/brand-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  IconBuilding, IconChevronDown, IconChevronUp, IconEye, IconImage, 
-  IconLoader, IconPalette, IconPencil, IconPeople, IconPlus, IconSave, 
-  IconTag, IconTrash, IconUserPlus, IconProperties 
-} from "@/components/icons/brand-icons";
-
 import type { User, Logo, UserGroup, AssetDesc } from "./types";
 import type { Property } from "@shared/schema";
 
@@ -210,7 +198,7 @@ export default function UserGroupsTab() {
               setGroupForm({ name: "", logoId: null, themeId: null, assetDescriptionId: null });
               setGroupDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-group">
-              <IconPlus className="w-4 h-4" /> New Group
+              <Plus className="w-4 h-4" /> New Group
             </Button>
           </div>
         </CardHeader>
@@ -256,7 +244,7 @@ export default function UserGroupsTab() {
                         </Button>
                         {!group.isDefault && (
                           <Button variant="ghost" size="sm" onClick={() => {
-                            if (confirm("Delete this group? People will be moved to the default group.")) {
+                            if (confirm("Delete this group? Users will be moved to the default group.")) {
                               deleteGroupMutation.mutate(group.id);
                             }
                           }} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-group-${group.id}`}>
@@ -300,12 +288,12 @@ export default function UserGroupsTab() {
                             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left"
                             onClick={() => setExpandedVisibility(isExpanded ? null : group.id)}
                           >
-                            <IconEye className="w-4 h-4 text-muted-foreground/60" />
+                            <Eye className="w-4 h-4 text-muted-foreground/60" />
                             <span className="font-medium">Property Visibility</span>
                             <span className="text-xs bg-muted px-2 py-0.5 rounded ml-1">
                               {visibleCount} of {allProperties.length} visible
                             </span>
-                            <span className="ml-auto">{isExpanded ? <IconChevronUp className="w-4 h-4" /> : <IconChevronDown className="w-4 h-4" />}</span>
+                            <span className="ml-auto">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</span>
                           </button>
                           {isExpanded && (
                             <div className="mt-3 space-y-2">
@@ -342,7 +330,7 @@ export default function UserGroupsTab() {
                                   }}
                                   className="flex items-center gap-1"
                                 >
-                                  {setGroupPropertiesMutation.isPending ? <IconLoader className="w-3 h-3 animate-spin" /> : <IconSave className="w-3 h-3" />}
+                                  {setGroupPropertiesMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
                                   Save
                                 </Button>
                                 {pending && (
@@ -366,7 +354,7 @@ export default function UserGroupsTab() {
 
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconUserPlus className="w-4 h-4 text-muted-foreground" /> Assign People to Groups</CardTitle>
+          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconUserPlus className="w-4 h-4 text-muted-foreground" /> Assign Users to Groups</CardTitle>
           <CardDescription className="label-text">Set which group each user belongs to. Group branding overrides defaults.</CardDescription>
         </CardHeader>
         <CardContent className="relative">
@@ -450,34 +438,36 @@ export default function UserGroupsTab() {
               <SelectTrigger data-testid="select-group-theme"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="default">Default Theme</SelectItem>
-                {allThemes?.map(t => (
-                  <SelectItem key={t.id} value={String(t.id)}>{t.name}{t.isDefault ? " (Default)" : ""}</SelectItem>
+                {allThemes?.map(theme => (
+                  <SelectItem key={theme.id} value={String(theme.id)}>{theme.name}{theme.isDefault ? " (Default)" : ""}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><IconTag className="w-4 h-4 text-muted-foreground" />Asset Description Label</Label>
+            <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Asset Description</Label>
             <Select value={groupForm.assetDescriptionId != null ? String(groupForm.assetDescriptionId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, assetDescriptionId: v === "default" ? null : parseInt(v) })} data-testid="select-group-asset-desc">
               <SelectTrigger data-testid="select-group-asset-desc"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="default">Default (Property)</SelectItem>
-                {assetDescriptions?.map(a => (
-                  <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
+                <SelectItem value="default">Default</SelectItem>
+                {assetDescriptions?.map(ad => (
+                  <SelectItem key={ad.id} value={String(ad.id)}>{ad.name}{ad.isDefault ? " (Default)" : ""}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-[10px] text-muted-foreground">The term used for properties in the platform UI (e.g. "Asset", "Portfolio").</p>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => setGroupDialogOpen(false)} data-testid="button-cancel-group">Cancel</Button>
-          <Button onClick={() => {
-            if (editingGroup) updateGroupMutation.mutate({ id: editingGroup.id, ...groupForm });
-            else createGroupMutation.mutate(groupForm);
-          }} disabled={createGroupMutation.isPending || updateGroupMutation.isPending} data-testid="button-save-group">
-            {(createGroupMutation.isPending || updateGroupMutation.isPending) ? <IconLoader className="w-4 h-4 animate-spin mr-2" /> : <IconSave className="w-4 h-4 mr-2" />}
-            {editingGroup ? "Save Changes" : "Create Group"}
+          <Button variant="outline" onClick={() => { setGroupDialogOpen(false); setEditingGroup(null); }} data-testid="button-cancel-group">Cancel</Button>
+          <Button variant="outline" onClick={() => {
+            if (editingGroup) {
+              updateGroupMutation.mutate({ id: editingGroup.id, ...groupForm });
+            } else {
+              createGroupMutation.mutate(groupForm);
+            }
+          }} disabled={!groupForm.name || createGroupMutation.isPending || updateGroupMutation.isPending} data-testid="button-save-group" className="flex items-center gap-2">
+            {(createGroupMutation.isPending || updateGroupMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {editingGroup ? "Save" : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>

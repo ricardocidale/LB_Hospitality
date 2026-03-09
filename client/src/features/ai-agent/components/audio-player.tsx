@@ -1,8 +1,21 @@
 "use client"
 
-import { useCallback, useContext, useEffect, useMemo, useRef, useState, createContext, type ComponentProps, type HTMLProps, type ReactNode, type RefObject } from "react";
+import {
+  ComponentProps,
+  createContext,
+  HTMLProps,
+  ReactNode,
+  RefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
-import { IconPause, IconPlay, IconSettings, IconCheck } from "@/components/icons/brand-icons";
+import { Check, PauseIcon, PlayIcon, Settings } from "lucide-react"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -393,9 +406,9 @@ const PlayButton = ({
     type="button"
   >
     {playing ? (
-      <IconPause className={cn("size-4", loading && "opacity-0")} aria-hidden="true" />
+      <PauseIcon className={cn("size-4", loading && "opacity-0")} aria-hidden="true" />
     ) : (
-      <IconPlay className={cn("size-4", loading && "opacity-0")} aria-hidden="true" />
+      <PlayIcon className={cn("size-4", loading && "opacity-0")} aria-hidden="true" />
     )}
     {loading && (
       <div className="absolute inset-0 flex items-center justify-center rounded-[inherit]">
@@ -469,7 +482,7 @@ export function AudioPlayerSpeed({
           aria-label="Playback speed"
           {...props}
         >
-          <IconSettings className="size-4" />
+          <Settings className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[120px]">
@@ -482,7 +495,7 @@ export function AudioPlayerSpeed({
             <span className={speed === 1 ? "" : "font-mono"}>
               {speed === 1 ? "Normal" : `${speed}x`}
             </span>
-            {player.playbackRate === speed && <IconCheck className="size-4" />}
+            {player.playbackRate === speed && <Check className="size-4" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

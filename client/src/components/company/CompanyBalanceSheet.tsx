@@ -22,9 +22,10 @@
  * retained earnings offset by SAFE proceeds, which is normal until the
  * portfolio generates sufficient fee revenue to cover overhead.
  */
-import { IconChevronDown, formatMoney } from "@/components/icons/brand-icons";
 import React from "react";
-;
+import { formatMoney } from "@/lib/financialEngine";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
 import type { CompanyBalanceSheetProps } from "./types";
 
@@ -85,7 +86,7 @@ export default function CompanyBalanceSheet({
                 >
                   <TableCell className="pl-8">
                     <span className="flex items-center gap-1">
-                      {bsExpanded.cash ? <IconChevronDown className="w-4 h-4 text-muted-foreground" /> : <IconChevronRight className="w-4 h-4 text-muted-foreground" />}
+                      {bsExpanded.cash ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
                       Cash & Cash Equivalents
                     </span>
                   </TableCell>
@@ -141,7 +142,7 @@ export default function CompanyBalanceSheet({
                 >
                   <TableCell className="pl-8">
                     <span className="flex items-center gap-1">
-                      {bsExpanded.notes ? <IconChevronDown className="w-4 h-4 text-muted-foreground" /> : <IconChevronRight className="w-4 h-4 text-muted-foreground" />}
+                      {bsExpanded.notes ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
                       {fundingLabel} Notes Payable
                     </span>
                   </TableCell>
@@ -185,7 +186,7 @@ export default function CompanyBalanceSheet({
                 >
                   <TableCell className="pl-4">
                     <span className="flex items-center gap-1">
-                      {bsExpanded.equity ? <IconChevronDown className="w-4 h-4 text-muted-foreground" /> : <IconChevronRight className="w-4 h-4 text-muted-foreground" />}
+                      {bsExpanded.equity ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
                       Retained Earnings
                     </span>
                   </TableCell>

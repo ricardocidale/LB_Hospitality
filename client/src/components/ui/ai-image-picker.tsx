@@ -2,20 +2,18 @@
  * ai-image-picker.tsx — Multi-source image selector with AI generation support.
  *
  * Provides three ways to set a property's hero image:
- *   1. IconUpload a local file from the user's device
+ *   1. Upload a local file from the user's device
  *   2. Paste a URL to an existing image
  *   3. Generate an AI image from a text prompt (calls the backend
  *      image generation endpoint)
  *
  * Used in the AddPropertyDialog and property edit forms.
  */
-
-import { IconLink as LinkIcon, IconLoader, IconSparkles, IconUpload, IconX } from "@/components/icons/brand-icons";
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
+import { Loader2, Upload, Sparkles, X, Link as LinkIcon } from "lucide-react";
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -44,7 +42,7 @@ export function AIImagePicker({
   onImageChange,
   defaultPrompt = "",
   promptPlaceholder = "Describe the image you want to generate...",
-  uploadLabel = "IconUpload Image",
+  uploadLabel = "Upload Image",
   generateLabel = "Generate with AI",
   variant = "light",
   aspectRatio = "landscape",
@@ -74,8 +72,8 @@ export function AIImagePicker({
       setIsUploadingPhoto(false);
     },
     onError: (error) => {
-      console.error("IconUpload failed:", error);
-      toast({ title: "IconUpload Failed", description: "Failed to upload image. Please try again.", variant: "destructive" });
+      console.error("Upload failed:", error);
+      toast({ title: "Upload Failed", description: "Failed to upload image. Please try again.", variant: "destructive" });
       setIsUploadingPhoto(false);
     },
   });
@@ -193,11 +191,11 @@ export function AIImagePicker({
     <div className={cn("space-y-3", className)} data-testid={testId}>
       <div className="flex gap-2 flex-wrap">
         <button type="button" onClick={() => setMode("upload")} disabled={isBusy} className={modeButtonClass(mode === "upload")}>
-          <IconUpload className="w-3.5 h-3.5" />
+          <Upload className="w-3.5 h-3.5" />
           {uploadLabel}
         </button>
         <button type="button" onClick={() => setMode("generate")} disabled={isBusy} className={modeButtonClass(mode === "generate")}>
-          <IconSparkles className="w-3.5 h-3.5" />
+          <Sparkles className="w-3.5 h-3.5" />
           {generateLabel}
         </button>
         {showUrlMode && (
@@ -212,7 +210,7 @@ export function AIImagePicker({
         <div className={cn("relative w-full rounded-lg overflow-hidden border", isLight ? "border-border" : "border-border", aspectClass)}>
           <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.3"; }} />
           <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2" onClick={handleRemove} data-testid={`${testId}-remove`}>
-            <IconX className="w-4 h-4" />
+            <X className="w-4 h-4" />
           </Button>
         </div>
       ) : mode === "upload" ? (
@@ -226,12 +224,12 @@ export function AIImagePicker({
         >
           {isUploadingPhoto ? (
             <>
-              <IconLoader className="w-10 h-10 text-primary animate-spin mb-2" />
+              <Loader2 className="w-10 h-10 text-primary animate-spin mb-2" />
               <p className="text-sm text-muted-foreground">Uploading...</p>
             </>
           ) : (
             <>
-              <IconUpload className="w-10 h-10 text-muted-foreground/50 mb-2" />
+              <Upload className="w-10 h-10 text-muted-foreground/50 mb-2" />
               <p className="text-sm text-muted-foreground">Click to upload image</p>
               <p className="text-xs text-muted-foreground/70 mt-1">Max size: {maxSizeMB}MB</p>
             </>
@@ -264,12 +262,12 @@ export function AIImagePicker({
           >
             {isGenerating ? (
               <>
-                <IconLoader className="w-4 h-4 animate-spin mr-2" />
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 Generating with Nano Banana...
               </>
             ) : (
               <>
-                <IconSparkles className="w-4 h-4 mr-2" />
+                <Sparkles className="w-4 h-4 mr-2" />
                 Generate Image
               </>
             )}

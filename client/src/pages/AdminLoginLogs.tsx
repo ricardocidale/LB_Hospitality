@@ -1,5 +1,8 @@
-;
-import { CardContent, CardDescription, CardHeader, CardTitle, IconClock, IconLoader, IconLogIn } from "@/components/icons/brand-icons";
+import { useQuery } from "@tanstack/react-query";
+import Layout from "@/components/Layout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Loader2, Clock, LogIn } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatDuration } from "@/lib/formatters";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
@@ -15,6 +18,7 @@ interface LoginLog {
   userName: string | null;
 }
 
+
 export default function AdminLoginLogs() {
   const { data: logs, isLoading } = useQuery<LoginLog[]>({
     queryKey: ["admin", "login-logs"],
@@ -29,7 +33,7 @@ export default function AdminLoginLogs() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <IconLoader className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -49,7 +53,7 @@ export default function AdminLoginLogs() {
           
           <CardHeader className="relative">
             <div className="flex items-center gap-3">
-              <IconLogIn className="w-5 h-5 text-primary" />
+              <LogIn className="w-5 h-5 text-primary" />
               <div>
                 <CardTitle className="text-xl font-display text-foreground">Login History</CardTitle>
                 <CardDescription className="label-text text-muted-foreground">
@@ -62,7 +66,7 @@ export default function AdminLoginLogs() {
           <CardContent className="relative">
             {logs?.length === 0 ? (
               <div className="text-center py-12">
-                <IconClock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <Clock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                 <p className="label-text text-muted-foreground">No login activity recorded yet</p>
               </div>
             ) : (

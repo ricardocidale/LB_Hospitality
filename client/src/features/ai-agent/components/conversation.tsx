@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from "react"
 import { useCallback } from "react"
-import { IconChevronDown } from "@/components/icons/brand-icons"
+import { ArrowDownIcon } from "lucide-react"
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom"
 
 import { cn } from "@/lib/utils"
@@ -72,7 +72,7 @@ export const ConversationScrollButton = ({ className, ...props }: ConversationSc
         variant="outline"
         {...props}
       >
-        <IconChevronDown className="size-4" />
+        <ArrowDownIcon className="size-4" />
       </Button>
     )
   )

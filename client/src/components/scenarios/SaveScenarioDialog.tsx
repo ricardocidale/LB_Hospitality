@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { IconLoader, IconSave } from "@/components/icons/brand-icons";
-;
+import { Loader2, Save } from "lucide-react";
 
 interface SaveScenarioDialogProps {
   open: boolean;
@@ -29,9 +28,9 @@ export function SaveScenarioDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="font-display">IconSave Current Configuration</DialogTitle>
+          <DialogTitle className="font-display">Save Current Configuration</DialogTitle>
           <DialogDescription className="label-text">
-            IconSave your current assumptions and properties as a new scenario
+            Save your current assumptions and properties as a new scenario
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -65,8 +64,8 @@ export function SaveScenarioDialog({
             data-testid="button-save-scenario"
             className="flex items-center gap-2"
           >
-            {isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-            IconSave Scenario
+            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Scenario
           </Button>
         </DialogFooter>
       </DialogContent>

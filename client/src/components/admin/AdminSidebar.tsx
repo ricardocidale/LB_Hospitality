@@ -1,4 +1,13 @@
-import { IconActivity, IconBookOpen, IconBot, IconBriefcase, IconDatabase, IconFileCheck, IconHelpCircle, IconImage, IconLink, IconMenu, IconPanelLeft, IconPhone, IconProperties, IconResearch, IconSettingsGear, IconShield, IconSwatchBook, IconTrending, IconUpload, IconUserCog, IconX, useState } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Menu, X, HelpCircle } from "lucide-react";
+import { Link } from "wouter";
+import {
+  IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
+  IconUpload, IconPanelLeft, IconProperties, IconTrending,
+  IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear,
+  IconBriefcase, IconResearch, IconBookOpen, IconPhone,
+} from "@/components/icons/brand-icons";
 
 export type AdminSection =
   | "users" | "activity"
@@ -197,14 +206,14 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
       </div>
 
       <div className="mt-1 pt-2 border-t border-border/60">
-        <IconLink
+        <Link
           href="/help"
           data-testid="admin-nav-help"
           className="relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 text-muted-foreground hover:bg-accent hover:text-foreground"
         >
-          <IconHelpCircle className="w-4 h-4 shrink-0" />
+          <HelpCircle className="w-4 h-4 shrink-0" />
           <span className="text-[13px] font-normal">Help</span>
-        </IconLink>
+        </Link>
       </div>
     </nav>
   );
@@ -216,7 +225,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
         className="lg:hidden fixed bottom-4 right-4 z-50 w-12 h-12 rounded-xl bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
         data-testid="admin-mobile-menu-toggle"
       >
-        {mobileOpen ? <IconX className="w-5 h-5" /> : <IconMenu className="w-5 h-5" />}
+        {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
       {mobileOpen && (

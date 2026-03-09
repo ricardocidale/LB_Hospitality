@@ -1,9 +1,8 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { IconChevronDown, IconChevronRight } from "@/components/icons/brand-icons";
-import * as React from "react";
-;
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { useCalcDetails } from "./context";
 
@@ -41,9 +40,9 @@ export function ExpandableLineItem({
         <TableCell className="pl-6 sticky left-0 bg-card py-1">
           <span className="flex items-center gap-1">
             {expanded ? (
-              <IconChevronDown className="w-4 h-4 flex-shrink-0" />
+              <ChevronDown className="w-4 h-4 flex-shrink-0" />
             ) : (
-              <IconChevronRight className="w-4 h-4 flex-shrink-0" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0" />
             )}
             <span className="ml-1">{label}</span>
             {showDetails && tooltip && <HelpTooltip text={tooltip} />}
@@ -96,9 +95,9 @@ export function ExpandableMetricRow({
         <TableCell className="pl-6 sticky left-0 bg-card py-1">
           <span className="flex items-center gap-1">
             {expanded ? (
-              <IconChevronDown className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+              <ChevronDown className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             ) : (
-              <IconChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             )}
             {label}
             {showDetails && tooltip && <HelpTooltip text={tooltip} />}
@@ -169,9 +168,9 @@ export function ExpandableBalanceSheetLineItem({
         >
           <span className="flex items-center gap-1">
             {expanded ? (
-              <IconChevronDown className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+              <ChevronDown className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             ) : (
-              <IconChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             )}
             {label}
             {showDetails && tooltip && <HelpTooltip text={tooltip} />}

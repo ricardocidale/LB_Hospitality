@@ -1,7 +1,9 @@
-import { CardContent, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card } from "@/components/icons/brand-icons";
 import React, { useState, useMemo, useRef, RefObject } from "react";
-;
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { ChevronRight, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { FinancialChart } from "@/components/ui/financial-chart";
@@ -212,7 +214,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
               className="text-xs text-muted-foreground h-7 px-2"
               data-testid="button-toggle-all-cf"
             >
-              <IconChevronsUpDown className="h-3.5 w-3.5 mr-1" />
+              <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
               {allRowsExpanded ? "Collapse All" : "Expand All"}
             </Button>
           </div>
@@ -243,7 +245,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfo")} style={{ cursor: 'pointer' }}>
                     <TableCell className="sticky left-0 bg-card z-10">
                       <div className="flex items-center gap-2">
-                        {expandedRows.has("cfo") ? <IconChevronDown className="h-4 w-4" /> : <IconChevronRight className="h-4 w-4" />}
+                        {expandedRows.has("cfo") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         Cash Flow from Operations (CFO)
                       </div>
                     </TableCell>
@@ -260,7 +262,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                       >
                         <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
-                            {expandedFormulas.has("cfo-formula") ? <IconChevronDown className="h-3 w-3" /> : <IconChevronRight className="h-3 w-3" />}
+                            {expandedFormulas.has("cfo-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
                           </div>
                         </TableCell>
@@ -296,7 +298,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cfi")} style={{ cursor: 'pointer' }}>
                     <TableCell className="sticky left-0 bg-card z-10">
                       <div className="flex items-center gap-2">
-                        {expandedRows.has("cfi") ? <IconChevronDown className="h-4 w-4" /> : <IconChevronRight className="h-4 w-4" />}
+                        {expandedRows.has("cfi") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         Cash Flow from Investing (CFI)
                       </div>
                     </TableCell>
@@ -313,7 +315,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                       >
                         <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
-                            {expandedFormulas.has("cfi-formula") ? <IconChevronDown className="h-3 w-3" /> : <IconChevronRight className="h-3 w-3" />}
+                            {expandedFormulas.has("cfi-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
                           </div>
                         </TableCell>
@@ -349,7 +351,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   <TableRow className="bg-muted/20 font-bold" onClick={() => toggleRow("cff")} style={{ cursor: 'pointer' }}>
                     <TableCell className="sticky left-0 bg-card z-10">
                       <div className="flex items-center gap-2">
-                        {expandedRows.has("cff") ? <IconChevronDown className="h-4 w-4" /> : <IconChevronRight className="h-4 w-4" />}
+                        {expandedRows.has("cff") ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         Cash Flow from Financing (CFF)
                       </div>
                     </TableCell>
@@ -366,7 +368,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                       >
                         <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
-                            {expandedFormulas.has("cff-formula") ? <IconChevronDown className="h-3 w-3" /> : <IconChevronRight className="h-3 w-3" />}
+                            {expandedFormulas.has("cff-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
                           </div>
                         </TableCell>

@@ -7,8 +7,9 @@
  * The useFavoritesStore hook can be used anywhere to add/remove favorites
  * or check whether a specific item is starred.
  */
-;
-import { IconEye, create } from "@/components/icons/brand-icons";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { Star, Building2, FileText, Eye, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 export interface FavoriteItem {
@@ -71,7 +72,7 @@ export function FavoritesStar({ item, className }: { item: FavoriteItem; classNa
           : "text-background/30 hover:text-primary"
       } ${className ?? ""}`}
     >
-      <IconStar
+      <Star
         className="w-4 h-4"
         fill={favorited ? "currentColor" : "none"}
       />
@@ -80,9 +81,9 @@ export function FavoritesStar({ item, className }: { item: FavoriteItem; classNa
 }
 
 const typeIcon = {
-  property: IconBuilding,
-  page: IconFileText,
-  view: IconEye,
+  property: Building2,
+  page: FileText,
+  view: Eye,
 };
 
 function getHref(item: FavoriteItem) {
@@ -100,9 +101,9 @@ export default function FavoritesSidebar() {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors duration-200"
       >
-        <IconStar className="w-3.5 h-3.5" />
+        <Star className="w-3.5 h-3.5" />
         <span>Favorites</span>
-        <IconChevronDown
+        <ChevronDown
           className={`w-3.5 h-3.5 ml-auto transition-transform duration-200 ${
             open ? "" : "-rotate-90"
           }`}

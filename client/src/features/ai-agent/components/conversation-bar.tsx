@@ -1,5 +1,14 @@
-import { IconMic, IconMicOff, useConversation } from "@/components/icons/brand-icons";
 import * as React from "react"
+import { useConversation } from "@elevenlabs/react"
+import {
+  ArrowUpIcon,
+  ChevronDown,
+  Keyboard,
+  Mic,
+  MicOff,
+  PhoneIcon,
+  XIcon,
+} from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -285,7 +294,7 @@ export const ConversationBar = React.forwardRef<
                     className={cn(isMuted ? "bg-foreground/5" : "")}
                     disabled={!isConnected}
                   >
-                    {isMuted ? <IconMicOff /> : <IconMic />}
+                    {isMuted ? <MicOff /> : <Mic />}
                   </Button>
                   <Button
                     variant="ghost"
@@ -295,7 +304,7 @@ export const ConversationBar = React.forwardRef<
                     className="relative"
                     disabled={!isConnected}
                   >
-                    <IconEdit
+                    <Keyboard
                       className={
                         "h-5 w-5 transform-gpu transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] " +
                         (keyboardOpen
@@ -303,7 +312,7 @@ export const ConversationBar = React.forwardRef<
                           : "scale-100 opacity-100")
                       }
                     />
-                    <IconChevronDown
+                    <ChevronDown
                       className={
                         "absolute inset-0 m-auto h-5 w-5 transform-gpu transition-all delay-50 duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] " +
                         (keyboardOpen
@@ -320,9 +329,9 @@ export const ConversationBar = React.forwardRef<
                     disabled={agentState === "disconnecting" || (!signedUrl && !agentId && agentState === "disconnected")}
                   >
                     {isConnected || agentState === "connecting" ? (
-                      <IconClose className="h-5 w-5" />
+                      <XIcon className="h-5 w-5" />
                     ) : (
-                      <IconPhone className="h-5 w-5" />
+                      <PhoneIcon className="h-5 w-5" />
                     )}
                   </Button>
                 </div>

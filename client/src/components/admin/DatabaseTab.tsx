@@ -1,10 +1,3 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { CardContent, CardDescription, CardHeader, CardTitle, useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-import { Card } from "@/components/icons/brand-icons";
 /**
  * DatabaseTab.tsx — Database overview and seed data management.
  *
@@ -28,6 +21,15 @@ import { Card } from "@/components/icons/brand-icons";
  *
  * Caution: seeding is additive — it does not truncate existing data.
  */
+import { useState, useEffect, useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Loader2, RefreshCw, Upload, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { IconDatabase, IconShield } from "@/components/icons/brand-icons";
 
 export default function DatabaseTab() {
   const { toast } = useToast();
@@ -131,7 +133,7 @@ export default function DatabaseTab() {
             disabled={checkSyncStatus.isPending}
             data-testid="button-check-status"
           >
-            {checkSyncStatus.isPending ? <IconLoader className="w-4 h-4 animate-spin mr-2" /> : <IconRefresh className="w-4 h-4 mr-2" />}
+            {checkSyncStatus.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
             Check Status
           </Button>
 
@@ -224,7 +226,7 @@ export default function DatabaseTab() {
                             <TableCell className="text-right font-mono">{((prop.baseManagementFeeRate ?? 0) * 100).toFixed(1)}%</TableCell>
                             <TableCell className="text-right font-mono">{((prop.exitCapRate ?? 0) * 100).toFixed(1)}%</TableCell>
                             <TableCell className="text-center">
-                              {prop.hasResearchValues ? <IconCheckCircle className="w-4 h-4 text-green-500 mx-auto" /> : <IconXCircle className="w-4 h-4 text-red-400 mx-auto" />}
+                              {prop.hasResearchValues ? <CheckCircle2 className="w-4 h-4 text-green-500 mx-auto" /> : <XCircle className="w-4 h-4 text-red-400 mx-auto" />}
                             </TableCell>
                             <TableCell className="text-center font-mono">{prop.feeCategories?.length ?? 0}</TableCell>
                           </TableRow>
@@ -242,7 +244,7 @@ export default function DatabaseTab() {
       <Card className="bg-amber-50 border border-amber-200 shadow-sm" data-testid="card-populate-production">
         <CardHeader>
           <CardTitle className="font-display flex items-center gap-2 text-amber-900">
-            <IconUpload className="w-5 h-5 text-amber-600" /> Populate Production
+            <Upload className="w-5 h-5 text-amber-600" /> Populate Production
           </CardTitle>
           <CardDescription className="label-text text-amber-700/80">
             Push development seed values to the production database. Only fills in values that are <strong>not already set</strong> by a user — existing data is never overwritten.
@@ -256,7 +258,7 @@ export default function DatabaseTab() {
             className="bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-700"
             data-testid="button-sync-database"
           >
-            {executeSyncMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin mr-2" /> : <IconUpload className="w-4 h-4 mr-2" />}
+            {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
             Fill Missing Values
           </Button>
         </CardContent>
@@ -279,7 +281,7 @@ export default function DatabaseTab() {
             className="bg-muted border-blue-500/30 hover:bg-muted text-blue-700"
             data-testid="button-canonical-sync"
           >
-            {canonicalSyncMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin mr-2" /> : <IconShield className="w-4 h-4 mr-2" />}
+            {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconShield className="w-4 h-4 mr-2" />}
             Sync Now
           </Button>
 
@@ -337,7 +339,7 @@ export default function DatabaseTab() {
               className="bg-blue-500 hover:bg-blue-600 text-white"
               data-testid="button-confirm-canonical"
             >
-              {canonicalSyncMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin mr-2" /> : <IconShield className="w-4 h-4 mr-2" />}
+              {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconShield className="w-4 h-4 mr-2" />}
               Yes, Sync Now
             </Button>
           </DialogFooter>
@@ -348,7 +350,7 @@ export default function DatabaseTab() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <IconAlertTriangle className="w-5 h-5 text-amber-500" /> Confirm Production Fill
+              <AlertTriangle className="w-5 h-5 text-amber-500" /> Confirm Production Fill
             </DialogTitle>
             <DialogDescription>
               This will populate global assumptions, properties, fee categories, and design themes with seed values <strong>only where they are currently empty</strong>. Any values already set by users will not be changed. Users and user groups will be created if missing.
@@ -362,7 +364,7 @@ export default function DatabaseTab() {
               className="bg-amber-500 hover:bg-amber-600 text-white"
               data-testid="button-confirm-sync"
             >
-              {executeSyncMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin mr-2" /> : null}
+              {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Yes, Fill Now
             </Button>
           </DialogFooter>

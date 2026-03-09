@@ -10,8 +10,14 @@
  *   • Navigation links — dynamically filtered by the user's role
  *   • User card at the bottom showing name, role, and a logout button.
  */
-
-import { IconAnalysis, IconBot, IconBriefcase, IconExecutive, IconHelp, IconLink, IconLogOut, IconMapPin, IconMenu, IconProfile, IconProperties, IconPropertyFinder, IconResearch, IconScenarios, IconSearch, IconSettings, IconShield, IconX, useLocation } from "@/components/icons/brand-icons";
+import { Link, useLocation } from "wouter";
+import { cn } from "@/lib/utils";
+import { Menu, X, LogOut, Search } from "lucide-react";
+import {
+  IconDashboard, IconProperties, IconBriefcase, IconSettings,
+  IconShield, IconProfile, IconScenarios, IconPropertyFinder,
+  IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch, IconBot,
+} from "@/components/icons/brand-icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -161,10 +167,10 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                           active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         )}
                       >
-                        <IconLink href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                        <Link href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
                           <item.icon className="w-4 h-4" />
                           <span>{item.label}</span>
-                        </IconLink>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
@@ -183,7 +189,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
               className="h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               data-testid="button-logout"
             >
-              <IconLogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4" />
               <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -219,7 +225,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           <header className="h-12 shrink-0 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-10">
             <div className="flex items-center gap-2 min-w-0">
               <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                {sidebarOpen ? <IconX className="w-4 h-4" /> : <IconMenu className="w-4 h-4" />}
+                {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
               </Button>
               <Breadcrumbs />
             </div>
@@ -232,7 +238,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground hover:text-muted-foreground text-xs transition-colors border border-border"
                 data-testid="button-search"
               >
-                <IconSearch className="w-3.5 h-3.5" />
+                <Search className="w-3.5 h-3.5" />
                 <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
               </button>
               <NotificationCenter />
@@ -264,7 +270,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                     (item.href === "/portfolio" && location.startsWith("/property/")) ||
                     (item.href !== "/" && location.startsWith(item.href + "/"));
                   return (
-                    <IconLink key={item.href} href={item.href}>
+                    <Link key={item.href} href={item.href}>
                       <button className="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[3.5rem]" data-testid={`bottom-nav-${item.label.toLowerCase()}`}>
                         <div className={cn(
                           "w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200",
@@ -274,7 +280,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                         </div>
                         <span className={cn("text-[10px] leading-tight", isActive ? "text-foreground font-medium" : "text-muted-foreground")}>{item.label}</span>
                       </button>
-                    </IconLink>
+                    </Link>
                   );
                 })}
               </div>

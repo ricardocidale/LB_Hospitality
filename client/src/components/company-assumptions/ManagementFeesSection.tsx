@@ -13,8 +13,7 @@
  * fee structure across all managed properties, useful for ensuring
  * consistency and spotting outliers.
  */
-
-import { IconLink } from "@/components/icons/brand-icons";
+import { Link } from "wouter";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { formatPercent } from "@/lib/financialEngine";
 import {
@@ -66,7 +65,7 @@ export default function ManagementFeesSection({ formData, onChange, global, prop
                       return (
                         <tr key={prop.id} className="border-b border-primary/10 last:border-b-0 hover:bg-primary/5">
                           <td className="px-4 py-2 text-foreground whitespace-nowrap">
-                            <IconLink href={`/property/${prop.id}/edit`} className="text-primary hover:underline">{prop.name}</IconLink>
+                            <Link href={`/property/${prop.id}/edit`} className="text-primary hover:underline">{prop.name}</Link>
                           </td>
                           {hasCategoryData ? (
                             <>

@@ -7,10 +7,9 @@
  * screen. Used at the top level of the app and around critical sections
  * like financial calculations that depend on user-supplied data.
  */
-import { Button } from "@/components/ui/button";
-import { IconAlertTriangle, IconRefresh } from "@/components/icons/brand-icons";
 import React from "react";
-;
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -42,13 +41,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="max-w-md mx-auto p-8 text-center">
-            <IconAlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+            <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-foreground mb-2">Something went wrong</h2>
             <p className="text-muted-foreground mb-4 text-sm">
               {this.state.error?.message || "An unexpected error occurred."}
             </p>
             <Button onClick={() => window.location.reload()}>
-              <IconRefresh className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4" />
               Reload page
             </Button>
           </div>
@@ -78,7 +77,7 @@ export class FinancialErrorBoundary extends React.Component<ErrorBoundaryProps, 
       if (this.props.fallback) return this.props.fallback;
       return (
         <div className="w-full p-8 text-center">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+          <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
           <h3 className="text-lg font-semibold text-foreground mb-2">Calculation Error</h3>
           <p className="text-muted-foreground text-sm mb-4">
             A financial calculation failed. This may be caused by invalid property or assumption data.
@@ -87,7 +86,7 @@ export class FinancialErrorBoundary extends React.Component<ErrorBoundaryProps, 
             {this.state.error?.message}
           </p>
           <Button onClick={() => this.setState({ hasError: false, error: null })}>
-            <IconRefresh className="w-4 h-4" />
+            <RefreshCw className="w-4 h-4" />
             Retry
           </Button>
         </div>

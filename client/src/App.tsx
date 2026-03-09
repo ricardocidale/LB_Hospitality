@@ -19,12 +19,18 @@
  *   • Several legacy routes (e.g. /sensitivity, /financing, /map) redirect to their
  *     new consolidated locations.
  */
-;
+import { Switch, Route, Redirect } from "wouter";
+import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Switch } from "@/components/ui/switch";
-import { useEffect, useState } from "react";
+import { AuthProvider, useAuth } from "@/lib/auth";
+import { lazy, Suspense, useState, useEffect, useCallback } from "react";
 import {
-  ErrorBoundary } from "@/components/icons/brand-icons";
+  ErrorBoundary,
+  FinancialErrorBoundary,
+} from "@/components/ErrorBoundary";
+import { Loader2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/Login";
 import { ResearchRefreshOverlay } from "@/components/ResearchRefreshOverlay";
@@ -57,7 +63,7 @@ const VoiceLab = lazy(() => import("@/pages/VoiceLab"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
-    <IconLoader className="w-8 h-8 animate-spin text-primary" />
+    <Loader2 className="w-8 h-8 animate-spin text-primary" />
   </div>
 );
 
@@ -169,7 +175,7 @@ function Router() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <IconLoader className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }

@@ -1,7 +1,12 @@
-;
-import { DEFAULT_COMMISSION_RATE, DEFAULT_EXIT_CAP_RATE, DEFAULT_INFLATION_RATE, useCallback, useMemo, useState } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import Layout from "@/components/Layout";
-import { useProperties } from "@/components/icons/brand-icons";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
+import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
+import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAULT_INFLATION_RATE } from "@/lib/constants";
+import { computeIRR } from "@analytics/returns/irr.js";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
+import { Loader2, Sliders } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { AnimatedPage, ScrollReveal, InsightPanel, type Insight } from "@/components/graphics";
 import { VariableSlidersPanel, TornadoChartPanel, SensitivityComparisonTable, type SensitivityVariable, type ScenarioResult, type TornadoItem } from "@/components/sensitivity";
@@ -375,7 +380,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     return (
       <Wrapper>
         <div className="min-h-screen flex items-center justify-center">
-          <IconLoader className="w-8 h-8 animate-spin text-primary" data-testid="loading-spinner" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" data-testid="loading-spinner" />
         </div>
       </Wrapper>
     );
@@ -463,7 +468,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
           <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <IconSliders className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              <Sliders className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <h3 className="text-sm font-semibold text-foreground mb-1">What is Sensitivity Analysis?</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">

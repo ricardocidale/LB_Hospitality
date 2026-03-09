@@ -15,8 +15,15 @@
  *
  * Data flows: GET/POST/PATCH/DELETE /api/admin/companies
  */
-
-import { CardContent, CardDescription, CardHeader, CardTitle, IconBuilding, IconFileText, IconImage, IconLoader, IconPalette, IconPencil, IconPlus, IconSave, IconTrash } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Loader2, Plus, Trash2, Pencil, Building2, Save, Image, FileText, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { User, Logo, AdminCompany } from "./types";
 
@@ -119,7 +126,7 @@ export default function CompaniesTab() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconBuilding className="w-4 h-4 text-muted-foreground" /> Companies of Interest</CardTitle>
+              <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" /> Companies of Interest</CardTitle>
               <CardDescription className="label-text">Manage companies relevant to the business simulation.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => {
@@ -127,14 +134,14 @@ export default function CompaniesTab() {
               setCompanyForm({ name: "", type: "spv", description: "", logoId: null, themeId: null });
               setCompanyDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-company">
-              <IconPlus className="w-4 h-4" /> New Company
+              <Plus className="w-4 h-4" /> New Company
             </Button>
           </div>
         </CardHeader>
         <CardContent className="relative space-y-4">
           {companiesOfInterest.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <IconBuilding className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <Building2 className="w-10 h-10 mx-auto mb-2 opacity-40" />
               <p>No companies of interest created yet.</p>
               <p className="text-sm">Add companies relevant to the business simulation.</p>
             </div>
@@ -154,7 +161,7 @@ export default function CompaniesTab() {
                           </div>
                         ) : (
                           <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
-                            <IconBuilding className="w-4 h-4 text-muted-foreground" />
+                            <Building2 className="w-4 h-4 text-muted-foreground" />
                           </div>
                         )}
                         <div>
@@ -169,14 +176,14 @@ export default function CompaniesTab() {
                           setCompanyForm({ name: company.name, type: company.type, description: company.description || "", logoId: company.logoId, themeId: company.themeId });
                           setCompanyDialogOpen(true);
                         }} className="text-muted-foreground hover:text-foreground hover:bg-muted" data-testid={`button-edit-company-${company.id}`}>
-                          <IconPencil className="w-4 h-4" />
+                          <Pencil className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => {
                           if (confirm(`Delete "${company.name}"? Users assigned to this company will be unassigned.`)) {
                             deleteCompanyMutation.mutate(company.id);
                           }
                         }} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-company-${company.id}`}>
-                          <IconTrash className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -186,7 +193,7 @@ export default function CompaniesTab() {
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-3">
                       {companyLogo && <span className="bg-muted px-2 py-0.5 rounded">Logo: {companyLogo.name}</span>}
                       <span className="bg-muted px-2 py-0.5 rounded flex items-center gap-1">
-                        <IconPalette className="w-3 h-3" />
+                        <Palette className="w-3 h-3" />
                         Theme: {companyTheme ? companyTheme.name : <span className="italic">None</span>}
                       </span>
                       <span className="bg-muted px-2 py-0.5 rounded">{companyUsers.length} member{companyUsers.length !== 1 ? "s" : ""}</span>
@@ -217,11 +224,11 @@ export default function CompaniesTab() {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><IconBuilding className="w-4 h-4 text-muted-foreground" />Company Name</Label>
+            <Label className="flex items-center gap-2"><Building2 className="w-4 h-4 text-muted-foreground" />Company Name</Label>
             <Input value={companyForm.name} onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })} placeholder="e.g., Norfolk Group" data-testid="input-company-form-name" />
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><IconImage className="w-4 h-4 text-muted-foreground" />Logo</Label>
+            <Label className="flex items-center gap-2"><Image className="w-4 h-4 text-muted-foreground" />Logo</Label>
             <Select value={companyForm.logoId != null ? String(companyForm.logoId) : "none"} onValueChange={(v) => setCompanyForm({ ...companyForm, logoId: v === "none" ? null : parseInt(v) })} data-testid="select-company-logo">
               <SelectTrigger data-testid="trigger-company-logo"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -238,7 +245,7 @@ export default function CompaniesTab() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><IconPalette className="w-4 h-4 text-muted-foreground" />Theme</Label>
+            <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-muted-foreground" />Theme</Label>
             <Select value={companyForm.themeId != null ? String(companyForm.themeId) : "none"} onValueChange={(v) => setCompanyForm({ ...companyForm, themeId: v === "none" ? null : parseInt(v) })} data-testid="select-company-theme">
               <SelectTrigger data-testid="trigger-company-theme"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -252,7 +259,7 @@ export default function CompaniesTab() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><IconFileText className="w-4 h-4 text-muted-foreground" />Description</Label>
+            <Label className="flex items-center gap-2"><FileText className="w-4 h-4 text-muted-foreground" />Description</Label>
             <Input value={companyForm.description} onChange={(e) => setCompanyForm({ ...companyForm, description: e.target.value })} placeholder="Optional description" data-testid="input-company-form-description" />
           </div>
         </div>
@@ -266,7 +273,7 @@ export default function CompaniesTab() {
               createCompanyMutation.mutate(payload);
             }
           }} disabled={!companyForm.name || createCompanyMutation.isPending || updateCompanyMutation.isPending} data-testid="button-save-company" className="flex items-center gap-2">
-            {(createCompanyMutation.isPending || updateCompanyMutation.isPending) ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+            {(createCompanyMutation.isPending || updateCompanyMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {editingCompany ? "Save" : "Create"}
           </Button>
         </DialogFooter>

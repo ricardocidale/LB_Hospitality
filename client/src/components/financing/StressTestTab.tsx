@@ -1,5 +1,7 @@
-;
-import { IconAlertTriangle, IconCheckCircle, useCallback, useState } from "@/components/icons/brand-icons";
+import { useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
+import { Loader2, BarChart3, AlertTriangle, CheckCircle } from "lucide-react";
 import { InsightPanel } from "@/components/graphics";
 import { InputField, formatRatio } from "./InputField";
 
@@ -67,7 +69,7 @@ export function StressTestTab() {
         variant="default"
         data-testid="button-sens-calculate"
       >
-        {loading ? <IconLoader className="w-4 h-4 animate-spin mr-2 inline" /> : <BarChart3 className="w-4 h-4 mr-2 inline" />}
+        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <BarChart3 className="w-4 h-4 mr-2 inline" />}
         Run Stress Test
       </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -82,7 +84,7 @@ export function StressTestTab() {
               value={`${result.failing_scenarios} / ${result.total_scenarios}`}
               format="text"
               variant={result.failing_scenarios > 0 ? undefined : "sage"}
-              icon={result.failing_scenarios > 0 ? <IconAlertTriangle className="w-4 h-4" /> : <IconCheckCircle className="w-4 h-4" />}
+              icon={result.failing_scenarios > 0 ? <AlertTriangle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
               data-testid="stat-sens-failing"
             />
           </div>

@@ -1,8 +1,17 @@
 "use client"
 
-import { useContext, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  type ComponentPropsWithoutRef,
+  type ComponentPropsWithRef,
+  type HTMLAttributes,
+  type ReactNode,
+} from "react"
 import type { CharacterAlignmentResponseModel } from "@elevenlabs/elevenlabs-js/api/types/CharacterAlignmentResponseModel"
-import { IconPause, createContext, IconPlay, type ComponentPropsWithoutRef, type ComponentPropsWithRef, type HTMLAttributes, type ReactNode } from "@/components/icons/brand-icons";
+import { Pause, Play } from "lucide-react"
+
 import { cn } from "@/lib/utils"
 import {
   useTranscriptViewer,
@@ -310,7 +319,7 @@ function TranscriptViewerPlayPauseButton({
   ...props
 }: TranscriptViewerPlayPauseButtonProps) {
   const { isPlaying, play, pause } = useTranscriptViewerContext()
-  const Icon = isPlaying ? IconPause : IconPlay
+  const Icon = isPlaying ? Pause : Play
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (isPlaying) pause()
@@ -329,7 +338,7 @@ function TranscriptViewerPlayPauseButton({
       type="button"
       variant="outline"
       size="icon"
-      aria-label={isPlaying ? "IconPause audio" : "IconPlay audio"}
+      aria-label={isPlaying ? "Pause audio" : "Play audio"}
       data-playing={isPlaying}
       className={cn("cursor-pointer", className)}
       onClick={handleClick}

@@ -5,10 +5,29 @@
  * management company, and global industry research. Each card shows whether
  * research is fresh, stale, or missing, with links to view or generate.
  */
-
-import { IconAlertCircle, IconArrowRight, IconBookOpen, IconBuilding, IconCheck, IconClock, IconExternalLink, IconGlobe, IconLink, IconLoader, IconRefresh, IconSettingsGear, PageHeader, useCallback } from "@/components/icons/brand-icons";
 import Layout from "@/components/Layout";
-
+import { PageHeader } from "@/components/ui/page-header";
+import { useResearchStatus } from "@/lib/api/research";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { useState, useCallback, useRef } from "react";
+import {
+  FlaskConical,
+  Building2,
+  Briefcase,
+  Globe,
+  RefreshCw,
+  Check,
+  Clock,
+  AlertCircle,
+  ExternalLink,
+  Loader2,
+  BookOpen,
+  Settings2,
+  ArrowRight,
+} from "lucide-react";
+import { Link } from "wouter";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 
@@ -17,17 +36,17 @@ function StatusBadge({ status }: { status: "fresh" | "stale" | "missing" }) {
     fresh: {
       label: "Fresh",
       className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      icon: IconCheck,
+      icon: Check,
     },
     stale: {
       label: "Stale",
       className: "bg-amber-50 text-amber-700 border-amber-200",
-      icon: IconClock,
+      icon: Clock,
     },
     missing: {
       label: "Missing",
       className: "bg-muted text-muted-foreground border-border",
-      icon: IconAlertCircle,
+      icon: AlertCircle,
     },
   };
   const c = config[status];
@@ -157,7 +176,7 @@ export default function ResearchHub() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <IconLoader className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -167,7 +186,7 @@ export default function ResearchHub() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <IconAlertCircle className="w-8 h-8 text-destructive" />
+          <AlertCircle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">
             Failed to load research status. Please try refreshing the page.
           </p>
@@ -199,9 +218,9 @@ export default function ResearchHub() {
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary border border-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isGeneratingAll ? (
-                  <IconLoader className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <IconRefresh className="w-4 h-4" />
+                  <RefreshCw className="w-4 h-4" />
                 )}
                 {isGeneratingAll
                   ? `Generating ${currentGenIndex} of ${totalToGenerate}...`
@@ -236,7 +255,7 @@ export default function ResearchHub() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center">
-                  <IconBuilding className="w-5 h-5 text-blue-600" />
+                  <Building2 className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">
@@ -269,7 +288,7 @@ export default function ResearchHub() {
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               View Properties
-              <IconArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </motion.div>
 
@@ -284,7 +303,7 @@ export default function ResearchHub() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center">
-                  <IconBriefcase className="w-5 h-5 text-purple-600" />
+                  <Briefcase className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">
@@ -304,13 +323,13 @@ export default function ResearchHub() {
                 : "Not generated"}
             </p>
 
-            <IconLink
+            <Link
               href="/company/research"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               View Research
-              <IconExternalLink className="w-3.5 h-3.5" />
-            </IconLink>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
           </motion.div>
 
           {/* Global Research Card */}
@@ -324,7 +343,7 @@ export default function ResearchHub() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                  <IconGlobe className="w-5 h-5 text-emerald-600" />
+                  <Globe className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">
@@ -344,13 +363,13 @@ export default function ResearchHub() {
                 : "Not generated"}
             </p>
 
-            <IconLink
+            <Link
               href="/global/research"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               View Research
-              <IconExternalLink className="w-3.5 h-3.5" />
-            </IconLink>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
           </motion.div>
         </div>
 
@@ -374,7 +393,7 @@ export default function ResearchHub() {
               className="bg-card border border-border rounded-lg p-12 shadow-sm flex flex-col items-center text-center"
             >
               <div className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4">
-                <IconBuilding className="w-7 h-7 text-muted-foreground" />
+                <Building2 className="w-7 h-7 text-muted-foreground" />
               </div>
               <h4 className="font-display font-semibold text-foreground mb-1">
                 No properties in your portfolio yet
@@ -382,13 +401,13 @@ export default function ResearchHub() {
               <p className="text-sm text-muted-foreground max-w-sm">
                 Add properties to your portfolio to generate AI-powered market research and competitive analysis.
               </p>
-              <IconLink
+              <Link
                 href="/portfolio"
                 className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
               >
                 Go to Portfolio
-                <IconArrowRight className="w-3.5 h-3.5" />
-              </IconLink>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -412,7 +431,7 @@ export default function ResearchHub() {
                     </div>
                   ) : (
                     <div className="h-32 w-full bg-muted flex items-center justify-center">
-                      <IconBuilding className="w-10 h-10 text-muted-foreground" />
+                      <Building2 className="w-10 h-10 text-muted-foreground" />
                     </div>
                   )}
 
@@ -437,13 +456,13 @@ export default function ResearchHub() {
                         : "Not generated"}
                     </p>
 
-                    <IconLink
+                    <Link
                       href={`/property/${prop.propertyId}/research`}
                       className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
                       View Research
-                      <IconExternalLink className="w-3.5 h-3.5" />
-                    </IconLink>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
                 </motion.div>
               ))}
@@ -451,16 +470,16 @@ export default function ResearchHub() {
           )}
         </div>
 
-        {/* Configuration IconLink */}
+        {/* Configuration Link */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          <IconLink href="/settings">
+          <Link href="/settings">
             <div className="bg-card border border-border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:bg-muted hover:shadow-md transition-all duration-300 cursor-pointer group">
               <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-                <IconSettingsGear className="w-4.5 h-4.5 text-primary" />
+                <Settings2 className="w-4.5 h-4.5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-semibold text-foreground">
@@ -470,9 +489,9 @@ export default function ResearchHub() {
                   Configure focus areas, target regions, and custom research questions
                 </p>
               </div>
-              <IconArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
+              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
             </div>
-          </IconLink>
+          </Link>
         </motion.div>
       </div>
     </Layout>

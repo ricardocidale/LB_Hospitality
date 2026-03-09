@@ -21,7 +21,7 @@ import NavigationTab from "@/components/admin/NavigationTab";
 import TwilioTab from "@/components/admin/TwilioTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { IconAlertTriangle } from "@/components/icons/brand-icons";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
@@ -61,7 +61,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "marcela":          return (
       <ErrorBoundary fallback={
         <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+          <AlertTriangle className="w-10 h-10 text-amber-500" />
           <div>
             <p className="font-semibold text-foreground">AI Agent configuration failed to load</p>
             <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
@@ -75,7 +75,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "kb":               return (
       <ErrorBoundary fallback={
         <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+          <AlertTriangle className="w-10 h-10 text-amber-500" />
           <div>
             <p className="font-semibold text-foreground">Knowledge Base failed to load</p>
             <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
@@ -89,7 +89,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "twilio":           return (
       <ErrorBoundary fallback={
         <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+          <AlertTriangle className="w-10 h-10 text-amber-500" />
           <div>
             <p className="font-semibold text-foreground">Twilio configuration failed to load</p>
             <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>

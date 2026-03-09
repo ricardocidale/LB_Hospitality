@@ -1,4 +1,3 @@
-import { IconArrowDown, IconArrowUp, IconArrowUpDown, IconCalendar, IconEye, IconEyeOff, IconKey, IconLoader, IconMail, IconPencil, IconPeople, IconProperties, IconSave, IconSettingsGear, IconShield, IconTrash, IconUserCog, IconUserPlus } from "@/components/icons/brand-icons";
 /**
  * UsersTab.tsx — User management panel for platform administrators.
  *
@@ -18,7 +17,7 @@ import { IconArrowDown, IconArrowUp, IconArrowUpDown, IconCalendar, IconEye, Ico
  * User data is fetched via TanStack Query from GET /api/admin/users
  * and mutations go to POST/PATCH/DELETE /api/admin/users.
  */
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,19 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-
+import { Loader2, Eye, EyeOff, Calendar, Save, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { 
+  IconPeople, 
+  IconTrash, 
+  IconKey, 
+  IconPencil, 
+  IconUserPlus, 
+  IconShield, 
+  IconMail, 
+  IconUserCog, 
+  IconSettingsGear, 
+  IconProperties 
+} from "@/components/icons/brand-icons";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -125,8 +136,8 @@ export default function UsersTab() {
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return <IconArrowUpDown className="w-3.5 h-3.5 opacity-40" />;
-    return sortDir === "asc" ? <IconArrowUp className="w-3.5 h-3.5" /> : <IconArrowDown className="w-3.5 h-3.5" />;
+    if (sortField !== field) return <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />;
+    return sortDir === "asc" ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />;
   };
 
   const sortedUsers = useMemo(() => {
@@ -283,7 +294,7 @@ export default function UsersTab() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => { if (confirm("Reset ALL user passwords to the default admin password?")) resetAllPasswordsMutation.mutate(); }} disabled={resetAllPasswordsMutation.isPending} data-testid="button-reset-all-passwords">
-              {resetAllPasswordsMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
+              {resetAllPasswordsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
               Reset All Passwords
             </Button>
             <Button variant="default" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
@@ -297,7 +308,7 @@ export default function UsersTab() {
       <CardContent className="relative">
         {usersLoading ? (
           <div className="flex items-center justify-center py-12">
-            <IconLoader className="w-8 h-8 animate-spin text-muted-foreground" />
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
           <Table>
@@ -316,7 +327,7 @@ export default function UsersTab() {
                   ? (arr[idx - 1].userGroupId ? groupNameMap[arr[idx - 1].userGroupId!] || "Unknown Group" : "No Group")
                   : null;
                 const showGroupHeader = sortField === "group" && currentGroup !== prevGroup;
-                return (<React.Fragment key={user.id}>
+                return (<>
                 {showGroupHeader && (
                   <TableRow key={`group-header-${currentGroup}-${idx}`} className="border-border bg-transparent hover:bg-transparent">
                     <TableCell colSpan={4} className="py-1.5 px-4">
@@ -375,7 +386,7 @@ export default function UsersTab() {
                     </div>
                   </TableCell>
                 </TableRow>
-              </React.Fragment>)})}
+              </>)})}
             </TableBody>
           </Table>
         )}
@@ -398,7 +409,7 @@ export default function UsersTab() {
             <div className="relative">
               <Input type={showNewUserPassword ? "text" : "password"} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Secure password" data-testid="input-new-user-password" />
               <button type="button" onClick={() => setShowNewUserPassword(!showNewUserPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-new-password">
-                {showNewUserPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                {showNewUserPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -439,9 +450,9 @@ export default function UsersTab() {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setDialogOpen(false)} data-testid="button-cancel-add-user">Cancel</Button>
-          <Button onClick={() => createMutation.mutate(newUser)} disabled={createMutation.isPending || !newUser.email || !newUser.password} data-testid="button-create-user" className="flex items-center gap-2">
-            {createMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-            Save User
+          <Button variant="outline" onClick={() => createMutation.mutate(newUser)} disabled={createMutation.isPending || !newUser.email || !newUser.password} data-testid="button-create-user" className="flex items-center gap-2">
+            {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -457,17 +468,17 @@ export default function UsersTab() {
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />New Password</Label>
             <div className="relative">
-              <Input type={showChangePassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" data-testid="input-change-user-password" />
+              <Input type={showChangePassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" data-testid="input-new-password" />
               <button type="button" onClick={() => setShowChangePassword(!showChangePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-change-password">
-                {showChangePassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                {showChangePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setPasswordDialogOpen(false)} data-testid="button-cancel-password">Cancel</Button>
-          <Button onClick={() => passwordMutation.mutate({ id: selectedUser!.id, password: newPassword })} disabled={passwordMutation.isPending || !newPassword} data-testid="button-save-password" className="flex items-center gap-2">
-            {passwordMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+          <Button variant="outline" onClick={() => selectedUser && passwordMutation.mutate({ id: selectedUser.id, password: newPassword })} disabled={passwordMutation.isPending || !newPassword} data-testid="button-update-password" className="flex items-center gap-2">
+            {passwordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
             Update Password
           </Button>
         </DialogFooter>
@@ -478,21 +489,24 @@ export default function UsersTab() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-display">Edit User</DialogTitle>
-          <DialogDescription className="label-text">Update information for {selectedUser?.email}</DialogDescription>
+          <DialogDescription className="label-text">Update user information</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2"><IconMail className="w-4 h-4 text-muted-foreground" />Email</Label>
-            <Input value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} placeholder="user@example.com" data-testid="input-edit-user-email" />
-          </div>
+          {selectedUser?.createdAt && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+              <Calendar className="w-3.5 h-3.5" />
+              Created {formatDateTime(selectedUser.createdAt)}
+            </div>
+          )}
+          <div className="space-y-2"><Label className="flex items-center gap-2"><IconMail className="w-4 h-4 text-muted-foreground" />Email</Label><Input value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} data-testid="input-edit-email" /></div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2"><Label className="flex items-center gap-2"><IconPeople className="w-4 h-4 text-muted-foreground" />First Name</Label><Input value={editUser.firstName} onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })} placeholder="First name" data-testid="input-edit-user-firstName" /></div>
-            <div className="space-y-2"><Label>Last Name</Label><Input value={editUser.lastName} onChange={(e) => setEditUser({ ...editUser, lastName: e.target.value })} placeholder="Last name" data-testid="input-edit-user-lastName" /></div>
+            <div className="space-y-2"><Label className="flex items-center gap-2"><IconPeople className="w-4 h-4 text-muted-foreground" />First Name</Label><Input value={editUser.firstName} onChange={(e) => setEditUser({ ...editUser, firstName: e.target.value })} data-testid="input-edit-firstName" /></div>
+            <div className="space-y-2"><Label>Last Name</Label><Input value={editUser.lastName} onChange={(e) => setEditUser({ ...editUser, lastName: e.target.value })} data-testid="input-edit-lastName" /></div>
           </div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Company</Label>
-            <Select value={editUser.companyId != null ? String(editUser.companyId) : "none"} onValueChange={(v) => setEditUser({ ...editUser, companyId: v === "none" ? null : parseInt(v) })} data-testid="select-edit-user-company">
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select value={editUser.companyId != null ? String(editUser.companyId) : "none"} onValueChange={(v) => setEditUser({ ...editUser, companyId: v === "none" ? null : parseInt(v) })} data-testid="select-edit-company">
+              <SelectTrigger data-testid="select-edit-company"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">No Company</SelectItem>
                 {companiesList?.filter(c => c.isActive).map(c => (
@@ -506,11 +520,11 @@ export default function UsersTab() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2"><Label className="flex items-center gap-2"><IconShield className="w-4 h-4 text-muted-foreground" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} placeholder="Job title" data-testid="input-edit-user-title" /></div>
+          <div className="space-y-2"><Label className="flex items-center gap-2"><IconShield className="w-4 h-4 text-muted-foreground" />Title</Label><Input value={editUser.title} onChange={(e) => setEditUser({ ...editUser, title: e.target.value })} data-testid="input-edit-title" /></div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><IconShield className="w-4 h-4 text-muted-foreground" />Role</Label>
             <Select value={editUser.role} onValueChange={(v) => setEditUser({ ...editUser, role: v })} data-testid="select-edit-user-role">
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger data-testid="select-edit-user-role"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="partner">Partner</SelectItem>
                 <SelectItem value="investor">Investor</SelectItem>
@@ -519,12 +533,40 @@ export default function UsersTab() {
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />Password</Label>
+            <div className="relative">
+              <Input type={showEditPassword ? "text" : "password"} value={editUser.password} onChange={(e) => setEditUser({ ...editUser, password: e.target.value })} placeholder="Leave blank to keep current" data-testid="input-edit-password" />
+              <button type="button" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-edit-password">
+                {showEditPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">Leave blank to keep the current password unchanged</p>
+          </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit-user">Cancel</Button>
-          <Button onClick={() => editMutation.mutate({ id: selectedUser!.id, data: { email: editUser.email !== originalEmail ? editUser.email : undefined, firstName: editUser.firstName, lastName: editUser.lastName, companyId: editUser.companyId, title: editUser.title, role: editUser.role } })} disabled={editMutation.isPending || !editUser.email} data-testid="button-save-edit-user" className="flex items-center gap-2">
-            {editMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-            Save Changes
+          <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
+          <Button variant="outline" onClick={() => {
+            if (!selectedUser) return;
+            const data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string } = {
+              firstName: editUser.firstName,
+              lastName: editUser.lastName,
+              companyId: editUser.companyId,
+              title: editUser.title,
+            };
+            if (editUser.email !== originalEmail) {
+              data.email = editUser.email;
+            }
+            if (editUser.role !== selectedUser.role) {
+              data.role = editUser.role;
+            }
+            if (editUser.password) {
+              passwordMutation.mutate({ id: selectedUser.id, password: editUser.password });
+            }
+            editMutation.mutate({ id: selectedUser.id, data });
+          }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">
+            {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -16,8 +16,11 @@
  *
  * Settings are persisted server-side at GET/PATCH /api/admin/navigation.
  */
-
-import { CardContent, CardDescription, CardHeader, CardTitle, IconSettingsGear } from "@/components/icons/brand-icons";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { IconSettingsGear } from "@/components/icons/brand-icons";
 import { invalidateAllFinancialQueries } from "@/lib/api";
 
 export default function NavigationTab() {

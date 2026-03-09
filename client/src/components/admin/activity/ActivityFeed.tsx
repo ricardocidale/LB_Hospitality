@@ -1,10 +1,9 @@
-import { ActivityLogEntry } from "../types";
+import { User, ActivityLogEntry } from "../types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem } from "@/components/ui/select";
-import { Table, SelectTrigger, SelectValue, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { IconLoader, User } from "@/components/icons/brand-icons";
-;
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Loader2 } from "lucide-react";
 
 interface ActivityFeedProps {
   users?: User[];
@@ -68,7 +67,7 @@ export function ActivityFeed({
         <CardContent className="p-6">
           {activityLogsLoading ? (
             <div className="flex items-center justify-center py-12">
-              <IconLoader className="w-6 h-6 animate-spin text-muted-foreground" />
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : !activityLogs?.length ? (
             <p className="text-muted-foreground text-center py-12 label-text">No activity recorded yet</p>

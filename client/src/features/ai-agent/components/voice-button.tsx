@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { IconCheck, IconClose } from "@/components/icons/brand-icons"
+import { CheckIcon, XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -217,7 +217,7 @@ export const VoiceButton = React.forwardRef<
           {isSuccess && showFeedback && (
             <div className="animate-in fade-in bg-background/80 absolute inset-0 flex items-center justify-center duration-300">
               <span className="text-primary text-[10px] font-medium">
-                <IconCheck className="size-3.5" />
+                <CheckIcon className="size-3.5" />
               </span>
             </div>
           )}
@@ -226,7 +226,7 @@ export const VoiceButton = React.forwardRef<
           {isError && showFeedback && (
             <div className="animate-in fade-in bg-background/80 absolute inset-0 flex items-center justify-center duration-300">
               <span className="text-destructive text-[10px] font-medium">
-                <IconClose className="size-3.5" />
+                <XIcon className="size-3.5" />
               </span>
             </div>
           )}

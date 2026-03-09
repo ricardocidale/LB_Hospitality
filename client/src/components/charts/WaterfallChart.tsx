@@ -11,9 +11,16 @@
  *   - Cash flow waterfall (operating CF + financing CF = ending cash)
  *   - Equity investment -> annual returns -> exit proceeds
  */
-import { IconBarChart } from "@/components/icons/brand-icons";
 import React from "react";
-import { Bar, XAxis, YAxis, Cell, ReferenceLine, LabelList } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Cell,
+  ReferenceLine,
+  LabelList,
+} from "recharts";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
 
 interface WaterfallStep {
@@ -94,7 +101,7 @@ export default function WaterfallChart({ steps, title, formatValue }: WaterfallC
     <div data-testid="waterfall-chart" className="bg-card rounded-xl border border-border shadow-sm p-6">
       {title && <h3 className="text-lg font-semibold mb-4">{title}</h3>}
       <ChartContainer config={waterfallConfig} className="h-[350px] w-full">
-        <IconBarChart
+        <BarChart
           accessibilityLayer
           data={data}
           margin={{ top: 20, right: 10, left: 10, bottom: 40 }}
@@ -137,7 +144,7 @@ export default function WaterfallChart({ steps, title, formatValue }: WaterfallC
               formatter={(v: number) => fmt(v)}
             />
           </Bar>
-        </IconBarChart>
+        </BarChart>
       </ChartContainer>
     </div>
   );

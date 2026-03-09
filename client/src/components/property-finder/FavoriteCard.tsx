@@ -10,10 +10,14 @@
  *
  * Favorites bridge the gap between AI-generated research and the portfolio:
  * users can browse search results asynchronously, curate a shortlist, and
- * only 
-import { IconBed, IconExternalLink, IconLoader, IconSave, IconTrash, IconX, formatMoney } from "@/components/icons/brand-icons";
-import the most promising targets for full financial modeling.
+ * only import the most promising targets for full financial modeling.
  */
+import { formatMoney } from "@/lib/financialEngine";
+import type { SavedProspectiveProperty } from "@/lib/api";
+import {
+  ExternalLink, Bed, Bath, Ruler, Trees,
+  MapPin, Loader2, StickyNote, X, Save, Trash2,
+} from "lucide-react";
 
 function PropertyTypeLabel(type: string | null): string {
   if (!type) return "";
@@ -58,7 +62,7 @@ export function FavoriteCard({
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-start gap-2">
-            <IconMapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="text-foreground font-medium text-sm leading-snug">{property.address}</span>
           </div>
           <button
@@ -69,9 +73,9 @@ export function FavoriteCard({
             data-testid={`btn-remove-saved-${property.id}`}
           >
             {isRemoving ? (
-              <IconLoader className="w-4 h-4 text-muted-foreground animate-spin" />
+              <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
             ) : (
-              <IconTrash className="w-4 h-4 text-destructive/70 hover:text-destructive" />
+              <Trash2 className="w-4 h-4 text-destructive/70 hover:text-destructive" />
             )}
           </button>
         </div>
@@ -82,7 +86,7 @@ export function FavoriteCard({
 
         <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
           <div className="flex items-center gap-1.5">
-            <IconBed className="w-3.5 h-3.5 text-primary" />
+            <Bed className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-foreground">{property.beds ?? "—"} beds</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
@@ -116,7 +120,7 @@ export function FavoriteCard({
               className="text-xs text-primary hover:text-secondary flex items-center gap-1"
               data-testid={`link-saved-listing-${property.id}`}
             >
-              View Listing <IconExternalLink className="w-3 h-3" />
+              View Listing <ExternalLink className="w-3 h-3" />
             </a>
           )}
         </div>
@@ -140,13 +144,13 @@ export function FavoriteCard({
                 className="p-1.5 rounded-lg hover:bg-primary/10 text-primary"
                 data-testid={`btn-save-notes-${property.id}`}
               >
-                <IconSave className="w-3.5 h-3.5" />
+                <Save className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={onCancelEditing}
                 className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
               >
-                <IconX className="w-3.5 h-3.5" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (

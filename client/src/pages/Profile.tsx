@@ -1,11 +1,18 @@
-;
-import { IconLink, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/icons/brand-icons";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Layout from "@/components/Layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Loader2, User, Eye, EyeOff, Key, ClipboardCheck, Palette } from "lucide-react";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
+import { Link } from "wouter";
 
 export default function Profile() {
   const { toast } = useToast();
@@ -169,7 +176,7 @@ export default function Profile() {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <IconLoader className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -198,19 +205,19 @@ export default function Profile() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <IconFileCheck className="w-5 h-5 text-primary" />
+                    <ClipboardCheck className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-foreground font-semibold">Verification & Testing Manual</p>
                     <p className="text-muted-foreground text-sm">Complete guide for financial verification and QA testing</p>
                   </div>
                 </div>
-                <IconLink href="/checker-manual">
+                <Link href="/checker-manual">
                   <Button variant="default" data-testid="button-checker-manual">
-                    <IconFileCheck className="w-4 h-4" />
+                    <ClipboardCheck className="w-4 h-4" />
                     Open Manual
                   </Button>
-                </IconLink>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -220,7 +227,7 @@ export default function Profile() {
           <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div className="flex items-center gap-4 pb-4 border-b border-border">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                <IconUser className="w-8 h-8 text-primary" />
+                <User className="w-8 h-8 text-primary" />
               </div>
               <div>
                 <p className="text-lg font-semibold text-foreground">{user.email}</p>
@@ -230,7 +237,7 @@ export default function Profile() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">Email (IconUser ID)</Label>
+                <Label htmlFor="email" className="text-foreground">Email (User ID)</Label>
                 {user.role === "admin" ? (
                   <Input
                     id="email"
@@ -309,7 +316,7 @@ export default function Profile() {
           <Card className="bg-card border-border shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-foreground">
-                <IconPalette className="w-5 h-5 text-primary" />
+                <Palette className="w-5 h-5 text-primary" />
                 Theme Preference
               </CardTitle>
             </CardHeader>
@@ -364,7 +371,7 @@ export default function Profile() {
         <Card className="bg-card border-border shadow-sm">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-foreground">
-              <IconKey className="w-5 h-5 text-primary" />
+              <Key className="w-5 h-5 text-primary" />
               Change Password
             </CardTitle>
           </CardHeader>
@@ -387,7 +394,7 @@ export default function Profile() {
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showCurrentPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -409,7 +416,7 @@ export default function Profile() {
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showNewPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -434,7 +441,7 @@ export default function Profile() {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showConfirmPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -446,7 +453,7 @@ export default function Profile() {
                   disabled={passwordMutation.isPending || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
                   data-testid="button-change-password"
                 >
-                  {passwordMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
+                  {passwordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
                   Update Password
                 </Button>
               </div>

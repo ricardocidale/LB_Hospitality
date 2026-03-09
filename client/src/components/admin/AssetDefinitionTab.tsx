@@ -1,11 +1,12 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle, useEffect, useMemo, useState } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Card } from "@/components/icons/brand-icons";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Save, Copy, Check, ChevronDown, HelpCircle } from "lucide-react";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
 import { ADMIN_TEXTAREA } from "./styles";
 import {
@@ -113,7 +114,7 @@ function HelpTooltip({ text }: { text: string }) {
       <Tooltip>
         <TooltipTrigger asChild>
           <button type="button" className="text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-1 shrink-0">
-            <IconHelpCircle className="w-3.5 h-3.5" />
+            <HelpCircle className="w-3.5 h-3.5" />
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">
@@ -212,7 +213,7 @@ export default function AssetDefinitionTab() {
               size="sm"
               data-testid="button-save-icp"
             >
-              <IconSave className="w-3.5 h-3.5 mr-1.5" />
+              <Save className="w-3.5 h-3.5 mr-1.5" />
               Save
             </Button>
           </div>
@@ -246,7 +247,7 @@ export default function AssetDefinitionTab() {
                     It merges all parameters and descriptive inputs into an optimized context.
                   </p>
                   <Button variant="ghost" size="sm" onClick={handleCopy} className="text-xs h-7 gap-1">
-                    {copied ? <IconCheck className="w-3 h-3" /> : <IconCopy className="w-3 h-3" />}
+                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                     {copied ? "Copied" : "Copy"}
                   </Button>
                 </div>
@@ -309,7 +310,7 @@ function AmenitiesTab({
                 <span className="text-[11px] text-muted-foreground tabular-nums">
                   {section.fields.length} {section.fields.length === 1 ? "feature" : "features"}
                 </span>
-                <IconChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
               </div>
             </button>
 

@@ -1,5 +1,5 @@
-;
-import { IconChevronLeft, IconChevronRight, IconCompass, IconHelpCircle, useCallback, useEffect, useRef, useState } from "@/components/icons/brand-icons";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { X, ChevronRight, ChevronLeft, HelpCircle, Compass } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
@@ -60,12 +60,12 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
           className="absolute top-4 right-4 text-muted-foreground/40 hover:text-foreground/70 transition-colors"
           data-testid="button-tour-prompt-close"
         >
-          <IconX className="w-4 h-4" />
+          <X className="w-4 h-4" />
         </button>
 
         <div className="flex flex-col items-center text-center space-y-6">
           <div className="w-14 h-14 rounded-lg bg-primary/15 flex items-center justify-center">
-            <IconCompass className="w-7 h-7 text-primary" />
+            <Compass className="w-7 h-7 text-primary" />
           </div>
 
           <div className="space-y-2.5">
@@ -255,7 +255,7 @@ function GuidedWalkthrough() {
             className="text-muted-foreground/40 hover:text-foreground/70 transition-colors -mt-0.5 -mr-0.5 shrink-0"
             data-testid="button-close-tour"
           >
-            <IconX className="w-4 h-4" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -280,7 +280,7 @@ function GuidedWalkthrough() {
                 className="inline-flex items-center gap-0.5 text-xs px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 data-testid="button-tour-back"
               >
-                <IconChevronLeft className="w-3 h-3" />
+                <ChevronLeft className="w-3 h-3" />
                 Back
               </button>
             )}
@@ -291,7 +291,7 @@ function GuidedWalkthrough() {
               data-testid="button-tour-next"
             >
               {isLast ? "Done" : "Next"}
-              {!isLast && <IconChevronRight className="w-3 h-3" />}
+              {!isLast && <ChevronRight className="w-3 h-3" />}
             </button>
           </div>
         </div>
@@ -317,7 +317,7 @@ export function WalkthroughTrigger() {
     >
       <div className="absolute inset-0 bg-card/0 group-hover:bg-card/5 transition-all duration-300 rounded-lg" />
       <div className="relative w-8 h-8 rounded-lg bg-card/5 group-hover:bg-card/10 flex items-center justify-center transition-all duration-300">
-        <IconHelpCircle className="w-4 h-4 transition-all duration-300" />
+        <HelpCircle className="w-4 h-4 transition-all duration-300" />
       </div>
       <span className="relative">Guided Tour</span>
     </button>

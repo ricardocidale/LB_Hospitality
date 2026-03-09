@@ -1,4 +1,3 @@
-import { IconChevronDown, PopoverContent, PopoverTrigger } from "@/components/icons/brand-icons";
 /**
  * color-picker.tsx — Popover-based color selector with preset swatches.
  *
@@ -6,7 +5,11 @@ import { IconChevronDown, PopoverContent, PopoverTrigger } from "@/components/ic
  * Used in the admin/theme settings to customize the platform's accent
  * colors and chart palette.
  */
-;
+import { useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ChevronDown } from "lucide-react";
 
 const PRESET_COLORS = [
   // Row 1: Theme colors
@@ -56,7 +59,7 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
             />
             <span className="font-mono text-xs uppercase">{value}</span>
           </div>
-          <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[280px] p-3" align="start">

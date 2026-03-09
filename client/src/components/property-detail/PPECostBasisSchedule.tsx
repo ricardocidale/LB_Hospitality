@@ -20,8 +20,10 @@
  * The ending book value matters for computing gain/loss on sale at exit
  * and for the balance sheet's asset section.
  */
-;
-import { CardContent, CardHeader, CardTitle, IconChevronDown, IconChevronRight, IconInfo } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import { formatMoney } from "@/lib/financialEngine";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChevronDown, ChevronRight, Info } from "lucide-react";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT } from "@shared/constants";
 import { DEFAULT_LTV } from "@/lib/financial/loanCalculations";
@@ -101,7 +103,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
         data-testid={`ppe-section-${sectionKey}`}
       >
         <td className="py-3 px-4 font-semibold text-foreground flex items-center gap-2">
-          {isOpen ? <IconChevronDown className="w-4 h-4 text-muted-foreground" /> : <IconChevronRight className="w-4 h-4 text-muted-foreground" />}
+          {isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
           {label}
           {tooltip && <HelpTooltip text={tooltip} />}
         </td>
@@ -192,7 +194,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
                   <td colSpan={2} className="py-3 px-8">
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                       <p className="text-xs font-semibold text-blue-800 mb-2 flex items-center gap-1">
-                        <IconInfo className="w-3.5 h-3.5" /> Fixed Cost Rates Applied to Base Revenue
+                        <Info className="w-3.5 h-3.5" /> Fixed Cost Rates Applied to Base Revenue
                       </p>
                       <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-blue-700">
                         <span>Property Operations: {pct(costRatePropertyOps)} → {fmt(baseMonthlyTotalRev * costRatePropertyOps)}/mo</span>

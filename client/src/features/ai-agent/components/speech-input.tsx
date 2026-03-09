@@ -14,7 +14,7 @@ import {
 } from "react"
 import { cva, VariantProps } from "class-variance-authority"
 import { motion } from "framer-motion"
-import { IconMic, IconCheckCircle, IconClose } from "@/components/icons/brand-icons"
+import { MicIcon, SquareIcon, XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import {
@@ -341,7 +341,7 @@ const SpeechInputRecordButton = forwardRef<
             : "scale-[60%] opacity-0"
         )}
       />
-      <IconCheckCircle
+      <SquareIcon
         className={cn(
           "text-destructive absolute h-4 w-4 fill-current transition-all duration-200",
           !speechInput.isConnecting && speechInput.isConnected
@@ -349,7 +349,7 @@ const SpeechInputRecordButton = forwardRef<
             : "scale-[60%] opacity-0"
         )}
       />
-      <IconMic
+      <MicIcon
         className={cn(
           "absolute h-4 w-4 transition-all duration-200",
           !speechInput.isConnecting && !speechInput.isConnected
@@ -442,7 +442,7 @@ const SpeechInputCancelButton = forwardRef<
       aria-label="Cancel recording"
       {...props}
     >
-      <IconClose className="h-3 w-3" />
+      <XIcon className="h-3 w-3" />
     </Button>
   )
 })

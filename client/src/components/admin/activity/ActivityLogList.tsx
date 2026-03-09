@@ -1,11 +1,12 @@
-import { IconClock, IconLoader, IconLogIn, IconLogOut, IconMonitor, IconPeople } from "@/components/icons/brand-icons";
-import { LoginLog, ActiveSession, User } from "../types";
+import { User, LoginLog, ActiveSession } from "../types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableBody as UITableBody, TableCell as UITableCell } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Loader2, Clock, LogIn, LogOut, Monitor } from "lucide-react";
+import { IconPeople } from "@/components/icons/brand-icons";
 import { formatDateTime, formatDuration } from "@/lib/formatters";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +32,9 @@ export function ActivityLogList({
   loginLogIpFilter,
   setLoginLogIpFilter,
 }: ActivityLogListProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const activeSessionsCount = loginLogs?.filter(l => !l.logoutAt).length || 0;
 
   const filteredLogs = loginLogs?.filter(log => {
@@ -80,11 +84,11 @@ export function ActivityLogList({
 
           {logsLoading ? (
             <div className="flex items-center justify-center py-12">
-              <IconLoader className="w-8 h-8 animate-spin text-muted-foreground" />
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
             </div>
           ) : filteredLogs?.length === 0 ? (
             <div className="text-center py-12">
-              <IconClock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <Clock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
               <p className="label-text">
                 {loginLogs?.length === 0 ? "No login activity recorded yet" : "No logs match the current filters"}
               </p>
@@ -94,29 +98,29 @@ export function ActivityLogList({
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconPeople className="w-4 h-4" />User</div></TableHead>
-                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconLogIn className="w-4 h-4" />Login Time</div></TableHead>
-                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconLogOut className="w-4 h-4" />Logout Time</div></TableHead>
-                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconClock className="w-4 h-4" />Duration</div></TableHead>
-                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><IconMonitor className="w-4 h-4" />IP Address</div></TableHead>
+                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogIn className="w-4 h-4" />Login Time</div></TableHead>
+                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><LogOut className="w-4 h-4" />Logout Time</div></TableHead>
+                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Clock className="w-4 h-4" />Duration</div></TableHead>
+                  <TableHead className="text-muted-foreground font-display"><div className="flex items-center gap-2"><Monitor className="w-4 h-4" />IP Address</div></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredLogs?.map((log) => (
                   <TableRow key={log.id} className="border-border hover:bg-muted" data-testid={`row-log-${log.id}`}>
-                    <TableCell>
+                    <TableRowCell>
                       <div className="font-display">{log.userName || log.userEmail}</div>
                       {log.userName && <div className="text-xs text-muted-foreground">{log.userEmail}</div>}
-                    </TableCell>
-                    <TableCell className="text-foreground/80 font-mono text-sm">{formatDateTime(log.loginAt)}</TableCell>
-                    <TableCell className="text-foreground/80 font-mono text-sm">
+                    </TableRowCell>
+                    <TableRowCell className="text-foreground/80 font-mono text-sm">{formatDateTime(log.loginAt)}</TableRowCell>
+                    <TableRowCell className="text-foreground/80 font-mono text-sm">
                       {log.logoutAt ? formatDateTime(log.logoutAt) : <span className="text-muted-foreground">Active</span>}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
+                    </TableRowCell>
+                    <TableRowCell className="font-mono text-sm">
                       <span className={log.logoutAt ? "text-foreground/80" : "text-muted-foreground"}>
                         {formatDuration(log.loginAt, log.logoutAt)}
                       </span>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground font-mono text-sm">{log.ipAddress || "-"}</TableCell>
+                    </TableRowCell>
+                    <TableRowCell className="text-muted-foreground font-mono text-sm">{log.ipAddress || "-"}</TableRowCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -130,6 +134,11 @@ export function ActivityLogList({
       )}
     </>
   );
+}
+
+// Renamed to avoid name collision with TableCell from UI
+function TableRowCell({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <UITableCell className={className}>{children}</UITableCell>;
 }
 
 function ActiveSessions({ activeSessionsList }: { activeSessionsList: ActiveSession[] }) {
@@ -157,10 +166,10 @@ function ActiveSessions({ activeSessionsList }: { activeSessionsList: ActiveSess
           <TableBody>
             {activeSessionsList.map((s) => (
               <TableRow key={s.id} className="border-b border-border/60 hover:bg-muted">
-                <TableCell className="text-foreground/80 text-sm">{s.userName || s.userEmail}</TableCell>
-                <TableCell className="text-muted-foreground font-mono text-xs">{new Date(s.createdAt).toLocaleString()}</TableCell>
-                <TableCell className="text-muted-foreground font-mono text-xs">{new Date(s.expiresAt).toLocaleString()}</TableCell>
-                <TableCell className="text-right">
+                <TableRowCell className="text-foreground/80 text-sm">{s.userName || s.userEmail}</TableRowCell>
+                <TableRowCell className="text-muted-foreground font-mono text-xs">{new Date(s.createdAt).toLocaleString()}</TableRowCell>
+                <TableRowCell className="text-muted-foreground font-mono text-xs">{new Date(s.expiresAt).toLocaleString()}</TableRowCell>
+                <TableRowCell className="text-right">
                   <Button
                     size="sm"
                     variant="ghost"
@@ -176,10 +185,10 @@ function ActiveSessions({ activeSessionsList }: { activeSessionsList: ActiveSess
                     }}
                     data-testid={`button-force-logout-${s.id.slice(0, 8)}`}
                   >
-                    <IconLogOut className="w-4 h-4 mr-1" />
+                    <LogOut className="w-4 h-4 mr-1" />
                     Force Logout
                   </Button>
-                </TableCell>
+                </TableRowCell>
               </TableRow>
             ))}
           </TableBody>

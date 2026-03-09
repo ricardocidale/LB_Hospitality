@@ -1,4 +1,8 @@
-import { IconCalculator, IconCompare, IconExecutive, IconTimeline, useState } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import Layout from "@/components/Layout";
+import { AnimatedPage } from "@/components/graphics";
+import { PageHeader } from "@/components/ui/page-header";
+import { IconAnalysis, IconCalculator, IconExecutive, IconCompare, IconTimeline } from "@/components/icons/brand-icons";
 import SensitivityAnalysis from "./SensitivityAnalysis";
 import FinancingAnalysis from "./FinancingAnalysis";
 import ExecutiveSummary from "./ExecutiveSummary";

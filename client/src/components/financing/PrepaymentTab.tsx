@@ -1,5 +1,8 @@
-;
-import { IconShield, useCallback, useState } from "@/components/icons/brand-icons";
+import { useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
+import { ContentPanel } from "@/components/ui/content-panel";
+import { Loader2, Shield } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { InputField, formatPct } from "./InputField";
 
@@ -92,7 +95,7 @@ export function PrepaymentTab() {
         <p className="text-xs text-muted-foreground">Using standard 5-4-3-2-1 step-down schedule</p>
       )}
       <Button variant="default" onClick={calculate} disabled={loading} data-testid="button-prepay-calculate">
-        {loading ? <IconLoader className="w-4 h-4 animate-spin mr-2 inline" /> : <IconShield className="w-4 h-4 mr-2 inline" />}
+        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Shield className="w-4 h-4 mr-2 inline" />}
         Calculate Prepayment Cost
       </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}

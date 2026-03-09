@@ -1,4 +1,4 @@
-import { IconTrendingDown, IconTrending } from "@/components/icons/brand-icons";
+import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import {
@@ -20,14 +20,14 @@ export function SectionCards() {
           </CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-              <IconTrending className="size-3" />
+              <TrendingUpIcon className="size-3" />
               +12.5%
             </Badge>
           </div>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month <IconTrending className="size-4" />
+            Trending up this month <TrendingUpIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">
             Visitors for the last 6 months
@@ -42,14 +42,14 @@ export function SectionCards() {
           </CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-              <IconTrendingDown className="size-3" />
+              <TrendingDownIcon className="size-3" />
               -20%
             </Badge>
           </div>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period <IconTrendingDown className="size-4" />
+            Down 20% this period <TrendingDownIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">
             Acquisition needs attention
@@ -64,14 +64,14 @@ export function SectionCards() {
           </CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-              <IconTrending className="size-3" />
+              <TrendingUpIcon className="size-3" />
               +12.5%
             </Badge>
           </div>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention <IconTrending className="size-4" />
+            Strong user retention <TrendingUpIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">Engagement exceed targets</div>
         </CardFooter>
@@ -84,14 +84,14 @@ export function SectionCards() {
           </CardTitle>
           <div className="absolute right-4 top-4">
             <Badge variant="outline" className="flex gap-1 rounded-lg text-xs">
-              <IconTrending className="size-3" />
+              <TrendingUpIcon className="size-3" />
               +4.5%
             </Badge>
           </div>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance <IconTrending className="size-4" />
+            Steady performance <TrendingUpIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">Meets growth projections</div>
         </CardFooter>

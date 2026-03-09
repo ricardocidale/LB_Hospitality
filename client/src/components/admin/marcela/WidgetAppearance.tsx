@@ -1,17 +1,23 @@
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
-import { Card } from "@/components/icons/brand-icons";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Save, Loader2, LayoutTemplate, ImageIcon,
+  Minimize2, Maximize2, Square, MapPin, Paintbrush,
+} from "lucide-react";
 import { useAgentConfig, useSaveWidgetSettings, type WidgetSettingsPayload } from "./hooks";
 
 const VARIANTS = [
-  { value: "compact", label: "Compact", desc: "Floating bubble, expands on click", icon: IconChevronDown, default: true },
-  { value: "full", label: "Full", desc: "Always-visible expanded panel", icon: IconChevronUp, default: false },
-  { value: "tiny", label: "Tiny", desc: "Minimal floating icon", icon: IconCheckCircle, default: false },
+  { value: "compact", label: "Compact", desc: "Floating bubble, expands on click", icon: Minimize2, default: true },
+  { value: "full", label: "Full", desc: "Always-visible expanded panel", icon: Maximize2, default: false },
+  { value: "tiny", label: "Tiny", desc: "Minimal floating icon", icon: Square, default: false },
 ];
 
 const PLACEMENTS = [
@@ -64,7 +70,7 @@ export function WidgetAppearance() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-violet-500/5 flex items-center justify-center">
-                <IconDashboard className="w-5 h-5 text-violet-600" />
+                <LayoutTemplate className="w-5 h-5 text-violet-600" />
               </div>
               <div>
                 <CardTitle className="text-sm font-semibold text-foreground">Widget Size &amp; Position</CardTitle>
@@ -74,8 +80,8 @@ export function WidgetAppearance() {
               </div>
             </div>
             <Button size="sm" onClick={handleSave} disabled={!dirty || save.isPending} className="gap-1.5 shadow-sm">
-              {save.isPending ? <IconLoader className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
-              IconSave
+              {save.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              Save
             </Button>
           </div>
         </CardHeader>
@@ -106,7 +112,7 @@ export function WidgetAppearance() {
 
           <div className="max-w-xs space-y-1.5">
             <Label className="label-text font-medium flex items-center gap-1.5 text-xs">
-              <IconMapPin className="w-3.5 h-3.5" /> Placement
+              <MapPin className="w-3.5 h-3.5" /> Placement
             </Label>
             <Select value={d.placement ?? "bottom-right"} onValueChange={(v) => update("placement", v)}>
               <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
@@ -123,7 +129,7 @@ export function WidgetAppearance() {
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 flex items-center justify-center">
-              <IconImage className="w-5 h-5 text-indigo-600" />
+              <ImageIcon className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Avatar</CardTitle>
@@ -168,7 +174,7 @@ export function WidgetAppearance() {
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500/15 to-pink-500/5 flex items-center justify-center">
-              <IconPalette className="w-5 h-5 text-pink-600" />
+              <Paintbrush className="w-5 h-5 text-pink-600" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Widget Colors</CardTitle>

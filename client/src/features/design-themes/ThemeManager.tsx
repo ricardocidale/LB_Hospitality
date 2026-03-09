@@ -1,4 +1,10 @@
-import { CardContent, CardDescription, CardHeader, CardTitle, IconActivity, IconChevronDown, IconChevronUp, IconLoader, IconPalette, IconPencil, IconPlus, IconSave, IconSparkles, IconTrash, IconType } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Loader2, Plus, Trash2, Pencil, Palette, Activity, Sparkles, Type, ChevronUp, ChevronDown, Save } from "lucide-react";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { useDesignThemes, useCreateTheme, useUpdateTheme, useDeleteTheme } from "./useDesignThemes";
 import { ThemePreview } from "./ThemePreview";
@@ -37,7 +43,7 @@ export function ThemeManager() {
         <CardHeader className="relative pb-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center">
-              <IconPalette className="w-5 h-5 text-primary" />
+              <Palette className="w-5 h-5 text-primary" />
             </div>
             <div>
               <CardTitle className="text-lg font-display text-foreground">Current Theme</CardTitle>
@@ -115,7 +121,7 @@ export function ThemeManager() {
             variant="outline"
             onClick={() => setThemeDialogOpen(true)}
           >
-            <IconPlus className="w-4 h-4" />
+            <Plus className="w-4 h-4" />
             New Theme
           </Button>
         </div>
@@ -124,7 +130,7 @@ export function ThemeManager() {
         <CardContent className="relative space-y-6">
           {themesLoading ? (
             <div className="text-center py-8">
-              <IconLoader className="w-8 h-8 mx-auto text-muted-foreground animate-spin" />
+              <Loader2 className="w-8 h-8 mx-auto text-muted-foreground animate-spin" />
             </div>
           ) : designThemes && designThemes.length > 0 ? (
             <div className="space-y-4">
@@ -142,7 +148,7 @@ export function ThemeManager() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Button size="sm" variant="outline" onClick={() => setEditingTheme(theme)}>
-                        <IconPencil className="w-4 h-4" />
+                        <Pencil className="w-4 h-4" />
                       </Button>
                       <Button
                         size="sm"
@@ -151,7 +157,7 @@ export function ThemeManager() {
                         onClick={() => deleteThemeMutation.mutate(theme.id)}
                         disabled={theme.isDefault}
                       >
-                        <IconTrash className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
@@ -159,7 +165,7 @@ export function ThemeManager() {
                   {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
                     <div className="mb-4">
                       <div className="flex items-center gap-2 mb-3">
-                        <IconPalette className="w-4 h-4 text-primary" />
+                        <Palette className="w-4 h-4 text-primary" />
                         <h4 className="font-display text-sm font-semibold text-foreground">Palette Colors</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -185,7 +191,7 @@ export function ThemeManager() {
                   {theme.colors.filter(c => c.description?.startsWith('CHART:')).length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <IconActivity className="w-4 h-4 text-primary" />
+                        <Activity className="w-4 h-4 text-primary" />
                         <h4 className="font-display text-sm font-semibold text-foreground">Chart Colors</h4>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -232,7 +238,7 @@ export function ThemeManager() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <IconPalette className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <Palette className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
               <p className="label-text text-muted-foreground">No design themes yet. Create your first theme to define your color palette.</p>
             </div>
           )}
@@ -249,7 +255,7 @@ export function ThemeManager() {
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label className="flex items-center gap-2 mb-1"><IconSparkles className="w-4 h-4 text-muted-foreground" />Theme Name</Label>
+            <Label className="flex items-center gap-2 mb-1"><Sparkles className="w-4 h-4 text-muted-foreground" />Theme Name</Label>
             <Input
               value={editingTheme ? editingTheme.name : newTheme.name}
               onChange={(e) => editingTheme
@@ -260,7 +266,7 @@ export function ThemeManager() {
             />
           </div>
           <div>
-            <Label className="flex items-center gap-2 mb-1"><IconType className="w-4 h-4 text-muted-foreground" />Description</Label>
+            <Label className="flex items-center gap-2 mb-1"><Type className="w-4 h-4 text-muted-foreground" />Description</Label>
             <textarea
               className="w-full min-h-[80px] p-3 border border-border rounded-lg text-sm resize-none bg-background text-foreground"
               value={editingTheme ? editingTheme.description : newTheme.description}
@@ -274,7 +280,7 @@ export function ThemeManager() {
 
           <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5">
             <div className="flex items-center justify-between mb-3">
-              <Label className="flex items-center gap-2"><IconPalette className="w-4 h-4 text-primary" />Palette Colors</Label>
+              <Label className="flex items-center gap-2"><Palette className="w-4 h-4 text-primary" />Palette Colors</Label>
               <Button
                 type="button"
                 size="sm"
@@ -289,7 +295,7 @@ export function ThemeManager() {
                   }
                 }}
               >
-                <IconPlus className="w-3 h-3 mr-1" /> Add Palette Color
+                <Plus className="w-3 h-3 mr-1" /> Add Palette Color
               </Button>
             </div>
 
@@ -319,10 +325,10 @@ export function ThemeManager() {
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col gap-0.5">
                         <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-muted ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
-                          <IconChevronUp className="w-4 h-4 text-muted-foreground" />
+                          <ChevronUp className="w-4 h-4 text-muted-foreground" />
                         </button>
                         <button type="button" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`p-0.5 rounded hover:bg-muted ${displayIdx === arr.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
-                          <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         </button>
                       </div>
                       <Input value={color.name} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], name: e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="Color name" className="flex-1" />
@@ -330,7 +336,7 @@ export function ThemeManager() {
                         <ColorPicker value={color.hexCode} onChange={(nc) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], hexCode: nc }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} />
                       </div>
                       <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => { const f = (editingTheme ? editingTheme.colors : newTheme.colors).filter((_, i) => i !== originalIdx); if (editingTheme) setEditingTheme({ ...editingTheme, colors: f }); else setNewTheme({ ...newTheme, colors: f }); }}>
-                        <IconTrash className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                     <Input value={color.description?.replace('PALETTE: ', '') || ''} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], description: 'PALETTE: ' + e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="Where to use this color..." className="text-sm" />
@@ -387,10 +393,10 @@ export function ThemeManager() {
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col gap-0.5">
                         <button type="button" onClick={moveUp} disabled={displayIdx === 0} className={`p-0.5 rounded hover:bg-muted ${displayIdx === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
-                          <IconChevronUp className="w-4 h-4 text-muted-foreground" />
+                          <ChevronUp className="w-4 h-4 text-muted-foreground" />
                         </button>
                         <button type="button" onClick={moveDown} disabled={displayIdx === arr.length - 1} className={`p-0.5 rounded hover:bg-muted ${displayIdx === arr.length - 1 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}>
-                          <IconChevronDown className="w-4 h-4 text-muted-foreground" />
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
                         </button>
                       </div>
                       <Input value={color.name} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], name: e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="Color name" className="flex-1" />
@@ -398,7 +404,7 @@ export function ThemeManager() {
                         <ColorPicker value={color.hexCode} onChange={(nc) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], hexCode: nc }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} />
                       </div>
                       <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => { const f = (editingTheme ? editingTheme.colors : newTheme.colors).filter((_, i) => i !== originalIdx); if (editingTheme) setEditingTheme({ ...editingTheme, colors: f }); else setNewTheme({ ...newTheme, colors: f }); }}>
-                        <IconTrash className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                     <Input value={color.description?.replace('CHART: ', '') || ''} onChange={(e) => { const c = editingTheme ? [...editingTheme.colors] : [...newTheme.colors]; c[originalIdx] = { ...c[originalIdx], description: 'CHART: ' + e.target.value }; if (editingTheme) setEditingTheme({ ...editingTheme, colors: c }); else setNewTheme({ ...newTheme, colors: c }); }} placeholder="What this color represents in charts..." className="text-sm" />

@@ -1,5 +1,3 @@
-import { Bath, IconBed, IconExternalLink, IconImage, IconLoader, formatMoney } from "@/components/icons/brand-icons";
-
 /**
  * SearchResultCard.tsx — A single AI-generated property search result.
  *
@@ -14,6 +12,12 @@ import { Bath, IconBed, IconExternalLink, IconImage, IconLoader, formatMoney } f
  * Clicking "Import to Portfolio" on a saved favorite (FavoriteCard) creates
  * a real property in the database with these estimated values pre-filled.
  */
+import { formatMoney } from "@/lib/financialEngine";
+import type { PropertyFinderResult } from "@/lib/api";
+import {
+  Heart, ExternalLink, Bed, Bath, Ruler, Trees,
+  MapPin, Loader2, Image,
+} from "lucide-react";
 
 function PropertyTypeLabel(type: string | null): string {
   if (!type) return "";
@@ -50,7 +54,7 @@ export function SearchResultCard({
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-start gap-2">
-            <IconMapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="text-foreground font-medium text-sm leading-snug" data-testid={`text-address-${property.externalId}`}>
               {property.address}
             </span>
@@ -62,7 +66,7 @@ export function SearchResultCard({
                 className="p-1.5 rounded-lg hover:bg-muted transition-colors"
                 data-testid={`btn-image-${property.externalId}`}
               >
-                <IconImage className="w-4 h-4 text-primary" />
+                <Image className="w-4 h-4 text-primary" />
               </button>
             )}
             <button
@@ -73,7 +77,7 @@ export function SearchResultCard({
               data-testid={`btn-favorite-${property.externalId}`}
             >
               {isSaving ? (
-                <IconLoader className="w-4 h-4 text-muted-foreground animate-spin" />
+                <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
               ) : isSaved ? (
                 <Heart className="w-4 h-4 text-destructive fill-destructive" />
               ) : (
@@ -100,7 +104,7 @@ export function SearchResultCard({
 
         <div className="flex flex-wrap items-center gap-4 py-2.5 px-3 bg-primary/5 rounded-xl border border-primary/10">
           <div className="flex items-center gap-1.5">
-            <IconBed className="w-3.5 h-3.5 text-primary" />
+            <Bed className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm text-foreground" data-testid={`text-beds-${property.externalId}`}>{property.beds ?? "—"} beds</span>
           </div>
           <div className="w-px h-4 bg-primary/20" />
@@ -134,7 +138,7 @@ export function SearchResultCard({
               className="text-xs text-primary hover:text-secondary flex items-center gap-1"
               data-testid={`link-listing-${property.externalId}`}
             >
-              View Listing <IconExternalLink className="w-3 h-3" />
+              View Listing <ExternalLink className="w-3 h-3" />
             </a>
           )}
         </div>

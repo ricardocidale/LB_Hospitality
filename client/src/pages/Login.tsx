@@ -1,5 +1,11 @@
-;
-import { CardContent, IconEye, IconEyeOff, IconLoader } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import { useAuth } from "@/lib/auth";
+import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import bgImage from "@/assets/hotel-party.jpg";
 import SpinningLogo3D from "@/components/SpinningLogo3D";
@@ -106,7 +112,7 @@ export default function Login() {
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         data-testid="button-toggle-password"
                       >
-                        {showPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -116,7 +122,7 @@ export default function Login() {
                     className="w-full"
                     data-testid="button-login"
                   >
-                    {isLoading ? <IconLoader className="w-4 h-4 animate-spin mr-2" /> : null}
+                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Login
                   </Button>
                   <div className="text-center text-sm text-muted-foreground">

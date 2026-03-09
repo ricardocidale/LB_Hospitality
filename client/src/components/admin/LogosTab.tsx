@@ -1,4 +1,3 @@
-import { IconArrowRight, IconCheck, IconHardDrive, IconImage, IconLink, IconLoader, IconPencil, IconPlus, IconProperties, IconSave, IconSparkles, IconStar, IconTag, IconTrash, IconWand, IconX } from "@/components/icons/brand-icons";
 import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Loader2, Plus, Save, Star, Sparkles, HardDrive, Link, Wand2, ArrowRight, X, Check } from "lucide-react";
+import { IconTrash, IconProperties, IconImage, IconTag, IconPencil } from "@/components/icons/brand-icons";
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";
 import { ImageCropDialog } from "@/components/ui/image-crop-dialog";
@@ -145,7 +146,7 @@ export default function LogosTab() {
               <CardDescription className="label-text">Upload, create, and manage logos used by companies in the platform</CardDescription>
             </div>
             <Button variant="outline" onClick={() => { resetLogoForm(); setLogoDialogOpen(true); }} className="flex items-center gap-2" data-testid="button-add-logo">
-              <IconPlus className="w-4 h-4" /> Add Logo
+              <Plus className="w-4 h-4" /> Add Logo
             </Button>
           </div>
         </CardHeader>
@@ -173,7 +174,7 @@ export default function LogosTab() {
                         <div className="min-w-0 flex-1">
                           <h3 className="font-display font-medium text-foreground truncate flex items-center gap-2">
                             {logo.name}
-                            {logo.isDefault && <IconStar className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                            {logo.isDefault && <Star className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
                           </h3>
                           <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
                             <IconProperties className="w-3.5 h-3.5" />
@@ -220,13 +221,13 @@ export default function LogosTab() {
 
           <div className="flex gap-2">
             <button type="button" disabled={isBusy} onClick={() => { setLogoMode("generate"); setLogoUrl(""); }} className={modeBtn("generate", logoMode === "generate")} data-testid="btn-mode-generate">
-              <IconSparkles className="w-4 h-4" /> Generate Logo
+              <Sparkles className="w-4 h-4" /> Generate Logo
             </button>
             <button type="button" disabled={isBusy} onClick={() => { setLogoMode("import"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("import", logoMode === "import")} data-testid="btn-mode-import">
-              <IconHardDrive className="w-4 h-4" /> Import Logo
+              <HardDrive className="w-4 h-4" /> Import Logo
             </button>
             <button type="button" disabled={isBusy} onClick={() => { setLogoMode("url"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("url", logoMode === "url")} data-testid="btn-mode-url">
-              <IconLink className="w-4 h-4" /> URL Logo
+              <Link className="w-4 h-4" /> URL Logo
             </button>
           </div>
 
@@ -236,7 +237,7 @@ export default function LogosTab() {
                 <img src={logoUrl} alt="Preview" className="w-full h-full object-contain" />
               </div>
               <button type="button" onClick={() => { setLogoUrl(""); setAiStep("describe"); }} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/90 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-md" data-testid="btn-remove-preview">
-                <IconX className="w-4 h-4" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -259,11 +260,11 @@ export default function LogosTab() {
                   </div>
                   <div className="flex gap-2">
                     <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={handleEnhancePrompt} className="flex-1 bg-gradient-to-b from-amber-50 to-amber-100/80 border-amber-200/60 text-amber-800 hover:from-amber-100 hover:to-amber-200/80 hover:border-amber-300 transition-all" data-testid="btn-enhance-prompt">
-                      <IconWand className="w-4 h-4 mr-2" />
+                      <Wand2 className="w-4 h-4 mr-2" />
                       Enhance with AI
                     </Button>
                     <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={() => handleGenerateLogo(aiPrompt.trim())} className="flex-1 bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-foreground hover:from-primary/20 hover:to-primary/30 transition-all" data-testid="btn-generate-direct">
-                      <IconSparkles className="w-4 h-4 mr-2" />
+                      <Sparkles className="w-4 h-4 mr-2" />
                       Generate Logo
                     </Button>
                   </div>
@@ -275,9 +276,9 @@ export default function LogosTab() {
                 <div className="flex flex-col items-center justify-center py-8 space-y-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-                      <IconWand className="w-6 h-6 text-amber-600 animate-pulse" />
+                      <Wand2 className="w-6 h-6 text-amber-600 animate-pulse" />
                     </div>
-                    <IconLoader className="w-16 h-16 text-amber-400 animate-spin absolute -top-2 -left-2" />
+                    <Loader2 className="w-16 h-16 text-amber-400 animate-spin absolute -top-2 -left-2" />
                   </div>
                   <p className="text-sm font-medium text-foreground">Enhancing your description...</p>
                   <p className="text-xs text-muted-foreground">Google Gemini is crafting a better prompt</p>
@@ -288,7 +289,7 @@ export default function LogosTab() {
                 <div className="space-y-3">
                   <div className="rounded-xl border border-amber-200/60 bg-gradient-to-b from-amber-50/50 to-white p-4 space-y-2">
                     <div className="flex items-center gap-2 mb-1">
-                      <IconWand className="w-4 h-4 text-amber-600" />
+                      <Wand2 className="w-4 h-4 text-amber-600" />
                       <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">AI-Enhanced Prompt</span>
                     </div>
                     <Textarea value={enhancedPrompt} onChange={(e) => setEnhancedPrompt(e.target.value)} rows={4} className="resize-none bg-card border-border text-sm" data-testid="input-enhanced-prompt" />
@@ -296,13 +297,13 @@ export default function LogosTab() {
                   </div>
                   <div className="flex gap-2">
                     <Button type="button" variant="outline" onClick={() => { setAiStep("describe"); setEnhancedPrompt(""); }} className="border-border text-muted-foreground hover:bg-muted" data-testid="btn-cancel-enhance">
-                      <IconX className="w-4 h-4 mr-1.5" /> Cancel
+                      <X className="w-4 h-4 mr-1.5" /> Cancel
                     </Button>
                     <Button type="button" variant="outline" onClick={() => { setAiPrompt(enhancedPrompt); setAiStep("describe"); setEnhancedPrompt(""); }} className="border-primary/30 text-foreground hover:bg-muted" data-testid="btn-edit-enhanced">
                       <IconPencil className="w-4 h-4 mr-1.5" /> Edit Further
                     </Button>
                     <Button type="button" onClick={() => handleGenerateLogo(enhancedPrompt)} className="flex-1 bg-gradient-to-b from-primary/70 to-primary/90 text-primary-foreground hover:from-primary/80 hover:to-primary border-0 shadow-sm" data-testid="btn-generate-enhanced">
-                      <IconArrowRight className="w-4 h-4 mr-1.5" /> Generate Logo
+                      <ArrowRight className="w-4 h-4 mr-1.5" /> Generate Logo
                     </Button>
                   </div>
                 </div>
@@ -312,9 +313,9 @@ export default function LogosTab() {
                 <div className="flex flex-col items-center justify-center py-8 space-y-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-                      <IconSparkles className="w-6 h-6 text-muted-foreground animate-pulse" />
+                      <Sparkles className="w-6 h-6 text-muted-foreground animate-pulse" />
                     </div>
-                    <IconLoader className="w-16 h-16 text-muted-foreground/40 animate-spin absolute -top-2 -left-2" />
+                    <Loader2 className="w-16 h-16 text-muted-foreground/40 animate-spin absolute -top-2 -left-2" />
                   </div>
                   <p className="text-sm font-medium text-foreground">Generating your logo...</p>
                   <p className="text-xs text-muted-foreground">Nano Banana is creating your design</p>
@@ -327,12 +328,12 @@ export default function LogosTab() {
             <div className="w-full aspect-square max-h-[220px] rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center transition-colors cursor-pointer hover:border-border hover:bg-muted/30" onClick={() => !isUploadingFile && fileInputRef.current?.click()}>
               {isUploadingFile ? (
                 <>
-                  <IconLoader className="w-10 h-10 text-muted-foreground animate-spin mb-2" />
+                  <Loader2 className="w-10 h-10 text-muted-foreground animate-spin mb-2" />
                   <p className="text-sm text-muted-foreground">Uploading...</p>
                 </>
               ) : (
                 <>
-                  <IconHardDrive className="w-10 h-10 text-muted-foreground mb-3" />
+                  <HardDrive className="w-10 h-10 text-muted-foreground mb-3" />
                   <p className="text-sm text-muted-foreground font-medium">Click to import logo</p>
                   <p className="text-xs text-muted-foreground mt-1">PNG, JPG, SVG — Max 5MB</p>
                 </>
@@ -345,7 +346,7 @@ export default function LogosTab() {
               <div className="flex gap-2">
                 <Input value={urlInput} onChange={(e) => setUrlInput(e.target.value)} placeholder="https://example.com/logo.png" className="bg-card border-border" data-testid="input-logo-url" />
                 <Button type="button" variant="outline" onClick={() => { setLogoUrl(urlInput.trim()); setUrlInput(""); }} disabled={!urlInput.trim()} className="border-primary/30 text-foreground" data-testid="btn-apply-url">
-                  <IconCheck className="w-4 h-4 mr-1.5" /> Apply
+                  <Check className="w-4 h-4 mr-1.5" /> Apply
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">Paste a direct link to a logo image</p>
@@ -366,7 +367,7 @@ export default function LogosTab() {
             className="bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-foreground hover:from-primary/20 hover:to-primary/30 flex items-center gap-2"
             data-testid="button-save-logo"
           >
-            {createLogoMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+            {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save Logo
           </Button>
         </DialogFooter>
@@ -388,7 +389,7 @@ export default function LogosTab() {
             data-testid="button-confirm-delete-logo"
             className="flex items-center gap-2"
           >
-            {deleteLogoMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconTrash className="w-4 h-4" />}
+            {deleteLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconTrash className="w-4 h-4" />}
             Delete
           </Button>
         </DialogFooter>

@@ -5,8 +5,9 @@
  * across Income Statement, Cash Flow, and Balance Sheet.
  */
 
-;
-import { IconAlertTriangle, IconCheckCircle, formatMoney } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import { MonthlyFinancials, formatMoney } from "@/lib/financialEngine";
+import { AlertTriangle, CheckCircle } from "lucide-react";
 import {
   TableShell,
   SectionHeader,
@@ -167,7 +168,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
 
   const banner = !cashAnalysis.isAdequate ? (
     <div data-testid="banner-equity-warning" className="mt-3 p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3">
-      <IconAlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+      <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
       <div className="text-sm">
         <p data-testid="text-equity-warning-title" className="font-semibold text-destructive">Additional Equity Investment Required</p>
         <p className="text-muted-foreground mt-1">
@@ -184,7 +185,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
     </div>
   ) : (
     <div data-testid="banner-cash-adequate" className="mt-3 p-3 bg-accent/10 border border-accent/30 rounded-lg flex items-start gap-3">
-      <IconCheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+      <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
       <div className="text-sm">
         <p data-testid="text-cash-adequate-title" className="font-semibold text-accent">Cash Position Adequate</p>
         <p className="text-muted-foreground mt-1">

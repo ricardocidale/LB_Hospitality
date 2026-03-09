@@ -1,7 +1,6 @@
-import { IconBarChart, IconLink } from "@/components/icons/brand-icons";
 import React, { useRef, useState } from "react";
 import { InsightPanel, type Insight } from "@/components/graphics";
-import { ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, LineChart, Line, LabelList } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, LineChart, Line, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { DashboardTabProps } from "./types";
 import PortfolioResearchCard from "./PortfolioResearchCard";
@@ -14,7 +13,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, exportPortfolioPDF, exportPortfolioCSV } from "./dashboardExports";
-
+import { Link } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import * as XLSX from "xlsx";
 import { RadialGauge } from "@/lib/charts";
@@ -275,7 +274,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <div ref={chartsRef} className="bg-card rounded-lg p-6 border border-border shadow-sm flex flex-col" data-testid="chart-property-irr-comparison">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
                   <ChartContainer config={{ irr: { label: "IRR", color: "var(--chart-1)" } } satisfies ChartConfig} className="h-[200px] w-full">
-                    <IconBarChart data={propertyIRRData} margin={{ top: 20, right: 10, left: 0, bottom: 40 }}>
+                    <BarChart data={propertyIRRData} margin={{ top: 20, right: 10, left: 0, bottom: 40 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} angle={-25} textAnchor="end" height={50} tick={{ fontSize: 10 }} />
                       <ChartTooltip
@@ -288,14 +287,14 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       <Bar dataKey="irr" fill="var(--color-irr)" radius={8} maxBarSize={44}>
                         <LabelList position="top" offset={12} className="fill-foreground" fontSize={12} formatter={(v: number) => `${v}%`} />
                       </Bar>
-                    </IconBarChart>
+                    </BarChart>
                   </ChartContainer>
                 </div>
 
                 <div className="bg-card rounded-lg p-6 border border-border shadow-sm flex flex-col" data-testid="chart-property-investment">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Equity by Property</p>
                   <ChartContainer config={{ investment: { label: "Equity Invested", color: "var(--chart-2)" } } satisfies ChartConfig} className="h-[200px] w-full">
-                    <IconBarChart data={propertyInvestmentData} margin={{ top: 20, right: 10, left: 0, bottom: 40 }}>
+                    <BarChart data={propertyInvestmentData} margin={{ top: 20, right: 10, left: 0, bottom: 40 }}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} angle={-25} textAnchor="end" height={50} tick={{ fontSize: 10 }} />
                       <ChartTooltip
@@ -308,7 +307,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       <Bar dataKey="investment" fill="var(--color-investment)" radius={8} maxBarSize={44}>
                         <LabelList position="top" offset={12} className="fill-foreground" fontSize={11} formatter={(v: number) => v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}K`} />
                       </Bar>
-                    </IconBarChart>
+                    </BarChart>
                   </ChartContainer>
                 </div>
               </div>
@@ -612,9 +611,9 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       <TableRow key={prop.id} className="hover:bg-muted/30" data-testid={`row-property-${prop.id}`}>
                         <TableCell className="text-xs text-muted-foreground font-mono py-2.5">{idx + 1}</TableCell>
                         <TableCell className="py-2.5">
-                          <IconLink href={`/property/${prop.id}`} className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                          <Link href={`/property/${prop.id}`} className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                             {prop.name}
-                          </IconLink>
+                          </Link>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground py-2.5">{prop.market}</TableCell>
                         <TableCell className="text-xs text-foreground font-mono text-center py-2.5">{prop.roomCount}</TableCell>

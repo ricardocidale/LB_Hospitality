@@ -3,7 +3,7 @@ import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from
 import "react-image-crop/dist/ReactCrop.css";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { IconCrop, IconLoader } from "@/components/icons/brand-icons";
+import { Crop as CropIcon, Loader2 } from "lucide-react";
 
 interface ImageCropDialogProps {
   open: boolean;
@@ -115,7 +115,7 @@ export function ImageCropDialog({
       <DialogContent className="max-w-2xl" data-testid="image-crop-dialog">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <IconCrop className="w-5 h-5 text-primary" />
+            <CropIcon className="w-5 h-5 text-primary" />
             Crop Image
           </DialogTitle>
         </DialogHeader>
@@ -150,12 +150,12 @@ export function ImageCropDialog({
           <Button onClick={handleSave} disabled={isCropping || !completedCrop} data-testid="crop-save">
             {isCropping ? (
               <>
-                <IconLoader className="w-4 h-4 animate-spin mr-2" />
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 Cropping...
               </>
             ) : (
               <>
-                <IconCrop className="w-4 h-4 mr-2" />
+                <CropIcon className="w-4 h-4 mr-2" />
                 Crop & Upload
               </>
             )}

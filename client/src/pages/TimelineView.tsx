@@ -1,5 +1,6 @@
-;
-import { IconCalendar, IconMapPin, IconPlay, useMemo } from "@/components/icons/brand-icons";
+import { useMemo } from "react";
+import { useStore } from "@/lib/store";
+import { Building2, Play, Calendar, MapPin } from "lucide-react";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
 interface TimelineEvent {
@@ -77,7 +78,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
         <div className="flex flex-col gap-10">
           {events.map((evt, i) => {
             const isLeft = i % 2 === 0;
-            const Icon = evt.type === "acquisition" ? IconBuilding : IconPlay;
+            const Icon = evt.type === "acquisition" ? Building2 : Play;
             const label =
               evt.type === "acquisition"
                 ? `${evt.propertyName} - Acquisition`
@@ -136,7 +137,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
                         }}
                         data-testid={`timeline-date-${i}`}
                       >
-                        <IconCalendar className="w-3 h-3" />
+                        <Calendar className="w-3 h-3" />
                         {formatDate(evt.date)}
                       </span>
                     </div>
@@ -146,7 +147,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
                     </h3>
 
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                      <IconMapPin className="w-3 h-3" />
+                      <MapPin className="w-3 h-3" />
                       <span data-testid={`timeline-location-${i}`}>{evt.location}</span>
                     </div>
 

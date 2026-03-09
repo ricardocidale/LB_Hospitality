@@ -1,8 +1,7 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/financialEngine";
-import { IconTrending, IconMinus, IconTrendingDown } from "@/components/icons/brand-icons";
-import * as React from "react";
-;
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 export interface StatCardProps {
   label: string;
@@ -65,9 +64,9 @@ function StatCard({
               trend === "down" && "text-red-600 bg-red-50",
               trend === "neutral" && "text-muted-foreground/40 bg-muted"
             )}>
-              {trend === "up" && <IconTrending className="w-3 h-3" />}
-              {trend === "down" && <IconTrendingDown className="w-3 h-3" />}
-              {trend === "neutral" && <IconMinus className="w-3 h-3" />}
+              {trend === "up" && <TrendingUp className="w-3 h-3" />}
+              {trend === "down" && <TrendingDown className="w-3 h-3" />}
+              {trend === "neutral" && <Minus className="w-3 h-3" />}
               {trendValue}
             </span>
           )}

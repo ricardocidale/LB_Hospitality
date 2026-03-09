@@ -1,12 +1,18 @@
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { SaveButton } from "@/components/ui/save-button";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardDescription, CardHeader, CardTitle, useState } from "react";
-import { Card } from "@/components/icons/brand-icons";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Shield, Mic, Brain, Phone, User, History,
+  CheckCircle2, XCircle, Play, Palette, MousePointerClick,
+  AlertTriangle, RefreshCw, Radio, Info,
+} from "lucide-react";
 import { Orb, AgentState } from "@/features/ai-agent/components/orb";
 import { ConversationBar } from "@/features/ai-agent/components/conversation-bar";
 import { VoiceSettings } from "./types";
@@ -33,7 +39,7 @@ function StatusChecklist({ items, onNavigate }: { items: ChecklistItem[]; onNavi
     <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-agent-checklist">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <IconShield className="w-4 h-4 text-muted-foreground" />
+          <Shield className="w-4 h-4 text-muted-foreground" />
           Agent Readiness
         </CardTitle>
         <CardDescription className="label-text mt-0.5">
@@ -56,8 +62,8 @@ function StatusChecklist({ items, onNavigate }: { items: ChecklistItem[]; onNavi
               data-testid={`checklist-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
             >
               {item.ok
-                ? <IconCheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                : <IconXCircle className="w-4 h-4 text-red-400 shrink-0" />}
+                ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                : <XCircle className="w-4 h-4 text-red-400 shrink-0" />}
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           ))}
@@ -140,13 +146,13 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
   if (isError || !draft) {
     return (
       <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-        <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+        <AlertTriangle className="w-10 h-10 text-amber-500" />
         <div>
           <p className="font-semibold text-foreground">Failed to load AI Agent settings</p>
           <p className="text-sm text-muted-foreground mt-1">Check your connection or try again.</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()} className="gap-2">
-          <IconRefresh className="w-4 h-4" /> Retry
+          <RefreshCw className="w-4 h-4" /> Retry
         </Button>
       </div>
     );
@@ -176,13 +182,13 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
   // ── Tab definitions ─────────────────────────────────────────────────────────
 
   const tabs = [
-    { value: "general",      label: "General",      icon: IconShield },
-    { value: "intelligence",  label: "Intelligence", icon: IconBrain },
-    { value: "voice",         label: "Voice",        icon: IconMic },
-    { value: "appearance",    label: "Appearance",   icon: IconPalette },
-    { value: "interaction",   label: "Interaction",  icon: IconSliders },
-    { value: "channels",      label: "Channels",     icon: IconPhone },
-    { value: "history",       label: "History",      icon: IconClock },
+    { value: "general",      label: "General",      icon: Shield },
+    { value: "intelligence",  label: "Intelligence", icon: Brain },
+    { value: "voice",         label: "Voice",        icon: Mic },
+    { value: "appearance",    label: "Appearance",   icon: Palette },
+    { value: "interaction",   label: "Interaction",  icon: MousePointerClick },
+    { value: "channels",      label: "Channels",     icon: Phone },
+    { value: "history",       label: "History",      icon: History },
   ];
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -198,7 +204,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
         <div className="flex items-center gap-3">
           {draft.marcelaAgentId && (
             <Button size="sm" variant="outline" onClick={() => setTestOpen(true)} className="gap-1.5 border-border text-muted-foreground hover:bg-muted" data-testid="button-test-conversation">
-              <IconPlay className="w-3.5 h-3.5" /> Test
+              <Play className="w-3.5 h-3.5" /> Test
             </Button>
           )}
           <SaveButton onClick={handleSave} disabled={!isDirty} isPending={saveMutation.isPending} />
@@ -255,7 +261,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <IconUser className="w-4 h-4 text-muted-foreground/60" />
+                    <User className="w-4 h-4 text-muted-foreground/60" />
                     <Label className="label-text font-medium text-xs uppercase tracking-wider text-muted-foreground/70">Agent Display Name</Label>
                   </div>
                   <Input
@@ -316,7 +322,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
             <Card className="bg-card border border-border/80 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <IconRadio className="w-4 h-4 text-muted-foreground" /> Widget Status
+                  <Radio className="w-4 h-4 text-muted-foreground" /> Widget Status
                 </CardTitle>
                 <CardDescription className="label-text mt-0.5">
                   Live connection diagnostics for the {agentName} widget.
@@ -326,24 +332,24 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Agent ID</span>
                   {agentIdOk
-                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle className="w-3.5 h-3.5 text-green-500" />Configured</span>
-                    : <span className="flex items-center gap-1 text-xs text-muted-foreground"><IconXCircle className="w-3.5 h-3.5 text-red-400" />Missing</span>}
+                    ? <span className="flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" />Configured</span>
+                    : <span className="flex items-center gap-1 text-xs text-muted-foreground"><XCircle className="w-3.5 h-3.5 text-red-400" />Missing</span>}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Signed URL</span>
                   {signedUrlLoading
                     ? <span className="text-xs text-muted-foreground animate-pulse">Generating…</span>
                     : signedUrlError
-                    ? <span className="flex items-center gap-1 text-xs text-destructive"><IconXCircle className="w-3.5 h-3.5" />Failed</span>
+                    ? <span className="flex items-center gap-1 text-xs text-destructive"><XCircle className="w-3.5 h-3.5" />Failed</span>
                     : signedUrl
-                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle className="w-3.5 h-3.5 text-green-500" />Ready</span>
+                    ? <span className="flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" />Ready</span>
                     : <span className="text-xs text-muted-foreground">Unavailable</span>}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">ElevenLabs API</span>
                   {elevenLabsOk
-                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle className="w-3.5 h-3.5 text-green-500" />Connected</span>
-                    : <span className="flex items-center gap-1 text-xs text-destructive"><IconXCircle className="w-3.5 h-3.5" />Error</span>}
+                    ? <span className="flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" />Connected</span>
+                    : <span className="flex items-center gap-1 text-xs text-destructive"><XCircle className="w-3.5 h-3.5" />Error</span>}
                 </div>
                 {signedUrlError && (
                   <p className="text-xs text-destructive pt-1">
@@ -356,7 +362,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
             {/* Tools summary (read-only) */}
             {agentConfig?.conversation_config?.agent?.prompt?.tools && (
               <div className="flex gap-3 p-3 bg-muted/30 border border-border/60 rounded-lg">
-                <IconInfo className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <Info className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                 <p className="text-[11px] text-muted-foreground">
                   <span className="font-medium text-foreground">
                     {(agentConfig.conversation_config.agent.prompt.tools as any[]).length} tools
@@ -400,7 +406,7 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
           <TabsContent value="history" className="space-y-6 m-0 focus-visible:outline-none">
             <ErrorBoundary fallback={
               <div className="p-6 rounded-xl border border-amber-200/60 bg-amber-50/40 flex flex-col items-center gap-3 text-center">
-                <IconAlertTriangle className="w-8 h-8 text-amber-500" />
+                <AlertTriangle className="w-8 h-8 text-amber-500" />
                 <div>
                   <p className="font-medium text-foreground text-sm">Conversation history failed to load</p>
                   <p className="text-xs text-muted-foreground mt-1">An error occurred in this section. Other tabs are unaffected.</p>

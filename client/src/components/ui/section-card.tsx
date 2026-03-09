@@ -1,6 +1,5 @@
-;
 import { Card, CardContent } from "@/components/ui/card";
-import { IconChevronDown, IconChevronRight } from "@/components/icons/brand-icons";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SectionCardProps {
@@ -59,9 +58,9 @@ export function SectionCard({
             </div>
           </div>
           {expanded ? (
-            <IconChevronDown className="w-5 h-5 text-muted-foreground/40" />
+            <ChevronDown className="w-5 h-5 text-muted-foreground/40" />
           ) : (
-            <IconChevronRight className="w-5 h-5 text-muted-foreground/40" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground/40" />
           )}
         </button>
         {expanded && (

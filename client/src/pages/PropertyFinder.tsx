@@ -1,5 +1,26 @@
-;
-import { IconAlertCircle, IconBuilding, IconChevronLeft, IconChevronRight, IconLoader, IconSearch } from "@/components/icons/brand-icons";
+import { useState } from "react";
+import Layout from "@/components/Layout";
+import { useGlobalAssumptions } from "@/lib/api";
+import { PageHeader } from "@/components/ui/page-header";
+import { useToast } from "@/hooks/use-toast";
+import {
+  usePropertySearch,
+  useProspectiveFavorites,
+  useSaveFavorite,
+  useDeleteFavorite,
+  useUpdateFavoriteNotes,
+  useSavedSearches,
+  useCreateSavedSearch,
+  useDeleteSavedSearch,
+  type PropertyFinderSearchParams,
+  type PropertyFinderResult,
+  type SavedProspectiveProperty,
+  type SavedSearchData,
+} from "@/lib/api";
+import {
+  Search, Heart, AlertCircle, Building2, Loader2,
+  ChevronLeft, ChevronRight,
+} from "lucide-react";
 import {
   SearchResultCard,
   FavoriteCard,
@@ -102,7 +123,7 @@ export default function PropertyFinder() {
       }
     }, {
       onSuccess: () => {
-        toast({ title: "IconSearch saved", description: `"${saveSearchName}" has been saved.` });
+        toast({ title: "Search saved", description: `"${saveSearchName}" has been saved.` });
         setSaveSearchName("");
         setShowSaveDialog(false);
       },
@@ -128,7 +149,7 @@ export default function PropertyFinder() {
       lotSizeMin: filters.lotSizeMin || undefined,
       propertyType: filters.propertyType || undefined,
     });
-    toast({ title: "IconSearch loaded", description: `Running "${search.name}" search...` });
+    toast({ title: "Search loaded", description: `Running "${search.name}" search...` });
   };
 
   const handleDeleteSearch = (id: number) => {
@@ -184,7 +205,7 @@ export default function PropertyFinder() {
           <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
             <div className="h-1 bg-primary" />
             <div className="p-6 flex items-start gap-4">
-              <IconAlertCircle className="w-6 h-6 text-destructive flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-6 h-6 text-destructive flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="text-foreground font-semibold mb-1">API Key Required</h3>
                 <p className="text-muted-foreground text-sm mb-3">
@@ -203,7 +224,7 @@ export default function PropertyFinder() {
           <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
             <div className="h-0.5 bg-destructive/40" />
             <div className="p-4 flex items-center gap-3">
-              <IconAlertCircle className="w-5 h-5 text-destructive" />
+              <AlertCircle className="w-5 h-5 text-destructive" />
               <p className="text-foreground text-sm">{searchError.message}</p>
             </div>
           </div>
@@ -211,7 +232,7 @@ export default function PropertyFinder() {
 
         {isSearching && (
           <div className="flex justify-center py-16">
-            <IconLoader className="w-8 h-8 animate-spin text-primary" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         )}
 
@@ -229,7 +250,7 @@ export default function PropertyFinder() {
                     className="p-1.5 rounded-lg border border-border disabled:opacity-30 hover:bg-muted transition-colors"
                     data-testid="btn-prev-page"
                   >
-                    <IconChevronLeft className="w-4 h-4 text-muted-foreground" />
+                    <ChevronLeft className="w-4 h-4 text-muted-foreground" />
                   </button>
                   <span className="text-xs text-muted-foreground">
                     {searchData.offset + 1}-{Math.min(searchData.offset + 20, searchData.total)} of {searchData.total.toLocaleString()}
@@ -240,7 +261,7 @@ export default function PropertyFinder() {
                     className="p-1.5 rounded-lg border border-border disabled:opacity-30 hover:bg-muted transition-colors"
                     data-testid="btn-next-page"
                   >
-                    <IconChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
               )}
@@ -248,7 +269,7 @@ export default function PropertyFinder() {
 
             {searchData.results.length === 0 ? (
               <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
-                <IconBuilding className="w-12 h-12 text-primary/30 mx-auto mb-3" />
+                <Building2 className="w-12 h-12 text-primary/30 mx-auto mb-3" />
                 <p className="text-muted-foreground font-medium">No properties found matching your criteria.</p>
                 <p className="text-muted-foreground text-sm mt-1">Try adjusting your filters or searching a different location.</p>
               </div>
@@ -277,9 +298,9 @@ export default function PropertyFinder() {
         {!searchData && !searchError && !isSearching && (
           <div className="bg-card rounded-lg shadow-sm border border-border p-16 text-center">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <IconSearch className="w-8 h-8 text-primary/40" />
+              <Search className="w-8 h-8 text-primary/40" />
             </div>
-            <p className="text-muted-foreground font-medium">IconSearch for Properties</p>
+            <p className="text-muted-foreground font-medium">Search for Properties</p>
             <p className="text-muted-foreground text-sm mt-1">
               Enter a location above to find large homes and estates with {(global?.propertyLabel || "boutique hotel").toLowerCase()} conversion potential.
             </p>
@@ -299,7 +320,7 @@ export default function PropertyFinder() {
 
           {isFavoritesLoading ? (
             <div className="flex justify-center py-16">
-              <IconLoader className="w-8 h-8 animate-spin text-primary" />
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
           ) : favorites.length === 0 ? (
             <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
@@ -308,7 +329,7 @@ export default function PropertyFinder() {
               </div>
               <p className="text-muted-foreground font-medium">No Saved Properties</p>
               <p className="text-muted-foreground text-sm mt-1">
-                IconSearch for properties and click the heart icon to save them here for later review.
+                Search for properties and click the heart icon to save them here for later review.
               </p>
             </div>
           ) : (

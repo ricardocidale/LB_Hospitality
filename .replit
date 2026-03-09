@@ -110,3 +110,6 @@ integrations = ["javascript_database:1.0.0", "javascript_object_storage:2.0.0", 
 
 [userenv.development]
 PRODUCTION_URL = "https://h-analysis.com"
+
+[userenv.shared]
+MARCELA_TOOLS_SECRET = "akL747Uh8ELmRZVXE2dipCq4snqYa5Rj19iI2rbrUy4"

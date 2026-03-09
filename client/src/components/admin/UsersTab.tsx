@@ -324,24 +324,7 @@ export default function UsersTab() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedUsers.map((user, idx, arr) => {
-                const currentGroup = user.userGroupId ? groupNameMap[user.userGroupId] || "Unknown Group" : "No Group";
-                const prevGroup = idx > 0
-                  ? (arr[idx - 1].userGroupId ? groupNameMap[arr[idx - 1].userGroupId] || "Unknown Group" : "No Group")
-                  : null;
-                const showGroupHeader = sortField === "group" && currentGroup !== prevGroup;
-                return (<>
-                {showGroupHeader && (
-                  <TableRow key={`group-header-${currentGroup}-${idx}`} className="border-border bg-transparent hover:bg-transparent">
-                    <TableCell colSpan={4} className="py-1.5 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-px flex-1 bg-border/60" />
-                        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">{currentGroup}</span>
-                        <div className="h-px flex-1 bg-border/60" />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
+              {sortedUsers.map((user, idx) => (
                 <TableRow key={user.id} className={`border-border hover:bg-muted/50 ${idx % 2 === 1 ? "bg-muted/30" : ""}`} data-testid={`row-user-${user.id}`}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -388,7 +371,7 @@ export default function UsersTab() {
                     </div>
                   </TableCell>
                 </TableRow>
-              </>)})}
+              ))}
             </TableBody>
           </Table>
         )}

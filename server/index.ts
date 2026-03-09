@@ -145,6 +145,8 @@ app.use((req, res, next) => {
   await seedDefaultLogos();
   await seedUserGroups();
   await seedCompanies();
+  const { seedUserCompanyAssignments } = await import("./seeds/users");
+  await seedUserCompanyAssignments();
   await seedFeeCategories();
   await seedServiceTemplates();
   registerImageRoutes(app);

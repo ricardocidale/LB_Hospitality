@@ -17,8 +17,11 @@ import { Loader2, Plus, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
 import { IconPeople, IconProperties, IconPencil, IconTrash, IconPalette, IconImage, IconBuilding } from "@/components/icons/brand-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import type { Logo, UserGroup, AssetDesc } from "./types";
 import type { Property } from "@shared/schema";
+
+type GroupUser = { id: number; email: string; firstName: string | null; lastName: string | null; name: string | null; role: string; userGroupId: number | null; company: string | null; title: string | null };
 
 export default function GroupsTab() {
   const { toast } = useToast();
@@ -76,6 +79,15 @@ export default function GroupsTab() {
     queryFn: async () => {
       const res = await fetch("/api/properties", { credentials: "include" });
       if (!res.ok) throw new Error("Failed to fetch properties");
+      return res.json();
+    },
+  });
+
+  const { data: allUsers } = useQuery<GroupUser[]>({
+    queryKey: ["admin", "users"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/users", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch users");
       return res.json();
     },
   });
@@ -234,6 +246,31 @@ export default function GroupsTab() {
                         </span>
                       )}
                     </div>
+
+                    {/* Group Members */}
+                    {(() => {
+                      const members = (allUsers ?? []).filter(u => u.userGroupId === group.id);
+                      if (members.length === 0) return null;
+                      return (
+                        <div className="border-t border-border/60 pt-3 mt-1 mb-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <IconPeople className="w-3.5 h-3.5 text-muted-foreground/60" />
+                            <span className="text-xs font-medium text-muted-foreground">{members.length} member{members.length !== 1 ? "s" : ""}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {members.map(m => (
+                              <div key={m.id} className="flex items-center gap-2 bg-card/60 border border-border/40 rounded-lg px-2.5 py-1.5" data-testid={`group-member-${m.id}`}>
+                                <UserAvatar firstName={m.firstName} lastName={m.lastName} name={m.name} email={m.email} size="sm" />
+                                <div className="leading-tight">
+                                  <div className="text-xs font-medium text-foreground">{m.firstName}{m.lastName ? ` ${m.lastName}` : ""}</div>
+                                  <div className="text-[10px] text-muted-foreground">{m.title || m.role}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {/* Property Visibility */}
                     {allProperties && allProperties.length > 0 && (() => {

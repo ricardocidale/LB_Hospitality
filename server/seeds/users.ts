@@ -1,6 +1,6 @@
 import { db } from "../db";
-import { users } from "@shared/schema";
-import { eq, isNull } from "drizzle-orm";
+import { users, companies } from "@shared/schema";
+import { eq, isNull, isNotNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { userGroups } from "@shared/schema";
 import { logger } from "../logger";
@@ -74,5 +74,36 @@ export async function seedUserGroups() {
       await db.update(users).set({ userGroupId: defaultGroup.id }).where(isNull(users.userGroupId));
       logger.info(`Assigned ${unassigned.length} unassigned user(s) to '${defaultGroup.name}' group`, "seed");
     }
+  }
+}
+
+export async function seedUserCompanyAssignments() {
+  const companyNameToEmail: Record<string, string[]> = {
+    "The Norfolk AI Group": ["admin", "checker@norfolkgroup.io", "reynaldo.fagundes@norfolk.ai"],
+    "KIT Capital": ["kit@kitcapital.com", "rosario@kitcapital.com", "lemazniku@icloud.com"],
+    "Numeratti Endeavors": ["leslie@cidale.com"],
+  };
+
+  const allCompanies = await db.select().from(companies);
+  const companyMap: Record<string, number> = {};
+  for (const c of allCompanies) {
+    companyMap[c.name] = c.id;
+  }
+
+  let assigned = 0;
+  for (const [companyName, emails] of Object.entries(companyNameToEmail)) {
+    const companyId = companyMap[companyName];
+    if (!companyId) continue;
+    for (const email of emails) {
+      const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      if (user && user.companyId !== companyId) {
+        await db.update(users).set({ companyId }).where(eq(users.id, user.id));
+        assigned++;
+      }
+    }
+  }
+
+  if (assigned > 0) {
+    logger.info(`Assigned ${assigned} user(s) to their companies`, "seed");
   }
 }

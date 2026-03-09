@@ -26,6 +26,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
 
   return (
     <NativeElevenLabsWidget
+      agentId={agentId}
       signedUrl={signedUrl}
       avatarUrl={avatarUrl}
       dynamicVars={dynamicVars}
@@ -34,10 +35,12 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
 }
 
 function NativeElevenLabsWidget({
+  agentId,
   signedUrl,
   avatarUrl,
   dynamicVars,
 }: {
+  agentId: string;
   signedUrl?: string;
   avatarUrl?: string;
   dynamicVars: Record<string, string>;
@@ -58,6 +61,7 @@ function NativeElevenLabsWidget({
       }
 
       const widget = document.createElement("elevenlabs-convai");
+      widget.setAttribute("agent-id", agentId);
       widget.setAttribute("signed-url", signedUrl);
       if (avatarUrl) widget.setAttribute("avatar-image-url", avatarUrl);
       widget.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
@@ -72,7 +76,7 @@ function NativeElevenLabsWidget({
       widgetRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signedUrl]);
+  }, [agentId, signedUrl]);
 
   useEffect(() => {
     if (widgetRef.current) {

@@ -1164,3 +1164,134 @@ export function IconNavigation(p: IconProps) {
     </svg>
   );
 }
+
+export function IconDollarSign(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="12" cy="12" r="10" {...F} />
+      <circle cx="12" cy="12" r="10" {...S} fill="none" />
+      <path d="M16 8h-2a3 3 0 0 0 0 6h0a3 3 0 0 1 0 6H8" {...S} />
+      <path d="M12 5v2M12 17v2" {...S} />
+    </svg>
+  );
+}
+
+export function IconWallet(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="2" y="5" width="20" height="16" rx="2" {...F} />
+      <rect x="2" y="5" width="20" height="16" rx="2" {...S} fill="none" />
+      <path d="M2 10h20" {...S} />
+      <circle cx="17" cy="15" r="1.5" fill="currentColor" opacity="0.3" />
+    </svg>
+  );
+}
+
+export function IconLandmark(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M3 22h18" {...S} />
+      <path d="M6 18v-7" {...S} />
+      <path d="M10 18v-7" {...S} />
+      <path d="M14 18v-7" {...S} />
+      <path d="M18 18v-7" {...S} />
+      <path d="M12 2l10 7H2l10-7z" {...F} />
+      <path d="M12 2l10 7H2l10-7z" {...S} fill="none" />
+      <rect x="2" y="18" width="20" height="2" rx="0.5" {...F} />
+      <rect x="2" y="18" width="20" height="2" rx="0.5" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconScale(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M12 3v18" {...S} />
+      <path d="M16 7l-4-4-4 4" {...S} />
+      <path d="M5 10l3 7h-2l-1 2" {...F} />
+      <path d="M19 10l-3 7h2l1 2" {...F} />
+      <path d="M5 10l3 7" {...S} />
+      <path d="M19 10l-3 7" {...S} />
+      <path d="M5 17h6M13 17h6" {...S} />
+      <rect x="8" y="19" width="8" height="2" rx="1" {...F} />
+      <rect x="8" y="19" width="8" height="2" rx="1" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconPercent(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M19 5L5 19" {...S} />
+      <circle cx="7" cy="7" r="3" {...F} />
+      <circle cx="7" cy="7" r="3" {...S} fill="none" />
+      <circle cx="17" cy="17" r="3" {...F} />
+      <circle cx="17" cy="17" r="3" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconBarChart3(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <rect x="3" y="14" width="4" height="7" rx="1" {...F} />
+      <rect x="3" y="14" width="4" height="7" rx="1" {...S} fill="none" />
+      <rect x="10" y="8" width="4" height="13" rx="1" {...F} />
+      <rect x="10" y="8" width="4" height="13" rx="1" {...S} fill="none" />
+      <rect x="17" y="3" width="4" height="18" rx="1" {...F} />
+      <rect x="17" y="3" width="4" height="18" rx="1" {...S} fill="none" />
+    </svg>
+  );
+}
+
+export function IconTrendingUp(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M2 17l5-5 4 4 5-6 5-5" {...S} />
+      <path d="M17 5h4v4" {...S} />
+      <path d="M2 17l5-5 4 4 5-6 5-5v12H2z" {...F} />
+    </svg>
+  );
+}
+
+export function IconTrendingDown(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <path d="M2 7l5 5 4-4 5 6 5 5" {...S} />
+      <path d="M17 19h4v-4" {...S} />
+      <path d="M2 7l5 5 4-4 5 6 5 5V7H2z" {...F} />
+    </svg>
+  );
+}
+
+export function IconPlusCircle(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="12" cy="12" r="10" {...F} />
+      <circle cx="12" cy="12" r="10" {...S} fill="none" />
+      <path d="M12 8v8" {...S} />
+      <path d="M8 12h8" {...S} />
+    </svg>
+  );
+}
+
+export function IconTarget(p: IconProps) {
+  const a = defaults(p);
+  return (
+    <svg {...a}>
+      <circle cx="12" cy="12" r="10" {...F} />
+      <circle cx="12" cy="12" r="10" {...S} fill="none" />
+      <circle cx="12" cy="12" r="6" {...S} fill="none" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" opacity="0.3" />
+    </svg>
+  );
+}

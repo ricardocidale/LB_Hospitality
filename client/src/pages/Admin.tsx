@@ -18,6 +18,7 @@ import LogosTab from "@/components/admin/LogosTab";
 import ThemesTab from "@/components/admin/ThemesTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
+import TwilioTab from "@/components/admin/TwilioTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AlertTriangle } from "lucide-react";
@@ -97,7 +98,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
             Reload page
           </Button>
         </div>
-      }><MarcelaTab initialTab="channels" /></ErrorBoundary>
+      }><TwilioTab /></ErrorBoundary>
     );
     case "verification":     return <VerificationTab />;
     case "database":         return <DatabaseTab />;

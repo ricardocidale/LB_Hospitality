@@ -11,9 +11,9 @@
  * The card is rendered inside a responsive CSS grid on the Portfolio page.
  * Property order can be controlled by the parent (e.g. sort by name or IRR).
  */
-import { formatMoney } from "@/lib/financialEngine";
-import { Trash2, MapPin, Bed, ArrowRight, Calendar, Settings } from "lucide-react";
-import { Link } from "wouter";
+;
+import { IconArrowRight, IconBed, IconCalendar, IconLink, IconMapPin, formatMoney } from "@/components/icons/brand-icons";
+
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { StaggerItem, TiltCard } from "@/components/ui/animated";
@@ -74,11 +74,11 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
         <div className="p-5">
           <h3 className="font-display text-xl text-foreground">{property.name}</h3>
           <div className="flex items-center text-foreground/60 text-sm mt-1 label-text">
-            <MapPin className="w-3 h-3 mr-1" />
+            <IconMapPin className="w-3 h-3 mr-1" />
             {property.location}
           </div>
           <div className="flex items-center text-foreground/50 text-xs mt-1.5 label-text">
-            <Calendar className="w-3 h-3 mr-1" />
+            <IconCalendar className="w-3 h-3 mr-1" />
             {property.status === "Acquired" || property.status === "Operating" ? "Acquired" : "Planned"}{" "}
             {new Date(property.acquisitionDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
           </div>
@@ -93,7 +93,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
             <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
               <p className="text-xs text-foreground/50 mb-1 label-text">Capacity</p>
               <p className="font-semibold text-foreground flex items-center">
-                <Bed className="w-3 h-3 mr-1" />
+                <IconBed className="w-3 h-3 mr-1" />
                 <span className="font-mono">{property.roomCount}</span> <span className="label-text ml-1">Rooms</span>
               </p>
             </div>
@@ -109,7 +109,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
                 className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                 data-testid={`button-delete-property-${property.id}`}
               >
-                <Trash2 className="w-4 h-4" />
+                <IconTrash className="w-4 h-4" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -132,7 +132,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           </AlertDialog>
 
           <div className="flex items-center gap-2">
-            <Link href={`/property/${property.id}/edit`}>
+            <IconLink href={`/property/${property.id}/edit`}>
               <Button
                 variant="outline"
                 size="sm"
@@ -142,17 +142,17 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
                 <Settings className="w-3.5 h-3.5" />
                 Assumptions
               </Button>
-            </Link>
-            <Link href={`/property/${property.id}`}>
+            </IconLink>
+            <IconLink href={`/property/${property.id}`}>
               <Button
                 size="sm"
                 className="h-8 text-xs gap-1.5 hover:scale-[1.03] active:scale-[0.97] transition-transform"
                 data-testid={`button-details-${property.id}`}
               >
                 Details
-                <ArrowRight className="w-3.5 h-3.5" />
+                <IconArrowRight className="w-3.5 h-3.5" />
               </Button>
-            </Link>
+            </IconLink>
           </div>
         </div>
       </div>

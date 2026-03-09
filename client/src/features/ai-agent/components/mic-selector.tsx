@@ -1,8 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { Check, ChevronsUpDown, Mic, MicOff } from "lucide-react"
-
+import { IconChevronsUpDown, IconMic, IconMicOff, useCallback, useEffect, useState } from "@/components/icons/brand-icons";
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -105,14 +103,14 @@ export function MicSelector({
           disabled={loading || disabled}
         >
           {isMuted ? (
-            <MicOff className="h-4 w-4 flex-shrink-0" />
+            <IconMicOff className="h-4 w-4 flex-shrink-0" />
           ) : (
-            <Mic className="h-4 w-4 flex-shrink-0" />
+            <IconMic className="h-4 w-4 flex-shrink-0" />
           )}
           <span className="flex-1 truncate text-left">
             {currentDevice.label}
           </span>
-          <ChevronsUpDown className="h-3 w-3 flex-shrink-0" />
+          <IconChevronsUpDown className="h-3 w-3 flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" side="top" className="w-72">
@@ -130,7 +128,7 @@ export function MicSelector({
             >
               <span className="truncate">{device.label}</span>
               {selectedDevice === device.deviceId && (
-                <Check className="h-4 w-4 flex-shrink-0" />
+                <IconCheck className="h-4 w-4 flex-shrink-0" />
               )}
             </DropdownMenuItem>
           ))
@@ -149,9 +147,9 @@ export function MicSelector({
                 className="h-8 gap-2"
               >
                 {isMuted ? (
-                  <MicOff className="h-4 w-4" />
+                  <IconMicOff className="h-4 w-4" />
                 ) : (
-                  <Mic className="h-4 w-4" />
+                  <IconMic className="h-4 w-4" />
                 )}
                 <span className="text-sm">{isMuted ? "Unmute" : "Mute"}</span>
               </Button>

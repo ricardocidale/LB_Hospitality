@@ -1,8 +1,8 @@
 "use client"
 
+import { IconCheck, IconChevronsUpDown, IconPause, IconPlay } from "@/components/icons/brand-icons";
 import * as React from "react"
 import type { ElevenLabs } from "@elevenlabs/elevenlabs-js"
-import { Check, ChevronsUpDown, Pause, Play } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import {
@@ -71,7 +71,7 @@ function VoicePicker({
             ) : (
               placeholder
             )}
-            <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+            <IconChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
@@ -165,9 +165,9 @@ function VoicePickerItem({
         {preview && isHovered && (
           <div className="pointer-events-none absolute inset-0 flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground/40 backdrop-blur-sm transition-opacity hover:bg-foreground/50">
             {isPlaying ? (
-              <Pause className="size-3 text-white" />
+              <IconPause className="size-3 text-white" />
             ) : (
-              <Play className="size-3 text-white" />
+              <IconPlay className="size-3 text-white" />
             )}
           </div>
         )}
@@ -190,7 +190,7 @@ function VoicePickerItem({
         )}
       </div>
 
-      <Check
+      <IconCheck
         className={cn(
           "ml-auto size-4 shrink-0",
           isSelected ? "opacity-100" : "opacity-0"

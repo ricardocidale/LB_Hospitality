@@ -7,17 +7,27 @@
  *   - Per-rate refresh and manual override
  *   - Bulk refresh all stale rates
  */
+
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Card, CardContent, CardHeader, CardTitle 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { 
+  Dialog, DialogContent, DialogDescription, DialogFooter, 
+  DialogHeader, DialogTitle 
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, RefreshCw, Save, Clock, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
-import { IconTrending, IconPencil } from "@/components/icons/brand-icons";
+import { useToast } from "@/hooks/use-toast";
+
+import { 
+  IconAlertTriangle, IconClock, IconLoader, IconPencil, IconRefresh, 
+  IconSave, IconTrending, IconXCircle, IconCheckCircle 
+} from "@/components/icons/brand-icons";
+
 import {
   useMarketRates,
   useRefreshRate,
@@ -28,10 +38,10 @@ import {
 
 function statusIcon(status: MarketRateResponse["status"]) {
   switch (status) {
-    case "fresh": return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
-    case "warning": return <Clock className="w-4 h-4 text-amber-500" />;
-    case "stale": return <AlertTriangle className="w-4 h-4 text-red-500" />;
-    case "missing": return <XCircle className="w-4 h-4 text-muted-foreground" />;
+    case "fresh": return <IconCheckCircle className="w-4 h-4 text-emerald-500" />;
+    case "warning": return <IconClock className="w-4 h-4 text-amber-500" />;
+    case "stale": return <IconAlertTriangle className="w-4 h-4 text-red-500" />;
+    case "missing": return <IconXCircle className="w-4 h-4 text-muted-foreground" />;
   }
 }
 
@@ -153,29 +163,29 @@ export default function MarketRatesTab() {
             size="sm"
             className="gap-2"
           >
-            {refreshAll.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            {refreshAll.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconRefresh className="w-4 h-4" />}
             Refresh All
           </Button>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 flex-wrap">
             <div className="flex items-center gap-1.5 text-sm">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <IconCheckCircle className="w-4 h-4 text-emerald-500" />
               <span className="font-medium">{freshCount}</span>
               <span className="text-muted-foreground">fresh</span>
             </div>
             <div className="flex items-center gap-1.5 text-sm">
-              <Clock className="w-4 h-4 text-amber-500" />
+              <IconClock className="w-4 h-4 text-amber-500" />
               <span className="font-medium">{warningCount}</span>
               <span className="text-muted-foreground">warning</span>
             </div>
             <div className="flex items-center gap-1.5 text-sm">
-              <AlertTriangle className="w-4 h-4 text-red-500" />
+              <IconAlertTriangle className="w-4 h-4 text-red-500" />
               <span className="font-medium">{staleCount}</span>
               <span className="text-muted-foreground">stale</span>
             </div>
             <div className="flex items-center gap-1.5 text-sm">
-              <XCircle className="w-4 h-4 text-muted-foreground" />
+              <IconXCircle className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium">{missingCount}</span>
               <span className="text-muted-foreground">missing</span>
             </div>
@@ -186,7 +196,7 @@ export default function MarketRatesTab() {
       {/* Loading State */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <IconLoader className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
       )}
 
@@ -248,7 +258,7 @@ export default function MarketRatesTab() {
                               onClick={() => handleRefreshOne(rate.rateKey)}
                               disabled={refreshRate.isPending}
                             >
-                              <RefreshCw className="w-3.5 h-3.5" />
+                              <IconRefresh className="w-3.5 h-3.5" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Refresh this rate</TooltipContent>
@@ -308,7 +318,7 @@ export default function MarketRatesTab() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setOverrideDialog(null)}>Cancel</Button>
             <Button onClick={handleOverride} disabled={overrideRate.isPending} className="gap-2">
-              {overrideRate.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {overrideRate.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
               Save
             </Button>
           </DialogFooter>

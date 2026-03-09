@@ -1,12 +1,7 @@
 "use client"
 
-import {
-  BellIcon,
-  CreditCardIcon,
-  LogOutIcon,
-  MoreVerticalIcon,
-  UserCircleIcon,
-} from "lucide-react"
+import { CreditCardIcon, MoreVerticalIcon, UserCircleIcon } from "lucide-react";
+import { IconBell, IconLogOut } from "@/components/icons/brand-icons";
 
 import {
   Avatar,
@@ -93,13 +88,13 @@ export function NavUser({
                 Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <BellIcon />
+                <IconBell />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LogOutIcon />
+              <IconLogOut />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

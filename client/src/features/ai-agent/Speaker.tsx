@@ -1,18 +1,4 @@
-
-
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-
-import {
-  Music,
-  SkipBack,
-  SkipForward,
-  Sparkles,
-  Volume,
-  Volume1,
-  Volume2,
-  VolumeX,
-} from "lucide-react"
-
+import { IconChevronLeft, IconChevronRight, IconSparkles, IconVolume, memo, useCallback, useEffect, useMemo, useRef, useState } from "@/components/icons/brand-icons";
 import { cn } from "@/lib/utils"
 import {
   AudioPlayerButton,
@@ -51,7 +37,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Orb } from "@/features/ai-agent/components/orb"
 import { Waveform } from "@/features/ai-agent/components/waveform"
-
 
 const PlayButton = memo(
   ({ currentTrackIndex }: { currentTrackIndex: number }) => {
@@ -256,10 +241,7 @@ const VolumeSlider = memo(
     const [isDragging, setIsDragging] = useState(false)
 
     const getVolumeIcon = () => {
-      if (volume === 0) return VolumeX
-      if (volume <= 0.33) return Volume
-      if (volume <= 0.66) return Volume1
-      return Volume2
+      return IconVolume
     }
 
     const VolumeIcon = getVolumeIcon()
@@ -910,7 +892,7 @@ function SpeakerControls({
   const tracks = exampleTracks.map((t) => ({
     id: t.id,
     title: t.name,
-    artist: "ElevenLabs Music",
+    artist: "ElevenLabs IconMusic",
   }))
   const currentTrack = tracks[currentTrackIndex]
 
@@ -948,7 +930,7 @@ function SpeakerControls({
                   )}
                   onClick={() => setAmbienceMode(!ambienceMode)}
                 >
-                  <Sparkles className="h-4 w-4" />
+                  <IconSparkles className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -956,7 +938,7 @@ function SpeakerControls({
                   className="text-muted-foreground hover:text-foreground h-8 w-8"
                   onClick={() => setShowTrackList(!showTrackList)}
                 >
-                  <Music className="h-4 w-4" />
+                  <IconMusic className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -1357,7 +1339,7 @@ function SpeakerControls({
             className="border-border bg-background hover:bg-muted h-10 w-10 rounded-full"
             onClick={prevTrack}
           >
-            <SkipBack className="text-muted-foreground h-4 w-4" />
+            <IconChevronLeft className="text-muted-foreground h-4 w-4" />
           </Button>
 
           <PlayButton currentTrackIndex={currentTrackIndex} />
@@ -1368,7 +1350,7 @@ function SpeakerControls({
             className="border-border bg-background hover:bg-muted h-10 w-10 rounded-full"
             onClick={nextTrack}
           >
-            <SkipForward className="text-muted-foreground h-4 w-4" />
+            <IconChevronRight className="text-muted-foreground h-4 w-4" />
           </Button>
         </div>
 

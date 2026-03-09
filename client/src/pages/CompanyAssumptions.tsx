@@ -24,13 +24,9 @@
  * On save, the entire formData object is POSTed to the global-assumptions
  * endpoint, and all financial queries are invalidated for full recalculation.
  */
-import { useState, useEffect } from "react";
-import Layout from "@/components/Layout";
-import { AnimatedPage, ScrollReveal } from "@/components/graphics";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
-import { Loader2, BookOpen, AlertTriangle } from "lucide-react";
-import { Link, useLocation } from "wouter";
+;
+import { IconAlertTriangle, IconBookOpen, IconLink, ScrollReveal, useState } from "@/components/icons/brand-icons";
+import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
 import { SaveButton } from "@/components/ui/save-button";
@@ -61,7 +57,6 @@ export default function CompanyAssumptions() {
   const { toast } = useToast();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
-
 
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
   const [isDirty, setIsDirty] = useState(false);
@@ -159,7 +154,7 @@ export default function CompanyAssumptions() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load assumptions. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -170,7 +165,7 @@ export default function CompanyAssumptions() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <IconLoader className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -180,7 +175,6 @@ export default function CompanyAssumptions() {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
   };
-
 
   const handleSave = async () => {
     try {
@@ -212,12 +206,12 @@ export default function CompanyAssumptions() {
           backLink="/company"
           actions={
             <div className="flex items-center gap-3">
-              <Link href="/company/research" className="text-inherit no-underline">
+              <IconLink href="/company/research" className="text-inherit no-underline">
                 <Button variant="default" data-testid="button-company-research">
-                  <BookOpen className="w-4 h-4" />
+                  <IconBookOpen className="w-4 h-4" />
                   Standards Research
                 </Button>
-              </Link>
+              </IconLink>
               <SaveButton 
                 onClick={handleSave} 
                 isPending={updateMutation.isPending} 

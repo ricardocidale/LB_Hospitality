@@ -1,9 +1,7 @@
+import { CardContent, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card } from "@/components/icons/brand-icons";
 import React, { useState, useMemo, useRef, RefObject } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
-import { ChevronRight, ChevronDown, ChevronsUpDown } from "lucide-react";
+;
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider, useCalcDetails } from "@/components/financial-table-rows";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -393,7 +391,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
               className="text-xs text-muted-foreground h-7 px-2"
               data-testid="button-toggle-all-is"
             >
-              <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
+              <IconChevronsUpDown className="h-3.5 w-3.5 mr-1" />
               {allRowsExpanded ? "Collapse All" : "Expand All"}
             </Button>
           </div>
@@ -436,7 +434,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                               style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1}rem` }}
                             >
                               <div className="flex items-center gap-1.5">
-                                {isOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                                {isOpen ? <IconChevronDown className="h-3 w-3" /> : <IconChevronRight className="h-3 w-3" />}
                                 <span className="italic">Formula</span>
                               </div>
                             </TableCell>
@@ -475,7 +473,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                         >
                           <div className="flex items-center gap-2">
                             {row.rowId && (
-                              expandedRows.has(row.rowId) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+                              expandedRows.has(row.rowId) ? <IconChevronDown className="h-4 w-4" /> : <IconChevronRight className="h-4 w-4" />
                             )}
                             {row.category}
                             {row.tooltip && <HelpTooltip text={row.tooltip} />}

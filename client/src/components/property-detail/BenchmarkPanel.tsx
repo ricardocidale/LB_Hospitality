@@ -7,8 +7,8 @@
  *
  * Toggled via a "Benchmarks" button in the property detail header.
  */
-import { useMemo } from "react";
-import { BookOpen, TrendingUp, TrendingDown, Minus } from "lucide-react";
+;
+import { IconMinus, IconTrending, IconTrendingDown, useMemo } from "@/components/icons/brand-icons";
 import { cn } from "@/lib/utils";
 
 interface BenchmarkRow {
@@ -26,10 +26,10 @@ interface BenchmarkPanelProps {
 
 function statusIcon(status: BenchmarkRow["status"]) {
   switch (status) {
-    case "above": return <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
-    case "below": return <TrendingDown className="w-3.5 h-3.5 text-amber-500" />;
-    case "within": return <Minus className="w-3.5 h-3.5 text-blue-500" />;
-    default: return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
+    case "above": return <IconTrending className="w-3.5 h-3.5 text-emerald-500" />;
+    case "below": return <IconTrendingDown className="w-3.5 h-3.5 text-amber-500" />;
+    case "within": return <IconMinus className="w-3.5 h-3.5 text-blue-500" />;
+    default: return <IconMinus className="w-3.5 h-3.5 text-muted-foreground" />;
   }
 }
 
@@ -135,7 +135,7 @@ export default function BenchmarkPanel({ property, yearlyChartData }: BenchmarkP
     <div className="relative overflow-hidden rounded-lg bg-card border border-border shadow-sm">
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <BookOpen className="w-4 h-4 text-primary" />
+          <IconBookOpen className="w-4 h-4 text-primary" />
           <h4 className="text-sm font-display text-foreground">Market Benchmarks</h4>
           <span className="text-xs text-muted-foreground ml-auto">vs. research ranges</span>
         </div>

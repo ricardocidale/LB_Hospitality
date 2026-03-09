@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { Loader2, Save, Plus, X, Brain, ExternalLink, Library, RefreshCw } from "lucide-react";
-import { IconResearch, IconProperties, IconGlobe, IconMapPin } from "@/components/icons/brand-icons";
+import { 
+  IconBookOpen, IconBrain, IconExternalLink, IconGlobe, IconLoader, IconMapPin, IconPlus, IconProperties, IconRefresh, IconResearch, IconSave, IconX } from "@/components/icons/brand-icons";
+
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
 import type { ResearchConfig, ResearchEventConfig, AiModelEntry } from "@shared/schema";
 import { RESEARCH_SOURCES } from "@shared/constants";
@@ -91,7 +93,7 @@ function TagInput({
           className="h-8 text-sm"
         />
         <Button data-testid={`button-add-${testIdPrefix}`} type="button" size="sm" variant="outline" onClick={add} className="h-8 px-2">
-          <Plus className="w-3.5 h-3.5" />
+          <IconPlus className="w-3.5 h-3.5" />
         </Button>
       </div>
       {tags.length > 0 && (
@@ -105,7 +107,7 @@ function TagInput({
                 onClick={() => onChange(tags.filter((t) => t !== tag))}
                 className="hover:text-destructive transition-colors"
               >
-                <X className="w-3 h-3" />
+                <IconX className="w-3 h-3" />
               </button>
             </Badge>
           ))}
@@ -334,7 +336,7 @@ function SourcesSection({
     <div className="space-y-6">
       <div className="space-y-3">
         <Label className="text-sm font-semibold flex items-center gap-2">
-          <Library className="w-4 h-4 text-primary" />
+          <IconBookOpen className="w-4 h-4 text-primary" />
           System Curated Sources
         </Label>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -347,7 +349,7 @@ function SourcesSection({
               {source.url && (
                 <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline flex items-center gap-1">
                   {source.url.replace("https://", "")}
-                  <ExternalLink className="w-2.5 h-2.5" />
+                  <IconExternalLink className="w-2.5 h-2.5" />
                 </a>
               )}
             </div>
@@ -357,7 +359,7 @@ function SourcesSection({
 
       <div className="space-y-4">
         <Label className="text-sm font-semibold flex items-center gap-2">
-          <Plus className="w-4 h-4 text-primary" />
+          <IconPlus className="w-4 h-4 text-primary" />
           Custom Research Sources
         </Label>
         
@@ -398,7 +400,7 @@ function SourcesSection({
                   onClick={() => remove(idx)}
                   className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <IconX className="w-3.5 h-3.5" />
                 </button>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium">{source.name}</span>
@@ -461,7 +463,7 @@ export default function ResearchTab() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16" data-testid="status-loading">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <IconLoader className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -491,7 +493,7 @@ export default function ResearchTab() {
               size="sm"
               className="gap-2"
             >
-              {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {saveMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
               Save
             </Button>
           </div>
@@ -503,7 +505,7 @@ export default function ResearchTab() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2 text-base font-display">
-                <Brain className="w-5 h-5 text-primary" />
+                <IconBrain className="w-5 h-5 text-primary" />
                 AI Research Model
                 <HelpTooltip text="Choose which AI model powers the market research feature. Use Refresh Models to pull the latest available models from OpenAI, Anthropic, and Google." />
               </CardTitle>
@@ -536,7 +538,7 @@ export default function ResearchTab() {
                 }
               }}
             >
-              {refreshModels.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              {refreshModels.isPending ? <IconLoader className="w-3.5 h-3.5 animate-spin" /> : <IconRefresh className="w-3.5 h-3.5" />}
               Refresh Models
             </Button>
           </div>
@@ -551,47 +553,26 @@ export default function ResearchTab() {
                 openai: models.filter(m => m.provider === "openai"),
                 google: models.filter(m => m.provider === "google"),
               };
-              const currentValue = draft.preferredLlm || "claude-sonnet-4-6";
-              const hasCurrentInList = models.some(m => m.id === currentValue);
+
               return (
                 <Select
-                  value={currentValue}
-                  onValueChange={(value) => {
-                    setDraft(prev => ({ ...prev, preferredLlm: value }));
-                    setIsDirty(true);
-                  }}
+                  value={draft.preferredModelId || ""}
+                  onValueChange={(v) => { setDraft(prev => ({ ...prev, preferredModelId: v })); setIsDirty(true); }}
                 >
-                  <SelectTrigger className="bg-card h-9" data-testid="select-preferred-llm">
-                    <SelectValue />
+                  <SelectTrigger data-testid="select-research-model" className="bg-card">
+                    <SelectValue placeholder="Select an AI model" />
                   </SelectTrigger>
                   <SelectContent>
-                    {!hasCurrentInList && (
-                      <SelectItem value={currentValue}>{currentValue} (current)</SelectItem>
-                    )}
-                    {grouped.anthropic.length > 0 && (
-                      <>
-                        <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Anthropic</div>
-                        {grouped.anthropic.map(m => (
-                          <SelectItem key={m.id} value={m.id} data-testid={`option-model-${m.id}`}>{m.label}</SelectItem>
-                        ))}
-                      </>
-                    )}
-                    {grouped.openai.length > 0 && (
-                      <>
-                        <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">OpenAI</div>
-                        {grouped.openai.map(m => (
-                          <SelectItem key={m.id} value={m.id} data-testid={`option-model-${m.id}`}>{m.label}</SelectItem>
-                        ))}
-                      </>
-                    )}
-                    {grouped.google.length > 0 && (
-                      <>
-                        <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Google</div>
-                        {grouped.google.map(m => (
-                          <SelectItem key={m.id} value={m.id} data-testid={`option-model-${m.id}`}>{m.label}</SelectItem>
-                        ))}
-                      </>
-                    )}
+                    {Object.entries(grouped).map(([provider, providerModels]) => (
+                      providerModels.length > 0 && (
+                        <div key={provider}>
+                          <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground bg-muted/30">{provider}</div>
+                          {providerModels.map(m => (
+                            <SelectItem key={m.id} value={m.id} data-testid={`option-model-${m.id}`}>{m.label}</SelectItem>
+                          ))}
+                        </div>
+                      )
+                    ))}
                   </SelectContent>
                 </Select>
               );
@@ -600,82 +581,48 @@ export default function ResearchTab() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
-        <CardContent className="pt-5">
-          <Accordion type="multiple" className="space-y-2">
-            {types.map((type) => {
-              const meta = EVENT_META[type];
-              const Icon = meta.icon;
-              const config = mergeConfig(draft[type]);
+      <Tabs defaultValue="property" className="w-full">
+        <TabsList className="w-full grid grid-cols-4 h-10 p-1 bg-muted/50 border border-border/50">
+          {types.map((t) => (
+            <TabsTrigger key={t} value={t} className="text-xs gap-2" data-testid={`tab-research-${t}`}>
+              {(() => {
+                const Icon = EVENT_META[t].icon;
+                return <Icon className="w-3.5 h-3.5" />;
+              })()}
+              {EVENT_META[t].label}
+            </TabsTrigger>
+          ))}
+          <TabsTrigger value="sources" className="text-xs gap-2" data-testid="tab-research-sources">
+            <IconBookOpen className="w-3.5 h-3.5" />
+            Research Sources
+          </TabsTrigger>
+        </TabsList>
 
-              return (
-                <AccordionItem
-                  key={type}
-                  value={type}
-                  className="border border-border/60 rounded-xl px-4 data-[state=open]:border-primary/30"
-                  data-testid={`accordion-${type}`}
-                >
-                  <AccordionTrigger className="py-3 hover:no-underline" data-testid={`trigger-${type}`}>
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <div className="text-left">
-                        <span className="text-sm font-medium">{meta.label}</span>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <Badge
-                            variant={config.enabled ? "default" : "secondary"}
-                            className="text-[10px] h-4 px-1.5"
-                            data-testid={`badge-status-${type}`}
-                          >
-                            {config.enabled ? "enabled" : "disabled"}
-                          </Badge>
-                          {(config.focusAreas ?? []).length > 0 && (
-                            <span className="text-[10px] text-muted-foreground" data-testid={`text-focus-count-${type}`}>
-                              {config.focusAreas!.length} focus area{config.focusAreas!.length > 1 ? "s" : ""}
-                            </span>
-                          )}
-                          {(config.enabledTools ?? []).length > 0 && (
-                            <span className="text-[10px] text-muted-foreground" data-testid={`text-tools-count-${type}`}>
-                              {config.enabledTools!.length}/{DETERMINISTIC_TOOLS.length} tools
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-4 pt-1">
-                    <EventConfigSection
-                      type={type}
-                      config={config}
-                      onChange={(updated) => updateEvent(type, updated)}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-              );
-            })}
-          </Accordion>
-        </CardContent>
-      </Card>
+        {types.map((t) => (
+          <TabsContent key={t} value={t} className="mt-4 focus-visible:outline-none">
+            <Card className="border-border shadow-sm overflow-hidden">
+              <CardContent className="p-6">
+                <EventConfigSection
+                  type={t}
+                  config={mergeConfig(draft[t])}
+                  onChange={(updated) => updateEvent(t, updated)}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ))}
 
-      <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
-        <CardHeader>
-          <CardTitle className="text-base font-display flex items-center gap-2">
-            <Library className="w-5 h-5 text-primary" />
-            Curated Source Registry
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Manage the list of trusted data sources used by the AI research engine.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SourcesSection
-            customSources={draft.customSources ?? []}
-            onChange={(v) => {
-              setDraft(prev => ({ ...prev, customSources: v }));
-              setIsDirty(true);
-            }}
-          />
-        </CardContent>
-      </Card>
+        <TabsContent value="sources" className="mt-4 focus-visible:outline-none">
+          <Card className="border-border shadow-sm overflow-hidden">
+            <CardContent className="p-6">
+              <SourcesSection
+                customSources={draft.customSources ?? []}
+                onChange={(v) => { setDraft(prev => ({ ...prev, customSources: v })); setIsDirty(true); }}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

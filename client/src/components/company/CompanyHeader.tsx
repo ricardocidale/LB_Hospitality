@@ -10,10 +10,9 @@
  * Also provides a "Settings" link to the Company Assumptions editor
  * so users can jump directly to adjusting overhead, staffing, or fee rates.
  */
+import { CurrentThemeTab, IconBalanceSheet, IconCashFlow, IconLink } from "@/components/icons/brand-icons";
 import React from "react";
-import { Link } from "wouter";
-import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { IconSettings, IconIncomeStatement, IconCashFlow, IconBalanceSheet } from "@/components/icons/brand-icons";
+
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { FinancialChart } from "@/components/ui/financial-chart";
@@ -38,12 +37,12 @@ export default function CompanyHeader({
         title={global?.companyName || "Hospitality Business Co."}
         subtitle="Corporate Management Entity & Operations"
         actions={
-          <Link href="/company/assumptions" className="text-inherit no-underline">
+          <IconLink href="/company/assumptions" className="text-inherit no-underline">
             <Button variant="outline">
               <IconSettings className="w-4 h-4" />
               Assumptions
             </Button>
-          </Link>
+          </IconLink>
         }
       />
 

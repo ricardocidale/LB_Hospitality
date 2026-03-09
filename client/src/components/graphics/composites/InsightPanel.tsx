@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { Sparkles, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2 } from "lucide-react";
+;
+import { IconAlertTriangle, IconTrending, IconTrendingDown, motion } from "@/components/icons/brand-icons";
 import { type ReactNode } from "react";
 
 export interface Insight {
@@ -18,9 +18,9 @@ interface InsightPanelProps {
 }
 
 const typeConfig = {
-  positive: { icon: <TrendingUp className="w-3.5 h-3.5" />, color: "text-emerald-600", dot: "bg-emerald-500" },
-  negative: { icon: <TrendingDown className="w-3.5 h-3.5" />, color: "text-red-600", dot: "bg-red-500" },
-  warning: { icon: <AlertTriangle className="w-3.5 h-3.5" />, color: "text-amber-600", dot: "bg-amber-500" },
+  positive: { icon: <IconTrending className="w-3.5 h-3.5" />, color: "text-emerald-600", dot: "bg-emerald-500" },
+  negative: { icon: <IconTrendingDown className="w-3.5 h-3.5" />, color: "text-red-600", dot: "bg-red-500" },
+  warning: { icon: <IconAlertTriangle className="w-3.5 h-3.5" />, color: "text-amber-600", dot: "bg-amber-500" },
   neutral: { icon: <CheckCircle2 className="w-3.5 h-3.5" />, color: "text-muted-foreground/60", dot: "bg-muted-foreground/40" },
 };
 
@@ -58,7 +58,7 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
         data-testid={props["data-testid"]}
       >
         <div className="flex items-center gap-2 mb-2">
-          {icon || <Sparkles className="w-4 h-4 text-primary" />}
+          {icon || <IconSparkles className="w-4 h-4 text-primary" />}
           <span className="text-sm font-medium text-foreground">{title || "Key Insights"}</span>
         </div>
         <div className="space-y-1.5">
@@ -88,7 +88,7 @@ export function InsightPanel({ insights, title, icon, variant = "glass", classNa
       data-testid={props["data-testid"]}
     >
       <div className="flex items-center gap-2 mb-3">
-        {icon || <Sparkles className="w-4 h-4 text-primary" />}
+        {icon || <IconSparkles className="w-4 h-4 text-primary" />}
         <h3 className="text-sm font-semibold text-foreground">{title || "Key Insights"}</h3>
       </div>
       <div className="space-y-2.5">

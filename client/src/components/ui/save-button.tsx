@@ -1,5 +1,6 @@
+import { IconLoader, IconSave } from "@/components/icons/brand-icons";
 import * as React from "react";
-import { Save, Loader2 } from "lucide-react";
+;
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -15,7 +16,7 @@ export function SaveButton({
   onClick, 
   disabled = false, 
   isPending = false,
-  children = "Save Changes",
+  children = "IconSave Changes",
   className
 }: SaveButtonProps) {
   return (
@@ -27,9 +28,9 @@ export function SaveButton({
       data-testid="button-save-changes"
     >
       {isPending ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <IconLoader className="w-4 h-4 animate-spin" />
       ) : (
-        <Save className="w-4 h-4" />
+        <IconSave className="w-4 h-4" />
       )}
       {children}
     </Button>

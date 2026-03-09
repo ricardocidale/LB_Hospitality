@@ -5,7 +5,8 @@
  * longer explanations or less obvious concepts. Supports an optional
  * external link for documentation references.
  */
-import { HelpCircle, ExternalLink } from "lucide-react";
+;
+import { IconExternalLink, IconHelpCircle } from "@/components/icons/brand-icons";
 import {
   Tooltip,
   TooltipTrigger,
@@ -34,7 +35,7 @@ export function HelpTooltip({ text, light = false, side = "top", manualSection, 
           aria-label="Help"
           data-testid="help-tooltip-trigger"
         >
-          <HelpCircle className="w-4 h-4" />
+          <IconHelpCircle className="w-4 h-4" />
         </button>
       </TooltipTrigger>
       <TooltipContent
@@ -52,7 +53,7 @@ export function HelpTooltip({ text, light = false, side = "top", manualSection, 
             data-testid="help-tooltip-manual-link"
             onClick={(e) => e.stopPropagation()}
           >
-            <ExternalLink className="w-3 h-3" />
+            <IconExternalLink className="w-3 h-3" />
             {manualLabel || "Learn more in the Manual"}
           </a>
         )}

@@ -1,7 +1,4 @@
-import { useState, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { StatCard } from "@/components/ui/stat-card";
-import { Loader2, TrendingUp, Percent, CheckCircle, XCircle } from "lucide-react";
+import { IconCheckCircle, IconPercent, IconTrending, IconXCircle, useCallback, useState } from "@/components/icons/brand-icons";
 import { formatMoney } from "@/lib/financialEngine";
 import { InsightPanel } from "@/components/graphics";
 import { InputField, formatPct, formatRatio } from "./InputField";
@@ -59,7 +56,7 @@ export function DebtYieldTab() {
         variant="default"
         data-testid="button-dy-calculate"
       >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <TrendingUp className="w-4 h-4 mr-2 inline" />}
+        {loading ? <IconLoader className="w-4 h-4 animate-spin mr-2 inline" /> : <IconTrending className="w-4 h-4 mr-2 inline" />}
         Analyze Debt Yield
       </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -69,7 +66,7 @@ export function DebtYieldTab() {
             label="Debt Yield"
             value={result.debt_yield ? formatPct(result.debt_yield) : "N/A"}
             format="text"
-            icon={<Percent className="w-4 h-4" />}
+            icon={<IconPercent className="w-4 h-4" />}
             data-testid="stat-dy-yield"
           />
           <StatCard
@@ -77,7 +74,7 @@ export function DebtYieldTab() {
             value={result.passes_min_threshold === null ? "N/A" : result.passes_min_threshold ? "Yes" : "No"}
             format="text"
             variant={result.passes_min_threshold ? "sage" : undefined}
-            icon={result.passes_min_threshold ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+            icon={result.passes_min_threshold ? <IconCheckCircle className="w-4 h-4" /> : <IconXCircle className="w-4 h-4" />}
             data-testid="stat-dy-pass"
           />
           <StatCard

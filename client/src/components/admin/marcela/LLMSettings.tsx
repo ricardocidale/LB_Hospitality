@@ -1,11 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
-import { MessageSquare, Mic, Brain, AlertCircle, Save, Loader2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, IconAlertCircle, IconBrain, IconLoader, IconMic, IconSave } from "@/components/icons/brand-icons";
 import { Badge } from "@/components/ui/badge";
 import { VoiceSettings, LLM_MODELS } from "./types";
 import { useConversations } from "@/features/ai-agent/hooks/use-conversations";
@@ -43,7 +36,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Brain className="w-4 h-4 text-muted-foreground" />
+              <IconBrain className="w-4 h-4 text-muted-foreground" />
               Language Model (LLM)
             </CardTitle>
             <CardDescription className="label-text mt-1">
@@ -57,7 +50,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
               </Badge>
             )}
             <Button size="sm" onClick={handleSave} disabled={!isDirty || saveAgentLlm.isPending} className="gap-1.5 shadow-sm">
-              {saveAgentLlm.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              {saveAgentLlm.isPending ? <IconLoader className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
               Save to ElevenLabs
             </Button>
           </div>
@@ -66,7 +59,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
       <CardContent className="space-y-5">
         {showTimeoutWarning && (
           <div className="flex items-start gap-3 p-3.5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <IconAlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <p className="text-xs font-semibold text-amber-900">High failure rate detected ({Math.round(failureRate * 100)}% of conversations)</p>
               <p className="text-xs text-amber-700/80 mt-0.5">
@@ -109,7 +102,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="label-text font-medium flex items-center gap-1.5">
-              <MessageSquare className="w-3.5 h-3.5" />
+              <IconMessageSquare className="w-3.5 h-3.5" />
               Max Tokens (Text)
             </Label>
             <Input
@@ -125,7 +118,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
           </div>
           <div className="space-y-2">
             <Label className="label-text font-medium flex items-center gap-1.5">
-              <Mic className="w-3.5 h-3.5" />
+              <IconMic className="w-3.5 h-3.5" />
               Max Tokens (Voice)
             </Label>
             <Input

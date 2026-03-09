@@ -18,10 +18,8 @@
  * Uses the Newton-Raphson IRR solver from @analytics/returns/irr.js.
  * Rows are expandable to show per-property detail within a consolidated view.
  */
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { ChevronDown, ChevronRight } from "lucide-react";
+;
+import { Card, CardContent, CardHeader, CardTitle, IconChevronRight } from "@/components/icons/brand-icons";
 import { formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import {
   PROJECTION_YEARS,
@@ -218,9 +216,9 @@ export function InvestmentAnalysis({
               >
                 <TableCell className="sticky left-0 bg-muted/20 flex items-center gap-2">
                   {expandedRows.has('fcfEquity') ? (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <IconChevronDown className="w-4 h-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <IconChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
                   Equity Investment
                 </TableCell>
@@ -264,9 +262,9 @@ export function InvestmentAnalysis({
               >
                 <TableCell className="sticky left-0 bg-card flex items-center gap-2">
                   {expandedRows.has('fcfOperating') ? (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <IconChevronDown className="w-4 h-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <IconChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
                   Free Cash Flow to Equity (FCFE)
                   <HelpTooltip text="GAAP FCFE = Cash from Operations - Principal Payments. For hotels where FF&E reserves are included in NOI, this equals After-Tax Cash Flow (ATCF)." manualSection="investment-returns" manualLabel="FCFE formula in the Manual" />
@@ -436,9 +434,9 @@ export function InvestmentAnalysis({
               >
                 <TableCell className="sticky left-0 bg-card flex items-center gap-2">
                   {expandedRows.has('fcfRefi') ? (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <IconChevronDown className="w-4 h-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <IconChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
                   Refinancing Proceeds
                 </TableCell>
@@ -479,9 +477,9 @@ export function InvestmentAnalysis({
               >
                 <TableCell className="sticky left-0 bg-card flex items-center gap-2">
                   {expandedRows.has('fcfExit') ? (
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <IconChevronDown className="w-4 h-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <IconChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
                   Exit Proceeds ({getFiscalYear(10)})
                 </TableCell>

@@ -5,9 +5,10 @@
  * fee category, or funding tranche) with inline edit and delete buttons.
  * Used in the company assumptions editor for managing lists of configurable items.
  */
+;
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { IconPencil, IconPlus, IconTrash } from "@/components/icons/brand-icons";
 import { cn } from "@/lib/utils";
 
 interface EntityCardContainerProps {
@@ -53,7 +54,7 @@ export function EntityCardContainer({
           </div>
           {onAdd && (
             <Button variant="outline" onClick={onAdd} className="flex items-center gap-2" data-testid={`button-add-${testId || "entity"}`}>
-              <Plus className="w-4 h-4" /> {addLabel}
+              <IconPlus className="w-4 h-4" /> {addLabel}
             </Button>
           )}
         </div>
@@ -126,12 +127,12 @@ export function EntityCardItem({
           <div className="flex items-center gap-1">
             {onEdit && (
               <Button variant="ghost" size="sm" onClick={onEdit} className={editHoverClass} data-testid={`button-edit-${testId || id}`}>
-                <Pencil className="w-4 h-4" />
+                <IconPencil className="w-4 h-4" />
               </Button>
             )}
             {onDelete && (
               <Button variant="ghost" size="sm" onClick={onDelete} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-${testId || id}`}>
-                <Trash2 className="w-4 h-4" />
+                <IconTrash className="w-4 h-4" />
               </Button>
             )}
           </div>

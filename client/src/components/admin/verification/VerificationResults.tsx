@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { CheckCircle2, XCircle, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
+;
+import { IconAlertTriangle, IconChevronDown, IconChevronRight, useState } from "@/components/icons/brand-icons";
 import { formatMoney } from "@/lib/financialEngine";
 import type { CheckResult, VerificationResult } from "./types";
 
@@ -31,7 +31,7 @@ export function VerificationResults({ results }: VerificationResultsProps) {
   const renderCheckRow = (chk: CheckResult, idx: number) => (
     <div key={idx} className="space-y-1">
       <div className="flex items-center gap-3 p-3 rounded-lg bg-card border border-border">
-        {chk.passed ? <CheckCircle2 className="w-5 h-5 text-secondary shrink-0" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
+        {chk.passed ? <CheckCircle2 className="w-5 h-5 text-secondary shrink-0" /> : <IconXCircle className="w-5 h-5 text-red-500 shrink-0" />}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-foreground text-sm font-medium">{chk.metric}</span>
@@ -87,11 +87,11 @@ export function VerificationResults({ results }: VerificationResultsProps) {
             }`}
           >
             {isExpanded
-              ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-              : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              ? <IconChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+              : <IconChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
             }
             {hasFails
-              ? <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
+              ? <IconAlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
               : <CheckCircle2 className="w-5 h-5 text-secondary shrink-0" />
             }
             <span className="text-sm font-semibold text-foreground flex-1 text-left">{category}</span>

@@ -1,9 +1,6 @@
-import { useState, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { StatCard } from "@/components/ui/stat-card";
-import { Loader2, Calculator } from "lucide-react";
+import { IconCalculator, IconGauge, useCallback, useState } from "@/components/icons/brand-icons";
 import { formatMoney } from "@/lib/financialEngine";
-import { Gauge, DonutChart, InsightPanel } from "@/components/graphics";
+import { DonutChart, InsightPanel } from "@/components/graphics";
 import { InputField, formatPct, formatRatio } from "./InputField";
 
 export function DSCRTab() {
@@ -68,7 +65,7 @@ export function DSCRTab() {
         variant="default"
         data-testid="button-dscr-calculate"
       >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <Calculator className="w-4 h-4 mr-2 inline" />}
+        {loading ? <IconLoader className="w-4 h-4 animate-spin mr-2 inline" /> : <IconCalculator className="w-4 h-4 mr-2 inline" />}
         Calculate Max Loan
       </Button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -87,7 +84,7 @@ export function DSCRTab() {
             <StatCard label="Implied LTV" value={result.implied_ltv ? formatPct(result.implied_ltv) : "N/A"} format="text" />
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
-            <Gauge
+            <IconGauge
               data-testid="gauge-dscr"
               value={result.actual_dscr ?? 0}
               min={0}
@@ -98,7 +95,7 @@ export function DSCRTab() {
               size="lg"
             />
             {result.io_dscr && (
-              <Gauge
+              <IconGauge
                 data-testid="gauge-io-dscr"
                 value={result.io_dscr}
                 min={0}

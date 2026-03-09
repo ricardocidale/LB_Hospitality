@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CheckCircle2, XCircle, AlertTriangle, PlayCircle, Sparkles, FileDown, Download } from "lucide-react";
+;
+import { CardContent, CardDescription, CardHeader, CardTitle, useEffect, useState } from "react";
+import { Card } from "@/components/icons/brand-icons";
 import { useToast } from "@/hooks/use-toast";
 import { formatMoney } from "@/lib/financialEngine";
 import jsPDF from "jspdf";
@@ -277,7 +277,7 @@ export default function VerificationTab() {
                 data-testid="button-export-pdf"
                 className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-full text-xs font-bold shadow-sm hover:shadow-md hover:border-secondary/20 transition-all group"
               >
-                <FileDown className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
+                <IconFileDown className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
                 EXPORT PDF REPORT
               </button>
             )}
@@ -287,7 +287,7 @@ export default function VerificationTab() {
               data-testid="button-run-verification"
               className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground rounded-full text-xs font-bold shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 group"
             >
-              {runVerification.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PlayCircle className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />}
+              {runVerification.isPending ? <IconLoader className="w-3.5 h-3.5 animate-spin" /> : <PlayCircle className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />}
               RUN FULL AUDIT
             </button>
           </div>
@@ -296,9 +296,9 @@ export default function VerificationTab() {
         <div className="flex items-center gap-1 mt-6 p-1 bg-muted rounded-full w-fit border border-border">
           {[
             { id: "results", label: "Verification Results", icon: CheckCircle2 },
-            { id: "history", label: "Audit History", icon: Download },
-            { id: "ai", label: "AI Narrative", icon: Sparkles },
-            { id: "design", label: "Design Coverage", icon: AlertTriangle }
+            { id: "history", label: "Audit History", icon: IconDownload },
+            { id: "ai", label: "AI Narrative", icon: IconSparkles },
+            { id: "design", label: "Design Coverage", icon: IconAlertTriangle }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -351,7 +351,7 @@ export default function VerificationTab() {
                         }`}>
                           {verificationResults.summary.auditOpinion}
                         </span>
-                        {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <CheckCircle2 className="w-5 h-5 text-secondary" /> : <XCircle className="w-5 h-5 text-red-500" />}
+                        {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <CheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -409,7 +409,7 @@ export default function VerificationTab() {
             
             {activeTab === "design" && runDesignCheck.isPending && (
               <div className="flex flex-col items-center justify-center py-24 space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+                <IconLoader className="w-8 h-8 animate-spin text-secondary" />
                 <p className="text-sm font-medium animate-pulse">Running design coverage analysis...</p>
               </div>
             )}

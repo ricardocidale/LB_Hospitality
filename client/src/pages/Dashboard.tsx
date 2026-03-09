@@ -30,13 +30,14 @@
  * All six export formats (PDF, Excel, CSV, PPTX, Chart PNG, Table PNG) are
  * available from the tab bar. Data generators live in dashboardExports.ts.
  */
+import { IconAlertTriangle, IconBalanceSheet, IconCashFlow, IconDashboard, IconIncomeStatement, IconInvestment, IconLoader } from "@/components/icons/brand-icons";
 import React, { useState, useRef, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { Loader2, AlertTriangle } from "lucide-react";
-import { IconDashboard, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconInvestment } from "@/components/icons/brand-icons";
+;
+
 import { PageHeader } from "@/components/ui/page-header";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
@@ -231,7 +232,7 @@ export default function Dashboard() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <IconLoader className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -241,7 +242,7 @@ export default function Dashboard() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">
             {!properties || !global || !financials
               ? "No data available. Please check the database."

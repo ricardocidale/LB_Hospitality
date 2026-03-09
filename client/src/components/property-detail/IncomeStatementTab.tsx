@@ -24,12 +24,8 @@
  * Each year is a column; the component also shows the "stabilized year"
  * (when occupancy reaches its long-term target) with a visual highlight.
  */
-import { useState } from "react";
-import { formatMoney } from "@/lib/financialEngine";
-import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Button } from "@/components/ui/button";
-import { ChevronsUpDown } from "lucide-react";
+;
+import { IconChevronsUpDown, Tooltip } from "@/components/icons/brand-icons";
 import type { IncomeStatementTabProps } from "./types";
 
 export default function IncomeStatementTab({
@@ -129,7 +125,7 @@ export default function IncomeStatementTab({
             className="text-xs text-muted-foreground h-7 px-2"
             data-testid="button-toggle-all-property-is"
           >
-            <ChevronsUpDown className="h-3.5 w-3.5 mr-1" />
+            <IconChevronsUpDown className="h-3.5 w-3.5 mr-1" />
             {effectiveAllExpanded ? "Collapse All Formulas" : "Expand All Formulas"}
           </Button>
         </div>

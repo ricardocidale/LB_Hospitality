@@ -1,23 +1,8 @@
 "use client"
 
 import * as React from "react"
-import {
-  ArrowUpCircleIcon,
-  BarChartIcon,
-  CameraIcon,
-  ClipboardListIcon,
-  DatabaseIcon,
-  FileCodeIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  HelpCircleIcon,
-  LayoutDashboardIcon,
-  ListIcon,
-  SearchIcon,
-  SettingsIcon,
-  UsersIcon,
-} from "lucide-react"
+import { IconFileCode } from "lucide-react";
+import { IconArrowUp, IconBarChart, IconCamera, IconFileText, IconDatabase, IconFileText, IconFileText, IconFolderOpen, IconHelpCircle, IconLayoutGrid, IconMenu, IconSearch, IconSettingsGear, IconPeople } from "@/components/icons/brand-icons";
 
 import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
@@ -43,33 +28,33 @@ const data = {
     {
       title: "Dashboard",
       url: "#",
-      icon: LayoutDashboardIcon,
+      icon: IconLayoutGrid,
     },
     {
       title: "Lifecycle",
       url: "#",
-      icon: ListIcon,
+      icon: IconMenu,
     },
     {
       title: "Analytics",
       url: "#",
-      icon: BarChartIcon,
+      icon: IconBarChart,
     },
     {
       title: "Projects",
       url: "#",
-      icon: FolderIcon,
+      icon: IconFolderOpen,
     },
     {
       title: "Team",
       url: "#",
-      icon: UsersIcon,
+      icon: IconPeople,
     },
   ],
   navClouds: [
     {
       title: "Capture",
-      icon: CameraIcon,
+      icon: IconCamera,
       isActive: true,
       url: "#",
       items: [
@@ -85,7 +70,7 @@ const data = {
     },
     {
       title: "Proposal",
-      icon: FileTextIcon,
+      icon: IconFileText,
       url: "#",
       items: [
         {
@@ -100,7 +85,7 @@ const data = {
     },
     {
       title: "Prompts",
-      icon: FileCodeIcon,
+      icon: IconFileCode,
       url: "#",
       items: [
         {
@@ -118,34 +103,34 @@ const data = {
     {
       title: "Settings",
       url: "#",
-      icon: SettingsIcon,
+      icon: IconSettingsGear,
     },
     {
       title: "Get Help",
       url: "#",
-      icon: HelpCircleIcon,
+      icon: IconHelpCircle,
     },
     {
       title: "Search",
       url: "#",
-      icon: SearchIcon,
+      icon: IconSearch,
     },
   ],
   documents: [
     {
       name: "Data Library",
       url: "#",
-      icon: DatabaseIcon,
+      icon: IconDatabase,
     },
     {
       name: "Reports",
       url: "#",
-      icon: ClipboardListIcon,
+      icon: IconFileText,
     },
     {
       name: "Word Assistant",
       url: "#",
-      icon: FileIcon,
+      icon: IconFileText,
     },
   ],
 }
@@ -161,7 +146,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
+                <IconArrowUp className="h-5 w-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </a>
             </SidebarMenuButton>

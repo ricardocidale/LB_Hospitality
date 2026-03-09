@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
+import { TabsContent } from "@/components/ui/tabs";
+import { CurrentThemeTab, useState } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
-import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { IconHelp, IconFileCheck, IconShield, IconActivity } from "@/components/icons/brand-icons";
+import { Tabs } from "@/components/icons/brand-icons";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import CheckerManual from "./CheckerManual";

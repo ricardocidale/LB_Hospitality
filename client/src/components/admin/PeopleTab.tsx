@@ -1,7 +1,8 @@
+import { IconBuilding, IconLayoutGrid, IconLoader, IconPeople, IconProperties, IconUserCog } from "@/components/icons/brand-icons";
 import { useState, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Building2, LayoutGrid, Loader2 } from "lucide-react";
-import { IconPeople, IconProperties, IconUserCog } from "@/components/icons/brand-icons";
+;
+
 import UsersTab from "./UsersTab";
 
 interface PeopleTabProps {
@@ -15,7 +16,7 @@ export default function PeopleTab({ initialTab }: PeopleTabProps) {
     <div className="space-y-6 mt-2">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h2 className="text-2xl font-display font-bold text-foreground" data-testid="text-people-title">Users</h2>
+          <h2 className="text-2xl font-display font-bold text-foreground" data-testid="text-people-title">People</h2>
           <p className="text-muted-foreground text-sm">Manage user accounts and assignments.</p>
         </div>
       </div>
@@ -24,7 +25,7 @@ export default function PeopleTab({ initialTab }: PeopleTabProps) {
         <TabsList className="grid grid-cols-3 h-auto p-1 bg-muted border border-border" data-testid="tabs-people">
           <TabsTrigger value="users" className="py-2.5 gap-2" data-testid="tab-people-users">
             <IconPeople className="w-4 h-4" />
-            <span className="hidden sm:inline">Users</span>
+            <span className="hidden sm:inline">People</span>
           </TabsTrigger>
           <TabsTrigger value="company-assignment" className="py-2.5 gap-2" data-testid="tab-people-company-assignment">
             <IconProperties className="w-4 h-4" />
@@ -123,7 +124,7 @@ function CompanyAssignmentTab() {
     return (
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          <IconLoader className="w-8 h-8 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
     );
@@ -308,7 +309,7 @@ function GroupAssignmentTab() {
     return (
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          <IconLoader className="w-8 h-8 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
     );

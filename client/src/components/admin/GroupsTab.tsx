@@ -5,6 +5,7 @@
  * managing user groups, including branding, asset descriptions, 
  * and property visibility.
  */
+import { IconBuilding, IconChevronDown, IconChevronUp, IconEye, IconLoader, IconPalette, IconPencil, IconPeople, IconPlus, IconProperties, IconSave, IconTrash } from "@/components/icons/brand-icons";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,8 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, Plus, Save, Eye, ChevronDown, ChevronUp } from "lucide-react";
-import { IconPeople, IconProperties, IconPencil, IconTrash, IconPalette, IconBuilding } from "@/components/icons/brand-icons";
+;
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -189,7 +190,7 @@ export default function GroupsTab() {
               setGroupForm({ name: "", themeId: null, assetDescriptionId: null });
               setGroupDialogOpen(true);
             }} className="flex items-center gap-2" data-testid="button-add-group">
-              <Plus className="w-4 h-4" /> New Group
+              <IconPlus className="w-4 h-4" /> New Group
             </Button>
           </div>
         </CardHeader>
@@ -295,12 +296,12 @@ export default function GroupsTab() {
                             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left"
                             onClick={() => setExpandedVisibility(isExpanded ? null : group.id)}
                           >
-                            <Eye className="w-4 h-4 text-muted-foreground/60" />
+                            <IconEye className="w-4 h-4 text-muted-foreground/60" />
                             <span className="font-medium">Property Visibility</span>
                             <span className="text-xs bg-muted px-2 py-0.5 rounded ml-1">
                               {visibleCount} of {allProperties.length} visible
                             </span>
-                            <span className="ml-auto">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</span>
+                            <span className="ml-auto">{isExpanded ? <IconChevronUp className="w-4 h-4" /> : <IconChevronDown className="w-4 h-4" />}</span>
                           </button>
                           {isExpanded && (
                             <div className="mt-3 space-y-2">
@@ -337,7 +338,7 @@ export default function GroupsTab() {
                                   }}
                                   className="flex items-center gap-1"
                                 >
-                                  {setGroupPropertiesMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                                  {setGroupPropertiesMutation.isPending ? <IconLoader className="w-3 h-3 animate-spin" /> : <IconSave className="w-3 h-3" />}
                                   Save
                                 </Button>
                                 {pending && (
@@ -410,7 +411,7 @@ export default function GroupsTab() {
               disabled={createGroupMutation.isPending || updateGroupMutation.isPending}
               data-testid="button-save-group"
             >
-              {(createGroupMutation.isPending || updateGroupMutation.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {(createGroupMutation.isPending || updateGroupMutation.isPending) && <IconLoader className="mr-2 h-4 w-4 animate-spin" />}
               {editingGroup ? "Save Changes" : "Create Group"}
             </Button>
           </DialogFooter>

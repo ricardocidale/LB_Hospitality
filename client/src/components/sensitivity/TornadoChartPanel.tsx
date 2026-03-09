@@ -1,5 +1,6 @@
+import { IconBarChart } from "@/components/icons/brand-icons";
 import { BarChart3 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, ReferenceLine } from "recharts";
+import { Bar, XAxis, YAxis, CartesianGrid, Cell, ReferenceLine } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import type { TornadoItem } from "./types";
 
@@ -59,7 +60,7 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
 
       {tornadoData.length > 0 ? (
         <ChartContainer config={tornadoConfig} className="h-[350px] w-full">
-          <BarChart
+          <IconBarChart
             accessibilityLayer
             data={tornadoData}
             layout="vertical"
@@ -101,7 +102,7 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
                 <Cell key={`neg-${i}`} fill="var(--color-negative)" fillOpacity={0.85} />
               ))}
             </Bar>
-          </BarChart>
+          </IconBarChart>
         </ChartContainer>
       ) : (
         <div className="h-[350px] flex items-center justify-center text-muted-foreground text-sm">

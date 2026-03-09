@@ -1,8 +1,6 @@
+import { IconChevronDown, cn } from "@/components/icons/brand-icons";
 import * as React from "react";
-import { cn } from "@/lib/utils";
-import { Money } from "@/components/Money";
-import { TableRow, TableCell } from "@/components/ui/table";
-import { ChevronRight, ChevronDown } from "lucide-react";
+;
 
 /* ═══════════════════════════════════════════════
    8. BalanceSheetSection
@@ -98,7 +96,7 @@ export function BalanceSheetFormulaRow({ label, amount }: BalanceSheetFormulaRow
       >
         <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            {open ? <IconChevronDown className="h-3 w-3" /> : <IconChevronRight className="h-3 w-3" />}
             <span className="italic">Formula</span>
           </div>
         </TableCell>

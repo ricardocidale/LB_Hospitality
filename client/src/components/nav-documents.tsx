@@ -1,9 +1,5 @@
-import {
-  FolderIcon,
-  MoreHorizontalIcon,
-  ShareIcon,
-  type LucideIcon,
-} from "lucide-react"
+import { ShareIcon, type LucideIcon } from "lucide-react";
+import { IconFolderOpen, IconMoreHorizontal } from "@/components/icons/brand-icons";
 
 import {
   DropdownMenu,
@@ -50,7 +46,7 @@ export function NavDocuments({
                   showOnHover
                   className="rounded-sm data-[state=open]:bg-accent"
                 >
-                  <MoreHorizontalIcon />
+                  <IconMoreHorizontal />
                   <span className="sr-only">More</span>
                 </SidebarMenuAction>
               </DropdownMenuTrigger>
@@ -60,7 +56,7 @@ export function NavDocuments({
                 align={isMobile ? "end" : "start"}
               >
                 <DropdownMenuItem>
-                  <FolderIcon />
+                  <IconFolderOpen />
                   <span>Open</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
@@ -73,7 +69,7 @@ export function NavDocuments({
         ))}
         <SidebarMenuItem>
           <SidebarMenuButton className="text-sidebar-foreground/70">
-            <MoreHorizontalIcon className="text-sidebar-foreground/70" />
+            <IconMoreHorizontal className="text-sidebar-foreground/70" />
             <span>More</span>
           </SidebarMenuButton>
         </SidebarMenuItem>

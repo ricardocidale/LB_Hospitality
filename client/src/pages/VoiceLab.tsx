@@ -4,9 +4,11 @@
  * Exposes three chat interface variants (Orb, Full, Bar) in tabs, plus
  * a real-time speech transcriber and a standalone audio player/speaker demo.
  */
+import { AnimatePresence } from "framer-motion";
+import { Mic2 } from "lucide-react";
+import { IconMessageSquare, IconAlertTriangle, IconAudioLines, IconMic, IconMusic, IconRefresh, IconType, motion } from "@/components/icons/brand-icons";
 import React, { useCallback, useRef, useState, Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Mic2, MessageSquare, AudioLines, Captions, Music2, Mic, AlertTriangle, RefreshCw } from "lucide-react";
+;
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useMarcelaSettings } from "@/features/ai-agent/hooks/use-agent-settings";
@@ -35,7 +37,7 @@ class TabErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-          <AlertTriangle className="h-10 w-10 text-amber-500" />
+          <IconAlertTriangle className="h-10 w-10 text-amber-500" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">
               {this.props.tabName} failed to load
@@ -49,7 +51,7 @@ class TabErrorBoundary extends React.Component<
             variant="outline"
             onClick={() => this.setState({ hasError: false, error: null })}
           >
-            <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+            <IconRefresh className="mr-1.5 h-3.5 w-3.5" />
             Retry
           </Button>
         </div>
@@ -70,10 +72,10 @@ function TabSkeleton() {
 
 const TABS = [
   { id: "orb",         label: "Voice Orb",    icon: Mic2,           description: "Minimal voice-first interface", requiresMic: true  },
-  { id: "full",        label: "Full Chat",    icon: MessageSquare,  description: "Chat + voice hybrid",           requiresMic: false },
-  { id: "bar",         label: "Floating Bar", icon: AudioLines,     description: "Compact inline chat bar",       requiresMic: true  },
-  { id: "transcriber", label: "Transcriber",  icon: Captions,       description: "Real-time speech-to-text",     requiresMic: true  },
-  { id: "speaker",     label: "Speaker",      icon: Music2,         description: "Audio player with waveform",   requiresMic: false },
+  { id: "full",        label: "Full Chat",    icon: IconMessageSquare,  description: "Chat + voice hybrid",           requiresMic: false },
+  { id: "bar",         label: "Floating Bar", icon: IconAudioLines,     description: "Compact inline chat bar",       requiresMic: true  },
+  { id: "transcriber", label: "Transcriber",  icon: IconType,       description: "Real-time speech-to-text",     requiresMic: true  },
+  { id: "speaker",     label: "Speaker",      icon: IconMusic,         description: "Audio player with waveform",   requiresMic: false },
 ] as const;
 
 type TabId = typeof TABS[number]["id"];
@@ -128,7 +130,7 @@ export default function VoiceLab() {
                 <tab.icon className="w-3.5 h-3.5" />
                 {tab.label}
                 {tab.requiresMic && (
-                  <Mic className="w-2.5 h-2.5 opacity-50" />
+                  <IconMic className="w-2.5 h-2.5 opacity-50" />
                 )}
               </button>
             );

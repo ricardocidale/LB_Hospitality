@@ -1,15 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Volume2, Waves, AudioLines, Zap, Gauge, Timer, Clock, Settings2, Loader2, Save, Music, Sparkles, Info, X, Plus, ExternalLink } from "lucide-react";
+import { CardContent, CardDescription, CardHeader, CardTitle, useEffect, useState } from "react";
+import { Card } from "@/components/icons/brand-icons";
 import { VoiceSettings, OUTPUT_FORMATS, TTS_MODEL_FAMILIES, SUGGESTED_AUDIO_TAGS_OPTIONS } from "./types";
 import { DEFAULT_MARCELA_STABILITY, DEFAULT_MARCELA_SIMILARITY_BOOST, DEFAULT_MARCELA_SPEED, DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT, DEFAULT_MARCELA_MAX_DURATION, DEFAULT_MARCELA_TURN_TIMEOUT } from "@shared/constants";
 import { useAgentConfig, useSaveAgentVoice } from "@/features/ai-agent/hooks/use-convai-api";
@@ -111,7 +110,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Music className="w-4 h-4 text-muted-foreground" />
+                <IconMusic className="w-4 h-4 text-muted-foreground" />
                 TTS Model Family
               </CardTitle>
               <CardDescription className="label-text mt-1">
@@ -124,7 +123,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   rel="noopener noreferrer"
                   className="text-primary hover:underline inline-flex items-center gap-0.5"
                 >
-                  ElevenLabs docs <ExternalLink className="w-3 h-3" />
+                  ElevenLabs docs <IconExternalLink className="w-3 h-3" />
                 </a>
               </CardDescription>
             </div>
@@ -135,7 +134,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 </Badge>
               )}
               <Button size="sm" onClick={handleSaveTts} disabled={!ttsDirty || saveAgentVoice.isPending} className="gap-1.5 shadow-sm" data-testid="button-save-tts-model">
-                {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                {saveAgentVoice.isPending ? <IconLoader className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
                 Save
               </Button>
             </div>
@@ -144,7 +143,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
         <CardContent className="space-y-5">
           {agentLoading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <IconLoader className="w-4 h-4 animate-spin" />
               Loading live configuration from ElevenLabs...
             </div>
           ) : (
@@ -182,7 +181,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                   <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
                     <div>
                       <Label className="label-text font-medium flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />
+                        <IconSparkles className="w-3.5 h-3.5" />
                         Expressive mode
                       </Label>
                       <p className="text-xs text-muted-foreground mt-0.5">
@@ -202,7 +201,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+                            <IconInfo className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent side="right" className="max-w-sm">
                             <p className="text-xs font-semibold mb-1">Suggested Audio Tags (V3 Only)</p>
@@ -225,7 +224,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                             data-testid={`badge-audio-tag-active-${tag.toLowerCase().replace(/\s+/g, "-")}`}
                           >
                             {tag}
-                            <X className="w-3 h-3" />
+                            <IconX className="w-3 h-3" />
                           </Badge>
                         ))}
                       </div>
@@ -240,7 +239,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                           onClick={() => toggleTag(tag)}
                           data-testid={`badge-audio-tag-${tag.toLowerCase().replace(/\s+/g, "-")}`}
                         >
-                          <Plus className="w-3 h-3" />
+                          <IconPlus className="w-3 h-3" />
                           {tag}
                         </Badge>
                       ))}
@@ -249,7 +248,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
 
                   <div className="p-3 bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40 rounded-lg">
                     <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-2">
-                      <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                      <IconInfo className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       Voice settings (Stability, Speed, Similarity) are not customizable for V3 models.
                     </p>
                   </div>
@@ -265,7 +264,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <Volume2 className="w-4 h-4 text-muted-foreground" />
+                <IconVolume className="w-4 h-4 text-muted-foreground" />
                 Voice Synthesis
               </CardTitle>
               <CardDescription className="label-text mt-1">
@@ -279,7 +278,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                 </Badge>
               )}
               <Button size="sm" onClick={handleSaveVoice} disabled={!voiceDirty || saveAgentVoice.isPending || isV3} className="gap-1.5 shadow-sm">
-                {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                {saveAgentVoice.isPending ? <IconLoader className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
                 Save
               </Button>
             </div>
@@ -304,7 +303,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="label-text font-medium flex items-center gap-1.5">
-                  <Waves className="w-3.5 h-3.5" />
+                  <IconWaves className="w-3.5 h-3.5" />
                   Stability
                 </Label>
                 <Badge variant="outline" className="font-mono text-xs">
@@ -328,7 +327,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="label-text font-medium flex items-center gap-1.5">
-                  <AudioLines className="w-3.5 h-3.5" />
+                  <IconAudioLines className="w-3.5 h-3.5" />
                   Similarity Boost
                 </Label>
                 <Badge variant="outline" className="font-mono text-xs">
@@ -352,7 +351,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="label-text font-medium flex items-center gap-1.5">
-                  <Gauge className="w-3.5 h-3.5" />
+                  <IconGauge className="w-3.5 h-3.5" />
                   Speed
                 </Label>
                 <Badge variant="outline" className="font-mono text-xs">
@@ -380,7 +379,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
           <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
             <div>
               <Label className="label-text font-medium flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5" />
+                <IconZap className="w-3.5 h-3.5" />
                 Speaker Boost
               </Label>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -399,7 +398,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Settings2 className="w-4 h-4 text-muted-foreground" />
+            <IconSettingsGear className="w-4 h-4 text-muted-foreground" />
             Conversation Settings
           </CardTitle>
           <CardDescription className="label-text">
@@ -431,7 +430,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label className="label-text font-medium flex items-center gap-1.5">
-                <Timer className="w-3.5 h-3.5" />
+                <IconTimer className="w-3.5 h-3.5" />
                 Turn Timeout
               </Label>
               <div className="flex items-center gap-2">
@@ -453,7 +452,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
 
             <div className="space-y-2">
               <Label className="label-text font-medium flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" />
+                <IconClock className="w-3.5 h-3.5" />
                 Silence End Call
               </Label>
               <div className="flex items-center gap-2">
@@ -475,7 +474,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
 
             <div className="space-y-2">
               <Label className="label-text font-medium flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" />
+                <IconClock className="w-3.5 h-3.5" />
                 Max Duration
               </Label>
               <div className="flex items-center gap-2">

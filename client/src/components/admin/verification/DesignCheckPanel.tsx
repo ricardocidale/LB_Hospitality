@@ -1,4 +1,5 @@
-import { CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+;
+import { IconCheckCircle, IconXCircle, IconAlertTriangle } from "@/components/icons/brand-icons";
 import type { DesignCheckResult } from "./types";
 
 interface DesignCheckPanelProps {
@@ -42,9 +43,9 @@ export function DesignCheckPanel({ results }: DesignCheckPanelProps) {
       <div className="space-y-2">
         {results.checks.map((check, idx) => (
           <div key={idx} className="flex items-center gap-4 p-3 rounded-lg bg-card border border-border hover:border-secondary/20 transition-all shadow-sm">
-            {check.status === 'pass' ? <CheckCircle2 className="w-5 h-5 text-secondary shrink-0" /> :
-             check.status === 'warning' ? <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" /> :
-             <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
+            {check.status === 'pass' ? <IconCheckCircle className="w-5 h-5 text-secondary shrink-0" /> :
+             check.status === 'warning' ? <IconAlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" /> :
+             <IconXCircle className="w-5 h-5 text-red-500 shrink-0" />}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground uppercase">{check.category}</span>

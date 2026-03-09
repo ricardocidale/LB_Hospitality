@@ -1,4 +1,5 @@
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
+import { IconBarChart } from "@/components/icons/brand-icons";
+import { Bar, CartesianGrid, LabelList, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -19,7 +20,7 @@ export function BarChartCard({
   if (layout === "horizontal") {
     return (
       <ChartContainer config={config} className={className}>
-        <BarChart
+        <IconBarChart
           accessibilityLayer
           data={data}
           layout="horizontal"
@@ -34,14 +35,14 @@ export function BarChartCard({
               <LabelList dataKey={dataKey} position="top" className="fill-foreground" fontSize={12} />
             )}
           </Bar>
-        </BarChart>
+        </IconBarChart>
       </ChartContainer>
     );
   }
 
   return (
     <ChartContainer config={config} className={className}>
-      <BarChart
+      <IconBarChart
         accessibilityLayer
         data={data}
         layout="vertical"
@@ -56,7 +57,7 @@ export function BarChartCard({
             <LabelList dataKey={dataKey} position="right" className="fill-foreground" fontSize={12} />
           )}
         </Bar>
-      </BarChart>
+      </IconBarChart>
     </ChartContainer>
   );
 }

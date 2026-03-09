@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { GitCompareArrows, RefreshCw, PlusCircle, Minus } from "lucide-react";
+;
+import { Button, IconMinus, IconPlusCircle, IconRefresh } from "@/components/icons/brand-icons";
 import type { ScenarioCompareResult } from "./types";
 
 function formatDiffValue(v: unknown): string {
@@ -26,7 +24,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display flex items-center gap-2">
-            <GitCompareArrows className="w-5 h-5" />
+            <IconGitCompareArrows className="w-5 h-5" />
             Scenario Comparison
           </DialogTitle>
           {result && (
@@ -44,7 +42,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {result.assumptionDiffs.length > 0 && (
               <div>
                 <h4 className="font-display font-semibold text-sm text-foreground mb-2 flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4" />
+                  <IconRefresh className="w-4 h-4" />
                   Assumption Changes ({result.assumptionDiffs.length})
                 </h4>
                 <Table>
@@ -72,7 +70,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {result.propertyDiffs.filter(pd => pd.status === "added").length > 0 && (
               <div>
                 <h4 className="font-display font-semibold text-sm text-green-700 mb-2 flex items-center gap-2">
-                  <PlusCircle className="w-4 h-4" />
+                  <IconPlusCircle className="w-4 h-4" />
                   Only in {result.scenario2.name}
                 </h4>
                 <div className="space-y-1">
@@ -89,7 +87,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {result.propertyDiffs.filter(pd => pd.status === "removed").length > 0 && (
               <div>
                 <h4 className="font-display font-semibold text-sm text-red-600 mb-2 flex items-center gap-2">
-                  <Minus className="w-4 h-4" />
+                  <IconMinus className="w-4 h-4" />
                   Only in {result.scenario1.name}
                 </h4>
                 <div className="space-y-1">
@@ -106,7 +104,7 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {result.propertyDiffs.filter(pd => pd.status === "changed").length > 0 && (
               <div>
                 <h4 className="font-display font-semibold text-sm text-foreground mb-2 flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4" />
+                  <IconRefresh className="w-4 h-4" />
                   Property Changes
                 </h4>
                 {result.propertyDiffs.filter(pd => pd.status === "changed").map((pd, i) => (

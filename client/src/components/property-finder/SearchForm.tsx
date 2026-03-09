@@ -1,3 +1,4 @@
+import { IconBookmark, IconLoader, IconSave, IconX, Input } from "@/components/icons/brand-icons";
 /**
  * SearchForm.tsx — Property Finder search criteria form.
  *
@@ -14,12 +15,7 @@
  *
  * Exports the SearchFormData type used by the parent page.
  */
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Search, Loader2, X, Bookmark, Save,
-} from "lucide-react";
+;
 
 export interface SearchFormData {
   location: string;
@@ -149,7 +145,7 @@ export function SearchForm({
                       <Input
                         value={saveSearchName}
                         onChange={(e) => setSaveSearchName(e.target.value)}
-                        placeholder="Search name..."
+                        placeholder="IconSearch name..."
                         className="bg-muted border-border text-foreground placeholder-gray-400 focus:border-primary focus:ring-primary/20 w-48 h-9 text-sm"
                         data-testid="input-search-name"
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), onSaveSearch())}
@@ -161,14 +157,14 @@ export function SearchForm({
                         className="p-2 rounded-lg bg-primary hover:bg-primary/80 text-primary-foreground transition-colors"
                         data-testid="btn-confirm-save-search"
                       >
-                        {isSaveSearchPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                        {isSaveSearchPending ? <IconLoader className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
                       </button>
                       <button
                         type="button"
                         onClick={() => { setShowSaveDialog(false); setSaveSearchName(""); }}
                         className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
                       >
-                        <X className="w-4 h-4" />
+                        <IconX className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
@@ -178,7 +174,7 @@ export function SearchForm({
                       className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
                       data-testid="btn-save-search"
                     >
-                      <Bookmark className="w-3.5 h-3.5" /> Save This Search
+                      <IconBookmark className="w-3.5 h-3.5" /> IconSave This IconSearch
                     </button>
                   )}
                 </>
@@ -191,9 +187,9 @@ export function SearchForm({
               data-testid="btn-search"
             >
               {isSearching ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Searching...</>
+                <><IconLoader className="w-4 h-4 animate-spin" /> Searching...</>
               ) : (
-                <><Search className="w-4 h-4" /> Search Properties</>
+                <><IconSearch className="w-4 h-4" /> IconSearch Properties</>
               )}
             </button>
           </div>

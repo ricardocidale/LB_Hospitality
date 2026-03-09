@@ -1,30 +1,31 @@
+import { cn } from "@/lib/utils";
+import { IconShield, IconAlertTriangle, IconCheck } from "@/components/icons/brand-icons";
 /**
  * ConfidenceBadge.tsx — Shows how a research recommendation compares to market.
  *
  * Displays a small colored pill indicating whether the AI's recommended
  * value is conservative, moderate, or aggressive relative to market data.
  */
-import { cn } from "@/lib/utils";
-import { Shield, Check, AlertTriangle } from "lucide-react";
+;
 
 type Confidence = "conservative" | "moderate" | "aggressive";
 
-const CONFIDENCE_CONFIG: Record<Confidence, { label: string; icon: typeof Shield; className: string; title: string }> = {
+const CONFIDENCE_CONFIG: Record<Confidence, { label: string; icon: typeof IconShield; className: string; title: string }> = {
   conservative: {
     label: "Conservative",
-    icon: Shield,
+    icon: IconShield,
     className: "text-blue-700 bg-blue-50 border-blue-200",
     title: "Below market average — lower risk estimate",
   },
   moderate: {
     label: "Moderate",
-    icon: Check,
+    icon: IconCheck,
     className: "text-emerald-700 bg-emerald-50 border-emerald-200",
     title: "In line with market averages",
   },
   aggressive: {
     label: "Aggressive",
-    icon: AlertTriangle,
+    icon: IconAlertTriangle,
     className: "text-amber-700 bg-amber-50 border-amber-200",
     title: "Above market average — higher risk estimate",
   },

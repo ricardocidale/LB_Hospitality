@@ -6,6 +6,7 @@
  * Groups include: Pages (Dashboard, Company, Admin), Properties (all
  * properties in the portfolio), and Actions (e.g. add property, export).
  */
+import { IconAnalysis, IconBriefcase, IconCalculator, IconDashboard, IconExport, IconProfile, IconProperties, IconRefresh, IconScenarios, IconSearch, IconSettings, IconVerify } from "@/components/icons/brand-icons";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import {
@@ -18,12 +19,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { useStore } from "@/lib/store";
-import { Search } from "lucide-react";
-import {
-  IconDashboard, IconProperties, IconBriefcase, IconSettings,
-  IconAnalysis, IconCalculator, IconProfile, IconScenarios,
-  IconExport, IconVerify, IconRefresh,
-} from "@/components/icons/brand-icons";
+;
 
 const navigationItems = [
   { label: "Dashboard", href: "/", icon: IconDashboard },
@@ -136,7 +132,7 @@ export default function CommandPalette() {
         </CommandList>
 
         <div className="border-t border-border px-3 py-2 flex items-center gap-2 text-muted-foreground text-xs">
-          <Search className="h-3 w-3" />
+          <IconSearch className="h-3 w-3" />
           <span>
             Press{" "}
             <kbd className="px-1.5 py-0.5 bg-muted rounded text-muted-foreground font-mono text-[10px]">

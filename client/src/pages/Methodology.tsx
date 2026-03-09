@@ -1,24 +1,4 @@
-import { useState, useRef } from "react";
-import Layout from "@/components/Layout";
-import { Card } from "@/components/ui/card";
-import { ManualTable } from "@/components/ui/manual-table";
-import { Callout } from "@/components/ui/callout";
-import {
-  Calculator,
-  TrendingUp,
-  Building2,
-  DollarSign,
-  PieChart,
-  BarChart3,
-  Wallet,
-  Info,
-  Layers,
-  ArrowRightLeft,
-  BookOpen,
-  Banknote,
-  RefreshCw,
-  ShieldCheck,
-} from "lucide-react";
+import { Banknote, BarChart3, IconBookOpen, IconBuilding, IconDollarSign, IconInfo, IconRefresh, IconTrending, IconWallet, Layers, PieChart, ShieldCheck, useState } from "@/components/icons/brand-icons";
 import {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
@@ -100,7 +80,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
           <div className="p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <Calculator className="w-6 h-6 text-primary" />
+                <IconCalculator className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Overview of the Financial Model</h3>
@@ -334,7 +314,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="dynamic-behavior"
               title="Dynamic Behavior & System Goals"
               subtitle="Real-time recalculation and multi-level analysis"
-              icon={RefreshCw}
+              icon={IconRefresh}
               expanded={expandedSections.has("dynamic-behavior")}
               onToggle={() => toggleSection("dynamic-behavior")}
               sectionRef={(el) => { sectionRefs.current["dynamic-behavior"] = el; }}
@@ -360,7 +340,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="property-lifecycle"
               title="Property Lifecycle"
               subtitle="Acquisition → Operations → Refinancing → Exit"
-              icon={ArrowRightLeft}
+              icon={IconArrowRightLeft}
               expanded={expandedSections.has("property-lifecycle")}
               onToggle={() => toggleSection("property-lifecycle")}
               sectionRef={(el) => { sectionRefs.current["property-lifecycle"] = el; }}
@@ -396,7 +376,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="defaults"
               title="Default Values & Assumptions"
               subtitle="Where the default numbers come from"
-              icon={Info}
+              icon={IconInfo}
               expanded={expandedSections.has("defaults")}
               onToggle={() => toggleSection("defaults")}
               sectionRef={(el) => { sectionRefs.current["defaults"] = el; }}
@@ -419,7 +399,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="revenue"
               title="Revenue Calculations"
               subtitle="How we project rooms, F&B, and events revenue"
-              icon={TrendingUp}
+              icon={IconTrending}
               expanded={expandedSections.has("revenue")}
               onToggle={() => toggleSection("revenue")}
               sectionRef={(el) => { sectionRefs.current["revenue"] = el; }}
@@ -463,7 +443,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="expenses"
               title="Operating Expenses"
               subtitle="How we calculate property operating costs"
-              icon={Wallet}
+              icon={IconWallet}
               expanded={expandedSections.has("expenses")}
               onToggle={() => toggleSection("expenses")}
               sectionRef={(el) => { sectionRefs.current["expenses"] = el; }}
@@ -506,7 +486,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="debt"
               title="Debt & Financing"
               subtitle="Loan calculations and refinancing"
-              icon={Building2}
+              icon={IconBuilding}
               expanded={expandedSections.has("debt")}
               onToggle={() => toggleSection("debt")}
               sectionRef={(el) => { sectionRefs.current["debt"] = el; }}
@@ -522,7 +502,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="cash-flow"
               title="Free Cash Flow (GAAP Method)"
               subtitle="How we calculate cash available to investors"
-              icon={DollarSign}
+              icon={IconDollarSign}
               expanded={expandedSections.has("cash-flow")}
               onToggle={() => toggleSection("cash-flow")}
               sectionRef={(el) => { sectionRefs.current["cash-flow"] = el; }}
@@ -539,7 +519,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="balance-sheet"
               title="Balance Sheet"
               subtitle="Assets, liabilities, and equity per GAAP standards"
-              icon={BookOpen}
+              icon={IconBookOpen}
               expanded={expandedSections.has("balance-sheet")}
               onToggle={() => toggleSection("balance-sheet")}
               sectionRef={(el) => { sectionRefs.current["balance-sheet"] = el; }}
@@ -576,7 +556,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="management-company"
               title="Management Company Financials"
               subtitle="Hospitality Business Co. revenue and expenses"
-              icon={Building2}
+              icon={IconBuilding}
               expanded={expandedSections.has("management-company")}
               onToggle={() => toggleSection("management-company")}
               sectionRef={(el) => { sectionRefs.current["management-company"] = el; }}
@@ -594,7 +574,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               id="fixed-assumptions"
               title="Fixed Assumptions (Not Configurable)"
               subtitle="Hardcoded values built into the calculation engine"
-              icon={Info}
+              icon={IconInfo}
               className="border-amber-200 bg-amber-50/30"
               expanded={expandedSections.has("fixed-assumptions")}
               onToggle={() => toggleSection("fixed-assumptions")}
@@ -613,7 +593,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               expandedSections={expandedSections} 
               toggleSection={toggleSection} 
               sectionRefs={sectionRefs} 
-              icon={Calculator}
+              icon={IconCalculator}
             />
 
           </main>
@@ -623,7 +603,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
           <div className="p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <Calculator className="w-6 h-6 text-primary" />
+                <IconCalculator className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg mb-2">Questions About the Model?</h3>

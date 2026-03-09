@@ -14,29 +14,34 @@
  * This tab does NOT modify the financial engine or schema —
  * it manages company_service_templates via existing API routes.
  */
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Card, CardContent, CardDescription, CardHeader, CardTitle 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { 
+  Dialog, DialogContent, DialogDescription, DialogFooter, 
+  DialogHeader, DialogTitle 
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
+} from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import {
-  Loader2, Plus, Save, Info, Percent, Coins,
-  ArrowRightLeft, HelpCircle, BookOpen, RefreshCw,
-} from "lucide-react";
-import {
-  IconPencil,
-  IconTrash,
-  IconPackage,
-  IconTrending,
+
+import { 
+  IconArrowRightLeft, IconBookOpen, IconCoins, IconHelpCircle, 
+  IconInfo, IconLoader, IconMessageSquare, IconPackage, IconPencil, 
+  IconPlus, IconRefresh, IconSave, IconTrash, IconTrending, IconPercent
 } from "@/components/icons/brand-icons";
+
 import {
   useServiceTemplates,
   useCreateServiceTemplate,
@@ -110,7 +115,7 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
   return (
     <div className="mt-3 pt-3 border-t border-border/60 space-y-3">
       <div className="flex items-center gap-2 mb-2">
-        <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+        <IconBookOpen className="w-3.5 h-3.5 text-muted-foreground" />
         <span className="text-xs font-medium text-foreground uppercase tracking-wider">Industry Benchmarks</span>
         <span className="text-[10px] text-muted-foreground ml-auto">at $1.5M sample revenue</span>
       </div>
@@ -333,7 +338,7 @@ export default function RevenueShareTab() {
   if (templatesLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <IconLoader className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -341,7 +346,7 @@ export default function RevenueShareTab() {
   return (
     <div className="space-y-6 pb-20">
       <Alert className="bg-primary/5 border-primary/20">
-        <Info className="h-4 w-4 text-primary" />
+        <IconInfo className="h-4 w-4 text-primary" />
         <AlertTitle className="text-primary font-semibold">How Revenue Share Works</AlertTitle>
         <AlertDescription className="text-primary/80 space-y-2">
           <p>
@@ -407,7 +412,7 @@ export default function RevenueShareTab() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="outline" size="sm" onClick={handleSync} disabled={syncMutation.isPending} data-testid="button-sync-templates">
-                    {syncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <ArrowRightLeft className="w-4 h-4 mr-1" />}
+                    {syncMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin mr-1" /> : <IconArrowRightLeft className="w-4 h-4 mr-1" />}
                     Sync to Properties
                   </Button>
                 </TooltipTrigger>
@@ -416,7 +421,7 @@ export default function RevenueShareTab() {
                 </TooltipContent>
               </Tooltip>
               <Button size="sm" onClick={openCreate} data-testid="button-add-service">
-                <Plus className="w-4 h-4 mr-1" />
+                <IconPlus className="w-4 h-4 mr-1" />
                 Add Service
               </Button>
             </div>
@@ -467,7 +472,7 @@ export default function RevenueShareTab() {
                             {t.serviceModel === "centralized" && (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                                  <IconHelpCircle className="w-3 h-3 text-muted-foreground" />
                                 </TooltipTrigger>
                                 <TooltipContent side="right">
                                   <p className="max-w-xs text-xs">
@@ -480,11 +485,12 @@ export default function RevenueShareTab() {
                             {t.serviceModel === "direct" && (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                                  <IconHelpCircle className="w-3 h-3 text-muted-foreground" />
                                 </TooltipTrigger>
                                 <TooltipContent side="right">
                                   <p className="max-w-xs text-xs">
-                                    <strong>Direct model:</strong> The management company provides oversight but does not procure external vendors. The entire fee is recognized as revenue with no associated cost-of-service.
+                                    <strong>Direct model:</strong> The management company provides this service using its own internal resources and expertise.
+                                    The entire fee represents revenue for the management company.
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
@@ -492,250 +498,267 @@ export default function RevenueShareTab() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 gap-1.5"
+                          onClick={() => toggleResearch(t.id)}
+                          data-testid={`button-research-${t.id}`}
+                        >
+                          <IconBookOpen className="w-3.5 h-3.5" />
+                          <span className="text-xs">{expandedResearch.has(t.id) ? "Hide Market Data" : "Market Benchmarks"}</span>
+                        </Button>
                         <Switch
                           checked={t.isActive}
                           onCheckedChange={() => handleToggleActive(t)}
-                          disabled={updateMutation.isPending}
-                          data-testid={`toggle-service-${t.id}`}
+                          data-testid={`switch-active-${t.id}`}
                         />
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleResearch(t.id)} data-testid={`button-research-service-${t.id}`}>
-                            <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(t)} data-testid={`button-edit-service-${t.id}`}>
-                            <IconPencil className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteConfirmId(t.id)} data-testid={`button-delete-service-${t.id}`}>
-                            <IconTrash className="w-3.5 h-3.5 text-destructive" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={() => openEdit(t)}
+                          data-testid={`button-edit-${t.id}`}
+                        >
+                          <IconPencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={() => setDeleteConfirmId(t.id)}
+                          data-testid={`button-delete-${t.id}`}
+                        >
+                          <IconTrash className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
                     </div>
+
                     {expandedResearch.has(t.id) && (
                       <ServiceResearchPanel template={t} />
                     )}
                   </div>
                 );
               })}
-
-              <div className="flex items-center justify-between px-4 py-3 bg-primary/5 border border-primary/20 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <IconTrending className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold text-primary">Total Base Management Fee</span>
-                  <HelpTooltip text="The sum of all active service category rates. This is the effective Base Management Fee charged to each property as a percentage of their Total Revenue. It is deducted from GOP to calculate Adjusted Gross Operating Profit (AGOP) in the USALI waterfall." />
-                </div>
-                <span className="text-lg font-display font-bold text-primary font-mono">{(totalServiceRate * 100).toFixed(1)}%</span>
-              </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* ─── Incentive Management Fee ───────────────────── */}
-      <Card className="bg-card border border-border/80 shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Coins className="w-4 h-4 text-muted-foreground" />
-            Incentive Management Fee
-            <HelpTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from GOP to arrive at Adjusted Gross Operating Profit (AGOP), which flows through to NOI and ANOI." />
-          </CardTitle>
-          <CardDescription className="label-text">
-            Performance bonus as a percentage of each property's Gross Operating Profit (GOP).
-            Only charged when GOP is positive.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-end gap-4 max-w-md">
-            <div className="space-y-2 flex-1">
-              <Label className="label-text text-foreground flex items-center gap-2">
-                <Percent className="w-3 h-3" /> Default Incentive Fee
-              </Label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="100"
+      {/* ─── Incentive Fee ────────────────────────────── */}
+      <Card className="bg-card border border-border/80 shadow-sm overflow-hidden">
+        <div className="bg-emerald-500/[0.03] border-b border-emerald-500/10 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                <IconCoins className="w-5 h-5" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+                  Incentive Management Fee
+                  <HelpTooltip text="Performance-based fee charged as a percentage of Gross Operating Profit (GOP). Unlike service fees which are based on revenue, the incentive fee rewards the management company for maximizing bottom-line efficiency. This fee is only collected when GOP is positive. It is deducted after the Base Management Fee to arrive at Adjusted GOP (AGOP)." />
+                </CardTitle>
+                <CardDescription className="label-text">
+                  Variable performance bonus based on Gross Operating Profit.
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-white border border-border rounded-lg px-3 py-1.5 shadow-sm">
+                <IconPercent className="w-3.5 h-3.5 text-muted-foreground" />
+                <input
+                  type="text"
                   value={displayIncentive}
-                  onChange={(e) => {
-                    setIncentivePct(e.target.value);
-                    setIncentiveDirty(true);
-                  }}
-                  placeholder="12"
-                  className="bg-card pr-8"
-                  data-testid="input-incentive-management-fee"
+                  onChange={(e) => { setIncentivePct(e.target.value); setIncentiveDirty(true); }}
+                  className="w-12 text-sm font-mono font-bold focus:outline-none"
+                  data-testid="input-incentive-fee"
                 />
-                <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted-foreground text-sm">
-                  %
+                <span className="text-xs font-bold text-muted-foreground border-l border-border pl-2">OF GOP</span>
+              </div>
+              <Button
+                size="sm"
+                onClick={handleSaveIncentive}
+                disabled={!incentiveDirty || updateGlobalMutation.isPending}
+                className="gap-1.5"
+                data-testid="button-save-incentive"
+              >
+                {updateGlobalMutation.isPending ? <IconLoader className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-1 w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                  <IconTrending className="w-3 h-3 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Performance Alignment</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Aligns management company interests with owners by focusing on profit maximization rather than just top-line volume.</p>
                 </div>
               </div>
-              <p className="text-[10px] text-muted-foreground italic">e.g. 12 for 12% of GOP. Industry range: 10–20%.</p>
+              <div className="flex items-start gap-3">
+                <div className="mt-1 w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                  <IconMessageSquare className="w-3 h-3 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Standard Calculation</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Calculated as: (GOP - Base Management Fee) × {displayIncentive}%. Industry standard typically ranges from 5% to 15%.</p>
+                </div>
+              </div>
             </div>
-            <Button
-              onClick={handleSaveIncentive}
-              disabled={!incentiveDirty || updateGlobalMutation.isPending}
-              data-testid="button-save-incentive"
-            >
-              {updateGlobalMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
-              Save
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ─── USALI Waterfall Summary ────────────────────── */}
-      <Card className="bg-muted/50 border border-border/60 shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <HelpCircle className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-foreground uppercase tracking-wider">USALI Waterfall Impact</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-center text-xs">
-            <div className="bg-card rounded-lg p-2.5 border border-border/60">
-              <div className="font-semibold text-foreground">Total Revenue</div>
-              <div className="text-muted-foreground mt-0.5">Property income</div>
-            </div>
-            <div className="flex items-center justify-center text-muted-foreground font-mono">→</div>
-            <div className="bg-card rounded-lg p-2.5 border border-border/60">
-              <div className="font-semibold text-foreground">GOP</div>
-              <div className="text-muted-foreground mt-0.5">Revenue − Operating Expenses</div>
-            </div>
-            <div className="flex items-center justify-center text-muted-foreground font-mono">→</div>
-            <div className="bg-primary/10 rounded-lg p-2.5 border border-primary/30">
-              <div className="font-semibold text-primary">AGOP</div>
-              <div className="text-primary/70 mt-0.5">
-                GOP − {(totalServiceRate * 100).toFixed(1)}% base − {parseFloat(displayIncentive || "0").toFixed(1)}% incentive
+            <div className="bg-muted/40 border border-border/50 rounded-xl p-4 flex flex-col justify-center">
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                <span>Sample Adjusted GOP</span>
+                <span>$250,000</span>
+              </div>
+              <div className="flex items-center justify-between font-mono text-sm font-bold text-foreground">
+                <span>Estimated Incentive Fee</span>
+                <span className="text-emerald-600">
+                  ${(250_000 * (parseFloat(displayIncentive) || 0) / 100).toLocaleString()}
+                </span>
+              </div>
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <p className="text-[10px] text-muted-foreground italic text-center">Incentive fees provide a powerful mechanism to drive operational efficiency across the portfolio.</p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* ─── Create / Edit Dialog ───────────────────────── */}
+      {/* ─── Create/Edit Dialog ────────────────────────── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="font-display">{editingId ? "Edit Service Category" : "Add Service Category"}</DialogTitle>
-            <DialogDescription className="label-text">
-              {editingId
-                ? "Update the service category settings. Changes will apply as new defaults — existing property overrides are preserved."
-                : "Create a new service category. Use 'Sync to Properties' to propagate it to all existing properties."}
+            <DialogTitle>{editingId ? "Edit Service Category" : "Add Service Category"}</DialogTitle>
+            <DialogDescription>
+              Configure a service category and its default rate.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
+
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Service Name</Label>
+              <Label htmlFor="name">Service Name</Label>
               <Input
+                id="name"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Marketing"
+                placeholder="e.g. Marketing, IT, Accounting"
                 data-testid="input-service-name"
               />
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium flex items-center gap-1">
-                  Service Model
-                  <HelpTooltip text="Centralized: The management company procures this service from vendors and passes cost through with a markup. The property pays fee = vendor cost × (1 + markup%). Direct: The company provides oversight only — the entire fee is recognized as revenue with no vendor cost." />
-                </Label>
-                <Select value={form.serviceModel} onValueChange={(v) => setForm({ ...form, serviceModel: v as "centralized" | "direct" })}>
-                  <SelectTrigger data-testid="select-service-model">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="centralized">Centralized (pass-through)</SelectItem>
-                    <SelectItem value="direct">Direct (oversight only)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="rate">Default Rate (%)</Label>
+                <div className="relative">
+                  <Input
+                    id="rate"
+                    type="number"
+                    step="0.1"
+                    value={form.defaultRate}
+                    onChange={(e) => setForm({ ...form, defaultRate: e.target.value })}
+                    className="pr-8 font-mono"
+                    data-testid="input-service-rate"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">%</div>
+                </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium flex items-center gap-1">
-                  Default Fee Rate (%)
-                  <HelpTooltip text="The percentage of a property's Total Revenue charged for this service. e.g. 2.0 means 2.0% of Total Revenue. All active service rates sum to the Base Management Fee." />
-                </Label>
+                <Label htmlFor="order">Sort Order</Label>
                 <Input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="100"
-                  value={form.defaultRate}
-                  onChange={(e) => setForm({ ...form, defaultRate: e.target.value })}
-                  data-testid="input-service-rate"
-                />
-              </div>
-            </div>
-            {form.serviceModel === "centralized" && (
-              <div className="space-y-2 bg-muted rounded-lg p-3 border border-border/60">
-                <Label className="text-sm font-medium flex items-center gap-1">
-                  Cost-Plus Markup (%)
-                  <HelpTooltip text="When the company procures a service for a property, it charges cost × (1 + markup%). e.g. 20% markup means a $1,000 vendor invoice becomes $1,200 to the property. The $200 difference is the company's gross profit on this service." />
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  If markup is 20% and the company procures a service for $1.00, the property is charged $1.20.
-                </p>
-                <Input
-                  type="number"
-                  step="1"
-                  min="0"
-                  max="100"
-                  value={form.serviceMarkup}
-                  onChange={(e) => setForm({ ...form, serviceMarkup: e.target.value })}
-                  data-testid="input-service-markup"
-                />
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Sort Order</Label>
-                <Input
+                  id="order"
                   type="number"
                   value={form.sortOrder}
                   onChange={(e) => setForm({ ...form, sortOrder: e.target.value })}
-                  data-testid="input-service-sort"
+                  className="font-mono"
+                  data-testid="input-service-order"
                 />
-              </div>
-              <div className="flex items-center gap-2 pt-6">
-                <Switch
-                  checked={form.isActive}
-                  onCheckedChange={(v) => setForm({ ...form, isActive: v })}
-                  data-testid="toggle-service-active"
-                />
-                <Label className="text-sm font-medium">Active</Label>
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label>Service Model</Label>
+              <Select
+                value={form.serviceModel}
+                onValueChange={(v: "centralized" | "direct") => setForm({ ...form, serviceModel: v })}
+              >
+                <SelectTrigger data-testid="select-service-model">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="centralized">Centralized (with markup)</SelectItem>
+                  <SelectItem value="direct">Direct (oversight only)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">
+                {form.serviceModel === "centralized"
+                  ? "Centralized services are pass-through vendor costs with an internal markup."
+                  : "Direct services are provided internally by the management company with no external vendor cost."}
+              </p>
+            </div>
+
+            {form.serviceModel === "centralized" && (
+              <div className="space-y-2">
+                <Label htmlFor="markup">Internal Markup (%)</Label>
+                <div className="relative">
+                  <Input
+                    id="markup"
+                    type="number"
+                    value={form.serviceMarkup}
+                    onChange={(e) => setForm({ ...form, serviceMarkup: e.target.value })}
+                    className="pr-8 font-mono"
+                    data-testid="input-service-markup"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">%</div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 pt-2">
+              <Switch
+                id="active"
+                checked={form.isActive}
+                onCheckedChange={(v) => setForm({ ...form, isActive: v })}
+                data-testid="switch-service-active"
+              />
+              <Label htmlFor="active" className="cursor-pointer">Active</Label>
+            </div>
           </div>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)} data-testid="button-cancel-service">
+              Cancel
+            </Button>
             <Button onClick={handleSaveTemplate} disabled={createMutation.isPending || updateMutation.isPending} data-testid="button-save-service">
-              {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              <Save className="w-4 h-4 mr-1" />
-              Save
+              {(createMutation.isPending || updateMutation.isPending) && <IconLoader className="w-4 h-4 animate-spin mr-2" />}
+              {editingId ? "Save Changes" : "Create Service"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ─── Delete Confirmation ────────────────────────── */}
-      <Dialog open={deleteConfirmId !== null} onOpenChange={() => setDeleteConfirmId(null)}>
-        <DialogContent>
+      {/* ─── Delete Confirmation ──────────────────────── */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={(o) => !o && setDeleteConfirmId(null)}>
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle className="font-display">Delete Service Category</DialogTitle>
-            <DialogDescription className="label-text">
-              This will remove the service category from the company template. Existing property fee categories will not be affected.
+            <DialogTitle>Delete Service Category?</DialogTitle>
+            <DialogDescription>
+              This will permanently remove this service category template. Existing properties that use this service will not be affected, but new properties will not receive it.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
-            <Button
-              variant="destructive"
-              onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)}
-              disabled={deleteMutation.isPending}
-              data-testid="button-confirm-delete-service"
-            >
-              {deleteMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              <IconTrash className="w-4 h-4 mr-1" />
-              Delete
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)} data-testid="button-cancel-delete">
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={() => deleteConfirmId && handleDelete(deleteConfirmId)} disabled={deleteMutation.isPending} data-testid="button-confirm-delete">
+              {deleteMutation.isPending && <IconLoader className="w-4 h-4 animate-spin mr-2" />}
+              Delete Category
             </Button>
           </DialogFooter>
         </DialogContent>

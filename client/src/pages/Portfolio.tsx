@@ -20,10 +20,8 @@
  * Deleting a property removes it from the portfolio and triggers a full
  * invalidation of all financial queries so dashboards update.
  */
-import { useState } from "react";
-import Layout from "@/components/Layout";
-import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions } from "@/lib/api";
-import { Loader2, Plus, AlertTriangle } from "lucide-react";
+;
+import { IconAlertTriangle, IconLoader, IconPlus, useCreateProperty, useDeleteProperty, useGlobalAssumptions } from "@/components/icons/brand-icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -204,7 +202,7 @@ export default function Portfolio() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <IconLoader className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -214,7 +212,7 @@ export default function Portfolio() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load portfolio data. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -241,7 +239,7 @@ export default function Portfolio() {
               onAcquisitionDateChange={handleAcquisitionDateChange}
               trigger={
                 <Button variant="outline" data-testid="button-add-property">
-                  <Plus className="w-4 h-4" />
+                  <IconPlus className="w-4 h-4" />
                   Add Property
                 </Button>
               }

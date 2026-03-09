@@ -23,16 +23,12 @@
  *   A "beforeunload" listener warns the user if they try to leave with unsaved
  *   changes.
  */
+import { AnimatedPage, IconAlertTriangle, IconBookOpen, IconLink, IconWand } from "@/components/icons/brand-icons";
 import Layout from "@/components/Layout";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
-import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch, useFeeCategories, useUpdateFeeCategories, type FeeCategoryResponse } from "@/lib/api";
-import { useMarketRates } from "@/lib/api/market-rates";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, BookOpen, AlertTriangle, Wand2 } from "lucide-react";
+;
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
-import { Link, useRoute, useLocation } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import {
   PROJECTION_YEARS,
@@ -293,7 +289,7 @@ export default function PropertyEdit() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <IconLoader className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -303,7 +299,7 @@ export default function PropertyEdit() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load property data. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -315,9 +311,9 @@ export default function PropertyEdit() {
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
           <h2 className="text-2xl font-display">Property Not Found</h2>
-          <Link href="/portfolio">
+          <IconLink href="/portfolio">
             <Button>Return to Portfolio</Button>
-          </Link>
+          </IconLink>
         </div>
       </Layout>
     );
@@ -385,10 +381,10 @@ export default function PropertyEdit() {
           backLink={`/property/${propertyId}`}
           actions={
             <div className="flex items-center gap-3">
-              <Link href={`/property/${propertyId}/research`} className="text-inherit no-underline">
+              <IconLink href={`/property/${propertyId}/research`} className="text-inherit no-underline">
                 <Button variant="default" data-testid="button-market-research">
                   <span className="relative">
-                    <BookOpen className="w-4 h-4" />
+                    <IconBookOpen className="w-4 h-4" />
                     <span
                       className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white ${
                         researchFreshness === "fresh" ? "bg-emerald-400" :
@@ -402,14 +398,14 @@ export default function PropertyEdit() {
                   </span>
                   Market Research
                 </Button>
-              </Link>
+              </IconLink>
               {research?.content && !((research.content as any)?.rawResponse) && (
                 <Button
                   variant="default"
                   onClick={() => setShowApplyDialog(true)}
                   data-testid="button-apply-research"
                 >
-                  <Wand2 className="w-4 h-4" />
+                  <IconWand className="w-4 h-4" />
                   Apply Research
                 </Button>
               )}

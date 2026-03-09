@@ -1,14 +1,4 @@
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageSquare, Globe, Loader2, Save, RefreshCw, AlertCircle, FileText, Type, Sparkles, Copy, Check } from "lucide-react";
-
+import { CardContent, CardDescription, CardHeader, CardTitle, IconAlertCircle, IconCheck, IconCopy, IconFileText, IconGlobe, IconLoader, IconMessageSquare, IconRefresh, IconSave, IconSparkles, IconType } from "@/components/icons/brand-icons";
 import { useAgentConfig, useSaveAgentPrompt } from "@/features/ai-agent/hooks/use-convai-api";
 
 const DYNAMIC_VARS = [
@@ -109,7 +99,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="py-16 text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-muted mb-4">
-            <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" />
+            <IconLoader className="w-7 h-7 animate-spin text-muted-foreground" />
           </div>
           <p className="text-sm text-muted-foreground font-medium">Fetching agent configuration from ElevenLabs...</p>
           <p className="text-xs text-muted-foreground/60 mt-1">This may take a moment on first load</p>
@@ -124,13 +114,13 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
         <CardContent className="py-10">
           <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-              <AlertCircle className="w-5 h-5 text-amber-600" />
+              <IconAlertCircle className="w-5 h-5 text-amber-600" />
             </div>
             <div>
               <p className="text-sm font-semibold text-amber-900">Agent configuration unavailable</p>
               <p className="text-xs text-amber-700/80 mt-1 leading-relaxed">{(error as Error).message}</p>
               <Button variant="ghost" size="sm" className="mt-3 gap-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-100/50 -ml-2" onClick={() => refetch()}>
-                <RefreshCw className="w-3.5 h-3.5" /> Retry connection
+                <IconRefresh className="w-3.5 h-3.5" /> Retry connection
               </Button>
             </div>
           </div>
@@ -150,7 +140,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <FileText className="w-4 h-4 text-muted-foreground" />
+                <IconFileText className="w-4 h-4 text-muted-foreground" />
               </div>
               <div>
                 <CardTitle className="text-sm font-semibold text-foreground">System Prompt</CardTitle>
@@ -172,7 +162,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
                   onClick={handleLoadTemplate}
                   className="gap-1.5 border-border text-muted-foreground hover:bg-muted"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <IconSparkles className="w-3.5 h-3.5" />
                   Load template
                 </Button>
               )}
@@ -184,9 +174,9 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
                 data-testid="button-save-prompt"
               >
                 {savePromptMutation.isPending ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <IconLoader className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Save className="w-3.5 h-3.5" />
+                  <IconSave className="w-3.5 h-3.5" />
                 )}
                 Save to ElevenLabs
               </Button>
@@ -205,7 +195,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-4 text-xs text-muted-foreground/70">
                 <span className="flex items-center gap-1">
-                  <Type className="w-3 h-3" />
+                  <IconType className="w-3 h-3" />
                   {promptCharCount.toLocaleString()} characters
                 </span>
                 <span>{promptWordCount.toLocaleString()} words</span>
@@ -228,7 +218,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
                   title={v.description}
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-xs font-mono text-muted-foreground hover:bg-muted transition-colors"
                 >
-                  {copiedVar === v.name ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3 opacity-50" />}
+                  {copiedVar === v.name ? <IconCheck className="w-3 h-3 text-green-500" /> : <IconCopy className="w-3 h-3 opacity-50" />}
                   {v.name}
                 </button>
               ))}
@@ -243,7 +233,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-500/5 flex items-center justify-center">
-              <MessageSquare className="w-4 h-4 text-muted-foreground" />
+              <IconMessageSquare className="w-4 h-4 text-muted-foreground" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">First Message</CardTitle>
@@ -269,7 +259,7 @@ export function PromptEditor({ agentName }: PromptEditorProps) {
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-muted-foreground/60" />
+              <IconGlobe className="w-4 h-4 text-muted-foreground/60" />
               <Label className="label-text font-medium text-xs uppercase tracking-wider text-muted-foreground/70">Default Language</Label>
             </div>
             <Select value={currentLanguage} onValueChange={handleLanguageChange}>

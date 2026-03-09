@@ -22,6 +22,7 @@
  * The page respects the fiscal-year-start-month setting, so FY labels align
  * with the company's chosen fiscal calendar (e.g. FY 2027 may start in October).
  */
+import { IconAlertTriangle, IconBalanceSheet, IconCashFlow, IconIncomeStatement, IconLink, IconLoader, IconPPE } from "@/components/icons/brand-icons";
 import { useMemo, useState, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
@@ -29,8 +30,8 @@ import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { Loader2, AlertTriangle } from "lucide-react";
-import { IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconPPE } from "@/components/icons/brand-icons";
+;
+
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
@@ -41,7 +42,7 @@ import {
   exportFullPropertyWorkbook,
 } from "@/lib/exports/excelExport";
 import domtoimage from 'dom-to-image-more';
-import { Link, useRoute } from "wouter";
+import { useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -131,7 +132,7 @@ export default function PropertyDetail() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <IconLoader className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -141,7 +142,7 @@ export default function PropertyDetail() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load property data. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -153,9 +154,9 @@ export default function PropertyDetail() {
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
           <h2 className="text-2xl font-display">Property Not Found</h2>
-          <Link href="/portfolio">
+          <IconLink href="/portfolio">
             <Button>Return to Portfolio</Button>
-          </Link>
+          </IconLink>
         </div>
       </Layout>
     );

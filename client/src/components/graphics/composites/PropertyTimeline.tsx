@@ -11,8 +11,8 @@
  *
  * Each milestone has a type-specific icon and optional value annotation.
  */
-import { motion, type Variants } from "framer-motion";
-import { Building2, Key, TrendingUp, DollarSign, ArrowUpRight } from "lucide-react";
+
+import { IconArrowUpRight, IconDollarSign, IconKey, IconTrending, motion, type Variants } from "@/components/icons/brand-icons";
 import { type ReactNode } from "react";
 
 export interface TimelineMilestone {
@@ -31,12 +31,12 @@ interface PropertyTimelineProps {
 }
 
 const typeConfig: Record<string, { icon: ReactNode; color: string; bg: string }> = {
-  acquisition: { icon: <Key className="w-4 h-4" />, color: "text-blue-600", bg: "bg-blue-100" },
-  ramp: { icon: <TrendingUp className="w-4 h-4" />, color: "text-amber-600", bg: "bg-amber-100" },
-  stabilization: { icon: <Building2 className="w-4 h-4" />, color: "text-emerald-600", bg: "bg-emerald-100" },
-  refinance: { icon: <DollarSign className="w-4 h-4" />, color: "text-purple-600", bg: "bg-purple-100" },
-  exit: { icon: <ArrowUpRight className="w-4 h-4" />, color: "text-red-600", bg: "bg-red-100" },
-  custom: { icon: <Building2 className="w-4 h-4" />, color: "text-muted-foreground", bg: "bg-muted" },
+  acquisition: { icon: <IconKey className="w-4 h-4" />, color: "text-blue-600", bg: "bg-blue-100" },
+  ramp: { icon: <IconTrending className="w-4 h-4" />, color: "text-amber-600", bg: "bg-amber-100" },
+  stabilization: { icon: <IconBuilding className="w-4 h-4" />, color: "text-emerald-600", bg: "bg-emerald-100" },
+  refinance: { icon: <IconDollarSign className="w-4 h-4" />, color: "text-purple-600", bg: "bg-purple-100" },
+  exit: { icon: <IconArrowUpRight className="w-4 h-4" />, color: "text-red-600", bg: "bg-red-100" },
+  custom: { icon: <IconBuilding className="w-4 h-4" />, color: "text-muted-foreground", bg: "bg-muted" },
 };
 
 const containerVariants: Variants = {

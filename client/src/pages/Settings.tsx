@@ -5,22 +5,9 @@
  * drive the entire financial model. Changes are saved to the global_assumptions table
  * and trigger a full financial recalculation across all properties and dashboards.
  */
+import { AnimatedPage, IconGlobe, IconHotel, IconLoader, IconSearch, IconSliders } from "@/components/icons/brand-icons";
 import Layout from "@/components/Layout";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
-import { 
-  useGlobalAssumptions, 
-  useUpdateGlobalAssumptions, 
-  useProperties, 
-  useUpdateProperty, 
-  useMarketResearch, 
-  useResearchQuestions, 
-  useCreateResearchQuestion, 
-  useUpdateResearchQuestion, 
-  useDeleteResearchQuestion 
-} from "@/lib/api";
-import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, Hotel, Globe, Sliders, Search } from "lucide-react";
+;
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveButton } from "@/components/ui/save-button";
 import { useState, useRef, useCallback } from "react";
@@ -94,7 +81,7 @@ export default function Settings() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <IconLoader className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -274,10 +261,10 @@ export default function Settings() {
         <Tabs value={settingsTab} onValueChange={setSettingsTab} className="w-full">
           <CurrentThemeTab
             tabs={[
-              { value: 'portfolio', label: 'Portfolio', icon: Hotel },
-              { value: 'macro', label: 'Macro', icon: Globe },
-              { value: 'other', label: 'Other', icon: Sliders },
-              { value: 'research', label: 'Industry Research', icon: Search }
+              { value: 'portfolio', label: 'Portfolio', icon: IconHotel },
+              { value: 'macro', label: 'Macro', icon: IconGlobe },
+              { value: 'other', label: 'Other', icon: IconSliders },
+              { value: 'research', label: 'Industry Research', icon: IconSearch }
             ]}
             activeTab={settingsTab}
             onTabChange={setSettingsTab}

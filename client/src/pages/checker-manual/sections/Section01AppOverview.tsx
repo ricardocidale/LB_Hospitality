@@ -1,7 +1,7 @@
-import { SectionCard } from "@/components/ui/section-card";
+import { IconSettings, SectionCard } from "@/components/ui/section-card";
   import { ManualTable } from "@/components/ui/manual-table";
   import { Callout } from "@/components/ui/callout";
-  import { IconHelp, IconSettings } from "@/components/icons/brand-icons";
+  import { IconHelp } from "@/components/icons/brand-icons";
 
   interface SectionProps {
     expanded: boolean;
@@ -39,4 +39,3 @@ import { SectionCard } from "@/components/ui/section-card";
       </SectionCard>
     );
   }
-  

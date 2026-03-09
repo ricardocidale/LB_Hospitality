@@ -1,14 +1,4 @@
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { Phone, CheckCircle2, XCircle, MessageCircle, ExternalLink, Copy, Send, Loader2 } from "lucide-react";
+import { CardContent, CardDescription, CardHeader, CardTitle, IconCheckCircle, IconCopy, IconExternalLink, IconLoader, IconMessageCircle, IconPhone, IconSend, IconXCircle } from "@/components/icons/brand-icons";
 import { VoiceSettings, TwilioStatus } from "./types";
 import { useSendTestSms } from "@/features/ai-agent/hooks/use-agent-settings";
 
@@ -42,7 +32,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Phone className="w-4 h-4 text-muted-foreground" />
+              <IconPhone className="w-4 h-4 text-muted-foreground" />
               Telephony & SMS (Twilio)
             </CardTitle>
             <CardDescription className="label-text mt-1">
@@ -52,12 +42,12 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
           <div className="flex items-center gap-2">
             {twilioStatus?.connected ? (
               <Badge variant="default" className="text-sm gap-1">
-                <CheckCircle2 className="w-3 h-3" />
+                <IconCheckCircle className="w-3 h-3" />
                 Connected
               </Badge>
             ) : (
               <Badge variant="destructive" className="text-sm gap-1">
-                <XCircle className="w-3 h-3" />
+                <IconXCircle className="w-3 h-3" />
                 Not Connected
               </Badge>
             )}
@@ -74,11 +64,10 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
           </div>
         )}
 
-
         <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
           <div>
             <Label className="label-text font-medium flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5" />
+              <IconPhone className="w-3.5 h-3.5" />
               Phone Calls
             </Label>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -96,7 +85,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
         <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
           <div>
             <Label className="label-text font-medium flex items-center gap-1.5">
-              <MessageCircle className="w-3.5 h-3.5" />
+              <IconMessageCircle className="w-3.5 h-3.5" />
               SMS Messages
             </Label>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -131,7 +120,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
 
         <div className="space-y-3">
           <Label className="label-text font-medium flex items-center gap-1.5">
-            <ExternalLink className="w-3.5 h-3.5" />
+            <IconExternalLink className="w-3.5 h-3.5" />
             Webhook URLs
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -150,7 +139,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
                 onClick={() => copyToClipboard(voiceWebhookUrl)}
                 data-testid="button-copy-voice-webhook"
               >
-                <Copy className="w-3.5 h-3.5" />
+                <IconCopy className="w-3.5 h-3.5" />
               </Button>
             </div>
             <div className="flex items-center gap-2">
@@ -165,7 +154,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
                 onClick={() => copyToClipboard(smsWebhookUrl)}
                 data-testid="button-copy-sms-webhook"
               >
-                <Copy className="w-3.5 h-3.5" />
+                <IconCopy className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>
@@ -176,7 +165,7 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
             <Separator />
             <div className="space-y-3">
               <Label className="label-text font-medium flex items-center gap-1.5">
-                <Send className="w-3.5 h-3.5" />
+                <IconSend className="w-3.5 h-3.5" />
                 Send Test SMS
               </Label>
               <div className="grid grid-cols-1 gap-3">
@@ -201,9 +190,9 @@ export function TelephonySettings({ draft, updateField, twilioStatus }: Telephon
                   data-testid="button-send-test-sms"
                 >
                   {sendTestSms.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <IconLoader className="w-4 h-4 animate-spin" />
                   ) : (
-                    <Send className="w-4 h-4" />
+                    <IconSend className="w-4 h-4" />
                   )}
                   Send Test
                 </Button>

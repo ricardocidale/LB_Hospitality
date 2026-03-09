@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Loader2, Save } from "lucide-react";
+import { IconLoader, IconSave } from "@/components/icons/brand-icons";
+;
 
 interface EditScenarioDialogProps {
   scenario: { id: number; name: string; description: string } | null;
@@ -60,8 +61,8 @@ export function EditScenarioDialog({
             data-testid="button-update-scenario"
             className="flex items-center gap-2"
           >
-            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save
+            {isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+            IconSave
           </Button>
         </DialogFooter>
       </DialogContent>

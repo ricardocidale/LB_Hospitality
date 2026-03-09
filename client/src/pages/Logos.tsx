@@ -1,12 +1,11 @@
-import { useState, useRef } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import Layout from "@/components/Layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+;
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Image, Upload, Building2, Save, Star } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle, useState } from "react";
+import { useQuery } from "@/components/icons/brand-icons";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/ui/page-header";
 import defaultLogo from "@/assets/logo.png";
@@ -130,7 +129,7 @@ export default function Logos() {
 
       toast({ title: "Uploaded", description: "Logo image uploaded successfully." });
     } catch (error) {
-      toast({ title: "Upload Failed", description: "Failed to upload logo image.", variant: "destructive" });
+      toast({ title: "IconUpload Failed", description: "Failed to upload logo image.", variant: "destructive" });
     } finally {
       setUploadingFile(false);
     }
@@ -142,24 +141,24 @@ export default function Logos() {
       <div className="container mx-auto max-w-5xl py-8 px-4">
         <PageHeader
           title="Logo Management"
-          subtitle="Upload, create, and manage logos used by companies in the platform"
+          subtitle="IconUpload, create, and manage logos used by companies in the platform"
           variant="dark"
         />
 
         <div className="flex justify-end mb-6">
           <Button onClick={() => { resetForm(); setCreateDialogOpen(true); }} className="flex items-center gap-2" data-testid="button-add-logo">
-            <Plus className="w-4 h-4" /> Add Logo
+            <IconPlus className="w-4 h-4" /> Add Logo
           </Button>
         </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <IconLoader className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : !logos || logos.length === 0 ? (
           <Card className="bg-card border-border shadow-sm rounded-lg">
             <CardContent className="text-center py-16">
-              <Image className="w-16 h-16 mx-auto mb-4 text-primary/30" />
+              <IconImage className="w-16 h-16 mx-auto mb-4 text-primary/30" />
               <p className="text-lg text-muted-foreground mb-2">No logos yet</p>
               <p className="text-sm text-muted-foreground">Click "Add Logo" to upload or create your first logo.</p>
             </CardContent>
@@ -183,10 +182,10 @@ export default function Logos() {
                       <div className="min-w-0 flex-1">
                         <h3 className="font-display font-medium text-foreground truncate flex items-center gap-2">
                           {logo.name}
-                          {logo.isDefault && <Star className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                          {logo.isDefault && <IconStar className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
                         </h3>
                         <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <Building2 className="w-3.5 h-3.5" />
+                          <IconBuilding className="w-3.5 h-3.5" />
                           {logo.companyName}
                         </p>
                       </div>
@@ -198,7 +197,7 @@ export default function Logos() {
                           className="text-red-400 hover:text-red-600 hover:bg-red-500/10 flex-shrink-0"
                           data-testid={`button-delete-logo-${logo.id}`}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <IconTrash className="w-4 h-4" />
                         </Button>
                       )}
                     </div>
@@ -217,7 +216,7 @@ export default function Logos() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="font-display">Add Logo</DialogTitle>
-            <DialogDescription className="label-text">Upload an image or provide a URL for your logo</DialogDescription>
+            <DialogDescription className="label-text">IconUpload an image or provide a URL for your logo</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -229,21 +228,21 @@ export default function Logos() {
               <Input value={logoCompanyName} onChange={(e) => setLogoCompanyName(e.target.value)} placeholder="e.g., Norfolk Group" data-testid="input-logo-company-name" />
             </div>
             <div className="space-y-3">
-              <Label>Logo Image</Label>
+              <Label>Logo IconImage</Label>
               <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
                 {uploadedPreview ? (
                   <div className="space-y-3">
                     <div className="w-24 h-24 mx-auto rounded-lg bg-card border border-primary/20 flex items-center justify-center overflow-hidden">
                       <img src={uploadedPreview} alt="Preview" className="max-w-full max-h-full object-contain" />
                     </div>
-                    <p className="text-sm text-primary font-medium">Image uploaded</p>
+                    <p className="text-sm text-primary font-medium">IconImage uploaded</p>
                     <Button variant="outline" size="sm" onClick={() => { setUploadedPreview(null); setLogoUrl(""); if (fileInputRef.current) fileInputRef.current.value = ""; }}>
                       Remove
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <Upload className="w-10 h-10 mx-auto text-primary/40" />
+                    <IconUpload className="w-10 h-10 mx-auto text-primary/40" />
                     <p className="text-sm text-muted-foreground">Drag and drop or click to upload</p>
                     <input
                       ref={fileInputRef}
@@ -260,7 +259,7 @@ export default function Logos() {
                       disabled={uploadingFile}
                       data-testid="button-upload-logo"
                     >
-                      {uploadingFile ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+                      {uploadingFile ? <IconLoader className="w-4 h-4 animate-spin mr-2" /> : <IconUpload className="w-4 h-4 mr-2" />}
                       {uploadingFile ? "Uploading..." : "Choose File"}
                     </Button>
                   </div>
@@ -287,8 +286,8 @@ export default function Logos() {
               data-testid="button-save-logo"
               className="flex items-center gap-2"
             >
-              {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Save Logo
+              {createLogoMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+              IconSave Logo
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -303,7 +302,7 @@ export default function Logos() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
             <Button variant="destructive" onClick={() => { if (deleteConfirmId) deleteLogoMutation.mutate(deleteConfirmId); }} disabled={deleteLogoMutation.isPending}>
-              {deleteLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+              {deleteLogoMutation.isPending ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconTrash className="w-4 h-4 mr-2" />}
               Delete
             </Button>
           </DialogFooter>

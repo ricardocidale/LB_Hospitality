@@ -1,14 +1,15 @@
+import { Checkbox } from "@/components/ui/checkbox";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { DialogContent, DialogDescription, DialogFooter, useState } from "react";
+import { Dialog } from "@/components/icons/brand-icons";
 /**
  * ApplyResearchDialog.tsx — Lets users bulk-apply AI research values to property assumptions.
  *
  * Shows a confirmation dialog listing all fields that would change (current vs.
  * research-recommended), with per-field checkboxes for selective application.
  */
-import { useState, useMemo } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Wand2, ArrowRight } from "lucide-react";
+;
 
 /**
  * Maps research value keys to property field names, labels, and divisors.
@@ -147,7 +148,7 @@ export function ApplyResearchDialog({ open, onOpenChange, draft, researchValues,
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Wand2 className="w-5 h-5 text-primary" />
+            <IconWand className="w-5 h-5 text-primary" />
             Apply Research Values
           </DialogTitle>
           <DialogDescription>
@@ -186,7 +187,7 @@ export function ApplyResearchDialog({ open, onOpenChange, draft, researchValues,
                   <p className="text-sm font-medium text-foreground">{diff.label}</p>
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <span>{formatValue(diff.currentValue, diff.format)}</span>
-                    <ArrowRight className="w-3 h-3 text-primary" />
+                    <IconArrowRight className="w-3 h-3 text-primary" />
                     <span className="font-semibold text-primary">
                       {formatResearchValue(diff.researchMid, diff.format, diff.format === "currency" || diff.format === "number" ? 1 : 100)}
                     </span>
@@ -206,7 +207,7 @@ export function ApplyResearchDialog({ open, onOpenChange, draft, researchValues,
             disabled={selected.size === 0}
             data-testid="button-apply-research"
           >
-            <Wand2 className="w-4 h-4" />
+            <IconWand className="w-4 h-4" />
             Apply {selected.size} {selected.size === 1 ? "Value" : "Values"}
           </Button>
         </DialogFooter>

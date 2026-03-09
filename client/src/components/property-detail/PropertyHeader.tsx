@@ -5,13 +5,14 @@
  * property name, location pin, and quick-action buttons:
  *   • Back arrow  – navigates to the portfolio list
  *   • Settings    – links to the property's Edit Assumptions page
- *   • Map         – external link to the property's address on a map
+ *   • IconMap         – external link to the property's address on a map
  *
  * Also displays the acquisition date, room count, and purchase price as
  * compact badges so users get immediate context at a glance.
  */
-import { Link } from "wouter";
-import { ArrowLeft, MapPin, Settings2, Map } from "lucide-react";
+;
+
+import { IconArrowLeft, IconLink, IconMap, IconMapPin, IconSettingsGear } from "@/components/icons/brand-icons";
 import { Button } from "@/components/ui/button";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import type { PropertyHeaderProps } from "./types";
@@ -36,15 +37,15 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
       <div className="relative overflow-hidden p-3 sm:p-6 bg-card border-b">
         <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4">
-            <Link href="/portfolio">
+            <IconLink href="/portfolio">
               <Button variant="outline" size="icon" className="h-9 w-9 hover:scale-[1.03] active:scale-[0.97] transition-transform">
-                <ArrowLeft className="w-4 h-4" />
+                <IconArrowLeft className="w-4 h-4" />
               </Button>
-            </Link>
+            </IconLink>
             <div>
               <h1 className="text-lg sm:text-2xl font-display text-foreground">{property.name}</h1>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-foreground/70 text-sm mt-1 label-text">
-                <span className="flex items-center gap-1"><MapPin className="w-4 h-4 text-primary" /> {property.location}</span>
+                <span className="flex items-center gap-1"><IconMapPin className="w-4 h-4 text-primary" /> {property.location}</span>
                 <span className="font-mono">{property.roomCount} Rooms</span>
                 <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-medium">
                   {getStatusLabel(property.status)}
@@ -68,17 +69,17 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
                   title={hasAddress ? `View ${mapQuery} on Google Maps` : "No address provided — add address details in Assumptions"}
                   className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform"
                 >
-                  <Map className="w-4 h-4" />
-                  Map
+                  <IconMap className="w-4 h-4" />
+                  IconMap
                 </Button>
               );
             })()}
-            <Link href={`/property/${propertyId}/edit`}>
+            <IconLink href={`/property/${propertyId}/edit`}>
               <Button variant="outline" size="sm" className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform">
-                <Settings2 className="w-4 h-4" />
+                <IconSettingsGear className="w-4 h-4" />
                 Assumptions
               </Button>
-            </Link>
+            </IconLink>
           </div>
         </div>
       </div>

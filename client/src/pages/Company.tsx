@@ -20,18 +20,12 @@
  * All statement data is pre-generated in lib/company-data.ts to keep this
  * page free of inline financial logic.
  */
+import { ExportDialog, IconAlertTriangle, IconBookOpen, IconCheckCircle, IconLink, IconLoader } from "@/components/icons/brand-icons";
 import React, { useState, useRef, useMemo } from "react";
-import { ExportDialog } from "@/components/ExportDialog";
-import Layout from "@/components/Layout";
-import { useProperties, useGlobalAssumptions, useAllFeeCategories } from "@/lib/api";
-import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
-import { useServiceTemplates } from "@/lib/api/services";
-import { PROJECTION_YEARS } from "@/lib/constants";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Loader2, AlertTriangle, CheckCircle, BookOpen } from "lucide-react";
+;
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
-import { Link } from "wouter";
+
 import { AnimatedPage } from "@/components/graphics";
 import { analyzeCompanyCashPosition } from "@/lib/financial/analyzeCompanyCashPosition";
 import { CompanyHeader, CompanyIncomeTab, CompanyCashFlowTab, CompanyBalanceSheet } from "@/components/company";
@@ -148,7 +142,7 @@ export default function Company() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <IconLoader className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -158,7 +152,7 @@ export default function Company() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load company data. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -247,11 +241,11 @@ export default function Company() {
           />
           
           <div className="mt-4 mb-2">
-            <Link href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-primary hover:bg-muted transition-colors">
-              <BookOpen className="w-3.5 h-3.5" />
+            <IconLink href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-primary hover:bg-muted transition-colors">
+              <IconBookOpen className="w-3.5 h-3.5" />
               <span className="font-medium">View Company Research</span>
               <span className="text-primary/60">Fee benchmarks, vendor costs, overhead, competitive landscape</span>
-            </Link>
+            </IconLink>
           </div>
 
           <TabsContent value="income" className="mt-6">
@@ -302,7 +296,7 @@ export default function Company() {
 
           {!cashAnalysis.isAdequate ? (
             <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-warning">
-              <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <IconAlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
               <p>
                 <span data-testid="text-company-cash-warning-title" className="font-medium text-red-600">Additional Funding Required:</span>{' '}
                 The current {fundingLabel} funding of <span className="font-medium text-foreground">{formatMoney(cashAnalysis.totalFunding)}</span> is insufficient to cover operating expenses.
@@ -310,12 +304,12 @@ export default function Company() {
                 {cashAnalysis.minCashMonth !== null && <> in month {cashAnalysis.minCashMonth}</>}.
                 {' '}Suggested: Increase {fundingLabel} funding by at least{' '}
                 <span className="font-medium text-foreground">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}
-                <Link href="/company/assumptions" className="font-medium text-secondary hover:underline">Company Assumptions</Link>.
+                <IconLink href="/company/assumptions" className="font-medium text-secondary hover:underline">Company Assumptions</IconLink>.
               </p>
             </div>
           ) : (
             <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-adequate">
-              <CheckCircle className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
+              <IconCheckCircle className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
               <p>
                 <span data-testid="text-company-cash-adequate-title" className="font-medium text-secondary">Cash Position Adequate:</span>{' '}
                 The {fundingLabel} funding of <span className="font-medium text-foreground">{formatMoney(cashAnalysis.totalFunding)}</span> covers all operating costs.

@@ -16,12 +16,8 @@
  *
  * Exports AddPropertyFormData — the shape of the form's validated output.
  */
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Plus } from "lucide-react";
+;
+import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, IconLoader, IconPlus } from "@/components/icons/brand-icons";
 import { PropertyImagePicker } from "@/features/property-images";
 import { CurrencyInput } from "./CurrencyInput";
 
@@ -352,12 +348,12 @@ export function AddPropertyDialog({
         >
           {isPending ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <IconLoader className="w-4 h-4 animate-spin" />
               Adding...
             </>
           ) : (
             <>
-              <Plus className="w-4 h-4" />
+              <IconPlus className="w-4 h-4" />
               Add Property
             </>
           )}

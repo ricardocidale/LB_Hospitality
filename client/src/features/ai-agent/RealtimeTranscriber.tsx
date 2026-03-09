@@ -1,9 +1,6 @@
-
-
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
-
 import { AnimatePresence, motion } from "framer-motion"
-import { Copy } from "lucide-react"
+import { IconCopy } from "@/components/icons/brand-icons";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { useDebounce } from "@/hooks/use-debounce"
@@ -11,7 +8,6 @@ import { usePrevious } from "@/hooks/use-previous"
 import { useScribe } from "@/hooks/use-scribe"
 import { Button } from "@/components/ui/button"
 import { ShimmeringText } from "@/features/ai-agent/components/shimmering-text"
-
 
 import { LanguageSelector } from "@/features/ai-agent/RealtimeTranscriberLanguageSelector"
 
@@ -773,9 +769,9 @@ const TranscriberTranscript = React.memo(
             onClick={() => {
               navigator.clipboard.writeText(transcript)
             }}
-            aria-label="Copy transcript"
+            aria-label="IconCopy transcript"
           >
-            <Copy className="h-4 w-4" />
+            <IconCopy className="h-4 w-4" />
           </Button>
         )}
       </div>

@@ -1,22 +1,4 @@
-import {
-  IconActivity,
-  IconDashboard,
-  IconProperties,
-  IconBriefcase,
-  IconSettings,
-  IconScenarios,
-  IconAnalysis,
-  IconPropertyFinder,
-  IconExport,
-  IconBot,
-  IconProfile,
-  IconSwatchBook,
-  IconShield,
-  IconVerify,
-  IconImage,
-  IconInvestment,
-  IconPanelLeft,
-} from "@/components/icons/brand-icons";
+import { IconActivity, IconAnalysis, IconBot, IconBriefcase, IconDashboard, IconExport, IconImage, IconInvestment, IconPanelLeft, IconProfile, IconProperties, IconPropertyFinder, IconScenarios, IconSettings, IconShield, IconSwatchBook, IconVerify } from "@/components/icons/brand-icons";
 import type { ComponentType, SVGAttributes } from "react";
 
 export type AccessLevel = "all" | "management" | "admin";

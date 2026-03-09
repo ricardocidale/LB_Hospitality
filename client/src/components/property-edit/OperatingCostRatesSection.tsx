@@ -25,13 +25,14 @@
  * Together these rates determine GOP (Gross Operating Profit) and NOI (Net
  * Operating Income), the two key profitability metrics.
  */
+import { IconLink } from "@/components/icons/brand-icons";
 import { Label } from "@/components/ui/label";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import { GaapBadge } from "@/components/ui/gaap-badge";
-import { Link } from "wouter";
+
 import {
   DEFAULT_COST_RATE_ROOMS,
   DEFAULT_COST_RATE_FB,
@@ -221,7 +222,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                             <span className="font-mono">{(rate * (1 - split)).toFixed(1)}%</span>
                           </div>
                           <p className="text-[11px] text-muted-foreground/70">
-                            Split is {(split * 100).toFixed(0)}% variable / {((1 - split) * 100).toFixed(0)}% fixed — set in <Link href="/assumptions" className="underline hover:text-primary">Company Assumptions</Link>
+                            Split is {(split * 100).toFixed(0)}% variable / {((1 - split) * 100).toFixed(0)}% fixed — set in <IconLink href="/assumptions" className="underline hover:text-primary">Company Assumptions</IconLink>
                           </p>
                         </div>
                       );

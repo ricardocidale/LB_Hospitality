@@ -1,11 +1,5 @@
-import { useState } from "react";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
-import Layout from "@/components/Layout";
-import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
-import { PageHeader } from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
-import { ExportToolbar } from "@/components/ui/export-toolbar";
-import { Loader2, RefreshCw, MapPin, ExternalLink, BookOpen, Mail, FileDown } from "lucide-react";
+;
+import { IconBookOpen, IconExternalLink, IconFileDown, IconLoader, IconMail, IconMapPin, IconRefresh, useGlobalAssumptions } from "@/components/icons/brand-icons";
 import { useRoute, useLocation } from "wouter";
 import { format } from "date-fns";
 import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
@@ -33,7 +27,7 @@ export default function PropertyMarketResearch() {
     return (
       <Layout>
         <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <IconLoader className="w-8 h-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -71,9 +65,9 @@ export default function PropertyMarketResearch() {
                 data-testid="link-google-maps"
               >
                 <Button variant="outline" size="sm" className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform">
-                  <MapPin className="w-4 h-4" />
+                  <IconMapPin className="w-4 h-4" />
                   Google Maps
-                  <ExternalLink className="w-3 h-3" />
+                  <IconExternalLink className="w-3 h-3" />
                 </Button>
               </a>
               <Button
@@ -84,7 +78,7 @@ export default function PropertyMarketResearch() {
                 disabled={isGenerating}
                 data-testid="button-update-research"
               >
-                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {isGenerating ? <IconLoader className="w-4 h-4 animate-spin" /> : <IconRefresh className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}
               </Button>
             </div>
@@ -103,7 +97,7 @@ export default function PropertyMarketResearch() {
                 actions={[
                   {
                     label: "Download PDF",
-                    icon: <FileDown className="w-3.5 h-3.5" />,
+                    icon: <IconFileDown className="w-3.5 h-3.5" />,
                     onClick: () => downloadResearchPDF({
                       type: "property",
                       title: `Market Research: ${property.name}`,
@@ -117,7 +111,7 @@ export default function PropertyMarketResearch() {
                   },
                   {
                     label: isEmailing ? "Sending..." : "Email PDF",
-                    icon: <Mail className="w-3.5 h-3.5" />,
+                    icon: <IconMail className="w-3.5 h-3.5" />,
                     onClick: async () => {
                       if (isEmailing) return;
                       setIsEmailing(true);
@@ -155,7 +149,7 @@ export default function PropertyMarketResearch() {
           <div className="bg-card rounded-lg shadow-sm border border-emerald-200 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
+                <IconLoader className="w-4 h-4 animate-spin text-emerald-700" />
               </div>
               <p className="text-muted-foreground text-sm font-medium">Analyzing market data for {property.name}...</p>
             </div>
@@ -170,7 +164,7 @@ export default function PropertyMarketResearch() {
         {!hasResearch && !isGenerating && (
           <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
             <div className="w-20 h-20 mx-auto mb-6 rounded-lg bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-10 h-10 text-primary" />
+              <IconBookOpen className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl font-display text-foreground mb-3">No Market Research Yet</h3>
             <p className="text-sm text-muted-foreground mb-6 max-w-lg mx-auto leading-relaxed">
@@ -195,7 +189,7 @@ export default function PropertyMarketResearch() {
               variant="default"
               className="gap-2 shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-transform"
             >
-              <RefreshCw className="w-4 h-4" />
+              <IconRefresh className="w-4 h-4" />
               Generate Research
             </Button>
           </div>

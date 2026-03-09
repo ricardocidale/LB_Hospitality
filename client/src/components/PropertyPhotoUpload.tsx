@@ -10,9 +10,8 @@
  *
  * Validates that the file is an image and under 10 MB before uploading.
  */
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Camera, Loader2 } from "lucide-react";
+;
+import { IconLoader, useRef, useState } from "@/components/icons/brand-icons";
 import { useUpload } from "@/hooks/use-upload";
 import { useUpdateProperty } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -118,12 +117,12 @@ export function PropertyPhotoUpload({ propertyId, currentImageUrl, onUploadCompl
       >
         {isUploading ? (
           <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <IconLoader className="w-4 h-4 mr-2 animate-spin" />
             Uploading...
           </>
         ) : (
           <>
-            <Camera className="w-4 h-4 mr-2" />
+            <IconCamera className="w-4 h-4 mr-2" />
             Change Photo
           </>
         )}

@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Save, Percent } from "lucide-react";
+import { CardContent, CardDescription, CardHeader, CardTitle, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Card } from "@/components/icons/brand-icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
 
 export default function OtherAssumptionsTab() {
@@ -53,7 +52,7 @@ export default function OtherAssumptionsTab() {
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-            <Percent className="w-4 h-4 text-muted-foreground" /> Company Inflation
+            <IconPercent className="w-4 h-4 text-muted-foreground" /> Company Inflation
           </CardTitle>
           <CardDescription className="label-text">
             Management company specific economic assumptions
@@ -94,7 +93,7 @@ export default function OtherAssumptionsTab() {
           className="shadow-xl rounded-full px-8 h-12 flex items-center gap-2"
           data-testid="button-save-other-assumptions"
         >
-          <Save className="w-5 h-5" />
+          <IconSave className="w-5 h-5" />
           {updateGlobalMutation.isPending ? "Saving..." : "Save Changes"}
         </Button>
       </div>

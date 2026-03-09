@@ -1,8 +1,4 @@
-
-
-import { useState } from "react"
-import { ChevronDown, Globe } from "lucide-react"
-
+import { IconGlobe, useState } from "@/components/icons/brand-icons";
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -113,10 +109,10 @@ export function LanguageSelector({
           disabled={disabled}
         >
           <span className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
+            <IconGlobe className="h-4 w-4" />
             {selectedName}
           </span>
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <IconChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0" align="start">
@@ -132,7 +128,7 @@ export function LanguageSelector({
                   setOpen(false)
                 }}
               >
-                <Globe className="mr-2 h-4 w-4" />
+                <IconGlobe className="mr-2 h-4 w-4" />
                 Auto-detect
               </CommandItem>
               {LANGUAGE_OPTIONS.map((language) => (

@@ -1,55 +1,16 @@
 "use client"
 
 import * as React from "react"
-import {
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type UniqueIdentifier,
-} from "@dnd-kit/core"
+import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, closestCenter, useSensor, useSensors, type DragEndEvent, type UniqueIdentifier, } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
+  SortableContext, arrayMove, useSortable, verticalListSortingStrategy, } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  Row,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
+  ColumnDef, ColumnFiltersState, Row, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, } from "@tanstack/react-table"
 import {
-  CheckCircle2Icon,
-  CheckCircleIcon,
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-  ColumnsIcon,
-  GripVerticalIcon,
-  LoaderIcon,
-  MoreVerticalIcon,
-  PlusIcon,
-  TrendingUpIcon,
-} from "lucide-react"
+  CheckCircle2Icon, ChevronsLeftIcon, ChevronsRightIcon, ColumnsIcon, GripVerticalIcon, LoaderIcon, MoreVerticalIcon } from "lucide-react";
+import { IconCheckCircle, IconChevronDown, IconChevronLeft, IconChevronRight, IconPlus, IconTrending } from "@/components/icons/brand-icons";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -456,7 +417,7 @@ export function DataTable({
                 <ColumnsIcon />
                 <span className="hidden lg:inline">Customize Columns</span>
                 <span className="lg:hidden">Columns</span>
-                <ChevronDownIcon />
+                <IconChevronDown />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -484,7 +445,7 @@ export function DataTable({
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" size="sm">
-            <PlusIcon />
+            <IconPlus />
             <span className="hidden lg:inline">Add Section</span>
           </Button>
         </div>
@@ -596,7 +557,7 @@ export function DataTable({
                 disabled={!table.getCanPreviousPage()}
               >
                 <span className="sr-only">Go to previous page</span>
-                <ChevronLeftIcon />
+                <IconChevronLeft />
               </Button>
               <Button
                 variant="outline"
@@ -606,7 +567,7 @@ export function DataTable({
                 disabled={!table.getCanNextPage()}
               >
                 <span className="sr-only">Go to next page</span>
-                <ChevronRightIcon />
+                <IconChevronRight />
               </Button>
               <Button
                 variant="outline"
@@ -725,7 +686,7 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
               <div className="grid gap-2">
                 <div className="flex gap-2 font-medium leading-none">
                   Trending up by 5.2% this month{" "}
-                  <TrendingUpIcon className="size-4" />
+                  <IconTrending className="size-4" />
                 </div>
                 <div className="text-muted-foreground">
                   Showing total visitors for the last 6 months. This is just

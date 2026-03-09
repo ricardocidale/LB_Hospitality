@@ -18,7 +18,8 @@
  * Reuses SectionCard and MetricCard from property-research for visual
  * consistency, but with its own companySectionColors palette.
  */
-import { DollarSign, Scale, Briefcase, Users, FileText, BookOpen } from "lucide-react";
+
+import { IconBookOpen, IconBriefcase, IconDollarSign, IconFileText, IconPeople, IconScale } from "@/components/icons/brand-icons";
 import { SectionCard } from "../property-research/SectionCard";
 import { MetricCard } from "../property-research/MetricCard";
 import { companySectionColors } from "./types";
@@ -27,7 +28,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
   return (
     <>
       {content.managementFees && (
-        <SectionCard icon={DollarSign} title="Management Fee Research" color={companySectionColors.fees}>
+        <SectionCard icon={IconDollarSign} title="Management Fee Research" color={companySectionColors.fees}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {content.managementFees.baseFee && (
               <div className="space-y-3">
@@ -105,7 +106,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.gaapStandards && content.gaapStandards.length > 0 && (
-        <SectionCard icon={Scale} title="GAAP Standards & References" color={companySectionColors.gaap}>
+        <SectionCard icon={IconScale} title="GAAP Standards & References" color={companySectionColors.gaap}>
           <div className="space-y-3">
             {content.gaapStandards.map((s: any, i: number) => (
               <div key={i} className="bg-blue-50 rounded-lg p-4 border border-blue-100">
@@ -125,7 +126,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.industryBenchmarks && (
-        <SectionCard icon={Briefcase} title="Industry Benchmarks" color={companySectionColors.benchmarks}>
+        <SectionCard icon={IconBriefcase} title="Industry Benchmarks" color={companySectionColors.benchmarks}>
           {content.industryBenchmarks.operatingExpenseRatios && content.industryBenchmarks.operatingExpenseRatios.length > 0 && (
             <div className="mb-6">
               <h4 className="text-sm font-medium text-foreground mb-3">Operating Expense Ratios (USALI)</h4>
@@ -167,7 +168,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.compensationBenchmarks && (
-        <SectionCard icon={Users} title="Compensation Benchmarks" color={companySectionColors.compensation}>
+        <SectionCard icon={IconPeople} title="Compensation Benchmarks" color={companySectionColors.compensation}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
             <MetricCard label="General Manager" value={content.compensationBenchmarks.gm || "N/A"} color={companySectionColors.compensation} />
             <MetricCard label="Director Level" value={content.compensationBenchmarks.director || "N/A"} color={companySectionColors.compensation} />
@@ -180,7 +181,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.contractTerms && content.contractTerms.length > 0 && (
-        <SectionCard icon={FileText} title="Typical Contract Terms" color={companySectionColors.contracts}>
+        <SectionCard icon={IconFileText} title="Typical Contract Terms" color={companySectionColors.contracts}>
           <div className="bg-card rounded-lg border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
@@ -205,7 +206,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.sources && content.sources.length > 0 && (
-        <SectionCard icon={BookOpen} title="Sources" color={companySectionColors.sources}>
+        <SectionCard icon={IconBookOpen} title="Sources" color={companySectionColors.sources}>
           <ul className="space-y-1">
             {content.sources.map((s: string, i: number) => (
               <li key={i} className="text-xs text-muted-foreground">· {s}</li>

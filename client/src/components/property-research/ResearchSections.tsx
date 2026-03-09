@@ -24,7 +24,8 @@
  * data for that category; sections stream in progressively as the LLM
  * generates more content.
  */
-import { TrendingUp, Building2, Calendar, Users, AlertTriangle, BookOpen, Target, Clock, Shield, Mountain, UtensilsCrossed, Wallet, Home, Briefcase, Receipt } from "lucide-react";
+
+import { IconAlertTriangle, IconBookOpen, IconBriefcase, IconBuilding, IconCalendar, IconClock, IconHome, IconMountain, IconPeople, IconReceipt, IconShield, IconTarget, IconTrending, IconUtensilsCrossed, IconWallet } from "@/components/icons/brand-icons";
 import { SectionCard } from "./SectionCard";
 import { MetricCard } from "./MetricCard";
 import { sectionColors } from "./types";
@@ -33,7 +34,7 @@ export function ResearchSections({ content }: { content: any }) {
   return (
     <div className="space-y-5">
       {content.marketOverview && (
-        <SectionCard icon={Building2} title="Market Overview" color={sectionColors.market}>
+        <SectionCard icon={IconBuilding} title="Market Overview" color={sectionColors.market}>
           <p className="text-sm text-foreground leading-relaxed mb-5">{content.marketOverview.summary}</p>
           {content.marketOverview.keyMetrics && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -46,7 +47,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.stabilizationTimeline && (
-        <SectionCard icon={Clock} title="Stabilization Timeline" color={sectionColors.stabilization}>
+        <SectionCard icon={IconClock} title="Stabilization Timeline" color={sectionColors.stabilization}>
           <p className="text-sm text-foreground leading-relaxed mb-5">{content.stabilizationTimeline.summary}</p>
           {content.stabilizationTimeline.phases && content.stabilizationTimeline.phases.length > 0 && (
             <div className="space-y-3">
@@ -62,7 +63,7 @@ export function ResearchSections({ content }: { content: any }) {
                     </div>
                     <p className="text-sm text-muted-foreground">{phase.description}</p>
                     {phase.occupancyTarget && (
-                      <p className="text-xs text-amber-700 mt-1 font-medium">Target Occupancy: {phase.occupancyTarget}</p>
+                      <p className="text-xs text-amber-700 mt-1 font-medium">IconTarget Occupancy: {phase.occupancyTarget}</p>
                     )}
                   </div>
                 </div>
@@ -79,7 +80,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.adrAnalysis && (
-        <SectionCard icon={TrendingUp} title="ADR Analysis" color={sectionColors.adr}>
+        <SectionCard icon={IconTrending} title="ADR Analysis" color={sectionColors.adr}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             <MetricCard label="Market Average ADR" value={content.adrAnalysis.marketAverage || "N/A"} color={sectionColors.adr} />
             <MetricCard label="Boutique Range" value={content.adrAnalysis.boutiqueRange || "N/A"} color={sectionColors.adr} />
@@ -119,7 +120,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.occupancyAnalysis && (
-        <SectionCard icon={Calendar} title="Occupancy Analysis" color={sectionColors.occupancy}>
+        <SectionCard icon={IconCalendar} title="Occupancy Analysis" color={sectionColors.occupancy}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
             <MetricCard label="Market Average" value={content.occupancyAnalysis.marketAverage || "N/A"} color={sectionColors.occupancy} confidence={content.occupancyAnalysis.confidence} />
             <MetricCard label="Ramp-Up Timeline" value={content.occupancyAnalysis.rampUpTimeline || "N/A"} color={sectionColors.occupancy} />
@@ -153,7 +154,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.eventDemand && (
-        <SectionCard icon={Users} title="Event & Experience Demand" color={sectionColors.events}>
+        <SectionCard icon={IconPeople} title="Event & Experience Demand" color={sectionColors.events}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
             {content.eventDemand.corporateEvents && (
               <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
@@ -213,7 +214,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.cateringAnalysis && (
-        <SectionCard icon={UtensilsCrossed} title="Catering & F&B Boost Analysis" color={sectionColors.catering}>
+        <SectionCard icon={IconUtensilsCrossed} title="Catering & F&B Boost Analysis" color={sectionColors.catering}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             <MetricCard label="Recommended Boost" value={content.cateringAnalysis.recommendedBoostPercent || "N/A"} color={sectionColors.catering} confidence={content.cateringAnalysis.confidence} />
             <MetricCard label="Market Range" value={content.cateringAnalysis.marketRange || "N/A"} color={sectionColors.catering} />
@@ -275,7 +276,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.capRateAnalysis && (
-        <SectionCard icon={Target} title="Cap Rate Analysis" color={sectionColors.capRate}>
+        <SectionCard icon={IconTarget} title="Cap Rate Analysis" color={sectionColors.capRate}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             <MetricCard label="Market Range" value={content.capRateAnalysis.marketRange || "N/A"} color={sectionColors.capRate} />
             <MetricCard label="Boutique Range" value={content.capRateAnalysis.boutiqueRange || "N/A"} color={sectionColors.capRate} />
@@ -314,7 +315,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.landValueAllocation && (
-        <SectionCard icon={Mountain} title="Land Value Allocation" color={sectionColors.landValue}>
+        <SectionCard icon={IconMountain} title="Land Value Allocation" color={sectionColors.landValue}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             <MetricCard label="Recommended Land %" value={content.landValueAllocation.recommendedPercent || "N/A"} color={sectionColors.landValue} confidence={content.landValueAllocation.confidence} />
             <MetricCard label="Market Range" value={content.landValueAllocation.marketRange || "N/A"} color={sectionColors.landValue} />
@@ -344,7 +345,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.operatingCostAnalysis && (
-        <SectionCard icon={Wallet} title="Operating Cost Analysis" color={sectionColors.operatingCosts}>
+        <SectionCard icon={IconWallet} title="Operating Cost Analysis" color={sectionColors.operatingCosts}>
           {content.operatingCostAnalysis.totalOperatingCostRatio && (
             <div className="rounded-xl bg-indigo-100 border border-indigo-300 p-3 text-center mb-5">
               <p className="text-xs text-indigo-700 uppercase tracking-wider font-medium mb-0.5">Total Operating Cost Ratio</p>
@@ -426,7 +427,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.propertyValueCostAnalysis && (
-        <SectionCard icon={Home} title="Property Value Cost Analysis" color={sectionColors.propertyValueCosts}>
+        <SectionCard icon={IconHome} title="Property Value Cost Analysis" color={sectionColors.propertyValueCosts}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
             {content.propertyValueCostAnalysis.insurance && (
               <div>
@@ -459,7 +460,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.managementServiceFeeAnalysis && (
-        <SectionCard icon={Briefcase} title="Management & Service Fee Analysis" color={sectionColors.managementFees}>
+        <SectionCard icon={IconBriefcase} title="Management & Service Fee Analysis" color={sectionColors.managementFees}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
             {content.managementServiceFeeAnalysis.baseFee && (
               <MetricCard label="Base Management Fee" value={content.managementServiceFeeAnalysis.baseFee.recommendedRate || "N/A"} color={sectionColors.managementFees} confidence={content.managementServiceFeeAnalysis.baseFee.confidence} />
@@ -495,7 +496,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.incomeTaxAnalysis && (
-        <SectionCard icon={Receipt} title="Income Tax Analysis" color={sectionColors.incomeTax}>
+        <SectionCard icon={IconReceipt} title="Income Tax Analysis" color={sectionColors.incomeTax}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
             <MetricCard label="Recommended Tax Rate" value={content.incomeTaxAnalysis.recommendedRate || "N/A"} color={sectionColors.incomeTax} confidence={content.incomeTaxAnalysis.confidence} />
             {content.incomeTaxAnalysis.effectiveRange && (
@@ -526,7 +527,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.competitiveSet && content.competitiveSet.length > 0 && (
-        <SectionCard icon={Building2} title="Competitive Set" color={sectionColors.competitive}>
+        <SectionCard icon={IconBuilding} title="Competitive Set" color={sectionColors.competitive}>
           <div className="rounded-xl border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
@@ -553,13 +554,13 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.risks && content.risks.length > 0 && (
-        <SectionCard icon={AlertTriangle} title="Risks & Mitigations" color={sectionColors.risks}>
+        <SectionCard icon={IconAlertTriangle} title="Risks & Mitigations" color={sectionColors.risks}>
           <div className="space-y-3">
             {content.risks.map((r: any, i: number) => (
               <div key={i} className="rounded-xl overflow-hidden border border-border">
                 <div className="bg-red-50 px-4 py-3 border-b border-red-100">
                   <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-red-500" />
+                    <IconShield className="w-4 h-4 text-red-500" />
                     <p className="text-sm text-foreground font-semibold">{r.risk}</p>
                   </div>
                 </div>
@@ -573,7 +574,7 @@ export function ResearchSections({ content }: { content: any }) {
       )}
 
       {content.sources && content.sources.length > 0 && (
-        <SectionCard icon={BookOpen} title="Sources" color={sectionColors.sources}>
+        <SectionCard icon={IconBookOpen} title="Sources" color={sectionColors.sources}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {content.sources.map((s: string, i: number) => (
               <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground bg-muted rounded-lg p-2.5 border border-border">

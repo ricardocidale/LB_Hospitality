@@ -102,7 +102,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
     baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
 
     totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
-    fixedEscRate = global.fixedCostEscalationRate ?? global.inflationRate ?? DEFAULT_INFLATION_RATE;
+    fixedEscRate = global.fixedCostEscalationRate ?? property.inflationRate ?? global.inflationRate ?? DEFAULT_INFLATION_RATE;
     costRates = {
       propertyOps: property.costRatePropertyOps ?? 0.04,
       utilities: property.costRateUtilities ?? 0.05,

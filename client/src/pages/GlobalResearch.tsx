@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
-import { Loader2, RefreshCw, Globe, TrendingUp, Hotel, DollarSign, Landmark, Sparkles, BookOpen, ArrowLeft, AlertTriangle, Mail, FileDown } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { IconRefreshCw, IconGlobe, IconTrendingUp, IconHotel, IconDollarSign, IconLandmark, IconSparkles, IconBookOpen, IconAlertTriangle, IconMail, IconFileDown } from "@/components/icons";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -122,7 +123,7 @@ export default function GlobalResearch() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load global research. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -156,7 +157,7 @@ export default function GlobalResearch() {
                 variant={isGenerating ? "destructive" : "default"}
                 data-testid="button-update-research"
               >
-                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconRefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update Research"}
               </Button>
             </div>
@@ -175,7 +176,7 @@ export default function GlobalResearch() {
                 actions={[
                   {
                     label: "Download PDF",
-                    icon: <FileDown className="w-3.5 h-3.5" />,
+                    icon: <IconFileDown className="w-3.5 h-3.5" />,
                     onClick: () => downloadResearchPDF({
                       type: "global",
                       title: "Global Industry Research",
@@ -189,7 +190,7 @@ export default function GlobalResearch() {
                   },
                   {
                     label: isEmailing ? "Sending..." : "Email PDF",
-                    icon: <Mail className="w-3.5 h-3.5" />,
+                    icon: <IconMail className="w-3.5 h-3.5" />,
                     onClick: async () => {
                       if (isEmailing) return;
                       setIsEmailing(true);
@@ -241,7 +242,7 @@ export default function GlobalResearch() {
         {!hasResearch && !isGenerating && (
           <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
             <div className="w-20 h-20 mx-auto mb-6 rounded-lg bg-primary/10 flex items-center justify-center">
-              <BookOpen className="w-10 h-10 text-primary" />
+              <IconBookOpen className="w-10 h-10 text-primary" />
             </div>
             <h3 className="text-xl font-display text-foreground mb-3">No Global Research Yet</h3>
             <p className="text-sm text-muted-foreground mb-6 max-w-lg mx-auto leading-relaxed">
@@ -265,7 +266,7 @@ export default function GlobalResearch() {
               onClick={generateResearch}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
             >
-              <RefreshCw className="w-4 h-4" />
+              <IconRefreshCw className="w-4 h-4" />
               Generate Research
             </button>
           </div>
@@ -274,7 +275,7 @@ export default function GlobalResearch() {
         {hasResearch && !isGenerating && (
           <div className="space-y-5">
             {content.industryOverview && (
-              <SectionCard icon={Globe} title="Industry Overview" color={sectionColors.industry}>
+              <SectionCard icon={IconGlobe} title="Industry Overview" color={sectionColors.industry}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <MetricCard label="Market Size" value={content.industryOverview.marketSize || "N/A"} color={sectionColors.industry} />
                   <MetricCard label="Growth Rate" value={content.industryOverview.growthRate || "N/A"} color={sectionColors.industry} />
@@ -297,7 +298,7 @@ export default function GlobalResearch() {
             )}
 
             {content.eventHospitality && (
-              <SectionCard icon={Sparkles} title="Event & Experience Hospitality" color={sectionColors.events}>
+              <SectionCard icon={IconSparkles} title="Event & Experience Hospitality" color={sectionColors.events}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {content.eventHospitality.wellnessRetreats && (
                     <div className="bg-muted rounded-lg p-5 border border-border">
@@ -410,7 +411,7 @@ export default function GlobalResearch() {
             )}
 
             {content.financialBenchmarks && (
-              <SectionCard icon={TrendingUp} title="Financial Benchmarks" color={sectionColors.financial}>
+              <SectionCard icon={IconTrendingUp} title="Financial Benchmarks" color={sectionColors.financial}>
                 {content.financialBenchmarks.adrTrends && content.financialBenchmarks.adrTrends.length > 0 && (
                   <div className="mb-6">
                     <h4 className="text-sm font-medium text-foreground mb-3">ADR Trends</h4>
@@ -483,7 +484,7 @@ export default function GlobalResearch() {
             )}
 
             {content.debtMarket && (
-              <SectionCard icon={Landmark} title="Debt Market Conditions" color={sectionColors.debt}>
+              <SectionCard icon={IconLandmark} title="Debt Market Conditions" color={sectionColors.debt}>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <MetricCard label="Current Rates" value={content.debtMarket.currentRates || "N/A"} color={sectionColors.debt} />
                   <MetricCard label="LTV Range" value={content.debtMarket.ltvRange || "N/A"} color={sectionColors.debt} />
@@ -494,7 +495,7 @@ export default function GlobalResearch() {
             )}
 
             {content.regulatoryEnvironment && content.regulatoryEnvironment.length > 0 && (
-              <SectionCard icon={Hotel} title="Regulatory Environment" color={sectionColors.regulatory}>
+              <SectionCard icon={IconHotel} title="Regulatory Environment" color={sectionColors.regulatory}>
                 <ul className="space-y-2">
                   {content.regulatoryEnvironment.map((r: string, i: number) => (
                     <li key={i} className="text-sm text-muted-foreground flex items-start gap-2 bg-muted rounded-lg p-3 border border-border">
@@ -507,7 +508,7 @@ export default function GlobalResearch() {
             )}
 
             {content.sources && content.sources.length > 0 && (
-              <SectionCard icon={BookOpen} title="Sources" color={sectionColors.sources}>
+              <SectionCard icon={IconBookOpen} title="Sources" color={sectionColors.sources}>
                 <ul className="space-y-1">
                   {content.sources.map((s: string, i: number) => (
                     <li key={i} className="text-xs text-muted-foreground">· {s}</li>

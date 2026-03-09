@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useProperties } from "@/lib/api";
 import { Link } from "wouter";
-import { Building2, DollarSign, Navigation, Mountain } from "lucide-react";
+import { IconBuilding2, IconDollarSign, IconNavigation, IconMountain } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -376,11 +376,11 @@ export default function MapView() {
         </div>
         <div className="flex items-center gap-2">
           <Button variant={terrain3d ? "default" : "outline"} size="sm" onClick={() => setTerrain3d(!terrain3d)} className="flex items-center gap-1.5 text-xs" data-testid="button-3d-terrain">
-            <Mountain className="w-3.5 h-3.5" />
+            <IconMountain className="w-3.5 h-3.5" />
             3D Terrain
           </Button>
           <Button variant="outline" size="sm" onClick={fitAll} className="flex items-center gap-1.5 text-xs" data-testid="button-fit-all">
-            <Navigation className="w-3.5 h-3.5" />
+            <IconNavigation className="w-3.5 h-3.5" />
             Fit All
           </Button>
         </div>
@@ -391,7 +391,7 @@ export default function MapView() {
           <div className="rounded-xl border border-primary/20 overflow-hidden shadow-xl bg-muted relative" style={{ height: "600px" }}>
             {geoProperties.length === 0 && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
-                <Building2 className="w-12 h-12 text-muted-foreground/30" />
+                <IconBuilding2 className="w-12 h-12 text-muted-foreground/30" />
                 <p className="text-sm text-muted-foreground">No properties to display on map</p>
               </div>
             )}
@@ -424,7 +424,7 @@ export default function MapView() {
                     className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
                     style={{ backgroundColor: `${pinColor}20` }}
                   >
-                    <Building2 size={14} style={{ color: pinColor }} />
+                    <IconBuilding2 size={14} style={{ color: pinColor }} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-sm text-foreground truncate" data-testid={`text-name-${property.id}`}>
@@ -447,8 +447,8 @@ export default function MapView() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-1"><Building2 size={11} /> {property.roomCount} rooms</span>
-                  <span className="flex items-center gap-1"><DollarSign size={11} /> {formatMoney(property.startAdr)}</span>
+                  <span className="flex items-center gap-1"><IconBuilding2 size={11} /> {property.roomCount} rooms</span>
+                  <span className="flex items-center gap-1"><IconDollarSign size={11} /> {formatMoney(property.startAdr)}</span>
                 </div>
                 {isSelected && (
                   <Link href={`/property/${property.id}`}>

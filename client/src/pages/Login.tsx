@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconEye, IconEyeOff } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import bgImage from "@/assets/hotel-party.jpg";
 import SpinningLogo3D from "@/components/SpinningLogo3D";
@@ -112,7 +113,7 @@ export default function Login() {
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         data-testid="button-toggle-password"
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>

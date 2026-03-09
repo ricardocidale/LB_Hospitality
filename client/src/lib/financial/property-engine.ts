@@ -63,6 +63,11 @@ import {
 import { PropertyInput, GlobalInput, MonthlyFinancials } from './types';
 import { parseLocalDate } from './utils';
 
+/** Coerce NaN/Infinity to 0. Prevents silent propagation from bad inputs. */
+function safeNum(n: number): number {
+  return Number.isFinite(n) ? n : 0;
+}
+
 /**
  * Generate a complete month-by-month financial projection for a single property.
  *
@@ -89,7 +94,7 @@ export function generatePropertyProForma(
   // Balance sheet calculations
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
-  const monthlyDepreciation = buildingValue / DEPRECIATION_YEARS / 12;
+  const monthlyDepreciation = safeNum(buildingValue / DEPRECIATION_YEARS / 12);
   
   // Loan setup
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
@@ -102,7 +107,7 @@ export function generatePropertyProForma(
   const totalPayments = loanTerm * 12;
   let monthlyPayment = 0;
   if (originalLoanAmount > 0) {
-    monthlyPayment = pmt(originalLoanAmount, monthlyRate, totalPayments);
+    monthlyPayment = safeNum(pmt(originalLoanAmount, monthlyRate, totalPayments));
   }
     
   let cumulativeCash = 0;
@@ -133,10 +138,10 @@ export function generatePropertyProForma(
     const monthsSinceOps = isOperational ? differenceInMonths(currentDate, opsStart) : 0;
 
     const opsYear = Math.floor(monthsSinceOps / 12);
-    const currentAdr = baseAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
+    const currentAdr = safeNum(baseAdr * Math.pow(1 + property.adrGrowthRate, opsYear));
     const effectiveInflation = property.inflationRate ?? global.inflationRate;
     const fixedEscalationRate = global.fixedCostEscalationRate ?? effectiveInflation;
-    const fixedCostFactor = Math.pow(1 + fixedEscalationRate, opsYear);
+    const fixedCostFactor = safeNum(Math.pow(1 + fixedEscalationRate, opsYear));
 
     // ── Occupancy ramp ───────────────────────────────────────────────────────
     // Step-function: occupancy increases by occupancyGrowthStep every

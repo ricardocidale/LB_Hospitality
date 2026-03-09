@@ -18,7 +18,7 @@
  * Reuses SectionCard and MetricCard from property-research for visual
  * consistency, but with its own companySectionColors palette.
  */
-import { DollarSign, Scale, Briefcase, Users, FileText, BookOpen } from "lucide-react";
+import { DollarSign, Scale, Briefcase, Users, FileText, BookOpen, Receipt, Calculator } from "lucide-react";
 import { SectionCard } from "../property-research/SectionCard";
 import { MetricCard } from "../property-research/MetricCard";
 import { companySectionColors } from "./types";
@@ -201,6 +201,36 @@ export function CompanyResearchSections({ content }: { content: any }) {
               </tbody>
             </table>
           </div>
+        </SectionCard>
+      )}
+
+      {content.companyIncomeTax && (
+        <SectionCard icon={Receipt} title="Company Income Tax" color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", light: "bg-rose-100" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+            <MetricCard label="Recommended Tax Rate" value={content.companyIncomeTax.recommendedRate || "N/A"} color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", light: "bg-rose-100" }} confidence={content.companyIncomeTax.confidence} />
+            {content.companyIncomeTax.effectiveRange && (
+              <MetricCard label="Effective Range" value={content.companyIncomeTax.effectiveRange} color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700", light: "bg-rose-100" }} />
+            )}
+          </div>
+          {content.companyIncomeTax.calculationMethodology && (
+            <div className="bg-amber-50 rounded-xl p-4 border-l-4 border-amber-400 mb-5">
+              <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Calculator className="h-4 w-4 text-amber-600" />
+                How Company Income Tax Is Calculated
+              </h4>
+              <p className="text-sm text-foreground leading-relaxed">{content.companyIncomeTax.calculationMethodology}</p>
+            </div>
+          )}
+          {content.companyIncomeTax.entityNotes && (
+            <div className="bg-rose-50 rounded-xl p-4 border-l-4 border-rose-400 mb-5">
+              <p className="text-sm text-foreground leading-relaxed">{content.companyIncomeTax.entityNotes}</p>
+            </div>
+          )}
+          {content.companyIncomeTax.rationale && (
+            <div className="bg-muted rounded-xl p-4 border border-border">
+              <p className="text-sm text-muted-foreground leading-relaxed">{content.companyIncomeTax.rationale}</p>
+            </div>
+          )}
         </SectionCard>
       )}
 

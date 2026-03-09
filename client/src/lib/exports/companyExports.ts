@@ -3,10 +3,11 @@ import domtoimage from 'dom-to-image-more';
 import { formatMoney } from "@/lib/financialEngine";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
-import { 
-  exportCompanyIncomeStatement, 
-  exportCompanyCashFlow, 
-  exportCompanyBalanceSheet 
+import { downloadCSV } from "@/lib/exports/csvExport";
+import {
+  exportCompanyIncomeStatement,
+  exportCompanyCashFlow,
+  exportCompanyBalanceSheet
 } from "@/lib/exports/excelExport";
 
 export const exportCompanyPDF = async (
@@ -124,12 +125,14 @@ export const exportCompanyPDF = async (
     });
   }
   
-  doc.save(`company-${type}.pdf`);
+  const companyName = global?.companyName || "Management Company";
+  doc.save(`${companyName} - ${title}.pdf`);
 };
 
 export const exportCompanyCSV = (
   type: 'income' | 'cashflow' | 'balance',
-  data: { years: number[]; rows: any[] }
+  data: { years: number[]; rows: any[] },
+  companyName?: string
 ) => {
   const headers = ['Category', ...data.years.map(String)];
   const csvRows = [
@@ -139,17 +142,11 @@ export const exportCompanyCSV = (
       ...row.values.map((v: number) => v.toFixed(2))
     ].join(','))
   ];
-  
+
   const csvContent = csvRows.join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `company-${type}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  const name = companyName || "Management Company";
+  const typeLabel = type === 'income' ? 'Income Statement' : type === 'cashflow' ? 'Cash Flow' : 'Balance Sheet';
+  downloadCSV(csvContent, `${name} - ${typeLabel}.csv`);
 };
 
 export const handleExcelExport = (
@@ -178,15 +175,16 @@ export const handleExcelExport = (
 
 export const exportChartPNG = async (
   chartRef: React.RefObject<HTMLDivElement | null>,
-  orientation: 'landscape' | 'portrait' = 'landscape'
+  orientation: 'landscape' | 'portrait' = 'landscape',
+  companyName?: string
 ) => {
   if (!chartRef.current) return;
-  
+
   try {
     const scale = 2;
     const width = orientation === 'landscape' ? 1200 : 800;
     const height = orientation === 'landscape' ? 600 : 1000;
-    
+
     const dataUrl = await domtoimage.toPng(chartRef.current, {
       bgcolor: '#ffffff',
       quality: 1,
@@ -197,9 +195,10 @@ export const exportChartPNG = async (
         transformOrigin: 'top left',
       }
     });
-    
+
+    const name = companyName || "Management Company";
     const link = document.createElement('a');
-    link.download = `company-performance-chart-${orientation}.png`;
+    link.download = `${name} - Performance Chart.png`;
     link.href = dataUrl;
     link.click();
   } catch (error) {
@@ -209,7 +208,8 @@ export const exportChartPNG = async (
 
 export const exportTablePNG = async (
   tableRef: React.RefObject<HTMLDivElement | null>,
-  activeTab: string
+  activeTab: string,
+  companyName?: string
 ) => {
   if (!tableRef.current) return;
   try {
@@ -221,8 +221,10 @@ export const exportTablePNG = async (
       width: tableRef.current.scrollWidth * scale,
       height: tableRef.current.scrollHeight * scale,
     });
+    const name = companyName || "Management Company";
+    const tabLabel = activeTab === 'income' ? 'Income Statement' : activeTab === 'cashflow' ? 'Cash Flow' : 'Balance Sheet';
     const link = document.createElement('a');
-    link.download = `company-${activeTab}-table.png`;
+    link.download = `${name} - ${tabLabel}.png`;
     link.href = dataUrl;
     link.click();
   } catch (error) {

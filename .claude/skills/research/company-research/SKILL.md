@@ -37,9 +37,16 @@ Provide comprehensive research on hotel management company fee structures, GAAP 
    - Operating expense ratios by department (Rooms, F&B, G&A, Marketing, POM, Utilities).
    - Revenue per room benchmarks and RevPAR penetration.
 
-5. **Contract Terms**: 
+5. **Contract Terms**:
    - Typical contract durations, renewal options, and termination clauses (with and without cause).
    - Non-compete and area of protection (AOP) standards.
+
+6. **Company Income Tax**:
+   - Recommend an effective corporate income tax rate for the management company entity
+   - Federal/state breakdown based on jurisdiction and entity structure
+   - Explain how company income tax is calculated: Pre-Tax Income = Total Fee Revenue - Total Vendor Costs - Total Operating Expenses; Company Income Tax = max(0, Pre-Tax Income) × Company Tax Rate
+   - Entity structure impact (C-Corp vs pass-through)
+   - The system default is 30% — recommend a jurisdiction-specific rate
 
 ## Output Schema
 
@@ -91,6 +98,15 @@ Provide comprehensive research on hotel management company fee structures, GAAP 
   "contractTerms": [
     { "term": "string", "typical": "string", "notes": "string" }
   ],
+  "companyIncomeTax": {
+    "recommendedRate": "XX%",
+    "confidence": "conservative | moderate | aggressive",
+    "effectiveRange": "XX-XX%",
+    "entityNotes": "C-Corp vs pass-through considerations",
+    "calculationMethodology": "Pre-Tax Income = Total Fee Revenue - Total Vendor Costs - Total Expenses. Tax = max(0, Pre-Tax Income) × Rate.",
+    "rationale": "string",
+    "sources": ["string"]
+  },
   "sources": ["string"]
 }
 ```

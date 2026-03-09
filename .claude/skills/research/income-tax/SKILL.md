@@ -25,11 +25,25 @@ Use `analyze_income_tax` (defined in `tools/analyze-income-tax.json`) to gather 
 
 ## Important Context
 
-- Tax is applied to TAXABLE INCOME = NOI - Interest Expense - Depreciation
+- Tax is applied to TAXABLE INCOME = ANOI - Interest Expense - Depreciation (only on positive amounts)
+- The formula: `incomeTax = max(0, taxableIncome) × taxRate`
+- Net Income = ANOI - Interest Expense - Depreciation - Income Tax
+- Cash Flow = ANOI - Debt Service (principal + interest) - Income Tax
 - Properties in different jurisdictions have different combined rates
 - US properties: Federal (21% C-Corp or pass-through rates) + State (0-13.3%)
 - Latin America properties: Varies significantly by country (e.g., Mexico ~30%, Costa Rica ~30%)
 - SPV structures may use pass-through taxation
+- The system default tax rate is 25% but each property should have its own rate based on jurisdiction
+
+## Calculation Methodology (must explain to user)
+
+Always include an explanation of how income tax flows through the financial model:
+1. **Taxable Income** = ANOI (Adjusted NOI) - Interest Expense - Depreciation Expense
+2. **Income Tax** = Taxable Income × Effective Tax Rate (only when taxable income > 0; no tax on losses)
+3. **Impact on Net Income**: Reduces Net Income on the income statement
+4. **Impact on Cash Flow**: Reduces cash flow (tax is a cash outflow)
+5. **Depreciation Shield**: Depreciation (non-cash) reduces taxable income, creating a tax shield
+6. **Interest Deductibility**: Financed properties benefit from interest expense reducing taxable income
 
 ## Output Schema
 
@@ -46,7 +60,9 @@ Use `analyze_income_tax` (defined in `tools/analyze-income-tax.json`) to gather 
     "effectiveRange": "XX-XX%",
     "entityNotes": "SPV structure considerations",
     "jurisdictionNotes": "Specific jurisdiction tax context",
+    "calculationMethodology": "Explain how income tax is calculated: Taxable Income = ANOI - Interest - Depreciation. Tax only applies when taxable income > 0. Depreciation creates a tax shield. Interest is deductible for financed properties.",
     "rationale": "string",
+    "factors": ["Key factor 1", "Key factor 2"],
     "sources": ["IRS", "State tax authority", "Big 4 hospitality tax guides"]
   }
 }

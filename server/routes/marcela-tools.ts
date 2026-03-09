@@ -1,12 +1,10 @@
 import { type Express, type Request, type Response, type NextFunction } from "express";
 import { storage } from "../storage";
 import { computePropertyMetrics } from "../../calc/research/property-metrics";
+import type { Property } from "../../shared/schema";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COMMISSION_RATE,
-} from "../../shared/constants";
-
-import {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
   DEFAULT_TERM_YEARS,
@@ -38,7 +36,7 @@ function sendToolError(res: Response, message: string, status = 500) {
 }
 
 /** Compute financial snapshot for a property using the deterministic engine */
-function computeSnapshot(p: any) {
+function computeSnapshot(p: Property) {
   const metrics = computePropertyMetrics({
     room_count: p.roomCount,
     adr: p.startAdr,

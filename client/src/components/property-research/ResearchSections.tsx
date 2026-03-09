@@ -24,7 +24,7 @@
  * data for that category; sections stream in progressively as the LLM
  * generates more content.
  */
-import { TrendingUp, Building2, Calendar, Users, AlertTriangle, BookOpen, Target, Clock, Shield, Mountain, UtensilsCrossed, Wallet, Home, Briefcase, Receipt } from "lucide-react";
+import { TrendingUp, Building2, Calendar, Users, AlertTriangle, BookOpen, Target, Clock, Shield, Mountain, UtensilsCrossed, Wallet, Home, Briefcase, Receipt, Calculator } from "lucide-react";
 import { SectionCard } from "./SectionCard";
 import { MetricCard } from "./MetricCard";
 import { sectionColors } from "./types";
@@ -502,6 +502,37 @@ export function ResearchSections({ content }: { content: any }) {
               <MetricCard label="Effective Range" value={content.incomeTaxAnalysis.effectiveRange} color={sectionColors.incomeTax} />
             )}
           </div>
+          {content.incomeTaxAnalysis.calculationMethodology && (
+            <div className="bg-amber-50 rounded-xl p-4 border-l-4 border-amber-400 mb-5">
+              <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                <Calculator className="h-4 w-4 text-amber-600" />
+                How Income Tax Is Calculated
+              </h4>
+              <p className="text-sm text-foreground leading-relaxed">{content.incomeTaxAnalysis.calculationMethodology}</p>
+            </div>
+          )}
+          {content.incomeTaxAnalysis.rateBreakdown && (
+            <div className="grid grid-cols-3 gap-3 mb-5">
+              {content.incomeTaxAnalysis.rateBreakdown.federal && (
+                <div className="bg-rose-50/50 rounded-lg p-3 text-center border border-rose-100">
+                  <div className="text-xs text-muted-foreground mb-1">Federal</div>
+                  <div className="text-sm font-semibold text-rose-700">{content.incomeTaxAnalysis.rateBreakdown.federal}</div>
+                </div>
+              )}
+              {content.incomeTaxAnalysis.rateBreakdown.state && (
+                <div className="bg-rose-50/50 rounded-lg p-3 text-center border border-rose-100">
+                  <div className="text-xs text-muted-foreground mb-1">State</div>
+                  <div className="text-sm font-semibold text-rose-700">{content.incomeTaxAnalysis.rateBreakdown.state}</div>
+                </div>
+              )}
+              {content.incomeTaxAnalysis.rateBreakdown.local && (
+                <div className="bg-rose-50/50 rounded-lg p-3 text-center border border-rose-100">
+                  <div className="text-xs text-muted-foreground mb-1">Local</div>
+                  <div className="text-sm font-semibold text-rose-700">{content.incomeTaxAnalysis.rateBreakdown.local}</div>
+                </div>
+              )}
+            </div>
+          )}
           {content.incomeTaxAnalysis.rationale && (
             <div className="bg-rose-50 rounded-xl p-4 border-l-4 border-rose-400 mb-5">
               <p className="text-sm text-foreground leading-relaxed">{content.incomeTaxAnalysis.rationale}</p>

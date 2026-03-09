@@ -29,7 +29,8 @@ import Layout from "@/components/Layout";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { Loader2, BookOpen, AlertTriangle } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconBookOpen, IconAlertTriangle } from "@/components/icons";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
@@ -159,7 +160,7 @@ export default function CompanyAssumptions() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load assumptions. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -214,7 +215,7 @@ export default function CompanyAssumptions() {
             <div className="flex items-center gap-3">
               <Link href="/company/research" className="text-inherit no-underline">
                 <Button variant="default" data-testid="button-company-research">
-                  <BookOpen className="w-4 h-4" />
+                  <IconBookOpen className="w-4 h-4" />
                   Standards Research
                 </Button>
               </Link>

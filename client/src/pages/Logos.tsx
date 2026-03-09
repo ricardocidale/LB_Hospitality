@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Plus, Trash2, Image, Upload, Building2, Save, Star } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconPlus, IconTrash, IconImage, IconUpload, IconBuilding2, IconSave, IconStar } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/ui/page-header";
 import defaultLogo from "@/assets/logo.png";
@@ -148,7 +149,7 @@ export default function Logos() {
 
         <div className="flex justify-end mb-6">
           <Button onClick={() => { resetForm(); setCreateDialogOpen(true); }} className="flex items-center gap-2" data-testid="button-add-logo">
-            <Plus className="w-4 h-4" /> Add Logo
+            <IconPlus className="w-4 h-4" /> Add Logo
           </Button>
         </div>
 
@@ -159,7 +160,7 @@ export default function Logos() {
         ) : !logos || logos.length === 0 ? (
           <Card className="bg-card border-border shadow-sm rounded-lg">
             <CardContent className="text-center py-16">
-              <Image className="w-16 h-16 mx-auto mb-4 text-primary/30" />
+              <IconImage className="w-16 h-16 mx-auto mb-4 text-primary/30" />
               <p className="text-lg text-muted-foreground mb-2">No logos yet</p>
               <p className="text-sm text-muted-foreground">Click "Add Logo" to upload or create your first logo.</p>
             </CardContent>
@@ -183,10 +184,10 @@ export default function Logos() {
                       <div className="min-w-0 flex-1">
                         <h3 className="font-display font-medium text-foreground truncate flex items-center gap-2">
                           {logo.name}
-                          {logo.isDefault && <Star className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                          {logo.isDefault && <IconStar className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
                         </h3>
                         <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <Building2 className="w-3.5 h-3.5" />
+                          <IconBuilding2 className="w-3.5 h-3.5" />
                           {logo.companyName}
                         </p>
                       </div>
@@ -198,7 +199,7 @@ export default function Logos() {
                           className="text-red-400 hover:text-red-600 hover:bg-red-500/10 flex-shrink-0"
                           data-testid={`button-delete-logo-${logo.id}`}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <IconTrash className="w-4 h-4" />
                         </Button>
                       )}
                     </div>
@@ -243,7 +244,7 @@ export default function Logos() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <Upload className="w-10 h-10 mx-auto text-primary/40" />
+                    <IconUpload className="w-10 h-10 mx-auto text-primary/40" />
                     <p className="text-sm text-muted-foreground">Drag and drop or click to upload</p>
                     <input
                       ref={fileInputRef}
@@ -260,7 +261,7 @@ export default function Logos() {
                       disabled={uploadingFile}
                       data-testid="button-upload-logo"
                     >
-                      {uploadingFile ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
+                      {uploadingFile ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconUpload className="w-4 h-4 mr-2" />}
                       {uploadingFile ? "Uploading..." : "Choose File"}
                     </Button>
                   </div>
@@ -287,7 +288,7 @@ export default function Logos() {
               data-testid="button-save-logo"
               className="flex items-center gap-2"
             >
-              {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {createLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
               Save Logo
             </Button>
           </DialogFooter>
@@ -303,7 +304,7 @@ export default function Logos() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
             <Button variant="destructive" onClick={() => { if (deleteConfirmId) deleteLogoMutation.mutate(deleteConfirmId); }} disabled={deleteLogoMutation.isPending}>
-              {deleteLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+              {deleteLogoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconTrash className="w-4 h-4 mr-2" />}
               Delete
             </Button>
           </DialogFooter>

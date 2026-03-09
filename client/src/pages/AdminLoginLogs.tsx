@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Clock, LogIn } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconClock, IconLogIn } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatDuration } from "@/lib/formatters";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
@@ -53,7 +54,7 @@ export default function AdminLoginLogs() {
           
           <CardHeader className="relative">
             <div className="flex items-center gap-3">
-              <LogIn className="w-5 h-5 text-primary" />
+              <IconLogIn className="w-5 h-5 text-primary" />
               <div>
                 <CardTitle className="text-xl font-display text-foreground">Login History</CardTitle>
                 <CardDescription className="label-text text-muted-foreground">
@@ -66,7 +67,7 @@ export default function AdminLoginLogs() {
           <CardContent className="relative">
             {logs?.length === 0 ? (
               <div className="text-center py-12">
-                <Clock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <IconClock className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                 <p className="label-text text-muted-foreground">No login activity recorded yet</p>
               </div>
             ) : (

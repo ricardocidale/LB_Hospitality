@@ -143,6 +143,7 @@ Research the following areas for management companies that specialize in this ty
 4. Operating expense ratios by department (USALI format)
 5. Management company compensation benchmarks
 6. Typical contract terms and duration
+7. **Company Income Tax**: Recommend an effective corporate income tax rate for the management company entity. Include federal/state breakdown, entity structure considerations (C-Corp vs pass-through), and explain how company income tax is calculated: Pre-Tax Income = Total Fee Revenue - Total Vendor Costs - Total Operating Expenses; Company Income Tax = max(0, Pre-Tax Income) × Company Tax Rate. The system default is 30% but the actual rate depends on jurisdiction and entity structure. Include this as a "companyIncomeTax" section in your response with recommendedRate, effectiveRange, entityNotes, calculationMethodology, and rationale.
 Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.${buildEventConfigSuffix(ec)}`;
 
     prompt += buildSourceRegistryBlock(ec?.customSources, params.researchVariables?.customSources);

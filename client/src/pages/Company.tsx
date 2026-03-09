@@ -28,7 +28,8 @@ import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFisc
 import { useServiceTemplates } from "@/lib/api/services";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Loader2, AlertTriangle, CheckCircle, BookOpen } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconAlertTriangle, IconCheckCircle, IconBookOpen } from "@/components/icons";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Link } from "wouter";
@@ -158,7 +159,7 @@ export default function Company() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load company data. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -190,14 +191,16 @@ export default function Company() {
     }
   };
 
+  const companyName = global?.companyName || "Management Company";
+
   const handleExport = (orientation: 'landscape' | 'portrait') => {
     if (exportType === 'pdf') {
       const data = getStatementData(activeTab);
       exportCompanyPDF(activeTab as any, data, global, projectionYears, yearlyChartData, orientation);
     } else if (exportType === 'tablePng') {
-      exportTablePNG(tableRef, activeTab);
+      exportTablePNG(tableRef, activeTab, companyName);
     } else {
-      exportChartPNG(chartRef, orientation);
+      exportChartPNG(chartRef, orientation, companyName);
     }
   };
 
@@ -207,17 +210,17 @@ export default function Company() {
       actions={[
         pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
         excelAction(() => handleExcelExport(activeTab, financials, projectionYears, global, fiscalYearStartMonth)),
-        csvAction(() => exportCompanyCSV(activeTab as any, getStatementData(activeTab))),
+        csvAction(() => exportCompanyCSV(activeTab as any, getStatementData(activeTab), companyName)),
         pptxAction(() => handlePPTXExport(
-          global, 
-          projectionYears, 
+          global,
+          projectionYears,
           (i) => String(getFiscalYear(i)),
           generateCompanyIncomeData(financials, years, properties, propertyFinancials),
           generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel),
           generateCompanyBalanceData(financials, years, fundingLabel)
         )),
         chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
-        pngAction(() => exportTablePNG(tableRef, activeTab)),
+        pngAction(() => exportTablePNG(tableRef, activeTab, companyName)),
       ]}
     />
   );
@@ -248,7 +251,7 @@ export default function Company() {
           
           <div className="mt-4 mb-2">
             <Link href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-primary hover:bg-muted transition-colors">
-              <BookOpen className="w-3.5 h-3.5" />
+              <IconBookOpen className="w-3.5 h-3.5" />
               <span className="font-medium">View Company Research</span>
               <span className="text-primary/60">Fee benchmarks, vendor costs, overhead, competitive landscape</span>
             </Link>
@@ -302,7 +305,7 @@ export default function Company() {
 
           {!cashAnalysis.isAdequate ? (
             <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-warning">
-              <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <IconAlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
               <p>
                 <span data-testid="text-company-cash-warning-title" className="font-medium text-red-600">Additional Funding Required:</span>{' '}
                 The current {fundingLabel} funding of <span className="font-medium text-foreground">{formatMoney(cashAnalysis.totalFunding)}</span> is insufficient to cover operating expenses.
@@ -315,7 +318,7 @@ export default function Company() {
             </div>
           ) : (
             <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-adequate">
-              <CheckCircle className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
+              <IconCheckCircle className="w-4 h-4 text-secondary flex-shrink-0 mt-0.5" />
               <p>
                 <span data-testid="text-company-cash-adequate-title" className="font-medium text-secondary">Cash Position Adequate:</span>{' '}
                 The {fundingLabel} funding of <span className="font-medium text-foreground">{formatMoney(cashAnalysis.totalFunding)}</span> covers all operating costs.

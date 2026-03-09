@@ -6,7 +6,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useMarketResearch } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
-import { Loader2, RefreshCw, BookOpen, AlertTriangle, Mail, FileDown, DollarSign, Package, Building2, Target, Users, FileText } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconRefreshCw, IconBookOpen, IconAlertTriangle, IconMail, IconFileDown, IconDollarSign, IconPackage, IconBuilding2, IconTarget, IconUsers, IconFileText } from "@/components/icons";
 
 import { format } from "date-fns";
 import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
@@ -22,13 +23,13 @@ import {
 } from "@/components/company-research";
 
 const TABS = [
-  { value: "fees", label: "Management Fees", icon: DollarSign },
-  { value: "services", label: "Service Revenue", icon: Package },
-  { value: "vendor", label: "Vendor Costs", icon: Package },
-  { value: "overhead", label: "Overhead", icon: Building2 },
-  { value: "competitive", label: "Competitive", icon: Target },
-  { value: "partner-comp", label: "Partner Comp", icon: Users },
-  { value: "full-research", label: "Full Research", icon: FileText },
+  { value: "fees", label: "Management Fees", icon: IconDollarSign },
+  { value: "services", label: "Service Revenue", icon: IconPackage },
+  { value: "vendor", label: "Vendor Costs", icon: IconPackage },
+  { value: "overhead", label: "Overhead", icon: IconBuilding2 },
+  { value: "competitive", label: "Competitive", icon: IconTarget },
+  { value: "partner-comp", label: "Partner Comp", icon: IconUsers },
+  { value: "full-research", label: "Full Research", icon: IconFileText },
 ];
 
 export default function CompanyResearch() {
@@ -52,7 +53,7 @@ export default function CompanyResearch() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">Failed to load company research. Please try refreshing the page.</p>
         </div>
       </Layout>
@@ -81,7 +82,7 @@ export default function CompanyResearch() {
                 disabled={isGenerating}
                 data-testid="button-update-research"
               >
-                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconRefreshCw className="w-4 h-4" />}
                 {isGenerating ? "Analyzing..." : "Update AI Research"}
               </Button>
             </div>
@@ -100,7 +101,7 @@ export default function CompanyResearch() {
                 actions={[
                   {
                     label: "Download PDF",
-                    icon: <FileDown className="w-3.5 h-3.5" />,
+                    icon: <IconFileDown className="w-3.5 h-3.5" />,
                     onClick: () => downloadResearchPDF({
                       type: "company",
                       title: "Management Company Research",
@@ -114,7 +115,7 @@ export default function CompanyResearch() {
                   },
                   {
                     label: isEmailing ? "Sending..." : "Email PDF",
-                    icon: <Mail className="w-3.5 h-3.5" />,
+                    icon: <IconMail className="w-3.5 h-3.5" />,
                     onClick: async () => {
                       if (isEmailing) return;
                       setIsEmailing(true);
@@ -229,7 +230,7 @@ function EmptyTabState({ title, description, onGenerate }: { title: string; desc
   return (
     <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
       <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
-        <BookOpen className="w-8 h-8 text-primary" />
+        <IconBookOpen className="w-8 h-8 text-primary" />
       </div>
       <h3 className="text-lg font-display text-foreground mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">{description}</p>
@@ -238,7 +239,7 @@ function EmptyTabState({ title, description, onGenerate }: { title: string; desc
         variant="default"
         className="gap-2 shadow-lg shadow-primary/20 hover:scale-[1.03] active:scale-[0.97] transition-transform"
       >
-        <RefreshCw className="w-4 h-4" />
+        <IconRefreshCw className="w-4 h-4" />
         Generate Research
       </Button>
     </div>

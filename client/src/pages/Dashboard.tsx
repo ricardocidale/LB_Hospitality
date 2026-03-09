@@ -35,7 +35,8 @@ import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { Loader2, AlertTriangle } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { IconAlertTriangle } from "@/components/icons";
 import { IconDashboard, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconInvestment } from "@/components/icons/brand-icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { PROJECTION_YEARS } from "@/lib/constants";
@@ -241,7 +242,7 @@ export default function Dashboard() {
     return (
       <Layout>
         <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
-          <AlertTriangle className="w-8 h-8 text-destructive" />
+          <IconAlertTriangle className="w-8 h-8 text-destructive" />
           <p className="text-muted-foreground">
             {!properties || !global || !financials
               ? "No data available. Please check the database."

@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useStore } from "@/lib/store";
@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { PieChart, Pie } from "recharts";
+import { Tooltip as RechartsTooltip, PieChart, Pie, BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, ReferenceLine } from "recharts";
 import {
   ChartContainer,
   ChartLegend,
@@ -18,6 +18,8 @@ import {
 import { ExportMenu, pdfAction, csvAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
+import { usePortfolioFinancials } from "@/components/dashboard";
 import pptxgen from "pptxgenjs";
 
 const formatMoney = (value: number) =>
@@ -56,10 +58,87 @@ const statusVariants: Record<string, "default" | "secondary" | "outline" | "dest
   Pipeline: "outline",
 };
 
+interface WaterfallItem {
+  name: string;
+  value: number;
+  base: number;
+  fill: string;
+  isSubtotal: boolean;
+}
+
+function buildWaterfallData(yearData: {
+  revenueTotal: number;
+  gop: number;
+  agop: number;
+  noi: number;
+  anoi: number;
+  feeBase: number;
+  feeIncentive: number;
+  expenseFFE: number;
+}): WaterfallItem[] {
+  const deptExpenses = yearData.revenueTotal - yearData.gop;
+  const undistributed = yearData.gop - yearData.agop - yearData.feeBase - yearData.feeIncentive;
+  const fees = yearData.feeBase + yearData.feeIncentive;
+  const fixedCharges = yearData.agop - yearData.noi;
+  const ffe = yearData.expenseFFE;
+
+  const items: WaterfallItem[] = [];
+  let running = yearData.revenueTotal;
+
+  items.push({ name: "Total Revenue", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+
+  items.push({ name: "Dept. Expenses", value: deptExpenses, base: running - deptExpenses, fill: "hsl(var(--chart-2))", isSubtotal: false });
+  running -= deptExpenses;
+
+  items.push({ name: "GOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+
+  items.push({ name: "Undistributed", value: undistributed, base: running - undistributed, fill: "hsl(var(--chart-3))", isSubtotal: false });
+  running -= undistributed;
+
+  items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
+  running -= fees;
+
+  items.push({ name: "AGOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+
+  items.push({ name: "Fixed Charges", value: fixedCharges, base: running - fixedCharges, fill: "hsl(var(--chart-5))", isSubtotal: false });
+  running -= fixedCharges;
+
+  items.push({ name: "NOI", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+
+  items.push({ name: "FF&E Reserve", value: ffe, base: running - ffe, fill: "hsl(var(--chart-2))", isSubtotal: false });
+  running -= ffe;
+
+  items.push({ name: "ANOI", value: running, base: 0, fill: "hsl(var(--primary))", isSubtotal: true });
+
+  return items;
+}
+
+function WaterfallTooltipContent({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const item = payload[0]?.payload as WaterfallItem;
+  if (!item) return null;
+  return (
+    <div className="rounded-md border bg-card px-3 py-2 shadow-md text-sm">
+      <p className="font-medium text-card-foreground">{item.name}</p>
+      <p className="text-muted-foreground">
+        {item.isSubtotal ? "" : "−"}{formatCompact(item.value)}
+      </p>
+    </div>
+  );
+}
+
 export default function ExecutiveSummary() {
   const { properties } = useStore();
+  const { data: apiProperties } = useProperties();
+  const { data: global } = useGlobalAssumptions();
+  const financials = usePortfolioFinancials(apiProperties, global);
   const pageRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
+
+  const waterfallData = useMemo(() => {
+    if (!financials?.yearlyConsolidatedCache?.length) return null;
+    return buildWaterfallData(financials.yearlyConsolidatedCache[0]);
+  }, [financials]);
 
   const totalProperties = properties.length;
   const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
@@ -308,6 +387,56 @@ export default function ExecutiveSummary() {
             </CardContent>
           </Card>
         </div>
+
+        {waterfallData && (
+          <Card data-testid="usali-waterfall-card" className="print-waterfall-card">
+            <CardHeader className="print-card-header">
+              <CardTitle className="text-sm font-semibold">USALI Profit Waterfall — Year 1</CardTitle>
+              <p className="text-xs text-muted-foreground">Revenue cascade through operating expenses to net income (consolidated portfolio)</p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={waterfallData} margin={{ top: 16, right: 16, bottom: 4, left: 8 }}>
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    tickFormatter={(v: number) => formatCompact(Math.abs(v))}
+                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    tickLine={false}
+                    axisLine={false}
+                    width={60}
+                  />
+                  <RechartsTooltip content={<WaterfallTooltipContent />} />
+                  <ReferenceLine y={0} stroke="hsl(var(--border))" />
+                  <Bar dataKey="base" stackId="waterfall" fill="transparent" isAnimationActive={false} />
+                  <Bar dataKey="value" stackId="waterfall" radius={[4, 4, 0, 0]} isAnimationActive>
+                    {waterfallData.map((entry, index) => (
+                      <Cell key={index} fill={entry.fill} opacity={entry.isSubtotal ? 1 : 0.75} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="flex items-center justify-center gap-6 mt-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-sm" style={{ background: "hsl(var(--chart-1))" }} />
+                  Subtotals
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-sm opacity-75" style={{ background: "hsl(var(--chart-2))" }} />
+                  Deductions
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-sm" style={{ background: "hsl(var(--primary))" }} />
+                  Net Result
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="print-table-card">
           <CardHeader className="print-card-header">

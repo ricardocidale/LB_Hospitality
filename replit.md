@@ -79,10 +79,8 @@ When adding new fields to any admin config (research, voice, etc.), **always** a
 The `/analysis` page contains 4 tabs: Sensitivity, Financing (debt DSCR/yield/stress), Compare, Timeline. Executive Summary is a separate sidebar page (`/executive-summary`), not part of Analysis.
 
 ## Management Company Page Tabs
-The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet, **Funding**. The Funding tab (`client/src/pages/FundingPredictor.tsx`) has 3 sub-tabs:
-- **Recommended**: Engine-computed capital raise analysis — KPI grid (Capital Raise Target, Tranches, Path to Breakeven, Funding Gap), Investment Thesis, Capital Structure Mermaid flowchart, Cash Runway chart, Tranche cards with terms/rationale, Early-Stage Terms Comparison table, Capital Strategy narrative, Risk Factors & Milestones.
-- **Current Plan**: User's configured funding assumptions (tranche amounts, dates, valuation cap, discount rate) with gap analysis vs. engine recommendation, coverage ratio, runway assessment, and link to edit in Company Assumptions.
-- **Research**: Market Intelligence (Fed Funds, SOFR, 10Y Treasury, Hotel Lending Spread with sources), Engine Parameters (reserves, buffers, default instrument terms), Methodology explanation, links to Admin Research.
+The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet, **Tools**. The Tools tab (`client/src/pages/FundingPredictor.tsx`) has a single sub-tab:
+- **Capital Strategy**: Engine-computed capital raise analysis — KPI grid (Capital Raise Target, Tranches, Path to Breakeven, Funding Gap), Investment Thesis, Capital Structure Mermaid flowchart, Cash Runway chart, Tranche cards with terms/rationale, Early-Stage Terms Comparison table, Capital Strategy narrative, Risk Factors & Milestones.
 
 The engine at `client/src/lib/financial/funding-predictor.ts` is instrument-agnostic — it uses `fundingSourceLabel` (not hardcoded "SAFE") for all terminology. Vocabulary follows hospitality investment industry standards: "Capital Raise Target", "Net Burn Rate", "Operating Breakeven", "Investment Thesis", "Capital Strategy".
 

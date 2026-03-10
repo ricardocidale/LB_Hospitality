@@ -19,9 +19,7 @@ import { MermaidChart } from "@/lib/charts";
 import { useLocation } from "wouter";
 
 const FUNDING_TABS = [
-  { value: "recommended", label: "Recommended", icon: IconTarget },
-  { value: "current", label: "Current Plan", icon: IconSettings },
-  { value: "research", label: "Research", icon: Search },
+  { value: "recommended", label: "Capital Strategy", icon: IconTarget },
 ];
 
 function RunwayTooltip({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) {

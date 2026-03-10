@@ -305,7 +305,7 @@ export default function Company() {
             />
           </TabsContent>
 
-          <TabsContent value="funding" className="mt-6">
+          <TabsContent value="tools" className="mt-6">
             <FundingPredictor embedded />
           </TabsContent>
 

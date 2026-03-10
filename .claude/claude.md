@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~702 source files, ~112,283 lines, 2,839 tests across 123 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~673 source files, ~103,018 lines, 2,839 tests across 123 files. Hosted on Replit.
 
 ---
 
@@ -58,7 +58,6 @@ With 126+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Multi-Tenancy | `.claude/skills/multi-tenancy/SKILL.md` | Users, groups, logos, themes, branding resolution |
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
-| 8starlabs Components | See below | Timeline, Status Indicator, Partition Bar |
 | Codebase Arch | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, UI component catalog (80+), ElevenLabs architecture |
 | Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel hooks, styles, tooltip patterns |
 | Admin (10 tabs) | `.claude/skills/admin/SKILL.md` | 10-tab shell pattern, extraction guide, API routes |
@@ -77,16 +76,7 @@ With 126+ skill files, **never load all skills at once**. Use `.claude/skills/co
 
 ---
 
-## 8starlabs Components (from `ui.8starlabs.com`)
-
-Three 8starlabs shadcn registry components installed:
-- **Timeline** (`client/src/components/ui/timeline.tsx`) — horizontal/vertical timeline with alternating cards. Used in `TimelineView.tsx` for the portfolio acquisition schedule.
-- **Status Indicator** (`client/src/components/ui/status-indicator.tsx`) — animated dot with states: active (green), down (red), fixing (yellow), idle (gray). Wrapped by `StatusBadge` (`status-badge.tsx`) for semantic use (active/inactive/pending/error/warning). Also used directly in `PortfolioPropertyCard` and `ToolsStatus` for inline animated dots within custom badge layouts.
-- **Partition Bar** (`client/src/components/ui/partition-bar.tsx`) — segmented bar showing proportional distribution. Used in `ExecutiveSummary.tsx` (property status breakdown) and `IncomeStatementTab.tsx` (revenue mix: Rooms/F&B/Events/Other).
-
----
-
-## Testing & Proof System (2,839 Tests, 123 Files)
+## Testing & Proof System (2,805 Tests, 123 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -96,7 +86,7 @@ Three 8starlabs shadcn registry components installed:
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 418 hand-calculated reference tests | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 2,839) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 2,805) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
@@ -128,7 +118,7 @@ Three 8starlabs shadcn registry components installed:
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify (~4 lines)
-npm run test:summary   # All tests, 1-line output
+npm run test:summary   # All 2,839 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact output
 npm run db:push        # Push schema changes
 npm run diff:summary   # Compact git status + diff stat

@@ -12,7 +12,7 @@
  */
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import { IconMapPin, IconSettings2, IconMap } from "@/components/icons";
+import { IconMapPin, IconSettings2, IconMap, IconCamera } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { HeroImage } from "@/features/property-images";
@@ -80,6 +80,12 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
                 </Button>
               );
             })()}
+            <Link href={`/property/${propertyId}/photos`}>
+              <Button variant="outline" size="sm" className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform" data-testid="button-photos">
+                <IconCamera className="w-4 h-4" />
+                Photos
+              </Button>
+            </Link>
             <Link href={`/property/${propertyId}/edit`}>
               <Button variant="outline" size="sm" className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform">
                 <IconSettings2 className="w-4 h-4" />

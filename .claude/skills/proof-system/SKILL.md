@@ -1,16 +1,16 @@
 ---
 name: proof-system
-description: Automated financial proof system with 2820 tests, 5 structural golden scenarios, and 418 hand-calculated golden reference tests. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
+description: Automated financial proof system with 2800 tests, 5 structural golden scenarios, and 418 hand-calculated golden reference tests. Use when running verification, adding tests, debugging financial calculations, or reviewing proof coverage.
 ---
 
 # Automated Financial Proof System
 
 ## Purpose
-Eliminates human Excel verification. Code proves itself correct through 2820 automated tests across 5 structural golden scenarios, 418 hand-calculated golden reference tests, input-to-output pipeline verification, and magic number detection.
+Eliminates human Excel verification. Code proves itself correct through 2800 automated tests across 5 structural golden scenarios, 418 hand-calculated golden reference tests, input-to-output pipeline verification, and magic number detection.
 
 ## Commands
 ```bash
-npm test                          # Run all 2820 tests
+npm test                          # Run all 2800 tests
 npm run verify                    # Full 7-phase verification (UNQUALIFIED = pass)
 npx vitest run tests/proof/       # Run only proof tests
 npx vitest run tests/golden/      # Run 269 hand-calculated golden tests (~3s)
@@ -114,7 +114,7 @@ For per-statement and per-analysis test coverage, see:
 | **Golden Scenarios** | **`.claude/skills/testing/golden-scenarios.md`** | **269 hand-calculated tests: IRR, DCF, DSCR, depreciation, break-even, stress, waterfall, exit, equity multiple, pro-forma edge cases** |
 
 ## Maintenance
-1. Run `npm test` — all 2820 tests must pass
+1. Run `npm test` — all 2800 tests must pass
 2. Run `npm run verify` — all 7 phases must pass
 3. Run `npx vitest run tests/golden/` — 269 hand-calculated tests must pass (~3s)
 4. Check `test-artifacts/*.md` for UNQUALIFIED opinions

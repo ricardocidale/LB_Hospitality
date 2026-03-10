@@ -8,6 +8,12 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 10, 2026 — claude.md update + recent features
+- Updated source stats: 706 files / 113,564 lines (was 702/112,657); skill files 172+
+- Sidebar restructured into Insights/Tools sections; Research Center moved to Tools
+- Property analysis chatbot added (`/api/chat`, Claude-powered via `server/routes/chat.ts`)
+- Property hero images: captions + additional AI-generated photos; DCF added to dashboard
+
 ## Session: March 10, 2026 — Golden Scenario Battery Continued (5 more scenarios, 149 new tests)
 - Built 5 new golden test files: exit-cap-sensitivity (24), mixed-portfolio (20), preops-refi-combo (45), underwater-exit (36), zero-occupancy (24)
 - Secured ElevenLabs widget: signed URL endpoint (`/api/marcela/signed-url`) replacing bare agentId; `useAdminSignedUrl` hook

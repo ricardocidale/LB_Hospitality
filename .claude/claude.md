@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~702 source files, ~112,657 lines, 2,842 tests across 130 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~706 source files, ~113,564 lines, 2,842 tests across 130 files. Hosted on Replit.
 
 ---
 
@@ -34,7 +34,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Context Loading Protocol
 
-With 126+ skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
+With 172+ skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
 - **Financial calc** → specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual** → `component-library/SKILL.md` + `ui/theme-engine.md` + specific UI skill
 - **Testing** → `testing/SKILL.md` + relevant sub-skill only
@@ -72,6 +72,7 @@ With 126+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Constants Ref | `.claude/skills/finance/constants-and-config.md` | All named constants and protected fields |
 | Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |
 | Release Checklist | `.claude/skills/proof-system/release-audit-checklist.md` | Pre-release audit (load for releases) |
+| Property Chatbot | `server/routes/chat.ts` | Claude-powered property analysis chat (`/api/chat`) |
 | Rules (20) | `.claude/rules/` | All behavioral constraints |
 
 ---
@@ -87,6 +88,15 @@ With 126+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Golden Scenarios | 418 hand-calculated reference tests | `testing/golden-scenarios.md` |
 
 **Commands**: `npm test` (all 2,842) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+
+---
+
+## Recent Changes (March 10, 2026)
+
+- **Property Analysis Chatbot** — Claude-powered assistant at `/api/chat`; answers questions about portfolio properties using real financial metrics from `computePropertyMetrics`. UI in `client/src/components/`. Sidebar section: Tools.
+- **Sidebar Restructure** — Menu reorganized into **Insights** (financial pages) and **Tools** (Research Center, Property Finder, chatbot) sections. Financial charts/insights hidden when on Tools tab.
+- **Property Hero Images** — Captions added to hero images; additional AI-generated photos generated per property.
+- **DCF Analysis** — Discounted cash flow analysis added to investment dashboard.
 
 ---
 

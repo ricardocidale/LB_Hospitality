@@ -79,7 +79,12 @@ When adding new fields to any admin config (research, voice, etc.), **always** a
 The `/analysis` page contains 4 tabs: Sensitivity, Financing (debt DSCR/yield/stress), Compare, Timeline. Executive Summary is a separate sidebar page (`/executive-summary`), not part of Analysis.
 
 ## Management Company Page Tabs
-The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet, **Funding**. The Funding tab (`client/src/pages/FundingPredictor.tsx`) uses the engine at `client/src/lib/financial/funding-predictor.ts` to compute total raise needed, recommended tranches with terms, breakeven analysis, cash runway chart, ICP-driven investor thesis, and market-rate-informed SAFE terms. It pulls live market rates (Fed Funds, SOFR, 10Y Treasury) and references the ICP/asset description to explain why investors fund this management company.
+The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet, **Funding**. The Funding tab (`client/src/pages/FundingPredictor.tsx`) has 3 sub-tabs:
+- **Recommended**: Engine-computed capital raise analysis — KPI grid (Capital Raise Target, Tranches, Path to Breakeven, Funding Gap), Investment Thesis, Capital Structure Mermaid flowchart, Cash Runway chart, Tranche cards with terms/rationale, Early-Stage Terms Comparison table, Capital Strategy narrative, Risk Factors & Milestones.
+- **Current Plan**: User's configured funding assumptions (tranche amounts, dates, valuation cap, discount rate) with gap analysis vs. engine recommendation, coverage ratio, runway assessment, and link to edit in Company Assumptions.
+- **Research**: Market Intelligence (Fed Funds, SOFR, 10Y Treasury, Hotel Lending Spread with sources), Engine Parameters (reserves, buffers, default instrument terms), Methodology explanation, links to Admin Research.
+
+The engine at `client/src/lib/financial/funding-predictor.ts` is instrument-agnostic — it uses `fundingSourceLabel` (not hardcoded "SAFE") for all terminology. Vocabulary follows hospitality investment industry standards: "Capital Raise Target", "Net Burn Rate", "Operating Breakeven", "Investment Thesis", "Capital Strategy".
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

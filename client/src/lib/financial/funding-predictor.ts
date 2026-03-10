@@ -102,11 +102,11 @@ function buildMarketContext(rates: MarketRateResponse[] | undefined): string {
 
   if (treasury10y !== null) {
     if (treasury10y > 4.5) {
-      context += ' The elevated rate environment increases the cost of capital, making early-stage SAFE terms more investor-friendly (higher discounts, lower caps) to compensate for opportunity cost.';
+      context += ' The elevated rate environment increases the cost of capital, making early-stage investment terms more investor-friendly (higher discounts, lower caps) to compensate for opportunity cost.';
     } else if (treasury10y < 3.0) {
       context += ' The low-rate environment reduces investor opportunity cost, supporting more founder-friendly terms (lower discounts, higher caps).';
     } else {
-      context += ' The moderate rate environment supports balanced SAFE terms that reflect both investor risk and the management company\'s growth potential.';
+      context += ' The moderate rate environment supports balanced investment terms that reflect both investor risk and the management company\'s growth potential.';
     }
   }
 
@@ -139,7 +139,7 @@ function buildNarrative(
 
   narrative += `The average monthly cash burn during the pre-profitability period is $${(analysis.monthlyBurnRate / 1000).toFixed(0)}K. `;
 
-  narrative += `The recommended funding structure uses ${analysis.tranches.length} tranche${analysis.tranches.length !== 1 ? 's' : ''} via ${fundingLabel} notes. `;
+  narrative += `The recommended funding structure uses ${analysis.tranches.length} tranche${analysis.tranches.length !== 1 ? 's' : ''} via ${fundingLabel}. `;
 
   if (analysis.tranches.length >= 2) {
     narrative += `Splitting the raise into tranches allows the company to demonstrate progress — signing management agreements, onboarding properties, and generating initial fee revenue — before raising additional capital at improved terms. `;

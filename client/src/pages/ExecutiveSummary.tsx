@@ -6,7 +6,6 @@ import { KPIGrid } from "@/components/graphics";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import PartitionBar, { PartitionBarSegment, PartitionBarSegmentTitle, PartitionBarSegmentValue } from "@/components/ui/partition-bar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { PieChart, Pie } from "recharts";
@@ -47,22 +46,6 @@ const statusVariants: Record<string, "default" | "secondary" | "outline" | "dest
   Acquired: "outline",
   "In Negotiation": "secondary",
   Pipeline: "outline",
-};
-
-const statusPartitionVariant: Record<string, "default" | "secondary" | "destructive" | "outline" | "muted"> = {
-  Operating: "default",
-  Improvements: "secondary",
-  Acquired: "default",
-  "In Negotiation": "muted",
-  Pipeline: "outline",
-};
-
-const statusPartitionColor: Record<string, string> = {
-  Operating: "bg-green-600",
-  Improvements: "bg-amber-500",
-  Acquired: "bg-blue-500",
-  "In Negotiation": "bg-violet-500",
-  Pipeline: "bg-gray-400",
 };
 
 export default function ExecutiveSummary() {
@@ -296,29 +279,23 @@ export default function ExecutiveSummary() {
               <CardTitle className="text-sm font-semibold">Properties by Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="py-2">
-                <PartitionBar size="lg" gap={1} data-testid="partition-bar-status">
-                  {statuses
-                    .filter((status) => (statusCounts[status] || 0) > 0)
-                    .map((status) => {
-                      const count = statusCounts[status] || 0;
-                      return (
-                        <PartitionBarSegment
-                          key={status}
-                          num={count}
-                          variant={statusPartitionVariant[status] || "default"}
-                          className={statusPartitionColor[status] || ""}
-                          alignment="center"
-                        >
-                          <PartitionBarSegmentTitle>{status}</PartitionBarSegmentTitle>
-                          <PartitionBarSegmentValue>{count} {count === 1 ? "property" : "properties"}</PartitionBarSegmentValue>
-                        </PartitionBarSegment>
-                      );
-                    })}
-                </PartitionBar>
-                {totalProperties === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">No properties to display</p>
-                )}
+              <div className="flex flex-col gap-4 py-2">
+                {statuses.map((status) => {
+                  const count = statusCounts[status] || 0;
+                  const pct = totalProperties > 0 ? (count / totalProperties) * 100 : 0;
+                  return (
+                    <div key={status} className="flex items-center gap-3">
+                      <span className="text-sm font-medium w-[120px] shrink-0">{status}</span>
+                      <div className="flex-1 h-6 bg-muted rounded overflow-hidden">
+                        <div
+                          className="h-full bg-primary/70 rounded transition-all duration-300"
+                          style={{ width: `${pct}%`, minWidth: count > 0 ? 4 : 0 }}
+                        />
+                      </div>
+                      <span className="text-base font-bold font-mono tabular-nums w-6 text-right">{count}</span>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { IconWrench, IconMonitor, IconServer, IconCpu, IconRefreshCw, IconAlertCircle, IconExternalLink } from "@/components/icons";
-import StatusIndicator from "@/components/ui/status-indicator";
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 
 const TYPE_META: Record<string, { label: string; icon: typeof IconMonitor; color: string; badge: string }> = {
@@ -102,7 +101,7 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
                 <div className="grid gap-1">
                   {group.map((tool: any) => (
                     <div key={tool.name} className="flex items-start gap-3 py-2 px-3 rounded-lg hover:bg-muted/30 transition-colors">
-                      <StatusIndicator state="active" size="sm" className="gap-0 shrink-0 mt-0.5" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0 mt-1.5" />
                       <div className="min-w-0">
                         <p className="text-sm font-mono font-medium text-foreground/90">{tool.name}</p>
                         {tool.description && (

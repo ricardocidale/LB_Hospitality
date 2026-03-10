@@ -2,12 +2,6 @@ import { useMemo } from "react";
 import { useStore } from "@/lib/store";
 import { IconBuilding2, IconPlay, IconCalendar, IconMapPin } from "@/components/icons";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
-import Timeline, {
-  TimelineItem,
-  TimelineItemDate,
-  TimelineItemTitle,
-  TimelineItemDescription,
-} from "@/components/ui/timeline";
 
 interface TimelineEvent {
   date: string;
@@ -63,7 +57,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
       </h1>
       )}
 
-      <div className="bg-card rounded-xl border border-border p-4 shadow-sm max-w-5xl mx-auto mb-8">
+      <div className="bg-card rounded-xl border border-border p-4 shadow-sm max-w-4xl mx-auto mb-8">
         <div className="flex items-start gap-3">
           <svg className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <div>
@@ -77,79 +71,94 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent pb-4">
-        <Timeline
-          orientation="horizontal"
-          alternating={true}
-          horizItemWidth={240}
-          horizItemSpacing={140}
-        >
+      <div className="relative max-w-4xl mx-auto">
+        <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[2px] bg-border hidden md:block" />
+        <div className="absolute left-5 top-0 bottom-0 w-[2px] bg-border md:hidden" />
+
+        <div className="flex flex-col gap-10">
           {events.map((evt, i) => {
+            const isLeft = i % 2 === 0;
             const Icon = evt.type === "acquisition" ? IconBuilding2 : IconPlay;
             const label =
               evt.type === "acquisition"
-                ? `${evt.propertyName} — Acquisition`
-                : `${evt.propertyName} — Operations Begin`;
+                ? `${evt.propertyName} - Acquisition`
+                : `${evt.propertyName} - Operations Begin`;
 
             return (
-              <TimelineItem
+              <div
                 key={`${evt.propertyName}-${evt.type}-${i}`}
-                variant={evt.type === "acquisition" ? "default" : "outline"}
                 data-testid={`timeline-event-${i}`}
+                className="relative"
               >
-                <TimelineItemDate data-testid={`timeline-date-${i}`}>
-                  {formatDate(evt.date)}
-                </TimelineItemDate>
-
-                <TimelineItemTitle
-                  className="text-sm flex items-center gap-1.5"
-                  data-testid={`timeline-label-${i}`}
+                {/* Icon on timeline - desktop */}
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 top-4 z-10 hidden md:flex items-center justify-center rounded-full"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: evt.color,
+                  }}
                 >
-                  <span
-                    className="inline-flex items-center justify-center rounded-full flex-shrink-0"
-                    style={{
-                      width: 22,
-                      height: 22,
-                      backgroundColor: evt.color,
-                    }}
-                  >
-                    <Icon className="w-3 h-3 text-white" />
-                  </span>
-                  <span className="truncate">{label}</span>
-                </TimelineItemTitle>
-
-                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                  <IconMapPin className="w-3 h-3 flex-shrink-0" />
-                  <span data-testid={`timeline-location-${i}`} className="truncate">{evt.location}</span>
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
 
-                <TimelineItemDescription data-testid={`timeline-detail-${i}`}>
-                  {evt.detail}
-                </TimelineItemDescription>
-              </TimelineItem>
+                {/* Icon on timeline - mobile */}
+                <div
+                  className="absolute left-5 -translate-x-1/2 top-4 z-10 flex md:hidden items-center justify-center rounded-full"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: evt.color,
+                  }}
+                >
+                  <Icon className="w-5 h-5 text-white" />
+                </div>
+
+                {/* Card */}
+                <div
+                  className={`
+                    md:w-[calc(50%-40px)]
+                    ${isLeft ? "md:mr-auto md:pr-6" : "md:ml-auto md:pl-6"}
+                    ml-12 md:ml-auto
+                  `}
+                  style={
+                    !isLeft
+                      ? { marginLeft: "auto" }
+                      : {}
+                  }
+                >
+                  <div className="bg-card rounded-xl border shadow-sm p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full"
+                        style={{
+                          backgroundColor: "rgba(var(--primary-rgb, 159, 188, 164), 0.1)",
+                          color: "var(--primary)",
+                        }}
+                        data-testid={`timeline-date-${i}`}
+                      >
+                        <IconCalendar className="w-3 h-3" />
+                        {formatDate(evt.date)}
+                      </span>
+                    </div>
+
+                    <h3 className="font-semibold text-sm mb-1" data-testid={`timeline-label-${i}`}>
+                      {label}
+                    </h3>
+
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                      <IconMapPin className="w-3 h-3" />
+                      <span data-testid={`timeline-location-${i}`}>{evt.location}</span>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground" data-testid={`timeline-detail-${i}`}>
+                      {evt.detail}
+                    </p>
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </Timeline>
-      </div>
-
-      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground max-w-5xl mx-auto">
-        <div className="flex items-center gap-1.5">
-          <span
-            className="inline-flex items-center justify-center rounded-full"
-            style={{ width: 18, height: 18, backgroundColor: "var(--primary)" }}
-          >
-            <IconBuilding2 className="w-2.5 h-2.5 text-white" />
-          </span>
-          <span>Acquisition</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span
-            className="inline-flex items-center justify-center rounded-full"
-            style={{ width: 18, height: 18, backgroundColor: "#257D41" }}
-          >
-            <IconPlay className="w-2.5 h-2.5 text-white" />
-          </span>
-          <span>Operations Begin</span>
         </div>
       </div>
     </div>

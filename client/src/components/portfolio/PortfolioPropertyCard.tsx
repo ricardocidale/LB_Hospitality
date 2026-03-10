@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { StaggerItem, TiltCard } from "@/components/ui/animated";
 import { AnimatedGridItem } from "@/components/graphics";
-import StatusIndicator from "@/components/ui/status-indicator";
 import type { Property } from "@shared/schema";
 import { HeroImage } from "@/features/property-images";
 
@@ -62,7 +61,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
             </span>
           </div>
           <div className="absolute top-3 right-3">
-            <span className={`px-3 py-1 rounded-full text-xs font-medium border border-white/20 label-text flex items-center gap-1.5 ${
+            <span className={`px-3 py-1 rounded-full text-xs font-medium border border-white/20 label-text ${
               property.status === "Operating" ? "bg-emerald-500 text-white" :
               property.status === "Improvements" ? "bg-amber-500 text-white" :
               property.status === "Acquired" ? "bg-blue-500 text-white" :
@@ -70,11 +69,6 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
               property.status === "In Negotiation" ? "bg-purple-500 text-white" :
               property.status === "Pipeline" ? "bg-muted0 text-white" : "bg-card/20 text-white"
             }`}>
-              <StatusIndicator
-                state={property.status === "Operating" ? "active" : property.status === "Improvements" ? "fixing" : "idle"}
-                size="sm"
-                className="gap-0"
-              />
               {property.status}
             </span>
           </div>

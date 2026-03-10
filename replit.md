@@ -20,12 +20,6 @@ npm run stats          # Live codebase metrics
 ## Tech Stack
 React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs
 
-## 8starlabs Components (from `ui.8starlabs.com`)
-Three 8starlabs shadcn registry components installed:
-- **Timeline** (`client/src/components/ui/timeline.tsx`) — horizontal/vertical timeline with alternating cards. Used in `TimelineView.tsx` for the portfolio acquisition schedule.
-- **Status Indicator** (`client/src/components/ui/status-indicator.tsx`) — animated dot with states: active (green), down (red), fixing (yellow), idle (gray). Wrapped by `StatusBadge` for semantic use. Also used directly in `PortfolioPropertyCard` and `ToolsStatus` for inline animated dots.
-- **Partition Bar** (`client/src/components/ui/partition-bar.tsx`) — segmented bar showing proportional distribution. Used in `ExecutiveSummary.tsx` (property status breakdown) and `IncomeStatementTab.tsx` (revenue mix: Rooms/F&B/Events/Other).
-
 ## Key References
 | Topic | Location |
 |-------|----------|

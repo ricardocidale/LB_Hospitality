@@ -1,5 +1,11 @@
+/**
+ * status-badge.tsx — Color-coded status indicator pill.
+ *
+ * Renders a small badge with text and background color matching the status:
+ * active (green), inactive (gray), pending (amber), error (red), warning (orange).
+ * Used on property cards to show lifecycle status (Operating, Planned, etc.).
+ */
 import { cn } from "@/lib/utils";
-import StatusIndicator from "@/components/ui/status-indicator";
 
 type StatusType = "active" | "inactive" | "pending" | "error" | "warning";
 
@@ -12,12 +18,20 @@ interface StatusBadgeProps {
   "data-testid"?: string;
 }
 
-const statusToState: Record<StatusType, "active" | "down" | "fixing" | "idle"> = {
-  active: "active",
-  inactive: "idle",
-  pending: "fixing",
-  error: "down",
-  warning: "fixing",
+const dotColors: Record<StatusType, string> = {
+  active: "bg-green-500",
+  inactive: "bg-muted-foreground",
+  pending: "bg-amber-500",
+  error: "bg-red-500",
+  warning: "bg-orange-500",
+};
+
+const pulseColors: Record<StatusType, string> = {
+  active: "bg-green-400",
+  inactive: "bg-muted",
+  pending: "bg-amber-400",
+  error: "bg-red-400",
+  warning: "bg-orange-400",
 };
 
 const labelColors: Record<StatusType, string> = {
@@ -36,21 +50,30 @@ export function StatusBadge({
   className,
   "data-testid": testId = "status-badge",
 }: StatusBadgeProps) {
-  const indicatorSize = size === "sm" ? "sm" : "md";
+  const dotSize = size === "sm" ? "w-1.5 h-1.5" : "w-2.5 h-2.5";
+  const pulseSize = size === "sm" ? "w-1.5 h-1.5" : "w-2.5 h-2.5";
   const textSize = size === "sm" ? "text-[10px]" : "text-xs";
-  const mappedState = statusToState[status];
-  const shouldAnimate = pulse || mappedState === "active" || mappedState === "down" || mappedState === "fixing";
 
   return (
     <span
       className={cn("inline-flex items-center gap-1.5", className)}
       data-testid={testId}
     >
-      <StatusIndicator
-        state={shouldAnimate ? mappedState : "idle"}
-        size={indicatorSize}
-        className="gap-0"
-      />
+      <span className="relative flex">
+        {pulse && (
+          <span
+            className={cn(
+              "absolute inset-0 rounded-full animate-ping opacity-75",
+              pulseColors[status],
+              pulseSize
+            )}
+          />
+        )}
+        <span
+          className={cn("rounded-full", dotColors[status], dotSize)}
+          data-testid={`${testId}-dot`}
+        />
+      </span>
       {label && (
         <span
           className={cn("font-medium leading-none", textSize, labelColors[status])}

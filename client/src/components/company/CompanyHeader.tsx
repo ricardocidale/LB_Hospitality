@@ -34,7 +34,7 @@ export default function CompanyHeader({
   return (
     <>
       <PageHeader
-        title={global?.companyName || "Hospitality Business Co."}
+        title={`${global?.companyName || "Hospitality Management"} Company`}
         subtitle="Corporate Management Entity & Operations"
         actions={
           <Link href="/company/assumptions" className="text-inherit no-underline">

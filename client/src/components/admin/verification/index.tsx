@@ -1,22 +1,25 @@
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Scale } from "lucide-react";
 import { IconCheckCircle2, IconXCircle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+import { useGlobalAssumptions } from "@/lib/api/admin";
+import { useProperties } from "@/lib/api/properties";
 import { useVerificationHistory, useRunVerification, useRunSuites } from "./hooks";
 import { VerificationResults } from "./VerificationResults";
 import { VerificationHistory } from "./VerificationHistory";
 import { AIReviewPanel } from "./AIReviewPanel";
 import { SuiteSelector, SUITE_DEFINITIONS } from "./SuiteSelector";
 import { GoldenScenarioResults } from "./GoldenScenarioResults";
+import { IdentityDashboard } from "./IdentityDashboard";
 import type { VerificationResult, SuiteId, SuiteRunResult } from "./types";
 
 export default function VerificationTab() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"results" | "history" | "ai">("results");
+  const [activeTab, setActiveTab] = useState<"results" | "history" | "identities" | "ai">("results");
   const [verificationResults, setVerificationResults] = useState<VerificationResult | null>(null);
   const [aiReview, setAiReview] = useState<string>("");
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
@@ -27,6 +30,8 @@ export default function VerificationTab() {
   const [runningSuites, setRunningSuites] = useState<Set<SuiteId>>(new Set());
 
   const { data: verificationHistory } = useVerificationHistory();
+  const { data: properties } = useProperties();
+  const { data: globalAssumptions } = useGlobalAssumptions();
 
   // Legacy full audit (still available as "Run All")
   const runVerification = useRunVerification((data) => {
@@ -415,6 +420,7 @@ export default function VerificationTab() {
             <div className="flex items-center gap-1 p-1 bg-muted rounded-full w-fit border border-border">
               {[
                 { id: "results", label: "Detailed Results", icon: IconCheckCircle2 },
+                { id: "identities", label: "Identities", icon: Scale },
                 { id: "history", label: "Audit History", icon: IconDownload },
                 { id: "ai", label: "AI Narrative", icon: IconSparkles },
               ].map((tab) => (
@@ -494,6 +500,13 @@ export default function VerificationTab() {
                     <p className="text-sm font-medium">Select suites above and click "Run Selected" to start verification.</p>
                   </div>
                 )
+              )}
+
+              {activeTab === "identities" && (
+                <IdentityDashboard
+                  properties={properties ?? null}
+                  globalAssumptions={globalAssumptions ?? null}
+                />
               )}
 
               {activeTab === "history" && verificationHistory && (

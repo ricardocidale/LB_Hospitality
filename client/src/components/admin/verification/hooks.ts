@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { runFullVerification, runKnownValueTestsStructured } from "@/lib/runVerification";
+import { generatePropertyProForma } from "@/lib/financialEngine";
+import { validateFinancialIdentities } from "@calc/validation/financial-identities";
+import { DEFAULT_ROUNDING } from "@calc/shared/utils";
 import type { VerificationResult, VerificationHistoryEntry, SuiteId, SuiteRunResult } from "./types";
 
 async function safeFetchJSON<T>(url: string, label: string): Promise<T> {
@@ -161,24 +164,58 @@ export function useRunSuites(
         onSuiteComplete?.("cross-validation", result);
       }
 
-      // Financial Identities suite
+      // Financial Identities suite (client-side — runs engine per property per year)
       if (suiteArray.includes("financial-identities")) {
         try {
-          const identityRes = await fetch("/api/calc/validate-identities", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ properties, globalAssumptions }),
-          });
-          const identityData = identityRes.ok ? await identityRes.json() : null;
-          const identityPassed = identityData?.results?.filter((r: any) => r.opinion === "PASS").length ?? 0;
-          const identityTotal = identityData?.results?.length ?? 0;
+          const projYears = globalAssumptions?.projectionYears ?? 10;
+          const projMonths = projYears * 12;
+          let totalChecks = 0, totalPassed = 0;
+          const propertyResults: any[] = [];
+
+          for (const prop of properties) {
+            const financials = generatePropertyProForma(prop, globalAssumptions, projMonths);
+            for (let y = 0; y < projYears; y++) {
+              const startIdx = y * 12;
+              const yearMonths = financials.slice(startIdx, Math.min(startIdx + 12, financials.length));
+              if (yearMonths.length === 0) continue;
+              const yearEnd = yearMonths[yearMonths.length - 1];
+              const sum = (fn: (m: any) => number) => yearMonths.reduce((s, m) => s + fn(m), 0);
+
+              const idResult = validateFinancialIdentities({
+                period_label: `${prop.name} Year ${y + 1}`,
+                balance_sheet: {
+                  total_assets: yearEnd.propertyValue + yearEnd.endingCash,
+                  total_liabilities: yearEnd.debtOutstanding,
+                  total_equity: yearEnd.propertyValue + yearEnd.endingCash - yearEnd.debtOutstanding,
+                },
+                income_statement: {
+                  noi: sum(m => m.noi), anoi: sum(m => m.anoi),
+                  interest_expense: sum(m => m.interestExpense),
+                  depreciation: sum(m => m.depreciationExpense),
+                  income_tax: sum(m => m.incomeTax),
+                  net_income: sum(m => m.netIncome),
+                },
+                cash_flow_statement: {
+                  operating_cash_flow: sum(m => m.operatingCashFlow),
+                  financing_cash_flow: sum(m => m.financingCashFlow),
+                  ending_cash: yearEnd.endingCash,
+                  principal_payment: sum(m => m.principalPayment),
+                  refinancing_proceeds: sum(m => m.refinancingProceeds),
+                },
+                rounding_policy: DEFAULT_ROUNDING,
+              });
+              totalChecks += idResult.checks.length;
+              totalPassed += idResult.checks.filter(c => c.passed).length;
+              propertyResults.push({ property: prop.name, year: y + 1, ...idResult });
+            }
+          }
+
           const result: SuiteRunResult = {
             suiteId: "financial-identities",
             timestamp: new Date().toISOString(),
-            status: identityPassed === identityTotal ? "PASS" : "FAIL",
-            summary: { total: identityTotal, passed: identityPassed, failed: identityTotal - identityPassed, critical: 0 },
-            data: identityData,
+            status: totalPassed === totalChecks ? "PASS" : "FAIL",
+            summary: { total: totalChecks, passed: totalPassed, failed: totalChecks - totalPassed, critical: 0 },
+            data: { results: propertyResults },
           };
           results.set("financial-identities", result);
           onSuiteComplete?.("financial-identities", result);

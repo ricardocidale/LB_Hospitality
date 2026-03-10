@@ -259,3 +259,39 @@ export interface CompanyMonthlyFinancials {
   financingCashFlow?: number;
   netCashFlow?: number;
 }
+
+export interface FundingTranche {
+  index: number;
+  amount: number;
+  month: number;
+  date: Date;
+  valuationCap: number;
+  discountRate: number;
+  rationale: string;
+}
+
+export interface CashRunwayPoint {
+  month: number;
+  date: Date;
+  cashWithFunding: number;
+  cashWithoutFunding: number;
+  netIncome: number;
+  cumulativeRevenue: number;
+}
+
+export interface FundingAnalysis {
+  totalRaiseNeeded: number;
+  breakevenMonth: number | null;
+  monthlyBurnRate: number;
+  peakCashDeficit: number;
+  currentFunding: number;
+  fundingGap: number;
+  tranches: FundingTranche[];
+  investorThesis: string;
+  marketContext: string;
+  narrativeSummary: string;
+  cashRunway: CashRunwayPoint[];
+  monthsOfRunway: number;
+  revenueAtBreakeven: number;
+  propertiesAtBreakeven: number;
+}

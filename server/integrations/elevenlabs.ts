@@ -254,10 +254,18 @@ export async function deleteKBDocument(docId: string): Promise<void> {
   await convaiRequest<void>(`/knowledge-base/${docId}`, { method: 'DELETE' });
 }
 
+const MIME_TYPES: Record<string, string> = {
+  '.txt': 'text/plain', '.md': 'text/markdown', '.html': 'text/html',
+  '.pdf': 'application/pdf', '.epub': 'application/epub+zip',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+};
+
 export async function createKBDocumentFromFile(name: string, fileBuffer: Buffer, fileName: string): Promise<KBDocument> {
   const apiKey = await getCredentials();
+  const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
+  const mimeType = MIME_TYPES[ext] || 'application/octet-stream';
   const formData = new FormData();
-  formData.append('file', new Blob([fileBuffer]), fileName);
+  formData.append('file', new Blob([fileBuffer], { type: mimeType }), fileName);
   formData.append('name', name);
 
   const response = await fetch(`${CONVAI_BASE}/knowledge-base/file`, {

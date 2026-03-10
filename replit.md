@@ -76,7 +76,10 @@ When adding new fields to any admin config (research, voice, etc.), **always** a
 4. Test a round-trip save from the UI
 
 ## Analysis Page Tabs
-The `/analysis` page contains 5 tabs: Sensitivity, Financing (debt DSCR/yield/stress), **Funding** (management company SAFE raise predictor), Compare, Timeline. Executive Summary is a separate sidebar page (`/executive-summary`), not part of Analysis. The Funding tab (`client/src/pages/FundingPredictor.tsx`) uses the engine at `client/src/lib/financial/funding-predictor.ts` to compute total raise needed, recommended tranches with terms, breakeven analysis, cash runway chart, ICP-driven investor thesis, and market-rate-informed SAFE terms. It pulls live market rates (Fed Funds, SOFR, 10Y Treasury) and references the ICP/asset description to explain why investors fund this management company.
+The `/analysis` page contains 4 tabs: Sensitivity, Financing (debt DSCR/yield/stress), Compare, Timeline. Executive Summary is a separate sidebar page (`/executive-summary`), not part of Analysis.
+
+## Management Company Page Tabs
+The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet, **Funding**. The Funding tab (`client/src/pages/FundingPredictor.tsx`) uses the engine at `client/src/lib/financial/funding-predictor.ts` to compute total raise needed, recommended tranches with terms, breakeven analysis, cash runway chart, ICP-driven investor thesis, and market-rate-informed SAFE terms. It pulls live market rates (Fed Funds, SOFR, 10Y Treasury) and references the ICP/asset description to explain why investors fund this management company.
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

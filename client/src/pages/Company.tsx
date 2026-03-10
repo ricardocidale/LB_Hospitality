@@ -6,7 +6,8 @@
  *                   partner comp, staff costs, net income over the projection.
  *   Cash Flow     — GAAP indirect-method statement: OCF, investing, financing.
  *   Balance Sheet — Assets, liabilities, equity for the management entity.
- *   Investment    — IRR, equity multiple, DCF, and SAFE funding waterfall.
+ *   Funding       — SAFE raise predictor: total raise, tranches, cash runway,
+ *                   investor thesis, and market-rate context.
  *
  * SAFE funding gate: generateCompanyProForma() returns zero revenue and zero
  * expenses for months before both companyOpsStartDate and safeTranche1Date.
@@ -49,6 +50,7 @@ import {
   exportTablePNG,
   handlePPTXExport
 } from "@/lib/exports/companyExports";
+import FundingPredictor from "./FundingPredictor";
 
 export default function Company() {
   const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
@@ -301,6 +303,10 @@ export default function Company() {
               tableRef={tableRef}
               activeTab={activeTab}
             />
+          </TabsContent>
+
+          <TabsContent value="funding" className="mt-6">
+            <FundingPredictor embedded />
           </TabsContent>
 
           {!cashAnalysis.isAdequate ? (

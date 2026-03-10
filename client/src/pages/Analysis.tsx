@@ -2,14 +2,13 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import { AnimatedPage } from "@/components/graphics";
 import { PageHeader } from "@/components/ui/page-header";
-import { IconAnalysis, IconCalculator, IconCompare, IconTimeline, IconWallet } from "@/components/icons";
+import { IconAnalysis, IconCalculator, IconCompare, IconTimeline } from "@/components/icons";
 import SensitivityAnalysis from "./SensitivityAnalysis";
 import FinancingAnalysis from "./FinancingAnalysis";
-import FundingPredictor from "./FundingPredictor";
 import ComparisonView from "./ComparisonView";
 import TimelineView from "./TimelineView";
 
-type AnalysisTab = "sensitivity" | "financing" | "funding" | "compare" | "timeline";
+type AnalysisTab = "sensitivity" | "financing" | "compare" | "timeline";
 
 export default function Analysis() {
   const [tab, setTab] = useState<AnalysisTab>("sensitivity");
@@ -17,7 +16,6 @@ export default function Analysis() {
   const tabs: { id: AnalysisTab; label: string; icon: any }[] = [
     { id: "sensitivity", label: "Sensitivity", icon: IconAnalysis },
     { id: "financing", label: "Financing", icon: IconCalculator },
-    { id: "funding", label: "Funding", icon: IconWallet },
     { id: "compare", label: "Compare", icon: IconCompare },
     { id: "timeline", label: "Timeline", icon: IconTimeline },
   ];
@@ -28,7 +26,7 @@ export default function Analysis() {
       <div className="space-y-6">
         <PageHeader
           title="Analysis"
-          subtitle="Sensitivity modeling, financing tools, and funding strategy"
+          subtitle="Sensitivity modeling, financing tools, and comparative analysis"
           actions={
             <div className="flex flex-wrap gap-2">
               {tabs.map((t) => {
@@ -55,7 +53,6 @@ export default function Analysis() {
 
         {tab === "sensitivity" && <SensitivityAnalysis embedded />}
         {tab === "financing" && <FinancingAnalysis embedded />}
-        {tab === "funding" && <FundingPredictor embedded />}
         {tab === "compare" && <ComparisonView embedded />}
         {tab === "timeline" && <TimelineView embedded />}
       </div>

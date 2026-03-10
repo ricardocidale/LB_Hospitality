@@ -13,7 +13,7 @@
 import React from "react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { IconSettings, IconIncomeStatement, IconCashFlow, IconBalanceSheet } from "@/components/icons";import { Button } from "@/components/ui/button";
+import { IconSettings, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconWallet } from "@/components/icons";import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { KPIGrid, InsightPanel, ScrollReveal, formatCompact } from "@/components/graphics";
@@ -64,7 +64,8 @@ export default function CompanyHeader({
           tabs={[
             { value: 'income', label: 'Income Statement', icon: IconIncomeStatement },
             { value: 'cashflow', label: 'Cash Flows', icon: IconCashFlow },
-            { value: 'balance', label: 'Balance Sheet', icon: IconBalanceSheet }
+            { value: 'balance', label: 'Balance Sheet', icon: IconBalanceSheet },
+            { value: 'funding', label: 'Funding', icon: IconWallet }
           ]}
           activeTab={activeTab}
           onTabChange={setActiveTab}

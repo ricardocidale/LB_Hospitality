@@ -5,6 +5,7 @@ import { PropertyResponse, FeeCategoryResponse } from "./types";
 const ALL_FINANCIAL_QUERY_KEYS = [
   ["globalAssumptions"],
   ["properties"],
+  ["propertyPhotos"],
   ["feeCategories"],
   ["scenarios"],
   ["research"],

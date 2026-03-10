@@ -20,6 +20,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { StaggerItem, TiltCard } from "@/components/ui/animated";
 import { AnimatedGridItem } from "@/components/graphics";
 import type { Property } from "@shared/schema";
+import { HeroImage } from "@/features/property-images";
 
 interface PortfolioPropertyCardProps {
   property: Property;
@@ -34,12 +35,13 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
     <TiltCard intensity={5}>
     <div className="group relative overflow-hidden rounded-lg flex flex-col bg-card border border-border shadow-sm transition-shadow duration-300 hover:shadow-lg">
       <div className="relative">
-        <div className="relative aspect-[16/10] overflow-hidden rounded-t-lg">
-          <img 
-            src={property.imageUrl} 
-            alt={property.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
+        <HeroImage
+          src={property.imageUrl}
+          alt={property.name}
+          aspectRatio="16/10"
+          overlay="none"
+          className="rounded-t-lg rounded-b-none"
+        >
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent" />
           <div className="absolute bottom-3 left-3">
             <span className="w-7 h-7 flex items-center justify-center rounded-full bg-foreground/40 text-white/80 text-xs font-mono font-semibold border border-white/15">
@@ -70,8 +72,8 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
               {property.status}
             </span>
           </div>
-        </div>
-        
+        </HeroImage>
+
         <div className="p-5">
           <h3 className="font-display text-xl text-foreground">{property.name}</h3>
           <div className="flex items-center text-foreground/60 text-sm mt-1 label-text">

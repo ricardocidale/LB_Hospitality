@@ -949,6 +949,40 @@ export type FeeCategory = typeof propertyFeeCategories.$inferSelect;
 export type InsertFeeCategory = z.infer<typeof insertFeeCategorySchema>;
 export type UpdateFeeCategory = z.infer<typeof updateFeeCategorySchema>;
 
+// --- PROPERTY PHOTOS TABLE ---
+// Each property can have multiple photos stored in an album. One photo is marked
+// as the "hero" (isHero=true) and its URL is synced to properties.imageUrl for
+// backward compatibility with all existing display locations and exports.
+export const propertyPhotos = pgTable("property_photos", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  propertyId: integer("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url").notNull(),
+  caption: text("caption"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isHero: boolean("is_hero").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("property_photos_property_id_idx").on(table.propertyId),
+]);
+
+export const insertPropertyPhotoSchema = createInsertSchema(propertyPhotos).pick({
+  propertyId: true,
+  imageUrl: true,
+  caption: true,
+  sortOrder: true,
+  isHero: true,
+});
+
+export const updatePropertyPhotoSchema = z.object({
+  caption: z.string().nullable().optional(),
+  sortOrder: z.number().optional(),
+  isHero: z.boolean().optional(),
+});
+
+export type PropertyPhoto = typeof propertyPhotos.$inferSelect;
+export type InsertPropertyPhoto = z.infer<typeof insertPropertyPhotoSchema>;
+export type UpdatePropertyPhoto = z.infer<typeof updatePropertyPhotoSchema>;
+
 // --- SCENARIOS TABLE ---
 // A scenario is a complete snapshot of the financial model at a point in time.
 // It captures the global assumptions, all properties (with their individual

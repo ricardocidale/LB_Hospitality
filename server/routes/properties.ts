@@ -81,7 +81,16 @@ export function register(app: Express) {
 
       // Seed default fee categories for the new property
       await storage.seedDefaultFeeCategories(property.id);
-      
+
+      // Create initial photo album entry from property image
+      if (property.imageUrl) {
+        await storage.addPropertyPhoto({
+          propertyId: property.id,
+          imageUrl: property.imageUrl,
+          isHero: true,
+        });
+      }
+
       logActivity(req, "create", "property", property.id, property.name);
       res.status(201).json(property);
     } catch (error) {

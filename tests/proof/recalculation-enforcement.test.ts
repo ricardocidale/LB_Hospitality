@@ -83,6 +83,10 @@ const FINANCIAL_MUTATIONS = [
   "useUpdateServiceTemplate",
   "useDeleteServiceTemplate",
   "useSyncServiceTemplates",
+  // Property photos (hero changes affect properties.imageUrl)
+  "useAddPropertyPhoto",
+  "useDeletePropertyPhoto",
+  "useSetHeroPhoto",
 ];
 
 // Non-financial mutations — these MUST NOT call invalidateAllFinancialQueries
@@ -100,6 +104,9 @@ const NON_FINANCIAL_MUTATIONS = [
   "useOverrideRate",
   "useSaveResearchConfig",  // Admin research prompt config — does not affect financial calculations
   "useRefreshAiModels",     // Admin AI model list refresh — does not affect financial calculations
+  // Property photos (caption/reorder don't affect financial data)
+  "useUpdatePropertyPhoto",
+  "useReorderPhotos",
 ];
 
 describe("Recalculation Enforcement", () => {

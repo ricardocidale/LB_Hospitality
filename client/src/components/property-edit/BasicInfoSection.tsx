@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { PropertyImagePicker } from "@/features/property-images";
+import { PropertyImagePicker, PhotoAlbumGrid } from "@/features/property-images";
 import type { PropertyEditSectionProps } from "./types";
 
 export default function BasicInfoSection({ draft, onChange, onNumberChange }: PropertyEditSectionProps) {
@@ -74,6 +74,17 @@ export default function BasicInfoSection({ draft, onChange, onNumberChange }: Pr
               variant="light"
             />
           </div>
+          {draft.id && (
+            <div className="sm:col-span-2">
+              <PhotoAlbumGrid
+                propertyId={draft.id}
+                propertyName={draft.name}
+                location={draft.location}
+                roomCount={draft.roomCount}
+                propertyType={draft.type}
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label className="label-text text-foreground flex items-center gap-1.5">Status<HelpTooltip text="Current stage: Pipeline (being scoped), In Negotiation (advanced talks), Acquired (purchased), Improvements (under renovation), or Operating (generating revenue)." /></Label>
             <Select value={draft.status} onValueChange={(v) => onChange("status", v)}>

@@ -29,14 +29,16 @@ import { FinancialStorage } from "./financial";
 import { AdminStorage } from "./admin";
 import { ActivityStorage, type ActivityLogFilters } from "./activity";
 import { ResearchStorage } from "./research";
+import { PhotoStorage } from "./photos";
 
-export interface IStorage extends 
-  UserStorage, 
-  PropertyStorage, 
-  FinancialStorage, 
-  AdminStorage, 
-  ActivityStorage, 
-  ResearchStorage {
+export interface IStorage extends
+  UserStorage,
+  PropertyStorage,
+  FinancialStorage,
+  AdminStorage,
+  ActivityStorage,
+  ResearchStorage,
+  PhotoStorage {
   deleteUser(id: number): Promise<void>;
 }
 
@@ -47,6 +49,7 @@ export class DatabaseStorage implements IStorage {
   private admin = new AdminStorage();
   private activity = new ActivityStorage();
   private research = new ResearchStorage();
+  private photos = new PhotoStorage();
 
   // Users
   getUserById = this.users.getUserById.bind(this.users);
@@ -160,6 +163,15 @@ export class DatabaseStorage implements IStorage {
   getSavedSearches = this.research.getSavedSearches.bind(this.research);
   addSavedSearch = this.research.addSavedSearch.bind(this.research);
   deleteSavedSearch = this.research.deleteSavedSearch.bind(this.research);
+
+  // Property Photos
+  getPropertyPhotos = this.photos.getPropertyPhotos.bind(this.photos);
+  getHeroPhoto = this.photos.getHeroPhoto.bind(this.photos);
+  addPropertyPhoto = this.photos.addPropertyPhoto.bind(this.photos);
+  updatePropertyPhoto = this.photos.updatePropertyPhoto.bind(this.photos);
+  deletePropertyPhoto = this.photos.deletePropertyPhoto.bind(this.photos);
+  setHeroPhoto = this.photos.setHeroPhoto.bind(this.photos);
+  reorderPhotos = this.photos.reorderPhotos.bind(this.photos);
 
   /**
    * Delete a user and ALL related data in a single transaction.

@@ -1,0 +1,99 @@
+import type { Express } from "express";
+import { storage } from "../storage";
+import { requireAuth } from "../auth";
+import { insertPropertyPhotoSchema, updatePropertyPhotoSchema } from "@shared/schema";
+import { fromZodError } from "zod-validation-error";
+import { logAndSendError } from "./helpers";
+import { z } from "zod";
+
+export function register(app: Express) {
+  // GET /api/properties/:id/photos — list all photos for a property
+  app.get("/api/properties/:id/photos", requireAuth, async (req, res) => {
+    try {
+      const propertyId = Number(req.params.id);
+      const photos = await storage.getPropertyPhotos(propertyId);
+      res.json(photos);
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch property photos", error);
+    }
+  });
+
+  // POST /api/properties/:id/photos — add a photo to the album
+  app.post("/api/properties/:id/photos", requireAuth, async (req, res) => {
+    try {
+      const propertyId = Number(req.params.id);
+      const property = await storage.getProperty(propertyId);
+      if (!property) return res.status(404).json({ error: "Property not found" });
+
+      const parsed = insertPropertyPhotoSchema.safeParse({
+        ...req.body,
+        propertyId,
+      });
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+
+      const photo = await storage.addPropertyPhoto(parsed.data);
+      res.status(201).json(photo);
+    } catch (error) {
+      logAndSendError(res, "Failed to add property photo", error);
+    }
+  });
+
+  // PATCH /api/properties/:id/photos/:photoId — update caption or sort order
+  app.patch("/api/properties/:id/photos/:photoId", requireAuth, async (req, res) => {
+    try {
+      const photoId = Number(req.params.photoId);
+      const parsed = updatePropertyPhotoSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+
+      const photo = await storage.updatePropertyPhoto(photoId, parsed.data);
+      if (!photo) return res.status(404).json({ error: "Photo not found" });
+      res.json(photo);
+    } catch (error) {
+      logAndSendError(res, "Failed to update property photo", error);
+    }
+  });
+
+  // DELETE /api/properties/:id/photos/:photoId — remove a photo
+  app.delete("/api/properties/:id/photos/:photoId", requireAuth, async (req, res) => {
+    try {
+      const photoId = Number(req.params.photoId);
+      await storage.deletePropertyPhoto(photoId);
+      res.status(204).send();
+    } catch (error) {
+      logAndSendError(res, "Failed to delete property photo", error);
+    }
+  });
+
+  // POST /api/properties/:id/photos/:photoId/set-hero — set as hero image
+  app.post("/api/properties/:id/photos/:photoId/set-hero", requireAuth, async (req, res) => {
+    try {
+      const propertyId = Number(req.params.id);
+      const photoId = Number(req.params.photoId);
+      await storage.setHeroPhoto(propertyId, photoId);
+      res.json({ success: true });
+    } catch (error) {
+      logAndSendError(res, "Failed to set hero photo", error);
+    }
+  });
+
+  // PUT /api/properties/:id/photos/reorder — bulk reorder photos
+  app.put("/api/properties/:id/photos/reorder", requireAuth, async (req, res) => {
+    try {
+      const propertyId = Number(req.params.id);
+      const schema = z.object({ orderedIds: z.array(z.number()) });
+      const parsed = schema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+
+      await storage.reorderPhotos(propertyId, parsed.data.orderedIds);
+      res.json({ success: true });
+    } catch (error) {
+      logAndSendError(res, "Failed to reorder photos", error);
+    }
+  });
+}

@@ -15,6 +15,7 @@ import { ArrowLeft } from "lucide-react";
 import { IconMapPin, IconSettings2, IconMap } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
+import { HeroImage } from "@/features/property-images";
 import type { PropertyHeaderProps } from "./types";
 
 export default function PropertyHeader({ property, propertyId, onPhotoUploadComplete }: PropertyHeaderProps) {
@@ -24,15 +25,20 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
 
   return (
     <div className="relative overflow-hidden rounded-lg">
-      <div className="relative h-[180px] sm:h-[280px]">
-        <img src={property.imageUrl.startsWith("/objects/") ? property.imageUrl : property.imageUrl} alt={property.name} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        <PropertyPhotoUpload 
-          propertyId={propertyId} 
+      <HeroImage
+        src={property.imageUrl}
+        alt={property.name}
+        aspectRatio="auto"
+        overlay="full"
+        className="h-[180px] sm:h-[280px] rounded-none"
+        priority
+      >
+        <PropertyPhotoUpload
+          propertyId={propertyId}
           currentImageUrl={property.imageUrl}
           onUploadComplete={onPhotoUploadComplete}
         />
-      </div>
+      </HeroImage>
       
       <div className="relative overflow-hidden p-3 sm:p-6 bg-card border-b">
         <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

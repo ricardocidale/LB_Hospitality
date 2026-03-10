@@ -608,6 +608,160 @@ export function InvestmentAnalysis({
         </CardContent>
       </Card>
 
+      <Card data-testid="dcf-analysis-card">
+        <CardHeader>
+          <CardTitle>Discounted Cash Flow (DCF) Analysis</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Portfolio valuation using discounted ATCF and terminal value at the portfolio IRR as discount rate
+          </p>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          {(() => {
+            const discountRate = portfolioIRRIA > 0 ? portfolioIRRIA : 0.10;
+
+            const yearlyATCF = Array.from({ length: projectionYears }, (_, y) =>
+              allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.atcf ?? 0), 0)
+            );
+
+            const terminalValue = totalExitValueIA;
+
+            const pvFactors = Array.from({ length: projectionYears }, (_, y) =>
+              1 / Math.pow(1 + discountRate, y + 1)
+            );
+
+            const pvCashFlows = yearlyATCF.map((cf, y) => cf * pvFactors[y]);
+            const pvTerminal = terminalValue * pvFactors[projectionYears - 1];
+            const totalPVOperating = pvCashFlows.reduce((sum, pv) => sum + pv, 0);
+            const dcfValue = totalPVOperating + pvTerminal;
+            const npv = dcfValue - totalInitialEquityIA;
+            const valueCreation = totalInitialEquityIA > 0 ? (npv / totalInitialEquityIA) * 100 : 0;
+
+            return (
+              <div className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-4">
+                  <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
+                    <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
+                      Discount Rate
+                      <HelpTooltip text="The portfolio IRR is used as the discount rate. This represents the required rate of return based on actual projected cash flows." />
+                    </p>
+                    <div className="text-2xl font-bold text-foreground font-mono">{(discountRate * 100).toFixed(1)}%</div>
+                  </div>
+                  <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
+                    <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
+                      DCF Portfolio Value
+                      <HelpTooltip text="Sum of all discounted operating cash flows plus the discounted terminal (exit) value. Represents the present value of the entire portfolio." />
+                    </p>
+                    <div className="text-2xl font-bold text-foreground font-mono">{formatMoney(dcfValue)}</div>
+                  </div>
+                  <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
+                    <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
+                      Net Present Value (NPV)
+                      <HelpTooltip text="DCF Portfolio Value minus Total Equity Invested. A positive NPV indicates the investment creates value above the required return." />
+                    </p>
+                    <div className={`text-2xl font-bold font-mono ${npv >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                      {formatMoney(npv)}
+                    </div>
+                  </div>
+                  <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
+                    <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
+                      Value Creation
+                      <HelpTooltip text="NPV as a percentage of total equity invested. Shows how much value is created (or destroyed) relative to the investment." />
+                    </p>
+                    <div className={`text-2xl font-bold font-mono ${valueCreation >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                      {valueCreation >= 0 ? '+' : ''}{valueCreation.toFixed(1)}%
+                    </div>
+                  </div>
+                </div>
+
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
+                      {Array.from({ length: projectionYears }, (_, i) => (
+                        <TableHead key={i} className="text-right min-w-[110px]">{getFiscalYear(i)}</TableHead>
+                      ))}
+                      <TableHead className="text-right min-w-[120px] font-bold">Total</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card">After-Tax Cash Flow (ATCF)</TableCell>
+                      {yearlyATCF.map((cf, i) => (
+                        <TableCell key={i} className={`text-right font-mono ${cf < 0 ? 'text-destructive' : ''}`}>
+                          {formatMoney(cf)}
+                        </TableCell>
+                      ))}
+                      <TableCell className="text-right font-mono font-medium">
+                        {formatMoney(yearlyATCF.reduce((a, b) => a + b, 0))}
+                      </TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card">
+                        Terminal Value
+                        <span className="text-xs text-muted-foreground ml-1">(exit proceeds)</span>
+                      </TableCell>
+                      {Array.from({ length: projectionYears }, (_, i) => (
+                        <TableCell key={i} className="text-right font-mono text-muted-foreground">
+                          {i === projectionYears - 1 ? formatMoney(terminalValue) : '-'}
+                        </TableCell>
+                      ))}
+                      <TableCell className="text-right font-mono font-medium">{formatMoney(terminalValue)}</TableCell>
+                    </TableRow>
+
+                    <TableRow className="bg-muted/20">
+                      <TableCell className="sticky left-0 bg-muted/20 font-medium">
+                        Discount Factor
+                        <span className="text-xs text-muted-foreground ml-1">@ {(discountRate * 100).toFixed(1)}%</span>
+                      </TableCell>
+                      {pvFactors.map((pv, i) => (
+                        <TableCell key={i} className="text-right font-mono text-muted-foreground">
+                          {pv.toFixed(4)}
+                        </TableCell>
+                      ))}
+                      <TableCell className="text-right text-muted-foreground">-</TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card">PV of Cash Flows</TableCell>
+                      {pvCashFlows.map((pv, i) => (
+                        <TableCell key={i} className={`text-right font-mono ${pv < 0 ? 'text-destructive' : ''}`}>
+                          {formatMoney(pv)}
+                        </TableCell>
+                      ))}
+                      <TableCell className="text-right font-mono font-medium">{formatMoney(totalPVOperating)}</TableCell>
+                    </TableRow>
+
+                    <TableRow>
+                      <TableCell className="sticky left-0 bg-card">PV of Terminal Value</TableCell>
+                      {Array.from({ length: projectionYears }, (_, i) => (
+                        <TableCell key={i} className="text-right font-mono text-muted-foreground">
+                          {i === projectionYears - 1 ? formatMoney(pvTerminal) : '-'}
+                        </TableCell>
+                      ))}
+                      <TableCell className="text-right font-mono font-medium">{formatMoney(pvTerminal)}</TableCell>
+                    </TableRow>
+
+                    <TableRow className="bg-primary/10 font-bold">
+                      <TableCell className="sticky left-0 bg-primary/10">DCF Portfolio Value</TableCell>
+                      {Array.from({ length: projectionYears }, (_, i) => {
+                        let cumPV = 0;
+                        for (let j = 0; j <= i; j++) cumPV += pvCashFlows[j];
+                        if (i === projectionYears - 1) cumPV += pvTerminal;
+                        return (
+                          <TableCell key={i} className="text-right font-mono">{formatMoney(cumPV)}</TableCell>
+                        );
+                      })}
+                      <TableCell className="text-right font-mono">{formatMoney(dcfValue)}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            );
+          })()}
+        </CardContent>
+      </Card>
+
     </>
   );
 }

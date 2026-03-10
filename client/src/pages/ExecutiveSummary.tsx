@@ -147,7 +147,7 @@ export default function ExecutiveSummary() {
       const fy = global?.modelStartDate
         ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i)
         : `Year ${i + 1}`;
-      return { value: String(i), label: fy };
+      return { value: String(i), label: String(fy) };
     });
     tabs.push({ value: "all", label: "Consolidated" });
     return tabs;

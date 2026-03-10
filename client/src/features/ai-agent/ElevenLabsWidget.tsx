@@ -8,12 +8,27 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   const { data: global } = useGlobalAssumptions();
   const { user } = useAuth();
   const [location] = useLocation();
-  const { data: signedUrl } = useAdminSignedUrl();
+  const { data: signedUrl, error: signedUrlError } = useAdminSignedUrl();
 
   const agentId = (global as any)?.marcelaAgentId;
   const avatarUrl = (global as any)?.marcelaAvatarUrl as string | undefined;
 
   const shouldActivate = !!(enabled && agentId);
+
+  useEffect(() => {
+    if (!enabled && global) {
+      const reasons: string[] = [];
+      if (!(global as any)?.showAiAssistant) reasons.push("showAiAssistant is off");
+      if (!(global as any)?.marcelaEnabled) reasons.push("marcelaEnabled is off");
+      if (!agentId) reasons.push("marcelaAgentId is empty");
+      if (reasons.length > 0) {
+        console.info("[Marcela] Widget inactive:", reasons.join(", "));
+      }
+    }
+    if (signedUrlError) {
+      console.warn("[Marcela] Signed URL error:", (signedUrlError as Error).message);
+    }
+  }, [enabled, global, agentId, signedUrlError]);
 
   if (!shouldActivate) return null;
 

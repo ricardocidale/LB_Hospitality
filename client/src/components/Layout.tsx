@@ -13,6 +13,7 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { X, Search } from "lucide-react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch, IconBot } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -236,7 +237,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                 <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
               </button>
               <NotificationCenter />
-              <MarcelaWidgetGated />
+              <ErrorBoundary><MarcelaWidgetGated /></ErrorBoundary>
             </div>
           </header>
 

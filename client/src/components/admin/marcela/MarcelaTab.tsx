@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,6 +83,16 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
   const { data: agentConfig, error: agentConfigError } = useAgentConfig();
   const { data: conversations } = useConversations();
   const { data: signedUrl, isLoading: signedUrlLoading, isError: signedUrlError } = useAdminSignedUrl();
+  const { data: healthData } = useQuery<{ apiKeySet: boolean; agentId: string; signedUrlTest: string; showAiAssistant: boolean; marcelaEnabled: boolean }>({
+    queryKey: ["admin", "convai-health"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/convai/health", { credentials: "include" });
+      if (!res.ok) throw new Error("Health check failed");
+      return res.json();
+    },
+    staleTime: 30_000,
+    retry: false,
+  });
   const [testOpen, setTestOpen] = useState(false);
   const [orbAgentState, setOrbAgentState] = useState<AgentState>(null);
 
@@ -329,10 +340,24 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Widget Visible</span>
+                  {draft.showAiAssistant
+                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />On</span>
+                    : <span className="flex items-center gap-1 text-xs text-amber-600"><IconXCircle className="w-3.5 h-3.5 text-amber-400" />Off — toggle "AI Chat Widget" above</span>}
+                </div>
+                <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Agent ID</span>
                   {agentIdOk
                     ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />Configured</span>
                     : <span className="flex items-center gap-1 text-xs text-muted-foreground"><IconXCircle className="w-3.5 h-3.5 text-red-400" />Missing</span>}
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">API Key</span>
+                  {healthData?.apiKeySet
+                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />Set</span>
+                    : healthData?.apiKeySet === false
+                    ? <span className="flex items-center gap-1 text-xs text-destructive"><IconXCircle className="w-3.5 h-3.5" />Missing — add ELEVENLABS_API_KEY secret</span>
+                    : <span className="text-xs text-muted-foreground animate-pulse">Checking…</span>}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Signed URL</span>
@@ -352,7 +377,11 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                 </div>
                 {signedUrlError && (
                   <p className="text-xs text-destructive pt-1">
-                    Check the ElevenLabs agent ID and API key — signed URL generation failed.
+                    {healthData?.apiKeySet === false
+                      ? "ELEVENLABS_API_KEY environment secret is not set. Add it in your Replit Secrets."
+                      : !agentIdOk
+                      ? "Agent ID is not configured. Enter a valid ElevenLabs Agent ID above."
+                      : "Check the ElevenLabs agent ID and API key — signed URL generation failed."}
                   </p>
                 )}
               </CardContent>

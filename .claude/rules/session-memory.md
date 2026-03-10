@@ -8,6 +8,12 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 10, 2026 — Golden Scenario Battery Continued (5 more scenarios, 149 new tests)
+- Built 5 new golden test files: exit-cap-sensitivity (24), mixed-portfolio (20), preops-refi-combo (45), underwater-exit (36), zero-occupancy (24)
+- Secured ElevenLabs widget: signed URL endpoint (`/api/marcela/signed-url`) replacing bare agentId; `useAdminSignedUrl` hook
+- Layout.tsx: widget disabled on admin pages; MarcelaTab imports signed URL hook
+- Tests 2,671→2,820 (122 files, 418 golden). Health ALL CLEAR. UNQUALIFIED.
+
 ## Session: March 9, 2026 — Golden Scenario Battery (4 scenarios, 168 new tests)
 - Built 4 golden test files: full-statement (55), pre-ops gap (23), multi-property (29), company aggregation (61)
 - Full statement: Golden Lodge (20 rooms $200 financed) + company + consolidated intercompany elimination

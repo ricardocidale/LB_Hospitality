@@ -6,7 +6,12 @@ export function useAdminSignedUrl() {
     queryKey: AI_AGENT_KEYS.signedUrl,
     queryFn: async () => {
       const res = await fetch("/api/marcela/signed-url", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: "Unknown error" }));
+        const msg = data.error || `HTTP ${res.status}`;
+        console.warn("[Marcela] Signed URL failed:", msg);
+        throw new Error(msg);
+      }
       const data = await res.json();
       return data.signedUrl as string;
     },

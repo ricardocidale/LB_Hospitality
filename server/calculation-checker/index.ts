@@ -249,17 +249,32 @@ export function runIndependentVerification(
       const annualGrowthRate = Math.pow(serverLastYear.revenue / serverYear1.revenue, 1 / (projectionYears - 1)) - 1;
       const expectedGrowthRate = property.adrGrowthRate;
 
-      // Only check growth rate consistency if we have more than 1 year of projection
+      // Only compare revenue CAGR to ADR growth when occupancy is stable (no ramp).
+      // When occupancy ramps, revenue CAGR includes both ADR growth AND occupancy growth,
+      // so comparing to ADR growth alone produces false "material" findings.
+      const hasOccupancyRamp = (property.startOccupancy ?? 0) < (property.maxOccupancy ?? 1);
       if (projectionYears > 1) {
-        checks.push(check(
-          "Revenue Growth Rate Consistency",
-          "Reasonableness",
-          "Industry",
-          `Expected ADR growth ${(expectedGrowthRate * 100).toFixed(1)}% vs Actual Revenue CAGR ${(annualGrowthRate * 100).toFixed(1)}%`,
-          expectedGrowthRate,
-          annualGrowthRate,
-          Math.abs(annualGrowthRate - expectedGrowthRate) > 0.2 ? "material" : "info"
-        ));
+        if (hasOccupancyRamp) {
+          checks.push(check(
+            "Revenue Growth Rate Consistency",
+            "Reasonableness",
+            "Industry",
+            `Revenue CAGR ${(annualGrowthRate * 100).toFixed(1)}% includes occupancy ramp (start ${((property.startOccupancy ?? 0) * 100).toFixed(0)}% → max ${((property.maxOccupancy ?? 1) * 100).toFixed(0)}%) — not directly comparable to ADR growth ${(expectedGrowthRate * 100).toFixed(1)}%`,
+            expectedGrowthRate,
+            annualGrowthRate,
+            "info"
+          ));
+        } else {
+          checks.push(check(
+            "Revenue Growth Rate Consistency",
+            "Reasonableness",
+            "Industry",
+            `Expected ADR growth ${(expectedGrowthRate * 100).toFixed(1)}% vs Actual Revenue CAGR ${(annualGrowthRate * 100).toFixed(1)}%`,
+            expectedGrowthRate,
+            annualGrowthRate,
+            Math.abs(annualGrowthRate - expectedGrowthRate) > 0.2 ? "material" : "info"
+          ));
+        }
       }
 
       checks.push(check(

@@ -138,12 +138,48 @@ export function registerMarcelaRoutes(app: Express) {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
-        return res.status(404).json({ error: "Marcela agent not configured" });
+        return res.status(404).json({ error: "Agent ID not configured. Set the ElevenLabs Agent ID in Admin → AI Agent → General." });
       }
       const signedUrl = await getElevenLabsSignedUrl(ga.marcelaAgentId);
       res.json({ signedUrl });
     } catch (error: any) {
-      logAndSendError(res, error.message || "Failed to get signed URL", error);
+      const msg = error.message || "Failed to get signed URL";
+      const isAuthError = msg.includes("not connected") || msg.includes("api_key") || msg.includes("401");
+      if (isAuthError) {
+        return res.status(503).json({ error: "ElevenLabs API key not configured. Add ELEVENLABS_API_KEY to your environment secrets." });
+      }
+      logAndSendError(res, msg, error);
+    }
+  });
+
+  app.get("/api/admin/convai/health", requireAdmin, async (_req, res) => {
+    try {
+      const ga = await storage.getGlobalAssumptions();
+      const agentId = ga?.marcelaAgentId || "";
+      let apiKeySet = false;
+      let signedUrlTest = "skipped";
+
+      try {
+        await getElevenLabsSignedUrl(agentId || "test");
+        apiKeySet = true;
+        signedUrlTest = agentId ? "ok" : "skipped — no agent ID";
+      } catch (e: any) {
+        const msg = e.message || "";
+        if (msg.includes("not connected") || msg.includes("api_key")) {
+          apiKeySet = false;
+          signedUrlTest = "error — API key not set";
+        } else if (!agentId) {
+          apiKeySet = true;
+          signedUrlTest = "error — no agent ID configured";
+        } else {
+          apiKeySet = true;
+          signedUrlTest = `error — ${msg}`;
+        }
+      }
+
+      res.json({ apiKeySet, agentId, signedUrlTest, showAiAssistant: !!(ga as any)?.showAiAssistant, marcelaEnabled: !!(ga as any)?.marcelaEnabled });
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Health check failed", error);
     }
   });
 

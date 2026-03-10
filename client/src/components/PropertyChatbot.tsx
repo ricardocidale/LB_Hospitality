@@ -1,0 +1,179 @@
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Send, X, Loader2 } from "lucide-react";
+import { IconMessageCircle } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export function PropertyChatbot() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  const sendMessage = useCallback(async () => {
+    const trimmed = input.trim();
+    if (!trimmed || loading) return;
+
+    const userMsg: ChatMessage = { role: "user", content: trimmed };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: trimmed,
+          history: messages.slice(-10),
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to get response");
+      const data = await res.json();
+      setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Sorry, I couldn't process your request. Please try again." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  }, [input, loading, messages]);
+
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setOpen((v) => !v)}
+        className="h-8 w-8 relative"
+        data-testid="button-chatbot-toggle"
+        title="Property Assistant"
+      >
+        <IconMessageCircle className="w-4 h-4" />
+        {messages.length > 0 && !open && (
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary" />
+        )}
+      </Button>
+
+      {open && (
+        <div
+          className="fixed bottom-4 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[480px] max-h-[calc(100vh-6rem)] flex flex-col bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
+          data-testid="panel-chatbot"
+        >
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/50">
+            <div className="flex items-center gap-2">
+              <IconMessageCircle className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold">Property Assistant</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">Gemini</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setOpen(false)}
+              data-testid="button-chatbot-close"
+            >
+              <X className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            {messages.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground gap-2">
+                <IconMessageCircle className="w-8 h-8 opacity-40" />
+                <p className="text-sm">Ask me about your properties, financials, or investment metrics.</p>
+                <div className="flex flex-wrap gap-1.5 justify-center mt-2">
+                  {["What's the portfolio NOI?", "Compare properties by RevPAR", "Which property has the best margins?"].map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => { setInput(q); }}
+                      className="text-xs px-2.5 py-1 rounded-full border border-border bg-muted/50 hover:bg-muted text-foreground/70 transition-colors"
+                      data-testid={`button-suggestion-${q.slice(0, 20).replace(/\s/g, "-")}`}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "flex",
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                )}
+              >
+                <div
+                  className={cn(
+                    "max-w-[85%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap",
+                    msg.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-foreground"
+                  )}
+                  data-testid={`message-${msg.role}-${i}`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-muted rounded-lg px-3 py-2 text-sm flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Thinking...
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="border-t border-border px-3 py-2.5">
+            <div className="flex items-center gap-2">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                placeholder="Ask about properties..."
+                className="flex-1 bg-muted/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground"
+                disabled={loading}
+                data-testid="input-chat-message"
+              />
+              <Button
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={sendMessage}
+                disabled={!input.trim() || loading}
+                data-testid="button-send-message"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

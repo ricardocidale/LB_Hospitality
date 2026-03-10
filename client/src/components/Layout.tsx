@@ -27,6 +27,7 @@ import NotificationCenter from "@/components/NotificationCenter";
 
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
+import { PropertyChatbot } from "@/components/PropertyChatbot";
 import {
   Sidebar,
   SidebarContent,
@@ -241,6 +242,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                 <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
               </button>
               <NotificationCenter />
+              <PropertyChatbot />
               <ErrorBoundary><MarcelaWidgetGated /></ErrorBoundary>
             </div>
           </header>

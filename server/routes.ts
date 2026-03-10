@@ -18,6 +18,7 @@ import * as marcelaToolRoutes from "./routes/marcela-tools";
 import * as marketRateRoutes from "./routes/market-rates";
 import * as tileRoutes from "./routes/tiles";
 import * as photoRoutes from "./routes/property-photos";
+import * as chatRoutes from "./routes/chat";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -41,6 +42,7 @@ export async function registerRoutes(
   marketRateRoutes.register(app);
   tileRoutes.register(app);
   photoRoutes.register(app);
+  chatRoutes.register(app);
 
   registerTwilioWebSocket(httpServer);
 

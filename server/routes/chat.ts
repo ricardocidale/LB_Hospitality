@@ -1,9 +1,11 @@
 import { type Express, type Request, type Response } from "express";
+import Anthropic from "@anthropic-ai/sdk";
 import { requireAuth } from "../auth";
 import { storage } from "../storage";
-import { getGeminiClient } from "../replit_integrations/image/client";
 import { computePropertyMetrics } from "../../calc/research/property-metrics";
 import type { Property } from "../../shared/schema";
+
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 function buildPropertyContext(properties: Property[]): string {
   return properties.map((p: any) => {
@@ -74,27 +76,24 @@ export function register(app: Express) {
         `Inflation Rate: ${((global as any)?.inflationRate || 0.03) * 100}%`,
       ].join("\n");
 
-      const gemini = getGeminiClient();
-
       const chatHistory = (history || []).map((msg: { role: string; content: string }) => ({
-        role: msg.role === "user" ? "user" : "model",
-        parts: [{ text: msg.content }],
+        role: msg.role === "user" ? "user" : ("assistant" as const),
+        content: msg.content,
       }));
 
-      const response = await gemini.models.generateContent({
-        model: "gemini-2.0-flash-lite",
-        contents: [
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1024,
+        system: `${SYSTEM_PROMPT}\n\n${contextBlock}`,
+        messages: [
           ...chatHistory,
-          { role: "user", parts: [{ text: message }] },
+          { role: "user", content: message },
         ],
-        config: {
-          systemInstruction: `${SYSTEM_PROMPT}\n\n${contextBlock}`,
-          maxOutputTokens: 1024,
-          temperature: 0.7,
-        },
       });
 
-      const text = response.text || "I'm sorry, I couldn't generate a response. Please try again.";
+      const text = response.content[0]?.type === "text"
+        ? response.content[0].text
+        : "I'm sorry, I couldn't generate a response. Please try again.";
       res.json({ response: text });
     } catch (error: any) {
       console.error("[chat] Error:", error?.message || error);

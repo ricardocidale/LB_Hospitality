@@ -112,6 +112,8 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
     return () => clearInterval(id);
   }, [testOpen]);
 
+  const { data: globalAssumptions } = useGlobalAssumptions();
+
   useEffect(() => {
     if (signedUrlError) {
       toast({ title: "Widget signed URL failed", description: "ElevenLabs signed URL could not be generated. Check the agent ID and API key.", variant: "destructive" });
@@ -168,7 +170,6 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
 
   // ── Derived state ───────────────────────────────────────────────────────────
 
-  const { data: globalAssumptions } = useGlobalAssumptions();
   const companyName = globalAssumptions?.companyName || "the company";
   const agentName = draft.aiAgentName || "AI Agent";
   const elevenLabsOk = !agentConfigError && agentConfig !== undefined;

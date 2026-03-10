@@ -271,7 +271,9 @@ function Router() {
           <Redirect to="/analysis" />
         </Route>
         <Route path="/executive-summary">
-          <Redirect to="/analysis" />
+          <FinancialErrorBoundary>
+            <ManagementRoute component={ExecutiveSummary} />
+          </FinancialErrorBoundary>
         </Route>
         <Route path="/map">
           <FinancialErrorBoundary>

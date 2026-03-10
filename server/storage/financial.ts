@@ -1,4 +1,4 @@
-import { globalAssumptions, scenarios, propertyFeeCategories, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
+import { globalAssumptions, scenarios, propertyFeeCategories, propertyPhotos, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
 import { db } from "../db";
 import { eq, desc, isNull, inArray } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
@@ -87,7 +87,7 @@ export class FinancialStorage {
    * (global assumptions + all properties + fee categories) with the snapshot
    * from the scenario. Runs in a transaction so partial loads can't occur.
    */
-  async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
+  async loadScenario(userId: number, savedAssumptions: Record<string, unknown>, savedProperties: Array<Record<string, unknown>>, savedFeeCategories?: Record<string, Array<Record<string, unknown>>>, savedPropertyPhotos?: Record<string, Array<Record<string, unknown>>>): Promise<void> {
     await db.transaction(async (tx) => {
       const { id: _gaId, createdAt: _gaCreated, updatedAt: _gaUpdated, userId: _gaUser, ...gaData } = savedAssumptions;
 
@@ -127,6 +127,25 @@ export class FinancialStorage {
           const propIds = insertedProperties.map(p => p.id);
           await tx.delete(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, propIds));
           await tx.insert(propertyFeeCategories).values(feeCategoryValues as any);
+        }
+      }
+
+      // Restore property photos
+      if (savedPropertyPhotos) {
+        const photoValues: any[] = [];
+        for (const prop of insertedProperties) {
+          const photos = savedPropertyPhotos[prop.name];
+          if (photos && photos.length > 0) {
+            for (const photo of photos) {
+              const { id: _photoId, propertyId: _propId, createdAt: _created, ...photoData } = photo;
+              photoValues.push({ ...photoData, propertyId: prop.id });
+            }
+          }
+        }
+        if (photoValues.length > 0) {
+          const propIds = insertedProperties.map(p => p.id);
+          await tx.delete(propertyPhotos).where(inArray(propertyPhotos.propertyId, propIds));
+          await tx.insert(propertyPhotos).values(photoValues as any);
         }
       }
     });

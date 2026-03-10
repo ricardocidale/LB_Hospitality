@@ -27,6 +27,12 @@ export async function runPropertyPhotos001(): Promise<void> {
       ON property_photos (property_id)
     `);
 
+    // Add propertyPhotos column to scenarios (for snapshot compatibility)
+    await db.execute(sql`
+      ALTER TABLE scenarios
+        ADD COLUMN IF NOT EXISTS property_photos JSONB
+    `);
+
     // Seed one hero photo per property from existing imageUrl (idempotent)
     await db.execute(sql`
       INSERT INTO property_photos (property_id, image_url, sort_order, is_hero)

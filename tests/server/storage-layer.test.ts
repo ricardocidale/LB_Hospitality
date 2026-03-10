@@ -159,6 +159,87 @@ describe("Storage Layer — UserStorage", () => {
   });
 });
 
+describe("Storage Layer — PhotoStorage", () => {
+  const src = readStorageFile("photos.ts");
+
+  it("exports PhotoStorage class", () => {
+    expect(src).toContain("export class PhotoStorage");
+  });
+
+  it("getPropertyPhotos orders by sortOrder ascending", () => {
+    expect(src).toContain("orderBy(asc(propertyPhotos.sortOrder))");
+  });
+
+  it("getHeroPhoto filters by propertyId AND isHero", () => {
+    expect(src).toContain("eq(propertyPhotos.propertyId, propertyId)");
+    expect(src).toContain("eq(propertyPhotos.isHero, true)");
+  });
+
+  it("addPropertyPhoto auto-sets hero if first photo in album", () => {
+    expect(src).toContain("const isFirst = existing.length === 0");
+    expect(src).toContain("isHero: isFirst ? true");
+  });
+
+  it("addPropertyPhoto syncs hero URL to properties.imageUrl", () => {
+    expect(src).toContain("syncHeroToProperty(data.propertyId, photo.imageUrl)");
+  });
+
+  it("deletePropertyPhoto promotes next photo when hero is deleted", () => {
+    expect(src).toContain("if (photo.isHero)");
+    expect(src).toContain("set({ isHero: true })");
+    expect(src).toContain("syncHeroToProperty(photo.propertyId, remaining[0].imageUrl)");
+  });
+
+  it("setHeroPhoto clears all heroes before setting new one", () => {
+    expect(src).toContain("set({ isHero: false })");
+    const clearIdx = src.indexOf("set({ isHero: false })");
+    const setIdx = src.indexOf("set({ isHero: true })", clearIdx + 1);
+    expect(clearIdx).toBeGreaterThan(-1);
+    expect(setIdx).toBeGreaterThan(clearIdx);
+  });
+
+  it("setHeroPhoto scopes to propertyId to prevent cross-property hero", () => {
+    const setHeroStart = src.indexOf("async setHeroPhoto(");
+    const setHeroEnd = src.indexOf("async reorderPhotos(");
+    const body = src.slice(setHeroStart, setHeroEnd);
+    // Both the clear and set operations filter by propertyId
+    expect(body).toContain("eq(propertyPhotos.propertyId, propertyId)");
+  });
+
+  it("reorderPhotos sets sortOrder based on array index", () => {
+    expect(src).toContain("set({ sortOrder: i })");
+    expect(src).toContain("eq(propertyPhotos.id, orderedIds[i])");
+  });
+
+  it("syncHeroToProperty is a module-level function (not on IStorage)", () => {
+    expect(src).toContain("async function syncHeroToProperty(");
+    expect(src).not.toContain("async syncHeroToProperty(");
+  });
+});
+
+describe("Storage Layer — loadScenario restores photos", () => {
+  const src = readStorageFile("financial.ts");
+  const loadStart = src.indexOf("async loadScenario(");
+  const loadEnd = src.indexOf("async getFeeCategoriesByProperty(");
+  const loadBody = src.slice(loadStart, loadEnd);
+
+  it("loadScenario accepts savedPropertyPhotos parameter", () => {
+    expect(loadBody).toContain("savedPropertyPhotos");
+  });
+
+  it("loadScenario restores photos keyed by property name", () => {
+    expect(loadBody).toContain("savedPropertyPhotos[prop.name]");
+  });
+
+  it("loadScenario inserts photo values in bulk", () => {
+    expect(loadBody).toContain("tx.insert(propertyPhotos)");
+  });
+
+  it("loadScenario cleans up old photos before inserting", () => {
+    expect(loadBody).toContain("tx.delete(propertyPhotos)");
+  });
+});
+
 describe("Storage Layer — Index delegates to sub-modules", () => {
   const src = readStorageFile("index.ts");
 
@@ -166,6 +247,7 @@ describe("Storage Layer — Index delegates to sub-modules", () => {
     expect(src).toContain("UserStorage");
     expect(src).toContain("PropertyStorage");
     expect(src).toContain("FinancialStorage");
+    expect(src).toContain("PhotoStorage");
   });
 
   it("exports IStorage interface", () => {

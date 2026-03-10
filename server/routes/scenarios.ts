@@ -37,8 +37,10 @@ export function register(app: Express) {
       const properties = await storage.getAllProperties(req.user!.id);
       
       const propertyFeeCategories: Record<string, any[]> = {};
+      const propertyPhotos: Record<string, any[]> = {};
       for (const p of properties) {
         propertyFeeCategories[p.name] = await storage.getFeeCategoriesByProperty(p.id);
+        propertyPhotos[p.name] = await storage.getPropertyPhotos(p.id);
       }
 
       const scenario = await storage.createScenario({
@@ -48,6 +50,7 @@ export function register(app: Express) {
         globalAssumptions: assumptions as any,
         properties: properties as any,
         feeCategories: propertyFeeCategories as any,
+        propertyPhotos: propertyPhotos as any,
       });
 
       logActivity(req, "create", "scenario", scenario.id, scenario.name);
@@ -85,7 +88,8 @@ export function register(app: Express) {
         req.user!.id,
         scenario.globalAssumptions as any,
         scenario.properties as any,
-        scenario.feeCategories as any
+        scenario.feeCategories as any,
+        (scenario as any).propertyPhotos as any
       );
 
       logActivity(req, "load", "scenario", id, scenario.name);

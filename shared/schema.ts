@@ -999,6 +999,7 @@ export const scenarios = pgTable("scenarios", {
   properties: jsonb("properties").notNull(),
   scenarioImages: jsonb("scenario_images"),
   feeCategories: jsonb("fee_categories"),
+  propertyPhotos: jsonb("property_photos"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
@@ -1014,6 +1015,7 @@ export const insertScenarioSchema = createInsertSchema(scenarios).pick({
   properties: true,
   scenarioImages: true,
   feeCategories: true,
+  propertyPhotos: true,
 });
 
 export const updateScenarioSchema = z.object({

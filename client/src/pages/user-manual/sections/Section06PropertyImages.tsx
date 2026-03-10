@@ -17,23 +17,58 @@ export default function Section06PropertyImages({ expanded, onToggle, sectionRef
       sectionRef={sectionRef}
     >
       <p className="text-sm text-muted-foreground">
-        Each property can have images uploaded or generated using AI. Images appear on property cards and detail pages.
+        Each property has a <strong>Photo Album</strong> that holds multiple images. One photo is designated as the
+        <strong> hero image</strong> — it represents the property on portfolio cards, detail headers, and exported reports.
       </p>
+
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Photo Album</h4>
+        <ul className="text-sm text-muted-foreground space-y-2">
+          <li>&#8226; Open the property edit page and scroll to the <strong>Photo Album</strong> section below the main image picker.</li>
+          <li>&#8226; The album displays all photos in a responsive grid with the hero photo marked by a <strong>gold star</strong>.</li>
+          <li>&#8226; Click the gold star on any photo to set it as the hero. The hero image automatically syncs to the property card and header.</li>
+          <li>&#8226; Add an optional caption to any photo by clicking the text area below it.</li>
+          <li>&#8226; Delete a photo by clicking the trash icon. If you delete the hero, the next photo is automatically promoted.</li>
+        </ul>
+      </div>
 
       <div className="bg-muted/50 rounded-lg p-4">
         <h4 className="font-semibold mb-2">Uploading Images</h4>
         <ul className="text-sm text-muted-foreground space-y-2">
-          <li>&#8226; On the property detail page, click the image area or the upload button.</li>
-          <li>&#8226; Select an image file from your device (JPEG, PNG, or WebP).</li>
-          <li>&#8226; The image is uploaded to cloud storage and displayed on the property card.</li>
+          <li>&#8226; Click <strong>"Upload"</strong> in the album header to open the upload dialog.</li>
+          <li>&#8226; Drag and drop files or click to browse. Supports JPEG, PNG, and WebP formats.</li>
+          <li>&#8226; Upload multiple files at once — each gets its own progress indicator.</li>
+          <li>&#8226; Add a caption to each photo before or after uploading.</li>
+          <li>&#8226; The first photo uploaded to an empty album is automatically set as the hero.</li>
         </ul>
       </div>
 
       <div className="bg-muted/50 rounded-lg p-4">
         <h4 className="font-semibold mb-2">AI Image Generation</h4>
+        <ul className="text-sm text-muted-foreground space-y-2">
+          <li>&#8226; Click <strong>"Generate"</strong> in the album header to create a photorealistic rendering using AI.</li>
+          <li>&#8226; The system auto-builds a prompt from the property name, location, room count, and type.</li>
+          <li>&#8226; Edit the prompt to customize the result, then click <strong>"Generate Image"</strong>.</li>
+          <li>&#8226; Preview the generated image. Click <strong>"Add to Album"</strong> to save it to the property.</li>
+          <li>&#8226; Optionally check <strong>"Set as hero"</strong> to make it the main property image immediately.</li>
+          <li>&#8226; Generate as many images as you like without closing the dialog.</li>
+        </ul>
+      </div>
+
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Hero Image Display</h4>
         <p className="text-sm text-muted-foreground">
-          Click <strong>"Generate with AI"</strong> to create a photorealistic rendering of the property based on its
-          name and description. The system uses the property details to produce a unique image.
+          The hero image appears with a premium presentation — smooth blur-up loading, gradient overlays, and subtle
+          entrance animations. It is automatically sized and cropped to fit each display context (portfolio cards use
+          16:10 aspect ratio, property headers use full-width with gradient text overlay).
+        </p>
+      </div>
+
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Scenarios</h4>
+        <p className="text-sm text-muted-foreground">
+          When you save a scenario, all property photos (including hero assignments) are captured in the snapshot.
+          Loading a scenario restores the full photo album for each property exactly as it was when saved.
         </p>
       </div>
     </SectionCard>

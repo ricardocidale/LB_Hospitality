@@ -37,8 +37,16 @@ const formatCompact = (value: number) =>
 
 const formatPercent = (value: number) => (value * 100).toFixed(1) + "%";
 
-const CHART_COLOR_KEYS = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5"];
+const PIE_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 const PIE_EXPORT_COLORS = ["9FBCA4", "257D41", "3B82F6", "F59E0B", "8B5CF6"];
+
+const STATUS_COLORS: Record<string, string> = {
+  Operating: "bg-emerald-500",
+  Improvements: "bg-amber-500",
+  Acquired: "bg-blue-500",
+  "In Negotiation": "bg-violet-500",
+  Pipeline: "bg-slate-400",
+};
 
 const statusVariants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   Operating: "default",
@@ -80,7 +88,7 @@ export default function ExecutiveSummary() {
     market: name.toLowerCase().replace(/\s+/g, "-"),
     name,
     value,
-    fill: `var(--color-${name.toLowerCase().replace(/\s+/g, "-")})`,
+    fill: PIE_COLORS[i % PIE_COLORS.length],
   }));
 
   const marketChartConfig: ChartConfig = {
@@ -88,7 +96,7 @@ export default function ExecutiveSummary() {
     ...Object.fromEntries(
       marketEntries.map(([name], i) => [
         name.toLowerCase().replace(/\s+/g, "-"),
-        { label: name, color: `var(--${CHART_COLOR_KEYS[i % CHART_COLOR_KEYS.length]})` },
+        { label: name, color: PIE_COLORS[i % PIE_COLORS.length] },
       ])
     ),
   };
@@ -288,7 +296,7 @@ export default function ExecutiveSummary() {
                       <span className="text-sm font-medium w-[120px] shrink-0">{status}</span>
                       <div className="flex-1 h-6 bg-muted rounded overflow-hidden">
                         <div
-                          className="h-full bg-primary/70 rounded transition-all duration-300"
+                          className={`h-full rounded transition-all duration-300 ${STATUS_COLORS[status] || "bg-primary/70"}`}
                           style={{ width: `${pct}%`, minWidth: count > 0 ? 4 : 0 }}
                         />
                       </div>

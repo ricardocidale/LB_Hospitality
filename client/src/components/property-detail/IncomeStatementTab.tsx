@@ -24,16 +24,19 @@
  * Each year is a column; the component also shows the "stabilized year"
  * (when occupancy reaches its long-term target) with a visual highlight.
  */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronsUpDown } from "lucide-react";
+import PartitionBar, { PartitionBarSegment, PartitionBarSegmentTitle, PartitionBarSegmentValue } from "@/components/ui/partition-bar";
 import type { IncomeStatementTabProps } from "./types";
 
 export default function IncomeStatementTab({
   yearlyChartData,
+  yearlyDetails,
   financials,
   property,
   global,
@@ -46,8 +49,45 @@ export default function IncomeStatementTab({
   const [localAllExpanded, setLocalAllExpanded] = useState(false);
   const effectiveAllExpanded = incomeAllExpanded || localAllExpanded;
 
+  const revenueMix = useMemo(() => {
+    if (!yearlyDetails || yearlyDetails.length === 0) return null;
+    const stabilized = yearlyDetails[Math.min(2, yearlyDetails.length - 1)];
+    const segments = [
+      { label: "Rooms", value: stabilized.revenueRooms, color: "bg-green-600" },
+      { label: "F&B", value: stabilized.revenueFB, color: "bg-blue-500" },
+      { label: "Events", value: stabilized.revenueEvents, color: "bg-amber-500" },
+      { label: "Other", value: stabilized.revenueOther, color: "bg-violet-500" },
+    ].filter((s) => s.value > 0);
+    const total = segments.reduce((sum, s) => sum + s.value, 0);
+    return { segments, total };
+  }, [yearlyDetails]);
+
   return (
     <div className="space-y-6">
+      {revenueMix && revenueMix.total > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold">Revenue Mix (Year {Math.min(3, yearlyDetails?.length || 1)})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PartitionBar size="md" gap={1} data-testid="partition-bar-revenue-mix">
+              {revenueMix.segments.map((seg) => (
+                <PartitionBarSegment
+                  key={seg.label}
+                  num={seg.value}
+                  className={seg.color}
+                  alignment="center"
+                >
+                  <PartitionBarSegmentTitle>{seg.label}</PartitionBarSegmentTitle>
+                  <PartitionBarSegmentValue>
+                    {formatMoney(seg.value)} ({((seg.value / revenueMix.total) * 100).toFixed(0)}%)
+                  </PartitionBarSegmentValue>
+                </PartitionBarSegment>
+              ))}
+            </PartitionBar>
+          </CardContent>
+        </Card>
+      )}
       <div ref={incomeChartRef} className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3 sm:p-6 bg-card shadow-lg border border-border">
         <div className="relative">
           <h3 className="text-lg font-display text-foreground mb-4">Income Statement Trends ({projectionYears}-Year Projection)</h3>

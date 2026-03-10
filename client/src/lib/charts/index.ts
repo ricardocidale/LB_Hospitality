@@ -18,6 +18,7 @@ export type {
   RadialGaugeProps,
   RadialStackedSeries,
   RadialStackedProps,
+  MermaidChartProps,
 } from "./types";
 
 export { BarChartCard } from "./BarChartCard";
@@ -29,3 +30,4 @@ export { RadarChartDots } from "./RadarChartDots";
 export { RadialChart } from "./RadialChart";
 export { RadialGauge } from "./RadialGauge";
 export { RadialStacked } from "./RadialStacked";
+export { MermaidChart } from "./MermaidChart";

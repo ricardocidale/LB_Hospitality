@@ -143,3 +143,8 @@ export interface RadialStackedProps extends BaseChartProps {
   outerRadius?: number;
   cornerRadius?: number;
 }
+
+export interface MermaidChartProps extends BaseChartProps {
+  chart: string;
+  theme?: "default" | "dark" | "forest" | "neutral";
+}

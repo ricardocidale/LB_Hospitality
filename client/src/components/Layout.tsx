@@ -100,13 +100,18 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       ],
     },
     {
+      label: "Insights",
+      items: [
+        ...(sb("sidebarResearch") && hasManagementAccess ? [{ href: "/research", label: "Research Center", icon: IconResearch }] : []),
+        ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Analysis", icon: IconAnalysis }] : []),
+        ...(sb("sidebarExecutiveSummary") && hasManagementAccess ? [{ href: "/executive-summary", label: "Executive Summary", icon: IconExecutive }] : []),
+      ].filter(Boolean),
+    },
+    {
       label: "Tools",
       items: [
         ...(sb("sidebarPropertyFinder") && hasManagementAccess ? [{ href: "/property-finder", label: "Property Finder", icon: IconPropertyFinder }] : []),
-        ...(sb("sidebarResearch") && hasManagementAccess ? [{ href: "/research", label: "Research Center", icon: IconResearch }] : []),
-        ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Analysis", icon: IconAnalysis }] : []),
         ...(sb("sidebarMapView") && hasManagementAccess ? [{ href: "/map", label: "Map View", icon: IconMapPin }] : []),
-        ...(sb("sidebarExecutiveSummary") && hasManagementAccess ? [{ href: "/executive-summary", label: "Executive Summary", icon: IconExecutive }] : []),
       ].filter(Boolean),
     },
     {

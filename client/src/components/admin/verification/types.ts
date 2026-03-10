@@ -36,17 +36,27 @@ export interface VerificationHistoryEntry {
   createdAt: string;
 }
 
-export interface DesignCheckResult {
+export type SuiteId =
+  | "independent-recheck"
+  | "formula-identity"
+  | "gaap-audit"
+  | "cross-validation"
+  | "financial-identities"
+  | "ai-narrative";
+
+export interface SuiteDefinition {
+  id: SuiteId;
+  label: string;
+  description: string;
+  estimatedTime: string;
+  runsOn: "client" | "server";
+  icon: string;
+}
+
+export interface SuiteRunResult {
+  suiteId: SuiteId;
   timestamp: string;
-  totalChecks: number;
-  passed: number;
-  failed: number;
-  warnings: number;
-  overallStatus: "PASS" | "FAIL" | "WARNING";
-  checks: Array<{
-    category: string;
-    rule: string;
-    status: "pass" | "fail" | "warning";
-    details: string;
-  }>;
+  status: "PASS" | "WARNING" | "FAIL";
+  summary: { total: number; passed: number; failed: number; critical: number };
+  data: any;
 }

@@ -25,6 +25,7 @@ export function useSaveMarcelaSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.voiceSettings });
+      queryClient.invalidateQueries({ queryKey: AI_AGENT_KEYS.signedUrl });
       queryClient.invalidateQueries({ queryKey: ["global-assumptions"] });
       toast({ title: "AI Agent settings saved", description: "Voice configuration updated successfully." });
     },

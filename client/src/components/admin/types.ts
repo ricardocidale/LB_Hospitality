@@ -10,21 +10,6 @@
  * admin/verification/types.ts.
  */
 
-export interface DesignCheckResult {
-  timestamp: string;
-  totalChecks: number;
-  passed: number;
-  failed: number;
-  warnings: number;
-  overallStatus: "PASS" | "FAIL" | "WARNING";
-  checks: Array<{
-    category: string;
-    rule: string;
-    status: "pass" | "fail" | "warning";
-    details: string;
-  }>;
-}
-
 export interface User {
   id: number;
   email: string;

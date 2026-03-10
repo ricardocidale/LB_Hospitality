@@ -1,44 +1,85 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { IconCheckCircle2, IconXCircle, IconAlertTriangle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
+import { IconCheckCircle2, IconXCircle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
-import { formatMoney } from "@/lib/financialEngine";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-import { useVerificationHistory, useRunVerification, useRunDesignCheck } from "./hooks";
+import { useVerificationHistory, useRunVerification, useRunSuites } from "./hooks";
 import { VerificationResults } from "./VerificationResults";
 import { VerificationHistory } from "./VerificationHistory";
 import { AIReviewPanel } from "./AIReviewPanel";
-import { DesignCheckPanel } from "./DesignCheckPanel";
-import type { VerificationResult, DesignCheckResult } from "./types";
+import { SuiteSelector, SUITE_DEFINITIONS } from "./SuiteSelector";
+import type { VerificationResult, SuiteId, SuiteRunResult } from "./types";
 
 export default function VerificationTab() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"results" | "history" | "ai" | "design">("results");
+  const [activeTab, setActiveTab] = useState<"results" | "history" | "ai">("results");
   const [verificationResults, setVerificationResults] = useState<VerificationResult | null>(null);
-  const [designResults, setDesignResults] = useState<DesignCheckResult | null>(null);
   const [aiReview, setAiReview] = useState<string>("");
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
 
+  // Suite selector state
+  const [selectedSuites, setSelectedSuites] = useState<Set<SuiteId>>(new Set(["independent-recheck", "formula-identity", "gaap-audit", "cross-validation"]));
+  const [suiteResults, setSuiteResults] = useState<Map<SuiteId, SuiteRunResult>>(new Map());
+  const [runningSuites, setRunningSuites] = useState<Set<SuiteId>>(new Set());
+
   const { data: verificationHistory } = useVerificationHistory();
 
+  // Legacy full audit (still available as "Run All")
   const runVerification = useRunVerification((data) => {
     setVerificationResults(data);
     setAiReview("");
   });
 
-  const runDesignCheck = useRunDesignCheck((data) => {
-    setDesignResults(data);
-  });
-
-  const verificationAutoRan = useRef(false);
-  useEffect(() => {
-    if (!verificationAutoRan.current) {
-      verificationAutoRan.current = true;
-      runVerification.mutate();
+  // Suite-based execution
+  const runSuites = useRunSuites(
+    // Per-suite callback
+    (suiteId, result) => {
+      setSuiteResults(prev => new Map(prev).set(suiteId, result));
+      setRunningSuites(prev => { const next = new Set(prev); next.delete(suiteId); return next; });
+    },
+    // All complete callback
+    (results) => {
+      setSuiteResults(results);
+      setRunningSuites(new Set());
+      // If independent recheck ran, also set verificationResults for the detailed view
+      const recheckResult = results.get("independent-recheck");
+      if (recheckResult?.data) {
+        setVerificationResults(recheckResult.data);
+      }
     }
+  );
+
+  const handleRunSelected = useCallback(() => {
+    if (selectedSuites.size === 0) {
+      toast({ title: "No suites selected", description: "Select at least one verification suite to run.", variant: "destructive" });
+      return;
+    }
+    setRunningSuites(new Set(selectedSuites));
+    setSuiteResults(new Map());
+    runSuites.mutate(selectedSuites);
+  }, [selectedSuites, runSuites, toast]);
+
+  const handleRunAll = useCallback(() => {
+    runVerification.mutate();
+  }, [runVerification]);
+
+  const handleToggleSuite = useCallback((id: SuiteId) => {
+    setSelectedSuites(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleSelectAll = useCallback(() => {
+    setSelectedSuites(prev =>
+      prev.size === SUITE_DEFINITIONS.length
+        ? new Set()
+        : new Set(SUITE_DEFINITIONS.map(s => s.id))
+    );
   }, []);
 
   const runAiVerification = async () => {
@@ -259,6 +300,14 @@ export default function VerificationTab() {
     doc.save(`verification-report-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  const isRunning = runVerification.isPending || runSuites.isPending;
+
+  // Compute suite results summary
+  const suiteResultsArray = Array.from(suiteResults.values());
+  const totalSuitePassed = suiteResultsArray.filter(r => r.status === "PASS").length;
+  const totalSuiteFailed = suiteResultsArray.filter(r => r.status === "FAIL").length;
+  const hasSuiteResults = suiteResultsArray.length > 0;
+
   return (
     <Card className="relative overflow-hidden bg-card border border-border/80 shadow-sm">
       <CardHeader className="relative">
@@ -268,62 +317,82 @@ export default function VerificationTab() {
               GAAP Financial Verification
             </CardTitle>
             <CardDescription className="text-muted-foreground font-medium max-w-2xl">
-              Independent audit and recalculation of property pro-formas, management fees, and consolidated portfolio returns.
+              Select verification suites to run. Each suite independently validates a different aspect of financial accuracy.
             </CardDescription>
           </div>
           <div className="flex items-center gap-3">
             {verificationResults && (
-              <button 
+              <button
                 onClick={exportVerificationPDF}
                 data-testid="button-export-pdf"
                 className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-full text-xs font-bold shadow-sm hover:shadow-md hover:border-secondary/20 transition-all group"
               >
                 <IconFileDown className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
-                EXPORT PDF REPORT
+                EXPORT PDF
               </button>
             )}
-            <button 
-              onClick={() => runVerification.mutate()} 
-              disabled={runVerification.isPending} 
-              data-testid="button-run-verification"
+            <button
+              onClick={handleRunSelected}
+              disabled={isRunning || selectedSuites.size === 0}
+              data-testid="button-run-selected"
               className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground rounded-full text-xs font-bold shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 group"
             >
-              {runVerification.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconPlayCircle className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />}
-              RUN FULL AUDIT
+              {runSuites.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconPlayCircle className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />}
+              RUN SELECTED
+            </button>
+            <button
+              onClick={handleRunAll}
+              disabled={isRunning}
+              data-testid="button-run-verification"
+              className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-full text-xs font-bold shadow-sm hover:shadow-md hover:border-primary/20 transition-all disabled:opacity-50 group"
+            >
+              {runVerification.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconPlayCircle className="w-3.5 h-3.5 text-muted-foreground group-hover:rotate-12 transition-transform" />}
+              RUN ALL
             </button>
           </div>
         </div>
-
-        <div className="flex items-center gap-1 mt-6 p-1 bg-muted rounded-full w-fit border border-border">
-          {[
-            { id: "results", label: "Verification Results", icon: IconCheckCircle2 },
-            { id: "history", label: "Audit History", icon: IconDownload },
-            { id: "ai", label: "AI Narrative", icon: IconSparkles },
-            { id: "design", label: "Design Coverage", icon: IconAlertTriangle }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id as any);
-                if (tab.id === "design" && !designResults) runDesignCheck.mutate();
-              }}
-              data-testid={`tab-verification-${tab.id}`}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${
-                activeTab === tab.id 
-                  ? "bg-card text-secondary shadow-sm" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              <tab.icon className={`w-3 h-3 ${activeTab === tab.id ? "text-secondary" : "text-muted-foreground"}`} />
-              {tab.label.toUpperCase()}
-            </button>
-          ))}
-        </div>
       </CardHeader>
 
-      <CardContent className="relative pt-2">
-        {runVerification.isPending ? (
-          <div className="flex flex-col items-center justify-center py-24 space-y-6">
+      <CardContent className="relative pt-2 space-y-6">
+        {/* Suite Selector */}
+        <SuiteSelector
+          selected={selectedSuites}
+          onToggle={handleToggleSuite}
+          onSelectAll={handleSelectAll}
+          lastResults={suiteResults}
+          runningSuites={runningSuites}
+        />
+
+        {/* Suite Results Summary Banner */}
+        {hasSuiteResults && !isRunning && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-muted border border-border shadow-inner">
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Suites Run</p>
+              <p className="text-xl font-mono font-black text-foreground">{suiteResultsArray.length}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Passed</p>
+              <p className="text-xl font-mono font-black text-green-600">{totalSuitePassed}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Failed</p>
+              <p className={`text-xl font-mono font-black ${totalSuiteFailed > 0 ? "text-red-600" : "text-green-600"}`}>{totalSuiteFailed}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Overall</p>
+              <div className="flex items-center gap-2">
+                <span className={`text-xl font-black ${totalSuiteFailed === 0 ? "text-secondary" : "text-red-600"}`}>
+                  {totalSuiteFailed === 0 ? "PASS" : "FAIL"}
+                </span>
+                {totalSuiteFailed === 0 ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Running indicator */}
+        {isRunning && (
+          <div className="flex flex-col items-center justify-center py-16 space-y-6">
             <div className="relative">
               <div className="w-16 h-16 rounded-full border-4 border-secondary/20 border-t-secondary animate-spin" />
               <div className="absolute inset-0 flex items-center justify-center">
@@ -331,90 +400,108 @@ export default function VerificationTab() {
               </div>
             </div>
             <div className="text-center space-y-2">
-              <p className="text-lg font-bold text-foreground animate-pulse">Running Financial Audit...</p>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto">Performing multi-entity recalculations and GAAP compliance checks across the entire portfolio.</p>
+              <p className="text-lg font-bold text-foreground animate-pulse">Running Verification...</p>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                {runningSuites.size > 0 ? `${runningSuites.size} suite(s) running` : "Full audit in progress"}
+              </p>
             </div>
           </div>
-        ) : (
-          <div className="min-h-[400px]">
-            {activeTab === "results" && (
-              verificationResults ? (
-                <div className="space-y-8">
-                  {/* Summary Banner */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-muted border border-border shadow-inner">
-                    <div className="space-y-1">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Audit Opinion</p>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xl font-black ${
-                          verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? 'text-secondary' :
-                          verificationResults.summary.auditOpinion === 'QUALIFIED' ? 'text-yellow-600' :
-                          'text-red-600'
-                        }`}>
-                          {verificationResults.summary.auditOpinion}
-                        </span>
-                        {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Overall Status</p>
-                      <p className={`text-xl font-mono font-black ${
-                        verificationResults.summary.overallStatus === 'PASS' ? 'text-secondary' : 'text-red-600'
-                      }`}>
-                        {verificationResults.summary.overallStatus}
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total Checks</p>
-                      <p className="text-xl font-mono font-black text-foreground">{verificationResults.summary.totalChecks}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Failures</p>
-                      <div className="flex items-center gap-2">
-                        <p className={`text-xl font-mono font-black ${verificationResults.summary.totalFailed > 0 ? 'text-red-600' : 'text-secondary'}`}>
-                          {verificationResults.summary.totalFailed}
-                        </p>
-                        {verificationResults.summary.criticalIssues > 0 && (
-                          <span className="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-bounce">
-                            {verificationResults.summary.criticalIssues} CRITICAL
+        )}
+
+        {/* Tabbed Results Area */}
+        {!isRunning && (
+          <>
+            <div className="flex items-center gap-1 p-1 bg-muted rounded-full w-fit border border-border">
+              {[
+                { id: "results", label: "Detailed Results", icon: IconCheckCircle2 },
+                { id: "history", label: "Audit History", icon: IconDownload },
+                { id: "ai", label: "AI Narrative", icon: IconSparkles },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  data-testid={`tab-verification-${tab.id}`}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${
+                    activeTab === tab.id
+                      ? "bg-card text-secondary shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <tab.icon className={`w-3 h-3 ${activeTab === tab.id ? "text-secondary" : "text-muted-foreground"}`} />
+                  {tab.label.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
+            <div className="min-h-[300px]">
+              {activeTab === "results" && (
+                verificationResults ? (
+                  <div className="space-y-8">
+                    {/* Full audit summary banner */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-muted border border-border shadow-inner">
+                      <div className="space-y-1">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Audit Opinion</p>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xl font-black ${
+                            verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? 'text-secondary' :
+                            verificationResults.summary.auditOpinion === 'QUALIFIED' ? 'text-yellow-600' :
+                            'text-red-600'
+                          }`}>
+                            {verificationResults.summary.auditOpinion}
                           </span>
-                        )}
+                          {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Overall Status</p>
+                        <p className={`text-xl font-mono font-black ${
+                          verificationResults.summary.overallStatus === 'PASS' ? 'text-secondary' : 'text-red-600'
+                        }`}>
+                          {verificationResults.summary.overallStatus}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total Checks</p>
+                        <p className="text-xl font-mono font-black text-foreground">{verificationResults.summary.totalChecks}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Failures</p>
+                        <div className="flex items-center gap-2">
+                          <p className={`text-xl font-mono font-black ${verificationResults.summary.totalFailed > 0 ? 'text-red-600' : 'text-secondary'}`}>
+                            {verificationResults.summary.totalFailed}
+                          </p>
+                          {verificationResults.summary.criticalIssues > 0 && (
+                            <span className="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-bounce">
+                              {verificationResults.summary.criticalIssues} CRITICAL
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    <VerificationResults results={verificationResults} />
                   </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
+                    <IconPlayCircle className="w-12 h-12 opacity-20" />
+                    <p className="text-sm font-medium">Select suites above and click "Run Selected" to start verification.</p>
+                  </div>
+                )
+              )}
 
-                  <VerificationResults results={verificationResults} />
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
-                  <IconPlayCircle className="w-12 h-12 opacity-20" />
-                  <p className="text-sm font-medium">Click "Run Full Audit" to start the verification process.</p>
-                </div>
-              )
-            )}
+              {activeTab === "history" && verificationHistory && (
+                <VerificationHistory history={verificationHistory} />
+              )}
 
-            {activeTab === "history" && verificationHistory && (
-              <VerificationHistory history={verificationHistory} />
-            )}
-
-            {activeTab === "ai" && (
-              <AIReviewPanel 
-                review={aiReview} 
-                loading={aiReviewLoading} 
-                onRun={runAiVerification} 
-              />
-            )}
-
-            {activeTab === "design" && designResults && (
-              <DesignCheckPanel results={designResults} />
-            )}
-            
-            {activeTab === "design" && runDesignCheck.isPending && (
-              <div className="flex flex-col items-center justify-center py-24 space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-secondary" />
-                <p className="text-sm font-medium animate-pulse">Running design coverage analysis...</p>
-              </div>
-            )}
-          </div>
+              {activeTab === "ai" && (
+                <AIReviewPanel
+                  review={aiReview}
+                  loading={aiReviewLoading}
+                  onRun={runAiVerification}
+                />
+              )}
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

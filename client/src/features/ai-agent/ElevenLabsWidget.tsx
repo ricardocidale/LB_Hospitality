@@ -93,11 +93,12 @@ function NativeElevenLabsWidget({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentId, signedUrl]);
 
+  const dynamicVarsJson = JSON.stringify(dynamicVars);
   useEffect(() => {
     if (widgetRef.current) {
-      widgetRef.current.setAttribute("dynamic-variables", JSON.stringify(dynamicVars));
+      widgetRef.current.setAttribute("dynamic-variables", dynamicVarsJson);
     }
-  }, [dynamicVars.user_name, dynamicVars.user_role, dynamicVars.current_page]);
+  }, [dynamicVarsJson]);
 
   return <div ref={containerRef} data-testid="elevenlabs-native-widget" />;
 }

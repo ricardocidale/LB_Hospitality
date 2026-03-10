@@ -1,17 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { runFullVerification, runKnownValueTestsStructured } from "@/lib/runVerification";
-import type { VerificationResult, VerificationHistoryEntry, DesignCheckResult } from "./types";
+import type { VerificationResult, VerificationHistoryEntry, SuiteId, SuiteRunResult } from "./types";
+
+async function safeFetchJSON<T>(url: string, label: string): Promise<T> {
+  const res = await fetch(url, { credentials: "include" });
+  if (!res.ok) {
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+      throw new Error(`${label}: server returned ${res.status} (non-JSON)`);
+    }
+    const body = await res.json().catch(() => ({}));
+    throw new Error(`${label}: ${(body as any).error || res.statusText}`);
+  }
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) {
+    throw new Error(`${label}: expected JSON but received ${ct || "unknown content"}`);
+  }
+  return res.json();
+}
 
 export function useVerificationHistory() {
   return useQuery<VerificationHistoryEntry[]>({
     queryKey: ["admin", "verification-history"],
     queryFn: async () => {
-      const res = await fetch("/api/verification/history", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch verification history");
-      const ct = res.headers.get("content-type") || "";
-      if (!ct.includes("application/json")) throw new Error("Server returned non-JSON response");
-      return res.json();
+      return safeFetchJSON<VerificationHistoryEntry[]>("/api/verification/history", "Verification history");
     },
   });
 }
@@ -22,23 +35,6 @@ export function useRunVerification(onSuccess?: (data: VerificationResult) => voi
 
   return useMutation({
     mutationFn: async () => {
-      async function safeFetchJSON<T>(url: string, label: string): Promise<T> {
-        const res = await fetch(url, { credentials: "include" });
-        if (!res.ok) {
-          const ct = res.headers.get("content-type") || "";
-          if (!ct.includes("application/json")) {
-            throw new Error(`${label}: server returned ${res.status} (non-JSON)`);
-          }
-          const body = await res.json().catch(() => ({}));
-          throw new Error(`${label}: ${(body as any).error || res.statusText}`);
-        }
-        const ct = res.headers.get("content-type") || "";
-        if (!ct.includes("application/json")) {
-          throw new Error(`${label}: expected JSON but received ${ct || "unknown content"}`);
-        }
-        return res.json();
-      }
-
       const [properties, globalAssumptions] = await Promise.all([
         safeFetchJSON<any[]>("/api/properties", "Properties"),
         safeFetchJSON<any>("/api/global-assumptions", "Global assumptions"),
@@ -92,21 +88,156 @@ export function useRunVerification(onSuccess?: (data: VerificationResult) => voi
   });
 }
 
-export function useRunDesignCheck(onSuccess?: (data: DesignCheckResult) => void) {
+/**
+ * Run selected suites independently.
+ * For suites that need data, fetches properties + globalAssumptions once.
+ */
+export function useRunSuites(
+  onSuiteComplete?: (suiteId: SuiteId, result: SuiteRunResult) => void,
+  onAllComplete?: (results: Map<SuiteId, SuiteRunResult>) => void
+) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/verification/design-check", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to run design check");
-      const ct = res.headers.get("content-type") || "";
-      if (!ct.includes("application/json")) throw new Error("Server returned non-JSON response");
-      return res.json();
+    mutationFn: async (selectedSuites: Set<SuiteId>): Promise<Map<SuiteId, SuiteRunResult>> => {
+      const results = new Map<SuiteId, SuiteRunResult>();
+      const suiteArray = Array.from(selectedSuites).filter(s => s !== "ai-narrative");
+
+      if (suiteArray.length === 0) return results;
+
+      // Fetch shared data once
+      const [properties, globalAssumptions] = await Promise.all([
+        safeFetchJSON<any[]>("/api/properties", "Properties"),
+        safeFetchJSON<any>("/api/global-assumptions", "Global assumptions"),
+      ]);
+
+      // Run client-side suites
+      const fullResults = runFullVerification(properties, globalAssumptions);
+      const knownValueTests = runKnownValueTestsStructured();
+
+      // Formula & Identity suite
+      if (suiteArray.includes("formula-identity")) {
+        const fPassed = fullResults.summary.formulaChecksPassed;
+        const fFailed = fullResults.summary.formulaChecksFailed;
+        const result: SuiteRunResult = {
+          suiteId: "formula-identity",
+          timestamp: new Date().toISOString(),
+          status: fFailed > 0 ? "FAIL" : "PASS",
+          summary: { total: fPassed + fFailed, passed: fPassed, failed: fFailed, critical: 0 },
+          data: { formulaReport: fullResults.formulaReport, knownValueTests },
+        };
+        results.set("formula-identity", result);
+        onSuiteComplete?.("formula-identity", result);
+      }
+
+      // GAAP Audit suite
+      if (suiteArray.includes("gaap-audit")) {
+        const cPassed = fullResults.summary.complianceChecksPassed;
+        const cFailed = fullResults.summary.complianceChecksFailed;
+        const result: SuiteRunResult = {
+          suiteId: "gaap-audit",
+          timestamp: new Date().toISOString(),
+          status: cFailed > 0 ? "FAIL" : "PASS",
+          summary: { total: cPassed + cFailed, passed: cPassed, failed: cFailed, critical: fullResults.summary.criticalIssues },
+          data: { complianceReport: fullResults.complianceReport, auditWorkpaper: fullResults.auditWorkpaper, auditReports: fullResults.auditReports },
+        };
+        results.set("gaap-audit", result);
+        onSuiteComplete?.("gaap-audit", result);
+      }
+
+      // Cross-Validation suite
+      if (suiteArray.includes("cross-validation")) {
+        const xPassed = fullResults.summary.crossValidationPassed;
+        const xFailed = fullResults.summary.crossValidationFailed;
+        const result: SuiteRunResult = {
+          suiteId: "cross-validation",
+          timestamp: new Date().toISOString(),
+          status: xFailed > 0 ? "FAIL" : "PASS",
+          summary: { total: xPassed + xFailed, passed: xPassed, failed: xFailed, critical: 0 },
+          data: { crossValidationReport: fullResults.crossValidationReport, crossValidationReports: fullResults.crossValidationReports },
+        };
+        results.set("cross-validation", result);
+        onSuiteComplete?.("cross-validation", result);
+      }
+
+      // Financial Identities suite
+      if (suiteArray.includes("financial-identities")) {
+        try {
+          const identityRes = await fetch("/api/calc/validate-identities", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ properties, globalAssumptions }),
+          });
+          const identityData = identityRes.ok ? await identityRes.json() : null;
+          const identityPassed = identityData?.results?.filter((r: any) => r.opinion === "PASS").length ?? 0;
+          const identityTotal = identityData?.results?.length ?? 0;
+          const result: SuiteRunResult = {
+            suiteId: "financial-identities",
+            timestamp: new Date().toISOString(),
+            status: identityPassed === identityTotal ? "PASS" : "FAIL",
+            summary: { total: identityTotal, passed: identityPassed, failed: identityTotal - identityPassed, critical: 0 },
+            data: identityData,
+          };
+          results.set("financial-identities", result);
+          onSuiteComplete?.("financial-identities", result);
+        } catch {
+          results.set("financial-identities", {
+            suiteId: "financial-identities",
+            timestamp: new Date().toISOString(),
+            status: "FAIL",
+            summary: { total: 0, passed: 0, failed: 0, critical: 0 },
+            data: null,
+          });
+        }
+      }
+
+      // Independent Recheck suite (server-side)
+      if (suiteArray.includes("independent-recheck")) {
+        const serverRes = await fetch("/api/verification/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ clientResults: fullResults }),
+        });
+        if (serverRes.ok) {
+          const sct = serverRes.headers.get("content-type") || "";
+          if (sct.includes("application/json")) {
+            const serverRun = await serverRes.json();
+            const serverReport: VerificationResult = serverRun.results ?? serverRun;
+            const result: SuiteRunResult = {
+              suiteId: "independent-recheck",
+              timestamp: new Date().toISOString(),
+              status: serverReport.summary.overallStatus === "PASS" ? "PASS" : serverReport.summary.overallStatus === "WARNING" ? "WARNING" : "FAIL",
+              summary: {
+                total: serverReport.summary.totalChecks,
+                passed: serverReport.summary.totalPassed,
+                failed: serverReport.summary.totalFailed,
+                critical: serverReport.summary.criticalIssues,
+              },
+              data: serverReport,
+            };
+            results.set("independent-recheck", result);
+            onSuiteComplete?.("independent-recheck", result);
+          }
+        }
+      }
+
+      return results;
     },
-    onSuccess: (data) => {
-      if (onSuccess) onSuccess(data);
+    onSuccess: (results) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "verification-history"] });
+      const allPassed = Array.from(results.values()).every(r => r.status === "PASS");
+      toast({
+        title: allPassed ? "All Suites Passed" : "Verification Complete",
+        description: `${results.size} suite(s) run. ${Array.from(results.values()).filter(r => r.status === "PASS").length} passed.`,
+        variant: allPassed ? "default" : "destructive",
+      });
+      onAllComplete?.(results);
     },
     onError: (error: Error) => {
-      toast({ title: "Design Check Failed", description: error.message, variant: "destructive" });
+      toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
     },
   });
 }

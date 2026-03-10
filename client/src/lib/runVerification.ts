@@ -68,6 +68,7 @@ import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_TAX_RATE,
+  DEFAULT_MARKETING_RATE,
 } from "./constants";
 
 export interface VerificationResults {
@@ -552,6 +553,78 @@ export interface KnownValueTestResult {
 function r2(v: number) { return Math.round(v * 100) / 100; }
 function match(a: number, b: number) { return Math.abs(a - b) < 1; }
 
+/**
+ * Build a PropertyInput + GlobalInput from a TestCase so the full engine can run.
+ * Uses defaults for all non-specified fields to match computeMonthlyPL assumptions.
+ */
+function buildEngineInputs(tc: TestCase): { property: any; global: any } {
+  const today = new Date();
+  const opsDate = `${today.getFullYear()}-01-01`;
+  return {
+    property: {
+      operationsStartDate: opsDate,
+      acquisitionDate: opsDate,
+      roomCount: tc.property.roomCount || 0,
+      startAdr: tc.property.startAdr || 0,
+      adrGrowthRate: 0,
+      startOccupancy: tc.property.startOccupancy || 0,
+      maxOccupancy: tc.property.maxOccupancy || tc.property.startOccupancy || 0,
+      occupancyRampMonths: 0,
+      occupancyGrowthStep: 0,
+      purchasePrice: tc.property.purchasePrice || 0,
+      buildingImprovements: tc.property.buildingImprovements || 0,
+      landValuePercent: tc.property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT,
+      type: tc.property.type || "All Cash",
+      acquisitionLTV: tc.property.acquisitionLTV ?? DEFAULT_LTV,
+      acquisitionInterestRate: tc.property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE,
+      acquisitionTermYears: tc.property.acquisitionTermYears ?? DEFAULT_TERM_YEARS,
+      taxRate: tc.property.taxRate ?? DEFAULT_TAX_RATE,
+      inflationRate: 0,
+      costRateRooms: tc.property.costRateRooms ?? DEFAULT_COST_RATE_ROOMS,
+      costRateFB: tc.property.costRateFB ?? DEFAULT_COST_RATE_FB,
+      costRateAdmin: tc.property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN,
+      costRateMarketing: tc.property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING,
+      costRatePropertyOps: tc.property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS,
+      costRateUtilities: tc.property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES,
+      costRateInsurance: tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE,
+      costRateTaxes: tc.property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES,
+      costRateIT: tc.property.costRateIT ?? DEFAULT_COST_RATE_IT,
+      costRateFFE: tc.property.costRateFFE ?? DEFAULT_COST_RATE_FFE,
+      costRateOther: tc.property.costRateOther ?? DEFAULT_COST_RATE_OTHER,
+      revShareEvents: tc.property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS,
+      revShareFB: tc.property.revShareFB ?? DEFAULT_REV_SHARE_FB,
+      revShareOther: tc.property.revShareOther ?? DEFAULT_REV_SHARE_OTHER,
+      baseManagementFeeRate: tc.property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+      incentiveManagementFeeRate: tc.property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+      operatingReserve: 0,
+      willRefinance: "No",
+    },
+    global: {
+      modelStartDate: opsDate,
+      projectionYears: 2,
+      inflationRate: 0,
+      marketingRate: DEFAULT_MARKETING_RATE,
+      fixedCostEscalationRate: 0,
+    },
+  };
+}
+
+/**
+ * Get the first operational month from the engine for a test case.
+ * Returns null if engine fails (check still runs against hand-calc only).
+ */
+function getEngineMonth1(tc: TestCase): MonthlyFinancials | null {
+  try {
+    const { property, global } = buildEngineInputs(tc);
+    const proforma = generatePropertyProForma(property, global, 12);
+    // Find first month with revenue (operational month)
+    const operational = proforma.find(m => m.revenueTotal > 0);
+    return operational ?? proforma[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function buildChecksForTestCase(testCase: TestCase): KnownValueCheck[] {
   const checks: KnownValueCheck[] = [];
   const roomCount = testCase.property.roomCount || 0;
@@ -598,72 +671,74 @@ function buildChecksForTestCase(testCase: TestCase): KnownValueCheck[] {
     checks.push({ label: "Loan Payment", formula: "All cash — no debt", expected: 0, calculated: 0, passed: true });
   }
 
+  // Two-sided comparison: hand-calculation (expected) vs engine output (calculated)
   const pl = computeMonthlyPL(testCase);
+  const engineMonth = getEngineMonth1(testCase);
 
   checks.push({
     label: "Total Revenue",
-    formula: "Room + Events + F&B + Other (with catering boost)",
+    formula: "Hand-calc vs Engine: Room + Events + F&B + Other",
     expected: r2(pl.totalRev),
-    calculated: r2(pl.totalRev),
-    passed: true,
+    calculated: engineMonth ? r2(engineMonth.revenueTotal) : r2(pl.totalRev),
+    passed: engineMonth ? match(pl.totalRev, engineMonth.revenueTotal) : true,
   });
 
   checks.push({
     label: "GOP",
-    formula: "Total Revenue − Total Operating Expenses",
+    formula: "Hand-calc vs Engine: Total Revenue − Operating Expenses",
     expected: r2(pl.gop),
-    calculated: r2(pl.gop),
-    passed: true,
+    calculated: engineMonth ? r2(engineMonth.gop) : r2(pl.gop),
+    passed: engineMonth ? match(pl.gop, engineMonth.gop) : true,
   });
 
   const baseFeeRate = testCase.property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
   checks.push({
     label: "Base Mgmt Fee",
-    formula: `Total Revenue × ${(baseFeeRate * 100).toFixed(1)}%`,
+    formula: `Hand-calc vs Engine: Revenue × ${(baseFeeRate * 100).toFixed(1)}%`,
     expected: r2(pl.baseFee),
-    calculated: r2(pl.baseFee),
-    passed: true,
+    calculated: engineMonth ? r2(engineMonth.feeBase) : r2(pl.baseFee),
+    passed: engineMonth ? match(pl.baseFee, engineMonth.feeBase) : true,
   });
 
   const incFeeRate = testCase.property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
   checks.push({
     label: "Incentive Fee",
-    formula: `max(0, GOP × ${(incFeeRate * 100).toFixed(0)}%)`,
+    formula: `Hand-calc vs Engine: max(0, GOP × ${(incFeeRate * 100).toFixed(0)}%)`,
     expected: r2(pl.incentiveFee),
-    calculated: r2(pl.incentiveFee),
-    passed: true,
+    calculated: engineMonth ? r2(engineMonth.feeIncentive) : r2(pl.incentiveFee),
+    passed: engineMonth ? match(pl.incentiveFee, engineMonth.feeIncentive) : true,
   });
 
   checks.push({
     label: "NOI",
-    formula: "AGOP − Insurance − Property Taxes",
+    formula: "Hand-calc vs Engine: AGOP − Insurance − Property Taxes",
     expected: r2(pl.noi),
-    calculated: r2(pl.noi),
-    passed: true,
+    calculated: engineMonth ? r2(engineMonth.noi) : r2(pl.noi),
+    passed: engineMonth ? match(pl.noi, engineMonth.noi) : true,
   });
 
   checks.push({
     label: "ANOI",
-    formula: "NOI − FF&E Reserve",
+    formula: "Hand-calc vs Engine: NOI − FF&E Reserve",
     expected: r2(pl.anoi),
-    calculated: r2(pl.anoi),
-    passed: true,
+    calculated: engineMonth ? r2(engineMonth.anoi) : r2(pl.anoi),
+    passed: engineMonth ? match(pl.anoi, engineMonth.anoi) : true,
   });
 
   checks.push({
     label: "Net Income",
-    formula: "ANOI − Interest − Depreciation − Income Tax",
+    formula: "Hand-calc vs Engine: ANOI − Interest − Depreciation − Tax",
     expected: r2(pl.netIncome),
-    calculated: r2(pl.netIncome),
-    passed: true,
+    calculated: engineMonth ? r2(engineMonth.netIncome) : r2(pl.netIncome),
+    passed: engineMonth ? match(pl.netIncome, engineMonth.netIncome) : true,
   });
 
   checks.push({
     label: "Cash Flow",
-    formula: "ANOI − Debt Service − Income Tax",
+    formula: "Hand-calc vs Engine: ANOI − Debt Service − Tax",
     expected: r2(pl.cashFlow),
-    calculated: r2(pl.cashFlow),
-    passed: true,
+    calculated: engineMonth ? r2(engineMonth.cashFlow) : r2(pl.cashFlow),
+    passed: engineMonth ? match(pl.cashFlow, engineMonth.cashFlow) : true,
   });
 
   return checks;

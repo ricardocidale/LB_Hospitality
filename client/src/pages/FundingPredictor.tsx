@@ -12,6 +12,7 @@ import { analyzeFundingNeeds } from "@/lib/financial/funding-predictor";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { MermaidChart } from "@/lib/charts";
 
 function RunwayTooltip({ active, payload, label }: { active?: boolean; payload?: any[]; label?: string }) {
   if (!active || !payload?.length) return null;
@@ -142,6 +143,55 @@ export default function FundingPredictor({ embedded }: { embedded?: boolean }) {
               <p className="text-sm text-muted-foreground/80 leading-relaxed" data-testid="text-investor-thesis">
                 {analysis.investorThesis}
               </p>
+            </ContentPanel>
+          </ScrollReveal>
+
+          <ScrollReveal>
+            <ContentPanel data-testid="panel-capital-flow">
+              <div className="flex items-start gap-3 mb-3">
+                <IconWallet className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-lg font-display text-foreground">Capital Flow</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">How {fundingLabel} capital flows through the management company</p>
+                </div>
+              </div>
+              <MermaidChart
+                chart={(() => {
+                  const fmt = (v: number) => `$${(v / 1000).toFixed(0)}K`;
+                  const trancheNodes = analysis.tranches.map(t =>
+                    `T${t.index}["Tranche ${t.index}\\n${fmt(t.amount)}\\nMonth ${t.month}"]`
+                  ).join("\n    ");
+                  const trancheLinks = analysis.tranches.map(t =>
+                    `INVESTORS -->|"${fmt(t.amount)}"| T${t.index}`
+                  ).join("\n    ");
+                  const trancheToOps = analysis.tranches.map(t =>
+                    `T${t.index} --> OPS`
+                  ).join("\n    ");
+                  const beNode = analysis.breakevenMonth !== null
+                    ? `BREAKEVEN(("Breakeven\\nMonth ${analysis.breakevenMonth}"))`
+                    : `BREAKEVEN(("Breakeven\\nNot yet reached"))`;
+                  const beStyle = analysis.breakevenMonth !== null
+                    ? "style BREAKEVEN fill:#22c55e,stroke:#16a34a,color:#fff"
+                    : "style BREAKEVEN fill:#ef4444,stroke:#dc2626,color:#fff";
+                  return `graph LR
+    INVESTORS["${fundingLabel}\\nInvestors"]
+    ${trancheNodes}
+    OPS["Operating Expenses\\n${fmt(analysis.monthlyBurnRate)}/mo burn"]
+    REVENUE["Fee Revenue\\nRamp-Up"]
+    ${beNode}
+
+    ${trancheLinks}
+    ${trancheToOps}
+    OPS --> REVENUE
+    REVENUE --> BREAKEVEN
+
+    style INVESTORS fill:#3b82f6,stroke:#2563eb,color:#fff
+    style OPS fill:#f59e0b,stroke:#d97706,color:#fff
+    style REVENUE fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    ${beStyle}`;
+                })()}
+                theme="neutral"
+              />
             </ContentPanel>
           </ScrollReveal>
 

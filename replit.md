@@ -62,6 +62,9 @@ Note: The old "Services" sidebar item was merged into "Revenue Share" — all se
 
 Companies table now includes `theme_id` column for per-company theme assignment.
 
+## Property Photos
+Each property has a photo album in the `property_photos` table (hero image + 2 gallery photos). The `HeroImage` component supports an optional `caption` prop displayed as an italic overlay at the bottom. The `PropertyHeader` on the detail page fetches the hero photo's caption from the photos API and passes it to `HeroImage`. Seed data in `server/seeds/photos.ts` covers both seed-file properties and live-database properties. Photos are stored as static files in `client/public/images/`.
+
 ## Logo Assignment Policy
 Logos are assigned to **companies only**, not to groups. Groups derive their display logo automatically: if all members belong to the same company and that company has a logo, the company logo is shown; otherwise an initials-based pseudo logo is displayed. The branding resolution chain for users is: user's company logo → default system logo.
 

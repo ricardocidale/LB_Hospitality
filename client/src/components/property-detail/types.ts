@@ -105,6 +105,7 @@ export interface CashFlowTabProps {
 export interface PropertyHeaderProps {
   property: any;
   propertyId: number;
+  heroCaption?: string;
   onPhotoUploadComplete: () => void;
 }
 

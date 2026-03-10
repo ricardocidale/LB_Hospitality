@@ -18,7 +18,7 @@ import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { HeroImage } from "@/features/property-images";
 import type { PropertyHeaderProps } from "./types";
 
-export default function PropertyHeader({ property, propertyId, onPhotoUploadComplete }: PropertyHeaderProps) {
+export default function PropertyHeader({ property, propertyId, heroCaption, onPhotoUploadComplete }: PropertyHeaderProps) {
   const getStatusLabel = (status: string) => {
     return status;
   };
@@ -28,6 +28,7 @@ export default function PropertyHeader({ property, propertyId, onPhotoUploadComp
       <HeroImage
         src={property.imageUrl}
         alt={property.name}
+        caption={heroCaption}
         aspectRatio="auto"
         overlay="full"
         className="h-[180px] sm:h-[280px] rounded-none"

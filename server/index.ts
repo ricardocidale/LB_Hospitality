@@ -145,7 +145,7 @@ app.use((req, res, next) => {
   await runPropertyPhotos001();
 
   await seedAdminUser();
-  const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates } = await import("./seed");
+  const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");
   await seedMissingMarketResearch();
   await seedMarketRates();
@@ -156,6 +156,7 @@ app.use((req, res, next) => {
   await seedUserCompanyAssignments();
   await seedFeeCategories();
   await seedServiceTemplates();
+  await seedPropertyPhotos();
   registerImageRoutes(app);
   await registerRoutes(httpServer, app);
 

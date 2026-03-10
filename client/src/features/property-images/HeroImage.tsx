@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 interface HeroImageProps {
   src: string;
   alt: string;
+  caption?: string;
   aspectRatio?: "16/10" | "16/9" | "4/3" | "1/1" | "auto";
   overlay?: "bottom" | "full" | "none";
   className?: string;
@@ -21,6 +22,7 @@ interface HeroImageProps {
 export function HeroImage({
   src,
   alt,
+  caption,
   aspectRatio = "16/10",
   overlay = "bottom",
   className,
@@ -87,6 +89,13 @@ export function HeroImage({
 
       {/* Gradient overlay */}
       {overlay !== "none" && <div className={cn("absolute inset-0 pointer-events-none", overlayClass)} />}
+
+      {/* Caption overlay */}
+      {caption && (
+        <div className="absolute bottom-0 inset-x-0 px-3 pb-2 pointer-events-none">
+          <span className="text-xs text-white/80 font-medium drop-shadow-md italic">{caption}</span>
+        </div>
+      )}
 
       {/* Children (badges, buttons, etc.) rendered on top */}
       {children}

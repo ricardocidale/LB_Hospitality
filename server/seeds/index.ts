@@ -5,6 +5,7 @@ import { seedGlobalAssumptions, seedProperties, seedFeeCategories } from "./prop
 import { seedDefaultLogos, seedCompanies } from "./branding";
 import { seedMissingMarketResearch, getHudsonEstateResearch, getEdenSummitResearch, getAustinHillsideResearch, getCasaMedellinResearch, getBlueRidgeResearch } from "./research";
 import { seedServiceTemplates } from "./services";
+import { seedPropertyPhotos } from "./photos";
 import { logger } from "../logger";
 
 export async function seed() {
@@ -102,6 +103,9 @@ export async function seed() {
   // Seed service templates
   await seedServiceTemplates();
 
+  // Seed property photos (hero + gallery)
+  await seedPropertyPhotos();
+
   logger.info("Database seed completed successfully!", "seed");
 }
 
@@ -111,6 +115,7 @@ export {
   seedUserGroups,
   seedCompanies,
   seedServiceTemplates,
+  seedPropertyPhotos,
 };
 
 

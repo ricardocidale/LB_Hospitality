@@ -25,6 +25,7 @@
 import { useMemo, useState, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
+import { usePropertyPhotos } from "@/lib/api/property-photos";
 import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
@@ -76,9 +77,12 @@ export default function PropertyDetail() {
   
   const { data: property, isLoading: propertyLoading, isError: propertyError } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
+  const { data: photos } = usePropertyPhotos(propertyId);
+  const heroCaption = useMemo(() => photos?.find(p => p.isHero)?.caption ?? undefined, [photos]);
   
   const handlePhotoUploadComplete = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/properties", propertyId] });
+    queryClient.invalidateQueries({ queryKey: ["propertyPhotos", propertyId] });
   };
 
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
@@ -542,6 +546,7 @@ export default function PropertyDetail() {
         <PropertyHeader
           property={property}
           propertyId={propertyId}
+          heroCaption={heroCaption}
           onPhotoUploadComplete={handlePhotoUploadComplete}
         />
 

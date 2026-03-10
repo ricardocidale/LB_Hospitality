@@ -1,4 +1,4 @@
-import { useRef, useCallback, useMemo } from "react";
+import { useRef, useCallback, useMemo, useState } from "react";
 import Layout from "@/components/Layout";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useStore } from "@/lib/store";
@@ -15,11 +15,14 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { CurrentThemeTab } from "@/components/ui/tabs";
 import { ExportMenu, pdfAction, csvAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { usePortfolioFinancials } from "@/components/dashboard";
+import { getFiscalYearForModelYear } from "@/lib/financialEngine";
+import { PROJECTION_YEARS } from "@/lib/constants";
 import pptxgen from "pptxgenjs";
 
 const formatMoney = (value: number) =>
@@ -134,11 +137,40 @@ export default function ExecutiveSummary() {
   const financials = usePortfolioFinancials(apiProperties, global);
   const pageRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
+  const [waterfallYear, setWaterfallYear] = useState<string>("0");
+
+  const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
+  const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;
+
+  const yearTabs = useMemo(() => {
+    const tabs = Array.from({ length: projectionYears }, (_, i) => {
+      const fy = global?.modelStartDate
+        ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i)
+        : `Year ${i + 1}`;
+      return { value: String(i), label: fy };
+    });
+    tabs.push({ value: "all", label: "Consolidated" });
+    return tabs;
+  }, [projectionYears, global?.modelStartDate, fiscalYearStartMonth]);
 
   const waterfallData = useMemo(() => {
     if (!financials?.yearlyConsolidatedCache?.length) return null;
-    return buildWaterfallData(financials.yearlyConsolidatedCache[0]);
-  }, [financials]);
+    if (waterfallYear === "all") {
+      const summed = financials.yearlyConsolidatedCache.reduce((acc, y) => ({
+        revenueTotal: acc.revenueTotal + y.revenueTotal,
+        gop: acc.gop + y.gop,
+        agop: acc.agop + y.agop,
+        noi: acc.noi + y.noi,
+        anoi: acc.anoi + y.anoi,
+        feeBase: acc.feeBase + y.feeBase,
+        feeIncentive: acc.feeIncentive + y.feeIncentive,
+        expenseFFE: acc.expenseFFE + y.expenseFFE,
+      }), { revenueTotal: 0, gop: 0, agop: 0, noi: 0, anoi: 0, feeBase: 0, feeIncentive: 0, expenseFFE: 0 });
+      return buildWaterfallData(summed);
+    }
+    const idx = Math.min(Number(waterfallYear), financials.yearlyConsolidatedCache.length - 1);
+    return buildWaterfallData(financials.yearlyConsolidatedCache[idx]);
+  }, [financials, waterfallYear]);
 
   const totalProperties = properties.length;
   const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
@@ -390,11 +422,16 @@ export default function ExecutiveSummary() {
 
         {waterfallData && (
           <Card data-testid="usali-waterfall-card" className="print-waterfall-card">
-            <CardHeader className="print-card-header">
-              <CardTitle className="text-sm font-semibold">USALI Profit Waterfall — Year 1</CardTitle>
+            <CardHeader className="print-card-header pb-2">
+              <CardTitle className="text-sm font-semibold">USALI Profit Waterfall</CardTitle>
               <p className="text-xs text-muted-foreground">Revenue cascade through operating expenses to net income (consolidated portfolio)</p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
+              <CurrentThemeTab
+                tabs={yearTabs}
+                activeTab={waterfallYear}
+                onTabChange={setWaterfallYear}
+              />
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={waterfallData} margin={{ top: 16, right: 16, bottom: 4, left: 8 }}>
                   <XAxis

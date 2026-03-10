@@ -14,7 +14,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { X, Search } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch, IconBot } from "@/components/icons";
+import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -106,7 +106,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         ...(sb("sidebarResearch") && hasManagementAccess ? [{ href: "/research", label: "Research Center", icon: IconResearch }] : []),
         ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Analysis", icon: IconAnalysis }] : []),
         ...(sb("sidebarMapView") && hasManagementAccess ? [{ href: "/map", label: "Map View", icon: IconMapPin }] : []),
-        ...((global as any)?.marcelaEnabled || (global as any)?.showAiAssistant ? [{ href: "/voice", label: "AI Voice Lab", icon: IconBot }] : []),
         ...(sb("sidebarExecutiveSummary") && hasManagementAccess ? [{ href: "/executive-summary", label: "Executive Summary", icon: IconExecutive }] : []),
       ].filter(Boolean),
     },

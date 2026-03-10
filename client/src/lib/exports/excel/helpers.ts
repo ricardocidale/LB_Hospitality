@@ -1,5 +1,5 @@
-import { getFiscalYearForModelYear } from "../../financialEngine";
-import { aggregatePropertyByYear } from "../../financial/yearlyAggregator";
+import { getFiscalYearForModelYear } from "@/lib/financialEngine";
+import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
 import { YearlyAggregation } from "./types";
 
 function encodeCell(r: number, c: number): string {

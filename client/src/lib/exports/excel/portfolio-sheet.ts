@@ -2,9 +2,9 @@ import {
   MonthlyFinancials,
   CompanyMonthlyFinancials,
   getFiscalYearForModelYear
-} from "../../financialEngine";
-import { LoanParams } from "../../financial/loanCalculations";
-import { propertyEquityInvested } from "../../financial/equityCalculations";
+} from "@/lib/financialEngine";
+import { LoanParams } from "@/lib/financial/loanCalculations";
+import { propertyEquityInvested } from "@/lib/financial/equityCalculations";
 import {
   applyCurrencyFormat,
   applyHeaderStyle,

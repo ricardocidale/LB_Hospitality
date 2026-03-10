@@ -2,18 +2,18 @@ import {
   MonthlyFinancials,
   CompanyMonthlyFinancials,
   getFiscalYearForModelYear
-} from "../../financialEngine";
+} from "@/lib/financialEngine";
 import {
   LoanParams,
   GlobalLoanParams,
   calculateLoanParams,
   getAcquisitionYear,
-} from "../../financial/loanCalculations";
+} from "@/lib/financial/loanCalculations";
 import {
   PROJECTION_YEARS,
-} from "../../constants";
-import { aggregateCashFlowByYear } from "../../financial/cashFlowAggregator";
-import { computeCashFlowSections } from "../../financial/cashFlowSections";
+} from "@/lib/constants";
+import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
+import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
 import {
   applyCurrencyFormat,
   applyHeaderStyle,

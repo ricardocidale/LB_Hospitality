@@ -97,11 +97,16 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   const getPropertyInvestment = (prop: typeof properties[0]): number =>
     propertyEquityInvested(prop);
 
+  const truncName = (name: string) => {
+    const limit = typeof window !== "undefined" && window.innerWidth < 640 ? 10 : 15;
+    return name.length > limit ? name.substring(0, limit - 2) + '\u2026' : name;
+  };
+
   const propertyIRRData = properties.map((prop, idx) => {
     const cashFlows = getPropertyCashFlows(idx);
     const irr = calculateIRR(cashFlows);
     return {
-      name: prop.name.length > 15 ? prop.name.substring(0, 13) + '\u2026' : prop.name,
+      name: truncName(prop.name),
       fullName: prop.name,
       irr: parseFloat((irr * 100).toFixed(1)),
     };
@@ -110,7 +115,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   const propertyInvestmentData = properties.map((prop) => {
     const investment = getPropertyInvestment(prop);
     return {
-      name: prop.name.length > 15 ? prop.name.substring(0, 13) + '\u2026' : prop.name,
+      name: truncName(prop.name),
       fullName: prop.name,
       investment: Math.round(investment),
     };
@@ -247,8 +252,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 items-stretch gap-6 mb-10">
-                <div className="bg-card rounded-lg p-6 border border-border shadow-sm flex flex-col" data-testid="gauge-portfolio-irr">
+              <div className="grid grid-cols-1 lg:grid-cols-3 items-stretch gap-4 sm:gap-6 mb-6 sm:mb-10">
+                <div className="bg-card rounded-lg p-3 sm:p-6 border border-border shadow-sm flex flex-col" data-testid="gauge-portfolio-irr">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text flex items-center justify-center gap-1">
                     Portfolio IRR
                     <InfoTooltip text="Internal Rate of Return — the annualized return that makes the net present value of all cash flows equal to zero." formula="NPV = Σ CFₜ / (1 + IRR)ᵗ = 0" light side="bottom" />
@@ -263,7 +268,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       endAngle={Math.min(Math.max(portfolioIRR * 100, 0), 100) * 3.6}
                       innerRadius={70}
                       outerRadius={110}
-                      className="mx-auto aspect-square max-h-[220px] w-full"
+                      className="mx-auto aspect-square max-h-[180px] sm:max-h-[220px] w-full"
                     />
                   </div>
                   <div className="text-center" data-testid="text-portfolio-irr">
@@ -271,12 +276,12 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </div>
                 </div>
 
-                <div ref={chartsRef} className="bg-card rounded-lg p-6 border border-border shadow-sm flex flex-col" data-testid="chart-property-irr-comparison">
+                <div ref={chartsRef} className="bg-card rounded-lg p-3 sm:p-6 border border-border shadow-sm flex flex-col" data-testid="chart-property-irr-comparison">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Property IRR Comparison</p>
-                  <ChartContainer config={{ irr: { label: "IRR", color: "var(--chart-1)" } } satisfies ChartConfig} className="h-[200px] w-full">
-                    <BarChart data={propertyIRRData} margin={{ top: 20, right: 10, left: 0, bottom: 40 }}>
+                  <ChartContainer config={{ irr: { label: "IRR", color: "var(--chart-1)" } } satisfies ChartConfig} className="h-[180px] sm:h-[200px] w-full">
+                    <BarChart data={propertyIRRData} margin={{ top: 20, right: 5, left: 0, bottom: 30 }}>
                       <CartesianGrid vertical={false} />
-                      <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} angle={-25} textAnchor="end" height={50} tick={{ fontSize: 10 }} />
+                      <XAxis dataKey="name" tickLine={false} tickMargin={8} axisLine={false} angle={-30} textAnchor="end" height={45} tick={{ fontSize: 9 }} />
                       <ChartTooltip
                         cursor={false}
                         content={<ChartTooltipContent
@@ -291,12 +296,12 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   </ChartContainer>
                 </div>
 
-                <div className="bg-card rounded-lg p-6 border border-border shadow-sm flex flex-col" data-testid="chart-property-investment">
+                <div className="bg-card rounded-lg p-3 sm:p-6 border border-border shadow-sm flex flex-col" data-testid="chart-property-investment">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text">Equity by Property</p>
-                  <ChartContainer config={{ investment: { label: "Equity Invested", color: "var(--chart-2)" } } satisfies ChartConfig} className="h-[200px] w-full">
-                    <BarChart data={propertyInvestmentData} margin={{ top: 20, right: 10, left: 0, bottom: 40 }}>
+                  <ChartContainer config={{ investment: { label: "Equity Invested", color: "var(--chart-2)" } } satisfies ChartConfig} className="h-[180px] sm:h-[200px] w-full">
+                    <BarChart data={propertyInvestmentData} margin={{ top: 20, right: 5, left: 0, bottom: 30 }}>
                       <CartesianGrid vertical={false} />
-                      <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} angle={-25} textAnchor="end" height={50} tick={{ fontSize: 10 }} />
+                      <XAxis dataKey="name" tickLine={false} tickMargin={8} axisLine={false} angle={-30} textAnchor="end" height={45} tick={{ fontSize: 9 }} />
                       <ChartTooltip
                         cursor={false}
                         content={<ChartTooltipContent
@@ -312,11 +317,11 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 </div>
               </div>
 
-              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="relative w-14 h-14 flex-shrink-0">
-                      <svg className="w-14 h-14" viewBox="0 0 100 100">
+              <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+                <div className="bg-card rounded-lg p-3 sm:p-5 border border-border shadow-sm transition-all duration-300">
+                  <div className="flex items-center gap-2 sm:gap-4 mb-3">
+                    <div className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0">
+                      <svg className="w-10 h-10 sm:w-14 sm:h-14" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
                         <circle
                           cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--accent-pop))" strokeWidth="6"
@@ -326,20 +331,20 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                         />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-sm font-bold text-foreground font-mono">{equityMultiple.toFixed(1)}x</span>
+                        <span className="text-[10px] sm:text-sm font-bold text-foreground font-mono">{equityMultiple.toFixed(1)}x</span>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold text-emerald-700 font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
-                      <p className="text-sm text-foreground/60 label-text flex items-center">Equity Multiple<InfoTooltip text="Total distributions plus residual value divided by total equity invested. A 2.0x multiple means investors received double their investment." formula="EM = (Total Distributions + Exit Value) / Total Equity" light side="right" /></p>
+                    <div className="min-w-0">
+                      <p className="text-lg sm:text-2xl font-bold text-emerald-700 font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
+                      <p className="text-xs sm:text-sm text-foreground/60 label-text flex items-center">Equity Multiple<InfoTooltip text="Total distributions plus residual value divided by total equity invested. A 2.0x multiple means investors received double their investment." formula="EM = (Total Distributions + Exit Value) / Total Equity" light side="right" /></p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="relative w-14 h-14 flex-shrink-0">
-                      <svg className="w-14 h-14" viewBox="0 0 100 100">
+                <div className="bg-card rounded-lg p-3 sm:p-5 border border-border shadow-sm transition-all duration-300">
+                  <div className="flex items-center gap-2 sm:gap-4 mb-3">
+                    <div className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0">
+                      <svg className="w-10 h-10 sm:w-14 sm:h-14" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
                         <circle
                           cx="50" cy="50" r="40" fill="none" stroke="hsl(var(--accent-pop))" strokeWidth="6"
@@ -349,30 +354,30 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                         />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-sm font-bold text-foreground font-mono">{cashOnCash.toFixed(0)}%</span>
+                        <span className="text-[10px] sm:text-sm font-bold text-foreground font-mono">{cashOnCash.toFixed(0)}%</span>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold text-primary font-mono" data-testid="text-cash-on-cash">{cashOnCash.toFixed(1)}%</p>
-                      <p className="text-sm text-foreground/60 label-text flex items-center">Cash-on-Cash<InfoTooltip text="Annual pre-tax cash flow as a percentage of total equity invested. Measures the yield on your cash investment." formula="CoC = Annual Cash Flow / Total Equity Invested" light side="right" /></p>
+                    <div className="min-w-0">
+                      <p className="text-lg sm:text-2xl font-bold text-primary font-mono" data-testid="text-cash-on-cash">{cashOnCash.toFixed(1)}%</p>
+                      <p className="text-xs sm:text-sm text-foreground/60 label-text flex items-center whitespace-nowrap">Cash-on-Cash<InfoTooltip text="Annual pre-tax cash flow as a percentage of total equity invested. Measures the yield on your cash investment." formula="CoC = Annual Cash Flow / Total Equity Invested" light side="right" /></p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                <div className="bg-card rounded-lg p-3 sm:p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
-                    <p className="text-2xl font-bold text-foreground font-mono" data-testid="text-equity-invested">{formatMoney(totalInitialEquity)}</p>
-                    <p className="text-sm text-foreground/60 label-text flex items-center">Equity Invested<InfoTooltip text="Total cash equity contributed by investors across all properties, excluding any debt financing." light side="right" /></p>
+                    <p className="text-base sm:text-2xl font-bold text-foreground font-mono truncate" data-testid="text-equity-invested">{formatMoney(totalInitialEquity)}</p>
+                    <p className="text-xs sm:text-sm text-foreground/60 label-text flex items-center">Equity Invested<InfoTooltip text="Total cash equity contributed by investors across all properties, excluding any debt financing." light side="right" /></p>
                   </div>
                   <div className="h-1.5 bg-foreground/10 rounded-full overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: '100%', background: 'linear-gradient(to right, hsl(var(--accent-pop)), hsl(var(--accent-pop-2)))' }} />
                   </div>
                 </div>
 
-                <div className="bg-card rounded-lg p-5 border border-border shadow-sm transition-all duration-300">
+                <div className="bg-card rounded-lg p-3 sm:p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
-                    <p className="text-2xl font-bold text-emerald-700 font-mono" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
-                    <p className="text-sm text-foreground/60 label-text flex items-center">Projected Exit<InfoTooltip text="Estimated total sale proceeds at the end of the hold period, based on projected NOI and exit cap rate." formula="Exit Value = NOI / Exit Cap Rate" light side="right" /></p>
+                    <p className="text-base sm:text-2xl font-bold text-emerald-700 font-mono truncate" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
+                    <p className="text-xs sm:text-sm text-foreground/60 label-text flex items-center">Projected Exit<InfoTooltip text="Estimated total sale proceeds at the end of the hold period, based on projected NOI and exit cap rate." formula="Exit Value = NOI / Exit Cap Rate" light side="right" /></p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -399,20 +404,20 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               />
             </div>
             <AccordionContent className="pt-2 pb-4">
-            <div className="bg-card rounded-lg border border-border shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
+            <div className="bg-card rounded-lg border border-border shadow-sm p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground font-display">Revenue & ANOI</h3>
-                  <p className="text-sm text-muted-foreground label-text">{investmentHorizon}-year consolidated projection</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground font-display">Revenue & ANOI</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground label-text">{investmentHorizon}-year consolidated projection</p>
                 </div>
-                <div className="flex items-center gap-5">
-                  <div className="flex items-center gap-4 text-xs label-text">
+                <div className="flex items-center gap-3 sm:gap-5">
+                  <div className="flex items-center gap-3 sm:gap-4 text-xs label-text">
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'hsl(var(--chart-1))' }} />
+                      <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{ backgroundColor: 'hsl(var(--chart-1))' }} />
                       <span className="text-muted-foreground">Revenue</span>
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'hsl(var(--chart-2))' }} />
+                      <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{ backgroundColor: 'hsl(var(--chart-2))' }} />
                       <span className="text-muted-foreground">ANOI</span>
                     </span>
                   </div>

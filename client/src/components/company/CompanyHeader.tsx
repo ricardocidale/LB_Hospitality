@@ -73,26 +73,30 @@ export default function CompanyHeader({
         />
       </div>
 
-      <FinancialChart
-        data={yearlyChartData as unknown as Record<string, unknown>[]}
-        series={["revenue", "expenses", "netIncome"]}
-        title={`Management Company Performance (${projectionYears}-Year Projection)`}
-        chartRef={chartRef}
-        id="company"
-      />
+      {activeTab !== 'tools' && (
+        <>
+          <FinancialChart
+            data={yearlyChartData as unknown as Record<string, unknown>[]}
+            series={["revenue", "expenses", "netIncome"]}
+            title={`Management Company Performance (${projectionYears}-Year Projection)`}
+            chartRef={chartRef}
+            id="company"
+          />
 
-      <ScrollReveal>
-        <InsightPanel
-          data-testid="insight-company"
-          title="Company Cash Analysis"
-          variant="compact"
-          insights={[
-            { text: "Cash position", metric: cashAnalysis.isAdequate ? "Adequate" : "Needs attention", type: cashAnalysis.isAdequate ? "positive" as const : "warning" as const },
-            ...(cashAnalysis.shortfall > 0 ? [{ text: "Cash shortfall detected", metric: formatMoney(cashAnalysis.shortfall), type: "negative" as const }] : []),
-            { text: "Total company funding", metric: formatMoney(cashAnalysis.totalFunding), type: "neutral" as const },
-          ]}
-        />
-      </ScrollReveal>
+          <ScrollReveal>
+            <InsightPanel
+              data-testid="insight-company"
+              title="Company Cash Analysis"
+              variant="compact"
+              insights={[
+                { text: "Cash position", metric: cashAnalysis.isAdequate ? "Adequate" : "Needs attention", type: cashAnalysis.isAdequate ? "positive" as const : "warning" as const },
+                ...(cashAnalysis.shortfall > 0 ? [{ text: "Cash shortfall detected", metric: formatMoney(cashAnalysis.shortfall), type: "negative" as const }] : []),
+                { text: "Total company funding", metric: formatMoney(cashAnalysis.totalFunding), type: "neutral" as const },
+              ]}
+            />
+          </ScrollReveal>
+        </>
+      )}
     </>
   );
 }

@@ -604,6 +604,104 @@ function ResearchTab({ analysis, fundingLabel, marketRates, global, navigate }: 
       </ScrollReveal>
 
       <ScrollReveal>
+        <ContentPanel data-testid="panel-funding-instruments">
+          <div className="flex items-start gap-3 mb-4">
+            <IconDollarSign className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-lg font-display text-foreground">Funding Instruments</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Capital raise options for a pre-revenue hospitality management company</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              {
+                name: "SAFE (Simple Agreement for Future Equity)",
+                fit: "Best fit for pre-revenue / seed stage",
+                description: "Converts to equity at a future priced round. No interest, no maturity date, no repayment obligation. Fastest to close with lowest legal costs. Investors accept higher risk in exchange for a valuation cap discount. Dominant instrument for early-stage raises under $4M.",
+                pros: ["Speed — close in weeks", "No debt on balance sheet", "Delays valuation until traction exists", "Standardized (Y Combinator template)"],
+                cons: ["Dilution uncertain until conversion", "No governance rights for investors", "Stacking multiple SAFEs increases Series A dilution"],
+                highlight: true,
+              },
+              {
+                name: "Convertible Note",
+                fit: "Alternative when investors want downside protection",
+                description: "Short-term debt that converts to equity at a trigger event. Includes interest rate (typically 6–10%) and maturity date (12–24 months). More complex than a SAFE but familiar to traditional investors. Conversion uses valuation cap and discount rate, similar to SAFEs.",
+                pros: ["Investor downside protection via debt structure", "Familiar to institutional investors", "Interest accrual rewards early commitment"],
+                cons: ["Creates debt obligation on balance sheet", "Maturity date pressure", "Higher legal costs than SAFE"],
+                highlight: false,
+              },
+              {
+                name: "Priced Equity Round",
+                fit: "When company has revenue traction and clear valuation",
+                description: "Direct sale of preferred shares at a set valuation. Provides immediate clarity on ownership and dilution. Typically used for Series A and beyond when the management company has a revenue track record and multiple properties under management.",
+                pros: ["Clear ownership and dilution math", "Investor governance rights (board seats)", "Simpler cap table"],
+                cons: ["Requires defensible valuation", "Slower and more expensive to close", "Higher legal complexity"],
+                highlight: false,
+              },
+              {
+                name: "Revenue-Based Financing",
+                fit: "Post-revenue companies with recurring fee income",
+                description: "Repayment as a percentage of monthly revenue. Non-dilutive — founders retain full ownership. Works when the management company has predictable fee revenue from properties under contract. Not suitable for pre-revenue stage.",
+                pros: ["Non-dilutive — no equity given up", "Payments flex with revenue", "No valuation required"],
+                cons: ["Requires existing revenue stream", "Reduces cash flow during repayment", "Not available pre-revenue"],
+                highlight: false,
+              },
+              {
+                name: "Mezzanine / Hybrid Financing",
+                fit: "Later-stage, asset-backed hospitality deals",
+                description: "Combines debt and equity components. Common in hotel real estate transactions where properties serve as collateral. Higher interest rates offset by equity kicker. Typically used when the portfolio includes owned or leased properties, not purely fee-based management.",
+                pros: ["Leverages property assets as collateral", "Structured for hospitality industry", "Can be tax-efficient"],
+                cons: ["Requires tangible assets", "Complex structuring", "Higher cost of capital"],
+                highlight: false,
+              },
+            ].map((instrument) => (
+              <div
+                key={instrument.name}
+                className={`rounded-lg border p-4 ${instrument.highlight ? "border-primary/30 bg-primary/5" : "border-border/50 bg-muted/30"}`}
+                data-testid={`instrument-${instrument.name.split(" ")[0].toLowerCase()}`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h4 className="text-sm font-display font-medium text-foreground">{instrument.name}</h4>
+                  {instrument.highlight && (
+                    <span className="text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full whitespace-nowrap">Recommended</span>
+                  )}
+                </div>
+                <p className="text-[11px] text-primary/80 font-medium mb-2">{instrument.fit}</p>
+                <p className="text-xs text-muted-foreground/80 leading-relaxed mb-3">{instrument.description}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Advantages</p>
+                    <ul className="space-y-0.5">
+                      {instrument.pros.map((pro, i) => (
+                        <li key={i} className="text-[11px] text-muted-foreground/70 flex items-start gap-1">
+                          <span className="text-green-500 mt-0.5 shrink-0">+</span> {pro}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Considerations</p>
+                    <ul className="space-y-0.5">
+                      {instrument.cons.map((con, i) => (
+                        <li key={i} className="text-[11px] text-muted-foreground/70 flex items-start gap-1">
+                          <span className="text-amber-500 mt-0.5 shrink-0">·</span> {con}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-muted-foreground/60 mt-4 leading-relaxed">
+            The engine's recommended tranching structure applies regardless of the chosen instrument. Update the funding source label in Company Assumptions to reflect your selected instrument — the analysis adapts terminology accordingly.
+          </p>
+        </ContentPanel>
+      </ScrollReveal>
+
+      <ScrollReveal>
         <ContentPanel data-testid="panel-engine-parameters">
           <div className="flex items-start gap-3 mb-4">
             <IconSettings className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />

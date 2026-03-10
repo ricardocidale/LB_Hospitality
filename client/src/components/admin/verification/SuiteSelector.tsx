@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { IconCheckCircle2, IconXCircle, IconPlayCircle } from "@/components/icons";
-import { Server, Calculator, Shield, GitCompare, Scale, Sparkles } from "lucide-react";
+import { Server, Calculator, Shield, GitCompare, Scale, Sparkles, FlaskConical } from "lucide-react";
 import type { SuiteId, SuiteDefinition, SuiteRunResult } from "./types";
 
 const SUITE_DEFINITIONS: SuiteDefinition[] = [
@@ -45,6 +45,14 @@ const SUITE_DEFINITIONS: SuiteDefinition[] = [
     icon: "scale",
   },
   {
+    id: "golden-scenarios",
+    label: "Golden Scenarios",
+    description: "Hand-calculated reference tests across 18 scenario files with penny-exact precision",
+    estimatedTime: "~5s",
+    runsOn: "server",
+    icon: "flask",
+  },
+  {
     id: "ai-narrative",
     label: "AI Narrative Review",
     description: "LLM-powered narrative analysis of verification results",
@@ -62,6 +70,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   shield: Shield,
   gitcompare: GitCompare,
   scale: Scale,
+  flask: FlaskConical,
   sparkles: Sparkles,
 };
 

@@ -42,6 +42,7 @@ export type SuiteId =
   | "gaap-audit"
   | "cross-validation"
   | "financial-identities"
+  | "golden-scenarios"
   | "ai-narrative";
 
 export interface SuiteDefinition {

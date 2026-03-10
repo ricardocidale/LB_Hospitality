@@ -193,6 +193,38 @@ export function useRunSuites(
         }
       }
 
+      // Golden Scenarios suite (server-side — runs vitest)
+      if (suiteArray.includes("golden-scenarios")) {
+        try {
+          const goldenRes = await fetch("/api/admin/golden-test-run", {
+            method: "POST",
+            credentials: "include",
+          });
+          if (goldenRes.ok) {
+            const gd = await goldenRes.json();
+            const result: SuiteRunResult = {
+              suiteId: "golden-scenarios",
+              timestamp: new Date().toISOString(),
+              status: gd.failed === 0 ? "PASS" : "FAIL",
+              summary: { total: gd.totalTests, passed: gd.passed, failed: gd.failed, critical: 0 },
+              data: gd,
+            };
+            results.set("golden-scenarios", result);
+            onSuiteComplete?.("golden-scenarios", result);
+          } else {
+            throw new Error(`Golden test run failed: ${goldenRes.status}`);
+          }
+        } catch {
+          results.set("golden-scenarios", {
+            suiteId: "golden-scenarios",
+            timestamp: new Date().toISOString(),
+            status: "FAIL",
+            summary: { total: 0, passed: 0, failed: 0, critical: 0 },
+            data: null,
+          });
+        }
+      }
+
       // Independent Recheck suite (server-side)
       if (suiteArray.includes("independent-recheck")) {
         const serverRes = await fetch("/api/verification/run", {

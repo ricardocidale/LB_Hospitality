@@ -11,6 +11,7 @@ import { VerificationResults } from "./VerificationResults";
 import { VerificationHistory } from "./VerificationHistory";
 import { AIReviewPanel } from "./AIReviewPanel";
 import { SuiteSelector, SUITE_DEFINITIONS } from "./SuiteSelector";
+import { GoldenScenarioResults } from "./GoldenScenarioResults";
 import type { VerificationResult, SuiteId, SuiteRunResult } from "./types";
 
 export default function VerificationTab() {
@@ -21,7 +22,7 @@ export default function VerificationTab() {
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
 
   // Suite selector state
-  const [selectedSuites, setSelectedSuites] = useState<Set<SuiteId>>(new Set(["independent-recheck", "formula-identity", "gaap-audit", "cross-validation"]));
+  const [selectedSuites, setSelectedSuites] = useState<Set<SuiteId>>(() => new Set<SuiteId>(["independent-recheck", "formula-identity", "gaap-audit", "cross-validation"]));
   const [suiteResults, setSuiteResults] = useState<Map<SuiteId, SuiteRunResult>>(new Map());
   const [runningSuites, setRunningSuites] = useState<Set<SuiteId>>(new Set());
 
@@ -480,7 +481,13 @@ export default function VerificationTab() {
                     </div>
 
                     <VerificationResults results={verificationResults} />
+
+                    {suiteResults.get("golden-scenarios")?.data && (
+                      <GoldenScenarioResults data={suiteResults.get("golden-scenarios")!.data} />
+                    )}
                   </div>
+                ) : suiteResults.get("golden-scenarios")?.data ? (
+                  <GoldenScenarioResults data={suiteResults.get("golden-scenarios")!.data} />
                 ) : (
                   <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
                     <IconPlayCircle className="w-12 h-12 opacity-20" />

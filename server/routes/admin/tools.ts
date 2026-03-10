@@ -3,6 +3,9 @@ import { storage } from "../../storage";
 import { requireAdmin, requireAuth } from "../../auth";
 import { runFillOnlySync } from "../../syncHelpers";
 import { logAndSendError } from "../helpers";
+import { readFile } from "fs/promises";
+import { resolve } from "path";
+import { execFile } from "child_process";
 
 export function registerToolRoutes(app: Express) {
   app.get("/api/admin/checker-activity", requireAdmin, async (_req, res) => {
@@ -135,6 +138,91 @@ export function registerToolRoutes(app: Express) {
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to delete session", error);
+    }
+  });
+
+  // ---------- Golden Scenario Tests ----------
+
+  function parseGoldenResults(raw: any): any {
+    const allResults = raw.testResults ?? [];
+    const goldenFiles = allResults.filter((t: any) => (t.name ?? "").includes("tests/golden/"));
+
+    const scenarios = goldenFiles.map((file: any) => {
+      const fileName = (file.name ?? "").split("tests/golden/").pop() ?? file.name;
+      const assertions = (file.assertionResults ?? []).map((a: any) => ({
+        title: a.title ?? a.fullName ?? "",
+        status: a.status as "passed" | "failed",
+        duration: a.duration ?? 0,
+      }));
+      const passed = assertions.filter((a: any) => a.status === "passed").length;
+      return {
+        file: fileName,
+        name: (file.assertionResults?.[0]?.ancestorTitles?.[0]) ?? fileName.replace(/\.test\.ts$/, ""),
+        tests: assertions.length,
+        passed,
+        failed: assertions.length - passed,
+        duration: (file.endTime ?? 0) - (file.startTime ?? 0),
+        assertions,
+      };
+    });
+
+    const totalTests = scenarios.reduce((s: number, f: any) => s + f.tests, 0);
+    const totalPassed = scenarios.reduce((s: number, f: any) => s + f.passed, 0);
+
+    return {
+      timestamp: raw.startTime ? new Date(raw.startTime).toISOString() : new Date().toISOString(),
+      totalFiles: scenarios.length,
+      totalTests,
+      passed: totalPassed,
+      failed: totalTests - totalPassed,
+      duration: (raw.testResults ?? []).reduce((s: number, f: any) => s + ((f.endTime ?? 0) - (f.startTime ?? 0)), 0),
+      scenarios,
+    };
+  }
+
+  app.get("/api/admin/golden-test-summary", requireAdmin, async (_req, res) => {
+    try {
+      const resultsPath = resolve(process.cwd(), "test-results.json");
+      const raw = JSON.parse(await readFile(resultsPath, "utf-8"));
+      res.json(parseGoldenResults(raw));
+    } catch (error: any) {
+      if (error.code === "ENOENT") {
+        return res.json({ timestamp: null, totalFiles: 0, totalTests: 0, passed: 0, failed: 0, duration: 0, scenarios: [] });
+      }
+      logAndSendError(res, "Failed to read golden test results", error);
+    }
+  });
+
+  app.post("/api/admin/golden-test-run", requireAdmin, async (_req, res) => {
+    try {
+      const projectRoot = process.cwd();
+      const result = await new Promise<string>((resolve, reject) => {
+        execFile(
+          "npx",
+          ["vitest", "run", "tests/golden/", "--reporter=json"],
+          { cwd: projectRoot, timeout: 60_000, maxBuffer: 5 * 1024 * 1024 },
+          (error, stdout, stderr) => {
+            // vitest exits non-zero on test failures, but still outputs valid JSON
+            if (stdout && stdout.trim().startsWith("{")) {
+              resolve(stdout);
+            } else if (error) {
+              reject(new Error(stderr || error.message));
+            } else {
+              resolve(stdout);
+            }
+          },
+        );
+      });
+
+      const raw = JSON.parse(result);
+
+      // Also write to test-results-golden.json for caching
+      const { writeFile } = await import("fs/promises");
+      await writeFile(resolve(projectRoot, "test-results-golden.json"), JSON.stringify(raw), "utf-8").catch(() => {});
+
+      res.json(parseGoldenResults(raw));
+    } catch (error) {
+      logAndSendError(res, "Failed to run golden tests", error);
     }
   });
 

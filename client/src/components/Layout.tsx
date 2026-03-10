@@ -216,7 +216,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           {sidebarContent}
         </aside>
 
-        <main className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden w-full">
+        <main className="relative flex-1 flex flex-col min-w-0 overflow-x-hidden w-full z-0">
           <header className="h-12 shrink-0 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-10">
             <div className="flex items-center gap-2 min-w-0">
               <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>

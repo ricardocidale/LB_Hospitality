@@ -271,6 +271,21 @@ function buildTranches(
 
   const baseValuationCap = global.safeValuationCap ?? DEFAULT_SAFE_VALUATION_CAP;
   const baseDiscount = global.safeDiscountRate ?? DEFAULT_SAFE_DISCOUNT_RATE;
+  const hasValuationCap = baseValuationCap > 0;
+  const hasDiscountRate = baseDiscount > 0;
+
+  const computeTrancheValuationCap = (factor: number): number | null => {
+    if (!hasValuationCap) return null;
+    return Math.round(baseValuationCap * factor);
+  };
+  const computeTrancheDiscount = (adjustment: number): number | null => {
+    if (!hasDiscountRate) return null;
+    return Math.min(0.30, baseDiscount + adjustment + riskFreeRate * 0.1);
+  };
+
+  const termsNote = (hasValuationCap || hasDiscountRate)
+    ? `, reflected in the ${hasValuationCap ? 'valuation cap' : ''}${hasValuationCap && hasDiscountRate ? ' and ' : ''}${hasDiscountRate ? 'discount rate' : ''}`
+    : '';
 
   if (periodLength <= 18 || totalRaise <= 400000) {
     const tranche1Amount = Math.ceil(totalRaise / 50000) * 50000;
@@ -279,9 +294,9 @@ function buildTranches(
       amount: tranche1Amount,
       month: operationsStartIdx,
       date: financials[operationsStartIdx].date,
-      valuationCap: Math.round(baseValuationCap * (1 - EARLY_STAGE_CAP_DISCOUNT)),
-      discountRate: Math.min(0.30, baseDiscount + EARLY_STAGE_DISCOUNT_PREMIUM + riskFreeRate * 0.1),
-      rationale: `Single tranche at company launch to fund operations until the ${propertyLabel.toLowerCase()} portfolio generates sufficient fee revenue to cover corporate overhead. Pre-revenue ${fundingLabel} investment carries the highest risk, reflected in the valuation cap and discount rate.`,
+      valuationCap: computeTrancheValuationCap(1 - EARLY_STAGE_CAP_DISCOUNT),
+      discountRate: computeTrancheDiscount(EARLY_STAGE_DISCOUNT_PREMIUM),
+      rationale: `Single tranche at company launch to fund operations until the ${propertyLabel.toLowerCase()} portfolio generates sufficient fee revenue to cover corporate overhead. Pre-revenue ${fundingLabel} investment carries the highest risk${termsNote}.`,
     }];
   }
 
@@ -294,24 +309,28 @@ function buildTranches(
   const activeAtMid = countActiveProperties(financials, midpoint);
   const revenueAtMid = financials.slice(Math.max(0, midpoint - 11), midpoint + 1).reduce((s, m) => s + m.totalRevenue, 0);
 
+  const t2TermsNote = (hasValuationCap || hasDiscountRate)
+    ? ` Revenue traction de-risks the investment, supporting ${hasValuationCap ? 'a higher valuation cap' : ''}${hasValuationCap && hasDiscountRate ? ' and ' : ''}${hasDiscountRate ? 'lower discount' : ''} compared to Tranche 1.`
+    : '';
+
   const tranches: FundingTranche[] = [
     {
       index: 1,
       amount: tranche1Amount,
       month: operationsStartIdx,
       date: financials[operationsStartIdx].date,
-      valuationCap: Math.round(baseValuationCap * (1 - EARLY_STAGE_CAP_DISCOUNT)),
-      discountRate: Math.min(0.30, baseDiscount + EARLY_STAGE_DISCOUNT_PREMIUM + riskFreeRate * 0.1),
-      rationale: `Initial ${fundingLabel} to fund the first ${Math.ceil(periodLength * 0.45 / 12)} months of operations while the ${propertyLabel.toLowerCase()} portfolio is assembled. This pre-revenue capital covers partner compensation, staffing, and fixed overhead. Investor risk is highest at this stage — the management company has no fee revenue yet — reflected in a lower valuation cap and higher discount.`,
+      valuationCap: computeTrancheValuationCap(1 - EARLY_STAGE_CAP_DISCOUNT),
+      discountRate: computeTrancheDiscount(EARLY_STAGE_DISCOUNT_PREMIUM),
+      rationale: `Initial ${fundingLabel} to fund the first ${Math.ceil(periodLength * 0.45 / 12)} months of operations while the ${propertyLabel.toLowerCase()} portfolio is assembled. This pre-revenue capital covers partner compensation, staffing, and fixed overhead. Investor risk is highest at this stage — the management company has no fee revenue yet${termsNote}.`,
     },
     {
       index: 2,
       amount: tranche2Amount,
       month: midpoint,
       date: financials[midpoint].date,
-      valuationCap: baseValuationCap,
-      discountRate: baseDiscount,
-      rationale: `Second ${fundingLabel} tranche to bridge operations to profitability.${activeAtMid > 0 ? ` By this point the portfolio is projected to include ${activeAtMid} propert${activeAtMid === 1 ? 'y' : 'ies'} generating ~$${(revenueAtMid / 1000).toFixed(0)}K in annual fee revenue.` : ''} Revenue traction de-risks the investment, supporting a higher valuation cap and lower discount compared to Tranche 1.`,
+      valuationCap: hasValuationCap ? baseValuationCap : null,
+      discountRate: hasDiscountRate ? baseDiscount : null,
+      rationale: `Second ${fundingLabel} tranche to bridge operations to profitability.${activeAtMid > 0 ? ` By this point the portfolio is projected to include ${activeAtMid} propert${activeAtMid === 1 ? 'y' : 'ies'} generating ~$${(revenueAtMid / 1000).toFixed(0)}K in annual fee revenue.` : ''}${t2TermsNote}`,
     },
   ];
 
@@ -321,15 +340,19 @@ function buildTranches(
     const realloc3 = Math.max(0, totalRaise - tranche1Amount - realloc2);
     const activeAtThird = countActiveProperties(financials, thirdPoint);
 
+    const t3TermsNote = (hasValuationCap || hasDiscountRate)
+      ? ` With proven fee revenue and operational track record, this tranche carries the lowest risk, reflected in the most favorable investor terms${hasValuationCap ? ' (highest cap' : ''}${hasValuationCap && hasDiscountRate ? ', ' : hasValuationCap ? ')' : ''}${hasDiscountRate ? (hasValuationCap ? 'lowest discount)' : '(lowest discount)') : ''}.`
+      : ' With proven fee revenue and operational track record, this tranche carries the lowest risk.';
+
     tranches[1].amount = realloc2;
     tranches.push({
       index: 3,
       amount: realloc3,
       month: thirdPoint,
       date: financials[thirdPoint].date,
-      valuationCap: Math.round(baseValuationCap * 1.20),
-      discountRate: Math.max(0.10, baseDiscount - EARLY_STAGE_DISCOUNT_PREMIUM),
-      rationale: `Final ${fundingLabel} tranche in the later growth phase.${activeAtThird > 0 ? ` The portfolio now includes ${activeAtThird} propert${activeAtThird === 1 ? 'y' : 'ies'} with established revenue history.` : ''} With proven fee revenue and operational track record, this tranche carries the lowest risk, reflected in the most favorable investor terms (highest cap, lowest discount).`,
+      valuationCap: hasValuationCap ? Math.round(baseValuationCap * 1.20) : null,
+      discountRate: hasDiscountRate ? Math.max(0.10, baseDiscount - EARLY_STAGE_DISCOUNT_PREMIUM) : null,
+      rationale: `Final ${fundingLabel} tranche in the later growth phase.${activeAtThird > 0 ? ` The portfolio now includes ${activeAtThird} propert${activeAtThird === 1 ? 'y' : 'ies'} with established revenue history.` : ''}${t3TermsNote}`,
     });
   }
 

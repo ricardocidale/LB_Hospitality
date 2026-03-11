@@ -196,14 +196,16 @@ export const DEFAULT_COMPANY_TAX_RATE = 0.30;
 export const DEFAULT_PROJECTION_YEARS = 10;
 
 // ──────────────────────────────────────────────────────────
-// FUNDING INSTRUMENT DEFAULTS (SAFE)
-// A SAFE (Simple Agreement for Future Equity) is an early-stage funding
-// instrument. These defaults configure the seed round assumptions.
+// FUNDING INSTRUMENT DEFAULTS
+// These defaults configure the initial funding instrument assumptions.
+// The user can rename the instrument via fundingSourceLabel (e.g. SAFE,
+// Convertible Note, Seed Round). Valuation cap and discount rate are
+// optional — set to 0 to disable them for instruments that don't use them.
 // ──────────────────────────────────────────────────────────
 
-// Valuation cap: maximum company valuation at which the SAFE converts to equity
+// Valuation cap: maximum company valuation at which the instrument converts to equity (0 = not applicable)
 export const DEFAULT_SAFE_VALUATION_CAP = 2500000;
-// Discount rate: investors get this % discount to the next round's price
+// Discount rate: investors get this % discount to the next round's price (0 = not applicable)
 export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;
 
 // ──────────────────────────────────────────────────────────

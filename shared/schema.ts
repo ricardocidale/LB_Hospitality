@@ -272,7 +272,7 @@ export type Session = typeof sessions.$inferSelect;
 //   - Company identity (name, logo, property label)
 //   - Model timeline (start date, projection years, fiscal year)
 //   - Management fees (base % of revenue + incentive % of GOP)
-//   - Funding instrument (SAFE tranche amounts, valuation cap, discount rate)
+//   - Funding instrument (tranche amounts, optional valuation cap, optional discount rate)
 //   - Partner compensation (yearly salary schedule for up to 10 years)
 //   - Staffing tiers (FTE headcount scales with portfolio size)
 //   - Fixed overhead (office lease, professional services, tech, insurance)
@@ -338,7 +338,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   baseManagementFee: real("base_management_fee").notNull(),
   incentiveManagementFee: real("incentive_management_fee").notNull(),
   
-  // Funding Instrument
+  // Funding Instrument (column names use 'safe_' prefix for DB compatibility — do not rename)
   fundingSourceLabel: text("funding_source_label").notNull().default("Funding Vehicle"),
   safeTranche1Amount: real("safe_tranche1_amount").notNull().default(800000),
   safeTranche1Date: text("safe_tranche1_date").notNull().default("2026-06-01"),

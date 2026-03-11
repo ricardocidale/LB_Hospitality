@@ -1,30 +1,42 @@
 /**
- * FundingSection.tsx — SAFE note funding tranches for the management company.
+ * FundingSection.tsx — Funding instrument tranches for the management company.
  *
- * Startup management companies often raise pre-revenue capital through SAFE
- * notes (Simple Agreement for Future Equity). This section lets users
- * configure up to three SAFE tranches, each with:
- *   • Amount — the dollar amount of the SAFE note
- *   • Year — which projection year the funding is received
- *   • Valuation cap — maximum pre-money valuation at which the SAFE converts
- *     to equity in a future priced round (lower cap = better deal for investor)
+ * Startup management companies often raise pre-revenue capital through
+ * various funding instruments (e.g. SAFE, Convertible Note, Seed Round).
+ * This section lets users configure up to two tranches, each with:
+ *   • Amount — the dollar amount of the funding instrument
+ *   • Date — when the funding is received
+ *
+ * Optionally, users can enable:
+ *   • Valuation cap — maximum pre-money valuation at which the instrument
+ *     converts to equity in a future priced round
  *   • Discount rate — percentage discount on the conversion price vs. the
  *     priced round price (e.g. 20% discount)
  *
- * SAFE proceeds flow into the company's cash flow statement as financing
+ * Funding proceeds flow into the company's cash flow statement as financing
  * inflows and appear on the balance sheet as a liability until conversion.
  * They provide the runway needed to operate before management fee revenue
  * from the property portfolio covers overhead.
  */
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { formatMoney } from "@/lib/financialEngine";
+import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "@shared/constants";
 import EditableValue from "./EditableValue";
 import type { FundingSectionProps } from "./types";
 
 export default function FundingSection({ formData, onChange, global }: FundingSectionProps) {
+  const fundingLabel = formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle";
+
+  const hasValuationCap = (formData.safeValuationCap ?? global.safeValuationCap) > 0;
+  const hasDiscountRate = (formData.safeDiscountRate ?? global.safeDiscountRate) > 0;
+  const [showValuationCap, setShowValuationCap] = useState(hasValuationCap);
+  const [showDiscountRate, setShowDiscountRate] = useState(hasDiscountRate);
+
   return (
     <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
       <div className="relative">
@@ -40,14 +52,15 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
             <Label className="text-muted-foreground text-sm label-text whitespace-nowrap">Funding Source Name:</Label>
             <Input
               type="text"
-              value={formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"}
+              value={fundingLabel}
               onChange={(e) => onChange("fundingSourceLabel", e.target.value)}
               placeholder="e.g., Funding Vehicle, SAFE, Seed, Series A"
               className="max-w-48 bg-card border-border text-foreground"
+              data-testid="input-funding-source-label"
             />
             <HelpTooltip text="Customize the name of your funding source (e.g., Funding Vehicle, SAFE, Seed, Series A)" />
           </div>
-          <p className="text-muted-foreground text-sm label-text">Capital raised via {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} in two tranches to support operations</p>
+          <p className="text-muted-foreground text-sm label-text">Capital raised via {fundingLabel} in two tranches to support management company operations</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="p-4 bg-primary/10 rounded-lg space-y-4">
@@ -115,58 +128,100 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
             </div>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-border grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div>
-            <Label className="text-muted-foreground text-sm label-text">Total {formData.fundingSourceLabel ?? global.fundingSourceLabel ?? "Funding Vehicle"} Raise</Label>
-            <p className="font-mono font-semibold text-lg text-foreground">
-              {formatMoney((formData.safeTranche1Amount ?? global.safeTranche1Amount) + (formData.safeTranche2Amount ?? global.safeTranche2Amount))}
-            </p>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center text-foreground label-text">
-                Valuation Cap
-                <HelpTooltip text="Maximum company valuation for funding conversion" manualSection="funding-financing" />
-              </Label>
-              <EditableValue
-                value={formData.safeValuationCap ?? global.safeValuationCap}
-                onChange={(v) => onChange("safeValuationCap", v)}
-                format="dollar"
-                min={100000}
-                max={5000000}
-                step={100000}
-              />
+        <div className="mt-4 pt-4 border-t border-border space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
+              <Label className="text-muted-foreground text-sm label-text">Total {fundingLabel} Raise</Label>
+              <p className="font-mono font-semibold text-lg text-foreground">
+                {formatMoney((formData.safeTranche1Amount ?? global.safeTranche1Amount) + (formData.safeTranche2Amount ?? global.safeTranche2Amount))}
+              </p>
             </div>
-            <Slider
-              value={[formData.safeValuationCap ?? global.safeValuationCap]}
-              onValueChange={([v]) => onChange("safeValuationCap", v)}
-              min={100000}
-              max={5000000}
-              step={100000}
-            />
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="flex items-center text-foreground label-text">
-                Discount Rate
-                <HelpTooltip text="Discount on share price when funding converts to equity" manualSection="funding-financing" />
-              </Label>
-              <EditableValue
-                value={formData.safeDiscountRate ?? global.safeDiscountRate}
-                onChange={(v) => onChange("safeDiscountRate", v)}
-                format="percent"
-                min={0}
-                max={0.5}
-                step={0.05}
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-foreground label-text">
+                  Valuation Cap
+                  <HelpTooltip text="Maximum company valuation at which the funding instrument converts to equity. Enable this if your instrument includes a valuation cap (common for SAFEs and convertible notes)." manualSection="funding-financing" />
+                </Label>
+                <Switch
+                  checked={showValuationCap}
+                  onCheckedChange={(checked) => {
+                    setShowValuationCap(checked);
+                    if (!checked) {
+                      onChange("safeValuationCap", 0);
+                    } else if ((formData.safeValuationCap ?? global.safeValuationCap) <= 0) {
+                      onChange("safeValuationCap", DEFAULT_SAFE_VALUATION_CAP);
+                    }
+                  }}
+                  data-testid="toggle-valuation-cap"
+                />
+              </div>
+              {showValuationCap && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Cap Amount</span>
+                    <EditableValue
+                      value={formData.safeValuationCap ?? global.safeValuationCap}
+                      onChange={(v) => onChange("safeValuationCap", v)}
+                      format="dollar"
+                      min={100000}
+                      max={5000000}
+                      step={100000}
+                    />
+                  </div>
+                  <Slider
+                    value={[formData.safeValuationCap ?? global.safeValuationCap]}
+                    onValueChange={([v]) => onChange("safeValuationCap", v)}
+                    min={100000}
+                    max={5000000}
+                    step={100000}
+                  />
+                </>
+              )}
             </div>
-            <Slider
-              value={[(formData.safeDiscountRate ?? global.safeDiscountRate) * 100]}
-              onValueChange={([v]) => onChange("safeDiscountRate", v / 100)}
-              min={0}
-              max={50}
-              step={5}
-            />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-foreground label-text">
+                  Discount Rate
+                  <HelpTooltip text="Percentage discount on share price when the funding instrument converts to equity. Enable this if your instrument includes a discount rate." manualSection="funding-financing" />
+                </Label>
+                <Switch
+                  checked={showDiscountRate}
+                  onCheckedChange={(checked) => {
+                    setShowDiscountRate(checked);
+                    if (!checked) {
+                      onChange("safeDiscountRate", 0);
+                    } else if ((formData.safeDiscountRate ?? global.safeDiscountRate) <= 0) {
+                      onChange("safeDiscountRate", DEFAULT_SAFE_DISCOUNT_RATE);
+                    }
+                  }}
+                  data-testid="toggle-discount-rate"
+                />
+              </div>
+              {showDiscountRate && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Rate</span>
+                    <EditableValue
+                      value={formData.safeDiscountRate ?? global.safeDiscountRate}
+                      onChange={(v) => onChange("safeDiscountRate", v)}
+                      format="percent"
+                      min={0}
+                      max={0.5}
+                      step={0.05}
+                    />
+                  </div>
+                  <Slider
+                    value={[(formData.safeDiscountRate ?? global.safeDiscountRate) * 100]}
+                    onValueChange={([v]) => onChange("safeDiscountRate", v / 100)}
+                    min={0}
+                    max={50}
+                    step={5}
+                  />
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

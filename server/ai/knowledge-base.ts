@@ -227,11 +227,13 @@ Expense Categories:
 - IT: fixed cost with annual escalation
 - Marketing: variable cost
 
-SAFE Funding:
+Funding Instrument:
 - Released in 2 tranches to support at least 12 months of operations
-- Tranche 1: $225,000 at model start
-- Tranche 2: $225,000 one year later
-- SAFE is not revenue — it's future equity
+- Tranche 1: configured amount at model start
+- Tranche 2: configured amount one year later
+- Funding instrument is not revenue — it represents future equity or convertible investment
+- The instrument type is configurable (e.g., SAFE, Convertible Note, Seed Round) via fundingSourceLabel
+- Valuation cap and discount rate are optional and may not apply to all instrument types
 
 Staff Scaling Tiers:
 - 1-3 properties: 3 Partner FTEs + 2.5 Staff FTEs = 5.5 Total
@@ -455,7 +457,7 @@ Properties: List of hotel SPVs in the portfolio. Each property has its own detai
 
 Property Detail: Shows per-property income statement with USALI waterfall, cash flow statement (CFO, CFI, CFF, FCF, FCFE, DSCR, cash-on-cash return), balance sheet (assets, liabilities, equity, ratios), and investment returns across all projection years. Includes formula transparency accordions for every derived value — click any "Formula" chevron to see how a number is calculated.
 
-Management Company: The management entity's P&L showing fee revenue (base + incentive fees from each property), operating expenses (partner comp, staff, office, travel), SAFE funding status, and net income.
+Management Company: The management entity's P&L showing fee revenue (base + incentive fees from each property), operating expenses (partner comp, staff, office, travel), funding instrument status, and net income. Capital Raise analysis is available under the Simulation section.
 
 Settings (Systemwide Assumptions): Four tabs:
 - Portfolio tab: Asset definition (property type, tier, room count range, ADR range), disposition defaults, acquisition and refinancing defaults for new properties.

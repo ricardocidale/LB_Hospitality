@@ -113,8 +113,8 @@ export default function FundingPredictor({ embedded }: { embedded?: boolean }) {
         <div className="space-y-6 p-4 md:p-6">
           {!embedded && (
             <PageHeader
-              title="Capital Raise Analysis"
-              subtitle={`${fundingLabel} strategy and projections for ${global.companyName || 'the management company'}`}
+              title="Capital Raise — Management Company"
+              subtitle={`${fundingLabel} strategy and projections for the hospitality management company${global.companyName ? ` (${global.companyName})` : ''}`}
             />
           )}
 
@@ -295,22 +295,26 @@ function RecommendedTab({ analysis, fundingLabel, chartData, gapType, projection
                       </td>
                     ))}
                   </tr>
+                  {analysis.tranches.some(t => t.valuationCap !== null) && (
                   <tr className="border-b border-border/50">
                     <td className="py-2 px-3 text-muted-foreground">Valuation Cap</td>
                     {analysis.tranches.map(t => (
                       <td key={t.index} className="py-2 px-3 text-right font-mono text-foreground">
-                        {formatMoney(t.valuationCap)}
+                        {t.valuationCap !== null ? formatMoney(t.valuationCap) : '—'}
                       </td>
                     ))}
                   </tr>
+                  )}
+                  {analysis.tranches.some(t => t.discountRate !== null) && (
                   <tr className="border-b border-border/50">
                     <td className="py-2 px-3 text-muted-foreground">Discount Rate</td>
                     {analysis.tranches.map(t => (
                       <td key={t.index} className="py-2 px-3 text-right font-mono text-foreground">
-                        {(t.discountRate * 100).toFixed(1)}%
+                        {t.discountRate !== null ? `${(t.discountRate * 100).toFixed(1)}%` : '—'}
                       </td>
                     ))}
                   </tr>
+                  )}
                   <tr className="border-b border-border/50">
                     <td className="py-2 px-3 text-muted-foreground">Timing</td>
                     {analysis.tranches.map(t => (
@@ -451,14 +455,16 @@ function CurrentPlanTab({ analysis, fundingLabel, global, chartData, navigate }:
             <div className="space-y-0">
               <StatRow label="Amount" value={formatMoney(t1Amount)} />
               <StatRow label="Target Date" value={t1Date} />
-              <StatRow label="Valuation Cap" value={formatMoney(valCap)} />
-              <StatRow label="Discount Rate" value={`${(discRate * 100).toFixed(1)}%`} />
+              {valCap > 0 && <StatRow label="Valuation Cap" value={formatMoney(valCap)} />}
+              {discRate > 0 && <StatRow label="Discount Rate" value={`${(discRate * 100).toFixed(1)}%`} />}
             </div>
             {analysis.tranches[0] && (
               <div className="mt-3 pt-3 border-t border-border/40">
                 <p className="text-[11px] text-muted-foreground/60 uppercase tracking-wider mb-1">Engine recommends</p>
                 <p className="text-xs text-muted-foreground">
-                  {formatMoney(analysis.tranches[0].amount)} at month {analysis.tranches[0].month} with {formatMoney(analysis.tranches[0].valuationCap)} cap / {(analysis.tranches[0].discountRate * 100).toFixed(1)}% discount
+                  {formatMoney(analysis.tranches[0].amount)} at month {analysis.tranches[0].month}
+                  {analysis.tranches[0].valuationCap !== null ? ` with ${formatMoney(analysis.tranches[0].valuationCap)} cap` : ''}
+                  {analysis.tranches[0].discountRate !== null ? ` / ${(analysis.tranches[0].discountRate * 100).toFixed(1)}% discount` : ''}
                 </p>
               </div>
             )}
@@ -477,14 +483,16 @@ function CurrentPlanTab({ analysis, fundingLabel, global, chartData, navigate }:
             <div className="space-y-0">
               <StatRow label="Amount" value={formatMoney(t2Amount)} />
               <StatRow label="Target Date" value={t2Date} />
-              <StatRow label="Valuation Cap" value={formatMoney(valCap)} />
-              <StatRow label="Discount Rate" value={`${(discRate * 100).toFixed(1)}%`} />
+              {valCap > 0 && <StatRow label="Valuation Cap" value={formatMoney(valCap)} />}
+              {discRate > 0 && <StatRow label="Discount Rate" value={`${(discRate * 100).toFixed(1)}%`} />}
             </div>
             {analysis.tranches[1] && (
               <div className="mt-3 pt-3 border-t border-border/40">
                 <p className="text-[11px] text-muted-foreground/60 uppercase tracking-wider mb-1">Engine recommends</p>
                 <p className="text-xs text-muted-foreground">
-                  {formatMoney(analysis.tranches[1].amount)} at month {analysis.tranches[1].month} with {formatMoney(analysis.tranches[1].valuationCap)} cap / {(analysis.tranches[1].discountRate * 100).toFixed(1)}% discount
+                  {formatMoney(analysis.tranches[1].amount)} at month {analysis.tranches[1].month}
+                  {analysis.tranches[1].valuationCap !== null ? ` with ${formatMoney(analysis.tranches[1].valuationCap)} cap` : ''}
+                  {analysis.tranches[1].discountRate !== null ? ` / ${(analysis.tranches[1].discountRate * 100).toFixed(1)}% discount` : ''}
                 </p>
               </div>
             )}
@@ -757,18 +765,22 @@ function TrancheCard({ tranche, totalTranches }: { tranche: any; totalTranches: 
             {formatMoney(tranche.amount)}
           </span>
         </div>
+        {tranche.valuationCap !== null && (
         <div className="flex justify-between items-center">
           <span className="text-xs text-muted-foreground">Valuation Cap</span>
           <span className="text-sm font-mono text-foreground" data-testid={`text-tranche-cap-${tranche.index}`}>
             {formatMoney(tranche.valuationCap)}
           </span>
         </div>
+        )}
+        {tranche.discountRate !== null && (
         <div className="flex justify-between items-center">
           <span className="text-xs text-muted-foreground">Discount Rate</span>
           <span className="text-sm font-mono text-foreground" data-testid={`text-tranche-discount-${tranche.index}`}>
             {(tranche.discountRate * 100).toFixed(1)}%
           </span>
         </div>
+        )}
         <div className="flex justify-between items-center">
           <span className="text-xs text-muted-foreground">Date</span>
           <span className="text-sm text-foreground">

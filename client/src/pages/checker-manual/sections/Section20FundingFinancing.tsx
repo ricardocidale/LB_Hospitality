@@ -27,7 +27,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["F-F-05", "Principal Component", "PMT − (balance × r)"],
             ["F-F-06", "New Refi Loan", "propertyValueAtRefi × refiLTV"],
             ["F-F-07", "Net Refi proceeds", "newLoan − existingBalance − refiClosingCosts"],
-            ["F-F-08", "SAFE Conversion", "investment / min(valuationCap, conversionValuation)"],
+            ["F-F-08", "Funding Conversion", "investment / min(valuationCap, conversionValuation) — applies when valuation cap is configured"],
             ["F-F-09", "Equity Required", "totalProjectCost − loanAmount"],
             ["F-F-10", "Tranche Funding", "Fixed disbursement on configured date (gates operations)"],
           ]}

@@ -4,7 +4,7 @@
  * Three primary shapes consumed by property-engine and company-engine:
  *
  *   PropertyInput   — per-hotel assumptions (room count, ADR, cost rates, etc.)
- *   GlobalInput     — model-wide assumptions (inflation, staffing, SAFE dates)
+ *   GlobalInput     — model-wide assumptions (inflation, staffing, funding dates)
  *   MonthlyFinancials — one month of engine output for a single property
  *
  * Nullability rules:
@@ -97,7 +97,7 @@ export interface GlobalInput {
   companyInflationRate?: number;
   fixedCostEscalationRate?: number;
   marketingRate: number;
-  // Funding Instrument
+  // Funding Instrument (field names use 'safe' prefix for DB compatibility)
   safeTranche1Amount?: number;
   safeTranche1Date?: string;
   safeTranche2Amount?: number;
@@ -265,8 +265,8 @@ export interface FundingTranche {
   amount: number;
   month: number;
   date: Date;
-  valuationCap: number;
-  discountRate: number;
+  valuationCap: number | null;
+  discountRate: number | null;
   rationale: string;
 }
 

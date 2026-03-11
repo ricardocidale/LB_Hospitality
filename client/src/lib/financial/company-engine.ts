@@ -8,8 +8,8 @@
  * Fee zero-sum: fees earned here equal fees expensed in each property SPV.
  * In consolidation these intercompany amounts eliminate to zero.
  *
- * SAFE gate: operations cannot begin before BOTH companyOpsStartDate AND
- * the first SAFE tranche date have been reached. The gate is strict — even
+ * Funding gate: operations cannot begin before BOTH companyOpsStartDate AND
+ * the first funding tranche date have been reached. The gate is strict — even
  * one day early returns zero revenue/expenses.
  *
  * Staffing tiers: headcount is derived each month from activePropertyCount
@@ -52,13 +52,13 @@ function parseDateComponents(dateStr: string) {
  * Generate month-by-month financials for the management company itself.
  *
  * @param properties      All portfolio properties (used to compute fee revenue each month).
- * @param global          Model-wide assumptions (SAFE dates, staffing tiers, partner comp).
+ * @param global          Model-wide assumptions (funding dates, staffing tiers, partner comp).
  * @param months          Projection horizon in months (default: PROJECTION_MONTHS = 120).
  * @param serviceTemplates Optional centralized-services templates. When present, vendor
  *                         cost-of-services is deducted from fee revenue → grossProfit.
  * @returns               Array of CompanyMonthlyFinancials, one entry per month from model start.
  *
- * SAFE gate: hasStartedOps = currentDate >= companyOpsStartDate AND >= safeTranche1Date.
+ * Funding gate: hasStartedOps = currentDate >= companyOpsStartDate AND >= safeTranche1Date.
  * Both conditions must hold simultaneously — no revenue or expenses accrue before the gate.
  */
 export function generateCompanyProForma(

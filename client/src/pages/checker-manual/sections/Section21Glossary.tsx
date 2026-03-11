@@ -85,7 +85,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Refi Proceeds", "Net cash from refinancing = New Loan − Old Balance − Costs", "F-F-07", "Financing"],
             ["RevPAR", "Revenue Per Available Room = ADR × Occupancy", "—", "Revenue"],
             ["Room Revenue", "ADR × Sold Rooms", "F-P-03", "Revenue"],
-            ["Funding Instrument", "Convertible funding instrument (e.g., SAFE, Seed, Series A)", "F-F-10", "Funding"],
+            ["Funding Instrument", "Configurable funding instrument (e.g., SAFE, Convertible Note, Seed, Series A). Valuation cap and discount rate are optional.", "F-F-10", "Funding"],
             ["Scenario", "Saved snapshot of all assumptions and property configurations", "—", "System"],
             ["SPV (Special Purpose Vehicle)", "Legal entity isolating each property's financial risk", "—", "Legal"],
             ["Stabilization", "Period when property reaches target occupancy (12–24 months)", "—", "Operations"],

@@ -1,15 +1,17 @@
 /**
  * Company — Management company financial statements page
  *
- * Displays four tabs of the management company P&L and supporting analysis:
+ * Displays three tabs of the management company P&L and supporting analysis:
  *   Income        — Revenue (base + incentive fees), Cost of Services, G&A,
  *                   partner comp, staff costs, net income over the projection.
  *   Cash Flow     — GAAP indirect-method statement: OCF, investing, financing.
  *   Balance Sheet — Assets, liabilities, equity for the management entity.
- *   Funding       — SAFE raise predictor: total raise, tranches, cash runway,
- *                   investor thesis, and market-rate context.
  *
- * SAFE funding gate: generateCompanyProForma() returns zero revenue and zero
+ * Capital Raise (formerly the "Tools" tab) now lives under the Simulation
+ * section in the Analysis page alongside Sensitivity, Compare, Timeline,
+ * and Financing tabs.
+ *
+ * Funding gate: generateCompanyProForma() returns zero revenue and zero
  * expenses for months before both companyOpsStartDate and safeTranche1Date.
  * analyzeCompanyCashPosition() surfaces any funding shortfall as a warning.
  *
@@ -37,6 +39,7 @@ import { Link } from "wouter";
 import { AnimatedPage } from "@/components/graphics";
 import { analyzeCompanyCashPosition } from "@/lib/financial/analyzeCompanyCashPosition";
 import { CompanyHeader, CompanyIncomeTab, CompanyCashFlowTab, CompanyBalanceSheet } from "@/components/company";
+import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import { 
   generateCompanyIncomeData, 
   generateCompanyCashFlowData, 
@@ -50,7 +53,6 @@ import {
   exportTablePNG,
   handlePPTXExport
 } from "@/lib/exports/companyExports";
-import FundingPredictor from "./FundingPredictor";
 
 export default function Company() {
   const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
@@ -290,10 +292,9 @@ export default function Company() {
             />
           </TabsContent>
 
-          <TabsContent value="tools" className="mt-6">
-            <FundingPredictor embedded />
+          <TabsContent value="profile" className="mt-6">
+            <CompanyProfileTab />
           </TabsContent>
-
 
           {!cashAnalysis.isAdequate ? (
             <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-warning">

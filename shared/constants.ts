@@ -254,9 +254,14 @@ export const RESEARCH_SOURCES = [
   { name: "CBRE Hotels", category: "Hospitality", url: "https://www.cbre.com/industries/hotels" },
   { name: "HVS", category: "Hospitality", url: "https://hvs.com" },
   { name: "PKF Trends", category: "Hospitality", url: "https://www.pkfhotels.com" },
+  { name: "HotStats", category: "Hospitality", url: "https://www.hotstats.com" },
+  { name: "Xotels", category: "Hospitality", url: "https://www.xotels.com" },
   { name: "FRED", category: "Economics", url: "https://fred.stlouisfed.org" },
   { name: "BLS", category: "Economics", url: "https://www.bls.gov" },
-  { name: "USALI", category: "Operations", url: "https://www.hftp.org/resources/usali" },
+  { name: "USALI 12th Ed (HFTP)", category: "Accounting", url: "https://usali.hftp.org" },
+  { name: "Withum USALI Guide", category: "Accounting", url: "https://www.withum.com/resources/usali-12th-edition-aligning-hotel-accounting-with-modern-hospitality/" },
+  { name: "Chatlyn Glossary", category: "Definitions", url: "https://chatlyn.com/en/glossary/adjusted-gross-operating-profit-agop/" },
+  { name: "Canary Technologies", category: "Definitions", url: "https://www.canarytechnologies.com/hotel-terminology/adjusted-gross-operating-profit" },
 ] as const;
 
 export const DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS = 30;

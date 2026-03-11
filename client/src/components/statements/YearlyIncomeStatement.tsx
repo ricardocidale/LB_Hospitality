@@ -411,7 +411,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Adjusted GOP (AGOP)" values={yd.map((y) => y.agop)} positive tooltip="GOP minus all management fees. The property's operating profit after management company compensation." />
+      <SubtotalRow label="Adjusted GOP (AGOP)" values={yd.map((y) => y.agop)} positive tooltip="AGOP is not a standard USALI line item but is widely used in hotel management agreements. It represents GOP minus all management fees (base, service, and incentive) — the property's operating profit after management company compensation. Sources: Chatlyn Glossary, Canary Technologies, Law Insider, HFTP USALI 12th Ed." />
       {isExpanded("agopFormula") ? (
         <>
           <FormulaDetailRow
@@ -531,7 +531,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="AGOP minus fixed charges (insurance and property taxes). The property's net income from operations before reserves." />
+      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="AGOP minus fixed charges (insurance and property taxes). The property's net income from operations before reserves. Per USALI 12th Ed (HFTP, 2026)." />
       {isExpanded("noiFormula") ? (
         <>
           <FormulaDetailRow

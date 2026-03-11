@@ -126,11 +126,13 @@ This classification is used identically in PDF and PPTX table rendering.
 - Library: pptxgenjs
 - All presentations are landscape
 
-### Footer (every slide)
+### Footer (every slide, including auto-paginated overflow)
 - Thin sage-green line at y = 7.15" (near bottom)
 - Left: `CompanyName — Confidential` (italic, 7pt, light gray)
-- Right: page number (7pt, light gray)
-- Page numbers are tracked manually via `SlideContext.slideCount` counter
+- Right: page number as `X / Y` (7pt, light gray)
+- `addAllFooters(ctx)` is called LAST before `writeFile` — it iterates
+  `pres.slides` so auto-paginated table overflow slides also receive footers
+  and correct page numbers. Never add footers during slide creation.
   (pptxgenjs `{ field: "slidenum" }` is unreliable and does not render)
 
 ### Title slide

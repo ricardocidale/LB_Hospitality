@@ -36,27 +36,33 @@ const MARGIN_X = 0.3;
 interface SlideContext {
   pres: any;
   companyName: string;
-  slideCount: number;
 }
 
-function addFooter(slide: any, ctx: SlideContext) {
-  ctx.slideCount++;
-  const pageNum = ctx.slideCount;
-
-  slide.addShape("rect", {
-    x: 0, y: SLIDE_H - 0.35, w: SLIDE_W, h: 0.01,
-    fill: { color: BRAND.SAGE_HEX },
-  });
-
-  slide.addText(ctx.companyName + " \u2014 Confidential", {
-    x: MARGIN_X, y: SLIDE_H - 0.32, w: 5, h: 0.25,
-    fontSize: 7, fontFace: "Arial", color: BRAND.LIGHT_GRAY_HEX, italic: true,
-  });
-
-  slide.addText(String(pageNum), {
-    x: SLIDE_W - 1.1, y: SLIDE_H - 0.32, w: 0.8, h: 0.25,
-    fontSize: 7, fontFace: "Arial", color: BRAND.LIGHT_GRAY_HEX, align: "right",
-  });
+/**
+ * Post-process ALL slides in the presentation to add footer + page number.
+ * MUST be called LAST, after all content (including auto-paginated tables)
+ * has been generated. This ensures auto-paginated overflow slides also
+ * receive the correct footer and sequential page number.
+ */
+function addAllFooters(ctx: SlideContext) {
+  const slides = ctx.pres.slides as any[];
+  if (!slides) return;
+  const total = slides.length;
+  for (let i = 0; i < total; i++) {
+    const slide = slides[i];
+    slide.addShape("rect", {
+      x: 0, y: SLIDE_H - 0.35, w: SLIDE_W, h: 0.01,
+      fill: { color: BRAND.SAGE_HEX },
+    });
+    slide.addText(ctx.companyName + " \u2014 Confidential", {
+      x: MARGIN_X, y: SLIDE_H - 0.32, w: 5, h: 0.25,
+      fontSize: 7, fontFace: "Arial", color: BRAND.LIGHT_GRAY_HEX, italic: true,
+    });
+    slide.addText(`${i + 1} / ${total}`, {
+      x: SLIDE_W - 1.3, y: SLIDE_H - 0.32, w: 1, h: 0.25,
+      fontSize: 7, fontFace: "Arial", color: BRAND.LIGHT_GRAY_HEX, align: "right",
+    });
+  }
 }
 
 function addTitleSlide(ctx: SlideContext, title: string, subtitle: string) {
@@ -87,8 +93,6 @@ function addTitleSlide(ctx: SlideContext, title: string, subtitle: string) {
     x: 0.6, y: 4.6, w: 12, h: 0.3,
     fontSize: 10, fontFace: "Arial", color: "888888",
   });
-
-  addFooter(slide, ctx);
 }
 
 function addMetricsSlide(
@@ -136,8 +140,6 @@ function addMetricsSlide(
       fontSize: 9, fontFace: "Arial", color: BRAND.GRAY_HEX,
     });
   });
-
-  addFooter(slide, ctx);
 }
 
 function addFinancialTableSlide(
@@ -220,8 +222,6 @@ function addFinancialTableSlide(
     autoPageRepeatHeader: true,
     newSlideStartY: 0.4,
   });
-
-  addFooter(slide, ctx);
 }
 
 export interface PortfolioExportData {
@@ -250,7 +250,7 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
   pres.author = companyName;
   pres.title = "Portfolio Investment Report";
 
-  const ctx: SlideContext = { pres, companyName, slideCount: 0 };
+  const ctx: SlideContext = { pres, companyName };
 
   addTitleSlide(ctx, "Portfolio Investment Report",
     `${data.projectionYears}-Year Projection (${data.getFiscalYear(0)} \u2013 ${data.getFiscalYear(data.projectionYears - 1)})`);
@@ -272,6 +272,7 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
   addFinancialTableSlide(ctx, "Consolidated Balance Sheet", data.balanceSheetData.years, data.balanceSheetData.rows);
   addFinancialTableSlide(ctx, "Investment Analysis", data.investmentData.years, data.investmentData.rows);
 
+  addAllFooters(ctx);
   pres.writeFile({ fileName: "Portfolio-Investment-Report.pptx" });
 }
 
@@ -291,7 +292,7 @@ export async function exportPropertyPPTX(data: PropertyExportData, companyName =
   pres.author = companyName;
   pres.title = `${data.propertyName} Financial Report`;
 
-  const ctx: SlideContext = { pres, companyName, slideCount: 0 };
+  const ctx: SlideContext = { pres, companyName };
 
   addTitleSlide(ctx, data.propertyName, `${data.projectionYears}-Year Financial Projection`);
   addFinancialTableSlide(ctx, `${data.propertyName} \u2013 Income Statement`, data.incomeData.years, data.incomeData.rows);
@@ -299,6 +300,7 @@ export async function exportPropertyPPTX(data: PropertyExportData, companyName =
   addFinancialTableSlide(ctx, `${data.propertyName} \u2013 Balance Sheet`, data.balanceSheetData.years, data.balanceSheetData.rows);
 
   const safeName = data.propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
+  addAllFooters(ctx);
   pres.writeFile({ fileName: `${safeName} - Financial Report.pptx` });
 }
 
@@ -317,12 +319,13 @@ export async function exportCompanyPPTX(data: CompanyExportData, companyName = "
   pres.author = companyName;
   pres.title = "Management Company Financial Report";
 
-  const ctx: SlideContext = { pres, companyName, slideCount: 0 };
+  const ctx: SlideContext = { pres, companyName };
 
   addTitleSlide(ctx, "Management Company", `${data.projectionYears}-Year Financial Projection`);
   addFinancialTableSlide(ctx, "Management Company \u2013 Income Statement", data.incomeData.years, data.incomeData.rows);
   addFinancialTableSlide(ctx, "Management Company \u2013 Cash Flow Statement", data.cashFlowData.years, data.cashFlowData.rows);
   addFinancialTableSlide(ctx, "Management Company \u2013 Balance Sheet", data.balanceSheetData.years, data.balanceSheetData.rows);
 
+  addAllFooters(ctx);
   pres.writeFile({ fileName: "Management-Company-Report.pptx" });
 }

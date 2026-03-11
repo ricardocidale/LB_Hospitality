@@ -26,10 +26,10 @@ export interface ExportData {
 }
 
 /** Convert internal ExportData to the shape expected by PPTX export. */
-export function toExportData(data: ExportData): { years: string[]; rows: { category: string; values: number[]; indent?: number; isBold?: boolean }[] } {
+export function toExportData(data: ExportData): { years: string[]; rows: { category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean }[] } {
   return {
     years: data.years.map(String),
-    rows: data.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })),
+    rows: data.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isBold ?? r.isHeader, isHeader: r.isHeader })),
   };
 }
 

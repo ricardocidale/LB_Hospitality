@@ -30,7 +30,7 @@ import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
-import { IconBookOpen, IconAlertTriangle, IconSparkles } from "@/components/icons";
+import { IconPlay, IconAlertTriangle, IconEye } from "@/components/icons";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
@@ -228,13 +228,13 @@ export default function CompanyAssumptions() {
                 {isGenerating ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <IconSparkles className="w-4 h-4" />
+                  <IconPlay className="w-4 h-4" />
                 )}
-                {isGenerating ? "Generating…" : "Run Research"}
+                {isGenerating ? "Analyzing…" : "Run Research"}
               </Button>
               <Link href="/company/criteria" className="text-inherit no-underline">
                 <Button variant="outline" data-testid="button-company-criteria">
-                  <IconBookOpen className="w-4 h-4" />
+                  <IconEye className="w-4 h-4" />
                   Criteria
                 </Button>
               </Link>

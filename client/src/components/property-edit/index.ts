@@ -12,6 +12,7 @@
  * assumptions fallback, and an `onChange` handler that writes back to the
  * optimistic draft before persisting.
  */
+export { default as DescriptionSection } from "./DescriptionSection";
 export { default as BasicInfoSection } from "./BasicInfoSection";
 export { default as TimelineSection } from "./TimelineSection";
 export { default as CapitalStructureSection } from "./CapitalStructureSection";

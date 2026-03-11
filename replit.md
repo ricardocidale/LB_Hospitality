@@ -62,6 +62,9 @@ Note: The old "Services" sidebar item was merged into "Revenue Streams" — all 
 
 Companies table now includes `theme_id` column for per-company theme assignment.
 
+## Property Description
+Each property has an optional `description` text field. On the property edit page, a "Description" section appears between Basic Info and Timeline. It includes an "Improve with AI" button that calls `POST /api/ai/rewrite-description` (Gemini) to polish the text. Component: `client/src/components/property-edit/DescriptionSection.tsx`. AI route: `server/routes/ai.ts`.
+
 ## Property Photos
 Each property has a photo album in the `property_photos` table (hero image + 2 gallery photos). The `HeroImage` component supports an optional `caption` prop displayed as an italic overlay at the bottom. The `PropertyHeader` on the detail page fetches the hero photo's caption from the photos API and passes it to `HeroImage`. Seed data in `server/seeds/photos.ts` covers both seed-file properties and live-database properties. Photos are stored as static files in `client/public/images/`.
 

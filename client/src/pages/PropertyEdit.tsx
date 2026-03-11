@@ -40,6 +40,7 @@ import {
   DEFAULT_MODEL_START_DATE,
 } from "@/lib/constants";
 import {
+  DescriptionSection,
   BasicInfoSection,
   TimelineSection,
   CapitalStructureSection,
@@ -424,6 +425,7 @@ export default function PropertyEdit() {
         />
 
         <BasicInfoSection {...sectionProps} />
+        <DescriptionSection {...sectionProps} />
         <TimelineSection {...sectionProps} />
         <CapitalStructureSection {...sectionProps} />
         <RevenueAssumptionsSection {...sectionProps} />

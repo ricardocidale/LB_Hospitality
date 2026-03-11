@@ -795,6 +795,8 @@ export const properties = pgTable("properties", {
   baseManagementFeeRate: real("base_management_fee_rate").notNull().default(DEFAULT_BASE_MANAGEMENT_FEE_RATE),
   incentiveManagementFeeRate: real("incentive_management_fee_rate").notNull().default(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE),
 
+  description: text("description"),
+
   researchValues: jsonb("research_values").$type<Record<string, ResearchValueEntry>>(),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -870,6 +872,7 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   refinanceYearsAfterAcquisition: true,
   baseManagementFeeRate: true,
   incentiveManagementFeeRate: true,
+  description: true,
   researchValues: true,
 });
 

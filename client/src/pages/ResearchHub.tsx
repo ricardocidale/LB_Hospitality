@@ -15,8 +15,9 @@ import { useState, useCallback, useRef } from "react";
 import { Check, Loader2, ArrowRight } from "lucide-react";
 import {
   IconFlaskConical, IconBuilding2, IconBriefcase, IconGlobe, IconRefreshCw,
-  IconClock, IconAlertCircle, IconExternalLink, IconBookOpen, IconSettings2,
+  IconClock, IconAlertCircle, IconExternalLink, IconBookOpen,
 } from "@/components/icons";
+import { IndustryResearchTab } from "@/components/settings/IndustryResearchTab";
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -530,28 +531,12 @@ export default function ResearchHub() {
           )}
         </div>
 
-        {/* Configuration Link */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          <Link href="/settings">
-            <div className="bg-card border border-border rounded-lg p-4 shadow-sm flex items-center gap-4 hover:bg-muted hover:shadow-md transition-all duration-300 cursor-pointer group">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-                <IconSettings2 className="w-4.5 h-4.5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-foreground">
-                  Research Configuration
-                </h4>
-                <p className="text-xs text-muted-foreground label-text">
-                  Configure focus areas, target regions, and custom research questions
-                </p>
-              </div>
-              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300 flex-shrink-0" />
-            </div>
-          </Link>
+          <IndustryResearchTab />
         </motion.div>
       </div>
     </Layout>

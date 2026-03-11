@@ -1,3 +1,4 @@
+import { useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,60 +9,123 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Search, Check, X, Loader2 } from "lucide-react";
 import { IconGlobe, IconMessageSquare, IconPencil, IconTrash, IconRefreshCw, IconPlus } from "@/components/icons";
 import { DEFAULT_INFLATION_RATE } from "@shared/constants";
-import { SettingsTabProps } from "./types";
+import { useGlobalAssumptions, useResearchQuestions, useCreateResearchQuestion, useUpdateResearchQuestion, useDeleteResearchQuestion } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
-interface IndustryResearchTabProps extends SettingsTabProps {
-  selectedFocusAreas: string[];
-  setSelectedFocusAreas: (areas: string[]) => void;
-  selectedRegions: string[];
-  setSelectedRegions: (regions: string[]) => void;
-  timeHorizon: string;
-  setTimeHorizon: (horizon: string) => void;
-  researchQuestions: any[];
-  editingQuestionId: number | null;
-  setEditingQuestionId: (id: number | null) => void;
-  editingQuestionText: string;
-  setEditingQuestionText: (text: string) => void;
-  newQuestion: string;
-  setNewQuestion: (question: string) => void;
-  isGenerating: boolean;
-  streamedContent: string;
-  generateResearch: () => void;
-  createQuestion: any;
-  updateQuestion: any;
-  deleteQuestion: any;
-  FOCUS_AREA_OPTIONS: { id: string; label: string }[];
-  REGION_OPTIONS: { id: string; label: string }[];
-  TIME_HORIZON_OPTIONS: { value: string; label: string }[];
-}
+const FOCUS_AREA_OPTIONS = [
+  { id: "market", label: "Market Overview & Trends" },
+  { id: "events", label: "Event Hospitality (wellness, corporate, yoga, relationship retreats)" },
+  { id: "benchmarks", label: "Financial Benchmarks (ADR, occupancy, RevPAR)" },
+  { id: "caprates", label: "Cap Rates & Investment Returns" },
+  { id: "debt", label: "Debt Market Conditions" },
+  { id: "emerging", label: "Emerging Trends in Experiential Hospitality" },
+  { id: "supply", label: "New Supply Pipeline & Construction Activity" },
+  { id: "labor", label: "Labor Market & Staffing Trends" },
+  { id: "technology", label: "Technology & PropTech Adoption" },
+  { id: "sustainability", label: "Sustainability & ESG in Hospitality" },
+];
 
-export function IndustryResearchTab({
-  currentGlobal,
-  selectedFocusAreas,
-  setSelectedFocusAreas,
-  selectedRegions,
-  setSelectedRegions,
-  timeHorizon,
-  setTimeHorizon,
-  researchQuestions,
-  editingQuestionId,
-  setEditingQuestionId,
-  editingQuestionText,
-  setEditingQuestionText,
-  newQuestion,
-  setNewQuestion,
-  isGenerating,
-  streamedContent,
-  generateResearch,
-  createQuestion,
-  updateQuestion,
-  deleteQuestion,
-  FOCUS_AREA_OPTIONS,
-  REGION_OPTIONS,
-  TIME_HORIZON_OPTIONS,
-}: IndustryResearchTabProps) {
+const REGION_OPTIONS = [
+  { id: "north_america", label: "North America" },
+  { id: "latin_america", label: "Latin America" },
+  { id: "europe", label: "Europe" },
+  { id: "asia_pacific", label: "Asia Pacific" },
+  { id: "middle_east", label: "Middle East & Africa" },
+  { id: "caribbean", label: "Caribbean" },
+];
+
+const TIME_HORIZON_OPTIONS = [
+  { value: "1 year", label: "1 Year" },
+  { value: "3 years", label: "3 Years" },
+  { value: "5 years", label: "5 Years" },
+  { value: "10 years", label: "10 Years" },
+];
+
+export function IndustryResearchTab() {
+  const { data: global } = useGlobalAssumptions();
+  const { data: researchQuestions = [] } = useResearchQuestions();
+  const createQuestion = useCreateResearchQuestion();
+  const updateQuestion = useUpdateResearchQuestion();
+  const deleteQuestion = useDeleteResearchQuestion();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const [selectedFocusAreas, setSelectedFocusAreas] = useState<string[]>(
+    FOCUS_AREA_OPTIONS.slice(0, 6).map(o => o.label)
+  );
+  const [selectedRegions, setSelectedRegions] = useState<string[]>(["North America", "Latin America"]);
+  const [timeHorizon, setTimeHorizon] = useState("5 years");
+  const [newQuestion, setNewQuestion] = useState("");
+  const [editingQuestionId, setEditingQuestionId] = useState<number | null>(null);
+  const [editingQuestionText, setEditingQuestionText] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [streamedContent, setStreamedContent] = useState("");
+  const abortRef = useRef<AbortController | null>(null);
+
+  const currentGlobal = global ?? {} as any;
+
+  const generateResearch = useCallback(async () => {
+    setIsGenerating(true);
+    setStreamedContent("");
+    abortRef.current = new AbortController();
+
+    try {
+      const response = await fetch("/api/research/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "global",
+          researchVariables: {
+            focusAreas: selectedFocusAreas,
+            regions: selectedRegions,
+            timeHorizon,
+          },
+        }),
+        signal: abortRef.current.signal,
+      });
+
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}));
+        throw new Error(errBody.error || `Server returned ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (reader) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.content) {
+                accumulated += data.content;
+                setStreamedContent(accumulated);
+              }
+              if (data.done) {
+                queryClient.invalidateQueries({ queryKey: ["research", "global"] });
+                queryClient.invalidateQueries({ queryKey: ["research", "status"] });
+              }
+            } catch { /* incomplete SSE chunk */ }
+          }
+        }
+      }
+    } catch (error: any) {
+      if (error.name !== "AbortError") {
+        toast({ title: "Error", description: error.message || "Research generation failed. Please try again.", variant: "destructive" });
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [selectedFocusAreas, selectedRegions, timeHorizon, queryClient, toast]);
+
   return (
-    <div className="space-y-6 mt-6">
+    <div className="space-y-6">
       <Card className="bg-card border-border shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-display">
@@ -69,7 +133,7 @@ export function IndustryResearchTab({
             Your Model Context
             <HelpTooltip text="These values come from your systemwide assumptions and are automatically included in the research prompt so the AI tailors its analysis to your portfolio." />
           </CardTitle>
-          <CardDescription className="label-text">These systemwide settings shape your research. Edit them in Portfolio and Macro tabs.</CardDescription>
+          <CardDescription className="label-text">These systemwide settings shape your research. Edit them in Systemwide Assumptions and Management Co. Profile.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -193,7 +257,7 @@ export function IndustryResearchTab({
 
             {researchQuestions.length > 0 && (
               <div className="space-y-2">
-                {researchQuestions.map((q) => (
+                {researchQuestions.map((q: any) => (
                   <div key={q.id} className="group flex items-start gap-2 p-2.5 rounded-lg bg-muted border border-border hover:border-primary/30 transition-colors" data-testid={`research-question-${q.id}`}>
                     {editingQuestionId === q.id ? (
                       <div className="flex-1 flex items-start gap-2">
@@ -317,7 +381,7 @@ export function IndustryResearchTab({
               )}
             </Button>
             <p className="text-[10px] text-center text-muted-foreground mt-2 uppercase tracking-widest font-medium">
-              Powered by Norfolk AI • Average time: 15-20 seconds
+              Powered by Norfolk AI
             </p>
           </div>
         </CardContent>

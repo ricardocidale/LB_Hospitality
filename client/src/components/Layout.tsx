@@ -8,7 +8,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconHelp, IconResearch } from "@/components/icons";
+import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconHelp, IconResearch, IconTarget } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -140,6 +140,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       label: "Tools",
       items: [
         ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Simulation", icon: IconAnalysis }] : []),
+        ...(hasManagementAccess ? [{ href: "/icp", label: "ICP", icon: IconTarget }] : []),
         ...(sb("sidebarPropertyFinder") && hasManagementAccess ? [{ href: "/property-finder", label: "Property Finder", icon: IconPropertyFinder }] : []),
         ...(sb("sidebarMapView") && hasManagementAccess ? [{ href: "/map", label: "Map View", icon: IconMapPin }] : []),
       ].filter(Boolean),

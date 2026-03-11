@@ -61,6 +61,7 @@ const Help = lazy(() => import("@/pages/Help"));
 const MapView = lazy(() => import("@/pages/MapView"));
 const VoiceLab = lazy(() => import("@/pages/VoiceLab"));
 const IcpStudio = lazy(() => import("@/pages/IcpStudio"));
+const Icp = lazy(() => import("@/pages/Icp"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -250,6 +251,9 @@ function Router() {
         </Route>
         <Route path="/admin/icp-studio">
           <AdminRoute component={IcpStudio} />
+        </Route>
+        <Route path="/icp">
+          <ManagementRoute component={Icp} />
         </Route>
         <Route path="/profile">
           <ProtectedRoute component={Profile} />

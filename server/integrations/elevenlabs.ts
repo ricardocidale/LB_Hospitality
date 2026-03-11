@@ -11,6 +11,7 @@ async function getCredentials() {
     ? 'depl ' + process.env.WEB_REPL_RENEWAL
     : null;
 
+  // Try Replit connector first
   if (xReplitToken && hostname) {
     try {
       connectionSettings = await fetch(
@@ -26,15 +27,18 @@ async function getCredentials() {
       if (connectionSettings?.settings?.api_key) {
         return connectionSettings.settings.api_key;
       }
-    } catch {
+      console.info('[ElevenLabs] Replit connector found but no api_key in settings');
+    } catch (err) {
+      console.info('[ElevenLabs] Replit connector unavailable, falling back to env var');
     }
   }
 
+  // Fall back to environment variable
   if (process.env.ELEVENLABS_API_KEY) {
     return process.env.ELEVENLABS_API_KEY;
   }
 
-  throw new Error('ElevenLabs not connected');
+  throw new Error('ElevenLabs API key not configured. Set ELEVENLABS_API_KEY in environment secrets or connect via Replit.');
 }
 
 export async function getUncachableElevenLabsClient() {
@@ -222,15 +226,18 @@ export async function deleteConvaiConversation(conversationId: string): Promise<
 
 export async function getSignedUrl(agentId: string): Promise<string> {
   const apiKey = await getCredentials();
-  const response = await fetch(
-    `${CONVAI_BASE}/conversation/get-signed-url?agent_id=${agentId}`,
-    { headers: { 'xi-api-key': apiKey } }
-  );
+  const url = `${CONVAI_BASE}/conversation/get-signed-url?agent_id=${agentId}`;
+  const response = await fetch(url, { headers: { 'xi-api-key': apiKey } });
   if (!response.ok) {
     const text = await response.text();
+    console.error(`[ElevenLabs] Signed URL request failed (${response.status}) for agent ${agentId}:`, text);
     throw new Error(`ElevenLabs signed URL error (${response.status}): ${text}`);
   }
   const data = await response.json() as { signed_url: string };
+  if (!data.signed_url) {
+    console.error('[ElevenLabs] API returned success but no signed_url in response:', JSON.stringify(data));
+    throw new Error('ElevenLabs returned empty signed URL');
+  }
   return data.signed_url;
 }
 

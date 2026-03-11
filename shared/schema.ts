@@ -308,6 +308,7 @@ export interface ResearchConfig {
   property?: Partial<ResearchEventConfig>;
   company?:  Partial<ResearchEventConfig>;
   global?:   Partial<ResearchEventConfig>;
+  marketing?: Partial<ResearchEventConfig>;
   preferredLlm?: string;
   customSources?: { name: string; url?: string; category: string }[];
   cachedModels?: AiModelEntry[];

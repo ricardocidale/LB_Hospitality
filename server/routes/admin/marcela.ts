@@ -142,15 +142,28 @@ export function registerMarcelaRoutes(app: Express) {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
-        return res.status(404).json({ error: "Agent ID not configured. Set the ElevenLabs Agent ID in Admin → AI Agent → General." });
+        console.warn("[Marcela] Signed URL requested but no agent ID configured");
+        return res.status(404).json({ error: "Agent ID not configured. Set the ElevenLabs Agent ID in Admin → AI Agents." });
+      }
+      if (!ga.marcelaEnabled) {
+        return res.status(403).json({ error: "Marcela is disabled. Enable it in Admin → AI Agents." });
       }
       const signedUrl = await getElevenLabsSignedUrl(ga.marcelaAgentId);
+      if (!signedUrl) {
+        console.error("[Marcela] ElevenLabs returned empty signed URL for agent:", ga.marcelaAgentId);
+        return res.status(502).json({ error: "ElevenLabs returned an empty signed URL. Check the agent ID." });
+      }
       res.json({ signedUrl });
     } catch (error: any) {
       const msg = error.message || "Failed to get signed URL";
+      console.error("[Marcela] Signed URL generation failed:", msg);
       const isAuthError = msg.includes("not connected") || msg.includes("api_key") || msg.includes("401");
       if (isAuthError) {
-        return res.status(503).json({ error: "ElevenLabs API key not configured. Add ELEVENLABS_API_KEY to your environment secrets." });
+        return res.status(503).json({ error: "ElevenLabs API key not set. Add ELEVENLABS_API_KEY to your environment secrets." });
+      }
+      const isAgentError = msg.includes("404") || msg.includes("agent");
+      if (isAgentError) {
+        return res.status(404).json({ error: "ElevenLabs agent not found. Verify the Agent ID is correct." });
       }
       logAndSendError(res, msg, error);
     }

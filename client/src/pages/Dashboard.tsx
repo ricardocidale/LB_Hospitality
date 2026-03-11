@@ -60,6 +60,7 @@ import {
   exportPortfolioCSV,
   exportPortfolioPDF,
 } from "@/components/dashboard";
+import { ResearchPulseWidget } from "@/components/research";
 
 const TAB_LABELS: Record<string, string> = {
   overview: "Portfolio Overview",

@@ -61,6 +61,7 @@ const Help = lazy(() => import("@/pages/Help"));
 const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
 const MapView = lazy(() => import("@/pages/MapView"));
 const VoiceLab = lazy(() => import("@/pages/VoiceLab"));
+const IcpStudio = lazy(() => import("@/pages/IcpStudio"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -234,19 +235,22 @@ function Router() {
           <Redirect to="/help" />
         </Route>
         <Route path="/research">
-          <ManagementRoute component={ResearchHub} />
+          <Redirect to="/" />
         </Route>
         <Route path="/company/research">
           <ManagementRoute component={CompanyResearch} />
         </Route>
         <Route path="/global/research">
-          <ManagementRoute component={GlobalResearch} />
+          <Redirect to="/company/research" />
         </Route>
         <Route path="/admin">
           <AdminRoute component={Admin} />
         </Route>
         <Route path="/admin/logos">
           <AdminRoute component={Logos} />
+        </Route>
+        <Route path="/admin/icp-studio">
+          <AdminRoute component={IcpStudio} />
         </Route>
         <Route path="/profile">
           <ProtectedRoute component={Profile} />

@@ -1,10 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
 import { AI_AGENT_KEYS } from "@/features/ai-agent/query-keys";
 
 export function useAdminSignedUrl() {
-  const { toast } = useToast();
-
   return useQuery<string>({
     queryKey: AI_AGENT_KEYS.signedUrl,
     queryFn: async () => {
@@ -13,17 +10,24 @@ export function useAdminSignedUrl() {
         const data = await res.json().catch(() => ({ error: "Unknown error" }));
         const msg = data.error || `HTTP ${res.status}`;
         console.warn("[Marcela] Signed URL failed:", msg);
-        toast({
-          title: "AI Agent Connection Failed",
-          description: `Could not get signed URL: ${msg}`,
-          variant: "destructive",
-        });
         throw new Error(msg);
       }
       const data = await res.json();
+      if (!data.signedUrl) {
+        throw new Error("Server returned empty signed URL");
+      }
       return data.signedUrl as string;
     },
-    staleTime: 10 * 60 * 1000,
-    retry: false,
+    // Signed URLs expire — refresh every 8 minutes (they last ~10 min)
+    staleTime: 8 * 60 * 1000,
+    // Retry once on transient failures (network blip), but not on 4xx config errors
+    retry: (failureCount, error) => {
+      if (failureCount >= 1) return false;
+      const msg = (error as Error).message || "";
+      // Don't retry config errors (missing agent ID, missing API key)
+      if (msg.includes("not configured") || msg.includes("not set") || msg.includes("404")) return false;
+      return true;
+    },
+    retryDelay: 2000,
   });
 }

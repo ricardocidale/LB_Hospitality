@@ -480,16 +480,9 @@ function CostStructure({ content, hasData, onGenerate }: { content: any; hasData
         <div className="bg-card/80 backdrop-blur-xl rounded-xl border border-border p-5">
           <SectionTitle icon={IconLayers} title="Overhead Allocation" />
           <ResponsiveContainer width="100%" height={260}>
-            <Treemap data={treemapData} dataKey="size" nameKey="name" stroke="hsl(var(--background))" strokeWidth={2}
-              content={({ x, y, width, height, name, fill }: any) => (
-                width > 40 && height > 30 ? (
-                  <g>
-                    <rect x={x} y={y} width={width} height={height} fill={fill} rx={6} opacity={0.85} />
-                    <text x={x + width / 2} y={y + height / 2} textAnchor="middle" dominantBaseline="central" className="fill-white text-[10px] font-medium">{name}</text>
-                  </g>
-                ) : <rect x={x} y={y} width={width} height={height} fill={fill} rx={4} opacity={0.85} />
-              )}
-            />
+            <Treemap data={treemapData} dataKey="size" nameKey="name" stroke="hsl(var(--background))">
+              <Tooltip content={<CustomTooltip />} />
+            </Treemap>
           </ResponsiveContainer>
         </div>
 

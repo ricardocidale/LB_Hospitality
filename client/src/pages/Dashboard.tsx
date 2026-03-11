@@ -60,7 +60,7 @@ import {
   exportPortfolioCSV,
   exportPortfolioPDF,
 } from "@/components/dashboard";
-import { ResearchPulseWidget } from "@/components/research";
+
 
 const TAB_LABELS: Record<string, string> = {
   overview: "Portfolio Overview",
@@ -274,8 +274,6 @@ export default function Dashboard() {
             title="Portfolio Performance"
             subtitle="Consolidated financial oversight across all active assets"
           />
-
-          <ResearchPulseWidget className="mb-2" />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-6 sticky top-12 z-10">

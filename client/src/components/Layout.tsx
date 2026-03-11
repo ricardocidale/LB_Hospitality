@@ -174,7 +174,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   );
 
   const sidebarFooter = (
-    <div className="px-2 pb-3 pt-1 space-y-1">
+    <div className="px-2 pb-3 pt-1 space-y-5">
       <SidebarResearchStatus onNavigate={() => setMobileOpen(false)} />
       <button
         onClick={() => { logout(); setMobileOpen(false); }}

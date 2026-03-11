@@ -10,6 +10,8 @@
  * Also displays the acquisition date, room count, and purchase price as
  * compact badges so users get immediate context at a glance.
  */
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { IconMapPin, IconSettings2, IconMap, IconCamera } from "@/components/icons";
@@ -19,27 +21,42 @@ import { HeroImage } from "@/features/property-images";
 import type { PropertyHeaderProps } from "./types";
 
 export default function PropertyHeader({ property, propertyId, heroCaption, onPhotoUploadComplete }: PropertyHeaderProps) {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.15, 0.45]);
+
   const getStatusLabel = (status: string) => {
     return status;
   };
 
   return (
-    <div className="relative overflow-hidden rounded-lg">
-      <HeroImage
-        src={property.imageUrl}
-        alt={property.name}
-        caption={heroCaption}
-        aspectRatio="auto"
-        overlay="full"
-        className="h-[180px] sm:h-[280px] rounded-none"
-        priority
-      >
-        <PropertyPhotoUpload
-          propertyId={propertyId}
-          currentImageUrl={property.imageUrl}
-          onUploadComplete={onPhotoUploadComplete}
-        />
-      </HeroImage>
+    <div ref={heroRef} className="relative overflow-hidden rounded-lg">
+      <motion.div style={{ y: heroY, scale: heroScale }} className="will-change-transform">
+        <HeroImage
+          src={property.imageUrl}
+          alt={property.name}
+          caption={heroCaption}
+          aspectRatio="auto"
+          overlay="full"
+          className="h-[180px] sm:h-[280px] rounded-none"
+          priority
+        >
+          <PropertyPhotoUpload
+            propertyId={propertyId}
+            currentImageUrl={property.imageUrl}
+            onUploadComplete={onPhotoUploadComplete}
+          />
+        </HeroImage>
+      </motion.div>
+      <motion.div
+        className="absolute inset-0 bg-black pointer-events-none rounded-t-lg"
+        style={{ opacity: overlayOpacity }}
+      />
       
       <div className="relative overflow-hidden p-3 sm:p-6 bg-card border-b">
         <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

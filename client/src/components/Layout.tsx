@@ -1,11 +1,8 @@
 /**
  * Layout.tsx — Main application shell used by every authenticated page.
  *
- * Uses shadcn/ui Sidebar (sidebar-01 block) for grouped navigation.
- * The sidebar includes:
- *   - Management company logo and name
- *   - Grouped navigation links filtered by user role
- *   - Sign Out button at the bottom
+ * Desktop: static sidebar (always visible, not collapsible).
+ * Mobile: Sheet-based drawer opened via hamburger in header, plus bottom nav.
  */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
@@ -21,24 +18,11 @@ import defaultLogo from "@/assets/logo.png";
 import CommandPalette from "@/components/CommandPalette";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import { RebeccaChatbot } from "@/components/RebeccaChatbot";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
 
@@ -59,11 +43,62 @@ interface NavGroupDef {
   items: NavLink[];
 }
 
+function SidebarNav({ groups, isActiveLink, onNavigate }: { groups: NavGroupDef[]; isActiveLink: (href: string) => boolean; onNavigate?: () => void }) {
+  return (
+    <nav className="flex-1 overflow-y-auto px-2 pt-1 space-y-1">
+      {groups.filter(g => g.items.length > 0).map((group) => (
+        <div key={group.label || "misc"} className="py-1">
+          {group.label && (
+            <p className="text-[11px] font-medium text-muted-foreground px-3 pb-1 pt-2">{group.label}</p>
+          )}
+          <ul className="space-y-0.5">
+            {group.items.map((item) => {
+              const active = isActiveLink(item.href);
+              const isAction = item.href.startsWith("#");
+              return (
+                <li key={item.href}>
+                  {isAction ? (
+                    <button
+                      onClick={() => { item.onClick?.(); onNavigate?.(); }}
+                      className={cn(
+                        "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
+                        active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      )}
+                      data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      <item.icon className="w-4 h-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </button>
+                  ) : (
+                    <Link href={item.href} onClick={onNavigate}>
+                      <span
+                        className={cn(
+                          "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
+                          active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        )}
+                        data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                      >
+                        <item.icon className="w-4 h-4 shrink-0" />
+                        <span>{item.label}</span>
+                      </span>
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
 export default function Layout({ children, darkMode }: { children: React.ReactNode; darkMode?: boolean }) {
   const [location] = useLocation();
   const { user, isAdmin, isInvestor, hasManagementAccess, logout } = useAuth();
   const { data: global } = useGlobalAssumptions();
-  
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null; themeColors: DesignColor[] | null; groupCompanyName: string | null }>({
     queryKey: ["my-branding"],
     queryFn: async () => {
@@ -85,6 +120,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     }
     return () => { resetThemeColors(); };
   }, [myBranding?.themeName, myBranding?.themeColors]);
+
+  useEffect(() => { setMobileOpen(false); }, [location]);
 
   const sb = (key: string) => (global as any)?.[key] !== false;
   const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarExecutiveSummary") || sb("sidebarCompare") || sb("sidebarTimeline");
@@ -135,85 +172,57 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     (href === "/portfolio" && location.startsWith("/property/")) ||
     (href !== "/" && location.startsWith(href + "/"));
 
+  const sidebarHeader = (
+    <div className="flex items-center gap-2.5 px-4 pt-4 pb-2">
+      <img src={companyLogo} alt={companyName} className="w-7 h-7 object-contain" />
+      <h1 className="text-sm font-semibold text-foreground truncate">{companyName}</h1>
+    </div>
+  );
+
+  const sidebarFooter = (
+    <div className="px-2 pb-3 pt-1">
+      <button
+        onClick={() => { logout(); setMobileOpen(false); }}
+        className="flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        data-testid="button-logout"
+      >
+        <IconLogOut className="w-4 h-4 shrink-0" />
+        <span>Sign Out</span>
+      </button>
+    </div>
+  );
+
   return (
-    <SidebarProvider>
-      <Sidebar className="border-r border-sidebar-border">
-        <SidebarHeader className="px-4 pt-4 pb-2">
-          <div className="flex items-center gap-2.5">
-            <img src={companyLogo} alt={companyName} className="w-7 h-7 object-contain" />
-            <h1 className="text-sm font-semibold text-foreground truncate">{companyName}</h1>
-          </div>
-        </SidebarHeader>
+    <div className="flex min-h-svh w-full">
+      <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-svh sticky top-0">
+        {sidebarHeader}
+        <SidebarNav groups={navGroups} isActiveLink={isActiveLink} />
+        {sidebarFooter}
+      </aside>
 
-        <SidebarContent className="px-2 pt-1">
-          {navGroups.filter(g => g.items.length > 0).map((group) => (
-            <SidebarGroup key={group.label || "misc"} className="py-1">
-              {group.label && (
-                <SidebarGroupLabel className="text-[11px] font-medium text-muted-foreground px-3 pb-0.5">
-                  {group.label}
-                </SidebarGroupLabel>
-              )}
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {group.items.map((item) => {
-                    const active = isActiveLink(item.href);
-                    const isAction = item.href.startsWith("#");
-                    return (
-                      <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton
-                          asChild={!isAction}
-                          isActive={active}
-                          tooltip={item.label}
-                          className={cn(
-                            "h-8 px-3 rounded-md text-[13px] transition-colors",
-                            active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                          )}
-                          {...(isAction ? {
-                            onClick: () => { item.onClick?.(); },
-                            "data-testid": `nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`,
-                          } : {})}
-                        >
-                          {isAction ? (
-                            <>
-                              <item.icon className="w-4 h-4" />
-                              <span>{item.label}</span>
-                            </>
-                          ) : (
-                            <Link href={item.href} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                              <item.icon className="w-4 h-4" />
-                              <span>{item.label}</span>
-                            </Link>
-                          )}
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          ))}
-        </SidebarContent>
-
-        <SidebarFooter className="px-2 pb-3 pt-1">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => logout()}
-                className="h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                data-testid="button-logout"
-              >
-                <IconLogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="w-72 p-0 bg-sidebar text-sidebar-foreground">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation</SheetTitle>
+          </SheetHeader>
+          {sidebarHeader}
+          <SidebarNav groups={navGroups} isActiveLink={isActiveLink} onNavigate={() => setMobileOpen(false)} />
+          {sidebarFooter}
+        </SheetContent>
+      </Sheet>
 
       <main className={cn("relative flex-1 flex flex-col min-w-0 overflow-hidden", darkMode ? "bg-foreground text-white" : "bg-background text-foreground")}>
         <header className="h-12 shrink-0 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-10">
           <div className="flex items-center gap-2 min-w-0">
-            <SidebarTrigger className="md:hidden h-8 w-8" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-8 w-8"
+              onClick={() => setMobileOpen(true)}
+              data-testid="button-mobile-menu"
+            >
+              <IconMenu className="w-5 h-5" />
+            </Button>
             <Breadcrumbs />
           </div>
           <div className="flex items-center gap-2">
@@ -278,6 +287,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
       <CommandPalette />
       <GuidedWalkthrough />
-    </SidebarProvider>
+    </div>
   );
 }

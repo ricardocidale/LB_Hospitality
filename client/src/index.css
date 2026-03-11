@@ -612,6 +612,44 @@
   animation: spherical 10s ease-in-out infinite;
 }
 
+/* ── Orb CSS Fallback Animations (ElevenLabs pattern) ──────────────── */
+.orb-css {
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+.orb-css::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  border-radius: 50%;
+  animation: orb-wave-motion 6s infinite linear;
+}
+.orb-active {
+  background: radial-gradient(circle at center, hsl(var(--primary) / 0.3), hsl(var(--primary) / 0.6), hsl(var(--primary) / 0.9));
+}
+.orb-inactive {
+  background: radial-gradient(circle at center, hsl(var(--muted) / 0.8), hsl(var(--muted-foreground) / 0.4), hsl(var(--muted-foreground) / 0.2));
+}
+.animate-orb-pulse {
+  animation: orb-pulse 0.4s infinite ease-in-out;
+}
+.animate-orb-breathe {
+  animation: orb-pulse 2s infinite ease-in-out;
+}
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes orb-wave-motion {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(10px, 10px) rotate(180deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
+}
+
 .animate-shimmer {
   background: linear-gradient(90deg, transparent 25%, hsl(var(--primary) / 0.06) 50%, transparent 75%);
   background-size: 200% 100%;

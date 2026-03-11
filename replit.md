@@ -50,7 +50,7 @@ Three-tier cascade: `property.inflationRate → companyInflationRate → global.
 
 ## Admin Sidebar Structure
 Five categories + Logs + Help:
-- **Brand**: Management Company (Identity/contact), Ideal Customer Profile (asset type definition), Revenue Share (unified: service categories with toggles/rates + incentive fee + USALI waterfall summary), Other Assumptions (company inflation)
+- **Brand**: Management Company (Identity/contact), Ideal Customer Profile (asset type definition), Revenue Streams (unified: service categories with toggles/rates + incentive fee + USALI waterfall summary), Other Assumptions (company inflation)
 - **Business**: Users (sub-tabs: Users, Company Assignment, Group Assignment), Companies (CRUD with logo + theme), Groups (CRUD with logo, theme, asset description, property visibility)
 - **Design**: Logos (upload/manage logos), Themes (color themes)
 - **AI Agents**: Marcela / Voice (9 sub-tabs), Rebecca / Text (enable, name, prompt), Knowledge Base, Twilio
@@ -58,7 +58,7 @@ Five categories + Logs + Help:
 - **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
 - Help link at bottom (navigates to /help)
 
-Note: The old "Services" sidebar item was merged into "Revenue Share" — all service category CRUD, toggles, rates, industry benchmarks, centralized/direct models, and the incentive management fee are now in one unified screen.
+Note: The old "Services" sidebar item was merged into "Revenue Streams" — all service category CRUD, toggles, rates, industry benchmarks, centralized/direct models, and the incentive management fee are now in one unified screen.
 
 Companies table now includes `theme_id` column for per-company theme assignment.
 

@@ -29,7 +29,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   activity:         { title: "Activity",             subtitle: "Login logs, audit trail, and session monitoring" },
   branding:         { title: "Management Company",   subtitle: "Identity and contact information" },
   icp:              { title: "Ideal Customer Profile", subtitle: "Define the target property type for AI research" },
-  revshare:         { title: "Revenue Share",        subtitle: "Service categories, fee defaults, and incentive fees" },
+  revshare:         { title: "Revenue Streams",       subtitle: "Service categories, fee defaults, and incentive fees" },
   otherassumptions: { title: "Other Assumptions",    subtitle: "Company-specific inflation and financial defaults" },
   companies:        { title: "Companies",            subtitle: "Manage companies of interest" },
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },

@@ -41,7 +41,7 @@ const navGroups: NavGroup[] = [
     sections: [
       { value: "branding", label: "Management Company", icon: IconImage },
       { value: "icp", label: "Ideal Customer Profile", icon: IconPeople },
-      { value: "revshare", label: "Revenue Share", icon: IconTrending },
+      { value: "revshare", label: "Revenue Streams", icon: IconTrending },
       { value: "otherassumptions", label: "Other Assumptions", icon: IconSettingsGear },
     ],
   },

@@ -337,7 +337,7 @@ export default function RevenueShareTab() {
     <div className="space-y-6 pb-20">
       <Alert className="bg-primary/5 border-primary/20">
         <IconInfo className="h-4 w-4 text-primary" />
-        <AlertTitle className="text-primary font-semibold">How Revenue Share Works</AlertTitle>
+        <AlertTitle className="text-primary font-semibold">How Revenue Streams Work</AlertTitle>
         <AlertDescription className="text-primary/80 space-y-2">
           <p>
             The management company earns revenue through two types of fees charged to each property:

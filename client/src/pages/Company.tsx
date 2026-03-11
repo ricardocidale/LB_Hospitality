@@ -167,14 +167,14 @@ export default function Company() {
 
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
 
-  const getStatementData = (type: string) => {
+  const getStatementData = (type: string, summaryOnly?: boolean) => {
     switch (type) {
       case 'income':
-        return generateCompanyIncomeData(financials, years, properties, propertyFinancials);
+        return generateCompanyIncomeData(financials, years, properties, propertyFinancials, summaryOnly);
       case 'cashflow':
-        return generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel);
+        return generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel, summaryOnly);
       case 'balance':
-        return generateCompanyBalanceData(financials, years, fundingLabel);
+        return generateCompanyBalanceData(financials, years, fundingLabel, summaryOnly);
       default:
         return { years: [], rows: [] };
     }
@@ -182,9 +182,10 @@ export default function Company() {
 
   const companyName = global?.companyName || "Management Company";
 
-  const handleExport = (orientation: 'landscape' | 'portrait') => {
+  const handleExport = (orientation: 'landscape' | 'portrait', version?: 'short' | 'extended') => {
     if (exportType === 'pdf') {
-      const data = getStatementData(activeTab);
+      const summaryOnly = version === 'short';
+      const data = getStatementData(activeTab, summaryOnly);
       exportCompanyPDF(activeTab as any, data, global, projectionYears, yearlyChartData, orientation);
     } else if (exportType === 'tablePng') {
       exportTablePNG(tableRef, activeTab, companyName);

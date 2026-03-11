@@ -6,6 +6,8 @@ import { IconBarChart3, IconAlertTriangle, IconCheckCircle } from "@/components/
 import { InsightPanel } from "@/components/graphics";
 import { InputField, formatRatio } from "./InputField";
 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 export function StressTestTab() {
   const [noi, setNoi] = useState("500000");
   const [loanAmount, setLoanAmount] = useState("3500000");
@@ -52,6 +54,14 @@ export function StressTestTab() {
       setLoading(false);
     }
   }, [noi, loanAmount, rate, amortMonths, termMonths, ioMonths, minDscr]);
+
+  const getHeatmapColor = (value: number, threshold: number) => {
+    if (value >= threshold + 0.5) return "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400";
+    if (value >= threshold) return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500";
+    if (value >= threshold - 0.1) return "bg-amber-500/10 text-amber-600 dark:text-amber-500";
+    if (value >= threshold - 0.25) return "bg-orange-500/10 text-orange-600 dark:text-orange-500";
+    return "bg-red-500/10 text-red-600 dark:text-red-500";
+  };
 
   return (
     <div className="space-y-6">
@@ -115,19 +125,34 @@ export function StressTestTab() {
                       );
                       if (!cell) return <td key={ns} />;
                       const isBase = rs === 0 && ns === 0;
+                      const dscr = cell.dscr_amortizing;
                       return (
                         <td
                           key={ns}
-                          className={`text-center p-2 border-b border-border font-mono ${
-                            !cell.passes
-                              ? "bg-red-50 text-red-600"
-                              : isBase
-                              ? "bg-primary/10 text-primary"
-                              : "text-foreground"
-                          }`}
-                          data-testid={`cell-sens-${rs}-${ns}`}
+                          className="p-0 border-b border-border"
                         >
-                          {cell.dscr_amortizing.toFixed(2)}x
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={`w-full h-full p-2 text-center font-mono transition-colors ${
+                                    isBase ? "ring-2 ring-primary ring-inset z-10 relative" : ""
+                                  } ${getHeatmapColor(dscr, parseFloat(minDscr))}`}
+                                  data-testid={`cell-sens-${rs}-${ns}`}
+                                >
+                                  {dscr.toFixed(2)}x
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <div className="text-xs space-y-1">
+                                  <p className="font-semibold">Scenario Details</p>
+                                  <p>NOI: {ns > 0 ? `+${ns}%` : `${ns}%`}</p>
+                                  <p>Rate: {rs > 0 ? `+${rs}` : rs} bps</p>
+                                  <p>DSCR: {dscr.toFixed(3)}x</p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </td>
                       );
                     })}

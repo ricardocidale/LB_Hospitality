@@ -25,6 +25,7 @@ import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import { RebeccaChatbot } from "@/components/RebeccaChatbot";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
+import { SidebarResearchStatus } from "@/components/research/SidebarResearchStatus";
 
 type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 
@@ -173,7 +174,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   );
 
   const sidebarFooter = (
-    <div className="px-2 pb-3 pt-1">
+    <div className="px-2 pb-3 pt-1 space-y-1">
+      <SidebarResearchStatus onNavigate={() => setMobileOpen(false)} />
       <button
         onClick={() => { logout(); setMobileOpen(false); }}
         className="flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"

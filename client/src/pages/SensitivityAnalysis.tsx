@@ -434,11 +434,11 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
   return (
     <Wrapper>
       <AnimatedPage>
-        <div className="space-y-6">
+        <div className="space-y-8">
           {!embedded && (
             <PageHeader
               title="Sensitivity Analysis"
-              subtitle="See how changes in key variables affect your portfolio's financial performance"
+              subtitle="Stress test your portfolio against shifting market conditions and operational variables"
               actions={
                 <div className="flex items-center gap-3">
                   <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
@@ -452,116 +452,94 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                       ))}
                     </SelectContent>
                   </Select>
-                  {hasAdjustments && (
-                    <button
-                      onClick={resetAll}
-                      className="px-3 py-2 text-xs font-medium text-white/70 hover:text-white border border-white/20 hover:border-white/40 rounded-xl transition-all"
-                      data-testid="button-reset-all"
-                    >
-                      Reset All
-                    </button>
-                  )}
                   {exportMenuNode}
                 </div>
               }
             />
           )}
 
-          <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
-            <div className="flex items-start gap-3">
-              <IconSliders className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-1">What is Sensitivity Analysis?</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Sensitivity analysis shows how changes in key assumptions — like occupancy, ADR growth, expense inflation, and exit cap rates — impact your portfolio's financial performance.
-                  Use the sliders below to adjust variables up or down and instantly see the effect on revenue, NOI, cash flow, and investor returns (IRR).
-                  This helps identify which assumptions have the biggest impact on your investment outcomes.
-                </p>
+          {/* KPI Summary Strip */}
+          {baseResult && adjustedResult && <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Base IRR</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-mono font-bold text-foreground">{(baseResult.irr * 100).toFixed(1)}%</span>
+                {hasAdjustments && (
+                  <span className={`text-xs font-bold ${(adjustedResult.irr - baseResult.irr) >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+                    { (adjustedResult.irr - baseResult.irr) >= 0 ? "+" : "" }
+                    {((adjustedResult.irr - baseResult.irr) * 100).toFixed(1)}pp
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Base NOI</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-mono font-bold text-foreground">{formatMoney(baseResult.totalNOI)}</span>
+                {hasAdjustments && (
+                  <span className={`text-xs font-bold ${pctChange(adjustedResult.totalNOI, baseResult.totalNOI) >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+                    { pctChange(adjustedResult.totalNOI, baseResult.totalNOI) >= 0 ? "+" : "" }
+                    {pctChange(adjustedResult.totalNOI, baseResult.totalNOI).toFixed(1)}%
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Exit Value</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-mono font-bold text-foreground">{formatMoney(baseResult.exitValue)}</span>
+                {hasAdjustments && (
+                  <span className={`text-xs font-bold ${pctChange(adjustedResult.exitValue, baseResult.exitValue) >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+                    { pctChange(adjustedResult.exitValue, baseResult.exitValue) >= 0 ? "+" : "" }
+                    {pctChange(adjustedResult.exitValue, baseResult.exitValue).toFixed(1)}%
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Adjusted IRR</span>
+              <div className="flex items-center justify-between">
+                <span className={`text-2xl font-mono font-bold ${hasAdjustments ? (adjustedResult.irr >= baseResult.irr ? "text-emerald-600" : "text-red-600") : "text-foreground"}`}>
+                  {(adjustedResult.irr * 100).toFixed(1)}%
+                </span>
+                {hasAdjustments && (
+                  <button 
+                    onClick={resetAll}
+                    className="text-[10px] font-bold text-primary hover:underline"
+                    data-testid="button-reset-kpi"
+                  >
+                    RESET
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>}
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-4">
+              <VariableSlidersPanel
+                variables={variables}
+                adjustments={adjustments}
+                onAdjustmentChange={(id, value) => setAdjustments(prev => ({ ...prev, [id]: value }))}
+              />
+            </div>
+
+            <div className="lg:col-span-8 space-y-8">
+              <div ref={chartRef}>
+                <TornadoChartPanel
+                  tornadoData={tornadoData}
+                  tornadoMetric={tornadoMetric}
+                  onMetricChange={setTornadoMetric}
+                />
+              </div>
+
+              <div ref={tableRef}>
+                <SensitivityComparisonTable baseResult={baseResult!} adjustedResult={adjustedResult!} />
               </div>
             </div>
           </div>
 
-          {baseResult && adjustedResult && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <StatCard
-                label="Total Revenue"
-                value={adjustedResult.totalRevenue}
-                format="money"
-                sublabel={hasAdjustments ? `${pctChange(adjustedResult.totalRevenue, baseResult.totalRevenue) >= 0 ? "+" : ""}${pctChange(adjustedResult.totalRevenue, baseResult.totalRevenue).toFixed(1)}% vs. base` : `${projectionYears}-year total`}
-                trend={hasAdjustments ? pctChange(adjustedResult.totalRevenue, baseResult.totalRevenue) > 0 ? "up" : pctChange(adjustedResult.totalRevenue, baseResult.totalRevenue) < 0 ? "down" : "neutral" : undefined}
-                variant="sage"
-                data-testid="stat-total-revenue"
-              />
-              <StatCard
-                label="Total NOI"
-                value={adjustedResult.totalNOI}
-                format="money"
-                sublabel={hasAdjustments ? `${pctChange(adjustedResult.totalNOI, baseResult.totalNOI) >= 0 ? "+" : ""}${pctChange(adjustedResult.totalNOI, baseResult.totalNOI).toFixed(1)}% vs. base` : `${adjustedResult.avgNOIMargin.toFixed(1)}% margin`}
-                trend={hasAdjustments ? pctChange(adjustedResult.totalNOI, baseResult.totalNOI) > 0 ? "up" : pctChange(adjustedResult.totalNOI, baseResult.totalNOI) < 0 ? "down" : "neutral" : undefined}
-                variant="sage"
-                data-testid="stat-total-noi"
-              />
-              <StatCard
-                label="Total Cash Flow"
-                value={adjustedResult.totalCashFlow}
-                format="money"
-                sublabel={hasAdjustments ? `${pctChange(adjustedResult.totalCashFlow, baseResult.totalCashFlow) >= 0 ? "+" : ""}${pctChange(adjustedResult.totalCashFlow, baseResult.totalCashFlow).toFixed(1)}% vs. base` : `${projectionYears}-year total`}
-                trend={hasAdjustments ? pctChange(adjustedResult.totalCashFlow, baseResult.totalCashFlow) > 0 ? "up" : pctChange(adjustedResult.totalCashFlow, baseResult.totalCashFlow) < 0 ? "down" : "neutral" : undefined}
-                variant="sage"
-                data-testid="stat-total-cashflow"
-              />
-              <StatCard
-                label="Exit Value"
-                value={adjustedResult.exitValue}
-                format="money"
-                sublabel={hasAdjustments ? `${pctChange(adjustedResult.exitValue, baseResult.exitValue) >= 0 ? "+" : ""}${pctChange(adjustedResult.exitValue, baseResult.exitValue).toFixed(1)}% vs. base` : "Net to equity"}
-                trend={hasAdjustments ? pctChange(adjustedResult.exitValue, baseResult.exitValue) > 0 ? "up" : pctChange(adjustedResult.exitValue, baseResult.exitValue) < 0 ? "down" : "neutral" : undefined}
-                variant="sage"
-                data-testid="stat-exit-value"
-              />
-              <StatCard
-                label="Levered IRR"
-                value={`${(adjustedResult.irr * 100).toFixed(1)}%`}
-                format="text"
-                sublabel={hasAdjustments ? `${((adjustedResult.irr - baseResult.irr) * 100) >= 0 ? "+" : ""}${((adjustedResult.irr - baseResult.irr) * 100).toFixed(1)}pp vs. base` : "Equity return rate"}
-                trend={hasAdjustments ? adjustedResult.irr > baseResult.irr ? "up" : adjustedResult.irr < baseResult.irr ? "down" : "neutral" : undefined}
-                variant="sage"
-                data-testid="stat-irr"
-              />
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <VariableSlidersPanel
-              variables={variables}
-              adjustments={adjustments}
-              onAdjustmentChange={(id, value) => setAdjustments(prev => ({ ...prev, [id]: value }))}
-            />
-            <div ref={chartRef}>
-              <TornadoChartPanel
-                tornadoData={tornadoData}
-                tornadoMetric={tornadoMetric}
-                onMetricChange={setTornadoMetric}
-              />
-            </div>
-          </div>
-
-          {sensitivityInsights.length > 0 && (
-            <ScrollReveal>
-              <InsightPanel
-                data-testid="insight-sensitivity"
-                insights={sensitivityInsights}
-                title="Sensitivity Insights"
-                variant="compact"
-              />
-            </ScrollReveal>
-          )}
-
-          {hasAdjustments && baseResult && adjustedResult && (
-            <div ref={tableRef}>
-              <SensitivityComparisonTable baseResult={baseResult} adjustedResult={adjustedResult} />
-            </div>
-          )}
+          <InsightPanel insights={sensitivityInsights} />
         </div>
       </AnimatedPage>
 
@@ -569,7 +547,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
-        title={exportType === "pdf" ? "Export PDF" : "Export Chart"}
+        title={exportType === "pdf" ? "Export Sensitivity Analysis" : "Export Tornado Chart"}
       />
     </Wrapper>
   );

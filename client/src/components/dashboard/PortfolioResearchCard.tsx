@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import { Minus } from "lucide-react";
 import { IconBookOpen, IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { formatMoney } from "@/lib/financialEngine";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
 
@@ -70,8 +71,8 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
     if (adrCount > 0) {
       result.push({
         label: "Wtd ADR",
-        actual: `$${weightedADR.toFixed(0)}`,
-        range: `$${(adrLow / adrCount).toFixed(0)}–$${(adrHigh / adrCount).toFixed(0)}`,
+        actual: formatMoney(weightedADR),
+        range: `${formatMoney(adrLow / adrCount)}–${formatMoney(adrHigh / adrCount)}`,
         status: compareToRange(weightedADR, adrLow / adrCount, adrHigh / adrCount),
       });
     }
@@ -103,7 +104,7 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
     const revPAR = weightedADR * (weightedOcc / 100);
     result.push({
       label: "Portfolio RevPAR",
-      actual: `$${revPAR.toFixed(0)}`,
+      actual: formatMoney(revPAR),
       range: "Computed",
       status: "unknown",
     });

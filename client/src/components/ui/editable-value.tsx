@@ -27,7 +27,7 @@ function formatDisplay(value: number, format: EditableValueFormat): string {
     case "percent":
       return `${value.toFixed(1)}%`;
     case "dollar":
-      return `$${value.toLocaleString()}`;
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
     case "months":
       return `${value} mo`;
     default:

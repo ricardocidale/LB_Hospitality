@@ -2,8 +2,10 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { ContentPanel } from "@/components/ui/content-panel";
-import { IconCalculator, IconTrending, IconAnalysis, IconShield } from "@/components/icons";import { AnimatedPage, ScrollReveal } from "@/components/graphics";
+import { IconCalculator, IconTrending, IconAnalysis, IconShield } from "@/components/icons";
+import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { DSCRTab, DebtYieldTab, StressTestTab, PrepaymentTab } from "@/components/financing";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type TabId = "dscr" | "debt-yield" | "sensitivity" | "prepayment";
 
@@ -54,44 +56,52 @@ export default function FinancingAnalysis({ embedded }: { embedded?: boolean }) 
               subtitle="Loan sizing, debt yield analysis, stress testing, and prepayment modeling"
             />
           )}
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {TABS.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  data-testid={`tab-${tab.id}`}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                    isActive
-                      ? "bg-primary/20 text-primary border border-primary/40"
-                      : "bg-muted text-muted-foreground border border-border hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-          <ScrollReveal>
-            <ContentPanel variant="light">
-              <div className="space-y-6">
-                <div className="flex items-start gap-3 bg-muted rounded-lg p-3">
-                  <DescIcon className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h3 className="text-sm font-semibold text-foreground mb-1">{desc.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{desc.body}</p>
+
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabId)} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:flex md:w-auto h-auto p-1 bg-muted/50 rounded-xl gap-1">
+              {TABS.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <TabsTrigger
+                    key={tab.id}
+                    value={tab.id}
+                    data-testid={`tab-${tab.id}`}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-sm font-medium">{tab.label}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+
+            <ScrollReveal>
+              <ContentPanel variant="light" className="mt-6">
+                <div className="space-y-6">
+                  <div className="flex items-start gap-3 bg-muted/50 rounded-lg p-3 border border-border/50">
+                    <DescIcon className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-1">{desc.title}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{desc.body}</p>
+                    </div>
                   </div>
+
+                  <TabsContent value="dscr" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <DSCRTab />
+                  </TabsContent>
+                  <TabsContent value="debt-yield" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <DebtYieldTab />
+                  </TabsContent>
+                  <TabsContent value="sensitivity" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <StressTestTab />
+                  </TabsContent>
+                  <TabsContent value="prepayment" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <PrepaymentTab />
+                  </TabsContent>
                 </div>
-                {activeTab === "dscr" && <DSCRTab />}
-                {activeTab === "debt-yield" && <DebtYieldTab />}
-                {activeTab === "sensitivity" && <StressTestTab />}
-                {activeTab === "prepayment" && <PrepaymentTab />}
-              </div>
-            </ContentPanel>
-          </ScrollReveal>
+              </ContentPanel>
+            </ScrollReveal>
+          </Tabs>
         </div>
       </AnimatedPage>
     </Wrapper>

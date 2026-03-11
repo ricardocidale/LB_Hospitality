@@ -3,7 +3,6 @@ import { InsightPanel, type Insight } from "@/components/graphics";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Tooltip as RechartsTooltip, AreaChart, Area, LineChart, Line, LabelList, PieChart, Pie, Cell, ReferenceLine } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
 import { DashboardTabProps } from "./types";
-import PortfolioResearchCard from "./PortfolioResearchCard";
 import { formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { DEFAULT_EXIT_CAP_RATE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
@@ -358,7 +357,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
         />
       </CardHeader>
       <CardContent ref={tabContentRef} className="relative z-10">
-        <Accordion type="multiple" defaultValue={["performance", "projection", "composition", "research", "insights", "marketStatus", "waterfall"]} className="space-y-4">
+        <Accordion type="multiple" defaultValue={["performance", "projection", "composition", "insights", "marketStatus", "waterfall"]} className="space-y-4">
 
           <AccordionItem value="performance" className="border-none">
             <div className="flex items-center gap-2 py-3 px-1">
@@ -688,25 +687,6 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 </div>
               </div>
             </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="research" className="border-none">
-            <div className="flex items-center gap-2 py-3 px-1">
-              <AccordionTrigger className="hover:no-underline p-0">
-                <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Market Research</span>
-              </AccordionTrigger>
-              <InfoTooltip
-                text="AI-powered market intelligence and comparable analysis for your portfolio markets."
-                light
-                side="right"
-              />
-            </div>
-            <AccordionContent className="pt-2 pb-4">
-            <PortfolioResearchCard
-              properties={properties}
-              yearlyConsolidatedCache={yearlyConsolidatedCache}
-            />
             </AccordionContent>
           </AccordionItem>
 

@@ -96,6 +96,7 @@ export function DSCRTab() {
               label="Amortizing DSCR"
               format={(v: number) => `${v.toFixed(2)}x`}
               thresholds={{ good: parseFloat(minDscr), warn: 1.0 }}
+              markers={[parseFloat(minDscr), 1.0]}
               size="lg"
             />
             {result.io_dscr && (
@@ -107,6 +108,7 @@ export function DSCRTab() {
                 label="IO Period DSCR"
                 format={(v: number) => `${v.toFixed(2)}x`}
                 thresholds={{ good: parseFloat(minDscr), warn: 1.0 }}
+                markers={[parseFloat(minDscr), 1.0]}
                 size="lg"
               />
             )}

@@ -71,14 +71,15 @@ export function DebtYieldTab() {
             value={result.debt_yield ? formatPct(result.debt_yield) : "N/A"}
             format="text"
             icon={<IconPercent className="w-4 h-4" />}
+            variant={result.passes_min_threshold ? "sage" : "light"}
             data-testid="stat-dy-yield"
           />
           <StatCard
-            label="Passes Threshold"
-            value={result.passes_min_threshold === null ? "N/A" : result.passes_min_threshold ? "Yes" : "No"}
+            label="Status"
+            value={result.passes_min_threshold === null ? "N/A" : result.passes_min_threshold ? "PASS" : "FAIL"}
             format="text"
-            variant={result.passes_min_threshold ? "sage" : undefined}
-            icon={result.passes_min_threshold ? <IconCheckCircle className="w-4 h-4" /> : <IconXCircle className="w-4 h-4" />}
+            variant={result.passes_min_threshold ? "sage" : "light"}
+            icon={result.passes_min_threshold ? <IconCheckCircle className="w-5 h-5" /> : <IconXCircle className="w-5 h-5" />}
             data-testid="stat-dy-pass"
           />
           <StatCard

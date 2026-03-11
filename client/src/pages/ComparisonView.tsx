@@ -5,6 +5,9 @@ import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, 
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { exportTablePNG, captureChartAsImage } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Check, Trophy, Info } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -76,6 +79,29 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     if (format === "percent") return fmtPct(value);
     return String(value);
   };
+
+  const propertyWins = useMemo(() => {
+    if (selectedProperties.length < 2) return {};
+    const wins: Record<string, number> = {};
+    selectedProperties.forEach(p => wins[p.id] = 0);
+    
+    METRICS.forEach(m => {
+      if (!m.bestDir) return;
+      const best = getBestValue(m.key, m.bestDir);
+      selectedProperties.forEach(p => {
+        if ((p as any)[m.key] === best) {
+          wins[p.id]++;
+        }
+      });
+    });
+    return wins;
+  }, [selectedProperties]);
+
+  const overallWinner = useMemo(() => {
+    if (selectedProperties.length < 2) return null;
+    const winnerId = Object.entries(propertyWins).reduce((a, b) => b[1] > a[1] ? b : a)[0];
+    return selectedProperties.find(p => p.id === winnerId);
+  }, [propertyWins, selectedProperties]);
 
   const handleExportPDF = useCallback(() => {
     if (selectedProperties.length < 2) return;
@@ -180,7 +206,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
 
         <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
           <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"/><path d="m15 9 6-6"/></svg>
+            <Info className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
             <div>
               <h3 className="text-sm font-semibold text-foreground mb-1">Property Comparison</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -193,7 +219,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
         </div>
 
         <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-foreground mb-3" data-testid="text-selector-heading">
+          <h2 className="text-sm font-semibold text-foreground mb-4" data-testid="text-selector-heading">
             Select Properties ({selectedIds.length}/4)
           </h2>
           <div className="flex flex-wrap gap-3">
@@ -201,26 +227,31 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
               const checked = selectedIds.includes(p.id);
               const disabled = !checked && selectedIds.length >= 4;
               return (
-                <label
+                <Card
                   key={p.id}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-colors ${
+                  className={`relative cursor-pointer transition-all duration-200 hover:shadow-md ${
                     checked
-                      ? "bg-primary/10 border-primary"
+                      ? "ring-2 ring-primary border-primary bg-primary/5"
                       : disabled
-                      ? "opacity-50 cursor-not-allowed border-border"
-                      : "border-border hover:border-primary/40"
+                      ? "opacity-50 cursor-not-allowed grayscale"
+                      : "hover:border-primary/50"
                   }`}
-                  data-testid={`checkbox-property-${p.id}`}
+                  onClick={() => !disabled && toggleProperty(p.id)}
+                  data-testid={`card-property-${p.id}`}
                 >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={disabled}
-                    onChange={() => toggleProperty(p.id)}
-                    className="accent-primary w-4 h-4"
-                  />
-                  <span className="text-sm font-medium text-foreground">{p.name}</span>
-                </label>
+                  <CardContent className="p-4 flex flex-col items-center text-center gap-2">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${checked ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                      {checked ? <Check className="w-6 h-6" /> : <div className="w-6 h-6 rounded-full border-2 border-dashed border-current" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold truncate max-w-[120px]">{p.name}</p>
+                      <p className="text-xs text-muted-foreground">{p.location}</p>
+                    </div>
+                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+                      {p.status}
+                    </Badge>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
@@ -228,6 +259,33 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
 
         {selectedProperties.length >= 2 ? (
           <>
+          {overallWinner && (
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-sm">
+                  <Trophy className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">Performance Leader: {overallWinner.name}</h3>
+                  <p className="text-xs text-muted-foreground">Wins on {propertyWins[overallWinner.id]} out of {METRICS.filter(m => m.bestDir).length} key metrics compared.</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                {selectedProperties.map(p => (
+                   <div key={p.id} className="flex flex-col items-center">
+                     <div className="text-[10px] font-bold text-muted-foreground mb-1">{p.name}</div>
+                     <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-500 ${p.id === overallWinner.id ? 'bg-primary' : 'bg-muted-foreground/30'}`} 
+                          style={{ width: `${(propertyWins[p.id] / METRICS.filter(m => m.bestDir).length) * 100}%` }}
+                        />
+                     </div>
+                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <KPIGrid
             data-testid="kpi-comparison"
             items={[
@@ -240,26 +298,40 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
             variant="light"
           />
           <ScrollReveal>
-            <div ref={chartRef} className="bg-card rounded-xl border border-border shadow-sm p-6">
-              <h3 className="text-lg font-display text-foreground mb-4">Performance Comparison</h3>
-              <ResponsiveContainer width="100%" height={320}>
-                <RadarChart data={[
-                  { metric: "ADR", ...Object.fromEntries(selectedProperties.map(p => [p.name, Math.min(p.startAdr / 5, 100)])) },
-                  { metric: "Occupancy", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.startOccupancy * 100])) },
-                  { metric: "Rooms", ...Object.fromEntries(selectedProperties.map(p => [p.name, Math.min(p.roomCount, 100)])) },
-                  { metric: "Growth", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.adrGrowthRate * 100 * 10])) },
-                  { metric: "Max Occ", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.maxOccupancy * 100])) },
-                ]}>
-                  <PolarGrid stroke="#e5e7eb" />
-                  <PolarAngleAxis dataKey="metric" tick={{ fill: "#6b7280", fontSize: 12 }} />
-                  <PolarRadiusAxis tick={false} axisLine={false} />
-                  {selectedProperties.map((p, i) => (
-                    <Radar key={p.id} name={p.name} dataKey={p.name} stroke={["var(--primary)", "#257D41", "#3B82F6", "#F4795B"][i]} fill={["var(--primary)", "#257D41", "#3B82F6", "#F4795B"][i]} fillOpacity={0.15} strokeWidth={2} />
-                  ))}
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Tooltip />
-                </RadarChart>
-              </ResponsiveContainer>
+            <div ref={chartRef} className="bg-card rounded-xl border border-border shadow-sm p-8">
+              <h3 className="text-lg font-display text-foreground mb-6 text-center">Relative Performance Profile</h3>
+              <div className="h-[450px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
+                    { metric: "ADR", ...Object.fromEntries(selectedProperties.map(p => [p.name, Math.min(p.startAdr / 5, 100)])) },
+                    { metric: "Occupancy", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.startOccupancy * 100])) },
+                    { metric: "Rooms", ...Object.fromEntries(selectedProperties.map(p => [p.name, Math.min(p.roomCount, 100)])) },
+                    { metric: "Growth", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.adrGrowthRate * 100 * 10])) },
+                    { metric: "Max Occ", ...Object.fromEntries(selectedProperties.map(p => [p.name, p.maxOccupancy * 100])) },
+                  ]}>
+                    <PolarGrid stroke="#e5e7eb" />
+                    <PolarAngleAxis dataKey="metric" tick={{ fill: "#6b7280", fontSize: 13, fontWeight: 500 }} />
+                    <PolarRadiusAxis tick={false} axisLine={false} />
+                    {selectedProperties.map((p, i) => (
+                      <Radar 
+                        key={p.id} 
+                        name={p.name} 
+                        dataKey={p.name} 
+                        stroke={["#0F172A", "#257D41", "#3B82F6", "#F4795B"][i]} 
+                        fill={["#0F172A", "#257D41", "#3B82F6", "#F4795B"][i]} 
+                        fillOpacity={0.25} 
+                        strokeWidth={3} 
+                        animationDuration={1500}
+                      />
+                    ))}
+                    <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: '30px', fontSize: 13, fontWeight: 500 }} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      itemStyle={{ padding: '2px 0' }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </ScrollReveal>
           <div className="grid gap-6 lg:grid-cols-2">
@@ -299,59 +371,74 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
               return insights;
             })()}
           />
-          <div ref={tableRef} className="bg-card rounded-xl border border-border shadow-sm overflow-x-auto">
-            <table className="w-full text-sm" data-testid="table-comparison">
-              <thead>
-                <tr>
-                  <th className="text-left px-4 py-3 bg-muted text-muted-foreground font-semibold border-b min-w-[160px]">
-                    Metric
-                  </th>
-                  {selectedProperties.map((p) => (
-                    <th
-                      key={p.id}
-                      className="text-center px-4 py-3 border-b bg-muted text-foreground font-semibold min-w-[150px]"
-                      data-testid={`header-property-${p.id}`}
-                    >
-                      {p.name}
+          <div ref={tableRef} className="bg-card rounded-xl border border-border shadow-md overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-testid="table-comparison">
+                <thead>
+                  <tr>
+                    <th className="text-left px-6 py-4 bg-muted/80 text-muted-foreground font-bold border-b min-w-[200px] uppercase tracking-wider text-xs">
+                      Metric
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {METRICS.map((metric, idx) => {
-                  const best = getBestValue(metric.key, metric.bestDir);
-                  return (
-                    <tr
-                      key={metric.key}
-                      className={idx % 2 === 0 ? "bg-card" : "bg-muted/60"}
-                      data-testid={`row-${metric.key}`}
-                    >
-                      <td className="px-4 py-3 font-medium text-foreground border-r border-border">
-                        {metric.label}
-                      </td>
-                      {selectedProperties.map((p) => {
-                        const raw = (p as any)[metric.key];
-                        const isBest =
-                          best !== null &&
-                          typeof raw === "number" &&
-                          raw === best;
-                        return (
-                          <td
-                            key={p.id}
-                            className={`px-4 py-3 text-center ${
-                              isBest ? "bg-green-50 font-semibold text-green-800" : "text-foreground"
-                            }`}
-                            data-testid={`cell-${metric.key}-${p.id}`}
-                          >
-                            {formatValue(raw, metric.format)}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                    {selectedProperties.map((p) => (
+                      <th
+                        key={p.id}
+                        className="text-center px-6 py-4 border-b bg-muted/80 text-foreground font-bold min-w-[180px]"
+                        data-testid={`header-property-${p.id}`}
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-sm">{p.name}</span>
+                          <Badge variant="secondary" className="text-[10px] font-medium h-4 px-1.5">
+                            {p.location}
+                          </Badge>
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {METRICS.map((metric, idx) => {
+                    const best = getBestValue(metric.key, metric.bestDir);
+                    return (
+                      <tr
+                        key={metric.key}
+                        className={`transition-colors hover:bg-muted/30 ${idx % 2 === 0 ? "bg-card" : "bg-muted/20"}`}
+                        data-testid={`row-${metric.key}`}
+                      >
+                        <td className="px-6 py-4 font-semibold text-foreground border-r border-border/50">
+                          {metric.label}
+                        </td>
+                        {selectedProperties.map((p) => {
+                          const raw = (p as any)[metric.key];
+                          const isBest =
+                            best !== null &&
+                            typeof raw === "number" &&
+                            raw === best;
+                          return (
+                            <td
+                              key={p.id}
+                              className={`px-6 py-4 text-center transition-all ${
+                                isBest ? "bg-primary/5" : "text-foreground"
+                              }`}
+                              data-testid={`cell-${metric.key}-${p.id}`}
+                            >
+                              {isBest ? (
+                                <div className="flex items-center justify-center gap-2">
+                                  <Badge variant="default" className="bg-primary hover:bg-primary font-bold shadow-none text-primary-foreground border-none">
+                                    {formatValue(raw, metric.format)}
+                                  </Badge>
+                                </div>
+                              ) : (
+                                formatValue(raw, metric.format)
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
         ) : (

@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { Minus } from "lucide-react";
 import { IconBookOpen, IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { formatMoney } from "@/lib/financialEngine";
 
 interface BenchmarkRow {
   label: string;
@@ -53,7 +54,7 @@ export default function BenchmarkPanel({ property, yearlyChartData }: BenchmarkP
       const [low, high] = nums.length >= 2 ? [nums[0], nums[1]] : [rv.adr.mid * 0.85, rv.adr.mid * 1.15];
       result.push({
         label: "ADR",
-        actual: `$${property.startAdr}`,
+        actual: formatMoney(property.startAdr),
         range: rv.adr.display,
         source: "Seed",
         status: compareToRange(property.startAdr, low, high),
@@ -92,7 +93,7 @@ export default function BenchmarkPanel({ property, yearlyChartData }: BenchmarkP
       const revpar = property.startAdr * (property.maxOccupancy ?? 0.85);
       result.push({
         label: "RevPAR (at max occ)",
-        actual: `$${revpar.toFixed(0)}`,
+        actual: formatMoney(revpar),
         range: "Computed",
         source: "—",
         status: "unknown",

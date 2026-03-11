@@ -1,4 +1,6 @@
-import { IconSliders } from "@/components/icons";
+import { IconSliders, IconRefreshCw } from "@/components/icons";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 import type { SensitivityVariable } from "./types";
 
 interface VariableSlidersPanelProps {
@@ -9,32 +11,53 @@ interface VariableSlidersPanelProps {
 
 export function VariableSlidersPanel({ variables, adjustments, onAdjustmentChange }: VariableSlidersPanelProps) {
   return (
-    <div className="bg-card/80 rounded-lg p-6 border border-primary/10 shadow-[0_2px_8px_rgba(var(--primary-rgb,159,188,164),0.08)]">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
-          <IconSliders className="w-5 h-5 text-secondary" />
+    <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <IconSliders className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h3 className="text-lg font-display font-bold text-foreground" data-testid="text-adjustments-title">
+          <h3 className="text-lg font-semibold text-foreground" data-testid="text-adjustments-title">
             Variable Adjustments
           </h3>
-          <p className="text-xs text-muted-foreground">Drag sliders to model different scenarios</p>
+          <p className="text-xs text-muted-foreground">Fine-tune assumptions to see impact</p>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         {variables.map((v) => {
           const currentVal = adjustments[v.id] ?? v.defaultValue;
+          const isChanged = currentVal !== v.defaultValue;
+
           return (
-            <div key={v.id} className="space-y-2">
+            <div key={v.id} className="group space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-foreground">{v.label}</label>
-                <span
-                  className={`text-sm font-mono font-bold px-2 py-0.5 rounded-md ${
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-semibold text-foreground">{v.label}</label>
+                    {isChanged && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors"
+                        onClick={() => onAdjustmentChange(v.id, v.defaultValue)}
+                        title="Reset to default"
+                        data-testid={`button-reset-${v.id}`}
+                      >
+                        <IconRefreshCw className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-tight max-w-[200px]">
+                    {v.description}
+                  </p>
+                </div>
+                <div
+                  className={`text-sm font-mono font-bold px-2 py-1 rounded-md min-w-[60px] text-center transition-colors ${
                     currentVal > 0
-                      ? "text-secondary bg-primary/15"
+                      ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10"
                       : currentVal < 0
-                      ? "text-red-600 bg-red-50"
+                      ? "text-red-600 bg-red-50 dark:bg-red-500/10"
                       : "text-muted-foreground bg-muted"
                   }`}
                   data-testid={`value-${v.id}`}
@@ -42,27 +65,28 @@ export function VariableSlidersPanel({ variables, adjustments, onAdjustmentChang
                   {currentVal > 0 ? "+" : ""}
                   {currentVal.toFixed(v.step < 1 ? 1 : 0)}
                   {v.unit === "%" ? "pp" : v.unit}
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-muted-foreground w-10 text-right font-mono">{v.range[0]}</span>
-                <div className="flex-1 relative">
-                  <input
-                    type="range"
-                    min={v.range[0]}
-                    max={v.range[1]}
-                    step={v.step}
-                    value={currentVal}
-                    onChange={(e) => onAdjustmentChange(v.id, parseFloat(e.target.value))}
-                    className="w-full h-2 rounded-full appearance-none cursor-pointer accent-primary bg-muted [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-secondary [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-secondary [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:cursor-grab"
-                    data-testid={`slider-${v.id}`}
-                  />
                 </div>
-                <span className="text-xs text-muted-foreground w-10 font-mono">
-                  {v.range[1] > 0 ? "+" : ""}{v.range[1]}
-                </span>
               </div>
-              <p className="text-xs text-muted-foreground">{v.description}</p>
+
+              <div className="px-1">
+                <Slider
+                  min={v.range[0]}
+                  max={v.range[1]}
+                  step={v.step}
+                  value={[currentVal]}
+                  onValueChange={([val]) => onAdjustmentChange(v.id, val)}
+                  className="py-4"
+                  data-testid={`slider-${v.id}`}
+                />
+                <div className="flex justify-between mt-1 px-0.5">
+                  <span className="text-[10px] font-medium text-muted-foreground/50">
+                    {v.range[0]}{v.unit === "%" ? "pp" : v.unit}
+                  </span>
+                  <span className="text-[10px] font-medium text-muted-foreground/50">
+                    +{v.range[1]}{v.unit === "%" ? "pp" : v.unit}
+                  </span>
+                </div>
+              </div>
             </div>
           );
         })}

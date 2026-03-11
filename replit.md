@@ -78,11 +78,18 @@ When adding new fields to any admin config (research, voice, etc.), **always** a
 3. Add field to the merge/spread logic in the PUT/PATCH handler
 4. Test a round-trip save from the UI
 
-## Analysis Page Tabs
-The `/analysis` page (sidebar label: "Simulation") contains 4 tabs: Sensitivity, Financing (debt DSCR/yield/stress), Compare, Timeline. Located under the "Tools" sidebar group.
+## Simulation and Analysis Page
+The `/analysis` page (sidebar label: "Simulation", title: "Simulation and Analysis") contains 4 tabs in order: Sensitivity, Compare, Timeline, Financing. Uses shadcn Tabs with icons and framer-motion transitions. Located under the "Tools" sidebar group.
+- **Sensitivity**: What-if modeling with variable sliders (occupancy, ADR growth, expense escalation, exit cap, inflation, interest rate). Tornado chart, comparison table, KPI summary strip.
+- **Compare**: Side-by-side property comparison (up to 4). Radar chart, winner summary bar, detailed table with best-value badges.
+- **Timeline**: Horizontal Gantt-style timeline of property acquisitions and operations milestones with color-coded nodes and tooltips.
+- **Financing**: 4 sub-tabs — DSCR Sizing (gauges with threshold markers), Debt Yield (pass/fail indicators), Stress Test (color-gradient DSCR heatmap with tooltips), Prepayment (3 penalty types with side-by-side comparison).
 
 ## Dashboard Overview Sections
-The Dashboard Overview tab contains (in order): Investment Performance (IRR gauge, property IRR comparison, equity by property), KPI cards (Equity Multiple, Cash-on-Cash, Equity Invested, Projected Exit), Revenue & ANOI Projection chart, Portfolio & Capital Structure tables, Market Research, Portfolio Insights (property table + InsightPanel), Portfolio Composition (market pie chart + status bars), USALI Profit Waterfall (revenue cascade with year switcher). Executive Summary content was merged into the Dashboard — `/executive-summary` redirects to `/`.
+The Dashboard Overview tab contains (in order): Investment Performance (IRR gauge, property IRR comparison, equity by property), KPI cards (Equity Multiple, Cash-on-Cash, Equity Invested, Projected Exit), Revenue & ANOI Projection chart, Portfolio & Capital Structure tables, Portfolio Insights (property table + InsightPanel), Portfolio Composition (market pie chart + status bars), USALI Profit Waterfall (revenue cascade with year switcher). Executive Summary content was merged into the Dashboard — `/executive-summary` redirects to `/`. Research status moved to sidebar (dot indicators).
+
+## Sidebar Research Status
+Research freshness is shown as a compact card in the sidebar footer (above Sign Out) with 4 dot indicators: Property, Operations, Marketing, Industry. Green = fresh, red = missing/stale. Clicking navigates to `/research`. Component: `client/src/components/research/SidebarResearchStatus.tsx`.
 
 ## Management Company Page Tabs
 The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet, **Tools**. The Tools tab (`client/src/pages/FundingPredictor.tsx`) has a single sub-tab:

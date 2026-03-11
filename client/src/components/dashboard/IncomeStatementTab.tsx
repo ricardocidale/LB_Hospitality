@@ -78,7 +78,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
         category: "ADR (Effective)",
         values: adrVals,
         indent: 1,
-        displayValues: adrVals.map(v => v > 0 ? `$${v.toFixed(2)}` : "-")
+        displayValues: adrVals.map(v => v > 0 ? formatMoney(v) : "-")
       });
       pushRow({
         category: "= Room Revenue ÷ Sold Rooms",
@@ -124,7 +124,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
         category: "RevPAR",
         values: revparVals,
         indent: 1,
-        displayValues: revparVals.map(v => v > 0 ? `$${v.toFixed(2)}` : "-")
+        displayValues: revparVals.map(v => v > 0 ? formatMoney(v) : "-")
       });
       pushRow({
         category: "= Room Revenue ÷ Available Rooms",
@@ -148,7 +148,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           const rev = c(i)?.revenueRooms ?? 0;
           const adr = sold > 0 ? rev / sold : 0;
           const occ = avail > 0 ? sold / avail : 0;
-          return avail > 0 ? `$${adr.toFixed(2)} × ${(occ * 100).toFixed(1)}%` : "-";
+          return avail > 0 ? `${formatMoney(adr)} × ${(occ * 100).toFixed(1)}%` : "-";
         })
       });
     }

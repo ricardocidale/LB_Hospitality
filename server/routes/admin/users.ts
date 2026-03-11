@@ -144,9 +144,23 @@ export function registerUserRoutes(app: Express) {
     }
   });
 
+  app.patch("/api/admin/users/:id/theme", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const { themeId } = req.body;
+      await storage.updateUserSelectedTheme(id, themeId ?? null);
+      res.json({ success: true });
+    } catch (error) {
+      logAndSendError(res, "Failed to assign theme", error);
+    }
+  });
+
   app.post("/api/admin/reset-all-passwords", requireAdmin, async (req, res) => {
     try {
-      const { password } = req.body;
+      const { password, confirm } = req.body;
+      if (confirm !== "RESET ALL PASSWORDS") {
+        return res.status(400).json({ error: "Confirmation phrase required" });
+      }
       const pwValidation = validatePassword(password ?? "");
       if (!pwValidation.valid) {
         return res.status(400).json({ error: pwValidation.message });

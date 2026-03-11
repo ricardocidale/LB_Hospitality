@@ -58,6 +58,10 @@ export default function UsersTab() {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [sortField, setSortField] = useState<SortField>("group");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [resetAllPassword, setResetAllPassword] = useState("");
+  const [resetAllConfirm, setResetAllConfirm] = useState("");
+  const [resetAllDialogOpen, setResetAllDialogOpen] = useState(false);
+  const [showResetAllPassword, setShowResetAllPassword] = useState(false);
 
   const { data: users, isLoading: usersLoading } = useQuery<User[]>({
     queryKey: ["admin", "users"],
@@ -221,9 +225,11 @@ export default function UsersTab() {
   });
 
   const resetAllPasswordsMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ password, confirm }: { password: string; confirm: string }) => {
       const res = await fetch("/api/admin/reset-all-passwords", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, confirm }),
         credentials: "include",
       });
       if (!res.ok) {
@@ -233,6 +239,10 @@ export default function UsersTab() {
       return res.json();
     },
     onSuccess: (data) => {
+      setResetAllDialogOpen(false);
+      setResetAllPassword("");
+      setResetAllConfirm("");
+      setShowResetAllPassword(false);
       toast({ title: "Passwords Reset", description: data.message });
     },
     onError: (error: Error) => {
@@ -283,28 +293,62 @@ export default function UsersTab() {
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" disabled={resetAllPasswordsMutation.isPending} data-testid="button-reset-all-passwords">
-                  {resetAllPasswordsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
-                  Reset All Passwords
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Reset All Passwords</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will reset ALL user passwords to the default admin password. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => resetAllPasswordsMutation.mutate()} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <Button variant="outline" disabled={resetAllPasswordsMutation.isPending} data-testid="button-reset-all-passwords" onClick={() => setResetAllDialogOpen(true)}>
+              {resetAllPasswordsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconKey className="w-4 h-4" />}
+              Reset All Passwords
+            </Button>
+            <Dialog open={resetAllDialogOpen} onOpenChange={(open) => { if (!open) { setResetAllPassword(""); setResetAllConfirm(""); setShowResetAllPassword(false); } setResetAllDialogOpen(open); }}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-destructive">
+                    <IconKey className="w-5 h-5" />
+                    Reset All Passwords
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground">
+                    This will reset ALL user passwords. This action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-all-password">New Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="reset-all-password"
+                        type={showResetAllPassword ? "text" : "password"}
+                        value={resetAllPassword}
+                        onChange={(e) => setResetAllPassword(e.target.value)}
+                        placeholder="Enter new password for all users"
+                        className="pr-10"
+                      />
+                      <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowResetAllPassword(!showResetAllPassword)}>
+                        {showResetAllPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-all-confirm">Type <span className="font-mono font-bold text-destructive">RESET ALL PASSWORDS</span> to confirm</Label>
+                    <Input
+                      id="reset-all-confirm"
+                      type="text"
+                      value={resetAllConfirm}
+                      onChange={(e) => setResetAllConfirm(e.target.value)}
+                      placeholder="RESET ALL PASSWORDS"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setResetAllDialogOpen(false)}>Cancel</Button>
+                  <Button
+                    variant="destructive"
+                    disabled={!resetAllPassword || resetAllConfirm !== "RESET ALL PASSWORDS" || resetAllPasswordsMutation.isPending}
+                    onClick={() => resetAllPasswordsMutation.mutate({ password: resetAllPassword, confirm: resetAllConfirm })}
+                  >
+                    {resetAllPasswordsMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Reset All
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             <Button variant="default" onClick={() => setDialogOpen(true)} data-testid="button-add-user">
               <IconUserPlus className="w-4 h-4" />
               Add User

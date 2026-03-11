@@ -272,6 +272,12 @@ export const DEFAULT_LTV = 0.75;
 export const DEFAULT_INTEREST_RATE = 0.09;
 export const DEFAULT_TERM_YEARS = 25;
 
+// Cap rate sensitivity analysis: each step = 50 basis points
+export const CAP_RATE_SENSITIVITY_STEP = 0.005;
+
+// Research example: 30% corporate tax bracket for tax shield comparison
+export const RESEARCH_TAX_RATE_30_PCT = 0.30;
+
 export const SEED_DEBT_ASSUMPTIONS = {
   acqLTV: 0.75,             // Acquisition loan-to-value (75% LTV means 25% equity down)
   refiLTV: 0.75,            // Refinance loan-to-value

@@ -3,7 +3,7 @@
 > **Source of truth:** `.claude/claude.md` — all detailed documentation lives there. This file is a slim pointer. If conflicts arise, `.claude/claude.md` wins.
 
 ## Overview
-Business simulation portal for boutique hotel investment. Financial modeling, property management, investment analysis, and AI-powered assistant (Marcela). GAAP-compliant with independent audit/verification engine.
+Business simulation portal for boutique hotel investment. Financial modeling, property management, investment analysis, and AI assistants (Marcela voice + Rebecca text). GAAP-compliant with independent audit/verification engine.
 
 See `.claude/claude.md` for codebase stats, test counts, and line counts (kept current by doc harmony checks).
 
@@ -53,8 +53,8 @@ Five categories + Logs + Help:
 - **Brand**: Management Company (Identity/contact), Ideal Customer Profile (asset type definition), Revenue Share (unified: service categories with toggles/rates + incentive fee + USALI waterfall summary), Other Assumptions (company inflation)
 - **Business**: Users (sub-tabs: Users, Company Assignment, Group Assignment), Companies (CRUD with logo + theme), Groups (CRUD with logo, theme, asset description, property visibility)
 - **Design**: Logos (upload/manage logos), Themes (color themes)
-- **AI Agent**: Configuration (9 sub-tabs), Knowledge Base (direct to KB tab), Twilio (direct to telephony tab)
-- **System**: Research (sub-tabs: Research, Market Rates), Navigation, Verification, Database
+- **AI Agents**: Marcela / Voice (9 sub-tabs), Rebecca / Text (enable, name, prompt), Knowledge Base, Twilio
+- **System**: Research, Navigation, Diagrams (Mermaid workflow charts L1/L2/L3), Verification, Database
 - **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
 - Help link at bottom (navigates to /help)
 

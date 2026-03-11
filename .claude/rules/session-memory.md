@@ -8,11 +8,16 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 11, 2026 — Architectural Hardening Initiative (9 Workstreams)
+- WS1: Magic numbers extracted (CAP_RATE_SENSITIVITY_STEP, RESEARCH_TAX_RATE_30_PCT); chat.ts uses executeComputationTool via shared buildPropertyContext.ts
+- WS2: Golden "Clearwater Inn" scenario (60 tests): 15 rooms $175 ADR cash purchase, mgmt co + 1 property + consolidated
+- WS3: Chatbot renamed Rebecca, new sidebar "AI Assistants" group (Marcela voice + Rebecca text), admin RebeccaTab + config
+- WS4: Admin Diagrams tab (Mermaid L1/L2/L3 workflow charts), WS5: /api/admin/users/:id/theme endpoint
+- WS6: seedAdminUser password guard (FORCE_RESEED_PASSWORDS), reset-all requires confirmation phrase + password
+- Tests 2,842→2,912 (131 files). Health ALL CLEAR. UNQUALIFIED.
+
 ## Session: March 10, 2026 — claude.md update + recent features
-- Updated source stats: 706 files / 113,564 lines (was 702/112,657); skill files 172+
-- Sidebar restructured into Insights/Tools sections; Research Center moved to Tools
-- Property analysis chatbot added (`/api/chat`, Claude-powered via `server/routes/chat.ts`)
-- Property hero images: captions + additional AI-generated photos; DCF added to dashboard
+- Updated source stats, sidebar restructured, chatbot added, hero image captions, DCF dashboard
 
 ## Session: March 10, 2026 — Golden Scenario Battery Continued (5 more scenarios, 149 new tests)
 - Built 5 new golden test files: exit-cap-sensitivity (24), mixed-portfolio (20), preops-refi-combo (45), underwater-exit (36), zero-occupancy (24)

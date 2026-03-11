@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~706 source files, ~113,564 lines, 2,842 tests across 130 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~709 source files, ~114,167 lines, 2,912 tests across 131 files. Hosted on Replit.
 
 ---
 
@@ -51,7 +51,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,842 tests, 418 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,912 tests, 418 golden tests, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -60,7 +60,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
 | Codebase Arch | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, UI component catalog (80+), ElevenLabs architecture |
 | Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel hooks, styles, tooltip patterns |
-| Admin (10 tabs) | `.claude/skills/admin/SKILL.md` | 10-tab shell pattern, extraction guide, API routes |
+| Admin (19 tabs) | `.claude/skills/admin/SKILL.md` | 19-tab shell pattern, extraction guide, API routes |
 | Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
 | Finance (17 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
@@ -77,7 +77,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 
 ---
 
-## Testing & Proof System (2,842 Tests, 130 Files)
+## Testing & Proof System (2,912 Tests, 131 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -85,18 +85,21 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Consolidated Portfolio | Aggregation, eliminations, portfolio IRR | `testing/consolidated-statements.md` |
 | Management Company | Company pro forma, fee linkage, funding | `testing/management-company.md` |
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
-| Golden Scenarios | 418 hand-calculated reference tests | `testing/golden-scenarios.md` |
+| Golden Scenarios | 478+ hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 2,842) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 2,912) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
-## Recent Changes (March 10, 2026)
+## Recent Changes (March 11, 2026)
 
-- **Property Analysis Chatbot** — Claude-powered assistant at `/api/chat`; answers questions about portfolio properties using real financial metrics from `computePropertyMetrics`. UI in `client/src/components/`. Sidebar section: Tools.
-- **Sidebar Restructure** — Menu reorganized into **Insights** (financial pages) and **Tools** (Research Center, Property Finder, chatbot) sections. Financial charts/insights hidden when on Tools tab.
-- **Property Hero Images** — Captions added to hero images; additional AI-generated photos generated per property.
-- **DCF Analysis** — Discounted cash flow analysis added to investment dashboard.
+- **AI Agents restructured** — **Rebecca** (Claude text chat, renamed from PropertyChatbot) + **Marcela** (ElevenLabs voice). Sidebar "AI Assistants" group. Admin has separate config tabs for each under "AI Agents" group.
+- **Admin Diagrams tab** — Mermaid workflow charts at 3 levels (system overview, domain flows, detailed sub-flows). Under Admin → System → Diagrams.
+- **Deterministic tool enforcement** — Extracted magic numbers to named constants in `shared/constants.ts`. Chat route uses `executeComputationTool` via shared `buildPropertyContext.ts`.
+- **Golden scenario** — "Clearwater Inn" (15 rooms, $175 ADR, 1 property + management co). 60 assertions covering IS/CF/BS, fee zero-sum, consolidated elimination. `tests/golden/mgmt-company-plus-one-property-golden.test.ts`.
+- **Seeding hardened** — `seedAdminUser()` no longer resets existing passwords (requires `FORCE_RESEED_PASSWORDS=true`). Reset-all-passwords requires typed confirmation phrase.
+- **Theme admin assignment** — `PATCH /api/admin/users/:id/theme` endpoint for per-user theme override.
+- **DB indexes** — Already existed on `properties.user_id` and `global_assumptions.user_id` (confirmed).
 
 ---
 
@@ -128,7 +131,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify (~4 lines)
-npm run test:summary   # All 2,842 tests, 1-line output
+npm run test:summary   # All 2,912 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact output
 npm run db:push        # Push schema changes
 npm run diff:summary   # Compact git status + diff stat

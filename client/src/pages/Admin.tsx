@@ -19,6 +19,8 @@ import ThemesTab from "@/components/admin/ThemesTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
 import TwilioTab from "@/components/admin/TwilioTab";
+import RebeccaTab from "@/components/admin/RebeccaTab";
+import DiagramsTab from "@/components/admin/DiagramsTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
@@ -35,11 +37,13 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
-  marcela:          { title: "AI Agent",             subtitle: "Configure Marcela — voice, prompt, tools, and telephony" },
+  marcela:          { title: "Marcela (Voice)",       subtitle: "Configure Marcela — voice, prompt, tools, and telephony" },
+  rebecca:          { title: "Rebecca (Text)",        subtitle: "Configure Rebecca — text chat, system prompt, and model" },
   kb:               { title: "Knowledge Base",       subtitle: "Marcela's knowledge base documents and data" },
   twilio:           { title: "Twilio",               subtitle: "Phone and SMS telephony configuration" },
   research:         { title: "Research Center",      subtitle: "AI research configuration and live market rate monitoring" },
   navigation:       { title: "Navigation",           subtitle: "Control which sidebar pages are visible to users" },
+  diagrams:         { title: "Diagrams",              subtitle: "Application workflow diagrams and architecture" },
   verification:     { title: "Verification",         subtitle: "Independent GAAP financial audit and compliance" },
   database:         { title: "Database",             subtitle: "Entity monitoring, seed data, and canonical sync" },
 };
@@ -100,6 +104,21 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
         </div>
       }><TwilioTab /></ErrorBoundary>
     );
+    case "rebecca":          return (
+      <ErrorBoundary fallback={
+        <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
+          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+          <div>
+            <p className="font-semibold text-foreground">Rebecca configuration failed to load</p>
+            <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+            Reload page
+          </Button>
+        </div>
+      }><RebeccaTab /></ErrorBoundary>
+    );
+    case "diagrams":         return <DiagramsTab />;
     case "verification":     return <VerificationTab />;
     case "database":         return <DatabaseTab />;
     default:                 return null;

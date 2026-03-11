@@ -14,7 +14,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { X, Search } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch } from "@/components/icons";
+import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch, IconBot, IconMessageCircle } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ import NotificationCenter from "@/components/NotificationCenter";
 
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
-import { PropertyChatbot } from "@/components/PropertyChatbot";
+import { RebeccaChatbot } from "@/components/RebeccaChatbot";
 import {
   Sidebar,
   SidebarContent,
@@ -113,6 +113,13 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         ...(sb("sidebarPropertyFinder") && hasManagementAccess ? [{ href: "/property-finder", label: "Property Finder", icon: IconPropertyFinder }] : []),
         ...(sb("sidebarMapView") && hasManagementAccess ? [{ href: "/map", label: "Map View", icon: IconMapPin }] : []),
         ...(sb("sidebarResearch") && hasManagementAccess ? [{ href: "/research", label: "Research Center", icon: IconResearch }] : []),
+      ].filter(Boolean),
+    },
+    {
+      label: "AI Assistants",
+      items: [
+        ...((global as any)?.marcelaEnabled ? [{ href: "#marcela", label: (global as any)?.aiAgentName || "Marcela", icon: IconBot, onClick: () => { /* Marcela widget triggered from header */ } }] : []),
+        ...((global as any)?.rebeccaEnabled ? [{ href: "#rebecca", label: (global as any)?.rebeccaDisplayName || "Rebecca", icon: IconMessageCircle, onClick: () => { /* Rebecca chat triggered from header */ } }] : []),
       ].filter(Boolean),
     },
     {
@@ -242,7 +249,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                 <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
               </button>
               <NotificationCenter />
-              <PropertyChatbot />
+              <RebeccaChatbot displayName={(global as any)?.rebeccaDisplayName || "Rebecca"} />
               <ErrorBoundary><MarcelaWidgetGated /></ErrorBoundary>
             </div>
           </header>

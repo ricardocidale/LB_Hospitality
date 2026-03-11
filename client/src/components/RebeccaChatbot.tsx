@@ -9,7 +9,12 @@ interface ChatMessage {
   content: string;
 }
 
-export function PropertyChatbot() {
+interface RebeccaChatbotProps {
+  /** Optional override for the display name (from admin config) */
+  displayName?: string;
+}
+
+export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -65,7 +70,7 @@ export function PropertyChatbot() {
         onClick={() => setOpen((v) => !v)}
         className="h-8 w-8 relative"
         data-testid="button-chatbot-toggle"
-        title="Property Assistant"
+        title={displayName}
       >
         <IconMessageCircle className="w-4 h-4" />
         {messages.length > 0 && !open && (
@@ -81,8 +86,8 @@ export function PropertyChatbot() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/50">
             <div className="flex items-center gap-2">
               <IconMessageCircle className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold">Property Assistant</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">Gemini</span>
+              <span className="text-sm font-semibold">{displayName}</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">Claude</span>
             </div>
             <Button
               variant="ghost"

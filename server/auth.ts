@@ -456,8 +456,14 @@ export async function seedAdminUser() {
         logger.info(`User created: ${seed.email}`, "auth");
       }
     } else {
-      const passwordHash = await hashPassword(password);
-      await storage.updateUserPassword(user.id, passwordHash);
+      // ONLY reset password if FORCE_RESEED_PASSWORDS is explicitly set
+      if (process.env.FORCE_RESEED_PASSWORDS === 'true') {
+        const passwordHash = await hashPassword(password);
+        await storage.updateUserPassword(user.id, passwordHash);
+        logger.info(`User password force-reset: ${seed.email}`, "auth");
+      } else {
+        logger.info(`User exists, password preserved: ${seed.email}`, "auth");
+      }
       await storage.updateUserProfile(user.id, {
         firstName: seed.firstName,
         lastName: seed.lastName,
@@ -472,7 +478,6 @@ export async function seedAdminUser() {
         await db.update(users).set({ userGroupId: seed.userGroupId }).where(eq(users.id, user.id));
         logger.info(`User group corrected: ${seed.email} → group ${seed.userGroupId}`, "auth");
       }
-      logger.info(`User password reset: ${seed.email}`, "auth");
     }
 
     if (user) {

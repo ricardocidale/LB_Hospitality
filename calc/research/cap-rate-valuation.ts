@@ -5,6 +5,7 @@
  * sensitivity table at ±50bps increments.
  */
 import { roundCents } from "../shared/utils.js";
+import { CAP_RATE_SENSITIVITY_STEP } from "../../shared/constants.js";
 
 interface CapRateValuationInput {
   annual_noi: number;
@@ -44,7 +45,7 @@ export function computeCapRateValuation(input: CapRateValuationInput): CapRateVa
   // Sensitivity table: ±50bps increments
   const sensitivity: SensitivityRow[] = [];
   for (let i = -sensitivity_steps; i <= sensitivity_steps; i++) {
-    const rate = cap_rate + i * 0.005;
+    const rate = cap_rate + i * CAP_RATE_SENSITIVITY_STEP;
     if (rate <= 0) continue;
     const value = Math.round(annual_noi / rate);
     const row: SensitivityRow = {

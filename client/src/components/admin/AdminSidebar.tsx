@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
+import { X, Share2 } from "lucide-react";
 import {
   IconMenu, IconHelpCircle, IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconTrending,
   IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear,
-  IconBriefcase, IconResearch, IconBookOpen, IconPhone,
+  IconBriefcase, IconResearch, IconBookOpen, IconPhone, IconMessageCircle,
 } from "@/components/icons";
 import { Link } from "wouter";
 
@@ -14,8 +14,9 @@ export type AdminSection =
   | "branding" | "icp" | "revshare" | "otherassumptions"
   | "companies" | "groups"
   | "logos" | "themes"
-  | "marcela" | "kb" | "twilio"
-  | "research" | "navigation" | "verification" | "database";
+  | "marcela" | "rebecca" | "kb" | "twilio"
+  | "research" | "navigation" | "verification" | "database"
+  | "diagrams";
 
 interface SectionItem {
   value: AdminSection;
@@ -67,11 +68,12 @@ const navGroups: NavGroup[] = [
   },
   {
     id: "ai-agent",
-    label: "AI Agent",
+    label: "AI Agents",
     icon: IconBot,
-    description: "Marcela configuration",
+    description: "Marcela (voice) & Rebecca (text)",
     sections: [
-      { value: "marcela", label: "Configuration", icon: IconBot },
+      { value: "marcela", label: "Marcela (Voice)", icon: IconBot },
+      { value: "rebecca", label: "Rebecca (Text)", icon: IconMessageCircle },
       { value: "kb", label: "Knowledge Base", icon: IconBookOpen },
       { value: "twilio", label: "Twilio", icon: IconPhone },
     ],
@@ -84,6 +86,7 @@ const navGroups: NavGroup[] = [
     sections: [
       { value: "research", label: "Research", icon: IconResearch },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
+      { value: "diagrams", label: "Diagrams", icon: Share2 },
       { value: "verification", label: "Verification", icon: IconFileCheck },
       { value: "database", label: "Database", icon: IconDatabase },
     ],

@@ -156,6 +156,8 @@ export class DatabaseStorage implements IStorage {
   getAllMarketResearch = this.research.getAllMarketResearch.bind(this.research);
   upsertMarketResearch = this.research.upsertMarketResearch.bind(this.research);
   deleteMarketResearch = this.research.deleteMarketResearch.bind(this.research);
+  getLastFullResearchRefresh = this.research.getLastFullResearchRefresh.bind(this.research);
+  markFullResearchRefresh = this.research.markFullResearchRefresh.bind(this.research);
   getProspectiveProperties = this.research.getProspectiveProperties.bind(this.research);
   addProspectiveProperty = this.research.addProspectiveProperty.bind(this.research);
   deleteProspectiveProperty = this.research.deleteProspectiveProperty.bind(this.research);

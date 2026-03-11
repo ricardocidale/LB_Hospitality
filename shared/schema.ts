@@ -518,6 +518,8 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Research Configuration — per-event admin control over AI research behavior
   researchConfig: jsonb("research_config").$type<ResearchConfig>().default({}),
 
+  lastFullResearchRefresh: timestamp("last_full_research_refresh"),
+
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),

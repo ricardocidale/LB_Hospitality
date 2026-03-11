@@ -188,7 +188,7 @@ function ThreeBackground({ containerRef }: { containerRef: RefObject<HTMLDivElem
 }
 
 interface ResearchRefreshOverlayProps {
-  onComplete: () => void;
+  onComplete: (skipped?: boolean) => void;
 }
 
 export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayProps) {
@@ -304,7 +304,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
       await new Promise((r) => setTimeout(r, 1500));
       onComplete();
     } catch {
-      onComplete();
+      onComplete(true);
     }
   }, [onComplete]);
 
@@ -368,7 +368,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5 }}
-            onClick={() => { abortRef.current = true; onComplete(); }}
+            onClick={() => { abortRef.current = true; onComplete(true); }}
             className="text-xs text-white/30 hover:text-white/60 transition-colors underline underline-offset-4 mt-4"
           >
             Skip and continue to dashboard

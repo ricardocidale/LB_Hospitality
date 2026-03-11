@@ -219,6 +219,24 @@ export function register(app: Express) {
     }
   });
 
+  app.get("/api/research/last-full-refresh", requireAuth, async (req, res) => {
+    try {
+      const lastRefresh = await storage.getLastFullResearchRefresh(req.user!.id);
+      res.json({ lastRefresh: lastRefresh?.toISOString() ?? null });
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch last full research refresh", error);
+    }
+  });
+
+  app.post("/api/research/mark-full-refresh", requireAuth, async (req, res) => {
+    try {
+      await storage.markFullResearchRefresh(req.user!.id);
+      res.json({ success: true });
+    } catch (error) {
+      logAndSendError(res, "Failed to mark full research refresh", error);
+    }
+  });
+
   app.get("/api/research/refresh-config", requireAuth, async (req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions(req.user!.id);

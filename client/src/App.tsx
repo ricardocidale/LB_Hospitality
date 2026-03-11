@@ -153,24 +153,41 @@ function Router() {
   const [showResearchRefresh, setShowResearchRefresh] = useState(false);
   const prevUserRef = useState<any>(null);
 
-  // On first login each session, trigger a background refresh of AI research data.
-  // prevUserRef tracks whether the user just transitioned from null → logged-in.
-  // sessionStorage prevents re-triggering on every page navigation within the session.
   useEffect(() => {
     if (user && !prevUserRef[0]) {
-      const lastRefresh = sessionStorage.getItem("research_refresh_done");
-      if (!lastRefresh) {
-        setShowResearchRefresh(true);
+      const sessionGuard = sessionStorage.getItem("research_refresh_done");
+      if (sessionGuard) {
+        prevUserRef[0] = user;
+        return;
       }
+
+      const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+      fetch("/api/research/last-full-refresh", { credentials: "include" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data || !data.lastRefresh) {
+            setShowResearchRefresh(true);
+          } else {
+            const age = Date.now() - new Date(data.lastRefresh).getTime();
+            if (age >= THIRTY_DAYS_MS) {
+              setShowResearchRefresh(true);
+            }
+          }
+        })
+        .catch(() => {});
     }
     prevUserRef[0] = user;
   }, [user]);
 
-  // After the research refresh overlay finishes, mark the session as refreshed
-  // and invalidate research queries so dashboards pick up the fresh data.
-  const handleResearchComplete = useCallback(() => {
+  const handleResearchComplete = useCallback((skipped?: boolean) => {
     setShowResearchRefresh(false);
     sessionStorage.setItem("research_refresh_done", Date.now().toString());
+    if (!skipped) {
+      fetch("/api/research/mark-full-refresh", {
+        method: "POST",
+        credentials: "include",
+      }).catch(() => {});
+    }
     queryClient.invalidateQueries({ queryKey: ["research"] });
   }, []);
 

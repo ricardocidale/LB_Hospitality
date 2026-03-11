@@ -1,4 +1,4 @@
-import { marketResearch, prospectiveProperties, savedSearches, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch } from "@shared/schema";
+import { marketResearch, prospectiveProperties, savedSearches, globalAssumptions, type MarketResearch, type InsertMarketResearch, type ProspectiveProperty, type InsertProspectiveProperty, type SavedSearch, type InsertSavedSearch } from "@shared/schema";
 import { db } from "../db";
 import { eq, and, desc, isNull, or } from "drizzle-orm";
 
@@ -69,6 +69,26 @@ export class ResearchStorage {
     await db.delete(marketResearch).where(eq(marketResearch.id, id));
   }
   
+  async getLastFullResearchRefresh(userId: number): Promise<Date | null> {
+    const [row] = await db.select({ lastFullResearchRefresh: globalAssumptions.lastFullResearchRefresh })
+      .from(globalAssumptions)
+      .where(eq(globalAssumptions.userId, userId))
+      .limit(1);
+    return row?.lastFullResearchRefresh ?? null;
+  }
+
+  async markFullResearchRefresh(userId: number): Promise<void> {
+    const [userRow] = await db.select({ id: globalAssumptions.id })
+      .from(globalAssumptions)
+      .where(eq(globalAssumptions.userId, userId))
+      .limit(1);
+    if (userRow) {
+      await db.update(globalAssumptions)
+        .set({ lastFullResearchRefresh: new Date() })
+        .where(eq(globalAssumptions.id, userRow.id));
+    }
+  }
+
   // ── Prospective Properties (Property Finder Favorites) ────────
 
   /** Get all properties a user has favorited from the Property Finder search. */

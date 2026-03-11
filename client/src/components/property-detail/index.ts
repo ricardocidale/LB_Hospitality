@@ -6,7 +6,6 @@
  * single property, drawing on data produced by the financial engine:
  *
  *   • PropertyHeader  – hero image, name, location, and acquisition details
- *   • PropertyKPIs    – summary cards for key metrics (ADR, NOI, DSCR, IRR, etc.)
  *   • IncomeStatementTab – multi-year USALI income statement with revenue,
  *                          departmental expenses, undistributed costs, and NOI
  *   • CashFlowTab     – annual cash flow waterfall from NOI through debt service,
@@ -19,5 +18,4 @@ export { default as PPECostBasisSchedule } from "./PPECostBasisSchedule";
 export { default as IncomeStatementTab } from "./IncomeStatementTab";
 export { default as CashFlowTab } from "./CashFlowTab";
 export { default as PropertyHeader } from "./PropertyHeader";
-export { default as PropertyKPIs } from "./PropertyKPIs";
 export { default as BenchmarkPanel } from "./BenchmarkPanel";

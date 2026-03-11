@@ -6,8 +6,6 @@
  * Key types:
  *   • PropertyHeaderProps      – props for the hero header (property object,
  *                                property ID, and photo upload callback)
- *   • PropertyKPIsProps        – yearly chart data and projection year range
- *                                for the KPI summary grid
  *   • IncomeStatementTabProps  – income statement data, projection years,
  *                                chart data, and global assumptions reference
  *   • CashFlowTabProps         – cash flow data with loan parameters (LTV,
@@ -109,7 +107,3 @@ export interface PropertyHeaderProps {
   onPhotoUploadComplete: () => void;
 }
 
-export interface PropertyKPIsProps {
-  yearlyChartData: YearlyChartDataPoint[];
-  projectionYears: number;
-}

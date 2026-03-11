@@ -147,8 +147,13 @@ try {
   const output = (err.stdout ?? "") + (err.stderr ?? "");
   const lines = output.trim().split("\n");
   const count = lines.filter((l: string) => l.includes("error TS")).length;
-  allPassed = false;
-  console.log(`  ✗ ${"TypeScript".padEnd(16)} FAIL (${count} error${count !== 1 ? "s" : ""})`);
+  if (count > 0) {
+    allPassed = false;
+    const errorLine = lines.find((l: string) => l.includes("error TS"));
+    console.log(`  ✗ ${"TypeScript".padEnd(16)} FAIL (${count} error${count !== 1 ? "s" : ""})${errorLine ? " — " + errorLine.trim().slice(0, 80) : ""}`);
+  } else {
+    console.log(`  ✓ ${"TypeScript".padEnd(16)} PASS (0 errors)`);
+  }
 }
 
 // Phase 2: Tests (single vitest run — includes all proof tests)

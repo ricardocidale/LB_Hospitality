@@ -257,6 +257,8 @@ export const RESEARCH_SOURCES = [
   { name: "USALI", category: "Operations", url: "https://www.hftp.org/resources/usali" },
 ] as const;
 
+export const DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS = 30;
+
 export const DEFAULT_RESEARCH_EVENT_CONFIG = {
   enabled: true,
   focusAreas: [] as string[],
@@ -265,6 +267,7 @@ export const DEFAULT_RESEARCH_EVENT_CONFIG = {
   customInstructions: "",
   customQuestions: "",
   enabledTools: [] as string[],
+  refreshIntervalDays: DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS,
 };
 
 // ── Loan / Financing Defaults ──────────────────────────────────────────────

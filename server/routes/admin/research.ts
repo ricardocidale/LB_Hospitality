@@ -16,7 +16,7 @@ const researchEventConfigSchema = z.object({
   customInstructions: z.string().optional(),
   customQuestions: z.string().optional(),
   enabledTools: z.array(z.string()).optional(),
-  refreshIntervalDays: z.number().min(3).max(14).optional(),
+  refreshIntervalDays: z.number().min(7).max(180).optional(),
 }).strict();
 
 const customSourceSchema = z.object({

@@ -179,10 +179,10 @@ function EventConfigSection({
               </Label>
               <Input
                 type="number"
-                min={3}
-                max={14}
-                value={config.refreshIntervalDays ?? 7}
-                onChange={(e) => patch({ refreshIntervalDays: parseInt(e.target.value) || 7 })}
+                min={7}
+                max={180}
+                value={config.refreshIntervalDays ?? 30}
+                onChange={(e) => patch({ refreshIntervalDays: parseInt(e.target.value) || 30 })}
                 className="h-8 text-sm"
                 data-testid={`input-refresh-interval-${type}`}
               />

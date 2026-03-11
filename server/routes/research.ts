@@ -29,7 +29,7 @@ export function register(app: Express) {
 
       const getStatus = (updatedAt: Date | null | undefined, type: 'property' | 'company' | 'global'): "fresh" | "stale" | "missing" => {
         if (!updatedAt) return "missing";
-        const intervalDays = researchConfig[type]?.refreshIntervalDays ?? 7;
+        const intervalDays = researchConfig[type]?.refreshIntervalDays ?? 30;
         const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
         return Date.now() - new Date(updatedAt).getTime() < intervalMs ? "fresh" : "stale";
       };

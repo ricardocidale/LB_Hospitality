@@ -37,7 +37,7 @@ export function ManualContent({ expandedSections, toggleSection, sectionRefs }: 
       {SECTIONS.map((section, i) => {
         const Component = sectionComponents[i];
         return (
-          <Suspense key={section.id} fallback={<div className="h-14 rounded-xl bg-muted/30 shimmer-bg" />}>
+          <Suspense key={section.id} fallback={<div className="h-14 rounded-xl bg-muted/30 animate-pulse" />}>
             <Component
               expanded={expandedSections.has(section.id)}
               onToggle={() => toggleSection(section.id)}

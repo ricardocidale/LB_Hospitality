@@ -53,11 +53,11 @@ export function PhotoAlbumGrid({
     return (
       <div className={cn("space-y-3", className)}>
         <div className="flex items-center gap-2">
-          <div className="h-5 w-32 bg-muted shimmer-bg rounded" />
+          <div className="h-5 w-32 bg-muted animate-pulse rounded" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="aspect-[4/3] bg-muted shimmer-bg rounded-lg" />
+            <div key={i} className="aspect-[4/3] bg-muted animate-pulse rounded-lg" />
           ))}
         </div>
       </div>

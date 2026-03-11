@@ -150,13 +150,13 @@ export function LineItem({
         const displayVal = negate ? -v : v;
         if (formatAsPercent) {
           return (
-            <TableCell key={i} className="text-right text-muted-foreground py-1 font-mono px-2">
+            <TableCell key={i} className="text-right py-1 font-mono px-2">
               {v === 0 && !showZero ? "-" : `${displayVal.toFixed(1)}%`}
             </TableCell>
           );
         }
         return (
-          <TableCell key={i} className="text-right text-muted-foreground py-1 font-mono px-2">
+          <TableCell key={i} className="text-right py-1 font-mono px-2">
             {v === 0 && !showZero ? "-" : <Money amount={displayVal} />}
           </TableCell>
         );

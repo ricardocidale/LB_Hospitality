@@ -90,6 +90,9 @@ export function loadToolDefinitions(): Anthropic.Tool[] {
             continue;
           }
           seen.add(content.name);
+          if (!content.input_schema) {
+            continue;
+          }
           tools.push({
             name: content.name,
             description: content.description,

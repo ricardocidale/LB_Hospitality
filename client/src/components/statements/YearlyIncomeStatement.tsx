@@ -464,6 +464,14 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       <SectionHeader label="Non-Operating Expenses" colSpan={colSpan} />
 
       <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Percentage of total revenue paid to the management company for operating the property." />
+      {(() => {
+        const catSet = new Set<string>();
+        for (const y of yd) for (const k of Object.keys(y.serviceFeesByCategory ?? {})) catSet.add(k);
+        const cats = Array.from(catSet);
+        return cats.length > 0 ? cats.map(cat => (
+          <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
+        )) : null;
+      })()}
       <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance-based fee paid to the management company, calculated as a percentage of GOP." />
       <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Furniture, Fixtures & Equipment reserve — set aside for capital replacements and renovations." />
 

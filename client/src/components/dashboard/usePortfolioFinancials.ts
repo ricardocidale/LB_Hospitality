@@ -60,16 +60,22 @@ export function usePortfolioFinancials(
   const yearlyConsolidatedCache = useMemo(() => {
     if (!allPropertyYearlyIS.length) return [] as YearlyPropertyFinancials[];
     const numericKeys = Object.keys(allPropertyYearlyIS[0]?.[0] ?? {}).filter(
-      k => k !== 'year'
+      k => k !== 'year' && k !== 'serviceFeesByCategory'
     ) as (keyof YearlyPropertyFinancials)[];
     return Array.from({ length: projectionYears }, (_, y) => {
       const base: YearlyPropertyFinancials = { ...allPropertyYearlyIS[0][y] };
       for (const key of numericKeys) (base as any)[key] = 0;
       base.year = y;
+      base.serviceFeesByCategory = {};
       for (const propYearly of allPropertyYearlyIS) {
         const py = propYearly[y];
         if (!py) continue;
         for (const key of numericKeys) (base as any)[key] += (py as any)[key];
+        if (py.serviceFeesByCategory) {
+          for (const [cat, val] of Object.entries(py.serviceFeesByCategory)) {
+            base.serviceFeesByCategory[cat] = (base.serviceFeesByCategory[cat] ?? 0) + val;
+          }
+        }
       }
       return base;
     });

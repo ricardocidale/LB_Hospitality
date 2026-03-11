@@ -59,6 +59,7 @@ export interface YearlyPropertyFinancials {
   // Fees (SUM)
   feeBase: number;
   feeIncentive: number;
+  serviceFeesByCategory: Record<string, number>;
 
   // Profitability (SUM)
   totalExpenses: number;
@@ -119,9 +120,15 @@ export function aggregatePropertyByYear(
     // Single-pass accumulation for all sum fields
     const sums: Record<string, number> = {};
     for (const field of SUM_FIELDS) sums[field] = 0;
+    const catFees: Record<string, number> = {};
     for (const m of yearData) {
       for (const field of SUM_FIELDS) {
         sums[field] += (m as unknown as Record<string, number>)[field] ?? 0;
+      }
+      if (m.serviceFeesByCategory) {
+        for (const [cat, val] of Object.entries(m.serviceFeesByCategory)) {
+          catFees[cat] = (catFees[cat] ?? 0) + val;
+        }
       }
     }
 
@@ -160,6 +167,7 @@ export function aggregatePropertyByYear(
       expenseFFE: sums.expenseFFE,
       feeBase: sums.feeBase,
       feeIncentive: sums.feeIncentive,
+      serviceFeesByCategory: catFees,
       totalExpenses: sums.totalExpenses,
       gop: sums.gop,
       agop: sums.agop,

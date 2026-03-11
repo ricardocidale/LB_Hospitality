@@ -1,9 +1,9 @@
 import { format } from "date-fns";
 import domtoimage from 'dom-to-image-more';
-import { formatMoney } from "@/lib/financialEngine";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
+import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle } from "@/lib/exports/pdfHelpers";
 import {
   exportCompanyIncomeStatement,
   exportCompanyCashFlow,
@@ -23,97 +23,28 @@ export const exportCompanyPDF = async (
   const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
   const pageWidth = orientation === 'landscape' ? 297 : 210;
   const chartWidth = pageWidth - 28;
+  const companyName = global?.companyName || "Management Company";
+
   let title: string;
-  
   switch (type) {
-    case 'income':
-      title = 'Income Statement';
-      break;
-    case 'cashflow':
-      title = 'Cash Flow Statement';
-      break;
-    case 'balance':
-      title = 'Balance Sheet';
-      break;
-    default:
-      title = 'Financial Statement';
+    case 'income': title = 'Income Statement'; break;
+    case 'cashflow': title = 'Cash Flow Statement'; break;
+    case 'balance': title = 'Balance Sheet'; break;
+    default: title = 'Financial Statement';
   }
-  
-  doc.setFontSize(18);
-  doc.text(`${global?.companyName || "Hospitality Business Co."} - ${title}`, 14, 15);
-  doc.setFontSize(10);
-  doc.text(`${projectionYears}-Year Projection (${data.years[0]} - ${data.years[data.years.length - 1]})`, 14, 22);
-  doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
-  
-  const tableStartY = 32;
-  
-  const tableData = data.rows.map(row => [
-    (row.indent ? '  '.repeat(row.indent) : '') + row.category,
-    ...row.values.map((v: number) => {
-      if (row.category.includes('%')) return `${v.toFixed(1)}%`;
-      if (v === 0 && row.isHeader && !row.category.includes('TOTAL')) return '';
-      if (v < 0) return `(${formatMoney(Math.abs(v))})`;
-      return formatMoney(v);
-    })
-  ]);
-  
-  const colStyles: any = { 
-    0: { cellWidth: orientation === 'landscape' ? 50 : 40 } 
-  };
-  const numCols = data.years.length;
-  const availableWidth = orientation === 'landscape' ? 230 : 155;
-  const dataColWidth = availableWidth / numCols;
-  for (let i = 1; i <= numCols; i++) {
-    colStyles[i] = { halign: 'right', cellWidth: dataColWidth };
-  }
-  
-  autoTable(doc, {
-    head: [['Category', ...data.years.map(y => `FY ${y}`)]],
-    body: tableData,
-    startY: tableStartY,
-    styles: { fontSize: orientation === 'landscape' ? 7 : 6, cellPadding: 1.2, overflow: 'linebreak' },
-    headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' },
-    columnStyles: colStyles,
-    tableWidth: 'auto',
-    didParseCell: (cellData) => {
-      if (cellData.section === 'body' && cellData.row.index !== undefined) {
-        const row = data.rows[cellData.row.index];
-        if (row?.isHeader) {
-          cellData.cell.styles.fontStyle = 'bold';
-          cellData.cell.styles.fillColor = [240, 240, 240];
-        }
-        if (row?.isSubtotal) {
-          cellData.cell.styles.fontStyle = 'bold';
-        }
-      }
-    }
-  });
-  
+
+  drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15);
+  drawSubtitle(doc, `${projectionYears}-Year Projection (${data.years[0]} \u2013 ${data.years[data.years.length - 1]})`, 14, 22);
+  drawSubtitle(doc, `Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
+
+  const tableConfig = buildFinancialTableConfig(data.years, data.rows, orientation, 32);
+  autoTable(doc, tableConfig);
+
   if (yearlyChartData && yearlyChartData.length > 0) {
     doc.addPage();
-    doc.setFontSize(16);
-    doc.text(`${title} - Performance Chart`, 14, 15);
-    doc.setFontSize(10);
-    doc.text(`${projectionYears}-Year Revenue, Expenses, and Net Income Trend`, 14, 22);
-    
-    const chartSeries = [
-      {
-        name: 'Revenue',
-        data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Revenue })),
-        color: '#257D41'
-      },
-      {
-        name: 'Expenses',
-        data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Expenses })),
-        color: '#3B82F6'
-      },
-      {
-        name: 'Net Income',
-        data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.NetIncome })),
-        color: '#F4795B'
-      }
-    ];
-    
+    drawTitle(doc, `${title} \u2014 Performance Chart`, 14, 15, { fontSize: 16 });
+    drawSubtitle(doc, `${projectionYears}-Year Revenue, Expenses, and Net Income Trend`, 14, 22);
+
     drawLineChart({
       doc,
       x: 14,
@@ -121,11 +52,15 @@ export const exportCompanyPDF = async (
       width: chartWidth,
       height: 150,
       title: `Management Company Performance (${projectionYears}-Year Projection)`,
-      series: chartSeries
+      series: [
+        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Revenue })), color: '#257D41' },
+        { name: 'Expenses', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Expenses })), color: '#3B82F6' },
+        { name: 'Net Income', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.NetIncome })), color: '#F4795B' },
+      ],
     });
   }
-  
-  const companyName = global?.companyName || "Management Company";
+
+  addFooters(doc, companyName);
   doc.save(`${companyName} - ${title}.pdf`);
 };
 

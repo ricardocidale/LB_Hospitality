@@ -1,9 +1,9 @@
-import { formatMoney } from "@/lib/financialEngine";
 import { format } from "date-fns";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
+import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle } from "@/lib/exports/pdfHelpers";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
@@ -363,49 +363,23 @@ export async function exportPortfolioPDF(
   years: number[],
   rows: ExportRow[],
   getYearlyConsolidated: (i: number) => YearlyPropertyFinancials,
-  title: string
+  title: string,
+  companyName = "Hospitality Business Group"
 ): Promise<void> {
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
 
-  doc.setFontSize(18);
-  doc.text(`Hospitality Business Group - ${title}`, 14, 15);
-  doc.setFontSize(10);
-  doc.text(`${projectionYears}-Year Projection (${years[0]} - ${years[projectionYears - 1]})`, 14, 22);
-  doc.text(`Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27);
+  drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15);
+  drawSubtitle(doc, `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[projectionYears - 1]})`, 14, 22);
+  drawSubtitle(doc, `Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27);
 
-  const tableData = rows.map(row => [
-    (row.indent ? "  ".repeat(row.indent) : "") + row.category,
-    ...row.values.map((v: number) => formatMoney(v)),
-  ]);
-
-  autoTable(doc, {
-    head: [["Category", ...years.map(String)]],
-    body: tableData,
-    startY: 32,
-    styles: { fontSize: 8, cellPadding: 2, font: "helvetica" },
-    headStyles: { fillColor: [159, 188, 164], textColor: [0, 0, 0], fontStyle: "bold", font: "helvetica" },
-    columnStyles: { 0: { cellWidth: 45, font: "helvetica" } },
-    didParseCell: (data) => {
-      if (data.column.index > 0) {
-        data.cell.styles.font = "courier";
-      }
-      if (data.section === "body" && data.row.index !== undefined) {
-        const row = rows[data.row.index];
-        if (row?.isHeader) {
-          data.cell.styles.fontStyle = "bold";
-          data.cell.styles.fillColor = [240, 240, 240];
-        }
-      }
-    },
-  });
+  const tableConfig = buildFinancialTableConfig(years, rows, orientation, 32);
+  autoTable(doc, tableConfig);
 
   doc.addPage();
-  doc.setFontSize(16);
-  doc.text("Performance Chart", 14, 15);
-  doc.setFontSize(10);
-  doc.text(`${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`, 14, 22);
+  drawTitle(doc, "Performance Chart", 14, 15, { fontSize: 16 });
+  drawSubtitle(doc, `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`, 14, 22);
 
   const chartData = years.map((year, i) => ({
     label: String(year),
@@ -434,6 +408,7 @@ export async function exportPortfolioPDF(
     ],
   });
 
+  addFooters(doc, companyName);
   doc.save(`portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
 

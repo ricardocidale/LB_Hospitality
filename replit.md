@@ -100,5 +100,12 @@ The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet
 
 The engine at `client/src/lib/financial/funding-predictor.ts` is instrument-agnostic — it uses `fundingSourceLabel` (not hardcoded "SAFE") for all terminology. Vocabulary follows hospitality investment industry standards: "Capital Raise Target", "Net Burn Rate", "Operating Breakeven", "Investment Thesis", "Capital Strategy".
 
+## Export System
+Shared formatting library in `client/src/lib/exports/`:
+- `exportStyles.ts` — Brand palette (`BRAND.*`), row classification (`classifyRow`), number formatting (`formatShort`, `formatFull`), PPTX layout helpers
+- `pdfHelpers.ts` — jsPDF page layout (`drawTitle`, `drawSubtitle`), financial table config (`buildFinancialTableConfig`), branded footers (`addFooters` — must be called LAST)
+- `pptxExport.ts` — pptxgenjs 16:9 widescreen slides; footer with company name + manual page counter (pptxgenjs `slidenum` field is unreliable); dynamic font/column sizing
+- Skill docs: `.agents/skills/export-system/SKILL.md`
+
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

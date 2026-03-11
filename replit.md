@@ -101,11 +101,28 @@ The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet
 The engine at `client/src/lib/financial/funding-predictor.ts` is instrument-agnostic — it uses `fundingSourceLabel` (not hardcoded "SAFE") for all terminology. Vocabulary follows hospitality investment industry standards: "Capital Raise Target", "Net Burn Rate", "Operating Breakeven", "Investment Thesis", "Capital Strategy".
 
 ## Export System
-Shared formatting library in `client/src/lib/exports/`:
-- `exportStyles.ts` — Brand palette (`BRAND.*`), row classification (`classifyRow`), number formatting (`formatShort`, `formatFull`), PPTX layout helpers
-- `pdfHelpers.ts` — jsPDF page layout (`drawTitle`, `drawSubtitle`), financial table config (`buildFinancialTableConfig`), branded footers (`addFooters` — must be called LAST)
-- `pptxExport.ts` — pptxgenjs 16:9 widescreen slides; footer with company name + manual page counter (pptxgenjs `slidenum` field is unreliable); dynamic font/column sizing
-- Skill docs: `.agents/skills/export-system/SKILL.md`
+Shared formatting library in `client/src/lib/exports/`. Full reference: `.agents/skills/export-system/SKILL.md`
+
+**Core modules:**
+- `exportStyles.ts` — Brand palette (`BRAND.*`), row classification (`classifyRow`), `normalizeCaps()` (ALL CAPS → Title Case preserving abbreviations like GOP, NOI, GAAP), number formatting (`formatShort`, `formatFull`, `formatPct`), PPTX layout helpers (`pptxFontSize`, `pptxColumnWidths`)
+- `pdfHelpers.ts` — jsPDF page layout (`drawBrandedHeader`, `drawTitle`, `drawSubtitle`, `drawSectionHeader`, `drawParagraph`, `drawKeyValue`), financial table config (`buildFinancialTableConfig` with alternating row tint, section divider lines, table frame), footers (`addFooters` — MUST be called LAST)
+- `pptxExport.ts` — pptxgenjs 16:9 widescreen slides (`exportPortfolioPPTX`, `exportPropertyPPTX`, `exportCompanyPPTX`); `addAllFooters(ctx)` post-processes all slides including auto-paginated overflow (pptxgenjs `slidenum` field is unreliable); dynamic font sizing (10/9/8/7pt), alternating rows, sage-green table frame
+- `pdfChartDrawer.ts` — `drawLineChart()` for manual multi-series line charts in jsPDF
+- `pngExport.ts` — DOM-to-PNG via dom-to-image-more (`exportTablePNG`, `exportChartPNG`, `captureChartAsImage`)
+- `csvExport.ts` — `downloadCSV(content, filename)` browser download helper
+- `excel/` — SheetJS workbook generation: `helpers.ts` (formatting), `property-sheets.ts`, `portfolio-sheet.ts`
+
+**Consumer modules:**
+- `dashboardExports.ts` — Portfolio data generators (income, cash flow, balance sheet, investment), `toExportData()` (maps `isHeader → isBold`)
+- `companyExports.ts` — Management company PDF/CSV/PPTX/PNG export wrappers
+
+**Design rules (PDF + PPTX consistent):**
+- No ALL CAPS labels — `normalizeCaps()` converts at render time, preserves abbreviations
+- Alternating row tint (#F8FAF9) on data rows; section headers/subtotals excluded from stripe counter
+- Thicker section divider lines (1.2pt PPTX / 0.6pt PDF) in sage-green
+- Table frame: 1.5pt sage outer border (PPTX), 0.6pt (PDF)
+- Header row: sage fill with white bold text
+- Footer: company name + page numbers on every page/slide, added LAST before save/writeFile
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

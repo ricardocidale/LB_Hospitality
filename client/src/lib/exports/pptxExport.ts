@@ -333,7 +333,7 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
     ctx,
     "Portfolio Investment Summary",
     `Key performance indicators across ${data.totalProperties} properties over ${data.projectionYears} years`,
-    `Investment Analysis \u2014 Consolidated`,
+    `Consolidated Portfolio \u2014 ${data.totalProperties} Properties`,
     [
       { label: "Total Equity Invested", value: `$${(data.totalInitialEquity / 1_000_000).toFixed(1)}M` },
       { label: `Projected Exit Value (Year ${data.projectionYears})`, value: `$${(data.totalExitValue / 1_000_000).toFixed(1)}M` },
@@ -347,10 +347,11 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
     ],
   );
 
-  addFinancialTableSlide(ctx, "Consolidated Income Statement (USALI)", "Income Statement \u2014 Consolidated", data.incomeData.years, data.incomeData.rows);
-  addFinancialTableSlide(ctx, "Consolidated Cash Flow Statement", "Cash Flow Statement \u2014 Consolidated", data.cashFlowData.years, data.cashFlowData.rows);
-  addFinancialTableSlide(ctx, "Consolidated Balance Sheet", "Balance Sheet \u2014 Consolidated", data.balanceSheetData.years, data.balanceSheetData.rows);
-  addFinancialTableSlide(ctx, "Portfolio Investment Analysis", "Investment Analysis \u2014 Consolidated", data.investmentData.years, data.investmentData.rows);
+  const entityTag = `Consolidated Portfolio \u2014 ${data.totalProperties} Properties`;
+  addFinancialTableSlide(ctx, "Consolidated Income Statement (USALI)", entityTag, data.incomeData.years, data.incomeData.rows);
+  addFinancialTableSlide(ctx, "Consolidated Cash Flow Statement", entityTag, data.cashFlowData.years, data.cashFlowData.rows);
+  addFinancialTableSlide(ctx, "Consolidated Balance Sheet", entityTag, data.balanceSheetData.years, data.balanceSheetData.rows);
+  addFinancialTableSlide(ctx, "Portfolio Investment Analysis", entityTag, data.investmentData.years, data.investmentData.rows);
 
   addAllFooters(ctx);
   pres.writeFile({ fileName: "Portfolio-Investment-Report.pptx" });
@@ -379,12 +380,12 @@ export async function exportPropertyPPTX(data: PropertyExportData, companyName =
     ctx,
     `${data.propertyName} \u2014 Financial Report`,
     `${data.projectionYears}-Year Financial Projection (${yearRange})`,
-    `Property-Level Report`,
+    data.propertyName,
   );
 
-  addFinancialTableSlide(ctx, `Income Statement (USALI)`, `Income Statement \u2014 ${data.propertyName}`, data.incomeData.years, data.incomeData.rows);
-  addFinancialTableSlide(ctx, `Cash Flow Statement`, `Cash Flow Statement \u2014 ${data.propertyName}`, data.cashFlowData.years, data.cashFlowData.rows);
-  addFinancialTableSlide(ctx, `Balance Sheet`, `Balance Sheet \u2014 ${data.propertyName}`, data.balanceSheetData.years, data.balanceSheetData.rows);
+  addFinancialTableSlide(ctx, `Income Statement (USALI)`, data.propertyName, data.incomeData.years, data.incomeData.rows);
+  addFinancialTableSlide(ctx, `Cash Flow Statement`, data.propertyName, data.cashFlowData.years, data.cashFlowData.rows);
+  addFinancialTableSlide(ctx, `Balance Sheet`, data.propertyName, data.balanceSheetData.years, data.balanceSheetData.rows);
 
   const safeName = data.propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
   addAllFooters(ctx);
@@ -413,12 +414,13 @@ export async function exportCompanyPPTX(data: CompanyExportData, companyName = "
     ctx,
     `${companyName} \u2014 Management Company Financial Report`,
     `${data.projectionYears}-Year Financial Projection (${yearRange})`,
-    `Management Company Report`,
+    companyName,
   );
 
-  addFinancialTableSlide(ctx, `Income Statement`, `Income Statement \u2014 Management Company`, data.incomeData.years, data.incomeData.rows);
-  addFinancialTableSlide(ctx, `Cash Flow Statement`, `Cash Flow Statement \u2014 Management Company`, data.cashFlowData.years, data.cashFlowData.rows);
-  addFinancialTableSlide(ctx, `Balance Sheet`, `Balance Sheet \u2014 Management Company`, data.balanceSheetData.years, data.balanceSheetData.rows);
+  const entityTag = `${companyName} \u2014 Management Company`;
+  addFinancialTableSlide(ctx, `Income Statement`, entityTag, data.incomeData.years, data.incomeData.rows);
+  addFinancialTableSlide(ctx, `Cash Flow Statement`, entityTag, data.cashFlowData.years, data.cashFlowData.rows);
+  addFinancialTableSlide(ctx, `Balance Sheet`, entityTag, data.balanceSheetData.years, data.balanceSheetData.rows);
 
   addAllFooters(ctx);
   pres.writeFile({ fileName: "Management-Company-Report.pptx" });

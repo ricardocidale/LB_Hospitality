@@ -26,18 +26,18 @@ export const exportCompanyPDF = async (
   const companyName = global?.companyName || "Management Company";
 
   let title: string;
-  let sourceTag: string;
   switch (type) {
-    case 'income': title = 'Income Statement'; sourceTag = 'Income Statement \u2014 Management Company'; break;
-    case 'cashflow': title = 'Cash Flow Statement'; sourceTag = 'Cash Flow Statement \u2014 Management Company'; break;
-    case 'balance': title = 'Balance Sheet'; sourceTag = 'Balance Sheet \u2014 Management Company'; break;
-    default: title = 'Financial Statement'; sourceTag = 'Financial Statement \u2014 Management Company';
+    case 'income': title = 'Income Statement'; break;
+    case 'cashflow': title = 'Cash Flow Statement'; break;
+    case 'balance': title = 'Balance Sheet'; break;
+    default: title = 'Financial Statement';
   }
+  const entityTag = `${companyName} \u2014 Management Company`;
 
   drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15);
   drawSubtitleRow(doc,
     `${projectionYears}-Year Projection (${data.years[0]} \u2013 ${data.years[data.years.length - 1]})`,
-    sourceTag, 14, 22, pageWidth);
+    entityTag, 14, 22, pageWidth);
   drawSubtitle(doc, `Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
 
   const tableConfig = buildFinancialTableConfig(data.years, data.rows, orientation, 32);
@@ -48,7 +48,7 @@ export const exportCompanyPDF = async (
     drawTitle(doc, `${companyName} \u2014 ${title} Performance Trend`, 14, 15, { fontSize: 16 });
     drawSubtitleRow(doc,
       `${projectionYears}-Year Revenue, Expenses, and Net Income Trend`,
-      sourceTag, 14, 22, pageWidth);
+      entityTag, 14, 22, pageWidth);
 
     drawLineChart({
       doc,

@@ -371,12 +371,12 @@ export async function exportPortfolioPDF(
   const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
 
   const pageWidth = orientation === "landscape" ? 297 : 210;
-  const sourceTag = `${title} \u2014 Consolidated Portfolio`;
+  const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
 
   drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15);
   drawSubtitleRow(doc,
     `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[projectionYears - 1]})`,
-    sourceTag, 14, 22, pageWidth);
+    entityTag, 14, 22, pageWidth);
   drawSubtitle(doc, `Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27);
 
   const tableConfig = buildFinancialTableConfig(years, rows, orientation, 32);
@@ -386,7 +386,7 @@ export async function exportPortfolioPDF(
   drawTitle(doc, `${companyName} \u2014 ${title} Performance Trend`, 14, 15, { fontSize: 16 });
   drawSubtitleRow(doc,
     `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`,
-    sourceTag, 14, 22, pageWidth);
+    entityTag, 14, 22, pageWidth);
 
   const chartData = years.map((year, i) => ({
     label: String(year),

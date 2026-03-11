@@ -31,7 +31,6 @@ export default function Section02Navigation({ expanded, onToggle, sectionRef }: 
           ["Properties", "View and manage individual hotel properties", "Everyone"],
           ["Management Co.", "Management company financials and assumptions", "Partners, Admins"],
           ["Simulation", "Four-tab modeling suite: Sensitivity, Compare, Timeline, and Financing analysis", "Partners, Admins"],
-          ["Research Hub", "AI-generated market research for properties, company operations, and global industry trends", "Partners, Admins"],
           ["Systemwide Assumptions", "Configure model-wide parameters like inflation and staffing", "Partners, Admins"],
           ["Scenarios", "Save and load different assumption snapshots", "Partners, Admins"],
           ["Property Finder", "Search for prospective investment properties on the external market", "Partners, Admins"],
@@ -52,7 +51,9 @@ export default function Section02Navigation({ expanded, onToggle, sectionRef }: 
           <li>&#8226; <strong className="text-red-600">Red dot</strong> — research is stale or has never been generated</li>
         </ul>
         <p className="text-sm text-muted-foreground mt-2">
-          Click the panel to navigate to the Research Hub and regenerate any stale research.
+          Click the panel to navigate to the <strong>Research Hub</strong> — a dedicated page with AI-generated
+          market research for properties, company operations, and global industry trends. From there you can
+          regenerate individual research items or click "Generate Missing Research" to refresh everything at once.
         </p>
       </div>
 

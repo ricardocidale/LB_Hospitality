@@ -29,7 +29,7 @@ export default function Section10Analysis({ expanded, onToggle, sectionRef }: Se
         <h4 className="font-semibold mb-2">Sensitivity Analysis</h4>
         <p className="text-sm text-muted-foreground mb-3">
           Tests how changing one variable at a time affects portfolio returns. Use the sliders to adjust
-          each assumption and instantly see the impact on IRR, ANOI, and exit value.
+          each assumption and instantly see the impact on IRR, NOI, and exit value.
         </p>
         <ManualTable
           variant="light"
@@ -50,7 +50,7 @@ export default function Section10Analysis({ expanded, onToggle, sectionRef }: Se
             headers={["Card", "Description"]}
             rows={[
               ["Base IRR", "Baseline internal rate of return, with delta to the adjusted scenario"],
-              ["Base ANOI", "Baseline Adjusted NOI (NOI minus FF&E Reserve) with percent change under current scenario"],
+              ["Base NOI", "Baseline Net Operating Income (AGOP minus fixed charges) with percent change under current scenario"],
               ["Exit Value", "Baseline exit proceeds with percent change under current scenario"],
               ["Adjusted IRR", "IRR under the current slider settings — green if higher than base, red if lower"],
             ]}
@@ -60,7 +60,7 @@ export default function Section10Analysis({ expanded, onToggle, sectionRef }: Se
           <p className="text-sm font-medium mb-1">Tornado Chart</p>
           <p className="text-sm text-muted-foreground">
             Ranks all six variables by their total impact (spread between upside and downside). Toggle between
-            <strong> IRR impact</strong> (percentage points) and <strong>ANOI impact</strong> (percent change).
+            <strong> IRR impact</strong> (percentage points) and <strong>NOI impact</strong> (percent change).
             The variable with the widest spread appears at the top — this is your highest-risk assumption.
           </p>
         </div>

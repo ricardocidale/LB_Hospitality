@@ -189,7 +189,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     doc.text("Sensitivity Analysis", 14, 18);
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Base IRR: ${(baseResult.irr * 100).toFixed(1)}%  |  Base ANOI: ${formatMoney(baseResult.totalNOI)}  |  Exit Value: ${formatMoney(baseResult.exitValue)}`, 14, 26);
+    doc.text(`Base IRR: ${(baseResult.irr * 100).toFixed(1)}%  |  Base NOI: ${formatMoney(baseResult.totalNOI)}  |  Exit Value: ${formatMoney(baseResult.exitValue)}`, 14, 26);
 
     if (comparisonRows.length) {
       doc.setFontSize(13);
@@ -401,7 +401,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     const topVar = tornadoData[0];
     if (topVar) {
       insights.push({
-        text: `${topVar.name} has the largest impact on ${tornadoMetric === "irr" ? "IRR" : "ANOI"} with a spread of ${topVar.spread.toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`,
+        text: `${topVar.name} has the largest impact on ${tornadoMetric === "irr" ? "IRR" : "NOI"} with a spread of ${topVar.spread.toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`,
         type: "warning",
         metric: `±${(topVar.spread / 2).toFixed(1)}${tornadoMetric === "irr" ? "pp" : "%"}`,
       });
@@ -473,7 +473,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
               </div>
             </div>
             <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Base ANOI</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Base NOI</span>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-mono font-bold text-foreground">{formatMoney(baseResult.totalNOI)}</span>
                 {hasAdjustments && (

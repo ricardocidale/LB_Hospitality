@@ -40,7 +40,7 @@ import { IconAlertTriangle, IconDashboard, IconIncomeStatement, IconCashFlow, Ic
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
-import { ExportDialog } from "@/components/ExportDialog";
+import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { exportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import domtoimage from "dom-to-image-more";
@@ -83,20 +83,22 @@ export default function Dashboard() {
   const propertiesLoadingState = propertiesLoading || globalLoading;
   const propertiesErrorState = propertiesError || globalError || !properties || !global || !financials;
 
-  const getExportData = useCallback(() => {
+  const getExportData = useCallback((version?: ExportVersion) => {
     if (!financials || !properties || !global) return null;
     const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
     const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
+    const isShort = version === "short";
 
     if (activeTab === "income" || activeTab === "overview") {
-      return generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear);
+      return generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, isShort);
     } else if (activeTab === "cashflow") {
-      return generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear);
+      const override = isShort ? new Set<string>() : new Set(["cfo", "cfi", "cff"]);
+      return generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear, override, isShort, properties.map(p => p.name));
     } else if (activeTab === "investment") {
       return generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
     }
-    return generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear);
+    return generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, isShort);
   }, [activeTab, financials, properties, global]);
 
   const handleExportPNG = useCallback(() => {
@@ -132,14 +134,14 @@ export default function Dashboard() {
     setExportDialogOpen(true);
   }, []);
 
-  const handleExportConfirm = useCallback((orientation: "landscape" | "portrait") => {
+  const handleExportConfirm = useCallback((orientation: "landscape" | "portrait", version: ExportVersion) => {
     if (!financials || !global) return;
     const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
     const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
 
     if (exportType === "pdf") {
-      const data = getExportData();
+      const data = getExportData(version);
       if (!data) return;
       const label = TAB_LABELS[activeTab] || "Portfolio";
       exportPortfolioPDF(
@@ -335,6 +337,7 @@ export default function Dashboard() {
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExportConfirm}
         title={exportType === "pdf" ? "Export PDF" : "Export Chart as Image"}
+        showVersionOption={exportType === "pdf"}
       />
     </Layout>
   );

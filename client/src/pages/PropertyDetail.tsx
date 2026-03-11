@@ -267,6 +267,138 @@ export default function PropertyDetail() {
     }
   };
 
+  const exportIncomeStatementPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended') => {
+    const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
+    const pageWidth = orientation === 'landscape' ? 297 : 210;
+    const chartWidth = pageWidth - 28;
+
+    doc.setFontSize(16);
+    doc.text(`${property.name} - Income Statement`, 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
+
+    const chartStartY = 28;
+    const headers = [["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)]];
+    const fmtNum = (n: number) => n === 0 ? "-" : formatMoney(n);
+    const iceBlueHeader = [232, 244, 253];
+    const isShort = version === "short";
+
+    const body: any[] = [];
+
+    if (!isShort) {
+      body.push(
+        [{ content: "REVENUE", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
+        ["  Room Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueRooms))],
+        ["  Event Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueEvents))],
+        ["  F&B Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueFB))],
+        ["  Other Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueOther))]
+      );
+    }
+    body.push(
+      [{ content: "Total Revenue", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.revenueTotal), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+
+    if (!isShort) {
+      body.push(
+        [{ content: "OPERATING EXPENSES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
+        ["  Room Expense", ...yearlyDetails.map(y => fmtNum(y.expenseRooms))],
+        ["  F&B Expense", ...yearlyDetails.map(y => fmtNum(y.expenseFB))],
+        ["  Event Expense", ...yearlyDetails.map(y => fmtNum(y.expenseEvents))],
+        ["  Marketing", ...yearlyDetails.map(y => fmtNum(y.expenseMarketing))],
+        ["  Property Ops", ...yearlyDetails.map(y => fmtNum(y.expensePropertyOps))],
+        ["  Admin & General", ...yearlyDetails.map(y => fmtNum(y.expenseAdmin))],
+        ["  IT", ...yearlyDetails.map(y => fmtNum(y.expenseIT))],
+        ["  Utilities", ...yearlyDetails.map(y => fmtNum(y.expenseUtilitiesVar + y.expenseUtilitiesFixed))],
+        ["  Other Expenses", ...yearlyDetails.map(y => fmtNum(y.expenseOther + y.expenseOtherCosts))]
+      );
+    }
+    body.push(
+      [{ content: "Total Operating Expenses", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.totalExpenses - y.expenseFFE - y.expenseInsurance - y.expenseTaxes), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+
+    body.push(
+      [{ content: "Gross Operating Profit (GOP)", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.gop), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+
+    if (!isShort) {
+      body.push(
+        [{ content: "MANAGEMENT FEES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
+        ["  Base Fee", ...yearlyDetails.map(y => fmtNum(y.feeBase))],
+        ["  Incentive Fee", ...yearlyDetails.map(y => fmtNum(y.feeIncentive))]
+      );
+    }
+    body.push(
+      [{ content: "Total Management Fees", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.feeBase + y.feeIncentive), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+
+    body.push(
+      [{ content: "Adjusted GOP (AGOP)", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.agop), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+
+    if (!isShort) {
+      body.push(
+        [{ content: "FIXED CHARGES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
+        ["  Insurance", ...yearlyDetails.map(y => fmtNum(y.expenseInsurance))],
+        ["  Property Taxes", ...yearlyDetails.map(y => fmtNum(y.expenseTaxes))]
+      );
+    }
+    body.push(
+      [{ content: "Total Fixed Charges", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.expenseInsurance + y.expenseTaxes), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+
+    body.push(
+      [{ content: "Net Operating Income (NOI)", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.noi), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+
+    if (!isShort) {
+      body.push(
+        ["  FF&E Reserve", ...yearlyDetails.map(y => fmtNum(y.expenseFFE))]
+      );
+    }
+    body.push(
+      [{ content: "Adjusted NOI (ANOI)", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.anoi), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+
+    const colStyles: Record<number, any> = { 0: { cellWidth: 45, halign: 'left' } };
+    for (let i = 1; i <= years; i++) {
+      colStyles[i] = { halign: 'right' };
+    }
+
+    autoTable(doc, {
+      head: headers,
+      body: body as any,
+      startY: chartStartY,
+      theme: "grid",
+      styles: { fontSize: 7, cellPadding: 1.5 },
+      headStyles: { fillColor: [240, 240, 240], textColor: [61, 61, 61], fontStyle: "bold", halign: 'center' },
+      columnStyles: colStyles,
+    });
+
+    if (yearlyChartData && yearlyChartData.length > 0) {
+      doc.addPage();
+      doc.setFontSize(16);
+      doc.text(`${property.name} - Performance Chart`, 14, 15);
+      doc.setFontSize(10);
+      const chartTitle = `${projectionYears}-Year Revenue, GOP, and ANOI Trend`;
+      doc.text(chartTitle, 14, 22);
+      drawLineChart({
+        doc,
+        x: 14,
+        y: 30,
+        width: chartWidth,
+        height: 150,
+        title: `${property.name} - Financial Performance (${projectionYears}-Year Projection)`,
+        series: [
+          { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#257D41' },
+          { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: '#3B82F6' },
+          { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: '#F4795B' },
+        ]
+      });
+    }
+
+    doc.save(`${property.name.replace(/\s+/g, '_')}_IncomeStatement.pdf`);
+  };
+
   const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended') => {
 
     const cashFlowData = getCashFlowData();
@@ -542,7 +674,11 @@ export default function PropertyDetail() {
     }
     try {
       if (exportType === 'pdf') {
-        await exportCashFlowPDF(orientation, version);
+        if (activeTab === "income") {
+          await exportIncomeStatementPDF(orientation, version);
+        } else {
+          await exportCashFlowPDF(orientation, version);
+        }
       } else if (exportType === 'tablePng') {
         await exportTablePNG(orientation);
       } else {

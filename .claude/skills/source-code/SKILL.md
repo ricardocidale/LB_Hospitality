@@ -130,7 +130,7 @@ Comprehensive reference for every layer of the Hospitality Business Group simula
     ├── skills/          # Exports, UI, finance, research skills
     ├── tools/           # Tool schemas (financing, returns, validation, analysis)
     ├── manuals/         # User manual, checker manual
-    └── commands/        # Agent commands (verify, seed, etc.)
+    └── archive/         # Archived session memory
 ```
 
 ---

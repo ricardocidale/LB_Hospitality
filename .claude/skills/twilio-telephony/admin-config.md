@@ -26,7 +26,7 @@ These fields are read/written via `GET/POST /api/admin/voice-settings` alongside
 ### `GET /api/admin/voice-settings`
 Returns all voice + telephony settings from global_assumptions, including:
 - `marcelaTwilioEnabled`, `marcelaSmsEnabled`, `marcelaPhoneGreeting`
-- (plus all voice/TTS/STT settings — see `elevenlabs-widget/SKILL.md`)
+- (plus all voice/TTS/STT settings — see `elevenlabs/SKILL.md`)
 
 ### `POST /api/admin/voice-settings`
 Saves voice + telephony settings to DB. Accepts the same fields as GET returns.

@@ -129,6 +129,6 @@ These paths are added to `PUBLIC_API_PATHS` in `server/index.ts`:
 | `marcela_phone_greeting` | `marcelaPhoneGreeting` | text | "Hello, this is Marcela..." | TwiML greeting spoken to callers |
 
 ## Related Skills
-- `elevenlabs-widget/` — ElevenLabs ConvAI SDK, widget, voice settings, PATCH API
+- `elevenlabs/` — ElevenLabs ConvAI SDK, widget, voice settings, PATCH API
 - `marcela-ai/` — Overall Marcela architecture
 - `admin/` — Admin panel tab structure

@@ -34,7 +34,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Context Loading Protocol
 
-With 172+ skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
+With 168 skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
 - **Financial calc** → specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual** → `component-library/SKILL.md` + `ui/theme-engine.md` + specific UI skill
 - **Testing** → `testing/SKILL.md` + relevant sub-skill only

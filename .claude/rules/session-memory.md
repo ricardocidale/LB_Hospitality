@@ -43,7 +43,7 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 - Fixed Critical bug: `server/calculation-checker/property-checks.ts` debtOutstanding missing current month principal
 - Added A=L+E (ASC 210) check to both client auditor and server checker — closed deferred finding 3-1
 - New: `tests/golden/irr-golden-hand-calculated.test.ts` (15 tests), `tests/golden/pipeline-trace.test.ts` (20 tests)
-- Tests 2,448→2,503, all passing, UNQUALIFIED. Full report: `.claude/skills/proof-system/comprehensive-audit-v3-2026-03-09.md`
+- Tests 2,448→2,503, all passing, UNQUALIFIED. Full report: `.claude/skills/proof-system/comprehensive-audit.md`
 
 ---
 

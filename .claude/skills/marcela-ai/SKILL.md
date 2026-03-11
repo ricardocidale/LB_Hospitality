@@ -30,7 +30,7 @@ Documents the complete AI assistant system operating across web (ElevenLabs Conv
 | `ai-agent-admin.md` | Feature module structure (hooks/, types.ts, components/, ElevenLabsWidget), re-export barrels, widget variants, AgentState collision |
 | `elevenlabs-ui-components.md` | All 17 ElevenLabs UI components — props, imports, usage examples |
 | `voice-ux-patterns.md` | Voice state machine, WaveformVisualizer, VoiceStateIndicator, barge-in, error retry, channel badges |
-| `.claude/skills/elevenlabs-widget/SKILL.md` | Web widget: signed URL flow, admin config, gating logic, voice IDs |
+| `.claude/skills/elevenlabs/SKILL.md` | Web widget: signed URL flow, admin config, gating logic, voice IDs |
 
 ## Key Files
 
@@ -130,7 +130,7 @@ The Marcela/ElevenLabs feature spans ~17,100 lines of source + ~4,200 lines of d
 | Audio codec issue | `server/integrations/elevenlabs-audio.ts` (133 lines) only |
 | STT/speech input | `RealtimeTranscriber.tsx` + `components/speech-input.tsx` |
 | Widget variants | `VoiceChatOrb.tsx`, `VoiceChatFull.tsx`, or `VoiceChatBar.tsx` (one at a time) |
-| Voice settings (PATCH API) | `.claude/skills/elevenlabs-widget/SKILL.md` § PATCH Agent Voice |
+| Voice settings (PATCH API) | `.claude/skills/elevenlabs/SKILL.md` § PATCH Agent Voice |
 | Twilio admin/setup | `.claude/skills/twilio-telephony/admin-config.md` + `twilio-console-setup.md` |
 
 ### Key Facts (no file load needed)
@@ -139,7 +139,7 @@ The Marcela/ElevenLabs feature spans ~17,100 lines of source + ~4,200 lines of d
 - Admin DB columns keep `marcela_*` names; only UI labels use dynamic `aiAgentName`
 - All 35 `marcela_*` schema columns map 1:1 to `VoiceSettings` interface in `types.ts`
 - `buildVoiceConfigFromDB(ga)` in `elevenlabs.ts` hydrates server-side `VoiceConfig` from DB row
-- PATCH voice settings use flattened payload (see `elevenlabs-widget/SKILL.md` § PATCH Agent Voice)
+- PATCH voice settings use flattened payload (see `elevenlabs/SKILL.md` § PATCH Agent Voice)
 
 ### What NOT to Load
 - `.claude/tools/marcela/` JSON schemas — only needed for adding new tools

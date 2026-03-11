@@ -129,4 +129,4 @@ Regions: `"us"` (default), `"global"`, `"eu-residency"`, `"in-residency"`. Confi
 | Google | `gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-pro` |
 | Groq | `llama-3.3-70b`, `llama-3.1-8b` |
 
-Full model list with languages: see `elevenlabs-widget/SKILL.md` § LLM Models.
+Full model list with languages: see `elevenlabs/SKILL.md` § LLM Models.

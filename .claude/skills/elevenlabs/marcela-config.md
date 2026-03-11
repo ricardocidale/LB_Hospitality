@@ -69,7 +69,7 @@ When the Replit ElevenLabs connector is unauthorized, config is skipped and the 
 
 ## Admin Tab
 
-The "AI Agent" tab in Admin (11 tabs total) provides UI for all Marcela settings. See `.claude/skills/admin/ai-agent-admin.md`.
+The "AI Agent" tab in Admin (11 tabs total) provides UI for all Marcela settings. See `.claude/skills/marcela-ai/ai-agent-admin.md`.
 
 ## Invariants
 

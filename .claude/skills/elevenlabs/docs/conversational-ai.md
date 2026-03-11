@@ -134,7 +134,7 @@ for (const agent of agents.agents) {
 
 ## Deployment Options
 
-See `overview.md` for package selection guide. Dedicated docs: `client-sdk.md`, `whatsapp.md`. Project-specific: `elevenlabs-widget/SKILL.md`, `twilio-telephony/SKILL.md`.
+See `overview.md` for package selection guide. Dedicated docs: `client-sdk.md`, `whatsapp.md`. Project-specific: `elevenlabs/SKILL.md`, `twilio-telephony/SKILL.md`.
 
 ## Conversations
 
@@ -178,7 +178,7 @@ await client.conversationalAi.conversations.delete("conversation_id");
 
 ## Signed URLs & Tokens
 
-Signed URLs (WebSocket, 15-min expiry) and Conversation Tokens (WebRTC) — see `elevenlabs-widget/SKILL.md` for project-specific implementation.
+Signed URLs (WebSocket, 15-min expiry) and Conversation Tokens (WebRTC) — see `elevenlabs/SKILL.md` for project-specific implementation.
 
 ## Agent Versioning
 

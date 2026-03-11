@@ -83,7 +83,7 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
             ["GOP (Gross Operating Profit)", "Total Revenue minus departmental operating expenses"],
             ["NOI (Net Operating Income)", "AGOP minus fixed charges (insurance + taxes)"],
             ["ANOI (Adjusted NOI)", "NOI minus FF&E reserve"],
-            ["DSCR (Debt Service Coverage Ratio)", "NOI ÷ Total Debt Service — measures ability to cover loan payments"],
+            ["DSCR (Debt Service Coverage Ratio)", "ANOI ÷ Total Debt Service — measures ability to cover loan payments"],
             ["Cash-on-Cash Return", "Annual after-tax cash flow ÷ total equity invested"],
             ["IRR (Internal Rate of Return)", "Annualized return considering all cash flows including exit"],
             ["Equity Multiple", "Total cash returned to investors ÷ equity invested"],

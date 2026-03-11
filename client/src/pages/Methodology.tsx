@@ -264,7 +264,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                   The income statement must show <strong>only interest expense</strong>, never principal repayment.
                 </p>
                 <div className="bg-muted rounded p-2 font-mono text-xs mt-2">
-                  <div>NOI</div>
+                  <div>ANOI (Adjusted Net Operating Income)</div>
                   <div>Less: Interest Expense (only the interest portion of debt service)</div>
                   <div>Less: Depreciation</div>
                   <div>Less: Income Tax</div>
@@ -483,11 +483,11 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               </div>
             </MethodologySection>
 
-            {/* Section: NOI/GOP */}
+            {/* Section: USALI Waterfall */}
             <MethodologySection
               id="noi-gop"
-              title="GOP and NOI"
-              subtitle="Gross Operating Profit and Adjusted NOI"
+              title="USALI Income Statement Waterfall"
+              subtitle="GOP → AGOP → NOI → ANOI"
               icon={IconBarChart3}
               expanded={expandedSections.has("noi-gop")}
               onToggle={() => toggleSection("noi-gop")}
@@ -496,7 +496,9 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               <div className="bg-muted/50 rounded-lg p-4">
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
                   <div>GOP = Total Revenue − Total Operating Expenses</div>
-                  <div>NOI = GOP − Management Fees − FF&E Reserve</div>
+                  <div>AGOP = GOP − Management Fees (base + incentive)</div>
+                  <div>NOI = AGOP − Fixed Charges (insurance + property taxes)</div>
+                  <div>ANOI = NOI − FF&E Reserve</div>
                 </div>
               </div>
             </MethodologySection>
@@ -529,7 +531,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
             >
               <div className="bg-muted/50 rounded-lg p-4">
                 <div className="bg-background rounded p-3 font-mono text-sm">
-                  FCFE = NOI − Debt Service (Principal + Interest) − Income Tax
+                  FCFE = ANOI − Debt Service (Principal + Interest) − Income Tax
                 </div>
               </div>
             </MethodologySection>

@@ -56,15 +56,16 @@ const MANUAL_SECTIONS = [
  * These are the formulas an auditor would check to verify the engine output.
  */
 const PROPERTY_FORMULAS = [
-  ["F-P-01", "Available Rooms", "Room Count × 30.5"],
-  ["F-P-02", "Sold Rooms", "Available Rooms × Occupancy Rate"],
-  ["F-P-03", "Room Revenue", "ADR × Sold Rooms"],
-  ["F-P-08", "GOP", "Total Revenue − Total Operating Expenses"],
-  ["F-P-10", "ANOI", "GOP − Mgmt Fees − FF&E Reserve"],
-  ["F-P-11", "Depreciable Basis", "Price × (1 − Land%) + Improvements"],
-  ["F-P-12", "Monthly Depreciation", "Depreciable Basis / 27.5 / 12"],
-  ["F-P-14", "Net Income", "NOI − Interest − Depreciation − Tax"],
-  ["F-P-15", "CFO", "Net Income + Depreciation"],
+  ["F-P-02", "Available Rooms", "Room Count × Days in Month"],
+  ["F-P-03", "Room Revenue", "Available Rooms × Occupancy × ADR"],
+  ["F-P-09", "GOP", "Total Revenue − Total Operating Expenses"],
+  ["F-P-10", "AGOP", "GOP − Management Fees (base + incentive)"],
+  ["F-P-11", "NOI", "AGOP − Fixed Charges (insurance + property taxes)"],
+  ["F-P-12", "ANOI", "NOI − FF&E Reserve"],
+  ["F-P-13", "Depreciable Basis", "Price × (1 − Land%) + Improvements"],
+  ["F-P-14", "Monthly Depreciation", "Depreciable Basis / 27.5 / 12"],
+  ["F-P-16", "Net Income", "ANOI − Interest − Depreciation − Tax"],
+  ["F-P-17", "CFO", "Net Income + Depreciation"],
 ];
 
 /** Management company formulas — how the company's revenue and cash flow are derived. */
@@ -77,8 +78,8 @@ const COMPANY_FORMULAS = [
 
 /** Investment return formulas — DCF, FCF, IRR, exit valuation, equity multiple. */
 const RETURN_FORMULAS = [
-  ["F-R-01", "FCF", "NOI − Tax − CapEx"],
-  ["F-R-02", "FCFE", "NOI − Debt Service − Tax"],
+  ["F-R-01", "FCF", "ANOI − Tax − CapEx"],
+  ["F-R-02", "FCFE", "ANOI − Debt Service − Tax"],
   ["F-R-04", "IRR", "Solve: Σ(FCFE_t/(1+r)^t) = Equity₀"],
   ["F-R-05", "Exit Value", "Terminal NOI / Cap Rate"],
   ["F-R-07", "Equity Multiple", "Total Distributions / Equity"],
@@ -103,7 +104,7 @@ const BUSINESS_RULES = [
 
 /** Three-phase testing methodology — simple → moderate → edge-case scenarios. */
 const TESTING_PHASES = [
-  ["Phase 1", "Simple Scenarios", "Single property, all-cash, verify revenue/expense/GOP/NOI"],
+  ["Phase 1", "Simple Scenarios", "Single property, all-cash, verify revenue/expense/GOP/AGOP/NOI/ANOI"],
   ["Phase 2", "Moderate", "Multiple properties, financing, refi, global changes, scenarios"],
   ["Phase 3", "Edge Cases", "Zero revenue, 100% LTV, extreme cap rates, mid-year acquisition"],
 ];
@@ -422,7 +423,9 @@ export async function exportFullData(user: { email?: string; role?: string; comp
         ["GOP", ...yearly.map(yr => formatMoney(yr.gop))],
         ["Base Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeBase))],
         ["Incentive Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeIncentive))],
-        ["ANOI", ...yearly.map(yr => formatMoney(yr.noi))],
+        ["AGOP", ...yearly.map(yr => formatMoney(yr.agop))],
+        ["NOI", ...yearly.map(yr => formatMoney(yr.noi))],
+        ["ANOI", ...yearly.map(yr => formatMoney(yr.anoi))],
         ["Depreciation", ...yearly.map(yr => formatMoney(yr.depreciationExpense))],
         ["Net Income", ...yearly.map(yr => formatMoney(yr.netIncome))],
       ]);

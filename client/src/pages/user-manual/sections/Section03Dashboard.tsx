@@ -80,7 +80,7 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
           variant="light"
           headers={["Section", "Calculation"]}
           rows={[
-            ["Cash Flow from Operations (CFO)", "= NOI − Debt Service (Principal + Interest)"],
+            ["Cash Flow from Operations (CFO)", "= ANOI − Debt Service (Principal + Interest)"],
             ["Cash Flow from Investing (CFI)", "= Capital Expenditures + Exit Proceeds (if final year)"],
             ["Cash Flow from Financing (CFF)", "= Refinancing Proceeds − Principal Payments"],
             ["Net Change in Cash", "= CFO + CFI + CFF"],
@@ -100,7 +100,7 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
       <div className="bg-muted/50 rounded-lg p-4">
         <h4 className="font-semibold mb-2">Charts & Visualizations</h4>
         <ul className="text-sm text-muted-foreground space-y-2">
-          <li>&#8226; <strong>Revenue & NOI Trend</strong> — year-over-year revenue and NOI across the portfolio</li>
+          <li>&#8226; <strong>Revenue & ANOI Trend</strong> — year-over-year revenue and ANOI across the portfolio</li>
           <li>&#8226; <strong>Cash Flow Waterfall</strong> — visualizes how cash flows from revenue to distributions</li>
           <li>&#8226; <strong>Property Comparison</strong> — side-by-side metrics for each property</li>
         </ul>

@@ -17,7 +17,7 @@ import { SectionCard } from "@/components/ui/section-card";
         onToggle={onToggle}
         sectionRef={sectionRef}
       >
-        <p className="text-muted-foreground text-sm">AI-powered market research uses Claude Sonnet to analyze markets and provide assumption calibration guidance. Research is available at the property level and globally.</p>
+        <p className="text-muted-foreground text-sm">AI-powered market research uses Norfolk AI to analyze markets and provide assumption calibration guidance. Research is available at the property level and globally.</p>
         <ManualTable
           headers={["Research Area", "What It Produces", "Badge Fields Affected"]}
           rows={[

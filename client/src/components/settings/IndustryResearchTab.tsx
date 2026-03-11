@@ -317,7 +317,7 @@ export function IndustryResearchTab({
               )}
             </Button>
             <p className="text-[10px] text-center text-muted-foreground mt-2 uppercase tracking-widest font-medium">
-              Powered by {currentGlobal.preferredLlm || "Claude 4.5"} • Average time: 15-20 seconds
+              Powered by Norfolk AI • Average time: 15-20 seconds
             </p>
           </div>
         </CardContent>

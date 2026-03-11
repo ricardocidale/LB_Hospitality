@@ -680,7 +680,7 @@ export default function RealtimeTranscriber01() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold text-foreground/60 hover:text-foreground/80 transition-colors"
                 >
-                  Powered by ElevenLabs Speech to Text
+                  Powered by Norfolk AI
                 </a>
               </div>
             </div>

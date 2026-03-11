@@ -87,7 +87,7 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
             <div className="flex items-center gap-2">
               <IconMessageCircle className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold">{displayName}</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">Gemini</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">Norfolk AI</span>
             </div>
             <Button
               variant="ghost"

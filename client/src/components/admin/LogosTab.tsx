@@ -268,7 +268,7 @@ export default function LogosTab() {
                       Generate Logo
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground text-center">Powered by Nano Banana</p>
+                  <p className="text-xs text-muted-foreground text-center">Powered by Norfolk AI</p>
                 </>
               )}
 
@@ -281,7 +281,7 @@ export default function LogosTab() {
                     <Loader2 className="w-16 h-16 text-amber-400 animate-spin absolute -top-2 -left-2" />
                   </div>
                   <p className="text-sm font-medium text-foreground">Enhancing your description...</p>
-                  <p className="text-xs text-muted-foreground">Google Gemini is crafting a better prompt</p>
+                  <p className="text-xs text-muted-foreground">Norfolk AI is crafting a better prompt</p>
                 </div>
               )}
 
@@ -318,7 +318,7 @@ export default function LogosTab() {
                     <Loader2 className="w-16 h-16 text-muted-foreground/40 animate-spin absolute -top-2 -left-2" />
                   </div>
                   <p className="text-sm font-medium text-foreground">Generating your logo...</p>
-                  <p className="text-xs text-muted-foreground">Nano Banana is creating your design</p>
+                  <p className="text-xs text-muted-foreground">Norfolk AI is creating your design</p>
                 </div>
               )}
             </div>

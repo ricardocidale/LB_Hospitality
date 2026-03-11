@@ -264,7 +264,7 @@ export function AIImagePicker({
             {isGenerating ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Generating with Nano Banana...
+                Generating with Norfolk AI...
               </>
             ) : (
               <>

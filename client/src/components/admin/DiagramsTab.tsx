@@ -263,7 +263,7 @@ export default function DiagramsTab() {
               <AccordionContent>
                 <DiagramCard
                   title="Marcela (Voice) & Rebecca (Text)"
-                  description="Two AI channels — ElevenLabs for voice, Claude for text analysis"
+                  description="Two AI channels — Norfolk AI voice + Norfolk AI text analysis"
                   chart={L2_AI}
                 />
               </AccordionContent>

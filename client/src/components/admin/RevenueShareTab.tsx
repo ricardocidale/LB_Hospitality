@@ -646,38 +646,46 @@ export default function RevenueShareTab() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-1">
-                  Default Fee Rate (%)
+                  Default Fee Rate
                   <HelpTooltip text="The percentage of a property's Total Revenue charged for this service. e.g. 2.0 means 2.0% of Total Revenue. All active service rates sum to the Base Management Fee." />
                 </Label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="100"
-                  value={form.defaultRate}
-                  onChange={(e) => setForm({ ...form, defaultRate: e.target.value })}
-                  data-testid="input-service-rate"
-                />
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    value={form.defaultRate}
+                    onChange={(e) => setForm({ ...form, defaultRate: e.target.value })}
+                    className="pr-8"
+                    data-testid="input-service-rate"
+                  />
+                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted-foreground text-sm">%</div>
+                </div>
               </div>
             </div>
             {form.serviceModel === "centralized" && (
               <div className="space-y-2 bg-muted rounded-lg p-3 border border-border/60">
                 <Label className="text-sm font-medium flex items-center gap-1">
-                  Cost-Plus Markup (%)
+                  Cost-Plus Markup
                   <HelpTooltip text="When the company procures a service for a property, it charges cost × (1 + markup%). e.g. 20% markup means a $1,000 vendor invoice becomes $1,200 to the property. The $200 difference is the company's gross profit on this service." />
                 </Label>
                 <p className="text-xs text-muted-foreground">
                   If markup is 20% and the company procures a service for $1.00, the property is charged $1.20.
                 </p>
-                <Input
-                  type="number"
-                  step="1"
-                  min="0"
-                  max="100"
-                  value={form.serviceMarkup}
-                  onChange={(e) => setForm({ ...form, serviceMarkup: e.target.value })}
-                  data-testid="input-service-markup"
-                />
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="100"
+                    value={form.serviceMarkup}
+                    onChange={(e) => setForm({ ...form, serviceMarkup: e.target.value })}
+                    className="pr-8"
+                    data-testid="input-service-markup"
+                  />
+                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-muted-foreground text-sm">%</div>
+                </div>
               </div>
             )}
             <div className="grid grid-cols-2 gap-4">

@@ -133,55 +133,62 @@ export default function CompanyCashFlowTab({
               })}
             </TableRow>
             {expandedRows.has('cfBaseFees') && (() => {
-              const categoryNames = Object.keys(financials[0]?.serviceFeeBreakdown?.byCategory ?? {});
-              if (categoryNames.length === 0) {
-                return properties.map((prop, idx) => (
-                  <TableRow key={`cfbase-${prop.id}`} className="bg-muted/50">
-                    <TableCell className="sticky left-0 bg-muted/50 pl-14 text-sm text-muted-foreground">
-                      {prop.name}
-                    </TableCell>
-                    {Array.from({ length: projectionYears }, (_, y) => (
-                      <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">
-                        {formatMoney(getPropertyYearlyBaseFee(idx, y))}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ));
+              const propCategoryMap: Record<string, Set<string>> = {};
+              for (const month of financials) {
+                const byCatByPropMonth = month.serviceFeeBreakdown?.byCategoryByPropertyId ?? {};
+                for (const catName of Object.keys(byCatByPropMonth)) {
+                  for (const pId of Object.keys(byCatByPropMonth[catName] ?? {})) {
+                    if (!propCategoryMap[pId]) propCategoryMap[pId] = new Set();
+                    propCategoryMap[pId].add(catName);
+                  }
+                }
               }
-              return categoryNames.map(catName => (
-                <React.Fragment key={`cf-cat-${catName}`}>
-                  <TableRow
-                    className="cursor-pointer hover:bg-muted/70"
-                    onClick={() => toggleRow(`cf-cat-${catName}`)}
-                  >
-                    <TableCell className="sticky left-0 bg-card pl-14 flex items-center gap-2 text-sm">
-                      {expandedRows.has(`cf-cat-${catName}`) ? (
-                        <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-                      ) : (
-                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-                      )}
-                      {catName}
-                    </TableCell>
-                    {Array.from({ length: projectionYears }, (_, y) => {
-                      const yearData = financials.slice(y * 12, (y + 1) * 12);
-                      const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategory?.[catName] ?? 0) + a, 0);
-                      return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
-                    })}
-                  </TableRow>
-                  {expandedRows.has(`cf-cat-${catName}`) && properties.map((prop) => (
-                    <TableRow key={`cf-cat-${catName}-prop-${prop.id}`} className="bg-muted/30">
-                      <TableCell className="sticky left-0 bg-muted/30 pl-[4.5rem] text-xs text-muted-foreground">
+              const getCategoriesForProperty = (propId: string) => {
+                return Array.from(propCategoryMap[propId] ?? []);
+              };
+              return properties.map((prop, idx) => {
+                const propId = String(prop.id);
+                const propCategories = getCategoriesForProperty(propId);
+                const hasMultipleCategories = propCategories.length > 1;
+                const propRowKey = `cf-prop-${propId}`;
+                return (
+                  <React.Fragment key={propRowKey}>
+                    <TableRow
+                      className={hasMultipleCategories ? "cursor-pointer hover:bg-muted/70" : "bg-muted/50"}
+                      onClick={hasMultipleCategories ? () => toggleRow(propRowKey) : undefined}
+                      data-testid={`row-cf-property-${propId}`}
+                    >
+                      <TableCell className={`sticky left-0 ${hasMultipleCategories ? 'bg-card' : 'bg-muted/50'} pl-14 flex items-center gap-2 text-sm text-muted-foreground`}>
+                        {hasMultipleCategories && (
+                          expandedRows.has(propRowKey) ? (
+                            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                          ) : (
+                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                          )
+                        )}
                         {prop.name}
                       </TableCell>
-                      {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
-                        const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategoryByPropertyId?.[catName]?.[String(prop.id)] ?? 0) + a, 0);
-                        return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
-                      })}
+                      {Array.from({ length: projectionYears }, (_, y) => (
+                        <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">
+                          {formatMoney(getPropertyYearlyBaseFee(idx, y))}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  ))}
-                </React.Fragment>
-              ));
+                    {hasMultipleCategories && expandedRows.has(propRowKey) && propCategories.map(catName => (
+                      <TableRow key={`cf-prop-${propId}-cat-${catName}`} className="bg-muted/30" data-testid={`row-cf-property-${propId}-category-${catName.toLowerCase().replace(/\s+/g, '-')}`}>
+                        <TableCell className="sticky left-0 bg-muted/30 pl-[4.5rem] text-xs text-muted-foreground">
+                          {catName}
+                        </TableCell>
+                        {Array.from({ length: projectionYears }, (_, y) => {
+                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategoryByPropertyId?.[catName]?.[propId] ?? 0) + a, 0);
+                          return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
+                        })}
+                      </TableRow>
+                    ))}
+                  </React.Fragment>
+                );
+              });
             })()}
             <TableRow 
               className="cursor-pointer hover:bg-muted"

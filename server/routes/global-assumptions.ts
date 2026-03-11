@@ -1,9 +1,12 @@
 import type { Express } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireManagementAccess } from "../auth";
-import { insertGlobalAssumptionsSchema } from "@shared/schema";
+import { requireAuth, requireManagementAccess, requireAdmin } from "../auth";
+import { insertGlobalAssumptionsSchema, globalAssumptions } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError } from "./helpers";
+import { z } from "zod";
+import { db } from "../db";
+import { eq } from "drizzle-orm";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -18,6 +21,36 @@ export function register(app: Express) {
       res.json(assumptions);
     } catch (error) {
       logAndSendError(res, "Failed to fetch global assumptions", error);
+    }
+  });
+
+  // PATCH — partial updates for admin-configurable subsections (e.g. Rebecca config)
+  const rebeccaPatchSchema = z.object({
+    rebeccaEnabled: z.boolean().optional(),
+    rebeccaDisplayName: z.string().min(1).max(50).optional(),
+    rebeccaSystemPrompt: z.string().max(5000).nullable().optional(),
+  });
+
+  app.patch("/api/global-assumptions", requireAdmin, async (req, res) => {
+    try {
+      const validation = rebeccaPatchSchema.safeParse(req.body);
+      if (!validation.success) {
+        const error = fromZodError(validation.error);
+        return res.status(400).json({ error: error.message });
+      }
+      const current = await storage.getGlobalAssumptions(req.user!.id);
+      if (!current) {
+        return res.status(404).json({ error: "Global assumptions not found" });
+      }
+      const [updated] = await db
+        .update(globalAssumptions)
+        .set({ ...validation.data, updatedAt: new Date() })
+        .where(eq(globalAssumptions.id, current.id))
+        .returning();
+      logActivity(req, "update", "global_assumptions", updated.id, "Rebecca Config");
+      res.json(updated);
+    } catch (error) {
+      logAndSendError(res, "Failed to update global assumptions", error);
     }
   });
 

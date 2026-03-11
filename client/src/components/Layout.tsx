@@ -86,7 +86,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       resetThemeColors();
     }
     return () => { resetThemeColors(); };
-  }, [myBranding?.themeName]);
+  }, [myBranding?.themeName, myBranding?.themeColors]);
 
   const sb = (key: string) => (global as any)?.[key] !== false;
   const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarExecutiveSummary") || sb("sidebarCompare") || sb("sidebarTimeline");
@@ -118,8 +118,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     {
       label: "AI Assistants",
       items: [
-        ...((global as any)?.marcelaEnabled ? [{ href: "#marcela", label: (global as any)?.aiAgentName || "Marcela", icon: IconBot, onClick: () => { /* Marcela widget triggered from header */ } }] : []),
-        ...((global as any)?.rebeccaEnabled ? [{ href: "#rebecca", label: (global as any)?.rebeccaDisplayName || "Rebecca", icon: IconMessageCircle, onClick: () => { /* Rebecca chat triggered from header */ } }] : []),
+        ...((global as any)?.marcelaEnabled ? [{ href: "#marcela", label: (global as any)?.aiAgentName || "Marcela", icon: IconBot, onClick: () => { document.querySelector<HTMLButtonElement>('[data-testid="ai-agent-toggle"]')?.click(); } }] : []),
+        ...((global as any)?.rebeccaEnabled ? [{ href: "#rebecca", label: (global as any)?.rebeccaDisplayName || "Rebecca", icon: IconMessageCircle, onClick: () => { document.querySelector<HTMLButtonElement>('[data-testid="button-chatbot-toggle"]')?.click(); } }] : []),
       ].filter(Boolean),
     },
     {
@@ -165,21 +165,33 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
               <SidebarMenu>
                 {group.items.map((item) => {
                   const active = isActiveLink(item.href);
+                  const isAction = item.href.startsWith("#");
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
-                        asChild
+                        asChild={!isAction}
                         isActive={active}
                         tooltip={item.label}
                         className={cn(
                           "h-8 px-3 rounded-md text-[13px] transition-colors",
                           active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         )}
+                        {...(isAction ? {
+                          onClick: () => { item.onClick?.(); setSidebarOpen(false); },
+                          "data-testid": `nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`,
+                        } : {})}
                       >
-                        <Link href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                          <item.icon className="w-4 h-4" />
-                          <span>{item.label}</span>
-                        </Link>
+                        {isAction ? (
+                          <>
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.label}</span>
+                          </>
+                        ) : (
+                          <Link href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.label}</span>
+                          </Link>
+                        )}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

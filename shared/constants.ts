@@ -278,6 +278,13 @@ export const CAP_RATE_SENSITIVITY_STEP = 0.005;
 // Research example: 30% corporate tax bracket for tax shield comparison
 export const RESEARCH_TAX_RATE_30_PCT = 0.30;
 
+// Make-vs-buy: savings must exceed this threshold to recommend outsource/in-house
+export const RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD = 0.10;
+
+// Cap rate valuation bounds: implied value must be within these multipliers of purchase price
+export const RESEARCH_CAP_RATE_VALUATION_MAX_MULTIPLIER = 3.0;
+export const RESEARCH_CAP_RATE_VALUATION_MIN_MULTIPLIER = 0.3;
+
 export const SEED_DEBT_ASSUMPTIONS = {
   acqLTV: 0.75,             // Acquisition loan-to-value (75% LTV means 25% equity down)
   refiLTV: 0.75,            // Refinance loan-to-value

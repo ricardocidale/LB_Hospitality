@@ -9,6 +9,7 @@
  */
 import { computePropertyMetrics } from "./property-metrics.js";
 import { computeCapRateValuation } from "./cap-rate-valuation.js";
+import { RESEARCH_CAP_RATE_VALUATION_MAX_MULTIPLIER, RESEARCH_CAP_RATE_VALUATION_MIN_MULTIPLIER } from "../../shared/constants.js";
 
 interface ResearchValueEntry {
   display: string;
@@ -129,13 +130,13 @@ export function validateResearchValues(
             cap_rate: entry.mid / 100,
             purchase_price: property.purchasePrice,
           });
-          // Implied value should be within 3x of purchase price
-          if (valuation.implied_value > property.purchasePrice * 3) {
-            addValidation(key, entry, { status: "warn", reason: `Cap rate ${entry.mid}% implies value $${valuation.implied_value.toLocaleString()} (>3x purchase price $${property.purchasePrice.toLocaleString()})` });
+          // Implied value should be within reasonable bounds of purchase price
+          if (valuation.implied_value > property.purchasePrice * RESEARCH_CAP_RATE_VALUATION_MAX_MULTIPLIER) {
+            addValidation(key, entry, { status: "warn", reason: `Cap rate ${entry.mid}% implies value $${valuation.implied_value.toLocaleString()} (>${RESEARCH_CAP_RATE_VALUATION_MAX_MULTIPLIER}x purchase price $${property.purchasePrice.toLocaleString()})` });
             continue;
           }
-          if (valuation.implied_value < property.purchasePrice * 0.3) {
-            addValidation(key, entry, { status: "warn", reason: `Cap rate ${entry.mid}% implies value $${valuation.implied_value.toLocaleString()} (<30% of purchase price $${property.purchasePrice.toLocaleString()})` });
+          if (valuation.implied_value < property.purchasePrice * RESEARCH_CAP_RATE_VALUATION_MIN_MULTIPLIER) {
+            addValidation(key, entry, { status: "warn", reason: `Cap rate ${entry.mid}% implies value $${valuation.implied_value.toLocaleString()} (<${RESEARCH_CAP_RATE_VALUATION_MIN_MULTIPLIER * 100}% of purchase price $${property.purchasePrice.toLocaleString()})` });
             continue;
           }
         }

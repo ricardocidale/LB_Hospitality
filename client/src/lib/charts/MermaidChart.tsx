@@ -8,7 +8,7 @@ function initMermaid(theme: "default" | "dark" | "forest" | "neutral") {
   mermaid.initialize({
     startOnLoad: false,
     theme,
-    securityLevel: "loose",
+    securityLevel: "strict",
     fontFamily: "inherit",
   });
   mermaidInitialized = true;

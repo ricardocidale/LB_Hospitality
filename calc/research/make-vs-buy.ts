@@ -9,6 +9,7 @@
  * departmental vs. unallocated expenses.
  */
 import { DEFAULT_ROUNDING } from "../shared/utils.js";
+import { RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD } from "../../shared/constants.js";
 
 interface MakeVsBuyInput {
   serviceName: string;
@@ -76,7 +77,7 @@ export function computeMakeVsBuy(input: MakeVsBuyInput): MakeVsBuyResult {
 
   // 5. Recommendation logic
   let recommendation: 'In-House' | 'Outsource' | 'Marginal';
-  const MARGINAL_THRESHOLD = 0.10;
+  const MARGINAL_THRESHOLD = RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD;
   if (savingsPercent > MARGINAL_THRESHOLD) {
     recommendation = 'Outsource';
   } else if (savingsPercent < -MARGINAL_THRESHOLD) {

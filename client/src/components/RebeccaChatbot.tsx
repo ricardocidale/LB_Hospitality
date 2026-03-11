@@ -5,8 +5,14 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ChatMessage {
+  id: string;
   role: "user" | "assistant";
   content: string;
+}
+
+let msgCounter = 0;
+function nextMsgId(role: string) {
+  return `${role}-${Date.now()}-${++msgCounter}`;
 }
 
 interface RebeccaChatbotProps {
@@ -21,6 +27,7 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,14 +37,28 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
     if (open) inputRef.current?.focus();
   }, [open]);
 
+  // Clean up abort controller on unmount
+  useEffect(() => {
+    return () => { abortRef.current?.abort(); };
+  }, []);
+
   const sendMessage = useCallback(async () => {
     const trimmed = input.trim();
     if (!trimmed || loading) return;
 
-    const userMsg: ChatMessage = { role: "user", content: trimmed };
-    setMessages((prev) => [...prev, userMsg]);
+    const userMsg: ChatMessage = { id: nextMsgId("user"), role: "user", content: trimmed };
+
+    // Build history from current messages BEFORE updating state (avoids race condition)
+    const currentMessages = [...messages, userMsg];
+    const historyForApi = currentMessages.slice(-10).map(({ role, content }) => ({ role, content }));
+
+    setMessages(currentMessages);
     setInput("");
     setLoading(true);
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     try {
       const res = await fetch("/api/chat", {
@@ -45,17 +66,19 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: trimmed,
-          history: messages.slice(-10),
+          history: historyForApi.slice(0, -1), // exclude the current message (sent separately)
         }),
+        signal: controller.signal,
       });
 
       if (!res.ok) throw new Error("Failed to get response");
       const data = await res.json();
-      setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
-    } catch {
+      setMessages((prev) => [...prev, { id: nextMsgId("assistant"), role: "assistant", content: data.response }]);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Sorry, I couldn't process your request. Please try again." },
+        { id: nextMsgId("assistant"), role: "assistant", content: "Sorry, I couldn't process your request. Please try again." },
       ]);
     } finally {
       setLoading(false);
@@ -111,7 +134,7 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
                       key={q}
                       onClick={() => { setInput(q); }}
                       className="text-xs px-2.5 py-1 rounded-full border border-border bg-muted/50 hover:bg-muted text-foreground/70 transition-colors"
-                      data-testid={`button-suggestion-${q.slice(0, 20).replace(/\s/g, "-")}`}
+                      data-testid={`button-suggestion-${q.slice(0, 20).replace(/\s+/g, "-")}`}
                     >
                       {q}
                     </button>
@@ -120,9 +143,9 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
               </div>
             )}
 
-            {messages.map((msg, i) => (
+            {messages.map((msg) => (
               <div
-                key={i}
+                key={msg.id}
                 className={cn(
                   "flex",
                   msg.role === "user" ? "justify-end" : "justify-start"
@@ -135,7 +158,7 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-foreground"
                   )}
-                  data-testid={`message-${msg.role}-${i}`}
+                  data-testid={`message-${msg.role}-${msg.id}`}
                 >
                   {msg.content}
                 </div>

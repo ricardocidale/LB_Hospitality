@@ -104,7 +104,7 @@ const H_SOLD_ROOMS = H_AVAIL_ROOMS * 0.68;                          // 311.1
 const H_REV_ROOMS = H_SOLD_ROOMS * 175;                             // 54,442.50
 // Step 4: Events = room_rev × 0.30 = 16,332.75
 const H_REV_EVENTS = H_REV_ROOMS * DEFAULT_REV_SHARE_EVENTS;        // 16,332.75
-// Step 5: F&B = room_rev × 0.18 × (1 + 0.22) = 11,953.1700
+// Step 5: F&B = room_rev × 0.18 × (1 + 0.22) = 11,955.573
 const H_BASE_FB = H_REV_ROOMS * DEFAULT_REV_SHARE_FB;               // 9,799.65
 const H_REV_FB = H_BASE_FB * (1 + DEFAULT_CATERING_BOOST_PCT);      // 11,955.573
 // Step 6: Other = room_rev × 0.05 = 2,722.125
@@ -165,12 +165,6 @@ const H_NET_INCOME = H_ANOI - 0 - H_MONTHLY_DEPR - H_INCOME_TAX;
 const H_CASH_FLOW = H_ANOI - 0 - H_INCOME_TAX;
 const H_OPERATING_CF = H_NET_INCOME + H_MONTHLY_DEPR;
 const H_FINANCING_CF = 0; // no debt
-
-// Property value after depreciation
-function handPropertyValue(monthIndex: number) {
-  const accDepr = Math.min(H_MONTHLY_DEPR * (monthIndex + 1), H_BUILDING_VALUE);
-  return H_LAND_VALUE + H_BUILDING_VALUE - accDepr;
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HAND CALCULATIONS — MANAGEMENT COMPANY MONTHLY

@@ -671,6 +671,9 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   marcelaSilenceEndCallTimeout: true,
   marcelaMaxDuration: true,
   marcelaCascadeTimeout: true,
+  rebeccaEnabled: true,
+  rebeccaDisplayName: true,
+  rebeccaSystemPrompt: true,
   researchConfig: true,
 });
 

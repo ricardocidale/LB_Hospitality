@@ -3,6 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { requireAuth } from "../auth";
 import { storage } from "../storage";
 import { buildPropertyContext } from "../ai/buildPropertyContext.js";
+import { z } from "zod";
 
 /**
  * CONTRACT: This endpoint provides AI chat about portfolio properties.
@@ -10,9 +11,26 @@ import { buildPropertyContext } from "../ai/buildPropertyContext.js";
  * never inline arithmetic. The LLM interprets pre-computed values only.
  */
 
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_HISTORY_LENGTH = 20;
+
+const chatMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().max(MAX_MESSAGE_LENGTH),
+});
+
+const chatRequestSchema = z.object({
+  message: z.string().min(1).max(MAX_MESSAGE_LENGTH),
+  history: z.array(chatMessageSchema).max(MAX_HISTORY_LENGTH).optional().default([]),
+});
+
 function getGeminiClient() {
+  const apiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Gemini API key not configured");
+  }
   return new GoogleGenAI({
-    apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY!,
+    apiKey,
     httpOptions: {
       apiVersion: "",
       baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
@@ -31,38 +49,45 @@ Do not make up data. Only reference what is provided in the context below.`;
 export function register(app: Express) {
   app.post("/api/chat", requireAuth, async (req: Request, res: Response) => {
     try {
-      const { message, history } = req.body;
-      if (!message || typeof message !== "string") {
-        return res.status(400).json({ error: "Message is required" });
+      // Validate input with Zod
+      const parsed = chatRequestSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid request: " + parsed.error.issues[0]?.message });
+      }
+      const { message, history } = parsed.data;
+
+      // Check feature gate
+      const global = await storage.getGlobalAssumptions();
+      if (!(global as any)?.rebeccaEnabled) {
+        return res.status(403).json({ error: "Chat assistant is not enabled" });
       }
 
       const properties = await storage.getAllProperties();
-      const global = await storage.getGlobalAssumptions();
       const propertyContext = buildPropertyContext(properties);
 
       const contextBlock = [
         "PORTFOLIO DATA:",
         propertyContext,
         "",
-        `Company: ${(global as any)?.companyName || "Management Company"}`,
+        `Company: ${(global as any)?.companyName ?? "Management Company"}`,
         `Properties in Portfolio: ${properties.length}`,
-        `Projection Years: ${(global as any)?.projectionYears || 10}`,
-        `Inflation Rate: ${((global as any)?.inflationRate || 0.03) * 100}%`,
+        `Projection Years: ${(global as any)?.projectionYears ?? 10}`,
+        `Inflation Rate: ${((global as any)?.inflationRate ?? 0.03) * 100}%`,
       ].join("\n");
 
-      const chatHistory = (history || []).map((msg: { role: string; content: string }) => ({
-        role: msg.role === "user" ? "user" : ("assistant" as const),
+      const chatHistory = history.map((msg) => ({
+        role: msg.role === "user" ? "user" : ("model" as const),
         content: msg.content,
       }));
 
-      const systemPrompt = (global as any)?.rebeccaSystemPrompt || DEFAULT_SYSTEM_PROMPT;
+      const systemPrompt = (global as any)?.rebeccaSystemPrompt ?? DEFAULT_SYSTEM_PROMPT;
       const fullSystemPrompt = `${systemPrompt}\n\n${contextBlock}`;
 
       const gemini = getGeminiClient();
       const contents = [
         { role: "user" as const, parts: [{ text: fullSystemPrompt }] },
         { role: "model" as const, parts: [{ text: "Understood. I have the portfolio data and will answer questions based on it." }] },
-        ...chatHistory.map((msg: { role: string; content: string }) => ({
+        ...chatHistory.map((msg) => ({
           role: (msg.role === "user" ? "user" : "model") as "user" | "model",
           parts: [{ text: msg.content }],
         })),
@@ -80,6 +105,9 @@ export function register(app: Express) {
       res.json({ response: text });
     } catch (error: any) {
       console.error("[chat] Error:", error?.message || error);
+      if (error?.message === "Gemini API key not configured") {
+        return res.status(503).json({ error: "Chat service is not available" });
+      }
       res.status(500).json({ error: "Failed to generate response" });
     }
   });

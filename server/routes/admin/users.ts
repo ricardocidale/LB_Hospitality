@@ -4,7 +4,10 @@ import { requireAdmin, validatePassword } from "../../auth";
 import { userResponse, createUserSchema, logAndSendError } from "../helpers";
 import { fromZodError } from "zod-validation-error";
 import { hashPassword } from "../../auth";
+import { VALID_USER_ROLES } from "../../../shared/schema.js";
+import { z } from "zod";
 
+const roleSchema = z.enum(VALID_USER_ROLES);
 
 export function registerUserRoutes(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -27,7 +30,7 @@ export function registerUserRoutes(app: Express) {
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      
+
       const existingUser = await storage.getUserByEmail(validation.data.email);
       if (existingUser) {
         return res.status(400).json({ error: "User already exists" });
@@ -37,7 +40,7 @@ export function registerUserRoutes(app: Express) {
       const passwordHash = await hashPassword(password);
 
       const defaultGroup = await storage.getDefaultUserGroup();
-      
+
       const user = await storage.createUser({
         email,
         passwordHash,
@@ -61,8 +64,14 @@ export function registerUserRoutes(app: Express) {
       const id = Number(req.params.id);
       const { email, firstName, lastName, company, companyId, title, role } = req.body;
 
-      if (role && id === req.user!.id) {
-        return res.status(400).json({ error: "You cannot change your own role" });
+      if (role !== undefined) {
+        const roleResult = roleSchema.safeParse(role);
+        if (!roleResult.success) {
+          return res.status(400).json({ error: `Invalid role. Must be one of: ${VALID_USER_ROLES.join(", ")}` });
+        }
+        if (id === req.user!.id) {
+          return res.status(400).json({ error: "You cannot change your own role" });
+        }
       }
 
       const profileData: Record<string, any> = {};
@@ -90,13 +99,18 @@ export function registerUserRoutes(app: Express) {
   app.patch("/api/admin/users/:id/role", requireAdmin, async (req, res) => {
     try {
       const { role } = req.body;
+      const roleResult = roleSchema.safeParse(role);
+      if (!roleResult.success) {
+        return res.status(400).json({ error: `Invalid role. Must be one of: ${VALID_USER_ROLES.join(", ")}` });
+      }
+
       const id = Number(req.params.id);
-      
+
       if (id === req.user!.id) {
         return res.status(400).json({ error: "You cannot change your own role" });
       }
 
-      await storage.updateUserRole(id, role);
+      await storage.updateUserRole(id, roleResult.data);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to update user role", error);
@@ -109,7 +123,7 @@ export function registerUserRoutes(app: Express) {
       if (id === req.user!.id) {
         return res.status(400).json({ error: "You cannot delete yourself" });
       }
-      
+
       await storage.deleteUser(id);
       res.json({ success: true });
     } catch (error) {
@@ -158,7 +172,7 @@ export function registerUserRoutes(app: Express) {
   app.post("/api/admin/reset-all-passwords", requireAdmin, async (req, res) => {
     try {
       const { password, confirm } = req.body;
-      if (confirm !== "RESET ALL PASSWORDS") {
+      if (typeof confirm !== "string" || confirm.trim() !== "RESET ALL PASSWORDS") {
         return res.status(400).json({ error: "Confirmation phrase required" });
       }
       const pwValidation = validatePassword(password ?? "");
@@ -167,6 +181,8 @@ export function registerUserRoutes(app: Express) {
       }
       const allUsers = await storage.getAllUsers();
       const newHash = await hashPassword(password);
+      // Update all passwords — if any fails, partial state is acceptable since
+      // all passwords are being set to the same value. The admin can retry.
       let count = 0;
       for (const user of allUsers) {
         await storage.updateUserPassword(user.id, newHash);

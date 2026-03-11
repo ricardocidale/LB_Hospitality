@@ -8,6 +8,12 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 11, 2026 (cont.) — WACC + Plan Completion
+- WACC-based DCF: `compute_wacc` + `compute_portfolio_wacc` tools (33 total), `costOfEquity` column, research badges, checker manual updated
+- 12 golden WACC tests (all-cash, leveraged, portfolio, edge cases). InvestmentAnalysis uses WACC instead of IRR as DCF discount rate.
+- WS7 confirmed done (indexes exist). WS9: doc harmony fixed (stale 2,912→2,927, golden 430→500). All 9 workstreams COMPLETE.
+- Tests 2,912→2,927 (125 files, 500 golden). Health ALL CLEAR. UNQUALIFIED.
+
 ## Session: March 11, 2026 — Architectural Hardening Initiative (9 Workstreams)
 - WS1: Magic numbers extracted (CAP_RATE_SENSITIVITY_STEP, RESEARCH_TAX_RATE_30_PCT); chat.ts uses executeComputationTool via shared buildPropertyContext.ts
 - WS2: Golden "Clearwater Inn" scenario (60 tests): 15 rooms $175 ADR cash purchase, mgmt co + 1 property + consolidated

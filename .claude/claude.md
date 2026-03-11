@@ -51,7 +51,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,927 tests, 430 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,927 tests, 500 golden tests, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -85,7 +85,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Consolidated Portfolio | Aggregation, eliminations, portfolio IRR | `testing/consolidated-statements.md` |
 | Management Company | Company pro forma, fee linkage, funding | `testing/management-company.md` |
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
-| Golden Scenarios | 478+ hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property) | `testing/golden-scenarios.md` |
+| Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
 **Commands**: `npm test` (all 2,927) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
@@ -99,6 +99,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 - **Golden scenario** — "Clearwater Inn" (15 rooms, $175 ADR, 1 property + management co). 60 assertions covering IS/CF/BS, fee zero-sum, consolidated elimination. `tests/golden/mgmt-company-plus-one-property-golden.test.ts`.
 - **Seeding hardened** — `seedAdminUser()` no longer resets existing passwords (requires `FORCE_RESEED_PASSWORDS=true`). Reset-all-passwords requires typed confirmation phrase.
 - **Theme admin assignment** — `PATCH /api/admin/users/:id/theme` endpoint for per-user theme override.
+- **WACC-based DCF** — Property and portfolio valuation uses WACC `(E/V × Re) + (D/V × Rd × (1−T))` instead of IRR as discount rate. Intermediate approach: user-provided cost of equity (default 18%), no CAPM. New deterministic tools: `compute_wacc`, `compute_portfolio_wacc` (33 total tools). `costOfEquity` column on `global_assumptions`. Research badges for cost of equity on Company Assumptions.
 - **DB indexes** — Already existed on `properties.user_id` and `global_assumptions.user_id` (confirmed).
 
 ---

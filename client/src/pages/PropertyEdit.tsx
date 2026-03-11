@@ -417,6 +417,7 @@ export default function PropertyEdit() {
               <SaveButton
                 onClick={handleSave}
                 isPending={updateProperty.isPending}
+                hasChanges={isDirty}
               />
             </div>
           }
@@ -439,6 +440,7 @@ export default function PropertyEdit() {
           <SaveButton 
             onClick={handleSave} 
             isPending={updateProperty.isPending}
+            hasChanges={isDirty}
           >
             Save All Changes
           </SaveButton>

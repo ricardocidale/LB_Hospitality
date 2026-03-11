@@ -20,6 +20,7 @@
  */
 import { useState, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { fireResearchConfetti } from "@/lib/confetti";
 
 interface UseResearchStreamOptions {
   property: any;
@@ -85,9 +86,8 @@ export function useResearchStream({ property, propertyId, global }: UseResearchS
                 setStreamedContent(accumulated);
               }
               if (data.done) {
-                // Stream complete — invalidate cache so the persisted research
-                // is used on subsequent page loads instead of re-streaming
                 queryClient.invalidateQueries({ queryKey: ["research", "property", propertyId] });
+                fireResearchConfetti();
               }
             } catch { /* incomplete SSE chunk */ }
           }

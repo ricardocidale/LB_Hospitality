@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
 import { useToast } from "@/hooks/use-toast";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { fireResearchConfetti } from "@/lib/confetti";
 
 const sectionColors = {
   industry: { accent: "#257D41", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700" },
@@ -93,6 +94,7 @@ export default function GlobalResearch() {
               }
               if (data.done) {
                 queryClient.invalidateQueries({ queryKey: ["research", "global"] });
+                fireResearchConfetti();
               }
             } catch (error) {
               /* incomplete SSE chunk - safely skip */

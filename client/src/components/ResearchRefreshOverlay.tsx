@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, type RefObject } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
+import { fireResearchConfetti } from "@/lib/confetti";
 
 function ThreeBackground({ containerRef }: { containerRef: RefObject<HTMLDivElement | null> }) {
   useEffect(() => {
@@ -299,6 +300,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
 
       setProgress(100);
       setPhase("done");
+      fireResearchConfetti();
       await new Promise((r) => setTimeout(r, 1500));
       onComplete();
     } catch {

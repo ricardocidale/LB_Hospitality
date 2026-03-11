@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~709 source files, ~114,167 lines, 2,927 tests across 125 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~727 source files, ~121,273 lines, 2,927 tests across 125 files. Hosted on Replit.
 
 ---
 
@@ -65,7 +65,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
 | Finance (17 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
 | Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, etc. |
-| Chart Library | `.claude/skills/charts/SKILL.md` | 9 reusable chart components |
+| Chart Library | `.claude/skills/charts/SKILL.md` | 12 reusable chart components |
 | Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, responsive helpers |
 | UI (28 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation, Magic UI effects |
 | API Routes | `.claude/skills/architecture/api-routes.md` | All REST endpoints (load when writing API code) |
@@ -93,6 +93,15 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 
 ## Recent Changes (March 11, 2026)
 
+- **Simulation & Analysis page overhauled** — `/analysis` page renamed to "Simulation and Analysis". Tab order: Sensitivity → Compare → Timeline → Financing. Uses shadcn Tabs with icons and framer-motion transitions. All 4 tabs visually redesigned:
+  - **Sensitivity**: KPI summary strip, styled sliders with accent tracks and per-slider reset, improved tornado chart
+  - **Compare**: Property chips selector, larger radar chart, alternating-row table with best-value badges, winner summary bar
+  - **Timeline**: Horizontal Gantt-style visual timeline with color-coded nodes, connecting lines, legend, tooltips
+  - **Financing**: 4 sub-tabs — DSCR gauges with threshold markers, debt yield pass/fail, stress test green→yellow→red heatmap with tooltips, prepayment side-by-side comparison
+- **Sidebar Research Status** — New `SidebarResearchStatus` component (`client/src/components/research/SidebarResearchStatus.tsx`). Compact 2×2 dot grid (Property, Operations, Marketing, Industry) in sidebar footer above Sign Out. Green = fresh, red = stale/missing. Clicking navigates to `/research`. All research widgets removed from Dashboard.
+- **Property parallax scrolling** — `PropertyHeader` hero image has framer-motion parallax effect (`useScroll`/`useTransform`). Image scrolls at 30% speed with subtle 1.08× scale-up and progressive overlay darkening.
+- **Research confetti** — `canvas-confetti` fires celebratory confetti burst when any research generation completes (property, company, global, or refresh-all). Utility at `client/src/lib/confetti.ts`.
+- **SaveButton `hasChanges` enforcement** — All Save buttons now dim (opacity-50 + disabled) when no changes detected. Fixed in: `CompanyAssumptions.tsx`, `PropertyEdit.tsx`, `Profile.tsx`. Uses `SaveButton`'s `hasChanges` prop wired to each page's `isDirty` state.
 - **AI Agents restructured** — **Rebecca** (Gemini text chat, renamed from PropertyChatbot) + **Marcela** (ElevenLabs voice). Sidebar "AI Assistants" group. Admin has separate config tabs for each under "AI Agents" group.
 - **Admin Diagrams tab** — Mermaid workflow charts at 3 levels (system overview, domain flows, detailed sub-flows). Under Admin → System → Diagrams.
 - **Deterministic tool enforcement** — Extracted magic numbers to named constants in `shared/constants.ts`. Chat route uses `executeComputationTool` via shared `buildPropertyContext.ts`.

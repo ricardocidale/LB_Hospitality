@@ -16,6 +16,7 @@
  */
 import { useState, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { fireResearchConfetti } from "@/lib/confetti";
 
 export function useCompanyResearchStream() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -59,8 +60,8 @@ export function useCompanyResearchStream() {
                 setStreamedContent(accumulated);
               }
               if (data.done) {
-                // Persist the completed research by invalidating the cache
                 queryClient.invalidateQueries({ queryKey: ["research", "company"] });
+                fireResearchConfetti();
               }
             } catch { /* incomplete SSE chunk */ }
           }

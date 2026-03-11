@@ -34,6 +34,7 @@ export default function Profile() {
     confirmPassword: "",
   });
 
+  const [isDirty, setIsDirty] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -118,6 +119,7 @@ export default function Profile() {
     },
     onSuccess: () => {
       refetch();
+      setIsDirty(false);
       toast({ title: "Profile Updated", description: "Your profile has been saved." });
     },
     onError: (error: Error) => {
@@ -194,8 +196,8 @@ export default function Profile() {
           actions={
             <SaveButton 
               onClick={handleSave} 
-              disabled={updateMutation.isPending}
               isPending={updateMutation.isPending}
+              hasChanges={isDirty}
             />
           }
         />
@@ -253,7 +255,7 @@ export default function Profile() {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) => { setFormData({ ...formData, email: e.target.value }); setIsDirty(true); }}
                     placeholder="Enter your email"
                     className="bg-card border-border text-foreground"
                     data-testid="input-profile-email"
@@ -267,7 +269,7 @@ export default function Profile() {
                   <Input
                     id="firstName"
                     value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    onChange={(e) => { setFormData({ ...formData, firstName: e.target.value }); setIsDirty(true); }}
                     placeholder="First name"
                     className="bg-card border-border text-foreground"
                     data-testid="input-profile-firstName"
@@ -278,7 +280,7 @@ export default function Profile() {
                   <Input
                     id="lastName"
                     value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    onChange={(e) => { setFormData({ ...formData, lastName: e.target.value }); setIsDirty(true); }}
                     placeholder="Last name"
                     className="bg-card border-border text-foreground"
                     data-testid="input-profile-lastName"
@@ -291,7 +293,7 @@ export default function Profile() {
                 <Input
                   id="company"
                   value={formData.company}
-                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                  onChange={(e) => { setFormData({ ...formData, company: e.target.value }); setIsDirty(true); }}
                   placeholder="Enter your company name"
                   className="bg-card border-border text-foreground"
                   data-testid="input-profile-company"
@@ -303,7 +305,7 @@ export default function Profile() {
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => { setFormData({ ...formData, title: e.target.value }); setIsDirty(true); }}
                   placeholder="Enter your job title"
                   className="bg-card border-border text-foreground"
                   data-testid="input-profile-title"

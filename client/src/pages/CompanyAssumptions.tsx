@@ -225,7 +225,8 @@ export default function CompanyAssumptions() {
               </Link>
               <SaveButton 
                 onClick={handleSave} 
-                isPending={updateMutation.isPending} 
+                isPending={updateMutation.isPending}
+                hasChanges={isDirty}
               />
             </div>
           }
@@ -273,6 +274,7 @@ export default function CompanyAssumptions() {
           <SaveButton 
             onClick={handleSave} 
             isPending={updateMutation.isPending}
+            hasChanges={isDirty}
           />
         </div>
       </div>

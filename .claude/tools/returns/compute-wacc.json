@@ -1,0 +1,20 @@
+{
+  "name": "compute_wacc",
+  "description": "Computes the Weighted Average Cost of Capital for a property. WACC = (E/V × Re) + (D/V × Rd × (1-T)). Used as the discount rate for DCF property valuation.",
+  "input_schema": {
+    "equity": "Total equity invested ($). Must be >= 0.",
+    "debt": "Total debt outstanding ($). Can be 0 for all-cash.",
+    "cost_of_equity": "Required equity return as decimal (e.g. 0.18 = 18%). User-provided, not CAPM-derived.",
+    "cost_of_debt": "Loan interest rate as decimal (e.g. 0.09 = 9%).",
+    "tax_rate": "Corporate tax rate as decimal (e.g. 0.25 = 25%). For interest tax shield."
+  },
+  "output_schema": {
+    "wacc": "Weighted Average Cost of Capital (decimal)",
+    "equity_weight": "E / (E + D)",
+    "debt_weight": "D / (E + D)",
+    "equity_component": "(E/V) × Re",
+    "debt_component": "(D/V) × Rd × (1-T)",
+    "after_tax_cost_of_debt": "Rd × (1-T)",
+    "total_capital": "E + D"
+  }
+}

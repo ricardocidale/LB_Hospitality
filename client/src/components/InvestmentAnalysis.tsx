@@ -29,6 +29,7 @@ import {
   DEFAULT_TAX_RATE,
   IRR_HIGHLIGHT_THRESHOLD,
 } from "@/lib/constants";
+import { DEFAULT_COST_OF_EQUITY } from "@shared/constants";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import { computeIRR } from "@analytics/returns/irr.js";
 import type { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
@@ -610,14 +611,43 @@ export function InvestmentAnalysis({
 
       <Card data-testid="dcf-analysis-card">
         <CardHeader>
-          <CardTitle>Discounted Cash Flow (DCF) Analysis</CardTitle>
+          <CardTitle className="flex items-center gap-1.5">
+            Discounted Cash Flow (DCF) Analysis
+            <HelpTooltip text="DCF values the portfolio by discounting future cash flows to present value using the Weighted Average Cost of Capital (WACC). WACC blends the cost of equity and after-tax cost of debt, weighted by capital structure." manualSection="investment-returns" />
+          </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Portfolio valuation using discounted ATCF and terminal value at the portfolio IRR as discount rate
+            Portfolio valuation using WACC-discounted ATCF and terminal value
           </p>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {(() => {
-            const discountRate = portfolioIRRIA > 0 ? portfolioIRRIA : 0.10;
+            // WACC computation: (E/V × Re) + (D/V × Rd × (1-T))
+            const taxRate = global?.companyTaxRate ?? DEFAULT_TAX_RATE;
+            const costOfEquity = global?.costOfEquity ?? DEFAULT_COST_OF_EQUITY;
+
+            let totalEquity = 0;
+            let totalDebt = 0;
+            let weightedDebtCost = 0;
+
+            for (let pi = 0; pi < properties.length; pi++) {
+              const prop = properties[pi];
+              const equity = propertyEquityInvested(prop);
+              const debt = (prop.purchasePrice ?? 0) * (prop.acquisitionLTV ?? 0);
+              const debtRate = prop.acquisitionInterestRate ?? 0.09;
+              totalEquity += equity;
+              totalDebt += debt;
+              weightedDebtCost += debt * debtRate;
+            }
+
+            const totalCapital = totalEquity + totalDebt;
+            const equityWeight = totalCapital > 0 ? totalEquity / totalCapital : 1;
+            const debtWeight = totalCapital > 0 ? totalDebt / totalCapital : 0;
+            const avgCostOfDebt = totalDebt > 0 ? weightedDebtCost / totalDebt : 0;
+            const afterTaxDebtCost = avgCostOfDebt * (1 - taxRate);
+            const wacc = (equityWeight * costOfEquity) + (debtWeight * afterTaxDebtCost);
+
+            // Use WACC as discount rate (fallback to 10% if WACC is zero/invalid)
+            const discountRate = wacc > 0 ? wacc : 0.10;
 
             const yearlyATCF = Array.from({ length: projectionYears }, (_, y) =>
               allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.atcf ?? 0), 0)
@@ -641,10 +671,13 @@ export function InvestmentAnalysis({
                 <div className="grid gap-4 md:grid-cols-4">
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
-                      Discount Rate
-                      <HelpTooltip text="The portfolio IRR is used as the discount rate. This represents the required rate of return based on actual projected cash flows." />
+                      WACC
+                      <HelpTooltip text={`Weighted Average Cost of Capital. Blends cost of equity (${(costOfEquity * 100).toFixed(1)}%) and after-tax cost of debt (${(afterTaxDebtCost * 100).toFixed(1)}%) weighted by capital structure (${(equityWeight * 100).toFixed(0)}% equity / ${(debtWeight * 100).toFixed(0)}% debt).`} manualSection="investment-returns" />
                     </p>
                     <div className="text-2xl font-bold text-foreground font-mono">{(discountRate * 100).toFixed(1)}%</div>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Re: {(costOfEquity * 100).toFixed(0)}% · Rd(1-T): {(afterTaxDebtCost * 100).toFixed(1)}% · E/V: {(equityWeight * 100).toFixed(0)}%
+                    </p>
                   </div>
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">

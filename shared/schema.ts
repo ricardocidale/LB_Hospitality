@@ -45,6 +45,7 @@ import {
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
   DEFAULT_EXIT_CAP_RATE,
+  DEFAULT_COST_OF_EQUITY,
   DEFAULT_TAX_RATE,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
@@ -399,6 +400,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // Tax Rate (for calculating after-tax company cash flow)
   companyTaxRate: real("company_tax_rate").notNull().default(DEFAULT_COMPANY_TAX_RATE),
   
+  // WACC — Cost of Equity (user-provided, not CAPM-derived; default 18% for private hospitality)
+  costOfEquity: real("cost_of_equity").notNull().default(DEFAULT_COST_OF_EQUITY),
+
   // Exit & Sale Assumptions (global defaults)
   exitCapRate: real("exit_cap_rate").notNull().default(DEFAULT_EXIT_CAP_RATE),
   salesCommissionRate: real("sales_commission_rate").notNull().default(DEFAULT_COMMISSION_RATE),
@@ -620,6 +624,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   standardAcqPackage: true,
   debtAssumptions: true,
   companyTaxRate: true,
+  costOfEquity: true,
   exitCapRate: true,
   salesCommissionRate: true,
   eventExpenseRate: true,

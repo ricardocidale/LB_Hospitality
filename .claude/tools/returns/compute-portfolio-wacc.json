@@ -1,0 +1,17 @@
+{
+  "name": "compute_portfolio_wacc",
+  "description": "Computes the capital-weighted WACC across a portfolio of properties. Each property's WACC is weighted by its share of total portfolio capital.",
+  "input_schema": {
+    "properties": "Array of { name, equity, debt, cost_of_equity, cost_of_debt }",
+    "tax_rate": "Corporate tax rate as decimal (uniform across properties)"
+  },
+  "output_schema": {
+    "portfolio_wacc": "Capital-weighted average WACC across all properties",
+    "total_equity": "Sum of equity across all properties",
+    "total_debt": "Sum of debt across all properties",
+    "total_capital": "total_equity + total_debt",
+    "portfolio_equity_weight": "total_equity / total_capital",
+    "portfolio_debt_weight": "total_debt / total_capital",
+    "property_details": "Array of { name, wacc, equity_weight, debt_weight, capital_share }"
+  }
+}

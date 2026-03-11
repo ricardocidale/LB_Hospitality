@@ -12,6 +12,8 @@
  *     - build_irr_cashflow_vector: Internal Rate of Return cash flow construction
  *     - compute_equity_multiple: Total return as a multiple of invested equity
  *     - exit_valuation: Property sale value using cap rate method
+ *     - compute_wacc: Weighted Average Cost of Capital (single property)
+ *     - compute_portfolio_wacc: Capital-weighted WACC across portfolio
  *
  *   Validation Checks:
  *     - validate_financial_identities: Verify math relationships (Revenue = ADR × Rooms, etc.)
@@ -78,6 +80,7 @@ import { computeCostBenchmarks } from "./research/cost-benchmarks.js";
 import { computeServiceFee } from "./research/service-fee.js";
 import { computeMarkupWaterfall } from "./research/markup-waterfall.js";
 import { computeMakeVsBuy } from "./research/make-vs-buy.js";
+import { computeWACC, computePortfolioWACC } from "./returns/wacc.js";
 
 type ToolInput = Record<string, unknown>;
 type ToolFn = (input: never) => unknown;
@@ -126,6 +129,8 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
   compute_service_fee: wrap(computeServiceFee as ToolFn),
   compute_markup_waterfall: wrap(computeMarkupWaterfall as ToolFn),
   compute_make_vs_buy: withRounding(computeMakeVsBuy as ToolFn),
+  compute_wacc: withRounding(computeWACC as ToolFn),
+  compute_portfolio_wacc: withRounding(computePortfolioWACC as ToolFn),
 };
 
 /**

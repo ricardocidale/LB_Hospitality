@@ -1,24 +1,17 @@
 /**
- * ExitAssumptionsSection.tsx — Company-level exit / disposition assumptions.
+ * ExitAssumptionsSection.tsx — Company-level exit, disposition, and valuation assumptions.
  *
- * Configures how the model values the management company at the end
- * of the projection period:
- *
- *   • Exit multiple — EBITDA multiple used to value the management company
- *     at sale (e.g. 8× means sale price = 8 × trailing EBITDA)
- *   • Exit year — which projection year the company is sold
- *   • Disposition fee rate — commission or advisory fee on the sale
- *
- * These are conceptually different from the property-level exit assumptions
- * (which use cap rates on NOI). Management companies are typically valued
- * on an EBITDA multiple because they are operating businesses, not
- * real estate assets.
+ * Configures:
+ *   • Cost of Equity (Re) — required equity return for WACC/DCF
+ *   • Exit cap rate — cap rate used for property exit valuation
+ *   • Sales commission rate — broker commission on property sales
  */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import { DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
+import { DEFAULT_COST_OF_EQUITY } from "@shared/constants";
 import EditableValue from "./EditableValue";
 import type { ExitAssumptionsSectionProps } from "./types";
 
@@ -28,15 +21,40 @@ export default function ExitAssumptionsSection({ formData, onChange, global, res
       <div className="relative">
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center gap-2">
-          Exit & Sale Assumptions
-          <HelpTooltip text="Default values for property exit valuations and sale transactions" />
+          Exit, Sale & Valuation Assumptions
+          <HelpTooltip text="Default values for property exit valuations, WACC discount rate, and sale transactions." manualSection="investment-returns" />
         </h3>
-        
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="flex items-center text-foreground label-text">
+              Cost of Equity (Re)
+              <HelpTooltip text="Required equity return for private hospitality investment. Used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, this is the investor's hurdle rate (typically 15–25%), not CAPM-derived." manualSection="investment-returns" />
+              <ResearchBadge value={researchValues.costOfEquity?.display} onClick={() => researchValues.costOfEquity && onChange("costOfEquity", researchValues.costOfEquity.mid / 100)} sourceType="industry" sourceName="Private RE equity benchmarks" data-testid="badge-cost-of-equity" />
+            </Label>
+            <EditableValue
+              value={formData.costOfEquity ?? global.costOfEquity ?? DEFAULT_COST_OF_EQUITY}
+              onChange={(v) => onChange("costOfEquity", v)}
+              format="percent"
+              min={0.05}
+              max={0.40}
+              step={0.005}
+            />
+          </div>
+          <Slider
+            value={[(formData.costOfEquity ?? global.costOfEquity ?? DEFAULT_COST_OF_EQUITY) * 100]}
+            onValueChange={([v]) => onChange("costOfEquity", v / 100)}
+            min={5}
+            max={40}
+            step={0.5}
+          />
+        </div>
+
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Default Exit Cap Rate
-              <HelpTooltip text="Capitalization rate used for property valuation at exit. Higher cap rate = lower valuation." />
+              <HelpTooltip text="Capitalization rate used for property valuation at exit. Higher cap rate = lower valuation." manualSection="investment-returns" />
               <ResearchBadge value={researchValues.exitCapRate?.display} onClick={() => researchValues.exitCapRate && onChange("exitCapRate", researchValues.exitCapRate.mid / 100)} sourceType="industry" sourceName="CBRE Cap Rate Survey" data-testid="badge-exit-cap" />
             </Label>
             <EditableValue

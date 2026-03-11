@@ -87,6 +87,7 @@ export default function CompanyAssumptions() {
       travelPerClient: { display: "$8K–$18K", mid: 12000 },
       itLicensePerClient: { display: "$2K–$5K", mid: 3000 },
       companyTaxRate: { display: "25%–35%", mid: 30 },
+      costOfEquity: { display: "15%–22%", mid: 18 },
       exitCapRate: { display: "7%–10%", mid: 8.5 },
       salesCommission: { display: "4%–6%", mid: 5 },
       otherExpenseRate: { display: "50%–70%", mid: 60 },
@@ -126,10 +127,13 @@ export default function CompanyAssumptions() {
     const compBenchmarks = c.compensationBenchmarks;
     const staffSalary = compBenchmarks?.manager ? parseDollarRange(compBenchmarks.manager) : null;
 
+    // Cost of equity (WACC input)
+    const costOfEquity = parsePctRange(c.costOfEquity?.recommendedRate);
+
     // Merge AI values over seed defaults
     const merged = { ...COMPANY_DEFAULTS };
     const aiOverrides: Record<string, { display: string; mid: number } | null> = {
-      baseFee, incentiveFee, eventExpense, marketingRate, staffSalary,
+      baseFee, incentiveFee, eventExpense, marketingRate, staffSalary, costOfEquity,
     };
     for (const [key, val] of Object.entries(aiOverrides)) {
       if (val) merged[key] = val;

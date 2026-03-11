@@ -272,6 +272,9 @@ export const DEFAULT_LTV = 0.75;
 export const DEFAULT_INTEREST_RATE = 0.09;
 export const DEFAULT_TERM_YEARS = 25;
 
+// WACC: default cost of equity for private hospitality (no CAPM; user-provided)
+export const DEFAULT_COST_OF_EQUITY = 0.18;
+
 // Cap rate sensitivity analysis: each step = 50 basis points
 export const CAP_RATE_SENSITIVITY_STEP = 0.005;
 

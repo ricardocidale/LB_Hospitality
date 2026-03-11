@@ -27,7 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { Loader2 } from "lucide-react";
+import { Loader2, Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import {
   IconPlus, IconSave, IconInfo, IconPercent, IconDollarSign, IconArrowRightLeft,
   IconHelpCircle, IconBookOpen, IconRefreshCw, IconPencil, IconTrash, IconPackage, IconTrending,
@@ -199,6 +199,11 @@ export default function RevenueShareTab() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [expandedResearch, setExpandedResearch] = useState<Set<number>>(new Set());
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Set<number>>(new Set());
+  const [inlineEditingRate, setInlineEditingRate] = useState<number | null>(null);
+  const [inlineEditingMarkup, setInlineEditingMarkup] = useState<number | null>(null);
+  const [inlineRateValue, setInlineRateValue] = useState("");
+  const [inlineMarkupValue, setInlineMarkupValue] = useState("");
 
   const [incentivePct, setIncentivePct] = useState<string>("");
   const [incentiveDirty, setIncentiveDirty] = useState(false);
@@ -212,6 +217,60 @@ export default function RevenueShareTab() {
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  };
+
+  const toggleDescription = (id: number) => {
+    setExpandedDescriptions(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const startInlineRateEdit = (t: ServiceTemplate) => {
+    setInlineEditingRate(t.id);
+    setInlineRateValue(((t.defaultRate ?? 0) * 100).toFixed(1));
+  };
+
+  const startInlineMarkupEdit = (t: ServiceTemplate) => {
+    setInlineEditingMarkup(t.id);
+    setInlineMarkupValue(((t.serviceMarkup ?? 0) * 100).toFixed(0));
+  };
+
+  const saveInlineRate = (id: number) => {
+    const rate = parseFloat(inlineRateValue) / 100;
+    if (isNaN(rate) || rate < 0 || rate > 1) {
+      toast({ title: "Rate must be between 0% and 100%", variant: "destructive" });
+      return;
+    }
+    updateMutation.mutate(
+      { id, data: { defaultRate: rate } },
+      {
+        onSuccess: () => {
+          toast({ title: "Fee rate updated" });
+          setInlineEditingRate(null);
+        },
+        onError: (e: Error) => toast({ title: "Save failed", description: e.message, variant: "destructive" }),
+      }
+    );
+  };
+
+  const saveInlineMarkup = (id: number) => {
+    const markup = parseFloat(inlineMarkupValue) / 100;
+    if (isNaN(markup) || markup < 0 || markup > 1) {
+      toast({ title: "Markup must be between 0% and 100%", variant: "destructive" });
+      return;
+    }
+    updateMutation.mutate(
+      { id, data: { serviceMarkup: markup } },
+      {
+        onSuccess: () => {
+          toast({ title: "Markup updated" });
+          setInlineEditingMarkup(null);
+        },
+        onError: (e: Error) => toast({ title: "Save failed", description: e.message, variant: "destructive" }),
+      }
+    );
   };
 
   const openCreate = () => {
@@ -425,96 +484,212 @@ export default function RevenueShareTab() {
               <p className="text-sm mt-1">Add service categories to define what the management company provides to properties.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {sorted.map((t, idx) => {
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {sorted.map((t) => {
                 const helpText = SERVICE_HELP[t.name];
+                const isDescExpanded = expandedDescriptions.has(t.id);
+                const isEditingRate = inlineEditingRate === t.id;
+                const isEditingMarkup = inlineEditingMarkup === t.id;
+                const isResearchExpanded = expandedResearch.has(t.id);
+                const descTruncateLength = 120;
+                const needsTruncation = helpText && helpText.length > descTruncateLength;
+
                 return (
                   <div
                     key={t.id}
-                    className={`group border border-border rounded-xl p-4 transition-all duration-200 hover:shadow-md hover:border-border ${
-                      idx % 2 === 1 ? "bg-muted/30" : "bg-muted"
-                    } ${!t.isActive ? "opacity-50" : ""}`}
+                    className={`border border-border rounded-xl transition-all duration-200 hover:shadow-md overflow-hidden ${
+                      !t.isActive ? "opacity-60" : ""
+                    }`}
                     data-testid={`service-card-${t.id}`}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-card border border-border/60">
-                          <IconPackage className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-foreground">{t.name}</span>
-                            <Badge
-                              variant={t.serviceModel === "centralized" ? "default" : "secondary"}
-                              className="text-[10px] px-1.5 py-0"
-                            >
-                              {t.serviceModel === "centralized" ? "Centralized" : "Direct"}
-                            </Badge>
-                            {helpText && (
-                              <HelpTooltip text={helpText} />
-                            )}
+                    <div className="p-4 pb-3 bg-muted/50">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-card border border-border/60 shrink-0">
+                            <IconPackage className="w-5 h-5" />
                           </div>
-                          <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
-                            <span>Rate: <span className="font-mono font-semibold text-foreground">{((t.defaultRate ?? 0) * 100).toFixed(1)}%</span> of Revenue</span>
-                            {t.serviceModel === "centralized" && (
-                              <span>Markup: <span className="font-mono">{((t.serviceMarkup ?? 0) * 100).toFixed(0)}%</span></span>
-                            )}
-                            {t.serviceModel === "centralized" && (
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <IconHelpCircle className="w-3 h-3 text-muted-foreground" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p className="max-w-xs text-xs">
-                                    <strong>Centralized model:</strong> The management company procures this service from external vendors and passes the cost through to properties with a {((t.serviceMarkup ?? 0) * 100).toFixed(0)}% markup.
-                                    Effective margin: {(((t.serviceMarkup ?? 0) / (1 + (t.serviceMarkup ?? 0))) * 100).toFixed(1)}% of the fee revenue.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                            {t.serviceModel === "direct" && (
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <IconHelpCircle className="w-3 h-3 text-muted-foreground" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p className="max-w-xs text-xs">
-                                    <strong>Direct model:</strong> The management company provides oversight but does not procure external vendors. The entire fee is recognized as revenue with no associated cost-of-service.
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-foreground text-base">{t.name}</span>
+                              <Badge
+                                variant={t.serviceModel === "centralized" ? "default" : "secondary"}
+                                className="text-[10px] px-1.5 py-0"
+                              >
+                                {t.serviceModel === "centralized" ? "Centralized" : "Direct"}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {t.serviceModel === "centralized"
+                                ? "Pass-through with markup"
+                                : "Oversight only — full fee as revenue"}
+                            </p>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Switch
-                          checked={t.isActive}
-                          onCheckedChange={() => handleToggleActive(t)}
-                          disabled={updateMutation.isPending}
-                          data-testid={`toggle-service-${t.id}`}
-                        />
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleResearch(t.id)} data-testid={`button-research-service-${t.id}`}>
-                            <IconBookOpen className="w-3.5 h-3.5 text-muted-foreground" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(t)} data-testid={`button-edit-service-${t.id}`}>
-                            <IconPencil className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeleteConfirmId(t.id)} data-testid={`button-delete-service-${t.id}`}>
-                            <IconTrash className="w-3.5 h-3.5 text-destructive" />
-                          </Button>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <Switch
+                            checked={t.isActive}
+                            onCheckedChange={() => handleToggleActive(t)}
+                            disabled={updateMutation.isPending}
+                            data-testid={`toggle-service-${t.id}`}
+                          />
                         </div>
                       </div>
                     </div>
-                    {expandedResearch.has(t.id) && (
-                      <ServiceResearchPanel template={t} />
+
+                    {helpText && (
+                      <div className="px-4 pt-3 pb-2">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {needsTruncation && !isDescExpanded
+                            ? helpText.slice(0, descTruncateLength) + "..."
+                            : helpText}
+                          {needsTruncation && (
+                            <button
+                              type="button"
+                              className="ml-1 text-primary hover:text-primary/80 font-medium inline"
+                              onClick={() => toggleDescription(t.id)}
+                              data-testid={`button-toggle-desc-${t.id}`}
+                            >
+                              {isDescExpanded ? "show less" : "show more"}
+                            </button>
+                          )}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="px-4 py-3">
+                      <div className={`grid gap-3 ${t.serviceModel === "centralized" ? "grid-cols-2" : "grid-cols-1"}`}>
+                        <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-800/40 rounded-lg p-3">
+                          <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Fee Rate</div>
+                          {isEditingRate ? (
+                            <div className="flex items-center gap-1.5">
+                              <div className="relative flex-1">
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  min="0"
+                                  max="100"
+                                  value={inlineRateValue}
+                                  onChange={(e) => setInlineRateValue(e.target.value)}
+                                  className="h-8 text-sm font-mono pr-6"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") saveInlineRate(t.id);
+                                    if (e.key === "Escape") setInlineEditingRate(null);
+                                  }}
+                                  data-testid={`input-inline-rate-${t.id}`}
+                                />
+                                <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none text-muted-foreground text-xs">%</div>
+                              </div>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => saveInlineRate(t.id)} disabled={updateMutation.isPending} data-testid={`button-save-inline-rate-${t.id}`}>
+                                <Check className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setInlineEditingRate(null)} data-testid={`button-cancel-inline-rate-${t.id}`}>
+                                <X className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              className="flex items-center gap-1.5 group/rate cursor-pointer"
+                              onClick={() => startInlineRateEdit(t)}
+                              data-testid={`button-edit-inline-rate-${t.id}`}
+                            >
+                              <span className="text-lg font-bold font-mono text-foreground">{((t.defaultRate ?? 0) * 100).toFixed(1)}%</span>
+                              <span className="text-xs text-muted-foreground">of Revenue</span>
+                              <IconPencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover/rate:opacity-100 transition-opacity" />
+                            </button>
+                          )}
+                        </div>
+
+                        {t.serviceModel === "centralized" && (
+                          <div className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-lg p-3">
+                            <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
+                              Cost-Plus Markup
+                              <HelpTooltip text={`Centralized model: The management company procures this service from vendors and passes the cost through with a ${((t.serviceMarkup ?? 0) * 100).toFixed(0)}% markup. Effective margin: ${(((t.serviceMarkup ?? 0) / (1 + (t.serviceMarkup ?? 0))) * 100).toFixed(1)}% of fee revenue.`} />
+                            </div>
+                            {isEditingMarkup ? (
+                              <div className="flex items-center gap-1.5">
+                                <div className="relative flex-1">
+                                  <Input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    value={inlineMarkupValue}
+                                    onChange={(e) => setInlineMarkupValue(e.target.value)}
+                                    className="h-8 text-sm font-mono pr-6"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") saveInlineMarkup(t.id);
+                                      if (e.key === "Escape") setInlineEditingMarkup(null);
+                                    }}
+                                    data-testid={`input-inline-markup-${t.id}`}
+                                  />
+                                  <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none text-muted-foreground text-xs">%</div>
+                                </div>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => saveInlineMarkup(t.id)} disabled={updateMutation.isPending} data-testid={`button-save-inline-markup-${t.id}`}>
+                                  <Check className="w-3.5 h-3.5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setInlineEditingMarkup(null)} data-testid={`button-cancel-inline-markup-${t.id}`}>
+                                  <X className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                className="flex items-center gap-1.5 group/markup cursor-pointer"
+                                onClick={() => startInlineMarkupEdit(t)}
+                                data-testid={`button-edit-inline-markup-${t.id}`}
+                              >
+                                <span className="text-lg font-bold font-mono text-foreground">{((t.serviceMarkup ?? 0) * 100).toFixed(0)}%</span>
+                                <span className="text-xs text-muted-foreground">markup</span>
+                                <IconPencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover/markup:opacity-100 transition-opacity" />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="px-4 pb-3 flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={() => openEdit(t)} data-testid={`button-edit-service-${t.id}`}>
+                              <IconPencil className="w-3.5 h-3.5" />
+                              Edit
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom"><p className="text-xs">Edit all service settings</p></TooltipContent>
+                        </Tooltip>
+                        <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setDeleteConfirmId(t.id)} data-testid={`button-delete-service-${t.id}`}>
+                          <IconTrash className="w-3.5 h-3.5 text-destructive" />
+                          Delete
+                        </Button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 text-xs gap-1.5 text-muted-foreground"
+                        onClick={() => toggleResearch(t.id)}
+                        data-testid={`button-research-service-${t.id}`}
+                      >
+                        <IconBookOpen className="w-3.5 h-3.5" />
+                        Benchmarks
+                        {isResearchExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </Button>
+                    </div>
+
+                    {isResearchExpanded && (
+                      <div className="px-4 pb-4">
+                        <ServiceResearchPanel template={t} />
+                      </div>
                     )}
                   </div>
                 );
               })}
 
-              <div className="flex items-center justify-between px-4 py-3 bg-primary/5 border border-primary/20 rounded-xl">
+              <div className="flex items-center justify-between px-4 py-3 bg-primary/5 border border-primary/20 rounded-xl lg:col-span-2">
                 <div className="flex items-center gap-2">
                   <IconTrending className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-primary">Total Base Management Fee</span>

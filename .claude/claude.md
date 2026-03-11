@@ -72,7 +72,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Constants Ref | `.claude/skills/finance/constants-and-config.md` | All named constants and protected fields |
 | Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |
 | Release Checklist | `.claude/skills/proof-system/release-audit-checklist.md` | Pre-release audit (load for releases) |
-| Property Chatbot | `server/routes/chat.ts` | Claude-powered property analysis chat (`/api/chat`) |
+| Property Chatbot | `server/routes/chat.ts` | Gemini-powered property analysis chat (`/api/chat`) |
 | Rules (20) | `.claude/rules/` | All behavioral constraints |
 
 ---
@@ -93,7 +93,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 
 ## Recent Changes (March 11, 2026)
 
-- **AI Agents restructured** — **Rebecca** (Claude text chat, renamed from PropertyChatbot) + **Marcela** (ElevenLabs voice). Sidebar "AI Assistants" group. Admin has separate config tabs for each under "AI Agents" group.
+- **AI Agents restructured** — **Rebecca** (Gemini text chat, renamed from PropertyChatbot) + **Marcela** (ElevenLabs voice). Sidebar "AI Assistants" group. Admin has separate config tabs for each under "AI Agents" group.
 - **Admin Diagrams tab** — Mermaid workflow charts at 3 levels (system overview, domain flows, detailed sub-flows). Under Admin → System → Diagrams.
 - **Deterministic tool enforcement** — Extracted magic numbers to named constants in `shared/constants.ts`. Chat route uses `executeComputationTool` via shared `buildPropertyContext.ts`.
 - **Golden scenario** — "Clearwater Inn" (15 rooms, $175 ADR, 1 property + management co). 60 assertions covering IS/CF/BS, fee zero-sum, consolidated elimination. `tests/golden/mgmt-company-plus-one-property-golden.test.ts`.

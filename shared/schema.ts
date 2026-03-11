@@ -505,7 +505,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaMaxDuration: integer("marcela_max_duration").notNull().default(DEFAULT_MARCELA_MAX_DURATION),
   marcelaCascadeTimeout: integer("marcela_cascade_timeout").notNull().default(DEFAULT_MARCELA_CASCADE_TIMEOUT),
 
-  // Rebecca — Claude-powered text chatbot
+  // Rebecca — Gemini-powered text chatbot
   rebeccaEnabled: boolean("rebecca_enabled").notNull().default(false),
   rebeccaDisplayName: text("rebecca_display_name").notNull().default("Rebecca"),
   rebeccaSystemPrompt: text("rebecca_system_prompt"),

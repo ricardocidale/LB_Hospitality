@@ -6,7 +6,7 @@
 
 - **Frontend**: React 18 + TypeScript, Wouter routing, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Framer Motion, Three.js
 - **Backend**: Node.js, Express 5, TypeScript (ESM), esbuild, Drizzle ORM, PostgreSQL (Neon), Zod
-- **AI**: Gemini 2.5 Flash (primary image gen), OpenAI gpt-image-1 (fallback), Anthropic Claude (verification/research)
+- **AI**: Gemini 2.5 Flash (primary image gen + Rebecca chatbot), OpenAI gpt-image-1 (fallback), Anthropic Claude (verification/research)
 - **Exports**: jsPDF, xlsx, pptxgenjs, dom-to-image-more
 - **Hosting**: Replit (object storage, secrets, deployments)
 

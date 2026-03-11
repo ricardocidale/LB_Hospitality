@@ -90,9 +90,9 @@ const L2_AI = `flowchart LR
     Twilio[Twilio] --> EL
   end
   subgraph Rebecca["Rebecca (Text)"]
-    Claude[Claude API] --> Chat[Chat Panel]
-    Props[Property Metrics] --> Claude
-    GA2[Global Assumptions] --> Claude
+    Gemini[Gemini API] --> Chat[Chat Panel]
+    Props[Property Metrics] --> Gemini
+    GA2[Global Assumptions] --> Gemini
   end
   User([User]) --> Voice
   User --> Chat`;

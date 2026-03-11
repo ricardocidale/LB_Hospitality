@@ -94,7 +94,7 @@ export default function RebeccaTab() {
             <div>
               <CardTitle className="text-base font-semibold">Rebecca — Text Chat Agent</CardTitle>
               <CardDescription className="label-text">
-                Claude-powered property analysis chatbot. Answers questions about portfolio financials using pre-computed metrics.
+                Gemini-powered property analysis chatbot. Answers questions about portfolio financials using pre-computed metrics.
               </CardDescription>
             </div>
           </div>

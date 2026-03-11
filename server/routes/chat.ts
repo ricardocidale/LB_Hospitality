@@ -1,5 +1,5 @@
 import { type Express, type Request, type Response } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 import { requireAuth } from "../auth";
 import { storage } from "../storage";
 import { buildPropertyContext } from "../ai/buildPropertyContext.js";
@@ -10,7 +10,15 @@ import { buildPropertyContext } from "../ai/buildPropertyContext.js";
  * never inline arithmetic. The LLM interprets pre-computed values only.
  */
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+function getGeminiClient() {
+  return new GoogleGenAI({
+    apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY!,
+    httpOptions: {
+      apiVersion: "",
+      baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
+    },
+  });
+}
 
 const DEFAULT_SYSTEM_PROMPT = `You are Rebecca, a property investment analyst for a boutique hotel management company. You answer questions about the portfolio's properties, financial metrics, and hospitality industry concepts.
 
@@ -48,20 +56,27 @@ export function register(app: Express) {
       }));
 
       const systemPrompt = (global as any)?.rebeccaSystemPrompt || DEFAULT_SYSTEM_PROMPT;
+      const fullSystemPrompt = `${systemPrompt}\n\n${contextBlock}`;
 
-      const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1024,
-        system: `${systemPrompt}\n\n${contextBlock}`,
-        messages: [
-          ...chatHistory,
-          { role: "user", content: message },
-        ],
+      const gemini = getGeminiClient();
+      const contents = [
+        { role: "user" as const, parts: [{ text: fullSystemPrompt }] },
+        { role: "model" as const, parts: [{ text: "Understood. I have the portfolio data and will answer questions based on it." }] },
+        ...chatHistory.map((msg: { role: string; content: string }) => ({
+          role: (msg.role === "user" ? "user" : "model") as "user" | "model",
+          parts: [{ text: msg.content }],
+        })),
+        { role: "user" as const, parts: [{ text: message }] },
+      ];
+
+      const response = await gemini.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents,
+        config: { maxOutputTokens: 1024 },
       });
 
-      const text = response.content[0]?.type === "text"
-        ? response.content[0].text
-        : "I'm sorry, I couldn't generate a response. Please try again.";
+      const text = response.text
+        || "I'm sorry, I couldn't generate a response. Please try again.";
       res.json({ response: text });
     } catch (error: any) {
       console.error("[chat] Error:", error?.message || error);

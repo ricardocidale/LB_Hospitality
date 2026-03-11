@@ -13,6 +13,7 @@ import { analyzeFundingNeeds } from "@/lib/financial/funding-predictor";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
 import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "@shared/constants";
+import { Button } from "@/components/ui/button";
 import { Loader2, ExternalLink, Search } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { MermaidChart } from "@/lib/charts";
@@ -523,14 +524,16 @@ function CurrentPlanTab({ analysis, fundingLabel, global, chartData, navigate }:
             <StatRow label={`${fundingLabel} Label`} value={fundingLabel} />
           </div>
           <div className="mt-4">
-            <button
+            <Button
+              variant="link"
+              size="sm"
               onClick={() => navigate("/admin")}
-              className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors h-auto p-0"
               data-testid="link-edit-assumptions"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Edit funding assumptions in Company Assumptions
-            </button>
+            </Button>
           </div>
         </ContentPanel>
       </ScrollReveal>
@@ -722,22 +725,26 @@ function ResearchTab({ analysis, fundingLabel, marketRates, global, navigate }: 
 
       <ScrollReveal>
         <div className="flex flex-wrap gap-3">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => navigate("/admin")}
-            className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors rounded-lg border border-border/50 px-3 py-2"
+            className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors rounded-lg border border-border/50 px-3 py-2 h-auto"
             data-testid="link-admin-research"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Research Center
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => navigate("/admin")}
-            className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors rounded-lg border border-border/50 px-3 py-2"
+            className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors rounded-lg border border-border/50 px-3 py-2 h-auto"
             data-testid="link-admin-assumptions"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Company Assumptions
-          </button>
+          </Button>
         </div>
       </ScrollReveal>
     </>

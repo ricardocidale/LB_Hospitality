@@ -12,6 +12,7 @@ import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useCallback, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { Check, Loader2, ArrowRight } from "lucide-react";
 import {
   IconFlaskConical, IconBuilding2, IconBriefcase, IconGlobe, IconRefreshCw,
@@ -274,10 +275,10 @@ export default function ResearchHub() {
           variant="dark"
           actions={
             <div className="flex flex-col items-end gap-1">
-              <button
+              <Button
                 onClick={generateAllMissing}
                 disabled={isGeneratingAll || totalMissingCount === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary border border-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300"
               >
                 {isGeneratingAll ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -287,7 +288,7 @@ export default function ResearchHub() {
                 {isGeneratingAll
                   ? `Generating ${currentGenIndex} of ${totalToGenerate}...`
                   : "Generate Missing Research"}
-              </button>
+              </Button>
               {isGeneratingAll && (
                 <div className="w-full max-w-[220px]">
                   <div className="h-1.5 rounded-full bg-muted overflow-hidden">

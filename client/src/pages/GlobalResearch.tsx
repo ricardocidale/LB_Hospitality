@@ -264,13 +264,13 @@ export default function GlobalResearch() {
                 <p className="text-xs text-amber-700">Interest rates, LTV ranges, and compliance updates</p>
               </div>
             </div>
-            <button
+            <Button
               onClick={generateResearch}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all h-auto"
             >
               <IconRefreshCw className="w-4 h-4" />
               Generate Research
-            </button>
+            </Button>
           </div>
         )}
 

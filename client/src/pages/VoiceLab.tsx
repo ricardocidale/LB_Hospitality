@@ -114,12 +114,14 @@ export default function VoiceLab() {
           {TABS.map((tab) => {
             const active = activeTab === tab.id;
             return (
-              <button
+              <Button
                 key={tab.id}
                 type="button"
+                variant={active ? "default" : "ghost"}
+                size="sm"
                 onClick={() => handleTabChange(tab.id)}
                 className={[
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all",
+                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all h-auto",
                   active
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -130,7 +132,7 @@ export default function VoiceLab() {
                 {tab.requiresMic && (
                   <IconMic className="w-2.5 h-2.5 opacity-50" />
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>

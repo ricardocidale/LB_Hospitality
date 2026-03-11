@@ -59,17 +59,18 @@ function SidebarNav({ groups, isActiveLink, onNavigate }: { groups: NavGroupDef[
               return (
                 <li key={item.href}>
                   {isAction ? (
-                    <button
+                    <Button
+                      variant="ghost"
                       onClick={() => { item.onClick?.(); onNavigate?.(); }}
                       className={cn(
-                        "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
+                        "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors justify-start",
                         active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                       )}
                       data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       <item.icon className="w-4 h-4 shrink-0" />
                       <span>{item.label}</span>
-                    </button>
+                    </Button>
                   ) : (
                     <Link href={item.href} onClick={onNavigate}>
                       <span
@@ -177,14 +178,15 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const sidebarFooter = (
     <div className="px-2 pb-3 pt-1 space-y-5">
       <SidebarResearchStatus onNavigate={() => setMobileOpen(false)} />
-      <button
+      <Button
+        variant="ghost"
         onClick={() => { logout(); setMobileOpen(false); }}
-        className="flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        className="flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors justify-start"
         data-testid="button-logout"
       >
         <IconLogOut className="w-4 h-4 shrink-0" />
         <span>Sign Out</span>
-      </button>
+      </Button>
     </div>
   );
 
@@ -222,17 +224,19 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
             <Breadcrumbs />
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => {
                 const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
                 document.dispatchEvent(event);
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground hover:text-muted-foreground text-xs transition-colors border border-border"
+              className="flex items-center gap-1.5 px-2.5 py-1 h-auto rounded-md bg-muted text-muted-foreground hover:text-muted-foreground text-xs transition-colors border border-border"
               data-testid="button-search"
             >
               <Search className="w-3.5 h-3.5" />
               <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
-            </button>
+            </Button>
             <NotificationCenter />
             {!!(global as any)?.rebeccaEnabled && (
               <RebeccaChatbot displayName={(global as any)?.rebeccaDisplayName || "Rebecca"} />
@@ -264,7 +268,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                   (item.href !== "/" && location.startsWith(item.href + "/"));
                 return (
                   <Link key={item.href} href={item.href}>
-                    <button className="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[3.5rem]" data-testid={`bottom-nav-${item.label.toLowerCase()}`}>
+                    <Button variant="ghost" className="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[3.5rem] h-auto" data-testid={`bottom-nav-${item.label.toLowerCase()}`}>
                       <div className={cn(
                         "w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200",
                         isActive ? "bg-muted" : ""
@@ -272,7 +276,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
                         <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-foreground" : "text-muted-foreground")} />
                       </div>
                       <span className={cn("text-[10px] leading-tight", isActive ? "text-foreground font-medium" : "text-muted-foreground")}>{item.label}</span>
-                    </button>
+                    </Button>
                   </Link>
                 );
               })}

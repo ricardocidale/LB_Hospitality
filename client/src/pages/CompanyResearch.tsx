@@ -216,10 +216,11 @@ export default function CompanyResearch() {
                 {GROUPS.map(g => {
                   const active = activeGroup === g.key;
                   return (
-                    <button
+                    <Button
                       key={g.key}
+                      variant="ghost"
                       onClick={() => setActiveGroup(g.key)}
-                      className={`relative flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
+                      className={`relative flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 h-auto ${active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
                       data-testid={`group-pill-${g.key}`}
                     >
                       {active && (
@@ -233,7 +234,7 @@ export default function CompanyResearch() {
                         <g.icon className="w-4 h-4" />
                         {g.label}
                       </span>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>

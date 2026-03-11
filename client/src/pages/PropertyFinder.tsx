@@ -17,6 +17,7 @@ import {
   type SavedProspectiveProperty,
   type SavedSearchData,
 } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { IconHeart, IconAlertCircle, IconBuilding2 } from "@/components/icons";
 import {
@@ -242,25 +243,29 @@ export default function PropertyFinder() {
               </p>
               {searchData.total > 20 && (
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
+                    variant="outline"
+                    size="icon"
                     onClick={() => handlePageChange(Math.max(0, searchData.offset - 20))}
                     disabled={searchData.offset === 0}
-                    className="p-1.5 rounded-lg border border-border disabled:opacity-30 hover:bg-muted transition-colors"
+                    className="p-1.5 rounded-lg h-auto w-auto"
                     data-testid="btn-prev-page"
                   >
                     <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-                  </button>
+                  </Button>
                   <span className="text-xs text-muted-foreground">
                     {searchData.offset + 1}-{Math.min(searchData.offset + 20, searchData.total)} of {searchData.total.toLocaleString()}
                   </span>
-                  <button
+                  <Button
+                    variant="outline"
+                    size="icon"
                     onClick={() => handlePageChange(searchData.offset + 20)}
                     disabled={searchData.offset + 20 >= searchData.total}
-                    className="p-1.5 rounded-lg border border-border disabled:opacity-30 hover:bg-muted transition-colors"
+                    className="p-1.5 rounded-lg h-auto w-auto"
                     data-testid="btn-next-page"
                   >
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>

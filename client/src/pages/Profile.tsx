@@ -392,13 +392,15 @@ export default function Profile() {
                     className="bg-card border-border text-foreground pr-10"
                     data-testid="input-current-password"
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground h-auto w-auto p-0"
                   >
                     {showCurrentPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -414,13 +416,15 @@ export default function Profile() {
                     className="bg-card border-border text-foreground pr-10"
                     data-testid="input-new-password"
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground h-auto w-auto p-0"
                   >
                     {showNewPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
-                  </button>
+                  </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Min 8 characters with uppercase, lowercase, and number
@@ -439,13 +443,15 @@ export default function Profile() {
                     className="bg-card border-border text-foreground pr-10"
                     data-testid="input-confirm-password"
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground h-auto w-auto p-0"
                   >
                     {showConfirmPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
-                  </button>
+                  </Button>
                 </div>
               </div>
 

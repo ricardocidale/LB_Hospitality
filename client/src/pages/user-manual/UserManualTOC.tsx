@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { UserManualSection } from "./constants";
 
 interface UserManualTOCProps {
@@ -15,14 +16,16 @@ export function UserManualTOC({ sections, scrollToSection }: UserManualTOCProps)
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Table of Contents</h3>
             <nav className="space-y-1">
               {sections.map((s) => (
-                <button
+                <Button
                   key={s.id}
+                  variant="ghost"
+                  size="sm"
                   data-testid={`um-toc-${s.id}`}
                   onClick={() => scrollToSection(s.id)}
-                  className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors truncate"
+                  className="w-full text-left justify-start px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-colors truncate h-auto"
                 >
                   {s.title}
-                </button>
+                </Button>
               ))}
             </nav>
           </div>

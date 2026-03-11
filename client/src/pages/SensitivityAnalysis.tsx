@@ -6,6 +6,7 @@ import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAU
 import { computeIRR } from "@analytics/returns/irr.js";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { IconSliders } from "@/components/icons";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -503,13 +504,15 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
                   {(adjustedResult.irr * 100).toFixed(1)}%
                 </span>
                 {hasAdjustments && (
-                  <button 
+                  <Button 
+                    variant="link"
+                    size="sm"
                     onClick={resetAll}
-                    className="text-[10px] font-bold text-primary hover:underline"
+                    className="text-[10px] font-bold text-primary hover:underline h-auto p-0"
                     data-testid="button-reset-kpi"
                   >
                     RESET
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

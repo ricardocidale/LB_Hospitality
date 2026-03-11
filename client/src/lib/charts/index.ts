@@ -4,6 +4,8 @@ export type {
   BarChartItem,
   BarChartProps,
   BarChartHorizontalProps,
+  BarChartMixedItem,
+  BarChartMixedProps,
   BarChartInteractiveSeries,
   BarChartInteractiveProps,
   LineChartDotsColorItem,
@@ -27,6 +29,7 @@ export type {
 export { BarChartCard } from "./BarChartCard";
 export { BarChartHorizontal } from "./BarChartHorizontal";
 export { BarChartInteractive } from "./BarChartInteractive";
+export { BarChartMixed } from "./BarChartMixed";
 export { LineChartDotsColors } from "./LineChartDotsColors";
 export { LineChartMulti } from "./LineChartMulti";
 export { DonutChart } from "./DonutChart";

@@ -153,6 +153,21 @@ export interface BarChartHorizontalProps extends BaseChartProps {
   tickFormatter?: (value: string) => string;
 }
 
+export interface BarChartMixedItem {
+  name: string;
+  value: number;
+  fill: string;
+}
+
+export interface BarChartMixedProps extends BaseChartProps {
+  data: BarChartMixedItem[];
+  config: ChartConfig;
+  dataKey?: string;
+  nameKey?: string;
+  barRadius?: number;
+  tickFormatter?: (value: string) => string;
+}
+
 export interface BarChartInteractiveSeries {
   dataKey: string;
   label: string;

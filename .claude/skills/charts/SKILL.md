@@ -4,7 +4,7 @@
 **Import:** `import { ComponentName } from "@/lib/charts"`
 **Peer deps:** `recharts`, `@/components/ui/chart` (shadcn ChartContainer/ChartTooltip)
 
-## Components (11)
+## Components (12)
 
 ### BarChartCard
 Horizontal or vertical bar chart with optional labels.
@@ -34,6 +34,20 @@ Horizontal bar chart with clean axis labels, no grid lines.
 | `nameKey` | `string` | `"name"` |
 | `barRadius` | `number` | `5` |
 | `tickFormatter` | `(value: string) => string` | — |
+
+### BarChartMixed
+Horizontal bar chart where each bar has its own color via `fill`. Labels resolve from config.
+```tsx
+<BarChartMixed data={data} config={config} dataKey="visitors" nameKey="browser" />
+```
+| Prop | Type | Default |
+|------|------|---------|
+| `data` | `BarChartMixedItem[]` (`name`, `value`, `fill`) | required |
+| `config` | `ChartConfig` | required |
+| `dataKey` | `string` | `"value"` |
+| `nameKey` | `string` | `"name"` |
+| `barRadius` | `number` | `5` |
+| `tickFormatter` | `(value: string) => string` | resolves from config labels |
 
 ### BarChartInteractive
 Multi-series bar chart with toggle buttons showing totals per series.

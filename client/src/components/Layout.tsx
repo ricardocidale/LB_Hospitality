@@ -14,7 +14,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { X, Search } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch, IconBot, IconMessageCircle } from "@/components/icons";
+import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -116,13 +116,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       ].filter(Boolean),
     },
     {
-      label: "AI Assistants",
-      items: [
-        ...((global as any)?.marcelaEnabled ? [{ href: "#marcela", label: (global as any)?.aiAgentName || "Marcela", icon: IconBot, onClick: () => { document.querySelector<HTMLButtonElement>('[data-testid="ai-agent-toggle"]')?.click(); } }] : []),
-        ...((global as any)?.rebeccaEnabled ? [{ href: "#rebecca", label: (global as any)?.rebeccaDisplayName || "Rebecca", icon: IconMessageCircle, onClick: () => { document.querySelector<HTMLButtonElement>('[data-testid="button-chatbot-toggle"]')?.click(); } }] : []),
-      ].filter(Boolean),
-    },
-    {
       label: "Settings",
       items: [
         { href: "/profile", label: "My Profile", icon: IconProfile },
@@ -154,7 +147,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       </SidebarHeader>
 
       <SidebarContent className="px-2 pt-1">
-        {navGroups.map((group) => (
+        {navGroups.filter(g => g.items.length > 0).map((group) => (
           <SidebarGroup key={group.label || "misc"} className="py-1">
             {group.label && (
               <SidebarGroupLabel className="text-[11px] font-medium text-muted-foreground px-3 pb-0.5">
@@ -266,10 +259,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
             </div>
           </header>
 
-          <div className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 md:p-6 lg:p-8 pb-20 md:pb-6 lg:pb-8">
-            <div className="w-full max-w-7xl mx-auto">
-              {children}
-            </div>
+          <div className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 md:px-6 md:py-6 lg:px-8 lg:py-6 pb-20 md:pb-6 lg:pb-6">
+            {children}
           </div>
         </main>
 

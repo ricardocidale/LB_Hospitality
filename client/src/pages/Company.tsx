@@ -36,7 +36,7 @@ import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Link } from "wouter";
 import { AnimatedPage } from "@/components/graphics";
 import { analyzeCompanyCashPosition } from "@/lib/financial/analyzeCompanyCashPosition";
-import { CompanyHeader, CompanyIncomeTab, CompanyCashFlowTab, CompanyBalanceSheet } from "@/components/company";
+import { CompanyHeader, CompanyIncomeTab, CompanyCashFlowTab, CompanyBalanceSheet, CompanyProfileTab } from "@/components/company";
 import { 
   generateCompanyIncomeData, 
   generateCompanyCashFlowData, 
@@ -307,6 +307,10 @@ export default function Company() {
 
           <TabsContent value="tools" className="mt-6">
             <FundingPredictor embedded />
+          </TabsContent>
+
+          <TabsContent value="profile" className="mt-6">
+            <CompanyProfileTab />
           </TabsContent>
 
           {!cashAnalysis.isAdequate ? (

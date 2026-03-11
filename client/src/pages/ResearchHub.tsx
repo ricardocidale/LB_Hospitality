@@ -85,65 +85,121 @@ export default function ResearchHub() {
   const [totalToGenerate, setTotalToGenerate] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
 
+  const generateOneResearch = useCallback(async (
+    type: "property" | "company" | "global",
+    property?: any,
+  ): Promise<boolean> => {
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const body: any = {
+      type,
+      assetDefinition: globalAssumptions?.assetDefinition,
+    };
+
+    if (type === "property" && property) {
+      body.propertyId = property.id;
+      body.propertyContext = {
+        name: property.name,
+        location: property.location,
+        market: property.market,
+        roomCount: property.roomCount,
+        startAdr: property.startAdr,
+        maxOccupancy: property.maxOccupancy,
+        type: property.type,
+      };
+    }
+
+    const response = await fetch("/api/research/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      throw new Error(errBody.error || `Server returned ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (reader) {
+      while (true) {
+        const { done } = await reader.read();
+        if (done) break;
+      }
+    }
+
+    return true;
+  }, [globalAssumptions]);
+
   const generateAllMissing = useCallback(async () => {
     if (!properties || !researchStatus) return;
 
     const missingProps = researchStatus.properties.filter(
       (p: any) => p.status === "missing"
     );
-    if (missingProps.length === 0) return;
+    const companyMissing = researchStatus.company?.status === "missing";
+    const globalMissing = researchStatus.global?.status === "missing";
+
+    const totalItems = missingProps.length + (companyMissing ? 1 : 0) + (globalMissing ? 1 : 0);
+    if (totalItems === 0) return;
 
     setIsGeneratingAll(true);
-    setTotalToGenerate(missingProps.length);
+    setTotalToGenerate(totalItems);
 
     let completedCount = 0;
+    let currentIdx = 0;
+    let failedNames: string[] = [];
 
     for (let i = 0; i < missingProps.length; i++) {
-      setCurrentGenIndex(i + 1);
+      currentIdx++;
+      setCurrentGenIndex(currentIdx);
       const propStatus = missingProps[i];
       const property = properties.find((p: any) => p.id === propStatus.propertyId);
       if (!property) continue;
 
-      abortRef.current = new AbortController();
-
       try {
-        const response = await fetch("/api/research/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "property",
-            propertyId: property.id,
-            propertyContext: {
-              name: property.name,
-              location: property.location,
-              market: property.market,
-              roomCount: property.roomCount,
-              startAdr: property.startAdr,
-              maxOccupancy: property.maxOccupancy,
-              type: property.type,
-            },
-            assetDefinition: globalAssumptions?.assetDefinition,
-          }),
-          signal: abortRef.current.signal,
-        });
-
-        // Consume the SSE stream until it ends
-        const reader = response.body?.getReader();
-        if (reader) {
-          while (true) {
-            const { done } = await reader.read();
-            if (done) break;
-          }
-        }
-
+        await generateOneResearch("property", property);
         completedCount++;
-        // Invalidate research status so the UI updates after each property
         await queryClient.invalidateQueries({ queryKey: ["research", "status"] });
         await queryClient.invalidateQueries({ queryKey: ["research", "property", property.id] });
       } catch (error: any) {
         if (error.name === "AbortError") break;
+        failedNames.push(property.name);
         console.error(`Research generation failed for ${property.name}:`, error);
-        // Skip to next property on failure
+      }
+    }
+
+    if (companyMissing) {
+      currentIdx++;
+      setCurrentGenIndex(currentIdx);
+      try {
+        await generateOneResearch("company");
+        completedCount++;
+        await queryClient.invalidateQueries({ queryKey: ["research", "status"] });
+        await queryClient.invalidateQueries({ queryKey: ["research", "company"] });
+      } catch (error: any) {
+        if (error.name !== "AbortError") {
+          failedNames.push("Company");
+          console.error("Research generation failed for company:", error);
+        }
+      }
+    }
+
+    if (globalMissing) {
+      currentIdx++;
+      setCurrentGenIndex(currentIdx);
+      try {
+        await generateOneResearch("global");
+        completedCount++;
+        await queryClient.invalidateQueries({ queryKey: ["research", "status"] });
+        await queryClient.invalidateQueries({ queryKey: ["research", "global"] });
+      } catch (error: any) {
+        if (error.name !== "AbortError") {
+          failedNames.push("Global");
+          console.error("Research generation failed for global:", error);
+        }
       }
     }
 
@@ -151,14 +207,25 @@ export default function ResearchHub() {
     setCurrentGenIndex(0);
     setTotalToGenerate(0);
 
-    toast({
-      title: "Research generation complete",
-      description:
-        completedCount === missingProps.length
-          ? `All ${completedCount} missing research reports generated.`
-          : `Generated ${completedCount} of ${missingProps.length} reports.`,
-    });
-  }, [properties, researchStatus, globalAssumptions, queryClient, toast]);
+    if (failedNames.length > 0 && completedCount === 0) {
+      toast({
+        title: "Research generation failed",
+        description: `Could not generate research for: ${failedNames.join(", ")}. Check that the AI service is available.`,
+        variant: "destructive",
+      });
+    } else if (failedNames.length > 0) {
+      toast({
+        title: "Research partially complete",
+        description: `Generated ${completedCount} of ${totalItems}. Failed: ${failedNames.join(", ")}.`,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Research generation complete",
+        description: `All ${completedCount} missing research reports generated.`,
+      });
+    }
+  }, [properties, researchStatus, globalAssumptions, queryClient, toast, generateOneResearch]);
 
   const isLoading = isResearchLoading || isPropertiesLoading;
 
@@ -192,6 +259,9 @@ export default function ResearchHub() {
   const freshCount = propertyStatuses.filter((p: any) => p.status === "fresh").length;
   const staleCount = propertyStatuses.filter((p: any) => p.status === "stale").length;
   const missingCount = propertyStatuses.filter((p: any) => p.status === "missing").length;
+  const totalMissingCount = missingCount
+    + (companyStatus.status === "missing" ? 1 : 0)
+    + (globalStatus.status === "missing" ? 1 : 0);
 
   return (
     <Layout>
@@ -204,7 +274,7 @@ export default function ResearchHub() {
             <div className="flex flex-col items-end gap-1">
               <button
                 onClick={generateAllMissing}
-                disabled={isGeneratingAll || missingCount === 0}
+                disabled={isGeneratingAll || totalMissingCount === 0}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary border border-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isGeneratingAll ? (

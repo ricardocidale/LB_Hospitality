@@ -103,7 +103,7 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
 
       {open && (
         <div
-          className="fixed bottom-4 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[480px] max-h-[calc(100vh-6rem)] flex flex-col bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
+          className="fixed bottom-4 right-4 z-[9999] w-[360px] max-w-[calc(100vw-2rem)] h-[480px] max-h-[calc(100vh-6rem)] flex flex-col bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
           data-testid="panel-chatbot"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/50">

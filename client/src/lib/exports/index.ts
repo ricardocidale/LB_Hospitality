@@ -33,6 +33,7 @@ export { downloadCSV } from "./csvExport";
 export {
   BRAND,
   classifyRow,
+  normalizeCaps,
   formatShort,
   formatFull,
   formatPct,

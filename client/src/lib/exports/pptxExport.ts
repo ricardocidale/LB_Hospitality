@@ -10,13 +10,13 @@
  *   3. Company — management company financial report
  *
  * Design rules (shared with PDF via exportStyles.ts):
- *   • Section headers — bold, section-bg fill (#EFF5F0)
- *   • Subtotals — bold, white background
- *   • Line items — normal weight, indented 1–2 levels
+ *   • Section headers — bold, section-bg fill, Title Case (not ALL CAPS)
+ *   • Subtotals — bold, white background, thicker top border
+ *   • Line items — normal weight, alternating row tint, indented 1–2 levels
  *   • Formula/notes — italic, muted gray color
- *   • Numbers — short format ($1.2M, $450K) for readability at presentation scale
+ *   • Numbers — short format ($1.2M, $450K) for readability
  *   • Footer — company name (left) + page number (right) on every slide
- *   • All year-columns fit on a single slide; font size scales dynamically
+ *   • Table framed with sage-green outer border
  */
 import { format } from "date-fns";
 import {
@@ -25,6 +25,7 @@ import {
   classifyRow,
   indentLabel,
   formatShort,
+  normalizeCaps,
   pptxFontSize,
   pptxColumnWidths,
 } from "./exportStyles";
@@ -38,12 +39,6 @@ interface SlideContext {
   companyName: string;
 }
 
-/**
- * Post-process ALL slides in the presentation to add footer + page number.
- * MUST be called LAST, after all content (including auto-paginated tables)
- * has been generated. This ensures auto-paginated overflow slides also
- * receive the correct footer and sequential page number.
- */
 function addAllFooters(ctx: SlideContext) {
   const slides = ctx.pres.slides as any[];
   if (!slides) return;
@@ -162,40 +157,87 @@ function addFinancialTableSlide(
       text: "",
       options: {
         fill: { color: BRAND.SAGE_HEX },
-        fontFace: "Arial", fontSize, color: BRAND.DARK_TEXT_HEX, bold: true,
+        fontFace: "Arial", fontSize, color: BRAND.WHITE_HEX, bold: true,
+        border: [
+          { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX },
+          { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX },
+          { type: "solid", pt: 1, color: BRAND.SAGE_HEX },
+          { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX },
+        ],
       },
     },
-    ...years.map((y) => ({
+    ...years.map((y, yi) => ({
       text: y,
       options: {
         fill: { color: BRAND.SAGE_HEX },
-        fontFace: "Arial", fontSize, color: BRAND.DARK_TEXT_HEX, bold: true,
+        fontFace: "Arial", fontSize, color: BRAND.WHITE_HEX, bold: true,
         align: "right" as const,
+        border: [
+          { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX },
+          yi === years.length - 1
+            ? { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX }
+            : { type: "solid", pt: 0.5, color: BRAND.BORDER_LIGHT_HEX },
+          { type: "solid", pt: 1, color: BRAND.SAGE_HEX },
+          { type: "solid", pt: 0.5, color: BRAND.BORDER_LIGHT_HEX },
+        ],
       },
     })),
   ];
 
   const tableRows: any[][] = [headerCells];
   const filteredRows = rows.filter((r) => r.category !== "");
+  let dataRowIdx = 0;
 
-  filteredRows.forEach((row) => {
+  filteredRows.forEach((row, ri) => {
     const { isSectionHeader, isSubtotal, isFormula } = classifyRow(row);
-    const label = indentLabel(row.category, row.indent);
-    const bgColor = isSectionHeader ? BRAND.SECTION_BG_HEX : BRAND.WHITE_HEX;
+    const label = indentLabel(normalizeCaps(row.category), row.indent);
+
+    let bgColor: string;
+    if (isSectionHeader) {
+      bgColor = BRAND.SECTION_BG_HEX;
+    } else if (isSubtotal) {
+      bgColor = BRAND.WHITE_HEX;
+    } else {
+      bgColor = dataRowIdx % 2 === 1 ? BRAND.ALT_ROW_HEX : BRAND.WHITE_HEX;
+      dataRowIdx++;
+    }
+
+    const isLastRow = ri === filteredRows.length - 1;
+
+    const topBorder = isSectionHeader
+      ? { type: "solid" as const, pt: 1.2, color: BRAND.BORDER_SECTION_HEX }
+      : isSubtotal
+        ? { type: "solid" as const, pt: 0.8, color: BRAND.BORDER_LIGHT_HEX }
+        : { type: "solid" as const, pt: 0.3, color: "E8E8E8" };
+    const bottomBorder = isLastRow
+      ? { type: "solid" as const, pt: 1.5, color: BRAND.SAGE_HEX }
+      : { type: "solid" as const, pt: 0.3, color: "E8E8E8" };
+
+    const makeBorder = (colIdx: number) => [
+      topBorder,
+      colIdx === years.length
+        ? { type: "solid" as const, pt: 1.5, color: BRAND.SAGE_HEX }
+        : { type: "solid" as const, pt: 0.3, color: "E8E8E8" },
+      bottomBorder,
+      colIdx === 0
+        ? { type: "solid" as const, pt: 1.5, color: BRAND.SAGE_HEX }
+        : { type: "solid" as const, pt: 0.3, color: "E8E8E8" },
+    ];
 
     const labelCell: any = {
       text: label,
       options: {
         fontFace: "Arial",
-        fontSize,
+        fontSize: isSectionHeader || isSubtotal ? fontSize + 0.5 : fontSize,
         color: isFormula ? BRAND.GRAY_HEX : BRAND.DARK_TEXT_HEX,
         bold: isSectionHeader || isSubtotal,
         italic: isFormula,
         fill: { color: bgColor },
+        border: makeBorder(0),
       },
     };
 
-    const valueCells = row.values.map((v) => ({
+    const valueCells = row.values.map((v, vi) => ({
       text: formatShort(v),
       options: {
         fontFace: "Arial",
@@ -205,6 +247,7 @@ function addFinancialTableSlide(
         italic: isFormula,
         align: "right" as const,
         fill: { color: bgColor },
+        border: makeBorder(vi + 1),
       },
     }));
 
@@ -216,8 +259,7 @@ function addFinancialTableSlide(
     y: 0.55,
     w: tableW,
     colW: [labelW, ...years.map(() => dataW)],
-    border: { type: "solid", pt: 0.5, color: "DDDDDD" },
-    rowH: 0.2,
+    rowH: 0.22,
     autoPage: true,
     autoPageRepeatHeader: true,
     newSlideStartY: 0.4,

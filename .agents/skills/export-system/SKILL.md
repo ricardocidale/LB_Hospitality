@@ -35,8 +35,11 @@ client/src/lib/exports/
 | LIGHT_GRAY     | #999999  | 153, 153, 153   | Footer text                  |
 | WHITE          | #FFFFFF  | 255, 255, 255   | Backgrounds, inverted text   |
 | SECTION_BG     | #EFF5F0  | 239, 245, 240   | Section header row fill      |
+| ALT_ROW        | #F8FAF9  | 248, 250, 249   | Alternating row tint         |
 | WARM_BG        | #FFF9F5  | 255, 249, 245   | Warm neutral background      |
 | CARD_BG        | #F5F9F6  | 245, 249, 246   | PPTX metric card fill        |
+| BORDER_LIGHT   | #D5D8DA  | —               | Light cell borders (PPTX)    |
+| BORDER_SECTION | #9FBCA4  | —               | Thick section dividers       |
 
 All colors are accessible via `BRAND.SAGE_HEX` (for PPTX) or `BRAND.SAGE_RGB` (for jsPDF).
 
@@ -59,13 +62,24 @@ interface ExportRowMeta {
 
 The `classifyRow(row)` function automatically detects row type:
 
-- **Section header**: ALL CAPS category, length > 2 → bold + section background
+- **Section header**: ALL CAPS category, length > 2 → bold + section background;
+  `normalizeCaps()` converts to Title Case at render time while preserving
+  abbreviations (GOP, NOI, AGOP, ANOI, GAAP, FFE, IRR, DSCR, etc.)
 - **Subtotal/total**: category contains "total", "gross operating", "adjusted",
   "net operating", "gaap net", "free cash flow", "closing cash", "net change",
   or `isBold`/`isHeader` flag set → bold
 - **Formula/note**: category starts with "Formula:" or `isItalic` set → italic + gray
 
 This classification is used identically in PDF and PPTX table rendering.
+
+### Visual Readability
+- **Alternating row tint**: odd data rows get `ALT_ROW` (#F8FAF9) background;
+  section headers and subtotals keep their own fills
+- **Section divider lines**: thicker top border (1.2pt PPTX / 0.6pt PDF) on
+  section headers using sage-green color
+- **Subtotal separator**: medium top border (0.8pt PPTX / 0.5pt PDF)
+- **Table frame**: 1.5pt sage-green outer border around entire table (PPTX);
+  0.6pt `tableLineWidth` with sage color (PDF)
 
 ## Number Formatting
 
@@ -150,13 +164,16 @@ This classification is used identically in PDF and PPTX table rendering.
 
 ### Financial table slides
 - All year columns ALWAYS fit on one slide (no splitting)
-- Dynamic font size: `pptxFontSize(yearCount)` — 8pt for ≤5, 7pt for ≤7, 6pt for ≤10, 5pt for 11+
+- Dynamic font size: `pptxFontSize(yearCount)` — 10pt for ≤5, 9pt for ≤7, 8pt for ≤10, 7pt for 11+
 - Dynamic column widths: `pptxColumnWidths(yearCount)` — label column auto-sizes
-- Header row: sage-green fill, bold
-- Section headers: bold + section-bg fill (#EFF5F0)
-- Subtotals: bold, white background
+- Header row: sage-green fill, white bold text
+- Section headers: bold + section-bg fill (#EFF5F0) + thick sage top border
+- Subtotals: bold, white background + medium top border
 - Formula rows: italic, gray text
+- Alternating row tint on data rows (#F8FAF9 on odd rows)
+- Table frame: 1.5pt sage-green outer border on all sides
 - Values: short format ($1.2M, $450K)
+- ALL CAPS labels converted to Title Case via `normalizeCaps()` at render
 - `autoPage: true` with `autoPageRepeatHeader: true` for overflow
 
 ## Adding a New Export Report

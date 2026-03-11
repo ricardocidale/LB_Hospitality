@@ -256,25 +256,166 @@ export default function CompanyIncomeTab({
                   })}
                 </TableRow>
                 {expandedRows.has('vendorCosts') && (() => {
+                  const formulaTotalKey = 'formula-vendorCosts-total';
+                  return (
+                    <>
+                      <TableRow
+                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        data-expandable-row="true"
+                        onClick={() => toggleRow(formulaTotalKey)}
+                        data-testid="row-vendor-costs-formula-toggle"
+                      >
+                        <TableCell className="sticky left-0 bg-blue-50/40 pl-10 py-0.5 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            {expandedRows.has(formulaTotalKey) ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                            <span className="italic">Aggregate Markup Formula</span>
+                          </div>
+                        </TableCell>
+                        {Array.from({ length: projectionYears }, (_, i) => (
+                          <TableCell key={i} className="py-0.5" />
+                        ))}
+                      </TableRow>
+                      {expandedRows.has(formulaTotalKey) && (() => {
+                        const yearlyCentralizedRevenue = Array.from({ length: projectionYears }, (_, y) => {
+                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.centralizedRevenue ?? 0), 0);
+                        });
+                        const yearlyTotalVendorCost = Array.from({ length: projectionYears }, (_, y) => {
+                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          return yearData.reduce((a, m) => a + m.totalVendorCost, 0);
+                        });
+                        const yearlyTotalGrossProfit = yearlyCentralizedRevenue.map((rev, i) => rev - yearlyTotalVendorCost[i]);
+                        return (
+                          <>
+                            <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                              <TableCell className="sticky left-0 bg-blue-50/20 pl-14 py-0.5 text-xs text-muted-foreground italic">
+                                Total Fee Revenue from Centralized Services
+                              </TableCell>
+                              {yearlyCentralizedRevenue.map((v, i) => (
+                                <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+                                  {formatMoney(v)}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                            <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                              <TableCell className="sticky left-0 bg-blue-50/20 pl-14 py-0.5 text-xs text-muted-foreground italic">
+                                − Total Vendor Cost
+                              </TableCell>
+                              {yearlyTotalVendorCost.map((v, i) => (
+                                <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-destructive">
+                                  ({formatMoney(v)})
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                            <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                              <TableCell className="sticky left-0 bg-blue-50/20 pl-14 py-0.5 text-xs text-muted-foreground italic">
+                                = Total Gross Profit
+                              </TableCell>
+                              {yearlyTotalGrossProfit.map((v, i) => (
+                                <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-accent">
+                                  {formatMoney(v)}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          </>
+                        );
+                      })()}
+                    </>
+                  );
+                })()}
+                {expandedRows.has('vendorCosts') && (() => {
                   const costData = financials.find(m => m.costOfCentralizedServices)?.costOfCentralizedServices;
                   if (!costData) return null;
                   return Object.entries(costData.byCategory)
                     .filter(([, v]) => v.serviceModel === 'centralized')
-                    .map(([catName]) => (
-                      <TableRow key={`vendor-${catName}`} className="bg-amber-50/30">
-                        <TableCell className="sticky left-0 bg-amber-50/30 pl-12 text-sm text-amber-600">
-                          {catName}
-                        </TableCell>
-                        {Array.from({ length: projectionYears }, (_, y) => {
-                          const yearData = financials.slice(y * 12, (y + 1) * 12);
-                          const total = yearData.reduce((a, m) => {
-                            const cat = m.costOfCentralizedServices?.byCategory?.[catName];
-                            return a + (cat?.vendorCost ?? 0);
-                          }, 0);
-                          return <TableCell key={y} className="text-right text-sm text-amber-600 font-mono">({formatMoney(total)})</TableCell>;
-                        })}
-                      </TableRow>
-                    ));
+                    .map(([catName]) => {
+                      const formulaKey = `formula-vendor-${catName}`;
+                      return (
+                        <React.Fragment key={`vendor-${catName}`}>
+                          <TableRow
+                            className="bg-amber-50/30 cursor-pointer hover:bg-amber-100/30"
+                            onClick={() => toggleRow(formulaKey)}
+                            data-testid={`row-vendor-${catName}`}
+                          >
+                            <TableCell className="sticky left-0 bg-amber-50/30 pl-12 text-sm text-amber-600 flex items-center gap-2">
+                              {expandedRows.has(formulaKey) ? (
+                                <ChevronDown className="w-3 h-3 text-amber-400" />
+                              ) : (
+                                <ChevronRight className="w-3 h-3 text-amber-400" />
+                              )}
+                              {catName}
+                            </TableCell>
+                            {Array.from({ length: projectionYears }, (_, y) => {
+                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              const total = yearData.reduce((a, m) => {
+                                const cat = m.costOfCentralizedServices?.byCategory?.[catName];
+                                return a + (cat?.vendorCost ?? 0);
+                              }, 0);
+                              return <TableCell key={y} className="text-right text-sm text-amber-600 font-mono">({formatMoney(total)})</TableCell>;
+                            })}
+                          </TableRow>
+                          {expandedRows.has(formulaKey) && (() => {
+                            const cat = costData.byCategory[catName];
+                            if (!cat) return null;
+                            const yearlyRevenue = Array.from({ length: projectionYears }, (_, y) => {
+                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.byCategory?.[catName]?.revenue ?? 0), 0);
+                            });
+                            const yearlyVendorCost = Array.from({ length: projectionYears }, (_, y) => {
+                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.byCategory?.[catName]?.vendorCost ?? 0), 0);
+                            });
+                            const yearlyGrossProfit = Array.from({ length: projectionYears }, (_, y) => {
+                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.byCategory?.[catName]?.grossProfit ?? 0), 0);
+                            });
+                            const markupPct = cat.markup;
+                            return (
+                              <>
+                                <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                                  <TableCell className="sticky left-0 bg-blue-50/40 pl-16 py-0.5 text-xs text-muted-foreground italic">
+                                    Fee Charged to Property
+                                  </TableCell>
+                                  {yearlyRevenue.map((v, i) => (
+                                    <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+                                      {formatMoney(v)}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                                <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                                  <TableCell className="sticky left-0 bg-blue-50/40 pl-16 py-0.5 text-xs text-muted-foreground italic">
+                                    Markup Rate: {(markupPct * 100).toFixed(0)}%
+                                  </TableCell>
+                                  {Array.from({ length: projectionYears }, (_, i) => (
+                                    <TableCell key={i} className="py-0.5" />
+                                  ))}
+                                </TableRow>
+                                <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                                  <TableCell className="sticky left-0 bg-blue-50/40 pl-16 py-0.5 text-xs text-muted-foreground italic">
+                                    Vendor Cost = Fee ÷ (1 + {(markupPct * 100).toFixed(0)}%)
+                                  </TableCell>
+                                  {yearlyVendorCost.map((v, i) => (
+                                    <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-destructive">
+                                      ({formatMoney(v)})
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                                <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                                  <TableCell className="sticky left-0 bg-blue-50/40 pl-16 py-0.5 text-xs text-muted-foreground italic">
+                                    Markup Margin = Fee − Vendor Cost
+                                  </TableCell>
+                                  {yearlyGrossProfit.map((v, i) => (
+                                    <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-accent">
+                                      {formatMoney(v)}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              </>
+                            );
+                          })()}
+                        </React.Fragment>
+                      );
+                    });
                 })()}
                 <TableRow className="bg-emerald-50/60 font-semibold border-border">
                   <TableCell className="sticky left-0 bg-emerald-50/60 text-emerald-800">Gross Profit</TableCell>

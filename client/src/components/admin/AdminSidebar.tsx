@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { X, Share2 } from "lucide-react";
 import {
   IconMenu, IconHelpCircle, IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
@@ -128,15 +129,16 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                 const isActive = activeSection === section.value;
                 const Icon = section.icon;
                 return (
-                  <button
+                  <Button
                     key={section.value}
+                    variant="ghost"
                     onClick={() => {
                       onSectionChange(section.value);
                       setMobileOpen(false);
                     }}
                     data-testid={`admin-nav-${section.value}`}
                     className={cn(
-                      "relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 group/item cursor-pointer",
+                      "relative w-full flex items-center gap-2.5 px-3 py-[7px] h-auto rounded-lg text-left justify-start transition-all duration-150 group/item cursor-pointer",
                       isActive
                         ? "bg-muted text-foreground font-medium"
                         : "text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -158,7 +160,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                     >
                       {section.label}
                     </span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -172,14 +174,15 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
             Logs
           </span>
         </div>
-        <button
+        <Button
+          variant="ghost"
           onClick={() => {
             onSectionChange("activity");
             setMobileOpen(false);
           }}
           data-testid="admin-nav-activity"
           className={cn(
-            "relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 group/item cursor-pointer",
+            "relative w-full flex items-center gap-2.5 px-3 py-[7px] h-auto rounded-lg text-left justify-start transition-all duration-150 group/item cursor-pointer",
             activeSection === "activity"
               ? "bg-muted text-foreground font-medium"
               : "text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -201,7 +204,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
           >
             Activity
           </span>
-        </button>
+        </Button>
       </div>
 
       <div className="mt-1 pt-2 border-t border-border/60">
@@ -219,13 +222,15 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
 
   return (
     <>
-      <button
+      <Button
+        variant="default"
+        size="icon"
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed bottom-4 right-4 z-50 w-12 h-12 rounded-xl bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
+        className="lg:hidden fixed bottom-4 right-4 z-50 w-12 h-12 rounded-xl shadow-lg"
         data-testid="admin-mobile-menu-toggle"
       >
         {mobileOpen ? <X className="w-5 h-5" /> : <IconMenu className="w-5 h-5" />}
-      </button>
+      </Button>
 
       {mobileOpen && (
         <div

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { IconCheckCircle2, IconXCircle, IconAlertTriangle } from "@/components/icons";
 import { formatMoney } from "@/lib/financialEngine";
@@ -78,10 +79,11 @@ export function VerificationResults({ results }: VerificationResultsProps) {
 
       return (
         <div key={category} className="space-y-1">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => toggleCategory(key)}
             data-testid={`accordion-category-${sectionPrefix}-${category.replace(/\s+/g, '-').toLowerCase()}`}
-            className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors cursor-pointer ${
+            className={`w-full flex items-center gap-3 p-3 h-auto rounded-lg border justify-start cursor-pointer font-normal ${
               hasFails
                 ? 'bg-red-50 border-red-200 hover:bg-red-100'
                 : 'bg-green-50 border-green-200 hover:bg-green-100'
@@ -102,7 +104,7 @@ export function VerificationResults({ results }: VerificationResultsProps) {
                 <span className="text-xs font-mono text-red-600 bg-red-100 px-2 py-0.5 rounded">{failed} failed</span>
               )}
             </div>
-          </button>
+          </Button>
           {isExpanded && (
             <div className="ml-4 space-y-1">
               {catChecks.map((chk, cIdx) => renderCheckRow(chk, cIdx))}

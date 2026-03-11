@@ -284,9 +284,9 @@ export default function UserGroupsTab() {
                         {groupUsers.map(u => (
                           <span key={u.id} className="inline-flex items-center gap-1 bg-muted border border-border rounded-full px-3 py-1 text-sm">
                             <span className="font-medium">{u.name || u.email}</span>
-                            <button onClick={() => assignGroupMutation.mutate({ userId: u.id, groupId: null })} className="text-red-400 hover:text-red-600 ml-1" title="Remove from group" data-testid={`button-remove-user-${u.id}-from-group`}>
+                            <Button variant="ghost" size="icon" onClick={() => assignGroupMutation.mutate({ userId: u.id, groupId: null })} className="text-red-400 hover:text-red-600 ml-1 h-5 w-5" title="Remove from group" data-testid={`button-remove-user-${u.id}-from-group`}>
                               &times;
-                            </button>
+                            </Button>
                           </span>
                         ))}
                       </div>
@@ -302,8 +302,9 @@ export default function UserGroupsTab() {
                       const visibleCount = isAllVisible ? allProperties.length : activeIds.size;
                       return (
                         <div className="border-t border-border/60 pt-3 mt-1">
-                          <button
-                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+                          <Button
+                            variant="ghost"
+                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left justify-start h-auto py-1"
                             onClick={() => setExpandedVisibility(isExpanded ? null : group.id)}
                           >
                             <IconEye className="w-4 h-4 text-muted-foreground/60" />
@@ -312,7 +313,7 @@ export default function UserGroupsTab() {
                               {visibleCount} of {allProperties.length} visible
                             </span>
                             <span className="ml-auto">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</span>
-                          </button>
+                          </Button>
                           {isExpanded && (
                             <div className="mt-3 space-y-2">
                               <p className="text-xs text-muted-foreground mb-2">

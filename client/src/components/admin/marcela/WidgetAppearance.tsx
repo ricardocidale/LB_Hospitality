@@ -88,12 +88,13 @@ export function WidgetAppearance() {
             {VARIANTS.map((v) => {
               const Icon = v.icon;
               return (
-                <button
+                <Button
                   key={v.value}
                   type="button"
+                  variant="ghost"
                   onClick={() => update("variant", v.value)}
                   data-testid={`widget-variant-${v.value}`}
-                  className={`p-3 rounded-xl border text-left transition-all ${d.variant === v.value ? "border-primary bg-muted shadow-sm ring-1 ring-primary/30" : "border-muted-foreground/20 hover:border-border"}`}
+                  className={`p-3 h-auto rounded-xl border text-left justify-start whitespace-normal transition-all ${d.variant === v.value ? "border-primary bg-muted shadow-sm ring-1 ring-primary/30" : "border-muted-foreground/20 hover:border-border"}`}
                 >
                   <div className="mb-1.5">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-black to-gray-800 flex items-center justify-center">
@@ -103,7 +104,7 @@ export function WidgetAppearance() {
                   <p className={`text-xs font-semibold ${d.variant === v.value ? "text-primary" : "text-foreground"}`}>{v.label}</p>
                   <p className="text-[10px] text-muted-foreground/60 mt-0.5">{v.desc}</p>
                   {v.default && <Badge variant="secondary" className="mt-1 text-[9px] px-1.5 py-0 h-4">Default</Badge>}
-                </button>
+                </Button>
               );
             })}
           </div>

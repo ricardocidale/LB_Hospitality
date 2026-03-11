@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import { ChevronDown, CheckCircle2, XCircle, FlaskConical, Clock } from "lucide-react";
 
 interface GoldenAssertion {
@@ -58,9 +59,10 @@ function ScenarioAccordion({ scenario }: { scenario: GoldenScenario }) {
 
   return (
     <div className="border border-border/60 rounded-lg overflow-hidden">
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 h-auto text-left justify-start hover:bg-muted/30 rounded-none font-normal"
       >
         {allPassed ? (
           <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
@@ -83,7 +85,7 @@ function ScenarioAccordion({ scenario }: { scenario: GoldenScenario }) {
             className={`w-4 h-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
           />
         </div>
-      </button>
+      </Button>
 
       <AnimatePresence>
         {open && (

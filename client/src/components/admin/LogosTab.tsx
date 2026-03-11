@@ -220,15 +220,15 @@ export default function LogosTab() {
           </div>
 
           <div className="flex gap-2">
-            <button type="button" disabled={isBusy} onClick={() => { setLogoMode("generate"); setLogoUrl(""); }} className={modeBtn("generate", logoMode === "generate")} data-testid="btn-mode-generate">
+            <Button type="button" variant={logoMode === "generate" ? "default" : "outline"} disabled={isBusy} onClick={() => { setLogoMode("generate"); setLogoUrl(""); }} className={modeBtn("generate", logoMode === "generate")} data-testid="btn-mode-generate">
               <IconSparkles className="w-4 h-4" /> Generate Logo
-            </button>
-            <button type="button" disabled={isBusy} onClick={() => { setLogoMode("import"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("import", logoMode === "import")} data-testid="btn-mode-import">
+            </Button>
+            <Button type="button" variant={logoMode === "import" ? "default" : "outline"} disabled={isBusy} onClick={() => { setLogoMode("import"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("import", logoMode === "import")} data-testid="btn-mode-import">
               <IconHardDrive className="w-4 h-4" /> Import Logo
-            </button>
-            <button type="button" disabled={isBusy} onClick={() => { setLogoMode("url"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("url", logoMode === "url")} data-testid="btn-mode-url">
+            </Button>
+            <Button type="button" variant={logoMode === "url" ? "default" : "outline"} disabled={isBusy} onClick={() => { setLogoMode("url"); setLogoUrl(""); setAiStep("describe"); }} className={modeBtn("url", logoMode === "url")} data-testid="btn-mode-url">
               <IconLink className="w-4 h-4" /> URL Logo
-            </button>
+            </Button>
           </div>
 
           {logoUrl && (
@@ -236,9 +236,9 @@ export default function LogosTab() {
               <div className="aspect-square max-w-[200px] mx-auto rounded-xl overflow-hidden border-2 border-border bg-gradient-to-br from-primary/5 to-primary/10 p-4">
                 <img src={logoUrl} alt="Preview" className="w-full h-full object-contain" />
               </div>
-              <button type="button" onClick={() => { setLogoUrl(""); setAiStep("describe"); }} className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/90 text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-md" data-testid="btn-remove-preview">
+              <Button type="button" variant="destructive" size="icon" onClick={() => { setLogoUrl(""); setAiStep("describe"); }} className="absolute top-2 right-2 w-7 h-7 rounded-full shadow-md" data-testid="btn-remove-preview">
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           )}
 

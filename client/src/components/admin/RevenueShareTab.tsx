@@ -543,14 +543,16 @@ export default function RevenueShareTab() {
                             ? helpText.slice(0, descTruncateLength) + "..."
                             : helpText}
                           {needsTruncation && (
-                            <button
+                            <Button
                               type="button"
-                              className="ml-1 text-primary hover:text-primary/80 font-medium inline"
+                              variant="ghost"
+                              size="sm"
+                              className="ml-1 text-primary hover:text-primary/80 font-medium inline h-auto px-0 py-0"
                               onClick={() => toggleDescription(t.id)}
                               data-testid={`button-toggle-desc-${t.id}`}
                             >
                               {isDescExpanded ? "show less" : "show more"}
-                            </button>
+                            </Button>
                           )}
                         </p>
                       </div>
@@ -588,16 +590,17 @@ export default function RevenueShareTab() {
                               </Button>
                             </div>
                           ) : (
-                            <button
+                            <Button
                               type="button"
-                              className="flex items-center gap-1.5 group/rate cursor-pointer"
+                              variant="ghost"
+                              className="flex items-center gap-1.5 group/rate cursor-pointer h-auto px-1 py-0.5"
                               onClick={() => startInlineRateEdit(t)}
                               data-testid={`button-edit-inline-rate-${t.id}`}
                             >
                               <span className="text-lg font-bold font-mono text-foreground">{((t.defaultRate ?? 0) * 100).toFixed(1)}%</span>
                               <span className="text-xs text-muted-foreground">of Revenue</span>
                               <IconPencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover/rate:opacity-100 transition-opacity" />
-                            </button>
+                            </Button>
                           )}
                         </div>
 
@@ -635,16 +638,17 @@ export default function RevenueShareTab() {
                                 </Button>
                               </div>
                             ) : (
-                              <button
+                              <Button
                                 type="button"
-                                className="flex items-center gap-1.5 group/markup cursor-pointer"
+                                variant="ghost"
+                                className="flex items-center gap-1.5 group/markup cursor-pointer h-auto px-1 py-0.5"
                                 onClick={() => startInlineMarkupEdit(t)}
                                 data-testid={`button-edit-inline-markup-${t.id}`}
                               >
                                 <span className="text-lg font-bold font-mono text-foreground">{((t.serviceMarkup ?? 0) * 100).toFixed(0)}%</span>
                                 <span className="text-xs text-muted-foreground">markup</span>
                                 <IconPencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover/markup:opacity-100 transition-opacity" />
-                              </button>
+                              </Button>
                             )}
                           </div>
                         )}

@@ -147,9 +147,10 @@ function PropertyRow({ result }: { result: PropertyYearResult }) {
 
   return (
     <div className="border border-border/60 rounded-lg overflow-hidden">
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 h-auto text-left justify-start hover:bg-muted/30 rounded-none font-normal"
       >
         {allPassed ? (
           <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
@@ -176,7 +177,7 @@ function PropertyRow({ result }: { result: PropertyYearResult }) {
         <ChevronDown
           className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`}
         />
-      </button>
+      </Button>
 
       <AnimatePresence>
         {expanded && (

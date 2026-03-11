@@ -320,9 +320,9 @@ export default function UsersTab() {
                         placeholder="Enter new password for all users"
                         className="pr-10"
                       />
-                      <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowResetAllPassword(!showResetAllPassword)}>
+                      <Button type="button" variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setShowResetAllPassword(!showResetAllPassword)}>
                         {showResetAllPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -477,9 +477,9 @@ export default function UsersTab() {
             <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />Password</Label>
             <div className="relative">
               <Input type={showNewUserPassword ? "text" : "password"} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Secure password" data-testid="input-new-user-password" />
-              <button type="button" onClick={() => setShowNewUserPassword(!showNewUserPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-new-password">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowNewUserPassword(!showNewUserPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground" data-testid="button-toggle-new-password">
                 {showNewUserPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
-              </button>
+              </Button>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -538,9 +538,9 @@ export default function UsersTab() {
             <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />New Password</Label>
             <div className="relative">
               <Input type={showChangePassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" data-testid="input-new-password" />
-              <button type="button" onClick={() => setShowChangePassword(!showChangePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-change-password">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowChangePassword(!showChangePassword)} className="absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground" data-testid="button-toggle-change-password">
                 {showChangePassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -606,9 +606,9 @@ export default function UsersTab() {
             <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />Password</Label>
             <div className="relative">
               <Input type={showEditPassword ? "text" : "password"} value={editUser.password} onChange={(e) => setEditUser({ ...editUser, password: e.target.value })} placeholder="Leave blank to keep current" data-testid="input-edit-password" />
-              <button type="button" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" data-testid="button-toggle-edit-password">
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowEditPassword(!showEditPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground" data-testid="button-toggle-edit-password">
                 {showEditPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
-              </button>
+              </Button>
             </div>
             <p className="text-xs text-muted-foreground">Leave blank to keep the current password unchanged</p>
           </div>

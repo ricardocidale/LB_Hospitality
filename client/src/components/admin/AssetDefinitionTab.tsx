@@ -114,9 +114,9 @@ function HelpTooltip({ text }: { text: string }) {
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button type="button" className="text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-1 shrink-0">
+          <Button type="button" variant="ghost" size="icon" className="text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-1 shrink-0 h-5 w-5">
             <IconHelpCircle className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">
           {text}
@@ -298,10 +298,11 @@ function AmenitiesTab({
         const isOpen = openSections.has(section.title);
         return (
           <div key={section.title} className={`border-b border-border/60 ${sIdx % 2 === 1 ? "bg-muted/20" : ""}`}>
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => toggleSection(section.title)}
-              className="flex items-center justify-between w-full py-3 px-3 text-left hover:bg-muted/40 transition-colors group"
+              className="flex items-center justify-between w-full py-3 px-3 h-auto text-left justify-start hover:bg-muted/40 transition-colors group rounded-none"
               data-testid={`accordion-${section.title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
             >
               <span className="text-sm font-semibold text-foreground group-hover:text-foreground/90">
@@ -313,7 +314,7 @@ function AmenitiesTab({
                 </span>
                 <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
               </div>
-            </button>
+            </Button>
 
             {isOpen && (
               <div className="px-3 pb-3">

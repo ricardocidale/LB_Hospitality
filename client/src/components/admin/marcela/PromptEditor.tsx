@@ -223,16 +223,18 @@ export function PromptEditor({ agentName, companyName }: PromptEditorProps) {
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Available dynamic variables — click to copy</p>
             <div className="flex flex-wrap gap-2">
               {DYNAMIC_VARS.map((v) => (
-                <button
+                <Button
                   key={v.name}
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleCopyVar(v.name)}
                   title={v.description}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-card border border-border text-xs font-mono text-muted-foreground hover:bg-muted transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 h-auto rounded-lg bg-card text-xs font-mono text-muted-foreground hover:bg-muted"
                 >
                   {copiedVar === v.name ? <Check className="w-3 h-3 text-green-500" /> : <IconCopy className="w-3 h-3 opacity-50" />}
                   {v.name}
-                </button>
+                </Button>
               ))}
             </div>
             <p className="text-[10px] text-muted-foreground/50">These are populated at runtime with the user's real data. Paste them into the prompt above.</p>

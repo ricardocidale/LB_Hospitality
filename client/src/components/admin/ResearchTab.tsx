@@ -99,14 +99,16 @@ function TagInput({
           {tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="text-xs gap-1 pr-1" data-testid={`badge-${testIdPrefix}-${tag}`}>
               {tag}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 data-testid={`button-remove-${testIdPrefix}-${tag}`}
                 onClick={() => onChange(tags.filter((t) => t !== tag))}
-                className="hover:text-destructive transition-colors"
+                className="h-4 w-4 hover:text-destructive transition-colors"
               >
                 <X className="w-3 h-3" />
-              </button>
+              </Button>
             </Badge>
           ))}
         </div>
@@ -394,12 +396,14 @@ function SourcesSection({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {customSources.map((source, idx) => (
               <div key={`${source.name}-${idx}`} className="flex flex-col p-3 rounded-xl border border-primary/20 bg-white relative group">
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => remove(idx)}
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive h-6 w-6"
                 >
                   <X className="w-3.5 h-3.5" />
-                </button>
+                </Button>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium">{source.name}</span>
                   <Badge variant="secondary" className="text-[10px] uppercase tracking-wider h-4">{source.category}</Badge>

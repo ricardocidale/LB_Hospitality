@@ -306,8 +306,9 @@ export default function GroupsTab() {
                       const visibleCount = isAllVisible ? allProperties.length : activeIds.size;
                       return (
                         <div className="border-t border-border/60 pt-3 mt-1">
-                          <button
-                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+                          <Button
+                            variant="ghost"
+                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-left justify-start h-auto py-1"
                             onClick={() => setExpandedVisibility(isExpanded ? null : group.id)}
                           >
                             <IconEye className="w-4 h-4 text-muted-foreground/60" />
@@ -316,7 +317,7 @@ export default function GroupsTab() {
                               {visibleCount} of {allProperties.length} visible
                             </span>
                             <span className="ml-auto">{isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</span>
-                          </button>
+                          </Button>
                           {isExpanded && (
                             <div className="mt-3 space-y-2">
                               <p className="text-xs text-muted-foreground mb-2">

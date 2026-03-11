@@ -60,16 +60,18 @@ function NativeAudioPlayer({ conversationId }: { conversationId: string }) {
 
   if (!src) {
     return (
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="sm"
         onClick={handleLoad}
         disabled={loading}
-        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-1 text-[10px] h-auto px-1 py-0.5 text-muted-foreground/60 hover:text-muted-foreground"
         data-testid={`button-load-audio-${conversationId}`}
       >
         {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <IconPlay className="w-3 h-3" />}
         {loading ? "Loading…" : "Play"}
-      </button>
+      </Button>
     );
   }
 
@@ -83,15 +85,17 @@ function NativeAudioPlayer({ conversationId }: { conversationId: string }) {
         onEnded={() => setIsPlaying(false)}
         preload="metadata"
       />
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="sm"
         onClick={togglePlay}
-        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+        className="inline-flex items-center gap-1 text-[10px] h-auto px-1 py-0.5 text-muted-foreground/60 hover:text-muted-foreground"
         data-testid={`button-toggle-audio-${conversationId}`}
       >
         {isPlaying ? <IconPause className="w-3 h-3" /> : <IconPlay className="w-3 h-3" />}
         {isPlaying ? "Pause" : "Play"}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -313,10 +317,11 @@ export function ConversationHistory() {
             <div className="divide-y divide-border/60">
               {filtered.map((conv: any) => (
                 <div key={conv.conversation_id} data-testid={`conversation-${conv.conversation_id}`}>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => toggle(conv.conversation_id)}
-                    className="w-full flex items-start gap-3 py-3 px-1 hover:bg-muted/30 rounded-lg transition-colors text-left"
+                    className="w-full flex items-start gap-3 py-3 px-1 h-auto hover:bg-muted/30 rounded-lg text-left justify-start whitespace-normal font-normal"
                   >
                     <div className="shrink-0 text-muted-foreground/40 mt-0.5">
                       {expanded === conv.conversation_id
@@ -346,7 +351,7 @@ export function ConversationHistory() {
                         )}
                       </div>
                     </div>
-                  </button>
+                  </Button>
                   {expanded === conv.conversation_id && (
                     <div className="px-8 pb-3">
                       <ConversationDetail id={conv.conversation_id} />

@@ -12,6 +12,7 @@
  * component that was previously its own top-level tab.
  */
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { IconImage, IconSwatchBook, IconUpload, IconPanelLeft } from "@/components/icons";
 import BrandingTab from "./BrandingTab";
 import ThemesTab from "./ThemesTab";
@@ -42,11 +43,12 @@ export default function CustomizeTab() {
           const Icon = section.icon;
           const isActive = activeSection === section.value;
           return (
-            <button
+            <Button
               key={section.value}
+              variant="ghost"
               onClick={() => setActiveSection(section.value)}
               data-testid={`customize-section-${section.value}`}
-              className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 text-left cursor-pointer ${
+              className={`group relative p-4 h-auto rounded-2xl border-2 transition-all duration-300 text-left justify-start cursor-pointer whitespace-normal ${
                 isActive
                   ? "border-primary bg-muted shadow-sm"
                   : "border-border bg-card hover:border-border hover:shadow-md"
@@ -66,7 +68,7 @@ export default function CustomizeTab() {
               {isActive && (
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full" />
               )}
-            </button>
+            </Button>
           );
         })}
       </div>

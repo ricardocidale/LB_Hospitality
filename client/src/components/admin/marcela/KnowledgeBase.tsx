@@ -310,15 +310,16 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
                 data-testid="input-kb-file"
               />
               {!selectedFile ? (
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-6 flex flex-col items-center gap-2 text-muted-foreground/50 hover:text-muted-foreground/70 transition-colors cursor-pointer"
+                  className="w-full py-6 h-auto flex flex-col items-center gap-2 text-muted-foreground/50 hover:text-muted-foreground/70 cursor-pointer"
                   data-testid="button-select-kb-file"
                 >
                   <IconFileUp className="w-8 h-8" />
                   <span className="text-sm font-medium">Select a file to upload</span>
                   <span className="text-[11px]">Supported: TXT, PDF, DOC, DOCX, MD, CSV</span>
-                </button>
+                </Button>
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">

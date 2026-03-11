@@ -118,12 +118,13 @@ function StatusChecklist({
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {items.map((item) => (
-            <button
+            <Button
               key={item.label}
               type="button"
+              variant="ghost"
               disabled={!item.tab}
               onClick={() => item.tab && onNavigate(item.tab)}
-              className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all ${
+              className={`flex items-center gap-2.5 p-3 h-auto rounded-xl border text-left justify-start transition-all ${
                 item.ok
                   ? "border-green-200/60 bg-green-50/40 text-green-800"
                   : "border-red-200/60 bg-red-50/40 text-red-800"
@@ -136,7 +137,7 @@ function StatusChecklist({
                 <IconXCircle className="w-4 h-4 text-red-400 shrink-0" />
               )}
               <span className="text-xs font-medium">{item.label}</span>
-            </button>
+            </Button>
           ))}
         </div>
       </CardContent>
@@ -832,12 +833,14 @@ function MarcelaConfig({
                       unaffected.
                     </p>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => window.location.reload()}
                     className="text-xs underline text-muted-foreground hover:text-foreground"
                   >
                     Reload page
-                  </button>
+                  </Button>
                 </div>
               }
             >

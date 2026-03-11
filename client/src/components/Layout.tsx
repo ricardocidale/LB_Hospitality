@@ -76,8 +76,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     enabled: !!user,
   });
 
-  const companyName = myBranding?.groupCompanyName || global?.companyName || "Hospitality Business";
-  const companyLogo = myBranding?.logoUrl || global?.companyLogoUrl || global?.companyLogo || defaultLogo;
+  const companyName = global?.companyName || "Hospitality Business";
+  const companyLogo = global?.companyLogoUrl || global?.companyLogo || defaultLogo;
 
   useEffect(() => {
     if (myBranding?.themeColors?.length) {

@@ -155,7 +155,8 @@ function Router() {
 
   useEffect(() => {
     if (user && !prevUserRef[0]) {
-      const sessionGuard = sessionStorage.getItem("research_refresh_done");
+      const guardKey = `research_refresh_done_${user.id || "default"}`;
+      const sessionGuard = sessionStorage.getItem(guardKey);
       if (sessionGuard) {
         prevUserRef[0] = user;
         return;
@@ -181,7 +182,8 @@ function Router() {
 
   const handleResearchComplete = useCallback((skipped?: boolean) => {
     setShowResearchRefresh(false);
-    sessionStorage.setItem("research_refresh_done", Date.now().toString());
+    const guardKey = `research_refresh_done_${user?.id || "default"}`;
+    sessionStorage.setItem(guardKey, Date.now().toString());
     if (!skipped) {
       fetch("/api/research/mark-full-refresh", {
         method: "POST",

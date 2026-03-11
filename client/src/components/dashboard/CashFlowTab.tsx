@@ -24,7 +24,7 @@ import {
 import { useExpandableRows } from "./useExpandableRows";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
-export function CashFlowTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
+export function CashFlowTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails, global }: DashboardTabProps) {
   const { 
     allPropertyFinancials, 
     allPropertyYearlyCF,
@@ -131,7 +131,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
           cashFlowData: toExportData({ years, rows }),
           balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
-        });
+        }, global.companyName || undefined);
         break;
       }
       case 'chart':

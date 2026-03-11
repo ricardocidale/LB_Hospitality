@@ -82,7 +82,7 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
           cashFlowData: toExportData(generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear)),
           balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
           investmentData: toExportData({ years, rows })
-        });
+        }, global.companyName || undefined);
         break;
       case 'png':
         dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>);

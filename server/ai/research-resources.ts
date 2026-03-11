@@ -93,10 +93,12 @@ export function loadToolDefinitions(): Anthropic.Tool[] {
           if (!content.input_schema) {
             continue;
           }
+          const schema = content.input_schema;
+          if (!schema.type) schema.type = "object";
           tools.push({
             name: content.name,
             description: content.description,
-            input_schema: content.input_schema,
+            input_schema: schema,
           });
         }
       }

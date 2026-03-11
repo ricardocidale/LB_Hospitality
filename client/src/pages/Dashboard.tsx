@@ -346,15 +346,23 @@ export default function Dashboard() {
           const gfy = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fsm, i);
           const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy);
           const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy);
+          const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, py, gfy);
+          const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy);
           const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
+          const mapRows = (d: { years: number[]; rows: any[] }) => ({
+            years: d.years.map(String),
+            rows: d.rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })),
+          });
           return {
             entityName: "Consolidated Portfolio",
             companyName: global.companyName || "Hospitality Business Group",
             statementType: TAB_LABELS[activeTab] || "Portfolio",
             years: incomeData.years.map(String),
             statements: [
-              { title: "Consolidated Income Statement", years: incomeData.years.map(String), rows: incomeData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-              { title: "Consolidated Cash Flow", years: cashFlowData.years.map(String), rows: cashFlowData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
+              { title: "Consolidated Income Statement", ...mapRows(incomeData) },
+              { title: "Consolidated Cash Flow", ...mapRows(cashFlowData) },
+              { title: "Consolidated Balance Sheet", ...mapRows(balanceSheetData) },
+              { title: "Investment Analysis", ...mapRows(investmentData) },
             ],
             metrics: [
               { label: "Portfolio IRR", value: `${(financials.portfolioIRR * 100).toFixed(1)}%` },

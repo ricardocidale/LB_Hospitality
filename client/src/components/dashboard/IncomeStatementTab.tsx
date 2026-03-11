@@ -13,7 +13,7 @@ import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInves
 import { useExpandableRows } from "./useExpandableRows";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
-export function IncomeStatementTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
+export function IncomeStatementTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails, global }: DashboardTabProps) {
   const { 
     allPropertyYearlyIS, 
     allPropertyYearlyCF,
@@ -328,7 +328,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear, new Set(["cfo", "cfi", "cff"]), false, properties.map(p => p.name))),
           balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
-        });
+        }, global.companyName || undefined);
         break;
       }
       case 'png': dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>); break;

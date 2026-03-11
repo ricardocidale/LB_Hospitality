@@ -18,6 +18,7 @@ import {
   IconClock, IconAlertCircle, IconExternalLink, IconBookOpen,
 } from "@/components/icons";
 import { IndustryResearchTab } from "@/components/settings/IndustryResearchTab";
+import MarketRatesTab from "@/components/admin/MarketRatesTab";
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -537,6 +538,14 @@ export default function ResearchHub() {
           transition={{ delay: 0.4, duration: 0.5 }}
         >
           <IndustryResearchTab />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <MarketRatesTab />
         </motion.div>
       </div>
     </Layout>

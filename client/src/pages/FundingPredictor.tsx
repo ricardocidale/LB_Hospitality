@@ -591,7 +591,7 @@ function ResearchTab({ analysis, fundingLabel, marketRates, global, navigate }: 
             </div>
           ) : (
             <div className="rounded-lg bg-muted/30 border border-border/40 p-4 text-center">
-              <p className="text-sm text-muted-foreground">No market rate data available. Refresh rates in Admin &gt; Research &gt; Market Rates.</p>
+              <p className="text-sm text-muted-foreground">No market rate data available. Refresh rates in the Research Center.</p>
             </div>
           )}
 
@@ -732,7 +732,7 @@ function ResearchTab({ analysis, fundingLabel, marketRates, global, navigate }: 
             data-testid="link-admin-research"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            Admin &gt; Research &gt; Market Rates
+            Research Center
           </button>
           <button
             onClick={() => navigate("/admin")}

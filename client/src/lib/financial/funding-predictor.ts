@@ -79,7 +79,7 @@ function buildInvestorThesis(global: FundingGlobalInput): string {
 
 function buildMarketContext(rates: MarketRateResponse[] | undefined): string {
   if (!rates || rates.length === 0) {
-    return 'Market rate data is not yet available. Terms shown use default benchmarks. Refresh market rates in Admin > Research > Market Rates for live data.';
+    return 'Market rate data is not yet available. Terms shown use default benchmarks. Refresh market rates in the Research Center for live data.';
   }
 
   const fedFunds = getMarketRate(rates, 'fed_funds');

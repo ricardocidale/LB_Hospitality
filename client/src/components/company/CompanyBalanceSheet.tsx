@@ -27,6 +27,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
 import type { CompanyBalanceSheetProps } from "./types";
 
 export default function CompanyBalanceSheet({
@@ -94,6 +95,29 @@ export default function CompanyBalanceSheet({
                 </TableRow>
                 {bsExpanded.cash && (
                   <>
+                    <TableRow
+                      className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                      data-expandable-row="true"
+                      onClick={() => setBsExpanded(prev => ({ ...prev, cashFormula: !prev.cashFormula }))}
+                    >
+                      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          {bsExpanded.cashFormula ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                          <span className="italic">Formula</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-0.5" />
+                    </TableRow>
+                    {bsExpanded.cashFormula && (
+                      <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                        <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
+                          = {fundingLabel} Funding + Cumulative Net Income
+                        </TableCell>
+                        <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+                          {formatMoney(totalSafeFunding)} + {formatMoney(cumulativeNetIncome)}
+                        </TableCell>
+                      </TableRow>
+                    )}
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">{fundingLabel} Funding (Total)</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(totalSafeFunding)}</TableCell>
@@ -194,6 +218,29 @@ export default function CompanyBalanceSheet({
                 </TableRow>
                 {bsExpanded.equity && (
                   <>
+                    <TableRow
+                      className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                      data-expandable-row="true"
+                      onClick={() => setBsExpanded(prev => ({ ...prev, equityFormula: !prev.equityFormula }))}
+                    >
+                      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          {bsExpanded.equityFormula ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                          <span className="italic">Formula</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-0.5" />
+                    </TableRow>
+                    {bsExpanded.equityFormula && (
+                      <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                        <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
+                          = Cumulative Revenue − Cumulative Expenses − Tax
+                        </TableCell>
+                        <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+                          {formatMoney(cumulativeNetIncome)}
+                        </TableCell>
+                      </TableRow>
+                    )}
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Cumulative Revenue</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(financials.reduce((a, m) => a + m.totalRevenue, 0))}</TableCell>
@@ -210,7 +257,12 @@ export default function CompanyBalanceSheet({
                 )}
                 
                 <TableRow className="font-semibold border-t">
-                  <TableCell>TOTAL EQUITY</TableCell>
+                  <TableCell>
+                    <span className="flex items-center gap-1">
+                      TOTAL EQUITY
+                      <HelpTooltip text="Total Equity = Retained Earnings. For this management company, equity is entirely composed of cumulative net income." />
+                    </span>
+                  </TableCell>
                   <TableCell className="text-right font-mono">{formatMoney(totalEquity)}</TableCell>
                 </TableRow>
 
@@ -220,6 +272,30 @@ export default function CompanyBalanceSheet({
                   <TableCell>TOTAL LIABILITIES & EQUITY</TableCell>
                   <TableCell className="text-right font-mono">{formatMoney(totalLiabilitiesAndEquity)}</TableCell>
                 </TableRow>
+
+                <TableRow
+                  className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                  data-expandable-row="true"
+                  onClick={() => setBsExpanded(prev => ({ ...prev, balanceCheck: !prev.balanceCheck }))}
+                >
+                  <TableCell className="pl-8 py-0.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      {bsExpanded.balanceCheck ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                      <span className="italic">Balance Check</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-0.5" />
+                </TableRow>
+                {bsExpanded.balanceCheck && (
+                  <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                    <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">
+                      Assets = Liabilities + Equity → {formatMoney(totalAssets)} = {formatMoney(totalLiabilities)} + {formatMoney(totalEquity)}
+                    </TableCell>
+                    <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+                      {Math.abs(totalAssets - totalLiabilitiesAndEquity) <= 1 ? "✓ Balanced" : `Variance: ${formatMoney(totalAssets - totalLiabilitiesAndEquity)}`}
+                    </TableCell>
+                  </TableRow>
+                )}
 
                 {Math.abs(totalAssets - totalLiabilitiesAndEquity) > 1 && (
                   <TableRow>

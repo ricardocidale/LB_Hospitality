@@ -26,6 +26,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
 import type { CompanyTabProps } from "./types";
 
 export default function CompanyIncomeTab({
@@ -48,6 +49,38 @@ export default function CompanyIncomeTab({
     const yearData = pf.slice(year * 12, (year + 1) * 12);
     return yearData.reduce((a: number, m: any) => a + m.feeBase, 0);
   };
+
+  const FormulaRow = ({ rowKey, label, values }: { rowKey: string; label: string; values: string[] }) => (
+    <>
+      <TableRow
+        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+        data-expandable-row="true"
+        onClick={() => toggleRow(rowKey)}
+      >
+        <TableCell className="sticky left-0 bg-blue-50/40 pl-8 py-0.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            {expandedRows.has(rowKey) ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            <span className="italic">Formula</span>
+          </div>
+        </TableCell>
+        {Array.from({ length: projectionYears }, (_, i) => (
+          <TableCell key={i} className="py-0.5" />
+        ))}
+      </TableRow>
+      {expandedRows.has(rowKey) && (
+        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+          <TableCell className="sticky left-0 bg-blue-50/20 pl-12 py-0.5 text-xs text-muted-foreground italic">
+            {label}
+          </TableCell>
+          {values.map((v, i) => (
+            <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+              {v}
+            </TableCell>
+          ))}
+        </TableRow>
+      )}
+    </>
+  );
 
   return (
     <ScrollReveal>
@@ -73,6 +106,20 @@ export default function CompanyIncomeTab({
                 return <TableCell key={y} className="text-right font-mono">{formatMoney(total)}</TableCell>;
               })}
             </TableRow>
+            <FormulaRow
+              rowKey="formula-totalRevenue"
+              label="= Service Fees + Incentive Fees + Other Revenue"
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const base = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
+                const incentive = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
+                const other = yearData.reduce((a, m) => a + m.totalRevenue, 0) - base - incentive;
+                if (other > 0) {
+                  return `${formatMoney(base)} + ${formatMoney(incentive)} + ${formatMoney(other)}`;
+                }
+                return `${formatMoney(base)} + ${formatMoney(incentive)}`;
+              })}
+            />
             
             <TableRow 
               className="cursor-pointer hover:bg-muted"
@@ -255,6 +302,17 @@ export default function CompanyIncomeTab({
                 return <TableCell key={y} className="text-right font-mono">{formatMoney(total)}</TableCell>;
               })}
             </TableRow>
+            <FormulaRow
+              rowKey="formula-totalExpenses"
+              label="= Compensation + Fixed Overhead + Variable Costs"
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const comp = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
+                const fixed = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
+                const variable = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
+                return `${formatMoney(comp)} + ${formatMoney(fixed)} + ${formatMoney(variable)}`;
+              })}
+            />
             {expandedRows.has('opex') && (
               <>
                 <TableRow 
@@ -393,6 +451,16 @@ export default function CompanyIncomeTab({
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
+                    <FormulaRow
+                      rowKey="formula-marketing"
+                      label={`= ${((global.marketingRate ?? 0) * 100).toFixed(1)}% of Total Revenue`}
+                      values={Array.from({ length: projectionYears }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const revenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
+                        const rate = ((global.marketingRate ?? 0) * 100).toFixed(1);
+                        return `${rate}% × ${formatMoney(revenue)}`;
+                      })}
+                    />
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Misc Operations</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
@@ -401,12 +469,27 @@ export default function CompanyIncomeTab({
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>
+                    <FormulaRow
+                      rowKey="formula-miscOps"
+                      label={`= ${((global.miscOpsRate ?? 0) * 100).toFixed(1)}% of Total Revenue`}
+                      values={Array.from({ length: projectionYears }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const revenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
+                        const rate = ((global.miscOpsRate ?? 0) * 100).toFixed(1);
+                        return `${rate}% × ${formatMoney(revenue)}`;
+                      })}
+                    />
                   </>
                 )}
               </>
             )}
             <TableRow>
-              <TableCell className="sticky left-0 bg-card text-xs text-muted-foreground italic pl-6">OpEx % of Revenue</TableCell>
+              <TableCell className="sticky left-0 bg-card text-xs text-muted-foreground italic pl-6">
+                <span className="flex items-center gap-1">
+                  OpEx % of Revenue
+                  <HelpTooltip text="Total Operating Expenses as a percentage of Total Revenue. Lower is better — indicates operational efficiency." />
+                </span>
+              </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const totalExpenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
@@ -419,6 +502,50 @@ export default function CompanyIncomeTab({
                 );
               })}
             </TableRow>
+            <TableRow className="bg-muted font-semibold border-border">
+              <TableCell className="sticky left-0 bg-muted text-foreground">EBITDA</TableCell>
+              {Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const total = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
+                return (
+                  <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
+                    {formatMoney(total)}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+            <FormulaRow
+              rowKey="formula-ebitda"
+              label={financials.some(m => m.totalVendorCost > 0) ? "= Gross Profit − Total Operating Expenses" : "= Total Revenue − Total Operating Expenses"}
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const hasVendorCosts = yearData.some(m => m.totalVendorCost > 0);
+                const grossProfit = yearData.reduce((a, m) => a + m.grossProfit, 0);
+                const revenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
+                const expenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
+                return hasVendorCosts
+                  ? `${formatMoney(grossProfit)} − ${formatMoney(expenses)}`
+                  : `${formatMoney(revenue)} − ${formatMoney(expenses)}`;
+              })}
+            />
+            <TableRow>
+              <TableCell className="sticky left-0 bg-card pl-6 text-muted-foreground">Tax</TableCell>
+              {Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const total = yearData.reduce((a, m) => a + m.companyIncomeTax, 0);
+                return <TableCell key={y} className="text-right text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
+              })}
+            </TableRow>
+            <FormulaRow
+              rowKey="formula-tax"
+              label={`= ${((global.companyTaxRate ?? 0) * 100).toFixed(0)}% × EBITDA`}
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const ebitda = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
+                const rate = ((global.companyTaxRate ?? 0) * 100).toFixed(0);
+                return `${rate}% × ${formatMoney(ebitda)}`;
+              })}
+            />
             <TableRow className="bg-primary/10 font-bold">
               <TableCell className="sticky left-0 bg-primary/10">Net Income</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
@@ -431,8 +558,23 @@ export default function CompanyIncomeTab({
                 );
               })}
             </TableRow>
+            <FormulaRow
+              rowKey="formula-netIncome"
+              label="= EBITDA − Tax"
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const ebitda = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
+                const tax = yearData.reduce((a, m) => a + m.companyIncomeTax, 0);
+                return `${formatMoney(ebitda)} − ${formatMoney(tax)}`;
+              })}
+            />
             <TableRow>
-              <TableCell className="sticky left-0 bg-card text-muted-foreground">Net Margin</TableCell>
+              <TableCell className="sticky left-0 bg-card text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  Net Margin
+                  <HelpTooltip text="Net Income as a percentage of Total Revenue. Measures overall profitability after all expenses and taxes." />
+                </span>
+              </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);

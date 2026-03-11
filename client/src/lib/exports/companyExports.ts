@@ -212,7 +212,16 @@ export const exportTablePNG = async (
   companyName?: string
 ) => {
   if (!tableRef.current) return;
+  const hiddenRows: HTMLElement[] = [];
   try {
+    const expandableRows = tableRef.current.querySelectorAll<HTMLElement>('[data-expandable-row="true"]');
+    expandableRows.forEach(row => {
+      if (row.style.display !== 'none') {
+        hiddenRows.push(row);
+        row.style.display = 'none';
+      }
+    });
+
     const scale = 2;
     const dataUrl = await domtoimage.toPng(tableRef.current, {
       bgcolor: '#ffffff',
@@ -229,6 +238,10 @@ export const exportTablePNG = async (
     link.click();
   } catch (error) {
     console.error('Error exporting table:', error);
+  } finally {
+    hiddenRows.forEach(row => {
+      row.style.display = '';
+    });
   }
 };
 

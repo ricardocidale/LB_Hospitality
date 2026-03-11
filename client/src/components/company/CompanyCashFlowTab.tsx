@@ -26,6 +26,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
+import { HelpTooltip } from "@/components/ui/help-tooltip";
 import type { CompanyTabProps } from "./types";
 
 export default function CompanyCashFlowTab({
@@ -50,6 +51,38 @@ export default function CompanyCashFlowTab({
     const yearData = pf.slice(year * 12, (year + 1) * 12);
     return yearData.reduce((a: number, m: any) => a + m.feeBase, 0);
   };
+
+  const FormulaRow = ({ rowKey, label, values }: { rowKey: string; label: string; values: string[] }) => (
+    <>
+      <TableRow
+        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+        data-expandable-row="true"
+        onClick={() => toggleRow(rowKey)}
+      >
+        <TableCell className="sticky left-0 bg-blue-50/40 pl-8 py-0.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            {expandedRows.has(rowKey) ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+            <span className="italic">Formula</span>
+          </div>
+        </TableCell>
+        {Array.from({ length: projectionYears }, (_, i) => (
+          <TableCell key={i} className="py-0.5" />
+        ))}
+      </TableRow>
+      {expandedRows.has(rowKey) && (
+        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+          <TableCell className="sticky left-0 bg-blue-50/20 pl-12 py-0.5 text-xs text-muted-foreground italic">
+            {label}
+          </TableCell>
+          {values.map((v, i) => (
+            <TableCell key={i} className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+              {v}
+            </TableCell>
+          ))}
+        </TableRow>
+      )}
+    </>
+  );
 
   return (
     <ScrollReveal>
@@ -361,8 +394,22 @@ export default function CompanyCashFlowTab({
                 );
               })}
             </TableRow>
+            <FormulaRow
+              rowKey="formula-operatingCF"
+              label={financials.some(m => m.totalVendorCost > 0) ? "= Revenue − Vendor Costs − Expenses − Tax" : "= Total Revenue − Total Expenses − Tax"}
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
+                return formatMoney(netIncome);
+              })}
+            />
             <TableRow>
-              <TableCell className="sticky left-0 bg-card text-xs text-muted-foreground italic pl-6">% of Revenue</TableCell>
+              <TableCell className="sticky left-0 bg-card text-xs text-muted-foreground italic pl-6">
+                <span className="flex items-center gap-1">
+                  % of Revenue
+                  <HelpTooltip text="Operating Cash Flow as a percentage of Total Revenue. Indicates how much of revenue converts to cash." />
+                </span>
+              </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const cashFromOps = yearData.reduce((a, m) => a + m.netIncome, 0);
@@ -432,6 +479,16 @@ export default function CompanyCashFlowTab({
                 return <TableCell key={y} className="text-right font-mono">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
               })}
             </TableRow>
+            <FormulaRow
+              rowKey="formula-financingCF"
+              label={`= ${fundingLabel} Funding Received (Tranche 1 + Tranche 2)`}
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const t1 = yearData.reduce((a, m) => a + m.safeFunding1, 0);
+                const t2 = yearData.reduce((a, m) => a + m.safeFunding2, 0);
+                return t1 + t2 > 0 ? `${formatMoney(t1)} + ${formatMoney(t2)}` : '—';
+              })}
+            />
 
             <TableRow className="bg-primary/10 font-bold">
               <TableCell className="sticky left-0 bg-primary/10">Net Increase (Decrease) in Cash</TableCell>
@@ -445,8 +502,16 @@ export default function CompanyCashFlowTab({
                 );
               })}
             </TableRow>
-            {/* Opening cash = sum of all prior years' net cash changes.
-                Year 1 opens at $0; Year 2 opens with Year 1's closing balance, etc. */}
+            <FormulaRow
+              rowKey="formula-netCash"
+              label="= Operating Cash Flow + Financing Cash Flow"
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const opsCF = yearData.reduce((a, m) => a + m.netIncome, 0);
+                const finCF = yearData.reduce((a, m) => a + m.safeFunding, 0);
+                return `${formatMoney(opsCF)} + ${formatMoney(finCF)}`;
+              })}
+            />
             <TableRow>
               <TableCell className="sticky left-0 bg-card text-muted-foreground">Opening Cash Balance</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
@@ -458,8 +523,6 @@ export default function CompanyCashFlowTab({
                 return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(cumulative)}</TableCell>;
               })}
             </TableRow>
-            {/* Closing cash = opening cash + this year's net cash change.
-                Equivalent to summing all cash flows from Year 1 through Year Y. */}
             <TableRow className="bg-muted font-semibold">
               <TableCell className="sticky left-0 bg-muted">Closing Cash Balance</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
@@ -475,6 +538,57 @@ export default function CompanyCashFlowTab({
                 );
               })}
             </TableRow>
+            <FormulaRow
+              rowKey="formula-closingCash"
+              label="= Opening Cash + Net Change in Cash"
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                let opening = 0;
+                for (let i = 0; i < y; i++) {
+                  const yd = financials.slice(i * 12, (i + 1) * 12);
+                  opening += yd.reduce((a, m) => a + m.cashFlow, 0);
+                }
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const netChange = yearData.reduce((a, m) => a + m.cashFlow, 0);
+                return `${formatMoney(opening)} + ${formatMoney(netChange)}`;
+              })}
+            />
+            <TableRow>
+              <TableCell className="sticky left-0 bg-card text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  Months of Runway
+                  <HelpTooltip text="Closing Cash ÷ Average Monthly Burn Rate. Indicates how many months the company can operate before running out of cash at the current expense rate." />
+                </span>
+              </TableCell>
+              {Array.from({ length: projectionYears }, (_, y) => {
+                let closingCash = 0;
+                for (let i = 0; i <= y; i++) {
+                  const yd = financials.slice(i * 12, (i + 1) * 12);
+                  closingCash += yd.reduce((a, m) => a + m.cashFlow, 0);
+                }
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const monthlyBurn = yearData.reduce((a, m) => a + m.totalExpenses, 0) / 12;
+                const months = monthlyBurn > 0 ? closingCash / monthlyBurn : Infinity;
+                return (
+                  <TableCell key={y} className={`text-right text-muted-foreground font-mono ${months < 6 ? 'text-destructive' : ''}`}>
+                    {months === Infinity ? "∞" : `${months.toFixed(1)} mo`}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+            <FormulaRow
+              rowKey="formula-runway"
+              label="= Closing Cash ÷ (Annual Expenses ÷ 12)"
+              values={Array.from({ length: projectionYears }, (_, y) => {
+                let closingCash = 0;
+                for (let i = 0; i <= y; i++) {
+                  const yd = financials.slice(i * 12, (i + 1) * 12);
+                  closingCash += yd.reduce((a, m) => a + m.cashFlow, 0);
+                }
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const annualExpenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
+                return `${formatMoney(closingCash)} ÷ ${formatMoney(annualExpenses / 12)}/mo`;
+              })}
+            />
           </TableBody>
         </Table>
         </div>

@@ -348,6 +348,72 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                       <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
                     ))}
                   </TableRow>
+                  <TableRow
+                    className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                    data-expandable-row="true"
+                    onClick={() => toggleFormula("netcash-formula")}
+                  >
+                    <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        {expandedFormulas.has("netcash-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                        <span className="italic">Formula</span>
+                      </div>
+                    </TableCell>
+                    {netChangeInCash.map((_, i) => (
+                      <TableCell key={i} className="py-0.5" />
+                    ))}
+                  </TableRow>
+                  {expandedFormulas.has("netcash-formula") && (
+                    <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                      <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                        = CFO + CFI + CFF
+                      </TableCell>
+                      {years.map((_, y) => (
+                        <TableCell key={y} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                          {formatMoney(consolidatedCFO[y])} + {formatMoney(consolidatedCFI[y])} + {formatMoney(consolidatedCFF[y])}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )}
+
+                  <TableRow className="font-medium">
+                    <TableCell className="sticky left-0 bg-card z-10">Free Cash Flow</TableCell>
+                    {years.map((_, y) => {
+                      const fcf = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlow ?? 0), 0);
+                      return <TableCell key={y} className="text-right font-mono">{formatMoney(fcf)}</TableCell>;
+                    })}
+                  </TableRow>
+                  <TableRow
+                    className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                    data-expandable-row="true"
+                    onClick={() => toggleFormula("fcf-formula")}
+                  >
+                    <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        {expandedFormulas.has("fcf-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                        <span className="italic">Formula</span>
+                      </div>
+                    </TableCell>
+                    {years.map((_, i) => (
+                      <TableCell key={i} className="py-0.5" />
+                    ))}
+                  </TableRow>
+                  {expandedFormulas.has("fcf-formula") && (
+                    <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                      <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                        = NOI − Capital Expenditures
+                      </TableCell>
+                      {years.map((_, y) => {
+                        const noi = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.noi ?? 0), 0);
+                        const capex = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.capitalExpenditures ?? 0), 0);
+                        return (
+                          <TableCell key={y} className="text-right font-mono text-xs text-muted-foreground py-0.5">
+                            {formatMoney(noi)} − {formatMoney(Math.abs(capex))}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>

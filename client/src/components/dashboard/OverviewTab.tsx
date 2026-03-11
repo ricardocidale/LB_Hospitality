@@ -12,10 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
-import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, exportPortfolioPDF, exportPortfolioCSV } from "./dashboardExports";
+import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, exportPortfolioPDF, exportPortfolioCSV, toExportData } from "./dashboardExports";
 import { Link } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import * as XLSX from "xlsx";
 import { RadialGauge } from "@/lib/charts";
 
 function calculateIRR(cashFlows: number[]): number {
@@ -75,7 +74,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   const chartsRef = useRef<HTMLDivElement>(null);
 
   const totalProperties = properties.length;
-  const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
+  const totalRooms = financials.totalRooms;
   const totalPurchasePrice = properties.reduce((sum, p) => sum + p.purchasePrice, 0);
   const avgPurchasePrice = totalPurchasePrice / totalProperties;
   const avgRoomsPerProperty = totalRooms / totalProperties;
@@ -176,14 +175,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
         exportPortfolioCSV(years, rows, "portfolio-overview.csv");
         break;
       case 'excel':
-        const wb = XLSX.utils.book_new();
-        const wsData = [
-          ["Metric", "Value"],
-          ...rows.map(r => [r.category, r.values[0]])
-        ];
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, "Overview");
-        XLSX.writeFile(wb, "portfolio-overview.xlsx");
+        dashboardExports.exportToExcel(years, rows, "portfolio-overview.xlsx", "Overview");
         break;
       case 'pptx':
         dashboardExports.exportToPPTX({
@@ -200,9 +192,9 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           totalProjectionNOI,
           totalProjectionCashFlow,
           incomeData: { years: [], rows: [] },
-          cashFlowData: (() => { const cf = generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear); return { years: cf.years.map(String), rows: cf.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; })(),
+          cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear)),
           balanceSheetData: { years: [], rows: [] },
-          investmentData: (() => { const inv = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear); return { years: inv.years.map(String), rows: inv.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; })()
+          investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
         });
         break;
       case 'chart':
@@ -317,7 +309,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+              <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
                 <div className="bg-card rounded-lg p-3 sm:p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="flex items-center gap-2 sm:gap-4 mb-3">
                     <div className="relative w-10 h-10 sm:w-14 sm:h-14 flex-shrink-0">
@@ -578,7 +570,6 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
             <PortfolioResearchCard
               properties={properties}
               yearlyConsolidatedCache={yearlyConsolidatedCache}
-              allPropertyYearlyIS={allPropertyYearlyIS}
             />
             </AccordionContent>
           </AccordionItem>

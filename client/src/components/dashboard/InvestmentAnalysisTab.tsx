@@ -4,31 +4,22 @@ import { DashboardTabProps } from "./types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { FinancialChart } from "@/components/ui/financial-chart";
-import { 
-  dashboardExports, 
-  generatePortfolioInvestmentData, 
+import {
+  dashboardExports,
+  generatePortfolioInvestmentData,
   generatePortfolioCashFlowData,
   generatePortfolioIncomeData,
   exportPortfolioPDF,
   exportPortfolioCSV,
-  exportPortfolioExcel
+  exportPortfolioExcel,
+  toExportData
 } from "./dashboardExports";
+import { useExpandableRows } from "./useExpandableRows";
 
 export function InvestmentAnalysisTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails, global }: DashboardTabProps & { global: any }) {
-  const [expandedRows, setExpandedRows] = React.useState<Set<string>>(new Set());
+  const INV_ROW_KEYS = React.useMemo(() => ["metrics", "returns", "composition"], []);
+  const { expandedRows, toggleRow } = useExpandableRows(INV_ROW_KEYS);
   const tabContentRef = useRef<HTMLDivElement>(null);
-
-  const toggleRow = (rowId: string) => {
-    setExpandedRows(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(rowId)) {
-        newSet.delete(rowId);
-      } else {
-        newSet.add(rowId);
-      }
-      return newSet;
-    });
-  };
 
   const chartData = useMemo(() => {
     return Array.from({ length: projectionYears }, (_, i) => {
@@ -73,7 +64,6 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
         exportPortfolioExcel(years, incomeRows, cfRows); 
         break;
       case 'pptx':
-        const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
         dashboardExports.exportToPPTX({
           projectionYears,
           getFiscalYear,
@@ -83,20 +73,14 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
           portfolioIRR: financials.portfolioIRR,
           cashOnCash: financials.cashOnCash,
           totalProperties: properties.length,
-          totalRooms,
+          totalRooms: financials.totalRooms,
           totalProjectionRevenue: financials.totalProjectionRevenue,
           totalProjectionNOI: financials.totalProjectionNOI,
           totalProjectionCashFlow: financials.totalProjectionCashFlow,
-          incomeData: (() => { 
-            const inc = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear); 
-            return { years: inc.years.map(String), rows: inc.rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; 
-          })(),
-          cashFlowData: (() => { 
-            const cf = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear); 
-            return { years: cf.years.map(String), rows: cf.rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; 
-          })(),
+          incomeData: toExportData(generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear)),
+          cashFlowData: toExportData(generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear)),
           balanceSheetData: { years: years.map(String), rows: [] },
-          investmentData: { years: years.map(String), rows: rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }
+          investmentData: toExportData({ years, rows })
         });
         break;
       case 'png':

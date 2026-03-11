@@ -22,7 +22,6 @@ interface BenchmarkMetric {
 interface PortfolioResearchCardProps {
   properties: Property[];
   yearlyConsolidatedCache: YearlyPropertyFinancials[];
-  allPropertyYearlyIS: YearlyPropertyFinancials[][];
 }
 
 function statusIcon(status: BenchmarkMetric["status"]) {
@@ -45,7 +44,7 @@ function parseRange(display: string): [number, number] | null {
   return nums.length >= 2 ? [nums[0], nums[1]] : null;
 }
 
-export default function PortfolioResearchCard({ properties, yearlyConsolidatedCache, allPropertyYearlyIS }: PortfolioResearchCardProps) {
+export default function PortfolioResearchCard({ properties, yearlyConsolidatedCache }: PortfolioResearchCardProps) {
   const metrics = useMemo(() => {
     if (properties.length === 0) return [];
 
@@ -147,7 +146,7 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
     }
 
     return result;
-  }, [properties, yearlyConsolidatedCache, allPropertyYearlyIS]);
+  }, [properties, yearlyConsolidatedCache]);
 
   if (metrics.length === 0) return null;
 
@@ -159,7 +158,7 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
           <h4 className="text-sm font-display text-foreground">Portfolio Benchmarks</h4>
           <span className="text-xs text-muted-foreground ml-auto">room-weighted vs. research ranges</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2">
           {metrics.map((m) => (
             <div
               key={m.label}

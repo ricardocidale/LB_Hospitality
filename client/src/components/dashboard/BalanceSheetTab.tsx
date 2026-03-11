@@ -4,7 +4,7 @@ import { DashboardTabProps } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction, chartAction } from "@/components/ui/export-toolbar";
 import { FinancialChart } from "@/components/ui/financial-chart";
-import { dashboardExports, generatePortfolioBalanceSheetData, generatePortfolioCashFlowData, generatePortfolioInvestmentData } from "./dashboardExports";
+import { dashboardExports, generatePortfolioBalanceSheetData, generatePortfolioCashFlowData, generatePortfolioInvestmentData, toExportData } from "./dashboardExports";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
 export function BalanceSheetTab({ financials, properties, global, projectionYears, getFiscalYear }: DashboardTabProps) {
@@ -63,7 +63,6 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
         }); 
         break;
       case 'pptx': {
-        const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
         dashboardExports.exportToPPTX({
           projectionYears,
           getFiscalYear,
@@ -73,23 +72,14 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
           portfolioIRR: financials.portfolioIRR,
           cashOnCash: financials.cashOnCash,
           totalProperties: properties.length,
-          totalRooms,
+          totalRooms: financials.totalRooms,
           totalProjectionRevenue: financials.totalProjectionRevenue,
           totalProjectionNOI: financials.totalProjectionNOI,
           totalProjectionCashFlow: financials.totalProjectionCashFlow,
-          incomeData: (() => {
-            const data = dashboardExports.generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear);
-            return { years: data.years.map(String), rows: data.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) };
-          })(),
-          cashFlowData: (() => { 
-            const cf = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear); 
-            return { years: cf.years.map(String), rows: cf.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; 
-          })(),
-          balanceSheetData: { years: years.map(String), rows: rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-          investmentData: (() => { 
-            const inv = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear); 
-            return { years: inv.years.map(String), rows: inv.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; 
-          })()
+          incomeData: toExportData(dashboardExports.generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear)),
+          cashFlowData: toExportData(generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear)),
+          balanceSheetData: toExportData({ years, rows }),
+          investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
         });
         break;
       }

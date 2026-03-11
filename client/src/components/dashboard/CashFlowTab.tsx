@@ -10,16 +10,17 @@ import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { LoanParams, GlobalLoanParams } from "@/lib/financial/loanCalculations";
-import { 
-  dashboardExports, 
-  generatePortfolioCashFlowData, 
+import {
+  dashboardExports,
+  generatePortfolioCashFlowData,
   generatePortfolioInvestmentData,
   exportPortfolioPDF,
   exportPortfolioCSV,
+  toExportData,
   ExportRow
 } from "./dashboardExports";
+import { useExpandableRows } from "./useExpandableRows";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
-import * as XLSX from "xlsx";
 
 export function CashFlowTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
   const { 
@@ -35,43 +36,11 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     totalProjectionCashFlow,
     yearlyConsolidatedCache
   } = financials;
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [expandedFormulas, setExpandedFormulas] = useState<Set<string>>(new Set());
+  const CF_ROW_KEYS = useMemo(() => ["metrics", "cfo", "cfi", "cff"], []);
+  const { expandedRows, expandedFormulas, toggleRow, toggleFormula, toggleAll, allRowsExpanded } = useExpandableRows(CF_ROW_KEYS);
   const tableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [pendingExportAction, setPendingExportAction] = useState<string>("");
-
-  const toggleFormula = (id: string) => {
-    setExpandedFormulas(prev => {
-      const s = new Set(prev);
-      if (s.has(id)) s.delete(id); else s.add(id);
-      return s;
-    });
-  };
-
-  const toggleRow = (rowId: string) => {
-    setExpandedRows(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(rowId)) {
-        newSet.delete(rowId);
-      } else {
-        newSet.add(rowId);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleAll = () => {
-    const allKeys = ["metrics", "cfo", "cfi", "cff"];
-    const allExpanded = allKeys.every(k => expandedRows.has(k));
-    if (allExpanded) {
-      setExpandedRows(new Set());
-    } else {
-      setExpandedRows(new Set(allKeys));
-    }
-  };
-
-  const allRowsExpanded = ["metrics", "cfo", "cfi", "cff"].every(k => expandedRows.has(k));
 
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
 
@@ -118,33 +87,9 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
       case 'csv':
         exportPortfolioCSV(years, rows, "portfolio-cash-flow.csv");
         break;
-      case 'excel': {
-        const wb = XLSX.utils.book_new();
-        const wsData = [
-          ["Portfolio Cash Flow Statement", ...years.map(String)],
-          ...rows.map(row => [
-            (row.indent ? "  ".repeat(row.indent) : "") + row.category,
-            ...row.values
-          ])
-        ];
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        ws["!cols"] = [{ wch: 40 }, ...years.map(() => ({ wch: 15 }))];
-        
-        const currencyFormat = "#,##0";
-        for (let r = 1; r < wsData.length; r++) {
-          for (let c = 1; c < wsData[r].length; c++) {
-            const cellRef = XLSX.utils.encode_cell({ r, c });
-            const cell = ws[cellRef];
-            if (cell && typeof cell.v === "number") {
-              cell.z = currencyFormat;
-            }
-          }
-        }
-        
-        XLSX.utils.book_append_sheet(wb, ws, "Cash Flow");
-        XLSX.writeFile(wb, "portfolio-cash-flow.xlsx");
+      case 'excel':
+        dashboardExports.exportToExcel(years, rows, "portfolio-cash-flow.xlsx", "Cash Flow");
         break;
-      }
     }
   };
 
@@ -156,7 +101,6 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
         exportPortfolioPDF("landscape", projectionYears, years, rows, (i) => yearlyConsolidatedCache[i], "Portfolio Cash Flow Statement");
         break;
       case 'pptx': {
-        const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
         dashboardExports.exportToPPTX({
           projectionYears,
           getFiscalYear,
@@ -166,17 +110,14 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
           portfolioIRR,
           cashOnCash,
           totalProperties: properties.length,
-          totalRooms,
+          totalRooms: financials.totalRooms,
           totalProjectionRevenue,
           totalProjectionNOI,
           totalProjectionCashFlow,
           incomeData: { years: years.map(String), rows: [] },
-          cashFlowData: { years: years.map(String), rows: rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
+          cashFlowData: toExportData({ years, rows }),
           balanceSheetData: { years: years.map(String), rows: [] },
-          investmentData: (() => { 
-            const inv = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear); 
-            return { years: inv.years.map(String), rows: inv.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; 
-          })()
+          investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
         });
         break;
       }

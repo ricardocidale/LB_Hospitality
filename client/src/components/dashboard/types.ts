@@ -26,6 +26,7 @@ export interface DashboardFinancials {
   cashOnCash: number;
   totalInitialEquity: number;
   totalExitValue: number;
+  totalRooms: number;
 }
 
 export interface DashboardTabProps {

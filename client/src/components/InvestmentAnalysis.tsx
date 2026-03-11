@@ -153,7 +153,7 @@ export function InvestmentAnalysis({
       <div className="relative overflow-hidden rounded-lg p-6 mb-6">
         <div className="absolute inset-0 bg-background" />
 
-        <div className="relative grid gap-4 md:grid-cols-5">
+        <div className="relative grid gap-4 md:grid-cols-3 lg:grid-cols-5">
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Total Equity

@@ -9,7 +9,8 @@ import { CalcDetailsProvider, useCalcDetails } from "@/components/financial-tabl
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
-import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData } from "./dashboardExports";
+import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, toExportData } from "./dashboardExports";
+import { useExpandableRows } from "./useExpandableRows";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
 export function IncomeStatementTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
@@ -27,22 +28,11 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     totalProjectionCashFlow
   } = financials;
 
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const IS_ROW_KEYS = useMemo(() => ["metrics", "revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"], []);
+  const { expandedRows, expandedFormulas, toggleRow, toggleFormula, toggleAll, allRowsExpanded } = useExpandableRows(IS_ROW_KEYS);
   const tabContentRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [pendingExportAction, setPendingExportAction] = useState<string>("");
-
-  const toggleRow = (rowId: string) => {
-    setExpandedRows(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(rowId)) {
-        newSet.delete(rowId);
-      } else {
-        newSet.add(rowId);
-      }
-      return newSet;
-    });
-  };
 
   const chartData = useMemo(() => {
     return Array.from({ length: projectionYears }, (_, i) => {
@@ -57,31 +47,6 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       };
     });
   }, [yearlyConsolidatedCache, projectionYears, getFiscalYear]);
-
-  const [expandedFormulas, setExpandedFormulas] = useState<Set<string>>(new Set());
-  const toggleFormula = (formulaId: string) => {
-    setExpandedFormulas(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(formulaId)) {
-        newSet.delete(formulaId);
-      } else {
-        newSet.add(formulaId);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleAll = () => {
-    const allKeys = ["metrics", "revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
-    const allExpanded = allKeys.every(k => expandedRows.has(k));
-    if (allExpanded) {
-      setExpandedRows(new Set());
-    } else {
-      setExpandedRows(new Set(allKeys));
-    }
-  };
-
-  const allRowsExpanded = ["metrics", "revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"].every(k => expandedRows.has(k));
 
   const generateIncomeStatementData = (overrideExpanded?: Set<string>, excludeFormulas?: boolean) => {
     const activeExpanded = overrideExpanded ?? expandedRows;
@@ -341,7 +306,6 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
         }); 
         break;
       case 'pptx': {
-        const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
         dashboardExports.exportToPPTX({
           projectionYears,
           getFiscalYear,
@@ -351,14 +315,14 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           portfolioIRR,
           cashOnCash,
           totalProperties: properties.length,
-          totalRooms,
+          totalRooms: financials.totalRooms,
           totalProjectionRevenue,
           totalProjectionNOI,
           totalProjectionCashFlow,
           incomeData: { years: years.map(String), rows: versionRows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-          cashFlowData: (() => { const cf = generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear); return { years: cf.years.map(String), rows: cf.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; })(),
+          cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear)),
           balanceSheetData: { years: years.map(String), rows: [] },
-          investmentData: (() => { const inv = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear); return { years: inv.years.map(String), rows: inv.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) }; })()
+          investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
         });
         break;
       }

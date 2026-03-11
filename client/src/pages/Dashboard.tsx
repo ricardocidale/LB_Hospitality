@@ -268,14 +268,14 @@ export default function Dashboard() {
   return (
     <Layout>
       <AnimatedPage>
-        <div className="relative z-10 max-w-[1600px] mx-auto space-y-8 pb-20">
+        <div className="relative z-10 space-y-8">
           <PageHeader
             title="Portfolio Performance"
             subtitle="Consolidated financial oversight across all active assets"
           />
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="mb-6 sticky top-4 z-10">
+            <div className="mb-6 sticky top-12 z-10">
               <CurrentThemeTab
                 activeTab={activeTab}
                 onTabChange={setActiveTab}

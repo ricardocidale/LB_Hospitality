@@ -1,5 +1,6 @@
 export * from "./types";
 export * from "./usePortfolioFinancials";
+export * from "./useExpandableRows";
 export * from "./dashboardExports";
 export * from "./OverviewTab";
 export * from "./IncomeStatementTab";

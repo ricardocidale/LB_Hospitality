@@ -166,12 +166,15 @@ export function usePortfolioFinancials(
 
   if (!stats) return null;
 
+  const totalRooms = properties?.reduce((sum, p) => sum + p.roomCount, 0) ?? 0;
+
   return {
     allPropertyFinancials,
     allPropertyYearlyCF,
     allPropertyYearlyIS,
     yearlyConsolidatedCache,
     weightedMetricsByYear,
+    totalRooms,
     ...stats
   };
 }

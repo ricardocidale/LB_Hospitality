@@ -152,7 +152,7 @@ export default function Settings() {
       <AnimatedPage>
       <div className="space-y-6 max-w-4xl">
         <PageHeader
-          title="Systemwide Assumptions"
+          title="General Config"
           subtitle="Configure variables driving the financial model"
           variant="dark"
           actions={

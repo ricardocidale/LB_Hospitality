@@ -50,6 +50,7 @@ const PropertyResearchCriteria = lazy(
   () => import("@/pages/PropertyResearchCriteria"),
 );
 const CompanyResearch = lazy(() => import("@/pages/CompanyResearch"));
+const CompanyResearchCriteria = lazy(() => import("@/pages/CompanyResearchCriteria"));
 const GlobalResearch = lazy(() => import("@/pages/GlobalResearch"));
 const ResearchHub = lazy(() => import("@/pages/ResearchHub"));
 const Admin = lazy(() => import("@/pages/Admin"));
@@ -261,6 +262,9 @@ function Router() {
         </Route>
         <Route path="/research">
           <Redirect to="/" />
+        </Route>
+        <Route path="/company/criteria">
+          <ManagementRoute component={CompanyResearchCriteria} />
         </Route>
         <Route path="/company/research">
           <ManagementRoute component={CompanyResearch} />

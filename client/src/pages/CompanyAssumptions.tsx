@@ -30,7 +30,7 @@ import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
-import { IconBookOpen, IconAlertTriangle } from "@/components/icons";
+import { IconBookOpen, IconAlertTriangle, IconSparkles } from "@/components/icons";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
@@ -38,6 +38,7 @@ import { SaveButton } from "@/components/ui/save-button";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { DEFAULT_MODEL_START_DATE } from "@/lib/constants";
+import { useCompanyResearchStream } from "@/components/company-research/useCompanyResearchStream";
 import {
   CompanySetupSection,
   FundingSection,
@@ -63,6 +64,7 @@ export default function CompanyAssumptions() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
+  const { isGenerating, streamedContent, generateResearch } = useCompanyResearchStream();
 
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
   const [isDirty, setIsDirty] = useState(false);
@@ -217,10 +219,23 @@ export default function CompanyAssumptions() {
           backLink="/company"
           actions={
             <div className="flex items-center gap-3">
-              <Link href="/company/research" className="text-inherit no-underline">
-                <Button variant="default" data-testid="button-company-research">
+              <Button
+                variant="default"
+                onClick={generateResearch}
+                disabled={isGenerating}
+                data-testid="button-run-company-research"
+              >
+                {isGenerating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <IconSparkles className="w-4 h-4" />
+                )}
+                {isGenerating ? "Generating…" : "Run Research"}
+              </Button>
+              <Link href="/company/criteria" className="text-inherit no-underline">
+                <Button variant="outline" data-testid="button-company-criteria">
                   <IconBookOpen className="w-4 h-4" />
-                  Standards Research
+                  Criteria
                 </Button>
               </Link>
               <SaveButton 

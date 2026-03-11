@@ -33,10 +33,9 @@ interface SlideTableRow {
 
 /** Create a dark-background title slide with brand name, report title, and date. */
 function addTitleSlide(pres: any, title: string, subtitle: string, companyName: string) {
-  const pptxgen = (pres as any).constructor;
   const slide = pres.addSlide();
   slide.background = { color: "1a2a3a" };
-  slide.addShape(pptxgen.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: SAGE } });
+  slide.addShape("rect", { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: SAGE } });
   slide.addText(companyName, {
     x: 0.5, y: 1.5, w: 9, h: 0.6,
     fontSize: 28, fontFace: "Arial", color: SAGE, bold: true,
@@ -60,13 +59,12 @@ function addTitleSlide(pres: any, title: string, subtitle: string, companyName: 
  * Each card displays a large formatted value with a descriptive label below it.
  */
 function addMetricsSlide(pres: any, title: string, metrics: { label: string; value: string }[]) {
-  const pptxgen = (pres as any).constructor;
   const slide = pres.addSlide();
   slide.addText(title, {
     x: 0.5, y: 0.3, w: 9, h: 0.5,
     fontSize: 20, fontFace: "Arial", color: DARK_GREEN, bold: true,
   });
-  slide.addShape(pptxgen.ShapeType.rect, { x: 0.5, y: 0.85, w: 9, h: 0.02, fill: { color: SAGE } });
+  slide.addShape("rect", { x: 0.5, y: 0.85, w: 9, h: 0.02, fill: { color: SAGE } });
 
   const cols = 3;
   const cardW = 2.8;
@@ -81,7 +79,7 @@ function addMetricsSlide(pres: any, title: string, metrics: { label: string; val
     const x = startX + col * (cardW + gapX);
     const y = startY + row * (cardH + 0.15);
 
-    slide.addShape(pptxgen.ShapeType.rect, {
+    slide.addShape("rect", {
       x, y, w: cardW, h: cardH,
       fill: { color: "F5F9F6" },
       line: { color: SAGE, width: 1 },
@@ -124,7 +122,6 @@ function addFinancialTableSlide(
   rows: SlideTableRow[],
   maxYearsPerSlide = 5
 ) {
-  const pptxgen = (pres as any).constructor;
   for (let startCol = 0; startCol < years.length; startCol += maxYearsPerSlide) {
     const endCol = Math.min(startCol + maxYearsPerSlide, years.length);
     const sliceYears = years.slice(startCol, endCol);

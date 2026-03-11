@@ -14,6 +14,7 @@
  * the original assumptions.
  */
 import { useState, useMemo, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
 
 interface WhatIfPanelProps {
@@ -88,6 +89,9 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
       <div
         className="fixed inset-0 bg-foreground/30 z-40"
         onClick={onClose}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClose(); } }}
         data-testid="what-if-overlay"
       />
 
@@ -100,13 +104,14 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
           <h2 className="text-lg font-semibold text-foreground" data-testid="what-if-title">
             What-If Analysis
           </h2>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground text-xl leading-none"
             data-testid="what-if-close"
           >
             ✕
-          </button>
+          </Button>
         </div>
 
         <div className="px-4 py-2 border-b border-border">
@@ -262,23 +267,23 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
         </div>
 
         <div className="px-4 py-3 border-t border-border flex gap-2">
-          <button
+          <Button
+            variant="outline"
             onClick={handleReset}
             disabled={!hasChanges}
-            className="flex-1 px-3 py-2 text-sm font-medium rounded-md border border-border text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1"
             data-testid="what-if-reset"
           >
             Reset
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleApply}
             disabled={!hasChanges}
-            className="flex-1 px-3 py-2 text-sm font-medium rounded-md text-white disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "var(--primary)" }}
+            className="flex-1"
             data-testid="what-if-apply"
           >
             Apply Changes
-          </button>
+          </Button>
         </div>
       </div>
     </>

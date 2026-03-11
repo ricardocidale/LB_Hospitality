@@ -1,4 +1,5 @@
 import React, { useRef, useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { InsightPanel, type Insight } from "@/components/graphics";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Tooltip as RechartsTooltip, AreaChart, Area, LineChart, Line, LabelList, PieChart, Pie, Cell, ReferenceLine } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
@@ -108,9 +109,11 @@ type ChartMode = "area" | "line";
 function ChartModeToggle({ mode, onChange }: { mode: ChartMode; onChange: (m: ChartMode) => void }) {
   return (
     <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5" data-testid="chart-mode-toggle">
-      <button
+      <Button
+        variant={mode === "area" ? "secondary" : "ghost"}
+        size="sm"
         onClick={() => onChange("area")}
-        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
+        className={`px-2.5 py-1 text-xs font-medium ${
           mode === "area"
             ? "bg-card text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
@@ -118,10 +121,12 @@ function ChartModeToggle({ mode, onChange }: { mode: ChartMode; onChange: (m: Ch
         data-testid="toggle-area-chart"
       >
         Area
-      </button>
-      <button
+      </Button>
+      <Button
+        variant={mode === "line" ? "secondary" : "ghost"}
+        size="sm"
         onClick={() => onChange("line")}
-        className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
+        className={`px-2.5 py-1 text-xs font-medium ${
           mode === "line"
             ? "bg-card text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
@@ -129,7 +134,7 @@ function ChartModeToggle({ mode, onChange }: { mode: ChartMode; onChange: (m: Ch
         data-testid="toggle-line-chart"
       >
         Line
-      </button>
+      </Button>
     </div>
   );
 }

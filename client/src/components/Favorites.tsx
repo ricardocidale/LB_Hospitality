@@ -9,6 +9,7 @@
  */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { IconStar, IconBuilding2, IconFileText, IconEye } from "@/components/icons";
 import { useState } from "react";
@@ -60,14 +61,16 @@ export function FavoritesStar({ item, className }: { item: FavoriteItem; classNa
   const favorited = isFavorite(item.id);
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       data-testid={`button-favorite-${item.id}`}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
         toggleFavorite(item);
       }}
-      className={`transition-all duration-300 ease-in-out ${
+      className={`h-auto w-auto p-0 transition-all duration-300 ease-in-out ${
         favorited
           ? "text-primary"
           : "text-background/30 hover:text-primary"
@@ -77,7 +80,7 @@ export function FavoritesStar({ item, className }: { item: FavoriteItem; classNa
         className="w-4 h-4"
         fill={favorited ? "currentColor" : "none"}
       />
-    </button>
+    </Button>
   );
 }
 
@@ -98,9 +101,10 @@ export default function FavoritesSidebar() {
 
   return (
     <div data-testid="favorites-sidebar">
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors duration-200"
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm font-medium text-sidebar-foreground/50 hover:text-sidebar-foreground justify-start"
       >
         <IconStar className="w-3.5 h-3.5" />
         <span>Favorites</span>
@@ -109,7 +113,7 @@ export default function FavoritesSidebar() {
             open ? "" : "-rotate-90"
           }`}
         />
-      </button>
+      </Button>
 
       {open && (
         <div className="px-2 pb-2 space-y-0.5">

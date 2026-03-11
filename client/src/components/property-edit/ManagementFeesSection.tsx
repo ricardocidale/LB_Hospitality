@@ -19,6 +19,7 @@
  * income statement. This dual-entity structure is central to the platform.
  */
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
@@ -76,15 +77,16 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
                       max={5}
                       step={0.1}
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       onClick={() => onFeeCategoryChange(idx, "isActive", !cat.isActive)}
-                      className={`w-8 h-5 rounded-full transition-colors ${cat.isActive ? 'bg-primary' : 'bg-muted'} relative`}
+                      className={`w-8 h-5 rounded-full p-0 ${cat.isActive ? 'bg-primary' : 'bg-muted'} relative`}
                       title={cat.isActive ? "Disable this fee" : "Enable this fee"}
                       data-testid={`toggle-fee-${cat.name.toLowerCase().replace(/\s+/g, '-')}`}
                     >
                       <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-card shadow transition-transform ${cat.isActive ? 'right-0.5' : 'left-0.5'}`} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <Slider 

@@ -13,6 +13,7 @@
  * only import the most promising targets for full financial modeling.
  */
 import { formatMoney } from "@/lib/financialEngine";
+import { Button } from "@/components/ui/button";
 import type { SavedProspectiveProperty } from "@/lib/api";
 import { Loader2, X } from "lucide-react";
 import { IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconStickyNote, IconSave, IconTrash } from "@/components/icons";
@@ -63,10 +64,11 @@ export function FavoriteCard({
             <IconMapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
             <span className="text-foreground font-medium text-sm leading-snug">{property.address}</span>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onRemove(property.id)}
             disabled={isRemoving}
-            className="p-1.5 rounded-lg hover:bg-red-50 transition-colors flex-shrink-0"
             title="Remove property"
             data-testid={`btn-remove-saved-${property.id}`}
           >
@@ -75,7 +77,7 @@ export function FavoriteCard({
             ) : (
               <IconTrash className="w-4 h-4 text-destructive/70 hover:text-destructive" />
             )}
-          </button>
+          </Button>
         </div>
 
         <p className="text-xl font-bold text-foreground mb-3">
@@ -137,30 +139,34 @@ export function FavoriteCard({
                 data-testid={`input-notes-${property.id}`}
                 onKeyDown={(e) => e.key === "Enter" && onSaveNotes(property.id)}
               />
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => onSaveNotes(property.id)}
-                className="p-1.5 rounded-lg hover:bg-primary/10 text-primary"
+                className="text-primary"
                 data-testid={`btn-save-notes-${property.id}`}
               >
                 <IconSave className="w-3.5 h-3.5" />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={onCancelEditing}
-                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
               >
                 <X className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             </div>
           ) : (
-            <button
+            <Button
+              variant="ghost"
               onClick={() => onStartEditing(property)}
-              className="text-xs text-muted-foreground hover:text-muted-foreground truncate block w-full text-left"
+              className="text-xs text-muted-foreground hover:text-muted-foreground truncate w-full justify-start px-0"
               title={property.notes || "Click to add notes"}
               data-testid={`btn-edit-notes-${property.id}`}
             >
               <IconStickyNote className="w-3 h-3 inline mr-1" />
               {property.notes || <span className="italic">Add notes...</span>}
-            </button>
+            </Button>
           )}
         </div>
       </div>

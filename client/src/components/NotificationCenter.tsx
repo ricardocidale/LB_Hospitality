@@ -11,6 +11,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import { IconBell, IconInfo, IconCheckCircle, IconAlertTriangle, IconXCircle } from "@/components/icons";
 
 export interface Notification {
@@ -107,10 +108,12 @@ export default function NotificationCenter() {
 
   return (
     <div ref={ref} className="relative">
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         data-testid="button-notifications"
         onClick={() => setOpen((o) => !o)}
-        className="relative w-10 h-10 rounded-lg flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-border transition-all duration-200"
+        className="relative w-10 h-10 bg-sidebar-accent hover:bg-sidebar-border"
       >
         <IconBell className="w-4 h-4 text-sidebar-foreground/50" />
         {count > 0 && (
@@ -121,7 +124,7 @@ export default function NotificationCenter() {
             {count > 99 ? "99+" : count}
           </span>
         )}
-      </button>
+      </Button>
 
       {open && (
         <div
@@ -133,13 +136,15 @@ export default function NotificationCenter() {
               Notifications
             </span>
             {notifications.length > 0 && (
-              <button
+              <Button
+                variant="link"
+                size="sm"
                 data-testid="button-mark-all-read"
                 onClick={markAllRead}
-                className="text-xs text-primary hover:text-primary/80 transition-colors"
+                className="text-xs text-primary hover:text-primary/80 p-0 h-auto"
               >
                 Mark all read
-              </button>
+              </Button>
             )}
           </div>
 
@@ -156,11 +161,12 @@ export default function NotificationCenter() {
                 const cfg = TYPE_CONFIG[n.type];
                 const Icon = cfg.icon;
                 return (
-                  <button
+                  <Button
                     key={n.id}
+                    variant="ghost"
                     data-testid={`notification-item-${n.id}`}
                     onClick={() => markRead(n.id)}
-                    className="w-full text-left px-4 py-3 flex gap-3 hover:bg-muted transition-colors"
+                    className="w-full text-left px-4 py-3 flex gap-3 h-auto rounded-none justify-start"
                     style={{
                       borderLeft: !n.read
                         ? "3px solid var(--primary)"
@@ -182,7 +188,7 @@ export default function NotificationCenter() {
                         {relativeTime(n.timestamp)}
                       </p>
                     </div>
-                  </button>
+                  </Button>
                 );
               })
             )}
@@ -190,13 +196,15 @@ export default function NotificationCenter() {
 
           {notifications.length > 0 && (
             <div className="border-t border-border px-4 py-2">
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 data-testid="button-clear-all"
                 onClick={clearAll}
-                className="w-full text-xs text-muted-foreground hover:text-muted-foreground transition-colors py-1"
+                className="w-full text-xs text-muted-foreground hover:text-muted-foreground"
               >
                 Clear all
-              </button>
+              </Button>
             </div>
           )}
         </div>

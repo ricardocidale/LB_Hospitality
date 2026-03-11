@@ -10,6 +10,7 @@
  * while saved searches are being fetched on mount.
  */
 import type { SavedSearchData } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import { Loader2, X } from "lucide-react";
 import { IconBookmark } from "@/components/icons";
 
@@ -38,17 +39,21 @@ export function SavedSearchBar({
           className="inline-flex items-center gap-1.5 bg-primary/10 text-secondary border border-primary/20 rounded-full px-3 py-1.5 text-xs font-medium"
           data-testid={`row-saved-search-${search.id}`}
         >
-          <button
+          <Button
+            variant="link"
+            size="sm"
             onClick={() => onLoadSearch(search)}
-            className="hover:underline"
+            className="p-0 h-auto text-xs font-medium"
             data-testid={`btn-run-search-${search.id}`}
           >
             {search.name}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onDeleteSearch(search.id)}
             disabled={isDeletePending}
-            className="p-0.5 rounded-full hover:bg-primary/20 transition-colors"
+            className="p-0.5 h-auto w-auto rounded-full"
             title="Delete search"
             data-testid={`btn-delete-search-${search.id}`}
           >
@@ -57,7 +62,7 @@ export function SavedSearchBar({
             ) : (
               <X className="w-3 h-3" />
             )}
-          </button>
+          </Button>
         </div>
       ))}
     </div>

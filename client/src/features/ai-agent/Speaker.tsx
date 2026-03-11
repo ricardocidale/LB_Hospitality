@@ -257,9 +257,11 @@ const VolumeSlider = memo(
 
     return (
       <div className="flex items-center justify-center gap-4 pt-4">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => setVolume((prev: number) => (prev > 0 ? 0 : 0.7))}
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground h-auto w-auto p-1"
         >
           <VolumeIcon
             className={cn(
@@ -267,7 +269,7 @@ const VolumeSlider = memo(
               volume === 0 && "text-muted-foreground/50"
             )}
           />
-        </button>
+        </Button>
         <div
           className="volume-slider bg-foreground/10 group relative h-1 w-48 cursor-pointer rounded-full"
           onClick={(e) => {
@@ -1314,11 +1316,13 @@ function SpeakerControls({
             </h4>
             <div className="max-h-32 space-y-1 overflow-y-auto">
               {tracks.map((track, index) => (
-                <button
+                <Button
                   key={track.id}
+                  variant="ghost"
+                  size="sm"
                   onClick={() => playTrack(index)}
                   className={cn(
-                    "w-full rounded px-2 py-1 text-left text-xs transition-all",
+                    "w-full rounded px-2 py-1 text-left text-xs h-auto justify-start",
                     currentTrackIndex === index
                       ? "bg-foreground/10 text-foreground dark:bg-primary/20 dark:text-primary"
                       : "hover:bg-muted text-muted-foreground"
@@ -1335,7 +1339,7 @@ function SpeakerControls({
                       </div>
                     </div>
                   </div>
-                </button>
+                </Button>
               ))}
             </div>
           </div>

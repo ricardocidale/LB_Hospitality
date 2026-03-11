@@ -12,14 +12,15 @@ export function ThemePreview() {
 
   if (!previewOpen) {
     return (
-      <button
+      <Button
+        variant="outline"
         onClick={() => setPreviewOpen(true)}
-        className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors flex items-center justify-center gap-2"
+        className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground h-auto"
         data-testid="button-show-preview"
       >
         <IconEye className="w-4 h-4" />
         Show Live Preview
-      </button>
+      </Button>
     );
   }
 

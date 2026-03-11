@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
   ChartContainer,
@@ -37,18 +38,19 @@ export function BarChartInteractive({
       <div className="flex flex-col items-stretch border-b sm:flex-row">
         <div className="flex">
           {series.map((s) => (
-            <button
+            <Button
               key={s.dataKey}
+              variant="ghost"
               data-active={activeChart === s.dataKey}
               data-testid={`chart-toggle-${s.dataKey}`}
-              className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-t-0 sm:border-l sm:px-8 sm:py-6"
+              className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-t-0 sm:border-l sm:px-8 sm:py-6 h-auto rounded-none"
               onClick={() => setActiveChart(s.dataKey)}
             >
               <span className="text-xs text-muted-foreground">{s.label}</span>
               <span className="text-lg leading-none font-bold sm:text-3xl">
                 {totals[s.dataKey]?.toLocaleString()}
               </span>
-            </button>
+            </Button>
           ))}
         </div>
       </div>

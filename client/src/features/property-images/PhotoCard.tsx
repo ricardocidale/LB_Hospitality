@@ -42,11 +42,13 @@ export function PhotoCard({ photo, onSetHero, onDelete, onUpdateCaption, isSetti
       </div>
 
       {/* Hero star */}
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={() => !photo.isHero && onSetHero(photo.id)}
         disabled={isSettingHero}
         className={cn(
-          "absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all",
+          "absolute top-2 right-2 z-10 p-1.5 rounded-full h-auto w-auto",
           photo.isHero
             ? "bg-amber-400/90 text-amber-900 shadow-lg shadow-amber-400/30"
             : "bg-black/50 backdrop-blur-sm text-white/70 opacity-0 group-hover:opacity-100 hover:bg-amber-400/80 hover:text-amber-900"
@@ -54,7 +56,7 @@ export function PhotoCard({ photo, onSetHero, onDelete, onUpdateCaption, isSetti
         title={photo.isHero ? "Current hero image" : "Set as hero image"}
       >
         <Star className={cn("w-4 h-4", photo.isHero && "fill-current")} />
-      </button>
+      </Button>
 
       {/* Image */}
       <div className="aspect-[4/3] overflow-hidden">
@@ -86,13 +88,14 @@ export function PhotoCard({ photo, onSetHero, onDelete, onUpdateCaption, isSetti
           </div>
         ) : (
           <div className="flex items-center justify-between gap-2">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => { setCaptionDraft(photo.caption || ""); setEditingCaption(true); }}
-              className="flex-1 text-left text-xs text-muted-foreground hover:text-foreground truncate transition-colors"
+              className="flex-1 text-left text-xs text-muted-foreground hover:text-foreground truncate h-auto px-0 justify-start"
               title="Click to edit caption"
             >
               {photo.caption || "Add caption..."}
-            </button>
+            </Button>
             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => { setCaptionDraft(photo.caption || ""); setEditingCaption(true); }}>
                 <Pencil className="w-3 h-3" />

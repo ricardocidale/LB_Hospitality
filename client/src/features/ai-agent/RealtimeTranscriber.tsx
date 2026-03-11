@@ -177,15 +177,15 @@ const BottomControls = React.memo(
             }}
             className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2"
           >
-            <button
+            <Button
               onClick={onStop}
-              className="bg-foreground text-background border-foreground/10 inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium shadow-lg transition-opacity hover:opacity-90"
+              className="bg-foreground text-background border-foreground/10 inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium shadow-lg hover:opacity-90"
             >
               Stop
               <kbd className="border-background/20 bg-background/10 inline-flex h-5 items-center rounded border px-1.5 font-mono text-xs">
                 {isMac ? "⌘K" : "Ctrl+K"}
               </kbd>
-            </button>
+            </Button>
           </motion.div>
         )}
       </AnimatePresence>

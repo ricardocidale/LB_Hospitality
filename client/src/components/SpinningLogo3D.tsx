@@ -22,6 +22,9 @@ function CSSFallback({ size, onClick }: { size: number; onClick?: () => void }) 
     <div
       style={{ width: size, height: size, cursor: onClick ? "pointer" : "default", perspective: "200px" }}
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       data-testid="logo-login"
     >
       <img
@@ -99,6 +102,9 @@ function ThreeCanvas({ size, onClick }: { size: number; onClick?: () => void }) 
       ref={containerRef}
       style={{ width: size, height: size, cursor: onClick ? "pointer" : "default" }}
       onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       data-testid="logo-login"
     />
   );

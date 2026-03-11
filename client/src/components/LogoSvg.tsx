@@ -90,7 +90,13 @@ export function LogoSvg({
 
   if (!rotating) {
     return (
-      <div onClick={onClick} className={onClick ? "cursor-pointer" : ""}>
+      <div
+        onClick={onClick}
+        className={onClick ? "cursor-pointer" : ""}
+        role={onClick ? "button" : undefined}
+        tabIndex={onClick ? 0 : undefined}
+        onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
+      >
         {svg}
       </div>
     );
@@ -100,6 +106,9 @@ export function LogoSvg({
     <motion.div
       onClick={onClick}
       className={onClick ? "cursor-pointer" : ""}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       animate={{ rotate: 360 }}
       transition={{
         duration: rotationDuration,

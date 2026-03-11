@@ -13,6 +13,7 @@
  * a real property in the database with these estimated values pre-filled.
  */
 import { formatMoney } from "@/lib/financialEngine";
+import { Button } from "@/components/ui/button";
 import type { PropertyFinderResult } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { IconHeart, IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconImage } from "@/components/icons";
@@ -59,18 +60,20 @@ export function SearchResultCard({
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             {property.imageUrl && (
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => onToggleImage(property.externalId)}
-                className="p-1.5 rounded-lg hover:bg-muted transition-colors"
                 data-testid={`btn-image-${property.externalId}`}
               >
                 <IconImage className="w-4 h-4 text-primary" />
-              </button>
+              </Button>
             )}
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onToggleFavorite}
               disabled={isSaving}
-              className="p-1.5 rounded-lg hover:bg-muted transition-colors"
               title={isSaved ? "Remove from saved" : "Save property"}
               data-testid={`btn-favorite-${property.externalId}`}
             >
@@ -81,7 +84,7 @@ export function SearchResultCard({
               ) : (
                 <IconHeart className="w-4 h-4 text-muted-foreground hover:text-destructive" />
               )}
-            </button>
+            </Button>
           </div>
         </div>
 

@@ -130,14 +130,16 @@ export function RebeccaChatbot({ displayName = "Rebecca" }: RebeccaChatbotProps)
                 <p className="text-sm">Ask me about your properties, financials, or investment metrics.</p>
                 <div className="flex flex-wrap gap-1.5 justify-center mt-2">
                   {["What's the portfolio NOI?", "Compare properties by RevPAR", "Which property has the best margins?"].map((q) => (
-                    <button
+                    <Button
                       key={q}
+                      variant="outline"
+                      size="sm"
                       onClick={() => { setInput(q); }}
-                      className="text-xs px-2.5 py-1 rounded-full border border-border bg-muted/50 hover:bg-muted text-foreground/70 transition-colors"
+                      className="text-xs px-2.5 py-1 rounded-full h-auto"
                       data-testid={`button-suggestion-${q.slice(0, 20).replace(/\s+/g, "-")}`}
                     >
                       {q}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>

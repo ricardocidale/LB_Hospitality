@@ -88,11 +88,12 @@ export function PrepaymentTab() {
             <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Select Penalty Method</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(["yield_maintenance", "step_down", "defeasance"] as const).map((type) => (
-                <button
+                <Button
                   key={type}
+                  variant={penaltyType === type ? "outline" : "ghost"}
                   onClick={() => setPenaltyType(type)}
                   data-testid={`button-prepay-type-${type}`}
-                  className={`flex flex-col items-start p-3 rounded-xl border transition-all ${
+                  className={`flex flex-col items-start p-3 rounded-xl h-auto whitespace-normal ${
                     penaltyType === type
                       ? "bg-primary/10 border-primary text-primary shadow-sm"
                       : "bg-background border-border text-muted-foreground hover:border-primary/50 hover:bg-muted/50"
@@ -104,7 +105,7 @@ export function PrepaymentTab() {
                     {type === "step_down" && "Fixed % schedule"}
                     {type === "defeasance" && "Bond substitution"}
                   </span>
-                </button>
+                </Button>
               ))}
             </div>
           </div>

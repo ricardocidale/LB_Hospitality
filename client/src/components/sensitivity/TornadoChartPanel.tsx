@@ -1,4 +1,5 @@
 import { IconBarChart3 } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell, ReferenceLine, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import type { TornadoItem } from "./types";
@@ -41,9 +42,11 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
         </div>
         
         <div className="flex bg-muted/50 p-1 rounded-lg border border-border self-start sm:self-center">
-          <button
+          <Button
+            variant={tornadoMetric === "irr" ? "secondary" : "ghost"}
+            size="sm"
             onClick={() => onMetricChange("irr")}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1.5 text-xs font-semibold ${
               tornadoMetric === "irr" 
                 ? "bg-background text-foreground shadow-sm" 
                 : "text-muted-foreground hover:text-foreground"
@@ -51,10 +54,12 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
             data-testid="button-tornado-irr"
           >
             IRR
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={tornadoMetric === "noi" ? "secondary" : "ghost"}
+            size="sm"
             onClick={() => onMetricChange("noi")}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+            className={`px-3 py-1.5 text-xs font-semibold ${
               tornadoMetric === "noi" 
                 ? "bg-background text-foreground shadow-sm" 
                 : "text-muted-foreground hover:text-foreground"
@@ -62,7 +67,7 @@ export function TornadoChartPanel({ tornadoData, tornadoMetric, onMetricChange }
             data-testid="button-tornado-noi"
           >
             NOI
-          </button>
+          </Button>
         </div>
       </div>
 

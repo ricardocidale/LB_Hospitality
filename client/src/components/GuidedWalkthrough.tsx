@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X, ChevronRight, ChevronLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { IconHelpCircle, IconCompass } from "@/components/icons";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
@@ -54,15 +55,17 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center" data-testid="tour-prompt-dialog">
-      <div className="fixed inset-0 bg-foreground/60" onClick={() => onDecline(dontOffer)} />
+      <div className="fixed inset-0 bg-foreground/60" onClick={() => onDecline(dontOffer)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onDecline(dontOffer); } }} />
       <div className="relative bg-card rounded-lg shadow-sm border border-border p-8 max-w-md w-full mx-4 animate-in fade-in zoom-in-95 duration-300">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => onDecline(dontOffer)}
-          className="absolute top-4 right-4 text-muted-foreground/40 hover:text-foreground/70 transition-colors"
+          className="absolute top-4 right-4 text-muted-foreground/40 hover:text-foreground/70"
           data-testid="button-tour-prompt-close"
         >
           <X className="w-4 h-4" />
-        </button>
+        </Button>
 
         <div className="flex flex-col items-center text-center space-y-6">
           <div className="w-14 h-14 rounded-lg bg-primary/15 flex items-center justify-center">
@@ -79,20 +82,21 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
           </div>
 
           <div className="flex items-center gap-3 w-full pt-1">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => onDecline(dontOffer)}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-muted-foreground bg-muted hover:bg-muted/80 rounded-lg transition-colors"
+              className="flex-1"
               data-testid="button-tour-decline"
             >
               Skip
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onAccept}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-sm"
+              className="flex-1"
               data-testid="button-tour-accept"
             >
               Start Tour
-            </button>
+            </Button>
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer group" data-testid="label-dont-offer-again">
@@ -240,6 +244,9 @@ function GuidedWalkthrough() {
         className="fixed inset-0 z-[9997]"
         style={{ pointerEvents: "auto" }}
         onClick={handleSkip}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleSkip(); } }}
       />
 
       <div style={spotlightStyle} />
@@ -251,13 +258,15 @@ function GuidedWalkthrough() {
       >
         <div className="flex items-start justify-between mb-2.5">
           <h3 className="text-sm font-semibold text-foreground tracking-tight pr-4">{currentStep.title}</h3>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={handleSkip}
-            className="text-muted-foreground/40 hover:text-foreground/70 transition-colors -mt-0.5 -mr-0.5 shrink-0"
+            className="text-muted-foreground/40 hover:text-foreground/70 -mt-0.5 -mr-0.5 shrink-0 h-auto w-auto p-0.5"
             data-testid="button-close-tour"
           >
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
 
         <p className="text-xs text-muted-foreground leading-relaxed mb-5">{currentStep.description}</p>
@@ -276,24 +285,27 @@ function GuidedWalkthrough() {
 
           <div className="flex items-center gap-1.5">
             {step > 0 && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleBack}
-                className="inline-flex items-center gap-0.5 text-xs px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="text-xs"
                 data-testid="button-tour-back"
               >
                 <ChevronLeft className="w-3 h-3" />
                 Back
-              </button>
+              </Button>
             )}
 
-            <button
+            <Button
+              size="sm"
               onClick={handleNext}
-              className="inline-flex items-center gap-0.5 text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-colors shadow-sm"
+              className="text-xs"
               data-testid="button-tour-next"
             >
               {isLast ? "Done" : "Next"}
               {!isLast && <ChevronRight className="w-3 h-3" />}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -311,9 +323,10 @@ export function WalkthroughTrigger() {
   }, [setTourActive, setShownThisSession]);
 
   return (
-    <button
+    <Button
+      variant="ghost"
       onClick={handleClick}
-      className="group relative flex items-center gap-3 px-4 py-3 text-sm font-medium text-background/60 hover:text-white rounded-lg transition-all duration-300 overflow-hidden w-full"
+      className="group relative flex items-center gap-3 px-4 py-3 text-sm font-medium text-background/60 hover:text-white rounded-lg overflow-hidden w-full justify-start h-auto"
       data-testid="button-start-tour"
     >
       <div className="absolute inset-0 bg-card/0 group-hover:bg-card/5 transition-all duration-300 rounded-lg" />
@@ -321,7 +334,7 @@ export function WalkthroughTrigger() {
         <IconHelpCircle className="w-4 h-4 transition-all duration-300" />
       </div>
       <span className="relative">Guided Tour</span>
-    </button>
+    </Button>
   );
 }
 

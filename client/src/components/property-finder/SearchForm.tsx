@@ -16,6 +16,7 @@
  */
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Loader2, X } from "lucide-react";
 import { IconBookmark, IconSave } from "@/components/icons";
@@ -153,40 +154,42 @@ export function SearchForm({
                         data-testid="input-search-name"
                         onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), onSaveSearch())}
                       />
-                      <button
+                      <Button
                         type="button"
+                        size="icon"
                         onClick={onSaveSearch}
                         disabled={isSaveSearchPending}
-                        className="p-2 rounded-lg bg-primary hover:bg-primary/80 text-primary-foreground transition-colors"
                         data-testid="btn-confirm-save-search"
                       >
                         {isSaveSearchPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => { setShowSaveDialog(false); setSaveSearchName(""); }}
-                        className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
                       >
                         <X className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </div>
                   ) : (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setShowSaveDialog(true)}
-                      className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
+                      className="text-xs text-primary hover:text-primary/80"
                       data-testid="btn-save-search"
                     >
                       <IconBookmark className="w-3.5 h-3.5" /> Save This Search
-                    </button>
+                    </Button>
                   )}
                 </>
               )}
             </div>
-            <button
+            <Button
               type="submit"
               disabled={isSearching}
-              className="bg-primary hover:bg-primary/80 text-primary-foreground font-semibold px-6 py-2.5 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
               data-testid="btn-search"
             >
               {isSearching ? (
@@ -194,7 +197,7 @@ export function SearchForm({
               ) : (
                 <><Search className="w-4 h-4" /> Search Properties</>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

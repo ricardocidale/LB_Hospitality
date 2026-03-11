@@ -47,6 +47,7 @@ export {
   drawBrandedHeader,
   drawTitle,
   drawSubtitle,
+  drawSubtitleRow,
   drawSectionHeader,
   drawParagraph,
   drawKeyValue,

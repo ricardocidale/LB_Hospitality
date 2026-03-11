@@ -3,7 +3,7 @@ import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
-import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle } from "@/lib/exports/pdfHelpers";
+import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
@@ -370,16 +370,23 @@ export async function exportPortfolioPDF(
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
 
+  const pageWidth = orientation === "landscape" ? 297 : 210;
+  const sourceTag = `${title} \u2014 Consolidated Portfolio`;
+
   drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15);
-  drawSubtitle(doc, `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[projectionYears - 1]})`, 14, 22);
+  drawSubtitleRow(doc,
+    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[projectionYears - 1]})`,
+    sourceTag, 14, 22, pageWidth);
   drawSubtitle(doc, `Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27);
 
   const tableConfig = buildFinancialTableConfig(years, rows, orientation, 32);
   autoTable(doc, tableConfig);
 
   doc.addPage();
-  drawTitle(doc, "Performance Chart", 14, 15, { fontSize: 16 });
-  drawSubtitle(doc, `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`, 14, 22);
+  drawTitle(doc, `${companyName} \u2014 ${title} Performance Trend`, 14, 15, { fontSize: 16 });
+  drawSubtitleRow(doc,
+    `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`,
+    sourceTag, 14, 22, pageWidth);
 
   const chartData = years.map((year, i) => ({
     label: String(year),

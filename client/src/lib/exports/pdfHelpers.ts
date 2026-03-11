@@ -41,6 +41,24 @@ export function drawSubtitle(doc: any, text: string, x: number, y: number, opts?
   doc.text(text, x, y);
 }
 
+/**
+ * Draw a subtitle row with left-aligned text and a right-aligned source tag.
+ * The source tag describes the origin of the export (e.g., "Income Statement — Consolidated").
+ */
+export function drawSubtitleRow(doc: any, leftText: string, rightText: string, x: number, y: number, pageW: number, opts?: {
+  fontSize?: number; color?: [number, number, number]; rightColor?: [number, number, number];
+}) {
+  const { fontSize = 10, color = BRAND.GRAY_RGB, rightColor = BRAND.DARK_GREEN_RGB } = opts || {};
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(fontSize);
+  doc.setTextColor(...color);
+  doc.text(leftText, x, y);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(fontSize - 1);
+  doc.setTextColor(...rightColor);
+  doc.text(rightText, pageW - x, y, { align: "right" });
+}
+
 export function drawSectionHeader(doc: any, title: string, y: number, color = BRAND.DARK_GREEN_RGB): number {
   if (y > 260) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold");

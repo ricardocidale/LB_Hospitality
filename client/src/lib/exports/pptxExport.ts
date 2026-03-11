@@ -10,10 +10,11 @@
  *   3. Company — management company financial report
  *
  * Design rules (shared with PDF via exportStyles.ts):
+ *   • Title slides include descriptive title, projection range subtitle,
+ *     and right-aligned source tag identifying the report scope
+ *   • Financial table slides show the statement name as title and
+ *     a right-aligned source tag (e.g., "Income Statement — Consolidated")
  *   • Section headers — bold, section-bg fill, Title Case (not ALL CAPS)
- *   • Subtotals — bold, white background, thicker top border
- *   • Line items — normal weight, alternating row tint, indented 1–2 levels
- *   • Formula/notes — italic, muted gray color
  *   • Numbers — short format ($1.2M, $450K) for readability
  *   • Footer — company name (left) + page number (right) on every slide
  *   • Table framed with sage-green outer border
@@ -60,7 +61,7 @@ function addAllFooters(ctx: SlideContext) {
   }
 }
 
-function addTitleSlide(ctx: SlideContext, title: string, subtitle: string) {
+function addTitleSlide(ctx: SlideContext, title: string, subtitle: string, sourceTag: string) {
   const slide = ctx.pres.addSlide();
   slide.background = { color: BRAND.NAVY_HEX };
 
@@ -80,8 +81,14 @@ function addTitleSlide(ctx: SlideContext, title: string, subtitle: string) {
   });
 
   slide.addText(subtitle, {
-    x: 0.6, y: 2.9, w: 12, h: 0.4,
+    x: 0.6, y: 2.9, w: 8, h: 0.4,
     fontSize: 14, fontFace: "Arial", color: "AAAAAA",
+  });
+
+  slide.addText(sourceTag, {
+    x: SLIDE_W - 5.6, y: 2.9, w: 5, h: 0.4,
+    fontSize: 11, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
+    align: "right",
   });
 
   slide.addText(`Generated: ${format(new Date(), "MMMM d, yyyy")}`, {
@@ -93,17 +100,30 @@ function addTitleSlide(ctx: SlideContext, title: string, subtitle: string) {
 function addMetricsSlide(
   ctx: SlideContext,
   title: string,
+  subtitle: string,
+  sourceTag: string,
   metrics: { label: string; value: string }[],
 ) {
   const slide = ctx.pres.addSlide();
 
   slide.addText(title, {
-    x: 0.5, y: 0.3, w: 12, h: 0.5,
+    x: 0.5, y: 0.2, w: 8, h: 0.4,
     fontSize: 20, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
   });
 
+  slide.addText(subtitle, {
+    x: 0.5, y: 0.6, w: 6, h: 0.25,
+    fontSize: 9, fontFace: "Arial", color: BRAND.GRAY_HEX,
+  });
+
+  slide.addText(sourceTag, {
+    x: SLIDE_W - 5.5, y: 0.6, w: 5, h: 0.25,
+    fontSize: 9, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+    align: "right",
+  });
+
   slide.addShape("rect", {
-    x: 0.5, y: 0.85, w: 12, h: 0.02,
+    x: 0.5, y: 0.9, w: 12, h: 0.02,
     fill: { color: BRAND.SAGE_HEX },
   });
 
@@ -140,6 +160,7 @@ function addMetricsSlide(
 function addFinancialTableSlide(
   ctx: SlideContext,
   title: string,
+  sourceTag: string,
   years: string[],
   rows: ExportRowMeta[],
 ) {
@@ -148,8 +169,14 @@ function addFinancialTableSlide(
   const { labelW, dataW, tableW } = pptxColumnWidths(years.length, SLIDE_W, MARGIN_X);
 
   slide.addText(title, {
-    x: MARGIN_X, y: 0.15, w: tableW, h: 0.35,
+    x: MARGIN_X, y: 0.1, w: 8, h: 0.3,
     fontSize: 14, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+  });
+
+  slide.addText(sourceTag, {
+    x: SLIDE_W - 5.3, y: 0.1, w: 5, h: 0.3,
+    fontSize: 9, fontFace: "Arial", color: BRAND.GRAY_HEX, bold: true,
+    align: "right",
   });
 
   const headerCells = [
@@ -256,7 +283,7 @@ function addFinancialTableSlide(
 
   slide.addTable(tableRows, {
     x: MARGIN_X,
-    y: 0.55,
+    y: 0.45,
     w: tableW,
     colW: [labelW, ...years.map(() => dataW)],
     rowH: 0.22,
@@ -290,29 +317,40 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
-  pres.title = "Portfolio Investment Report";
+  pres.title = "Consolidated Portfolio Investment Report";
 
   const ctx: SlideContext = { pres, companyName };
+  const yearRange = `${data.getFiscalYear(0)}\u2013${data.getFiscalYear(data.projectionYears - 1)}`;
 
-  addTitleSlide(ctx, "Portfolio Investment Report",
-    `${data.projectionYears}-Year Projection (${data.getFiscalYear(0)} \u2013 ${data.getFiscalYear(data.projectionYears - 1)})`);
+  addTitleSlide(
+    ctx,
+    "Consolidated Portfolio Investment Report",
+    `${data.projectionYears}-Year Financial Projection (${yearRange})`,
+    `Portfolio \u2014 ${data.totalProperties} Properties, ${data.totalRooms} Rooms`,
+  );
 
-  addMetricsSlide(ctx, "Investment Summary", [
-    { label: "Total Equity Invested", value: `$${(data.totalInitialEquity / 1_000_000).toFixed(1)}M` },
-    { label: `Exit Value (Year ${data.projectionYears})`, value: `$${(data.totalExitValue / 1_000_000).toFixed(1)}M` },
-    { label: "Equity Multiple", value: `${data.equityMultiple.toFixed(2)}x` },
-    { label: "Portfolio IRR", value: `${(data.portfolioIRR * 100).toFixed(1)}%` },
-    { label: "Avg Cash-on-Cash", value: `${data.cashOnCash.toFixed(1)}%` },
-    { label: "Properties / Rooms", value: `${data.totalProperties} / ${data.totalRooms}` },
-    { label: `${data.projectionYears}-Year Revenue`, value: `$${(data.totalProjectionRevenue / 1_000_000).toFixed(1)}M` },
-    { label: `${data.projectionYears}-Year NOI`, value: `$${(data.totalProjectionNOI / 1_000_000).toFixed(1)}M` },
-    { label: `${data.projectionYears}-Year Cash Flow`, value: `$${(data.totalProjectionCashFlow / 1_000_000).toFixed(1)}M` },
-  ]);
+  addMetricsSlide(
+    ctx,
+    "Portfolio Investment Summary",
+    `Key performance indicators across ${data.totalProperties} properties over ${data.projectionYears} years`,
+    `Investment Analysis \u2014 Consolidated`,
+    [
+      { label: "Total Equity Invested", value: `$${(data.totalInitialEquity / 1_000_000).toFixed(1)}M` },
+      { label: `Projected Exit Value (Year ${data.projectionYears})`, value: `$${(data.totalExitValue / 1_000_000).toFixed(1)}M` },
+      { label: "Equity Multiple", value: `${data.equityMultiple.toFixed(2)}x` },
+      { label: "Portfolio IRR", value: `${(data.portfolioIRR * 100).toFixed(1)}%` },
+      { label: "Avg Cash-on-Cash Return", value: `${data.cashOnCash.toFixed(1)}%` },
+      { label: "Properties / Total Rooms", value: `${data.totalProperties} / ${data.totalRooms}` },
+      { label: `Cumulative ${data.projectionYears}-Year Revenue`, value: `$${(data.totalProjectionRevenue / 1_000_000).toFixed(1)}M` },
+      { label: `Cumulative ${data.projectionYears}-Year NOI`, value: `$${(data.totalProjectionNOI / 1_000_000).toFixed(1)}M` },
+      { label: `Cumulative ${data.projectionYears}-Year Cash Flow`, value: `$${(data.totalProjectionCashFlow / 1_000_000).toFixed(1)}M` },
+    ],
+  );
 
-  addFinancialTableSlide(ctx, "Consolidated Income Statement", data.incomeData.years, data.incomeData.rows);
-  addFinancialTableSlide(ctx, "Consolidated Cash Flow Statement", data.cashFlowData.years, data.cashFlowData.rows);
-  addFinancialTableSlide(ctx, "Consolidated Balance Sheet", data.balanceSheetData.years, data.balanceSheetData.rows);
-  addFinancialTableSlide(ctx, "Investment Analysis", data.investmentData.years, data.investmentData.rows);
+  addFinancialTableSlide(ctx, "Consolidated Income Statement (USALI)", "Income Statement \u2014 Consolidated", data.incomeData.years, data.incomeData.rows);
+  addFinancialTableSlide(ctx, "Consolidated Cash Flow Statement", "Cash Flow Statement \u2014 Consolidated", data.cashFlowData.years, data.cashFlowData.rows);
+  addFinancialTableSlide(ctx, "Consolidated Balance Sheet", "Balance Sheet \u2014 Consolidated", data.balanceSheetData.years, data.balanceSheetData.rows);
+  addFinancialTableSlide(ctx, "Portfolio Investment Analysis", "Investment Analysis \u2014 Consolidated", data.investmentData.years, data.investmentData.rows);
 
   addAllFooters(ctx);
   pres.writeFile({ fileName: "Portfolio-Investment-Report.pptx" });
@@ -332,14 +370,21 @@ export async function exportPropertyPPTX(data: PropertyExportData, companyName =
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
-  pres.title = `${data.propertyName} Financial Report`;
+  pres.title = `${data.propertyName} \u2014 Financial Report`;
 
   const ctx: SlideContext = { pres, companyName };
+  const yearRange = `${data.getFiscalYear(0)}\u2013${data.getFiscalYear(data.projectionYears - 1)}`;
 
-  addTitleSlide(ctx, data.propertyName, `${data.projectionYears}-Year Financial Projection`);
-  addFinancialTableSlide(ctx, `${data.propertyName} \u2013 Income Statement`, data.incomeData.years, data.incomeData.rows);
-  addFinancialTableSlide(ctx, `${data.propertyName} \u2013 Cash Flow Statement`, data.cashFlowData.years, data.cashFlowData.rows);
-  addFinancialTableSlide(ctx, `${data.propertyName} \u2013 Balance Sheet`, data.balanceSheetData.years, data.balanceSheetData.rows);
+  addTitleSlide(
+    ctx,
+    `${data.propertyName} \u2014 Financial Report`,
+    `${data.projectionYears}-Year Financial Projection (${yearRange})`,
+    `Property-Level Report`,
+  );
+
+  addFinancialTableSlide(ctx, `Income Statement (USALI)`, `Income Statement \u2014 ${data.propertyName}`, data.incomeData.years, data.incomeData.rows);
+  addFinancialTableSlide(ctx, `Cash Flow Statement`, `Cash Flow Statement \u2014 ${data.propertyName}`, data.cashFlowData.years, data.cashFlowData.rows);
+  addFinancialTableSlide(ctx, `Balance Sheet`, `Balance Sheet \u2014 ${data.propertyName}`, data.balanceSheetData.years, data.balanceSheetData.rows);
 
   const safeName = data.propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
   addAllFooters(ctx);
@@ -359,14 +404,21 @@ export async function exportCompanyPPTX(data: CompanyExportData, companyName = "
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
-  pres.title = "Management Company Financial Report";
+  pres.title = `${companyName} \u2014 Management Company Financial Report`;
 
   const ctx: SlideContext = { pres, companyName };
+  const yearRange = `${data.getFiscalYear(0)}\u2013${data.getFiscalYear(data.projectionYears - 1)}`;
 
-  addTitleSlide(ctx, "Management Company", `${data.projectionYears}-Year Financial Projection`);
-  addFinancialTableSlide(ctx, "Management Company \u2013 Income Statement", data.incomeData.years, data.incomeData.rows);
-  addFinancialTableSlide(ctx, "Management Company \u2013 Cash Flow Statement", data.cashFlowData.years, data.cashFlowData.rows);
-  addFinancialTableSlide(ctx, "Management Company \u2013 Balance Sheet", data.balanceSheetData.years, data.balanceSheetData.rows);
+  addTitleSlide(
+    ctx,
+    `${companyName} \u2014 Management Company Financial Report`,
+    `${data.projectionYears}-Year Financial Projection (${yearRange})`,
+    `Management Company Report`,
+  );
+
+  addFinancialTableSlide(ctx, `Income Statement`, `Income Statement \u2014 Management Company`, data.incomeData.years, data.incomeData.rows);
+  addFinancialTableSlide(ctx, `Cash Flow Statement`, `Cash Flow Statement \u2014 Management Company`, data.cashFlowData.years, data.cashFlowData.rows);
+  addFinancialTableSlide(ctx, `Balance Sheet`, `Balance Sheet \u2014 Management Company`, data.balanceSheetData.years, data.balanceSheetData.rows);
 
   addAllFooters(ctx);
   pres.writeFile({ fileName: "Management-Company-Report.pptx" });

@@ -2,15 +2,14 @@
  * pptxExport.ts — PowerPoint (.pptx) presentation generation
  *
  * Generates branded investor-ready slide decks using the pptxgenjs library.
+ * All presentations use 16:9 landscape (LAYOUT_WIDE = 13.33" × 7.5").
  * Three export targets are supported:
  *   1. Portfolio — consolidated multi-property investment summary
  *   2. Property — single-property financial report
  *   3. Company — management company financial report
  *
- * Each presentation includes a branded title slide, KPI metrics cards, and
- * financial data tables (Income Statement, Cash Flow, Balance Sheet). Large
- * tables automatically split across multiple slides (max 5 year-columns per
- * slide) to stay readable.
+ * Financial tables always fit all year-columns on a single slide width.
+ * Values use short format ($1.2M, $450K) for readability at presentation scale.
  *
  * Color palette follows the brand guidelines (sage green,
  * dark green, warm neutrals).
@@ -31,27 +30,38 @@ interface SlideTableRow {
   isBold?: boolean;
 }
 
+function addPageNumber(slide: any) {
+  slide.addText(
+    [{ text: "", options: { field: "slidenum" } }],
+    {
+      x: 12.2, y: 7.0, w: 0.8, h: 0.3,
+      fontSize: 8, fontFace: "Arial", color: "999999", align: "right",
+    }
+  );
+}
+
 /** Create a dark-background title slide with brand name, report title, and date. */
 function addTitleSlide(pres: any, title: string, subtitle: string, companyName: string) {
   const slide = pres.addSlide();
   slide.background = { color: "1a2a3a" };
   slide.addShape("rect", { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: SAGE } });
   slide.addText(companyName, {
-    x: 0.5, y: 1.5, w: 9, h: 0.6,
+    x: 0.5, y: 1.5, w: 12, h: 0.6,
     fontSize: 28, fontFace: "Arial", color: SAGE, bold: true,
   });
   slide.addText(title, {
-    x: 0.5, y: 2.2, w: 9, h: 0.5,
+    x: 0.5, y: 2.2, w: 12, h: 0.5,
     fontSize: 22, fontFace: "Arial", color: WHITE,
   });
   slide.addText(subtitle, {
-    x: 0.5, y: 2.8, w: 9, h: 0.4,
+    x: 0.5, y: 2.8, w: 12, h: 0.4,
     fontSize: 14, fontFace: "Arial", color: "AAAAAA",
   });
   slide.addText(`Generated: ${format(new Date(), "MMMM d, yyyy")}`, {
-    x: 0.5, y: 4.5, w: 9, h: 0.3,
+    x: 0.5, y: 4.5, w: 12, h: 0.3,
     fontSize: 10, fontFace: "Arial", color: "888888",
   });
+  addPageNumber(slide);
 }
 
 /**
@@ -61,15 +71,15 @@ function addTitleSlide(pres: any, title: string, subtitle: string, companyName: 
 function addMetricsSlide(pres: any, title: string, metrics: { label: string; value: string }[]) {
   const slide = pres.addSlide();
   slide.addText(title, {
-    x: 0.5, y: 0.3, w: 9, h: 0.5,
+    x: 0.5, y: 0.3, w: 12, h: 0.5,
     fontSize: 20, fontFace: "Arial", color: DARK_GREEN, bold: true,
   });
-  slide.addShape("rect", { x: 0.5, y: 0.85, w: 9, h: 0.02, fill: { color: SAGE } });
+  slide.addShape("rect", { x: 0.5, y: 0.85, w: 12, h: 0.02, fill: { color: SAGE } });
 
   const cols = 3;
-  const cardW = 2.8;
+  const cardW = 3.8;
   const cardH = 1.1;
-  const gapX = 0.3;
+  const gapX = 0.35;
   const startX = 0.5;
   const startY = 1.1;
 
@@ -94,105 +104,111 @@ function addMetricsSlide(pres: any, title: string, metrics: { label: string; val
       fontSize: 9, fontFace: "Arial", color: GRAY,
     });
   });
+  addPageNumber(slide);
 }
 
-/** Format a numeric value for display in slide tables — accounting-style parentheses for negatives. */
+/** Format a numeric value using short notation ($1.2M, $450K) for slide readability. */
 function formatVal(v: string | number): string {
   if (typeof v === "number") {
-    if (Math.abs(v) >= 1000) {
-      return v < 0
-        ? `(${Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 0 })})`
-        : v.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    const abs = Math.abs(v);
+    const neg = v < 0;
+    let formatted: string;
+    if (abs >= 1_000_000) {
+      formatted = `$${(abs / 1_000_000).toFixed(1)}M`;
+    } else if (abs >= 1_000) {
+      formatted = `$${(abs / 1_000).toFixed(0)}K`;
+    } else if (abs > 0) {
+      formatted = `$${abs.toFixed(0)}`;
+    } else {
+      return "—";
     }
-    return v.toLocaleString("en-US", { maximumFractionDigits: 1 });
+    return neg ? `(${formatted})` : formatted;
   }
   return String(v);
 }
 
 /**
- * Add one or more slides containing a financial data table. When the table has
- * more year-columns than maxYearsPerSlide (default 5), it is split across
- * multiple slides so the text remains legible. Section headers (ALL-CAPS rows)
- * get a tinted background; total rows are bolded.
+ * Add a single slide containing a financial data table with all year-columns
+ * fitted to the full slide width (13.33" with margins). Column widths are
+ * computed dynamically so every year fits on one slide.
  */
 function addFinancialTableSlide(
   pres: any,
   title: string,
   years: string[],
   rows: SlideTableRow[],
-  maxYearsPerSlide = 5
 ) {
-  for (let startCol = 0; startCol < years.length; startCol += maxYearsPerSlide) {
-    const endCol = Math.min(startCol + maxYearsPerSlide, years.length);
-    const sliceYears = years.slice(startCol, endCol);
-    const suffix = years.length > maxYearsPerSlide
-      ? ` (${sliceYears[0]}–${sliceYears[sliceYears.length - 1]})`
-      : "";
+  const slide = pres.addSlide();
+  const slideW = 13.33;
+  const marginX = 0.3;
+  const tableW = slideW - marginX * 2;
+  const labelW = Math.max(2.0, Math.min(3.5, tableW - years.length * 0.9));
+  const dataW = (tableW - labelW) / years.length;
+  const fontSize = years.length <= 6 ? 7 : years.length <= 10 ? 6 : 5;
 
-    const slide = pres.addSlide();
-    slide.addText(title + suffix, {
-      x: 0.3, y: 0.2, w: 9.4, h: 0.4,
-      fontSize: 16, fontFace: "Arial", color: DARK_GREEN, bold: true,
-    });
+  slide.addText(title, {
+    x: marginX, y: 0.2, w: tableW, h: 0.4,
+    fontSize: 14, fontFace: "Arial", color: DARK_GREEN, bold: true,
+  });
 
-    const colW = 1.4;
-    const labelW = 10 - sliceYears.length * colW - 0.3;
-    const headerRow: any[] = [
-      { text: "", options: { fill: { color: SAGE }, fontFace: "Arial", fontSize: 8, color: WHITE, bold: true } },
-      ...sliceYears.map((y) => ({
-        text: y,
-        options: { fill: { color: SAGE }, fontFace: "Arial", fontSize: 8, color: WHITE, bold: true, align: "right" as const },
+  const headerRow: any[] = [
+    { text: "", options: { fill: { color: SAGE }, fontFace: "Arial", fontSize, color: WHITE, bold: true } },
+    ...years.map((y) => ({
+      text: y,
+      options: { fill: { color: SAGE }, fontFace: "Arial", fontSize, color: WHITE, bold: true, align: "right" as const },
+    })),
+  ];
+
+  const tableRows: any[] = [headerRow];
+  const filteredRows = rows.filter((r) => r.category !== "");
+
+  filteredRows.forEach((row) => {
+    const isSectionHeader = row.category === row.category.toUpperCase() && row.category.length > 2 && !row.category.startsWith(" ");
+    const isTotal = row.isBold || row.category.toLowerCase().startsWith("total") ||
+      row.category.toLowerCase().includes("net operating") ||
+      row.category.toLowerCase().includes("gross operating") ||
+      row.category.toLowerCase().includes("adjusted") ||
+      row.category.toLowerCase().includes("gaap net") ||
+      row.category.toLowerCase().includes("free cash flow") ||
+      row.category.toLowerCase().includes("closing cash");
+
+    const label = (row.indent ? "  ".repeat(row.indent) : "") + row.category;
+    const bgColor = isSectionHeader ? "EFF5F0" : WHITE;
+
+    const cells: any[] = [
+      {
+        text: label,
+        options: {
+          fontFace: "Arial", fontSize, color: DARK_TEXT,
+          bold: isSectionHeader || isTotal,
+          fill: { color: bgColor },
+        },
+      },
+      ...row.values.map((v) => ({
+        text: formatVal(v),
+        options: {
+          fontFace: "Arial", fontSize, color: DARK_TEXT,
+          bold: isTotal,
+          align: "right" as const,
+          fill: { color: bgColor },
+        },
       })),
     ];
+    tableRows.push(cells);
+  });
 
-    const tableRows: any[] = [headerRow];
-    const filteredRows = rows.filter((r) => r.category !== "");
-
-    filteredRows.forEach((row) => {
-      const isSectionHeader = row.category === row.category.toUpperCase() && row.category.length > 2 && !row.category.startsWith(" ");
-      const isTotal = row.isBold || row.category.toLowerCase().startsWith("total") ||
-        row.category.toLowerCase().includes("net operating") ||
-        row.category.toLowerCase().includes("gross operating") ||
-        row.category.toLowerCase().includes("gaap net") ||
-        row.category.toLowerCase().includes("free cash flow") ||
-        row.category.toLowerCase().includes("closing cash");
-
-      const label = (row.indent ? "  ".repeat(row.indent) : "") + row.category;
-      const bgColor = isSectionHeader ? "EFF5F0" : WHITE;
-
-      const cells: any[] = [
-        {
-          text: label,
-          options: {
-            fontFace: "Arial", fontSize: 7, color: DARK_TEXT,
-            bold: isSectionHeader || isTotal,
-            fill: { color: bgColor },
-          },
-        },
-        ...row.values.slice(startCol, endCol).map((v) => ({
-          text: formatVal(v),
-          options: {
-            fontFace: "Arial", fontSize: 7, color: DARK_TEXT,
-            bold: isTotal,
-            align: "right" as const,
-            fill: { color: bgColor },
-          },
-        })),
-      ];
-      tableRows.push(cells);
-    });
-
-    slide.addTable(tableRows, {
-      x: 0.3,
-      y: 0.7,
-      w: 9.4,
-      colW: [labelW, ...sliceYears.map(() => colW)],
-      border: { type: "solid", pt: 0.5, color: "DDDDDD" },
-      rowH: 0.22,
-      autoPage: true,
-      autoPageRepeatHeader: true,
-    });
-  }
+  slide.addTable(tableRows, {
+    x: marginX,
+    y: 0.7,
+    w: tableW,
+    colW: [labelW, ...years.map(() => dataW)],
+    border: { type: "solid", pt: 0.5, color: "DDDDDD" },
+    rowH: 0.2,
+    autoPage: true,
+    autoPageRepeatHeader: true,
+    newSlideStartY: 0.5,
+  });
+  addPageNumber(slide);
 }
 
 export interface PortfolioExportData {

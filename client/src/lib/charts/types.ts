@@ -144,6 +144,32 @@ export interface RadialStackedProps extends BaseChartProps {
   cornerRadius?: number;
 }
 
+export interface BarChartHorizontalProps extends BaseChartProps {
+  data: Record<string, unknown>[];
+  config: ChartConfig;
+  dataKey?: string;
+  nameKey?: string;
+  barRadius?: number;
+  tickFormatter?: (value: string) => string;
+}
+
+export interface BarChartInteractiveSeries {
+  dataKey: string;
+  label: string;
+}
+
+export interface BarChartInteractiveProps extends BaseChartProps {
+  data: Record<string, unknown>[];
+  config: ChartConfig;
+  series: BarChartInteractiveSeries[];
+  xAxisKey?: string;
+  xAxisFormatter?: (value: string) => string;
+  tooltipLabelFormatter?: (value: string) => string;
+  tooltipNameKey?: string;
+  height?: number;
+  defaultActiveKey?: string;
+}
+
 export interface MermaidChartProps extends BaseChartProps {
   chart: string;
   theme?: "default" | "dark" | "forest" | "neutral";

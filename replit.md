@@ -31,7 +31,7 @@ React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v
 | ElevenLabs architecture | `.claude/skills/codebase-architecture/SKILL.md` |
 | Twilio telephony | `.claude/skills/twilio-telephony/` |
 | Design system & themes | `.claude/skills/design-system/SKILL.md` |
-| Chart library (9 components) | `.claude/skills/charts/SKILL.md` |
+| Chart library (11 components) | `.claude/skills/charts/SKILL.md` |
 | Testing & proof system | `.claude/claude.md` § Testing & Proof System |
 | Codebase architecture | `.claude/skills/codebase-architecture/SKILL.md` |
 | Admin components & hooks | `.claude/skills/admin-components/SKILL.md` |

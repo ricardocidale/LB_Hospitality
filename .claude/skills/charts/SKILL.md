@@ -4,7 +4,7 @@
 **Import:** `import { ComponentName } from "@/lib/charts"`
 **Peer deps:** `recharts`, `@/components/ui/chart` (shadcn ChartContainer/ChartTooltip)
 
-## Components (9)
+## Components (11)
 
 ### BarChartCard
 Horizontal or vertical bar chart with optional labels.
@@ -20,6 +20,46 @@ Horizontal or vertical bar chart with optional labels.
 | `layout` | `"vertical" \| "horizontal"` | `"vertical"` |
 | `showLabel` | `boolean` | `true` |
 | `barRadius` | `number` | `8` |
+
+### BarChartHorizontal
+Horizontal bar chart with clean axis labels, no grid lines.
+```tsx
+<BarChartHorizontal data={data} config={config} tickFormatter={(v) => v.slice(0, 3)} />
+```
+| Prop | Type | Default |
+|------|------|---------|
+| `data` | `Record<string, unknown>[]` | required |
+| `config` | `ChartConfig` | required |
+| `dataKey` | `string` | `"value"` |
+| `nameKey` | `string` | `"name"` |
+| `barRadius` | `number` | `5` |
+| `tickFormatter` | `(value: string) => string` | — |
+
+### BarChartInteractive
+Multi-series bar chart with toggle buttons showing totals per series.
+```tsx
+<BarChartInteractive
+  data={data}
+  config={config}
+  series={[
+    { dataKey: "desktop", label: "Desktop" },
+    { dataKey: "mobile", label: "Mobile" },
+  ]}
+  xAxisKey="date"
+  xAxisFormatter={(v) => new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+/>
+```
+| Prop | Type | Default |
+|------|------|---------|
+| `data` | `Record<string, unknown>[]` | required |
+| `config` | `ChartConfig` | required |
+| `series` | `BarChartInteractiveSeries[]` (`dataKey`, `label`) | required |
+| `xAxisKey` | `string` | `"date"` |
+| `xAxisFormatter` | `(value: string) => string` | — |
+| `tooltipLabelFormatter` | `(value: string) => string` | — |
+| `tooltipNameKey` | `string` | — |
+| `height` | `number` | `250` |
+| `defaultActiveKey` | `string` | first series key |
 
 ### LineChartDotsColors
 Single-series line with per-point colored dots.

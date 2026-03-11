@@ -32,13 +32,13 @@ import { useServiceTemplates } from "@/lib/api/services";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
-import { IconAlertTriangle, IconCheckCircle, IconBookOpen } from "@/components/icons";
+import { IconAlertTriangle, IconCheckCircle } from "@/components/icons";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Link } from "wouter";
 import { AnimatedPage } from "@/components/graphics";
 import { analyzeCompanyCashPosition } from "@/lib/financial/analyzeCompanyCashPosition";
-import { CompanyHeader, CompanyIncomeTab, CompanyCashFlowTab, CompanyBalanceSheet } from "@/components/company";
+import { CompanyHeader, CompanyIncomeTab, CompanyCashFlowTab, CompanyBalanceSheet, CompanyBenchmarkPanel } from "@/components/company";
 import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import { 
   generateCompanyIncomeData, 
@@ -256,11 +256,7 @@ export default function Company() {
           />
           
           <div className="mt-4 mb-2">
-            <Link href="/company/research" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-primary hover:bg-muted transition-colors">
-              <IconBookOpen className="w-3.5 h-3.5" />
-              <span className="font-medium">View Company Research</span>
-              <span className="text-primary/60">Fee benchmarks, vendor costs, overhead, competitive landscape</span>
-            </Link>
+            <CompanyBenchmarkPanel global={global} yearlyChartData={yearlyChartData} financials={financials} />
           </div>
 
           <TabsContent value="income" className="mt-6">

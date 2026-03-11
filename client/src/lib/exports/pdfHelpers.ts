@@ -91,6 +91,7 @@ export function drawDashboardSummaryPage(
     }
   };
 
+
   let currentSection = "";
   metrics.forEach((m, i) => {
     if (m.section && m.section !== currentSection) {

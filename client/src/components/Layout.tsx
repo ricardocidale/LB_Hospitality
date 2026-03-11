@@ -1,7 +1,7 @@
 /**
  * Layout.tsx — Main application shell used by every authenticated page.
  *
- * Simple flex layout with a static sidebar on desktop and a slide-over on mobile.
+ * Uses shadcn/ui Sidebar (sidebar-01 block) for grouped navigation.
  * The sidebar includes:
  *   - Management company logo and name
  *   - Grouped navigation links filtered by user role
@@ -9,7 +9,7 @@
  */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { X, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch } from "@/components/icons";
 import { useState, useEffect } from "react";
@@ -25,6 +25,20 @@ import NotificationCenter from "@/components/NotificationCenter";
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import { RebeccaChatbot } from "@/components/RebeccaChatbot";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
 
@@ -47,7 +61,6 @@ interface NavGroupDef {
 
 export default function Layout({ children, darkMode }: { children: React.ReactNode; darkMode?: boolean }) {
   const [location] = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, isAdmin, isInvestor, hasManagementAccess, logout } = useAuth();
   const { data: global } = useGlobalAssumptions();
   
@@ -122,99 +135,85 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     (href === "/portfolio" && location.startsWith("/property/")) ||
     (href !== "/" && location.startsWith(href + "/"));
 
-  const sidebarNav = (
-    <>
-      <div className="px-4 pt-4 pb-2">
-        <div className="flex items-center gap-2.5">
-          <img src={companyLogo} alt={companyName} className="w-7 h-7 object-contain" />
-          <h1 className="text-sm font-semibold text-foreground truncate">{companyName}</h1>
-        </div>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto px-2 pt-1">
-        {navGroups.filter(g => g.items.length > 0).map((group) => (
-          <div key={group.label || "misc"} className="py-1">
-            {group.label && (
-              <p className="text-[11px] font-medium text-muted-foreground px-3 pb-0.5">
-                {group.label}
-              </p>
-            )}
-            <ul className="space-y-0.5">
-              {group.items.map((item) => {
-                const active = isActiveLink(item.href);
-                const isAction = item.href.startsWith("#");
-                return (
-                  <li key={item.href}>
-                    {isAction ? (
-                      <button
-                        onClick={() => { item.onClick?.(); setSidebarOpen(false); }}
-                        className={cn(
-                          "flex items-center gap-2 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
-                          active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        )}
-                        data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                      >
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.label}</span>
-                      </button>
-                    ) : (
-                      <Link href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                        <div className={cn(
-                          "flex items-center gap-2 h-8 px-3 rounded-md text-[13px] transition-colors",
-                          active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        )}>
-                          <item.icon className="w-4 h-4" />
-                          <span>{item.label}</span>
-                        </div>
-                      </Link>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </nav>
-
-      <div className="px-2 pb-3 pt-1">
-        <button
-          onClick={() => logout()}
-          className="flex items-center gap-2 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          data-testid="button-logout"
-        >
-          <IconLogOut className="w-4 h-4" />
-          <span>Sign Out</span>
-        </button>
-      </div>
-    </>
-  );
-
   return (
-    <div className={cn("min-h-screen font-sans flex w-full overflow-hidden", darkMode ? "bg-foreground text-white" : "bg-background text-foreground")}>
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-foreground/20 z-40 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <SidebarProvider>
+      <Sidebar className="border-r border-sidebar-border">
+        <SidebarHeader className="px-4 pt-4 pb-2">
+          <div className="flex items-center gap-2.5">
+            <img src={companyLogo} alt={companyName} className="w-7 h-7 object-contain" />
+            <h1 className="text-sm font-semibold text-foreground truncate">{companyName}</h1>
+          </div>
+        </SidebarHeader>
 
-      <div className="hidden md:flex w-64 shrink-0 h-screen sticky top-0 flex-col bg-sidebar border-r border-sidebar-border">
-        {sidebarNav}
-      </div>
+        <SidebarContent className="px-2 pt-1">
+          {navGroups.filter(g => g.items.length > 0).map((group) => (
+            <SidebarGroup key={group.label || "misc"} className="py-1">
+              {group.label && (
+                <SidebarGroupLabel className="text-[11px] font-medium text-muted-foreground px-3 pb-0.5">
+                  {group.label}
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map((item) => {
+                    const active = isActiveLink(item.href);
+                    const isAction = item.href.startsWith("#");
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                          asChild={!isAction}
+                          isActive={active}
+                          tooltip={item.label}
+                          className={cn(
+                            "h-8 px-3 rounded-md text-[13px] transition-colors",
+                            active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                          {...(isAction ? {
+                            onClick: () => { item.onClick?.(); },
+                            "data-testid": `nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`,
+                          } : {})}
+                        >
+                          {isAction ? (
+                            <>
+                              <item.icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </>
+                          ) : (
+                            <Link href={item.href} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                              <item.icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </Link>
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
+        </SidebarContent>
 
-      <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-300 ease-out flex flex-col md:hidden",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        {sidebarNav}
-      </aside>
+        <SidebarFooter className="px-2 pb-3 pt-1">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => logout()}
+                className="h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                data-testid="button-logout"
+              >
+                <IconLogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
 
-      <main className="relative flex-1 w-0 flex flex-col min-w-0 overflow-hidden z-0">
+      <main className={cn("relative flex-1 flex flex-col min-w-0 overflow-hidden", darkMode ? "bg-foreground text-white" : "bg-background text-foreground")}>
         <header className="h-12 shrink-0 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-10">
           <div className="flex items-center gap-2 min-w-0">
-            <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>
-              {sidebarOpen ? <X className="w-4 h-4" /> : <IconMenu className="w-4 h-4" />}
-            </Button>
+            <SidebarTrigger className="md:hidden h-8 w-8" />
             <Breadcrumbs />
           </div>
           <div className="flex items-center gap-2">
@@ -279,6 +278,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
       <CommandPalette />
       <GuidedWalkthrough />
-    </div>
+    </SidebarProvider>
   );
 }

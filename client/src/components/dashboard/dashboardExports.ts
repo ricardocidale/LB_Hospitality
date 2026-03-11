@@ -3,7 +3,7 @@ import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
-import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
+import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage, type DashboardSummaryMetric } from "@/lib/exports/pdfHelpers";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
@@ -275,7 +275,7 @@ export function generatePortfolioInvestmentData(
   rows.push({ category: "Total Exit Value", values: years.map(() => financials.totalExitValue), indent: 1 });
   rows.push({ category: "Portfolio IRR", values: years.map(() => financials.portfolioIRR * 100), indent: 1 });
   rows.push({ category: "Equity Multiple", values: years.map(() => financials.equityMultiple), indent: 1 });
-  rows.push({ category: "Cash-on-Cash Return", values: years.map(() => financials.cashOnCash * 100), indent: 1 });
+  rows.push({ category: "Cash-on-Cash Return", values: years.map(() => financials.cashOnCash), indent: 1 });
 
   return { years, rows };
 }
@@ -419,6 +419,135 @@ export async function exportPortfolioPDF(
   doc.save(`portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
 
+export interface ComprehensiveDashboardExportParams {
+  financials: DashboardFinancials;
+  properties: Property[];
+  projectionYears: number;
+  getFiscalYear: (i: number) => number;
+  companyName?: string;
+  incomeRows: ExportRow[];
+  modelStartDate?: Date;
+}
+
+const fmtCompact = (v: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(v);
+
+export async function exportDashboardComprehensivePDF(params: ComprehensiveDashboardExportParams): Promise<void> {
+  const {
+    financials, properties, projectionYears, getFiscalYear,
+    companyName = "Hospitality Business Group",
+    incomeRows, modelStartDate,
+  } = params;
+
+  const jsPDF = (await import("jspdf")).default;
+  const autoTable = (await import("jspdf-autotable")).default;
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const pageW = 297;
+  const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
+  const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
+
+  drawTitle(doc, `${companyName} \u2014 Consolidated Portfolio Report`, 14, 15, { fontSize: 20 });
+  drawSubtitleRow(doc,
+    `${projectionYears}-Year Financial Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
+    `${properties.length} Properties \u2014 ${financials.totalRooms} Rooms`, 14, 22, pageW);
+  drawSubtitle(doc, `Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27);
+  drawSubtitle(doc, "This report contains: Dashboard Summary, Income Statement, Cash Flow Statement, Balance Sheet, Investment Analysis, and Performance Charts.", 14, 33, { fontSize: 8 });
+
+  doc.addPage();
+  const metrics: DashboardSummaryMetric[] = [
+    { label: "Portfolio IRR", value: `${(financials.portfolioIRR * 100).toFixed(1)}%`, section: "Return Metrics" },
+    { label: "Equity Multiple", value: `${financials.equityMultiple.toFixed(2)}x`, section: "Return Metrics" },
+    { label: "Cash-on-Cash Return", value: `${financials.cashOnCash.toFixed(1)}%`, section: "Return Metrics" },
+    { label: "Total Equity Invested", value: fmtCompact(financials.totalInitialEquity), section: "Investment Summary" },
+    { label: `Projected Exit Value (Year ${projectionYears})`, value: fmtCompact(financials.totalExitValue), section: "Investment Summary" },
+    { label: "Total Properties / Rooms", value: `${properties.length} / ${financials.totalRooms}`, section: "Investment Summary" },
+    { label: `${projectionYears}-Year Revenue`, value: fmtCompact(financials.totalProjectionRevenue), section: "Projection Totals" },
+    { label: `${projectionYears}-Year NOI`, value: fmtCompact(financials.totalProjectionNOI), section: "Projection Totals" },
+    { label: `${projectionYears}-Year Cash Flow`, value: fmtCompact(financials.totalProjectionCashFlow), section: "Projection Totals" },
+  ];
+  const propertyTable = properties.map(p => ({
+    name: p.name, market: p.market, rooms: p.roomCount, status: p.status,
+  }));
+  drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable);
+
+  doc.addPage();
+  drawTitle(doc, "Consolidated Income Statement (USALI)", 14, 15, { fontSize: 16 });
+  drawSubtitleRow(doc,
+    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
+    entityTag, 14, 22, pageW);
+  const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", 28);
+  autoTable(doc, incomeConfig);
+
+  doc.addPage();
+  const cashFlowData = generatePortfolioCashFlowData(
+    financials.allPropertyYearlyCF, projectionYears, getFiscalYear,
+    new Set(["cfo", "cfi", "cff"]), false,
+    properties.map(p => p.name),
+  );
+  drawTitle(doc, "Consolidated Cash Flow Statement", 14, 15, { fontSize: 16 });
+  drawSubtitleRow(doc,
+    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
+    entityTag, 14, 22, pageW);
+  const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", 28);
+  autoTable(doc, cfConfig);
+
+  doc.addPage();
+  const balanceSheetData = generatePortfolioBalanceSheetData(
+    financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate,
+  );
+  drawTitle(doc, "Consolidated Balance Sheet", 14, 15, { fontSize: 16 });
+  drawSubtitleRow(doc,
+    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
+    entityTag, 14, 22, pageW);
+  const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", 28);
+  autoTable(doc, bsConfig);
+
+  doc.addPage();
+  const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
+  drawTitle(doc, "Portfolio Investment Analysis", 14, 15, { fontSize: 16 });
+  drawSubtitleRow(doc,
+    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
+    entityTag, 14, 22, pageW);
+  const invConfig = buildFinancialTableConfig(investmentData.years, investmentData.rows, "landscape", 28);
+  autoTable(doc, invConfig);
+
+  doc.addPage();
+  drawTitle(doc, `${companyName} \u2014 Income Statement Performance Trend`, 14, 15, { fontSize: 16 });
+  drawSubtitleRow(doc,
+    `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`,
+    entityTag, 14, 22, pageW);
+
+  const chartData = years.map((year, i) => ({
+    label: String(year),
+    value: financials.yearlyConsolidatedCache[i]?.revenueTotal ?? 0,
+  }));
+  const noiData = years.map((year, i) => ({
+    label: String(year),
+    value: financials.yearlyConsolidatedCache[i]?.noi ?? 0,
+  }));
+  const expenseData = years.map((year, i) => ({
+    label: String(year),
+    value: financials.yearlyConsolidatedCache[i]?.totalExpenses ?? 0,
+  }));
+
+  drawLineChart({
+    doc,
+    x: 14,
+    y: 30,
+    width: 269,
+    height: 150,
+    title: `Portfolio Performance (${projectionYears}-Year Projection)`,
+    series: [
+      { name: "Revenue", data: chartData, color: "#7C3AED" },
+      { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
+      { name: "ANOI", data: noiData, color: "#257D41" },
+    ],
+  });
+
+  addFooters(doc, companyName);
+  doc.save(`${companyName} - Consolidated Portfolio Report.pdf`);
+}
+
 export const dashboardExports = {
   generatePortfolioIncomeData,
 
@@ -456,8 +585,8 @@ export const dashboardExports = {
     (XLSX as any).writeFile(wb, filename);
   },
 
-  exportToPPTX: async (data: any) => {
-    await originalExportPortfolioPPTX(data);
+  exportToPPTX: async (data: any, companyName?: string) => {
+    await originalExportPortfolioPPTX(data, companyName);
   },
 
   exportToPNG: (ref: React.RefObject<HTMLElement>, filename = "portfolio-income-statement.png") => {

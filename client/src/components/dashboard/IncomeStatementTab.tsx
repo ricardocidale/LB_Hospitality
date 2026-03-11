@@ -9,7 +9,7 @@ import { CalcDetailsProvider, useCalcDetails } from "@/components/financial-tabl
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
-import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, toExportData } from "./dashboardExports";
+import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioBalanceSheetData, toExportData } from "./dashboardExports";
 import { useExpandableRows } from "./useExpandableRows";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
@@ -325,8 +325,8 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           totalProjectionNOI,
           totalProjectionCashFlow,
           incomeData: { years: years.map(String), rows: versionRows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-          cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear)),
-          balanceSheetData: { years: years.map(String), rows: [] },
+          cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear, new Set(["cfo", "cfi", "cff"]), false, properties.map(p => p.name))),
+          balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
         });
         break;

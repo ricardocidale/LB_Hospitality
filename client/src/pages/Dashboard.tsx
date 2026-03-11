@@ -56,6 +56,7 @@ import {
   generatePortfolioIncomeData,
   generatePortfolioCashFlowData,
   generatePortfolioInvestmentData,
+  generatePortfolioBalanceSheetData,
   exportPortfolioExcel,
   exportPortfolioCSV,
   exportPortfolioPDF,
@@ -224,7 +225,7 @@ export default function Dashboard() {
       totalProjectionCashFlow: financials.totalProjectionCashFlow,
       incomeData: { years: incomeData.years.map(String), rows: incomeData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
       cashFlowData: { years: cashFlowData.years.map(String), rows: cashFlowData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-      balanceSheetData: { years: incomeData.years.map(String), rows: [] },
+      balanceSheetData: { years: incomeData.years.map(String), rows: generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined).rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
       investmentData: { years: investmentData.years.map(String), rows: investmentData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
     });
   }, [financials, properties, global]);

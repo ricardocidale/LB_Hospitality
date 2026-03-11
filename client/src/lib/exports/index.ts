@@ -48,6 +48,7 @@ export {
   drawTitle,
   drawSubtitle,
   drawSubtitleRow,
+  drawDashboardSummaryPage,
   drawSectionHeader,
   drawParagraph,
   drawKeyValue,

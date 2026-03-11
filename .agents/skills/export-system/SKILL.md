@@ -142,6 +142,8 @@ Library: **jsPDF** + **jspdf-autotable**
 | `drawBrandedHeader(doc, pageW, height?)` | Navy bar with sage stripe at page top | height defaults to 28mm |
 | `drawTitle(doc, text, x, y, opts?)` | Bold title with customizable font/color | `{fontSize?, color?, bold?}` |
 | `drawSubtitle(doc, text, x, y, opts?)` | Gray secondary text | `{fontSize?, color?}` |
+| `drawSubtitleRow(doc, leftText, rightText, x, y, pageW, opts?)` | Left subtitle + right-aligned entity tag on same line | `{fontSize?, color?, rightColor?}` |
+| `drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable?)` | KPI card grid + property composition table — used as page 2 of comprehensive PDF | metrics: `DashboardSummaryMetric[]` |
 | `drawSectionHeader(doc, title, y, color?)` | Colored heading + underline, auto-paginates | Returns new y position |
 | `drawParagraph(doc, text, y, pageW, opts?)` | Word-wrapped body text, auto-paginates | `{fontSize?, indent?, italic?}` |
 | `drawKeyValue(doc, label, value, y, x?)` | Bold label + normal value pair | Returns new y position |
@@ -181,9 +183,9 @@ Library: **pptxgenjs**
 | Function | Purpose |
 |----------|---------|
 | `addAllFooters(ctx)` | Post-process ALL slides to add footer + page number |
-| `addTitleSlide(ctx, title, subtitle)` | Dark navy branded title slide |
-| `addMetricsSlide(ctx, title, metrics[])` | 3-column KPI card grid |
-| `addFinancialTableSlide(ctx, title, years, rows)` | Financial table with all styling |
+| `addTitleSlide(ctx, title, subtitle, sourceTag)` | Dark navy branded title slide with right-aligned entity tag |
+| `addMetricsSlide(ctx, title, subtitle, sourceTag, metrics[])` | 3-column KPI card grid with subtitle + entity tag |
+| `addFinancialTableSlide(ctx, title, sourceTag, years, rows)` | Financial table with all styling + right-aligned entity tag |
 
 ### Footer — `addAllFooters(ctx)` — MUST be called LAST before `writeFile`
 
@@ -199,10 +201,12 @@ and correct page numbers. Never add footers during slide creation.
 - Sage-green accent stripe at top (0.05" tall)
 - Company name (28pt, sage green, bold)
 - Report title (22pt, white)
-- Subtitle (14pt, gray #AAAAAA)
+- Subtitle (14pt, gray #AAAAAA) — left-aligned
+- Entity tag (11pt, sage green, bold) — right-aligned on same line as subtitle
 - Generated date (10pt, gray #888888)
 
 ### Metrics Slide
+- Title (20pt, dark green, bold) + subtitle (9pt, gray) + entity tag (9pt, dark green, bold, right-aligned)
 - 3-column grid of rounded-corner cards
 - Each card: large value (18pt, dark green, bold) + small label (9pt, gray)
 - Card fill: #F5F9F6 with 1pt sage-green border, 0.1" corner radius
@@ -336,13 +340,40 @@ Library: **SheetJS (xlsx)**
 | `generatePortfolioInvestmentData(properties, financials, cashFlows, years, getFY)` | Per-property IRR, equity multiple, exit value analysis |
 | `toExportData(data)` | Convert internal `ExportData` to PPTX-compatible shape (maps `isHeader` → `isBold`) |
 
-### Export Wrapper Functions
+### Comprehensive Dashboard Export
+
+`exportDashboardComprehensivePDF(params)` — generates a single multi-page PDF containing ALL financial content:
+
+1. **Title page** — company name, projection range, property/room counts, table of contents
+2. **Dashboard summary page** — KPI metric cards (3-column grid, sectioned: Return Metrics, Investment Summary, Projection Totals) + property composition table (name, market, rooms, status)
+3. **Income Statement** — full USALI waterfall table
+4. **Cash Flow Statement** — CFO/CFI/CFF with per-property breakdown
+5. **Balance Sheet** — assets, liabilities & equity
+6. **Investment Analysis** — portfolio-level metrics table
+7. **Performance Chart** — revenue, expenses, ANOI trend line chart
+
+This is the primary export triggered from the Overview tab's PDF export button.
+
+Parameters: `ComprehensiveDashboardExportParams`:
+```typescript
+{
+  financials: DashboardFinancials;
+  properties: Property[];
+  projectionYears: number;
+  getFiscalYear: (i: number) => number;
+  companyName?: string;
+  incomeRows: ExportRow[];
+  modelStartDate?: Date;
+}
+```
+
+### Single-Statement Export Functions
 
 | Function | Formats | Description |
 |----------|---------|-------------|
-| `exportConsolidatedPDF(type, data, ...)` | PDF | Portfolio PDF with table + optional chart page |
-| `exportConsolidatedCSV(type, data, ...)` | CSV | Portfolio CSV download |
-| `exportPortfolioPPTX(data, companyName)` | PPTX | Re-exported from pptxExport.ts |
+| `exportPortfolioPDF(orientation, years, rows, getYearlyConsolidated, title, companyName)` | PDF | Single-statement portfolio PDF with table + chart page (used by individual tabs) |
+| `exportPortfolioCSV(years, rows, filename)` | CSV | Portfolio CSV download |
+| `exportPortfolioPPTX(data, companyName)` | PPTX | Re-exported from pptxExport.ts — always includes all 4 statements |
 
 ## Company Export Orchestrators (companyExports.ts)
 
@@ -360,17 +391,20 @@ Library: **SheetJS (xlsx)**
 1. Define your row data using `ExportRowMeta[]`
 2. For **PDF**:
    ```typescript
-   import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle } from "@/lib/exports";
-   // Create jsPDF doc, draw title/subtitle ...
+   import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitleRow } from "@/lib/exports";
+   // Create jsPDF doc, draw title + subtitle row with entity tag ...
+   drawTitle(doc, `${companyName} — Income Statement`, 14, 15);
+   drawSubtitleRow(doc, `${projectionYears}-Year Projection (...)`, entityTag, 14, 22, pageW);
    const config = buildFinancialTableConfig(years, rows, orientation, startY);
    autoTable(doc, config);   // normalizeCaps + alternating rows + borders all automatic
    addFooters(doc, companyName);  // LAST call before doc.save()
    ```
 3. For **PPTX**:
    ```typescript
-   // Use existing pattern: create SlideContext, call addTitleSlide,
-   // addFinancialTableSlide, etc. normalizeCaps + alternating rows + borders
-   // are all handled inside addFinancialTableSlide.
+   // Use existing pattern: create SlideContext, call addTitleSlide(ctx, title, subtitle, sourceTag),
+   // addFinancialTableSlide(ctx, title, sourceTag, years, rows), etc.
+   // sourceTag identifies the entity: "Consolidated Portfolio — 5 Properties"
+   // normalizeCaps + alternating rows + borders are all handled inside addFinancialTableSlide.
    // Call addAllFooters(ctx) LAST before pres.writeFile().
    ```
 4. For **Excel**: use helpers from `excel/helpers.ts` (downloadWorkbook, setColumnWidths, etc.)
@@ -393,6 +427,16 @@ Library: **SheetJS (xlsx)**
    `isBold: r.isBold ?? r.isHeader` preserves explicit subtotal bold intent.
 6. **All formats share one brand palette** — change `BRAND.*` in `exportStyles.ts`
    and it propagates to PDF, PPTX, and Excel automatically.
+7. **Entity tags identify the economic entity** — every export page/slide carries a
+   right-aligned tag describing whose financials are shown (not the statement type):
+   - Portfolio: `Consolidated Portfolio — X Properties`
+   - Property: `[Property Name]`
+   - Company: `[Company Name] — Management Company`
+   The statement type is already in the page/slide title; the entity tag answers "whose."
+8. **Dashboard exports are comprehensive** — pressing Export from the Overview tab
+   produces a complete multi-page PDF (or PPTX) containing ALL financial statements
+   plus a dashboard summary page. Individual statement tabs also produce complete
+   PPTX files with all 4 statements populated.
 
 ## Files Modified by Export
 
@@ -415,8 +459,8 @@ indentLabel, pptxFontSize, pptxColumnWidths
 type ExportRowMeta
 
 // PDF helpers
-drawBrandedHeader, drawTitle, drawSubtitle, drawSectionHeader,
-drawParagraph, drawKeyValue, buildFinancialTableConfig, addFooters
+drawBrandedHeader, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage,
+drawSectionHeader, drawParagraph, drawKeyValue, buildFinancialTableConfig, addFooters
 
 // PPTX
 exportPortfolioPPTX, exportPropertyPPTX, exportCompanyPPTX

@@ -59,6 +59,128 @@ export function drawSubtitleRow(doc: any, leftText: string, rightText: string, x
   doc.text(rightText, pageW - x, y, { align: "right" });
 }
 
+export interface DashboardSummaryMetric {
+  label: string;
+  value: string;
+  section?: string;
+}
+
+export function drawDashboardSummaryPage(
+  doc: any,
+  pageW: number,
+  entityTag: string,
+  companyName: string,
+  metrics: DashboardSummaryMetric[],
+  propertyTable?: { name: string; market: string; rooms: number; status: string }[],
+) {
+  drawTitle(doc, `${companyName} \u2014 Portfolio Dashboard`, 14, 15);
+  drawSubtitleRow(doc, `Investment Overview & Key Performance Indicators`, entityTag, 14, 22, pageW);
+  drawSubtitle(doc, `Generated: ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`, 14, 27);
+
+  const cardW = (pageW - 28 - 10) / 3;
+  const cardH = 18;
+  const startX = 14;
+  const pageH = doc.internal.pageSize.getHeight();
+  const bottomMargin = pageH - 15;
+  let y = 35;
+
+  const checkPageBreak = (needed: number) => {
+    if (y + needed > bottomMargin) {
+      doc.addPage();
+      y = 20;
+    }
+  };
+
+  let currentSection = "";
+  metrics.forEach((m, i) => {
+    if (m.section && m.section !== currentSection) {
+      currentSection = m.section;
+      if (i > 0) y += 4;
+      checkPageBreak(cardH + 10);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(...BRAND.DARK_GREEN_RGB);
+      doc.text(currentSection, startX, y);
+      doc.setDrawColor(...BRAND.SAGE_RGB);
+      doc.setLineWidth(0.3);
+      doc.line(startX, y + 1.5, pageW - 14, y + 1.5);
+      y += 6;
+    }
+
+    const sectionStart = metrics.findIndex(mm => mm.section === m.section);
+    const idxInSection = i - sectionStart;
+    const col = idxInSection % 3;
+
+    if (col === 0) checkPageBreak(cardH + 4);
+
+    const x = startX + col * (cardW + 5);
+
+    doc.setFillColor(245, 249, 246);
+    doc.setDrawColor(...BRAND.SAGE_RGB);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(x, y, cardW, cardH, 2, 2, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(...BRAND.DARK_GREEN_RGB);
+    doc.text(m.value, x + 4, y + 8);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(...BRAND.GRAY_RGB);
+    doc.text(m.label, x + 4, y + 14);
+
+    if (col === 2 || i === metrics.length - 1) {
+      y += cardH + 4;
+    }
+  });
+
+  if (propertyTable && propertyTable.length > 0) {
+    y += 4;
+    checkPageBreak(20);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(...BRAND.DARK_GREEN_RGB);
+    doc.text("Portfolio Composition", startX, y);
+    doc.setDrawColor(...BRAND.SAGE_RGB);
+    doc.setLineWidth(0.3);
+    doc.line(startX, y + 1.5, pageW - 14, y + 1.5);
+    y += 5;
+
+    const colWidths = [(pageW - 28) * 0.35, (pageW - 28) * 0.30, (pageW - 28) * 0.15, (pageW - 28) * 0.20];
+    const headers = ["Property", "Market", "Rooms", "Status"];
+
+    doc.setFillColor(...BRAND.SAGE_RGB);
+    doc.rect(startX, y, pageW - 28, 6, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7);
+    doc.setTextColor(...BRAND.WHITE_RGB);
+    let hx = startX + 2;
+    headers.forEach((h, hi) => {
+      doc.text(h, hx, y + 4);
+      hx += colWidths[hi];
+    });
+    y += 7;
+
+    propertyTable.forEach((p, pi) => {
+      checkPageBreak(6);
+      if (pi % 2 === 1) {
+        doc.setFillColor(...BRAND.ALT_ROW_RGB);
+        doc.rect(startX, y - 3, pageW - 28, 5, "F");
+      }
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+      doc.setTextColor(...BRAND.DARK_TEXT_RGB);
+      let px = startX + 2;
+      [p.name, p.market, String(p.rooms), p.status].forEach((val, vi) => {
+        doc.text(val, px, y);
+        px += colWidths[vi];
+      });
+      y += 5;
+    });
+  }
+}
+
 export function drawSectionHeader(doc: any, title: string, y: number, color = BRAND.DARK_GREEN_RGB): number {
   if (y > 260) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold");

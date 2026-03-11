@@ -9,6 +9,7 @@ import {
   generatePortfolioInvestmentData,
   generatePortfolioCashFlowData,
   generatePortfolioIncomeData,
+  generatePortfolioBalanceSheetData,
   exportPortfolioPDF,
   exportPortfolioCSV,
   exportPortfolioExcel,
@@ -79,7 +80,7 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
           totalProjectionCashFlow: financials.totalProjectionCashFlow,
           incomeData: toExportData(generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear)),
           cashFlowData: toExportData(generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear)),
-          balanceSheetData: { years: years.map(String), rows: [] },
+          balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
           investmentData: toExportData({ years, rows })
         });
         break;

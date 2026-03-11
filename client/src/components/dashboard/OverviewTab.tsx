@@ -13,7 +13,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { CurrentThemeTab } from "@/components/ui/tabs";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
-import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, exportPortfolioPDF, exportPortfolioCSV, toExportData } from "./dashboardExports";
+import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioIncomeData, generatePortfolioBalanceSheetData, exportPortfolioPDF, exportPortfolioCSV, exportDashboardComprehensivePDF, toExportData } from "./dashboardExports";
 import { Link } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RadialGauge } from "@/lib/charts";
@@ -307,9 +307,18 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
 
   const handleExport = (action: string) => {
     const { years, rows } = generateOverviewData();
+    const incomeData = generatePortfolioIncomeData(yearlyConsolidatedCache, projectionYears, getFiscalYear);
     switch (action) {
       case 'pdf':
-        exportPortfolioPDF("portrait", 1, years, rows, (i) => yearlyConsolidatedCache[i], "Portfolio Overview");
+        exportDashboardComprehensivePDF({
+          financials,
+          properties,
+          projectionYears,
+          getFiscalYear,
+          companyName: global?.companyName || "Hospitality Business Group",
+          incomeRows: incomeData.rows,
+          modelStartDate: global?.modelStartDate ? new Date(global.modelStartDate) : undefined,
+        });
         break;
       case 'csv':
         exportPortfolioCSV(years, rows, "portfolio-overview.csv");
@@ -331,9 +340,9 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           totalProjectionRevenue,
           totalProjectionNOI,
           totalProjectionCashFlow,
-          incomeData: { years: [], rows: [] },
-          cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear)),
-          balanceSheetData: { years: [], rows: [] },
+          incomeData: toExportData(incomeData),
+          cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear, new Set(["cfo", "cfi", "cff"]), false, properties.map(p => p.name))),
+          balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined)),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
         });
         break;

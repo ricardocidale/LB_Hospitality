@@ -14,6 +14,8 @@ import {
   dashboardExports,
   generatePortfolioCashFlowData,
   generatePortfolioInvestmentData,
+  generatePortfolioIncomeData,
+  generatePortfolioBalanceSheetData,
   exportPortfolioPDF,
   exportPortfolioCSV,
   toExportData,
@@ -125,9 +127,9 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
           totalProjectionRevenue,
           totalProjectionNOI,
           totalProjectionCashFlow,
-          incomeData: { years: years.map(String), rows: [] },
+          incomeData: toExportData(generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear)),
           cashFlowData: toExportData({ years, rows }),
-          balanceSheetData: { years: years.map(String), rows: [] },
+          balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
         });
         break;

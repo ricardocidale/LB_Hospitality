@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   IconActivity,
   IconRefreshCw,
-  IconExternalLink,
+  IconBookOpen,
   IconTrendingUp,
   IconTarget,
   IconBarChart2,
@@ -209,7 +209,7 @@ export function ResearchPulseWidget({ className }: ResearchPulseWidgetProps) {
         )}
         <Link href="/company/research" className="flex-1">
           <Button variant="ghost" size="sm" className="w-full gap-1.5">
-            <IconExternalLink className="h-3.5 w-3.5" />
+            <IconBookOpen className="h-3.5 w-3.5" />
             View All Research
           </Button>
         </Link>

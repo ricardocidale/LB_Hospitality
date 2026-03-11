@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Loader2, ArrowRight } from "lucide-react";
 import {
   IconFlaskConical, IconBuilding2, IconBriefcase, IconGlobe, IconRefreshCw,
-  IconClock, IconAlertCircle, IconExternalLink, IconBookOpen,
+  IconClock, IconAlertCircle, IconBookOpen,
 } from "@/components/icons";
 import { IndustryResearchTab } from "@/components/settings/IndustryResearchTab";
 import MarketRatesTab from "@/components/admin/MarketRatesTab";
@@ -391,7 +391,7 @@ export default function ResearchHub() {
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               View Research
-              <IconExternalLink className="w-3.5 h-3.5" />
+              <IconBookOpen className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
 
@@ -431,7 +431,7 @@ export default function ResearchHub() {
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               View Research
-              <IconExternalLink className="w-3.5 h-3.5" />
+              <IconBookOpen className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
         </div>
@@ -524,7 +524,7 @@ export default function ResearchHub() {
                       className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
                       View Research
-                      <IconExternalLink className="w-3.5 h-3.5" />
+                      <IconBookOpen className="w-3.5 h-3.5" />
                     </Link>
                   </div>
                 </motion.div>

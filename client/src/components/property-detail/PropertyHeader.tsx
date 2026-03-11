@@ -14,7 +14,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import { IconMapPin, IconSettings2, IconMap, IconCamera } from "@/components/icons";
+import { IconMapPin, IconSettings, IconMap, IconCamera } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";
 import { HeroImage } from "@/features/property-images";
@@ -106,7 +106,7 @@ export default function PropertyHeader({ property, propertyId, heroCaption, onPh
             </Link>
             <Link href={`/property/${propertyId}/edit`}>
               <Button variant="outline" size="sm" className="gap-2 h-9 text-xs font-medium hover:scale-[1.03] active:scale-[0.97] transition-transform">
-                <IconSettings2 className="w-4 h-4" />
+                <IconSettings className="w-4 h-4" />
                 Assumptions
               </Button>
             </Link>

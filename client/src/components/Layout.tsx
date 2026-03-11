@@ -1,14 +1,11 @@
 /**
  * Layout.tsx — Main application shell used by every authenticated page.
  *
- * Uses shadcn/ui Sidebar components for clean, grouped navigation.
+ * Simple flex layout with a static sidebar on desktop and a slide-over on mobile.
  * The sidebar includes:
- *   • Company logo and name (pulled from per-user branding or global assumptions)
- *   • Quick-search trigger (⌘K command palette)
- *   • Notification center
- *   • Favorites shortcut panel
- *   • Navigation links — dynamically filtered by the user's role
- *   • User card at the bottom showing name, role, and a logout button.
+ *   - Management company logo and name
+ *   - Grouped navigation links filtered by user role
+ *   - Sign Out button at the bottom
  */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
@@ -28,19 +25,6 @@ import NotificationCenter from "@/components/NotificationCenter";
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import { RebeccaChatbot } from "@/components/RebeccaChatbot";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
 
@@ -51,7 +35,8 @@ function MarcelaWidgetGated() {
   const { tourActive, promptVisible } = useWalkthroughStore();
   const [location] = useLocation();
   const onAdminPage = location.startsWith("/admin");
-  const enabled = !!(global as any)?.showAiAssistant && !!(global as any)?.marcelaEnabled && !tourActive && !promptVisible && !onAdminPage;
+  const rebeccaActive = !!(global as any)?.rebeccaEnabled;
+  const enabled = !!(global as any)?.showAiAssistant && !!(global as any)?.marcelaEnabled && !rebeccaActive && !tourActive && !promptVisible && !onAdminPage;
   return <ElevenLabsWidget enabled={enabled} />;
 }
 
@@ -137,171 +122,163 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     (href === "/portfolio" && location.startsWith("/property/")) ||
     (href !== "/" && location.startsWith(href + "/"));
 
-  const sidebarContent = (
+  const sidebarNav = (
     <>
-      <SidebarHeader className="px-4 pt-4 pb-2">
+      <div className="px-4 pt-4 pb-2">
         <div className="flex items-center gap-2.5">
           <img src={companyLogo} alt={companyName} className="w-7 h-7 object-contain" />
           <h1 className="text-sm font-semibold text-foreground truncate">{companyName}</h1>
         </div>
-      </SidebarHeader>
+      </div>
 
-      <SidebarContent className="px-2 pt-1">
+      <nav className="flex-1 overflow-y-auto px-2 pt-1">
         {navGroups.filter(g => g.items.length > 0).map((group) => (
-          <SidebarGroup key={group.label || "misc"} className="py-1">
+          <div key={group.label || "misc"} className="py-1">
             {group.label && (
-              <SidebarGroupLabel className="text-[11px] font-medium text-muted-foreground px-3 pb-0.5">
+              <p className="text-[11px] font-medium text-muted-foreground px-3 pb-0.5">
                 {group.label}
-              </SidebarGroupLabel>
+              </p>
             )}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const active = isActiveLink(item.href);
-                  const isAction = item.href.startsWith("#");
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild={!isAction}
-                        isActive={active}
-                        tooltip={item.label}
+            <ul className="space-y-0.5">
+              {group.items.map((item) => {
+                const active = isActiveLink(item.href);
+                const isAction = item.href.startsWith("#");
+                return (
+                  <li key={item.href}>
+                    {isAction ? (
+                      <button
+                        onClick={() => { item.onClick?.(); setSidebarOpen(false); }}
                         className={cn(
-                          "h-8 px-3 rounded-md text-[13px] transition-colors",
+                          "flex items-center gap-2 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
                           active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         )}
-                        {...(isAction ? {
-                          onClick: () => { item.onClick?.(); setSidebarOpen(false); },
-                          "data-testid": `nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`,
-                        } : {})}
+                        data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                       >
-                        {isAction ? (
-                          <>
-                            <item.icon className="w-4 h-4" />
-                            <span>{item.label}</span>
-                          </>
-                        ) : (
-                          <Link href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                            <item.icon className="w-4 h-4" />
-                            <span>{item.label}</span>
-                          </Link>
-                        )}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    ) : (
+                      <Link href={item.href} onClick={() => setSidebarOpen(false)} data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                        <div className={cn(
+                          "flex items-center gap-2 h-8 px-3 rounded-md text-[13px] transition-colors",
+                          active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        )}>
+                          <item.icon className="w-4 h-4" />
+                          <span>{item.label}</span>
+                        </div>
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         ))}
-      </SidebarContent>
+      </nav>
 
-      <SidebarFooter className="px-2 pb-3 pt-1">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => logout()}
-              className="h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              data-testid="button-logout"
-            >
-              <IconLogOut className="w-4 h-4" />
-              <span>Sign Out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+      <div className="px-2 pb-3 pt-1">
+        <button
+          onClick={() => logout()}
+          className="flex items-center gap-2 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          data-testid="button-logout"
+        >
+          <IconLogOut className="w-4 h-4" />
+          <span>Sign Out</span>
+        </button>
+      </div>
     </>
   );
 
   return (
-    <SidebarProvider>
-      <div className={cn("min-h-screen font-sans flex w-full overflow-hidden", darkMode ? "bg-foreground text-white" : "bg-background text-foreground")}>
-        {sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-foreground/20 z-40 md:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
+    <div className={cn("min-h-screen font-sans flex w-full overflow-hidden", darkMode ? "bg-foreground text-white" : "bg-background text-foreground")}>
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-foreground/20 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-        <Sidebar collapsible="none" className="border-r border-sidebar-border shrink-0 hidden md:flex">
-          {sidebarContent}
-        </Sidebar>
-
-        <aside className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-300 ease-out flex flex-col md:hidden",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        )}>
-          {sidebarContent}
-        </aside>
-
-        <main className="relative flex-1 w-0 flex flex-col min-w-0 overflow-hidden z-0">
-          <header className="h-12 shrink-0 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-10">
-            <div className="flex items-center gap-2 min-w-0">
-              <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                {sidebarOpen ? <X className="w-4 h-4" /> : <IconMenu className="w-4 h-4" />}
-              </Button>
-              <Breadcrumbs />
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
-                  document.dispatchEvent(event);
-                }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground hover:text-muted-foreground text-xs transition-colors border border-border"
-                data-testid="button-search"
-              >
-                <Search className="w-3.5 h-3.5" />
-                <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
-              </button>
-              <NotificationCenter />
-              <RebeccaChatbot displayName={(global as any)?.rebeccaDisplayName || "Rebecca"} />
-              <ErrorBoundary><MarcelaWidgetGated /></ErrorBoundary>
-            </div>
-          </header>
-
-          <div className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 md:px-6 md:py-6 lg:px-8 lg:py-6 pb-20 md:pb-6 lg:pb-6">
-            {children}
-          </div>
-        </main>
-
-        {(() => {
-          const bottomNavItems: { href: string; label: string; icon: any }[] = [
-            { href: "/", label: "Dashboard", icon: IconDashboard },
-            { href: "/portfolio", label: "Properties", icon: IconProperties },
-            ...(hasManagementAccess ? [{ href: "/company", label: "Company", icon: IconBriefcase }] : []),
-            { href: "/profile", label: "Profile", icon: IconProfile },
-          ];
-          return (
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40" data-testid="mobile-bottom-nav">
-              <div className="absolute inset-0 bg-sidebar" />
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-sidebar-border" />
-              <div className="relative flex items-center justify-around px-1 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
-                {bottomNavItems.map((item) => {
-                  const isActive = location === item.href ||
-                    (item.href === "/portfolio" && location.startsWith("/property/")) ||
-                    (item.href !== "/" && location.startsWith(item.href + "/"));
-                  return (
-                    <Link key={item.href} href={item.href}>
-                      <button className="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[3.5rem]" data-testid={`bottom-nav-${item.label.toLowerCase()}`}>
-                        <div className={cn(
-                          "w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200",
-                          isActive ? "bg-muted" : ""
-                        )}>
-                          <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-foreground" : "text-muted-foreground")} />
-                        </div>
-                        <span className={cn("text-[10px] leading-tight", isActive ? "text-foreground font-medium" : "text-muted-foreground")}>{item.label}</span>
-                      </button>
-                    </Link>
-                  );
-                })}
-              </div>
-            </nav>
-          );
-        })()}
-
-        <CommandPalette />
-        <GuidedWalkthrough />
+      <div className="hidden md:flex w-64 shrink-0 h-screen sticky top-0 flex-col bg-sidebar border-r border-sidebar-border">
+        {sidebarNav}
       </div>
-    </SidebarProvider>
+
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-300 ease-out flex flex-col md:hidden",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        {sidebarNav}
+      </aside>
+
+      <main className="relative flex-1 w-0 flex flex-col min-w-0 overflow-hidden z-0">
+        <header className="h-12 shrink-0 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-10">
+          <div className="flex items-center gap-2 min-w-0">
+            <Button variant="ghost" size="icon" className="flex-shrink-0 md:hidden h-8 w-8" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              {sidebarOpen ? <X className="w-4 h-4" /> : <IconMenu className="w-4 h-4" />}
+            </Button>
+            <Breadcrumbs />
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
+                document.dispatchEvent(event);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-muted text-muted-foreground hover:text-muted-foreground text-xs transition-colors border border-border"
+              data-testid="button-search"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <kbd className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono">⌘K</kbd>
+            </button>
+            <NotificationCenter />
+            {!!(global as any)?.rebeccaEnabled && (
+              <RebeccaChatbot displayName={(global as any)?.rebeccaDisplayName || "Rebecca"} />
+            )}
+            <ErrorBoundary><MarcelaWidgetGated /></ErrorBoundary>
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 md:px-6 md:py-6 lg:px-8 lg:py-6 pb-20 md:pb-6 lg:pb-6">
+          {children}
+        </div>
+      </main>
+
+      {(() => {
+        const bottomNavItems: { href: string; label: string; icon: any }[] = [
+          { href: "/", label: "Dashboard", icon: IconDashboard },
+          { href: "/portfolio", label: "Properties", icon: IconProperties },
+          ...(hasManagementAccess ? [{ href: "/company", label: "Company", icon: IconBriefcase }] : []),
+          { href: "/profile", label: "Profile", icon: IconProfile },
+        ];
+        return (
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40" data-testid="mobile-bottom-nav">
+            <div className="absolute inset-0 bg-sidebar" />
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-sidebar-border" />
+            <div className="relative flex items-center justify-around px-1 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
+              {bottomNavItems.map((item) => {
+                const isActive = location === item.href ||
+                  (item.href === "/portfolio" && location.startsWith("/property/")) ||
+                  (item.href !== "/" && location.startsWith(item.href + "/"));
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <button className="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[3.5rem]" data-testid={`bottom-nav-${item.label.toLowerCase()}`}>
+                      <div className={cn(
+                        "w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200",
+                        isActive ? "bg-muted" : ""
+                      )}>
+                        <item.icon className={cn("w-[18px] h-[18px]", isActive ? "text-foreground" : "text-muted-foreground")} />
+                      </div>
+                      <span className={cn("text-[10px] leading-tight", isActive ? "text-foreground font-medium" : "text-muted-foreground")}>{item.label}</span>
+                    </button>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        );
+      })()}
+
+      <CommandPalette />
+      <GuidedWalkthrough />
+    </div>
   );
 }

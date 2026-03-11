@@ -42,9 +42,15 @@ export function register(app: Express) {
       if (!current) {
         return res.status(404).json({ error: "Global assumptions not found" });
       }
+      // Mutual exclusion: enabling Rebecca disables Marcela
+      const patch: Record<string, unknown> = { ...validation.data, updatedAt: new Date() };
+      if (validation.data.rebeccaEnabled === true) {
+        patch.marcelaEnabled = false;
+        patch.showAiAssistant = false;
+      }
       const [updated] = await db
         .update(globalAssumptions)
-        .set({ ...validation.data, updatedAt: new Date() })
+        .set(patch)
         .where(eq(globalAssumptions.id, current.id))
         .returning();
       logActivity(req, "update", "global_assumptions", updated.id, "Rebecca Config");

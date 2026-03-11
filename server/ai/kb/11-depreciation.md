@@ -6,4 +6,4 @@ Depreciation is a non-cash expense. It reduces taxable income but does not reduc
 
 When a property is sold, the IRS recaptures some of the depreciation benefit. The gain attributable to prior depreciation deductions is taxed at up to 25% under IRC Section 1250.
 
-Income tax is calculated on taxable income, which equals NOI minus interest expense minus depreciation. If taxable income is negative (because depreciation is large enough), no tax is owed.
+Income tax is calculated on taxable income, which equals ANOI minus interest expense minus depreciation. If taxable income is negative (because depreciation is large enough), no tax is owed.

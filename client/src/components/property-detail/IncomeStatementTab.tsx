@@ -14,12 +14,14 @@
  *     = Total Departmental Profit
  *
  *   Undistributed Expenses:
- *     A&G + Sales & Marketing + POM + Utilities + Management Fees
+ *     A&G + Sales & Marketing + POM + Utilities
  *     = GOP (Gross Operating Profit)
- *
- *   Fixed Charges:
- *     Property Tax + Insurance + FF&E Reserve
+ *   Management Fees (base + incentive)
+ *     = AGOP (Adjusted Gross Operating Profit)
+ *   Fixed Charges (Property Tax + Insurance)
  *     = NOI (Net Operating Income)
+ *   FF&E Reserve
+ *     = ANOI (Adjusted Net Operating Income)
  *
  * Each year is a column; the component also shows the "stabilized year"
  * (when occupancy reaches its long-term target) with a visual highlight.

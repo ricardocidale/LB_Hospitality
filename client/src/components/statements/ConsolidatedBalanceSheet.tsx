@@ -192,7 +192,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
         onToggle={() => toggle("cash")}
       >
         <BalanceSheetFormulaRow label="Operating Reserves (Day 0)" amount={totalCashReserves} />
-        <BalanceSheetFormulaRow label="Cumulative Operating Cash Flow (NOI − Debt Service − Tax)" amount={totalCumulativeCashFlow} />
+        <BalanceSheetFormulaRow label="Cumulative Operating Cash Flow (ANOI − Debt Service − Tax)" amount={totalCumulativeCashFlow} />
         {totalRefinanceProceeds !== 0 && (
           <BalanceSheetFormulaRow label="Refinancing Proceeds" amount={totalRefinanceProceeds} />
         )}

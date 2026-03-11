@@ -75,7 +75,7 @@ The management company is initially funded through capital tranches that provide
 
 5. No Over-Distribution Rule: FCF distributions and refinancing proceeds returned to investors must not exceed available cash.
 
-6. Income Statement: Interest Only (No Principal): The income statement must show only interest expense, never principal repayment. NOI - Interest Expense - Depreciation - Income Tax = Net Income.
+6. Income Statement: Interest Only (No Principal): The income statement must show only interest expense, never principal repayment. ANOI − Interest Expense − Depreciation − Income Tax = Net Income.
 
 7. Capital Structure Presentation: All financial reports must present capital sources on separate lines: Equity (Cash) Infusion, Loan Proceeds, Refinancing Proceeds.`,
     source: "User Manual",
@@ -164,21 +164,23 @@ FF&E Reserve: percentage of Total Revenue set aside for furniture, fixtures, and
   });
 
   chunks.push({
-    title: "GOP, NOI, and Financial Formulas",
-    content: `Key financial formulas used in the model:
+    title: "GOP, AGOP, NOI, ANOI, and Financial Formulas",
+    content: `Key financial formulas used in the model (USALI waterfall):
 
 GOP (Gross Operating Profit) = Total Revenue − Total Operating Expenses
-NOI (Net Operating Income) = GOP − Management Fees − FF&E Reserve
+AGOP (Adjusted Gross Operating Profit) = GOP − Management Fees (base + incentive)
+NOI (Net Operating Income) = AGOP − Fixed Charges (insurance + property taxes)
+ANOI (Adjusted Net Operating Income) = NOI − FF&E Reserve
 
 Management Fees:
 - Base Management Fee: percentage of Total Revenue
 - Incentive Management Fee: percentage of GOP (only if GOP > 0)
 
 Income Statement flow:
-NOI − Interest Expense − Depreciation − Income Tax = Net Income
+ANOI − Interest Expense − Depreciation − Income Tax = Net Income
 
 Free Cash Flow to Equity (FCFE):
-NOI − Debt Service (Principal + Interest) − Income Tax = FCFE
+ANOI − Debt Service (Principal + Interest) − Income Tax = FCFE
 
 Depreciation: Straight-line over 27.5 years on depreciable basis (building portion of purchase price × (1 − land value percent) + building improvements).
 
@@ -204,7 +206,7 @@ NPV (Net Present Value): Present value of all future cash flows discounted at th
 
 Cash-on-Cash Return = Annual FCFE ÷ Total Equity Invested
 
-DSCR (Debt Service Coverage Ratio) = NOI ÷ Annual Debt Service. DSCR > 1.0 means property generates enough income to cover debt payments.`,
+DSCR (Debt Service Coverage Ratio) = ANOI ÷ Annual Debt Service. DSCR > 1.0 means property generates enough income to cover debt payments.`,
     source: "User Manual",
     category: "methodology",
   });
@@ -314,10 +316,10 @@ GAAP/IRS Rules by Field:
 - LTV → ASC 470: Debt must be separated into interest expense (Income Statement) and principal repayment (Balance Sheet/Financing Activity). Only interest reduces taxable income.
 - Closing Costs → ASC 310-20: Loan origination costs are capitalized and amortized over the loan term. Not expensed immediately. Shown as a reduction of the loan liability on the balance sheet.
 - Exit Cap Rate → ASC 360 / IRC §1250: The exit cap rate determines terminal value for impairment testing. Gain on sale = Sale Price − (Adjusted Basis − Accumulated Depreciation). Depreciation recapture is taxed at up to 25% under IRC §1250.
-- Income Tax Rate → IRC §168: Taxable income = NOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes.
+- Income Tax Rate → IRC §168: Taxable income = ANOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes.
 - Events Revenue → ASC 606: Event revenue is recognized when the event occurs (point-in-time). Deposits are recorded as deferred revenue until the performance obligation is satisfied.
 - F&B Revenue → ASC 606: F&B revenue is recognized at the point of sale. Bundled packages (e.g., room + breakfast) must allocate revenue to each performance obligation based on standalone selling prices.
-- FF&E Reserve → USALI Standard: FF&E reserve is deducted below GOP to arrive at NOI. Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx.
+- FF&E Reserve → USALI Standard: FF&E reserve is deducted below NOI to arrive at ANOI. Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx.
 - Insurance → GAAP Matching Principle: Insurance premiums are expensed as incurred over the policy period. Prepaid portions are recorded as current assets and amortized monthly. Not capitalizable into property basis.
 - Property Taxes → IRC §164: Property taxes are fully deductible as an operating expense for income tax purposes. Based on assessed value, not market value. Reassessment may occur upon sale or significant improvement.
 - Sale Commission → IRC §1001: Sales commission reduces the amount realized on disposition and is deducted from gross sale proceeds.`,
@@ -378,7 +380,7 @@ User Roles: Admin (full access), Partner (management access), Checker (verificat
     title: "Checker Manual: Cash Flow Streams",
     content: `Each property SPV has 6 distinct cash flow streams:
 
-1. Operating Cash Flow: NOI minus income tax. The primary recurring cash flow from hotel operations.
+1. Operating Cash Flow: ANOI minus income tax. The primary recurring cash flow from hotel operations.
 
 2. Debt Service: Monthly principal + interest payments on acquisition and refinancing loans.
 
@@ -388,7 +390,7 @@ User Roles: Admin (full access), Partner (management access), Checker (verificat
 
 5. Refinancing Cash Flow: Cash-out proceeds from refinancing events, net of closing costs and old loan payoff.
 
-6. Disposition Cash Flow: Final-year proceeds from property sale. Gross sale value (NOI / exit cap rate) minus commission, minus outstanding debt, minus closing costs.
+6. Disposition Cash Flow: Final-year proceeds from property sale. Gross sale value (final year NOI / exit cap rate) minus commission, minus outstanding debt, minus closing costs.
 
 The Free Cash Flow to Equity (FCFE) aggregates these streams: FCFE = Operating CF − Debt Service − CapEx + Refi Proceeds + Disposition Proceeds.`,
     source: "Checker Manual",
@@ -399,14 +401,18 @@ The Free Cash Flow to Equity (FCFE) aggregates these streams: FCFE = Operating C
     title: "Checker Manual: Financial Statements",
     content: `Each property generates three GAAP-compliant financial statements:
 
-Income Statement:
+Income Statement (USALI Waterfall):
 - Revenue: Room Revenue + F&B + Events + Other
 - Less: Operating Expenses (USALI departments)
 - = Gross Operating Profit (GOP)
-- Less: Management Fees + FF&E Reserve
+- Less: Management Fees (base + incentive)
+- = Adjusted GOP (AGOP)
+- Less: Fixed Charges (insurance + property taxes)
 - = Net Operating Income (NOI)
+- Less: FF&E Reserve
+- = Adjusted NOI (ANOI)
 - Less: Interest Expense (interest portion only, per Rule #6)
-- Less: Depreciation (straight-line, 39 years)
+- Less: Depreciation (straight-line, 27.5 years)
 - Less: Income Tax
 - = Net Income
 

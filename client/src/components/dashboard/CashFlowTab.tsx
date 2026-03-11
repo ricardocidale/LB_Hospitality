@@ -225,7 +225,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                       {expandedFormulas.has("cfo-formula") && (
                         <TableRow className="bg-blue-50/20" data-expandable-row="true">
                           <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
-                            = NOI − Debt Service (Principal + Interest)
+                            = ANOI − Debt Service (Principal + Interest)
                           </TableCell>
                           {consolidatedCFO.map((val, i) => (
                             <TableCell key={i} className="text-right font-mono text-xs text-muted-foreground py-0.5">
@@ -412,7 +412,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   {expandedFormulas.has("fcf-formula") && (
                     <TableRow className="bg-blue-50/20" data-expandable-row="true">
                       <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
-                        = NOI − Capital Expenditures
+                        = ANOI − Capital Expenditures
                       </TableCell>
                       {years.map((_, y) => {
                         const noi = allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.noi ?? 0), 0);

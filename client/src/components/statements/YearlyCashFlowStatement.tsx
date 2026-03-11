@@ -379,7 +379,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         label="Less: Income Taxes Paid"
         values={yearlyData.map(y => y.taxLiability)}
         negate
-        tooltip="Income tax on taxable income (NOI - Interest - Depreciation). Only when taxable income is positive."
+        tooltip="Income tax on taxable income (ANOI − Interest − Depreciation). Only applies when taxable income is positive."
       />
 
       <SubtotalRow
@@ -542,7 +542,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         label="Debt Service Coverage Ratio"
         values={dscrValues}
         highlights={dscrHighlights}
-        tooltip="NOI divided by debt service. Lenders typically require 1.25x minimum. Higher is better."
+        tooltip="ANOI divided by debt service. Lenders typically require 1.25× minimum. Higher is better."
       />
     </TableShell>
   );

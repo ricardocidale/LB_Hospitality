@@ -8,11 +8,11 @@
  *   • F&B Revenue        — food & beverage (often 25-40% of total revenue)
  *   • Event Revenue      — meetings, banquets, catering
  *   • Total Revenue      — sum of all revenue streams
- *   • GOP                — Gross Operating Profit (revenue minus operating
- *                          expenses before fixed charges, per USALI)
- *   • NOI                — Net Operating Income (GOP minus fixed charges
- *                          like property tax, insurance, FF&E reserve)
- *   • Cash Flow          — NOI minus debt service (negative = cash burn)
+ *   • GOP                — Gross Operating Profit (revenue minus operating expenses)
+ *   • AGOP               — Adjusted GOP (GOP minus management fees)
+ *   • NOI                — Net Operating Income (AGOP minus fixed charges)
+ *   • ANOI               — Adjusted NOI (NOI minus FF&E reserve)
+ *   • Cash Flow          — ANOI minus debt service minus income tax
  *
  * The rightmost column aggregates the full-year total for each line item.
  */
@@ -96,20 +96,38 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
 
               {/* GOP */}
               <TableRow className="bg-accent/10 border-border font-medium">
-                <TableCell className="sticky left-0 bg-accent/20 z-10 border-r border-border">Gross Operating Profit</TableCell>
+                <TableCell className="sticky left-0 bg-accent/20 z-10 border-r border-border">Gross Operating Profit (GOP)</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono">{formatMoney(m.gop)}</TableCell>
                 ))}
                 <TableCell className="text-right bg-accent/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.gop, 0))}</TableCell>
               </TableRow>
 
-              {/* NET INCOME */}
+              {/* AGOP */}
+              <TableRow className="bg-accent/5 border-border font-medium">
+                <TableCell className="sticky left-0 bg-accent/10 z-10 border-r border-border text-sm">Adjusted GOP (AGOP)</TableCell>
+                {first12Months.map((m, i) => (
+                  <TableCell key={i} className="text-right font-mono text-sm">{formatMoney(m.agop)}</TableCell>
+                ))}
+                <TableCell className="text-right bg-accent/20 font-mono text-sm">{formatMoney(first12Months.reduce((a, b) => a + b.agop, 0))}</TableCell>
+              </TableRow>
+
+              {/* NOI */}
+              <TableRow className="bg-primary/5 border-border font-medium">
+                <TableCell className="sticky left-0 bg-primary/10 z-10 border-r border-border text-sm">Net Operating Income (NOI)</TableCell>
+                {first12Months.map((m, i) => (
+                  <TableCell key={i} className="text-right font-mono text-sm">{formatMoney(m.noi)}</TableCell>
+                ))}
+                <TableCell className="text-right bg-primary/20 font-mono text-sm">{formatMoney(first12Months.reduce((a, b) => a + b.noi, 0))}</TableCell>
+              </TableRow>
+
+              {/* ANOI */}
               <TableRow className="bg-primary/10 border-border font-medium text-lg">
                 <TableCell className="sticky left-0 bg-primary/20 z-10 border-r border-border">Adjusted NOI (ANOI)</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className="text-right font-mono">{formatMoney(m.noi)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono">{formatMoney(m.anoi)}</TableCell>
                 ))}
-                <TableCell className="text-right bg-primary/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.noi, 0))}</TableCell>
+                <TableCell className="text-right bg-primary/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.anoi, 0))}</TableCell>
               </TableRow>
               
                {/* CASH FLOW */}

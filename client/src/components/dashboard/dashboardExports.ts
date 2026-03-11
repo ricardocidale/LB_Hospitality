@@ -226,7 +226,7 @@ export function generatePortfolioCashFlowData(
   rows.push({ category: "Cash Flow from Operations (CFO)", values: consolidatedCFO, isHeader: true });
   if (expanded?.has("cfo")) {
     if (!excludeFormulas) {
-      rows.push({ category: "Formula: = NOI − Debt Service (Principal + Interest)", values: consolidatedCFO, indent: 2 });
+      rows.push({ category: "Formula: = ANOI − Debt Service (Principal + Interest)", values: consolidatedCFO, indent: 2 });
     }
     allPropertyYearlyCF.forEach((propCF, idx) => {
       const name = propertyNames?.[idx] ?? `Property ${idx + 1}`;

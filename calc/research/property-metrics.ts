@@ -128,7 +128,7 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
   const baseFee = monthlyTotal * base_management_fee_rate;
   const incentiveFee = monthlyGOP > 0 ? monthlyGOP * incentive_management_fee_rate : 0;
 
-  // NOI = GOP - Undistributed - Management Fees - FF&E
+  // ANOI = GOP - Undistributed - Management Fees - Fixed Charges - FF&E
   const monthlyNOI = monthlyGOP - undistributed - baseFee - incentiveFee;
   const annualNOI = roundCents(monthlyNOI * 12);
   const annualGOP = roundCents(monthlyGOP * 12);

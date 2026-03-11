@@ -1,17 +1,16 @@
 /**
  * CashFlowTab.tsx — Annual cash flow waterfall for a single property.
  *
- * Shows the path from NOI (Net Operating Income) down to net cash flow
- * available to equity investors:
+ * Shows the path from ANOI (Adjusted Net Operating Income) down to net
+ * cash flow available to equity investors:
  *
- *   NOI
+ *   ANOI (NOI minus FF&E reserve)
  *   − Debt Service (principal + interest payments)
- *   − FF&E Reserve contributions
  *   − Income Tax
  *   = Net Cash Flow (before distributions)
  *
- * Also computes the DSCR (Debt Service Coverage Ratio) = NOI / Debt Service.
- * Lenders typically require DSCR ≥ 1.25×, meaning NOI must be at least
+ * Also computes the DSCR (Debt Service Coverage Ratio) = ANOI / Debt Service.
+ * Lenders typically require DSCR ≥ 1.25×, meaning ANOI must be at least
  * 25% higher than the debt service obligation. The UI highlights years
  * where DSCR falls below the required threshold.
  *

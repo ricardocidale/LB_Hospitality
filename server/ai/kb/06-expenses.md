@@ -11,8 +11,12 @@ Departmental expenses are tied to their revenue sources:
 Undistributed expenses cover the rest:
 - Property operations and maintenance
 - Utilities (split between fixed and variable)
-- Insurance
-- Property taxes
 - IT systems
 
-There is also an FF&E Reserve (Furniture, Fixtures, and Equipment). This is a percentage of total revenue set aside for replacing worn-out items. It is deducted below GOP to arrive at NOI.
+Fixed charges are deducted below AGOP to arrive at NOI:
+- Insurance
+- Property taxes
+
+There is also an FF&E Reserve (Furniture, Fixtures, and Equipment). This is a percentage of total revenue set aside for replacing worn-out items. It is deducted below NOI to arrive at ANOI.
+
+The full waterfall is: Revenue → GOP (minus operating expenses) → AGOP (minus management fees) → NOI (minus fixed charges) → ANOI (minus FF&E reserve).

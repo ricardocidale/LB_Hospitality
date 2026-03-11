@@ -13,10 +13,14 @@
  *   Departmental Expenses  — costs directly tied to each revenue center
  *   Undistributed Expenses — admin, marketing, utilities, maintenance, IT
  *   Gross Operating Profit (GOP) — revenue minus all operating expenses
- *   Fixed Charges          — property tax, insurance, FF&E reserve
- *   Net Operating Income (NOI) — GOP minus fixed charges
- *   Debt Service           — mortgage principal + interest (if financed)
- *   Cash Flow              — NOI minus debt service
+ *   Management Fees        — base fee + incentive fee to operator
+ *   Adjusted GOP (AGOP)    — GOP minus management fees
+ *   Fixed Charges           — property tax + insurance
+ *   Net Operating Income (NOI) — AGOP minus fixed charges
+ *   FF&E Reserve            — furniture, fixtures & equipment set-aside
+ *   Adjusted NOI (ANOI)     — NOI minus FF&E reserve
+ *   Debt Service             — mortgage principal + interest (if financed)
+ *   Cash Flow                — ANOI minus debt service minus income tax
  *
  * Rows are expandable to show calculation details (e.g. "rooms × ADR × days").
  * Margin percentages are shown inline for key subtotals.
@@ -596,7 +600,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       <SpacerRow colSpan={colSpan} />
 
       {/* ── Bottom Line ── */}
-      <SubtotalRow label="GAAP Net Income" values={yd.map((y) => y.netIncome)} positive tooltip="The bottom line: NOI minus interest, depreciation, and income tax. This is the GAAP-compliant net income figure." />
+      <SubtotalRow label="GAAP Net Income" values={yd.map((y) => y.netIncome)} positive tooltip="The bottom line: ANOI minus interest, depreciation, and income tax. This is the GAAP-compliant net income figure." />
       <MarginRow label="% of Total Revenue" values={yd.map((y) => y.netIncome)} baseValues={yd.map((y) => y.revenueTotal)} />
     </TableShell>
   );

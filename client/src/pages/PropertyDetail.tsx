@@ -379,7 +379,7 @@ export default function PropertyDetail() {
       doc.setFontSize(16);
       doc.text(`${property.name} - Performance Chart`, 14, 15);
       doc.setFontSize(10);
-      const chartTitle = `${projectionYears}-Year Revenue, GOP, and ANOI Trend`;
+      const chartTitle = `${projectionYears}-Year Revenue, GOP, NOI, and ANOI Trend`;
       doc.text(chartTitle, 14, 22);
       drawLineChart({
         doc,
@@ -391,6 +391,7 @@ export default function PropertyDetail() {
         series: [
           { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#257D41' },
           { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: '#3B82F6' },
+          { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: '#8B5CF6' },
           { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: '#F4795B' },
         ]
       });
@@ -550,6 +551,11 @@ export default function PropertyDetail() {
           color: '#3B82F6'
         },
         {
+          name: 'NOI',
+          data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })),
+          color: '#8B5CF6'
+        },
+        {
           name: 'ANOI',
           data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })),
           color: '#F4795B'
@@ -558,7 +564,7 @@ export default function PropertyDetail() {
       
       const chartTitle = activeTab === "cashflow" 
         ? `${projectionYears}-Year Revenue, ANOI, and Cash Flow Trend`
-        : `${projectionYears}-Year Revenue, GOP, and ANOI Trend`;
+        : `${projectionYears}-Year Revenue, GOP, NOI, and ANOI Trend`;
       doc.text(chartTitle, 14, 22);
       
       drawLineChart({

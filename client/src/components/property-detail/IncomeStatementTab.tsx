@@ -79,7 +79,7 @@ export default function IncomeStatementTab({
                   }}
                   labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
                   formatter={(value: number, name: string) => {
-                    const labels: Record<string, string> = { Revenue: "Revenue — Total Revenue", GOP: "GOP — Gross Operating Profit", ANOI: "ANOI — Adjusted Net Operating Income" };
+                    const labels: Record<string, string> = { Revenue: "Revenue — Total Revenue", GOP: "GOP — Gross Operating Profit", NOI: "NOI — Net Operating Income", ANOI: "ANOI — Adjusted Net Operating Income" };
                     return [formatMoney(value), labels[name] ?? name];
                   }}
                 />
@@ -87,7 +87,7 @@ export default function IncomeStatementTab({
                   wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }}
                   iconType="circle"
                   formatter={(value: string) => {
-                    const abbr: Record<string, string> = { Revenue: "Revenue", GOP: "GOP", ANOI: "ANOI" };
+                    const abbr: Record<string, string> = { Revenue: "Revenue", GOP: "GOP", NOI: "NOI", ANOI: "ANOI" };
                     return abbr[value] ?? value;
                   }}
                 />
@@ -109,11 +109,19 @@ export default function IncomeStatementTab({
                 />
                 <Line 
                   type="monotone" 
-                  dataKey="ANOI" 
+                  dataKey="NOI" 
                   stroke="hsl(var(--line-3))" 
                   strokeWidth={3}
                   dot={{ fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, fill: 'hsl(var(--line-3))', stroke: '#fff', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="ANOI" 
+                  stroke="hsl(var(--line-4))" 
+                  strokeWidth={3}
+                  dot={{ fill: 'hsl(var(--line-4))', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: 'hsl(var(--line-4))', stroke: '#fff', strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>

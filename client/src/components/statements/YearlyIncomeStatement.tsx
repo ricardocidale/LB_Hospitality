@@ -346,6 +346,101 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           </ExpandableLineItem>
 
           <ExpandableLineItem
+            label="Other Costs"
+            tooltip={`USALI fixed cost: ${pct(costRates.other)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
+            values={yd.map((y) => y.expenseOtherCosts)}
+            expanded={isExpanded("otherCosts")}
+            onToggle={() => toggle("otherCosts")}
+          >
+            {fixedCostFormulaRows("other", yd.map((y) => y.expenseOtherCosts))}
+          </ExpandableLineItem>
+        </>
+      ) : (
+        <>
+          <LineItem label="Property Operations"       values={yd.map((y) => y.expensePropertyOps)} tooltip="Fixed cost per USALI: Year 1 base revenue × rate, escalating annually. Not a percentage of current-year revenue." />
+          <LineItem label="Utilities"                 values={yd.map((y) => y.expenseUtilities)} tooltip="Split into variable (scales with revenue) and fixed (anchored to Year 1 base revenue)." />
+          <LineItem label="Administrative & General"  values={yd.map((y) => y.expenseAdmin)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
+          <LineItem label="IT & Technology"           values={yd.map((y) => y.expenseIT)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
+          <LineItem label="Other Costs"               values={yd.map((y) => y.expenseOtherCosts)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
+        </>
+      )}
+
+      <SubtotalRow label="Total Operating Expenses" values={yd.map((y) => y.revenueTotal - y.gop)} tooltip="Sum of all departmental and undistributed operating expenses." />
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.revenueTotal - y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Profitability ── */}
+      <SubtotalRow label="Gross Operating Profit (GOP)" values={yd.map((y) => y.gop)} positive tooltip="Total Revenue minus all Operating Expenses. The property's core operating profitability before management fees and reserves." />
+      {isExpanded("gopFormula") ? (
+        <>
+          <FormulaDetailRow
+            label="= Total Revenue − Total Operating Expenses"
+            values={yd.map((y) => `${fmt(y.revenueTotal)} − ${fmt(y.revenueTotal - y.gop)}`)}
+            colCount={years}
+          />
+          <FormulaDetailRow
+            label="= GOP"
+            values={yd.map((y) => fmt(y.gop))}
+            colCount={years}
+          />
+        </>
+      ) : (
+        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("gopFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+          {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
+        </TableRow>
+      )}
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Management Fees ── */}
+      <SectionHeader label="Management Fees" colSpan={colSpan} />
+
+      <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Percentage of total revenue paid to the management company for operating the property." />
+      {(() => {
+        const catSet = new Set<string>();
+        for (const y of yd) for (const k of Object.keys(y.serviceFeesByCategory ?? {})) catSet.add(k);
+        const cats = Array.from(catSet);
+        return cats.length > 0 ? cats.map(cat => (
+          <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
+        )) : null;
+      })()}
+      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance-based fee paid to the management company, calculated as a percentage of GOP." />
+
+      <SpacerRow colSpan={colSpan} />
+
+      <SubtotalRow label="Adjusted GOP (AGOP)" values={yd.map((y) => y.agop)} positive tooltip="GOP minus all management fees. The property's operating profit after management company compensation." />
+      {isExpanded("agopFormula") ? (
+        <>
+          <FormulaDetailRow
+            label="= GOP − Base Fee − Service Fees − Incentive Fee"
+            values={yd.map((y) => `${fmt(y.gop)} − ${fmt(y.feeBase + Object.values(y.serviceFeesByCategory ?? {}).reduce((s: number, v) => s + (v as number), 0))} − ${fmt(y.feeIncentive)}`)}
+            colCount={years}
+          />
+          <FormulaDetailRow
+            label="= AGOP"
+            values={yd.map((y) => fmt(y.agop))}
+            colCount={years}
+          />
+        </>
+      ) : (
+        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("agopFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+          {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
+        </TableRow>
+      )}
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.agop)} baseValues={yd.map((y) => y.revenueTotal)} />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Fixed Charges ── */}
+      <SectionHeader label="Fixed Charges" colSpan={colSpan} />
+
+      {hasContext ? (
+        <>
+          <ExpandableLineItem
             label="Insurance"
             tooltip={`Based on property value: ${pct(costRates.insurance)} of ${fmt(totalPropertyValue)} (${fmt(totalPropertyValue / 12)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseInsurance)}
@@ -426,68 +521,77 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
               </>
             )}
           </ExpandableLineItem>
-
-          <ExpandableLineItem
-            label="Other Costs"
-            tooltip={`USALI fixed cost: ${pct(costRates.other)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
-            values={yd.map((y) => y.expenseOtherCosts)}
-            expanded={isExpanded("otherCosts")}
-            onToggle={() => toggle("otherCosts")}
-          >
-            {fixedCostFormulaRows("other", yd.map((y) => y.expenseOtherCosts))}
-          </ExpandableLineItem>
         </>
       ) : (
         <>
-          <LineItem label="Property Operations"       values={yd.map((y) => y.expensePropertyOps)} tooltip="Fixed cost per USALI: Year 1 base revenue × rate, escalating annually. Not a percentage of current-year revenue." />
-          <LineItem label="Utilities"                 values={yd.map((y) => y.expenseUtilities)} tooltip="Split into variable (scales with revenue) and fixed (anchored to Year 1 base revenue)." />
-          <LineItem label="Administrative & General"  values={yd.map((y) => y.expenseAdmin)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
-          <LineItem label="IT & Technology"           values={yd.map((y) => y.expenseIT)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
-          <LineItem label="Insurance"                 values={yd.map((y) => y.expenseInsurance)} tooltip="Based on property value (Purchase Price + Building Improvements), adjusted annually by inflation." />
-          <LineItem label="Property Taxes"            values={yd.map((y) => y.expenseTaxes)} tooltip="Based on property value (Purchase Price + Building Improvements), adjusted annually by inflation." />
-          <LineItem label="Other Costs"               values={yd.map((y) => y.expenseOtherCosts)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
+          <LineItem label="Insurance"       values={yd.map((y) => y.expenseInsurance)} tooltip="Based on property value (Purchase Price + Building Improvements), adjusted annually by inflation." />
+          <LineItem label="Property Taxes"   values={yd.map((y) => y.expenseTaxes)} tooltip="Based on property value (Purchase Price + Building Improvements), adjusted annually by inflation." />
         </>
       )}
 
-      <SubtotalRow label="Total Operating Expenses" values={yd.map((y) => y.revenueTotal - y.gop)} tooltip="Sum of all departmental and undistributed operating expenses." />
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.revenueTotal - y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
-
       <SpacerRow colSpan={colSpan} />
 
-      {/* ── Profitability ── */}
-      <SubtotalRow label="Gross Operating Profit (GOP)" values={yd.map((y) => y.gop)} positive tooltip="Total Revenue minus all Operating Expenses. The property's core operating profitability before management fees and reserves." />
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
-
-      <SpacerRow colSpan={colSpan} />
-
-      {/* ── Non-Operating ── */}
-      <SectionHeader label="Non-Operating Expenses" colSpan={colSpan} />
-
-      <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Percentage of total revenue paid to the management company for operating the property." />
-      {(() => {
-        const catSet = new Set<string>();
-        for (const y of yd) for (const k of Object.keys(y.serviceFeesByCategory ?? {})) catSet.add(k);
-        const cats = Array.from(catSet);
-        return cats.length > 0 ? cats.map(cat => (
-          <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
-        )) : null;
-      })()}
-      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance-based fee paid to the management company, calculated as a percentage of GOP." />
-      <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Furniture, Fixtures & Equipment reserve — set aside for capital replacements and renovations." />
-
-      <SpacerRow colSpan={colSpan} />
-
-      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.noi)} positive tooltip="GOP minus management fees and FF&E reserve. The property's income available for debt service and returns." />
+      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="AGOP minus fixed charges (insurance and property taxes). The property's net income from operations before reserves." />
+      {isExpanded("noiFormula") ? (
+        <>
+          <FormulaDetailRow
+            label="= AGOP − Insurance − Property Taxes"
+            values={yd.map((y) => `${fmt(y.agop)} − ${fmt(y.expenseInsurance)} − ${fmt(y.expenseTaxes)}`)}
+            colCount={years}
+          />
+          <FormulaDetailRow
+            label="= NOI"
+            values={yd.map((y) => fmt(y.noi))}
+            colCount={years}
+          />
+        </>
+      ) : (
+        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("noiFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+          {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
+        </TableRow>
+      )}
       <MarginRow label="% of Total Revenue" values={yd.map((y) => y.noi)} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
-      {/* ── Below NOI ── */}
-      <SectionHeader label="Below NOI" colSpan={colSpan} />
+      {/* ── FF&E Reserve ── */}
+      <SectionHeader label="Reserves" colSpan={colSpan} />
+
+      <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Furniture, Fixtures & Equipment reserve — set aside for capital replacements and renovations." />
+
+      <SpacerRow colSpan={colSpan} />
+
+      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="NOI minus FF&E reserve. The property's income available for debt service and returns." />
+      {isExpanded("anoiFormula") ? (
+        <>
+          <FormulaDetailRow
+            label="= NOI − FF&E Reserve"
+            values={yd.map((y) => `${fmt(y.noi)} − ${fmt(y.expenseFFE)}`)}
+            colCount={years}
+          />
+          <FormulaDetailRow
+            label="= ANOI"
+            values={yd.map((y) => fmt(y.anoi))}
+            colCount={years}
+          />
+        </>
+      ) : (
+        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("anoiFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+          {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
+        </TableRow>
+      )}
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.anoi)} baseValues={yd.map((y) => y.revenueTotal)} />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Below ANOI ── */}
+      <SectionHeader label="Below ANOI" colSpan={colSpan} />
 
       <LineItem label="Interest Expense"  values={yd.map((y) => y.interestExpense)} tooltip="Interest portion of mortgage debt service payments." />
       <LineItem label="Depreciation"      values={yd.map((y) => y.depreciationExpense)} tooltip="Non-cash expense per ASC 360: straight-line depreciation of the depreciable building basis over 27.5 years." />
-      <LineItem label="Income Tax"        values={yd.map((y) => y.incomeTax)} tooltip="Federal/state income tax applied to pre-tax income (NOI minus interest and depreciation)." />
+      <LineItem label="Income Tax"        values={yd.map((y) => y.incomeTax)} tooltip="Federal/state income tax applied to pre-tax income (ANOI minus interest and depreciation)." />
 
       <SpacerRow colSpan={colSpan} />
 

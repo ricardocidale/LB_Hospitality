@@ -225,7 +225,8 @@
       "Bash(echo \"=== Multiple locations for common filenames ===\" && \\\\\nfor name in admin.ts auth.ts constants.ts helpers.ts index.ts routes.ts types.ts utils.ts; do\n  echo \"$name locations:\" && find ./client/src ./server ./shared ./calc ./analytics ./statements ./domain ./engine -type f -name \"$name\" 2>/dev/null\ndone)",
       "Bash(npm run:*)",
       "Bash(while read:*)",
-      "Read(//home/runner/workspace/**)"
+      "Read(//home/runner/workspace/**)",
+      "Bash(lsof -i :5000 2>/dev/null || netstat -tlnp 2>/dev/null | grep 5000)"
     ]
   },
   "enableAllProjectMcpServers": true,

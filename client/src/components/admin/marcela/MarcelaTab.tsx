@@ -138,13 +138,13 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
         {[1, 2, 3].map((i) => (
           <Card key={i} className="bg-card border border-border/80">
             <CardHeader>
-              <div className="h-6 w-48 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-72 bg-muted animate-pulse rounded mt-2" />
+              <div className="h-6 w-48 bg-muted shimmer-bg rounded" />
+              <div className="h-4 w-72 bg-muted shimmer-bg rounded mt-2" />
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="h-10 bg-muted animate-pulse rounded" />
-                <div className="h-10 bg-muted animate-pulse rounded" />
+                <div className="h-10 bg-muted shimmer-bg rounded" />
+                <div className="h-10 bg-muted shimmer-bg rounded" />
               </div>
             </CardContent>
           </Card>

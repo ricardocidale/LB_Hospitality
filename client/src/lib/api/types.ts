@@ -66,6 +66,7 @@ export interface GlobalResponse {
   // Tax
   companyTaxRate: number;
   // Exit & Sale Assumptions
+  costOfEquity: number;
   exitCapRate: number;
   salesCommissionRate: number;
   // Property Expense Rates
@@ -74,6 +75,10 @@ export interface GlobalResponse {
   utilitiesVariableSplit: number;
   // AI Research
   preferredLlm: string;
+  // Rebecca AI
+  rebeccaEnabled: boolean;
+  rebeccaDisplayName: string;
+  rebeccaSystemPrompt: string | null;
   // Display Settings
   showCompanyCalculationDetails: boolean;
   showPropertyCalculationDetails: boolean;

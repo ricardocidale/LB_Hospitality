@@ -54,7 +54,7 @@ export function HeroImage({
     >
       {/* Skeleton shimmer placeholder */}
       {!loaded && hasImage && (
-        <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted/60 to-muted animate-pulse" />
+        <div className="absolute inset-0 shimmer-bg bg-muted" />
       )}
 
       {/* Fallback gradient when no image */}

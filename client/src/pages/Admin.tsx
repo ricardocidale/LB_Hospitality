@@ -5,9 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import AdminSidebar, { type AdminSection, navGroups, getGroupForSection } from "@/components/admin/AdminSidebar";
 import {
   CompaniesTab, ActivityTab, VerificationTab,
-  DatabaseTab, MarcelaTab,
+  DatabaseTab,
 } from "@/components/admin";
-import { KnowledgeBaseCard } from "@/components/admin/marcela/KnowledgeBase";
 import PeopleTab from "@/components/admin/PeopleTab";
 import BrandingTab from "@/components/admin/BrandingTab";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
@@ -18,8 +17,7 @@ import LogosTab from "@/components/admin/LogosTab";
 import ThemesTab from "@/components/admin/ThemesTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
-import TwilioTab from "@/components/admin/TwilioTab";
-import RebeccaTab from "@/components/admin/RebeccaTab";
+import AIAgentsTab from "@/components/admin/AIAgentsTab";
 import DiagramsTab from "@/components/admin/DiagramsTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -37,10 +35,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
-  marcela:          { title: "Marcela (Voice)",       subtitle: "Configure Marcela — voice, prompt, tools, and telephony" },
-  rebecca:          { title: "Rebecca (Text)",        subtitle: "Configure Rebecca — text chat, system prompt, and model" },
-  kb:               { title: "Knowledge Base",       subtitle: "Marcela's knowledge base documents and data" },
-  twilio:           { title: "Twilio",               subtitle: "Phone and SMS telephony configuration" },
+  "ai-agents":     { title: "AI Agents",             subtitle: "Configure and manage Marcela (voice) and Rebecca (text) assistants" },
   research:         { title: "Research Center",      subtitle: "AI research configuration and live market rate monitoring" },
   navigation:       { title: "Navigation",           subtitle: "Control which sidebar pages are visible to users" },
   diagrams:         { title: "Diagrams",              subtitle: "Application workflow diagrams and architecture" },
@@ -62,61 +57,19 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "themes":           return <ThemesTab />;
     case "navigation":       return <NavigationTab />;
     case "research":         return <ResearchCenterTab />;
-    case "marcela":          return (
+    case "ai-agents":       return (
       <ErrorBoundary fallback={
         <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
           <IconAlertTriangle className="w-10 h-10 text-amber-500" />
           <div>
-            <p className="font-semibold text-foreground">AI Agent configuration failed to load</p>
+            <p className="font-semibold text-foreground">AI Agents configuration failed to load</p>
             <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
             Reload page
           </Button>
         </div>
-      }><MarcelaTab /></ErrorBoundary>
-    );
-    case "kb":               return (
-      <ErrorBoundary fallback={
-        <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
-          <div>
-            <p className="font-semibold text-foreground">Knowledge Base failed to load</p>
-            <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-            Reload page
-          </Button>
-        </div>
-      }><KnowledgeBaseCard agentName="Marcela" /></ErrorBoundary>
-    );
-    case "twilio":           return (
-      <ErrorBoundary fallback={
-        <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
-          <div>
-            <p className="font-semibold text-foreground">Twilio configuration failed to load</p>
-            <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-            Reload page
-          </Button>
-        </div>
-      }><TwilioTab /></ErrorBoundary>
-    );
-    case "rebecca":          return (
-      <ErrorBoundary fallback={
-        <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
-          <div>
-            <p className="font-semibold text-foreground">Rebecca configuration failed to load</p>
-            <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-            Reload page
-          </Button>
-        </div>
-      }><RebeccaTab /></ErrorBoundary>
+      }><AIAgentsTab /></ErrorBoundary>
     );
     case "diagrams":         return <DiagramsTab />;
     case "verification":     return <VerificationTab />;

@@ -14,7 +14,7 @@ export type AdminSection =
   | "branding" | "icp" | "revshare" | "otherassumptions"
   | "companies" | "groups"
   | "logos" | "themes"
-  | "marcela" | "rebecca" | "kb" | "twilio"
+  | "ai-agents"
   | "research" | "navigation" | "verification" | "database"
   | "diagrams";
 
@@ -72,10 +72,7 @@ const navGroups: NavGroup[] = [
     icon: IconBot,
     description: "Marcela (voice) & Rebecca (text)",
     sections: [
-      { value: "marcela", label: "Marcela (Voice)", icon: IconBot },
-      { value: "rebecca", label: "Rebecca (Text)", icon: IconMessageCircle },
-      { value: "kb", label: "Knowledge Base", icon: IconBookOpen },
-      { value: "twilio", label: "Twilio", icon: IconPhone },
+      { value: "ai-agents", label: "AI Agents", icon: IconBot },
     ],
   },
   {

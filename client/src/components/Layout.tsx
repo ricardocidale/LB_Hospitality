@@ -222,7 +222,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           />
         )}
 
-        <Sidebar className="border-r border-sidebar-border shrink-0">
+        <Sidebar collapsible="none" className="border-r border-sidebar-border shrink-0 hidden md:flex">
           {sidebarContent}
         </Sidebar>
 

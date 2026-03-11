@@ -78,6 +78,10 @@ export function registerMarcelaRoutes(app: Express) {
           patch[field] = req.body[field];
         }
       }
+      // Mutual exclusion: enabling Marcela disables Rebecca
+      if (patch.marcelaEnabled === true) {
+        patch.rebeccaEnabled = false;
+      }
       const updated = await storage.upsertGlobalAssumptions(patch as InsertGlobalAssumptions);
       res.json(updated);
     } catch (error) {

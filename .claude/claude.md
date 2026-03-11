@@ -87,7 +87,7 @@ With 172+ skill files, **never load all skills at once**. Use `.claude/skills/co
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 478+ hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 2,912) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 2,927) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 

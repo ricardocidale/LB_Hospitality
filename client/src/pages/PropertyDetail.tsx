@@ -267,7 +267,7 @@ export default function PropertyDetail() {
     }
   };
 
-  const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
+  const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended') => {
 
     const cashFlowData = getCashFlowData();
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
@@ -313,39 +313,61 @@ export default function PropertyDetail() {
     }
     
     const iceBlueHeader = [232, 244, 253];
+    const isShort = version === "short";
 
-    const body = [
-      [{ content: "CASH FLOW FROM OPERATING ACTIVITIES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
-      [{ content: "Cash Received from Guests & Clients", styles: { fontStyle: "bold" } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.revenueTotal), styles: { fontStyle: "bold" } }))],
-      ["  Guest Room Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueRooms))],
-      ["  Event & Venue Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueEvents))],
-      ["  Food & Beverage Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueFB))],
-      ["  Other Revenue (Spa/Experiences)", ...yearlyDetails.map(y => fmtNum(y.revenueOther))],
-      ["Cash Paid for Operating Expenses", ...yearlyDetails.map(y => fmtNum(-(y.totalExpenses - y.expenseFFE)))],
-      ["Less: Interest Paid", ...cashFlowData.map(y => fmtNum(-y.interestExpense))],
-      ["Less: Income Taxes Paid", ...cashFlowData.map(y => fmtNum(-y.taxLiability))],
-      [{ content: "Net Cash from Operating Activities", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...pdfCfo.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))],
-      [{ content: "CASH FLOW FROM INVESTING ACTIVITIES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
-      ["Property Acquisition", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear ? -pdfTotalPropertyCost : 0))],
-      ["FF&E Reserve / Capital Improvements", ...yearlyDetails.map(y => fmtNum(-y.expenseFFE))],
-      ["Sale Proceeds (Net Exit Value)", ...cashFlowData.map(y => fmtNum(y.exitValue))],
-      [{ content: "Net Cash from Investing Activities", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...pdfCfi.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))],
-      [{ content: "CASH FLOW FROM FINANCING ACTIVITIES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
-      ["Equity Contribution", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear ? pdfLoan.equityInvested : 0))],
-      ["Loan Proceeds", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear && pdfLoan.loanAmount > 0 ? pdfLoan.loanAmount : 0))],
-      ["Less: Principal Repayments", ...cashFlowData.map(y => fmtNum(-y.principalPayment))],
-      ["Refinancing Proceeds", ...cashFlowData.map(y => fmtNum(y.refinancingProceeds))],
+    const body: any[] = [];
+    if (!isShort) {
+      body.push(
+        [{ content: "CASH FLOW FROM OPERATING ACTIVITIES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
+        [{ content: "Cash Received from Guests & Clients", styles: { fontStyle: "bold" } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.revenueTotal), styles: { fontStyle: "bold" } }))],
+        ["  Guest Room Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueRooms))],
+        ["  Event & Venue Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueEvents))],
+        ["  Food & Beverage Revenue", ...yearlyDetails.map(y => fmtNum(y.revenueFB))],
+        ["  Other Revenue (Spa/Experiences)", ...yearlyDetails.map(y => fmtNum(y.revenueOther))],
+        ["Cash Paid for Operating Expenses", ...yearlyDetails.map(y => fmtNum(-(y.totalExpenses - y.expenseFFE)))],
+        ["Less: Interest Paid", ...cashFlowData.map(y => fmtNum(-y.interestExpense))],
+        ["Less: Income Taxes Paid", ...cashFlowData.map(y => fmtNum(-y.taxLiability))]
+      );
+    }
+    body.push(
+      [{ content: "Net Cash from Operating Activities", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...pdfCfo.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+    if (!isShort) {
+      body.push(
+        [{ content: "CASH FLOW FROM INVESTING ACTIVITIES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
+        ["Property Acquisition", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear ? -pdfTotalPropertyCost : 0))],
+        ["FF&E Reserve / Capital Improvements", ...yearlyDetails.map(y => fmtNum(-y.expenseFFE))],
+        ["Sale Proceeds (Net Exit Value)", ...cashFlowData.map(y => fmtNum(y.exitValue))]
+      );
+    }
+    body.push(
+      [{ content: "Net Cash from Investing Activities", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...pdfCfi.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+    );
+    if (!isShort) {
+      body.push(
+        [{ content: "CASH FLOW FROM FINANCING ACTIVITIES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
+        ["Equity Contribution", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear ? pdfLoan.equityInvested : 0))],
+        ["Loan Proceeds", ...cashFlowData.map((_, i) => fmtNum(i === pdfAcqYear && pdfLoan.loanAmount > 0 ? pdfLoan.loanAmount : 0))],
+        ["Less: Principal Repayments", ...cashFlowData.map(y => fmtNum(-y.principalPayment))],
+        ["Refinancing Proceeds", ...cashFlowData.map(y => fmtNum(y.refinancingProceeds))]
+      );
+    }
+    body.push(
       [{ content: "Net Cash from Financing Activities", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...pdfCff.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))],
       [{ content: "Net Increase (Decrease) in Cash", styles: { fontStyle: "bold" } }, ...pdfNetChange.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold" } }))],
       ["Opening Cash Balance", ...pdfOpenCash.map(v => fmtNum(v))],
-      [{ content: "Closing Cash Balance", styles: { fontStyle: "bold" } }, ...pdfCloseCash.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold" } }))],
-      [{ content: "FREE CASH FLOW", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
-      ["Net Cash from Operating Activities", ...pdfCfo.map(v => fmtNum(v))],
-      ["Less: Capital Expenditures (FF&E)", ...yearlyDetails.map(y => fmtNum(-y.expenseFFE))],
-      [{ content: "Free Cash Flow (FCF)", styles: { fontStyle: "bold" } }, ...pdfCfo.map((cfo, i) => ({ content: fmtNum(cfo - yearlyDetails[i].expenseFFE), styles: { fontStyle: "bold" } }))],
-      ["Less: Principal Payments", ...cashFlowData.map(y => fmtNum(-y.principalPayment))],
-      [{ content: "Free Cash Flow to Equity (FCFE)", styles: { fontStyle: "bold" } }, ...pdfCfo.map((cfo, i) => ({ content: fmtNum(cfo - yearlyDetails[i].expenseFFE - cashFlowData[i].principalPayment), styles: { fontStyle: "bold" } }))],
-    ];
+      [{ content: "Closing Cash Balance", styles: { fontStyle: "bold" } }, ...pdfCloseCash.map(v => ({ content: fmtNum(v), styles: { fontStyle: "bold" } }))]
+    );
+    if (!isShort) {
+      body.push(
+        [{ content: "FREE CASH FLOW", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
+        ["Net Cash from Operating Activities", ...pdfCfo.map(v => fmtNum(v))],
+        ["Less: Capital Expenditures (FF&E)", ...yearlyDetails.map(y => fmtNum(-y.expenseFFE))],
+        [{ content: "Free Cash Flow (FCF)", styles: { fontStyle: "bold" } }, ...pdfCfo.map((cfo, i) => ({ content: fmtNum(cfo - yearlyDetails[i].expenseFFE), styles: { fontStyle: "bold" } }))],
+        ["Less: Principal Payments", ...cashFlowData.map(y => fmtNum(-y.principalPayment))],
+        [{ content: "Free Cash Flow to Equity (FCFE)", styles: { fontStyle: "bold" } }, ...pdfCfo.map((cfo, i) => ({ content: fmtNum(cfo - yearlyDetails[i].expenseFFE - cashFlowData[i].principalPayment), styles: { fontStyle: "bold" } }))]
+      );
+    }
 
     const colStyles: Record<number, any> = { 0: { cellWidth: 45, halign: 'left' } };
     for (let i = 1; i <= years; i++) {
@@ -509,24 +531,25 @@ export default function PropertyDetail() {
   };
 
   const handleExport = async (orientation: 'landscape' | 'portrait', version: ExportVersion) => {
-    const expand = version === "extended" && activeTab === "income";
-    if (expand) {
+    const expandIncome = version === "extended" && activeTab === "income";
+    const collapseIncome = version === "short" && activeTab === "income";
+    if (expandIncome) {
       setIncomeAllExpanded(true);
       await new Promise((r) => setTimeout(r, 300));
-    } else if (version === "short" && activeTab === "income") {
+    } else if (collapseIncome) {
       setIncomeAllExpanded(false);
       await new Promise((r) => setTimeout(r, 300));
     }
     try {
       if (exportType === 'pdf') {
-        await exportCashFlowPDF(orientation);
+        await exportCashFlowPDF(orientation, version);
       } else if (exportType === 'tablePng') {
         await exportTablePNG(orientation);
       } else {
         await exportChartPNG(orientation);
       }
     } finally {
-      if (expand) {
+      if (expandIncome) {
         setIncomeAllExpanded(false);
       }
     }
@@ -540,7 +563,7 @@ export default function PropertyDetail() {
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
         title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
-        showVersionOption={activeTab === "income" || activeTab === "cashflow"}
+        showVersionOption={activeTab === "income" || activeTab === "cashflow" || activeTab === "balance"}
       />
       <div className="space-y-6">
         <PropertyHeader

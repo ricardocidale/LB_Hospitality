@@ -93,8 +93,19 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     }
   };
 
-  const handleVersionExport = (_orientation: 'landscape' | 'portrait', _version: ExportVersion) => {
-    const { years, rows } = generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear);
+  const CF_SECTION_KEYS = ["cfo", "cfi", "cff"];
+  const allCFExpandedSet = new Set(CF_SECTION_KEYS);
+  const emptyCFSet = new Set<string>();
+
+  const getVersionCashFlowData = (version: ExportVersion) => {
+    const override = version === "extended" ? allCFExpandedSet : emptyCFSet;
+    const exclude = version === "short";
+    const names = properties.map(p => p.name);
+    return generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear, override, exclude, names);
+  };
+
+  const handleVersionExport = (_orientation: 'landscape' | 'portrait', version: ExportVersion) => {
+    const { years, rows } = getVersionCashFlowData(version);
 
     switch (pendingExportAction) {
       case 'pdf':

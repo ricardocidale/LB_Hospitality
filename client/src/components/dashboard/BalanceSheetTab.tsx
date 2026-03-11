@@ -50,14 +50,27 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
     }
   };
 
-  const handleVersionExport = (_orientation: 'landscape' | 'portrait', _version: ExportVersion) => {
+  const getVersionRows = (version: ExportVersion) => {
+    const summaryOnly = version === "short";
+    const { rows: versionRows } = generatePortfolioBalanceSheetData(
+      financials.allPropertyFinancials,
+      projectionYears,
+      getFiscalYear,
+      modelStartDate,
+      summaryOnly
+    );
+    return versionRows;
+  };
+
+  const handleVersionExport = (_orientation: 'landscape' | 'portrait', version: ExportVersion) => {
+    const versionRows = getVersionRows(version);
     switch(pendingExportAction) {
       case 'pdf': 
         dashboardExports.exportToPDF({ 
           propertyName: "Hospitality Business Group", 
           projectionYears, 
           years, 
-          rows, 
+          rows: versionRows, 
           getYearlyConsolidated: (i: number) => financials.yearlyConsolidatedCache[i],
           title: "Portfolio Balance Sheet"
         }); 
@@ -78,7 +91,7 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
           totalProjectionCashFlow: financials.totalProjectionCashFlow,
           incomeData: toExportData(dashboardExports.generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear)),
           cashFlowData: toExportData(generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear)),
-          balanceSheetData: toExportData({ years, rows }),
+          balanceSheetData: toExportData({ years, rows: versionRows }),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
         });
         break;
@@ -96,7 +109,7 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
         onClose={() => setExportDialogOpen(false)}
         onExport={handleVersionExport}
         title={pendingExportAction === 'pdf' ? 'Export PDF' : pendingExportAction === 'pptx' ? 'Export PPTX' : 'Export PNG'}
-        showVersionOption={false}
+        showVersionOption={true}
       />
       <FinancialChart
         data={chartData}

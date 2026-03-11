@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, Scale } from "lucide-react";
 import { IconCheckCircle2, IconXCircle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
@@ -326,35 +328,37 @@ export default function VerificationTab() {
               Select verification suites to run. Each suite independently validates a different aspect of financial accuracy.
             </CardDescription>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {verificationResults && (
-              <button
+              <Button
                 onClick={exportVerificationPDF}
                 data-testid="button-export-pdf"
-                className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-full text-xs font-bold shadow-sm hover:shadow-md hover:border-secondary/20 transition-all group"
+                variant="outline"
+                size="sm"
               >
-                <IconFileDown className="w-3.5 h-3.5 text-secondary group-hover:scale-110 transition-transform" />
-                EXPORT PDF
-              </button>
+                <IconFileDown className="w-3.5 h-3.5 mr-1.5" />
+                Export PDF
+              </Button>
             )}
-            <button
+            <Button
               onClick={handleRunSelected}
               disabled={isRunning || selectedSuites.size === 0}
               data-testid="button-run-selected"
-              className="flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground rounded-full text-xs font-bold shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 group"
+              size="sm"
             >
-              {runSuites.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconPlayCircle className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />}
-              RUN SELECTED
-            </button>
-            <button
+              {runSuites.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <IconPlayCircle className="w-3.5 h-3.5 mr-1.5" />}
+              Run Selected
+            </Button>
+            <Button
               onClick={handleRunAll}
               disabled={isRunning}
               data-testid="button-run-verification"
-              className="flex items-center gap-2 px-4 py-2 bg-card border border-border text-foreground rounded-full text-xs font-bold shadow-sm hover:shadow-md hover:border-primary/20 transition-all disabled:opacity-50 group"
+              variant="outline"
+              size="sm"
             >
-              {runVerification.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconPlayCircle className="w-3.5 h-3.5 text-muted-foreground group-hover:rotate-12 transition-transform" />}
-              RUN ALL
-            </button>
+              {runVerification.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <IconPlayCircle className="w-3.5 h-3.5 mr-1.5" />}
+              Run All
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -414,114 +418,108 @@ export default function VerificationTab() {
           </div>
         )}
 
-        {/* Tabbed Results Area */}
         {!isRunning && (
-          <>
-            <div className="flex items-center gap-1 p-1 bg-muted rounded-full w-fit border border-border">
-              {[
-                { id: "results", label: "Detailed Results", icon: IconCheckCircle2 },
-                { id: "identities", label: "Identities", icon: Scale },
-                { id: "history", label: "Audit History", icon: IconDownload },
-                { id: "ai", label: "AI Narrative", icon: IconSparkles },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  data-testid={`tab-verification-${tab.id}`}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all ${
-                    activeTab === tab.id
-                      ? "bg-card text-secondary shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <tab.icon className={`w-3 h-3 ${activeTab === tab.id ? "text-secondary" : "text-muted-foreground"}`} />
-                  {tab.label.toUpperCase()}
-                </button>
-              ))}
-            </div>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+            <TabsList>
+              <TabsTrigger value="results" data-testid="tab-verification-results">
+                <IconCheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                Detailed Results
+              </TabsTrigger>
+              <TabsTrigger value="identities" data-testid="tab-verification-identities">
+                <Scale className="w-3.5 h-3.5 mr-1.5" />
+                Identities
+              </TabsTrigger>
+              <TabsTrigger value="history" data-testid="tab-verification-history">
+                <IconDownload className="w-3.5 h-3.5 mr-1.5" />
+                Audit History
+              </TabsTrigger>
+              <TabsTrigger value="ai" data-testid="tab-verification-ai">
+                <IconSparkles className="w-3.5 h-3.5 mr-1.5" />
+                AI Narrative
+              </TabsTrigger>
+            </TabsList>
 
-            <div className="min-h-[300px]">
-              {activeTab === "results" && (
-                verificationResults ? (
-                  <div className="space-y-8">
-                    {/* Full audit summary banner */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 rounded-2xl bg-muted border border-border shadow-inner">
-                      <div className="space-y-1">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Audit Opinion</p>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xl font-black ${
-                            verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? 'text-secondary' :
-                            verificationResults.summary.auditOpinion === 'QUALIFIED' ? 'text-yellow-600' :
-                            'text-red-600'
-                          }`}>
-                            {verificationResults.summary.auditOpinion}
-                          </span>
-                          {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Overall Status</p>
-                        <p className={`text-xl font-mono font-black ${
-                          verificationResults.summary.overallStatus === 'PASS' ? 'text-secondary' : 'text-red-600'
+            <TabsContent value="results" className="min-h-[300px]">
+              {verificationResults ? (
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 rounded-xl bg-muted border border-border">
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Audit Opinion</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xl font-black ${
+                          verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? 'text-secondary' :
+                          verificationResults.summary.auditOpinion === 'QUALIFIED' ? 'text-yellow-600' :
+                          'text-red-600'
                         }`}>
-                          {verificationResults.summary.overallStatus}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total Checks</p>
-                        <p className="text-xl font-mono font-black text-foreground">{verificationResults.summary.totalChecks}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Failures</p>
-                        <div className="flex items-center gap-2">
-                          <p className={`text-xl font-mono font-black ${verificationResults.summary.totalFailed > 0 ? 'text-red-600' : 'text-secondary'}`}>
-                            {verificationResults.summary.totalFailed}
-                          </p>
-                          {verificationResults.summary.criticalIssues > 0 && (
-                            <span className="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-bounce">
-                              {verificationResults.summary.criticalIssues} CRITICAL
-                            </span>
-                          )}
-                        </div>
+                          {verificationResults.summary.auditOpinion}
+                        </span>
+                        {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
                       </div>
                     </div>
-
-                    <VerificationResults results={verificationResults} />
-
-                    {suiteResults.get("golden-scenarios")?.data && (
-                      <GoldenScenarioResults data={suiteResults.get("golden-scenarios")!.data} />
-                    )}
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Overall Status</p>
+                      <p className={`text-xl font-mono font-black ${
+                        verificationResults.summary.overallStatus === 'PASS' ? 'text-secondary' : 'text-red-600'
+                      }`}>
+                        {verificationResults.summary.overallStatus}
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total Checks</p>
+                      <p className="text-xl font-mono font-black text-foreground">{verificationResults.summary.totalChecks}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Failures</p>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-xl font-mono font-black ${verificationResults.summary.totalFailed > 0 ? 'text-red-600' : 'text-secondary'}`}>
+                          {verificationResults.summary.totalFailed}
+                        </p>
+                        {verificationResults.summary.criticalIssues > 0 && (
+                          <span className="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">
+                            {verificationResults.summary.criticalIssues} CRITICAL
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                ) : suiteResults.get("golden-scenarios")?.data ? (
-                  <GoldenScenarioResults data={suiteResults.get("golden-scenarios")!.data} />
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
-                    <IconPlayCircle className="w-12 h-12 opacity-20" />
-                    <p className="text-sm font-medium">Select suites above and click "Run Selected" to start verification.</p>
-                  </div>
-                )
-              )}
 
-              {activeTab === "identities" && (
-                <IdentityDashboard
-                  properties={properties ?? null}
-                  globalAssumptions={globalAssumptions ?? null}
-                />
-              )}
+                  <VerificationResults results={verificationResults} />
 
-              {activeTab === "history" && verificationHistory && (
+                  {suiteResults.get("golden-scenarios")?.data && (
+                    <GoldenScenarioResults data={suiteResults.get("golden-scenarios")!.data} />
+                  )}
+                </div>
+              ) : suiteResults.get("golden-scenarios")?.data ? (
+                <GoldenScenarioResults data={suiteResults.get("golden-scenarios")!.data} />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-4">
+                  <IconPlayCircle className="w-12 h-12 opacity-20" />
+                  <p className="text-sm font-medium">Select suites above and click "Run Selected" to start verification.</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="identities" className="min-h-[300px]">
+              <IdentityDashboard
+                properties={properties ?? null}
+                globalAssumptions={globalAssumptions ?? null}
+              />
+            </TabsContent>
+
+            <TabsContent value="history" className="min-h-[300px]">
+              {verificationHistory && (
                 <VerificationHistory history={verificationHistory} />
               )}
+            </TabsContent>
 
-              {activeTab === "ai" && (
-                <AIReviewPanel
-                  review={aiReview}
-                  loading={aiReviewLoading}
-                  onRun={runAiVerification}
-                />
-              )}
-            </div>
-          </>
+            <TabsContent value="ai" className="min-h-[300px]">
+              <AIReviewPanel
+                review={aiReview}
+                loading={aiReviewLoading}
+                onRun={runAiVerification}
+              />
+            </TabsContent>
+          </Tabs>
         )}
       </CardContent>
     </Card>

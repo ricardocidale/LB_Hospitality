@@ -30,7 +30,7 @@
  * All six export formats (PDF, Excel, CSV, PPTX, Chart PNG, Table PNG) are
  * available from the tab bar. Data generators live in dashboardExports.ts.
  */
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -40,7 +40,7 @@ import { IconAlertTriangle, IconDashboard, IconIncomeStatement, IconCashFlow, Ic
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
-import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
+import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { exportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import domtoimage from "dom-to-image-more";
@@ -339,6 +339,33 @@ export default function Dashboard() {
         onExport={handleExportConfirm}
         title={exportType === "pdf" ? "Export PDF" : "Export Chart as Image"}
         showVersionOption={exportType === "pdf"}
+        premiumExportData={exportType === "pdf" ? (() => {
+          if (!financials || !properties || !global) return null;
+          const py = global.projectionYears ?? PROJECTION_YEARS;
+          const fsm = global.fiscalYearStartMonth ?? 1;
+          const gfy = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fsm, i);
+          const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy);
+          const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy);
+          const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
+          return {
+            entityName: "Consolidated Portfolio",
+            companyName: global.companyName || "Hospitality Business Group",
+            statementType: TAB_LABELS[activeTab] || "Portfolio",
+            years: incomeData.years.map(String),
+            statements: [
+              { title: "Consolidated Income Statement", years: incomeData.years.map(String), rows: incomeData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
+              { title: "Consolidated Cash Flow", years: cashFlowData.years.map(String), rows: cashFlowData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
+            ],
+            metrics: [
+              { label: "Portfolio IRR", value: `${(financials.portfolioIRR * 100).toFixed(1)}%` },
+              { label: "Equity Multiple", value: `${financials.equityMultiple.toFixed(2)}x` },
+              { label: "Cash-on-Cash Return", value: `${financials.cashOnCash.toFixed(1)}%` },
+              { label: "Total Properties", value: `${properties.length}` },
+              { label: "Total Rooms", value: `${totalRooms}` },
+            ],
+            projectionYears: py,
+          } as PremiumExportPayload;
+        })() : null}
       />
     </Layout>
   );

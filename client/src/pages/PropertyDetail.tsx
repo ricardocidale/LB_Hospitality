@@ -51,7 +51,7 @@ import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
 import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
 import { useQueryClient } from "@tanstack/react-query";
-import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
+import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import {
   PPECostBasisSchedule,
@@ -705,6 +705,37 @@ export default function PropertyDetail() {
         onExport={handleExport}
         title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
         showVersionOption={activeTab === "income" || activeTab === "cashflow" || activeTab === "balance"}
+        premiumExportData={exportType === 'pdf' && property && yearlyDetails.length > 0 ? (() => {
+          const yrLabels = yearlyChartData.map((d: any) => d.year);
+          const buildIncomeRows = () => [
+            { category: "REVENUE", values: yearlyDetails.map(y => y.revenueTotal), isHeader: true },
+            { category: "Room Revenue", values: yearlyDetails.map(y => y.revenueRooms), indent: 1 },
+            { category: "Event Revenue", values: yearlyDetails.map(y => y.revenueEvents), indent: 1 },
+            { category: "F&B Revenue", values: yearlyDetails.map(y => y.revenueFB), indent: 1 },
+            { category: "Other Revenue", values: yearlyDetails.map(y => y.revenueOther), indent: 1 },
+            { category: "Total Revenue", values: yearlyDetails.map(y => y.revenueTotal), isBold: true },
+            { category: "EXPENSES", values: yearlyDetails.map(y => y.totalExpenses), isHeader: true },
+            { category: "Total Expenses", values: yearlyDetails.map(y => y.totalExpenses), isBold: true },
+            { category: "Gross Operating Profit", values: yearlyDetails.map(y => y.gop), isBold: true },
+            { category: "Net Operating Income", values: yearlyDetails.map(y => y.noi), isBold: true },
+          ];
+          return {
+            entityName: property.name,
+            companyName: global?.companyName || "Hospitality Business Group",
+            statementType: activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow Statement" : "Balance Sheet",
+            years: yrLabels,
+            statements: [
+              { title: `${property.name} — Income Statement`, years: yrLabels, rows: buildIncomeRows() },
+            ],
+            metrics: [
+              { label: "Total Revenue (Year 1)", value: yearlyChartData[0] ? formatMoney(yearlyChartData[0].Revenue) : "—" },
+              { label: "GOP (Year 1)", value: yearlyChartData[0] ? formatMoney(yearlyChartData[0].GOP) : "—" },
+              { label: "NOI (Year 1)", value: yearlyChartData[0] ? formatMoney(yearlyChartData[0].NOI) : "—" },
+              { label: "ANOI (Year 1)", value: yearlyChartData[0] ? formatMoney(yearlyChartData[0].ANOI) : "—" },
+            ],
+            projectionYears,
+          } as PremiumExportPayload;
+        })() : null}
       />
       <div className="space-y-6">
         <PropertyHeader

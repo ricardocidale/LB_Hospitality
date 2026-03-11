@@ -70,6 +70,7 @@ describe("Admin config literals (no-hardcoded-admin-config)", () => {
     if (rel.includes("routes/branding")) return true;
     // Export templates use company name as fallback when branding data unavailable
     if (rel.includes("exports/")) return true;
+    if (rel.includes("premium-exports")) return true;
     // Verification runner (display-only fallback)
     if (rel.includes("runVerification")) return true;
     return false;

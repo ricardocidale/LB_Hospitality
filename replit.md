@@ -103,6 +103,14 @@ The engine at `client/src/lib/financial/funding-predictor.ts` is instrument-agno
 ## Export System
 Shared formatting library in `client/src/lib/exports/`. Full reference: `.agents/skills/export-system/SKILL.md`
 
+**Premium Export (server-side, AI-enhanced):**
+- `server/routes/premium-exports.ts` — Server-side export pipeline using Anthropic Claude to generate enhanced documents (XLSX, PPTX, PDF, DOCX). Accepts financial data + format, calls Anthropic for content structuring, then renders files using xlsx/pptxgenjs/jsPDF/docx libraries.
+- Endpoint: `POST /api/exports/premium` (authenticated) — accepts `{format, entityName, companyName, statements, metrics, ...}`, returns binary file download
+- Status: `GET /api/exports/premium/status` — checks API key availability
+- DOCX investor memo format is net-new (not available client-side)
+- `ExportDialog.tsx` — Updated with "Premium Export" toggle (Switch component) that routes through server-side Anthropic pipeline. Falls back to client-side export on server failure. Supports format selection (PDF, Excel, PowerPoint, Word Memo)
+- Premium data is passed from Dashboard, PropertyDetail, and Company pages via `premiumExportData` prop
+
 **Core modules:**
 - `exportStyles.ts` — Brand palette (`BRAND.*`), row classification (`classifyRow`), `normalizeCaps()` (ALL CAPS → Title Case preserving abbreviations like GOP, NOI, GAAP), number formatting (`formatShort`, `formatFull`, `formatPct`), PPTX layout helpers (`pptxFontSize`, `pptxColumnWidths`)
 - `pdfHelpers.ts` — jsPDF page layout (`drawBrandedHeader`, `drawTitle`, `drawSubtitle`, `drawSectionHeader`, `drawParagraph`, `drawKeyValue`), financial table config (`buildFinancialTableConfig` with alternating row tint, section divider lines, table frame), footers (`addFooters` — MUST be called LAST)

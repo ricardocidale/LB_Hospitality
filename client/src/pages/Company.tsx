@@ -24,7 +24,7 @@
  * page free of inline financial logic.
  */
 import React, { useState, useRef, useMemo } from "react";
-import { ExportDialog } from "@/components/ExportDialog";
+import { ExportDialog, type PremiumExportPayload } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -223,6 +223,22 @@ export default function Company() {
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
         title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
+        premiumExportData={exportType === 'pdf' ? (() => {
+          const incomeData = generateCompanyIncomeData(financials, years, properties, propertyFinancials);
+          const cashFlowData = generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel);
+          const balanceData = generateCompanyBalanceData(financials, years, fundingLabel);
+          return {
+            entityName: companyName,
+            companyName: global?.companyName || "Hospitality Business Group",
+            statementType: activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow" : "Balance Sheet",
+            statements: [
+              { title: "Management Company Income Statement", years: incomeData.years.map(String), rows: incomeData.rows },
+              { title: "Management Company Cash Flow", years: cashFlowData.years.map(String), rows: cashFlowData.rows },
+              { title: "Management Company Balance Sheet", years: balanceData.years.map(String), rows: balanceData.rows },
+            ],
+            projectionYears,
+          } as PremiumExportPayload;
+        })() : null}
       />
       <div className="space-y-6">
         <CalcDetailsProvider show={global?.showCompanyCalculationDetails ?? true}>

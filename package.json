@@ -87,6 +87,7 @@
     "connect-pg-simple": "^10.0.0",
     "cookie-parser": "^1.4.7",
     "date-fns": "^3.6.0",
+    "docx": "^9.6.1",
     "dom-to-image-more": "^3.7.2",
     "drizzle-orm": "^0.39.3",
     "drizzle-zod": "^0.7.1",

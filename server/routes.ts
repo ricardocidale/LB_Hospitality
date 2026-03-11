@@ -20,6 +20,7 @@ import * as tileRoutes from "./routes/tiles";
 import * as photoRoutes from "./routes/property-photos";
 import * as chatRoutes from "./routes/chat";
 import * as aiRoutes from "./routes/ai";
+import * as premiumExportRoutes from "./routes/premium-exports";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -45,6 +46,7 @@ export async function registerRoutes(
   photoRoutes.register(app);
   chatRoutes.register(app);
   aiRoutes.register(app);
+  premiumExportRoutes.register(app);
 
   registerTwilioWebSocket(httpServer);
 

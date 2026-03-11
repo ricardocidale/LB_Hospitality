@@ -67,7 +67,7 @@ export function SubtotalRow({
   values,
   tooltip,
   positive,
-  positiveColor = "text-accent",
+  positiveColor = "text-accent-foreground",
   bgColor,
   labelBg,
 }: SubtotalRowProps) {

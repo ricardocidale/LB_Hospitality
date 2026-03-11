@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import {
   ChevronDown,
   CheckCircle2,
@@ -301,14 +302,14 @@ export function IdentityDashboard({
             </p>
           </div>
         </div>
-        <button
+        <Button
           onClick={handleRun}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+          size="sm"
         >
-          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <RefreshCw className="w-3.5 h-3.5 mr-1.5" />}
           {loading ? "Validating..." : "Run Identities"}
-        </button>
+        </Button>
       </div>
 
       {/* Summary */}

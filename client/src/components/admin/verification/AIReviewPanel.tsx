@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { IconSparkles } from "@/components/icons";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface AIReviewPanelProps {
   review: string;
@@ -9,24 +9,19 @@ interface AIReviewPanelProps {
 }
 
 export function AIReviewPanel({ review, loading, onRun }: AIReviewPanelProps) {
-  const { toast } = useToast();
-
-  const runAiVerification = async () => {
-    onRun();
-  };
-
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-4">
       <div className="flex items-center justify-between border-b pb-2">
         <h3 className="text-lg font-bold text-foreground">AI Financial Narrative Review</h3>
-        <button
-          onClick={runAiVerification}
+        <Button
+          onClick={onRun}
           disabled={loading}
-          className="flex items-center gap-2 text-xs font-bold text-secondary hover:text-secondary/80 transition-colors disabled:opacity-50"
+          variant="ghost"
+          size="sm"
         >
-          {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <IconSparkles className="w-3 h-3" />}
-          REFRESH AI REVIEW
-        </button>
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <IconSparkles className="w-3.5 h-3.5 mr-1.5" />}
+          Refresh AI Review
+        </Button>
       </div>
       
       {loading && !review && (
@@ -37,7 +32,7 @@ export function AIReviewPanel({ review, loading, onRun }: AIReviewPanelProps) {
       )}
 
       {review && (
-        <div className="p-6 rounded-2xl bg-secondary/5 border border-secondary/10 relative overflow-hidden group">
+        <div className="p-6 rounded-xl bg-secondary/5 border border-secondary/10 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <IconSparkles className="w-12 h-12 text-secondary" />
           </div>
@@ -48,14 +43,16 @@ export function AIReviewPanel({ review, loading, onRun }: AIReviewPanelProps) {
       )}
 
       {!review && !loading && (
-        <div className="text-center py-12 bg-muted rounded-2xl border-2 border-dashed border-border">
+        <div className="text-center py-12 bg-muted rounded-xl border-2 border-dashed border-border">
           <p className="text-sm text-muted-foreground">Run the AI review to generate a narrative analysis of the verification findings.</p>
-          <button 
-            onClick={runAiVerification}
-            className="mt-4 px-6 py-2 bg-secondary text-secondary-foreground rounded-full text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-105 transition-transform"
+          <Button 
+            onClick={onRun}
+            className="mt-4"
+            size="sm"
           >
+            <IconSparkles className="w-3.5 h-3.5 mr-1.5" />
             Start Analysis
-          </button>
+          </Button>
         </div>
       )}
     </div>

@@ -150,14 +150,15 @@ export function SuiteSelector({ selected, onToggle, onSelectAll, lastResults, ru
       </div>
 
       <div className="flex items-center gap-3">
-        <button
+        <Button
           onClick={onSelectAll}
-          className="text-[11px] text-muted-foreground hover:text-foreground font-bold uppercase tracking-wider transition-colors"
+          variant="ghost"
+          size="sm"
           data-testid="button-select-all-suites"
         >
-          {selected.size === SUITE_DEFINITIONS.length ? "DESELECT ALL" : "SELECT ALL"}
-        </button>
-        <span className="text-[10px] text-muted-foreground">
+          {selected.size === SUITE_DEFINITIONS.length ? "Deselect All" : "Select All"}
+        </Button>
+        <span className="text-xs text-muted-foreground">
           {selected.size} of {SUITE_DEFINITIONS.length} selected
         </span>
       </div>

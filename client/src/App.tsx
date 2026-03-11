@@ -46,6 +46,9 @@ const PropertyPhotos = lazy(() => import("@/pages/PropertyPhotos"));
 const PropertyMarketResearch = lazy(
   () => import("@/pages/PropertyMarketResearch"),
 );
+const PropertyResearchCriteria = lazy(
+  () => import("@/pages/PropertyResearchCriteria"),
+);
 const CompanyResearch = lazy(() => import("@/pages/CompanyResearch"));
 const GlobalResearch = lazy(() => import("@/pages/GlobalResearch"));
 const ResearchHub = lazy(() => import("@/pages/ResearchHub"));
@@ -238,6 +241,9 @@ function Router() {
         </Route>
         <Route path="/property/:id/research">
           <ProtectedRoute component={PropertyMarketResearch} />
+        </Route>
+        <Route path="/property/:id/criteria">
+          <ProtectedRoute component={PropertyResearchCriteria} />
         </Route>
         <Route path="/property/:id">
           <FinancialErrorBoundary>

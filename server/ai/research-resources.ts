@@ -95,6 +95,10 @@ export function loadToolDefinitions(): Anthropic.Tool[] {
           }
           const schema = content.input_schema;
           if (!schema.type) schema.type = "object";
+          if (schema.properties && (typeof schema.properties !== "object" || Array.isArray(schema.properties))) {
+            console.warn(`Skipping tool with invalid properties: ${content.name} in ${fullPath}`);
+            continue;
+          }
           tools.push({
             name: content.name,
             description: content.description,

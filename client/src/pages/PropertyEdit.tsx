@@ -28,13 +28,16 @@ import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch, useFeeCategories, useUpdateFeeCategories, type FeeCategoryResponse } from "@/lib/api";
 import { useMarketRates } from "@/lib/api/market-rates";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { IconBookOpen, IconAlertTriangle, IconWand2 } from "@/components/icons";
+import { IconAlertTriangle, IconWand2, IconPlay, IconEye } from "@/components/icons";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SaveButton } from "@/components/ui/save-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Link, useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
+import { useResearchStream } from "@/components/property-research/useResearchStream";
 import {
   PROJECTION_YEARS,
   DEFAULT_MODEL_START_DATE,
@@ -69,6 +72,12 @@ export default function PropertyEdit() {
   const [feeDraft, setFeeDraft] = useState<FeeCategoryResponse[] | null>(null);
   const [showApplyDialog, setShowApplyDialog] = useState(false);
   const { data: marketRates } = useMarketRates();
+
+  const { isGenerating, streamedContent, generateResearch } = useResearchStream({
+    property: property ?? null,
+    propertyId,
+    global: globalAssumptions,
+  });
 
   // Compute research freshness: green (<7 days), amber (>7 days), gray (missing)
   const researchFreshness = (() => {
@@ -387,24 +396,49 @@ export default function PropertyEdit() {
           backLink={`/property/${propertyId}`}
           actions={
             <div className="flex items-center gap-3">
-              <Link href={`/property/${propertyId}/research`} className="text-inherit no-underline">
-                <Button variant="default" data-testid="button-market-research">
-                  <span className="relative">
-                    <IconBookOpen className="w-4 h-4" />
-                    <span
-                      className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white ${
-                        researchFreshness === "fresh" ? "bg-emerald-400" :
-                        researchFreshness === "stale" ? "bg-amber-400" : "bg-muted-foreground"
-                      }`}
-                      title={
-                        researchFreshness === "fresh" ? "Research is up to date" :
-                        researchFreshness === "stale" ? "Research is older than 7 days" : "No research generated yet"
-                      }
-                    />
-                  </span>
-                  Market Research
-                </Button>
-              </Link>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="default"
+                    onClick={generateResearch}
+                    disabled={isGenerating}
+                    data-testid="button-run-research"
+                  >
+                    <span className="relative">
+                      {isGenerating ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <IconPlay className="w-4 h-4" />
+                      )}
+                      {!isGenerating && (
+                        <span
+                          className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                            researchFreshness === "fresh" ? "bg-emerald-400" :
+                            researchFreshness === "stale" ? "bg-amber-400" : "bg-muted-foreground"
+                          }`}
+                        />
+                      )}
+                    </span>
+                    {isGenerating ? "Analyzing…" : "Run Research"}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-[260px] text-center">
+                  Run market research to see what comparable properties are achieving — good practice before finalizing your assumptions.
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href={`/property/${propertyId}/criteria`} className="text-inherit no-underline">
+                    <Button variant="outline" data-testid="button-criteria">
+                      <IconEye className="w-4 h-4" />
+                      Criteria
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-[260px] text-center">
+                  See exactly what data and instructions the AI uses when researching this property's market.
+                </TooltipContent>
+              </Tooltip>
               {research?.content && !((research.content as any)?.rawResponse) && (
                 <Button
                   variant="default"
@@ -423,6 +457,22 @@ export default function PropertyEdit() {
             </div>
           }
         />
+
+        {isGenerating && (
+          <Card className="bg-primary/5 border-primary/20 p-4">
+            <div className="flex items-center gap-3">
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">Researching market data for {property.name}…</p>
+                {streamedContent && (
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    {streamedContent.slice(0, 200)}…
+                  </p>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
 
         <BasicInfoSection {...sectionProps} />
         <DescriptionSection {...sectionProps} />

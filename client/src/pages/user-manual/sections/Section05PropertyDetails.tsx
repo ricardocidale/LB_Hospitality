@@ -20,6 +20,9 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
     >
       <p className="text-sm text-muted-foreground">
         Each property detail page shows comprehensive financial projections organized into tabs and sections.
+        The page opens with a full-width hero image that uses a parallax scrolling effect — as you scroll down,
+        the image moves at 30% of your scroll speed with a subtle scale-up and progressive overlay, giving the
+        page a cinematic depth before the financial content begins.
       </p>
 
       <div className="bg-muted/50 rounded-lg p-4">

@@ -30,15 +30,31 @@ export default function Section02Navigation({ expanded, onToggle, sectionRef }: 
           ["Dashboard", "Portfolio overview with KPI cards and consolidated charts", "Everyone"],
           ["Properties", "View and manage individual hotel properties", "Everyone"],
           ["Management Co.", "Management company financials and assumptions", "Partners, Admins"],
-          ["Analysis", "Sensitivity and financing analysis tools", "Partners, Admins"],
+          ["Simulation", "Four-tab modeling suite: Sensitivity, Compare, Timeline, and Financing analysis", "Partners, Admins"],
+          ["Research Hub", "AI-generated market research for properties, company operations, and global industry trends", "Partners, Admins"],
           ["Systemwide Assumptions", "Configure model-wide parameters like inflation and staffing", "Partners, Admins"],
           ["Scenarios", "Save and load different assumption snapshots", "Partners, Admins"],
-          ["Property Finder", "Search for prospective investment properties", "Partners, Admins"],
+          ["Property Finder", "Search for prospective investment properties on the external market", "Partners, Admins"],
           ["Help", "User Manual, Checker Manual, and Guided Tour", "Everyone"],
           ["My Profile", "Account settings and password management", "Everyone"],
           ["Admin Settings", "User management, verification, branding, and system tools", "Admins only"],
         ]}
       />
+
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Research Status Indicator</h4>
+        <p className="text-sm text-muted-foreground">
+          At the bottom of the sidebar, a compact <strong>Research</strong> panel shows the freshness of your AI-generated
+          market research across four categories: <strong>Property</strong>, <strong>Operations</strong>, <strong>Marketing</strong>, and <strong>Industry</strong>.
+        </p>
+        <ul className="text-sm text-muted-foreground space-y-1 mt-2">
+          <li>&#8226; <strong className="text-emerald-600">Green dot</strong> — research is current (within the configured refresh interval)</li>
+          <li>&#8226; <strong className="text-red-600">Red dot</strong> — research is stale or has never been generated</li>
+        </ul>
+        <p className="text-sm text-muted-foreground mt-2">
+          Click the panel to navigate to the Research Hub and regenerate any stale research.
+        </p>
+      </div>
 
       <Callout variant="light">
         Use the Guided Tour (under Help) for an interactive walkthrough of the interface.

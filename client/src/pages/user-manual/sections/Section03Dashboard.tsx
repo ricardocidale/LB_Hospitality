@@ -114,6 +114,16 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
         </p>
       </div>
 
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="font-semibold mb-2">Research Status</h4>
+        <p className="text-sm text-muted-foreground">
+          Research freshness indicators have moved from the Dashboard to the <strong>sidebar footer</strong>.
+          A compact Research panel with four colored dots (Property, Operations, Marketing, Industry) is always
+          visible at the bottom of the navigation sidebar. Green = current, Red = stale or missing.
+          Click the panel to navigate to the Research Hub and regenerate any stale research.
+        </p>
+      </div>
+
       <Callout variant="light">
         All consolidated figures aggregate data across the entire portfolio. Individual property breakdowns
         are available by expanding any row to see per-property values.

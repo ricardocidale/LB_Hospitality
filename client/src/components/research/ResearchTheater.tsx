@@ -39,12 +39,12 @@ const containerVariants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.3, ease: "easeOut" },
+    transition: { duration: 0.3, ease: "easeOut" as const },
   },
   exit: {
     opacity: 0,
     scale: 0.96,
-    transition: { duration: 0.2, ease: "easeIn" },
+    transition: { duration: 0.2, ease: "easeIn" as const },
   },
 };
 
@@ -53,7 +53,7 @@ const jobItemVariants = {
   visible: (i: number) => ({
     opacity: 1,
     x: 0,
-    transition: { delay: i * 0.06, duration: 0.25, ease: "easeOut" },
+    transition: { delay: i * 0.06, duration: 0.25, ease: "easeOut" as const },
   }),
 };
 

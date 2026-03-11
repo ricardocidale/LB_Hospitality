@@ -126,10 +126,6 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
       { label: "Dashboard", href: "/" },
       { label: "Map View" },
     ],
-    "/executive-summary": [
-      { label: "Dashboard", href: "/" },
-      { label: "Executive Summary" },
-    ],
     "/help": [
       { label: "Dashboard", href: "/" },
       { label: "Help" },

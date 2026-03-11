@@ -275,6 +275,8 @@ export default function Dashboard() {
             subtitle="Consolidated financial oversight across all active assets"
           />
 
+          <ResearchPulseWidget className="mb-2" />
+
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-6 sticky top-12 z-10">
               <CurrentThemeTab

@@ -1,21 +1,103 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { InsightPanel, type Insight } from "@/components/graphics";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, LineChart, Line, LabelList } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Tooltip as RechartsTooltip, AreaChart, Area, LineChart, Line, LabelList, PieChart, Pie, Cell, ReferenceLine } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
 import { DashboardTabProps } from "./types";
 import PortfolioResearchCard from "./PortfolioResearchCard";
-import { formatMoney } from "@/lib/financialEngine";
+import { formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { DEFAULT_EXIT_CAP_RATE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { propertyEquityInvested } from "@/lib/financial/equityCalculations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { CurrentThemeTab } from "@/components/ui/tabs";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, exportPortfolioPDF, exportPortfolioCSV, toExportData } from "./dashboardExports";
 import { Link } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RadialGauge } from "@/lib/charts";
+
+const PIE_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+
+const STATUS_COLORS: Record<string, string> = {
+  Operating: "bg-emerald-500",
+  Improvements: "bg-amber-500",
+  Acquired: "bg-blue-500",
+  "In Negotiation": "bg-violet-500",
+  Planned: "bg-sky-500",
+  Pipeline: "bg-slate-400",
+};
+
+const STATUSES = ["Operating", "Improvements", "Acquired", "In Negotiation", "Planned", "Pipeline"] as const;
+
+const formatCompact = (value: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+
+interface WaterfallItem {
+  name: string;
+  value: number;
+  base: number;
+  fill: string;
+  isSubtotal: boolean;
+}
+
+function buildWaterfallData(yearData: {
+  revenueTotal: number;
+  gop: number;
+  agop: number;
+  noi: number;
+  anoi: number;
+  feeBase: number;
+  feeIncentive: number;
+  expenseFFE: number;
+}): WaterfallItem[] {
+  const deptExpenses = yearData.revenueTotal - yearData.gop;
+  const undistributed = yearData.gop - yearData.agop - yearData.feeBase - yearData.feeIncentive;
+  const fees = yearData.feeBase + yearData.feeIncentive;
+  const fixedCharges = yearData.agop - yearData.noi;
+  const ffe = yearData.expenseFFE;
+
+  const items: WaterfallItem[] = [];
+  let running = yearData.revenueTotal;
+
+  items.push({ name: "Total Revenue", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  items.push({ name: "Dept. Expenses", value: deptExpenses, base: running - deptExpenses, fill: "hsl(var(--chart-2))", isSubtotal: false });
+  running -= deptExpenses;
+  items.push({ name: "GOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  items.push({ name: "Undistributed", value: undistributed, base: running - undistributed, fill: "hsl(var(--chart-3))", isSubtotal: false });
+  running -= undistributed;
+  items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
+  running -= fees;
+  items.push({ name: "AGOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  items.push({ name: "Fixed Charges", value: fixedCharges, base: running - fixedCharges, fill: "hsl(var(--chart-5))", isSubtotal: false });
+  running -= fixedCharges;
+  items.push({ name: "NOI", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  items.push({ name: "FF&E Reserve", value: ffe, base: running - ffe, fill: "hsl(var(--chart-2))", isSubtotal: false });
+  running -= ffe;
+  items.push({ name: "ANOI", value: running, base: 0, fill: "hsl(var(--primary))", isSubtotal: true });
+
+  return items;
+}
+
+function WaterfallTooltipContent({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const item = payload[0]?.payload as WaterfallItem;
+  if (!item) return null;
+  return (
+    <div className="rounded-md border bg-card px-3 py-2 shadow-md text-sm">
+      <p className="font-medium text-card-foreground">{item.name}</p>
+      <p className="text-muted-foreground">
+        {item.isSubtotal ? "" : "−"}{formatCompact(item.value)}
+      </p>
+    </div>
+  );
+}
 
 function calculateIRR(cashFlows: number[]): number {
   const result = computeIRR(cashFlows, 1);
@@ -53,7 +135,7 @@ function ChartModeToggle({ mode, onChange }: { mode: ChartMode; onChange: (m: Ch
   );
 }
 
-export function OverviewTab({ financials, properties, projectionYears, getFiscalYear }: DashboardTabProps) {
+export function OverviewTab({ financials, properties, projectionYears, getFiscalYear, global }: DashboardTabProps) {
   const {
     yearlyConsolidatedCache,
     allPropertyYearlyCF,
@@ -85,10 +167,64 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
   const totalInvestment = totalPurchasePrice;
   const investmentHorizon = projectionYears;
 
+  const [waterfallYear, setWaterfallYear] = useState<string>("0");
+
   const marketCounts = properties.reduce((acc, p) => {
     acc[p.market] = (acc[p.market] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
+
+  const marketEntries = Object.entries(marketCounts);
+  const marketData = marketEntries.map(([name, value], i) => ({
+    market: name.toLowerCase().replace(/\s+/g, "-"),
+    name,
+    value,
+    fill: PIE_COLORS[i % PIE_COLORS.length],
+  }));
+  const marketChartConfig: ChartConfig = {
+    value: { label: "Properties" },
+    ...Object.fromEntries(
+      marketEntries.map(([name], i) => [
+        name.toLowerCase().replace(/\s+/g, "-"),
+        { label: name, color: PIE_COLORS[i % PIE_COLORS.length] },
+      ])
+    ),
+  };
+
+  const statusCounts = properties.reduce<Record<string, number>>((acc, p) => {
+    acc[p.status] = (acc[p.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  const yearTabs = useMemo(() => {
+    const tabs = Array.from({ length: projectionYears }, (_, i) => {
+      const fy = global?.modelStartDate
+        ? getFiscalYearForModelYear(global.modelStartDate, global?.fiscalYearStartMonth ?? 1, i)
+        : `Year ${i + 1}`;
+      return { value: String(i), label: String(fy) };
+    });
+    tabs.push({ value: "all", label: "Consolidated" });
+    return tabs;
+  }, [projectionYears, global?.modelStartDate, global?.fiscalYearStartMonth]);
+
+  const waterfallData = useMemo(() => {
+    if (!yearlyConsolidatedCache?.length) return null;
+    if (waterfallYear === "all") {
+      const summed = yearlyConsolidatedCache.reduce((acc, y) => ({
+        revenueTotal: acc.revenueTotal + y.revenueTotal,
+        gop: acc.gop + y.gop,
+        agop: acc.agop + y.agop,
+        noi: acc.noi + y.noi,
+        anoi: acc.anoi + y.anoi,
+        feeBase: acc.feeBase + y.feeBase,
+        feeIncentive: acc.feeIncentive + y.feeIncentive,
+        expenseFFE: acc.expenseFFE + y.expenseFFE,
+      }), { revenueTotal: 0, gop: 0, agop: 0, noi: 0, anoi: 0, feeBase: 0, feeIncentive: 0, expenseFFE: 0 });
+      return buildWaterfallData(summed);
+    }
+    const idx = Math.min(Number(waterfallYear), yearlyConsolidatedCache.length - 1);
+    return buildWaterfallData(yearlyConsolidatedCache[idx]);
+  }, [yearlyConsolidatedCache, waterfallYear]);
 
   const getPropertyCashFlows = (idx: number): number[] =>
     Array.from({ length: projectionYears }, (_, y) => allPropertyYearlyCF[idx]?.[y]?.netCashFlowToInvestors ?? 0);
@@ -222,7 +358,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
         />
       </CardHeader>
       <CardContent ref={tabContentRef} className="relative z-10">
-        <Accordion type="multiple" defaultValue={["performance", "projection", "composition", "research", "insights"]} className="space-y-4">
+        <Accordion type="multiple" defaultValue={["performance", "projection", "composition", "research", "insights", "marketStatus", "waterfall"]} className="space-y-4">
 
           <AccordionItem value="performance" className="border-none">
             <div className="flex items-center gap-2 py-3 px-1">
@@ -643,6 +779,150 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
             />
             </AccordionContent>
           </AccordionItem>
+
+          <AccordionItem value="marketStatus" className="border-none">
+            <div className="flex items-center gap-2 py-3 px-1">
+              <AccordionTrigger className="hover:no-underline p-0">
+                <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Portfolio Composition</span>
+              </AccordionTrigger>
+              <InfoTooltip
+                text="Geographic distribution of properties across markets and the lifecycle status of each asset in the portfolio."
+                light
+                side="right"
+              />
+            </div>
+            <AccordionContent className="pt-2 pb-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card className="flex flex-col">
+                  <CardHeader className="items-center pb-0">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                      Portfolio by Market
+                      <InfoTooltip text="Number of properties in each geographic market. Diversification across markets reduces concentration risk." light side="right" />
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 pb-0">
+                    {marketData.length > 0 ? (
+                      <ChartContainer
+                        config={marketChartConfig}
+                        className="mx-auto aspect-square max-h-[280px]"
+                      >
+                        <PieChart>
+                          <Pie data={marketData} dataKey="value" nameKey="market" />
+                          <ChartLegend
+                            content={<ChartLegendContent nameKey="market" />}
+                            className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+                          />
+                        </PieChart>
+                      </ChartContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-[220px] text-sm text-muted-foreground">
+                        No properties to display
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                      Properties by Status
+                      <InfoTooltip text="Lifecycle status of each property: Operating (revenue-generating), Improvements (under renovation), Acquired (closed but not yet operating), In Negotiation (under contract), Planned (in pipeline)." light side="right" />
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col gap-4 py-2">
+                      {STATUSES.map((status) => {
+                        const count = statusCounts[status] || 0;
+                        if (count === 0) return null;
+                        const pct = totalProperties > 0 ? (count / totalProperties) * 100 : 0;
+                        return (
+                          <div key={status} className="flex items-center gap-3" data-testid={`status-bar-${status.toLowerCase().replace(/\s+/g, '-')}`}>
+                            <span className="text-sm font-medium w-[120px] shrink-0">{status}</span>
+                            <div className="flex-1 h-6 bg-muted rounded overflow-hidden">
+                              <div
+                                className={`h-full rounded transition-all duration-300 ${STATUS_COLORS[status] || "bg-primary/70"}`}
+                                style={{ width: `${pct}%`, minWidth: count > 0 ? 4 : 0 }}
+                              />
+                            </div>
+                            <span className="text-base font-bold font-mono tabular-nums w-6 text-right">{count}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {waterfallData && (
+            <AccordionItem value="waterfall" className="border-none">
+              <div className="flex items-center gap-2 py-3 px-1">
+                <AccordionTrigger className="hover:no-underline p-0">
+                  <span className="text-sm font-semibold text-foreground tracking-wide uppercase">USALI Profit Waterfall</span>
+                </AccordionTrigger>
+                <InfoTooltip
+                  text="Revenue cascade through operating expenses to net income following the Uniform System of Accounts for the Lodging Industry (USALI). Shows how total revenue flows down to ANOI after departmental expenses, undistributed costs, management fees, fixed charges, and FF&E reserve."
+                  formula="Revenue → GOP → AGOP → NOI → ANOI"
+                  light
+                  side="right"
+                />
+              </div>
+              <AccordionContent className="pt-2 pb-4">
+                <Card data-testid="usali-waterfall-card">
+                  <CardHeader className="pb-2">
+                    <p className="text-xs text-muted-foreground">Revenue cascade through operating expenses to net income (consolidated portfolio)</p>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <CurrentThemeTab
+                      tabs={yearTabs}
+                      activeTab={waterfallYear}
+                      onTabChange={setWaterfallYear}
+                    />
+                    <ResponsiveContainer width="100%" height={320}>
+                      <BarChart data={waterfallData} margin={{ top: 16, right: 16, bottom: 4, left: 8 }}>
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis
+                          tickFormatter={(v: number) => formatCompact(Math.abs(v))}
+                          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                          tickLine={false}
+                          axisLine={false}
+                          width={60}
+                        />
+                        <RechartsTooltip content={<WaterfallTooltipContent />} />
+                        <ReferenceLine y={0} stroke="hsl(var(--border))" />
+                        <Bar dataKey="base" stackId="waterfall" fill="transparent" isAnimationActive={false} />
+                        <Bar dataKey="value" stackId="waterfall" radius={[4, 4, 0, 0]} isAnimationActive>
+                          {waterfallData.map((entry, index) => (
+                            <Cell key={index} fill={entry.fill} opacity={entry.isSubtotal ? 1 : 0.75} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                    <div className="flex items-center justify-center gap-6 mt-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm" style={{ background: "hsl(var(--chart-1))" }} />
+                        Subtotals
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm opacity-75" style={{ background: "hsl(var(--chart-2))" }} />
+                        Deductions
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-sm" style={{ background: "hsl(var(--primary))" }} />
+                        Net Result
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+          )}
         </Accordion>
       </CardContent>
     </Card>

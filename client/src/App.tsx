@@ -58,7 +58,6 @@ const FinancingAnalysis = lazy(() => import("@/pages/FinancingAnalysis"));
 const Analysis = lazy(() => import("@/pages/Analysis"));
 const CheckerManual = lazy(() => import("@/pages/CheckerManual"));
 const Help = lazy(() => import("@/pages/Help"));
-const ExecutiveSummary = lazy(() => import("@/pages/ExecutiveSummary"));
 const MapView = lazy(() => import("@/pages/MapView"));
 const VoiceLab = lazy(() => import("@/pages/VoiceLab"));
 const IcpStudio = lazy(() => import("@/pages/IcpStudio"));
@@ -275,9 +274,7 @@ function Router() {
           <Redirect to="/analysis" />
         </Route>
         <Route path="/executive-summary">
-          <FinancialErrorBoundary>
-            <ManagementRoute component={ExecutiveSummary} />
-          </FinancialErrorBoundary>
+          <Redirect to="/" />
         </Route>
         <Route path="/map">
           <FinancialErrorBoundary>

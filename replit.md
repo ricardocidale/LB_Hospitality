@@ -79,7 +79,10 @@ When adding new fields to any admin config (research, voice, etc.), **always** a
 4. Test a round-trip save from the UI
 
 ## Analysis Page Tabs
-The `/analysis` page contains 4 tabs: Sensitivity, Financing (debt DSCR/yield/stress), Compare, Timeline. Executive Summary is a separate sidebar page (`/executive-summary`), not part of Analysis.
+The `/analysis` page (sidebar label: "Simulation") contains 4 tabs: Sensitivity, Financing (debt DSCR/yield/stress), Compare, Timeline. Located under the "Tools" sidebar group.
+
+## Dashboard Overview Sections
+The Dashboard Overview tab contains (in order): Investment Performance (IRR gauge, property IRR comparison, equity by property), KPI cards (Equity Multiple, Cash-on-Cash, Equity Invested, Projected Exit), Revenue & ANOI Projection chart, Portfolio & Capital Structure tables, Market Research, Portfolio Insights (property table + InsightPanel), Portfolio Composition (market pie chart + status bars), USALI Profit Waterfall (revenue cascade with year switcher). Executive Summary content was merged into the Dashboard — `/executive-summary` redirects to `/`.
 
 ## Management Company Page Tabs
 The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet, **Tools**. The Tools tab (`client/src/pages/FundingPredictor.tsx`) has a single sub-tab:

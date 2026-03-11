@@ -8,7 +8,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconExecutive, IconHelp, IconResearch } from "@/components/icons";
+import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconHelp, IconResearch } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -124,7 +124,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   useEffect(() => { setMobileOpen(false); }, [location]);
 
   const sb = (key: string) => (global as any)?.[key] !== false;
-  const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarExecutiveSummary") || sb("sidebarCompare") || sb("sidebarTimeline");
+  const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarCompare") || sb("sidebarTimeline");
 
   const navGroups: NavGroupDef[] = [
     {
@@ -134,12 +134,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         { href: "/portfolio", label: "Properties", icon: IconProperties },
         ...(hasManagementAccess ? [{ href: "/company", label: "Management Co.", icon: IconBriefcase }] : []),
       ],
-    },
-    {
-      label: "Insights",
-      items: [
-        ...(sb("sidebarExecutiveSummary") && hasManagementAccess ? [{ href: "/executive-summary", label: "Executive Summary", icon: IconExecutive }] : []),
-      ].filter(Boolean),
     },
     {
       label: "Tools",

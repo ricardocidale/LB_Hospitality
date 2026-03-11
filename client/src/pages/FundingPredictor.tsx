@@ -5,7 +5,7 @@ import { ContentPanel } from "@/components/ui/content-panel";
 import { CurrentThemeTab } from "@/components/ui/tabs";
 import { AnimatedPage, ScrollReveal, KPIGrid, InsightPanel, formatCompact } from "@/components/graphics";
 import { IconWallet, IconTrending, IconTarget, IconDollarSign, IconCheckCircle, IconAlertTriangle, IconSettings, IconBarChart3 } from "@/components/icons";
-import { useProperties, useGlobalAssumptions, useAllFeeCategories } from "@/lib/api";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { useServiceTemplates } from "@/lib/api/services";
 import { useMarketRates } from "@/lib/api/market-rates";
 import { generateCompanyProForma, formatMoney } from "@/lib/financialEngine";
@@ -54,32 +54,20 @@ export default function FundingPredictor({ embedded }: { embedded?: boolean }) {
   const [, navigate] = useLocation();
   const { data: properties, isLoading: propsLoading } = useProperties();
   const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
-  const { data: allFeeCategories } = useAllFeeCategories();
   const { data: serviceTemplates } = useServiceTemplates();
   const { data: marketRates } = useMarketRates();
 
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
-  const enrichedProperties = useMemo(() => {
-    if (!properties) return [];
-    return properties.map(p => {
-      const cats = allFeeCategories?.filter(c => c.propertyId === p.id) ?? [];
-      if (cats.length > 0) {
-        return { ...p, feeCategories: cats.map(c => ({ name: c.name, rate: c.rate, isActive: c.isActive })) };
-      }
-      return p;
-    });
-  }, [properties, allFeeCategories]);
-
   const financials = useMemo(() => {
-    if (!enrichedProperties.length || !global) return [];
+    if (!properties?.length || !global) return [];
     const templates = serviceTemplates?.map(t => ({
       ...t,
       serviceModel: t.serviceModel as 'centralized' | 'direct',
     }));
-    return generateCompanyProForma(enrichedProperties, global, projectionMonths, templates);
-  }, [enrichedProperties, global, projectionMonths, serviceTemplates]);
+    return generateCompanyProForma(properties, global, projectionMonths, templates);
+  }, [properties, global, projectionMonths, serviceTemplates]);
 
   const analysis = useMemo(() => {
     if (!financials.length || !global) return null;

@@ -24,7 +24,7 @@
 import React, { useState, useRef, useMemo } from "react";
 import { ExportDialog } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
-import { useProperties, useGlobalAssumptions, useAllFeeCategories } from "@/lib/api";
+import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { useServiceTemplates } from "@/lib/api/services";
 import { PROJECTION_YEARS } from "@/lib/constants";
@@ -55,7 +55,6 @@ import FundingPredictor from "./FundingPredictor";
 export default function Company() {
   const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
-  const { data: allFeeCategories } = useAllFeeCategories();
   const { data: serviceTemplates } = useServiceTemplates();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
@@ -82,30 +81,16 @@ export default function Company() {
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
-  // Attach custom fee categories to each property before running the company engine.
-  // Properties with no custom categories use the default management fee rate;
-  // properties WITH custom categories get a per-category breakdown in the proforma.
-  const enrichedProperties = useMemo(() => {
-    if (!properties) return [];
-    return properties.map(p => {
-      const cats = allFeeCategories?.filter(c => c.propertyId === p.id) ?? [];
-      if (cats.length > 0) {
-        return { ...p, feeCategories: cats.map(c => ({ name: c.name, rate: c.rate, isActive: c.isActive })) };
-      }
-      return p;
-    });
-  }, [properties, allFeeCategories]);
-
   const financials = useMemo(
     () => {
-      if (!enrichedProperties.length || !global) return [];
+      if (!properties?.length || !global) return [];
       const templates = serviceTemplates?.map(t => ({
         ...t,
         serviceModel: t.serviceModel as 'centralized' | 'direct',
       }));
-      return generateCompanyProForma(enrichedProperties, global, projectionMonths, templates);
+      return generateCompanyProForma(properties, global, projectionMonths, templates);
     },
-    [enrichedProperties, global, projectionMonths, serviceTemplates]
+    [properties, global, projectionMonths, serviceTemplates]
   );
 
   // Detect whether the management company will run out of cash before reaching
@@ -119,13 +104,13 @@ export default function Company() {
   // shows each property's contribution to service fees and incentive fees.
   const propertyFinancials = useMemo(
     () => {
-      if (!enrichedProperties.length || !global) return [];
-      return enrichedProperties.map(p => ({
+      if (!properties?.length || !global) return [];
+      return properties.map(p => ({
         property: p,
         financials: generatePropertyProForma(p, global, projectionMonths)
       }));
     },
-    [enrichedProperties, global, projectionMonths]
+    [properties, global, projectionMonths]
   );
   
   const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;

@@ -18,9 +18,6 @@ export function register(app: Express) {
   app.get("/api/properties", requireAuth, async (req, res) => {
     try {
       let props = await storage.getAllProperties(req.user!.id);
-      // Apply group visibility filter for non-admin users in a group.
-      // Non-admins see only group-assigned properties; fall through to the full
-      // list if the group has no explicit property assignments (allowedIds empty).
       const user = req.user!;
       if (user.role !== "admin" && user.userGroupId) {
         const allowedIds = await storage.getGroupPropertyIds(user.userGroupId);
@@ -28,7 +25,17 @@ export function register(app: Express) {
           props = props.filter((p) => allowedIds.includes(p.id));
         }
       }
-      res.json(props);
+      const allCats = await storage.getAllFeeCategories();
+      const catsByProperty = new Map<number, { name: string; rate: number; isActive: boolean }[]>();
+      for (const c of allCats) {
+        if (!catsByProperty.has(c.propertyId)) catsByProperty.set(c.propertyId, []);
+        catsByProperty.get(c.propertyId)!.push({ name: c.name, rate: c.rate, isActive: c.isActive });
+      }
+      const enriched = props.map(p => ({
+        ...p,
+        feeCategories: catsByProperty.get(p.id) ?? [],
+      }));
+      res.json(enriched);
     } catch (error) {
       logAndSendError(res, "Failed to fetch properties", error);
     }
@@ -60,7 +67,11 @@ export function register(app: Express) {
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
       }
-      res.json(property);
+      const cats = await storage.getFeeCategoriesByProperty(property.id);
+      res.json({
+        ...property,
+        feeCategories: cats.map(c => ({ name: c.name, rate: c.rate, isActive: c.isActive })),
+      });
     } catch (error) {
       logAndSendError(res, "Failed to fetch property", error);
     }

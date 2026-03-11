@@ -1,6 +1,9 @@
 import { Property, InsertProperty, UpdateProperty } from "@shared/schema";
 
-export type PropertyResponse = Property & { id: number };
+export type PropertyResponse = Property & {
+  id: number;
+  feeCategories?: { name: string; rate: number; isActive: boolean }[];
+};
 
 export interface GlobalResponse {
   id: number;

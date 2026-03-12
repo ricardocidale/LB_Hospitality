@@ -41,4 +41,4 @@ See `ai-agent-admin.md` for full architecture.
 ## Related Rules
 - `rules/api-routes.md` — API naming conventions
 - `rules/ui-patterns.md` — Button labels, entity cards
-- `rules/context-reduction.md` — Skills required for every feature
+- `skills/coding-conventions/context-reduction.md` — Skills required for every feature

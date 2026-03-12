@@ -51,11 +51,11 @@ DatabaseStorage (facade) ── delegates to:
 - Route handlers receive `storage: IStorage` — never access specialized classes directly
 - Each specialized class takes `db` (Drizzle instance) in constructor
 - All queries use Drizzle ORM with the shared schema from `shared/schema.ts`
-- Shared singleton rows (global_assumptions) use `ORDER BY id DESC` per `data-integrity.md`
+- Shared singleton rows (global_assumptions) use `ORDER BY id DESC` per `portfolio-dynamics.md`
 - Properties use `userId IS NULL` for shared visibility per `portfolio-dynamics.md`
 
 ## Related Rules
 
-- `.claude/rules/data-integrity.md` — singleton row uniqueness
+- `.claude/rules/portfolio-dynamics.md` — singleton row uniqueness and shared ownership
 - `.claude/rules/portfolio-dynamics.md` — shared property ownership
 - `.claude/rules/database-seeding.md` — seed data conventions

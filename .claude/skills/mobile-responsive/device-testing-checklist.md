@@ -106,8 +106,7 @@ Step-by-step checklist for verifying responsive design across all target devices
 - `client/src/hooks/use-mobile.tsx` — Mobile detection hook (768px)
 
 ## Related Rules
-- `rules/graphics-rich-design.md` — Every page must be graphics-rich on all devices
-- `rules/skill-organization.md` — Skill file structure
+- `rules/design-standards.md` — Every page must be graphics-rich on all devices
 
 ## Examples
 

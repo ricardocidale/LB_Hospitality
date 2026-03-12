@@ -157,8 +157,7 @@ function ChartContainer({ height = 220, children }: { height?: number; children:
 ```
 
 ## Related Rules
-- `rules/graphics-rich-design.md` — Graphics must render on all devices
-- `rules/skill-organization.md` — Skill file structure
+- `rules/design-standards.md` — Graphics must render on all devices
 
 ## Examples
 

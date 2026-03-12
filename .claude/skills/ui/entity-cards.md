@@ -75,8 +75,7 @@ import { EntityEmptyState } from "@/components/ui/entity-card";
 
 ## Related Rules
 
-- `.claude/rules/graphics-rich-design.md` — Every page must be graphics-rich
-- `.claude/rules/skill-organization.md` — Skill file structure
+- `.claude/rules/design-standards.md` — Every page must be graphics-rich
 
 ## Card Hierarchy
 

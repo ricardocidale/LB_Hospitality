@@ -158,5 +158,5 @@ The Marcela/ElevenLabs feature spans ~17,100 lines of source + ~4,200 lines of d
 ## Related Rules
 - `rules/documentation.md` — Source-of-truth hierarchy
 - `rules/api-routes.md` — API route conventions
-- `rules/context-reduction.md` — Skills, helpers, and tools required for every feature
+- `skills/coding-conventions/context-reduction.md` — Skills, helpers, and tools required for every feature
 - `rules/no-hardcoded-admin-config.md` — No hardcoded admin configuration values

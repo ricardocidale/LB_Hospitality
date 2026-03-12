@@ -27,7 +27,7 @@
 
 | Rule | Governs | Enforcement |
 |------|---------|-------------|
-| `graphics-rich-design.md` | `ui/graphics-component-catalog.md`, `ui/animation-patterns.md`, `3d-graphics/SKILL.md` | Every page must have graphics |
+| `design-standards.md` | `ui/graphics-component-catalog.md`, `ui/animation-patterns.md`, `3d-graphics/SKILL.md` | Every page must have graphics |
 | `no-hardcoded-values.md` | `finance/*`, `multi-tenancy/SKILL.md` | No literal financial or admin values |
 | `recalculate-on-save.md` | `architecture/SKILL.md`, `finance/calculation-chain.md` | All saves invalidate financial queries |
 | `financial-engine.md` | `finance/*` | Mandatory business rules + immutable constants |

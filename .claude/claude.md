@@ -17,11 +17,11 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 - All UI components must reference a theme via the theme engine.
 - New UI features get their own skill file in `.claude/skills/ui/`.
 - **Button Label Consistency:** Always "Save" — never "Update". See `rules/ui-patterns.md`.
-- **100% Session Memory:** Save decisions to `rules/session-memory.md` at session end.
+- **100% Session Memory:** Save decisions to `.claude/session-memory.md` at session end.
 - **Every financial line item** should have a ? tooltip (HelpTooltip or InfoTooltip).
 - **Every page must be graphics-rich** — charts, animations, visual elements required.
-- **Context reduction is mandatory.** Every refactor must produce skills, helpers, scripts. See `rules/context-reduction.md`.
-- **Premium design, always.** $50K+ bespoke financial platform feel. See `rules/premium-design.md`.
+- **Context reduction is mandatory.** Every refactor must produce skills, helpers, scripts. See `skills/coding-conventions/context-reduction.md`.
+- **Premium design, always.** $50K+ bespoke financial platform feel. See `rules/design-standards.md`.
 - **Always update claude.md after every task.** Mandatory — no exceptions.
 
 ---
@@ -73,7 +73,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |
 | Release Checklist | `.claude/skills/proof-system/release-audit-checklist.md` | Pre-release audit (load for releases) |
 | Property Chatbot | `server/routes/chat.ts` | Gemini-powered property analysis chat (`/api/chat`) |
-| Rules (22) | `.claude/rules/` | All behavioral constraints |
+| Rules (19) | `.claude/rules/` | All behavioral constraints |
 
 ---
 

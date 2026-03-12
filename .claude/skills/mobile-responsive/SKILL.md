@@ -15,8 +15,7 @@ Documents all responsive design patterns, Tailwind breakpoint strategy, and prov
 - `client/src/components/ui/tabs.tsx` — CurrentThemeTab responsive tab bar
 
 ## Related Rules
-- `rules/graphics-rich-design.md` — Every page must be graphics-rich (mobile too)
-- `rules/skill-organization.md` — Skill file placement
+- `rules/design-standards.md` — Every page must be graphics-rich (mobile too)
 
 ## Breakpoint Strategy
 

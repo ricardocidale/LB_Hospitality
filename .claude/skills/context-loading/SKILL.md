@@ -50,7 +50,7 @@ With 119 skill files, loading everything wastes tokens and slows responses. This
 | Scenarios dialogs | `ui/scenarios-dialogs.md` | Finance engine, research |
 | SensitivityAnalysis panels | `ui/sensitivity-panels.md`, `finance/irr-analysis.md` | Research, testing |
 | Chart work | `ui/charts.md`, `component-library/SKILL.md` | Finance skills, testing |
-| Graphics enhancement | `ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `rules/graphics-rich-design.md` | Finance skills |
+| Graphics enhancement | `ui/graphics-component-catalog.md`, `ui/page-enhancement-checklist.md`, `rules/design-standards.md` | Finance skills |
 | Animation patterns | `ui/animation-patterns.md`, `ui/graphics-component-catalog.md` | Finance skills, testing |
 | Magic UI effects (particles, meteors, ripple, etc.) | `ui/magic-ui.md` | Finance skills, testing |
 | Financial table styling | `ui/financial-table-styling.md`, `ui/theme-engine.md` | Finance engine skills |
@@ -143,9 +143,9 @@ With 119 skill files, loading everything wastes tokens and slows responses. This
 |------|------------------|------|
 | Update checker manual | `manuals/checker-manual/SKILL.md` | Finance engine, UI |
 | Update user manual | `manuals/user-manual/SKILL.md` | Finance engine, UI |
-| Create new skill | `coding-conventions/SKILL.md`, `rules/skill-organization.md` | Unrelated domain skills |
-| Reorganize skills/rules | `rules/skill-organization.md`, `context-loading/SKILL.md` | Finance, UI skills |
-| Audit folder structure | `rules/skill-organization.md`, `source-code/SKILL.md` | Finance, UI skills |
+| Create new skill | `coding-conventions/SKILL.md`, `skills/coding-conventions/skill-organization.md` | Unrelated domain skills |
+| Reorganize skills/rules | `skills/coding-conventions/skill-organization.md`, `context-loading/SKILL.md` | Finance, UI skills |
+| Audit folder structure | `skills/coding-conventions/skill-organization.md`, `source-code/SKILL.md` | Finance, UI skills |
 
 ## Loading Tiers by Request Complexity
 

@@ -1,8 +1,34 @@
-# Portfolio Dynamics
+# Portfolio Dynamics & Data Integrity
 
 ## Rule
 
-The financial engine must handle any number of properties (0, 1, 5, 20+) without hardcoded limits. Every property must be visible to every authenticated user. Management fee revenue flowing to the hospitality company must exactly equal the sum of fee expenses paid by each property (zero-sum intercompany).
+The financial engine must handle any number of properties (0, 1, 5, 20+) without hardcoded limits. Every property must be visible to every authenticated user. Management fee revenue flowing to the hospitality company must exactly equal the sum of fee expenses paid by each property (zero-sum intercompany). All portfolio-wide data must be stored as **shared rows** (`userId = NULL`). Violations make data invisible to other users.
+
+## Data Integrity Invariants
+
+**1. Global Assumptions** — Exactly one row with `userId IS NULL`. Always query with `ORDER BY id DESC` to guarantee newest row.
+
+**2. Properties** — All properties must have `userId = NULL`. Query uses `WHERE userId = :uid OR userId IS NULL` — non-null userId makes the property invisible to everyone else.
+
+```typescript
+// CORRECT — ORDER BY DESC on shared singleton
+const [shared] = await db.select().from(globalAssumptions)
+  .where(isNull(globalAssumptions.userId))
+  .orderBy(desc(globalAssumptions.id)).limit(1);
+
+// CORRECT — shared property
+await storage.createProperty({ ...data, userId: null });
+// WRONG — owned property (invisible to others)
+await storage.createProperty({ ...data, userId: req.user.id });
+```
+
+### When Adding New Shared Singleton Tables
+
+1. Add `ORDER BY id DESC` to all read queries
+2. Add uniqueness check in `tests/proof/data-integrity.test.ts`
+3. Add migration guard in `server/migrations/` to clean duplicates
+
+Failures produce an **ADVERSE** verification opinion.
 
 ## Property Count — Never Hardcode
 
@@ -22,19 +48,7 @@ const propertyCount = 5;
 
 **Seed scripts** may create a fixed number of initial properties, but log messages and tests must reference the actual array length, not a literal.
 
-## Shared Ownership — All Properties Visible to All Users
-
-All portfolio properties must have `userId = NULL` so every authenticated user can see them. The `getAllProperties(userId)` query returns `WHERE userId = :uid OR userId IS NULL` — a property with a non-null `userId` is invisible to all other users.
-
-```typescript
-// CORRECT — shared property
-await storage.createProperty({ ...data, userId: null });
-
-// WRONG — owned by one user
-await storage.createProperty({ ...data, userId: req.user.id });
-```
-
-### Scenario Load — Must Restore as Shared
+## Scenario Load — Must Restore as Shared
 
 When loading a saved scenario, the `loadScenario()` method must:
 1. Update the **shared** `global_assumptions` row (userId=NULL), not create a user-specific one
@@ -52,11 +66,6 @@ Property SPV:     feeBase + feeIncentive = management fee expense (reduces NOI)
 Management Co:    baseFeeRevenue + incentiveFeeRevenue = sum of all property fees
 Consolidated:     intercompany fees eliminate to $0
 ```
-
-This is verified by `tests/proof/portfolio-dynamics.test.ts`:
-- Portfolio NOI = sum of individual property NOIs
-- Company fee revenue = sum of property fee expenses
-- Consolidated eliminations net to zero
 
 ## Portfolio Aggregation
 
@@ -85,3 +94,4 @@ These invariants are enforced by:
 - [ ] Do management fees eliminate to zero in consolidation?
 - [ ] Does the dashboard handle 0 properties without crashing?
 - [ ] Are staffing tier thresholds from global assumptions, not hardcoded?
+- [ ] Do shared singleton queries use `ORDER BY id DESC`?

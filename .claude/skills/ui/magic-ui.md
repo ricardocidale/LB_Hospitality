@@ -7,7 +7,7 @@ description: Magic UI special effects components installed in components/ui/. Us
 
 All 9 components live in `client/src/components/ui/` and are installed via shadcn registry.
 
-**Related rules**: `graphics-rich-design.md`, `premium-design.md`
+**Related rules**: `design-standards.md`
 
 ## Component Reference
 

@@ -206,7 +206,7 @@ describe("Constants re-export parity (constants-and-config)", () => {
 
 // ─────────────────────────────────────────────────────────────
 // Section 3: parseLocalDate single source of truth
-// Rule: context-reduction.md
+// Skill: coding-conventions/context-reduction.md
 // ─────────────────────────────────────────────────────────────
 describe("parseLocalDate single source of truth (context-reduction)", () => {
   const CANONICAL_FILE = path.resolve("shared/dates.ts");
@@ -273,9 +273,9 @@ describe("parseLocalDate single source of truth (context-reduction)", () => {
 
 // ─────────────────────────────────────────────────────────────
 // Section 4: .claude is the sole source of truth
-// Rule: claude-is-sole-truth.md
+// Rule: documentation.md
 // ─────────────────────────────────────────────────────────────
-describe(".claude is the sole source of truth (claude-is-sole-truth)", () => {
+describe(".claude is the sole source of truth (documentation)", () => {
   const ROOT = path.resolve(".");
   const claudeMd = path.join(ROOT, ".claude", "claude.md");
   const replitMd = path.join(ROOT, "replit.md");

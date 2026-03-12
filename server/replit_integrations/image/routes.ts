@@ -2,6 +2,14 @@ import type { Express, Request, Response } from "express";
 import { openai, generateImageBuffer, getGeminiClient } from "./client";
 import { requireAuth, isApiRateLimited } from "../../auth";
 import { ObjectStorageService } from "../object_storage";
+import { replicateService, getAvailableStyles, type ReplicateStyleKey } from "../../integrations/replicate";
+import { z } from "zod";
+
+const generatePropertyImageSchema = z.object({
+  prompt: z.string().min(1, "Prompt is required"),
+  style: z.enum(["standard", "architectural-exterior", "interior-design", "renovation-concept"]).optional().default("standard"),
+  beforeImageUrl: z.string().min(1).optional(),
+});
 
 export function registerImageRoutes(app: Express): void {
   app.post("/api/generate-image", requireAuth, async (req: Request, res: Response) => {
@@ -34,18 +42,50 @@ export function registerImageRoutes(app: Express): void {
     }
   });
 
+  app.get("/api/replicate/styles", requireAuth, async (_req: Request, res: Response) => {
+    try {
+      const styles = getAvailableStyles();
+      res.json({ styles });
+    } catch (error) {
+      console.error("Error fetching Replicate styles:", error);
+      res.status(500).json({ error: "Failed to fetch available styles" });
+    }
+  });
+
   app.post("/api/generate-property-image", requireAuth, async (req: Request, res: Response) => {
     try {
       if (isApiRateLimited(req.user!.id, "generate-image", 5)) {
         return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
       }
 
-      const { prompt } = req.body;
-      if (!prompt) {
-        return res.status(400).json({ error: "Prompt is required" });
+      const parsed = generatePropertyImageSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: parsed.error.issues[0]?.message || "Invalid request" });
       }
+      const { prompt, style, beforeImageUrl } = parsed.data;
 
-      const imageBuffer = await generateImageBuffer(prompt, "1024x1024");
+      const isReplicateStyle = style && style !== "standard";
+      let imageBuffer: Buffer;
+      let usedFallback = false;
+
+      if (isReplicateStyle) {
+        try {
+          imageBuffer = await replicateService.generateImage(
+            style as ReplicateStyleKey,
+            prompt,
+            beforeImageUrl
+          );
+        } catch (replicateError) {
+          console.warn(
+            "Replicate generation failed, falling back to standard:",
+            replicateError instanceof Error ? replicateError.message : replicateError
+          );
+          imageBuffer = await generateImageBuffer(prompt, "1024x1024");
+          usedFallback = true;
+        }
+      } else {
+        imageBuffer = await generateImageBuffer(prompt, "1024x1024");
+      }
 
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -61,7 +101,13 @@ export function registerImageRoutes(app: Express): void {
         throw new Error("Failed to upload generated image to object storage");
       }
 
-      res.json({ objectPath, isAiGenerated: true });
+      res.json({
+        objectPath,
+        isAiGenerated: true,
+        style: usedFallback ? "standard" : (style || "standard"),
+        usedFallback,
+        fallbackNotice: usedFallback ? "Using standard generation — specialized rendering unavailable" : undefined,
+      });
     } catch (error) {
       console.error("Error generating property image:", error);
       const message = error instanceof Error ? error.message : "Failed to generate image";

@@ -1026,6 +1026,8 @@ export const propertyPhotos = pgTable("property_photos", {
     full?: string;
     original?: string;
   }>(),
+  generationStyle: text("generation_style"),
+  beforePhotoId: integer("before_photo_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
   index("property_photos_property_id_idx").on(table.propertyId),
@@ -1038,6 +1040,8 @@ export const insertPropertyPhotoSchema = createInsertSchema(propertyPhotos).pick
   sortOrder: true,
   isHero: true,
   variants: true,
+  generationStyle: true,
+  beforePhotoId: true,
 });
 
 export const updatePropertyPhotoSchema = z.object({

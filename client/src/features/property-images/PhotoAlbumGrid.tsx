@@ -155,6 +155,7 @@ export function PhotoAlbumGrid({
         location={location}
         roomCount={roomCount}
         propertyType={propertyType}
+        existingPhotos={photos}
       />
     </div>
   );

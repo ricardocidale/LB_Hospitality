@@ -1,0 +1,44 @@
+{
+  "architectural-exterior": {
+    "model": "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
+    "promptPrefix": "Professional architectural photograph of a luxury hotel exterior, award-winning architectural photography, golden hour lighting, high dynamic range, ultra-detailed facade, landscaped grounds, photorealistic, 8k resolution",
+    "promptSuffix": "shot on Hasselblad, architectural digest style, no people, clean composition",
+    "params": {
+      "width": 1344,
+      "height": 768,
+      "num_inference_steps": 50,
+      "guidance_scale": 7.5,
+      "scheduler": "K_EULER"
+    }
+  },
+  "interior-design": {
+    "model": "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
+    "promptPrefix": "Professional interior design photograph of a luxury hotel room, award-winning interior photography, natural lighting through large windows, elegant furnishings, high-end materials, photorealistic, 8k resolution",
+    "promptSuffix": "shot on Canon EOS R5, architectural digest interior, warm ambient lighting, pristine condition",
+    "params": {
+      "width": 1344,
+      "height": 768,
+      "num_inference_steps": 50,
+      "guidance_scale": 7.5,
+      "scheduler": "K_EULER"
+    }
+  },
+  "renovation-concept": {
+    "model": "stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc",
+    "promptPrefix": "Professional architectural renovation rendering showing transformed luxury hotel space, modern renovation design, high-end materials, photorealistic renovation visualization",
+    "promptSuffix": "architectural visualization, before-and-after renovation concept, professional rendering quality",
+    "params": {
+      "width": 1344,
+      "height": 768,
+      "num_inference_steps": 50,
+      "guidance_scale": 7.5,
+      "prompt_strength": 0.55
+    },
+    "isImg2Img": true,
+    "denoisingStrength": {
+      "min": 0.4,
+      "max": 0.6,
+      "default": 0.55
+    }
+  }
+}

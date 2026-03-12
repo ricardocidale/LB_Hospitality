@@ -1,41 +1,43 @@
 import { useState, useCallback } from "react";
 
+export type GenerationStyle = "standard" | "architectural-exterior" | "interior-design" | "renovation-concept";
+
+interface GenerateImageResult {
+  objectPath: string;
+  style: string;
+  usedFallback: boolean;
+  fallbackNotice?: string;
+}
+
 interface UseGenerateImageOptions {
-  onSuccess?: (objectPath: string) => void;
+  onSuccess?: (objectPath: string, result: GenerateImageResult) => void;
   onError?: (error: Error) => void;
 }
 
-/**
- * React hook for generating property images with AI.
- *
- * Calls POST /api/generate-property-image which generates an image
- * via OpenAI's gpt-image-1 and uploads it to object storage.
- *
- * @example
- * ```tsx
- * const { generateImage, isGenerating } = useGenerateImage({
- *   onSuccess: (objectPath) => setImageUrl(objectPath),
- * });
- *
- * <button onClick={() => generateImage("Luxury boutique hotel exterior")}>
- *   Generate
- * </button>
- * ```
- */
 export function useGenerateImage(options: UseGenerateImageOptions = {}) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [generationStatus, setGenerationStatus] = useState<string | null>(null);
 
   const generateImage = useCallback(
-    async (prompt: string): Promise<string | null> => {
+    async (
+      prompt: string,
+      style: GenerationStyle = "standard",
+      beforeImageUrl?: string
+    ): Promise<GenerateImageResult | null> => {
       setIsGenerating(true);
       setError(null);
+      setGenerationStatus(
+        style !== "standard"
+          ? "Submitting to specialized renderer..."
+          : "Generating image..."
+      );
 
       try {
         const res = await fetch("/api/generate-property-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt, style, beforeImageUrl }),
         });
 
         if (!res.ok) {
@@ -43,21 +45,24 @@ export function useGenerateImage(options: UseGenerateImageOptions = {}) {
           throw new Error(data.error || "Failed to generate image");
         }
 
-        const data = await res.json();
-        options.onSuccess?.(data.objectPath);
-        return data.objectPath;
+        const data: GenerateImageResult = await res.json();
+        setGenerationStatus(null);
+        options.onSuccess?.(data.objectPath, data);
+        return data;
       } catch (err) {
         const error =
           err instanceof Error ? err : new Error("Image generation failed");
         setError(error);
+        setGenerationStatus(null);
         options.onError?.(error);
         return null;
       } finally {
         setIsGenerating(false);
+        setGenerationStatus(null);
       }
     },
     [options],
   );
 
-  return { generateImage, isGenerating, error };
+  return { generateImage, isGenerating, error, generationStatus };
 }

@@ -109,6 +109,7 @@ export class DatabaseStorage implements IStorage {
 
   // Fee Categories
   getFeeCategoriesByProperty = this.financial.getFeeCategoriesByProperty.bind(this.financial);
+  getFeeCategoriesByProperties = this.financial.getFeeCategoriesByProperties.bind(this.financial);
   getAllFeeCategories = this.financial.getAllFeeCategories.bind(this.financial);
   createFeeCategory = this.financial.createFeeCategory.bind(this.financial);
   updateFeeCategory = this.financial.updateFeeCategory.bind(this.financial);
@@ -186,6 +187,7 @@ export class DatabaseStorage implements IStorage {
 
   // Property Photos
   getPropertyPhotos = this.photos.getPropertyPhotos.bind(this.photos);
+  getPhotosByProperties = this.photos.getPhotosByProperties.bind(this.photos);
   getHeroPhoto = this.photos.getHeroPhoto.bind(this.photos);
   addPropertyPhoto = this.photos.addPropertyPhoto.bind(this.photos);
   updatePropertyPhoto = this.photos.updatePropertyPhoto.bind(this.photos);

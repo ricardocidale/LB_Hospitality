@@ -169,6 +169,20 @@ export class FinancialStorage {
     return await db.select().from(propertyFeeCategories).where(eq(propertyFeeCategories.propertyId, propertyId)).orderBy(propertyFeeCategories.sortOrder);
   }
 
+  /** Fetch fee categories for multiple properties in a single query. */
+  async getFeeCategoriesByProperties(propertyIds: number[]): Promise<Record<number, FeeCategory[]>> {
+    if (propertyIds.length === 0) return {};
+    const rows = await db.select().from(propertyFeeCategories)
+      .where(inArray(propertyFeeCategories.propertyId, propertyIds))
+      .orderBy(propertyFeeCategories.sortOrder);
+    const grouped: Record<number, FeeCategory[]> = {};
+    for (const row of rows) {
+      if (!grouped[row.propertyId]) grouped[row.propertyId] = [];
+      grouped[row.propertyId].push(row);
+    }
+    return grouped;
+  }
+
   /** List ALL fee categories across all properties (admin view). */
   async getAllFeeCategories(): Promise<FeeCategory[]> {
     return await db.select().from(propertyFeeCategories).orderBy(propertyFeeCategories.id);

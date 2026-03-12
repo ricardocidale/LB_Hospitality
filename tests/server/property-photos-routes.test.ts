@@ -105,7 +105,8 @@ describe("Property Photos Routes — storage delegation", () => {
 
 describe("Scenario Routes — photo snapshot compatibility", () => {
   it("scenario save captures property photos", () => {
-    expect(scenariosSrc).toContain("getPropertyPhotos");
+    // Uses bulk method getPhotosByProperties (replaces N+1 getPropertyPhotos loop)
+    expect(scenariosSrc).toMatch(/getPhotosByProperties|getPropertyPhotos/);
     expect(scenariosSrc).toContain("propertyPhotos");
   });
 

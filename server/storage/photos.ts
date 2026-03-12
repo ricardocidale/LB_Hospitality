@@ -1,6 +1,6 @@
 import { propertyPhotos, properties, type PropertyPhoto, type InsertPropertyPhoto, type UpdatePropertyPhoto } from "@shared/schema";
 import { db } from "../db";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, inArray } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 
 export class PhotoStorage {
@@ -9,6 +9,20 @@ export class PhotoStorage {
     return await db.select().from(propertyPhotos)
       .where(eq(propertyPhotos.propertyId, propertyId))
       .orderBy(asc(propertyPhotos.sortOrder));
+  }
+
+  /** Get all photos for multiple properties in a single query. */
+  async getPhotosByProperties(propertyIds: number[]): Promise<Record<number, PropertyPhoto[]>> {
+    if (propertyIds.length === 0) return {};
+    const rows = await db.select().from(propertyPhotos)
+      .where(inArray(propertyPhotos.propertyId, propertyIds))
+      .orderBy(asc(propertyPhotos.sortOrder));
+    const grouped: Record<number, PropertyPhoto[]> = {};
+    for (const row of rows) {
+      if (!grouped[row.propertyId]) grouped[row.propertyId] = [];
+      grouped[row.propertyId].push(row);
+    }
+    return grouped;
   }
 
   /** Get the hero photo for a property. */

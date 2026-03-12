@@ -36,11 +36,18 @@ export function register(app: Express) {
       const assumptions = await storage.getGlobalAssumptions(req.user!.id);
       const properties = await storage.getAllProperties(req.user!.id);
       
+      // Bulk fetch fee categories and photos in 2 queries instead of 2N
+      const propertyIds = properties.map(p => p.id);
+      const [feeCatsByPropId, photosByPropId] = await Promise.all([
+        storage.getFeeCategoriesByProperties(propertyIds),
+        storage.getPhotosByProperties(propertyIds),
+      ]);
+
       const propertyFeeCategories: Record<string, any[]> = {};
       const propertyPhotos: Record<string, any[]> = {};
       for (const p of properties) {
-        propertyFeeCategories[p.name] = await storage.getFeeCategoriesByProperty(p.id);
-        propertyPhotos[p.name] = await storage.getPropertyPhotos(p.id);
+        propertyFeeCategories[p.name] = feeCatsByPropId[p.id] || [];
+        propertyPhotos[p.name] = photosByPropId[p.id] || [];
       }
 
       const scenario = await storage.createScenario({

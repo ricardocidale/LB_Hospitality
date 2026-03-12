@@ -100,6 +100,21 @@ export function log(message: string, source = "express") {
   serverLog(message, source);
 }
 
+// Cache-Control for stable, rarely-changing GET endpoints
+const CACHEABLE_PATHS = new Set([
+  "/api/logos",
+  "/api/design-themes",
+  "/api/companies",
+  "/api/documents/templates",
+  "/api/documents/docusign/status",
+]);
+app.use((req, res, next) => {
+  if (req.method === "GET" && CACHEABLE_PATHS.has(req.path)) {
+    res.setHeader("Cache-Control", "private, max-age=300, stale-while-revalidate=600");
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -158,6 +173,9 @@ app.use((req, res, next) => {
 
   const { runDocuments001 } = await import("./migrations/documents-001");
   await runDocuments001();
+
+  const { runCompositeIndexes001 } = await import("./migrations/composite-indexes-001");
+  await runCompositeIndexes001();
 
   await seedAdminUser(); // Must complete first — users are FK dependencies
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");

@@ -173,11 +173,9 @@ export function register(app: Express) {
         photos = await storage.getPropertyPhotos(Number(propertyId));
       } else {
         const allProperties = await storage.getAllProperties(user.id);
-        photos = [];
-        for (const prop of allProperties) {
-          const propPhotos = await storage.getPropertyPhotos(prop.id);
-          photos.push(...propPhotos);
-        }
+        // Bulk fetch all photos in a single query instead of N queries
+        const photosByPropId = await storage.getPhotosByProperties(allProperties.map(p => p.id));
+        photos = Object.values(photosByPropId).flat();
       }
 
       const unprocessed = photos.filter(p => !p.variants);

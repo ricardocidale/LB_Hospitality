@@ -76,6 +76,8 @@ export interface IcpConfig {
 
   maxAirportMin: number;
   prefAirportMin: number;
+  maxIntlAirportMin: number;
+  prefIntlAirportMin: number;
   maxHospitalMin: number;
   prefHospitalMin: number;
 
@@ -206,6 +208,8 @@ export const DEFAULT_ICP_CONFIG: IcpConfig = {
 
   maxAirportMin: 60,
   prefAirportMin: 30,
+  maxIntlAirportMin: 120,
+  prefIntlAirportMin: 60,
   maxHospitalMin: 30,
   prefHospitalMin: 15,
 
@@ -292,6 +296,7 @@ export function dualUnit(value: number, unitType: UnitType, inputMetric: boolean
 
 export interface IcpDescriptive {
   propertyTypes: string;
+  fbLevel: string;
   locationCharacteristics: string;
   usRegions: string;
   latAmRegions: string;
@@ -306,6 +311,7 @@ export interface IcpDescriptive {
 
 export const DEFAULT_ICP_DESCRIPTIVE: IcpDescriptive = {
   propertyTypes: "Luxury boutique hotel, estate hotel, hacienda, lodge, manor, or large private estate suitable for conversion into a full-service hospitality operation. Properties must convey exclusivity, architectural character, and a strong sense of place. Chain-affiliated or conventional box hotels are excluded.",
+  fbLevel: "Full-service F&B operation with chef-driven restaurant, bar/lounge program, room service, and event catering. Farm-to-table or locally sourced menus preferred. Breakfast included in rate or available à la carte. Dinner service minimum 5 nights/week. Private dining and wine pairing experiences for up to 20 guests. Commercial kitchen capable of supporting 60+ covers per service. Liquor license required or transferable. Seasonal menus and local partnerships encouraged. F&B revenue target: 35%–60% of room revenue.",
   locationCharacteristics: "Near-total privacy: secluded or estate-like setting, ideally not visible from public roads. Proximity to tourism demand generators (wine regions, mountains, beaches, cultural landmarks, national parks). Walkable or short drive to dining, shopping, and recreation. Rideshare services (Uber/Lyft) must be available in the area. Property accessible by paved road year-round.",
   usRegions: "Northeast: Hudson Valley NY, Berkshires MA, Catskills NY, Litchfield Hills CT\nSoutheast: Asheville NC, Charleston SC, Savannah GA, Florida Gulf Coast, Charlottesville VA\nSouthwest: Austin TX Hill Country, Sedona AZ, Santa Fe NM, Fredericksburg TX\nWest: Napa/Sonoma CA, Park City/Eden UT, Jackson Hole WY, Bend OR",
   latAmRegions: "Colombia: Medellín, Cartagena, Coffee Triangle (Eje Cafetero), Santa Marta/Tayrona, Villa de Leyva\nMexico: San Miguel de Allende, Oaxaca, Riviera Nayarit, Valle de Guadalupe\nCosta Rica: Guanacaste, Central Valley, Osa Peninsula",
@@ -374,6 +380,9 @@ export function generateIcpPrompt(c: IcpConfig, d: IcpDescriptive, propertyLabel
     `━━━ PROPERTY TYPE & POSITIONING ━━━`,
     d.propertyTypes,
     ``,
+    `━━━ FOOD & BEVERAGE LEVEL ━━━`,
+    d.fbLevel,
+    ``,
     `━━━ SIZE, CAPACITY & PHYSICAL DIMENSIONS ━━━`,
     ``,
     `Guest Rooms & Suites:`,
@@ -432,7 +441,8 @@ export function generateIcpPrompt(c: IcpConfig, d: IcpDescriptive, propertyLabel
     ``,
     `━━━ LOCATION & ACCESSIBILITY ━━━`,
     ``,
-    `(M) Within ${c.maxAirportMin} minutes of a regional/international airport (${c.prefAirportMin} min preferred)`,
+    `(M) Within ${c.maxAirportMin} minutes of a regional airport (${c.prefAirportMin} min preferred)`,
+    `(M) Within ${c.maxIntlAirportMin} minutes of an international airport (${c.prefIntlAirportMin} min preferred)`,
     `(M) Within ${c.maxHospitalMin} minutes of a hospital/urgent care (${c.prefHospitalMin} min preferred)`,
     d.locationCharacteristics,
     ``,
@@ -629,8 +639,10 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
   {
     title: "Location & Accessibility",
     fields: [
-      { key: "maxAirportMin", label: "Max to airport", type: "number", suffix: "min", defaultPriority: "must", help: "Maximum drive time to the nearest regional or international airport. Beyond this, guest convenience drops sharply." },
-      { key: "prefAirportMin", label: "Preferred to airport", type: "number", suffix: "min", defaultPriority: "nice", help: "Preferred drive time to airport. Shorter times allow for weekend trips and easy access." },
+      { key: "maxAirportMin", label: "Max to regional airport", type: "number", suffix: "min", defaultPriority: "must", help: "Maximum drive time to the nearest regional/domestic airport. Beyond this, guest convenience drops sharply." },
+      { key: "prefAirportMin", label: "Preferred to regional airport", type: "number", suffix: "min", defaultPriority: "nice", help: "Preferred drive time to regional airport. Shorter times allow for weekend trips and easy access." },
+      { key: "maxIntlAirportMin", label: "Max to intl airport", type: "number", suffix: "min", defaultPriority: "must", help: "Maximum drive time to the nearest international airport. Critical for overseas guests and long-haul travelers." },
+      { key: "prefIntlAirportMin", label: "Preferred to intl airport", type: "number", suffix: "min", defaultPriority: "nice", help: "Preferred drive time to international airport. Properties closer to international hubs command higher ADR from global clientele." },
       { key: "maxHospitalMin", label: "Max to hospital", type: "number", suffix: "min", defaultPriority: "must", help: "Maximum drive time to nearest hospital or urgent care. Critical for guest safety and insurance." },
       { key: "prefHospitalMin", label: "Preferred to hospital", type: "number", suffix: "min", defaultPriority: "nice", help: "Preferred proximity to medical facilities for added peace of mind." },
     ],
@@ -686,6 +698,7 @@ export interface DescriptiveSection {
 
 export const DESCRIPTIVE_SECTIONS: DescriptiveSection[] = [
   { key: "propertyTypes", label: "Property Type & Positioning", rows: 4, help: "Target property types, architectural character, exclusions" },
+  { key: "fbLevel", label: "Food & Beverage Level", rows: 5, help: "Describe the expected F&B operation level: restaurant concept, service style, cuisine direction, bar program, event catering, and revenue expectations" },
   { key: "locationCharacteristics", label: "Location Characteristics", rows: 4, help: "Privacy requirements, accessibility, tourism demand generators" },
   { key: "usRegions", label: "Preferred US Regions", rows: 5, help: "Markets and sub-markets in the United States" },
   { key: "latAmRegions", label: "Preferred Latin America", rows: 4, help: "Markets and sub-markets in Latin America" },

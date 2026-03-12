@@ -143,13 +143,14 @@ export class ActivityStorage {
   // ── Active Sessions (Admin Session Management) ──────────────
 
   /** List all currently valid (non-expired) sessions with user info. Admin panel uses this. */
-  async getActiveSessions(): Promise<(Session & { user: User })[]> {
+  async getActiveSessions(limit = 200): Promise<(Session & { user: User })[]> {
     const results = await db
       .select()
       .from(sessions)
       .innerJoin(users, eq(sessions.userId, users.id))
       .where(gt(sessions.expiresAt, new Date()))
-      .orderBy(desc(sessions.createdAt));
+      .orderBy(desc(sessions.createdAt))
+      .limit(limit);
     return results.map(r => ({ ...r.sessions, user: r.users }));
   }
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import mermaid from "mermaid";
+import DOMPurify from "dompurify";
 import type { MermaidChartProps } from "./types";
 
 let mermaidInitialized = false;
@@ -32,7 +33,7 @@ export function MermaidChart({
       initMermaid(theme);
       const id = `mermaid-${Date.now()}-${++idCounter}`;
       const { svg } = await mermaid.render(id, chart.trim());
-      setSvgHtml(svg);
+      setSvgHtml(DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true }, ADD_TAGS: ["foreignObject"] }));
       setError(null);
     } catch (e: any) {
       setError(e?.message || "Failed to render Mermaid diagram");

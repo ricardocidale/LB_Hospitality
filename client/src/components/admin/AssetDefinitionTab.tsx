@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Check, Plus, X } from "lucide-react";
-import { IconSave, IconCopy, IconHelpCircle } from "@/components/icons";
+import { Plus, X } from "lucide-react";
+import { IconSave, IconHelpCircle } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { ADMIN_TEXTAREA } from "./styles";
 import {
@@ -156,7 +156,6 @@ export default function AssetDefinitionTab() {
   const [config, setConfig] = useState<IcpConfig>(DEFAULT_ICP_CONFIG);
   const [desc, setDesc] = useState<IcpDescriptive>(DEFAULT_ICP_DESCRIPTIVE);
   const [dirty, setDirty] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [customAmenities, setCustomAmenities] = useState<CustomAmenity[]>([]);
   const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
 
@@ -210,12 +209,6 @@ export default function AssetDefinitionTab() {
         },
       }
     );
-  };
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(generatedPrompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const addCustomAmenity = () => {
@@ -292,15 +285,12 @@ export default function AssetDefinitionTab() {
           </div>
 
           <Tabs defaultValue="amenities" className="w-full">
-            <TabsList className="w-full grid grid-cols-3 h-9">
+            <TabsList className="w-full grid grid-cols-2 h-9">
               <TabsTrigger value="amenities" className="text-xs" data-testid="tab-amenities">
                 Amenities
               </TabsTrigger>
               <TabsTrigger value="descriptive" className="text-xs" data-testid="tab-descriptive">
                 Descriptive
-              </TabsTrigger>
-              <TabsTrigger value="context" className="text-xs" data-testid="tab-context">
-                Generated Context
               </TabsTrigger>
             </TabsList>
 
@@ -320,30 +310,6 @@ export default function AssetDefinitionTab() {
 
             <TabsContent value="descriptive" className="mt-3">
               <DescriptiveTab desc={desc} updateDesc={updateDesc} />
-            </TabsContent>
-
-            <TabsContent value="context" className="mt-3">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">
-                    This is the combined prompt that will be served to the LLM.
-                    It merges all parameters and descriptive inputs into an optimized context.
-                  </p>
-                  <Button variant="ghost" size="sm" onClick={handleCopy} className="text-xs h-7 gap-1">
-                    {copied ? <Check className="w-3 h-3" /> : <IconCopy className="w-3 h-3" />}
-                    {copied ? "Copied" : "Copy"}
-                  </Button>
-                </div>
-                <pre
-                  className="whitespace-pre-wrap text-xs leading-relaxed font-mono text-foreground/90 bg-muted/40 border border-border rounded p-4 max-h-[600px] overflow-y-auto"
-                  data-testid="text-generated-context"
-                >
-                  {generatedPrompt}
-                </pre>
-                <p className="text-xs text-muted-foreground italic">
-                  {generatedPrompt.length.toLocaleString()} characters
-                </p>
-              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

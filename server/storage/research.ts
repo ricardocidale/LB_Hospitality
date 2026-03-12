@@ -22,13 +22,14 @@ export class ResearchStorage {
   }
   
   /** List all research reports visible to a user (their own + shared/seed reports). */
-  async getAllMarketResearch(userId?: number): Promise<MarketResearch[]> {
+  async getAllMarketResearch(userId?: number, limit = 500): Promise<MarketResearch[]> {
     if (userId) {
       return await db.select().from(marketResearch)
         .where(or(eq(marketResearch.userId, userId), isNull(marketResearch.userId)))
-        .orderBy(desc(marketResearch.updatedAt));
+        .orderBy(desc(marketResearch.updatedAt))
+        .limit(limit);
     }
-    return await db.select().from(marketResearch).orderBy(desc(marketResearch.updatedAt));
+    return await db.select().from(marketResearch).orderBy(desc(marketResearch.updatedAt)).limit(limit);
   }
   
   /**

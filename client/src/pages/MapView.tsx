@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import DOMPurify from "dompurify";
 import { useProperties } from "@/lib/api";
 import { Link } from "wouter";
 import { IconBuilding2, IconDollarSign, IconNavigation, IconMountain, IconGlobe, IconMap, IconPlay, IconPause } from "@/components/icons";
@@ -321,7 +322,7 @@ export default function MapView() {
         const el = createMarkerElement(property, property.id === selected, colorMode);
 
         const popupContent = document.createElement("div");
-        popupContent.innerHTML = createPopupHTML(property);
+        popupContent.innerHTML = DOMPurify.sanitize(createPopupHTML(property));
 
         const flyToBtn = document.createElement("button");
         flyToBtn.setAttribute("data-testid", `popup-flyto-${property.id}`);

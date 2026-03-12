@@ -238,7 +238,8 @@
       "Bash(__NEW_LINE_b8b29a7f57c0e1ff__ echo:*)",
       "Bash(1 ls:*)",
       "Bash(git stash:*)",
-      "Bash(find /home/runner/workspace/client/src -name \"*.ts*\" -type f -exec grep -l \"function.*use[A-Z]\" {} \\\\; 2>/dev/null | head -20)"
+      "Bash(find /home/runner/workspace/client/src -name \"*.ts*\" -type f -exec grep -l \"function.*use[A-Z]\" {} \\\\; 2>/dev/null | head -20)",
+      "Bash(npm ls:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

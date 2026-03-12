@@ -104,12 +104,16 @@ The engine at `client/src/lib/financial/funding-predictor.ts` is instrument-agno
 Shared formatting library in `client/src/lib/exports/`. Full reference: `.agents/skills/export-system/SKILL.md`
 
 **Premium Export (server-side, AI-enhanced):**
-- `server/routes/premium-exports.ts` — Server-side export pipeline using Anthropic Claude to generate enhanced documents (XLSX, PPTX, PDF, DOCX). Accepts financial data + format, calls Anthropic for content structuring, then renders files using xlsx/pptxgenjs/jsPDF/docx libraries.
+- `server/routes/premium-exports.ts` — Server-side export pipeline with two generation paths:
+  - **Agent Skills path** (PDF, PPTX, DOCX): Uses Anthropic Agent Skills beta (`code-execution-2025-08-25`, `skills-2025-10-02`, `files-api-2025-04-14`) — Claude generates actual files in a sandboxed container using pre-built skills (`pdf`, `pptx`, `docx`). File is downloaded via the Files API. Falls back to template pipeline on failure.
+  - **Template path** (XLSX): Anthropic generates JSON structure → server renders file using `xlsx` library. Excel stays template-based for precise numerical formatting and formula support.
+- `server/ai/agentSkillsExport.ts` — Agent Skills service: builds branded prompts with HBG palette, sends to `client.beta.messages.create()` with container skills config, extracts `file_id` from `code_execution_result` blocks, downloads binary via `client.beta.files.content()`
 - Endpoint: `POST /api/exports/premium` (authenticated) — accepts `{format, entityName, companyName, statements, metrics, ...}`, returns binary file download
 - Status: `GET /api/exports/premium/status` — checks API key availability
 - DOCX investor memo format is net-new (not available client-side)
 - `ExportDialog.tsx` — Updated with "Premium Export" toggle (Switch component) that routes through server-side Anthropic pipeline. Falls back to client-side export on server failure. Supports format selection (PDF, Excel, PowerPoint, Word Memo)
 - Premium data is passed from Dashboard, PropertyDetail, and Company pages via `premiumExportData` prop
+- SDK: `@anthropic-ai/sdk@0.78.0` (upgraded for Agent Skills beta support)
 
 **Core modules:**
 - `exportStyles.ts` — Brand palette (`BRAND.*`), row classification (`classifyRow`), `normalizeCaps()` (ALL CAPS → Title Case preserving abbreviations like GOP, NOI, GAAP), number formatting (`formatShort`, `formatFull`, `formatPct`), PPTX layout helpers (`pptxFontSize`, `pptxColumnWidths`)

@@ -2,6 +2,7 @@ import { type Express, type Request, type Response } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import { requireAuth } from "../auth";
 import { z } from "zod";
+import { generateWithAgentSkills, buildAgentSkillsPrompt } from "../ai/agentSkillsExport";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -949,6 +950,70 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
   return await Packer.toBuffer(docDocument);
 }
 
+const AGENT_SKILLS_FORMATS = new Set(["pdf", "pptx", "docx"]);
+
+const CONTENT_TYPES: Record<string, string> = {
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  pdf: "application/pdf",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+};
+
+const FILE_SUFFIXES: Record<string, string> = {
+  xlsx: "Premium Report.xlsx",
+  pptx: "Premium Presentation.pptx",
+  pdf: "Premium Report.pdf",
+  docx: "Investor Memo.docx",
+};
+
+async function generateViaAgentSkills(
+  data: PremiumExportRequest
+): Promise<Buffer> {
+  const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("Anthropic API key not configured");
+
+  const financialContext = buildFinancialDataContext(data);
+  const prompt = buildAgentSkillsPrompt(
+    data.format,
+    financialContext,
+    data.entityName,
+    data.companyName || "Hospitality Business Group",
+    data.memoSections as Record<string, string | undefined> | undefined
+  );
+
+  const result = await generateWithAgentSkills({
+    format: data.format as "pdf" | "pptx" | "docx",
+    prompt,
+    apiKey,
+    baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+  });
+
+  return result.buffer;
+}
+
+async function generateViaTemplatePipeline(
+  data: PremiumExportRequest
+): Promise<Buffer> {
+  let prompt: string;
+  switch (data.format) {
+    case "xlsx": prompt = getExcelPrompt(data); break;
+    case "pptx": prompt = getPptxPrompt(data); break;
+    case "pdf":  prompt = getPdfPrompt(data); break;
+    case "docx": prompt = getDocxPrompt(data); break;
+    default: throw new Error(`Unsupported format: ${data.format}`);
+  }
+
+  const aiResult = await generateWithAnthropic(prompt, data.format);
+
+  switch (data.format) {
+    case "xlsx": return generateExcelBuffer(aiResult, data);
+    case "pptx": return generatePptxBuffer(aiResult, data);
+    case "pdf":  return generatePdfBuffer(aiResult, data);
+    case "docx": return generateDocxBuffer(aiResult, data);
+    default: throw new Error(`Unsupported format: ${data.format}`);
+  }
+}
+
 export function register(app: Express) {
   app.post("/api/exports/premium", requireAuth, async (req: Request, res: Response) => {
     try {
@@ -958,59 +1023,32 @@ export function register(app: Express) {
       }
 
       const data = parsed.data;
-      let prompt: string;
-      let contentType: string;
-      let filename: string;
-      const safeName = data.entityName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30).trim();
-
-      switch (data.format) {
-        case "xlsx":
-          prompt = getExcelPrompt(data);
-          contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-          filename = `${safeName} - Premium Report.xlsx`;
-          break;
-        case "pptx":
-          prompt = getPptxPrompt(data);
-          contentType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-          filename = `${safeName} - Premium Presentation.pptx`;
-          break;
-        case "pdf":
-          prompt = getPdfPrompt(data);
-          contentType = "application/pdf";
-          filename = `${safeName} - Premium Report.pdf`;
-          break;
-        case "docx":
-          prompt = getDocxPrompt(data);
-          contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-          filename = `${safeName} - Investor Memo.docx`;
-          break;
-        default:
-          return res.status(400).json({ error: `Unsupported format: ${data.format}` });
+      const contentType = CONTENT_TYPES[data.format];
+      if (!contentType) {
+        return res.status(400).json({ error: `Unsupported format: ${data.format}` });
       }
 
-      console.log(`[premium-export] Generating ${data.format} for "${data.entityName}"...`);
-      const aiResult = await generateWithAnthropic(prompt, data.format);
-      console.log(`[premium-export] AI response received, building ${data.format} file...`);
+      const safeName = data.entityName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30).trim();
+      const filename = `${safeName} - ${FILE_SUFFIXES[data.format]}`;
+      const useAgentSkills = AGENT_SKILLS_FORMATS.has(data.format);
 
       let buffer: Buffer;
-      switch (data.format) {
-        case "xlsx":
-          buffer = await generateExcelBuffer(aiResult, data);
-          break;
-        case "pptx":
-          buffer = await generatePptxBuffer(aiResult, data);
-          break;
-        case "pdf":
-          buffer = await generatePdfBuffer(aiResult, data);
-          break;
-        case "docx":
-          buffer = await generateDocxBuffer(aiResult, data);
-          break;
-        default:
-          return res.status(400).json({ error: "Unsupported format" });
-      }
 
-      console.log(`[premium-export] ${data.format} file generated (${buffer.length} bytes)`);
+      if (useAgentSkills) {
+        console.log(`[premium-export] Generating ${data.format} via Agent Skills for "${data.entityName}"...`);
+        try {
+          buffer = await generateViaAgentSkills(data);
+          console.log(`[premium-export] Agent Skills ${data.format} generated (${buffer.length} bytes)`);
+        } catch (skillsError: any) {
+          console.warn(`[premium-export] Agent Skills failed for ${data.format}, falling back to template pipeline:`, skillsError?.message);
+          buffer = await generateViaTemplatePipeline(data);
+          console.log(`[premium-export] Template fallback ${data.format} generated (${buffer.length} bytes)`);
+        }
+      } else {
+        console.log(`[premium-export] Generating ${data.format} via template pipeline for "${data.entityName}"...`);
+        buffer = await generateViaTemplatePipeline(data);
+        console.log(`[premium-export] Template ${data.format} generated (${buffer.length} bytes)`);
+      }
 
       res.setHeader("Content-Type", contentType);
       res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);

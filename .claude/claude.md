@@ -2,14 +2,14 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~739 source files, ~127,071 lines, 2,930 tests across 125 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~795 source files, ~139,015 lines, 2,930 tests across 125 files. Hosted on Replit.
 
 ---
 
 ## User Preferences
 
 - Simple, everyday language. Ask clarifying questions before implementing — do not assume.
-- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 2,800-test proof system must always pass.
+- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 2,930-test proof system must always pass.
 - Always format money as currency (commas, appropriate precision).
 - All skills stored under `.claude/` only (never elsewhere).
 - Company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -77,7 +77,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (2,927 Tests, 125 Files)
+## Testing & Proof System (2,930 Tests, 125 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -87,30 +87,18 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 2,927) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 2,930) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
-## Recent Changes (March 11, 2026)
+## Recent Changes (March 12, 2026)
 
-- **Simulation & Analysis page overhauled** — `/analysis` page renamed to "Simulation and Analysis". Tab order: Sensitivity → Compare → Timeline → Financing. Uses shadcn Tabs with icons and framer-motion transitions. All 4 tabs visually redesigned:
-  - **Sensitivity**: KPI summary strip, styled sliders with accent tracks and per-slider reset, improved tornado chart. 3-way view switcher: Variable Sliders / Sensitivity Heat Map (D3) / Tornado Diagram (D3)
-  - **Compare**: Property chips selector, larger radar chart, alternating-row table with best-value badges, winner summary bar
-  - **Timeline**: Horizontal Gantt-style visual timeline with color-coded nodes, connecting lines, legend, tooltips
-  - **Financing**: 4 sub-tabs — DSCR gauges with threshold markers, debt yield pass/fail, stress test green→yellow→red heatmap with tooltips, prepayment side-by-side comparison
-- **Sidebar Research Status** — New `SidebarResearchStatus` component (`client/src/components/research/SidebarResearchStatus.tsx`). Compact 2×2 dot grid (Property, Operations, Marketing, Industry) in sidebar footer above Sign Out. Green = fresh, red = stale/missing. Clicking navigates to `/research`. All research widgets removed from Dashboard.
-- **Property parallax scrolling** — `PropertyHeader` hero image has framer-motion parallax effect (`useScroll`/`useTransform`). Image scrolls at 30% speed with subtle 1.08× scale-up and progressive overlay darkening.
-- **Research confetti** — `canvas-confetti` fires celebratory confetti burst when any research generation completes (property, company, global, or refresh-all). Utility at `client/src/lib/confetti.ts`.
-- **SaveButton `hasChanges` enforcement** — All Save buttons now dim (opacity-50 + disabled) when no changes detected. Fixed in: `CompanyAssumptions.tsx`, `PropertyEdit.tsx`, `Profile.tsx`. Uses `SaveButton`'s `hasChanges` prop wired to each page's `isDirty` state.
-- **AI Agents restructured** — **Rebecca** (Gemini text chat, renamed from PropertyChatbot) + **Marcela** (ElevenLabs voice). Sidebar "AI Assistants" group. Admin has separate config tabs for each under "AI Agents" group.
-- **Admin Diagrams tab** — Mermaid workflow charts at 3 levels (system overview, domain flows, detailed sub-flows). Under Admin → System → Diagrams.
-- **Deterministic tool enforcement** — Extracted magic numbers to named constants in `shared/constants.ts`. Chat route uses `executeComputationTool` via shared `buildPropertyContext.ts`.
-- **Golden scenario** — "Clearwater Inn" (15 rooms, $175 ADR, 1 property + management co). 60 assertions covering IS/CF/BS, fee zero-sum, consolidated elimination. `tests/golden/mgmt-company-plus-one-property-golden.test.ts`.
-- **D3.js financial visualizations** — 3 new D3.js chart components in `client/src/components/charts/`: `WaterfallChart` (revenue-to-NOI bridge on Income Statement tab with line/waterfall toggle + year selector), `SensitivityHeatMap` (2D ADR × Occupancy scenario grid with IRR/NOI/equity multiple metrics), `TornadoDiagram` (assumption impact ranking with sorted horizontal bars). All use `D3ChartContainer` wrapper (ResizeObserver + `toCanvas()` for PDF/PPTX export). Export pipeline wired: `drawCanvasAsImage` in `pdfHelpers.ts`, `addCanvasSlide` in `pptxExport.ts`. Dark mode compatible via `currentColor`.
-- **Seeding hardened** — `seedAdminUser()` no longer resets existing passwords (requires `FORCE_RESEED_PASSWORDS=true`). Reset-all-passwords requires typed confirmation phrase.
-- **Theme admin assignment** — `PATCH /api/admin/users/:id/theme` endpoint for per-user theme override.
-- **WACC-based DCF** — Property and portfolio valuation uses WACC `(E/V × Re) + (D/V × Rd × (1−T))` instead of IRR as discount rate. Intermediate approach: user-provided cost of equity (default 18%), no CAPM. New deterministic tools: `compute_wacc`, `compute_portfolio_wacc` (33 total tools). `costOfEquity` column on `global_assumptions`. Research badges for cost of equity on Company Assumptions.
-- **DB indexes** — Already existed on `properties.user_id` and `global_assumptions.user_id` (confirmed).
+- **AI Property Image Generation** (Task #31) — Replicate architectural rendering for property photos. `generation_style` and `before_photo_id` columns on `property_photos` table. Supports AI-generated property renderings from uploaded reference photos.
+- **Plaid Financial Reconciliation** (Task #23) — Bank linking for actual vs projected comparison. 3 new tables: `plaid_connections`, `plaid_transactions`, `plaid_categorization_cache`. ReconciliationTab component at `client/src/components/property-detail/ReconciliationTab.tsx`.
+- **3D Globe Flyover** (Task #38) — Interactive Three.js globe visualization showing property locations with animated flyover transitions.
+- **Document Intelligence** (Task #26) — OCR document extraction + DocuSign e-signatures. 3 new tables: `document_extractions`, `extraction_fields`, `docusign_envelopes`.
+- **Agent Skills Exports** — Server-side premium exports (PDF, PPTX, DOCX) via Anthropic Claude Agent Skills. Service: `server/ai/agentSkillsExport.ts`. Beta headers: `code-execution-2025-08-25,skills-2025-10-02,files-api-2025-04-14`.
+- **Post-merge DB gap pattern** — Recurring issue where task agent merges miss DB tables/columns. Fixed by adding idempotent startup migrations in `server/index.ts` that run before `seedAdminUser()`.
 
 ---
 
@@ -123,6 +111,10 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 - **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
 - **ANOI terminology**: After-fee NOI = "Adjusted NOI (ANOI)". Internal field stays `noi`.
 - **Marcela must NEVER compute financial values** — all data from the calculation engine
+- **Engine chain**: `gop = revenue − opex`, `agop = gop − feeBase − feeIncentive`, `noi = agop − expenseInsurance − expenseTaxes`, `anoi = noi − expenseFFE`
+- **Brand colors**: SAGE=#9FBCA4, DARK_GREEN=#257D41, NAVY=#1A2332, SECTION_BG=#EFF5F0, ALT_ROW=#F8FAF9
+- **normalizeCaps() abbreviations**: GOP, NOI, AGOP, ANOI, GAAP, FFE, FF&E, DSCR, IRR, CFO, ADR, REVPAR, LTV, EBITDA, WACC
+- **Icon standard**: `IconPlay` for "Run Research", `IconEye` for "Criteria", `IconBanknote` for Reconciliation
 
 ---
 
@@ -134,6 +126,12 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | `partner` | Management-level — no Admin panel |
 | `checker` | Partner + verification tools |
 | `investor` | Limited — Dashboard, Properties, Profile, Help |
+
+---
+
+## Database Migration Pattern
+
+All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired into `server/index.ts` startup sequence before `seedAdminUser()`. Migration files: `prod-sync-001.ts`, `prod-sync-002.ts`, `research-config-001.ts`, `inflation-per-entity-001.ts`, `companies-theme-001.ts`, `icp-config-001.ts`, `marcela-voice-001.ts`, `property-photos-001.ts`, `plaid-001.ts`, `documents-001.ts`.
 
 ---
 

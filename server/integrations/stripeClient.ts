@@ -1,3 +1,5 @@
+// DORMANT: No active payment flows. All exported methods are unused by any route.
+// Health check only. Kept for future payment integration.
 import Stripe from 'stripe';
 import { BaseIntegrationService, type IntegrationHealth } from './base';
 

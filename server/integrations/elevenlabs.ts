@@ -71,6 +71,7 @@ async function getCredentials() {
   throw new Error('ElevenLabs API key not configured. Set ELEVENLABS_API_KEY in environment secrets or connect via Replit.');
 }
 
+/** @deprecated Not imported by any route. Use Convai widget or specific integration methods instead. */
 export async function getUncachableElevenLabsClient() {
   const apiKey = await getCredentials();
   return new ElevenLabsClient({ apiKey });

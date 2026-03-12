@@ -38,6 +38,16 @@ export async function runPropertyPhotos001(): Promise<void> {
         ADD COLUMN IF NOT EXISTS variants JSONB
     `);
 
+    await db.execute(sql`
+      ALTER TABLE property_photos
+        ADD COLUMN IF NOT EXISTS generation_style TEXT
+    `);
+
+    await db.execute(sql`
+      ALTER TABLE property_photos
+        ADD COLUMN IF NOT EXISTS before_photo_id INTEGER
+    `);
+
     // Seed one hero photo per property from existing imageUrl (idempotent)
     await db.execute(sql`
       INSERT INTO property_photos (property_id, image_url, sort_order, is_hero)

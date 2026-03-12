@@ -148,6 +148,9 @@ app.use((req, res, next) => {
   const { runPropertyPhotos001 } = await import("./migrations/property-photos-001");
   await runPropertyPhotos001();
 
+  const { runPlaid001 } = await import("./migrations/plaid-001");
+  await runPlaid001();
+
   await seedAdminUser();
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");

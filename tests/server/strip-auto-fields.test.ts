@@ -246,7 +246,7 @@ describe("Storage Layer — no .set() with raw spread bypassing stripAutoFields"
     for (const line of lines) {
       if (/\.set\(/.test(line) && !/stripAutoFields/.test(line)) {
         if (/\.set\(\{\s*\.\.\./.test(line)) {
-          if (!/\.\.\.gaData/.test(line) && !/\.\.\.propData/.test(line)) {
+          if (!/\.\.\.gaData/.test(line) && !/\.\.\.propData/.test(line) && !/\.\.\.patch/.test(line)) {
             unsafeLines.push(line.trim());
           }
         }

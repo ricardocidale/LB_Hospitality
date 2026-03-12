@@ -6,7 +6,7 @@ import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from '@shared/
 interface FundingGlobalInput extends GlobalInput {
   propertyLabel?: string;
   companyName?: string;
-  assetDescription?: string;
+  assetDescription?: string | null;
   fundingSourceLabel?: string;
   safeValuationCap?: number;
   safeDiscountRate?: number;

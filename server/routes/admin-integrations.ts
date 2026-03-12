@@ -6,6 +6,10 @@ import { getTwilioHealthCheck } from "../integrations/twilio";
 import { getElevenLabsHealthCheck } from "../integrations/elevenlabs";
 import { getGmailHealthCheck } from "../integrations/gmail";
 import { getStripeHealthCheck } from "../integrations/stripeClient";
+import { getPlaidHealthCheck } from "../integrations/plaid";
+import { getSendGridHealthCheck } from "../integrations/sendgrid";
+import { getGeospatialHealthCheck } from "../integrations/geospatial";
+import { getDocumentAIHealthCheck } from "../integrations/document-ai";
 
 interface IntegrationStatusResponse {
   name: string;
@@ -24,6 +28,10 @@ export function register(app: Express) {
         getElevenLabsHealthCheck(),
         getGmailHealthCheck(),
         getStripeHealthCheck(),
+        getPlaidHealthCheck(),
+        getSendGridHealthCheck(),
+        getGeospatialHealthCheck(),
+        getDocumentAIHealthCheck(),
       ]);
 
       const results: IntegrationStatusResponse[] = checks.map((result) => {

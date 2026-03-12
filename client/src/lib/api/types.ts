@@ -119,6 +119,23 @@ export interface GlobalResponse {
     parkingSpaces?: number;
     description: string;
   };
+  // Company Details
+  companyPhone: string | null;
+  companyEmail: string | null;
+  companyWebsite: string | null;
+  companyEin: string | null;
+  companyFoundingYear: number | null;
+  companyStreetAddress: string | null;
+  companyCity: string | null;
+  companyStateProvince: string | null;
+  companyCountry: string | null;
+  companyZipPostalCode: string | null;
+  // Additional Financial
+  companyInflationRate?: number;
+  incentiveManagementFee: number;
+  assetDescription: string | null;
+  // ICP Config
+  icpConfig: Record<string, any> | null;
   updatedAt: string;
 }
 

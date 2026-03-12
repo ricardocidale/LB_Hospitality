@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { IconSave, IconPhone, IconGlobe, IconHash, IconCalendar, IconPercent, IconProperties, IconMail, IconMapPin } from "@/components/icons";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import LogoSelector from "./LogoSelector";
 
 interface BrandingTabProps {

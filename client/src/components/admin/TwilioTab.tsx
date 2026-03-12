@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useMarcelaSettings, useSaveMarcelaSettings, useTwilioStatus } from "@/features/ai-agent/hooks/use-agent-settings";
 import { TelephonySettings } from "./marcela/TelephonySettings";
-import { useGlobalAssumptions } from "./hooks";
+import { useGlobalAssumptions } from "@/lib/api";
 import type { VoiceSettings } from "./marcela/types";
 
 export default function TwilioTab() {

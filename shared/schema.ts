@@ -77,6 +77,9 @@ import {
   DEFAULT_COST_SEG_7YR_PCT,
   DEFAULT_COST_SEG_15YR_PCT,
   DEFAULT_ALERT_COOLDOWN_MINUTES,
+  DEFAULT_AI_AGENT_VOICE_ID,
+  DEFAULT_STAFF_TIER1_MAX_PROPERTIES,
+  DEFAULT_STAFF_TIER2_MAX_PROPERTIES,
 } from "./constants";
 
 // --- COMPANIES TABLE ---
@@ -380,9 +383,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   staffSalary: real("staff_salary").notNull(),
   
   // Staffing tiers - FTE headcount based on portfolio size
-  staffTier1MaxProperties: integer("staff_tier1_max_properties").notNull().default(3),
+  staffTier1MaxProperties: integer("staff_tier1_max_properties").notNull().default(DEFAULT_STAFF_TIER1_MAX_PROPERTIES),
   staffTier1Fte: real("staff_tier1_fte").notNull().default(2.5),
-  staffTier2MaxProperties: integer("staff_tier2_max_properties").notNull().default(6),
+  staffTier2MaxProperties: integer("staff_tier2_max_properties").notNull().default(DEFAULT_STAFF_TIER2_MAX_PROPERTIES),
   staffTier2Fte: real("staff_tier2_fte").notNull().default(4.5),
   staffTier3Fte: real("staff_tier3_fte").notNull().default(7.0),
   
@@ -484,7 +487,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaAgentId: text("marcela_agent_id").notNull().default(""),
   
   // Marcela Voice Configuration (ElevenLabs)
-  marcelaVoiceId: text("marcela_voice_id").notNull().default("cgSgspJ2msm6clMCkdW9"),
+  marcelaVoiceId: text("marcela_voice_id").notNull().default(DEFAULT_AI_AGENT_VOICE_ID),
   marcelaTtsModel: text("marcela_tts_model").notNull().default("eleven_flash_v2_5"),
   marcelaSttModel: text("marcela_stt_model").notNull().default("scribe_v1"),
   marcelaOutputFormat: text("marcela_output_format").notNull().default("pcm_16000"),
@@ -1538,7 +1541,7 @@ export const insertNotificationLogSchema = z.object({
 });
 
 export type NotificationLog = typeof notificationLogs.$inferSelect;
-export type InsertNotificationLog = z.infer<typeof insertNotificationLogSchema>;
+export type InsertNotificationLog = z.input<typeof insertNotificationLogSchema>;
 
 // --- NOTIFICATION PREFERENCES TABLE ---
 export const notificationPreferences = pgTable("notification_preferences", {

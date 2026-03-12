@@ -1,18 +1,6 @@
+import { BaseIntegrationService, type IntegrationHealth } from "./base";
+
 const SENDGRID_API_URL = "https://api.sendgrid.com/v3";
-
-function getApiKey(): string {
-  const key = process.env.SENDGRID_API_KEY;
-  if (!key) throw new Error("SENDGRID_API_KEY not configured");
-  return key;
-}
-
-function getFromEmail(): string {
-  return process.env.SENDGRID_FROM_EMAIL || "noreply@hbg-portal.com";
-}
-
-function getFromName(): string {
-  return process.env.SENDGRID_FROM_NAME || "HBG Portal";
-}
 
 interface EmailAttachment {
   content: string;
@@ -21,42 +9,191 @@ interface EmailAttachment {
   disposition?: string;
 }
 
-async function sendEmail(params: {
-  to: string;
-  subject: string;
-  html: string;
-  attachments?: EmailAttachment[];
-}): Promise<void> {
-  const apiKey = getApiKey();
+class SendGridIntegration extends BaseIntegrationService {
+  readonly serviceName = "sendgrid";
 
-  const payload: any = {
-    personalizations: [{ to: [{ email: params.to }] }],
-    from: { email: getFromEmail(), name: getFromName() },
-    subject: params.subject,
-    content: [{ type: "text/html", value: params.html }],
-  };
-
-  if (params.attachments?.length) {
-    payload.attachments = params.attachments.map((a) => ({
-      content: a.content,
-      filename: a.filename,
-      type: a.type || "application/pdf",
-      disposition: a.disposition || "attachment",
-    }));
+  private getApiKey(): string {
+    const key = process.env.SENDGRID_API_KEY;
+    if (!key) throw new Error("SENDGRID_API_KEY not configured");
+    return key;
   }
 
-  const response = await fetch(`${SENDGRID_API_URL}/mail/send`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+  private getFromEmail(): string {
+    return process.env.SENDGRID_FROM_EMAIL || "noreply@hbg-portal.com";
+  }
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`SendGrid API error (${response.status}): ${text}`);
+  private getFromName(): string {
+    return process.env.SENDGRID_FROM_NAME || "HBG Portal";
+  }
+
+  async healthCheck(): Promise<IntegrationHealth> {
+    const start = Date.now();
+    const { lastError, lastErrorAt } = this.getLastError();
+    try {
+      const apiKey = this.getApiKey();
+      const response = await fetch(`${SENDGRID_API_URL}/user/credits`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      const healthy = response.ok;
+      return {
+        name: this.serviceName,
+        healthy,
+        latencyMs: Date.now() - start,
+        lastError: healthy ? lastError : `API returned ${response.status}`,
+        lastErrorAt: healthy ? lastErrorAt : Date.now(),
+        circuitState: this.getCircuitState(),
+      };
+    } catch (error: any) {
+      return {
+        name: this.serviceName,
+        healthy: false,
+        latencyMs: Date.now() - start,
+        lastError: error.message,
+        lastErrorAt: Date.now(),
+        circuitState: this.getCircuitState(),
+      };
+    }
+  }
+
+  private async sendEmailInternal(params: {
+    to: string;
+    subject: string;
+    html: string;
+    attachments?: EmailAttachment[];
+  }): Promise<void> {
+    return this.execute("sendEmail", async () => {
+      const apiKey = this.getApiKey();
+
+      const payload: any = {
+        personalizations: [{ to: [{ email: params.to }] }],
+        from: { email: this.getFromEmail(), name: this.getFromName() },
+        subject: params.subject,
+        content: [{ type: "text/html", value: params.html }],
+      };
+
+      if (params.attachments?.length) {
+        payload.attachments = params.attachments.map((a) => ({
+          content: a.content,
+          filename: a.filename,
+          type: a.type || "application/pdf",
+          disposition: a.disposition || "attachment",
+        }));
+      }
+
+      const response = await fetch(`${SENDGRID_API_URL}/mail/send`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`SendGrid API error (${response.status}): ${text}`);
+      }
+    });
+  }
+
+  async sendReportShareEmail(params: {
+    to: string;
+    propertyName: string;
+    metrics: Record<string, any>;
+    message?: string;
+    attachmentBase64?: string;
+    attachmentFilename?: string;
+  }): Promise<void> {
+    let metricsTable = "";
+    if (Object.keys(params.metrics).length > 0) {
+      const rows = Object.entries(params.metrics)
+        .map(([k, v]) => `<tr><td><strong>${k}</strong></td><td>${v}</td></tr>`)
+        .join("");
+      metricsTable = `<table class="metrics"><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+
+    const messageSection = params.message ? `<p style="margin:16px 0;color:#475569;">${params.message}</p>` : "";
+
+    const html = brandedTemplate(
+      `Financial Report: ${params.propertyName}`,
+      `<p>A financial report for <strong>${params.propertyName}</strong> has been shared with you.</p>
+      ${metricsTable}${messageSection}
+      <p style="margin-top:24px;"><a href="#" class="btn">View in Portal</a></p>`
+    );
+
+    const attachments: EmailAttachment[] = [];
+    if (params.attachmentBase64 && params.attachmentFilename) {
+      const ext = params.attachmentFilename.split(".").pop()?.toLowerCase();
+      const mimeTypes: Record<string, string> = {
+        pdf: "application/pdf",
+        xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      };
+      attachments.push({
+        content: params.attachmentBase64,
+        filename: params.attachmentFilename,
+        type: mimeTypes[ext || "pdf"] || "application/octet-stream",
+      });
+    }
+
+    await this.sendEmailInternal({
+      to: params.to,
+      subject: `Financial Report: ${params.propertyName}`,
+      html,
+      attachments,
+    });
+  }
+
+  async sendScenarioSummaryEmail(params: {
+    to: string;
+    scenarios: { name: string; metrics: Record<string, any> }[];
+    message?: string;
+  }): Promise<void> {
+    const headers = ["Metric", ...params.scenarios.map((s) => s.name)];
+    const allKeys = Array.from(new Set(params.scenarios.flatMap((s) => Object.keys(s.metrics))));
+
+    const headerRow = headers.map((h) => `<th>${h}</th>`).join("");
+    const bodyRows = allKeys
+      .map((key) => {
+        const cells = params.scenarios.map((s) => `<td>${s.metrics[key] ?? "—"}</td>`).join("");
+        return `<tr><td><strong>${key}</strong></td>${cells}</tr>`;
+      })
+      .join("");
+
+    const table = `<table class="metrics"><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>`;
+    const messageSection = params.message ? `<p style="margin:16px 0;color:#475569;">${params.message}</p>` : "";
+
+    const html = brandedTemplate(
+      "Scenario Comparison",
+      `<p>A scenario comparison has been shared with you.</p>${table}${messageSection}`
+    );
+
+    await this.sendEmailInternal({
+      to: params.to,
+      subject: "Scenario Comparison — HBG Portal",
+      html,
+    });
+  }
+
+  async sendNotificationEmail(params: {
+    to: string;
+    subject: string;
+    title: string;
+    body: string;
+    actionUrl?: string;
+    actionLabel?: string;
+  }): Promise<void> {
+    const actionBtn = params.actionUrl
+      ? `<p style="margin-top:24px;"><a href="${params.actionUrl}" class="btn">${params.actionLabel || "View in Portal"}</a></p>`
+      : "";
+
+    const html = brandedTemplate(params.title, `<p>${params.body}</p>${actionBtn}`);
+
+    await this.sendEmailInternal({
+      to: params.to,
+      subject: params.subject,
+      html,
+    });
   }
 }
 
@@ -85,117 +222,17 @@ table.metrics td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-siz
 </div></body></html>`;
 }
 
-export async function sendReportShareEmail(params: {
-  to: string;
-  propertyName: string;
-  metrics: Record<string, any>;
-  message?: string;
-  attachmentBase64?: string;
-  attachmentFilename?: string;
-}): Promise<void> {
-  let metricsTable = "";
-  if (Object.keys(params.metrics).length > 0) {
-    const rows = Object.entries(params.metrics)
-      .map(([k, v]) => `<tr><td><strong>${k}</strong></td><td>${v}</td></tr>`)
-      .join("");
-    metricsTable = `<table class="metrics"><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
+const sendGridIntegration = new SendGridIntegration();
 
-  const messageSection = params.message ? `<p style="margin:16px 0;color:#475569;">${params.message}</p>` : "";
-
-  const html = brandedTemplate(
-    `Financial Report: ${params.propertyName}`,
-    `<p>A financial report for <strong>${params.propertyName}</strong> has been shared with you.</p>
-    ${metricsTable}${messageSection}
-    <p style="margin-top:24px;"><a href="#" class="btn">View in Portal</a></p>`
-  );
-
-  const attachments: EmailAttachment[] = [];
-  if (params.attachmentBase64 && params.attachmentFilename) {
-    const ext = params.attachmentFilename.split(".").pop()?.toLowerCase();
-    const mimeTypes: Record<string, string> = {
-      pdf: "application/pdf",
-      xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    };
-    attachments.push({
-      content: params.attachmentBase64,
-      filename: params.attachmentFilename,
-      type: mimeTypes[ext || "pdf"] || "application/octet-stream",
-    });
-  }
-
-  await sendEmail({
-    to: params.to,
-    subject: `Financial Report: ${params.propertyName}`,
-    html,
-    attachments,
-  });
-}
-
-export async function sendScenarioSummaryEmail(params: {
-  to: string;
-  scenarios: { name: string; metrics: Record<string, any> }[];
-  message?: string;
-}): Promise<void> {
-  const headers = ["Metric", ...params.scenarios.map((s) => s.name)];
-  const allKeys = Array.from(new Set(params.scenarios.flatMap((s) => Object.keys(s.metrics))));
-
-  const headerRow = headers.map((h) => `<th>${h}</th>`).join("");
-  const bodyRows = allKeys
-    .map((key) => {
-      const cells = params.scenarios.map((s) => `<td>${s.metrics[key] ?? "—"}</td>`).join("");
-      return `<tr><td><strong>${key}</strong></td>${cells}</tr>`;
-    })
-    .join("");
-
-  const table = `<table class="metrics"><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>`;
-  const messageSection = params.message ? `<p style="margin:16px 0;color:#475569;">${params.message}</p>` : "";
-
-  const html = brandedTemplate(
-    "Scenario Comparison",
-    `<p>A scenario comparison has been shared with you.</p>${table}${messageSection}`
-  );
-
-  await sendEmail({
-    to: params.to,
-    subject: "Scenario Comparison — HBG Portal",
-    html,
-  });
-}
-
-export async function sendNotificationEmail(params: {
-  to: string;
-  subject: string;
-  title: string;
-  body: string;
-  actionUrl?: string;
-  actionLabel?: string;
-}): Promise<void> {
-  const actionBtn = params.actionUrl
-    ? `<p style="margin-top:24px;"><a href="${params.actionUrl}" class="btn">${params.actionLabel || "View in Portal"}</a></p>`
-    : "";
-
-  const html = brandedTemplate(params.title, `<p>${params.body}</p>${actionBtn}`);
-
-  await sendEmail({
-    to: params.to,
-    subject: params.subject,
-    html,
-  });
-}
-
-export async function testSendGridConnection(): Promise<{ success: boolean; error?: string }> {
-  try {
-    const apiKey = getApiKey();
-    const response = await fetch(`${SENDGRID_API_URL}/user/credits`, {
-      headers: { Authorization: `Bearer ${apiKey}` },
-    });
-    if (!response.ok) {
-      return { success: false, error: `API returned ${response.status}` };
-    }
-    return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-}
+// Exported functions for backward compatibility
+export const sendReportShareEmail = (params: Parameters<typeof sendGridIntegration.sendReportShareEmail>[0]) =>
+  sendGridIntegration.sendReportShareEmail(params);
+export const sendScenarioSummaryEmail = (params: Parameters<typeof sendGridIntegration.sendScenarioSummaryEmail>[0]) =>
+  sendGridIntegration.sendScenarioSummaryEmail(params);
+export const sendNotificationEmail = (params: Parameters<typeof sendGridIntegration.sendNotificationEmail>[0]) =>
+  sendGridIntegration.sendNotificationEmail(params);
+export const testSendGridConnection = () => sendGridIntegration.healthCheck().then((h) => ({
+  success: h.healthy,
+  error: h.lastError,
+}));
+export const getSendGridHealthCheck = () => sendGridIntegration.healthCheck();

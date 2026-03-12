@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { IconSave, IconPercent } from "@/components/icons";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 
 export default function OtherAssumptionsTab() {
   const { toast } = useToast();
@@ -29,7 +29,7 @@ export default function OtherAssumptionsTab() {
 
   const handleSave = () => {
     updateGlobalMutation.mutate(
-      { ...form },
+      { companyInflationRate: form.companyInflationRate ?? undefined },
       {
         onSuccess: () => {
           setIsDirty(false);

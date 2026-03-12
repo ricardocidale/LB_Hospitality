@@ -16,7 +16,7 @@ import { VoiceSettings } from "./types";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useMarcelaSettings, useSaveMarcelaSettings, useTwilioStatus } from "@/features/ai-agent/hooks/use-agent-settings";
-import { useGlobalAssumptions } from "../hooks";
+import { useGlobalAssumptions } from "@/lib/api";
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 import { useConversations } from "@/features/ai-agent/hooks/use-conversations";
 import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";

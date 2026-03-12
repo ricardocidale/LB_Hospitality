@@ -1,4 +1,5 @@
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
+import { BaseIntegrationService, type IntegrationHealth } from "./base";
 
 export interface DocumentAIResult {
   text: string;
@@ -21,12 +22,14 @@ export interface DocumentAIResult {
   }>;
 }
 
-export class DocumentAIService {
+export class DocumentAIService extends BaseIntegrationService {
+  readonly serviceName = "document-ai";
   private projectId: string;
   private location: string;
   private processorId: string;
 
   constructor() {
+    super();
     this.projectId = process.env.GOOGLE_CLOUD_PROJECT || "";
     this.location = process.env.DOCUMENT_AI_LOCATION || "us";
     this.processorId = process.env.DOCUMENT_AI_PROCESSOR_ID || "";
@@ -36,35 +39,70 @@ export class DocumentAIService {
     return !!(this.projectId && this.processorId);
   }
 
+  async healthCheck(): Promise<IntegrationHealth> {
+    const start = Date.now();
+    const { lastError, lastErrorAt } = this.getLastError();
+    try {
+      if (!this.isConfigured()) {
+        return {
+          name: this.serviceName,
+          healthy: false,
+          latencyMs: Date.now() - start,
+          lastError: "GOOGLE_CLOUD_PROJECT or DOCUMENT_AI_PROCESSOR_ID not configured",
+          circuitState: this.getCircuitState(),
+        };
+      }
+      return {
+        name: this.serviceName,
+        healthy: true,
+        latencyMs: Date.now() - start,
+        lastError,
+        lastErrorAt,
+        circuitState: this.getCircuitState(),
+      };
+    } catch (error: any) {
+      return {
+        name: this.serviceName,
+        healthy: false,
+        latencyMs: Date.now() - start,
+        lastError: error.message,
+        lastErrorAt: Date.now(),
+        circuitState: this.getCircuitState(),
+      };
+    }
+  }
+
   async processDocument(objectPath: string, contentType: string): Promise<DocumentAIResult> {
     if (!this.isConfigured()) {
       return this.simulateExtraction(objectPath);
     }
 
     try {
-      const objectService = new ObjectStorageService();
-      const file = await objectService.getObjectEntityFile(objectPath);
-      const [fileBuffer] = await file.download();
+      return await this.execute("processDocument", async () => {
+        const objectService = new ObjectStorageService();
+        const file = await objectService.getObjectEntityFile(objectPath);
+        const [fileBuffer] = await file.download();
 
-      const endpoint = `https://${this.location}-documentai.googleapis.com/v1/projects/${this.projectId}/locations/${this.location}/processors/${this.processorId}:process`;
+        const endpoint = `https://${this.location}-documentai.googleapis.com/v1/projects/${this.projectId}/locations/${this.location}/processors/${this.processorId}:process`;
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rawDocument: {
-            content: fileBuffer.toString("base64"),
-            mimeType: contentType,
-          },
-        }),
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            rawDocument: {
+              content: fileBuffer.toString("base64"),
+              mimeType: contentType,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Document AI API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return this.parseDocumentAIResponse(data);
       });
-
-      if (!response.ok) {
-        throw new Error(`Document AI API error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return this.parseDocumentAIResponse(data);
     } catch (error) {
       console.error("Document AI processing failed, falling back to simulation:", error);
       return this.simulateExtraction(objectPath);
@@ -158,3 +196,5 @@ export class DocumentAIService {
     };
   }
 }
+
+export const getDocumentAIHealthCheck = () => new DocumentAIService().healthCheck();

@@ -5,13 +5,18 @@
  * database. All routes import `storage` (a DatabaseStorage instance) and call
  * methods on IStorage — they never import Drizzle ORM directly.
  *
- * Domain split: DatabaseStorage delegates to 6 focused sub-storage classes:
- *   UserStorage    — users, sessions, login logs
- *   PropertyStorage — property CRUD, group property IDs
- *   FinancialStorage — global assumptions, scenarios, fee categories
- *   AdminStorage   — design themes, logos, asset descriptions, user groups
- *   ActivityStorage — activity logs, verification runs
- *   ResearchStorage — market research, research questions
+ * Domain split: DatabaseStorage delegates to 11 focused sub-storage classes:
+ *   UserStorage         — users, sessions, login logs
+ *   PropertyStorage     — property CRUD, group property IDs
+ *   FinancialStorage    — global assumptions, scenarios, fee categories
+ *   AdminStorage        — design themes, logos, asset descriptions, user groups, companies
+ *   ActivityStorage     — activity logs, verification runs
+ *   ResearchStorage     — market research, research questions
+ *   PhotoStorage        — property photos, hero sync
+ *   PlaidStorage        — Plaid connections, transactions, categorization cache
+ *   DocumentStorage     — document extractions, DocuSign envelopes
+ *   ServiceStorage      — company service templates, template-to-property sync
+ *   NotificationStorage — alert rules, notification logs, preferences, settings
  *
  * Each sub-class lives in its own file (./users, ./properties, etc.) and is
  * composed here via method binding. The binding pattern keeps every public
@@ -32,6 +37,8 @@ import { ResearchStorage } from "./research";
 import { PhotoStorage } from "./photos";
 import { PlaidStorage } from "./plaid";
 import { DocumentStorage } from "./documents";
+import { ServiceStorage } from "./services";
+import { NotificationStorage } from "./notifications";
 
 export interface IStorage extends
   UserStorage,
@@ -42,7 +49,9 @@ export interface IStorage extends
   ResearchStorage,
   PhotoStorage,
   PlaidStorage,
-  DocumentStorage {
+  DocumentStorage,
+  ServiceStorage,
+  NotificationStorage {
   deleteUser(id: number): Promise<void>;
 }
 
@@ -56,6 +65,8 @@ export class DatabaseStorage implements IStorage {
   private photos = new PhotoStorage();
   private plaid = new PlaidStorage();
   private documents = new DocumentStorage();
+  private services = new ServiceStorage();
+  private notifications = new NotificationStorage();
 
   // Users
   getUserById = this.users.getUserById.bind(this.users);
@@ -79,6 +90,7 @@ export class DatabaseStorage implements IStorage {
   // Global Assumptions
   getGlobalAssumptions = this.financial.getGlobalAssumptions.bind(this.financial);
   upsertGlobalAssumptions = this.financial.upsertGlobalAssumptions.bind(this.financial);
+  patchGlobalAssumptions = this.financial.patchGlobalAssumptions.bind(this.financial);
 
   // Properties
   getAllProperties = this.properties.getAllProperties.bind(this.properties);
@@ -212,6 +224,29 @@ export class DatabaseStorage implements IStorage {
   getDocusignEnvelopeByEnvelopeId = this.documents.getDocusignEnvelopeByEnvelopeId.bind(this.documents);
   getPropertyEnvelopes = this.documents.getPropertyEnvelopes.bind(this.documents);
   updateDocusignEnvelope = this.documents.updateDocusignEnvelope.bind(this.documents);
+
+  // Service Templates
+  getAllServiceTemplates = this.services.getAllServiceTemplates.bind(this.services);
+  getServiceTemplate = this.services.getServiceTemplate.bind(this.services);
+  createServiceTemplate = this.services.createServiceTemplate.bind(this.services);
+  updateServiceTemplate = this.services.updateServiceTemplate.bind(this.services);
+  deleteServiceTemplate = this.services.deleteServiceTemplate.bind(this.services);
+  syncTemplatesToProperties = this.services.syncTemplatesToProperties.bind(this.services);
+
+  // Notifications
+  getAllAlertRules = this.notifications.getAllAlertRules.bind(this.notifications);
+  getAlertRule = this.notifications.getAlertRule.bind(this.notifications);
+  createAlertRule = this.notifications.createAlertRule.bind(this.notifications);
+  updateAlertRule = this.notifications.updateAlertRule.bind(this.notifications);
+  deleteAlertRule = this.notifications.deleteAlertRule.bind(this.notifications);
+  getNotificationLogs = this.notifications.getNotificationLogs.bind(this.notifications);
+  createNotificationLog = this.notifications.createNotificationLog.bind(this.notifications);
+  updateNotificationLogStatus = this.notifications.updateNotificationLogStatus.bind(this.notifications);
+  getNotificationPreferences = this.notifications.getNotificationPreferences.bind(this.notifications);
+  upsertNotificationPreference = this.notifications.upsertNotificationPreference.bind(this.notifications);
+  getNotificationSetting = this.notifications.getNotificationSetting.bind(this.notifications);
+  setNotificationSetting = this.notifications.setNotificationSetting.bind(this.notifications);
+  getAllNotificationSettings = this.notifications.getAllNotificationSettings.bind(this.notifications);
 
   /**
    * Delete a user and ALL related data in a single transaction.

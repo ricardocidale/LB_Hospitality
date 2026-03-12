@@ -1,12 +1,10 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireManagementAccess, requireAdmin } from "../auth";
-import { insertGlobalAssumptionsSchema, globalAssumptions } from "@shared/schema";
+import { insertGlobalAssumptionsSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError } from "./helpers";
 import { z } from "zod";
-import { db } from "../db";
-import { eq } from "drizzle-orm";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -48,11 +46,7 @@ export function register(app: Express) {
         patch.marcelaEnabled = false;
         patch.showAiAssistant = false;
       }
-      const [updated] = await db
-        .update(globalAssumptions)
-        .set(patch)
-        .where(eq(globalAssumptions.id, current.id))
-        .returning();
+      const updated = await storage.patchGlobalAssumptions(current.id, patch);
       logActivity(req, "update", "global_assumptions", updated.id, "Rebecca Config");
       res.json(updated);
     } catch (error) {

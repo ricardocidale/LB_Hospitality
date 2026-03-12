@@ -60,7 +60,7 @@ import {
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 import { useConversations } from "@/features/ai-agent/hooks/use-conversations";
 import { useAdminSignedUrl } from "@/features/ai-agent/hooks/use-signed-url";
-import { useGlobalAssumptions } from "./hooks";
+import { useGlobalAssumptions } from "@/lib/api";
 import type { VoiceSettings } from "./marcela/types";
 
 // Marcela tab sub-components

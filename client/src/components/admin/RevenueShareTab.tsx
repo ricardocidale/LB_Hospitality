@@ -39,7 +39,7 @@ import {
   useDeleteServiceTemplate,
   useSyncServiceTemplates,
 } from "@/lib/api/services";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import type { ServiceTemplate } from "@shared/schema";
 import { computeServiceFee } from "@calc/research/service-fee";
 import { computeMarkupWaterfall } from "@calc/research/markup-waterfall";

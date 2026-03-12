@@ -1,13 +1,13 @@
 ---
 name: Storage Facade
-description: Documents the DatabaseStorage facade pattern — a single IStorage interface delegating to 9 specialized storage classes.
+description: Documents the DatabaseStorage facade pattern — a single IStorage interface delegating to 11 specialized storage classes.
 ---
 
 # Storage Facade Pattern
 
 ## Overview
 
-`DatabaseStorage` implements `IStorage` as a thin facade that delegates all database operations to 6 specialized classes. This keeps each class focused (~100-200 lines) while presenting a single unified interface to route handlers.
+`DatabaseStorage` implements `IStorage` as a thin facade that delegates all database operations to 11 specialized classes. This keeps each class focused (~100-200 lines) while presenting a single unified interface to route handlers.
 
 ## Architecture
 
@@ -24,7 +24,9 @@ DatabaseStorage (facade) ── delegates to:
     ├── ResearchStorage     — market_research, research_questions, prospective_properties
     ├── PhotoStorage        — property_photos
     ├── PlaidStorage        — plaid_connections, plaid_transactions
-    └── DocumentStorage     — document_extractions, extraction_fields, docusign_envelopes
+    ├── DocumentStorage     — document_extractions, extraction_fields, docusign_envelopes
+    ├── ServiceStorage      — service_templates, property_services
+    └── NotificationStorage — alert_rules, notification_logs, notification_preferences, notification_settings
 ```
 
 ## Key Files
@@ -42,6 +44,7 @@ DatabaseStorage (facade) ── delegates to:
 | `server/storage/plaid.ts` | Plaid connections, transactions |
 | `server/storage/documents.ts` | Document extractions, DocuSign envelopes |
 | `server/storage/notifications.ts` | Alert rules, notification logs/preferences/settings |
+| `server/storage/services.ts` | Service templates and property services |
 
 ## Conventions
 

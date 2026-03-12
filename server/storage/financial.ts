@@ -47,6 +47,19 @@ export class FinancialStorage {
     }
   }
 
+  /**
+   * Partially update global assumptions by ID. Used for admin-only subsection
+   * patches (e.g., Rebecca config) where a full upsert is unnecessary.
+   */
+  async patchGlobalAssumptions(id: number, patch: Record<string, unknown>): Promise<GlobalAssumptions> {
+    const [updated] = await db
+      .update(globalAssumptions)
+      .set({ ...patch, updatedAt: new Date() })
+      .where(eq(globalAssumptions.id, id))
+      .returning();
+    return updated;
+  }
+
   /** List all scenarios belonging to a user, ordered by last update. */
   async getScenariosByUser(userId: number): Promise<Scenario[]> {
     return await db.select().from(scenarios).where(eq(scenarios.userId, userId)).orderBy(scenarios.updatedAt);

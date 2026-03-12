@@ -3,19 +3,17 @@ import { requireAuth, requireAdmin } from "../auth";
 import { logAndSendError } from "./helpers";
 import { insertAlertRuleSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { NotificationStorage } from "../storage/notifications";
+import { storage } from "../storage";
 import { testSlackWebhook } from "../integrations/slack";
 import { testSendGridConnection, sendReportShareEmail, sendScenarioSummaryEmail } from "../integrations/sendgrid";
 import { processNotificationEvent } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
 
-const notificationStorage = new NotificationStorage();
-
 export function register(app: Express) {
   // --- Alert Rules CRUD ---
   app.get("/api/notifications/alert-rules", requireAdmin, async (_req, res) => {
     try {
-      const rules = await notificationStorage.getAllAlertRules();
+      const rules = await storage.getAllAlertRules();
       res.json(rules);
     } catch (error) {
       logAndSendError(res, "Failed to fetch alert rules", error);
@@ -28,7 +26,7 @@ export function register(app: Express) {
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
-      const rule = await notificationStorage.createAlertRule(validation.data);
+      const rule = await storage.createAlertRule(validation.data);
       res.status(201).json(rule);
     } catch (error) {
       logAndSendError(res, "Failed to create alert rule", error);
@@ -37,7 +35,7 @@ export function register(app: Express) {
 
   app.patch("/api/notifications/alert-rules/:id", requireAdmin, async (req, res) => {
     try {
-      const rule = await notificationStorage.updateAlertRule(Number(req.params.id), req.body);
+      const rule = await storage.updateAlertRule(Number(req.params.id), req.body);
       if (!rule) return res.status(404).json({ error: "Rule not found" });
       res.json(rule);
     } catch (error) {
@@ -47,7 +45,7 @@ export function register(app: Express) {
 
   app.delete("/api/notifications/alert-rules/:id", requireAdmin, async (req, res) => {
     try {
-      await notificationStorage.deleteAlertRule(Number(req.params.id));
+      await storage.deleteAlertRule(Number(req.params.id));
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to delete alert rule", error);
@@ -58,7 +56,7 @@ export function register(app: Express) {
   app.get("/api/notifications/logs", requireAdmin, async (req, res) => {
     try {
       const limit = Number(req.query.limit) || 100;
-      const logs = await notificationStorage.getNotificationLogs(limit);
+      const logs = await storage.getNotificationLogs(limit);
       res.json(logs);
     } catch (error) {
       logAndSendError(res, "Failed to fetch notification logs", error);
@@ -68,7 +66,7 @@ export function register(app: Express) {
   // --- Notification Settings ---
   app.get("/api/notifications/settings", requireAdmin, async (_req, res) => {
     try {
-      const settings = await notificationStorage.getAllNotificationSettings();
+      const settings = await storage.getAllNotificationSettings();
       const result: Record<string, string | null> = {};
       for (const s of settings) {
         result[s.settingKey] = s.settingValue;
@@ -86,7 +84,7 @@ export function register(app: Express) {
         if (key === "slack_webhook_url" && value && !value.startsWith("https://hooks.slack.com/")) {
           return res.status(400).json({ error: "Invalid Slack webhook URL" });
         }
-        await notificationStorage.setNotificationSetting(key, value);
+        await storage.setNotificationSetting(key, value);
       }
       res.json({ success: true });
     } catch (error) {
@@ -97,7 +95,7 @@ export function register(app: Express) {
   // --- Notification Preferences (per-user) ---
   app.get("/api/notifications/preferences", requireAuth, async (req, res) => {
     try {
-      const prefs = await notificationStorage.getNotificationPreferences(req.user!.id);
+      const prefs = await storage.getNotificationPreferences(req.user!.id);
       res.json(prefs);
     } catch (error) {
       logAndSendError(res, "Failed to fetch notification preferences", error);
@@ -110,7 +108,7 @@ export function register(app: Express) {
       if (!eventType || !channel) {
         return res.status(400).json({ error: "eventType and channel required" });
       }
-      await notificationStorage.upsertNotificationPreference(req.user!.id, eventType, channel, enabled);
+      await storage.upsertNotificationPreference(req.user!.id, eventType, channel, enabled);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to update notification preference", error);
@@ -151,9 +149,7 @@ export function register(app: Express) {
 
       await sendReportShareEmail({ to, propertyName, metrics: metrics || {}, message, attachmentBase64, attachmentFilename });
 
-      const { NotificationStorage: NS } = await import("../storage/notifications");
-      const ns = new NS();
-      await ns.createNotificationLog({
+      await storage.createNotificationLog({
         eventType: "REPORT_SHARED",
         channel: "email",
         recipient: to,
@@ -162,7 +158,7 @@ export function register(app: Express) {
         metadata: { propertyName },
       });
 
-      const slackUrl = await ns.getNotificationSetting("slack_webhook_url");
+      const slackUrl = await storage.getNotificationSetting("slack_webhook_url");
       if (slackUrl) {
         const event = createEvent("REPORT_SHARED", {
           propertyName,

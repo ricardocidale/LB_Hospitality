@@ -8,42 +8,21 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 12, 2026 — Infrastructure Contracts Optimization (12 Workstreams)
+- WS1-2: Sealed storage facade — ServiceStorage + NotificationStorage bound to IStorage, `patchGlobalAssumptions` added to FinancialStorage
+- WS3-4: Domain boundaries — 6-domain separation rule + proof test (no route imports db, calc purity, financial isolation from AI SDKs)
+- WS6: Constants hardening — `DEFAULT_AI_AGENT_VOICE_ID`, `DEFAULT_STAFF_TIER1/2_MAX_PROPERTIES` extracted to `shared/constants.ts`
+- WS7-8: Tool protection — 36-tool registry rule + proof test, `compute_make_vs_buy.json` schema created
+- WS9-11: 0 TS errors, duplicate hooks eliminated (7 admin tabs → canonical `@/lib/api`), duplicate plaid dep removed, `GlobalResponse` expanded
+- Tests 2,927→2,940 (127 files, 500 golden). 0 TS errors.
+
 ## Session: March 11, 2026 (cont.) — WACC + Plan Completion
-- WACC-based DCF: `compute_wacc` + `compute_portfolio_wacc` tools (33 total), `costOfEquity` column, research badges, checker manual updated
-- 12 golden WACC tests (all-cash, leveraged, portfolio, edge cases). InvestmentAnalysis uses WACC instead of IRR as DCF discount rate.
-- WS7 confirmed done (indexes exist). WS9: doc harmony fixed (stale 2,912→2,927, golden 430→500). All 9 workstreams COMPLETE.
-- Tests 2,912→2,927 (125 files, 500 golden). Health ALL CLEAR. UNQUALIFIED.
+- WACC-based DCF: `compute_wacc` + `compute_portfolio_wacc` tools (33→36 total), `costOfEquity` column, research badges
+- 12 golden WACC tests. All 9 prior workstreams COMPLETE. Tests 2,912→2,927 (125 files, 500 golden).
 
 ## Session: March 11, 2026 — Architectural Hardening Initiative (9 Workstreams)
-- WS1: Magic numbers extracted (CAP_RATE_SENSITIVITY_STEP, RESEARCH_TAX_RATE_30_PCT); chat.ts uses executeComputationTool via shared buildPropertyContext.ts
-- WS2: Golden "Clearwater Inn" scenario (60 tests): 15 rooms $175 ADR cash purchase, mgmt co + 1 property + consolidated
-- WS3: Chatbot renamed Rebecca, new sidebar "AI Assistants" group (Marcela voice + Rebecca text), admin RebeccaTab + config
-- WS4: Admin Diagrams tab (Mermaid L1/L2/L3 workflow charts), WS5: /api/admin/users/:id/theme endpoint
-- WS6: seedAdminUser password guard (FORCE_RESEED_PASSWORDS), reset-all requires confirmation phrase + password
+- WS1-6: Magic numbers, golden scenarios, Rebecca chatbot, Admin Diagrams, theme endpoint, password guards
 - Tests 2,842→2,912 (131 files). Health ALL CLEAR. UNQUALIFIED.
-
-## Session: March 10, 2026 — claude.md update + recent features
-- Updated source stats, sidebar restructured, chatbot added, hero image captions, DCF dashboard
-
-## Session: March 10, 2026 — Golden Scenario Battery Continued (5 more scenarios, 149 new tests)
-- Built 5 new golden test files: exit-cap-sensitivity (24), mixed-portfolio (20), preops-refi-combo (45), underwater-exit (36), zero-occupancy (24)
-- Secured ElevenLabs widget: signed URL endpoint (`/api/marcela/signed-url`) replacing bare agentId; `useAdminSignedUrl` hook
-- Layout.tsx: widget disabled on admin pages; MarcelaTab imports signed URL hook
-- Tests 2,671→2,820 (122 files, 418 golden). Health ALL CLEAR. UNQUALIFIED.
-
-## Session: March 9, 2026 — Golden Scenario Battery (4 scenarios, 168 new tests)
-- Built 4 golden test files: full-statement (55), pre-ops gap (23), multi-property (29), company aggregation (61)
-- Full statement: Golden Lodge (20 rooms $200 financed) + company + consolidated intercompany elimination
-- Edge cases: 6-month pre-ops gap with reserve, 3-property portfolio with delayed ops, staffing tier transitions
-- Company aggregation: 2 properties (Alpine Inn cash + Harbor Hotel financed), fee aggregation, BS identity, portfolio sums
-- Tests 2,503→2,671 (117 files, 269 golden). All saved to memory: `golden-scenarios.md`. Health ALL CLEAR.
-
-## Session: March 9, 2026 — Comprehensive Audit V3 (Deterministic Accuracy)
-- 6-phase audit: v2 regression, hand-calculated IRR golden, pipeline trace, BS identity fix, company/consolidated, full suite
-- Fixed Critical bug: `server/calculation-checker/property-checks.ts` debtOutstanding missing current month principal
-- Added A=L+E (ASC 210) check to both client auditor and server checker — closed deferred finding 3-1
-- New: `tests/golden/irr-golden-hand-calculated.test.ts` (15 tests), `tests/golden/pipeline-trace.test.ts` (20 tests)
-- Tests 2,448→2,503, all passing, UNQUALIFIED. Full report: `.claude/skills/proof-system/comprehensive-audit.md`
 
 ---
 

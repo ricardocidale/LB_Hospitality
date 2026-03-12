@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { invalidateAllFinancialQueries } from "@/lib/api";
 import type { Logo, User, AdminCompany } from "./types";
 
 export function adminFetch<T>(url: string, errorMsg: string): () => Promise<T> {
@@ -46,38 +45,6 @@ export function useAdminCompanies() {
   return useQuery<AdminCompany[]>({
     queryKey: ["admin", "companies"],
     queryFn: adminFetch<AdminCompany[]>("/api/admin/companies", "Failed to fetch companies"),
-  });
-}
-
-export function useGlobalAssumptions() {
-  return useQuery<Record<string, any>>({
-    queryKey: ["globalAssumptions"],
-    queryFn: adminFetch<Record<string, any>>("/api/global-assumptions", "Failed to fetch global assumptions"),
-  });
-}
-
-export function useUpdateGlobalAssumptions() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { data: globalAssumptions } = useGlobalAssumptions();
-
-  return useMutation({
-    mutationFn: async (updates: Record<string, any>) => {
-      const res = await fetch("/api/global-assumptions", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ ...(globalAssumptions ?? {}), ...updates }),
-      });
-      if (!res.ok) throw new Error("Failed to update settings");
-      return res.json();
-    },
-    onSuccess: () => {
-      invalidateAllFinancialQueries(queryClient);
-    },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
-    },
   });
 }
 

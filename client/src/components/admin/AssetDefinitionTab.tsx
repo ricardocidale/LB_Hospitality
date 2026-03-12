@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Check, ChevronDown } from "lucide-react";
 import { IconSave, IconCopy, IconHelpCircle } from "@/components/icons";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "./hooks";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { ADMIN_TEXTAREA } from "./styles";
 import {
   type IcpConfig,

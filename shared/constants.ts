@@ -228,6 +228,7 @@ export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;
 // ──────────────────────────────────────────────────────────
 
 export const DEFAULT_AI_AGENT_NAME = "Marcela";
+export const DEFAULT_AI_AGENT_VOICE_ID = "cgSgspJ2msm6clMCkdW9";
 export const DEFAULT_AI_AGENT_STABILITY = 0.5;
 export const DEFAULT_AI_AGENT_SIMILARITY_BOOST = 0.75;
 export const DEFAULT_AI_AGENT_MAX_TOKENS = 2048;
@@ -248,6 +249,15 @@ export const DEFAULT_MARCELA_CASCADE_TIMEOUT = 5;
 export const DEFAULT_MAX_STALENESS_HOURS = 24;
 
 export const DEFAULT_ALERT_COOLDOWN_MINUTES = 1440;
+
+// ──────────────────────────────────────────────────────────
+// STAFFING TIER THRESHOLDS
+// Management company staffing scales in tiers based on active property count.
+// These are the portfolio-size breakpoints stored in global_assumptions.
+// ──────────────────────────────────────────────────────────
+
+export const DEFAULT_STAFF_TIER1_MAX_PROPERTIES = 3;
+export const DEFAULT_STAFF_TIER2_MAX_PROPERTIES = 6;
 
 // ──────────────────────────────────────────────────────────
 // RESEARCH CONFIGURATION DEFAULTS

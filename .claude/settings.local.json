@@ -230,7 +230,15 @@
       "Bash(NODE_ENV=development tsx server/index.ts)",
       "Bash(npx esbuild:*)",
       "Bash(for dir:*)",
-      "Bash(do echo:*)"
+      "Bash(do echo:*)",
+      "Bash(__NEW_LINE_09ce3e1eda137bc8__ echo:*)",
+      "Bash(grep \"compute_\\\\|calculate_\\\\|build_\\\\|exit_\\\\|validate_\\\\|consolidate_\\\\|compare_\\\\|break_\\\\|hold_\\\\|stress_\\\\|capex_\\\\|revpar_\" /home/runner/workspace/calc/dispatch.ts | grep -o '[a-z_]*:' | sed 's/:$//' | sort -u)",
+      "Bash(grep \"  [a-z_]*:\" /home/runner/workspace/calc/dispatch.ts | grep -o '[a-z_]*:' | sed 's/:$//' | sort)",
+      "Bash(__NEW_LINE_c42ba776da5ad3fa__ echo:*)",
+      "Bash(__NEW_LINE_b8b29a7f57c0e1ff__ echo:*)",
+      "Bash(1 ls:*)",
+      "Bash(git stash:*)",
+      "Bash(find /home/runner/workspace/client/src -name \"*.ts*\" -type f -exec grep -l \"function.*use[A-Z]\" {} \\\\; 2>/dev/null | head -20)"
     ]
   },
   "enableAllProjectMcpServers": true,

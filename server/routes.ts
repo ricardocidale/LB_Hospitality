@@ -25,6 +25,7 @@ import * as adminIntegrationRoutes from "./routes/admin-integrations";
 import * as geospatialRoutes from "./routes/geospatial";
 import * as notificationRoutes from "./routes/notifications";
 import * as plaidRoutes from "./routes/plaid";
+import * as documentRoutes from "./routes/documents";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -55,6 +56,7 @@ export async function registerRoutes(
   geospatialRoutes.register(app);
   notificationRoutes.register(app);
   plaidRoutes.register(app);
+  documentRoutes.register(app);
 
   registerTwilioWebSocket(httpServer);
 

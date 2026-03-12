@@ -20,6 +20,17 @@ npm run stats          # Live codebase metrics
 ## Tech Stack
 React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis, `@anthropic-ai/sdk@0.78.0`
 
+## Market Intelligence Pipeline
+Three-service architecture in `server/services/`: FREDService (SOFR/Treasury/CPI, 24h cache), HospitalityBenchmarkService (CoStar/STR/AirDNA adapter, 7-day cache), GroundedResearchService (Perplexity/Tavily with citations). MarketIntelligenceAggregator composes all three. Data provenance badges: verified/cited/estimated. Types in `shared/market-intelligence.ts`. Frontend: `client/src/components/property-research/`.
+
+## Image Processing Pipeline
+Server-side image pipeline using Sharp (`server/image/pipeline.ts`, `server/image/variants.ts`). Uploaded/generated images are processed into 4 WebP+AVIF variants:
+- `thumb` (400x300, q70) — album grids, property cards
+- `card` (800x600, q80) — portfolio cards
+- `hero` (1600x1000, q85) — hero sections
+- `full` (2400 max width, q90) — lightbox/full-screen
+Variants stored in `property_photos.variants` JSONB column. Originals preserved. Smart cropping via Sharp's attention strategy. Frontend uses `<picture>` elements with AVIF/WebP sources and srcset for responsive loading. Crop dialog integrated in upload flow.
+
 ## Key References
 | Topic | Location |
 |-------|----------|
@@ -57,17 +68,17 @@ Five categories + Logs + Help:
 - **System**: Research, Notifications, Navigation, Diagrams, Verification, Database, Integrations
 - **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
 
-## Property Description
-Each property has an optional `description` text field with "Improve with AI" button (Gemini). Component: `client/src/components/property-edit/DescriptionSection.tsx`.
-
-## Property Photos
-Photo album in `property_photos` table (hero + gallery). Sharp image pipeline generates WebP/AVIF variants (thumb/card/hero/full). Crop dialog integrated in upload flow. Frontend uses `<picture>` elements with srcset.
+## Property Description & Photos
+Properties have optional `description` (AI-polished via Gemini) and photo album (`property_photos` table: hero + gallery). Sharp pipeline generates WebP/AVIF variants (thumb/card/hero/full). Frontend uses `<picture>` with srcset.
 
 ## Logo Assignment Policy
 Logos assigned to companies only. Groups derive logos from member companies. Branding chain: user's company logo → default system logo.
 
+## Research Skills
+Property sub-skills: local-economics, insurance-costs, marketing-costs. Company: outsourcing/make-vs-buy. Global: FX, capital markets, ESG. Source registry: `RESEARCH_SOURCES` in `shared/constants.ts`.
+
 ## Common Pitfall: Strict Zod Schemas on Admin Save Routes
-When adding new fields to any admin config, **always** add the field to the backend Zod schema AND the merge logic. Backend `.strict()` schemas reject unknown fields silently.
+When adding new fields to admin config, **always** add to: (1) TypeScript interface in `shared/schema.ts`, (2) Zod schema in route (watch `.strict()`), (3) merge/spread logic in handler.
 
 ## Simulation and Analysis Page
 `/analysis` — 4 tabs: Sensitivity (sliders + tornado/heatmap), Compare (side-by-side properties), Timeline (Gantt), Financing (DSCR/Debt Yield/Stress Test/Prepayment).
@@ -84,18 +95,6 @@ Shared formatting in `client/src/lib/exports/`. Full reference: `.agents/skills/
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
 
-**Premium Export:** `server/routes/premium-exports.ts` — two paths: Agent Skills (PDF/PPTX/DOCX via Anthropic sandbox) and Template (XLSX via SheetJS). `ExportDialog.tsx` has "Premium Export" toggle. SDK: `@anthropic-ai/sdk@0.78.0`.
-
-**Core modules:** `exportStyles.ts` (brand palette, `normalizeCaps`, formatting), `pdfHelpers.ts` (jsPDF layout), `pptxExport.ts` (16:9 slides), `pdfChartDrawer.ts`, `pngExport.ts`, `csvExport.ts`, `excel/` (SheetJS).
-
-**Design rules:** No ALL CAPS (`normalizeCaps`), alternating row tint (#F8FAF9), sage-green section dividers/table frame, white-on-sage header, footer on every page (added LAST).
-
-## Market Intelligence Pipeline
-Three-service architecture: FREDService (interest rates, 24h cache), HospitalityBenchmarkService (RevPAR/ADR/occupancy, 7d cache), GroundedResearchService (web search with citations). Aggregator composes all three. Provenance badges: verified/cited/estimated.
-
-## Geospatial Intelligence
-Properties have optional lat/lng. Google Maps API for geocoding/autocomplete/POI search. MapLibre GL for rendering. Portfolio map with DSCR coloring + Supercluster clustering.
-
 ## Financial Engine Additions
 Working capital (AR/AP days), NOL carryforward (80% utilization cap), MIRR, day-count conventions (30/360, ACT/360, ACT/365), cost segregation accelerated depreciation.
 
@@ -110,6 +109,9 @@ WaterfallChart (revenue-to-NOI bridge), SensitivityHeatMap (ADR × Occupancy gri
 
 ## Financial Account Reconciliation (Plaid)
 Plaid bank linking for actual vs. projected reconciliation per property. AES-256-GCM encrypted tokens, two-tier USALI categorization (rules + AI), row-level access control. Tables: `plaid_connections`, `plaid_transactions`, `plaid_categorization_cache`. Env: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV`, optional `PLAID_TOKEN_ENCRYPTION_KEY`. Files: `server/crypto/plaid-tokens.ts`, `server/integrations/plaid*.ts`, `server/storage/plaid.ts`, `server/routes/plaid.ts`, `ReconciliationTab.tsx`.
+
+## Document Intelligence Pipeline
+Property detail "Documents" tab. **Inbound**: Document AI OCR extraction, fuzzy USALI field mapping, confidence-scored review UI. **Outbound**: DocuSign e-signatures for LOI/Investment Memo/Management Agreement templates. Tables: `document_extractions`, `extraction_fields`, `docusign_envelopes`. Key files: `server/integrations/document-ai.ts`, `server/integrations/docusign.ts`, `server/document-ai/`, `server/routes/documents.ts`, `server/storage/documents.ts`, `client/src/components/documents/`.
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

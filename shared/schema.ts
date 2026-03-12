@@ -1572,6 +1572,7 @@ export const notificationSettings = pgTable("notification_settings", {
 });
 
 export type NotificationSetting = typeof notificationSettings.$inferSelect;
+
 // --- PLAID CONNECTIONS TABLE ---
 // Stores Plaid Link connections for bank account reconciliation.
 // Access tokens are encrypted at rest using AES-256-GCM — the database
@@ -1677,3 +1678,108 @@ export const plaidCategorizationCache = pgTable("plaid_categorization_cache", {
 });
 
 export type PlaidCategorizationCache = typeof plaidCategorizationCache.$inferSelect;
+
+// --- DOCUMENT EXTRACTIONS TABLE ---
+// Tracks OCR extraction jobs from uploaded financial documents (P&L, appraisals, STR reports).
+// Each extraction links a source document to a property and records the processing status.
+export const documentExtractions = pgTable("document_extractions", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  propertyId: integer("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  fileName: text("file_name").notNull(),
+  fileContentType: text("file_content_type").notNull(),
+  objectPath: text("object_path").notNull(),
+  documentType: text("document_type").notNull().default("general"),
+  status: text("status").notNull().default("pending"),
+  rawExtractionData: jsonb("raw_extraction_data"),
+  errorMessage: text("error_message"),
+  processedAt: timestamp("processed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("doc_extractions_property_id_idx").on(table.propertyId),
+  index("doc_extractions_user_id_idx").on(table.userId),
+]);
+
+export const insertDocumentExtractionSchema = z.object({
+  propertyId: z.number(),
+  userId: z.number(),
+  fileName: z.string(),
+  fileContentType: z.string(),
+  objectPath: z.string(),
+  documentType: z.string().optional(),
+  status: z.string().optional(),
+});
+
+export type DocumentExtraction = typeof documentExtractions.$inferSelect;
+export type InsertDocumentExtraction = z.infer<typeof insertDocumentExtractionSchema>;
+
+// --- EXTRACTION FIELDS TABLE ---
+// Individual fields extracted from a document. Each field maps to a property financial
+// assumption (e.g., roomsRevenue, costRateRooms). Includes confidence scores and approval status.
+export const extractionFields = pgTable("extraction_fields", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  extractionId: integer("extraction_id").notNull().references(() => documentExtractions.id, { onDelete: "cascade" }),
+  fieldName: text("field_name").notNull(),
+  fieldLabel: text("field_label").notNull(),
+  extractedValue: text("extracted_value").notNull(),
+  mappedPropertyField: text("mapped_property_field"),
+  confidence: real("confidence").notNull().default(0),
+  status: text("status").notNull().default("pending"),
+  currentValue: text("current_value"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("extraction_fields_extraction_id_idx").on(table.extractionId),
+]);
+
+export const insertExtractionFieldSchema = z.object({
+  extractionId: z.number(),
+  fieldName: z.string(),
+  fieldLabel: z.string(),
+  extractedValue: z.string(),
+  mappedPropertyField: z.string().nullable().optional(),
+  confidence: z.number().optional(),
+  status: z.string().optional(),
+  currentValue: z.string().nullable().optional(),
+});
+
+export type ExtractionField = typeof extractionFields.$inferSelect;
+export type InsertExtractionField = z.infer<typeof insertExtractionFieldSchema>;
+
+// --- DOCUSIGN ENVELOPES TABLE ---
+// Tracks DocuSign signing ceremonies. Each envelope links to a property and contains
+// status updates from webhook events (sent → delivered → viewed → signed → completed).
+export const docusignEnvelopes = pgTable("docusign_envelopes", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  propertyId: integer("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  envelopeId: text("envelope_id"),
+  templateType: text("template_type").notNull(),
+  recipientName: text("recipient_name").notNull(),
+  recipientEmail: text("recipient_email").notNull(),
+  status: text("status").notNull().default("created"),
+  statusHistory: jsonb("status_history").$type<Array<{ status: string; timestamp: string }>>().notNull().default([]),
+  signedDocumentPath: text("signed_document_path"),
+  templateData: jsonb("template_data"),
+  errorMessage: text("error_message"),
+  sentAt: timestamp("sent_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("docusign_envelopes_property_id_idx").on(table.propertyId),
+  index("docusign_envelopes_user_id_idx").on(table.userId),
+  index("docusign_envelopes_envelope_id_idx").on(table.envelopeId),
+]);
+
+export const insertDocusignEnvelopeSchema = z.object({
+  propertyId: z.number(),
+  userId: z.number(),
+  envelopeId: z.string().nullable().optional(),
+  templateType: z.string(),
+  recipientName: z.string(),
+  recipientEmail: z.string().email(),
+  status: z.string().optional(),
+  templateData: z.any().optional(),
+});
+
+export type DocusignEnvelope = typeof docusignEnvelopes.$inferSelect;
+export type InsertDocusignEnvelope = z.infer<typeof insertDocusignEnvelopeSchema>;

@@ -31,6 +31,7 @@ import { ActivityStorage, type ActivityLogFilters } from "./activity";
 import { ResearchStorage } from "./research";
 import { PhotoStorage } from "./photos";
 import { PlaidStorage } from "./plaid";
+import { DocumentStorage } from "./documents";
 
 export interface IStorage extends
   UserStorage,
@@ -40,7 +41,8 @@ export interface IStorage extends
   ActivityStorage,
   ResearchStorage,
   PhotoStorage,
-  PlaidStorage {
+  PlaidStorage,
+  DocumentStorage {
   deleteUser(id: number): Promise<void>;
 }
 
@@ -53,6 +55,7 @@ export class DatabaseStorage implements IStorage {
   private research = new ResearchStorage();
   private photos = new PhotoStorage();
   private plaid = new PlaidStorage();
+  private documents = new DocumentStorage();
 
   // Users
   getUserById = this.users.getUserById.bind(this.users);
@@ -193,6 +196,22 @@ export class DatabaseStorage implements IStorage {
   updatePlaidTransactionCategories = this.plaid.updatePlaidTransactionCategories.bind(this.plaid);
   getCategorizationCache = this.plaid.getCategorizationCache.bind(this.plaid);
   upsertCategorizationCache = this.plaid.upsertCategorizationCache.bind(this.plaid);
+
+  // Document Intelligence
+  createDocumentExtraction = this.documents.createDocumentExtraction.bind(this.documents);
+  getDocumentExtraction = this.documents.getDocumentExtraction.bind(this.documents);
+  getPropertyExtractions = this.documents.getPropertyExtractions.bind(this.documents);
+  updateDocumentExtraction = this.documents.updateDocumentExtraction.bind(this.documents);
+  createExtractionField = this.documents.createExtractionField.bind(this.documents);
+  createExtractionFields = this.documents.createExtractionFields.bind(this.documents);
+  getExtractionFields = this.documents.getExtractionFields.bind(this.documents);
+  updateExtractionFieldStatus = this.documents.updateExtractionFieldStatus.bind(this.documents);
+  bulkUpdateExtractionFieldStatus = this.documents.bulkUpdateExtractionFieldStatus.bind(this.documents);
+  createDocusignEnvelope = this.documents.createDocusignEnvelope.bind(this.documents);
+  getDocusignEnvelope = this.documents.getDocusignEnvelope.bind(this.documents);
+  getDocusignEnvelopeByEnvelopeId = this.documents.getDocusignEnvelopeByEnvelopeId.bind(this.documents);
+  getPropertyEnvelopes = this.documents.getPropertyEnvelopes.bind(this.documents);
+  updateDocusignEnvelope = this.documents.updateDocusignEnvelope.bind(this.documents);
 
   /**
    * Delete a user and ALL related data in a single transaction.

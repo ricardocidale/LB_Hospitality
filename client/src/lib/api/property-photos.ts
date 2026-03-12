@@ -10,7 +10,7 @@ async function fetchPropertyPhotos(propertyId: number): Promise<PropertyPhoto[]>
   return res.json();
 }
 
-async function addPhoto(propertyId: number, data: { imageUrl: string; caption?: string }): Promise<PropertyPhoto> {
+async function addPhoto(propertyId: number, data: { imageUrl: string; caption?: string; skipProcessing?: boolean }): Promise<PropertyPhoto> {
   const res = await fetch(`/api/properties/${propertyId}/photos`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -62,8 +62,8 @@ export function usePropertyPhotos(propertyId: number) {
 export function useAddPropertyPhoto() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ propertyId, imageUrl, caption }: { propertyId: number; imageUrl: string; caption?: string }) =>
-      addPhoto(propertyId, { imageUrl, caption }),
+    mutationFn: ({ propertyId, imageUrl, caption, skipProcessing }: { propertyId: number; imageUrl: string; caption?: string; skipProcessing?: boolean }) =>
+      addPhoto(propertyId, { imageUrl, caption, skipProcessing }),
     onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ["propertyPhotos", vars.propertyId] });
       invalidateAllFinancialQueries(queryClient);

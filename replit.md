@@ -18,7 +18,7 @@ npm run stats          # Live codebase metrics
 ```
 
 ## Tech Stack
-React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, @sentry/node + @sentry/react (error tracking), posthog-js (analytics), @upstash/redis (caching)
+React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, @sentry/node + @sentry/react (error tracking), posthog-js (analytics), @upstash/redis (caching), Sharp (image processing)
 
 ## Market Intelligence Pipeline
 Three-service architecture in `server/services/`:
@@ -32,6 +32,14 @@ Data provenance badges: "verified" (green, institutional data), "cited" (blue, w
 API routes: `GET /api/market-rates/fred-all`, `GET /api/market-rates/fred-history/:seriesKey`, `GET /api/market-intelligence/status`, `POST /api/market-intelligence/gather`.
 
 Frontend components in `client/src/components/property-research/`: `ProvenanceBadge`, `RateSparkline`, `SourceCitations`, `MarketRateBenchmark`.
+
+## Image Processing Pipeline
+Server-side image pipeline using Sharp (`server/image/pipeline.ts`, `server/image/variants.ts`). Uploaded/generated images are processed into 4 WebP+AVIF variants:
+- `thumb` (400x300, q70) — album grids, property cards
+- `card` (800x600, q80) — portfolio cards
+- `hero` (1600x1000, q85) — hero sections
+- `full` (2400 max width, q90) — lightbox/full-screen
+Variants stored in `property_photos.variants` JSONB column. Originals preserved. Smart cropping via Sharp's attention strategy. Frontend uses `<picture>` elements with AVIF/WebP sources and srcset for responsive loading. Crop dialog integrated in upload flow.
 
 ## Key References
 | Topic | Location |

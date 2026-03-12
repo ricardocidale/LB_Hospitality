@@ -41,6 +41,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           aspectRatio="16/10"
           overlay="none"
           className="rounded-t-lg rounded-b-none"
+          variants={null}
         >
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent" />
           <div className="absolute bottom-3 left-3">

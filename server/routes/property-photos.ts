@@ -5,6 +5,7 @@ import { insertPropertyPhotoSchema, updatePropertyPhotoSchema } from "@shared/sc
 import { fromZodError } from "zod-validation-error";
 import { logAndSendError } from "./helpers";
 import { z } from "zod";
+import { processExistingPhoto } from "../image/pipeline";
 
 export function register(app: Express) {
   // GET /api/properties/:id/photos — list all photos for a property
@@ -34,6 +35,20 @@ export function register(app: Express) {
       }
 
       const photo = await storage.addPropertyPhoto(parsed.data);
+
+      const shouldProcess = !req.body.skipProcessing;
+      if (shouldProcess) {
+        processExistingPhoto(photo.imageUrl, propertyId, photo.id)
+          .then(async (result) => {
+            if (result) {
+              await storage.updatePropertyPhoto(photo.id, { variants: result.variants });
+            }
+          })
+          .catch((err) => {
+            console.error(`Background image processing failed for photo ${photo.id}:`, err);
+          });
+      }
+
       res.status(201).json(photo);
     } catch (error) {
       logAndSendError(res, "Failed to add property photo", error);

@@ -60,11 +60,26 @@ export function PhotoCard({ photo, onSetHero, onDelete, onUpdateCaption, isSetti
 
       {/* Image */}
       <div className="aspect-[4/3] overflow-hidden">
-        <img
-          src={photo.imageUrl}
-          alt={photo.caption || "Property photo"}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <picture>
+          {photo.variants?.thumb && (
+            <>
+              <source
+                srcSet={photo.variants.thumb.replace(/\.webp$/, ".avif")}
+                type="image/avif"
+              />
+              <source
+                srcSet={photo.variants.thumb}
+                type="image/webp"
+              />
+            </>
+          )}
+          <img
+            src={photo.variants?.thumb || photo.imageUrl}
+            alt={photo.caption || "Property photo"}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            data-testid={`img-photo-${photo.id}`}
+          />
+        </picture>
       </div>
 
       {/* Caption + actions */}

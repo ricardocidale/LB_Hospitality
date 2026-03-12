@@ -61,7 +61,7 @@ export function registerImageRoutes(app: Express): void {
         throw new Error("Failed to upload generated image to object storage");
       }
 
-      res.json({ objectPath });
+      res.json({ objectPath, isAiGenerated: true });
     } catch (error) {
       console.error("Error generating property image:", error);
       const message = error instanceof Error ? error.message : "Failed to generate image";

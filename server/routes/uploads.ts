@@ -3,11 +3,18 @@ import { requireAuth } from "../auth";
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
 import { logActivity, logAndSendError } from "./helpers";
 import { randomUUID } from "crypto";
+import { processImage, type CropRegion } from "../image/pipeline";
+import { storage } from "../storage";
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_CONTENT_TYPES = [
   "image/png", "image/jpeg", "image/jpg", "image/gif",
   "image/webp", "image/svg+xml", "image/bmp", "image/tiff",
+];
+
+const IMAGE_PROCESSABLE_TYPES = [
+  "image/png", "image/jpeg", "image/jpg", "image/gif",
+  "image/webp", "image/bmp", "image/tiff",
 ];
 
 export function register(app: Express) {
@@ -81,6 +88,140 @@ export function register(app: Express) {
       res.json({ objectPath });
     } catch (error) {
       logAndSendError(res, "Failed to upload file", error);
+    }
+  });
+
+  app.post("/api/uploads/process-image", requireAuth, async (req, res) => {
+    try {
+      const { propertyId, photoId, imageUrl, crop } = req.body;
+      if (!propertyId || !photoId || !imageUrl) {
+        return res.status(400).json({ error: "Missing required fields: propertyId, photoId, imageUrl" });
+      }
+
+      if (!imageUrl.startsWith("/objects/")) {
+        return res.status(400).json({ error: "Only object storage paths are allowed" });
+      }
+
+      const existingPhotos = await storage.getPropertyPhotos(Number(propertyId));
+      const targetPhoto = existingPhotos.find(p => p.id === Number(photoId));
+      if (!targetPhoto) {
+        return res.status(404).json({ error: "Photo not found for this property" });
+      }
+
+      let buffer: Buffer;
+      let contentType = "image/jpeg";
+
+      const objectStorageService = new ObjectStorageService();
+      const file = await objectStorageService.getObjectEntityFile(imageUrl);
+      const [contents] = await file.download();
+      buffer = contents;
+      const [metadata] = await file.getMetadata();
+      contentType = metadata.contentType || "image/jpeg";
+
+      if (!IMAGE_PROCESSABLE_TYPES.includes(contentType.split(";")[0].trim())) {
+        return res.json({ variants: null, message: "Image type not processable" });
+      }
+
+      const cropRegion: CropRegion | undefined = crop ? {
+        left: crop.x ?? crop.left,
+        top: crop.y ?? crop.top,
+        width: crop.width,
+        height: crop.height,
+      } : undefined;
+
+      const result = await processImage(buffer, {
+        propertyId: Number(propertyId),
+        photoId: Number(photoId),
+        crop: cropRegion,
+      }, contentType);
+
+      await storage.updatePropertyPhoto(Number(photoId), {
+        variants: result.variants,
+      });
+
+      logActivity(req, "image-processed", "photo", photoId, `${propertyId}`, {
+        variants: Object.keys(result.variants),
+        width: result.width,
+        height: result.height,
+      });
+
+      res.json({ variants: result.variants });
+    } catch (error) {
+      logAndSendError(res, "Failed to process image", error);
+    }
+  });
+
+  app.post("/api/admin/bulk-process-photos", requireAuth, async (req, res) => {
+    try {
+      const user = req.user;
+      if (!user || user.role !== "admin") {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const { propertyId } = req.body;
+
+      let photos;
+      if (propertyId) {
+        photos = await storage.getPropertyPhotos(Number(propertyId));
+      } else {
+        const allProperties = await storage.getAllProperties(user.id);
+        photos = [];
+        for (const prop of allProperties) {
+          const propPhotos = await storage.getPropertyPhotos(prop.id);
+          photos.push(...propPhotos);
+        }
+      }
+
+      const unprocessed = photos.filter(p => !p.variants);
+      let processed = 0;
+      let failed = 0;
+
+      for (const photo of unprocessed) {
+        try {
+          let buffer: Buffer;
+          let contentType = "image/jpeg";
+
+          if (photo.imageUrl.startsWith("/objects/")) {
+            const objectStorageService = new ObjectStorageService();
+            const file = await objectStorageService.getObjectEntityFile(photo.imageUrl);
+            const [contents] = await file.download();
+            buffer = contents;
+            const [metadata] = await file.getMetadata();
+            contentType = metadata.contentType || "image/jpeg";
+          } else if (photo.imageUrl.startsWith("http")) {
+            const response = await fetch(photo.imageUrl);
+            if (!response.ok) { failed++; continue; }
+            buffer = Buffer.from(await response.arrayBuffer());
+            contentType = response.headers.get("content-type") || "image/jpeg";
+          } else {
+            failed++;
+            continue;
+          }
+
+          const result = await processImage(buffer, {
+            propertyId: photo.propertyId,
+            photoId: photo.id,
+          }, contentType);
+
+          await storage.updatePropertyPhoto(photo.id, {
+            variants: result.variants,
+          });
+
+          processed++;
+        } catch (err) {
+          console.error(`Failed to process photo ${photo.id}:`, err);
+          failed++;
+        }
+      }
+
+      res.json({
+        total: unprocessed.length,
+        processed,
+        failed,
+        skipped: photos.length - unprocessed.length,
+      });
+    } catch (error) {
+      logAndSendError(res, "Failed to bulk process photos", error);
     }
   });
 }

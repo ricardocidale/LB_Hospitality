@@ -1018,6 +1018,13 @@ export const propertyPhotos = pgTable("property_photos", {
   caption: text("caption"),
   sortOrder: integer("sort_order").notNull().default(0),
   isHero: boolean("is_hero").notNull().default(false),
+  variants: jsonb("variants").$type<{
+    thumb?: string;
+    card?: string;
+    hero?: string;
+    full?: string;
+    original?: string;
+  }>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
   index("property_photos_property_id_idx").on(table.propertyId),
@@ -1029,12 +1036,20 @@ export const insertPropertyPhotoSchema = createInsertSchema(propertyPhotos).pick
   caption: true,
   sortOrder: true,
   isHero: true,
+  variants: true,
 });
 
 export const updatePropertyPhotoSchema = z.object({
   caption: z.string().nullable().optional(),
   sortOrder: z.number().optional(),
   isHero: z.boolean().optional(),
+  variants: z.object({
+    thumb: z.string().optional(),
+    card: z.string().optional(),
+    hero: z.string().optional(),
+    full: z.string().optional(),
+    original: z.string().optional(),
+  }).nullable().optional(),
 });
 
 export type PropertyPhoto = typeof propertyPhotos.$inferSelect;

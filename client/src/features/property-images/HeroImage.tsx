@@ -2,6 +2,14 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+interface ImageVariants {
+  thumb?: string;
+  card?: string;
+  hero?: string;
+  full?: string;
+  original?: string;
+}
+
 interface HeroImageProps {
   src: string;
   alt: string;
@@ -13,6 +21,7 @@ interface HeroImageProps {
   animate?: boolean;
   priority?: boolean;
   children?: React.ReactNode;
+  variants?: ImageVariants | null;
 }
 
 /**
@@ -30,6 +39,7 @@ export function HeroImage({
   animate = true,
   priority = false,
   children,
+  variants,
 }: HeroImageProps) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -70,21 +80,46 @@ export function HeroImage({
 
       {/* Main image with blur-up + entrance animation */}
       {hasImage && (
-        <motion.img
-          src={src}
-          alt={alt}
-          loading={priority ? "eager" : "lazy"}
-          onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
+        <motion.div
           initial={animate ? { opacity: 0, scale: 1.02 } : false}
           animate={loaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.02 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className={cn(
-            "w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]",
-            !loaded && "blur-sm",
-            imageClassName
-          )}
-        />
+          className="w-full h-full"
+        >
+          <picture>
+            {variants?.hero && (
+              <>
+                <source
+                  srcSet={variants.hero.replace(/\.webp$/, ".avif")}
+                  type="image/avif"
+                  sizes="(max-width: 800px) 100vw, 1600px"
+                />
+                <source
+                  srcSet={[
+                    variants.thumb && `${variants.thumb} 400w`,
+                    variants.card && `${variants.card} 800w`,
+                    variants.hero && `${variants.hero} 1600w`,
+                    variants.full && `${variants.full} 2400w`,
+                  ].filter(Boolean).join(", ")}
+                  type="image/webp"
+                  sizes="(max-width: 800px) 100vw, 1600px"
+                />
+              </>
+            )}
+            <img
+              src={variants?.hero || src}
+              alt={alt}
+              loading={priority ? "eager" : "lazy"}
+              onLoad={() => setLoaded(true)}
+              onError={() => setError(true)}
+              className={cn(
+                "w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]",
+                !loaded && "blur-sm",
+                imageClassName
+              )}
+            />
+          </picture>
+        </motion.div>
       )}
 
       {/* Gradient overlay */}

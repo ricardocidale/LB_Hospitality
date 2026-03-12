@@ -12,6 +12,11 @@ export async function runMigration(): Promise<void> {
     `);
 
     await db.execute(sql`
+      ALTER TABLE properties
+      ADD COLUMN IF NOT EXISTS escalation_method text DEFAULT 'annual'
+    `);
+
+    await db.execute(sql`
       ALTER TABLE global_assumptions
       ADD COLUMN IF NOT EXISTS company_inflation_rate real
     `);

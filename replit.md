@@ -18,28 +18,7 @@ npm run stats          # Live codebase metrics
 ```
 
 ## Tech Stack
-React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, @sentry/node + @sentry/react (error tracking), posthog-js (analytics), @upstash/redis (caching), Sharp (image processing)
-
-## Market Intelligence Pipeline
-Three-service architecture in `server/services/`:
-- **FREDService** — Fetches SOFR, Treasury yields, Prime Rate, CPI from Federal Reserve API. 24h cache with stale-while-revalidate. Includes 5-year historical series for sparklines.
-- **HospitalityBenchmarkService** — Adapter for CoStar/STR/AirDNA APIs. Fetches RevPAR, ADR, occupancy, cap rate, supply pipeline. 7-day cache. Falls back gracefully when unavailable.
-- **GroundedResearchService** — Perplexity/Tavily web search with source citations. Structured hospitality queries with cited sources.
-- **MarketIntelligenceAggregator** — Composes all three services. Parallel fetch with partial failure tolerance. Singleton via `getMarketIntelligenceAggregator()`.
-
-Data provenance badges: "verified" (green, institutional data), "cited" (blue, web-sourced with links), "estimated" (gray, AI-generated). Types in `shared/market-intelligence.ts`.
-
-API routes: `GET /api/market-rates/fred-all`, `GET /api/market-rates/fred-history/:seriesKey`, `GET /api/market-intelligence/status`, `POST /api/market-intelligence/gather`.
-
-Frontend components in `client/src/components/property-research/`: `ProvenanceBadge`, `RateSparkline`, `SourceCitations`, `MarketRateBenchmark`.
-
-## Image Processing Pipeline
-Server-side image pipeline using Sharp (`server/image/pipeline.ts`, `server/image/variants.ts`). Uploaded/generated images are processed into 4 WebP+AVIF variants:
-- `thumb` (400x300, q70) — album grids, property cards
-- `card` (800x600, q80) — portfolio cards
-- `hero` (1600x1000, q85) — hero sections
-- `full` (2400 max width, q90) — lightbox/full-screen
-Variants stored in `property_photos.variants` JSONB column. Originals preserved. Smart cropping via Sharp's attention strategy. Frontend uses `<picture>` elements with AVIF/WebP sources and srcset for responsive loading. Crop dialog integrated in upload flow.
+React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis, `@anthropic-ai/sdk@0.78.0`
 
 ## Key References
 | Topic | Location |
@@ -71,94 +50,57 @@ Three-tier cascade: `property.inflationRate → companyInflationRate → global.
 
 ## Admin Sidebar Structure
 Five categories + Logs + Help:
-- **Brand**: Management Company (Identity/contact), Ideal Customer Profile (asset type definition), Revenue Streams (unified: service categories with toggles/rates + incentive fee + USALI waterfall summary), Other Assumptions (company inflation)
-- **Business**: Users (sub-tabs: Users, Company Assignment, Group Assignment), Companies (CRUD with logo + theme), Groups (CRUD with logo, theme, asset description, property visibility)
-- **Design**: Logos (upload/manage logos), Themes (color themes)
-- **AI Agents**: Marcela / Voice (9 sub-tabs), Rebecca / Text (enable, name, prompt), Knowledge Base, Twilio
-- **System**: Research, Notifications (Slack webhook, SendGrid email, alert rules, delivery log), Navigation, Diagrams (Mermaid workflow charts L1/L2/L3), Verification, Database, Integrations (health/circuit breakers/cache)
+- **Brand**: Management Company, Ideal Customer Profile, Revenue Streams, Other Assumptions
+- **Business**: Users (3 sub-tabs), Companies, Groups
+- **Design**: Logos, Themes
+- **AI Agents**: Marcela/Voice (9 sub-tabs), Rebecca/Text, Knowledge Base, Twilio
+- **System**: Research, Notifications, Navigation, Diagrams, Verification, Database, Integrations
 - **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
-- Help link at bottom (navigates to /help)
-
-Note: The old "Services" sidebar item was merged into "Revenue Streams" — all service category CRUD, toggles, rates, industry benchmarks, centralized/direct models, and the incentive management fee are now in one unified screen.
-
-Companies table now includes `theme_id` column for per-company theme assignment.
 
 ## Property Description
-Each property has an optional `description` text field. On the property edit page, a "Description" section appears between Basic Info and Timeline. It includes an "Improve with AI" button that calls `POST /api/ai/rewrite-description` (Gemini) to polish the text. Component: `client/src/components/property-edit/DescriptionSection.tsx`. AI route: `server/routes/ai.ts`.
+Each property has an optional `description` text field with "Improve with AI" button (Gemini). Component: `client/src/components/property-edit/DescriptionSection.tsx`.
 
 ## Property Photos
-Each property has a photo album in the `property_photos` table (hero image + 2 gallery photos). The `HeroImage` component supports an optional `caption` prop displayed as an italic overlay at the bottom. The `PropertyHeader` on the detail page fetches the hero photo's caption from the photos API and passes it to `HeroImage`. Seed data in `server/seeds/photos.ts` covers both seed-file properties and live-database properties. Photos are stored as static files in `client/public/images/`.
+Photo album in `property_photos` table (hero + gallery). Sharp image pipeline generates WebP/AVIF variants (thumb/card/hero/full). Crop dialog integrated in upload flow. Frontend uses `<picture>` elements with srcset.
 
 ## Logo Assignment Policy
-Logos are assigned to **companies only**, not to groups. Groups derive their display logo automatically: if all members belong to the same company and that company has a logo, the company logo is shown; otherwise an initials-based pseudo logo is displayed. The branding resolution chain for users is: user's company logo → default system logo.
-
-## Research Skills
-Property sub-skills: local-economics, insurance-costs, marketing-costs. Company: outsourcing/make-vs-buy analysis. Global: FX, capital markets, ESG. Source registry in `shared/constants.ts` (`RESEARCH_SOURCES`).
+Logos assigned to companies only. Groups derive logos from member companies. Branding chain: user's company logo → default system logo.
 
 ## Common Pitfall: Strict Zod Schemas on Admin Save Routes
-When adding new fields to any admin config (research, voice, etc.), **always** add the field to the backend Zod validation schema AND the merge logic. Backend `.strict()` schemas reject unknown fields silently — the frontend sends the data, Zod strips/rejects it, and saves fail. Checklist:
-1. Add field to TypeScript interface in `shared/schema.ts`
-2. Add field to the Zod schema in the backend route (watch for `.strict()`)
-3. Add field to the merge/spread logic in the PUT/PATCH handler
-4. Test a round-trip save from the UI
+When adding new fields to any admin config, **always** add the field to the backend Zod schema AND the merge logic. Backend `.strict()` schemas reject unknown fields silently.
 
 ## Simulation and Analysis Page
-The `/analysis` page (sidebar label: "Simulation", title: "Simulation and Analysis") contains 4 tabs in order: Sensitivity, Compare, Timeline, Financing. Uses shadcn Tabs with icons and framer-motion transitions. Located under the "Tools" sidebar group.
-- **Sensitivity**: What-if modeling with variable sliders (occupancy, ADR growth, expense escalation, exit cap, inflation, interest rate). Tornado chart, comparison table, KPI summary strip.
-- **Compare**: Side-by-side property comparison (up to 4). Radar chart, winner summary bar, detailed table with best-value badges.
-- **Timeline**: Horizontal Gantt-style timeline of property acquisitions and operations milestones with color-coded nodes and tooltips.
-- **Financing**: 4 sub-tabs — DSCR Sizing (gauges with threshold markers), Debt Yield (pass/fail indicators), Stress Test (color-gradient DSCR heatmap with tooltips), Prepayment (3 penalty types with side-by-side comparison).
+`/analysis` — 4 tabs: Sensitivity (sliders + tornado/heatmap), Compare (side-by-side properties), Timeline (Gantt), Financing (DSCR/Debt Yield/Stress Test/Prepayment).
 
-## Dashboard Overview Sections
-The Dashboard Overview tab contains (in order): Investment Performance (IRR gauge, property IRR comparison, equity by property), KPI cards (Equity Multiple, Cash-on-Cash, Equity Invested, Projected Exit), Revenue & ANOI Projection chart, Portfolio & Capital Structure tables, Portfolio Insights (property table + InsightPanel), Portfolio Composition (market pie chart + status bars), USALI Profit Waterfall (revenue cascade with year switcher). Executive Summary content was merged into the Dashboard — `/executive-summary` redirects to `/`. Research status moved to sidebar (dot indicators).
+## Dashboard Overview
+Investment Performance (IRR gauge), KPI cards, Revenue & ANOI chart, Portfolio tables, Insights, Composition, USALI Waterfall. Executive Summary merged into Dashboard.
 
-## Sidebar Research Status
-Research freshness is shown as a compact card in the sidebar footer (above Sign Out) with 4 dot indicators: Property, Operations, Marketing, Industry. Green = fresh, red = missing/stale. Clicking navigates to `/research`. Component: `client/src/components/research/SidebarResearchStatus.tsx`.
-
-## Management Company Page Tabs
-The `/company` page contains 4 tabs: Income Statement, Cash Flows, Balance Sheet, **Tools**. The Tools tab (`client/src/pages/FundingPredictor.tsx`) has a single sub-tab:
-- **Capital Strategy**: Engine-computed capital raise analysis — KPI grid (Capital Raise Target, Tranches, Path to Breakeven, Funding Gap), Investment Thesis, Capital Structure Mermaid flowchart, Cash Runway chart, Tranche cards with terms/rationale, Early-Stage Terms Comparison table, Capital Strategy narrative, Risk Factors & Milestones.
-
-The engine at `client/src/lib/financial/funding-predictor.ts` is instrument-agnostic — it uses `fundingSourceLabel` (not hardcoded "SAFE") for all terminology. Vocabulary follows hospitality investment industry standards: "Capital Raise Target", "Net Burn Rate", "Operating Breakeven", "Investment Thesis", "Capital Strategy".
+## Management Company Page
+`/company` — 4 tabs: Income Statement, Cash Flows, Balance Sheet, Tools (Capital Strategy with engine-computed capital raise analysis).
 
 ## Export System
-Shared formatting library in `client/src/lib/exports/`. Full reference: `.agents/skills/export-system/SKILL.md`
+Shared formatting in `client/src/lib/exports/`. Full reference: `.agents/skills/export-system/SKILL.md`
+- **Premium Export**: `POST /api/exports/premium` — Agent Skills path (PDF/PPTX/DOCX via Anthropic sandbox) with template fallback; XLSX stays template-based. Service: `server/ai/agentSkillsExport.ts`
+- **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
+- **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
 
-**Premium Export (server-side, AI-enhanced):**
-- `server/routes/premium-exports.ts` — Server-side export pipeline with two generation paths:
-  - **Agent Skills path** (PDF, PPTX, DOCX): Uses Anthropic Agent Skills beta (`code-execution-2025-08-25`, `skills-2025-10-02`, `files-api-2025-04-14`) — Claude generates actual files in a sandboxed container using pre-built skills (`pdf`, `pptx`, `docx`). File is downloaded via the Files API. Falls back to template pipeline on failure.
-  - **Template path** (XLSX): Anthropic generates JSON structure → server renders file using `xlsx` library. Excel stays template-based for precise numerical formatting and formula support.
-- `server/ai/agentSkillsExport.ts` — Agent Skills service: builds branded prompts with HBG palette, sends to `client.beta.messages.create()` with container skills config, extracts `file_id` from `code_execution_result` blocks, downloads binary via `client.beta.files.content()`
-- Endpoint: `POST /api/exports/premium` (authenticated) — accepts `{format, entityName, companyName, statements, metrics, ...}`, returns binary file download
-- Status: `GET /api/exports/premium/status` — checks API key availability
-- DOCX investor memo format is net-new (not available client-side)
-- `ExportDialog.tsx` — Updated with "Premium Export" toggle (Switch component) that routes through server-side Anthropic pipeline. Falls back to client-side export on server failure. Supports format selection (PDF, Excel, PowerPoint, Word Memo)
-- Premium data is passed from Dashboard, PropertyDetail, and Company pages via `premiumExportData` prop
-- SDK: `@anthropic-ai/sdk@0.78.0` (upgraded for Agent Skills beta support)
+## Market Intelligence Pipeline
+Three-service architecture: FREDService (interest rates, 24h cache), HospitalityBenchmarkService (RevPAR/ADR/occupancy, 7d cache), GroundedResearchService (web search with citations). Aggregator composes all three. Provenance badges: verified/cited/estimated.
 
-**Core modules:**
-- `exportStyles.ts` — Brand palette (`BRAND.*`), row classification (`classifyRow`), `normalizeCaps()` (ALL CAPS → Title Case preserving abbreviations like GOP, NOI, GAAP), number formatting (`formatShort`, `formatFull`, `formatPct`), PPTX layout helpers (`pptxFontSize`, `pptxColumnWidths`)
-- `pdfHelpers.ts` — jsPDF page layout (`drawBrandedHeader`, `drawTitle`, `drawSubtitle`, `drawSectionHeader`, `drawParagraph`, `drawKeyValue`), financial table config (`buildFinancialTableConfig` with alternating row tint, section divider lines, table frame), footers (`addFooters` — MUST be called LAST)
-- `pptxExport.ts` — pptxgenjs 16:9 widescreen slides (`exportPortfolioPPTX`, `exportPropertyPPTX`, `exportCompanyPPTX`); `addAllFooters(ctx)` post-processes all slides including auto-paginated overflow (pptxgenjs `slidenum` field is unreliable); dynamic font sizing (10/9/8/7pt), alternating rows, sage-green table frame
-- `pdfChartDrawer.ts` — `drawLineChart()` for manual multi-series line charts in jsPDF
-- `pngExport.ts` — DOM-to-PNG via dom-to-image-more (`exportTablePNG`, `exportChartPNG`, `captureChartAsImage`)
-- `csvExport.ts` — `downloadCSV(content, filename)` browser download helper
-- `excel/` — SheetJS workbook generation: `helpers.ts` (formatting), `property-sheets.ts`, `portfolio-sheet.ts`
+## Geospatial Intelligence
+Properties have optional lat/lng. Google Maps API for geocoding/autocomplete/POI search. MapLibre GL for rendering. Portfolio map with DSCR coloring + Supercluster clustering.
 
-**Consumer modules:**
-- `dashboardExports.ts` — Portfolio data generators (income, cash flow, balance sheet, investment), `toExportData()` (maps `isHeader → isBold`)
-- `companyExports.ts` — Management company PDF/CSV/PPTX/PNG export wrappers
+## Financial Engine Additions
+Working capital (AR/AP days), NOL carryforward (80% utilization cap), MIRR, day-count conventions (30/360, ACT/360, ACT/365), cost segregation accelerated depreciation.
 
-**Design rules (PDF + PPTX consistent):**
-- No ALL CAPS labels — `normalizeCaps()` converts at render time, preserves abbreviations
-- Alternating row tint (#F8FAF9) on data rows; section headers/subtotals excluded from stripe counter
-- Thicker section divider lines (1.2pt PPTX / 0.6pt PDF) in sage-green
-- Table frame: 1.5pt sage outer border (PPTX), 0.6pt (PDF)
-- Header row: sage fill with white bold text
-- Footer: company name + page numbers on every page/slide, added LAST before save/writeFile
+## Observability
+Sentry (error tracking), PostHog (analytics), Upstash Redis (caching with SWR), circuit breakers on all integrations. Admin Integrations tab shows health/cache/circuit state.
 
-## Geospatial Intelligence Layer
-Properties have optional `latitude`/`longitude` columns. Google Maps API (`GOOGLE_MAPS_API_KEY`) provides geocoding, places autocomplete, and nearby POI search. MapLibre GL renders all maps (open-source). Routes: `POST /api/geocode`, `GET /api/places/autocomplete`, `GET /api/places/nearby`. Portfolio map (`/map`) uses DSCR-based performance coloring + Supercluster clustering. Property detail pages show location + nearby POIs. Key files: `server/integrations/geospatial.ts`, `server/routes/geospatial.ts`, `client/src/components/PropertyMap.tsx`, `client/src/components/AddressAutocomplete.tsx`, `client/src/pages/MapView.tsx`.
+## Communication & Alerts
+SendGrid email + Slack webhooks. Alert rules engine with metric thresholds, cooldowns, multi-channel delivery. Admin Notifications tab. `ShareEmailModal` for branded report sharing.
+
+## D3.js Visualizations
+WaterfallChart (revenue-to-NOI bridge), SensitivityHeatMap (ADR × Occupancy grid), TornadoDiagram (assumption impact ranking). Export to PDF/PPTX via `toCanvas()`.
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

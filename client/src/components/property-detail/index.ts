@@ -19,3 +19,4 @@ export { default as IncomeStatementTab } from "./IncomeStatementTab";
 export { default as CashFlowTab } from "./CashFlowTab";
 export { default as PropertyHeader } from "./PropertyHeader";
 export { default as BenchmarkPanel } from "./BenchmarkPanel";
+export { default as ReconciliationTab } from "./ReconciliationTab";

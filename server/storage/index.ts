@@ -30,6 +30,7 @@ import { AdminStorage } from "./admin";
 import { ActivityStorage, type ActivityLogFilters } from "./activity";
 import { ResearchStorage } from "./research";
 import { PhotoStorage } from "./photos";
+import { PlaidStorage } from "./plaid";
 
 export interface IStorage extends
   UserStorage,
@@ -38,7 +39,8 @@ export interface IStorage extends
   AdminStorage,
   ActivityStorage,
   ResearchStorage,
-  PhotoStorage {
+  PhotoStorage,
+  PlaidStorage {
   deleteUser(id: number): Promise<void>;
 }
 
@@ -50,6 +52,7 @@ export class DatabaseStorage implements IStorage {
   private activity = new ActivityStorage();
   private research = new ResearchStorage();
   private photos = new PhotoStorage();
+  private plaid = new PlaidStorage();
 
   // Users
   getUserById = this.users.getUserById.bind(this.users);
@@ -174,6 +177,22 @@ export class DatabaseStorage implements IStorage {
   deletePropertyPhoto = this.photos.deletePropertyPhoto.bind(this.photos);
   setHeroPhoto = this.photos.setHeroPhoto.bind(this.photos);
   reorderPhotos = this.photos.reorderPhotos.bind(this.photos);
+
+  // Plaid
+  createPlaidConnection = this.plaid.createPlaidConnection.bind(this.plaid);
+  getPlaidConnectionsByProperty = this.plaid.getPlaidConnectionsByProperty.bind(this.plaid);
+  getPlaidConnectionById = this.plaid.getPlaidConnectionById.bind(this.plaid);
+  getPlaidConnectionByItemId = this.plaid.getPlaidConnectionByItemId.bind(this.plaid);
+  updatePlaidConnectionSync = this.plaid.updatePlaidConnectionSync.bind(this.plaid);
+  updatePlaidConnectionAccounts = this.plaid.updatePlaidConnectionAccounts.bind(this.plaid);
+  updatePlaidConnectionToken = this.plaid.updatePlaidConnectionToken.bind(this.plaid);
+  deletePlaidConnection = this.plaid.deletePlaidConnection.bind(this.plaid);
+  createPlaidTransactions = this.plaid.createPlaidTransactions.bind(this.plaid);
+  getPlaidTransactionsByProperty = this.plaid.getPlaidTransactionsByProperty.bind(this.plaid);
+  removePlaidTransactionsByIds = this.plaid.removePlaidTransactionsByIds.bind(this.plaid);
+  updatePlaidTransactionCategories = this.plaid.updatePlaidTransactionCategories.bind(this.plaid);
+  getCategorizationCache = this.plaid.getCategorizationCache.bind(this.plaid);
+  upsertCategorizationCache = this.plaid.upsertCategorizationCache.bind(this.plaid);
 
   /**
    * Delete a user and ALL related data in a single transaction.

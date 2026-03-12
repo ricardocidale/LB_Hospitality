@@ -120,7 +120,11 @@
     "p-retry": "^7.1.1",
     "passport": "^0.7.0",
     "pg": "^8.18.0",
+
     "posthog-js": "^1.360.1",
+    "plaid": "^41.4.0",
+    "plaid": "^41.4.0",
+
     "pptxgenjs": "^4.0.1",
     "react": "^19.2.4",
     "react-confetti": "^6.4.0",

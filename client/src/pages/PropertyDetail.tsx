@@ -31,7 +31,8 @@ import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet"
 import { CalcDetailsProvider } from "@/components/financial-table-rows";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
-import { IconAlertTriangle, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconPPE } from "@/components/icons";import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { IconAlertTriangle, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconPPE, IconBanknote } from "@/components/icons";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
 import {
@@ -59,6 +60,7 @@ import {
   CashFlowTab,
   PropertyHeader,
   BenchmarkPanel,
+  ReconciliationTab,
 } from "@/components/property-detail";
 import PropertyMap from "@/components/PropertyMap";
 
@@ -769,7 +771,8 @@ export default function PropertyDetail() {
                 { value: 'income', label: 'Income Statement', icon: IconIncomeStatement },
                 { value: 'cashflow', label: 'Cash Flows', icon: IconCashFlow },
                 { value: 'balance', label: 'Balance Sheet', icon: IconBalanceSheet },
-                { value: 'ppe', label: 'PP&E / Cost Basis', icon: IconPPE }
+                { value: 'ppe', label: 'PP&E / Cost Basis', icon: IconPPE },
+                { value: 'reconciliation', label: 'Reconciliation', icon: IconBanknote }
               ]}
               activeTab={activeTab}
               onTabChange={setActiveTab}
@@ -831,6 +834,15 @@ export default function PropertyDetail() {
 
           <TabsContent value="ppe" className="mt-6">
             <PPECostBasisSchedule property={property} global={global} />
+          </TabsContent>
+
+          <TabsContent value="reconciliation" className="mt-6">
+            <ReconciliationTab
+              propertyId={propertyId}
+              financials={financials}
+              startYear={startYear}
+              projectionYears={projectionYears}
+            />
           </TabsContent>
         </Tabs>
         </CalcDetailsProvider>

@@ -84,6 +84,12 @@ Shared formatting in `client/src/lib/exports/`. Full reference: `.agents/skills/
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
 
+**Premium Export:** `server/routes/premium-exports.ts` — two paths: Agent Skills (PDF/PPTX/DOCX via Anthropic sandbox) and Template (XLSX via SheetJS). `ExportDialog.tsx` has "Premium Export" toggle. SDK: `@anthropic-ai/sdk@0.78.0`.
+
+**Core modules:** `exportStyles.ts` (brand palette, `normalizeCaps`, formatting), `pdfHelpers.ts` (jsPDF layout), `pptxExport.ts` (16:9 slides), `pdfChartDrawer.ts`, `pngExport.ts`, `csvExport.ts`, `excel/` (SheetJS).
+
+**Design rules:** No ALL CAPS (`normalizeCaps`), alternating row tint (#F8FAF9), sage-green section dividers/table frame, white-on-sage header, footer on every page (added LAST).
+
 ## Market Intelligence Pipeline
 Three-service architecture: FREDService (interest rates, 24h cache), HospitalityBenchmarkService (RevPAR/ADR/occupancy, 7d cache), GroundedResearchService (web search with citations). Aggregator composes all three. Provenance badges: verified/cited/estimated.
 
@@ -101,6 +107,9 @@ SendGrid email + Slack webhooks. Alert rules engine with metric thresholds, cool
 
 ## D3.js Visualizations
 WaterfallChart (revenue-to-NOI bridge), SensitivityHeatMap (ADR × Occupancy grid), TornadoDiagram (assumption impact ranking). Export to PDF/PPTX via `toCanvas()`.
+
+## Financial Account Reconciliation (Plaid)
+Plaid bank linking for actual vs. projected reconciliation per property. AES-256-GCM encrypted tokens, two-tier USALI categorization (rules + AI), row-level access control. Tables: `plaid_connections`, `plaid_transactions`, `plaid_categorization_cache`. Env: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV`, optional `PLAID_TOKEN_ENCRYPTION_KEY`. Files: `server/crypto/plaid-tokens.ts`, `server/integrations/plaid*.ts`, `server/storage/plaid.ts`, `server/routes/plaid.ts`, `ReconciliationTab.tsx`.
 
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

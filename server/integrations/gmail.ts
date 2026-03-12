@@ -1,7 +1,36 @@
-// Gmail Integration (Replit Connection)
 import { google } from 'googleapis';
+import { BaseIntegrationService, type IntegrationHealth } from './base';
 
 let connectionSettings: any;
+
+class GmailIntegration extends BaseIntegrationService {
+  readonly serviceName = "Gmail";
+
+  async healthCheck(): Promise<IntegrationHealth> {
+    const start = Date.now();
+    try {
+      await getAccessToken();
+      return {
+        name: this.serviceName,
+        healthy: true,
+        latencyMs: Date.now() - start,
+        circuitState: this.getCircuitState(),
+        ...this.getLastError(),
+      };
+    } catch (error: any) {
+      return {
+        name: this.serviceName,
+        healthy: false,
+        latencyMs: Date.now() - start,
+        lastError: error.message,
+        circuitState: this.getCircuitState(),
+      };
+    }
+  }
+}
+
+const gmailIntegration = new GmailIntegration();
+export const getGmailHealthCheck = () => gmailIntegration.healthCheck();
 
 async function getAccessToken() {
   if (connectionSettings && connectionSettings.settings.expires_at && new Date(connectionSettings.settings.expires_at).getTime() > Date.now()) {
@@ -51,29 +80,31 @@ export async function getUncachableGmailClient() {
 }
 
 export async function sendResearchEmail(to: string, subject: string, body: string) {
-  const gmail = await getUncachableGmailClient();
-  const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString('base64')}?=`;
-  const messageParts = [
-    `From: Hospitality Platform <noreply@replit.com>`,
-    `To: ${to}`,
-    `Content-Type: text/html; charset=utf-8`,
-    `MIME-Version: 1.0`,
-    `Subject: ${utf8Subject}`,
-    '',
-    body,
-  ];
-  const message = messageParts.join('\n');
+  return gmailIntegration.execute("sendEmail", async () => {
+    const gmail = await getUncachableGmailClient();
+    const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString('base64')}?=`;
+    const messageParts = [
+      `From: Hospitality Platform <noreply@replit.com>`,
+      `To: ${to}`,
+      `Content-Type: text/html; charset=utf-8`,
+      `MIME-Version: 1.0`,
+      `Subject: ${utf8Subject}`,
+      '',
+      body,
+    ];
+    const message = messageParts.join('\n');
 
-  const encodedMessage = Buffer.from(message)
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+    const encodedMessage = Buffer.from(message)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
 
-  await gmail.users.messages.send({
-    userId: 'me',
-    requestBody: {
-      raw: encodedMessage,
-    },
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage,
+      },
+    });
   });
 }

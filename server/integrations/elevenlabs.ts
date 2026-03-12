@@ -1,7 +1,37 @@
 import { ElevenLabsClient } from 'elevenlabs';
 import WebSocket from 'ws';
+import { BaseIntegrationService, type IntegrationHealth } from './base';
 
 let connectionSettings: any;
+
+class ElevenLabsIntegration extends BaseIntegrationService {
+  readonly serviceName = "ElevenLabs";
+
+  async healthCheck(): Promise<IntegrationHealth> {
+    const start = Date.now();
+    try {
+      await getCredentials();
+      return {
+        name: this.serviceName,
+        healthy: true,
+        latencyMs: Date.now() - start,
+        circuitState: this.getCircuitState(),
+        ...this.getLastError(),
+      };
+    } catch (error: any) {
+      return {
+        name: this.serviceName,
+        healthy: false,
+        latencyMs: Date.now() - start,
+        lastError: error.message,
+        circuitState: this.getCircuitState(),
+      };
+    }
+  }
+}
+
+const elevenLabsIntegration = new ElevenLabsIntegration();
+export const getElevenLabsHealthCheck = () => elevenLabsIntegration.healthCheck();
 
 async function getCredentials() {
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
@@ -178,24 +208,26 @@ export interface ConvaiConversationListItem {
 const CONVAI_BASE = 'https://api.elevenlabs.io/v1/convai';
 
 async function convaiRequest<T>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
-  const apiKey = await getCredentials();
-  const { method = 'GET', body } = options;
-  const headers: Record<string, string> = { 'xi-api-key': apiKey };
-  if (body) headers['Content-Type'] = 'application/json';
+  return elevenLabsIntegration.execute(`convai:${options.method || 'GET'}`, async () => {
+    const apiKey = await getCredentials();
+    const { method = 'GET', body } = options;
+    const headers: Record<string, string> = { 'xi-api-key': apiKey };
+    if (body) headers['Content-Type'] = 'application/json';
 
-  const response = await fetch(`${CONVAI_BASE}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
+    const response = await fetch(`${CONVAI_BASE}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`ElevenLabs Convai API error (${response.status}): ${text}`);
+    }
+
+    if (response.status === 204) return {} as T;
+    return response.json() as Promise<T>;
   });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`ElevenLabs Convai API error (${response.status}): ${text}`);
-  }
-
-  if (response.status === 204) return {} as T;
-  return response.json() as Promise<T>;
 }
 
 export async function getConvaiAgent(agentId: string): Promise<ConvaiAgent> {

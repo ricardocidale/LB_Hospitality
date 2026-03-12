@@ -10,6 +10,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconRefreshCw } from "@/components/icons";
+import { captureClientException } from "@/lib/sentry";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught:", error, errorInfo);
+    captureClientException(error, { boundary: "ErrorBoundary" });
   }
 
   render() {
@@ -70,6 +72,7 @@ export class FinancialErrorBoundary extends React.Component<ErrorBoundaryProps, 
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("Financial calculation error:", error, errorInfo);
+    captureClientException(error, { boundary: "FinancialErrorBoundary" });
   }
 
   render() {

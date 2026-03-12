@@ -1,7 +1,36 @@
-// Stripe Integration (Replit Connection)
 import Stripe from 'stripe';
+import { BaseIntegrationService, type IntegrationHealth } from './base';
 
 let connectionSettings: any;
+
+class StripeIntegration extends BaseIntegrationService {
+  readonly serviceName = "Stripe";
+
+  async healthCheck(): Promise<IntegrationHealth> {
+    const start = Date.now();
+    try {
+      await getCredentials();
+      return {
+        name: this.serviceName,
+        healthy: true,
+        latencyMs: Date.now() - start,
+        circuitState: this.getCircuitState(),
+        ...this.getLastError(),
+      };
+    } catch (error: any) {
+      return {
+        name: this.serviceName,
+        healthy: false,
+        latencyMs: Date.now() - start,
+        lastError: error.message,
+        circuitState: this.getCircuitState(),
+      };
+    }
+  }
+}
+
+const stripeIntegration = new StripeIntegration();
+export const getStripeHealthCheck = () => stripeIntegration.healthCheck();
 
 async function getCredentials() {
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;

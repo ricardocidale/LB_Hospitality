@@ -1,0 +1,172 @@
+import { cache } from "../cache";
+import { logger } from "../logger";
+import { startSpanAsync, captureException } from "../sentry";
+
+export type CircuitState = "closed" | "open" | "half-open";
+
+interface CircuitBreakerConfig {
+  failureThreshold: number;
+  windowMs: number;
+  cooldownMs: number;
+}
+
+interface RetryConfig {
+  maxAttempts: number;
+  baseDelayMs: number;
+  maxDelayMs: number;
+}
+
+interface CircuitBreakerState {
+  state: CircuitState;
+  failureTimestamps: number[];
+  lastFailureAt: number;
+  openedAt: number;
+}
+
+export interface IntegrationHealth {
+  name: string;
+  healthy: boolean;
+  latencyMs: number;
+  lastError?: string;
+  lastErrorAt?: number;
+  circuitState: CircuitState;
+}
+
+const circuitBreakers = new Map<string, CircuitBreakerState>();
+
+function getCircuitState(name: string): CircuitBreakerState {
+  if (!circuitBreakers.has(name)) {
+    circuitBreakers.set(name, {
+      state: "closed",
+      failureTimestamps: [],
+      lastFailureAt: 0,
+      openedAt: 0,
+    });
+  }
+  return circuitBreakers.get(name)!;
+}
+
+export abstract class BaseIntegrationService {
+  abstract readonly serviceName: string;
+
+  protected circuitConfig: CircuitBreakerConfig = {
+    failureThreshold: 5,
+    windowMs: 60_000,
+    cooldownMs: 30_000,
+  };
+
+  protected retryConfig: RetryConfig = {
+    maxAttempts: 3,
+    baseDelayMs: 200,
+    maxDelayMs: 5_000,
+  };
+
+  abstract healthCheck(): Promise<IntegrationHealth>;
+
+  getCircuitState(): CircuitState {
+    const cb = getCircuitState(this.serviceName);
+    if (cb.state === "open") {
+      const elapsed = Date.now() - cb.openedAt;
+      if (elapsed >= this.circuitConfig.cooldownMs) {
+        cb.state = "half-open";
+      }
+    }
+    return cb.state;
+  }
+
+  getLastError(): { lastError?: string; lastErrorAt?: number } {
+    const cb = getCircuitState(this.serviceName);
+    return {
+      lastError: (cb as any).lastErrorMessage,
+      lastErrorAt: cb.lastFailureAt || undefined,
+    };
+  }
+
+  protected async withCircuitBreaker<T>(fn: () => Promise<T>): Promise<T> {
+    const cb = getCircuitState(this.serviceName);
+    const state = this.getCircuitState();
+
+    if (state === "open") {
+      throw new Error(`${this.serviceName} circuit breaker is OPEN — service unavailable`);
+    }
+
+    try {
+      const result = await fn();
+      if (state === "half-open") {
+        cb.state = "closed";
+        cb.failureTimestamps = [];
+        logger.info(`${this.serviceName} circuit breaker CLOSED (probe succeeded)`, "integration");
+      }
+      return result;
+    } catch (error) {
+      const now = Date.now();
+      cb.lastFailureAt = now;
+      (cb as any).lastErrorMessage = error instanceof Error ? error.message : String(error);
+
+      const windowStart = now - this.circuitConfig.windowMs;
+      cb.failureTimestamps = cb.failureTimestamps.filter((t) => t >= windowStart);
+      cb.failureTimestamps.push(now);
+
+      if (cb.failureTimestamps.length >= this.circuitConfig.failureThreshold) {
+        cb.state = "open";
+        cb.openedAt = now;
+        logger.warn(`${this.serviceName} circuit breaker OPENED after ${cb.failureTimestamps.length} failures in window`, "integration");
+      }
+
+      if (state === "half-open") {
+        cb.state = "open";
+        cb.openedAt = now;
+        logger.warn(`${this.serviceName} circuit breaker re-OPENED (probe failed)`, "integration");
+      }
+
+      throw error;
+    }
+  }
+
+  protected async withRetry<T>(fn: () => Promise<T>): Promise<T> {
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= this.retryConfig.maxAttempts; attempt++) {
+      try {
+        return await fn();
+      } catch (error: any) {
+        lastError = error;
+        if (!this.isTransientError(error)) throw error;
+        if (attempt === this.retryConfig.maxAttempts) break;
+
+        const delay = Math.min(
+          this.retryConfig.baseDelayMs * Math.pow(2, attempt - 1) + Math.random() * 100,
+          this.retryConfig.maxDelayMs,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+    throw lastError;
+  }
+
+  protected async withCache<T>(key: string, ttlSeconds: number, fn: () => Promise<T>): Promise<T> {
+    return cache.cacheThrough(key, ttlSeconds, fn);
+  }
+
+  async execute<T>(operation: string, fn: () => Promise<T>): Promise<T> {
+    return startSpanAsync(`${this.serviceName}.${operation}`, "integration.call", () =>
+      this.withCircuitBreaker(() => this.withRetry(fn)),
+    );
+  }
+
+  private isTransientError(error: any): boolean {
+    if (!error) return false;
+    const status = error.status || error.statusCode || error.code;
+    if (typeof status === "number" && status >= 400 && status < 500) return false;
+    if (typeof status === "number" && status >= 500) return true;
+    const msg = String(error.message || "").toLowerCase();
+    if (msg.includes("econnreset") || msg.includes("econnrefused") || msg.includes("etimedout") || msg.includes("timeout") || msg.includes("network")) {
+      return true;
+    }
+    if (typeof status === "number" && status >= 500) return true;
+    return msg.includes("5") && msg.includes("error");
+  }
+}
+
+export function getAllIntegrationHealth(): Map<string, CircuitBreakerState> {
+  return circuitBreakers;
+}

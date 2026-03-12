@@ -33,6 +33,11 @@ import {
 import { Loader2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/Login";
+import { initClientSentry, setClientUser, Sentry } from "@/lib/sentry";
+import { initAnalytics, identifyUser, trackUserLogin } from "@/lib/analytics";
+
+initClientSentry();
+initAnalytics();
 import { ResearchRefreshOverlay } from "@/components/ResearchRefreshOverlay";
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Company = lazy(() => import("@/pages/Company"));
@@ -156,6 +161,14 @@ function Router() {
   const { user, isLoading } = useAuth();
   const [showResearchRefresh, setShowResearchRefresh] = useState(false);
   const prevUserRef = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      setClientUser({ id: user.id, email: user.email, role: user.role });
+      identifyUser({ id: user.id, email: user.email, role: user.role, companyId: user.companyId });
+      if (!prevUserRef[0]) trackUserLogin(user.role);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user && !prevUserRef[0]) {
@@ -336,16 +349,18 @@ function Router() {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <Sentry.ErrorBoundary fallback={<ErrorBoundary><div /></ErrorBoundary>}>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </Sentry.ErrorBoundary>
   );
 }
 

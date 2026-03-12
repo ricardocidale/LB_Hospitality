@@ -18,7 +18,7 @@ npm run stats          # Live codebase metrics
 ```
 
 ## Tech Stack
-React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs
+React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, @sentry/node + @sentry/react (error tracking), posthog-js (analytics), @upstash/redis (caching)
 
 ## Key References
 | Topic | Location |
@@ -54,7 +54,7 @@ Five categories + Logs + Help:
 - **Business**: Users (sub-tabs: Users, Company Assignment, Group Assignment), Companies (CRUD with logo + theme), Groups (CRUD with logo, theme, asset description, property visibility)
 - **Design**: Logos (upload/manage logos), Themes (color themes)
 - **AI Agents**: Marcela / Voice (9 sub-tabs), Rebecca / Text (enable, name, prompt), Knowledge Base, Twilio
-- **System**: Research, Navigation, Diagrams (Mermaid workflow charts L1/L2/L3), Verification, Database
+- **System**: Research, Navigation, Diagrams (Mermaid workflow charts L1/L2/L3), Verification, Database, Integrations (health/circuit breakers/cache)
 - **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
 - Help link at bottom (navigates to /help)
 

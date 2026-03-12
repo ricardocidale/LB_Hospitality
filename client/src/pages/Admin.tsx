@@ -19,6 +19,7 @@ import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
 import AIAgentsTab from "@/components/admin/AIAgentsTab";
 import DiagramsTab from "@/components/admin/DiagramsTab";
+import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
@@ -41,6 +42,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   diagrams:         { title: "Diagrams",              subtitle: "Application workflow diagrams and architecture" },
   verification:     { title: "Verification",         subtitle: "Independent GAAP financial audit and compliance" },
   database:         { title: "Database",             subtitle: "Entity monitoring, seed data, and canonical sync" },
+  integrations:     { title: "Integrations",         subtitle: "External service health, circuit breakers, and cache management" },
 };
 
 function SectionContent({ section, onNavigate }: { section: AdminSection; onNavigate: (s: AdminSection) => void }) {
@@ -74,6 +76,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "diagrams":         return <DiagramsTab />;
     case "verification":     return <VerificationTab />;
     case "database":         return <DatabaseTab />;
+    case "integrations":     return <IntegrationHealthTab />;
     default:                 return null;
   }
 }

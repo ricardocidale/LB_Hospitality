@@ -29,6 +29,9 @@ import { createServer } from "http";
 import { authMiddleware, requireAuth, seedAdminUser, cleanupRateLimitMaps } from "./auth";
 import { storage } from "./storage";
 import { log as serverLog } from "./logger";
+import { initSentry, sentryRequestHandler, sentryErrorHandler, setupSentryExpressErrorHandler } from "./sentry";
+
+initSentry();
 
 const app = express();
 const httpServer = createServer(app);
@@ -39,6 +42,7 @@ declare module "http" {
   }
 }
 
+app.use(sentryRequestHandler());
 app.use(cookieParser());
 
 app.use((req, res, next) => {
@@ -46,7 +50,7 @@ app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
-  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.elevenlabs.io wss://api.elevenlabs.io; media-src 'self' blob:");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.elevenlabs.io wss://api.elevenlabs.io https://*.ingest.sentry.io https://*.sentry.io https://us.i.posthog.com https://app.posthog.com; media-src 'self' blob:");
   if (process.env.NODE_ENV === "production") {
     res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   }
@@ -159,6 +163,8 @@ app.use((req, res, next) => {
   await seedPropertyPhotos();
   registerImageRoutes(app);
   await registerRoutes(httpServer, app);
+
+  setupSentryExpressErrorHandler(app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

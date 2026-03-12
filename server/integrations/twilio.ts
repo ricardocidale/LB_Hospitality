@@ -1,6 +1,36 @@
 import twilio from 'twilio';
+import { BaseIntegrationService, type IntegrationHealth } from './base';
 
 let connectionSettings: any;
+
+class TwilioIntegration extends BaseIntegrationService {
+  readonly serviceName = "Twilio";
+
+  async healthCheck(): Promise<IntegrationHealth> {
+    const start = Date.now();
+    try {
+      await getCredentials();
+      return {
+        name: this.serviceName,
+        healthy: true,
+        latencyMs: Date.now() - start,
+        circuitState: this.getCircuitState(),
+        ...this.getLastError(),
+      };
+    } catch (error: any) {
+      return {
+        name: this.serviceName,
+        healthy: false,
+        latencyMs: Date.now() - start,
+        lastError: error.message,
+        circuitState: this.getCircuitState(),
+      };
+    }
+  }
+}
+
+const twilioIntegration = new TwilioIntegration();
+export const getTwilioHealthCheck = () => twilioIntegration.healthCheck();
 
 async function getCredentials() {
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
@@ -58,33 +88,35 @@ export async function getTwilioStatus(): Promise<{ connected: boolean; phoneNumb
 
 export async function sendSMS(to: string, body: string): Promise<{ success: boolean; sid?: string; error?: string }> {
   try {
-    const client = await getTwilioClient();
-    const fromNumber = await getTwilioFromPhoneNumber();
-    
-    const MAX_SMS_LENGTH = 1600;
-    const segments = [];
-    let remaining = body;
-    while (remaining.length > 0) {
-      if (remaining.length <= MAX_SMS_LENGTH) {
-        segments.push(remaining);
-        break;
+    return await twilioIntegration.execute("sendSMS", async () => {
+      const client = await getTwilioClient();
+      const fromNumber = await getTwilioFromPhoneNumber();
+      
+      const MAX_SMS_LENGTH = 1600;
+      const segments = [];
+      let remaining = body;
+      while (remaining.length > 0) {
+        if (remaining.length <= MAX_SMS_LENGTH) {
+          segments.push(remaining);
+          break;
+        }
+        let splitAt = remaining.lastIndexOf(' ', MAX_SMS_LENGTH);
+        if (splitAt === -1) splitAt = MAX_SMS_LENGTH;
+        segments.push(remaining.slice(0, splitAt));
+        remaining = remaining.slice(splitAt).trim();
       }
-      let splitAt = remaining.lastIndexOf(' ', MAX_SMS_LENGTH);
-      if (splitAt === -1) splitAt = MAX_SMS_LENGTH;
-      segments.push(remaining.slice(0, splitAt));
-      remaining = remaining.slice(splitAt).trim();
-    }
 
-    let lastSid = '';
-    for (const segment of segments) {
-      const msg = await client.messages.create({
-        to,
-        from: fromNumber,
-        body: segment,
-      });
-      lastSid = msg.sid;
-    }
-    return { success: true, sid: lastSid };
+      let lastSid = '';
+      for (const segment of segments) {
+        const msg = await client.messages.create({
+          to,
+          from: fromNumber,
+          body: segment,
+        });
+        lastSid = msg.sid;
+      }
+      return { success: true, sid: lastSid };
+    });
   } catch (error: any) {
     return { success: false, error: error.message };
   }

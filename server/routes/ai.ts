@@ -1,5 +1,6 @@
 import { type Express, type Request, type Response } from "express";
 import { GoogleGenAI } from "@google/genai";
+import Anthropic from "@anthropic-ai/sdk";
 import { requireAuth } from "../auth";
 import { z } from "zod";
 
@@ -64,6 +65,65 @@ Rewritten description:`;
         return res.status(503).json({ error: "AI service is not available" });
       }
       res.status(500).json({ error: "Failed to rewrite description" });
+    }
+  });
+
+  const optimizeSchema = z.object({
+    prompt: z.string().min(1).max(50000),
+  });
+
+  app.post("/api/ai/optimize-prompt", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const parsed = optimizeSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid request" });
+      }
+      const { prompt } = parsed.data;
+
+      const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+      if (!apiKey) {
+        return res.status(503).json({ error: "AI service is not available" });
+      }
+
+      const anthropic = new Anthropic({
+        apiKey,
+        baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
+      });
+
+      const response = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 8192,
+        messages: [
+          {
+            role: "user",
+            content: `You are a prompt engineering expert specializing in hospitality investment research. Your task is to optimize the following Ideal Customer Profile (ICP) prompt so it produces the best possible results when used to instruct an LLM performing market research on boutique luxury hotel investment opportunities.
+
+Rules:
+- Keep ALL factual data, ranges, numbers, and specifications exactly as provided
+- Restructure for clarity and LLM comprehension
+- Use markdown formatting (headers, bullet lists, bold for key terms)
+- Add clear section delineators
+- Optimize the language for precision — remove ambiguity, strengthen classification tags
+- Ensure the prompt reads as a structured brief that an AI research agent can follow step-by-step
+- Do NOT add fictional data or change any numeric ranges
+- Do NOT remove any sections — every piece of information must be preserved
+- Output ONLY the optimized prompt, no commentary
+
+Original prompt to optimize:
+
+${prompt}`,
+          },
+        ],
+      });
+
+      const optimized = response.content[0]?.type === "text" ? response.content[0].text.trim() : "";
+      if (!optimized) {
+        return res.status(500).json({ error: "No response from AI" });
+      }
+      res.json({ optimized });
+    } catch (error: any) {
+      console.error("[ai/optimize-prompt] Error:", error?.message || error);
+      res.status(500).json({ error: "Failed to optimize prompt" });
     }
   });
 }

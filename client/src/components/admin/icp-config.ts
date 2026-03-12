@@ -119,6 +119,7 @@ export interface IcpConfig {
   equityMultipleMax: number;
   holdYearsMin: number;
   holdYearsMax: number;
+  fbRating: number;
 }
 
 export type Priority = "must" | "major" | "nice" | "no";
@@ -251,6 +252,7 @@ export const DEFAULT_ICP_CONFIG: IcpConfig = {
   equityMultipleMax: 3.0,
   holdYearsMin: 7,
   holdYearsMax: 10,
+  fbRating: 4,
 };
 
 export type UnitType = "area" | "land" | "distance" | "none";
@@ -380,7 +382,9 @@ export function generateIcpPrompt(c: IcpConfig, d: IcpDescriptive, propertyLabel
     `━━━ PROPERTY TYPE & POSITIONING ━━━`,
     d.propertyTypes,
     ``,
-    `━━━ FOOD & BEVERAGE LEVEL ━━━`,
+    `━━━ FOOD & BEVERAGE ━━━`,
+    `F&B Rating: ${c.fbRating}/5`,
+    ``,
     d.fbLevel,
     ``,
     `━━━ SIZE, CAPACITY & PHYSICAL DIMENSIONS ━━━`,
@@ -558,6 +562,12 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
     ],
   },
   {
+    title: "Food & Beverage",
+    fields: [
+      { key: "fbRating", label: "F&B Rating (1–5)", type: "number", defaultPriority: "must", help: "Overall F&B operation rating on a 1–5 scale. 1 = continental breakfast only, 2 = limited F&B, 3 = full breakfast + light dinner, 4 = full-service restaurant + bar, 5 = destination dining with celebrity chef and extensive wine program." },
+    ],
+  },
+  {
     title: "Operational Facilities",
     fields: [
       { key: "kitchenSqFt", label: "Kitchen (min)", type: "number", unitType: "area", defaultPriority: "must", help: "Commercial or semi-commercial kitchen with hood ventilation, grease trap, walk-in cooler/freezer, prep and dish areas." },
@@ -710,3 +720,97 @@ export const DESCRIPTIVE_SECTIONS: DescriptiveSection[] = [
   { key: "exclusions", label: "Exclusions", rows: 5, help: "Property types, conditions, or situations that disqualify a target" },
   { key: "additionalContext", label: "Additional Context", rows: 3, help: "Any other context to include in the ICP prompt" },
 ];
+
+const FB_RATING_LABELS: Record<number, string> = {
+  1: "continental breakfast only",
+  2: "limited food and beverage with light meal options",
+  3: "full breakfast service with light dinner offerings",
+  4: "full-service restaurant with bar and lounge program",
+  5: "destination dining with chef-driven cuisine, extensive wine program, and private dining experiences",
+};
+
+export function generateIcpEssay(c: IcpConfig, d: IcpDescriptive, propertyLabel: string): string {
+  const du = (v: number, ut: UnitType) => dualUnit(v, ut, false);
+  const fbDesc = FB_RATING_LABELS[c.fbRating] || FB_RATING_LABELS[4];
+
+  const paragraphs: string[] = [];
+
+  paragraphs.push(
+    `The ideal acquisition target for ${propertyLabel} is a ${d.propertyTypes.split(".")[0].toLowerCase().trim()}. ` +
+    `The property should offer between ${c.roomsMin} and ${c.roomsMax} guest rooms or suites, with a sweet spot of ${c.roomsSweetSpotMin} to ${c.roomsSweetSpotMax} rooms. ` +
+    `At minimum, the property must include ${c.masterSuitesMin} master suites of at least ${du(c.masterSuiteSqFt, "area")} each, ` +
+    `with a total of ${c.bedroomsMin} to ${c.bedroomsMax} bedrooms and ${c.bathroomsMin} to ${c.bathroomsMax} bathrooms across the property. ` +
+    `The land should span ${du(c.landAcresMin, "land")} to ${du(c.landAcresMax, "land")}, ` +
+    `with ${du(c.builtSqFtMin, "area")} to ${du(c.builtSqFtMax, "area")} of usable interior space.`
+  );
+
+  paragraphs.push(
+    `Food and beverage operations are rated at ${c.fbRating} out of 5, reflecting ${fbDesc}. ` +
+    `The dining area should seat ${c.diningCapacityMin} to ${c.diningCapacityMax} guests. ` +
+    `F&B revenue is targeted at ${c.fbShareMin}% to ${c.fbShareMax}% of room revenue, ` +
+    `with events contributing ${c.eventsShareMin}% to ${c.eventsShareMax}%, ` +
+    `spa and wellness at ${c.spaShareMin}% to ${c.spaShareMax}%, ` +
+    `and other ancillary services at ${c.otherShareMin}% to ${c.otherShareMax}%. ` +
+    `Total ancillary revenue should reach ${c.totalAncillaryMin}% to ${c.totalAncillaryMax}% of room revenue.`
+  );
+
+  paragraphs.push(
+    `The property must accommodate indoor events for ${c.indoorEventMin} to ${c.indoorEventMax} guests ` +
+    `and outdoor events for ${c.outdoorEventMin} to ${c.outdoorEventMax} guests, ` +
+    `with ${c.parkingMin} to ${c.parkingMax} parking spaces on site. ` +
+    `Operational facilities include a commercial kitchen of at least ${du(c.kitchenSqFt, "area")}, ` +
+    `maintenance and storage space of ${du(c.maintenanceSqFt, "area")}, ` +
+    `and staff quarters for ${c.staffQuartersMin} to ${c.staffQuartersMax} key personnel.`
+  );
+
+  const amenityList: string[] = [];
+  const amenityNames: [string, Priority][] = [
+    ["swimming pool", c.pool], ["spa", c.spa], ["gym", c.gym],
+    ["tennis", c.tennis], ["pickleball", c.pickleball],
+    ["hiking trails", c.hikingTrails], ["equestrian facilities", c.horseFacilities],
+    ["vineyard or orchard", c.vineyard], ["casitas", c.casitas],
+  ];
+  const required = amenityNames.filter(([, p]) => p === "must").map(([n]) => n);
+  const preferred = amenityNames.filter(([, p]) => p === "major" || p === "nice").map(([n]) => n);
+  if (required.length > 0 || preferred.length > 0) {
+    let s = "";
+    if (required.length > 0) s += `Required amenities include ${required.join(", ")}. `;
+    if (preferred.length > 0) s += `Preferred amenities include ${preferred.join(", ")}.`;
+    amenityList.push(s.trim());
+  }
+  if (amenityList.length > 0) paragraphs.push(amenityList.join(" "));
+
+  paragraphs.push(
+    `The property must be in good to excellent structural condition with a roof no older than ${c.maxRoofAge} years ` +
+    `and electrical service of at least ${c.minElectricalAmps} amps. ` +
+    `Total renovation budget must remain under ${fmt$(c.maxRenovationBudget)}. ` +
+    `A minimum setback of ${du(c.minSetbackFt, "distance")} from public roads is required for privacy.`
+  );
+
+  paragraphs.push(
+    `The property should be within ${c.maxAirportMin} minutes of a regional airport (preferably ${c.prefAirportMin} minutes) ` +
+    `and within ${c.maxIntlAirportMin} minutes of an international airport (preferably ${c.prefIntlAirportMin} minutes). ` +
+    `Access to a hospital or urgent care within ${c.maxHospitalMin} minutes is required.`
+  );
+
+  paragraphs.push(
+    `From a financial perspective, the acquisition price range is ${fmt$(c.acquisitionMin)} to ${fmt$(c.acquisitionMax)}, ` +
+    `with a target sweet spot of ${fmt$(c.acquisitionTargetMin)} to ${fmt$(c.acquisitionTargetMax)}. ` +
+    `Total investment including renovation and FF&E ranges from ${fmt$(c.totalInvestmentMin)} to ${fmt$(c.totalInvestmentMax)}. ` +
+    `The target ADR is $${c.adrMin} to $${c.adrMax} per night, ` +
+    `with stabilized occupancy of ${c.occupancyMin}% to ${c.occupancyMax}% after a ${c.occupancyRampMonths}-month ramp-up. ` +
+    `The management fee structure includes a base fee of ${c.baseMgmtFeeMin}% to ${c.baseMgmtFeeMax}% of total revenue ` +
+    `and an incentive fee of ${c.incentiveFeeMin}% to ${c.incentiveFeeMax}% of GOP. ` +
+    `The investment targets a minimum IRR of ${c.targetIrr}%, ` +
+    `an equity multiple of ${c.equityMultipleMin}x to ${c.equityMultipleMax}x, ` +
+    `over a ${c.holdYearsMin} to ${c.holdYearsMax}-year hold period, ` +
+    `with an exit cap rate of ${c.exitCapRateMin}% to ${c.exitCapRateMax}%.`
+  );
+
+  if (d.exclusions.trim()) {
+    const excl = d.exclusions.split("\n").filter(Boolean).map(e => e.trim().toLowerCase()).slice(0, 5);
+    paragraphs.push(`Key exclusions: ${excl.join("; ")}.`);
+  }
+
+  return paragraphs.join("\n\n");
+}

@@ -93,12 +93,14 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Recent Changes (March 12, 2026)
 
-- **AI Property Image Generation** (Task #31) — Replicate architectural rendering for property photos. `generation_style` and `before_photo_id` columns on `property_photos` table. Supports AI-generated property renderings from uploaded reference photos.
-- **Plaid Financial Reconciliation** (Task #23) — Bank linking for actual vs projected comparison. 3 new tables: `plaid_connections`, `plaid_transactions`, `plaid_categorization_cache`. ReconciliationTab component at `client/src/components/property-detail/ReconciliationTab.tsx`.
-- **3D Globe Flyover** (Task #38) — Interactive Three.js globe visualization showing property locations with animated flyover transitions.
-- **Document Intelligence** (Task #26) — OCR document extraction + DocuSign e-signatures. 3 new tables: `document_extractions`, `extraction_fields`, `docusign_envelopes`.
-- **Agent Skills Exports** — Server-side premium exports (PDF, PPTX, DOCX) via Anthropic Claude Agent Skills. Service: `server/ai/agentSkillsExport.ts`. Beta headers: `code-execution-2025-08-25,skills-2025-10-02,files-api-2025-04-14`.
-- **Post-merge DB gap pattern** — Recurring issue where task agent merges miss DB tables/columns. Fixed by adding idempotent startup migrations in `server/index.ts` that run before `seedAdminUser()`.
+- **Infrastructure Contracts Optimization** (12 workstreams) — Sealed IStorage facade (9→11 classes), unified SDK contracts (4→8 health-checked integrations via BaseIntegrationService), enforced 6-domain boundaries with proof tests, protected 36 deterministic tools with registry test, eliminated duplicate hooks, extracted hardcoded constants, fixed all TS errors.
+- **7-Dimension Codebase Audit** — UNQUALIFIED across all dimensions (Formula, Lineage, Assumptions, Workflow, Reporting, Code Quality, GAAP). Fixed 3 findings: hardcoded cap rate in document-ai templates, undocumented research benchmark, KB confidence threshold.
+- **Domain Boundary Rules** — 6 independent domains (Financial Engine, AI Agents, Photos/Media, Research, Documents, Notifications) with prohibited cross-imports enforced by `tests/proof/domain-boundaries.test.ts`.
+- **SDK Integration Health** — All 8 integrations report to `/api/admin/integrations/health`: Twilio, ElevenLabs, Gmail, Stripe (dormant), Plaid, SendGrid, Geospatial, Document AI.
+- **AI Property Image Generation** (Task #31) — Replicate architectural rendering for property photos.
+- **Plaid Financial Reconciliation** (Task #23) — Bank linking for actual vs projected comparison.
+- **3D Globe Flyover** (Task #38) — Interactive Three.js globe visualization.
+- **Document Intelligence** (Task #26) — OCR document extraction + DocuSign e-signatures.
 
 ---
 

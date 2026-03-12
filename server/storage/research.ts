@@ -69,23 +69,25 @@ export class ResearchStorage {
     await db.delete(marketResearch).where(eq(marketResearch.id, id));
   }
   
-  async getLastFullResearchRefresh(userId: number): Promise<Date | null> {
+  async getLastFullResearchRefresh(_userId: number): Promise<Date | null> {
     const [row] = await db.select({ lastFullResearchRefresh: globalAssumptions.lastFullResearchRefresh })
       .from(globalAssumptions)
-      .where(eq(globalAssumptions.userId, userId))
+      .where(isNull(globalAssumptions.userId))
+      .orderBy(desc(globalAssumptions.id))
       .limit(1);
     return row?.lastFullResearchRefresh ?? null;
   }
 
-  async markFullResearchRefresh(userId: number): Promise<void> {
-    const [userRow] = await db.select({ id: globalAssumptions.id })
+  async markFullResearchRefresh(_userId: number): Promise<void> {
+    const [sharedRow] = await db.select({ id: globalAssumptions.id })
       .from(globalAssumptions)
-      .where(eq(globalAssumptions.userId, userId))
+      .where(isNull(globalAssumptions.userId))
+      .orderBy(desc(globalAssumptions.id))
       .limit(1);
-    if (userRow) {
+    if (sharedRow) {
       await db.update(globalAssumptions)
         .set({ lastFullResearchRefresh: new Date() })
-        .where(eq(globalAssumptions.id, userRow.id));
+        .where(eq(globalAssumptions.id, sharedRow.id));
     }
   }
 

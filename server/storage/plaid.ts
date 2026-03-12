@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { plaidConnections, plaidTransactions, plaidCategorizationCache } from "@shared/schema";
 import type { PlaidConnection, InsertPlaidConnection, PlaidTransaction, InsertPlaidTransaction } from "@shared/schema";
-import { eq, and, desc, gte, lte, inArray } from "drizzle-orm";
+import { eq, and, desc, gte, lte, inArray, sql } from "drizzle-orm";
 
 export class PlaidStorage {
   async createPlaidConnection(data: InsertPlaidConnection): Promise<PlaidConnection> {
@@ -93,6 +93,13 @@ export class PlaidStorage {
     if (entries.length === 0) return;
     await db.insert(plaidCategorizationCache)
       .values(entries)
-      .onConflictDoNothing();
+      .onConflictDoUpdate({
+        target: plaidCategorizationCache.descriptionPattern,
+        set: {
+          usaliCategory: sql`excluded.usali_category`,
+          usaliDepartment: sql`excluded.usali_department`,
+          source: sql`excluded.source`,
+        },
+      });
   }
 }

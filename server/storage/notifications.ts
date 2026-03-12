@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { alertRules, notificationLogs, notificationPreferences, notificationSettings } from "@shared/schema";
-import type { AlertRule, InsertAlertRule, NotificationLog, NotificationPreference, NotificationSetting } from "@shared/schema";
+import type { AlertRule, InsertAlertRule, InsertNotificationLog, NotificationLog, NotificationPreference, NotificationSetting } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 
 export class NotificationStorage {
@@ -31,7 +31,7 @@ export class NotificationStorage {
     return db.select().from(notificationLogs).orderBy(desc(notificationLogs.createdAt)).limit(limit);
   }
 
-  async createNotificationLog(data: any): Promise<NotificationLog> {
+  async createNotificationLog(data: InsertNotificationLog): Promise<NotificationLog> {
     const [log] = await db.insert(notificationLogs).values(data).returning();
     return log;
   }

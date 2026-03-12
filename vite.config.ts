@@ -54,5 +54,24 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
+    watch: {
+      ignored: [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/dist/**",
+        "**/server/**",
+        "**/calc/**",
+        "**/tests/**",
+        "**/script/**",
+        "**/.claude/**",
+        "**/.local/**",
+        "**/.canvas/**",
+        "**/attached_assets/**",
+        "**/tmp/**",
+      ],
+    },
+    hmr: {
+      overlay: true,
+    },
   },
 });

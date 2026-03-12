@@ -135,7 +135,7 @@ export class AdminStorage {
 
   /** Update a group's settings (name, linked logo/theme/asset description). */
   async updateUserGroup(id: number, data: Partial<InsertUserGroup>): Promise<UserGroup> {
-    const [group] = await db.update(userGroups).set(stripAutoFields(data as Record<string, unknown>)).where(eq(userGroups.id, id)).returning();
+    const [group] = await db.update(userGroups).set({ ...stripAutoFields(data as Record<string, unknown>), updatedAt: new Date() }).where(eq(userGroups.id, id)).returning();
     return group;
   }
 
@@ -186,7 +186,7 @@ export class AdminStorage {
 
   /** Update company details (name, type, description, logo). */
   async updateCompany(id: number, data: Partial<InsertCompany>): Promise<Company> {
-    const [company] = await db.update(companies).set(stripAutoFields(data as Record<string, unknown>)).where(eq(companies.id, id)).returning();
+    const [company] = await db.update(companies).set({ ...stripAutoFields(data as Record<string, unknown>), updatedAt: new Date() }).where(eq(companies.id, id)).returning();
     return company;
   }
 
@@ -247,11 +247,13 @@ export class AdminStorage {
    * Pass an empty array to remove all restrictions (show everything).
    */
   async setGroupProperties(groupId: number, propertyIds: number[]): Promise<void> {
-    await db.delete(userGroupProperties).where(eq(userGroupProperties.userGroupId, groupId));
-    if (propertyIds.length > 0) {
-      await db.insert(userGroupProperties).values(
-        propertyIds.map((propertyId) => ({ userGroupId: groupId, propertyId }))
-      );
-    }
+    await db.transaction(async (tx) => {
+      await tx.delete(userGroupProperties).where(eq(userGroupProperties.userGroupId, groupId));
+      if (propertyIds.length > 0) {
+        await tx.insert(userGroupProperties).values(
+          propertyIds.map((propertyId) => ({ userGroupId: groupId, propertyId }))
+        );
+      }
+    });
   }
 }

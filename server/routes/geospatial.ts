@@ -1,0 +1,97 @@
+import type { Express } from "express";
+import { requireAuth, requireManagementAccess } from "../auth";
+import { logAndSendError } from "./helpers";
+import {
+  geocodeAddress,
+  placesAutocomplete,
+  placeDetails,
+  nearbyPOISearch,
+  geocodeAndUpdateProperty,
+  getGeospatialStatus,
+  type POIType,
+} from "../integrations/geospatial";
+
+export function register(app: Express) {
+  app.post("/api/geocode", requireAuth, async (req, res) => {
+    try {
+      const { address } = req.body;
+      if (!address || typeof address !== "string") {
+        return res.status(400).json({ error: "Address is required" });
+      }
+
+      const coords = await geocodeAddress(address);
+      if (!coords) {
+        return res.status(404).json({ error: "Could not geocode address" });
+      }
+
+      res.json(coords);
+    } catch (error) {
+      logAndSendError(res, "Geocoding failed", error);
+    }
+  });
+
+  app.post("/api/geocode/property/:id", requireManagementAccess, async (req, res) => {
+    try {
+      const coords = await geocodeAndUpdateProperty(Number(req.params.id));
+      if (!coords) {
+        return res.status(404).json({ error: "Could not geocode property address" });
+      }
+      res.json(coords);
+    } catch (error) {
+      logAndSendError(res, "Property geocoding failed", error);
+    }
+  });
+
+  app.get("/api/places/autocomplete", requireAuth, async (req, res) => {
+    try {
+      const q = String(req.query.q || "");
+      if (!q || q.length < 2) {
+        return res.json([]);
+      }
+
+      const suggestions = await placesAutocomplete(q);
+      res.json(suggestions);
+    } catch (error) {
+      logAndSendError(res, "Autocomplete failed", error);
+    }
+  });
+
+  app.get("/api/places/details/:placeId", requireAuth, async (req, res) => {
+    try {
+      const details = await placeDetails(String(req.params.placeId));
+      if (!details) {
+        return res.status(404).json({ error: "Place not found" });
+      }
+      res.json(details);
+    } catch (error) {
+      logAndSendError(res, "Place details failed", error);
+    }
+  });
+
+  app.get("/api/places/nearby", requireAuth, async (req, res) => {
+    try {
+      const lat = parseFloat(req.query.lat as string);
+      const lng = parseFloat(req.query.lng as string);
+
+      if (isNaN(lat) || isNaN(lng)) {
+        return res.status(400).json({ error: "Valid lat and lng are required" });
+      }
+
+      const typesParam = req.query.types as string | undefined;
+      const types = typesParam
+        ? (typesParam.split(",") as POIType[])
+        : ["hotel", "airport", "convention_center", "tourist_attraction"] as POIType[];
+
+      const radius = parseFloat(req.query.radius as string) || 10;
+
+      const pois = await nearbyPOISearch(lat, lng, types, radius);
+      res.json(pois);
+    } catch (error) {
+      logAndSendError(res, "Nearby search failed", error);
+    }
+  });
+
+  app.get("/api/geospatial/status", requireAuth, async (_req, res) => {
+    res.json(getGeospatialStatus());
+  });
+}

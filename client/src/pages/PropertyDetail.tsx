@@ -60,6 +60,7 @@ import {
   PropertyHeader,
   BenchmarkPanel,
 } from "@/components/property-detail";
+import PropertyMap from "@/components/PropertyMap";
 
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
@@ -744,6 +745,15 @@ export default function PropertyDetail() {
           heroCaption={heroCaption}
           onPhotoUploadComplete={handlePhotoUploadComplete}
         />
+
+        <ScrollReveal>
+          <PropertyMap
+            latitude={property.latitude}
+            longitude={property.longitude}
+            propertyName={property.name}
+            propertyId={propertyId}
+          />
+        </ScrollReveal>
 
         <BenchmarkPanel
           property={property}

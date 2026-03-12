@@ -799,6 +799,9 @@ export const properties = pgTable("properties", {
 
   description: text("description"),
 
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+
   researchValues: jsonb("research_values").$type<Record<string, ResearchValueEntry>>(),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -875,6 +878,8 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   baseManagementFeeRate: true,
   incentiveManagementFeeRate: true,
   description: true,
+  latitude: true,
+  longitude: true,
   researchValues: true,
 });
 

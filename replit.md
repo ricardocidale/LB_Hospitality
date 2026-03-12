@@ -136,5 +136,8 @@ Shared formatting library in `client/src/lib/exports/`. Full reference: `.agents
 - Header row: sage fill with white bold text
 - Footer: company name + page numbers on every page/slide, added LAST before save/writeFile
 
+## Geospatial Intelligence Layer
+Properties have optional `latitude`/`longitude` columns. Google Maps API (`GOOGLE_MAPS_API_KEY`) provides geocoding, places autocomplete, and nearby POI search. MapLibre GL renders all maps (open-source). Routes: `POST /api/geocode`, `GET /api/places/autocomplete`, `GET /api/places/nearby`. Portfolio map (`/map`) uses DSCR-based performance coloring + Supercluster clustering. Property detail pages show location + nearby POIs. Key files: `server/integrations/geospatial.ts`, `server/routes/geospatial.ts`, `client/src/components/PropertyMap.tsx`, `client/src/components/AddressAutocomplete.tsx`, `client/src/pages/MapView.tsx`.
+
 ## Scripts Directory
 All utility scripts live in `script/` (single canonical directory).

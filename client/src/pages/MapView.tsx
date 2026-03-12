@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useProperties } from "@/lib/api";
 import { Link } from "wouter";
 import { IconBuilding2, IconDollarSign, IconNavigation, IconMountain } from "@/components/icons";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import Supercluster from "supercluster";
 
 const KNOWN_COORDS: Record<string, [number, number]> = {
   "medellín, antioquia, colombia": [-75.6266, 6.2553],
@@ -43,6 +44,10 @@ const REGION_COORDS: Record<string, [number, number]> = {
 };
 
 function resolveCoords(property: any): [number, number] | null {
+  if (property.latitude != null && property.longitude != null) {
+    return [property.longitude, property.latitude];
+  }
+
   const city = (property.city || "").toLowerCase().trim();
   const state = (property.stateProvince || "").toLowerCase().trim();
   const country = (property.country || "").toLowerCase().trim();
@@ -66,12 +71,27 @@ function resolveCoords(property: any): [number, number] | null {
   return null;
 }
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 const formatMoney = (value: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(value);
+
+function getPerformanceTier(property: any): { color: string; label: string; tier: string } {
+  const noi = property.startAdr * property.roomCount * (property.startOccupancy || 0.6) * 365;
+  const totalInvestment = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
+  const debtService = totalInvestment * 0.065;
+  const dscr = totalInvestment > 0 ? noi / debtService : 0;
+
+  if (dscr > 1.5) return { color: "#22C55E", label: "Strong (DSCR > 1.5)", tier: "strong" };
+  if (dscr > 1.2) return { color: "#EAB308", label: "Moderate (DSCR 1.2–1.5)", tier: "moderate" };
+  return { color: "#EF4444", label: "Watch (DSCR < 1.2)", tier: "watch" };
+}
 
 const statusColor = (status: string) => {
   switch (status) {
@@ -124,8 +144,13 @@ const MAP_STYLES = {
   standard: () => makeRasterStyle("/api/tiles/osm/{z}/{x}/{y}"),
 };
 
-function createMarkerElement(property: any, isSelected: boolean) {
-  const color = property.market === "North America" ? "var(--primary)" : "#3B82F6";
+type ColorMode = "performance" | "market";
+
+function createMarkerElement(property: any, isSelected: boolean, colorMode: ColorMode) {
+  const perf = getPerformanceTier(property);
+  const color = colorMode === "performance"
+    ? perf.color
+    : property.market === "North America" ? "var(--primary)" : "#3B82F6";
   const size = isSelected ? 42 : 32;
   const el = document.createElement("div");
   el.className = "map-marker-container";
@@ -158,15 +183,38 @@ function createMarkerElement(property: any, isSelected: boolean) {
   return el;
 }
 
+function createClusterMarker(count: number): HTMLDivElement {
+  const size = Math.min(24 + count * 3, 50);
+  const el = document.createElement("div");
+  el.style.cursor = "pointer";
+  el.innerHTML = `
+    <div style="
+      width:${size}px;height:${size}px;border-radius:50%;
+      background:var(--primary, #9FBCA4);
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      border:3px solid white;
+      display:flex;align-items:center;justify-content:center;
+      font-family:system-ui;font-weight:700;font-size:${Math.max(11, size * 0.3)}px;color:white;
+    ">${count}</div>
+  `;
+  return el;
+}
+
 function createPopupHTML(property: any) {
   const sc = statusColor(property.status);
+  const perf = getPerformanceTier(property);
+  const safeName = escapeHtml(property.name || "");
+  const safeLocation = escapeHtml(formatLocation(property));
+  const safeMarket = escapeHtml(property.market || "");
+  const safeStatus = escapeHtml(property.status || "");
   return `
     <div style="font-family:system-ui,-apple-system,sans-serif;min-width:240px;padding:4px;">
-      <h3 style="font-weight:700;font-size:15px;margin:0 0 4px;color:#1a1a2e;">${property.name}</h3>
-      <p style="color:#64748b;font-size:12px;margin:0 0 10px;">${formatLocation(property)}</p>
+      <h3 style="font-weight:700;font-size:15px;margin:0 0 4px;color:#1a1a2e;">${safeName}</h3>
+      <p style="color:#64748b;font-size:12px;margin:0 0 10px;">${safeLocation}</p>
       <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
-        <span style="background:${property.market === 'North America' ? '#E8F0E9' : '#DBEAFE'};color:${property.market === 'North America' ? '#5A7D60' : '#1D4ED8'};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${property.market}</span>
-        <span style="background:${sc.bg};color:${sc.text};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${property.status}</span>
+        <span style="background:${property.market === 'North America' ? '#E8F0E9' : '#DBEAFE'};color:${property.market === 'North America' ? '#5A7D60' : '#1D4ED8'};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${safeMarket}</span>
+        <span style="background:${sc.bg};color:${sc.text};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${safeStatus}</span>
+        <span style="background:${perf.color}22;color:${perf.color};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${escapeHtml(perf.label)}</span>
       </div>
       <div style="display:flex;gap:16px;font-size:12px;color:#475569;padding-top:8px;border-top:1px solid #f1f5f9;">
         <div style="display:flex;align-items:center;gap:4px;">
@@ -178,6 +226,9 @@ function createPopupHTML(property: any) {
           <strong>${formatMoney(property.startAdr)}</strong> ADR
         </div>
       </div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;">
+        <a href="/property/${property.id}" style="color:#3B82F6;font-size:12px;font-weight:600;text-decoration:none;">View Details →</a>
+      </div>
     </div>
   `;
 }
@@ -186,18 +237,38 @@ export default function MapView() {
   const { data: properties = [] } = useProperties();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const markersRef = useRef<Map<number, maplibregl.Marker>>(new Map());
+  const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [terrain3d, setTerrain3d] = useState(true);
+  const [colorMode, setColorMode] = useState<ColorMode>("performance");
 
-  const geoProperties: GeoProperty[] = properties
-    .map(p => {
-      const coords = resolveCoords(p);
-      return coords ? { property: p, coords } : null;
-    })
-    .filter((g): g is GeoProperty => g !== null);
+  const geoProperties: GeoProperty[] = useMemo(() =>
+    properties
+      .map(p => {
+        const coords = resolveCoords(p);
+        return coords ? { property: p, coords } : null;
+      })
+      .filter((g): g is GeoProperty => g !== null),
+    [properties]
+  );
 
   const unmappedCount = properties.length - geoProperties.length;
+
+  const clusterIndex = useMemo(() => {
+    const index = new Supercluster({
+      radius: 60,
+      maxZoom: 14,
+    });
+
+    const points: Supercluster.PointFeature<{ propertyId: number; property: any }>[] = geoProperties.map(({ property, coords }) => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: coords },
+      properties: { propertyId: property.id, property },
+    }));
+
+    index.load(points);
+    return index;
+  }, [geoProperties]);
 
   const updateMarkers = useCallback((selected: number | null) => {
     const map = mapRef.current;
@@ -206,29 +277,57 @@ export default function MapView() {
     markersRef.current.forEach(m => m.remove());
     markersRef.current.clear();
 
-    geoProperties.forEach(({ property, coords }) => {
-      const el = createMarkerElement(property, property.id === selected);
+    const zoom = Math.floor(map.getZoom());
+    const bounds = map.getBounds();
+    const bbox: [number, number, number, number] = [
+      bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()
+    ];
 
-      const popup = new maplibregl.Popup({
-        offset: 25,
-        closeButton: true,
-        closeOnClick: false,
-        maxWidth: "300px",
-        className: "map-popup-custom",
-      }).setHTML(createPopupHTML(property));
+    const clusters = clusterIndex.getClusters(bbox, zoom);
 
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat(coords)
-        .setPopup(popup)
-        .addTo(map);
+    clusters.forEach((feature) => {
+      const [lng, lat] = feature.geometry.coordinates;
 
-      el.addEventListener("click", () => {
-        setSelectedId(property.id);
-      });
+      if (feature.properties.cluster) {
+        const count = feature.properties.point_count;
+        const el = createClusterMarker(count);
+        const clusterId = feature.properties.cluster_id;
 
-      markersRef.current.set(property.id, marker);
+        el.addEventListener("click", () => {
+          const expansionZoom = clusterIndex.getClusterExpansionZoom(clusterId);
+          map.flyTo({ center: [lng, lat], zoom: expansionZoom, duration: 800 });
+        });
+
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([lng, lat])
+          .addTo(map);
+
+        markersRef.current.set(`cluster-${clusterId}`, marker);
+      } else {
+        const property = feature.properties.property;
+        const el = createMarkerElement(property, property.id === selected, colorMode);
+
+        const popup = new maplibregl.Popup({
+          offset: 25,
+          closeButton: true,
+          closeOnClick: false,
+          maxWidth: "300px",
+          className: "map-popup-custom",
+        }).setHTML(createPopupHTML(property));
+
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([lng, lat])
+          .setPopup(popup)
+          .addTo(map);
+
+        el.addEventListener("click", () => {
+          setSelectedId(property.id);
+        });
+
+        markersRef.current.set(`prop-${property.id}`, marker);
+      }
     });
-  }, [geoProperties]);
+  }, [clusterIndex, colorMode]);
 
   useEffect(() => {
     if (!mapContainerRef.current || geoProperties.length === 0) return;
@@ -297,6 +396,9 @@ export default function MapView() {
       }
     });
 
+    map.on("moveend", () => updateMarkers(selectedId));
+    map.on("zoomend", () => updateMarkers(selectedId));
+
     return () => {
       map.remove();
       mapRef.current = null;
@@ -319,13 +421,13 @@ export default function MapView() {
           essential: true,
         });
 
-        const marker = markersRef.current.get(selectedId);
-        if (marker && !marker.getPopup().isOpen()) {
+        const marker = markersRef.current.get(`prop-${selectedId}`);
+        if (marker && !marker.getPopup()?.isOpen()) {
           marker.togglePopup();
         }
       }
     }
-  }, [selectedId, updateMarkers]);
+  }, [selectedId, updateMarkers, colorMode]);
 
   const fitAll = () => {
     if (!mapRef.current || geoProperties.length === 0) return;
@@ -340,6 +442,15 @@ export default function MapView() {
   };
 
   const countryCount = new Set(geoProperties.map(g => g.property.country)).size;
+
+  const perfCounts = useMemo(() => {
+    const counts = { strong: 0, moderate: 0, watch: 0 };
+    geoProperties.forEach(({ property }) => {
+      const t = getPerformanceTier(property).tier;
+      counts[t as keyof typeof counts]++;
+    });
+    return counts;
+  }, [geoProperties]);
 
   return (
     <AnimatedPage>
@@ -375,6 +486,15 @@ export default function MapView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant={colorMode === "performance" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setColorMode(colorMode === "performance" ? "market" : "performance")}
+            className="flex items-center gap-1.5 text-xs"
+            data-testid="button-color-mode"
+          >
+            {colorMode === "performance" ? "📊 Performance" : "🌍 By Market"}
+          </Button>
           <Button variant={terrain3d ? "default" : "outline"} size="sm" onClick={() => setTerrain3d(!terrain3d)} className="flex items-center gap-1.5 text-xs" data-testid="button-3d-terrain">
             <IconMountain className="w-3.5 h-3.5" />
             3D Terrain
@@ -396,6 +516,26 @@ export default function MapView() {
               </div>
             )}
             <div ref={mapContainerRef} className="w-full h-full" />
+
+            {colorMode === "performance" && geoProperties.length > 0 && (
+              <div className="absolute bottom-3 left-3 bg-card/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-border" data-testid="performance-legend">
+                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">Performance Tier</div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ background: "#22C55E" }} />
+                    <span className="text-[11px] text-foreground">Strong DSCR &gt; 1.5 ({perfCounts.strong})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ background: "#EAB308" }} />
+                    <span className="text-[11px] text-foreground">Moderate 1.2–1.5 ({perfCounts.moderate})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ background: "#EF4444" }} />
+                    <span className="text-[11px] text-foreground">Watch &lt; 1.2 ({perfCounts.watch})</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -405,7 +545,10 @@ export default function MapView() {
           </div>
           {geoProperties.map(({ property }) => {
             const isSelected = selectedId === property.id;
-            const pinColor = property.market === "North America" ? "var(--primary)" : "#3B82F6";
+            const perf = getPerformanceTier(property);
+            const pinColor = colorMode === "performance"
+              ? perf.color
+              : property.market === "North America" ? "var(--primary)" : "#3B82F6";
             const sc = statusColor(property.status);
             return (
               <div
@@ -416,7 +559,6 @@ export default function MapView() {
                     : "border-border bg-card hover:border-primary/30 hover:shadow-md"
                 }`}
                 onClick={() => setSelectedId(property.id)}
-                onDoubleClick={() => window.location.href = `/property/${property.id}`}
                 data-testid={`card-property-${property.id}`}
               >
                 <div className="flex items-start gap-2.5 mb-2">
@@ -435,13 +577,21 @@ export default function MapView() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 mb-2">
+                <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                   <span
                     className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                     style={{ backgroundColor: sc.bg, color: sc.text }}
                   >
                     {property.status}
                   </span>
+                  {colorMode === "performance" && (
+                    <span
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                      style={{ backgroundColor: `${perf.color}22`, color: perf.color }}
+                    >
+                      {perf.tier}
+                    </span>
+                  )}
                   <span className="text-[10px] text-muted-foreground">
                     {property.market}
                   </span>

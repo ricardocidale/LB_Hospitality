@@ -25,6 +25,7 @@ import { Loader2 } from "lucide-react";
 import { IconPlus } from "@/components/icons";
 import { PropertyImagePicker } from "@/features/property-images";
 import { CurrencyInput } from "./CurrencyInput";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 export interface AddPropertyFormData {
   name: string;
@@ -47,6 +48,8 @@ export interface AddPropertyFormData {
   occupancyGrowthStep: number;
   type: string;
   cateringBoostPercent: number;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface AddPropertyDialogProps {
@@ -112,12 +115,20 @@ export function AddPropertyDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
-              <Input
+              <AddressAutocomplete
                 id="location"
                 data-testid="input-property-location"
                 placeholder="e.g., Oaxaca, Mexico"
                 value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(val) => setFormData(prev => ({ ...prev, location: val }))}
+                onPlaceSelect={(details) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    location: details.formattedAddress || prev.location,
+                    latitude: details.lat || null,
+                    longitude: details.lng || null,
+                  }));
+                }}
               />
             </div>
             <div className="space-y-2">

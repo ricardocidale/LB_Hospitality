@@ -22,6 +22,7 @@ import * as chatRoutes from "./routes/chat";
 import * as aiRoutes from "./routes/ai";
 import * as premiumExportRoutes from "./routes/premium-exports";
 import * as adminIntegrationRoutes from "./routes/admin-integrations";
+import * as geospatialRoutes from "./routes/geospatial";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -49,6 +50,7 @@ export async function registerRoutes(
   aiRoutes.register(app);
   premiumExportRoutes.register(app);
   adminIntegrationRoutes.register(app);
+  geospatialRoutes.register(app);
 
   registerTwilioWebSocket(httpServer);
 

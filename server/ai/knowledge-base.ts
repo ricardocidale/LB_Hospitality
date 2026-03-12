@@ -704,7 +704,8 @@ export async function retrieveRelevantChunks(query: string, topK: number = TOP_K
   }));
 
   scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, topK).filter(c => c.score > 0.25);
+  const KB_MIN_CONFIDENCE = 0.25;
+  return scored.slice(0, topK).filter(c => c.score > KB_MIN_CONFIDENCE);
 }
 
 export function buildRAGContext(chunks: { title: string; content: string; source: string; score: number }[]): string {

@@ -1,4 +1,5 @@
 import type { Property, GlobalAssumptions } from "@shared/schema";
+import { DEFAULT_EXIT_CAP_RATE } from "@shared/constants";
 
 export interface DocumentTemplate {
   id: string;
@@ -71,7 +72,7 @@ function renderLOI(
   recipientName: string
 ): { html: string; subject: string } {
   const totalInvestment = property.purchasePrice + property.buildingImprovements + property.preOpeningCosts;
-  const estimatedNOI = property.purchasePrice * (property.exitCapRate || 0.08);
+  const estimatedNOI = property.purchasePrice * (property.exitCapRate || DEFAULT_EXIT_CAP_RATE);
 
   const html = `
 <!DOCTYPE html>
@@ -172,8 +173,8 @@ function renderInvestmentMemo(
   const estimatedRevPAR = property.startAdr * property.startOccupancy;
   const annualRoomRevenue = estimatedRevPAR * property.roomCount * 365;
   const totalRevenue = annualRoomRevenue * (1 + (property.revShareFB || 0) + (property.revShareEvents || 0) + (property.revShareOther || 0));
-  const estimatedNOI = property.purchasePrice * (property.exitCapRate || 0.08);
-  const capRate = property.exitCapRate || 0.08;
+  const estimatedNOI = property.purchasePrice * (property.exitCapRate || DEFAULT_EXIT_CAP_RATE);
+  const capRate = property.exitCapRate || DEFAULT_EXIT_CAP_RATE;
 
   const html = `
 <!DOCTYPE html>

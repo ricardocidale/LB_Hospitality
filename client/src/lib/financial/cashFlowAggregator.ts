@@ -49,19 +49,25 @@ export function aggregateCashFlowByYear(
 
   for (let y = 0; y < years; y++) {
     const yearData = data.slice(y * 12, (y + 1) * 12);
-    const noi = yearData.reduce((a, m) => a + m.noi, 0);
-    const anoi = yearData.reduce((a, m) => a + m.anoi, 0);
-    const interestExpense = yearData.reduce((a, m) => a + m.interestExpense, 0);
-    const principalPayment = yearData.reduce((a, m) => a + m.principalPayment, 0);
-    const debtService = yearData.reduce((a, m) => a + m.debtPayment, 0);
-    const depreciationExpense = yearData.reduce((a, m) => a + m.depreciationExpense, 0);
-    const taxLiability = yearData.reduce((a, m) => a + m.incomeTax, 0);
-    const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
-    const refiProceeds = yearData.reduce((a, m) => a + m.refinancingProceeds, 0);
-    const expenseFFE = yearData.reduce((a, m) => a + m.expenseFFE, 0);
+    // Single-pass aggregation — one loop instead of 11 separate .reduce() calls
+    let noi = 0, anoi = 0, interestExpense = 0, principalPayment = 0,
+        debtService = 0, depreciationExpense = 0, taxLiability = 0,
+        netIncome = 0, refiProceeds = 0, expenseFFE = 0, workingCapitalChange = 0;
+    for (const m of yearData) {
+      noi += m.noi;
+      anoi += m.anoi;
+      interestExpense += m.interestExpense;
+      principalPayment += m.principalPayment;
+      debtService += m.debtPayment;
+      depreciationExpense += m.depreciationExpense;
+      taxLiability += m.incomeTax;
+      netIncome += m.netIncome;
+      refiProceeds += m.refinancingProceeds;
+      expenseFFE += m.expenseFFE;
+      workingCapitalChange += m.workingCapitalChange;
+    }
 
     const operatingCashFlow = netIncome + depreciationExpense;
-    const workingCapitalChange = yearData.reduce((a, m) => a + m.workingCapitalChange, 0);
     const cashFromOperations = operatingCashFlow - workingCapitalChange;
     const freeCashFlow = cashFromOperations;
     const freeCashFlowToEquity = freeCashFlow - principalPayment;

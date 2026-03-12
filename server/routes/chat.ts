@@ -14,6 +14,10 @@ import { z } from "zod";
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_HISTORY_LENGTH = 20;
 
+// Cache property context to avoid rebuilding on every message (TTL: 5 min)
+let cachedPropertyContext: { text: string; timestamp: number; count: number } | null = null;
+const CONTEXT_CACHE_TTL = 5 * 60 * 1000;
+
 const chatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
   content: z.string().max(MAX_MESSAGE_LENGTH),
@@ -63,7 +67,14 @@ export function register(app: Express) {
       }
 
       const properties = await storage.getAllProperties();
-      const propertyContext = buildPropertyContext(properties);
+      const now = Date.now();
+      let propertyContext: string;
+      if (cachedPropertyContext && (now - cachedPropertyContext.timestamp) < CONTEXT_CACHE_TTL && cachedPropertyContext.count === properties.length) {
+        propertyContext = cachedPropertyContext.text;
+      } else {
+        propertyContext = buildPropertyContext(properties);
+        cachedPropertyContext = { text: propertyContext, timestamp: now, count: properties.length };
+      }
 
       const contextBlock = [
         "PORTFOLIO DATA:",

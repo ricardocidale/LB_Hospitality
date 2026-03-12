@@ -1,5 +1,9 @@
 import { useCallback, useRef, forwardRef, useImperativeHandle } from "react";
-import * as d3 from "d3";
+import { select } from "d3-selection";
+import { min, max, range } from "d3-array";
+import { scaleLinear, scaleDiverging } from "d3-scale";
+import { hsl } from "d3-color";
+import { interpolateRgbBasis } from "d3-interpolate";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
 
 export interface HeatMapCell {
@@ -50,7 +54,7 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
 
     const renderChart = useCallback(
       (svg: SVGSVGElement, width: number, height: number) => {
-        const d3svg = d3.select(svg);
+        const d3svg = select(svg);
         d3svg.selectAll("*").remove();
         if (!cells.length) return;
 
@@ -69,16 +73,14 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
         const cellH = innerH / nRows;
 
         const values = cells.map((c) => c.value);
-        const minVal = d3.min(values) ?? 0;
-        const maxVal = d3.max(values) ?? 2;
+        const minVal = min(values) ?? 0;
+        const maxVal = max(values) ?? 2;
 
-        const colorScale = d3
-          .scaleDiverging<string>()
+        const colorScale = scaleDiverging<string>()
           .domain([minVal, breakeven, maxVal])
-          .interpolator(d3.interpolateRgbBasis(["#ef4444", "#fbbf24", "#22c55e"]));
+          .interpolator(interpolateRgbBasis(["#ef4444", "#fbbf24", "#22c55e"]));
 
-        const tooltip = d3
-          .select(svg.parentElement!)
+        const tooltip = select(svg.parentElement!)
           .selectAll(".heatmap-tooltip")
           .data([null])
           .join("div")
@@ -106,7 +108,7 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
           .attr("fill", (d) => colorScale(d.value))
           .style("cursor", "pointer")
           .on("mouseenter", function (event, d) {
-            d3.select(this).attr("stroke", "#fff").attr("stroke-width", 2);
+            select(this).attr("stroke", "#fff").attr("stroke-width", 2);
             tooltip
               .style("opacity", "1")
               .html(
@@ -120,7 +122,7 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
               .style("top", `${event.clientY - rect.top - 30}px`);
           })
           .on("mouseleave", function () {
-            d3.select(this).attr("stroke", "none");
+            select(this).attr("stroke", "none");
             tooltip.style("opacity", "0");
           });
 
@@ -136,7 +138,7 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
           .style("font-size", `${fontSize}px`)
           .style("font-weight", "600")
           .style("fill", (d) => {
-            const lum = d3.hsl(colorScale(d.value)).l;
+            const lum = hsl(colorScale(d.value)).l;
             return lum > 0.5 ? "#1a1a1a" : "#ffffff";
           })
           .style("pointer-events", "none")
@@ -185,8 +187,8 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
         const legendX = innerW - legendW;
         const legendY = innerH + 30;
 
-        const legendScale = d3.scaleLinear().domain([minVal, maxVal]).range([0, legendW]);
-        const legendData = d3.range(minVal, maxVal, (maxVal - minVal) / 50);
+        const legendScale = scaleLinear().domain([minVal, maxVal]).range([0, legendW]);
+        const legendData = range(minVal, maxVal, (maxVal - minVal) / 50);
 
         g.selectAll(".legend-bar")
           .data(legendData)

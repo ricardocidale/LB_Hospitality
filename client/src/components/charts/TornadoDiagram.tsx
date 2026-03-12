@@ -1,5 +1,8 @@
 import { useCallback, useRef, forwardRef, useImperativeHandle } from "react";
-import * as d3 from "d3";
+import { select } from "d3-selection";
+import { min, max, range } from "d3-array";
+import { scaleLinear, scaleBand } from "d3-scale";
+import { axisBottom } from "d3-axis";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
 
 export interface TornadoVariable {
@@ -51,7 +54,7 @@ const TornadoDiagram = forwardRef<TornadoDiagramRef, TornadoDiagramProps>(
 
     const renderChart = useCallback(
       (svg: SVGSVGElement, width: number, height: number) => {
-        const d3svg = d3.select(svg);
+        const d3svg = select(svg);
         d3svg.selectAll("*").remove();
         if (!variables.length) return;
 
@@ -69,14 +72,13 @@ const TornadoDiagram = forwardRef<TornadoDiagramRef, TornadoDiagramProps>(
           .attr("transform", `translate(${margin.left},${margin.top})`);
 
         const allValues = sorted.flatMap((v) => [v.upside, v.downside, baseValue]);
-        const xMin = d3.min(allValues)! * 0.95;
-        const xMax = d3.max(allValues)! * 1.05;
+        const xMin = min(allValues)! * 0.95;
+        const xMax = max(allValues)! * 1.05;
 
-        const x = d3.scaleLinear().domain([xMin, xMax]).range([0, innerW]);
+        const x = scaleLinear().domain([xMin, xMax]).range([0, innerW]);
 
-        const y = d3
-          .scaleBand<number>()
-          .domain(d3.range(sorted.length))
+        const y = scaleBand<number>()
+          .domain(range(sorted.length))
           .range([0, innerH])
           .padding(0.3);
 
@@ -84,7 +86,7 @@ const TornadoDiagram = forwardRef<TornadoDiagramRef, TornadoDiagramProps>(
 
         g.append("g")
           .attr("transform", `translate(0,${innerH})`)
-          .call(d3.axisBottom(x).ticks(6).tickFormat((d) => metricFormat(d as number)))
+          .call(axisBottom(x).ticks(6).tickFormat((d) => metricFormat(d as number)))
           .selectAll("text")
           .style("font-size", "11px")
           .style("fill", "currentColor");
@@ -101,8 +103,7 @@ const TornadoDiagram = forwardRef<TornadoDiagramRef, TornadoDiagramProps>(
           .style("fill", "currentColor")
           .text((d) => d.name);
 
-        const tooltip = d3
-          .select(svg.parentElement!)
+        const tooltip = select(svg.parentElement!)
           .selectAll(".tornado-tooltip")
           .data([null])
           .join("div")
@@ -134,7 +135,7 @@ const TornadoDiagram = forwardRef<TornadoDiagramRef, TornadoDiagramProps>(
             .attr("fill", COLORS.upside)
             .style("cursor", "pointer")
             .on("mouseenter", function (event) {
-              d3.select(this).attr("opacity", 0.85);
+              select(this).attr("opacity", 0.85);
               tooltip
                 .style("opacity", "1")
                 .html(
@@ -148,7 +149,7 @@ const TornadoDiagram = forwardRef<TornadoDiagramRef, TornadoDiagramProps>(
                 .style("top", `${event.clientY - rect.top - 30}px`);
             })
             .on("mouseleave", function () {
-              d3.select(this).attr("opacity", 1);
+              select(this).attr("opacity", 1);
               tooltip.style("opacity", "0");
             });
 
@@ -163,7 +164,7 @@ const TornadoDiagram = forwardRef<TornadoDiagramRef, TornadoDiagramProps>(
             .attr("fill", COLORS.downside)
             .style("cursor", "pointer")
             .on("mouseenter", function (event) {
-              d3.select(this).attr("opacity", 0.85);
+              select(this).attr("opacity", 0.85);
               tooltip
                 .style("opacity", "1")
                 .html(
@@ -177,7 +178,7 @@ const TornadoDiagram = forwardRef<TornadoDiagramRef, TornadoDiagramProps>(
                 .style("top", `${event.clientY - rect.top - 30}px`);
             })
             .on("mouseleave", function () {
-              d3.select(this).attr("opacity", 1);
+              select(this).attr("opacity", 1);
               tooltip.style("opacity", "0");
             });
         });

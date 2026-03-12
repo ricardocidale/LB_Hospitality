@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, Plus, X } from "lucide-react";
 import { IconSave, IconCopy, IconHelpCircle } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { ADMIN_TEXTAREA } from "./styles";
@@ -22,39 +22,54 @@ import {
   PRIORITY_LABELS,
   UNIT_DEFS,
   generateIcpPrompt,
+  type ParameterField,
 } from "./icp-config";
 
-function PriorityBadge({ value, onChange }: { value: Priority; onChange?: (v: Priority) => void }) {
-  if (onChange) {
-    return (
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as Priority)}
-        className={`h-6 rounded-full border text-[10px] font-medium px-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-ring ${
-          value === "must"
-            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-            : value === "nice"
-              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-              : "bg-red-500/10 text-red-500 dark:text-red-400 border-red-500/20"
-        }`}
-        data-testid="select-priority"
-      >
-        {(Object.entries(PRIORITY_LABELS) as [Priority, string][]).map(([k, label]) => (
-          <option key={k} value={k}>{label}</option>
-        ))}
-      </select>
-    );
-  }
+const PRIORITY_COLORS: Record<Priority, { ring: string; bg: string; text: string; dot: string }> = {
+  must: { ring: "ring-emerald-500/30", bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" },
+  major: { ring: "ring-blue-500/30", bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500" },
+  nice: { ring: "ring-amber-500/30", bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" },
+  no: { ring: "ring-red-500/30", bg: "bg-red-500/10", text: "text-red-500 dark:text-red-400", dot: "bg-red-500" },
+};
+
+const RADIO_OPTIONS: { value: Priority; label: string }[] = [
+  { value: "must", label: "Required" },
+  { value: "major", label: "Major Plus" },
+  { value: "nice", label: "Nice to Have" },
+];
+
+function PriorityRadio({ value, onChange }: { value: Priority; onChange: (v: Priority) => void }) {
   return (
-    <span className={`inline-flex items-center h-5 rounded-full text-[10px] font-medium px-2 ${
-      value === "must"
-        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-        : value === "nice"
-          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-          : "bg-red-500/10 text-red-500 dark:text-red-400"
-    }`}>
-      {PRIORITY_LABELS[value]}
-    </span>
+    <div className="flex items-center gap-3" data-testid="radio-priority">
+      {RADIO_OPTIONS.map((opt) => {
+        const colors = PRIORITY_COLORS[opt.value];
+        const selected = value === opt.value;
+        return (
+          <label
+            key={opt.value}
+            className={`flex items-center gap-1.5 cursor-pointer text-[11px] font-medium transition-colors ${
+              selected ? colors.text : "text-muted-foreground/60 hover:text-muted-foreground"
+            }`}
+            data-testid={`radio-${opt.value}`}
+          >
+            <span className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center transition-colors ${
+              selected ? `border-current` : "border-muted-foreground/30"
+            }`}>
+              {selected && <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />}
+            </span>
+            <input
+              type="radio"
+              name={`priority-${Math.random()}`}
+              value={opt.value}
+              checked={selected}
+              onChange={() => onChange(opt.value)}
+              className="sr-only"
+            />
+            {opt.label}
+          </label>
+        );
+      })}
+    </div>
   );
 }
 
@@ -126,6 +141,12 @@ function HelpTooltip({ text }: { text: string }) {
   );
 }
 
+interface CustomAmenity {
+  id: string;
+  label: string;
+  priority: Priority;
+}
+
 export default function AssetDefinitionTab() {
   const { toast } = useToast();
   const { data: ga } = useGlobalAssumptions();
@@ -136,6 +157,8 @@ export default function AssetDefinitionTab() {
   const [desc, setDesc] = useState<IcpDescriptive>(DEFAULT_ICP_DESCRIPTIVE);
   const [dirty, setDirty] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [customAmenities, setCustomAmenities] = useState<CustomAmenity[]>([]);
+  const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (ga) {
@@ -144,6 +167,12 @@ export default function AssetDefinitionTab() {
         setConfig({ ...DEFAULT_ICP_CONFIG, ...(ga.icpConfig as Partial<IcpConfig>) });
         if ((ga.icpConfig as any)._descriptive) {
           setDesc({ ...DEFAULT_ICP_DESCRIPTIVE, ...((ga.icpConfig as any)._descriptive as Partial<IcpDescriptive>) });
+        }
+        if ((ga.icpConfig as any)._customAmenities) {
+          setCustomAmenities((ga.icpConfig as any)._customAmenities as CustomAmenity[]);
+        }
+        if ((ga.icpConfig as any)._hiddenFields) {
+          setHiddenFields(new Set((ga.icpConfig as any)._hiddenFields as string[]));
         }
       }
       setDirty(false);
@@ -166,7 +195,12 @@ export default function AssetDefinitionTab() {
   );
 
   const handleSave = () => {
-    const icpConfig = { ...config, _descriptive: desc };
+    const icpConfig = {
+      ...config,
+      _descriptive: desc,
+      _customAmenities: customAmenities,
+      _hiddenFields: Array.from(hiddenFields),
+    };
     updateMutation.mutate(
       { propertyLabel, assetDescription: generatedPrompt, icpConfig },
       {
@@ -182,6 +216,44 @@ export default function AssetDefinitionTab() {
     await navigator.clipboard.writeText(generatedPrompt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const addCustomAmenity = () => {
+    const newAmenity: CustomAmenity = {
+      id: `custom-${Date.now()}`,
+      label: "New Amenity",
+      priority: "nice",
+    };
+    setCustomAmenities((prev) => [...prev, newAmenity]);
+    setDirty(true);
+  };
+
+  const updateCustomAmenity = (id: string, updates: Partial<CustomAmenity>) => {
+    setCustomAmenities((prev) => prev.map((a) => a.id === id ? { ...a, ...updates } : a));
+    setDirty(true);
+  };
+
+  const deleteCustomAmenity = (id: string) => {
+    setCustomAmenities((prev) => prev.filter((a) => a.id !== id));
+    setDirty(true);
+  };
+
+  const hideField = (key: string) => {
+    setHiddenFields((prev) => {
+      const next = new Set(prev);
+      next.add(key);
+      return next;
+    });
+    setDirty(true);
+  };
+
+  const restoreField = (key: string) => {
+    setHiddenFields((prev) => {
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+    setDirty(true);
   };
 
   return (
@@ -233,7 +305,17 @@ export default function AssetDefinitionTab() {
             </TabsList>
 
             <TabsContent value="amenities" className="mt-3">
-              <AmenitiesTab config={config} updateConfig={updateConfig} />
+              <AmenitiesTab
+                config={config}
+                updateConfig={updateConfig}
+                customAmenities={customAmenities}
+                addCustomAmenity={addCustomAmenity}
+                updateCustomAmenity={updateCustomAmenity}
+                deleteCustomAmenity={deleteCustomAmenity}
+                hiddenFields={hiddenFields}
+                hideField={hideField}
+                restoreField={restoreField}
+              />
             </TabsContent>
 
             <TabsContent value="descriptive" className="mt-3">
@@ -270,136 +352,276 @@ export default function AssetDefinitionTab() {
   );
 }
 
+function AmenityCard({
+  field,
+  config,
+  updateConfig,
+  priority,
+  onPriorityChange,
+  onDelete,
+}: {
+  field: ParameterField;
+  config: IcpConfig;
+  updateConfig: <K extends keyof IcpConfig>(key: K, value: IcpConfig[K]) => void;
+  priority: Priority;
+  onPriorityChange: (v: Priority) => void;
+  onDelete: () => void;
+}) {
+  const colors = PRIORITY_COLORS[priority];
+  const hasValue = field.type !== "priority";
+
+  return (
+    <div
+      className={`relative rounded-lg border ring-1 ${colors.ring} ${colors.bg} p-3 transition-all hover:shadow-sm group`}
+      data-testid={`card-amenity-${field.key}`}
+    >
+      <button
+        type="button"
+        onClick={onDelete}
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-red-500"
+        data-testid={`button-delete-${field.key}`}
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+
+      <div className="space-y-2.5">
+        <div className="flex items-start gap-1.5 pr-5">
+          <span className="text-xs font-semibold text-foreground leading-tight">{field.label}</span>
+          {field.help && <HelpTooltip text={field.help} />}
+        </div>
+
+        <PriorityRadio value={priority} onChange={onPriorityChange} />
+
+        {hasValue && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {field.type === "currency" ? (
+              <>
+                <span className="text-xs text-muted-foreground">$</span>
+                <CurrencyInput
+                  value={config[field.key as keyof IcpConfig] as number}
+                  onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
+                />
+              </>
+            ) : (
+              <NumberInput
+                value={config[field.key as keyof IcpConfig] as number}
+                onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
+                step={field.suffix === "%" && !field.key.includes("Share") ? 1 : undefined}
+              />
+            )}
+            {field.pair && (
+              <>
+                <span className="text-[10px] text-muted-foreground">{field.pairLabel}</span>
+                {field.type === "currency" ? (
+                  <>
+                    <span className="text-xs text-muted-foreground">$</span>
+                    <CurrencyInput
+                      value={config[field.pair as keyof IcpConfig] as number}
+                      onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
+                    />
+                  </>
+                ) : (
+                  <NumberInput
+                    value={config[field.pair as keyof IcpConfig] as number}
+                    onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
+                  />
+                )}
+              </>
+            )}
+            <UnitLabel unitType={field.unitType} suffix={field.suffix} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CustomAmenityCard({
+  amenity,
+  onUpdate,
+  onDelete,
+}: {
+  amenity: CustomAmenity;
+  onUpdate: (updates: Partial<CustomAmenity>) => void;
+  onDelete: () => void;
+}) {
+  const colors = PRIORITY_COLORS[amenity.priority];
+
+  return (
+    <div
+      className={`relative rounded-lg border ring-1 ${colors.ring} ${colors.bg} p-3 transition-all hover:shadow-sm group`}
+      data-testid={`card-custom-amenity-${amenity.id}`}
+    >
+      <button
+        type="button"
+        onClick={onDelete}
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-red-500"
+        data-testid={`button-delete-custom-${amenity.id}`}
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+
+      <div className="space-y-2.5">
+        <Input
+          value={amenity.label}
+          onChange={(e) => onUpdate({ label: e.target.value })}
+          className="h-7 text-xs font-semibold bg-transparent border-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          data-testid={`input-custom-name-${amenity.id}`}
+        />
+        <PriorityRadio
+          value={amenity.priority}
+          onChange={(v) => onUpdate({ priority: v })}
+        />
+      </div>
+    </div>
+  );
+}
+
 function AmenitiesTab({
   config,
   updateConfig,
+  customAmenities,
+  addCustomAmenity,
+  updateCustomAmenity,
+  deleteCustomAmenity,
+  hiddenFields,
+  hideField,
+  restoreField,
 }: {
   config: IcpConfig;
   updateConfig: <K extends keyof IcpConfig>(key: K, value: IcpConfig[K]) => void;
+  customAmenities: CustomAmenity[];
+  addCustomAmenity: () => void;
+  updateCustomAmenity: (id: string, updates: Partial<CustomAmenity>) => void;
+  deleteCustomAmenity: (id: string) => void;
+  hiddenFields: Set<string>;
+  hideField: (key: string) => void;
+  restoreField: (key: string) => void;
 }) {
-  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
-
-  const toggleSection = (title: string) => {
-    setOpenSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(title)) next.delete(title);
-      else next.add(title);
-      return next;
-    });
-  };
+  const hiddenFieldsList = useMemo(() => {
+    const all: ParameterField[] = [];
+    for (const section of PARAMETER_SECTIONS) {
+      for (const field of section.fields) {
+        if (hiddenFields.has(field.key)) all.push(field);
+      }
+    }
+    return all;
+  }, [hiddenFields]);
 
   return (
-    <div className="space-y-0">
-      <p className="text-xs text-muted-foreground mb-4">
-        All numeric values are editable. Defaults are suggested starting points based on the current portfolio.
-        Each feature is marked as <span className="font-medium text-emerald-600 dark:text-emerald-400">Required</span> or <span className="font-medium text-amber-600 dark:text-amber-400">Nice to Have</span>.
+    <div className="space-y-6">
+      <p className="text-xs text-muted-foreground">
+        Each feature is shown as a card with its priority level. Use the radio buttons to set
+        <span className="font-medium text-emerald-600 dark:text-emerald-400"> Required</span>,
+        <span className="font-medium text-blue-600 dark:text-blue-400"> Major Plus</span>, or
+        <span className="font-medium text-amber-600 dark:text-amber-400"> Nice to Have</span>.
+        Hover to reveal the delete button. Add custom amenities at the bottom.
       </p>
-      {PARAMETER_SECTIONS.map((section, sIdx) => {
-        const isOpen = openSections.has(section.title);
+
+      {PARAMETER_SECTIONS.map((section) => {
+        const visibleFields = section.fields.filter((f) => !hiddenFields.has(f.key));
+        if (visibleFields.length === 0) return null;
+
         return (
-          <div key={section.title} className={`border-b border-border/60 ${sIdx % 2 === 1 ? "bg-muted/20" : ""}`}>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => toggleSection(section.title)}
-              className="flex items-center justify-between w-full py-3 px-3 h-auto text-left justify-start hover:bg-muted/40 transition-colors group rounded-none"
-              data-testid={`accordion-${section.title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+          <div key={section.title}>
+            <h3
+              className="text-sm font-semibold text-foreground mb-3 pb-1.5 border-b border-border/60"
+              data-testid={`section-${section.title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
             >
-              <span className="text-sm font-semibold text-foreground group-hover:text-foreground/90">
-                {section.title}
+              {section.title}
+              <span className="ml-2 text-[11px] font-normal text-muted-foreground tabular-nums">
+                {visibleFields.length} {visibleFields.length === 1 ? "feature" : "features"}
               </span>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-muted-foreground tabular-nums">
-                  {section.fields.length} {section.fields.length === 1 ? "feature" : "features"}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-              </div>
-            </Button>
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {visibleFields.map((field) => {
+                const priority: Priority = field.type === "priority"
+                  ? (config[field.key as keyof IcpConfig] as Priority)
+                  : field.linkedPriority
+                    ? (config[field.linkedPriority as keyof IcpConfig] as Priority)
+                    : field.defaultPriority || "must";
 
-            {isOpen && (
-              <div className="px-3 pb-3">
-                <table className="w-full">
-                  <tbody>
-                    {section.fields.map((field, rowIdx) => {
-                      const priority: Priority = field.type === "priority"
-                        ? (config[field.key as keyof IcpConfig] as Priority)
-                        : field.linkedPriority
-                          ? (config[field.linkedPriority as keyof IcpConfig] as Priority)
-                          : "must";
+                const handlePriorityChange = (v: Priority) => {
+                  if (field.type === "priority") {
+                    updateConfig(field.key as keyof IcpConfig, v as any);
+                  } else if (field.linkedPriority) {
+                    updateConfig(field.linkedPriority as keyof IcpConfig, v as any);
+                  }
+                };
 
-                      return (
-                        <tr
-                          key={field.key}
-                          className={`border-b border-border/20 last:border-0 ${rowIdx % 2 === 1 ? "bg-muted/30" : ""}`}
-                          data-testid={`row-amenity-${field.key}`}
-                        >
-                          <td className="py-2 pr-2 w-[32px] align-middle">
-                            {field.type === "priority" ? (
-                              <PriorityBadge
-                                value={config[field.key as keyof IcpConfig] as Priority}
-                                onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
-                              />
-                            ) : (
-                              <PriorityBadge value={priority} />
-                            )}
-                          </td>
-                          <td className="py-2 pr-3 text-xs text-foreground/80 whitespace-nowrap align-middle">
-                            <div className="flex items-center">
-                              <span>{field.label}</span>
-                              {field.help && <HelpTooltip text={field.help} />}
-                            </div>
-                          </td>
-                          <td className="py-2 align-middle">
-                            {field.type === "priority" ? null : (
-                              <div className="flex items-center gap-1.5 justify-end">
-                                {field.type === "currency" ? (
-                                  <>
-                                    <span className="text-xs text-muted-foreground">$</span>
-                                    <CurrencyInput
-                                      value={config[field.key as keyof IcpConfig] as number}
-                                      onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
-                                    />
-                                  </>
-                                ) : (
-                                  <NumberInput
-                                    value={config[field.key as keyof IcpConfig] as number}
-                                    onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
-                                    step={field.suffix === "%" && !field.key.includes("Share") ? 1 : undefined}
-                                  />
-                                )}
-                                {field.pair && (
-                                  <>
-                                    <span className="text-[10px] text-muted-foreground">{field.pairLabel}</span>
-                                    {field.type === "currency" ? (
-                                      <>
-                                        <span className="text-xs text-muted-foreground">$</span>
-                                        <CurrencyInput
-                                          value={config[field.pair as keyof IcpConfig] as number}
-                                          onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
-                                        />
-                                      </>
-                                    ) : (
-                                      <NumberInput
-                                        value={config[field.pair as keyof IcpConfig] as number}
-                                        onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
-                                      />
-                                    )}
-                                  </>
-                                )}
-                                <UnitLabel unitType={field.unitType} suffix={field.suffix} />
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                return (
+                  <AmenityCard
+                    key={field.key}
+                    field={field}
+                    config={config}
+                    updateConfig={updateConfig}
+                    priority={priority}
+                    onPriorityChange={handlePriorityChange}
+                    onDelete={() => hideField(field.key)}
+                  />
+                );
+              })}
+            </div>
           </div>
         );
       })}
+
+      {customAmenities.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-foreground mb-3 pb-1.5 border-b border-border/60">
+            Custom Amenities
+            <span className="ml-2 text-[11px] font-normal text-muted-foreground tabular-nums">
+              {customAmenities.length} {customAmenities.length === 1 ? "feature" : "features"}
+            </span>
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {customAmenities.map((amenity) => (
+              <CustomAmenityCard
+                key={amenity.id}
+                amenity={amenity}
+                onUpdate={(updates) => updateCustomAmenity(amenity.id, updates)}
+                onDelete={() => deleteCustomAmenity(amenity.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center gap-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addCustomAmenity}
+          className="text-xs h-8 gap-1.5"
+          data-testid="button-add-amenity"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          Add Amenity
+        </Button>
+      </div>
+
+      {hiddenFieldsList.length > 0 && (
+        <div className="pt-2 border-t border-border/40">
+          <p className="text-[11px] text-muted-foreground mb-2">
+            Removed features ({hiddenFieldsList.length}):
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {hiddenFieldsList.map((field) => (
+              <button
+                key={field.key}
+                type="button"
+                onClick={() => restoreField(field.key)}
+                className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/70 hover:text-foreground bg-muted/40 hover:bg-muted/60 rounded-full px-2.5 py-1 transition-colors"
+                data-testid={`button-restore-${field.key}`}
+              >
+                <Plus className="w-2.5 h-2.5" />
+                {field.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -46,6 +46,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom"],
+          "vendor-charts": ["recharts", "d3-selection", "d3-array", "d3-scale", "d3-axis", "d3-color", "d3-interpolate", "d3-shape"],
+          "vendor-motion": ["framer-motion"],
+          "vendor-exports": ["jspdf", "xlsx", "pptxgenjs"],
+          "vendor-tanstack": ["@tanstack/react-query"],
+        },
+      },
+    },
   },
   server: {
     host: "0.0.0.0",

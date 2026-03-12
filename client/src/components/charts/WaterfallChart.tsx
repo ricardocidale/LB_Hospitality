@@ -1,5 +1,8 @@
 import { useCallback, useRef, forwardRef, useImperativeHandle } from "react";
-import * as d3 from "d3";
+import { select } from "d3-selection";
+import { min, max, range } from "d3-array";
+import { scaleLinear, scaleBand } from "d3-scale";
+import { axisBottom, axisLeft } from "d3-axis";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
 
 export interface WaterfallItem {
@@ -39,7 +42,7 @@ const WaterfallChart = forwardRef<WaterfallChartRef, WaterfallChartProps>(
 
     const renderChart = useCallback(
       (svg: SVGSVGElement, width: number, height: number) => {
-        const d3svg = d3.select(svg);
+        const d3svg = select(svg);
         d3svg.selectAll("*").remove();
         if (!data.length) return;
 
@@ -71,25 +74,23 @@ const WaterfallChart = forwardRef<WaterfallChartRef, WaterfallChartProps>(
         });
 
         const allValues = bars.flatMap((b) => [b.y0, b.y1]);
-        const yMin = Math.min(0, d3.min(allValues) ?? 0);
-        const yMax = d3.max(allValues) ?? 0;
+        const yMin = Math.min(0, min(allValues) ?? 0);
+        const yMax = max(allValues) ?? 0;
         const yPad = (yMax - yMin) * 0.1;
 
-        const x = d3
-          .scaleBand<number>()
-          .domain(d3.range(bars.length))
+        const x = scaleBand<number>()
+          .domain(range(bars.length))
           .range([0, innerW])
           .padding(0.25);
 
-        const y = d3
-          .scaleLinear()
+        const y = scaleLinear()
           .domain([yMin - yPad, yMax + yPad])
           .range([innerH, 0]);
 
         g.append("g")
           .attr("transform", `translate(0,${innerH})`)
           .call(
-            d3.axisBottom(x).tickFormat((i) => {
+            axisBottom(x).tickFormat((i) => {
               const item = bars[i as number];
               return item ? item.label : "";
             })
@@ -102,8 +103,7 @@ const WaterfallChart = forwardRef<WaterfallChartRef, WaterfallChartProps>(
 
         g.append("g")
           .call(
-            d3
-              .axisLeft(y)
+            axisLeft(y)
               .ticks(6)
               .tickFormat((d) => {
                 const v = d as number;
@@ -117,8 +117,7 @@ const WaterfallChart = forwardRef<WaterfallChartRef, WaterfallChartProps>(
           .style("font-size", "11px")
           .style("fill", "currentColor");
 
-        const tooltip = d3
-          .select(svg.parentElement!)
+        const tooltip = select(svg.parentElement!)
           .selectAll(".waterfall-tooltip")
           .data([null])
           .join("div")
@@ -146,7 +145,7 @@ const WaterfallChart = forwardRef<WaterfallChartRef, WaterfallChartProps>(
           .attr("fill", (d) => COLORS[d.type])
           .style("cursor", "pointer")
           .on("mouseenter", function (event, d) {
-            d3.select(this).attr("opacity", 0.85);
+            select(this).attr("opacity", 0.85);
             const fmt = (v: number) => {
               const abs = Math.abs(v);
               if (abs >= 1e6) return `$${(v / 1e6).toFixed(2)}M`;
@@ -168,7 +167,7 @@ const WaterfallChart = forwardRef<WaterfallChartRef, WaterfallChartProps>(
               .style("top", `${event.clientY - rect.top - 30}px`);
           })
           .on("mouseleave", function () {
-            d3.select(this).attr("opacity", 1);
+            select(this).attr("opacity", 1);
             tooltip.style("opacity", "0");
           });
 

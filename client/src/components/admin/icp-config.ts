@@ -119,10 +119,11 @@ export interface IcpConfig {
   holdYearsMax: number;
 }
 
-export type Priority = "must" | "nice" | "no";
+export type Priority = "must" | "major" | "nice" | "no";
 
 export const PRIORITY_LABELS: Record<Priority, string> = {
   must: "Required",
+  major: "Major Plus",
   nice: "Nice to Have",
   no: "Exclude",
 };
@@ -318,7 +319,7 @@ export const DEFAULT_ICP_DESCRIPTIVE: IcpDescriptive = {
 };
 
 function pr(p: Priority): string {
-  return p === "must" ? "MUST HAVE" : p === "nice" ? "NICE TO HAVE" : "EXCLUDED";
+  return p === "must" ? "MUST HAVE" : p === "major" ? "MAJOR PLUS" : p === "nice" ? "NICE TO HAVE" : "EXCLUDED";
 }
 
 function fmt$(n: number): string {
@@ -329,7 +330,7 @@ function fmt$(n: number): string {
 
 function amenityLine(name: string, priority: Priority, detail?: string): string {
   if (priority === "no") return "";
-  const tag = priority === "must" ? "(M)" : "(N)";
+  const tag = priority === "must" ? "(M)" : priority === "major" ? "(P)" : "(N)";
   return `${tag} ${name}${detail ? ` — ${detail}` : ""}`;
 }
 
@@ -368,7 +369,7 @@ export function generateIcpPrompt(c: IcpConfig, d: IcpDescriptive, propertyLabel
   const lines = [
     `IDEAL CUSTOMER PROFILE — ${propertyLabel.toUpperCase()} TARGET DEFINITION`,
     ``,
-    `This profile defines the ideal property acquisition target. Each deterministic attribute is classified as MUST HAVE (M) or NICE TO HAVE (N). Use this profile for ADR estimation, revenue mix projection, cost benchmarking, and market analysis.`,
+    `This profile defines the ideal property acquisition target. Each deterministic attribute is classified as MUST HAVE (M), MAJOR PLUS (P), or NICE TO HAVE (N). Use this profile for ADR estimation, revenue mix projection, cost benchmarking, and market analysis.`,
     ``,
     `━━━ PROPERTY TYPE & POSITIONING ━━━`,
     d.propertyTypes,
@@ -508,50 +509,51 @@ export interface ParameterField {
   help?: string;
   unitType?: UnitType;
   linkedPriority?: string;
+  defaultPriority?: Priority;
 }
 
 export const PARAMETER_SECTIONS: ParameterSection[] = [
   {
     title: "Guest Rooms & Suites",
     fields: [
-      { key: "roomsMin", label: "Rooms", type: "number", pair: "roomsMax", pairLabel: "to", help: "Total number of bookable guest rooms and suites. Range reflects minimum acceptable to maximum manageable inventory." },
-      { key: "roomsSweetSpotMin", label: "Sweet spot", type: "number", pair: "roomsSweetSpotMax", pairLabel: "to", help: "Ideal room count for optimal operations — small enough for boutique feel, large enough for financial viability." },
-      { key: "masterSuitesMin", label: "Master suites (min)", type: "number", help: "Large premium suites with separate living areas, walk-in closets, and luxury en-suite bathrooms." },
-      { key: "masterSuiteSqFt", label: "Master suite size", type: "number", unitType: "area", help: "Minimum floor area per master suite including bedroom, sitting area, and en-suite bathroom." },
+      { key: "roomsMin", label: "Rooms", type: "number", pair: "roomsMax", pairLabel: "to", defaultPriority: "must", help: "Total number of bookable guest rooms and suites. Range reflects minimum acceptable to maximum manageable inventory." },
+      { key: "roomsSweetSpotMin", label: "Sweet spot", type: "number", pair: "roomsSweetSpotMax", pairLabel: "to", defaultPriority: "must", help: "Ideal room count for optimal operations — small enough for boutique feel, large enough for financial viability." },
+      { key: "masterSuitesMin", label: "Master suites (min)", type: "number", defaultPriority: "must", help: "Large premium suites with separate living areas, walk-in closets, and luxury en-suite bathrooms." },
+      { key: "masterSuiteSqFt", label: "Master suite size", type: "number", unitType: "area", defaultPriority: "must", help: "Minimum floor area per master suite including bedroom, sitting area, and en-suite bathroom." },
     ],
   },
   {
     title: "Bedrooms, Bathrooms & Areas",
     fields: [
-      { key: "bedroomsMin", label: "Bedrooms", type: "number", pair: "bedroomsMax", pairLabel: "to", help: "Total bedrooms across the property including guest rooms, owner/staff quarters, and auxiliary spaces." },
-      { key: "bathroomsMin", label: "Bathrooms", type: "number", pair: "bathroomsMax", pairLabel: "to", help: "Full bathrooms (toilet, sink, shower/tub). Target at least 1:1 ratio with bedrooms." },
-      { key: "halfBaths", label: "Half-baths", type: "number", help: "Powder rooms in public and common areas (toilet and sink only). Reduces guest traffic through private wings." },
-      { key: "livingAreas", label: "Living/lounge areas (min)", type: "number", help: "Distinct living rooms, lounges, or sitting areas available for guest use. Multiple areas allow programming variety." },
-      { key: "diningCapacityMin", label: "Dining capacity", type: "number", pair: "diningCapacityMax", pairLabel: "to", suffix: "guests", help: "Number of guests the main dining area can seat for a formal meal service." },
+      { key: "bedroomsMin", label: "Bedrooms", type: "number", pair: "bedroomsMax", pairLabel: "to", defaultPriority: "must", help: "Total bedrooms across the property including guest rooms, owner/staff quarters, and auxiliary spaces." },
+      { key: "bathroomsMin", label: "Bathrooms", type: "number", pair: "bathroomsMax", pairLabel: "to", defaultPriority: "must", help: "Full bathrooms (toilet, sink, shower/tub). Target at least 1:1 ratio with bedrooms." },
+      { key: "halfBaths", label: "Half-baths", type: "number", defaultPriority: "nice", help: "Powder rooms in public and common areas (toilet and sink only). Reduces guest traffic through private wings." },
+      { key: "livingAreas", label: "Living/lounge areas (min)", type: "number", defaultPriority: "must", help: "Distinct living rooms, lounges, or sitting areas available for guest use. Multiple areas allow programming variety." },
+      { key: "diningCapacityMin", label: "Dining capacity", type: "number", pair: "diningCapacityMax", pairLabel: "to", suffix: "guests", defaultPriority: "must", help: "Number of guests the main dining area can seat for a formal meal service." },
     ],
   },
   {
     title: "Land & Built Area",
     fields: [
-      { key: "landAcresMin", label: "Land area", type: "number", pair: "landAcresMax", pairLabel: "to", unitType: "land", help: "Total property land including buildings, gardens, parking, and undeveloped areas." },
-      { key: "builtSqFtMin", label: "Built area", type: "number", pair: "builtSqFtMax", pairLabel: "to", unitType: "area", help: "Total usable interior space across all structures — main building, outbuildings, staff quarters." },
+      { key: "landAcresMin", label: "Land area", type: "number", pair: "landAcresMax", pairLabel: "to", unitType: "land", defaultPriority: "must", help: "Total property land including buildings, gardens, parking, and undeveloped areas." },
+      { key: "builtSqFtMin", label: "Built area", type: "number", pair: "builtSqFtMax", pairLabel: "to", unitType: "area", defaultPriority: "must", help: "Total usable interior space across all structures — main building, outbuildings, staff quarters." },
     ],
   },
   {
     title: "Event Capacity & Parking",
     fields: [
-      { key: "indoorEventMin", label: "Indoor event capacity", type: "number", pair: "indoorEventMax", pairLabel: "to", suffix: "guests", help: "Maximum guests for indoor events such as weddings, corporate retreats, and galas." },
-      { key: "outdoorEventMin", label: "Outdoor event capacity", type: "number", pair: "outdoorEventMax", pairLabel: "to", suffix: "guests", help: "Maximum guests for outdoor events on lawns, terraces, or courtyards." },
-      { key: "parkingMin", label: "Parking spaces", type: "number", pair: "parkingMax", pairLabel: "to", help: "On-site parking spots including standard, accessible, and overflow areas." },
+      { key: "indoorEventMin", label: "Indoor event capacity", type: "number", pair: "indoorEventMax", pairLabel: "to", suffix: "guests", defaultPriority: "must", help: "Maximum guests for indoor events such as weddings, corporate retreats, and galas." },
+      { key: "outdoorEventMin", label: "Outdoor event capacity", type: "number", pair: "outdoorEventMax", pairLabel: "to", suffix: "guests", defaultPriority: "must", help: "Maximum guests for outdoor events on lawns, terraces, or courtyards." },
+      { key: "parkingMin", label: "Parking spaces", type: "number", pair: "parkingMax", pairLabel: "to", defaultPriority: "must", help: "On-site parking spots including standard, accessible, and overflow areas." },
     ],
   },
   {
     title: "Operational Facilities",
     fields: [
-      { key: "kitchenSqFt", label: "Kitchen (min)", type: "number", unitType: "area", help: "Commercial or semi-commercial kitchen with hood ventilation, grease trap, walk-in cooler/freezer, prep and dish areas." },
-      { key: "maintenanceSqFt", label: "Maintenance/storage (min)", type: "number", unitType: "area", help: "Workshop and general storage for maintenance equipment, supplies, and seasonal items." },
-      { key: "staffQuartersMin", label: "Staff quarters capacity", type: "number", pair: "staffQuartersMax", pairLabel: "to", suffix: "staff", help: "On-site break room or quarters capacity for key operational staff during shifts." },
-      { key: "staffHousingUnits", label: "Staff housing units", type: "number", help: "Separate residential units for live-in staff (manager, chef, groundskeeper). Critical for rural locations." },
+      { key: "kitchenSqFt", label: "Kitchen (min)", type: "number", unitType: "area", defaultPriority: "must", help: "Commercial or semi-commercial kitchen with hood ventilation, grease trap, walk-in cooler/freezer, prep and dish areas." },
+      { key: "maintenanceSqFt", label: "Maintenance/storage (min)", type: "number", unitType: "area", defaultPriority: "must", help: "Workshop and general storage for maintenance equipment, supplies, and seasonal items." },
+      { key: "staffQuartersMin", label: "Staff quarters capacity", type: "number", pair: "staffQuartersMax", pairLabel: "to", suffix: "staff", defaultPriority: "must", help: "On-site break room or quarters capacity for key operational staff during shifts." },
+      { key: "staffHousingUnits", label: "Staff housing units", type: "number", defaultPriority: "nice", help: "Separate residential units for live-in staff (manager, chef, groundskeeper). Critical for rural locations." },
     ],
   },
   {
@@ -612,65 +614,65 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
   {
     title: "Condition Thresholds",
     fields: [
-      { key: "maxRoofAge", label: "Max roof age", type: "number", suffix: "years", help: "Maximum acceptable age of the roofing system. Older roofs require costly replacement ($50K–$200K+)." },
-      { key: "minElectricalAmps", label: "Min electrical service", type: "number", suffix: "amps", help: "Minimum electrical panel amperage. Commercial kitchens and HVAC require 200+ amps." },
-      { key: "maxRenovationBudget", label: "Max renovation budget", type: "currency", help: "Hard cap on total renovation and conversion costs. Properties exceeding this are excluded." },
+      { key: "maxRoofAge", label: "Max roof age", type: "number", suffix: "years", defaultPriority: "must", help: "Maximum acceptable age of the roofing system. Older roofs require costly replacement ($50K–$200K+)." },
+      { key: "minElectricalAmps", label: "Min electrical service", type: "number", suffix: "amps", defaultPriority: "must", help: "Minimum electrical panel amperage. Commercial kitchens and HVAC require 200+ amps." },
+      { key: "maxRenovationBudget", label: "Max renovation budget", type: "currency", defaultPriority: "must", help: "Hard cap on total renovation and conversion costs. Properties exceeding this are excluded." },
     ],
   },
   {
     title: "Privacy & Security",
     fields: [
-      { key: "minSetbackFt", label: "Min setback from roads", type: "number", unitType: "distance", help: "Minimum distance from the main building to the nearest public road for visual and acoustic privacy." },
-      { key: "minDrivewayFt", label: "Min driveway approach", type: "number", unitType: "distance", help: "Length of private driveway from the property entrance to the main building. Longer driveways enhance exclusivity." },
+      { key: "minSetbackFt", label: "Min setback from roads", type: "number", unitType: "distance", defaultPriority: "must", help: "Minimum distance from the main building to the nearest public road for visual and acoustic privacy." },
+      { key: "minDrivewayFt", label: "Min driveway approach", type: "number", unitType: "distance", defaultPriority: "nice", help: "Length of private driveway from the property entrance to the main building. Longer driveways enhance exclusivity." },
     ],
   },
   {
     title: "Location & Accessibility",
     fields: [
-      { key: "maxAirportMin", label: "Max to airport", type: "number", suffix: "min", help: "Maximum drive time to the nearest regional or international airport. Beyond this, guest convenience drops sharply." },
-      { key: "prefAirportMin", label: "Preferred to airport", type: "number", suffix: "min", help: "Preferred drive time to airport. Shorter times allow for weekend trips and easy access." },
-      { key: "maxHospitalMin", label: "Max to hospital", type: "number", suffix: "min", help: "Maximum drive time to nearest hospital or urgent care. Critical for guest safety and insurance." },
-      { key: "prefHospitalMin", label: "Preferred to hospital", type: "number", suffix: "min", help: "Preferred proximity to medical facilities for added peace of mind." },
+      { key: "maxAirportMin", label: "Max to airport", type: "number", suffix: "min", defaultPriority: "must", help: "Maximum drive time to the nearest regional or international airport. Beyond this, guest convenience drops sharply." },
+      { key: "prefAirportMin", label: "Preferred to airport", type: "number", suffix: "min", defaultPriority: "nice", help: "Preferred drive time to airport. Shorter times allow for weekend trips and easy access." },
+      { key: "maxHospitalMin", label: "Max to hospital", type: "number", suffix: "min", defaultPriority: "must", help: "Maximum drive time to nearest hospital or urgent care. Critical for guest safety and insurance." },
+      { key: "prefHospitalMin", label: "Preferred to hospital", type: "number", suffix: "min", defaultPriority: "nice", help: "Preferred proximity to medical facilities for added peace of mind." },
     ],
   },
   {
     title: "Acquisition & Investment",
     fields: [
-      { key: "acquisitionMin", label: "Acquisition price", type: "currency", pair: "acquisitionMax", pairLabel: "to", help: "Purchase price range for the property. Excludes renovation and FF&E costs." },
-      { key: "acquisitionTargetMin", label: "Target sweet spot", type: "currency", pair: "acquisitionTargetMax", pairLabel: "to", help: "Preferred acquisition price range within the broader acceptable range." },
-      { key: "totalInvestmentMin", label: "Total investment", type: "currency", pair: "totalInvestmentMax", pairLabel: "to", help: "All-in cost: acquisition + renovation + FF&E + soft costs + working capital." },
-      { key: "renovationMin", label: "Renovation/conversion", type: "currency", pair: "renovationMax", pairLabel: "to", help: "Budget for structural renovation, cosmetic updates, and hospitality conversion." },
-      { key: "ffePerRoomMin", label: "FF&E per room", type: "currency", pair: "ffePerRoomMax", pairLabel: "to", help: "Furniture, fixtures, and equipment budget per guest room. Industry range: $15K–$50K." },
+      { key: "acquisitionMin", label: "Acquisition price", type: "currency", pair: "acquisitionMax", pairLabel: "to", defaultPriority: "must", help: "Purchase price range for the property. Excludes renovation and FF&E costs." },
+      { key: "acquisitionTargetMin", label: "Target sweet spot", type: "currency", pair: "acquisitionTargetMax", pairLabel: "to", defaultPriority: "must", help: "Preferred acquisition price range within the broader acceptable range." },
+      { key: "totalInvestmentMin", label: "Total investment", type: "currency", pair: "totalInvestmentMax", pairLabel: "to", defaultPriority: "must", help: "All-in cost: acquisition + renovation + FF&E + soft costs + working capital." },
+      { key: "renovationMin", label: "Renovation/conversion", type: "currency", pair: "renovationMax", pairLabel: "to", defaultPriority: "must", help: "Budget for structural renovation, cosmetic updates, and hospitality conversion." },
+      { key: "ffePerRoomMin", label: "FF&E per room", type: "currency", pair: "ffePerRoomMax", pairLabel: "to", defaultPriority: "must", help: "Furniture, fixtures, and equipment budget per guest room. Industry range: $15K–$50K." },
     ],
   },
   {
     title: "Revenue Benchmarks",
     fields: [
-      { key: "adrMin", label: "Target ADR", type: "currency", pair: "adrMax", pairLabel: "to", suffix: "/night", help: "Average Daily Rate — the average revenue per occupied room per night." },
-      { key: "occupancyMin", label: "Stabilized occupancy", type: "number", suffix: "%", pair: "occupancyMax", pairLabel: "to", help: "Expected occupancy rate at stabilization (after ramp-up period). Boutique hotels: 55%–75%." },
-      { key: "occupancyRampMonths", label: "Occupancy ramp", type: "number", suffix: "months", help: "Months from opening to reach stabilized occupancy. Typical: 12–24 months for new operations." },
-      { key: "revParMin", label: "RevPAR target", type: "currency", pair: "revParMax", pairLabel: "to", suffix: "/night", help: "Revenue Per Available Room = ADR × Occupancy. Key performance metric." },
+      { key: "adrMin", label: "Target ADR", type: "currency", pair: "adrMax", pairLabel: "to", suffix: "/night", defaultPriority: "must", help: "Average Daily Rate — the average revenue per occupied room per night." },
+      { key: "occupancyMin", label: "Stabilized occupancy", type: "number", suffix: "%", pair: "occupancyMax", pairLabel: "to", defaultPriority: "must", help: "Expected occupancy rate at stabilization (after ramp-up period). Boutique hotels: 55%–75%." },
+      { key: "occupancyRampMonths", label: "Occupancy ramp", type: "number", suffix: "months", defaultPriority: "must", help: "Months from opening to reach stabilized occupancy. Typical: 12–24 months for new operations." },
+      { key: "revParMin", label: "RevPAR target", type: "currency", pair: "revParMax", pairLabel: "to", suffix: "/night", defaultPriority: "must", help: "Revenue Per Available Room = ADR × Occupancy. Key performance metric." },
     ],
   },
   {
     title: "Revenue Mix (% of Room Revenue)",
     fields: [
-      { key: "fbShareMin", label: "Food & Beverage", type: "number", suffix: "%", pair: "fbShareMax", pairLabel: "to", help: "F&B revenue as a percentage of room revenue. Includes restaurant, bar, room service, catering." },
-      { key: "eventsShareMin", label: "Events", type: "number", suffix: "%", pair: "eventsShareMax", pairLabel: "to", help: "Event revenue from weddings, corporate retreats, and private functions as % of room revenue." },
-      { key: "spaShareMin", label: "Spa & Wellness", type: "number", suffix: "%", pair: "spaShareMax", pairLabel: "to", help: "Spa and wellness service revenue as % of room revenue. Includes treatments, memberships." },
-      { key: "otherShareMin", label: "Other services", type: "number", suffix: "%", pair: "otherShareMax", pairLabel: "to", help: "Other ancillary revenue: activities, tours, retail, equestrian, experiences." },
-      { key: "totalAncillaryMin", label: "Total ancillary", type: "number", suffix: "%", pair: "totalAncillaryMax", pairLabel: "to", help: "Sum of all non-room revenue as % of room revenue. Higher = more diversified income." },
+      { key: "fbShareMin", label: "Food & Beverage", type: "number", suffix: "%", pair: "fbShareMax", pairLabel: "to", defaultPriority: "must", help: "F&B revenue as a percentage of room revenue. Includes restaurant, bar, room service, catering." },
+      { key: "eventsShareMin", label: "Events", type: "number", suffix: "%", pair: "eventsShareMax", pairLabel: "to", defaultPriority: "must", help: "Event revenue from weddings, corporate retreats, and private functions as % of room revenue." },
+      { key: "spaShareMin", label: "Spa & Wellness", type: "number", suffix: "%", pair: "spaShareMax", pairLabel: "to", defaultPriority: "nice", help: "Spa and wellness service revenue as % of room revenue. Includes treatments, memberships." },
+      { key: "otherShareMin", label: "Other services", type: "number", suffix: "%", pair: "otherShareMax", pairLabel: "to", defaultPriority: "nice", help: "Other ancillary revenue: activities, tours, retail, equestrian, experiences." },
+      { key: "totalAncillaryMin", label: "Total ancillary", type: "number", suffix: "%", pair: "totalAncillaryMax", pairLabel: "to", defaultPriority: "must", help: "Sum of all non-room revenue as % of room revenue. Higher = more diversified income." },
     ],
   },
   {
     title: "Fee Structure & Returns",
     fields: [
-      { key: "baseMgmtFeeMin", label: "Base management fee", type: "number", suffix: "%", pair: "baseMgmtFeeMax", pairLabel: "to", help: "Management fee as % of total revenue. Industry range: 3%–12% depending on services." },
-      { key: "incentiveFeeMin", label: "Incentive fee (GOP)", type: "number", suffix: "%", pair: "incentiveFeeMax", pairLabel: "to", help: "Incentive fee as % of Gross Operating Profit. Aligns manager and owner interests." },
-      { key: "exitCapRateMin", label: "Exit cap rate", type: "number", suffix: "%", pair: "exitCapRateMax", pairLabel: "to", help: "Capitalization rate assumed at disposition. Lower cap rate = higher property value." },
-      { key: "targetIrr", label: "Target IRR (min)", type: "number", suffix: "%", help: "Minimum Internal Rate of Return required for the investment to meet hurdle rate." },
-      { key: "equityMultipleMin", label: "Equity multiple", type: "number", suffix: "x", pair: "equityMultipleMax", pairLabel: "to", help: "Total return on invested equity. 2.0x means investors double their money." },
-      { key: "holdYearsMin", label: "Hold period", type: "number", suffix: "years", pair: "holdYearsMax", pairLabel: "to", help: "Planned investment hold period from acquisition to disposition." },
+      { key: "baseMgmtFeeMin", label: "Base management fee", type: "number", suffix: "%", pair: "baseMgmtFeeMax", pairLabel: "to", defaultPriority: "must", help: "Management fee as % of total revenue. Industry range: 3%–12% depending on services." },
+      { key: "incentiveFeeMin", label: "Incentive fee (GOP)", type: "number", suffix: "%", pair: "incentiveFeeMax", pairLabel: "to", defaultPriority: "must", help: "Incentive fee as % of Gross Operating Profit. Aligns manager and owner interests." },
+      { key: "exitCapRateMin", label: "Exit cap rate", type: "number", suffix: "%", pair: "exitCapRateMax", pairLabel: "to", defaultPriority: "must", help: "Capitalization rate assumed at disposition. Lower cap rate = higher property value." },
+      { key: "targetIrr", label: "Target IRR (min)", type: "number", suffix: "%", defaultPriority: "must", help: "Minimum Internal Rate of Return required for the investment to meet hurdle rate." },
+      { key: "equityMultipleMin", label: "Equity multiple", type: "number", suffix: "x", pair: "equityMultipleMax", pairLabel: "to", defaultPriority: "must", help: "Total return on invested equity. 2.0x means investors double their money." },
+      { key: "holdYearsMin", label: "Hold period", type: "number", suffix: "years", pair: "holdYearsMax", pairLabel: "to", defaultPriority: "must", help: "Planned investment hold period from acquisition to disposition." },
     ],
   },
 ];

@@ -180,19 +180,18 @@ describe("Operating Cash Flow (ASC 230 Indirect Method)", () => {
     }
   });
 
-  it("cashFromOperations = operatingCashFlow + workingCapitalChange", () => {
+  it("cashFromOperations = operatingCashFlow - workingCapitalChange", () => {
     for (const r of results) {
-      expect(r.cashFromOperations).toBeCloseTo(r.operatingCashFlow + r.workingCapitalChange, 2);
+      expect(r.cashFromOperations).toBeCloseTo(r.operatingCashFlow - r.workingCapitalChange, 2);
     }
   });
 
-  it("workingCapitalChange is always 0 (no working capital model)", () => {
-    for (const r of results) {
-      expect(r.workingCapitalChange).toBe(0);
-    }
+  it("workingCapitalChange is computed from AR/AP (non-zero when defaults apply)", () => {
+    const hasNonZeroWC = results.some(r => r.workingCapitalChange !== 0);
+    expect(hasNonZeroWC).toBe(true);
   });
 
-  it("freeCashFlow = cashFromOperations (since working capital change is 0)", () => {
+  it("freeCashFlow = cashFromOperations", () => {
     for (const r of results) {
       expect(r.freeCashFlow).toBeCloseTo(r.cashFromOperations, 2);
     }

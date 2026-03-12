@@ -277,6 +277,35 @@ export const DEFAULT_RESEARCH_EVENT_CONFIG = {
   refreshIntervalDays: DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS,
 };
 
+// ── Working Capital Defaults ──────────────────────────────────────────────
+export const DEFAULT_AR_DAYS = 30;
+export const DEFAULT_AP_DAYS = 45;
+
+// ── MIRR Defaults ────────────────────────────────────────────────────────
+export const DEFAULT_REINVESTMENT_RATE = 0.05;
+
+// ── Day-Count Convention ─────────────────────────────────────────────────
+export type DayCountConvention = '30/360' | 'ACT/360' | 'ACT/365';
+export const DEFAULT_DAY_COUNT_CONVENTION: DayCountConvention = '30/360';
+
+// ── Escalation Method ────────────────────────────────────────────────────
+export type EscalationMethod = 'annual' | 'monthly';
+export const DEFAULT_ESCALATION_METHOD: EscalationMethod = 'annual';
+
+// ── NOL (Net Operating Loss) Defaults ────────────────────────────────────
+export const NOL_UTILIZATION_CAP = 0.8;
+
+// ── Cost Segregation Defaults ────────────────────────────────────────────
+export const DEFAULT_COST_SEG_5YR_PCT = 0.15;
+export const DEFAULT_COST_SEG_7YR_PCT = 0.10;
+export const DEFAULT_COST_SEG_15YR_PCT = 0.05;
+export const COST_SEG_5YR_LIFE_MONTHS = 60;
+export const COST_SEG_7YR_LIFE_MONTHS = 84;
+export const COST_SEG_15YR_LIFE_MONTHS = 180;
+export const COST_SEG_5YR_LIFE_YEARS = 5;
+export const COST_SEG_7YR_LIFE_YEARS = 7;
+export const COST_SEG_15YR_LIFE_YEARS = 15;
+
 // ── Loan / Financing Defaults ──────────────────────────────────────────────
 export const DEFAULT_LTV = 0.75;
 export const DEFAULT_INTEREST_RATE = 0.09;

@@ -22,3 +22,6 @@ export type { EquityMultipleInput, EquityMultipleOutput } from "./equity-multipl
 
 export { computeExitValuation } from "./exit-valuation.js";
 export type { ExitValuationInput, ExitValuationOutput } from "./exit-valuation.js";
+
+export { computeMIRR } from "./mirr.js";
+export type { MIRRInput, MIRROutput } from "./mirr.js";

@@ -1,6 +1,7 @@
 import { MonthlyFinancials } from "../financialEngine";
 import { addMonths, isBefore, startOfMonth } from "date-fns";
 import { DEFAULT_TAX_RATE } from '../constants';
+import { NOL_UTILIZATION_CAP } from '@shared/constants';
 import type { AuditFinding, AuditSection, PropertyAuditInput, GlobalAuditInput } from "./types";
 import { parseLocalDate, withinTolerance, formatVariance } from "./helpers";
 
@@ -14,13 +15,21 @@ export function auditIncomeStatement(
   const modelStart = startOfMonth(parseLocalDate(global.modelStartDate));
   const opsStart = startOfMonth(parseLocalDate(property.operationsStartDate));
   let opsMonthsChecked = 0;
+  let auditNolBalance = 0;
 
   for (let i = 0; i < monthlyData.length; i++) {
     const m = monthlyData[i];
     const currentDate = addMonths(modelStart, i);
     const isOperational = !isBefore(currentDate, opsStart);
 
-    if (!isOperational) continue;
+    if (!isOperational) {
+      const preOpDepExp = m.depreciationExpense || 0;
+      const preOpTaxable = (m.anoi || 0) - (m.interestExpense || 0) - preOpDepExp;
+      if (preOpTaxable < 0) {
+        auditNolBalance += Math.abs(preOpTaxable);
+      }
+      continue;
+    }
 
     const expectedRoomRevenue = m.adr * m.soldRooms;
     const revenueMatch = withinTolerance(expectedRoomRevenue, m.revenueRooms);
@@ -152,7 +161,18 @@ export function auditIncomeStatement(
     const depExp = m.depreciationExpense || 0;
     const taxableForAudit = m.anoi - m.interestExpense - depExp;
     const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
-    const expectedTax = taxableForAudit > 0 ? taxableForAudit * taxRate : 0;
+    let expectedTax: number;
+    if (taxableForAudit < 0) {
+      auditNolBalance += Math.abs(taxableForAudit);
+      expectedTax = 0;
+    } else if (auditNolBalance > 0) {
+      const maxUtil = taxableForAudit * NOL_UTILIZATION_CAP;
+      const nolUsed = Math.min(auditNolBalance, maxUtil);
+      auditNolBalance -= nolUsed;
+      expectedTax = (taxableForAudit - nolUsed) > 0 ? (taxableForAudit - nolUsed) * taxRate : 0;
+    } else {
+      expectedTax = taxableForAudit > 0 ? taxableForAudit * taxRate : 0;
+    }
     const expectedNetIncome = m.anoi - m.interestExpense - depExp - expectedTax;
     const netIncomeMatch = withinTolerance(expectedNetIncome, m.netIncome);
     

@@ -61,8 +61,8 @@ export function aggregateCashFlowByYear(
     const expenseFFE = yearData.reduce((a, m) => a + m.expenseFFE, 0);
 
     const operatingCashFlow = netIncome + depreciationExpense;
-    const workingCapitalChange = 0;
-    const cashFromOperations = operatingCashFlow + workingCapitalChange;
+    const workingCapitalChange = yearData.reduce((a, m) => a + m.workingCapitalChange, 0);
+    const cashFromOperations = operatingCashFlow - workingCapitalChange;
     const freeCashFlow = cashFromOperations;
     const freeCashFlowToEquity = freeCashFlow - principalPayment;
     const btcf = anoi - debtService;

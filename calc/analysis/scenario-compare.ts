@@ -47,6 +47,7 @@ export interface ScenarioMetrics {
   net_income?: number[];
   ending_cash?: number[];
   irr: number;
+  mirr?: number;
   equity_multiple?: number;
   average_dscr?: number;
   exit_value?: number;
@@ -67,6 +68,7 @@ export interface ScenarioCompareInput {
 export interface ScenarioCompareOutput {
   summary: {
     irr_delta: number;
+    mirr_delta: number;
     irr_direction: "improved" | "worsened" | "unchanged";
     equity_multiple_delta: number;
     cumulative_noi_delta: number;
@@ -95,6 +97,7 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
   const a = input.alternative_metrics;
 
   const irr_delta = Math.round((a.irr - b.irr) * 10000);
+  const mirr_delta = Math.round(((a.mirr ?? 0) - (b.mirr ?? 0)) * 10000);
 
   let irr_direction: "improved" | "worsened" | "unchanged";
   if (Math.abs(irr_delta) < 1) irr_direction = "unchanged";
@@ -160,7 +163,7 @@ export function compareScenarios(input: ScenarioCompareInput): ScenarioCompareOu
 
   return {
     summary: {
-      irr_delta, irr_direction,
+      irr_delta, mirr_delta, irr_direction,
       equity_multiple_delta: Math.round(equity_multiple_delta * 10000) / 10000,
       cumulative_noi_delta, cumulative_noi_pct_change,
       exit_value_delta: roundCents(exit_value_delta),

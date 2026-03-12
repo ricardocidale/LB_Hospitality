@@ -300,6 +300,7 @@ export interface PortfolioExportData {
   totalExitValue: number;
   equityMultiple: number;
   portfolioIRR: number;
+  portfolioMIRR?: number;
   cashOnCash: number;
   totalProperties: number;
   totalRooms: number;
@@ -339,6 +340,7 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
       { label: `Projected Exit Value (Year ${data.projectionYears})`, value: `$${(data.totalExitValue / 1_000_000).toFixed(1)}M` },
       { label: "Equity Multiple", value: `${data.equityMultiple.toFixed(2)}x` },
       { label: "Portfolio IRR", value: `${(data.portfolioIRR * 100).toFixed(1)}%` },
+      { label: "Portfolio MIRR", value: data.portfolioMIRR != null ? `${(data.portfolioMIRR * 100).toFixed(1)}%` : "N/A" },
       { label: "Avg Cash-on-Cash Return", value: `${data.cashOnCash.toFixed(1)}%` },
       { label: "Properties / Total Rooms", value: `${data.totalProperties} / ${data.totalRooms}` },
       { label: `Cumulative ${data.projectionYears}-Year Revenue`, value: `$${(data.totalProjectionRevenue / 1_000_000).toFixed(1)}M` },

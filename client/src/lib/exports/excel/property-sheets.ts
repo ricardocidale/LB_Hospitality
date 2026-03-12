@@ -77,6 +77,13 @@ export function buildPropertyISRows(yearly: YearlyAggregation[]): (string | numb
     ["  Income Tax", ...yearly.map((y) => y.incomeTax)],
     [],
     ["GAAP Net Income", ...yearly.map((y) => y.netIncome)],
+    [],
+    ["WORKING CAPITAL"],
+    ["  Accounts Receivable", ...yearly.map((y) => y.accountsReceivable)],
+    ["  Accounts Payable", ...yearly.map((y) => y.accountsPayable)],
+    ["  Working Capital Change", ...yearly.map((y) => y.workingCapitalChange)],
+    [],
+    ["NOL Carryforward Balance", ...yearly.map((y) => y.nolBalance)],
   ];
 }
 

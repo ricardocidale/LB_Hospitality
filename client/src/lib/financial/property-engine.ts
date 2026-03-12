@@ -60,6 +60,21 @@ import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from '../constants';
+import {
+  DEFAULT_AR_DAYS,
+  DEFAULT_AP_DAYS,
+  DEFAULT_ESCALATION_METHOD,
+  DEFAULT_COST_SEG_5YR_PCT,
+  DEFAULT_COST_SEG_7YR_PCT,
+  DEFAULT_COST_SEG_15YR_PCT,
+  COST_SEG_5YR_LIFE_MONTHS,
+  COST_SEG_7YR_LIFE_MONTHS,
+  COST_SEG_15YR_LIFE_MONTHS,
+  COST_SEG_5YR_LIFE_YEARS,
+  COST_SEG_7YR_LIFE_YEARS,
+  COST_SEG_15YR_LIFE_YEARS,
+  NOL_UTILIZATION_CAP,
+} from '@shared/constants';
 import { PropertyInput, GlobalInput, MonthlyFinancials } from './types';
 import { parseLocalDate } from './utils';
 
@@ -94,7 +109,32 @@ export function generatePropertyProForma(
   // Balance sheet calculations
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
-  const monthlyDepreciation = safeNum(buildingValue / DEPRECIATION_YEARS / 12);
+
+  // ── Cost segregation depreciation setup ─────────────────────────────────
+  const costSegEnabled = property.costSegEnabled ?? false;
+  let monthlyDepreciation = safeNum(buildingValue / DEPRECIATION_YEARS / 12);
+  let costSeg5yrMonthly = 0;
+  let costSeg7yrMonthly = 0;
+  let costSeg15yrMonthly = 0;
+  let costSegRestMonthly = 0;
+  let costSeg5yrBasis = 0;
+  let costSeg7yrBasis = 0;
+  let costSeg15yrBasis = 0;
+  let costSegRestBasis = 0;
+  if (costSegEnabled) {
+    const pct5 = property.costSeg5yrPct ?? DEFAULT_COST_SEG_5YR_PCT;
+    const pct7 = property.costSeg7yrPct ?? DEFAULT_COST_SEG_7YR_PCT;
+    const pctLong = property.costSeg15yrPct ?? DEFAULT_COST_SEG_15YR_PCT;
+    const pctRest = 1 - pct5 - pct7 - pctLong;
+    costSeg5yrBasis = buildingValue * pct5;
+    costSeg7yrBasis = buildingValue * pct7;
+    costSeg15yrBasis = buildingValue * pctLong;
+    costSegRestBasis = buildingValue * Math.max(0, pctRest);
+    costSeg5yrMonthly = safeNum(costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / 12);
+    costSeg7yrMonthly = safeNum(costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / 12);
+    costSeg15yrMonthly = safeNum(costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / 12);
+    costSegRestMonthly = safeNum(costSegRestBasis / DEPRECIATION_YEARS / 12);
+  }
   
   // Loan setup
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
@@ -103,12 +143,25 @@ export function generatePropertyProForma(
   const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
   const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
   const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
+  const dayCountConvention = property.dayCountConvention ?? '30/360';
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;
   let monthlyPayment = 0;
   if (originalLoanAmount > 0) {
     monthlyPayment = safeNum(pmt(originalLoanAmount, monthlyRate, totalPayments));
   }
+
+  // ── Working capital setup ──────────────────────────────────────────────
+  const arDays = property.arDays ?? DEFAULT_AR_DAYS;
+  const apDays = property.apDays ?? DEFAULT_AP_DAYS;
+  let prevAR = 0;
+  let prevAP = 0;
+
+  // ── Escalation method setup ────────────────────────────────────────────
+  const escalationMethod = property.escalationMethod ?? DEFAULT_ESCALATION_METHOD;
+
+  // ── NOL carryforward tracking ──────────────────────────────────────────
+  let nolBalance = 0;
     
   let cumulativeCash = 0;
   let prevDebtOutstanding = originalLoanAmount;
@@ -141,7 +194,13 @@ export function generatePropertyProForma(
     const currentAdr = safeNum(baseAdr * Math.pow(1 + (property.adrGrowthRate ?? 0), opsYear));
     const effectiveInflation = property.inflationRate ?? global.inflationRate;
     const fixedEscalationRate = global.fixedCostEscalationRate ?? effectiveInflation;
-    const fixedCostFactor = safeNum(Math.pow(1 + fixedEscalationRate, opsYear));
+    let fixedCostFactor: number;
+    if (escalationMethod === 'monthly') {
+      const monthlyEscRate = Math.pow(1 + fixedEscalationRate, 1 / 12) - 1;
+      fixedCostFactor = safeNum(Math.pow(1 + monthlyEscRate, monthsSinceOps));
+    } else {
+      fixedCostFactor = safeNum(Math.pow(1 + fixedEscalationRate, opsYear));
+    }
 
     // ── Occupancy ramp ───────────────────────────────────────────────────────
     // Step-function: occupancy increases by occupancyGrowthStep every
@@ -250,20 +309,29 @@ export function generatePropertyProForma(
     const monthsSinceAcquisition = isAcquired ? differenceInMonths(currentDate, acquisitionDate) : 0;
     
     if (isAcquired && property.type === "Financed") {
-      const r = loanRate / 12;
       const n = loanTerm * 12;
       const loanAmount = originalLoanAmount;
       
       if (loanAmount > 0 && acqDebtMonthCount < n) {
         debtPayment = monthlyPayment;
         
-        if (r === 0) {
+        if (loanRate === 0) {
           const straightLinePrincipal = loanAmount / n;
           principalPayment = straightLinePrincipal;
           interestExpense = 0;
           debtOutstanding = Math.max(0, prevDebtOutstanding - straightLinePrincipal);
         } else {
-          interestExpense = prevDebtOutstanding * r;
+          let effectiveMonthlyRate: number;
+          if (dayCountConvention === 'ACT/360') {
+            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+            effectiveMonthlyRate = loanRate * daysInMonth / 360;
+          } else if (dayCountConvention === 'ACT/365') {
+            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+            effectiveMonthlyRate = loanRate * daysInMonth / 365;
+          } else {
+            effectiveMonthlyRate = monthlyRate;
+          }
+          interestExpense = prevDebtOutstanding * effectiveMonthlyRate;
           principalPayment = monthlyPayment - interestExpense;
           debtOutstanding = Math.max(0, prevDebtOutstanding - principalPayment);
         }
@@ -275,24 +343,55 @@ export function generatePropertyProForma(
     }
 
     // ── Income statement ──────────────────────────────────────────────────────
-    // Net Income = NOI - interestExpense - depreciation - incomeTax.
-    // Principal is a financing activity and NEVER appears on the income stmt.
-    // incomeTax = max(0, taxableIncome × taxRate) — no negative tax modeled.
     const landValue = property.purchasePrice * landPct;
-    const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
-    const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), buildingValue) : 0;
+    let depreciationExpense: number;
+    let accumulatedDepreciation: number;
+    if (!isAcquired) {
+      depreciationExpense = 0;
+      accumulatedDepreciation = 0;
+    } else if (costSegEnabled) {
+      const dep5 = monthsSinceAcquisition < COST_SEG_5YR_LIFE_MONTHS ? costSeg5yrMonthly : 0;
+      const dep7 = monthsSinceAcquisition < COST_SEG_7YR_LIFE_MONTHS ? costSeg7yrMonthly : 0;
+      const dep15 = monthsSinceAcquisition < COST_SEG_15YR_LIFE_MONTHS ? costSeg15yrMonthly : 0;
+      const depRest = monthsSinceAcquisition < DEPRECIATION_YEARS * 12 ? costSegRestMonthly : 0;
+      depreciationExpense = dep5 + dep7 + dep15 + depRest;
+      const accDep5 = Math.min(costSeg5yrMonthly * (monthsSinceAcquisition + 1), costSeg5yrBasis);
+      const accDep7 = Math.min(costSeg7yrMonthly * (monthsSinceAcquisition + 1), costSeg7yrBasis);
+      const accDep15 = Math.min(costSeg15yrMonthly * (monthsSinceAcquisition + 1), costSeg15yrBasis);
+      const accDepRest = Math.min(costSegRestMonthly * (monthsSinceAcquisition + 1), costSegRestBasis);
+      accumulatedDepreciation = accDep5 + accDep7 + accDep15 + accDepRest;
+    } else {
+      depreciationExpense = monthlyDepreciation;
+      accumulatedDepreciation = Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), buildingValue);
+    }
     const propertyValue = isAcquired ? landValue + buildingValue - accumulatedDepreciation : 0;
 
-    const taxableIncome = anoi - interestExpense - depreciationExpense;
-    const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    // ── NOL carryforward (IRC §172) ──────────────────────────────────────────
+    const preTaxIncome = anoi - interestExpense - depreciationExpense;
+    let incomeTax: number;
+    if (preTaxIncome < 0) {
+      nolBalance += Math.abs(preTaxIncome);
+      incomeTax = 0;
+    } else if (nolBalance > 0) {
+      const maxUtilization = preTaxIncome * NOL_UTILIZATION_CAP;
+      const nolUsed = Math.min(nolBalance, maxUtilization);
+      const adjustedIncome = preTaxIncome - nolUsed;
+      nolBalance -= nolUsed;
+      incomeTax = adjustedIncome > 0 ? adjustedIncome * taxRate : 0;
+    } else {
+      incomeTax = preTaxIncome > 0 ? preTaxIncome * taxRate : 0;
+    }
     const netIncome = anoi - interestExpense - depreciationExpense - incomeTax;
+
+    // ── Working capital (AR/AP tracking) ──────────────────────────────────────
+    const currentAR = isOperational ? (revenueTotal / 30) * arDays : 0;
+    const totalOpCosts = totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes;
+    const currentAP = isOperational ? (totalOpCosts / 30) * apDays : 0;
+    const workingCapitalChange = (currentAR - prevAR) - (currentAP - prevAP);
+    prevAR = currentAR;
+    prevAP = currentAP;
     
     // ── Cash flow (GAAP indirect method, ASC 230) ────────────────────────────
-    // operatingCF = netIncome + depreciation (non-cash add-back).
-    // financingCF = -principal (debt repayment is a financing outflow).
-    // cashFlow    = ANOI - totalDebtService - incomeTax (before-tax FCF bridge).
-    // Operating reserve is seeded at the acquisition month (monthsSinceAcquisition===0)
-    // so it is available to cover pre-ops debt service.
     const cashFlow = anoi - debtPayment - incomeTax;
 
     const operatingCashFlow = netIncome + depreciationExpense;
@@ -303,9 +402,6 @@ export function generatePropertyProForma(
     cumulativeCash += cashFlow;
     const endingCash = cumulativeCash;
 
-    // ── Balance sheet ─────────────────────────────────────────────────────────
-    // propertyValue = land + (building - accumulatedDepreciation) after acquisition.
-    // endingCash = cumulative cashFlow + operatingReserve seed (PICK_LAST for yearly).
     financials.push({
       date: currentDate,
       monthIndex: i,
@@ -353,6 +449,10 @@ export function generatePropertyProForma(
       operatingCashFlow,
       financingCashFlow,
       endingCash,
+      accountsReceivable: currentAR,
+      accountsPayable: currentAP,
+      workingCapitalChange,
+      nolBalance,
       cashShortfall: endingCash < 0,
     });
   }
@@ -412,6 +512,7 @@ export function generatePropertyProForma(
         const acqMonthIdx = (acquisitionDate.getFullYear() - modelStart.getFullYear()) * 12 +
                             (acquisitionDate.getMonth() - modelStart.getMonth());
         let cumCash = 0;
+        let refiNolBalance = refiMonthIndex > 0 ? financials[refiMonthIndex - 1].nolBalance : 0;
         for (let i = 0; i < months; i++) {
           const m = financials[i];
 
@@ -439,7 +540,19 @@ export function generatePropertyProForma(
             }
 
             const taxableIncome = m.anoi - interestExpense - m.depreciationExpense;
-            const incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+            let incomeTax: number;
+            if (taxableIncome < 0) {
+              refiNolBalance += Math.abs(taxableIncome);
+              incomeTax = 0;
+            } else if (refiNolBalance > 0) {
+              const maxUtil = taxableIncome * NOL_UTILIZATION_CAP;
+              const nolUsed = Math.min(refiNolBalance, maxUtil);
+              refiNolBalance -= nolUsed;
+              incomeTax = (taxableIncome - nolUsed) > 0 ? (taxableIncome - nolUsed) * taxRate : 0;
+            } else {
+              incomeTax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+            }
+            m.nolBalance = refiNolBalance;
             const netIncome = m.anoi - interestExpense - m.depreciationExpense - incomeTax;
             const cashFlow = m.anoi - debtPayment - incomeTax;
             const operatingCashFlow = netIncome + m.depreciationExpense;

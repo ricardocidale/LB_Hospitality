@@ -385,6 +385,56 @@ export function runIndependentVerification(
       ));
     }
 
+    if (firstOperationalMonth >= 0) {
+      const m0 = independentCalc[firstOperationalMonth];
+      checks.push(check(
+        "Working Capital AR (First Operational Month)",
+        "Balance Sheet",
+        "ASC 310",
+        `AR = Monthly Revenue / 30 × ${(property as any).arDays ?? 30} AR days`,
+        m0.accountsReceivable,
+        m0.accountsReceivable,
+        "info"
+      ));
+
+      checks.push(check(
+        "Working Capital AP (First Operational Month)",
+        "Balance Sheet",
+        "ASC 405",
+        `AP = Monthly OpEx / 30 × ${(property as any).apDays ?? 45} AP days`,
+        m0.accountsPayable,
+        m0.accountsPayable,
+        "info"
+      ));
+    }
+
+    const finalNOL = independentCalc[independentCalc.length - 1]?.nolBalance ?? 0;
+    checks.push(check(
+      "NOL Carryforward Balance (End of Projection)",
+      "Tax",
+      "IRC §172",
+      `NOL balance at end of projection = $${Math.round(finalNOL).toLocaleString()} (80% utilization cap applied)`,
+      finalNOL,
+      finalNOL,
+      "info"
+    ));
+
+    if ((property as any).costSegEnabled) {
+      const costSegDepMonth1 = independentCalc.find(m => m.depreciationExpense > 0);
+      const standardMonthlyDep = depBasis / DEPRECIATION_YEARS / 12;
+      if (costSegDepMonth1) {
+        checks.push(check(
+          "Cost Segregation Depreciation > Standard SL",
+          "Tax",
+          "IRS Pub 946 / Cost Seg Study",
+          `Cost seg depreciation $${Math.round(costSegDepMonth1.depreciationExpense).toLocaleString()}/mo vs standard SL $${Math.round(standardMonthlyDep).toLocaleString()}/mo`,
+          1,
+          costSegDepMonth1.depreciationExpense > standardMonthlyDep ? 1 : 0,
+          "info"
+        ));
+      }
+    }
+
     const propResult: PropertyCheckResults = {
       propertyName: property.name || "Unnamed Property",
       propertyType: property.type || "Full Equity",

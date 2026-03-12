@@ -79,6 +79,14 @@ export interface YearlyPropertyFinancials {
   debtPayment: number;
   refinancingProceeds: number;
 
+  // Working capital
+  accountsReceivable: number;
+  accountsPayable: number;
+  workingCapitalChange: number;
+
+  // NOL carryforward
+  nolBalance: number;
+
   // Cash Flow (SUM except endingCash)
   cashFlow: number;
   operatingCashFlow: number;
@@ -97,6 +105,7 @@ const SUM_FIELDS = [
   "feeBase", "feeIncentive", "totalExpenses", "gop", "agop", "noi", "anoi",
   "interestExpense", "depreciationExpense", "incomeTax", "netIncome",
   "principalPayment", "debtPayment", "refinancingProceeds",
+  "accountsReceivable", "accountsPayable", "workingCapitalChange",
   "cashFlow", "operatingCashFlow", "financingCashFlow",
 ] as const;
 
@@ -180,6 +189,10 @@ export function aggregatePropertyByYear(
       principalPayment: sums.principalPayment,
       debtPayment: sums.debtPayment,
       refinancingProceeds: sums.refinancingProceeds,
+      accountsReceivable: sums.accountsReceivable,
+      accountsPayable: sums.accountsPayable,
+      workingCapitalChange: sums.workingCapitalChange,
+      nolBalance: yearData[yearData.length - 1].nolBalance,
       cashFlow: sums.cashFlow,
       operatingCashFlow: sums.operatingCashFlow,
       financingCashFlow: sums.financingCashFlow,

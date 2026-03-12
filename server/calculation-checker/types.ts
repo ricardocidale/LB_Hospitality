@@ -31,6 +31,8 @@ export interface ClientPropertyMonthly {
   cashFlow: number;
   feeBase: number;
   feeIncentive: number;
+  workingCapitalChange: number;
+  nolBalance: number;
 }
 
 export interface YearMonth { 
@@ -76,6 +78,10 @@ export interface IndependentMonthlyResult {
   cashShortfall: boolean;
   expenseFFE: number;
   totalExpenses: number;
+  accountsReceivable: number;
+  accountsPayable: number;
+  workingCapitalChange: number;
+  nolBalance: number;
 }
 
 export type CheckerProperty = Property;

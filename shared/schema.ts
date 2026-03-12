@@ -70,6 +70,12 @@ import {
   DEFAULT_MARCELA_CASCADE_TIMEOUT,
   DEFAULT_MAX_STALENESS_HOURS,
   DEFAULT_INFLATION_RATE,
+  DEFAULT_AR_DAYS,
+  DEFAULT_AP_DAYS,
+  DEFAULT_REINVESTMENT_RATE,
+  DEFAULT_COST_SEG_5YR_PCT,
+  DEFAULT_COST_SEG_7YR_PCT,
+  DEFAULT_COST_SEG_15YR_PCT,
 } from "./constants";
 
 // --- COMPANIES TABLE ---
@@ -797,6 +803,25 @@ export const properties = pgTable("properties", {
   baseManagementFeeRate: real("base_management_fee_rate").notNull().default(DEFAULT_BASE_MANAGEMENT_FEE_RATE),
   incentiveManagementFeeRate: real("incentive_management_fee_rate").notNull().default(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE),
 
+  // Working capital
+  arDays: integer("ar_days").default(DEFAULT_AR_DAYS),
+  apDays: integer("ap_days").default(DEFAULT_AP_DAYS),
+
+  // MIRR
+  reinvestmentRate: real("reinvestment_rate").default(DEFAULT_REINVESTMENT_RATE),
+
+  // Day-count convention
+  dayCountConvention: text("day_count_convention").default('30/360'),
+
+  // Escalation method
+  escalationMethod: text("escalation_method").default('annual'),
+
+  // Cost segregation
+  costSegEnabled: boolean("cost_seg_enabled").default(false),
+  costSeg5yrPct: real("cost_seg_5yr_pct").default(DEFAULT_COST_SEG_5YR_PCT),
+  costSeg7yrPct: real("cost_seg_7yr_pct").default(DEFAULT_COST_SEG_7YR_PCT),
+  costSeg15yrPct: real("cost_seg_15yr_pct").default(DEFAULT_COST_SEG_15YR_PCT),
+
   description: text("description"),
 
   latitude: real("latitude"),
@@ -877,6 +902,15 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   refinanceYearsAfterAcquisition: true,
   baseManagementFeeRate: true,
   incentiveManagementFeeRate: true,
+  arDays: true,
+  apDays: true,
+  reinvestmentRate: true,
+  dayCountConvention: true,
+  escalationMethod: true,
+  costSegEnabled: true,
+  costSeg5yrPct: true,
+  costSeg7yrPct: true,
+  costSeg15yrPct: true,
   description: true,
   latitude: true,
   longitude: true,

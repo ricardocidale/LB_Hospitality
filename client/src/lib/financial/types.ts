@@ -83,6 +83,20 @@ export interface PropertyInput {
   incentiveManagementFeeRate?: number;
   // Service fee categories
   feeCategories?: { name: string; rate: number; isActive: boolean }[];
+  // Working capital
+  arDays?: number | null;
+  apDays?: number | null;
+  // MIRR
+  reinvestmentRate?: number | null;
+  // Day-count convention
+  dayCountConvention?: string | null;
+  // Escalation method
+  escalationMethod?: string | null;
+  // Cost segregation
+  costSegEnabled?: boolean | null;
+  costSeg5yrPct?: number | null;
+  costSeg7yrPct?: number | null;
+  costSeg15yrPct?: number | null;
   // Property identity
   id?: number;
   name?: string;
@@ -205,6 +219,12 @@ export interface MonthlyFinancials {
   operatingCashFlow: number;
   financingCashFlow: number;
   endingCash: number;
+  // Working capital
+  accountsReceivable: number;
+  accountsPayable: number;
+  workingCapitalChange: number;
+  // NOL carryforward
+  nolBalance: number;
   // Negative cash detection
   cashShortfall: boolean;
 }

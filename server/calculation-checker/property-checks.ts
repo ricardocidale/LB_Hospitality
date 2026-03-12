@@ -28,6 +28,20 @@ import {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
   DEFAULT_TERM_YEARS,
+  DEFAULT_AR_DAYS,
+  DEFAULT_AP_DAYS,
+  DEFAULT_ESCALATION_METHOD,
+  DEFAULT_COST_SEG_5YR_PCT,
+  DEFAULT_COST_SEG_7YR_PCT,
+  DEFAULT_COST_SEG_15YR_PCT,
+  COST_SEG_5YR_LIFE_MONTHS,
+  COST_SEG_7YR_LIFE_MONTHS,
+  COST_SEG_15YR_LIFE_MONTHS,
+  COST_SEG_5YR_LIFE_YEARS,
+  COST_SEG_7YR_LIFE_YEARS,
+  COST_SEG_15YR_LIFE_YEARS,
+  NOL_UTILIZATION_CAP,
+  DEFAULT_DAY_COUNT_CONVENTION,
 } from "@shared/constants";
 import type { CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, YearMonth } from "./types";
 
@@ -49,6 +63,18 @@ export function calculatePMT(principal: number, monthlyRate: number, totalPaymen
   if (monthlyRate === 0) return principal / totalPayments;
   return (principal * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) /
     (Math.pow(1 + monthlyRate, totalPayments) - 1);
+}
+
+function effectiveRate(annualRate: number, stdMonthlyRate: number, convention: string, ym: YearMonth): number {
+  if (convention === 'ACT/360') {
+    const daysInMonth = new Date(ym.year, ym.month + 1, 0).getDate();
+    return annualRate * daysInMonth / 360;
+  }
+  if (convention === 'ACT/365') {
+    const daysInMonth = new Date(ym.year, ym.month + 1, 0).getDate();
+    return annualRate * daysInMonth / 365;
+  }
+  return stdMonthlyRate;
 }
 
 export function parseYearMonth(isoDate: string): YearMonth {
@@ -79,6 +105,24 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const landValue = property.purchasePrice * landPct;
   const monthlyDepreciation = depreciableBasis / DEPRECIATION_YEARS / 12;
 
+  const costSegEnabled = (property as any).costSegEnabled ?? false;
+  let costSeg5yrMonthly = 0, costSeg7yrMonthly = 0, costSeg15yrMonthly = 0, costSegRestMonthly = 0;
+  let costSeg5yrBasis = 0, costSeg7yrBasis = 0, costSeg15yrBasis = 0, costSegRestBasis = 0;
+  if (costSegEnabled) {
+    const pct5 = (property as any).costSeg5yrPct ?? DEFAULT_COST_SEG_5YR_PCT;
+    const pct7 = (property as any).costSeg7yrPct ?? DEFAULT_COST_SEG_7YR_PCT;
+    const pctLong = (property as any).costSeg15yrPct ?? DEFAULT_COST_SEG_15YR_PCT;
+    const pctRest = Math.max(0, 1 - pct5 - pct7 - pctLong);
+    costSeg5yrBasis = depreciableBasis * pct5;
+    costSeg7yrBasis = depreciableBasis * pct7;
+    costSeg15yrBasis = depreciableBasis * pctLong;
+    costSegRestBasis = depreciableBasis * pctRest;
+    costSeg5yrMonthly = costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / 12;
+    costSeg7yrMonthly = costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / 12;
+    costSeg15yrMonthly = costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / 12;
+    costSegRestMonthly = costSegRestBasis / DEPRECIATION_YEARS / 12;
+  }
+
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
   const ltv = property.acquisitionLTV ?? DEFAULT_LTV;
   const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
@@ -88,11 +132,19 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const totalPayments = loanTerm * 12;
   const monthlyPayment = calculatePMT(originalLoanAmount, monthlyRate, totalPayments);
 
+  const arDays = (property as any).arDays ?? DEFAULT_AR_DAYS;
+  const apDays = (property as any).apDays ?? DEFAULT_AP_DAYS;
+  const escalationMethod = ((property as any).escalationMethod ?? DEFAULT_ESCALATION_METHOD) as string;
+  const dayCountConvention = ((property as any).dayCountConvention ?? DEFAULT_DAY_COUNT_CONVENTION) as string;
+
   const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
   const months = projectionYears * 12;
   const results: IndependentMonthlyResult[] = [];
   let currentAdr = property.startAdr;
   let cumulativeCash = 0;
+  let nolBalance = 0;
+  let prevAR = 0;
+  let prevAP = 0;
 
   const revShareEvents_base = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
   const revShareFB_base = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
@@ -118,7 +170,13 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     }
     const effectiveInflation = property.inflationRate ?? global.inflationRate;
     const fixedEscalationRate = global.fixedCostEscalationRate ?? effectiveInflation;
-    const fixedCostFactor = Math.pow(1 + fixedEscalationRate, opsYear);
+    let fixedCostFactor: number;
+    if (escalationMethod === 'monthly') {
+      const monthlyEscRate = Math.pow(1 + fixedEscalationRate, 1 / 12) - 1;
+      fixedCostFactor = Math.pow(1 + monthlyEscRate, monthsSinceOps);
+    } else {
+      fixedCostFactor = Math.pow(1 + fixedEscalationRate, opsYear);
+    }
 
     let occupancy = 0;
     if (isOperational) {
@@ -206,26 +264,63 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     if (isAcquired && property.type === "Financed" && originalLoanAmount > 0) {
       debtPayment = monthlyPayment;
       let remainingBalance = originalLoanAmount;
-      // Amortize through prior months to get beginning-of-month balance
       for (let m = 0; m < monthsSinceAcquisition && m < totalPayments; m++) {
-        const monthInterest = remainingBalance * monthlyRate;
+        const pastYM = addMonthsYM(acquisitionYM, m);
+        const pastEffRate = effectiveRate(loanRate, monthlyRate, dayCountConvention, pastYM);
+        const monthInterest = remainingBalance * pastEffRate;
         const monthPrincipal = monthlyPayment - monthInterest;
         remainingBalance = Math.max(0, remainingBalance - monthPrincipal);
       }
-      // Current month: interest on beginning balance, then reduce by principal
-      interestExpense = remainingBalance * monthlyRate;
+      const curEffRate = effectiveRate(loanRate, monthlyRate, dayCountConvention, currentYM);
+      interestExpense = remainingBalance * curEffRate;
       principalPayment = monthlyPayment - interestExpense;
       debtOutstanding = Math.max(0, remainingBalance - principalPayment);
     }
 
-    const depreciationExpense = isAcquired ? monthlyDepreciation : 0;
-    const taxableIncome = anoi - interestExpense - depreciationExpense;
-    const incomeTax = taxableIncome > 0 ? taxableIncome * (property.taxRate ?? DEFAULT_TAX_RATE) : 0;
+    let depreciationExpense: number;
+    let accumulatedDepreciation: number;
+    if (!isAcquired) {
+      depreciationExpense = 0;
+      accumulatedDepreciation = 0;
+    } else if (costSegEnabled) {
+      const dep5 = monthsSinceAcquisition < COST_SEG_5YR_LIFE_MONTHS ? costSeg5yrMonthly : 0;
+      const dep7 = monthsSinceAcquisition < COST_SEG_7YR_LIFE_MONTHS ? costSeg7yrMonthly : 0;
+      const dep15 = monthsSinceAcquisition < COST_SEG_15YR_LIFE_MONTHS ? costSeg15yrMonthly : 0;
+      const depRest = monthsSinceAcquisition < DEPRECIATION_YEARS * 12 ? costSegRestMonthly : 0;
+      depreciationExpense = dep5 + dep7 + dep15 + depRest;
+      const accDep5 = Math.min(costSeg5yrMonthly * (monthsSinceAcquisition + 1), costSeg5yrBasis);
+      const accDep7 = Math.min(costSeg7yrMonthly * (monthsSinceAcquisition + 1), costSeg7yrBasis);
+      const accDep15 = Math.min(costSeg15yrMonthly * (monthsSinceAcquisition + 1), costSeg15yrBasis);
+      const accDepRest = Math.min(costSegRestMonthly * (monthsSinceAcquisition + 1), costSegRestBasis);
+      accumulatedDepreciation = accDep5 + accDep7 + accDep15 + accDepRest;
+    } else {
+      depreciationExpense = monthlyDepreciation;
+      accumulatedDepreciation = Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), depreciableBasis);
+    }
+    const propertyValue = isAcquired ? landValue + depreciableBasis - accumulatedDepreciation : 0;
+
+    const preTaxIncome = anoi - interestExpense - depreciationExpense;
+    let incomeTax: number;
+    if (preTaxIncome < 0) {
+      nolBalance += Math.abs(preTaxIncome);
+      incomeTax = 0;
+    } else if (nolBalance > 0) {
+      const maxUtil = preTaxIncome * NOL_UTILIZATION_CAP;
+      const nolUsed = Math.min(nolBalance, maxUtil);
+      nolBalance -= nolUsed;
+      incomeTax = (preTaxIncome - nolUsed) > 0 ? (preTaxIncome - nolUsed) * (property.taxRate ?? DEFAULT_TAX_RATE) : 0;
+    } else {
+      incomeTax = preTaxIncome > 0 ? preTaxIncome * (property.taxRate ?? DEFAULT_TAX_RATE) : 0;
+    }
     const netIncome = anoi - interestExpense - depreciationExpense - incomeTax;
     const cashFlow = anoi - debtPayment - incomeTax;
 
-    const accumulatedDepreciation = isAcquired ? Math.min(monthlyDepreciation * (monthsSinceAcquisition + 1), depreciableBasis) : 0;
-    const propertyValue = isAcquired ? landValue + depreciableBasis - accumulatedDepreciation : 0;
+    const currentAR = isOperational ? (revenueTotal / 30) * arDays : 0;
+    const totalOpCosts = totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes;
+    const currentAP = isOperational ? (totalOpCosts / 30) * apDays : 0;
+    const workingCapitalChange = (currentAR - prevAR) - (currentAP - prevAP);
+    prevAR = currentAR;
+    prevAP = currentAP;
 
     const operatingCashFlow = netIncome + depreciationExpense;
     const financingCashFlow = -principalPayment;
@@ -272,6 +367,10 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       cashShortfall: cumulativeCash < 0,
       expenseFFE,
       totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes + expenseFFE,
+      accountsReceivable: currentAR,
+      accountsPayable: currentAP,
+      workingCapitalChange,
+      nolBalance,
     });
   }
 

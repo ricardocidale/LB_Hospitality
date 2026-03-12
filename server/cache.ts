@@ -72,13 +72,19 @@ export class CacheService {
     const cached = await this.get<T>(key);
     if (cached !== null) {
       fn()
-        .then((fresh) => this.set(key, fresh, ttlSeconds))
+        .then((fresh) => {
+          if (fresh !== null && fresh !== undefined) {
+            this.set(key, fresh, ttlSeconds);
+          }
+        })
         .catch((err) => logger.warn(`SWR background refresh failed for ${key}: ${err}`, "cache"));
       return cached;
     }
 
     const result = await fn();
-    await this.set(key, result, ttlSeconds);
+    if (result !== null && result !== undefined) {
+      await this.set(key, result, ttlSeconds);
+    }
     return result;
   }
 

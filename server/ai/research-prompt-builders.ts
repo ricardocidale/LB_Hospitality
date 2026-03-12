@@ -1,3 +1,5 @@
+import type { MarketIntelligence } from "../../shared/market-intelligence";
+
 export interface ResearchParams {
   type: "property" | "company" | "global";
   propertyLabel?: string;
@@ -36,7 +38,6 @@ export interface ResearchParams {
     modelDurationYears?: number;
     customSources?: { name: string; url?: string; category: string }[];
   };
-  // Admin-configured per-event overrides (from global_assumptions.researchConfig)
   eventConfig?: {
     enabled?: boolean;
     focusAreas?: string[];
@@ -47,6 +48,7 @@ export interface ResearchParams {
     enabledTools?: string[];
     customSources?: { name: string; url?: string; category: string }[];
   };
+  marketIntelligence?: MarketIntelligence;
 }
 
 /** Build the curated source block appended to all prompt types. */
@@ -106,6 +108,58 @@ function buildEventConfigSuffix(ec: ResearchParams["eventConfig"]): string {
   return suffix;
 }
 
+function buildMarketIntelligenceBlock(mi?: MarketIntelligence): string {
+  if (!mi) return "";
+
+  let block = "\n\n=== VERIFIED MARKET DATA (use these as ground truth — do NOT override with estimates) ===\n";
+
+  const rateLabels: Record<string, string> = {
+    sofr: "SOFR (Secured Overnight Financing Rate)",
+    treasury2y: "2-Year Treasury Yield",
+    treasury5y: "5-Year Treasury Yield",
+    treasury10y: "10-Year Treasury Yield",
+    primeRate: "Prime Rate",
+    cpi: "CPI (Consumer Price Index)",
+  };
+
+  let hasRates = false;
+  for (const [key, label] of Object.entries(rateLabels)) {
+    const rate = mi.rates[key as keyof typeof mi.rates];
+    if (rate?.current) {
+      if (!hasRates) { block += "\nCurrent Interest Rates & Economic Indicators (Source: FRED, Federal Reserve):\n"; hasRates = true; }
+      block += `- ${label}: ${rate.current.value}${key === "cpi" ? "" : "%"} (as of ${rate.current.publishedAt || "recent"})\n`;
+    }
+  }
+
+  if (mi.benchmarks) {
+    const b = mi.benchmarks;
+    block += `\nHospitality Market Benchmarks — ${b.submarket} (Source: ${b.revpar?.source || b.adr?.source || "STR/CoStar"}):\n`;
+    if (b.revpar) block += `- Trailing-12-Month RevPAR: $${b.revpar.value.toFixed(2)}\n`;
+    if (b.adr) block += `- Trailing-12-Month ADR: $${b.adr.value.toFixed(2)}\n`;
+    if (b.occupancy) block += `- Trailing-12-Month Occupancy: ${(b.occupancy.value * 100).toFixed(1)}%\n`;
+    if (b.capRate) block += `- Market Cap Rate: ${b.capRate.value.toFixed(2)}%\n`;
+    if (b.supplyPipeline) block += `- Supply Pipeline: ${b.supplyPipeline.value.newRooms} new rooms, ${b.supplyPipeline.value.underConstruction} under construction\n`;
+  }
+
+  if (mi.groundedResearch.length > 0) {
+    block += "\nRecent Market Intelligence (web-sourced with citations):\n";
+    for (const result of mi.groundedResearch) {
+      if (result.answer) {
+        block += `\nQuery: ${result.query}\nFindings: ${result.answer.slice(0, 1000)}\n`;
+        if (result.sources.length > 0) {
+          block += "Sources:\n";
+          for (const src of result.sources.slice(0, 3)) {
+            block += `  - ${src.title}: ${src.url}${src.publishedDate ? ` (${src.publishedDate})` : ""}\n`;
+          }
+        }
+      }
+    }
+  }
+
+  block += "\n=== END VERIFIED MARKET DATA ===\n";
+  return block;
+}
+
 export function buildUserPrompt(params: ResearchParams): string {
   const { type, propertyContext, assetDefinition: bd, propertyLabel: pl, eventConfig: ec } = params;
   const label = pl || "boutique hotel";
@@ -127,6 +181,7 @@ Use the available tools to gather data on each analysis dimension, then synthesi
 
 IMPORTANT: For every recommended metric, include a "confidence" field with one of: "conservative" (below-market/cautious), "moderate" (market-aligned with strong comps), or "aggressive" (above-market/optimistic). This applies to adrAnalysis, occupancyAnalysis, capRateAnalysis, cateringAnalysis, landValueAllocation, incomeTaxAnalysis, and every cost category in operatingCostAnalysis, propertyValueCostAnalysis, and managementServiceFeeAnalysis.${buildEventConfigSuffix(ec)}`;
 
+    prompt += buildMarketIntelligenceBlock(params.marketIntelligence);
     prompt += buildSourceRegistryBlock(ec?.customSources, params.researchVariables?.customSources);
     return prompt;
   }
@@ -147,6 +202,7 @@ Research the following areas for management companies that specialize in this ty
 8. **Cost of Equity (WACC Input)**: Recommend a cost of equity (required equity return) for private hospitality investments in this asset class. This is used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, CAPM is not used — instead provide a direct hurdle rate based on: asset class risk profile, property type (boutique hotel vs full-service), market tier (primary/secondary/tertiary), current interest rate environment, and illiquidity premium for private real estate. Typical range: 15%–25%. Include this as a "costOfEquity" section in your response with recommendedRate (e.g. "18%–22%"), rationale, riskFactors (array of factors that push rate higher or lower), and comparables (e.g. "Private boutique hotel equity returns average 18–22% in secondary markets").
 Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.${buildEventConfigSuffix(ec)}`;
 
+    prompt += buildMarketIntelligenceBlock(params.marketIntelligence);
     prompt += buildSourceRegistryBlock(ec?.customSources, params.researchVariables?.customSources);
     return prompt;
   }
@@ -205,6 +261,7 @@ Focus specifically on management companies specializing in ${label.toLowerCase()
     prompt += `\n\nAdditional context from admin:\n${ec.customInstructions.trim()}`;
   }
 
+  prompt += buildMarketIntelligenceBlock(params.marketIntelligence);
   prompt += buildSourceRegistryBlock(ec?.customSources, rv?.customSources);
 
   return prompt;

@@ -11,6 +11,7 @@ import {
   forceRefreshRate,
   refreshAllStaleRates,
 } from "../data/marketRates";
+import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
 
 function requireAdmin(req: Request, res: Response, next: Function) {
   if (req.user?.role !== "admin") {
@@ -92,6 +93,47 @@ export function register(app: Express) {
       res.json(updated);
     } catch (error) {
       logAndSendError(res, "Failed to update rate", error);
+    }
+  });
+
+  app.get("/api/market-rates/fred-history/:seriesKey", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const aggregator = getMarketIntelligenceAggregator();
+      const data = await aggregator.fetchRateWithHistory(String(req.params.seriesKey));
+      if (!data) return sendError(res, 404, "Series not found or FRED API unavailable");
+      res.json(data);
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch FRED history", error);
+    }
+  });
+
+  app.get("/api/market-rates/fred-all", requireAuth, async (_req: Request, res: Response) => {
+    try {
+      const aggregator = getMarketIntelligenceAggregator();
+      const data = await aggregator.fetchRatesOnly();
+      res.json(data);
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch FRED rates", error);
+    }
+  });
+
+  app.get("/api/market-intelligence/status", requireAuth, async (_req: Request, res: Response) => {
+    try {
+      const aggregator = getMarketIntelligenceAggregator();
+      res.json(aggregator.getServiceStatus());
+    } catch (error) {
+      logAndSendError(res, "Failed to get service status", error);
+    }
+  });
+
+  app.post("/api/market-intelligence/gather", requireAuth, requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { location, state, propertyType, propertyClass, chainScale } = req.body;
+      const aggregator = getMarketIntelligenceAggregator();
+      const data = await aggregator.gather({ location, state, propertyType, propertyClass, chainScale });
+      res.json(data);
+    } catch (error) {
+      logAndSendError(res, "Failed to gather market intelligence", error);
     }
   });
 }

@@ -71,3 +71,49 @@ export function useOverrideRate() {
     onSuccess: () => qc.invalidateQueries({ queryKey: MARKET_RATES_KEY }),
   });
 }
+
+export interface FREDRateDataResponse {
+  current: {
+    value: number;
+    source: string;
+    sourceUrl?: string;
+    publishedAt?: string;
+    fetchedAt: string;
+    provenance: "verified" | "cited" | "estimated";
+    confidence: "high" | "medium" | "low";
+  };
+  history: { date: string; value: number }[];
+}
+
+export interface MarketIntelligenceStatus {
+  fred: boolean;
+  hospitality: boolean;
+  grounded: boolean;
+}
+
+const FRED_ALL_KEY = ["fredAllRates"];
+
+export function useFREDRates() {
+  return useQuery<Record<string, FREDRateDataResponse>>({
+    queryKey: FRED_ALL_KEY,
+    queryFn: () => fetchJson<Record<string, FREDRateDataResponse>>("/api/market-rates/fred-all"),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useFREDHistory(seriesKey: string) {
+  return useQuery<FREDRateDataResponse>({
+    queryKey: ["fredHistory", seriesKey],
+    queryFn: () => fetchJson<FREDRateDataResponse>(`/api/market-rates/fred-history/${seriesKey}`),
+    staleTime: 5 * 60_000,
+    enabled: !!seriesKey,
+  });
+}
+
+export function useMarketIntelligenceStatus() {
+  return useQuery<MarketIntelligenceStatus>({
+    queryKey: ["marketIntelligenceStatus"],
+    queryFn: () => fetchJson<MarketIntelligenceStatus>("/api/market-intelligence/status"),
+    staleTime: 60_000,
+  });
+}

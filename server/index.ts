@@ -214,6 +214,13 @@ app.use((req, res, next) => {
         } catch (err) {
           console.error("Market rate refresh error:", err);
         }
+        try {
+          const { getMarketIntelligenceAggregator } = await import("./services/MarketIntelligenceAggregator");
+          const aggregator = getMarketIntelligenceAggregator();
+          await aggregator.refreshFREDRates();
+        } catch (err) {
+          console.error("FRED market intelligence refresh error:", err);
+        }
       }, 5 * 60 * 1000);
 
       // Clean expired sessions and stale rate-limit entries every hour
@@ -227,6 +234,17 @@ app.use((req, res, next) => {
           console.error("Periodic cleanup error:", err);
         }
       }, 60 * 60 * 1000);
+
+      // Invalidate stale property-level MI cache daily so next research regen gets fresh data
+      setInterval(async () => {
+        try {
+          const { cache } = await import("./cache");
+          const invalidated = await cache.invalidate("mi:property:*");
+          if (invalidated > 0) log(`Invalidated ${invalidated} stale MI cache entries`);
+        } catch (err) {
+          console.error("MI cache invalidation error:", err);
+        }
+      }, 24 * 60 * 60 * 1000);
     },
   );
 })();

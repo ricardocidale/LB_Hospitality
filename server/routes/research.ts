@@ -9,6 +9,7 @@ import { sendResearchEmail } from "../integrations/gmail";
 import Anthropic from "@anthropic-ai/sdk";
 import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
 import { DEFAULT_RESEARCH_EVENT_CONFIG } from "../../shared/constants";
+import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -137,6 +138,19 @@ export function register(app: Express) {
         description: (assetDefinition as any)?.description || ga?.assetDescription || undefined,
       };
 
+      let marketIntelligence;
+      try {
+        const aggregator = getMarketIntelligenceAggregator();
+        const pc = propertyContext as any;
+        marketIntelligence = await aggregator.gather({
+          location: pc?.location || pc?.market,
+          propertyType: (assetDefinition as any)?.level || "boutique hotel",
+          propertyId: propertyId || undefined,
+        });
+      } catch (err) {
+        console.warn("Market intelligence fetch failed (non-blocking):", err);
+      }
+
       const params = {
         type,
         propertyContext: propertyContext as any,
@@ -144,6 +158,7 @@ export function register(app: Express) {
         researchVariables,
         propertyLabel: ga?.propertyLabel,
         eventConfig,
+        marketIntelligence,
       };
 
       const stream = generateResearchWithToolsStream(params, anthropic, model);
@@ -183,6 +198,15 @@ export function register(app: Express) {
                 await storage.updateProperty(propertyId, { researchValues });
               }
             }
+          }
+
+          if (marketIntelligence) {
+            parsed._marketIntelligence = {
+              benchmarks: marketIntelligence.benchmarks || null,
+              groundedResearch: marketIntelligence.groundedResearch || [],
+              errors: marketIntelligence.errors || [],
+              fetchedAt: marketIntelligence.fetchedAt,
+            };
           }
 
           await storage.upsertMarketResearch({

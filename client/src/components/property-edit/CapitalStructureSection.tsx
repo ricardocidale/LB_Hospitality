@@ -31,6 +31,7 @@ import { EditableValue } from "@/components/ui/editable-value";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import { GaapBadge } from "@/components/ui/gaap-badge";
+import { MarketRateBenchmark } from "@/components/property-research/MarketRateBenchmark";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/formatters";
 import { 
   DEFAULT_LTV, 
@@ -136,6 +137,21 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
         {draft.type === "Financed" && (
           <div className="border-t border-white/10 pt-6">
             <h4 className="font-display mb-4 text-foreground">Acquisition Financing</h4>
+            <div className="mb-4">
+              <MarketRateBenchmark
+                compact
+                applicableRates={["sofr", "treasury10y", "primeRate"]}
+                onApplyRate={(key, value) => {
+                  if (key === "sofr") {
+                    onChange("acquisitionInterestRate", (value + 2.75) / 100);
+                  } else if (key === "primeRate") {
+                    onChange("acquisitionInterestRate", value / 100);
+                  } else if (key === "treasury10y") {
+                    onChange("acquisitionInterestRate", (value + 2.0) / 100);
+                  }
+                }}
+              />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
@@ -238,6 +254,19 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
               {draft.willRefinance === "Yes" && (
                 <div className="border-t border-white/10 pt-4">
                   <h4 className="font-display mb-4 text-foreground">Refinance Terms</h4>
+                  <div className="mb-4">
+                    <MarketRateBenchmark
+                      compact
+                      applicableRates={["sofr", "treasury10y"]}
+                      onApplyRate={(key, value) => {
+                        if (key === "sofr") {
+                          onChange("refinanceInterestRate", (value + 2.75) / 100);
+                        } else if (key === "treasury10y") {
+                          onChange("refinanceInterestRate", (value + 2.0) / 100);
+                        }
+                      }}
+                    />
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label className="label-text text-foreground flex items-center gap-1.5">Refinance Date<HelpTooltip text="When the refinancing occurs. Typically 2-3 years after operations start, once the property has established a track record and appraised value." /></Label>

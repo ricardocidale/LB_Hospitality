@@ -20,6 +20,7 @@ import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import { GaapBadge } from "@/components/ui/gaap-badge";
+import { MarketRateBenchmark } from "@/components/property-research/MarketRateBenchmark";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_TAX_RATE,
@@ -38,6 +39,17 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
             <HelpTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Exit valuation and tax rate assumptions</p>
+        </div>
+        <div className="mb-4">
+          <MarketRateBenchmark
+            compact
+            applicableRates={["treasury10y"]}
+            onApplyRate={(key, value) => {
+              if (key === "treasury10y") {
+                onChange("exitCapRate", (value + 1.5) / 100);
+              }
+            }}
+          />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:items-end">
           <div className="space-y-2">

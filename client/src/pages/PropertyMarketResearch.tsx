@@ -18,6 +18,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useResearchStream } from "@/components/property-research/useResearchStream";
 import { ResearchFreshnessBadge } from "@/components/research/ResearchFreshnessBadge";
 import { ResearchCriteriaTab } from "@/components/research/ResearchCriteriaTab";
+import { MarketRateBenchmark } from "@/components/property-research/MarketRateBenchmark";
+import { ProvenanceBadge } from "@/components/property-research/ProvenanceBadge";
+import { SourceCitations } from "@/components/property-research/SourceCitations";
 import { motion } from "framer-motion";
 import {
   ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -128,6 +131,10 @@ function MarketTab({ content }: { content: any }) {
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-6">
+      <motion.div variants={fadeUp}>
+        <MarketRateBenchmark compact applicableRates={[]} />
+      </motion.div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Comp set radar */}
         <motion.div variants={fadeUp} className={`${card} p-6`}>
@@ -197,13 +204,62 @@ function MarketTab({ content }: { content: any }) {
   );
 }
 
+function BenchmarkBanner({ content, metrics }: { content: any; metrics: { key: string; label: string; format: (v: number) => string }[] }) {
+  const mi = content?._marketIntelligence;
+  const benchmarks = mi?.benchmarks;
+
+  const items = metrics.map((m) => {
+    const apiVal = benchmarks?.[m.key];
+    if (apiVal) {
+      return { label: m.label, value: m.format(apiVal.value), provenance: "verified" as const, source: apiVal.source };
+    }
+    const llmVal = m.key === "adr" ? content?.adrAnalysis?.recommendedAdr
+      : m.key === "occupancy" ? (content?.occupancyAnalysis?.stabilizedOccupancy ? content.occupancyAnalysis.stabilizedOccupancy / 100 : null)
+      : m.key === "revpar" ? content?.adrAnalysis?.revpar
+      : m.key === "capRate" ? (content?.capRateAnalysis?.recommendedCapRate ?? content?.capRateAnalysis?.capRate)
+      : null;
+    if (llmVal != null) {
+      return { label: m.label, value: m.format(llmVal), provenance: "estimated" as const, source: "AI estimate" };
+    }
+    return null;
+  }).filter(Boolean) as { label: string; value: string; provenance: "verified" | "estimated"; source: string }[];
+
+  if (items.length === 0) return null;
+
+  return (
+    <motion.div variants={fadeUp} data-testid="benchmark-banner" className={`${card} p-4 mb-4`}>
+      <div className="flex items-center gap-2 mb-3">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Market Benchmarks</h4>
+        {items.some(i => i.provenance === "verified") && <ProvenanceBadge provenance="verified" />}
+        {items.every(i => i.provenance === "estimated") && <ProvenanceBadge provenance="estimated" />}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {items.map((item) => (
+          <div key={item.label} data-testid={`benchmark-${item.label.toLowerCase().replace(/\s+/g, "-")}`} className="flex flex-col">
+            <div className="flex items-center gap-1.5">
+              <span className="text-lg font-display font-bold text-foreground">{item.value}</span>
+              <ProvenanceBadge provenance={item.provenance} className="scale-75" />
+            </div>
+            <span className="text-[10px] text-muted-foreground">{item.label}</span>
+            <span className="text-[9px] text-muted-foreground/70">{item.source}</span>
+          </div>
+        ))}
+      </div>
+      {items.every(i => i.provenance === "estimated") && (
+        <p className="text-[10px] text-muted-foreground mt-2 italic" data-testid="benchmark-estimated-note">
+          These benchmarks are AI estimates. Connect CoStar, STR, or AirDNA for verified market data.
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
 function RevenueTab({ content }: { content: any }) {
   const adr = content?.adrAnalysis;
   const occ = content?.occupancyAnalysis;
   const cat = content?.cateringAnalysis;
   if (!adr && !occ && !cat) return <EmptySection />;
 
-  // ADR projection data
   const adrProj = adr?.projections?.map((p: any, i: number) => ({
     year: p.year || `Y${i + 1}`, base: p.base ?? p.adr ?? 0,
     upside: p.upside ?? (p.base ?? p.adr ?? 0) * 1.1,
@@ -214,7 +270,6 @@ function RevenueTab({ content }: { content: any }) {
     { year: "Y3", base: adr.recommendedAdr * 1.06, upside: adr.recommendedAdr * 1.16, downside: adr.recommendedAdr * 0.95 },
   ] : []);
 
-  // Occupancy ramp
   const occRamp = occ?.ramp?.map((r: any, i: number) => ({
     month: r.month || r.label || `M${i + 1}`, occupancy: r.occupancy ?? r.value ?? 0,
   })) || (occ?.stabilizedOccupancy ? [
@@ -224,7 +279,6 @@ function RevenueTab({ content }: { content: any }) {
     { month: "M18", occupancy: occ.stabilizedOccupancy },
   ] : []);
 
-  // Revenue mix
   const mixData = [];
   if (adr?.recommendedAdr) mixData.push({ name: "Rooms", value: 65 });
   if (cat?.foodAndBevRevenue || cat?.cateringRevenue) mixData.push({ name: "F&B", value: 20 });
@@ -233,7 +287,15 @@ function RevenueTab({ content }: { content: any }) {
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-6">
-      {/* Metric highlights */}
+      <BenchmarkBanner
+        content={content}
+        metrics={[
+          { key: "adr", label: "ADR", format: (v) => `$${Math.round(v)}` },
+          { key: "revpar", label: "RevPAR", format: (v) => `$${Math.round(v)}` },
+          { key: "occupancy", label: "Occupancy", format: (v) => `${(v * 100).toFixed(1)}%` },
+        ]}
+      />
+
       <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {adr?.recommendedAdr && <MetricCard label="Recommended ADR" value={`$${Math.round(adr.recommendedAdr)}`} sub={adr.confidence ? `${adr.confidence}% confidence` : undefined} />}
         {occ?.stabilizedOccupancy && <MetricCard label="Stabilized Occupancy" value={`${Math.round(occ.stabilizedOccupancy)}%`} />}
@@ -343,6 +405,13 @@ function FinancialTab({ content }: { content: any }) {
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-6">
+      <BenchmarkBanner
+        content={content}
+        metrics={[
+          { key: "capRate", label: "Cap Rate", format: (v) => `${v.toFixed(1)}%` },
+        ]}
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cap rate gauge */}
         <motion.div variants={fadeUp} className={`${card} p-6 flex flex-col items-center`}>
@@ -492,6 +561,93 @@ function OperatingTab({ content }: { content: any }) {
               <MetricCard key={k} label={k.replace(/([A-Z])/g, " $1").trim()} value={typeof v === "number" ? v.toFixed(2) : String(v)} sub="per room" />
             ))}
           </div>
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
+
+function SourcesTab({ content }: { content: any }) {
+  const sources = content?._marketIntelligence?.groundedResearch || [];
+  const benchmarkSource = content?._marketIntelligence?.benchmarks;
+  const rateErrors = content?._marketIntelligence?.errors || [];
+
+  const allSources: { title: string; url: string; snippet: string; publishedDate?: string }[] = [];
+  for (const result of sources) {
+    if (result.sources) {
+      allSources.push(...result.sources);
+    }
+  }
+
+  const uniqueSources = allSources.filter(
+    (s, i, arr) => arr.findIndex((a) => a.url === s.url) === i
+  );
+
+  return (
+    <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-6">
+      {benchmarkSource && (
+        <motion.div variants={fadeUp} className={`${card} p-6`}>
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="font-display text-lg font-semibold">Hospitality Benchmarks</h3>
+            <ProvenanceBadge provenance="verified" />
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Submarket: {benchmarkSource.submarket}
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+            {benchmarkSource.revpar && (
+              <MetricCard label="RevPAR" value={`$${Math.round(benchmarkSource.revpar.value)}`} sub={benchmarkSource.revpar.source} />
+            )}
+            {benchmarkSource.adr && (
+              <MetricCard label="ADR" value={`$${Math.round(benchmarkSource.adr.value)}`} sub={benchmarkSource.adr.source} />
+            )}
+            {benchmarkSource.occupancy && (
+              <MetricCard label="Occupancy" value={`${(benchmarkSource.occupancy.value * 100).toFixed(1)}%`} sub={benchmarkSource.occupancy.source} />
+            )}
+            {benchmarkSource.capRate && (
+              <MetricCard label="Cap Rate" value={`${benchmarkSource.capRate.value.toFixed(1)}%`} sub={benchmarkSource.capRate.source} />
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      {uniqueSources.length > 0 && (
+        <motion.div variants={fadeUp} className={`${card} p-6`}>
+          <SourceCitations sources={uniqueSources} title="Web Research Sources" />
+        </motion.div>
+      )}
+
+      {sources.length > 0 && (
+        <motion.div variants={fadeUp} className={`${card} p-6`}>
+          <h3 className="font-display text-lg font-semibold mb-3">Research Queries</h3>
+          <div className="space-y-4">
+            {sources.map((result: any, i: number) => (
+              <div key={i} className="p-4 rounded-xl bg-blue-50/30 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <ProvenanceBadge provenance="cited" />
+                  <span className="text-xs text-muted-foreground">{result.fetchedAt ? new Date(result.fetchedAt).toLocaleDateString() : ""}</span>
+                </div>
+                <p className="text-sm font-medium text-foreground mb-1">{result.query}</p>
+                {result.answer && (
+                  <p className="text-xs text-muted-foreground line-clamp-4">{result.answer}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {!benchmarkSource && uniqueSources.length === 0 && sources.length === 0 && (
+        <motion.div variants={fadeUp}>
+          <EmptySection message="No external sources available. Regenerate research to fetch grounded data from FRED, STR, and web sources." />
+        </motion.div>
+      )}
+
+      {rateErrors.length > 0 && (
+        <motion.div variants={fadeUp} className={`${card} p-4`}>
+          <p className="text-xs text-muted-foreground">
+            Some data sources were unavailable: {rateErrors.join("; ")}
+          </p>
         </motion.div>
       )}
     </motion.div>
@@ -688,6 +844,12 @@ export default function PropertyMarketResearch() {
                 <TabsTrigger value="operating" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg text-xs">
                   <IconBarChart3 className="w-3.5 h-3.5" /> Operating
                 </TabsTrigger>
+                <TabsTrigger value="rates" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg text-xs">
+                  <IconDollarSign className="w-3.5 h-3.5" /> Rates
+                </TabsTrigger>
+                <TabsTrigger value="sources" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg text-xs">
+                  <IconBookOpen className="w-3.5 h-3.5" /> Sources
+                </TabsTrigger>
                 <TabsTrigger value="criteria" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg text-xs">
                   <IconPieChart className="w-3.5 h-3.5" /> Criteria
                 </TabsTrigger>
@@ -697,6 +859,18 @@ export default function PropertyMarketResearch() {
               <TabsContent value="revenue"><RevenueTab content={content} /></TabsContent>
               <TabsContent value="financial"><FinancialTab content={content} /></TabsContent>
               <TabsContent value="operating"><OperatingTab content={content} /></TabsContent>
+              <TabsContent value="rates">
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                  <div className={`${card} p-6 space-y-6`}>
+                    <MarketRateBenchmark
+                      applicableRates={["sofr", "treasury10y", "primeRate"]}
+                    />
+                  </div>
+                </motion.div>
+              </TabsContent>
+              <TabsContent value="sources">
+                <SourcesTab content={content} />
+              </TabsContent>
               <TabsContent value="criteria">
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                   <ResearchCriteriaTab type="property" />

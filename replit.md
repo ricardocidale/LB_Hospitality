@@ -20,6 +20,19 @@ npm run stats          # Live codebase metrics
 ## Tech Stack
 React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, @sentry/node + @sentry/react (error tracking), posthog-js (analytics), @upstash/redis (caching)
 
+## Market Intelligence Pipeline
+Three-service architecture in `server/services/`:
+- **FREDService** — Fetches SOFR, Treasury yields, Prime Rate, CPI from Federal Reserve API. 24h cache with stale-while-revalidate. Includes 5-year historical series for sparklines.
+- **HospitalityBenchmarkService** — Adapter for CoStar/STR/AirDNA APIs. Fetches RevPAR, ADR, occupancy, cap rate, supply pipeline. 7-day cache. Falls back gracefully when unavailable.
+- **GroundedResearchService** — Perplexity/Tavily web search with source citations. Structured hospitality queries with cited sources.
+- **MarketIntelligenceAggregator** — Composes all three services. Parallel fetch with partial failure tolerance. Singleton via `getMarketIntelligenceAggregator()`.
+
+Data provenance badges: "verified" (green, institutional data), "cited" (blue, web-sourced with links), "estimated" (gray, AI-generated). Types in `shared/market-intelligence.ts`.
+
+API routes: `GET /api/market-rates/fred-all`, `GET /api/market-rates/fred-history/:seriesKey`, `GET /api/market-intelligence/status`, `POST /api/market-intelligence/gather`.
+
+Frontend components in `client/src/components/property-research/`: `ProvenanceBadge`, `RateSparkline`, `SourceCitations`, `MarketRateBenchmark`.
+
 ## Key References
 | Topic | Location |
 |-------|----------|

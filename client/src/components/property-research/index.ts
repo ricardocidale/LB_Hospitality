@@ -17,6 +17,10 @@
 export { SectionCard } from "./SectionCard";
 export { MetricCard } from "./MetricCard";
 export { ConfidenceBadge } from "./ConfidenceBadge";
+export { ProvenanceBadge } from "./ProvenanceBadge";
+export { RateSparkline } from "./RateSparkline";
+export { SourceCitations } from "./SourceCitations";
+export { MarketRateBenchmark } from "./MarketRateBenchmark";
 export { ResearchSections } from "./ResearchSections";
 export { useResearchStream } from "./useResearchStream";
 export { sectionColors } from "./types";

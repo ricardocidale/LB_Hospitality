@@ -1,4 +1,6 @@
 import { execSync } from "child_process";
+import { curl, curlBody } from "./lib/http-client.js";
+import { header, footer } from "./lib/formatter.js";
 
 const PORT = process.env.PORT || 5000;
 const BASE = `http://localhost:${PORT}`;
@@ -11,40 +13,7 @@ interface CheckResult {
 
 const results: CheckResult[] = [];
 
-function curl(url: string, method = "GET", body?: string): { status: number; body: string } {
-  try {
-    const args = ["-s", "-o", "/dev/null", "-w", "%{http_code}|||%{size_download}", "-X", method];
-    if (body) {
-      args.push("-H", "Content-Type: application/x-www-form-urlencoded", "-d", body);
-    }
-    const raw = execSync(`curl ${args.map(a => `'${a}'`).join(" ")} '${url}'`, { timeout: 10000 }).toString();
-    const [status] = raw.split("|||");
-    return { status: parseInt(status), body: "" };
-  } catch {
-    return { status: 0, body: "" };
-  }
-}
-
-function curlBody(url: string, method = "GET", body?: string, contentType?: string): { status: number; body: string } {
-  try {
-    const args = ["-s", "-w", "\n%{http_code}", "-X", method];
-    if (body && contentType) {
-      args.push("-H", `Content-Type: ${contentType}`, "-d", body);
-    } else if (body) {
-      args.push("-H", "Content-Type: application/x-www-form-urlencoded", "-d", body);
-    }
-    const raw = execSync(`curl ${args.map(a => `'${a}'`).join(" ")} '${url}'`, { timeout: 15000 }).toString();
-    const lines = raw.trim().split("\n");
-    const status = parseInt(lines[lines.length - 1]);
-    const responseBody = lines.slice(0, -1).join("\n");
-    return { status, body: responseBody };
-  } catch {
-    return { status: 0, body: "" };
-  }
-}
-
-console.log("  Marcela AI Channel Check");
-console.log("  " + "─".repeat(50));
+header("Marcela AI Channel Check", 50);
 
 const voiceRes = curlBody(
   `${BASE}/api/twilio/voice/incoming`,
@@ -151,16 +120,16 @@ const passCount = results.filter(r => r.status === "PASS").length;
 const failCount = results.filter(r => r.status === "FAIL").length;
 
 for (const r of results) {
-  const icon = r.status === "PASS" ? "✓" : r.status === "FAIL" ? "✗" : "·";
+  const icon = r.status === "PASS" ? "\u2713" : r.status === "FAIL" ? "\u2717" : "\u00b7";
   const pad = " ".repeat(Math.max(0, 24 - r.name.length));
   console.log(`  ${icon} ${r.name}${pad} ${r.detail}`);
 }
 
 console.log("");
-console.log("  " + "─".repeat(50));
+footer(50);
 if (failCount === 0) {
-  console.log(`  ✓ ALL CLEAR (${passCount}/${results.length} checks passed)`);
+  console.log(`  \u2713 ALL CLEAR (${passCount}/${results.length} checks passed)`);
 } else {
-  console.log(`  ✗ ${failCount} FAILED (${passCount}/${results.length} passed)`);
+  console.log(`  \u2717 ${failCount} FAILED (${passCount}/${results.length} passed)`);
   process.exit(1);
 }

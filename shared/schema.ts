@@ -326,8 +326,8 @@ export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
   companyName: text("company_name").notNull().default("Hospitality Business"),
-  companyLogo: text("company_logo"),
-  companyLogoId: integer("company_logo_id").references(() => logos.id, { onDelete: "set null" }),
+  companyLogo: text("company_logo"), // Legacy URL fallback — branding chain: companyLogoId FK → companyLogo URL → default asset
+  companyLogoId: integer("company_logo_id").references(() => logos.id, { onDelete: "set null" }), // Preferred: normalized FK to logos table
   propertyLabel: text("property_label").notNull().default("Boutique Hotel"),
   assetDescription: text("asset_description"),
   assetLogoId: integer("asset_logo_id").references(() => logos.id, { onDelete: "set null" }),
@@ -398,7 +398,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marketingRate: real("marketing_rate").notNull(),
   miscOpsRate: real("misc_ops_rate").notNull(),
   
-  // Portfolio
+  // Portfolio — acquisition-side broker commission (applied during portfolio modeling)
   commissionRate: real("commission_rate").notNull().default(DEFAULT_COMMISSION_RATE),
   
   standardAcqPackage: jsonb("standard_acq_package").notNull(),
@@ -411,9 +411,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // WACC — Cost of Equity (user-provided, not CAPM-derived; default 18% for private hospitality)
   costOfEquity: real("cost_of_equity").notNull().default(DEFAULT_COST_OF_EQUITY),
 
-  // Exit & Sale Assumptions (global defaults)
+  // Exit & Sale Assumptions (global defaults) — disposition-side broker commission (applied at property sale/exit)
   exitCapRate: real("exit_cap_rate").notNull().default(DEFAULT_EXIT_CAP_RATE),
-  salesCommissionRate: real("sales_commission_rate").notNull().default(DEFAULT_COMMISSION_RATE),
+  salesCommissionRate: real("sales_commission_rate").notNull().default(DEFAULT_COMMISSION_RATE), // Distinct from commissionRate: this is exit/sale, that is acquisition
   
   // Expense Rates (applied to specific revenue streams)
   eventExpenseRate: real("event_expense_rate").notNull().default(DEFAULT_EVENT_EXPENSE_RATE),
@@ -1571,7 +1571,13 @@ export const notificationSettings = pgTable("notification_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const insertNotificationSettingSchema = createInsertSchema(notificationSettings).pick({
+  settingKey: true,
+  settingValue: true,
+});
+
 export type NotificationSetting = typeof notificationSettings.$inferSelect;
+export type InsertNotificationSetting = z.infer<typeof insertNotificationSettingSchema>;
 
 // --- PLAID CONNECTIONS TABLE ---
 // Stores Plaid Link connections for bank account reconciliation.

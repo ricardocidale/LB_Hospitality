@@ -9,7 +9,7 @@ description: Project architecture, tech stack, and two-entity financial model. U
 
 Hospitality Business Group is a GAAP-compliant financial simulation platform for boutique hospitality management. It models a management company alongside individual property SPVs, producing monthly and yearly financial projections with full three-statement output (Income Statement, Balance Sheet, Cash Flow Statement).
 
-The platform enforces ASC 230, ASC 360, and ASC 470 compliance, applies IRS depreciation rules (straight-line and MACRS), and includes a built-in audit and verification engine. The test suite contains 1,330+ tests covering calculation accuracy, GAAP identity checks, and golden-file reconciliation. Hosted on Replit.
+The platform enforces ASC 230, ASC 360, and ASC 470 compliance, applies IRS depreciation rules (straight-line and MACRS), and includes a built-in audit and verification engine. The test suite contains 2,927 tests across 125 files (500 golden reference tests) covering calculation accuracy, GAAP identity checks, and golden-file reconciliation. Hosted on Replit.
 
 ## Tech Stack
 
@@ -70,7 +70,7 @@ Enforced across all scenarios. See `.claude/manuals/user-manual/skills/02-busine
 | **checker** | Read-only verification — run audits and review financial accuracy |
 | **investor** | Portfolio-level read access — view dashboards and reports |
 
-## Database Schema (18 tables)
+## Database Schema (35 tables)
 
 **Core entities**
 - `users`, `sessions`, `user_groups`
@@ -79,16 +79,32 @@ Enforced across all scenarios. See `.claude/manuals/user-manual/skills/02-busine
 - `companies`, `properties`, `global_assumptions`, `property_fee_categories`, `scenarios`
 
 **Branding & assets**
-- `logos`, `design_themes`, `asset_descriptions`
+- `logos`, `design_themes`, `asset_descriptions`, `property_photos`
 
 **Audit & activity**
 - `login_logs`, `activity_logs`, `verification_runs`
 
 **Research & prospecting**
-- `market_research`, `prospective_properties`, `saved_searches`
+- `market_research`, `market_rates`, `prospective_properties`, `saved_searches`, `research_questions`
 
 **AI conversations**
 - `conversations`, `messages`
+
+**Notifications & alerts**
+- `alert_rules`, `notification_logs`, `notification_preferences`, `notification_settings`
+
+**Third-party integrations**
+- `plaid_connections`, `plaid_transactions`, `plaid_categorization_cache`
+
+**Document intelligence**
+- `document_extractions`, `extraction_fields`, `docusign_envelopes`
+
+## Sub-Skills
+
+| File | Purpose |
+|------|---------|
+| `api-routes.md` | API endpoint reference (all `/api/` routes) — now in `.claude/rules/` |
+| `storage-facade.md` | IStorage facade pattern, 8 specialized storage classes |
 
 ## File Organization
 

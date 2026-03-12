@@ -6,6 +6,7 @@
  *        npm run test:file -- tests/calc/validation/
  */
 import { execSync } from "child_process";
+import { stripAnsi } from "./lib/test-parser.js";
 
 const target = process.argv[2];
 if (!target) {
@@ -22,7 +23,7 @@ try {
     maxBuffer: 10 * 1024 * 1024,
   });
 
-  const clean = output.replace(/\x1b\[[0-9;]*m/g, "");
+  const clean = stripAnsi(output);
   const testsMatch = clean.match(/Tests\s+(\d+) passed\s*\((\d+)\)/);
   const filesMatch = clean.match(/Test Files\s+(\d+) passed\s*\((\d+)\)/);
   const duration = clean.match(/Duration\s+([\d.]+s)/);
@@ -35,7 +36,7 @@ try {
     console.log("PASS");
   }
 } catch (err: any) {
-  const output = ((err.stdout ?? "") + (err.stderr ?? "")).replace(/\x1b\[[0-9;]*m/g, "");
+  const output = stripAnsi((err.stdout ?? "") + (err.stderr ?? ""));
 
   // Show failing test names
   const failLines = output

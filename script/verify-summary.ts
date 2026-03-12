@@ -1,10 +1,12 @@
 /**
  * Verify Summary — runs 8-phase financial verification in a single vitest invocation.
- * Outputs only failures + audit opinion. ~3× faster than running each phase separately.
+ * Outputs only failures + audit opinion. ~3x faster than running each phase separately.
  *
  * Usage: npm run verify:summary
  */
 import { execSync } from "child_process";
+import { stripAnsi } from "./lib/test-parser.js";
+import { header, footer } from "./lib/formatter.js";
 
 const phases = [
   { name: "Proof Scenarios", file: "scenarios.test.ts" },
@@ -22,7 +24,7 @@ let allPassed = true;
 const results: string[] = [];
 
 function parseOutput(raw: string) {
-  const clean = raw.replace(/\x1b\[[0-9;]*m/g, "");
+  const clean = stripAnsi(raw);
   const lines = clean.split("\n");
 
   for (const phase of phases) {
@@ -30,17 +32,17 @@ function parseOutput(raw: string) {
 
     if (!fileLine) {
       allPassed = false;
-      results.push(`  ✗ ${phase.name.padEnd(22)} FAIL (not found in output)`);
+      results.push(`  \u2717 ${phase.name.padEnd(22)} FAIL (not found in output)`);
       continue;
     }
 
-    const isFail = fileLine.includes("×") || fileLine.includes("✗") || fileLine.trimStart().startsWith("×");
-    const isPass = fileLine.includes("✓") || fileLine.trimStart().startsWith("✓");
+    const isFail = fileLine.includes("\u00d7") || fileLine.includes("\u2717") || fileLine.trimStart().startsWith("\u00d7");
+    const isPass = fileLine.includes("\u2713") || fileLine.trimStart().startsWith("\u2713");
 
     if (isFail) {
       allPassed = false;
       const testCount = fileLine.match(/\((\d+) tests?.*?\)/);
-      results.push(`  ✗ ${phase.name.padEnd(22)} FAIL${testCount ? ` (${testCount[1]} tests)` : ""}`);
+      results.push(`  \u2717 ${phase.name.padEnd(22)} FAIL${testCount ? ` (${testCount[1]} tests)` : ""}`);
 
       const failDetails = lines
         .filter((l: string) =>
@@ -49,14 +51,14 @@ function parseOutput(raw: string) {
         )
         .slice(0, 3);
       for (const line of failDetails) {
-        results.push(`    → ${line.trim().slice(0, 100)}`);
+        results.push(`    \u2192 ${line.trim().slice(0, 100)}`);
       }
     } else if (isPass) {
       const testCount = fileLine.match(/\((\d+) tests?.*?\)/);
-      results.push(`  ✓ ${phase.name.padEnd(22)} PASS${testCount ? ` (${testCount[1]})` : ""}`);
+      results.push(`  \u2713 ${phase.name.padEnd(22)} PASS${testCount ? ` (${testCount[1]})` : ""}`);
     } else {
       allPassed = false;
-      results.push(`  ✗ ${phase.name.padEnd(22)} UNKNOWN`);
+      results.push(`  \u2717 ${phase.name.padEnd(22)} UNKNOWN`);
     }
   }
 }
@@ -73,10 +75,9 @@ try {
   parseOutput(raw);
 }
 
-console.log("\n  Verification Summary");
-console.log("  " + "─".repeat(44));
+header("Verification Summary");
 for (const r of results) console.log(r);
-console.log("  " + "─".repeat(44));
+footer();
 console.log(`  Opinion: ${allPassed ? "UNQUALIFIED" : "ADVERSE"}`);
 console.log(`  Status:  ${allPassed ? "PASS" : "FAIL"}\n`);
 process.exit(allPassed ? 0 : 1);

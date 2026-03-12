@@ -5,6 +5,7 @@
  * Usage: npm run test:summary
  */
 import { execSync } from "child_process";
+import { stripAnsi } from "./lib/test-parser.js";
 
 try {
   const raw = execSync("npx vitest run 2>&1", {
@@ -13,7 +14,7 @@ try {
     maxBuffer: 10 * 1024 * 1024,
   });
 
-  const output = raw.replace(/\x1b\[[0-9;]*m/g, "");
+  const output = stripAnsi(raw);
 
   const testsLine = output
     .split("\n")
@@ -42,12 +43,12 @@ try {
   );
 } catch (err: any) {
   const raw = (err.stdout ?? "") + (err.stderr ?? "");
-  const output = raw.replace(/\x1b\[[0-9;]*m/g, "");
+  const output = stripAnsi(raw);
   const lines = output.split("\n");
 
   const failLines = lines.filter(
     (l: string) =>
-      l.includes("FAIL") || l.includes("✗") || l.includes("×") || l.includes("AssertionError") || l.includes("Error:"),
+      l.includes("FAIL") || l.includes("\u2717") || l.includes("\u00d7") || l.includes("AssertionError") || l.includes("Error:"),
   );
 
   if (failLines.length > 0) {

@@ -9,6 +9,8 @@
  */
 import { execSync } from "child_process";
 import { readFileSync } from "fs";
+import { stripAnsi, parseTestOutput } from "./lib/test-parser.js";
+import { header, footer, statusLine } from "./lib/formatter.js";
 
 const PROOF_FILES = [
   "scenarios.test.ts",
@@ -21,36 +23,6 @@ const PROOF_FILES = [
   "rule-compliance.test.ts",
 ];
 
-function parseTestOutput(raw: string): { passed: boolean; summary: string; clean: string } {
-  const clean = raw.replace(/\x1b\[[0-9;]*m/g, "");
-  const failMatch = clean.match(/(\d+) failed/);
-  if (failMatch) {
-    const failCount = failMatch[1];
-    const failLine = clean
-      .split("\n")
-      .find((l) => l.includes("FAIL") || l.includes("✗") || l.includes("×"));
-    return {
-      passed: false,
-      summary: `FAIL (${failCount} failed)${failLine ? " — " + failLine.trim().slice(0, 80) : ""}`,
-      clean,
-    };
-  }
-  const testsMatch = clean.match(/Tests\s+(\d+)\s+passed\s*(?:\|\s*\d+\s+skipped\s*)?\((\d+)\)/);
-  const filesMatch = clean.match(/Test Files\s+(\d+)\s+passed\s*(?:\|\s*\d+\s+skipped\s*)?\((\d+)\)/);
-  if (testsMatch && filesMatch) {
-    return {
-      passed: true,
-      summary: `PASS (${testsMatch[1]}/${testsMatch[2]} tests, ${filesMatch[1]} files)`,
-      clean,
-    };
-  }
-  return {
-    passed: clean.includes("passed") && !clean.includes("failed"),
-    summary: clean.includes("passed") ? "PASS" : "FAIL (see npm test)",
-    clean,
-  };
-}
-
 function parseVerificationFromTestOutput(clean: string): { passed: boolean; summary: string } {
   const startTime = Date.now();
   let allProofPassed = true;
@@ -59,7 +31,7 @@ function parseVerificationFromTestOutput(clean: string): { passed: boolean; summ
     const fileRegex = new RegExp(file.replace(".test.ts", ""));
     const lines = clean.split("\n").filter((l) => fileRegex.test(l));
     const hasFail = lines.some(
-      (l) => l.includes("FAIL") || l.includes("✗") || l.includes("×"),
+      (l) => l.includes("FAIL") || l.includes("\u2717") || l.includes("\u00d7"),
     );
     if (hasFail) {
       allProofPassed = false;
@@ -69,29 +41,29 @@ function parseVerificationFromTestOutput(clean: string): { passed: boolean; summ
 
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
   if (allProofPassed) {
-    return { passed: true, summary: `PASS — UNQUALIFIED (${elapsed}s)` };
+    return { passed: true, summary: `PASS \u2014 UNQUALIFIED (${elapsed}s)` };
   }
   const failedNames = PROOF_FILES.filter((file) => {
     const fileRegex = new RegExp(file.replace(".test.ts", ""));
     return clean.split("\n").filter((l) => fileRegex.test(l)).some(
-      (l) => l.includes("FAIL") || l.includes("✗") || l.includes("×"),
+      (l) => l.includes("FAIL") || l.includes("\u2717") || l.includes("\u00d7"),
     );
   }).map((f) => f.replace(".test.ts", ""));
-  return { passed: false, summary: `FAIL — ${failedNames.join(", ")}` };
+  return { passed: false, summary: `FAIL \u2014 ${failedNames.join(", ")}` };
 }
 
 function checkDocHarmony(rawTestOutput: string): string {
   const claudeMd = readFileSync(".claude/claude.md", "utf-8");
   const replitMd = readFileSync("replit.md", "utf-8");
 
-  const clean = rawTestOutput.replace(/\x1b\[[0-9;]*m/g, "");
+  const clean = stripAnsi(rawTestOutput);
   const totalMatch = clean.match(/Tests\s+\d+\s+passed\s*(?:\|\s*\d+\s+skipped\s*)?\((\d+)\)/);
   const actualTests = totalMatch ? parseInt(totalMatch[1], 10) : 0;
 
   const rulesOut = execSync("ls .claude/rules/*.md 2>/dev/null | wc -l", { encoding: "utf-8", timeout: 5_000 });
   const actualRules = parseInt(rulesOut.trim(), 10) || 0;
 
-  if (actualTests === 0) return "PASS (skipped — no test count)";
+  if (actualTests === 0) return "PASS (skipped \u2014 no test count)";
 
   const stale: string[] = [];
 
@@ -113,11 +85,10 @@ function checkDocHarmony(rawTestOutput: string): string {
 
   if (stale.length === 0) return "PASS";
   const unique = [...new Set(stale)];
-  return `FAIL — ${unique[0]}${unique.length > 1 ? ` (+${unique.length - 1} more)` : ""}`;
+  return `FAIL \u2014 ${unique[0]}${unique.length > 1 ? ` (+${unique.length - 1} more)` : ""}`;
 }
 
-console.log("\n  Health Check");
-console.log("  " + "─".repeat(44));
+header("Health Check");
 
 let allPassed = true;
 let testRawOutput = "";
@@ -131,16 +102,16 @@ try {
     maxBuffer: 10 * 1024 * 1024,
   });
   if (!output.trim()) {
-    console.log(`  ✓ ${"TypeScript".padEnd(16)} PASS (0 errors)`);
+    statusLine("\u2713", "TypeScript", "PASS (0 errors)");
   } else {
     const lines = output.trim().split("\n");
     const count = lines.filter((l) => l.includes("error TS")).length;
     if (count > 0) {
       allPassed = false;
       const errorLine = lines.find((l) => l.includes("error TS"));
-      console.log(`  ✗ ${"TypeScript".padEnd(16)} FAIL (${count} error${count !== 1 ? "s" : ""})${errorLine ? " — " + errorLine.trim().slice(0, 80) : ""}`);
+      statusLine("\u2717", "TypeScript", `FAIL (${count} error${count !== 1 ? "s" : ""})${errorLine ? " \u2014 " + errorLine.trim().slice(0, 80) : ""}`);
     } else {
-      console.log(`  ✓ ${"TypeScript".padEnd(16)} PASS (0 errors)`);
+      statusLine("\u2713", "TypeScript", "PASS (0 errors)");
     }
   }
 } catch (err: any) {
@@ -150,9 +121,9 @@ try {
   if (count > 0) {
     allPassed = false;
     const errorLine = lines.find((l: string) => l.includes("error TS"));
-    console.log(`  ✗ ${"TypeScript".padEnd(16)} FAIL (${count} error${count !== 1 ? "s" : ""})${errorLine ? " — " + errorLine.trim().slice(0, 80) : ""}`);
+    statusLine("\u2717", "TypeScript", `FAIL (${count} error${count !== 1 ? "s" : ""})${errorLine ? " \u2014 " + errorLine.trim().slice(0, 80) : ""}`);
   } else {
-    console.log(`  ✓ ${"TypeScript".padEnd(16)} PASS (0 errors)`);
+    statusLine("\u2713", "TypeScript", "PASS (0 errors)");
   }
 }
 
@@ -170,21 +141,21 @@ try {
 const testResult = parseTestOutput(testRawOutput);
 testCleanOutput = testResult.clean;
 if (!testResult.passed) allPassed = false;
-console.log(`  ${testResult.passed ? "✓" : "✗"} ${"Tests".padEnd(16)} ${testResult.summary}`);
+statusLine(testResult.passed ? "\u2713" : "\u2717", "Tests", testResult.summary);
 
 // Phase 3: Verification (parsed from the same test output — no re-run)
 const verifyResult = parseVerificationFromTestOutput(testCleanOutput);
 if (!verifyResult.passed) allPassed = false;
-console.log(`  ${verifyResult.passed ? "✓" : "✗"} ${"Verification".padEnd(16)} ${verifyResult.summary}`);
+statusLine(verifyResult.passed ? "\u2713" : "\u2717", "Verification", verifyResult.summary);
 
 // Phase 4: Doc Harmony
 {
   const result = checkDocHarmony(testRawOutput);
   const passed = result.startsWith("PASS");
   if (!passed) allPassed = false;
-  console.log(`  ${passed ? "✓" : "✗"} ${"Doc Harmony".padEnd(16)} ${result}`);
+  statusLine(passed ? "\u2713" : "\u2717", "Doc Harmony", result);
 }
 
-console.log("  " + "─".repeat(44));
-console.log(`  ${allPassed ? "✓ ALL CLEAR" : "✗ ISSUES FOUND"}\n`);
+footer();
+console.log(`  ${allPassed ? "\u2713 ALL CLEAR" : "\u2717 ISSUES FOUND"}\n`);
 process.exit(allPassed ? 0 : 1);

@@ -1,55 +1,21 @@
-import { execSync } from "child_process";
+import { apiCall, adminLogin } from "./lib/http-client.js";
+import { header, footer } from "./lib/formatter.js";
 
 const PORT = process.env.PORT || 5000;
 const BASE = `http://localhost:${PORT}`;
 const ADMIN_PASSWORD = process.env.PASSWORD_ADMIN || process.env.ADMIN_PASSWORD || "admin";
 
-function api(method: string, path: string, body?: unknown, cookie?: string): { status: number; body: string } {
-  try {
-    const args = ["-s", "-w", "\n%{http_code}", "-X", method];
-    if (cookie) args.push("-H", `Cookie: ${cookie}`);
-    if (body) {
-      args.push("-H", "Content-Type: application/json", "-d", JSON.stringify(body));
-    }
-    const raw = execSync(`curl ${args.map(a => `'${a}'`).join(" ")} '${BASE}${path}'`, { timeout: 10000 }).toString();
-    const lines = raw.trim().split("\n");
-    const status = parseInt(lines[lines.length - 1]);
-    const responseBody = lines.slice(0, -1).join("\n");
-    return { status, body: responseBody };
-  } catch {
-    return { status: 0, body: "" };
-  }
-}
+header("Marcela Conversation Stats", 50);
 
-function login(): string | null {
-  try {
-    const raw = execSync(
-      `curl -s -D - -X POST -H 'Content-Type: application/json' -d '{"email":"admin","password":"${ADMIN_PASSWORD}"}' '${BASE}/api/auth/admin-login'`,
-      { timeout: 10000 }
-    ).toString();
-    const setCookie = raw.match(/set-cookie:\s*([^\r\n]+)/i);
-    if (setCookie) {
-      const sid = setCookie[1].split(";")[0];
-      return sid;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-console.log("  Marcela Conversation Stats");
-console.log("  " + "─".repeat(50));
-
-const cookie = login();
+const cookie = adminLogin(BASE, ADMIN_PASSWORD);
 if (!cookie) {
-  console.log("  ✗ Could not authenticate as admin");
+  console.log("  \u2717 Could not authenticate as admin");
   process.exit(1);
 }
 
-const convRes = api("GET", "/api/conversations", undefined, cookie);
+const convRes = apiCall("GET", "/api/conversations", undefined, cookie);
 if (convRes.status !== 200) {
-  console.log(`  ✗ Failed to fetch conversations (HTTP ${convRes.status})`);
+  console.log(`  \u2717 Failed to fetch conversations (HTTP ${convRes.status})`);
   process.exit(1);
 }
 
@@ -73,24 +39,25 @@ console.log(`\n  Total conversations: ${conversations.length}`);
 console.log("");
 
 for (const [channel, convs] of Object.entries(byChannel)) {
-  const icon = channel === "phone" ? "📞" : channel === "sms" ? "💬" : "🌐";
+  const icon = channel === "phone" ? "\u260e\ufe0f" : channel === "sms" ? "\ud83d\udcac" : "\ud83c\udf10";
   console.log(`  ${icon} ${channel.toUpperCase()}: ${convs.length} conversations`);
   if (convs.length > 0) {
     const recent = convs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 3);
     for (const c of recent) {
       const date = new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-      console.log(`     ${date} — ${c.title.slice(0, 50)}`);
+      console.log(`     ${date} \u2014 ${c.title.slice(0, 50)}`);
     }
   }
 }
 
-const twilioRes = api("GET", "/api/admin/twilio-status", undefined, cookie);
+const twilioRes = apiCall("GET", "/api/admin/twilio-status", undefined, cookie);
 console.log("");
 if (twilioRes.status === 200) {
   const status = JSON.parse(twilioRes.body);
-  console.log(`  Twilio: ${status.connected ? "✓ Connected" : "✗ Not connected"}${status.phoneNumber ? ` (${status.phoneNumber})` : ""}${status.error ? ` — ${status.error}` : ""}`);
+  console.log(`  Twilio: ${status.connected ? "\u2713 Connected" : "\u2717 Not connected"}${status.phoneNumber ? ` (${status.phoneNumber})` : ""}${status.error ? ` \u2014 ${status.error}` : ""}`);
 } else {
   console.log(`  Twilio: Could not check status (HTTP ${twilioRes.status})`);
 }
 
-console.log("\n  " + "─".repeat(50));
+console.log("");
+footer(50);

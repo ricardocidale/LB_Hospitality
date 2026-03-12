@@ -1,6 +1,6 @@
 ---
 name: Storage Facade
-description: Documents the DatabaseStorage facade pattern — a single IStorage interface delegating to 6 specialized storage classes.
+description: Documents the DatabaseStorage facade pattern — a single IStorage interface delegating to 9 specialized storage classes.
 ---
 
 # Storage Facade Pattern
@@ -16,25 +16,32 @@ IStorage (interface)
     |
     v
 DatabaseStorage (facade) ── delegates to:
-    ├── StorageUsers        — users, sessions, login_logs, user_groups
-    ├── StorageProperties   — properties CRUD
-    ├── StorageFinancial    — global_assumptions, scenarios, fee categories
-    ├── StorageAdmin        — verification_runs, seeding, design_themes
-    ├── StorageActivity     — activity_logs
-    └── StorageResearch     — market_research, research_questions
+    ├── UserStorage         — users, sessions, login_logs, user_groups
+    ├── PropertyStorage     — properties CRUD + filtering
+    ├── FinancialStorage    — global_assumptions, scenarios, fee categories
+    ├── AdminStorage        — verification_runs, design_themes, logos, companies
+    ├── ActivityStorage     — activity_logs
+    ├── ResearchStorage     — market_research, research_questions, prospective_properties
+    ├── PhotoStorage        — property_photos
+    ├── PlaidStorage        — plaid_connections, plaid_transactions
+    └── DocumentStorage     — document_extractions, extraction_fields, docusign_envelopes
 ```
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `server/storage.ts` | `IStorage` interface + `DatabaseStorage` facade |
+| `server/storage/index.ts` | `IStorage` interface + `DatabaseStorage` facade |
 | `server/storage/users.ts` | User/session/group CRUD |
-| `server/storage/properties.ts` | Property CRUD |
+| `server/storage/properties.ts` | Property CRUD + filtering |
 | `server/storage/financial.ts` | Global assumptions, scenarios, fees |
-| `server/storage/admin.ts` | Verification, themes, seeding |
-| `server/storage/activity.ts` | Activity log queries |
+| `server/storage/admin.ts` | Themes, logos, companies, verification |
+| `server/storage/activity.ts` | Activity logs |
 | `server/storage/research.ts` | Market research, research questions |
+| `server/storage/photos.ts` | Property photos |
+| `server/storage/plaid.ts` | Plaid connections, transactions |
+| `server/storage/documents.ts` | Document extractions, DocuSign envelopes |
+| `server/storage/notifications.ts` | Alert rules, notification logs/preferences/settings |
 
 ## Conventions
 

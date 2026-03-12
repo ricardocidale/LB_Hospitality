@@ -13,6 +13,12 @@
  *     overridden a particular rate
  *   - The verification checker compares calculated values against these defaults
  *     to detect anomalies
+ *
+ * Two categories:
+ *   IMMUTABLE — Fixed by IRS/GAAP, never change:
+ *     DEPRECIATION_YEARS (27.5), DAYS_PER_MONTH (30.5)
+ *   CONFIGURABLE — User-overridable defaults (DEFAULT_* prefix):
+ *     All other constants. Database value takes precedence; these are fallbacks.
  */
 
 // ──────────────────────────────────────────────────────────

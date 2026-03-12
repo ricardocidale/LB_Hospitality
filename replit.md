@@ -75,7 +75,7 @@ Five categories + Logs + Help:
 - **Business**: Users (sub-tabs: Users, Company Assignment, Group Assignment), Companies (CRUD with logo + theme), Groups (CRUD with logo, theme, asset description, property visibility)
 - **Design**: Logos (upload/manage logos), Themes (color themes)
 - **AI Agents**: Marcela / Voice (9 sub-tabs), Rebecca / Text (enable, name, prompt), Knowledge Base, Twilio
-- **System**: Research, Navigation, Diagrams (Mermaid workflow charts L1/L2/L3), Verification, Database, Integrations (health/circuit breakers/cache)
+- **System**: Research, Notifications (Slack webhook, SendGrid email, alert rules, delivery log), Navigation, Diagrams (Mermaid workflow charts L1/L2/L3), Verification, Database, Integrations (health/circuit breakers/cache)
 - **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
 - Help link at bottom (navigates to /help)
 

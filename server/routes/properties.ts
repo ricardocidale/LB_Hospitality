@@ -5,6 +5,8 @@ import { insertPropertySchema, updatePropertySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { logActivity, logAndSendError } from "./helpers";
 import { generateLocationAwareResearchValues } from "../data/researchSeeds";
+import { processNotificationEvent, evaluateAlertRules } from "../notifications/engine";
+import { createEvent } from "../notifications/events";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -103,6 +105,14 @@ export function register(app: Express) {
       }
 
       logActivity(req, "create", "property", property.id, property.name);
+
+      processNotificationEvent(createEvent("PROPERTY_IMPORTED", {
+        propertyId: property.id,
+        propertyName: property.name,
+        message: `New property added: ${property.name}`,
+        link: `/property/${property.id}`,
+      })).catch((err) => console.error("Notification error:", err));
+
       res.status(201).json(property);
     } catch (error) {
       logAndSendError(res, "Failed to create property", error);
@@ -123,6 +133,18 @@ export function register(app: Express) {
       }
       
       logActivity(req, "update", "property", property.id, property.name, { updates: req.body });
+
+      if (property) {
+        const metrics: Record<string, number> = {};
+        if (property.exitCapRate != null) metrics.cap_rate = property.exitCapRate;
+        if (property.maxOccupancy != null) metrics.occupancy = property.maxOccupancy;
+        if (Object.keys(metrics).length > 0) {
+          evaluateAlertRules(property, metrics).catch((err) =>
+            console.error("Alert evaluation error:", err)
+          );
+        }
+      }
+
       res.json(property);
     } catch (error) {
       logAndSendError(res, "Failed to update property", error);

@@ -76,6 +76,7 @@ import {
   DEFAULT_COST_SEG_5YR_PCT,
   DEFAULT_COST_SEG_7YR_PCT,
   DEFAULT_COST_SEG_15YR_PCT,
+  DEFAULT_ALERT_COOLDOWN_MINUTES,
 } from "./constants";
 
 // --- COMPANIES TABLE ---
@@ -1442,3 +1443,128 @@ export const insertMarketRateSchema = z.object({
 
 export type MarketRate = typeof marketRates.$inferSelect;
 export type InsertMarketRate = z.infer<typeof insertMarketRateSchema>;
+
+// --- NOTIFICATION EVENT TYPES ---
+export const NOTIFICATION_EVENT_TYPES = [
+  "DSCR_BREACH",
+  "RESEARCH_COMPLETE",
+  "REPORT_SHARED",
+  "PROPERTY_IMPORTED",
+  "CHECKER_FAILURE",
+  "OCCUPANCY_BREACH",
+  "CAP_RATE_BREACH",
+  "NOI_VARIANCE_BREACH",
+] as const;
+export type NotificationEventType = typeof NOTIFICATION_EVENT_TYPES[number];
+
+export const NOTIFICATION_CHANNELS = ["email", "slack"] as const;
+export type NotificationChannel = typeof NOTIFICATION_CHANNELS[number];
+
+export const ALERT_OPERATORS = ["<", ">", "=", "!="] as const;
+export type AlertOperator = typeof ALERT_OPERATORS[number];
+
+export const ALERT_METRICS = ["dscr", "cap_rate", "occupancy", "noi_variance"] as const;
+export type AlertMetric = typeof ALERT_METRICS[number];
+
+export const ALERT_SCOPES = ["all", "specific", "portfolio"] as const;
+export type AlertScope = typeof ALERT_SCOPES[number];
+
+// --- ALERT RULES TABLE ---
+export const alertRules = pgTable("alert_rules", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  metric: text("metric").notNull(),
+  operator: text("operator").notNull(),
+  threshold: real("threshold").notNull(),
+  scope: text("scope").notNull().default("all"),
+  propertyId: integer("property_id").references(() => properties.id, { onDelete: "cascade" }),
+  cooldownMinutes: integer("cooldown_minutes").notNull().default(DEFAULT_ALERT_COOLDOWN_MINUTES),
+  isActive: boolean("is_active").notNull().default(true),
+  lastTriggeredAt: timestamp("last_triggered_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertAlertRuleSchema = z.object({
+  name: z.string().min(1),
+  metric: z.enum(ALERT_METRICS),
+  operator: z.enum(ALERT_OPERATORS),
+  threshold: z.number(),
+  scope: z.enum(ALERT_SCOPES).optional().default("all"),
+  propertyId: z.number().nullable().optional(),
+  cooldownMinutes: z.number().optional().default(DEFAULT_ALERT_COOLDOWN_MINUTES),
+  isActive: z.boolean().optional().default(true),
+});
+
+export type AlertRule = typeof alertRules.$inferSelect;
+export type InsertAlertRule = z.infer<typeof insertAlertRuleSchema>;
+
+// --- NOTIFICATION LOGS TABLE ---
+export const notificationLogs = pgTable("notification_logs", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  eventType: text("event_type").notNull(),
+  channel: text("channel").notNull(),
+  recipient: text("recipient"),
+  subject: text("subject"),
+  status: text("status").notNull().default("pending"),
+  errorMessage: text("error_message"),
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  alertRuleId: integer("alert_rule_id").references(() => alertRules.id, { onDelete: "set null" }),
+  propertyId: integer("property_id").references(() => properties.id, { onDelete: "set null" }),
+  retryCount: integer("retry_count").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [
+  index("notification_logs_event_type_idx").on(table.eventType),
+  index("notification_logs_status_idx").on(table.status),
+  index("notification_logs_created_at_idx").on(table.createdAt),
+]);
+
+export const insertNotificationLogSchema = z.object({
+  eventType: z.string(),
+  channel: z.string(),
+  recipient: z.string().nullable().optional(),
+  subject: z.string().nullable().optional(),
+  status: z.string().optional().default("pending"),
+  errorMessage: z.string().nullable().optional(),
+  metadata: z.record(z.any()).nullable().optional(),
+  alertRuleId: z.number().nullable().optional(),
+  propertyId: z.number().nullable().optional(),
+  retryCount: z.number().optional().default(0),
+});
+
+export type NotificationLog = typeof notificationLogs.$inferSelect;
+export type InsertNotificationLog = z.infer<typeof insertNotificationLogSchema>;
+
+// --- NOTIFICATION PREFERENCES TABLE ---
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  eventType: text("event_type").notNull(),
+  channel: text("channel").notNull(),
+  enabled: boolean("enabled").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  unique("notification_pref_unique").on(table.userId, table.eventType, table.channel),
+  index("notification_prefs_user_id_idx").on(table.userId),
+]);
+
+export const insertNotificationPreferenceSchema = z.object({
+  userId: z.number(),
+  eventType: z.string(),
+  channel: z.string(),
+  enabled: z.boolean().optional().default(true),
+});
+
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = z.infer<typeof insertNotificationPreferenceSchema>;
+
+// --- NOTIFICATION SETTINGS TABLE ---
+export const notificationSettings = pgTable("notification_settings", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  settingKey: text("setting_key").notNull().unique(),
+  settingValue: text("setting_value"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type NotificationSetting = typeof notificationSettings.$inferSelect;

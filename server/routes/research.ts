@@ -6,6 +6,8 @@ import { fromZodError } from "zod-validation-error";
 import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../ai/aiResearch";
 import { validateResearchValues } from "../../calc/research/validate-research";
 import { sendResearchEmail } from "../integrations/gmail";
+import { processNotificationEvent } from "../notifications/engine";
+import { createEvent } from "../notifications/events";
 import Anthropic from "@anthropic-ai/sdk";
 import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
 import { DEFAULT_RESEARCH_EVENT_CONFIG } from "../../shared/constants";
@@ -218,6 +220,12 @@ export function register(app: Express) {
           });
 
           logActivity(req, "generate", "market_research", propertyId, type);
+
+          processNotificationEvent(createEvent("RESEARCH_COMPLETE", {
+            propertyId,
+            message: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} research generation complete`,
+            link: propertyId ? `/property/${propertyId}/research` : undefined,
+          })).catch((err) => console.error("Notification error:", err));
         }
       }
       res.end();

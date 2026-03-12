@@ -16,7 +16,7 @@ export type AdminSection =
   | "companies" | "groups"
   | "logos" | "themes"
   | "ai-agents"
-  | "research" | "navigation" | "verification" | "database"
+  | "research" | "navigation" | "notifications" | "verification" | "database"
   | "diagrams" | "integrations";
 
 interface SectionItem {
@@ -82,6 +82,7 @@ const navGroups: NavGroup[] = [
     description: "Research & infrastructure",
     sections: [
       { value: "research", label: "Research", icon: IconResearch },
+      { value: "notifications", label: "Notifications", icon: IconPhone },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
       { value: "diagrams", label: "Diagrams", icon: Share2 },
       { value: "verification", label: "Verification", icon: IconFileCheck },

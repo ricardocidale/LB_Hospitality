@@ -241,6 +241,8 @@ export const DEFAULT_MARCELA_CASCADE_TIMEOUT = 5;
 
 export const DEFAULT_MAX_STALENESS_HOURS = 24;
 
+export const DEFAULT_ALERT_COOLDOWN_MINUTES = 1440;
+
 // ──────────────────────────────────────────────────────────
 // RESEARCH CONFIGURATION DEFAULTS
 // Per-event admin configuration for the AI research system.

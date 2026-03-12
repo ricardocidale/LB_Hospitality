@@ -232,14 +232,25 @@ export async function downloadSignedDocument(envelopeId: string): Promise<Buffer
 
 export function verifyWebhookSignature(rawBody: string | Buffer, signature: string | undefined): boolean {
   const hmacKey = process.env.DOCUSIGN_WEBHOOK_SECRET;
-  if (!hmacKey) return true;
+  if (!hmacKey) {
+    // Fail-secure: reject in production when secret is not configured
+    if (process.env.NODE_ENV === "production") {
+      console.error("[docusign] DOCUSIGN_WEBHOOK_SECRET not set in production — rejecting webhook");
+      return false;
+    }
+    return true; // Allow in dev for testing
+  }
   if (!signature) return false;
   try {
-    const { createHmac } = require("crypto");
+    const { createHmac, timingSafeEqual } = require("crypto");
     const computed = createHmac("sha256", hmacKey)
       .update(typeof rawBody === "string" ? rawBody : rawBody.toString("utf-8"))
       .digest("base64");
-    return computed === signature;
+    // Use timing-safe comparison to prevent timing attacks
+    const a = Buffer.from(computed);
+    const b = Buffer.from(signature);
+    if (a.length !== b.length) return false;
+    return timingSafeEqual(a, b);
   } catch {
     return false;
   }

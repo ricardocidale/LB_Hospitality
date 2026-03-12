@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth, requireManagementAccess } from "../auth";
+import { requireAuth, requireManagementAccess, isApiRateLimited } from "../auth";
 import { storage } from "../storage";
 import { logActivity, logAndSendError } from "./helpers";
 import { DocumentAIService } from "../integrations/document-ai";
@@ -11,6 +11,9 @@ import { randomUUID } from "crypto";
 import { z } from "zod";
 
 const documentAIService = new DocumentAIService();
+
+// Singleton — avoid creating a new instance per request
+const sharedObjectStorageService = new ObjectStorageService();
 
 const ALLOWED_DOC_TYPES = [
   "application/pdf",
@@ -25,6 +28,11 @@ const MAX_DOC_SIZE = 20 * 1024 * 1024;
 export function register(app: Express) {
   app.post("/api/documents/extract", requireManagementAccess, async (req, res) => {
     try {
+      // Rate limit: max 3 document extractions per minute per user
+      if (isApiRateLimited(req.user!.id, "document-extract", 3)) {
+        return res.status(429).json({ error: "Rate limit exceeded. Please wait before extracting another document." });
+      }
+
       const contentType = (req.headers["content-type"] || "").split(";")[0].trim();
       const propertyId = parseInt(req.headers["x-property-id"] as string);
       const fileName = (req.headers["x-file-name"] as string) || "document";
@@ -58,7 +66,7 @@ export function register(app: Express) {
         return res.status(400).json({ error: "No file data received" });
       }
 
-      const objectStorageService = new ObjectStorageService();
+      const objectStorageService = sharedObjectStorageService;
       const privateDir = objectStorageService.getPrivateObjectDir();
       const objectId = randomUUID();
       const fullPath = `${privateDir}/documents/${objectId}`;
@@ -442,7 +450,7 @@ export function register(app: Express) {
 
         try {
           const signedDoc = await downloadSignedDocument(event.envelopeId);
-          const objectStorageService = new ObjectStorageService();
+          const objectStorageService = sharedObjectStorageService;
           const privateDir = objectStorageService.getPrivateObjectDir();
           const docId = randomUUID();
           const fullPath = `${privateDir}/signed-documents/${docId}`;

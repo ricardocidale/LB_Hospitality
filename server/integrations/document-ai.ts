@@ -22,11 +22,18 @@ export interface DocumentAIResult {
   }>;
 }
 
+// Module-level singleton for object storage
+const sharedObjectStorageService = new ObjectStorageService();
+
 export class DocumentAIService extends BaseIntegrationService {
   readonly serviceName = "document-ai";
   private projectId: string;
   private location: string;
   private processorId: string;
+
+  private getObjectStorageService() {
+    return sharedObjectStorageService;
+  }
 
   constructor() {
     super();
@@ -79,7 +86,7 @@ export class DocumentAIService extends BaseIntegrationService {
 
     try {
       return await this.execute("processDocument", async () => {
-        const objectService = new ObjectStorageService();
+        const objectService = this.getObjectStorageService();
         const file = await objectService.getObjectEntityFile(objectPath);
         const [fileBuffer] = await file.download();
 

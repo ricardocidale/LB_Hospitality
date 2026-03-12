@@ -22,6 +22,7 @@
  */
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import { registerImageRoutes } from "./replit_integrations/image";
 import { serveStatic } from "./static";
@@ -43,6 +44,7 @@ declare module "http" {
 }
 
 app.use(sentryRequestHandler());
+app.use(compression({ threshold: 1024 })); // Compress responses > 1KB
 app.use(cookieParser());
 
 app.use((req, res, next) => {
@@ -114,7 +116,9 @@ app.use((req, res, next) => {
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        // Log response size instead of full JSON to reduce I/O overhead
+        const responseSize = res.getHeader("content-length") || "unknown";
+        logLine += ` :: ${responseSize} bytes`;
       }
 
       log(logLine);
@@ -155,19 +159,24 @@ app.use((req, res, next) => {
   const { runDocuments001 } = await import("./migrations/documents-001");
   await runDocuments001();
 
-  await seedAdminUser();
+  await seedAdminUser(); // Must complete first — users are FK dependencies
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");
-  await seedMissingMarketResearch();
-  await seedMarketRates();
-  await seedDefaultLogos();
-  await seedUserGroups();
-  await seedCompanies();
   const { seedUserCompanyAssignments } = await import("./seeds/users");
+
+  // Independent seeds can run in parallel for faster startup
+  await Promise.all([
+    seedMissingMarketResearch(),
+    seedMarketRates(),
+    seedDefaultLogos(),
+    seedUserGroups(),
+    seedFeeCategories(),
+    seedServiceTemplates(),
+    seedPropertyPhotos(),
+  ]);
+  // These depend on groups/companies existing
+  await seedCompanies();
   await seedUserCompanyAssignments();
-  await seedFeeCategories();
-  await seedServiceTemplates();
-  await seedPropertyPhotos();
   registerImageRoutes(app);
   await registerRoutes(httpServer, app);
 

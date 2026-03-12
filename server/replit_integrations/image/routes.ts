@@ -5,6 +5,9 @@ import { ObjectStorageService } from "../object_storage";
 import { replicateService, getAvailableStyles, type ReplicateStyleKey } from "../../integrations/replicate";
 import { z } from "zod";
 
+// Singleton — avoid creating a new instance per image generation request
+const sharedObjectStorageService = new ObjectStorageService();
+
 const generatePropertyImageSchema = z.object({
   prompt: z.string().min(1, "Prompt is required"),
   style: z.enum(["standard", "architectural-exterior", "interior-design", "renovation-concept"]).optional().default("standard"),
@@ -87,7 +90,7 @@ export function registerImageRoutes(app: Express): void {
         imageBuffer = await generateImageBuffer(prompt, "1024x1024");
       }
 
-      const objectStorageService = new ObjectStorageService();
+      const objectStorageService = sharedObjectStorageService;
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
 

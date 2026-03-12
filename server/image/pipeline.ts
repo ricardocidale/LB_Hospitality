@@ -2,6 +2,9 @@ import sharp from "sharp";
 import { IMAGE_VARIANTS, buildVariantPath, buildOriginalPath, type ImageVariants, type VariantSpec } from "./variants";
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
 
+// Singleton — avoid creating a new instance per image operation
+const sharedObjectStorageService = new ObjectStorageService();
+
 export interface CropRegion {
   left: number;
   top: number;
@@ -45,7 +48,7 @@ async function uploadToObjectStorage(
   path: string,
   contentType: string,
 ): Promise<string> {
-  const objectStorageService = new ObjectStorageService();
+  const objectStorageService = sharedObjectStorageService;
   const privateDir = objectStorageService.getPrivateObjectDir();
   const fullPath = `${privateDir}/${path}`;
 
@@ -159,7 +162,7 @@ export async function processExistingPhoto(
     let contentType = "image/jpeg";
 
     if (imageUrl.startsWith("/objects/")) {
-      const objectStorageService = new ObjectStorageService();
+      const objectStorageService = sharedObjectStorageService;
       const file = await objectStorageService.getObjectEntityFile(imageUrl);
       const [contents] = await file.download();
       buffer = contents;

@@ -1,10 +1,13 @@
 import type { Express } from "express";
-import { requireAuth } from "../auth";
+import { requireAuth, isApiRateLimited } from "../auth";
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
 import { logActivity, logAndSendError } from "./helpers";
 import { randomUUID } from "crypto";
 import { processImage, type CropRegion } from "../image/pipeline";
 import { storage } from "../storage";
+
+// Singleton — avoid creating a new instance per request
+const sharedObjectStorageService = new ObjectStorageService();
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_CONTENT_TYPES = [
@@ -25,7 +28,7 @@ export function register(app: Express) {
         return res.status(400).json({ error: "Missing required field: name" });
       }
 
-      const objectStorageService = new ObjectStorageService();
+      const objectStorageService = sharedObjectStorageService;
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
 
@@ -43,6 +46,11 @@ export function register(app: Express) {
 
   app.post("/api/uploads/direct", requireAuth, async (req, res) => {
     try {
+      // Rate limit: max 10 uploads per minute per user
+      if (isApiRateLimited(req.user!.id, "upload", 10)) {
+        return res.status(429).json({ error: "Upload rate limit exceeded. Please wait before uploading again." });
+      }
+
       const contentType = (req.headers["content-type"] || "").split(";")[0].trim();
       if (!ALLOWED_CONTENT_TYPES.includes(contentType)) {
         return res.status(400).json({ error: `Unsupported content type: ${contentType}. Allowed: ${ALLOWED_CONTENT_TYPES.join(", ")}` });
@@ -69,7 +77,7 @@ export function register(app: Express) {
         return res.status(400).json({ error: "No file data received" });
       }
 
-      const objectStorageService = new ObjectStorageService();
+      const objectStorageService = sharedObjectStorageService;
       const privateDir = objectStorageService.getPrivateObjectDir();
       const objectId = randomUUID();
       const fullPath = `${privateDir}/uploads/${objectId}`;
@@ -111,7 +119,7 @@ export function register(app: Express) {
       let buffer: Buffer;
       let contentType = "image/jpeg";
 
-      const objectStorageService = new ObjectStorageService();
+      const objectStorageService = sharedObjectStorageService;
       const file = await objectStorageService.getObjectEntityFile(imageUrl);
       const [contents] = await file.download();
       buffer = contents;
@@ -182,7 +190,7 @@ export function register(app: Express) {
           let contentType = "image/jpeg";
 
           if (photo.imageUrl.startsWith("/objects/")) {
-            const objectStorageService = new ObjectStorageService();
+            const objectStorageService = sharedObjectStorageService;
             const file = await objectStorageService.getObjectEntityFile(photo.imageUrl);
             const [contents] = await file.download();
             buffer = contents;

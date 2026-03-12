@@ -16,13 +16,22 @@ if (!MARCELA_TOOLS_SECRET) {
 }
 
 function verifyToolsAuth(req: Request, res: Response, next: NextFunction) {
+  const { timingSafeEqual } = require("crypto");
   const authHeader = req.headers["x-marcela-tools-secret"] || req.headers["authorization"];
   const token = typeof authHeader === "string"
     ? authHeader.replace(/^Bearer\s+/i, "")
     : "";
 
-  if (MARCELA_TOOLS_SECRET && token === MARCELA_TOOLS_SECRET) {
-    return next();
+  if (MARCELA_TOOLS_SECRET && token.length > 0) {
+    try {
+      const a = Buffer.from(token);
+      const b = Buffer.from(MARCELA_TOOLS_SECRET);
+      if (a.length === b.length && timingSafeEqual(a, b)) {
+        return next();
+      }
+    } catch {
+      // Fall through to 401
+    }
   }
   res.status(401).json({ error: "Unauthorized" });
 }

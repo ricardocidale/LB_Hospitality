@@ -18,7 +18,7 @@ npm run stats          # Live codebase metrics
 ```
 
 ## Tech Stack
-React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, @sentry/node + @sentry/react (error tracking), posthog-js (analytics), @upstash/redis (caching)
+React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, @sentry/node + @sentry/react (error tracking), posthog-js (analytics), @upstash/redis (caching)
 
 ## Market Intelligence Pipeline
 Three-service architecture in `server/services/`:

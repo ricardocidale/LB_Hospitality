@@ -16,6 +16,9 @@ import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction,
 import { ExportDialog } from "@/components/ExportDialog";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportTablePNG, captureChartAsImage } from "@/lib/exports/pngExport";
+import { drawCanvasAsImage } from "@/lib/exports/pdfHelpers";
+import SensitivityHeatMap, { type HeatMapCell, type SensitivityHeatMapRef } from "@/components/charts/SensitivityHeatMap";
+import TornadoDiagram, { type TornadoVariable, type TornadoDiagramRef } from "@/components/charts/TornadoDiagram";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import pptxgen from "pptxgenjs";
@@ -34,9 +37,13 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
   const [tornadoMetric, setTornadoMetric] = useState<"noi" | "irr">("irr");
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<"pdf" | "chart">("pdf");
+  const [advancedChartView, setAdvancedChartView] = useState<"sliders" | "heatmap" | "tornado-d3">("sliders");
+  const [heatMapMetric, setHeatMapMetric] = useState<"irr" | "noi" | "equityMultiple">("irr");
 
   const chartRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLDivElement>(null);
+  const tornadoD3Ref = useRef<TornadoDiagramRef>(null);
+  const heatmapRef = useRef<SensitivityHeatMapRef>(null);
 
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
@@ -159,6 +166,61 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     return items.sort((a, b) => b.spread - a.spread);
   }, [baseResult, variables, runScenario, tornadoMetric]);
 
+  const heatMapData = useMemo((): { cells: HeatMapCell[]; rowLabels: string[]; colLabels: string[] } => {
+    if (!baseResult || !properties?.length || !global) return { cells: [], rowLabels: [], colLabels: [] };
+    const occupancyShocks = [-10, -5, 0, 5, 10];
+    const adrShocks = [-10, -5, 0, 5, 10];
+    const rowLabels = occupancyShocks.map(s => `${s >= 0 ? "+" : ""}${s}% Occ`);
+    const colLabels = adrShocks.map(s => `${s >= 0 ? "+" : ""}${s}% ADR`);
+    const cells: HeatMapCell[] = [];
+
+    for (let ri = 0; ri < occupancyShocks.length; ri++) {
+      for (let ci = 0; ci < adrShocks.length; ci++) {
+        const result = runScenario({
+          occupancy: occupancyShocks[ri],
+          adrGrowth: adrShocks[ci] / 2,
+        });
+        let value = 0;
+        if (result) {
+          if (heatMapMetric === "irr") value = result.irr;
+          else if (heatMapMetric === "noi") value = result.totalNOI;
+          else value = result.exitValue > 0 && result.totalRevenue > 0 ? result.totalNOI / result.totalRevenue : 0;
+        }
+        cells.push({
+          row: ri,
+          col: ci,
+          rowLabel: rowLabels[ri],
+          colLabel: colLabels[ci],
+          value,
+          passes: heatMapMetric === "irr" ? value >= 0.15 : value > 0,
+        });
+      }
+    }
+    return { cells, rowLabels, colLabels };
+  }, [baseResult, properties, global, runScenario, heatMapMetric]);
+
+  const tornadoD3Data = useMemo((): { variables: TornadoVariable[]; baseValue: number } => {
+    if (!baseResult || !variables.length) return { variables: [], baseValue: 0 };
+    const result: TornadoVariable[] = [];
+    for (const v of variables) {
+      const swingPct = v.id === "exitCapRate" ? 2 : v.id === "occupancy" ? 10 : v.id === "interestRate" ? 2 : 3;
+      const upResult = runScenario({ [v.id]: swingPct });
+      const downResult = runScenario({ [v.id]: -swingPct });
+      if (!upResult || !downResult) continue;
+      result.push({
+        name: v.label,
+        upside: tornadoMetric === "irr" ? upResult.irr : upResult.totalNOI,
+        downside: tornadoMetric === "irr" ? downResult.irr : downResult.totalNOI,
+        upsideLabel: `+${swingPct}${v.unit === "%" ? "pp" : ""}`,
+        downsideLabel: `-${swingPct}${v.unit === "%" ? "pp" : ""}`,
+      });
+    }
+    return {
+      variables: result,
+      baseValue: tornadoMetric === "irr" ? baseResult.irr : baseResult.totalNOI,
+    };
+  }, [baseResult, variables, runScenario, tornadoMetric]);
+
   const hasAdjustments = Object.values(adjustments).some((v) => v !== 0);
 
   const pctChange = (adjusted: number, base: number) => {
@@ -180,7 +242,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     ];
   }, [baseResult, adjustedResult]);
 
-  const handleExportPDF = useCallback((orientation: "landscape" | "portrait") => {
+  const handleExportPDF = useCallback(async (orientation: "landscape" | "portrait") => {
     if (!baseResult) return;
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
     const pageWidth = orientation === "landscape" ? 297 : 210;
@@ -238,8 +300,23 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       });
     }
 
+    if (advancedChartView === "heatmap" && heatmapRef.current) {
+      try {
+        const canvas = await heatmapRef.current.toCanvas();
+        doc.addPage();
+        drawCanvasAsImage(doc, canvas, "Sensitivity Heat Map — ADR × Occupancy", 14, 14);
+      } catch {}
+    }
+    if (advancedChartView === "tornado-d3" && tornadoD3Ref.current) {
+      try {
+        const canvas = await tornadoD3Ref.current.toCanvas();
+        doc.addPage();
+        drawCanvasAsImage(doc, canvas, "Tornado Diagram — Assumption Impact", 14, 14);
+      } catch {}
+    }
+
     doc.save("sensitivity-analysis.pdf");
-  }, [baseResult, comparisonRows, tornadoData, tornadoMetric]);
+  }, [baseResult, comparisonRows, tornadoData, tornadoMetric, advancedChartView]);
 
   const handleExportExcel = useCallback(() => {
     if (!baseResult) return;
@@ -284,19 +361,17 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     downloadCSV(content, "sensitivity-analysis.csv");
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric]);
 
-  const handleExportPPTX = useCallback(() => {
+  const handleExportPPTX = useCallback(async () => {
     if (!baseResult) return;
     const pres = new pptxgen();
     pres.layout = "LAYOUT_WIDE";
 
-    // Title slide
     const title = pres.addSlide();
     title.background = { color: "1a2a3a" };
     title.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: "100%", h: 0.05, fill: { color: "9FBCA4" } });
     title.addText("Sensitivity Analysis", { x: 0.5, y: 1.8, w: 12, h: 0.7, fontSize: 32, fontFace: "Arial", color: "FFFFFF", bold: true });
     title.addText(`Base IRR: ${(baseResult.irr * 100).toFixed(1)}%  |  NOI Margin: ${baseResult.avgNOIMargin.toFixed(1)}%  |  Exit Value: ${formatMoney(baseResult.exitValue)}`, { x: 0.5, y: 2.6, w: 12, h: 0.4, fontSize: 14, fontFace: "Arial", color: "9FBCA4" });
 
-    // KPI slide
     if (comparisonRows.length) {
       const kpiSlide = pres.addSlide();
       kpiSlide.addText("Base vs. Adjusted Scenario", { x: 0.5, y: 0.3, w: 12, h: 0.5, fontSize: 18, fontFace: "Arial", color: "257D41", bold: true });
@@ -323,7 +398,6 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       );
     }
 
-    // Tornado slide
     if (tornadoData.length) {
       const tornadoSlide = pres.addSlide();
       tornadoSlide.addText(`Tornado Chart — Impact on ${tornadoMetric === "irr" ? "IRR (pp)" : "NOI (%)"}`, { x: 0.5, y: 0.3, w: 12, h: 0.5, fontSize: 18, fontFace: "Arial", color: "257D41", bold: true });
@@ -349,8 +423,35 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       );
     }
 
+    if (advancedChartView === "heatmap" && heatmapRef.current) {
+      try {
+        const canvas = await heatmapRef.current.toCanvas();
+        const slide = pres.addSlide();
+        slide.addText("Sensitivity Heat Map — ADR × Occupancy", { x: 0.5, y: 0.2, w: 12, h: 0.4, fontSize: 16, fontFace: "Arial", color: "257D41", bold: true });
+        const dataUrl = canvas.toDataURL("image/png");
+        const ar = canvas.width / canvas.height;
+        const maxW = 12; const maxH = 6;
+        let w = maxW; let h = maxW / ar;
+        if (h > maxH) { h = maxH; w = maxH * ar; }
+        slide.addImage({ data: dataUrl, x: (13.33 - w) / 2, y: 0.8, w, h });
+      } catch {}
+    }
+    if (advancedChartView === "tornado-d3" && tornadoD3Ref.current) {
+      try {
+        const canvas = await tornadoD3Ref.current.toCanvas();
+        const slide = pres.addSlide();
+        slide.addText("Tornado Diagram — Assumption Impact", { x: 0.5, y: 0.2, w: 12, h: 0.4, fontSize: 16, fontFace: "Arial", color: "257D41", bold: true });
+        const dataUrl = canvas.toDataURL("image/png");
+        const ar = canvas.width / canvas.height;
+        const maxW = 12; const maxH = 6;
+        let w = maxW; let h = maxW / ar;
+        if (h > maxH) { h = maxH; w = maxH * ar; }
+        slide.addImage({ data: dataUrl, x: (13.33 - w) / 2, y: 0.8, w, h });
+      } catch {}
+    }
+
     pres.writeFile({ fileName: "sensitivity-analysis.pptx" });
-  }, [baseResult, comparisonRows, tornadoData, tornadoMetric]);
+  }, [baseResult, comparisonRows, tornadoData, tornadoMetric, advancedChartView]);
 
   const handleExportChart = useCallback(async (orientation: "landscape" | "portrait") => {
     if (!chartRef.current) return;
@@ -518,29 +619,167 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
             </div>
           </div>}
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-4">
-              <VariableSlidersPanel
-                variables={variables}
-                adjustments={adjustments}
-                onAdjustmentChange={(id, value) => setAdjustments(prev => ({ ...prev, [id]: value }))}
-              />
-            </div>
+          <div className="flex bg-muted/50 p-1 rounded-lg border border-border w-fit mb-4">
+            <Button
+              variant={advancedChartView === "sliders" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setAdvancedChartView("sliders")}
+              className={`px-3 py-1.5 text-xs font-semibold ${advancedChartView === "sliders" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+              data-testid="button-view-sliders"
+            >
+              Variable Sliders
+            </Button>
+            <Button
+              variant={advancedChartView === "heatmap" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setAdvancedChartView("heatmap")}
+              className={`px-3 py-1.5 text-xs font-semibold ${advancedChartView === "heatmap" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+              data-testid="button-view-heatmap"
+            >
+              Sensitivity Heat Map
+            </Button>
+            <Button
+              variant={advancedChartView === "tornado-d3" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setAdvancedChartView("tornado-d3")}
+              className={`px-3 py-1.5 text-xs font-semibold ${advancedChartView === "tornado-d3" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+              data-testid="button-view-tornado-d3"
+            >
+              Tornado Diagram
+            </Button>
+          </div>
 
-            <div className="lg:col-span-8 space-y-8">
-              <div ref={chartRef}>
-                <TornadoChartPanel
-                  tornadoData={tornadoData}
-                  tornadoMetric={tornadoMetric}
-                  onMetricChange={setTornadoMetric}
+          {advancedChartView === "sliders" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-4">
+                <VariableSlidersPanel
+                  variables={variables}
+                  adjustments={adjustments}
+                  onAdjustmentChange={(id, value) => setAdjustments(prev => ({ ...prev, [id]: value }))}
                 />
               </div>
 
-              <div ref={tableRef}>
-                <SensitivityComparisonTable baseResult={baseResult!} adjustedResult={adjustedResult!} />
+              <div className="lg:col-span-8 space-y-8">
+                <div ref={chartRef}>
+                  <TornadoChartPanel
+                    tornadoData={tornadoData}
+                    tornadoMetric={tornadoMetric}
+                    onMetricChange={setTornadoMetric}
+                  />
+                </div>
+
+                <div ref={tableRef}>
+                  <SensitivityComparisonTable baseResult={baseResult!} adjustedResult={adjustedResult!} />
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {advancedChartView === "heatmap" && (
+            <div className="space-y-4">
+              <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground" data-testid="text-heatmap-title">
+                      Sensitivity Heat Map
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      ADR growth × Occupancy scenario grid — color-coded by outcome
+                    </p>
+                  </div>
+                  <div className="flex bg-muted/50 p-1 rounded-lg border border-border">
+                    {(["irr", "noi", "equityMultiple"] as const).map((m) => (
+                      <Button
+                        key={m}
+                        variant={heatMapMetric === m ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={() => setHeatMapMetric(m)}
+                        className={`px-3 py-1.5 text-xs font-semibold ${heatMapMetric === m ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                        data-testid={`button-heatmap-metric-${m}`}
+                      >
+                        {m === "irr" ? "IRR" : m === "noi" ? "NOI" : "NOI Margin"}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <SensitivityHeatMap
+                  ref={heatmapRef}
+                  cells={heatMapData.cells}
+                  rowLabels={heatMapData.rowLabels}
+                  colLabels={heatMapData.colLabels}
+                  rowAxisLabel="Occupancy Shock"
+                  colAxisLabel="ADR Growth Shock"
+                  valueLabel={heatMapMetric === "irr" ? "IRR" : heatMapMetric === "noi" ? "NOI" : "NOI Margin"}
+                  breakeven={heatMapMetric === "irr" ? 0.15 : heatMapMetric === "noi" ? 0 : 0.3}
+                  valueFormat={
+                    heatMapMetric === "irr"
+                      ? (v) => `${(v * 100).toFixed(1)}%`
+                      : heatMapMetric === "noi"
+                        ? (v) => {
+                            const abs = Math.abs(v);
+                            if (abs >= 1e6) return `$${(v / 1e6).toFixed(1)}M`;
+                            if (abs >= 1e3) return `$${(v / 1e3).toFixed(0)}K`;
+                            return `$${v.toFixed(0)}`;
+                          }
+                        : (v) => `${(v * 100).toFixed(1)}%`
+                  }
+                />
+              </div>
+            </div>
+          )}
+
+          {advancedChartView === "tornado-d3" && tornadoD3Data.variables.length > 0 && (
+            <div className="space-y-4">
+              <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground" data-testid="text-tornado-d3-title">
+                      Assumption Impact Ranking
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Variables sorted by magnitude of impact on {tornadoMetric === "irr" ? "IRR" : "NOI"} — each tested at ±10%
+                    </p>
+                  </div>
+                  <div className="flex bg-muted/50 p-1 rounded-lg border border-border">
+                    <Button
+                      variant={tornadoMetric === "irr" ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setTornadoMetric("irr")}
+                      className={`px-3 py-1.5 text-xs font-semibold ${tornadoMetric === "irr" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                      data-testid="button-tornado-d3-irr"
+                    >
+                      IRR
+                    </Button>
+                    <Button
+                      variant={tornadoMetric === "noi" ? "secondary" : "ghost"}
+                      size="sm"
+                      onClick={() => setTornadoMetric("noi")}
+                      className={`px-3 py-1.5 text-xs font-semibold ${tornadoMetric === "noi" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                      data-testid="button-tornado-d3-noi"
+                    >
+                      NOI
+                    </Button>
+                  </div>
+                </div>
+                <TornadoDiagram
+                  ref={tornadoD3Ref}
+                  variables={tornadoD3Data.variables}
+                  baseValue={tornadoD3Data.baseValue}
+                  metricLabel={tornadoMetric === "irr" ? "IRR" : "NOI"}
+                  metricFormat={
+                    tornadoMetric === "irr"
+                      ? (v) => `${(v * 100).toFixed(1)}%`
+                      : (v) => {
+                          const abs = Math.abs(v);
+                          if (abs >= 1e6) return `$${(v / 1e6).toFixed(1)}M`;
+                          if (abs >= 1e3) return `$${(v / 1e3).toFixed(0)}K`;
+                          return `$${v.toFixed(0)}`;
+                        }
+                  }
+                />
+              </div>
+            </div>
+          )}
 
           <InsightPanel insights={sensitivityInsights} />
         </div>

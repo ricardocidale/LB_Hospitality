@@ -322,6 +322,26 @@ export function buildFinancialTableConfig(
   };
 }
 
+export function drawCanvasAsImage(
+  doc: any,
+  canvas: HTMLCanvasElement,
+  x: number,
+  y: number,
+  maxW: number,
+  maxH: number,
+): number {
+  const aspectRatio = canvas.width / canvas.height;
+  let drawW = maxW;
+  let drawH = maxW / aspectRatio;
+  if (drawH > maxH) {
+    drawH = maxH;
+    drawW = maxH * aspectRatio;
+  }
+  const dataUrl = canvas.toDataURL("image/png");
+  doc.addImage(dataUrl, "PNG", x, y, drawW, drawH);
+  return y + drawH + 4;
+}
+
 export function addFooters(doc: any, companyName: string) {
   const totalPages = doc.internal.getNumberOfPages();
   const pageH = doc.internal.pageSize.getHeight();

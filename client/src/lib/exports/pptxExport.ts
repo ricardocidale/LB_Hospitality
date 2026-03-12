@@ -392,6 +392,37 @@ export async function exportPropertyPPTX(data: PropertyExportData, companyName =
   pres.writeFile({ fileName: `${safeName} - Financial Report.pptx` });
 }
 
+export function addCanvasSlide(
+  ctx: SlideContext,
+  title: string,
+  canvas: HTMLCanvasElement,
+) {
+  const slide = ctx.pres.addSlide();
+  slide.addText(title, {
+    x: MARGIN_X, y: 0.1, w: 8, h: 0.3,
+    fontSize: 14, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+  });
+
+  const dataUrl = canvas.toDataURL("image/png");
+  const aspectRatio = canvas.width / canvas.height;
+  const maxW = SLIDE_W - MARGIN_X * 2;
+  const maxH = SLIDE_H - 1.2;
+  let drawW = maxW;
+  let drawH = maxW / aspectRatio;
+  if (drawH > maxH) {
+    drawH = maxH;
+    drawW = maxH * aspectRatio;
+  }
+  const x = (SLIDE_W - drawW) / 2;
+  slide.addImage({
+    data: dataUrl,
+    x,
+    y: 0.5,
+    w: drawW,
+    h: drawH,
+  });
+}
+
 export interface CompanyExportData {
   projectionYears: number;
   getFiscalYear: (i: number) => string;

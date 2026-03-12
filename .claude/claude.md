@@ -65,7 +65,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
 | Finance (17 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
 | Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, etc. |
-| Chart Library | `.claude/skills/charts/SKILL.md` | 12 reusable chart components |
+| Chart Library | `.claude/skills/charts/SKILL.md` | 12 Recharts + 3 D3.js chart components |
 | Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, responsive helpers |
 | UI (28 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation, Magic UI effects |
 | API Routes | `.claude/skills/architecture/api-routes.md` | All REST endpoints (load when writing API code) |
@@ -94,7 +94,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 ## Recent Changes (March 11, 2026)
 
 - **Simulation & Analysis page overhauled** — `/analysis` page renamed to "Simulation and Analysis". Tab order: Sensitivity → Compare → Timeline → Financing. Uses shadcn Tabs with icons and framer-motion transitions. All 4 tabs visually redesigned:
-  - **Sensitivity**: KPI summary strip, styled sliders with accent tracks and per-slider reset, improved tornado chart
+  - **Sensitivity**: KPI summary strip, styled sliders with accent tracks and per-slider reset, improved tornado chart. 3-way view switcher: Variable Sliders / Sensitivity Heat Map (D3) / Tornado Diagram (D3)
   - **Compare**: Property chips selector, larger radar chart, alternating-row table with best-value badges, winner summary bar
   - **Timeline**: Horizontal Gantt-style visual timeline with color-coded nodes, connecting lines, legend, tooltips
   - **Financing**: 4 sub-tabs — DSCR gauges with threshold markers, debt yield pass/fail, stress test green→yellow→red heatmap with tooltips, prepayment side-by-side comparison
@@ -106,6 +106,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 - **Admin Diagrams tab** — Mermaid workflow charts at 3 levels (system overview, domain flows, detailed sub-flows). Under Admin → System → Diagrams.
 - **Deterministic tool enforcement** — Extracted magic numbers to named constants in `shared/constants.ts`. Chat route uses `executeComputationTool` via shared `buildPropertyContext.ts`.
 - **Golden scenario** — "Clearwater Inn" (15 rooms, $175 ADR, 1 property + management co). 60 assertions covering IS/CF/BS, fee zero-sum, consolidated elimination. `tests/golden/mgmt-company-plus-one-property-golden.test.ts`.
+- **D3.js financial visualizations** — 3 new D3.js chart components in `client/src/components/charts/`: `WaterfallChart` (revenue-to-NOI bridge on Income Statement tab with line/waterfall toggle + year selector), `SensitivityHeatMap` (2D ADR × Occupancy scenario grid with IRR/NOI/equity multiple metrics), `TornadoDiagram` (assumption impact ranking with sorted horizontal bars). All use `D3ChartContainer` wrapper (ResizeObserver + `toCanvas()` for PDF/PPTX export). Export pipeline wired: `drawCanvasAsImage` in `pdfHelpers.ts`, `addCanvasSlide` in `pptxExport.ts`. Dark mode compatible via `currentColor`.
 - **Seeding hardened** — `seedAdminUser()` no longer resets existing passwords (requires `FORCE_RESEED_PASSWORDS=true`). Reset-all-passwords requires typed confirmation phrase.
 - **Theme admin assignment** — `PATCH /api/admin/users/:id/theme` endpoint for per-user theme override.
 - **WACC-based DCF** — Property and portfolio valuation uses WACC `(E/V × Re) + (D/V × Rd × (1−T))` instead of IRR as discount rate. Intermediate approach: user-provided cost of equity (default 18%), no CAPM. New deterministic tools: `compute_wacc`, `compute_portfolio_wacc` (33 total tools). `costOfEquity` column on `global_assumptions`. Research badges for cost of equity on Company Assumptions.

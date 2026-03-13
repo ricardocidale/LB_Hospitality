@@ -81,6 +81,8 @@ const MapView = lazy(() => import("@/pages/MapView"));
 const VoiceLab = lazy(() => import("@/pages/VoiceLab"));
 const IcpStudio = lazy(() => import("@/pages/IcpStudio"));
 const Icp = lazy(() => import("@/pages/Icp"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -260,6 +262,8 @@ function Router() {
       )}
       <Switch>
         <Route path="/login">{user ? <Redirect to="/" /> : <Suspense fallback={<PageLoader />}><Login /></Suspense>}</Route>
+        <Route path="/privacy"><Suspense fallback={<PageLoader />}><PrivacyPolicy /></Suspense></Route>
+        <Route path="/terms"><Suspense fallback={<PageLoader />}><TermsOfService /></Suspense></Route>
         <Route path="/">
           <FinancialErrorBoundary>
             <ProtectedRoute component={Dashboard} />

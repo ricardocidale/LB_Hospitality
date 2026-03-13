@@ -142,18 +142,25 @@ export default function Login() {
               </div>
             </CardContent>
           </Card>
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">
-              Powered by
-            </span>
-            <img
-              src="/logos/norfolk-ai-blue.png"
-              alt="Norfolk AI"
-              className="w-5 h-5 opacity-60"
-            />
-            <span className="text-xs font-semibold tracking-wide text-muted-foreground/60">
-              Norfolk AI
-            </span>
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground/60">
+              <a href="/privacy" className="hover:text-muted-foreground transition-colors">Privacy Policy</a>
+              <span>&middot;</span>
+              <a href="/terms" className="hover:text-muted-foreground transition-colors">Terms of Service</a>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">
+                Powered by
+              </span>
+              <img
+                src="/logos/norfolk-ai-blue.png"
+                alt="Norfolk AI"
+                className="w-5 h-5 opacity-60"
+              />
+              <span className="text-xs font-semibold tracking-wide text-muted-foreground/60">
+                Norfolk AI
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -256,6 +256,15 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         <IconLogOut className="w-4 h-4 shrink-0" />
         <span>Sign Out</span>
       </Button>
+      <div className="flex items-center justify-center gap-2 pt-2 px-3">
+        <Link href="/privacy" onClick={() => setMobileOpen(false)}>
+          <span className="text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors">Privacy</span>
+        </Link>
+        <span className="text-[11px] text-muted-foreground/30">&middot;</span>
+        <Link href="/terms" onClick={() => setMobileOpen(false)}>
+          <span className="text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors">Terms</span>
+        </Link>
+      </div>
     </div>
   );
 

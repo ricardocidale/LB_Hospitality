@@ -176,6 +176,9 @@ export function IcpContent() {
           setIsEditing(false);
           toast({ title: "Generated", description: "AI prompt generated from current profile and description." });
         },
+        onError: () => {
+          autoGenPromptRef.current = false;
+        },
       }
     );
   };
@@ -194,11 +197,11 @@ export function IcpContent() {
         autoGenPromptRef.current = true;
         handleGenerate();
       } else {
+        autoGenPromptRef.current = true;
         toast({
           title: "Insufficient profile data",
           description: "Complete the Property Profile and Asset Description tabs first, then click Generate.",
         });
-        autoGenPromptRef.current = true;
       }
     }
   }, [activeTab, prompt, ga, config, desc, propertyLabel, updateMutation.isPending]);

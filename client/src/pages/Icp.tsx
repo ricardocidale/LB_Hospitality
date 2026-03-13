@@ -168,7 +168,6 @@ export function IcpContent() {
 
   const handleGenerate = () => {
     userClearedPromptRef.current = false;
-    autoGenPromptRef.current = false;
     const generated = generateIcpPrompt(config, desc, propertyLabel);
     updateMutation.mutate(
       { assetDescription: generated },

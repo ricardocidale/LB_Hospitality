@@ -3,7 +3,7 @@ import { requireAdmin } from "../../auth";
 import { updateServiceTemplateSchema, insertServiceTemplateSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { storage } from "../../storage";
-import { logAndSendError } from "../helpers";
+import { logAndSendError, logActivity, parseParamId } from "../helpers";
 
 export function registerServiceRoutes(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -28,6 +28,7 @@ export function registerServiceRoutes(app: Express) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
       }
       const template = await storage.createServiceTemplate(validation.data);
+      logActivity(req, "create-service-template", "service-template", template.id, template.name);
       res.status(201).json(template);
     } catch (error) {
       logAndSendError(res, "Failed to create service template", error);
@@ -36,8 +37,8 @@ export function registerServiceRoutes(app: Express) {
 
   app.patch("/api/admin/service-templates/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id);
-      if (isNaN(id)) return res.status(400).json({ error: "Invalid template ID" });
+      const id = parseParamId(req.params.id, res, "template ID");
+      if (id === null) return;
 
       const validation = updateServiceTemplateSchema.safeParse(req.body);
       if (!validation.success) {
@@ -46,6 +47,7 @@ export function registerServiceRoutes(app: Express) {
 
       const template = await storage.updateServiceTemplate(id, validation.data);
       if (!template) return res.status(404).json({ error: "Service template not found" });
+      logActivity(req, "update-service-template", "service-template", id, template.name);
       res.json(template);
     } catch (error) {
       logAndSendError(res, "Failed to update service template", error);
@@ -54,13 +56,14 @@ export function registerServiceRoutes(app: Express) {
 
   app.delete("/api/admin/service-templates/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id);
-      if (isNaN(id)) return res.status(400).json({ error: "Invalid template ID" });
+      const id = parseParamId(req.params.id, res, "template ID");
+      if (id === null) return;
 
       const existing = await storage.getServiceTemplate(id);
       if (!existing) return res.status(404).json({ error: "Service template not found" });
 
       await storage.deleteServiceTemplate(id);
+      logActivity(req, "delete-service-template", "service-template", id, existing.name);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to delete service template", error);

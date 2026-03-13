@@ -8,6 +8,8 @@ import { getPlaidHealthCheck } from "../integrations/plaid";
 import { getSendGridHealthCheck } from "../integrations/sendgrid";
 import { getGeospatialHealthCheck } from "../integrations/geospatial";
 import { getDocumentAIHealthCheck } from "../integrations/document-ai";
+import { logActivity, cachePatternSchema } from "./helpers";
+import { fromZodError } from "zod-validation-error";
 
 interface IntegrationStatusResponse {
   name: string;
@@ -58,12 +60,18 @@ export function register(app: Express) {
 
   app.post("/api/admin/integrations/cache/clear", requireAdmin, async (req: Request, res: Response) => {
     try {
-      const { pattern } = req.body;
+      const parsed = cachePatternSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const { pattern } = parsed.data;
       if (pattern) {
         const deleted = await cache.invalidate(pattern);
+        logActivity(req, "clear-cache", "cache", null, pattern, { deleted });
         res.json({ deleted, pattern });
       } else {
         await cache.clearAll();
+        logActivity(req, "clear-all-cache", "cache");
         res.json({ cleared: true });
       }
     } catch (error: any) {

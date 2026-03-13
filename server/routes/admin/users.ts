@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
 import { requireAdmin, validatePassword } from "../../auth";
-import { userResponse, createUserSchema, logAndSendError } from "../helpers";
+import { userResponse, createUserSchema, logAndSendError, logActivity, parseParamId } from "../helpers";
 import { fromZodError } from "zod-validation-error";
 import { hashPassword } from "../../auth";
 import { VALID_USER_ROLES } from "../../../shared/schema.js";
@@ -53,6 +53,7 @@ export function registerUserRoutes(app: Express) {
         userGroupId: defaultGroup?.id ?? null,
       });
 
+      logActivity(req, "create-user", "user", user.id, email, { role });
       res.status(201).json(userResponse(user));
     } catch (error) {
       logAndSendError(res, "Failed to create user", error);
@@ -61,7 +62,8 @@ export function registerUserRoutes(app: Express) {
 
   app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = parseParamId(req.params.id, res, "user ID");
+      if (id === null) return;
       const { email, firstName, lastName, company, companyId, title, role } = req.body;
 
       if (role !== undefined) {
@@ -90,6 +92,7 @@ export function registerUserRoutes(app: Express) {
         await storage.updateUserRole(id, role);
       }
 
+      logActivity(req, "update-user", "user", id, email, { fields: Object.keys(req.body) });
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to update user", error);
@@ -104,13 +107,15 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ error: `Invalid role. Must be one of: ${VALID_USER_ROLES.join(", ")}` });
       }
 
-      const id = Number(req.params.id);
+      const id = parseParamId(req.params.id, res, "user ID");
+      if (id === null) return;
 
       if (id === req.user!.id) {
         return res.status(400).json({ error: "You cannot change your own role" });
       }
 
       await storage.updateUserRole(id, roleResult.data);
+      logActivity(req, "change-role", "user", id, null, { newRole: roleResult.data });
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to update user role", error);
@@ -119,12 +124,14 @@ export function registerUserRoutes(app: Express) {
 
   app.delete("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = parseParamId(req.params.id, res, "user ID");
+      if (id === null) return;
       if (id === req.user!.id) {
         return res.status(400).json({ error: "You cannot delete yourself" });
       }
 
       await storage.deleteUser(id);
+      logActivity(req, "delete-user", "user", id);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to delete user", error);
@@ -133,7 +140,8 @@ export function registerUserRoutes(app: Express) {
 
   app.patch("/api/admin/users/:id/password", requireAdmin, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = parseParamId(req.params.id, res, "user ID");
+      if (id === null) return;
       const { password } = req.body;
       const validation = validatePassword(password ?? "");
       if (!validation.valid) {
@@ -141,6 +149,7 @@ export function registerUserRoutes(app: Express) {
       }
       const passwordHash = await hashPassword(password);
       await storage.updateUserPassword(id, passwordHash);
+      logActivity(req, "reset-password", "user", id);
       res.json({ success: true });
     } catch (error) {
       logAndSendError(res, "Failed to update password", error);
@@ -149,7 +158,8 @@ export function registerUserRoutes(app: Express) {
 
   app.patch("/api/admin/users/:id/group", requireAdmin, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = parseParamId(req.params.id, res, "user ID");
+      if (id === null) return;
       const { groupId } = req.body;
       const user = await storage.assignUserToGroup(id, groupId ?? null);
       res.json(user);
@@ -160,7 +170,8 @@ export function registerUserRoutes(app: Express) {
 
   app.patch("/api/admin/users/:id/theme", requireAdmin, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = parseParamId(req.params.id, res, "user ID");
+      if (id === null) return;
       const { themeId } = req.body;
       await storage.updateUserSelectedTheme(id, themeId ?? null);
       res.json({ success: true });
@@ -188,6 +199,7 @@ export function registerUserRoutes(app: Express) {
         await storage.updateUserPassword(user.id, newHash);
         count++;
       }
+      logActivity(req, "reset-all-passwords", "user", null, null, { usersAffected: count });
       res.json({ success: true, message: `Reset passwords for ${count} users` });
     } catch (error) {
       logAndSendError(res, "Failed to reset passwords", error);

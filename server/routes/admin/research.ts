@@ -4,9 +4,9 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
 import { storage } from "../../storage";
-import { requireAdmin } from "../../auth";
+import { requireAdmin, isApiRateLimited } from "../../auth";
 import { type InsertGlobalAssumptions, type ResearchConfig, type AiModelEntry } from "@shared/schema";
-import { logAndSendError } from "../helpers";
+import { logAndSendError, logActivity } from "../helpers";
 
 // Lazy singletons for AI model listing — avoids re-creating clients per request
 let _oaiClient: OpenAI | null = null;
@@ -144,8 +144,11 @@ export function registerResearchConfigRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/ai-models/refresh", requireAdmin, async (_req, res) => {
+  app.post("/api/admin/ai-models/refresh", requireAdmin, async (req, res) => {
     try {
+      if (isApiRateLimited(req.user!.id, "ai-models-refresh", 1)) {
+        return res.status(429).json({ error: "Model refresh rate-limited to 1 per minute" });
+      }
       const [openai, anthropic, google] = await Promise.all([
         fetchOpenAIModels(),
         fetchAnthropicModels(),
@@ -194,6 +197,7 @@ export function registerResearchConfigRoutes(app: Express) {
       };
 
       await storage.upsertGlobalAssumptions({ researchConfig: merged } as InsertGlobalAssumptions);
+      logActivity(req, "update-research-config", "research", null, null, { events: Object.keys(incoming).filter(k => k !== "cachedModels" && k !== "cachedModelsAt") });
       res.json(merged);
     } catch (error) {
       logAndSendError(res, "Failed to update research config", error);

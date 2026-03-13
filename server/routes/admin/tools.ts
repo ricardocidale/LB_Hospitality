@@ -1,8 +1,8 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin, requireAuth } from "../../auth";
+import { requireAdmin, requireAuth, isApiRateLimited } from "../../auth";
 import { runFillOnlySync } from "../../syncHelpers";
-import { logAndSendError } from "../helpers";
+import { logAndSendError, logActivity } from "../helpers";
 import { readFile } from "fs/promises";
 import { resolve } from "path";
 import { execFile } from "child_process";
@@ -58,20 +58,22 @@ export function registerToolRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/sync-canonical", requireAdmin, async (_req, res) => {
+  app.post("/api/admin/sync-canonical", requireAdmin, async (req, res) => {
     try {
       const { runProdSync002 } = await import("../../migrations/prod-sync-002");
       const result = await runProdSync002();
+      logActivity(req, "sync-canonical", "database", null, null, result as unknown as Record<string, unknown>);
       res.json({ success: true, ...result });
     } catch (error: any) {
       logAndSendError(res, error.message || "Canonical sync failed", error);
     }
   });
 
-  app.post("/api/admin/seed-production", requireAdmin, async (_req, res) => {
+  app.post("/api/admin/seed-production", requireAdmin, async (req, res) => {
     try {
       const { runFillOnlySync: fill } = await import("../../syncHelpers");
       const result = await fill(storage);
+      logActivity(req, "seed-production", "database", null, null, result as unknown as Record<string, unknown>);
       res.json({ success: true, message: "Missing values populated", ...result });
     } catch (error: any) {
       logAndSendError(res, error.message || "Fill failed", error);
@@ -197,8 +199,12 @@ export function registerToolRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/golden-test-run", requireAdmin, async (_req, res) => {
+  app.post("/api/admin/golden-test-run", requireAdmin, async (req, res) => {
     try {
+      if (isApiRateLimited(req.user!.id, "golden-test-run", 1)) {
+        return res.status(429).json({ error: "Golden tests rate-limited to 1 run per minute" });
+      }
+      logActivity(req, "run-golden-tests", "verification");
       const projectRoot = process.cwd();
       const result = await new Promise<string>((resolve, reject) => {
         execFile(

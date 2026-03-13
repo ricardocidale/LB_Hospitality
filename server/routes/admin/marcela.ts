@@ -1,8 +1,13 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin, requireAuth } from "../../auth";
+import { requireAdmin, requireAuth, isApiRateLimited } from "../../auth";
 import { type InsertGlobalAssumptions } from "@shared/schema";
-import { logAndSendError } from "../helpers";
+import {
+  logAndSendError, logActivity, parseParamId,
+  marcelaPromptSchema, marcelaLlmSchema, marcelaVoiceSchema,
+  marcelaWidgetSchema, marcelaVoiceSettingsSchema, sendNotificationSchema,
+} from "../helpers";
+import { fromZodError } from "zod-validation-error";
 import { getTwilioStatus, sendSMS } from "../../integrations/twilio";
 import { getSignedUrl as getElevenLabsSignedUrl, getConvaiAgent, listConvaiConversations, getConvaiConversation, deleteConvaiConversation, updateConvaiAgent, createKBDocumentFromFile, getConversationAudio } from "../../integrations/elevenlabs";
 import { configureMarcelaAgent, buildClientTools, buildServerTools, getBaseUrl } from "../../ai/marcela-agent-config";
@@ -23,6 +28,9 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.post("/api/admin/convai/knowledge-base/rebuild", requireAdmin, async (req, res) => {
     try {
+      if (isApiRateLimited(req.user!.id, "kb-rebuild", 1)) {
+        return res.status(429).json({ error: "Knowledge base rebuild is rate-limited to 1 per minute" });
+      }
       const { sources } = req.body;
       const result = await uploadKnowledgeBase(sources);
       if (result.success) {
@@ -58,31 +66,19 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.post("/api/admin/voice-settings", requireAdmin, async (req, res) => {
     try {
+      const parsed = marcelaVoiceSettingsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
-      const allowedFields = [
-        "aiAgentName", "marcelaAgentId", "marcelaVoiceId", "marcelaTtsModel", "marcelaSttModel", "marcelaOutputFormat",
-        "marcelaStability", "marcelaSimilarityBoost", "marcelaSpeakerBoost",
-        "marcelaChunkSchedule", "marcelaLlmModel", "marcelaMaxTokens",
-        "marcelaMaxTokensVoice", "marcelaEnabled", "showAiAssistant",
-        "marcelaTwilioEnabled", "marcelaSmsEnabled", "marcelaPhoneGreeting", "marcelaLanguage",
-        "marcelaTurnTimeout", "marcelaAvatarUrl", "marcelaWidgetVariant",
-        "marcelaSpeed", "marcelaStreamingLatency", "marcelaTextNormalisation",
-        "marcelaAsrProvider", "marcelaInputAudioFormat", "marcelaBackgroundVoiceDetection",
-        "marcelaTurnEagerness", "marcelaSpellingPatience", "marcelaSpeculativeTurn",
-        "marcelaSilenceEndCallTimeout", "marcelaMaxDuration", "marcelaCascadeTimeout",
-      ] as const;
-      const patch: Partial<Record<string, unknown>> = {};
-      for (const field of allowedFields) {
-        if (req.body[field] !== undefined) {
-          patch[field] = req.body[field];
-        }
-      }
+      const patch: Partial<Record<string, unknown>> = { ...parsed.data };
       // Mutual exclusion: enabling Marcela disables Rebecca
       if (patch.marcelaEnabled === true) {
         patch.rebeccaEnabled = false;
       }
       const updated = await storage.upsertGlobalAssumptions(patch as InsertGlobalAssumptions);
+      logActivity(req, "update-voice-settings", "ai-agent", null, null, { fields: Object.keys(parsed.data) });
       res.json(updated);
     } catch (error) {
       logAndSendError(res, "Failed to update voice settings", error);
@@ -228,7 +224,7 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.get("/api/admin/convai/conversations/:id", requireAdmin, async (req, res) => {
     try {
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const id = String(req.params.id);
       const conversation = await getConvaiConversation(id);
       res.json(conversation);
     } catch (error: any) {
@@ -287,11 +283,15 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.patch("/api/admin/convai/agent/prompt", requireAdmin, async (req, res) => {
     try {
+      const parsed = marcelaPromptSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
         return res.status(404).json({ error: "Marcela agent not configured" });
       }
-      const { prompt, first_message, language } = req.body;
+      const { prompt, first_message, language } = parsed.data;
       const updated = await updateConvaiAgent(ga.marcelaAgentId, {
         conversation_config: {
           agent: {
@@ -305,6 +305,7 @@ export function registerMarcelaRoutes(app: Express) {
       if (language) {
         await storage.upsertGlobalAssumptions({ ...ga, marcelaLanguage: language } as any);
       }
+      logActivity(req, "update-agent-prompt", "ai-agent", null, null, { fields: Object.keys(parsed.data) });
       res.json(updated);
     } catch (error: any) {
       logAndSendError(res, error.message || "Failed to update agent prompt", error);
@@ -313,6 +314,10 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.patch("/api/admin/convai/agent/widget-settings", requireAdmin, async (req, res) => {
     try {
+      const parsed = marcelaWidgetSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
 
@@ -323,7 +328,7 @@ export function registerMarcelaRoutes(app: Express) {
         conversation_mode_toggle_enabled, language_selector,
         feedback_mode, bg_color, text_color, btn_color, btn_text_color,
         border_color, focus_color,
-      } = req.body;
+      } = parsed.data;
 
       const patch: Record<string, unknown> = {};
 
@@ -390,6 +395,7 @@ export function registerMarcelaRoutes(app: Express) {
       if (variant !== undefined) dbPatch.marcelaWidgetVariant = variant;
       if (Object.keys(dbPatch).length) await storage.upsertGlobalAssumptions(dbPatch as any);
 
+      logActivity(req, "update-widget-settings", "ai-agent", null, null, { fields: Object.keys(parsed.data) });
       res.json(updated);
     } catch (error: any) {
       logAndSendError(res, error.message || "Failed to update widget settings", error);
@@ -463,7 +469,7 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.delete("/api/admin/convai/conversations/:id", requireAdmin, async (req, res) => {
     try {
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const id = String(req.params.id);
       await deleteConvaiConversation(id);
       res.json({ success: true });
     } catch (error: any) {
@@ -473,9 +479,13 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.patch("/api/admin/convai/agent/llm", requireAdmin, async (req, res) => {
     try {
+      const parsed = marcelaLlmSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
-      const { llm, max_tokens } = req.body;
+      const { llm, max_tokens } = parsed.data;
       const promptPatch: Record<string, unknown> = {};
       if (llm !== undefined) promptPatch.llm = llm;
       if (max_tokens !== undefined) promptPatch.max_tokens = max_tokens;
@@ -486,6 +496,7 @@ export function registerMarcelaRoutes(app: Express) {
       if (llm !== undefined) dbPatch.marcelaLlmModel = llm;
       if (max_tokens !== undefined) dbPatch.marcelaMaxTokens = max_tokens;
       if (Object.keys(dbPatch).length) await storage.upsertGlobalAssumptions(dbPatch as any);
+      logActivity(req, "update-llm-settings", "ai-agent", null, null, { llm, max_tokens });
       res.json(updated);
     } catch (error: any) {
       logAndSendError(res, error.message || "Failed to update LLM settings", error);
@@ -494,6 +505,10 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.patch("/api/admin/convai/agent/voice", requireAdmin, async (req, res) => {
     try {
+      const parsed = marcelaVoiceSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
       const {
@@ -504,7 +519,7 @@ export function registerMarcelaRoutes(app: Express) {
         turn_eagerness, spelling_patience, speculative_turn,
         turn_timeout, silence_end_call_timeout,
         max_duration_seconds, cascade_timeout_seconds,
-      } = req.body;
+      } = parsed.data;
 
       const ttsPatch: Record<string, unknown> = {};
       if (voice_id !== undefined) ttsPatch.voice_id = voice_id;
@@ -571,6 +586,7 @@ export function registerMarcelaRoutes(app: Express) {
       if (max_duration_seconds !== undefined) dbPatch.marcelaMaxDuration = max_duration_seconds;
       if (cascade_timeout_seconds !== undefined) dbPatch.marcelaCascadeTimeout = cascade_timeout_seconds;
       if (Object.keys(dbPatch).length) await storage.upsertGlobalAssumptions(dbPatch as any);
+      logActivity(req, "update-voice-config", "ai-agent", null, null, { fields: Object.keys(parsed.data) });
       res.json(updated);
     } catch (error: any) {
       logAndSendError(res, error.message || "Failed to update voice settings", error);
@@ -579,7 +595,7 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.get("/api/admin/convai/conversations/:id/audio", requireAdmin, async (req, res) => {
     try {
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const id = String(req.params.id);
       const { buffer, contentType } = await getConversationAudio(id);
       res.set("Content-Type", contentType);
       res.set("Content-Length", buffer.length.toString());
@@ -593,7 +609,7 @@ export function registerMarcelaRoutes(app: Express) {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });
-      const docId = Array.isArray(req.params.docId) ? req.params.docId[0] : req.params.docId;
+      const docId = String(req.params.docId);
       const agent = await getConvaiAgent(ga.marcelaAgentId);
       const kb: any[] = (agent.conversation_config?.agent as any)?.knowledge_base
         ?? (agent.conversation_config?.agent?.prompt as any)?.knowledge_base ?? [];
@@ -611,12 +627,14 @@ export function registerMarcelaRoutes(app: Express) {
 
   app.post("/api/admin/send-notification", requireAdmin, async (req, res) => {
     try {
-      const { to, message } = req.body;
-      if (!to || !message) {
-        return res.status(400).json({ error: "Phone number and message are required" });
+      const parsed = sendNotificationSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
       }
+      const { to, message } = parsed.data;
       const result = await sendSMS(to, message);
       if (result.success) {
+        logActivity(req, "send-sms", "notification", null, to);
         res.json({ success: true, sid: result.sid });
       } else {
         res.status(500).json({ error: result.error || "Failed to send SMS" });

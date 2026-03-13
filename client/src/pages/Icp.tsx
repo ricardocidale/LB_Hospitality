@@ -291,8 +291,7 @@ export function IcpContent() {
   return (
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={handleTabSwitch} className="w-full">
-        <div className="flex items-center gap-3">
-          <TabsList className="flex-1 grid grid-cols-7 h-10 max-w-5xl">
+        <TabsList className="flex flex-wrap h-auto gap-1 w-full max-w-5xl">
           <TabsTrigger value="location" className="text-sm gap-1.5" data-testid="tab-icp-location">
             <IconMapPin className="w-4 h-4" />
             Location
@@ -321,8 +320,7 @@ export function IcpContent() {
             <IconFileStack className="w-4 h-4" />
             Sources
           </TabsTrigger>
-          </TabsList>
-        </div>
+        </TabsList>
 
         <TabsContent value="location" className="mt-6">
           <IcpLocationTab onDirtyChange={handleLocationDirty} />

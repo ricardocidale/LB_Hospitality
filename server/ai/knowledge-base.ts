@@ -1,12 +1,7 @@
-import OpenAI from "openai";
 import * as fs from "fs";
 import * as path from "path";
 import { logger } from "../logger";
-
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+import { getOpenAIClient } from "./clients";
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const CHUNK_SIZE = 800;
@@ -606,7 +601,7 @@ async function loadAttachedAssets(): Promise<{ title: string; content: string; s
 }
 
 async function generateEmbedding(text: string): Promise<number[]> {
-  const response = await openai.embeddings.create({
+  const response = await getOpenAIClient().embeddings.create({
     model: EMBEDDING_MODEL,
     input: text.slice(0, 8000),
   });
@@ -618,11 +613,11 @@ async function generateEmbeddings(texts: string[]): Promise<number[][]> {
   const results: number[][] = [];
   for (let i = 0; i < texts.length; i += batchSize) {
     const batch = texts.slice(i, i + batchSize).map(t => t.slice(0, 8000));
-    const response = await openai.embeddings.create({
+    const response = await getOpenAIClient().embeddings.create({
       model: EMBEDDING_MODEL,
       input: batch,
     });
-    results.push(...response.data.map(d => d.embedding));
+    results.push(...response.data.map((d: { embedding: number[] }) => d.embedding));
   }
   return results;
 }

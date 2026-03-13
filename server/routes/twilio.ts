@@ -20,14 +20,10 @@ import {
   buildSystemPrompt,
 } from "../integrations/elevenlabs-audio";
 import { getTwilioFromPhoneNumber, sendSMS } from "../integrations/twilio";
-import OpenAI from "openai";
+import type OpenAI from "openai";
+import { getOpenAIClient } from "../ai/clients";
 import { retrieveRelevantChunks, buildRAGContext } from "../ai/knowledge-base";
 import { logger } from "../logger";
-
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
 
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {
@@ -128,7 +124,7 @@ export function register(app: Express) {
       const llmModel = ga?.marcelaLlmModel || "gpt-4.1";
       const maxTokens = ga?.marcelaMaxTokensVoice || 1024;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: llmModel,
         messages: [
           { role: "system", content: systemPrompt + contextPrompt + ragContext },
@@ -261,7 +257,7 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
                 const llmModel = ga?.marcelaLlmModel || "gpt-4.1";
                 const maxTokens = ga?.marcelaMaxTokensVoice || 1024;
 
-                const llmStream = await openai.chat.completions.create({
+                const llmStream = await getOpenAIClient().chat.completions.create({
                   model: llmModel,
                   messages: chatMessages,
                   stream: true,

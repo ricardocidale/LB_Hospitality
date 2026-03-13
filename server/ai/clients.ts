@@ -1,20 +1,32 @@
 /**
  * server/ai/clients.ts — Singleton AI SDK clients
  *
- * Centralized lazy-singleton factories for Anthropic and Gemini.
+ * Centralized lazy-singleton factories for OpenAI, Anthropic, and Gemini.
  * Each client is created once on first use and reused for all subsequent calls.
  * This prevents per-request instantiation overhead (TCP connections, token refresh)
  * and provides a single place to configure base URLs, API versions, etc.
  *
- * OpenAI already uses module-level singletons in replit_integrations/; no change needed.
- *
  * Usage:
- *   import { getAnthropicClient, getGeminiClient } from "../ai/clients";
- *   const anthropic = getAnthropicClient();
- *   const gemini = getGeminiClient();
+ *   import { getOpenAIClient, getAnthropicClient, getGeminiClient } from "../ai/clients";
  */
+import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
+
+// ── OpenAI ──────────────────────────────────────────────
+
+let _openai: OpenAI | null = null;
+
+export function getOpenAIClient(): OpenAI {
+  if (_openai) return _openai;
+  const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OpenAI API key not configured (set AI_INTEGRATIONS_OPENAI_API_KEY)");
+  _openai = new OpenAI({
+    apiKey,
+    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL || undefined,
+  });
+  return _openai;
+}
 
 // ── Anthropic ────────────────────────────────────────────
 

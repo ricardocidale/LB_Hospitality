@@ -1,15 +1,10 @@
 import { type Express } from "express";
 import { z } from "zod";
-import OpenAI from "openai";
-import { getAnthropicClient, getGeminiClient as getGeminiSingleton } from "../../ai/clients";
+import { getOpenAIClient, getAnthropicClient, getGeminiClient as getGeminiSingleton } from "../../ai/clients";
 import { storage } from "../../storage";
 import { requireAdmin, isApiRateLimited } from "../../auth";
 import { type InsertGlobalAssumptions, type ResearchConfig, type AiModelEntry } from "@shared/schema";
 import { logAndSendError, logActivity } from "../helpers";
-
-// Lazy singleton for OpenAI model listing (Anthropic/Gemini use centralized clients from ai/clients.ts)
-let _oaiClient: OpenAI | null = null;
-function getOAI() { return _oaiClient ??= new OpenAI({ apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY, baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL }); }
 
 const researchEventConfigSchema = z.object({
   enabled: z.boolean().optional(),
@@ -75,7 +70,7 @@ function formatLabel(id: string, provider: string): string {
 
 async function fetchOpenAIModels(): Promise<AiModelEntry[]> {
   try {
-    const client = getOAI();
+    const client = getOpenAIClient();
     const list = await client.models.list();
     const models: AiModelEntry[] = [];
     for await (const m of list) {

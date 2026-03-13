@@ -321,12 +321,28 @@ export default function IcpLocationTab() {
 
   const [locations, setLocations] = useState<IcpLocation[]>([]);
   const [dirty, setDirty] = useState(false);
+  const [defaultsLoaded, setDefaultsLoaded] = useState(false);
 
   useEffect(() => {
     if (ga?.icpConfig) {
       const cfg = ga.icpConfig as Record<string, any>;
-      setLocations(cfg._locations || []);
-      setDirty(false);
+      const saved = cfg._locations as IcpLocation[] | undefined;
+      if (saved && saved.length > 0) {
+        setLocations(saved);
+        setDirty(false);
+        setDefaultsLoaded(true);
+      } else if (!defaultsLoaded) {
+        fetch("/api/geo/default-locations", { credentials: "include" })
+          .then((r) => r.ok ? r.json() : [])
+          .then((defaults: IcpLocation[]) => {
+            if (defaults.length > 0) {
+              setLocations(defaults);
+              setDirty(true);
+            }
+            setDefaultsLoaded(true);
+          })
+          .catch(() => setDefaultsLoaded(true));
+      }
     }
   }, [ga?.icpConfig]);
 
@@ -379,7 +395,7 @@ export default function IcpLocationTab() {
             Target Locations
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Define geographic regions where the ICP is seeking properties. Each location specifies a country, states/provinces, and cities with a search radius.
+            Define geographic regions where your ideal customers are located. The management company targets property owners and investors in these markets.
           </p>
         </div>
         <Button
@@ -400,7 +416,7 @@ export default function IcpLocationTab() {
             <IconMapPin className="w-8 h-8 mx-auto mb-3 text-muted-foreground/40" />
             <p className="text-sm font-medium text-muted-foreground">No target locations defined</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Click <strong>Add Location</strong> to define where the ICP is seeking properties.
+              Click <strong>Add Location</strong> to define where your ideal customers are located.
             </p>
           </CardContent>
         </Card>

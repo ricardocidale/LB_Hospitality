@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { Country, State, City } from "country-state-city";
 import { requireAuth } from "../auth";
+import { db } from "../db";
+import { sql } from "drizzle-orm";
 
 export function register(app: Express) {
   app.get("/api/geo/countries", requireAuth, (_req, res) => {
@@ -36,5 +38,63 @@ export function register(app: Express) {
       longitude: c.longitude,
     }));
     res.json(mapped);
+  });
+
+  app.get("/api/geo/default-locations", requireAuth, async (_req, res) => {
+    try {
+      const rows = await db.execute(sql`
+        SELECT DISTINCT country, state_province, city
+        FROM properties
+        WHERE country IS NOT NULL AND country != ''
+        ORDER BY country, state_province, city
+      `);
+
+      const allCountries = Country.getAllCountries();
+      const grouped: Record<string, { states: Record<string, string[]> }> = {};
+
+      for (const row of rows.rows as any[]) {
+        const countryName = row.country as string;
+        if (!grouped[countryName]) grouped[countryName] = { states: {} };
+        const state = (row.state_province as string) || "";
+        if (!grouped[countryName].states[state]) grouped[countryName].states[state] = [];
+        const city = row.city as string;
+        if (city) grouped[countryName].states[state].push(city);
+      }
+
+      const locations = Object.entries(grouped).map(([countryName, data], idx) => {
+        const country = allCountries.find((c) => c.name === countryName);
+        const countryCode = country?.isoCode || "";
+        const countryStates = countryCode ? State.getStatesOfCountry(countryCode) : [];
+
+        const stateCodes: string[] = [];
+        const cities: { name: string; radius: number }[] = [];
+
+        for (const [stateName, cityNames] of Object.entries(data.states)) {
+          const stateMatch = countryStates.find(
+            (s) => s.name === stateName || s.isoCode === stateName
+          );
+          if (stateMatch && !stateCodes.includes(stateMatch.isoCode)) {
+            stateCodes.push(stateMatch.isoCode);
+          }
+          for (const cn of cityNames) {
+            if (!cities.some((c) => c.name === cn)) {
+              cities.push({ name: cn, radius: 50 });
+            }
+          }
+        }
+
+        return {
+          id: `default-${idx}-${Date.now()}`,
+          country: countryName,
+          countryCode,
+          states: stateCodes,
+          cities,
+        };
+      });
+
+      res.json(locations);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to build default locations" });
+    }
   });
 }

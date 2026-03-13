@@ -231,7 +231,7 @@ export function ResearchCriteriaTab({
                 )}
               </div>
             ) : (
-              <EmptyState message="No admin configuration overrides applied." />
+              <EmptyState message="No admin overrides applied." />
             )}
           </AccordionContent>
         </AccordionItem>

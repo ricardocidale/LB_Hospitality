@@ -12,7 +12,7 @@ import { logger } from "../logger";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 
-const pendingStates = new Map<string, { domain: string; createdAt: number }>();
+const pendingStates = new Map<string, { createdAt: number }>();
 
 setInterval(() => {
   const fiveMinAgo = Date.now() - 5 * 60 * 1000;
@@ -23,22 +23,22 @@ setInterval(() => {
   }
 }, 60 * 1000);
 
-function buildOAuth2Client(domain: string) {
+function buildOAuth2Client() {
+  const baseUrl = process.env.BASE_URL || 'https://h-analysis.com';
   return new OAuth2Client(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    `https://${domain}/api/auth/google/callback`
+    `${baseUrl}/api/auth/google/callback`
   );
 }
 
 export function registerGoogleAuthRoutes(app: Express) {
   app.get("/api/auth/google", async (req, res) => {
     try {
-      const domain = req.hostname;
       const state = crypto.randomUUID();
-      pendingStates.set(state, { domain, createdAt: Date.now() });
+      pendingStates.set(state, { createdAt: Date.now() });
 
-      const oAuth2Client = buildOAuth2Client(domain);
+      const oAuth2Client = buildOAuth2Client();
       const authorizeUrl = oAuth2Client.generateAuthUrl({
         access_type: "offline",
         scope: ["openid", "email", "profile"],
@@ -46,7 +46,7 @@ export function registerGoogleAuthRoutes(app: Express) {
         prompt: "select_account",
       });
 
-      logger.info(`Google auth: redirecting to Google (domain=${domain})`, "auth");
+      logger.info(`Google auth: redirecting to Google (baseUrl=${process.env.BASE_URL || 'https://h-analysis.com'})`, "auth");
       res.redirect(authorizeUrl);
     } catch (error) {
       logger.error(`Google auth redirect error: ${error instanceof Error ? error.message : error}`, "auth");
@@ -75,10 +75,9 @@ export function registerGoogleAuthRoutes(app: Express) {
         return res.redirect("/login?error=google_failed");
       }
 
-      const { domain } = pendingStates.get(state)!;
       pendingStates.delete(state);
 
-      const oAuth2Client = buildOAuth2Client(domain);
+      const oAuth2Client = buildOAuth2Client();
       const { tokens } = await oAuth2Client.getToken(code);
       oAuth2Client.setCredentials(tokens);
 

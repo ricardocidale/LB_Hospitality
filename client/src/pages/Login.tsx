@@ -157,13 +157,10 @@ export default function Login() {
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Login
                   </Button>
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">or</span>
-                    </div>
+                  <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                    <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                      Or continue with
+                    </span>
                   </div>
                   <Button
                     type="button"
@@ -190,25 +187,23 @@ export default function Login() {
               </div>
             </CardContent>
           </Card>
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground/60">
-              <a href="/privacy" className="hover:text-muted-foreground transition-colors">Privacy Policy</a>
-              <span>&middot;</span>
-              <a href="/terms" className="hover:text-muted-foreground transition-colors">Terms of Service</a>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">
-                Powered by
-              </span>
-              <img
-                src="/logos/norfolk-ai-blue.png"
-                alt="Norfolk AI"
-                className="w-5 h-5 opacity-60"
-              />
-              <span className="text-xs font-semibold tracking-wide text-muted-foreground/60">
-                Norfolk AI
-              </span>
-            </div>
+          <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+            <a href="/privacy">Privacy Policy</a>
+            {" · "}
+            <a href="/terms">Terms of Service</a>
+          </div>
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">
+              Powered by
+            </span>
+            <img
+              src="/logos/norfolk-ai-blue.png"
+              alt="Norfolk AI"
+              className="w-5 h-5 opacity-60"
+            />
+            <span className="text-xs font-semibold tracking-wide text-muted-foreground/60">
+              Norfolk AI
+            </span>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -11,7 +11,17 @@ import { IconHotel } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
-export default function CompanyProfileTab() {
+export interface ProfileSaveState {
+  onClick: () => void;
+  disabled: boolean;
+  isPending: boolean;
+}
+
+export interface CompanyProfileTabProps {
+  onSaveStateChange?: (state: ProfileSaveState) => void;
+}
+
+export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileTabProps = {}) {
   const { data: global } = useGlobalAssumptions();
   const updateGlobal = useUpdateGlobalAssumptions();
   const { toast } = useToast();
@@ -41,12 +51,20 @@ export default function CompanyProfileTab() {
     });
   };
 
+  useEffect(() => {
+    if (onSaveStateChange) {
+      onSaveStateChange({ onClick: handleSave, disabled: !draft, isPending: updateGlobal.isPending });
+    }
+  }, [draft, updateGlobal.isPending, onSaveStateChange]);
+
   return (
     <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <div />
-        <SaveButton onClick={handleSave} disabled={!draft} isPending={updateGlobal.isPending} />
-      </div>
+      {!onSaveStateChange && (
+        <div className="flex items-center justify-between">
+          <div />
+          <SaveButton onClick={handleSave} disabled={!draft} isPending={updateGlobal.isPending} />
+        </div>
+      )}
 
       <Card className="bg-card border-border shadow-sm">
         <CardHeader>

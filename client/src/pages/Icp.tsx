@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { AnimatedPage, AnimatedSection } from "@/components/graphics/motion/AnimatedPage";
@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin, IconFlaskConical, IconFileStack } from "@/components/icons";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
-import CompanyProfileTab from "@/components/company/CompanyProfileTab";
+import CompanyProfileTab, { type ProfileSaveState } from "@/components/company/CompanyProfileTab";
+import { SaveButton } from "@/components/ui/save-button";
 import IcpLocationTab from "@/components/admin/IcpLocationTab";
 import IcpResearchTab from "@/components/admin/IcpResearchTab";
 import IcpSourcesTab from "@/components/admin/IcpSourcesTab";
@@ -32,6 +33,14 @@ export function IcpContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [profileSave, setProfileSave] = useState<ProfileSaveState | null>(null);
+  const profileSaveRef = useRef<ProfileSaveState | null>(null);
+
+  const handleProfileSaveState = useCallback((state: ProfileSaveState) => {
+    profileSaveRef.current = state;
+    setProfileSave({ ...state });
+  }, []);
 
   const prompt = ga?.assetDescription || "";
 
@@ -145,8 +154,9 @@ export function IcpContent() {
 
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="w-full grid grid-cols-7 h-10 max-w-5xl">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="flex items-center gap-3">
+          <TabsList className="flex-1 grid grid-cols-7 h-10 max-w-5xl">
           <TabsTrigger value="location" className="text-sm gap-1.5" data-testid="tab-icp-location">
             <IconMapPin className="w-4 h-4" />
             Location
@@ -175,14 +185,24 @@ export function IcpContent() {
             <IconFileStack className="w-4 h-4" />
             Sources
           </TabsTrigger>
-        </TabsList>
+          </TabsList>
+          {activeTab === "profile" && profileSave && (
+            <SaveButton
+              onClick={() => profileSaveRef.current?.onClick()}
+              disabled={profileSave.disabled}
+              isPending={profileSave.isPending}
+              size="sm"
+              className="h-9 text-xs shrink-0"
+            />
+          )}
+        </div>
 
         <TabsContent value="location" className="mt-6">
           <IcpLocationTab />
         </TabsContent>
 
         <TabsContent value="profile" className="mt-6">
-          <CompanyProfileTab />
+          <CompanyProfileTab onSaveStateChange={handleProfileSaveState} />
         </TabsContent>
 
         <TabsContent value="description" className="mt-6">

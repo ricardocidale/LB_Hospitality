@@ -76,7 +76,7 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
     ],
     "/settings": [
       { label: "Dashboard", href: "/" },
-      { label: "General Config" },
+      { label: "General Configuration" },
     ],
     "/profile": [
       { label: "Dashboard", href: "/" },

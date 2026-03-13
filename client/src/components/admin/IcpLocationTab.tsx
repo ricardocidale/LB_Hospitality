@@ -338,7 +338,11 @@ function LocationCard({
   );
 }
 
-export default function IcpLocationTab() {
+export interface IcpLocationTabProps {
+  onDirtyChange?: (dirty: boolean, save: () => void) => void;
+}
+
+export default function IcpLocationTab({ onDirtyChange }: IcpLocationTabProps = {}) {
   const { data: ga } = useGlobalAssumptions();
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
@@ -393,7 +397,7 @@ export default function IcpLocationTab() {
     setDirty(true);
   }, []);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     const existing = (ga?.icpConfig as Record<string, any>) || {};
     updateMutation.mutate(
       {
@@ -409,7 +413,11 @@ export default function IcpLocationTab() {
         },
       }
     );
-  };
+  }, [ga?.icpConfig, locations, updateMutation, toast]);
+
+  useEffect(() => {
+    onDirtyChange?.(dirty, handleSave);
+  }, [dirty, handleSave, onDirtyChange]);
 
   return (
     <div className="space-y-4">

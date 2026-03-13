@@ -147,7 +147,11 @@ interface CustomAmenity {
   priority: Priority;
 }
 
-export default function AssetDefinitionTab() {
+export interface AssetDefinitionTabProps {
+  onDirtyChange?: (dirty: boolean, save: () => void) => void;
+}
+
+export default function AssetDefinitionTab({ onDirtyChange }: AssetDefinitionTabProps = {}) {
   const { toast } = useToast();
   const { data: ga } = useGlobalAssumptions();
   const updateMutation = useUpdateGlobalAssumptions();
@@ -193,7 +197,7 @@ export default function AssetDefinitionTab() {
     [config, desc, propertyLabel]
   );
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     const icpConfig = {
       ...config,
       _descriptive: desc,
@@ -209,7 +213,11 @@ export default function AssetDefinitionTab() {
         },
       }
     );
-  };
+  }, [config, desc, customAmenities, hiddenFields, propertyLabel, generatedPrompt, updateMutation, toast]);
+
+  useEffect(() => {
+    onDirtyChange?.(dirty, handleSave);
+  }, [dirty, handleSave, onDirtyChange]);
 
   const addCustomAmenity = () => {
     const newAmenity: CustomAmenity = {

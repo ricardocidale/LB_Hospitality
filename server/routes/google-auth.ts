@@ -1,6 +1,5 @@
 import type { Express } from "express";
-import * as client from "openid-client";
-import memoize from "memoizee";
+import { OAuth2Client } from "google-auth-library";
 import { storage } from "../storage";
 import {
   generateSessionId,
@@ -10,47 +9,43 @@ import {
 } from "../auth";
 import { logger } from "../logger";
 
-const getOidcConfig = memoize(
-  async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
-  },
-  { maxAge: 3600 * 1000 }
-);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 
 const pendingStates = new Map<string, { domain: string; createdAt: number }>();
 
 setInterval(() => {
   const fiveMinAgo = Date.now() - 5 * 60 * 1000;
-  const keys = Array.from(pendingStates.keys());
-  for (const key of keys) {
-    const val = pendingStates.get(key);
-    if (val && val.createdAt < fiveMinAgo) pendingStates.delete(key);
+  for (const [key, val] of pendingStates) {
+    if (val.createdAt < fiveMinAgo) pendingStates.delete(key);
   }
 }, 60 * 1000);
+
+function buildOAuth2Client(domain: string) {
+  return new OAuth2Client(
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
+    `https://${domain}/api/auth/google/callback`
+  );
+}
 
 export function registerGoogleAuthRoutes(app: Express) {
   app.get("/api/auth/google", async (req, res) => {
     try {
-      const config = await getOidcConfig();
       const domain = req.hostname;
       const state = crypto.randomUUID();
       pendingStates.set(state, { domain, createdAt: Date.now() });
 
-      const redirectUri = `https://${domain}/api/auth/google/callback`;
-      logger.info(`Google auth: domain=${domain}, redirect_uri=${redirectUri}`, "auth");
-      
-      const redirectUrl = client.buildAuthorizationUrl(config, {
-        redirect_uri: redirectUri,
-        scope: "openid email profile",
+      const oAuth2Client = buildOAuth2Client(domain);
+      const authorizeUrl = oAuth2Client.generateAuthUrl({
+        access_type: "offline",
+        scope: ["openid", "email", "profile"],
         state,
-        prompt: "login consent",
+        prompt: "select_account",
       });
 
-      logger.info(`Google auth: redirecting to ${redirectUrl.origin}${redirectUrl.pathname}`, "auth");
-      res.redirect(redirectUrl.href);
+      logger.info(`Google auth: redirecting to Google (domain=${domain})`, "auth");
+      res.redirect(authorizeUrl);
     } catch (error) {
       logger.error(`Google auth redirect error: ${error instanceof Error ? error.message : error}`, "auth");
       res.redirect("/login?error=google_unavailable");
@@ -59,10 +54,10 @@ export function registerGoogleAuthRoutes(app: Express) {
 
   app.get("/api/auth/google/callback", async (req, res) => {
     try {
-      const { state, code, error, error_description } = req.query;
+      const { state, code, error: oauthError } = req.query;
 
-      if (error) {
-        logger.error(`OIDC provider returned error: ${error} — ${error_description || "no description"}`, "auth");
+      if (oauthError) {
+        logger.error(`Google OAuth error: ${oauthError}`, "auth");
         return res.redirect("/login?error=google_failed");
       }
 
@@ -70,28 +65,36 @@ export function registerGoogleAuthRoutes(app: Express) {
         return res.redirect("/login?error=invalid_state");
       }
 
+      if (!code || typeof code !== "string") {
+        return res.redirect("/login?error=google_failed");
+      }
+
       const { domain } = pendingStates.get(state)!;
       pendingStates.delete(state);
 
-      const config = await getOidcConfig();
-      const callbackUrl = `https://${domain}/api/auth/google/callback`;
+      const oAuth2Client = buildOAuth2Client(domain);
+      const { tokens } = await oAuth2Client.getToken(code);
+      oAuth2Client.setCredentials(tokens);
 
-      const tokens = await client.authorizationCodeGrant(
-        config,
-        new URL(`${callbackUrl}?${new URLSearchParams(req.query as Record<string, string>).toString()}`),
-        { expectedState: state }
-      );
-
-      const claims = tokens.claims();
-      if (!claims || !claims.email) {
+      if (!tokens.id_token) {
         return res.redirect("/login?error=no_email");
       }
 
-      if (claims.email_verified === false) {
+      const ticket = await oAuth2Client.verifyIdToken({
+        idToken: tokens.id_token,
+        audience: GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        return res.redirect("/login?error=no_email");
+      }
+
+      if (payload.email_verified === false) {
         return res.redirect("/login?error=email_not_verified");
       }
 
-      const email = sanitizeEmail(claims.email as string);
+      const email = sanitizeEmail(payload.email);
       const user = await storage.getUserByEmail(email);
 
       if (!user) {

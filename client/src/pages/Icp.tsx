@@ -190,20 +190,16 @@ export function IcpContent() {
       !userClearedPromptRef.current &&
       !updateMutation.isPending
     ) {
-      const generated = generateIcpPrompt(config, desc, propertyLabel);
-      if (generated.trim()) {
+      const preview = generateIcpPrompt(config, desc, propertyLabel);
+      if (preview.trim()) {
         autoGenPromptRef.current = true;
-        updateMutation.mutate(
-          { assetDescription: generated },
-          {
-            onSuccess: () => {
-              toast({ title: "Generated", description: "AI prompt auto-generated from current profile." });
-            },
-            onError: () => {
-              autoGenPromptRef.current = false;
-            },
-          }
-        );
+        handleGenerate();
+      } else {
+        toast({
+          title: "Insufficient profile data",
+          description: "Complete the Property Profile and Asset Description tabs first, then click Generate.",
+        });
+        autoGenPromptRef.current = true;
       }
     }
   }, [activeTab, prompt, ga, config, desc, propertyLabel, updateMutation.isPending]);

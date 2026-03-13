@@ -256,7 +256,7 @@ function LocationCard({
                   type="number"
                   value={cityRadius}
                   onChange={(e) => setCityRadius(Number(e.target.value) || 25)}
-                  className="w-16 bg-card text-xs"
+                  className="w-16 bg-card text-xs text-center px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   min={1}
                   max={500}
                   data-testid={`input-radius-new-${location.id}`}
@@ -283,13 +283,13 @@ function LocationCard({
                     className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border/60 bg-muted/30"
                     data-testid={`city-card-${city.name}`}
                   >
-                    <span className="text-xs font-medium text-foreground truncate">{city.name}</span>
+                    <span className="text-xs font-medium text-foreground truncate min-w-0">{city.name}</span>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Input
                         type="number"
                         value={city.radius}
                         onChange={(e) => handleCityRadiusChange(city.name, Number(e.target.value) || 25)}
-                        className="w-14 h-7 bg-card text-xs text-center"
+                        className="w-16 h-7 bg-card text-xs text-center px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         min={1}
                         max={500}
                         data-testid={`input-radius-${city.name}`}

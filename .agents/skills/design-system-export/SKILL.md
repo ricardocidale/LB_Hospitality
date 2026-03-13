@@ -220,6 +220,28 @@ Every interactive or data-display element gets a `data-testid`:
 - Cards: `card-{type}-{id}` (e.g., `card-tranche-1`)
 - Text: `text-{content}` (e.g., `text-investor-thesis`)
 
+## UI Component Conventions
+
+### Tab Alignment
+- `TabsList` defaults to `justify-start` (left-aligned). Tabs must always be flush to the left edge of their container.
+- Never add `justify-center` to `TabsList`. If you need a centered layout, use a wrapper element instead.
+- For responsive wrapping tab rows, use `flex flex-wrap h-auto gap-1` on `TabsList`:
+  ```tsx
+  <TabsList className="flex flex-wrap h-auto gap-1 w-full">
+    <TabsTrigger value="a">Alpha</TabsTrigger>
+    <TabsTrigger value="b">Beta</TabsTrigger>
+  </TabsList>
+  ```
+- For equal-width tab grids (e.g., admin panels with a fixed number of tabs), `grid grid-cols-N` is acceptable — the grid overrides flexbox alignment and fills the container evenly:
+  ```tsx
+  <TabsList className="grid w-full grid-cols-3">
+    <TabsTrigger value="a">Alpha</TabsTrigger>
+    <TabsTrigger value="b">Beta</TabsTrigger>
+    <TabsTrigger value="c">Gamma</TabsTrigger>
+  </TabsList>
+  ```
+- `CurrentThemeTab` already uses left-aligned flex layout internally — no overrides needed.
+
 ## What NOT to Copy
 
 - `server/` — backend is project-specific

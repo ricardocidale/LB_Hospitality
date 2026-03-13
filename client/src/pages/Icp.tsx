@@ -46,7 +46,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("location");
   const [defEditing, setDefEditing] = useState(false);
   const [defDraft, setDefDraft] = useState("");
 
@@ -330,7 +330,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   return (
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={handleTabSwitch} className="w-full">
-        <TabsList className="flex flex-wrap h-auto gap-1 w-full max-w-5xl">
+        <TabsList className="inline-flex flex-wrap h-auto gap-1 justify-start">
           <TabsTrigger value="location" className="text-sm gap-1.5" data-testid="tab-icp-location">
             <IconMapPin className="w-4 h-4" />
             Location

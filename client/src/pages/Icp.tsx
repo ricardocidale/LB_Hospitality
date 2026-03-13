@@ -48,6 +48,8 @@ export function IcpContent() {
   const [pendingTab, setPendingTab] = useState<string | null>(null);
   const tabSaveRefs = useRef<Record<string, { dirty: boolean; save: () => void }>>({});
   const localSaveRef = useRef<(() => void) | null>(null);
+  const autoGenPromptRef = useRef(false);
+  const userClearedPromptRef = useRef(false);
 
   const handleLocationDirty = useCallback((dirty: boolean, save: () => void) => {
     tabSaveRefs.current["location"] = { dirty, save };
@@ -165,6 +167,8 @@ export function IcpContent() {
   };
 
   const handleGenerate = () => {
+    userClearedPromptRef.current = false;
+    autoGenPromptRef.current = false;
     const generated = generateIcpPrompt(config, desc, propertyLabel);
     updateMutation.mutate(
       { assetDescription: generated },
@@ -176,6 +180,33 @@ export function IcpContent() {
       }
     );
   };
+
+  useEffect(() => {
+    if (
+      activeTab === "prompt" &&
+      !prompt.trim() &&
+      ga &&
+      !autoGenPromptRef.current &&
+      !userClearedPromptRef.current &&
+      !updateMutation.isPending
+    ) {
+      const generated = generateIcpPrompt(config, desc, propertyLabel);
+      if (generated.trim()) {
+        autoGenPromptRef.current = true;
+        updateMutation.mutate(
+          { assetDescription: generated },
+          {
+            onSuccess: () => {
+              toast({ title: "Generated", description: "AI prompt auto-generated from current profile." });
+            },
+            onError: () => {
+              autoGenPromptRef.current = false;
+            },
+          }
+        );
+      }
+    }
+  }, [activeTab, prompt, ga, config, desc, propertyLabel, updateMutation.isPending]);
 
   const handleEdit = () => {
     setEditablePrompt(prompt);
@@ -210,6 +241,8 @@ export function IcpContent() {
   };
 
   const handleClear = () => {
+    userClearedPromptRef.current = true;
+    autoGenPromptRef.current = false;
     updateMutation.mutate(
       { assetDescription: "" },
       {

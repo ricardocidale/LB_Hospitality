@@ -309,6 +309,17 @@ function LocationCard({
             )}
           </div>
         )}
+
+        <div className="space-y-1.5 pt-2 border-t border-border/40">
+          <Label className="text-xs font-medium text-foreground">Additional Notes</Label>
+          <textarea
+            value={location.notes || ""}
+            onChange={(e) => onUpdate({ ...location, notes: e.target.value })}
+            placeholder="e.g. Exclude downtown areas, prefer properties near international airport, focus on gated communities, include suburban neighborhoods within 10 min of city center..."
+            className="w-full min-h-[72px] text-xs leading-relaxed text-foreground bg-transparent border border-border/60 rounded-md p-3 resize-y focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 placeholder:italic"
+            data-testid={`textarea-notes-${location.id}`}
+          />
+        </div>
       </CardContent>
     </Card>
   );
@@ -353,6 +364,7 @@ export default function IcpLocationTab() {
       countryCode: "",
       states: [],
       cities: [],
+      notes: "",
     };
     setLocations((prev) => [...prev, newLoc]);
     setDirty(true);

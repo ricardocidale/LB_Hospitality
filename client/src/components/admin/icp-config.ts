@@ -9,6 +9,7 @@ export interface IcpLocation {
   countryCode: string;
   states: string[];
   cities: IcpLocationCity[];
+  notes: string;
 }
 
 export interface IcpConfig {

@@ -26,10 +26,10 @@ import {
 } from "./icp-config";
 
 const PRIORITY_COLORS: Record<Priority, { ring: string; bg: string; text: string; dot: string }> = {
-  must: { ring: "ring-emerald-500/30", bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" },
-  major: { ring: "ring-blue-500/30", bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500" },
-  nice: { ring: "ring-amber-500/30", bg: "bg-amber-500/10", text: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" },
-  no: { ring: "ring-red-500/30", bg: "bg-red-500/10", text: "text-red-500 dark:text-red-400", dot: "bg-red-500" },
+  must: { ring: "ring-primary/30", bg: "bg-primary/10", text: "text-primary", dot: "bg-primary" },
+  major: { ring: "ring-secondary/30", bg: "bg-secondary/10", text: "text-secondary dark:text-secondary", dot: "bg-secondary" },
+  nice: { ring: "ring-accent-pop/30", bg: "bg-accent-pop/10", text: "text-accent-pop dark:text-accent-pop", dot: "bg-accent-pop" },
+  no: { ring: "ring-destructive/30", bg: "bg-destructive/10", text: "text-destructive", dot: "bg-destructive" },
 };
 
 const RADIO_OPTIONS: { value: Priority; label: string }[] = [

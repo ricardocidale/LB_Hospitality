@@ -18,9 +18,10 @@ export interface ProfileSaveState {
 
 export interface CompanyProfileTabProps {
   onSaveStateChange?: (state: ProfileSaveState) => void;
+  onDirtyChange?: (dirty: boolean, save: () => void) => void;
 }
 
-export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileTabProps = {}) {
+export default function CompanyProfileTab({ onSaveStateChange, onDirtyChange }: CompanyProfileTabProps = {}) {
   const { data: global } = useGlobalAssumptions();
   const updateGlobal = useUpdateGlobalAssumptions();
   const { toast } = useToast();
@@ -37,7 +38,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
     });
   }, [global]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (!draft) return;
     updateGlobal.mutate(draft, {
       onSuccess: () => {
@@ -48,7 +49,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
         toast({ title: "Error", description: "Failed to save.", variant: "destructive" });
       },
     });
-  };
+  }, [draft, updateGlobal, toast]);
 
   useEffect(() => {
     if (onSaveStateChange) {
@@ -56,9 +57,15 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
     }
   }, [draft, updateGlobal.isPending, onSaveStateChange]);
 
+  useEffect(() => {
+    onDirtyChange?.(!!draft, handleSave);
+  }, [!!draft, handleSave, onDirtyChange]);
+
+  const hasExternalSaveHandler = !!onSaveStateChange || !!onDirtyChange;
+
   return (
     <div className="space-y-6 max-w-4xl">
-      {!onSaveStateChange && (
+      {!hasExternalSaveHandler && (
         <div className="flex items-center justify-between">
           <div />
           <SaveButton onClick={handleSave} disabled={!draft} isPending={updateGlobal.isPending} />

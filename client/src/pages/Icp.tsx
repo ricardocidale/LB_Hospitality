@@ -63,6 +63,10 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     tabSaveRefs.current["description"] = { dirty, save };
   }, []);
 
+  const handleProfileDirty = useCallback((dirty: boolean, save: () => void) => {
+    tabSaveRefs.current["profile"] = { dirty, save };
+  }, []);
+
   const isCurrentTabDirty = useCallback((): boolean => {
     if (activeTab === "prompt" && isEditing) return true;
     if (activeTab === "definition" && defEditing) return true;
@@ -356,7 +360,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
         </TabsContent>
 
         <TabsContent value="profile" className="mt-6">
-          <CompanyProfileTab />
+          <CompanyProfileTab onDirtyChange={handleProfileDirty} />
         </TabsContent>
 
         <TabsContent value="description" className="mt-6">

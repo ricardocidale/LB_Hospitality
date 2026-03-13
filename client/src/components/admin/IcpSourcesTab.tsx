@@ -40,6 +40,19 @@ interface IcpSources {
   files: FileSource[];
 }
 
+const DEFAULT_URL_SEEDS: UrlSource[] = [
+  { id: "default-str", url: "https://str.com", label: "STR", addedAt: new Date().toISOString() },
+  { id: "default-cbre", url: "https://www.cbre.com/industries/hotels", label: "CBRE Hotels", addedAt: new Date().toISOString() },
+  { id: "default-hvs", url: "https://hvs.com", label: "HVS", addedAt: new Date().toISOString() },
+  { id: "default-jll", url: "https://www.jll.com/en/industries/hotels-and-hospitality", label: "JLL Hotels", addedAt: new Date().toISOString() },
+  { id: "default-hnn", url: "https://hotelnewsnow.com", label: "Hotel News Now", addedAt: new Date().toISOString() },
+  { id: "default-hnet", url: "https://www.hospitalitynet.org", label: "Hospitality Net", addedAt: new Date().toISOString() },
+  { id: "default-pkf", url: "https://www.pkfhotels.com", label: "PKF", addedAt: new Date().toISOString() },
+  { id: "default-fred", url: "https://fred.stlouisfed.org", label: "FRED", addedAt: new Date().toISOString() },
+  { id: "default-ahla", url: "https://www.ahla.com", label: "AHLA", addedAt: new Date().toISOString() },
+  { id: "default-lodging", url: "https://lodgingmagazine.com", label: "Lodging Magazine", addedAt: new Date().toISOString() },
+];
+
 const DEFAULT_SOURCES: IcpSources = { urls: [], files: [] };
 
 function isValidUrl(str: string): boolean {
@@ -63,7 +76,6 @@ export default function IcpSourcesTab() {
   const { toast } = useToast();
 
   const [sources, setSources] = useState<IcpSources>(DEFAULT_SOURCES);
-  const [dirty, setDirty] = useState(false);
 
   const [newUrl, setNewUrl] = useState("");
   const [newLabel, setNewLabel] = useState("");
@@ -75,15 +87,28 @@ export default function IcpSourcesTab() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const seededRef = useRef(false);
+
   useEffect(() => {
-    if (ga?.icpConfig) {
-      const cfg = ga.icpConfig as Record<string, any>;
-      if (cfg._sources) {
-        setSources(cfg._sources as IcpSources);
-        setDirty(false);
-      }
+    if (!ga) return;
+    const cfg = (ga.icpConfig as Record<string, any>) || {};
+    if (cfg._sources) {
+      setSources(cfg._sources as IcpSources);
+    } else if (!seededRef.current) {
+      seededRef.current = true;
+      const seeded: IcpSources = { urls: [...DEFAULT_URL_SEEDS], files: [] };
+      setSources(seeded);
+      const existing = (ga.icpConfig as Record<string, any>) || {};
+      updateMutation.mutate(
+        { icpConfig: { ...existing, _sources: seeded } },
+        {
+          onSuccess: () => {
+            toast({ title: "Sources Loaded", description: "10 default research sources have been added." });
+          },
+        }
+      );
     }
-  }, [ga?.icpConfig]);
+  }, [ga]);
 
   const save = (updated: IcpSources) => {
     const existing = (ga?.icpConfig as Record<string, any>) || {};
@@ -91,7 +116,6 @@ export default function IcpSourcesTab() {
       { icpConfig: { ...existing, _sources: updated } },
       {
         onSuccess: () => {
-          setDirty(false);
           toast({ title: "Saved", description: "Research sources updated." });
         },
       }

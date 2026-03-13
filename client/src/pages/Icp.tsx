@@ -17,8 +17,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin, IconFlaskConical, IconFileStack } from "@/components/icons";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
-import CompanyProfileTab, { type ProfileSaveState } from "@/components/company/CompanyProfileTab";
-import { SaveButton } from "@/components/ui/save-button";
+import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import IcpLocationTab from "@/components/admin/IcpLocationTab";
 import IcpResearchTab from "@/components/admin/IcpResearchTab";
 import IcpSourcesTab from "@/components/admin/IcpSourcesTab";
@@ -43,20 +42,12 @@ export function IcpContent() {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
-  const [profileSave, setProfileSave] = useState<ProfileSaveState | null>(null);
-  const profileSaveRef = useRef<ProfileSaveState | null>(null);
   const [defEditing, setDefEditing] = useState(false);
   const [defDraft, setDefDraft] = useState("");
 
   const [pendingTab, setPendingTab] = useState<string | null>(null);
   const tabSaveRefs = useRef<Record<string, { dirty: boolean; save: () => void }>>({});
   const localSaveRef = useRef<(() => void) | null>(null);
-
-  const handleProfileSaveState = useCallback((state: ProfileSaveState) => {
-    profileSaveRef.current = state;
-    setProfileSave({ ...state });
-    tabSaveRefs.current["profile"] = { dirty: !state.disabled, save: state.onClick };
-  }, []);
 
   const handleLocationDirty = useCallback((dirty: boolean, save: () => void) => {
     tabSaveRefs.current["location"] = { dirty, save };
@@ -300,15 +291,6 @@ export function IcpContent() {
             Sources
           </TabsTrigger>
           </TabsList>
-          {activeTab === "profile" && profileSave && (
-            <SaveButton
-              onClick={() => profileSaveRef.current?.onClick()}
-              disabled={profileSave.disabled}
-              isPending={profileSave.isPending}
-              size="sm"
-              className="h-9 text-xs shrink-0"
-            />
-          )}
         </div>
 
         <TabsContent value="location" className="mt-6">
@@ -316,7 +298,7 @@ export function IcpContent() {
         </TabsContent>
 
         <TabsContent value="profile" className="mt-6">
-          <CompanyProfileTab onSaveStateChange={handleProfileSaveState} />
+          <CompanyProfileTab />
         </TabsContent>
 
         <TabsContent value="description" className="mt-6">

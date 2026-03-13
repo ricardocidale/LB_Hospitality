@@ -269,13 +269,12 @@ describe("Storage Layer — Save routes use allowlisted fields or Zod validation
     return fs.readFileSync(path.join(routesDir, ...parts), "utf-8");
   }
 
-  it("voice-settings route uses allowedFields whitelist", () => {
+  it("voice-settings route validates with Zod schema", () => {
     const src = readRouteFile("admin", "marcela.ts");
     const postRoute = src.indexOf('app.post("/api/admin/voice-settings"');
     const nextRoute = src.indexOf("app.", postRoute + 10);
     const body = src.slice(postRoute, nextRoute > postRoute ? nextRoute : undefined);
-    expect(body).toContain("allowedFields");
-    expect(body).toContain('req.body[field]');
+    expect(body).toContain("marcelaVoiceSettingsSchema.safeParse");
   });
 
   it("voice-settings route does NOT spread full GA record into upsert", () => {

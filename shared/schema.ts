@@ -706,6 +706,12 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   rebeccaSystemPrompt: true,
   researchConfig: true,
   autoResearchRefreshEnabled: true,
+  companyInflationRate: true,
+  fundingSourceLabel: true,
+  showCompanyCalculationDetails: true,
+  showPropertyCalculationDetails: true,
+  sidebarResearch: true,
+  lastFullResearchRefresh: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

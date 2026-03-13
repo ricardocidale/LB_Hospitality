@@ -134,6 +134,13 @@ export default function Admin() {
                   size="sm"
                   data-testid="button-admin-save"
                 />
+              ) : activeSection === "branding" ? (
+                <SaveButton
+                  hasChanges={false}
+                  isPending={false}
+                  size="sm"
+                  data-testid="button-admin-save"
+                />
               ) : undefined
             }
           />

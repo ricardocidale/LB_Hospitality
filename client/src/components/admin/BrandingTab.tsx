@@ -79,8 +79,11 @@ export default function BrandingTab({ onNavigate, onSaveStateChange }: BrandingT
       isPending: updateGlobalMutation.isPending,
       onSave: () => saveRef.current?.(),
     });
-    return () => onSaveStateChange?.(null);
   }, [isDirty, updateGlobalMutation.isPending, onSaveStateChange]);
+
+  useEffect(() => {
+    return () => onSaveStateChange?.(null);
+  }, [onSaveStateChange]);
 
   const updateField = (field: keyof typeof form, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }));

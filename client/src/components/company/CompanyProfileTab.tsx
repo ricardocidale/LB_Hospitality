@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { SaveButton } from "@/components/ui/save-button";
 import { IconHotel } from "@/components/icons";
@@ -299,16 +298,6 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
                 <span>100 acres</span>
               </div>
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label className="label-text flex items-center gap-1">Definition Summary <HelpTooltip text="Free-text description of the target property concept. Included in AI research prompts for more relevant market analysis." /></Label>
-            <Textarea
-              value={assetDef.description ?? ""}
-              onChange={(e) => handleNestedChange("assetDefinition", "description", e.target.value)}
-              rows={3}
-              className="bg-card text-sm"
-              data-testid="textarea-boutique-description"
-            />
           </div>
         </CardContent>
       </Card>

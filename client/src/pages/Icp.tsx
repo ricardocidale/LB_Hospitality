@@ -166,7 +166,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     const md = generateIcpEssay(config, desc, propertyLabel);
     const icpCfg = { ...(ga?.icpConfig as Record<string, any> || {}), _definition: md };
     updateMutation.mutate(
-      { icpConfig: icpCfg },
+      { ...ga, icpConfig: icpCfg },
       {
         onSuccess: () => {
           setDefEditing(false);
@@ -179,7 +179,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   const handleSaveDefinition = useCallback(() => {
     const icpCfg = { ...(ga?.icpConfig as Record<string, any> || {}), _definition: defDraft };
     updateMutation.mutate(
-      { icpConfig: icpCfg },
+      { ...ga, icpConfig: icpCfg },
       {
         onSuccess: () => {
           setDefEditing(false);
@@ -187,7 +187,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
         },
       }
     );
-  }, [ga?.icpConfig, defDraft, updateMutation, toast]);
+  }, [ga, defDraft, updateMutation, toast]);
 
   const handleEditDefinition = () => {
     setDefDraft(savedDefinition || essay || "");
@@ -202,16 +202,17 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 
   const handleGenerate = () => {
     userClearedPromptRef.current = false;
+    autoGenPromptRef.current = true;
     const generated = generateIcpPrompt(config, desc, propertyLabel);
     updateMutation.mutate(
-      { assetDescription: generated },
+      { ...ga, assetDescription: generated },
       {
         onSuccess: () => {
           setIsEditing(false);
           toast({ title: "Generated", description: "AI prompt generated from current profile and description." });
         },
         onError: () => {
-          autoGenPromptRef.current = false;
+          toast({ title: "Error", description: "Failed to save generated prompt. Please try again.", variant: "destructive" });
         },
       }
     );
@@ -247,7 +248,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 
   const handleSaveEdit = useCallback(() => {
     updateMutation.mutate(
-      { assetDescription: editablePrompt },
+      { ...ga, assetDescription: editablePrompt },
       {
         onSuccess: () => {
           setIsEditing(false);
@@ -255,7 +256,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
         },
       }
     );
-  }, [editablePrompt, updateMutation, toast]);
+  }, [editablePrompt, ga, updateMutation, toast]);
 
   useEffect(() => {
     if (activeTab === "prompt" && isEditing) {
@@ -276,7 +277,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     userClearedPromptRef.current = true;
     autoGenPromptRef.current = false;
     updateMutation.mutate(
-      { assetDescription: "" },
+      { ...ga, assetDescription: "" },
       {
         onSuccess: () => {
           setIsEditing(false);
@@ -307,7 +308,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
       }
       const { optimized } = await res.json();
       updateMutation.mutate(
-        { assetDescription: optimized },
+        { ...ga, assetDescription: optimized },
         {
           onSuccess: () => {
             setIsEditing(false);

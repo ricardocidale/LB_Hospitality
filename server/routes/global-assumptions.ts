@@ -56,7 +56,14 @@ export function register(app: Express) {
 
   app.put("/api/global-assumptions", requireManagementAccess, async (req, res) => {
     try {
-      const validation = insertGlobalAssumptionsSchema.safeParse(req.body);
+      const current = await storage.getGlobalAssumptions(req.user!.id);
+      const merged = { ...(current ?? {}), ...req.body };
+      delete merged.id;
+      delete merged.createdAt;
+      delete merged.updatedAt;
+      delete merged.companyLogoUrl;
+
+      const validation = insertGlobalAssumptionsSchema.safeParse(merged);
       if (!validation.success) {
         const error = fromZodError(validation.error);
         return res.status(400).json({ error: error.message });

@@ -297,7 +297,7 @@ describe("Storage Layer — Save routes use allowlisted fields or Zod validation
 
   it("global-assumptions PUT route validates with Zod schema", () => {
     const src = readRouteFile("global-assumptions.ts");
-    expect(src).toContain("insertGlobalAssumptionsSchema.safeParse(req.body)");
+    expect(src).toContain("insertGlobalAssumptionsSchema.safeParse(merged)");
   });
 
   it("service templates PATCH route validates with Zod schema", () => {

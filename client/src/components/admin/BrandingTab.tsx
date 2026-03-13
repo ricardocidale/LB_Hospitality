@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPhone, IconGlobe, IconHash, IconCalendar, IconProperties, IconMail, IconMapPin } from "@/components/icons";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import LogoSelector from "./LogoSelector";
 import type { AdminSaveState } from "@/components/admin/types/save-state";
 
@@ -16,7 +16,7 @@ interface BrandingTabProps {
 export default function BrandingTab({ onNavigate, onSaveStateChange }: BrandingTabProps) {
   const { toast } = useToast();
   const { data: globalAssumptions } = useGlobalAssumptions();
-  const updateGlobalMutation = useUpdateGlobalAssumptions();
+  const updateGlobalMutation = useUpdateAdminConfig();
 
   const [form, setForm] = useState({
     companyName: "",

@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { getAnthropicClient } from "./clients";
 
 const BETAS = [
   "code-execution-2025-08-25",
@@ -36,7 +37,9 @@ export interface AgentSkillsResult {
   filename: string;
 }
 
-function getClient(apiKey: string, baseURL?: string): Anthropic {
+function getClient(apiKey?: string, baseURL?: string): Anthropic {
+  // Use centralized singleton when no custom credentials are provided
+  if (!apiKey) return getAnthropicClient();
   return new Anthropic({ apiKey, baseURL });
 }
 

@@ -15,7 +15,7 @@ import {
   IconGlobe,
 } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 
 interface UrlSource {
   id: string;
@@ -72,7 +72,7 @@ function formatFileSize(bytes: number): string {
 
 export default function IcpSourcesTab() {
   const { data: ga } = useGlobalAssumptions();
-  const updateMutation = useUpdateGlobalAssumptions();
+  const updateMutation = useUpdateAdminConfig();
   const { toast } = useToast();
 
   const [sources, setSources] = useState<IcpSources>(DEFAULT_SOURCES);

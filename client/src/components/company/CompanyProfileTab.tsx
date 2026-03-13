@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { SaveButton } from "@/components/ui/save-button";
 import { IconHotel } from "@/components/icons";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export interface CompanyProfileTabProps {
@@ -16,7 +16,7 @@ export interface CompanyProfileTabProps {
 
 export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileTabProps = {}) {
   const { data: global } = useGlobalAssumptions();
-  const updateGlobal = useUpdateGlobalAssumptions();
+  const updateGlobal = useUpdateAdminConfig();
   const { toast } = useToast();
   const [draft, setDraft] = useState<any>(null);
 

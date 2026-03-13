@@ -7,7 +7,7 @@ import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, ex
 import { validateResearchValues } from "../../calc/research/validate-research";
 import { processNotificationEvent } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
-import Anthropic from "@anthropic-ai/sdk";
+import { getAnthropicClient } from "../ai/clients";
 import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
 import { DEFAULT_RESEARCH_EVENT_CONFIG } from "../../shared/constants";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
@@ -119,7 +119,7 @@ export function register(app: Express) {
       // Resolve admin-configured event config for this research type
       const researchConfig = (ga?.researchConfig as ResearchConfig) ?? {};
       const model = researchConfig.preferredLlm || ga?.preferredLlm || "claude-sonnet-4-6";
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const anthropic = getAnthropicClient();
 
       const rawEventConfig = researchConfig[type as 'property' | 'company' | 'global'];
       const eventConfig: ResearchEventConfig = { ...DEFAULT_RESEARCH_EVENT_CONFIG, ...(rawEventConfig ?? {}) };

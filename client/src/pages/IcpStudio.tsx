@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { AnimatedPage, AnimatedSection } from "@/components/graphics/motion/AnimatedPage";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -174,7 +174,7 @@ interface VersionEntry {
 
 export default function IcpStudio() {
   const { data: global, isLoading } = useGlobalAssumptions();
-  const updateGlobal = useUpdateGlobalAssumptions();
+  const updateGlobal = useUpdateAdminConfig();
   const { toast } = useToast();
 
   // ── State ──────────────────────────────────────────────────────────────────

@@ -1,18 +1,15 @@
 import { type Express } from "express";
 import { z } from "zod";
 import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
-import { GoogleGenAI } from "@google/genai";
+import { getAnthropicClient, getGeminiClient as getGeminiSingleton } from "../../ai/clients";
 import { storage } from "../../storage";
 import { requireAdmin, isApiRateLimited } from "../../auth";
 import { type InsertGlobalAssumptions, type ResearchConfig, type AiModelEntry } from "@shared/schema";
 import { logAndSendError, logActivity } from "../helpers";
 
-// Lazy singletons for AI model listing — avoids re-creating clients per request
+// Lazy singleton for OpenAI model listing (Anthropic/Gemini use centralized clients from ai/clients.ts)
 let _oaiClient: OpenAI | null = null;
 function getOAI() { return _oaiClient ??= new OpenAI({ apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY, baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL }); }
-let _anthropicClient: Anthropic | null = null;
-function getAnthropic() { return _anthropicClient ??= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }); }
 
 const researchEventConfigSchema = z.object({
   enabled: z.boolean().optional(),
@@ -95,7 +92,7 @@ async function fetchOpenAIModels(): Promise<AiModelEntry[]> {
 
 async function fetchAnthropicModels(): Promise<AiModelEntry[]> {
   try {
-    const client = getAnthropic();
+    const client = getAnthropicClient();
     const resp = await client.models.list({ limit: 100 });
     const models: AiModelEntry[] = [];
     for (const m of resp.data) {
@@ -112,12 +109,7 @@ async function fetchAnthropicModels(): Promise<AiModelEntry[]> {
 
 async function fetchGeminiModels(): Promise<AiModelEntry[]> {
   try {
-    const client = new GoogleGenAI({
-      apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY!,
-      httpOptions: {
-        baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
-      },
-    });
+    const client = getGeminiSingleton();
     const resp = await client.models.list();
     const models: AiModelEntry[] = [];
     for (const m of resp.page) {

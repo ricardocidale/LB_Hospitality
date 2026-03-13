@@ -9,7 +9,7 @@ import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { IconPlus, IconTrash, IconMapPin, IconGlobe } from "@/components/icons";
 import type { AdminSaveState } from "@/components/admin/types/save-state";
 import { X } from "lucide-react";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import type { IcpLocation, IcpLocationCity } from "./icp-config";
@@ -345,7 +345,7 @@ export interface IcpLocationTabProps {
 
 export default function IcpLocationTab({ onSaveStateChange }: IcpLocationTabProps = {}) {
   const { data: ga } = useGlobalAssumptions();
-  const updateMutation = useUpdateGlobalAssumptions();
+  const updateMutation = useUpdateAdminConfig();
   const { toast } = useToast();
 
   const [locations, setLocations] = useState<IcpLocation[]>([]);

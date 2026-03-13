@@ -1,22 +1,7 @@
 import { type Express, type Request, type Response } from "express";
-import { GoogleGenAI } from "@google/genai";
-import Anthropic from "@anthropic-ai/sdk";
+import { getAnthropicClient, getGeminiClient } from "../ai/clients";
 import { requireAuth } from "../auth";
 import { z } from "zod";
-
-function getGeminiClient() {
-  const apiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("Gemini API key not configured");
-  }
-  return new GoogleGenAI({
-    apiKey,
-    httpOptions: {
-      apiVersion: "",
-      baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
-    },
-  });
-}
 
 const rewriteSchema = z.object({
   text: z.string().min(1).max(5000),
@@ -80,15 +65,7 @@ Rewritten description:`;
       }
       const { prompt } = parsed.data;
 
-      const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
-      if (!apiKey) {
-        return res.status(503).json({ error: "AI service is not available" });
-      }
-
-      const anthropic = new Anthropic({
-        apiKey,
-        baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-      });
+      const anthropic = getAnthropicClient();
 
       const response = await anthropic.messages.create({
         model: "claude-sonnet-4-20250514",

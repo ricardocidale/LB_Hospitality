@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import OpenAI, { toFile } from "openai";
-import { GoogleGenAI } from "@google/genai";
+import { getGeminiClient } from "../../ai/clients";
 import { Buffer } from "node:buffer";
 
 export const openai = new OpenAI({
@@ -8,15 +8,8 @@ export const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
-export function getGeminiClient() {
-  return new GoogleGenAI({
-    apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY!,
-    httpOptions: {
-      apiVersion: "",
-      baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
-    },
-  });
-}
+// getGeminiClient re-exported from centralized singleton (server/ai/clients.ts)
+export { getGeminiClient } from "../../ai/clients";
 
 /**
  * Generate an image using Nano Banana (gemini-2.5-flash-image) and return as Buffer.

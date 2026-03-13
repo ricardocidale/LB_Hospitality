@@ -1,4 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { getAnthropicClient } from "../ai/clients";
 
 export const USALI_CATEGORIES = {
   "Rooms Revenue": "Rooms",
@@ -92,7 +92,7 @@ export async function categorizeByAI(
   const categoryList = Object.keys(USALI_CATEGORIES).join(", ");
 
   try {
-    const client = new Anthropic();
+    const client = getAnthropicClient();
     const prompt = `You are a hotel accounting expert using the USALI (Uniform System of Accounts for the Lodging Industry) framework.
 
 Categorize each bank transaction description into one of these USALI categories:

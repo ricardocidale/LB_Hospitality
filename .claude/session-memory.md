@@ -8,6 +8,13 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 13, 2026 — Admin Architecture Review & Hardening (Phases 1-2)
+- Phase 1 Safety: 7 Zod schemas for Marcela endpoints (voice, prompt, LLM, widget, notification, cache pattern), 19 audit trail points via `logActivity()`, rate limiting on 3 expensive endpoints, `parseParamId()` helper
+- Phase 2A: Fixed NavigationTab cache invalidation bug (sidebar saves no longer nuke financial cache), created `useUpdateAdminConfig()` hook for non-financial GA saves, switched 7 callers (Branding, ICP, AssetDef, CompanyProfile) from `useUpdateGlobalAssumptions` → `useUpdateAdminConfig`
+- Phase 2B: Centralized AI SDK singletons in `server/ai/clients.ts` — `getAnthropicClient()` + `getGeminiClient()`, replaced 9 per-request instantiations across 7 files; OpenAI already singleton
+- Updated proof test: `useUpdateAdminConfig` categorized as non-financial in recalculation enforcement
+- Tests 2,940→2,941 (127 files). 0 TS errors. UNQUALIFIED.
+
 ## Session: March 12, 2026 — Infrastructure Contracts Optimization (12 Workstreams)
 - WS1-2: Sealed storage facade — ServiceStorage + NotificationStorage bound to IStorage, `patchGlobalAssumptions` added to FinancialStorage
 - WS3-4: Domain boundaries — 6-domain separation rule + proof test (no route imports db, calc purity, financial isolation from AI SDKs)

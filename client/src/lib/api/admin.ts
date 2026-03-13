@@ -28,11 +28,30 @@ export function useGlobalAssumptions() {
 
 export function useUpdateGlobalAssumptions() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: updateGlobalAssumptions,
     onSuccess: () => {
       invalidateAllFinancialQueries(queryClient);
+    },
+  });
+}
+
+/**
+ * Update global_assumptions for non-financial fields (branding, ICP, sidebar,
+ * asset definition, AI agent config). Only invalidates the globalAssumptions
+ * query — does NOT cascade to properties, scenarios, or other financial caches.
+ *
+ * Use `useUpdateGlobalAssumptions` instead when the mutation touches any field
+ * that feeds into financial calculations (fees, rates, staffing, partner comp, etc.).
+ */
+export function useUpdateAdminConfig() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateGlobalAssumptions,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
     },
   });
 }

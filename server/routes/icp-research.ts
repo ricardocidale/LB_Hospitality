@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, isApiRateLimited } from "../auth";
 import { logAndSendError } from "./helpers";
-import Anthropic from "@anthropic-ai/sdk";
+import { getAnthropicClient } from "../ai/clients";
 
 interface IcpLocationCity {
   name: string;
@@ -149,7 +149,7 @@ export function register(app: Express) {
 
       const prompt = buildIcpResearchPrompt(icpConfig, assetDescription, propertyLabel);
 
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const anthropic = getAnthropicClient();
 
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");

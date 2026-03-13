@@ -1,5 +1,5 @@
 import { type Express, type Request, type Response } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import { getAnthropicClient } from "../ai/clients";
 import { requireAuth } from "../auth";
 import { z } from "zod";
 import { generateWithAgentSkills, buildAgentSkillsPrompt } from "../ai/agentSkillsExport";
@@ -42,16 +42,7 @@ const premiumExportSchema = z.object({
 
 type PremiumExportRequest = z.infer<typeof premiumExportSchema>;
 
-function getAnthropicClient(): Anthropic {
-  const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error("Anthropic API key not configured");
-  }
-  return new Anthropic({
-    apiKey,
-    baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-  });
-}
+// Using centralized singleton from server/ai/clients.ts
 
 const BRAND = {
   NAVY_HEX: "1A2332",

@@ -104,6 +104,7 @@ const NON_FINANCIAL_MUTATIONS = [
   "useOverrideRate",
   "useSaveResearchConfig",  // Admin research prompt config — does not affect financial calculations
   "useRefreshAiModels",     // Admin AI model list refresh — does not affect financial calculations
+  "useUpdateAdminConfig",   // Non-financial global_assumptions (branding, ICP, sidebar, asset def) — only invalidates globalAssumptions query
   // Property photos (caption/reorder don't affect financial data)
   "useUpdatePropertyPhoto",
   "useReorderPhotos",
@@ -249,9 +250,13 @@ describe("Recalculation Enforcement", () => {
           const key = match[1];
           if (financialKeys.includes(key)) {
             // Check this isn't inside the invalidateAllFinancialQueries function itself
+            // or inside a non-financial mutation (e.g. useUpdateAdminConfig) that
+            // intentionally only refreshes the config cache, not the full financial cascade
             const idx = match.index!;
             const before = content.slice(Math.max(0, idx - 500), idx);
-            if (!before.includes("function invalidateAllFinancialQueries")) {
+            const isInCentralizedHelper = before.includes("function invalidateAllFinancialQueries");
+            const isInNonFinancialMutation = NON_FINANCIAL_MUTATIONS.some(m => before.includes(`function ${m}`));
+            if (!isInCentralizedHelper && !isInNonFinancialMutation) {
               expect.fail(
                 `${fileName}: Direct invalidateQueries call for "${key}" bypasses ` +
                 `the centralized helper. Use invalidateAllFinancialQueries(queryClient) instead.`

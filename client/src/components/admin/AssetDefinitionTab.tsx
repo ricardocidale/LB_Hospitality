@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Plus, X } from "lucide-react";
 import { IconSave, IconHelpCircle } from "@/components/icons";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { ADMIN_TEXTAREA } from "./styles";
 import {
   type IcpConfig,
@@ -154,7 +154,7 @@ export interface AssetDefinitionTabProps {
 export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitionTabProps = {}) {
   const { toast } = useToast();
   const { data: ga } = useGlobalAssumptions();
-  const updateMutation = useUpdateGlobalAssumptions();
+  const updateMutation = useUpdateAdminConfig();
 
   const [propertyLabel, setPropertyLabel] = useState("");
   const [config, setConfig] = useState<IcpConfig>(DEFAULT_ICP_CONFIG);

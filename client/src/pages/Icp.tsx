@@ -23,7 +23,7 @@ import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import IcpLocationTab from "@/components/admin/IcpLocationTab";
 import IcpResearchTab from "@/components/admin/IcpResearchTab";
 import IcpSourcesTab from "@/components/admin/IcpSourcesTab";
-import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { AdminSaveState } from "@/components/admin/types/save-state";
 import {
@@ -54,7 +54,7 @@ interface IcpContentProps {
 export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   const hmrKey = useHmrKey();
   const { data: ga } = useGlobalAssumptions();
-  const updateMutation = useUpdateGlobalAssumptions();
+  const updateMutation = useUpdateAdminConfig();
   const { toast } = useToast();
 
   const [editablePrompt, setEditablePrompt] = useState("");

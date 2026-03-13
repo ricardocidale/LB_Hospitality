@@ -39,13 +39,17 @@ export function registerGoogleAuthRoutes(app: Express) {
       const state = crypto.randomUUID();
       pendingStates.set(state, { domain, createdAt: Date.now() });
 
+      const redirectUri = `https://${domain}/api/auth/google/callback`;
+      logger.info(`Google auth: domain=${domain}, redirect_uri=${redirectUri}`, "auth");
+      
       const redirectUrl = client.buildAuthorizationUrl(config, {
-        redirect_uri: `https://${domain}/api/auth/google/callback`,
+        redirect_uri: redirectUri,
         scope: "openid email profile",
         state,
         prompt: "login consent",
       });
 
+      logger.info(`Google auth: redirecting to ${redirectUrl.origin}${redirectUrl.pathname}`, "auth");
       res.redirect(redirectUrl.href);
     } catch (error) {
       logger.error(`Google auth redirect error: ${error instanceof Error ? error.message : error}`, "auth");
@@ -55,7 +59,12 @@ export function registerGoogleAuthRoutes(app: Express) {
 
   app.get("/api/auth/google/callback", async (req, res) => {
     try {
-      const { state, code } = req.query;
+      const { state, code, error, error_description } = req.query;
+
+      if (error) {
+        logger.error(`OIDC provider returned error: ${error} — ${error_description || "no description"}`, "auth");
+        return res.redirect("/login?error=google_failed");
+      }
 
       if (!state || typeof state !== "string" || !pendingStates.has(state)) {
         return res.redirect("/login?error=invalid_state");

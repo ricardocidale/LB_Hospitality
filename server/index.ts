@@ -78,6 +78,8 @@ const PUBLIC_API_PATHS = new Set([
   "/api/auth/dev-login",
   "/api/auth/logout",
   "/api/auth/me",
+  "/api/auth/google",
+  "/api/auth/google/callback",
   "/api/twilio/voice/incoming",
   "/api/twilio/voice/status",
   "/api/twilio/sms/incoming",
@@ -196,6 +198,8 @@ app.use((req, res, next) => {
   await seedCompanies();
   await seedUserCompanyAssignments();
   registerImageRoutes(app);
+  const { registerGoogleAuthRoutes } = await import("./routes/google-auth");
+  registerGoogleAuthRoutes(app);
   await registerRoutes(httpServer, app);
 
   setupSentryExpressErrorHandler(app);

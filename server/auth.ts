@@ -410,7 +410,7 @@ export async function seedAdminUser() {
     title: string;
     userGroupId?: number;
   }> = [
-    { email: "admin", envVar: "PASSWORD_ADMIN", role: "admin", firstName: "Ricardo", lastName: "Cidale", company: "The Norfolk AI Group", title: "Partner", userGroupId: 2 },
+    { email: "ricardo.cidale@norfolkgroup.io", envVar: "PASSWORD_ADMIN", role: "admin", firstName: "Ricardo", lastName: "Cidale", company: "The Norfolk AI Group", title: "Partner", userGroupId: 2 },
     { email: "checker@norfolkgroup.io", envVar: "PASSWORD_CHECKER", role: "checker", firstName: "Checker", company: "Norfolk AI", title: "Checker", userGroupId: 2 },
     { email: "reynaldo.fagundes@norfolk.ai", envVar: "PASSWORD_REYNALDO", role: "partner", firstName: "Reynaldo", lastName: "Fagundes", company: "Norfolk AI", title: "CTO", userGroupId: 2 },
     { email: "kit@kitcapital.com", envVar: "PASSWORD_KIT", role: "partner", firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal", userGroupId: 1 },
@@ -430,6 +430,18 @@ export async function seedAdminUser() {
     let user = await storage.getUserByEmail(seed.email);
 
     if (!user) {
+      if (seed.email === "ricardo.cidale@norfolkgroup.io") {
+        const oldAdmin = await storage.getUserByEmail("admin");
+        if (oldAdmin) {
+          const passwordHash = await hashPassword(password);
+          await storage.updateUserProfile(oldAdmin.id, { email: seed.email, firstName: seed.firstName, lastName: seed.lastName, company: seed.company, title: seed.title });
+          await storage.updateUserPassword(oldAdmin.id, passwordHash);
+          await storage.updateUserRole(oldAdmin.id, "admin");
+          user = await storage.getUserById(oldAdmin.id);
+          logger.info(`Migrated old 'admin' user to ${seed.email}`, "auth");
+        }
+      }
+
       if (seed.email === "checker@norfolkgroup.io") {
         const oldChecker = await storage.getUserByEmail("checker");
         if (oldChecker) {

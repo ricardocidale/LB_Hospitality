@@ -6,17 +6,17 @@ import { userGroups } from "@shared/schema";
 import { logger } from "../logger";
 
 export async function seedUsers() {
-  const existingAdmin = await db.select().from(users).where(eq(users.email, "admin")).limit(1);
+  const existingAdmin = await db.select().from(users).where(eq(users.email, "ricardo.cidale@norfolkgroup.io")).limit(1);
   if (existingAdmin.length === 0) {
     const hashedPassword = await bcrypt.hash("admin123", 10);
     await db.insert(users).values({
-      email: "admin",
+      email: "ricardo.cidale@norfolkgroup.io",
       passwordHash: hashedPassword,
       firstName: "Ricardo",
       lastName: "Cidale",
       role: "admin",
     });
-    logger.info("Created admin user (email: admin, password: admin123)", "seed");
+    logger.info("Created admin user (email: ricardo.cidale@norfolkgroup.io)", "seed");
   }
 }
 
@@ -52,7 +52,7 @@ export async function seedUserGroups() {
       "rosario@kitcapital.com": "KIT Capital Group",
       "kit@kitcapital.com": "KIT Capital Group",
       "lemazniku@icloud.com": "KIT Capital Group",
-      "admin": "The Norfolk AI Group",
+      "ricardo.cidale@norfolkgroup.io": "The Norfolk AI Group",
       "checker@norfolkgroup.io": "The Norfolk AI Group",
       "wlaruffa@gmail.com": "The Norfolk AI Group",
       "reynaldo.fagundes@norfolk.ai": "The Norfolk AI Group",
@@ -79,7 +79,7 @@ export async function seedUserGroups() {
 
 export async function seedUserCompanyAssignments() {
   const companyNameToEmail: Record<string, string[]> = {
-    "The Norfolk AI Group": ["admin", "checker@norfolkgroup.io", "reynaldo.fagundes@norfolk.ai"],
+    "The Norfolk AI Group": ["ricardo.cidale@norfolkgroup.io", "checker@norfolkgroup.io", "reynaldo.fagundes@norfolk.ai"],
     "KIT Capital": ["kit@kitcapital.com", "rosario@kitcapital.com", "lemazniku@icloud.com"],
     "Numeratti Endeavors": ["leslie@cidale.com"],
   };

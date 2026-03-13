@@ -78,7 +78,7 @@ export function register(app: Express) {
         return res.status(429).json({ error: "Too many login attempts. Please try again in 1 minute." });
       }
 
-      const user = await storage.getUserByEmail("admin");
+      const user = await storage.getUserByEmail("ricardo.cidale@norfolkgroup.io");
       if (!user) {
         recordLoginAttempt(clientIp, false);
         return res.status(401).json({ error: "Admin user not found" });
@@ -122,7 +122,7 @@ export function register(app: Express) {
       if (!adminPassword) {
         return res.status(500).json({ error: "PASSWORD_ADMIN not configured" });
       }
-      const user = await storage.getUserByEmail("admin");
+      const user = await storage.getUserByEmail("ricardo.cidale@norfolkgroup.io");
       if (!user) {
         return res.status(401).json({ error: "Admin user not found" });
       }
@@ -196,7 +196,7 @@ export function register(app: Express) {
       if (validation.data.firstName !== undefined) updates.firstName = validation.data.firstName.trim();
       if (validation.data.lastName !== undefined) updates.lastName = validation.data.lastName.trim();
       if (validation.data.email !== undefined) {
-        const protectedEmails = ["admin", "checker@norfolkgroup.io"];
+        const protectedEmails = ["ricardo.cidale@norfolkgroup.io", "checker@norfolkgroup.io"];
         if (protectedEmails.includes(req.user!.email.toLowerCase())) {
           return res.status(403).json({ error: "System account emails cannot be changed" });
         }

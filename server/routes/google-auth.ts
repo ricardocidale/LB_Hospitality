@@ -16,8 +16,10 @@ const pendingStates = new Map<string, { domain: string; createdAt: number }>();
 
 setInterval(() => {
   const fiveMinAgo = Date.now() - 5 * 60 * 1000;
-  for (const [key, val] of pendingStates) {
-    if (val.createdAt < fiveMinAgo) pendingStates.delete(key);
+  const keys = Array.from(pendingStates.keys());
+  for (const key of keys) {
+    const val = pendingStates.get(key);
+    if (val && val.createdAt < fiveMinAgo) pendingStates.delete(key);
   }
 }, 60 * 1000);
 

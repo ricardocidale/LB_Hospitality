@@ -6,7 +6,7 @@ import { logger } from "../logger";
 const TAG = "prod-sync-002";
 
 const CANONICAL_USERS: Record<string, { role: "admin" | "partner" | "checker"; userGroupId: number }> = {
-  "admin":                         { role: "admin",   userGroupId: 2 },
+  "ricardo.cidale@norfolkgroup.io": { role: "admin",   userGroupId: 2 },
   "checker@norfolkgroup.io":       { role: "checker", userGroupId: 2 },
   "reynaldo.fagundes@norfolk.ai":  { role: "partner", userGroupId: 2 },
   "kit@kitcapital.com":            { role: "partner", userGroupId: 1 },

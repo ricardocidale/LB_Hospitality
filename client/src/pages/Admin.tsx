@@ -102,9 +102,9 @@ export default function Admin() {
             variant="dark"
             actions={
               activeGroup ? (
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20">
-                  {activeGroup.icon && <activeGroup.icon className="w-3.5 h-3.5 text-white/60" />}
-                  <span className="text-xs font-medium text-white/70">{activeGroup.label}</span>
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted border border-border">
+                  {activeGroup.icon && <activeGroup.icon className="w-3.5 h-3.5 text-muted-foreground" />}
+                  <span className="text-xs font-medium text-foreground/70">{activeGroup.label}</span>
                 </div>
               ) : undefined
             }

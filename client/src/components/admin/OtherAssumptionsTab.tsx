@@ -3,8 +3,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { IconSave, IconPercent } from "@/components/icons";
+import { SaveButton } from "@/components/ui/save-button";
+import { IconPercent } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 
 export default function OtherAssumptionsTab() {
@@ -87,16 +87,12 @@ export default function OtherAssumptionsTab() {
       </Card>
 
       <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          size="lg"
+        <SaveButton
           onClick={handleSave}
-          disabled={!isDirty || updateGlobalMutation.isPending}
-          className="shadow-xl rounded-full px-8 h-12 flex items-center gap-2"
+          isPending={updateGlobalMutation.isPending}
+          hasChanges={isDirty}
           data-testid="button-save-other-assumptions"
-        >
-          <IconSave className="w-5 h-5" />
-          {updateGlobalMutation.isPending ? "Saving..." : "Save Changes"}
-        </Button>
+        />
       </div>
     </div>
   );

@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { IconPlus, IconTrash, IconMapPin, IconGlobe, IconSave } from "@/components/icons";
+import { IconPlus, IconTrash, IconMapPin, IconGlobe } from "@/components/icons";
+import { SaveButton } from "@/components/ui/save-button";
 import { X } from "lucide-react";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -467,16 +468,14 @@ export default function IcpLocationTab({ onDirtyChange }: IcpLocationTabProps = 
       )}
 
       <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          size="lg"
+        <SaveButton
           onClick={handleSave}
-          disabled={!dirty || updateMutation.isPending}
-          className="shadow-xl rounded-full px-8 h-12 flex items-center gap-2"
+          isPending={updateMutation.isPending}
+          hasChanges={dirty}
           data-testid="button-save-locations"
         >
-          <IconSave className="w-5 h-5" />
-          {updateMutation.isPending ? "Saving..." : "Save Locations"}
-        </Button>
+          Save Locations
+        </SaveButton>
       </div>
     </div>
   );

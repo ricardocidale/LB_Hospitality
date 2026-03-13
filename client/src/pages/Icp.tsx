@@ -14,6 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
+import { SaveButton } from "@/components/ui/save-button";
 import { Loader2 } from "lucide-react";
 import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin, IconFlaskConical, IconFileStack } from "@/components/icons";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
@@ -622,6 +623,11 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 }
 
 export default function Icp() {
+  const [saveState, setSaveState] = useState<import("@/components/admin/types/save-state").AdminSaveState | null>(null);
+  const handleSaveStateChange = useCallback((state: import("@/components/admin/types/save-state").AdminSaveState | null) => {
+    setSaveState(state);
+  }, []);
+
   return (
     <Layout>
       <AnimatedPage>
@@ -629,9 +635,20 @@ export default function Icp() {
           <PageHeader
             title="Ideal Customer Profile (Management Company)"
             subtitle="Define the target property profile and asset description for the portfolio"
+            actions={
+              saveState ? (
+                <SaveButton
+                  onClick={saveState.onSave}
+                  hasChanges={saveState.isDirty}
+                  isPending={saveState.isPending}
+                  size="sm"
+                  data-testid="button-icp-save"
+                />
+              ) : undefined
+            }
           />
           <AnimatedSection delay={0.1}>
-            <IcpContent />
+            <IcpContent onSaveStateChange={handleSaveStateChange} />
           </AnimatedSection>
         </div>
       </AnimatedPage>

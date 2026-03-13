@@ -19,6 +19,7 @@ import CommandPalette from "@/components/CommandPalette";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import NotificationCenter from "@/components/NotificationCenter";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 
 import GuidedWalkthrough, { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
@@ -163,13 +164,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         ...(hasManagementAccess ? [{ href: "/settings", label: "General", icon: IconSettings }] : []),
       ],
     },
-    {
-      label: "",
-      items: [
-        ...(sb("sidebarUserManual") ? [{ href: "/help", label: "Help", icon: IconHelp }] : []),
-        ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: IconShield }] : []),
-      ],
-    },
   ].filter(g => g.items.length > 0), [hasManagementAccess, isAdmin, global]);
 
   const adminSidebarGroups: NavGroupDef[] = useMemo(() => {
@@ -223,7 +217,36 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   );
 
   const sidebarFooter = (
-    <div className="px-2 pb-3 pt-1 space-y-5">
+    <div className="px-2 pb-3 pt-1 space-y-0.5">
+      {sb("sidebarUserManual") && (
+        <Link href="/help" onClick={() => setMobileOpen(false)}>
+          <span
+            className={cn(
+              "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
+              isActiveLink("/help") ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            )}
+            data-testid="nav-help"
+          >
+            <IconHelp className="w-4 h-4 shrink-0" />
+            <span>Help</span>
+          </span>
+        </Link>
+      )}
+      {isAdmin && (
+        <Link href="/admin" onClick={() => setMobileOpen(false)}>
+          <span
+            className={cn(
+              "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
+              isActiveLink("/admin") ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            )}
+            data-testid="nav-admin"
+          >
+            <IconShield className="w-4 h-4 shrink-0" />
+            <span>Admin</span>
+          </span>
+        </Link>
+      )}
+      {(sb("sidebarUserManual") || isAdmin) && <Separator className="my-2" />}
       <Button
         variant="ghost"
         onClick={() => { logout(); setMobileOpen(false); }}

@@ -1,10 +1,19 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { AnimatedPage, AnimatedSection } from "@/components/graphics/motion/AnimatedPage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
 import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin, IconFlaskConical, IconFileStack } from "@/components/icons";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
@@ -39,10 +48,69 @@ export function IcpContent() {
   const [defEditing, setDefEditing] = useState(false);
   const [defDraft, setDefDraft] = useState("");
 
+  const [pendingTab, setPendingTab] = useState<string | null>(null);
+  const tabSaveRefs = useRef<Record<string, { dirty: boolean; save: () => void }>>({});
+  const localSaveRef = useRef<(() => void) | null>(null);
+
   const handleProfileSaveState = useCallback((state: ProfileSaveState) => {
     profileSaveRef.current = state;
     setProfileSave({ ...state });
+    tabSaveRefs.current["profile"] = { dirty: !state.disabled, save: state.onClick };
   }, []);
+
+  const handleLocationDirty = useCallback((dirty: boolean, save: () => void) => {
+    tabSaveRefs.current["location"] = { dirty, save };
+  }, []);
+
+  const handleDescriptionDirty = useCallback((dirty: boolean, save: () => void) => {
+    tabSaveRefs.current["description"] = { dirty, save };
+  }, []);
+
+  const isCurrentTabDirty = useCallback((): boolean => {
+    if (activeTab === "prompt" && isEditing) return true;
+    if (activeTab === "definition" && defEditing) return true;
+    const ref = tabSaveRefs.current[activeTab];
+    return ref?.dirty ?? false;
+  }, [activeTab, isEditing, defEditing]);
+
+  const handleTabSwitch = useCallback((newTab: string) => {
+    if (newTab === activeTab) return;
+    if (isCurrentTabDirty()) {
+      setPendingTab(newTab);
+    } else {
+      setActiveTab(newTab);
+    }
+  }, [activeTab, isCurrentTabDirty]);
+
+  const handleDialogSave = useCallback(() => {
+    if (activeTab === "prompt" && isEditing) {
+      localSaveRef.current?.();
+    } else if (activeTab === "definition" && defEditing) {
+      localSaveRef.current?.();
+    } else {
+      tabSaveRefs.current[activeTab]?.save();
+    }
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    }
+  }, [activeTab, isEditing, defEditing, pendingTab]);
+
+  const handleDialogDiscard = useCallback(() => {
+    if (pendingTab) {
+      setActiveTab(pendingTab);
+      setPendingTab(null);
+    }
+  }, [pendingTab]);
+
+  useEffect(() => {
+    if (!isCurrentTabDirty()) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isCurrentTabDirty]);
 
   const prompt = ga?.assetDescription || "";
 
@@ -81,7 +149,7 @@ export function IcpContent() {
     );
   };
 
-  const handleSaveDefinition = () => {
+  const handleSaveDefinition = useCallback(() => {
     const icpCfg = { ...(ga?.icpConfig as Record<string, any> || {}), _definition: defDraft };
     updateMutation.mutate(
       { icpConfig: icpCfg },
@@ -92,7 +160,7 @@ export function IcpContent() {
         },
       }
     );
-  };
+  }, [ga?.icpConfig, defDraft, updateMutation, toast]);
 
   const handleEditDefinition = () => {
     setDefDraft(savedDefinition || essay || "");
@@ -123,7 +191,7 @@ export function IcpContent() {
     setIsEditing(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = useCallback(() => {
     updateMutation.mutate(
       { assetDescription: editablePrompt },
       {
@@ -133,7 +201,17 @@ export function IcpContent() {
         },
       }
     );
-  };
+  }, [editablePrompt, updateMutation, toast]);
+
+  useEffect(() => {
+    if (activeTab === "prompt" && isEditing) {
+      localSaveRef.current = handleSaveEdit;
+    } else if (activeTab === "definition" && defEditing) {
+      localSaveRef.current = handleSaveDefinition;
+    } else {
+      localSaveRef.current = null;
+    }
+  }, [activeTab, isEditing, defEditing, handleSaveEdit, handleSaveDefinition]);
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -190,7 +268,7 @@ export function IcpContent() {
 
   return (
     <div className="space-y-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabSwitch} className="w-full">
         <div className="flex items-center gap-3">
           <TabsList className="flex-1 grid grid-cols-7 h-10 max-w-5xl">
           <TabsTrigger value="location" className="text-sm gap-1.5" data-testid="tab-icp-location">
@@ -234,7 +312,7 @@ export function IcpContent() {
         </div>
 
         <TabsContent value="location" className="mt-6">
-          <IcpLocationTab />
+          <IcpLocationTab onDirtyChange={handleLocationDirty} />
         </TabsContent>
 
         <TabsContent value="profile" className="mt-6">
@@ -242,7 +320,7 @@ export function IcpContent() {
         </TabsContent>
 
         <TabsContent value="description" className="mt-6">
-          <AssetDefinitionTab />
+          <AssetDefinitionTab onDirtyChange={handleDescriptionDirty} />
         </TabsContent>
 
         <TabsContent value="prompt" className="mt-6">
@@ -473,6 +551,28 @@ export function IcpContent() {
           <IcpSourcesTab />
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={pendingTab !== null} onOpenChange={(open) => { if (!open) setPendingTab(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes on this tab. Would you like to save them before switching?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingTab(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <Button variant="outline" onClick={handleDialogDiscard} data-testid="button-discard-changes">
+              Discard
+            </Button>
+            <Button onClick={handleDialogSave} data-testid="button-save-and-switch">
+              Save Changes
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

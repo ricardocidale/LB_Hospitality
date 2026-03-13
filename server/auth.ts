@@ -336,7 +336,7 @@ export function setSessionCookie(res: Response, sessionId: string) {
   res.cookie(SESSION_COOKIE, sessionId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: SESSION_DURATION_DAYS * 24 * 60 * 60 * 1000,
   });
 }

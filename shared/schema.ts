@@ -530,7 +530,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
 
   lastFullResearchRefresh: timestamp("last_full_research_refresh"),
 
-  autoResearchRefreshEnabled: boolean("auto_research_refresh_enabled").notNull().default(true),
+  autoResearchRefreshEnabled: boolean("auto_research_refresh_enabled").notNull().default(false),
 
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [

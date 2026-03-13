@@ -43,6 +43,7 @@ declare module "http" {
   }
 }
 
+app.set("trust proxy", 1); // Replit runs behind a reverse proxy
 app.use(sentryRequestHandler());
 app.use(compression({ threshold: 1024 })); // Compress responses > 1KB
 app.use(cookieParser());

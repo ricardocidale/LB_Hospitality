@@ -124,11 +124,11 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 
   // Navigate to pending tab after the dirty flag clears (save succeeded)
   useEffect(() => {
-    if (pendingTabRef.current && !isCurrentTabDirty()) {
+    if (pendingTabRef.current && !icpDirty) {
       setActiveTab(pendingTabRef.current);
       pendingTabRef.current = null;
     }
-  }, [isCurrentTabDirty]);
+  }, [icpDirty]);
 
   const handleDialogDiscard = useCallback(() => {
     if (pendingTab) {

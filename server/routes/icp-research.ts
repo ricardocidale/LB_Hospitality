@@ -38,6 +38,7 @@ function buildIcpResearchPrompt(
 ): string {
   const locations = (icpConfig._locations || []) as IcpLocation[];
   const descriptive = icpConfig._descriptive || {};
+  const sources = icpConfig._sources as { urls?: any[]; files?: any[] } | undefined;
 
   const locationBlock = locations.length > 0
     ? locations.map((loc) => {
@@ -46,6 +47,18 @@ function buildIcpResearchPrompt(
         return `- ${loc.country} > ${loc.states.join(", ")} > Cities: ${cities}${notes}`;
       }).join("\n")
     : "No specific locations defined.";
+
+  let sourcesBlock = "";
+  if (sources) {
+    const urlList = (sources.urls || []).map((u: any) => `- ${u.label}: ${u.url}`).join("\n");
+    const fileList = (sources.files || []).map((f: any) => {
+      if (f.origin === "google-drive" && f.driveUrl) return `- [Google Drive] ${f.name}: ${f.driveUrl}`;
+      return `- [Uploaded] ${f.name}`;
+    }).join("\n");
+    if (urlList || fileList) {
+      sourcesBlock = `\n═══ REFERENCE SOURCES ═══\nThe user has provided the following reference sources. Incorporate relevant data, statistics, and insights from these sources into your analysis where applicable.\n${urlList ? `\nURLs:\n${urlList}` : ""}${fileList ? `\nFiles:\n${fileList}` : ""}\n`;
+    }
+  }
 
   return `You are a senior hospitality investment research analyst specializing in boutique luxury hotels and resorts. Produce a comprehensive ICP (Ideal Customer Profile) market research report for a hotel management company seeking to acquire or manage properties matching the profile below.
 
@@ -69,6 +82,7 @@ ${descriptive.propertyTypes || "Boutique luxury hotel"}
 
 ═══ EXCLUSIONS ═══
 ${descriptive.exclusions || "None specified"}
+${sourcesBlock}
 
 ═══ REPORT STRUCTURE ═══
 Produce the report in the following JSON format:

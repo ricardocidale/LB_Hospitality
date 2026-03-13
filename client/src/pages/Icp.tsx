@@ -6,11 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin, IconFlaskConical } from "@/components/icons";
+import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin, IconFlaskConical, IconFileStack } from "@/components/icons";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
 import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import IcpLocationTab from "@/components/admin/IcpLocationTab";
 import IcpResearchTab from "@/components/admin/IcpResearchTab";
+import IcpSourcesTab from "@/components/admin/IcpSourcesTab";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -145,7 +146,7 @@ export function IcpContent() {
   return (
     <div className="space-y-4">
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="w-full grid grid-cols-6 h-10 max-w-4xl">
+        <TabsList className="w-full grid grid-cols-7 h-10 max-w-5xl">
           <TabsTrigger value="location" className="text-sm gap-1.5" data-testid="tab-icp-location">
             <IconMapPin className="w-4 h-4" />
             Location
@@ -169,6 +170,10 @@ export function IcpContent() {
           <TabsTrigger value="research" className="text-sm gap-1.5" data-testid="tab-icp-research">
             <IconFlaskConical className="w-4 h-4" />
             Research
+          </TabsTrigger>
+          <TabsTrigger value="sources" className="text-sm gap-1.5" data-testid="tab-icp-sources">
+            <IconFileStack className="w-4 h-4" />
+            Sources
           </TabsTrigger>
         </TabsList>
 
@@ -342,6 +347,10 @@ export function IcpContent() {
 
         <TabsContent value="research" className="mt-6">
           <IcpResearchTab />
+        </TabsContent>
+
+        <TabsContent value="sources" className="mt-6">
+          <IcpSourcesTab />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,18 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SaveButton } from "@/components/ui/save-button";
-import { IconPhone, IconGlobe, IconHash, IconCalendar, IconPercent, IconProperties, IconMail, IconMapPin } from "@/components/icons";
+import { IconPhone, IconGlobe, IconHash, IconCalendar, IconProperties, IconMail, IconMapPin } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import LogoSelector from "./LogoSelector";
+import type { AdminSaveState } from "@/components/admin/types/save-state";
 
 interface BrandingTabProps {
   onNavigate?: (tab: string) => void;
+  onSaveStateChange?: (state: AdminSaveState | null) => void;
 }
 
-export default function BrandingTab({ onNavigate }: BrandingTabProps) {
+export default function BrandingTab({ onNavigate, onSaveStateChange }: BrandingTabProps) {
   const { toast } = useToast();
   const { data: globalAssumptions } = useGlobalAssumptions();
   const updateGlobalMutation = useUpdateGlobalAssumptions();
@@ -54,7 +55,7 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
     }
   }, [globalAssumptions]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     updateGlobalMutation.mutate(
       { ...form },
       {
@@ -64,7 +65,19 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
         },
       }
     );
-  };
+  }, [form, updateGlobalMutation, toast]);
+
+  const saveRef = useRef<(() => void) | undefined>(undefined);
+  saveRef.current = handleSave;
+
+  useEffect(() => {
+    onSaveStateChange?.({
+      isDirty,
+      isPending: updateGlobalMutation.isPending,
+      onSave: () => saveRef.current?.(),
+    });
+    return () => onSaveStateChange?.(null);
+  }, [isDirty, updateGlobalMutation.isPending, onSaveStateChange]);
 
   const updateField = (field: keyof typeof form, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -72,9 +85,8 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
   };
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* Identity & Contact */}
         <div className="space-y-6">
           <Card className="bg-card border border-border/80 shadow-sm">
             <CardHeader>
@@ -186,7 +198,6 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
           </Card>
         </div>
 
-        {/* Location */}
         <div className="space-y-6">
           <Card className="bg-card border border-border/80 shadow-sm h-full">
             <CardHeader>
@@ -255,15 +266,6 @@ export default function BrandingTab({ onNavigate }: BrandingTabProps) {
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      <div className="fixed bottom-6 right-6 z-50">
-        <SaveButton
-          onClick={handleSave}
-          isPending={updateGlobalMutation.isPending}
-          hasChanges={isDirty}
-          data-testid="button-save-branding"
-        />
       </div>
     </div>
   );

@@ -1,13 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SaveButton } from "@/components/ui/save-button";
 import { IconPercent } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import type { AdminSaveState } from "@/components/admin/types/save-state";
 
-export default function OtherAssumptionsTab() {
+interface OtherAssumptionsTabProps {
+  onSaveStateChange?: (state: AdminSaveState | null) => void;
+}
+
+export default function OtherAssumptionsTab({ onSaveStateChange }: OtherAssumptionsTabProps) {
   const { toast } = useToast();
   const { data: globalAssumptions } = useGlobalAssumptions();
   const updateGlobalMutation = useUpdateGlobalAssumptions();
@@ -27,7 +31,7 @@ export default function OtherAssumptionsTab() {
     }
   }, [globalAssumptions]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     updateGlobalMutation.mutate(
       { companyInflationRate: form.companyInflationRate ?? undefined },
       {
@@ -37,7 +41,19 @@ export default function OtherAssumptionsTab() {
         },
       }
     );
-  };
+  }, [form, updateGlobalMutation, toast]);
+
+  const saveRef = useRef<(() => void) | undefined>(undefined);
+  saveRef.current = handleSave;
+
+  useEffect(() => {
+    onSaveStateChange?.({
+      isDirty,
+      isPending: updateGlobalMutation.isPending,
+      onSave: () => saveRef.current?.(),
+    });
+    return () => onSaveStateChange?.(null);
+  }, [isDirty, updateGlobalMutation.isPending, onSaveStateChange]);
 
   const updateInflation = (rawValue: string) => {
     if (rawValue === "") {
@@ -49,7 +65,7 @@ export default function OtherAssumptionsTab() {
   };
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6">
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
@@ -85,15 +101,6 @@ export default function OtherAssumptionsTab() {
           </div>
         </CardContent>
       </Card>
-
-      <div className="fixed bottom-6 right-6 z-50">
-        <SaveButton
-          onClick={handleSave}
-          isPending={updateGlobalMutation.isPending}
-          hasChanges={isDirty}
-          data-testid="button-save-other-assumptions"
-        />
-      </div>
     </div>
   );
 }

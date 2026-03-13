@@ -8,7 +8,7 @@
  *   - All Marcela sub-tabs + Knowledge Base (8 tabs)
  *   - Rebecca config with matching tab pattern
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,6 @@ import { ConversationHistory } from "./marcela/ConversationHistory";
 import { WidgetAppearance } from "./marcela/WidgetAppearance";
 import { WidgetInteraction } from "./marcela/WidgetInteraction";
 import { KnowledgeBaseCard } from "./marcela/KnowledgeBase";
-import { SaveButton } from "@/components/ui/save-button";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -452,11 +451,6 @@ function MarcelaConfig({
               <IconPlay className="w-3.5 h-3.5" /> Test
             </Button>
           )}
-          <SaveButton
-            onClick={onSave}
-            disabled={!isDirty}
-            isPending={isSaving}
-          />
         </div>
       </div>
 
@@ -938,7 +932,6 @@ function RebeccaConfig({
             metrics.
           </p>
         </div>
-        <SaveButton onClick={onSave} disabled={!isDirty} isPending={isSaving} />
       </div>
 
       {/* Settings card */}
@@ -1174,7 +1167,11 @@ function PageSkeleton() {
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
-export default function AIAgentsTab() {
+interface AIAgentsTabProps {
+  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
+}
+
+export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -1410,6 +1407,30 @@ export default function AIAgentsTab() {
     },
     [marcelaDraft, queryClient, toast],
   );
+
+  const marcelaSaveRef = useRef<(() => void) | undefined>(undefined);
+  marcelaSaveRef.current = handleSaveMarcela;
+  const rebeccaSaveRef = useRef<(() => void) | undefined>(undefined);
+  rebeccaSaveRef.current = () => saveRebeccaMutation.mutate();
+
+  useEffect(() => {
+    if (activeAgent === "marcela") {
+      onSaveStateChange?.({
+        isDirty: marcelaDirty,
+        isPending: saveMarcela.isPending,
+        onSave: () => marcelaSaveRef.current?.(),
+      });
+    } else if (activeAgent === "rebecca") {
+      onSaveStateChange?.({
+        isDirty: rebeccaDirty,
+        isPending: saveRebeccaMutation.isPending,
+        onSave: () => rebeccaSaveRef.current?.(),
+      });
+    } else {
+      onSaveStateChange?.(null);
+    }
+    return () => onSaveStateChange?.(null);
+  }, [activeAgent, marcelaDirty, rebeccaDirty, saveMarcela.isPending, saveRebeccaMutation.isPending, onSaveStateChange]);
 
   // ── Loading / Error ───────────────────────────────────────────────────────
 

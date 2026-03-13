@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Loader2, X } from "lucide-react";
 import {
-  IconSave, IconPlus, IconBrain, IconExternalLink, IconLibrary, IconRefreshCw,
+  IconPlus, IconBrain, IconExternalLink, IconLibrary, IconRefreshCw,
   IconResearch, IconProperties, IconGlobe, IconMapPin, IconTarget,
   IconBuilding, IconTrendingUp, IconSettings, IconDollarSign,
 } from "@/components/icons";
@@ -732,9 +732,10 @@ function SourcesModelsTab({ draft, setDraft, setIsDirty }: {
 
 interface ResearchCenterTabProps {
   initialTab?: string;
+  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
 }
 
-export default function ResearchCenterTab({ initialTab }: ResearchCenterTabProps) {
+export default function ResearchCenterTab({ initialTab, onSaveStateChange }: ResearchCenterTabProps) {
   const { toast } = useToast();
   const { data: savedConfig, isLoading } = useResearchConfig();
   const saveMutation = useSaveResearchConfig();
@@ -765,6 +766,18 @@ export default function ResearchCenterTab({ initialTab }: ResearchCenterTabProps
     }
   }
 
+  const saveRef = useRef<(() => void) | undefined>(undefined);
+  saveRef.current = handleSave;
+
+  useEffect(() => {
+    onSaveStateChange?.({
+      isDirty,
+      isPending: saveMutation.isPending,
+      onSave: () => saveRef.current?.(),
+    });
+    return () => onSaveStateChange?.(null);
+  }, [isDirty, saveMutation.isPending, onSaveStateChange]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -791,16 +804,6 @@ export default function ResearchCenterTab({ initialTab }: ResearchCenterTabProps
             <IconTarget className="w-3.5 h-3.5" />
             ICP Studio
           </a>
-          <Button
-            data-testid="button-save-research"
-            onClick={handleSave}
-            disabled={!isDirty || saveMutation.isPending}
-            size="sm"
-            className="gap-2"
-          >
-            {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-            Save
-          </Button>
         </div>
       </div>
 

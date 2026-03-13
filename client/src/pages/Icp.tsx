@@ -32,7 +32,11 @@ import {
   generateIcpEssay,
 } from "@/components/admin/icp-config";
 
-export function IcpContent() {
+interface IcpContentProps {
+  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
+}
+
+export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   const { data: ga } = useGlobalAssumptions();
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
@@ -74,6 +78,31 @@ export function IcpContent() {
       setActiveTab(newTab);
     }
   }, [activeTab, isCurrentTabDirty]);
+
+  const icpSaveRef = useRef<(() => void) | null>(null);
+  icpSaveRef.current = () => {
+    if (activeTab === "prompt" && isEditing) {
+      localSaveRef.current?.();
+    } else if (activeTab === "definition" && defEditing) {
+      localSaveRef.current?.();
+    } else {
+      tabSaveRefs.current[activeTab]?.save();
+    }
+  };
+
+  const icpDirty = isCurrentTabDirty();
+  useEffect(() => {
+    if (icpDirty) {
+      onSaveStateChange?.({
+        isDirty: true,
+        isPending: updateMutation.isPending,
+        onSave: () => icpSaveRef.current?.(),
+      });
+    } else {
+      onSaveStateChange?.(null);
+    }
+    return () => onSaveStateChange?.(null);
+  }, [icpDirty, updateMutation.isPending, onSaveStateChange]);
 
   const handleDialogSave = useCallback(() => {
     if (activeTab === "prompt" && isEditing) {

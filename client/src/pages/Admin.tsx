@@ -1,7 +1,8 @@
+import { useState, useCallback, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { type AdminSection, navGroups, getGroupForSection } from "@/components/admin/AdminSidebar";
+import { type AdminSection } from "@/components/admin/AdminSidebar";
 import {
   CompaniesTab, ActivityTab, VerificationTab,
   DatabaseTab,
@@ -25,7 +26,11 @@ import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { SaveButton } from "@/components/ui/save-button";
 import { useAdminSection } from "@/lib/admin-nav";
+import type { AdminSaveState } from "@/components/admin/types/save-state";
+
+export type { AdminSaveState };
 
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   users:            { title: "Users",                subtitle: "Manage user accounts and assignments" },
@@ -48,21 +53,21 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   integrations:     { title: "Integrations",         subtitle: "External service health, circuit breakers, and cache management" },
 };
 
-function SectionContent({ section, onNavigate }: { section: AdminSection; onNavigate: (s: AdminSection) => void }) {
+function SectionContent({ section, onNavigate, onSaveStateChange }: { section: AdminSection; onNavigate: (s: AdminSection) => void; onSaveStateChange: (state: AdminSaveState | null) => void }) {
   switch (section) {
     case "users":            return <PeopleTab />;
     case "activity":         return <ActivityTab />;
-    case "branding":         return <BrandingTab />;
-    case "icp":              return <IcpContent />;
+    case "branding":         return <BrandingTab onSaveStateChange={onSaveStateChange} />;
+    case "icp":              return <IcpContent onSaveStateChange={onSaveStateChange} />;
     case "revshare":         return <RevenueShareTab />;
-    case "otherassumptions": return <OtherAssumptionsTab />;
+    case "otherassumptions": return <OtherAssumptionsTab onSaveStateChange={onSaveStateChange} />;
     case "companies":        return <CompaniesTab />;
     case "groups":           return <GroupsTab />;
     case "logos":            return <LogosTab />;
     case "themes":           return <ThemesTab />;
     case "notifications":    return <NotificationsTab />;
     case "navigation":       return <NavigationTab />;
-    case "research":         return <ResearchCenterTab />;
+    case "research":         return <ResearchCenterTab onSaveStateChange={onSaveStateChange} />;
     case "ai-agents":       return (
       <ErrorBoundary fallback={
         <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
@@ -75,7 +80,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
             Reload page
           </Button>
         </div>
-      }><AIAgentsTab /></ErrorBoundary>
+      }><AIAgentsTab onSaveStateChange={onSaveStateChange} /></ErrorBoundary>
     );
     case "diagrams":         return <DiagramsTab />;
     case "verification":     return <VerificationTab />;
@@ -87,10 +92,17 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
 
 export default function Admin() {
   const [activeSection, setActiveSection] = useAdminSection();
+  const [saveState, setSaveState] = useState<AdminSaveState | null>(null);
+
+  useEffect(() => {
+    setSaveState(null);
+  }, [activeSection]);
+
+  const handleSaveStateChange = useCallback((state: AdminSaveState | null) => {
+    setSaveState(state);
+  }, []);
 
   const meta = sectionMeta[activeSection];
-  const activeGroupId = getGroupForSection(activeSection);
-  const activeGroup = navGroups.find((g) => g.id === activeGroupId);
 
   return (
     <AnimatedPage>
@@ -102,17 +114,20 @@ export default function Admin() {
             subtitle={meta.subtitle}
             variant="dark"
             actions={
-              activeGroup ? (
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted border border-border">
-                  {activeGroup.icon && <activeGroup.icon className="w-3.5 h-3.5 text-muted-foreground" />}
-                  <span className="text-xs font-medium text-foreground/70">{activeGroup.label}</span>
-                </div>
+              saveState ? (
+                <SaveButton
+                  onClick={saveState.onSave}
+                  hasChanges={saveState.isDirty}
+                  isPending={saveState.isPending}
+                  size="sm"
+                  data-testid="button-admin-save"
+                />
               ) : undefined
             }
           />
 
           <div className="space-y-6" data-testid={`admin-content-${activeSection}`}>
-            <SectionContent section={activeSection} onNavigate={setActiveSection} />
+            <SectionContent section={activeSection} onNavigate={setActiveSection} onSaveStateChange={handleSaveStateChange} />
           </div>
         </div>
       </Layout>

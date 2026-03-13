@@ -32,13 +32,17 @@ import {
 } from "@/components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
-import Login from "@/pages/Login";
 import { initClientSentry, setClientUser, Sentry } from "@/lib/sentry";
 import { initAnalytics, identifyUser, trackUserLogin } from "@/lib/analytics";
 
 initClientSentry();
 initAnalytics();
-import { ResearchRefreshOverlay } from "@/components/ResearchRefreshOverlay";
+
+// Lazy-load Login (pulls Three.js ~600KB via SpinningLogo3D) and ResearchRefreshOverlay (also Three.js)
+const Login = lazy(() => import("@/pages/Login"));
+const ResearchRefreshOverlay = lazy(() =>
+  import("@/components/ResearchRefreshOverlay").then(m => ({ default: m.ResearchRefreshOverlay }))
+);
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Company = lazy(() => import("@/pages/Company"));
 const CompanyAssumptions = lazy(() => import("@/pages/CompanyAssumptions"));
@@ -221,10 +225,12 @@ function Router() {
   return (
     <>
       {showResearchRefresh && (
-        <ResearchRefreshOverlay onComplete={handleResearchComplete} />
+        <Suspense fallback={<PageLoader />}>
+          <ResearchRefreshOverlay onComplete={handleResearchComplete} />
+        </Suspense>
       )}
       <Switch>
-        <Route path="/login">{user ? <Redirect to="/" /> : <Login />}</Route>
+        <Route path="/login">{user ? <Redirect to="/" /> : <Suspense fallback={<PageLoader />}><Login /></Suspense>}</Route>
         <Route path="/">
           <FinancialErrorBoundary>
             <ProtectedRoute component={Dashboard} />

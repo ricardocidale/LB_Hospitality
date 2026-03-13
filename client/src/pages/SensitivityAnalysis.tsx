@@ -19,10 +19,7 @@ import { exportTablePNG, captureChartAsImage } from "@/lib/exports/pngExport";
 import { drawCanvasAsImage } from "@/lib/exports/pdfHelpers";
 import SensitivityHeatMap, { type HeatMapCell, type SensitivityHeatMapRef } from "@/components/charts/SensitivityHeatMap";
 import TornadoDiagram, { type TornadoVariable, type TornadoDiagramRef } from "@/components/charts/TornadoDiagram";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import pptxgen from "pptxgenjs";
-import * as XLSX from "xlsx";
+// jspdf, jspdf-autotable, pptxgenjs, xlsx are dynamically imported in export handlers
 
 function calculateIRR(cashFlows: number[]): number {
   const result = computeIRR(cashFlows, 1);
@@ -244,6 +241,8 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
   const handleExportPDF = useCallback(async (orientation: "landscape" | "portrait") => {
     if (!baseResult) return;
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
     const pageWidth = orientation === "landscape" ? 297 : 210;
 
@@ -324,8 +323,9 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     doc.save("sensitivity-analysis.pdf");
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric, advancedChartView]);
 
-  const handleExportExcel = useCallback(() => {
+  const handleExportExcel = useCallback(async () => {
     if (!baseResult) return;
+    const XLSX = await import("xlsx");
     const wb = XLSX.utils.book_new();
 
     const compSheet = [
@@ -369,6 +369,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
 
   const handleExportPPTX = useCallback(async () => {
     if (!baseResult) return;
+    const { default: pptxgen } = await import("pptxgenjs");
     const pres = new pptxgen();
     pres.layout = "LAYOUT_WIDE";
 
@@ -463,6 +464,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     if (!chartRef.current) return;
     const dataUrl = await captureChartAsImage(chartRef.current);
     if (!dataUrl) return;
+    const { default: jsPDF } = await import("jspdf");
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
     const pageWidth = orientation === "landscape" ? 297 : 210;
     const pageHeight = orientation === "landscape" ? 210 : 297;

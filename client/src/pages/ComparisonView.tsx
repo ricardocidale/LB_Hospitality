@@ -8,10 +8,7 @@ import { downloadCSV } from "@/lib/exports/csvExport";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, Trophy, Info } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import pptxgen from "pptxgenjs";
+// jspdf, jspdf-autotable, xlsx, pptxgenjs are dynamically imported in export handlers
 
 function fmtMoney(value: number): string {
   return new Intl.NumberFormat("en-US", {

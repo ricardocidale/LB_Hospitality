@@ -41,11 +41,9 @@ import {
   exportPropertyBalanceSheet,
   exportFullPropertyWorkbook,
 } from "@/lib/exports/excelExport";
-import domtoimage from 'dom-to-image-more';
+// dom-to-image-more, jspdf, jspdf-autotable are dynamically imported in export handlers
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/financial/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
@@ -272,6 +270,8 @@ export default function PropertyDetail() {
   };
 
   const exportIncomeStatementPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended') => {
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
     const pageWidth = orientation === 'landscape' ? 297 : 210;
     const chartWidth = pageWidth - 28;
@@ -405,7 +405,8 @@ export default function PropertyDetail() {
   };
 
   const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended') => {
-
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
     const cashFlowData = getCashFlowData();
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
     const pageWidth = orientation === 'landscape' ? 297 : 210;
@@ -592,6 +593,7 @@ export default function PropertyDetail() {
       const width = orientation === 'landscape' ? 1200 : 800;
       const height = orientation === 'landscape' ? 600 : 1000;
       
+      const domtoimage = (await import("dom-to-image-more")).default;
       const dataUrl = await domtoimage.toPng(chartContainer, {
         bgcolor: '#ffffff',
         quality: 1,
@@ -613,6 +615,7 @@ export default function PropertyDetail() {
     if (!tableContainer) return;
     try {
       const scale = 2;
+      const domtoimage = (await import("dom-to-image-more")).default;
       const dataUrl = await domtoimage.toPng(tableContainer, {
         bgcolor: '#ffffff',
         quality: 1,

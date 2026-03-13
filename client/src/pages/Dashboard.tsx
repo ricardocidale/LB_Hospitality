@@ -43,8 +43,7 @@ import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction,
 import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { exportPortfolioPPTX } from "@/lib/exports/pptxExport";
-import domtoimage from "dom-to-image-more";
-import jsPDF from "jspdf";
+// dom-to-image-more and jspdf are dynamically imported in export handlers to reduce bundle size
 import { format } from "date-fns";
 import {
   usePortfolioFinancials,
@@ -113,6 +112,7 @@ export default function Dashboard() {
     if (!tabContentRef.current) return;
     try {
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
+      const domtoimage = (await import("dom-to-image-more")).default;
       const dataUrl = await domtoimage.toPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" });
       const link = document.createElement("a");
       link.href = dataUrl;
@@ -135,7 +135,7 @@ export default function Dashboard() {
     setExportDialogOpen(true);
   }, []);
 
-  const handleExportConfirm = useCallback((orientation: "landscape" | "portrait", version: ExportVersion) => {
+  const handleExportConfirm = useCallback(async (orientation: "landscape" | "portrait", version: ExportVersion) => {
     if (!financials || !global) return;
     const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
     const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
@@ -156,6 +156,8 @@ export default function Dashboard() {
     } else if (exportType === "chart") {
       if (!tabContentRef.current) return;
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
+      const domtoimage = (await import("dom-to-image-more")).default;
+      const { default: jsPDF } = await import("jspdf");
       domtoimage.toPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" }).then((dataUrl: string) => {
         const img = new Image();
         img.src = dataUrl;

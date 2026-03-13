@@ -1,6 +1,6 @@
 import { properties, type Property, type InsertProperty, type UpdateProperty } from "@shared/schema";
 import { db } from "../db";
-import { eq, or, isNull } from "drizzle-orm";
+import { eq, or, isNull, sql } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 
 export class PropertyStorage {
@@ -46,5 +46,19 @@ export class PropertyStorage {
   /** Remove a property from the portfolio. Fee categories cascade-delete via FK. */
   async deleteProperty(id: number): Promise<void> {
     await db.delete(properties).where(eq(properties.id, id));
+  }
+
+  async getDistinctPropertyLocations(): Promise<{ country: string; stateProvince: string; city: string }[]> {
+    const rows = await db.execute(sql`
+      SELECT DISTINCT country, state_province, city
+      FROM properties
+      WHERE country IS NOT NULL AND country != ''
+      ORDER BY country, state_province, city
+    `);
+    return (rows.rows as any[]).map((r) => ({
+      country: r.country as string,
+      stateProvince: (r.state_province as string) || "",
+      city: (r.city as string) || "",
+    }));
   }
 }

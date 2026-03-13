@@ -1,8 +1,7 @@
 import type { Express } from "express";
 import { Country, State, City } from "country-state-city";
 import { requireAuth } from "../auth";
-import { db } from "../db";
-import { sql } from "drizzle-orm";
+import { storage } from "../storage";
 
 export function register(app: Express) {
   app.get("/api/geo/countries", requireAuth, (_req, res) => {
@@ -42,22 +41,17 @@ export function register(app: Express) {
 
   app.get("/api/geo/default-locations", requireAuth, async (_req, res) => {
     try {
-      const rows = await db.execute(sql`
-        SELECT DISTINCT country, state_province, city
-        FROM properties
-        WHERE country IS NOT NULL AND country != ''
-        ORDER BY country, state_province, city
-      `);
+      const rows = await storage.getDistinctPropertyLocations();
 
       const allCountries = Country.getAllCountries();
       const grouped: Record<string, { states: Record<string, string[]> }> = {};
 
-      for (const row of rows.rows as any[]) {
-        const countryName = row.country as string;
+      for (const row of rows) {
+        const countryName = row.country;
         if (!grouped[countryName]) grouped[countryName] = { states: {} };
-        const state = (row.state_province as string) || "";
+        const state = row.stateProvince;
         if (!grouped[countryName].states[state]) grouped[countryName].states[state] = [];
-        const city = row.city as string;
+        const city = row.city;
         if (city) grouped[countryName].states[state].push(city);
       }
 
@@ -89,6 +83,7 @@ export function register(app: Express) {
           countryCode,
           states: stateCodes,
           cities,
+          notes: "",
         };
       });
 

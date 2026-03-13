@@ -98,6 +98,7 @@ export class DatabaseStorage implements IStorage {
   createProperty = this.properties.createProperty.bind(this.properties);
   updateProperty = this.properties.updateProperty.bind(this.properties);
   deleteProperty = this.properties.deleteProperty.bind(this.properties);
+  getDistinctPropertyLocations = this.properties.getDistinctPropertyLocations.bind(this.properties);
 
   // Scenarios
   getScenariosByUser = this.financial.getScenariosByUser.bind(this.financial);

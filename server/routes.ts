@@ -27,6 +27,7 @@ import * as notificationRoutes from "./routes/notifications";
 import * as plaidRoutes from "./routes/plaid";
 import * as documentRoutes from "./routes/documents";
 import * as geoRoutes from "./routes/geo";
+import * as icpResearchRoutes from "./routes/icp-research";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -59,6 +60,7 @@ export async function registerRoutes(
   plaidRoutes.register(app);
   documentRoutes.register(app);
   geoRoutes.register(app);
+  icpResearchRoutes.register(app);
 
   registerTwilioWebSocket(httpServer);
 

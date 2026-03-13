@@ -168,7 +168,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       label: "",
       items: [
         ...(sb("sidebarUserManual") ? [{ href: "/help", label: "Help", icon: IconHelp }] : []),
-        ...(isAdmin ? [{ href: "/admin", label: "Admin Settings", icon: IconShield }] : []),
+        ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: IconShield }] : []),
       ],
     },
   ].filter(g => g.items.length > 0), [hasManagementAccess, isAdmin, global]);

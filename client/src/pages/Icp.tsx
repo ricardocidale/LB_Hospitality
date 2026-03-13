@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2 } from "@/components/icons";
+import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen } from "@/components/icons";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
 import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
@@ -143,7 +143,7 @@ export function IcpContent() {
   return (
     <div className="space-y-4">
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="w-full grid grid-cols-3 h-10 max-w-xl">
+        <TabsList className="w-full grid grid-cols-4 h-10 max-w-2xl">
           <TabsTrigger value="profile" className="text-sm gap-1.5" data-testid="tab-icp-profile">
             <IconHotel className="w-4 h-4" />
             Property Profile
@@ -155,6 +155,10 @@ export function IcpContent() {
           <TabsTrigger value="prompt" className="text-sm gap-1.5" data-testid="tab-icp-prompt">
             <IconSparkles className="w-4 h-4" />
             AI Prompt
+          </TabsTrigger>
+          <TabsTrigger value="definition" className="text-sm gap-1.5" data-testid="tab-icp-definition">
+            <IconBookOpen className="w-4 h-4" />
+            ICP Definition
           </TabsTrigger>
         </TabsList>
 
@@ -292,34 +296,36 @@ export function IcpContent() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
 
-      <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-icp-definition">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold text-foreground">
-            ICP Definition
-          </CardTitle>
-          <p className="text-xs text-muted-foreground mt-1">
-            Human-readable summary of the Ideal Customer Profile, generated from the Property Profile and Asset Description parameters.
-          </p>
-        </CardHeader>
-        <CardContent>
-          {essay ? (
-            <div
-              className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90"
-              data-testid="text-icp-definition"
-            >
-              {essay.split("\n\n").map((paragraph, i) => (
-                <p key={i} className="mb-3 last:mb-0">{paragraph}</p>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground italic py-4 text-center">
-              Configure the Asset Description parameters to see the ICP definition.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+        <TabsContent value="definition" className="mt-6">
+          <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-icp-definition">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold text-foreground">
+                ICP Definition
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Human-readable summary of the Ideal Customer Profile, generated from the Property Profile and Asset Description parameters.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {essay ? (
+                <div
+                  className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90"
+                  data-testid="text-icp-definition"
+                >
+                  {essay.split("\n\n").map((paragraph, i) => (
+                    <p key={i} className="mb-3 last:mb-0">{paragraph}</p>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground italic py-4 text-center">
+                  Configure the Asset Description parameters to see the ICP definition.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

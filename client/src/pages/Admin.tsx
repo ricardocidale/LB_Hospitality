@@ -58,7 +58,20 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
     case "users":            return <PeopleTab />;
     case "activity":         return <ActivityTab />;
     case "branding":         return <BrandingTab onSaveStateChange={onSaveStateChange} />;
-    case "icp":              return <IcpContent onSaveStateChange={onSaveStateChange} />;
+    case "icp":              return (
+      <ErrorBoundary fallback={
+        <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
+          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+          <div>
+            <p className="font-semibold text-foreground">Ideal Customer Profile failed to load</p>
+            <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+            Reload page
+          </Button>
+        </div>
+      }><IcpContent onSaveStateChange={onSaveStateChange} /></ErrorBoundary>
+    );
     case "revshare":         return <RevenueShareTab />;
     case "otherassumptions": return <OtherAssumptionsTab onSaveStateChange={onSaveStateChange} />;
     case "companies":        return <CompaniesTab />;

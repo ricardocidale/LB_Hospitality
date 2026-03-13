@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import Layout from "@/components/Layout";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageHeader } from "@/components/ui/page-header";
 import { AnimatedPage, AnimatedSection } from "@/components/graphics/motion/AnimatedPage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -653,7 +654,9 @@ export default function Icp() {
             }
           />
           <AnimatedSection delay={0.1}>
-            <IcpContent onSaveStateChange={handleSaveStateChange} />
+            <ErrorBoundary>
+              <IcpContent onSaveStateChange={handleSaveStateChange} />
+            </ErrorBoundary>
           </AnimatedSection>
         </div>
       </AnimatedPage>

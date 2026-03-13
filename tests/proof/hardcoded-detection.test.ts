@@ -570,6 +570,7 @@ describe("Hardcoded Value Detection", () => {
         "analytics.ts",
         "sentry.ts",
         "image-variants.ts",
+        "admin-nav.ts",
       ]);
 
       const allLibFiles = fs.readdirSync(libDir)

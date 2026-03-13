@@ -5,8 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, Scale } from "lucide-react";
 import { IconCheckCircle2, IconXCircle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+// jspdf and jspdf-autotable are dynamically imported in export handlers
 
 import { useGlobalAssumptions } from "@/lib/api/admin";
 import { useProperties } from "@/lib/api/properties";
@@ -130,8 +129,10 @@ export default function VerificationTab() {
     }
   };
 
-  const exportVerificationPDF = () => {
+  const exportVerificationPDF = async () => {
     if (!verificationResults) return;
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 20;

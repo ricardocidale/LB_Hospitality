@@ -100,8 +100,10 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     return selectedProperties.find(p => p.id === winnerId);
   }, [propertyWins, selectedProperties]);
 
-  const handleExportPDF = useCallback(() => {
+  const handleExportPDF = useCallback(async () => {
     if (selectedProperties.length < 2) return;
+    const { default: jsPDF } = await import("jspdf");
+    const { default: autoTable } = await import("jspdf-autotable");
     const doc = new jsPDF({ orientation: "landscape" });
     doc.setFontSize(16);
     doc.text("Property Comparison", 14, 20);
@@ -114,8 +116,9 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     doc.save("property-comparison.pdf");
   }, [selectedProperties]);
 
-  const handleExportExcel = useCallback(() => {
+  const handleExportExcel = useCallback(async () => {
     if (selectedProperties.length < 2) return;
+    const XLSX = await import("xlsx");
     const headers = ["Metric", ...selectedProperties.map((p) => p.name)];
     const rows = METRICS.map((m) => [
       m.label,
@@ -140,6 +143,7 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
 
   const handleExportPPTX = useCallback(async () => {
     if (selectedProperties.length < 2) return;
+    const { default: pptxgen } = await import("pptxgenjs");
     const pptx = new pptxgen();
     const slide1 = pptx.addSlide();
     slide1.background = { color: "0F172A" };

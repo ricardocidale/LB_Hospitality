@@ -23,7 +23,7 @@ import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { usePortfolioFinancials } from "@/components/dashboard";
 import { getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { PROJECTION_YEARS } from "@/lib/constants";
-import pptxgen from "pptxgenjs";
+// pptxgenjs is dynamically imported in export handler
 
 const formatMoney = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -246,7 +246,8 @@ export default function ExecutiveSummary() {
     downloadCSV(content, "executive-summary.csv");
   }, [properties]);
 
-  const handleExportPPTX = useCallback(() => {
+  const handleExportPPTX = useCallback(async () => {
+    const { default: pptxgen } = await import("pptxgenjs");
     const pres = new pptxgen();
     pres.layout = "LAYOUT_WIDE";
 

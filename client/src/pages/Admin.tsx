@@ -22,7 +22,7 @@ import DiagramsTab from "@/components/admin/DiagramsTab";
 import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ErrorBoundary, SelfHealingBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/ui/save-button";
@@ -58,18 +58,9 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
     case "activity":         return <ActivityTab />;
     case "branding":         return <BrandingTab onSaveStateChange={onSaveStateChange} />;
     case "icp":              return (
-      <ErrorBoundary fallback={
-        <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
-          <div>
-            <p className="font-semibold text-foreground">Ideal Customer Profile failed to load</p>
-            <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-            Reload page
-          </Button>
-        </div>
-      }><IcpContent onSaveStateChange={onSaveStateChange} /></ErrorBoundary>
+      <SelfHealingBoundary>
+        <IcpContent onSaveStateChange={onSaveStateChange} />
+      </SelfHealingBoundary>
     );
     case "revshare":         return <RevenueShareTab />;
     case "otherassumptions": return <OtherAssumptionsTab onSaveStateChange={onSaveStateChange} />;

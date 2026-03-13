@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SelfHealingBoundary } from "@/components/ErrorBoundary";
 import { PageHeader } from "@/components/ui/page-header";
 import { AnimatedPage, AnimatedSection } from "@/components/graphics/motion/AnimatedPage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,11 +35,24 @@ import {
   generateIcpEssay,
 } from "@/components/admin/icp-config";
 
+function useHmrKey() {
+  const [key, setKey] = useState(0);
+  useEffect(() => {
+    if (import.meta.hot) {
+      const bump = () => setKey((k) => k + 1);
+      import.meta.hot.on("vite:afterUpdate", bump);
+      return () => import.meta.hot!.off("vite:afterUpdate", bump);
+    }
+  }, []);
+  return key;
+}
+
 interface IcpContentProps {
   onSaveStateChange?: (state: AdminSaveState | null) => void;
 }
 
 export function IcpContent({ onSaveStateChange }: IcpContentProps) {
+  const hmrKey = useHmrKey();
   const { data: ga } = useGlobalAssumptions();
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
@@ -344,7 +357,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 
   return (
     <div className="space-y-4">
-      <Tabs value={activeTab} onValueChange={handleTabSwitch} className="w-full">
+      <Tabs key={hmrKey} value={activeTab} onValueChange={handleTabSwitch} className="w-full">
         <TabsList className="inline-flex flex-wrap h-auto gap-1 justify-start">
           <TabsTrigger value="location" className="text-sm gap-1.5" data-testid="tab-icp-location">
             <IconMapPin className="w-4 h-4" />
@@ -668,9 +681,9 @@ export default function Icp() {
             }
           />
           <AnimatedSection delay={0.1}>
-            <ErrorBoundary>
+            <SelfHealingBoundary>
               <IcpContent onSaveStateChange={handleSaveStateChange} />
-            </ErrorBoundary>
+            </SelfHealingBoundary>
           </AnimatedSection>
         </div>
       </AnimatedPage>

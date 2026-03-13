@@ -60,6 +60,82 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 }
 
+interface SelfHealingBoundaryProps {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  maxRetries?: number;
+  retryDelayMs?: number;
+}
+
+interface SelfHealingBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+  retryCount: number;
+  retryKey: number;
+}
+
+export class SelfHealingBoundary extends React.Component<SelfHealingBoundaryProps, SelfHealingBoundaryState> {
+  private retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor(props: SelfHealingBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null, retryCount: 0, retryKey: 0 };
+  }
+
+  static getDerivedStateFromError(error: Error): Partial<SelfHealingBoundaryState> {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    const maxRetries = this.props.maxRetries ?? 3;
+    const nextRetry = this.state.retryCount + 1;
+    if (nextRetry > maxRetries) {
+      console.error("SelfHealingBoundary exhausted retries:", error, errorInfo);
+      captureClientException(error, { boundary: "SelfHealingBoundary" });
+      return;
+    }
+    if (this.retryTimer) clearTimeout(this.retryTimer);
+    const delay = this.props.retryDelayMs ?? 150;
+    this.retryTimer = setTimeout(() => {
+      this.retryTimer = null;
+      this.setState((prev) => ({
+        hasError: false,
+        error: null,
+        retryCount: prev.retryCount + 1,
+        retryKey: prev.retryKey + 1,
+      }));
+    }, delay);
+  }
+
+  componentWillUnmount() {
+    if (this.retryTimer) clearTimeout(this.retryTimer);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const maxRetries = this.props.maxRetries ?? 3;
+      if (this.state.retryCount + 1 > maxRetries) {
+        if (this.props.fallback) return this.props.fallback;
+        return (
+          <div className="w-full p-8 text-center">
+            <IconAlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load</h3>
+            <p className="text-muted-foreground text-sm mb-4">
+              A component error occurred. Reload the page to try again.
+            </p>
+            <Button onClick={() => window.location.reload()}>
+              <IconRefreshCw className="w-4 h-4" />
+              Reload page
+            </Button>
+          </div>
+        );
+      }
+      return null;
+    }
+    return <React.Fragment key={this.state.retryKey}>{this.props.children}</React.Fragment>;
+  }
+}
+
 export class FinancialErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);

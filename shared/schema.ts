@@ -1490,7 +1490,9 @@ export const alertRules = pgTable("alert_rules", {
   lastTriggeredAt: timestamp("last_triggered_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("alert_rules_property_id_idx").on(table.propertyId),
+]);
 
 export const insertAlertRuleSchema = z.object({
   name: z.string().min(1),
@@ -1525,6 +1527,8 @@ export const notificationLogs = pgTable("notification_logs", {
   index("notification_logs_event_type_idx").on(table.eventType),
   index("notification_logs_status_idx").on(table.status),
   index("notification_logs_created_at_idx").on(table.createdAt),
+  index("notification_logs_alert_rule_id_idx").on(table.alertRuleId),
+  index("notification_logs_property_id_idx").on(table.propertyId),
 ]);
 
 export const insertNotificationLogSchema = z.object({

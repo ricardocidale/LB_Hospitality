@@ -113,7 +113,7 @@ PRODUCTION_URL = "https://h-analysis.com"
 
 [userenv.shared]
 MARCELA_TOOLS_SECRET = "akL747Uh8ELmRZVXE2dipCq4snqYa5Rj19iI2rbrUy4"
-GOOGLE_CLIENT_ID = "565834167960-246fc0f6pbot6tg0pk2ldvunc2nrlv71.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = "565834167960-l2lj72aphqdmhmvm88j657d8ccg6r797.apps.googleusercontent.com"
 
 [postMerge]
 path = "script/post-merge.sh"

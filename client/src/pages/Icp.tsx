@@ -25,6 +25,7 @@ import IcpResearchTab from "@/components/admin/IcpResearchTab";
 import IcpSourcesTab from "@/components/admin/IcpSourcesTab";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import type { AdminSaveState } from "@/components/admin/types/save-state";
 import {
   type IcpConfig,
   type IcpDescriptive,
@@ -35,7 +36,7 @@ import {
 } from "@/components/admin/icp-config";
 
 interface IcpContentProps {
-  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
+  onSaveStateChange?: (state: AdminSaveState | null) => void;
 }
 
 export function IcpContent({ onSaveStateChange }: IcpContentProps) {
@@ -52,32 +53,38 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   const [defDraft, setDefDraft] = useState("");
 
   const [pendingTab, setPendingTab] = useState<string | null>(null);
-  const tabSaveRefs = useRef<Record<string, { dirty: boolean; save: () => void }>>({});
+  // Unified save state from sub-tabs that use AdminSaveState contract
+  const tabSaveState = useRef<Record<string, AdminSaveState | null>>({});
   const [, setDirtyTick] = useState(0);
   const localSaveRef = useRef<(() => void) | null>(null);
   const autoGenPromptRef = useRef(false);
   const userClearedPromptRef = useRef(false);
 
-  const handleLocationDirty = useCallback((dirty: boolean, save: () => void) => {
-    tabSaveRefs.current["location"] = { dirty, save };
-    setDirtyTick(t => t + 1);
+  const handleSubTabSaveState = useCallback((tabKey: string) => {
+    return (state: AdminSaveState | null) => {
+      tabSaveState.current[tabKey] = state;
+      setDirtyTick(t => t + 1);
+    };
   }, []);
 
-  const handleDescriptionDirty = useCallback((dirty: boolean, save: () => void) => {
-    tabSaveRefs.current["description"] = { dirty, save };
-    setDirtyTick(t => t + 1);
-  }, []);
-
-  const handleProfileDirty = useCallback((dirty: boolean, save: () => void) => {
-    tabSaveRefs.current["profile"] = { dirty, save };
-    setDirtyTick(t => t + 1);
-  }, []);
+  const handleLocationSaveState = useMemo(() => handleSubTabSaveState("location"), [handleSubTabSaveState]);
+  const handleDescriptionSaveState = useMemo(() => handleSubTabSaveState("description"), [handleSubTabSaveState]);
+  const handleProfileSaveState = useMemo(() => handleSubTabSaveState("profile"), [handleSubTabSaveState]);
 
   const isCurrentTabDirty = useCallback((): boolean => {
     if (activeTab === "prompt" && isEditing) return true;
     if (activeTab === "definition" && defEditing) return true;
-    const ref = tabSaveRefs.current[activeTab];
-    return ref?.dirty ?? false;
+    return tabSaveState.current[activeTab]?.isDirty ?? false;
+  }, [activeTab, isEditing, defEditing]);
+
+  const saveCurrentTab = useCallback(() => {
+    if (activeTab === "prompt" && isEditing) {
+      localSaveRef.current?.();
+    } else if (activeTab === "definition" && defEditing) {
+      localSaveRef.current?.();
+    } else {
+      tabSaveState.current[activeTab]?.onSave();
+    }
   }, [activeTab, isEditing, defEditing]);
 
   const handleTabSwitch = useCallback((newTab: string) => {
@@ -89,44 +96,39 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     }
   }, [activeTab, isCurrentTabDirty]);
 
-  const icpSaveRef = useRef<(() => void) | null>(null);
-  icpSaveRef.current = () => {
-    if (activeTab === "prompt" && isEditing) {
-      localSaveRef.current?.();
-    } else if (activeTab === "definition" && defEditing) {
-      localSaveRef.current?.();
-    } else {
-      tabSaveRefs.current[activeTab]?.save();
-    }
-  };
-
+  // Surface the active sub-tab's dirty state to the parent Admin shell
   const icpDirty = isCurrentTabDirty();
   useEffect(() => {
     if (icpDirty) {
       onSaveStateChange?.({
         isDirty: true,
         isPending: updateMutation.isPending,
-        onSave: () => icpSaveRef.current?.(),
+        onSave: saveCurrentTab,
       });
     } else {
       onSaveStateChange?.(null);
     }
     return () => onSaveStateChange?.(null);
-  }, [icpDirty, updateMutation.isPending, onSaveStateChange]);
+  }, [icpDirty, updateMutation.isPending, onSaveStateChange, saveCurrentTab]);
+
+  // Dialog: save then navigate (deferred to onSuccess via pendingTabRef)
+  const pendingTabRef = useRef<string | null>(null);
 
   const handleDialogSave = useCallback(() => {
-    if (activeTab === "prompt" && isEditing) {
-      localSaveRef.current?.();
-    } else if (activeTab === "definition" && defEditing) {
-      localSaveRef.current?.();
-    } else {
-      tabSaveRefs.current[activeTab]?.save();
+    // Store target tab — the mutation's onSuccess in sub-tab will clear dirty,
+    // which triggers re-render and we navigate via the effect below.
+    pendingTabRef.current = pendingTab;
+    saveCurrentTab();
+    setPendingTab(null);
+  }, [pendingTab, saveCurrentTab]);
+
+  // Navigate to pending tab after the dirty flag clears (save succeeded)
+  useEffect(() => {
+    if (pendingTabRef.current && !isCurrentTabDirty()) {
+      setActiveTab(pendingTabRef.current);
+      pendingTabRef.current = null;
     }
-    if (pendingTab) {
-      setActiveTab(pendingTab);
-      setPendingTab(null);
-    }
-  }, [activeTab, isEditing, defEditing, pendingTab]);
+  }, [isCurrentTabDirty]);
 
   const handleDialogDiscard = useCallback(() => {
     if (pendingTab) {
@@ -167,32 +169,41 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     [config, desc, propertyLabel]
   );
 
+  /** Helper: build icpConfig payload with a single field override (avoids spreading ga) */
+  const icpConfigWith = useCallback((overrides: Record<string, any>) => {
+    return { ...(ga?.icpConfig as Record<string, any> || {}), ...overrides };
+  }, [ga?.icpConfig]);
+
+  const mutateError = useCallback(() => {
+    toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
+  }, [toast]);
+
   const handleGenerateDefinition = () => {
     const md = generateIcpEssay(config, desc, propertyLabel);
-    const icpCfg = { ...(ga?.icpConfig as Record<string, any> || {}), _definition: md };
     updateMutation.mutate(
-      { ...ga, icpConfig: icpCfg },
+      { icpConfig: icpConfigWith({ _definition: md }) },
       {
         onSuccess: () => {
           setDefEditing(false);
           toast({ title: "Generated", description: "ICP definition updated from current profile." });
         },
+        onError: mutateError,
       }
     );
   };
 
   const handleSaveDefinition = useCallback(() => {
-    const icpCfg = { ...(ga?.icpConfig as Record<string, any> || {}), _definition: defDraft };
     updateMutation.mutate(
-      { ...ga, icpConfig: icpCfg },
+      { icpConfig: icpConfigWith({ _definition: defDraft }) },
       {
         onSuccess: () => {
           setDefEditing(false);
           toast({ title: "Saved", description: "ICP definition saved." });
         },
+        onError: mutateError,
       }
     );
-  }, [ga, defDraft, updateMutation, toast]);
+  }, [icpConfigWith, defDraft, updateMutation, toast, mutateError]);
 
   const handleEditDefinition = () => {
     setDefDraft(savedDefinition || essay || "");
@@ -210,7 +221,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     autoGenPromptRef.current = true;
     const generated = generateIcpPrompt(config, desc, propertyLabel);
     updateMutation.mutate(
-      { ...ga, assetDescription: generated },
+      { assetDescription: generated },
       {
         onSuccess: () => {
           setIsEditing(false);
@@ -253,15 +264,16 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 
   const handleSaveEdit = useCallback(() => {
     updateMutation.mutate(
-      { ...ga, assetDescription: editablePrompt },
+      { assetDescription: editablePrompt },
       {
         onSuccess: () => {
           setIsEditing(false);
           toast({ title: "Saved", description: "AI prompt updated." });
         },
+        onError: mutateError,
       }
     );
-  }, [editablePrompt, ga, updateMutation, toast]);
+  }, [editablePrompt, updateMutation, toast, mutateError]);
 
   useEffect(() => {
     if (activeTab === "prompt" && isEditing) {
@@ -282,13 +294,14 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     userClearedPromptRef.current = true;
     autoGenPromptRef.current = false;
     updateMutation.mutate(
-      { ...ga, assetDescription: "" },
+      { assetDescription: "" },
       {
         onSuccess: () => {
           setIsEditing(false);
           setEditablePrompt("");
           toast({ title: "Cleared", description: "AI prompt cleared." });
         },
+        onError: mutateError,
       }
     );
   };
@@ -313,12 +326,13 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
       }
       const { optimized } = await res.json();
       updateMutation.mutate(
-        { ...ga, assetDescription: optimized },
+        { assetDescription: optimized },
         {
           onSuccess: () => {
             setIsEditing(false);
             toast({ title: "Optimized", description: "Prompt has been optimized by AI." });
           },
+          onError: mutateError,
         }
       );
     } catch (err: any) {
@@ -363,15 +377,15 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
         </TabsList>
 
         <TabsContent value="location" className="mt-6">
-          <IcpLocationTab onDirtyChange={handleLocationDirty} />
+          <IcpLocationTab onSaveStateChange={handleLocationSaveState} />
         </TabsContent>
 
         <TabsContent value="profile" className="mt-6">
-          <CompanyProfileTab onDirtyChange={handleProfileDirty} />
+          <CompanyProfileTab onSaveStateChange={handleProfileSaveState} />
         </TabsContent>
 
         <TabsContent value="description" className="mt-6">
-          <AssetDefinitionTab onDirtyChange={handleDescriptionDirty} />
+          <AssetDefinitionTab onSaveStateChange={handleDescriptionSaveState} />
         </TabsContent>
 
         <TabsContent value="prompt" className="mt-6">
@@ -629,8 +643,8 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 }
 
 export default function Icp() {
-  const [saveState, setSaveState] = useState<import("@/components/admin/types/save-state").AdminSaveState | null>(null);
-  const handleSaveStateChange = useCallback((state: import("@/components/admin/types/save-state").AdminSaveState | null) => {
+  const [saveState, setSaveState] = useState<AdminSaveState | null>(null);
+  const handleSaveStateChange = useCallback((state: AdminSaveState | null) => {
     setSaveState(state);
   }, []);
 

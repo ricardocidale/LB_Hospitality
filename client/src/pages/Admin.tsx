@@ -9,7 +9,6 @@ import {
 } from "@/components/admin";
 import PeopleTab from "@/components/admin/PeopleTab";
 import BrandingTab from "@/components/admin/BrandingTab";
-import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
 import { IcpContent } from "@/pages/Icp";
 import RevenueShareTab from "@/components/admin/RevenueShareTab";
 import OtherAssumptionsTab from "@/components/admin/OtherAssumptionsTab";

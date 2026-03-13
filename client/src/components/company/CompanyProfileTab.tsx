@@ -10,18 +10,11 @@ import { IconHotel } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
-export interface ProfileSaveState {
-  onClick: () => void;
-  disabled: boolean;
-  isPending: boolean;
-}
-
 export interface CompanyProfileTabProps {
-  onSaveStateChange?: (state: ProfileSaveState) => void;
-  onDirtyChange?: (dirty: boolean, save: () => void) => void;
+  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
 }
 
-export default function CompanyProfileTab({ onSaveStateChange, onDirtyChange }: CompanyProfileTabProps = {}) {
+export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileTabProps = {}) {
   const { data: global } = useGlobalAssumptions();
   const updateGlobal = useUpdateGlobalAssumptions();
   const { toast } = useToast();
@@ -52,16 +45,19 @@ export default function CompanyProfileTab({ onSaveStateChange, onDirtyChange }: 
   }, [draft, updateGlobal, toast]);
 
   useEffect(() => {
-    if (onSaveStateChange) {
-      onSaveStateChange({ onClick: handleSave, disabled: !draft, isPending: updateGlobal.isPending });
+    if (!!draft) {
+      onSaveStateChange?.({
+        isDirty: true,
+        isPending: updateGlobal.isPending,
+        onSave: handleSave,
+      });
+    } else {
+      onSaveStateChange?.(null);
     }
-  }, [draft, updateGlobal.isPending, onSaveStateChange]);
+    return () => onSaveStateChange?.(null);
+  }, [!!draft, handleSave, updateGlobal.isPending, onSaveStateChange]);
 
-  useEffect(() => {
-    onDirtyChange?.(!!draft, handleSave);
-  }, [!!draft, handleSave, onDirtyChange]);
-
-  const hasExternalSaveHandler = !!onSaveStateChange || !!onDirtyChange;
+  const hasExternalSaveHandler = !!onSaveStateChange;
 
   return (
     <div className="space-y-6">

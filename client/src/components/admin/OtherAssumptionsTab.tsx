@@ -39,6 +39,9 @@ export default function OtherAssumptionsTab({ onSaveStateChange }: OtherAssumpti
           setIsDirty(false);
           toast({ title: "Saved", description: "Other assumptions saved." });
         },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
+        },
       }
     );
   }, [form, updateGlobalMutation, toast]);

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { IconPlus, IconTrash, IconMapPin, IconGlobe } from "@/components/icons";
-import { SaveButton } from "@/components/ui/save-button";
+import type { AdminSaveState } from "@/components/admin/types/save-state";
 import { X } from "lucide-react";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -340,10 +340,10 @@ function LocationCard({
 }
 
 export interface IcpLocationTabProps {
-  onDirtyChange?: (dirty: boolean, save: () => void) => void;
+  onSaveStateChange?: (state: AdminSaveState | null) => void;
 }
 
-export default function IcpLocationTab({ onDirtyChange }: IcpLocationTabProps = {}) {
+export default function IcpLocationTab({ onSaveStateChange }: IcpLocationTabProps = {}) {
   const { data: ga } = useGlobalAssumptions();
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
@@ -412,13 +412,25 @@ export default function IcpLocationTab({ onDirtyChange }: IcpLocationTabProps = 
           setDirty(false);
           toast({ title: "Saved", description: "Target locations saved." });
         },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to save locations. Please try again.", variant: "destructive" });
+        },
       }
     );
   }, [ga?.icpConfig, locations, updateMutation, toast]);
 
   useEffect(() => {
-    onDirtyChange?.(dirty, handleSave);
-  }, [dirty, handleSave, onDirtyChange]);
+    if (dirty) {
+      onSaveStateChange?.({
+        isDirty: true,
+        isPending: updateMutation.isPending,
+        onSave: handleSave,
+      });
+    } else {
+      onSaveStateChange?.(null);
+    }
+    return () => onSaveStateChange?.(null);
+  }, [dirty, handleSave, updateMutation.isPending, onSaveStateChange]);
 
   return (
     <div className="space-y-4">
@@ -467,16 +479,6 @@ export default function IcpLocationTab({ onDirtyChange }: IcpLocationTabProps = 
         </div>
       )}
 
-      <div className="fixed bottom-6 right-6 z-50">
-        <SaveButton
-          onClick={handleSave}
-          isPending={updateMutation.isPending}
-          hasChanges={dirty}
-          data-testid="button-save-locations"
-        >
-          Save Locations
-        </SaveButton>
-      </div>
     </div>
   );
 }

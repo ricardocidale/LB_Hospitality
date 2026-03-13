@@ -148,10 +148,10 @@ interface CustomAmenity {
 }
 
 export interface AssetDefinitionTabProps {
-  onDirtyChange?: (dirty: boolean, save: () => void) => void;
+  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
 }
 
-export default function AssetDefinitionTab({ onDirtyChange }: AssetDefinitionTabProps = {}) {
+export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitionTabProps = {}) {
   const { toast } = useToast();
   const { data: ga } = useGlobalAssumptions();
   const updateMutation = useUpdateGlobalAssumptions();
@@ -211,13 +211,25 @@ export default function AssetDefinitionTab({ onDirtyChange }: AssetDefinitionTab
           setDirty(false);
           toast({ title: "Saved", description: "Amenities profile and generated context saved." });
         },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
+        },
       }
     );
   }, [config, desc, customAmenities, hiddenFields, propertyLabel, generatedPrompt, updateMutation, toast]);
 
   useEffect(() => {
-    onDirtyChange?.(dirty, handleSave);
-  }, [dirty, handleSave, onDirtyChange]);
+    if (dirty) {
+      onSaveStateChange?.({
+        isDirty: true,
+        isPending: updateMutation.isPending,
+        onSave: handleSave,
+      });
+    } else {
+      onSaveStateChange?.(null);
+    }
+    return () => onSaveStateChange?.(null);
+  }, [dirty, handleSave, updateMutation.isPending, onSaveStateChange]);
 
   const addCustomAmenity = () => {
     const newAmenity: CustomAmenity = {

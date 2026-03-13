@@ -63,6 +63,9 @@ export default function BrandingTab({ onNavigate, onSaveStateChange }: BrandingT
           setIsDirty(false);
           toast({ title: "Saved", description: "Management company settings saved." });
         },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
+        },
       }
     );
   }, [form, updateGlobalMutation, toast]);

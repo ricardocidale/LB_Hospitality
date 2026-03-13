@@ -98,7 +98,7 @@ const L2_AI = `flowchart LR
   User --> Chat`;
 
 const L2_RESEARCH = `flowchart LR
-  Trigger([Research Trigger]) --> Config[Admin Config]
+  Trigger([Research Trigger]) --> Config[Admin]
   Config --> Builder[Prompt Builder]
   Builder --> Tools[Deterministic Tools]
   Tools --> LLM[AI Model]
@@ -314,7 +314,7 @@ export default function DiagramsTab() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="admin">
-              <AccordionTrigger className="text-sm font-semibold">Admin Configuration Cascade</AccordionTrigger>
+              <AccordionTrigger className="text-sm font-semibold">Admin Cascade</AccordionTrigger>
               <AccordionContent>
                 <DiagramCard
                   title="Theme & Branding Cascade"

@@ -133,12 +133,12 @@ export function ResearchCriteriaTab({
           </AccordionContent>
         </AccordionItem>
 
-        {/* Admin Configuration */}
+        {/* Admin */}
         <AccordionItem value="admin-config" className="border border-border rounded-lg overflow-hidden">
           <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
             <div className="flex items-center gap-2">
               <SectionIcon icon={IconSettings} />
-              <span className="font-medium text-sm">Admin Configuration</span>
+              <span className="font-medium text-sm">Admin</span>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4">

@@ -54,6 +54,30 @@ export function OtherTab({
         </CardContent>
       </Card>
 
+      <Card className="bg-card border-border shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-display">
+            <IconSliders className="w-5 h-5 text-primary" />
+            Research Automation
+            <HelpTooltip text="Control automatic AI research refresh behavior. When enabled, the system checks whether any research (property, company, or global) is stale after login and automatically triggers a refresh overlay." />
+          </CardTitle>
+          <CardDescription className="label-text">Configure automatic research refresh behavior on login.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+            <div>
+              <Label className="label-text font-medium flex items-center gap-1">Auto-refresh research on login <HelpTooltip text="When ON, the system checks after each login whether any research (property, company, or global) hasn't been refreshed in the last 30 business days and automatically triggers a full refresh. When OFF, this post-login staleness check and overlay are completely skipped." /></Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Automatically refresh stale research data after login (checks every 30 business days)</p>
+            </div>
+            <Switch
+              checked={currentGlobal.autoResearchRefreshEnabled ?? true}
+              onCheckedChange={(checked) => handleGlobalChange("autoResearchRefreshEnabled", checked)}
+              data-testid="switch-auto-research-refresh"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       <SaveButton 
         onClick={handleSaveGlobal} 
         disabled={!globalDraft} 

@@ -198,15 +198,29 @@ function Router() {
         return;
       }
 
-      const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-      fetch("/api/research/last-full-refresh", { credentials: "include" })
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          if (!data || !data.lastRefresh) {
+      const countBusinessDays = (from: Date, to: Date): number => {
+        let count = 0;
+        const current = new Date(from);
+        while (current < to) {
+          const day = current.getDay();
+          if (day !== 0 && day !== 6) count++;
+          current.setDate(current.getDate() + 1);
+        }
+        return count;
+      };
+
+      Promise.all([
+        fetch("/api/research/last-full-refresh", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+        fetch("/api/global-assumptions", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+      ])
+        .then(([refreshData, gaData]) => {
+          if (gaData && gaData.autoResearchRefreshEnabled === false) return;
+
+          if (!refreshData || !refreshData.lastRefresh) {
             setShowResearchRefresh(true);
           } else {
-            const age = Date.now() - new Date(data.lastRefresh).getTime();
-            if (age >= THIRTY_DAYS_MS) {
+            const businessDays = countBusinessDays(new Date(refreshData.lastRefresh), new Date());
+            if (businessDays >= 30) {
               setShowResearchRefresh(true);
             }
           }

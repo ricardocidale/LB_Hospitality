@@ -530,6 +530,8 @@ export const globalAssumptions = pgTable("global_assumptions", {
 
   lastFullResearchRefresh: timestamp("last_full_research_refresh"),
 
+  autoResearchRefreshEnabled: boolean("auto_research_refresh_enabled").notNull().default(true),
+
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
@@ -693,6 +695,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   rebeccaDisplayName: true,
   rebeccaSystemPrompt: true,
   researchConfig: true,
+  autoResearchRefreshEnabled: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

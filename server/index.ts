@@ -149,6 +149,7 @@ app.use((req, res, next) => {
     { runDocuments001 },
     { runCompositeIndexes001 },
     { runFkIndexes001 },
+    { runMigration: runAutoResearchRefresh001 },
   ] = await Promise.all([
     import("./migrations/research-config-001"),
     import("./migrations/inflation-per-entity-001"),
@@ -160,6 +161,7 @@ app.use((req, res, next) => {
     import("./migrations/documents-001"),
     import("./migrations/composite-indexes-001"),
     import("./migrations/fk-indexes-001"),
+    import("./migrations/auto-research-refresh-001"),
   ]);
   await Promise.all([
     runResearchConfig001(),
@@ -172,6 +174,7 @@ app.use((req, res, next) => {
     runDocuments001(),
     runCompositeIndexes001(),
     runFkIndexes001(),
+    runAutoResearchRefresh001(),
   ]);
 
   await seedAdminUser(); // Must complete first — users are FK dependencies

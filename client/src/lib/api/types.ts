@@ -136,6 +136,8 @@ export interface GlobalResponse {
   assetDescription: string | null;
   // ICP Config
   icpConfig: Record<string, any> | null;
+  // Research Automation
+  autoResearchRefreshEnabled: boolean;
   updatedAt: string;
 }
 

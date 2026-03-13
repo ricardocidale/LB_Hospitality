@@ -4,11 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Shield } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import Layout from "@/components/Layout";
-import { useGlobalAssumptions } from "@/lib/api";
 
 function PrivacyContent() {
-  const { data: global } = useGlobalAssumptions();
-  const companyName = global?.companyName || "Hospitality Business Group";
+  const companyName = "Hospitality Business Group";
   const effectiveDate = "March 13, 2026";
 
   return (

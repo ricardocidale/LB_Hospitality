@@ -36,6 +36,8 @@ export function IcpContent() {
   const [activeTab, setActiveTab] = useState("profile");
   const [profileSave, setProfileSave] = useState<ProfileSaveState | null>(null);
   const profileSaveRef = useRef<ProfileSaveState | null>(null);
+  const [defEditing, setDefEditing] = useState(false);
+  const [defDraft, setDefDraft] = useState("");
 
   const handleProfileSaveState = useCallback((state: ProfileSaveState) => {
     profileSaveRef.current = state;
@@ -58,10 +60,44 @@ export function IcpContent() {
 
   const propertyLabel = ga?.propertyLabel || "Boutique Hotel";
 
+  const savedDefinition = (ga?.icpConfig as any)?._definition as string | undefined;
+
   const essay = useMemo(
     () => generateIcpEssay(config, desc, propertyLabel),
     [config, desc, propertyLabel]
   );
+
+  const handleGenerateDefinition = () => {
+    const md = generateIcpEssay(config, desc, propertyLabel);
+    const icpCfg = { ...(ga?.icpConfig as Record<string, any> || {}), _definition: md };
+    updateMutation.mutate(
+      { icpConfig: icpCfg },
+      {
+        onSuccess: () => {
+          setDefEditing(false);
+          toast({ title: "Generated", description: "ICP definition updated from current profile." });
+        },
+      }
+    );
+  };
+
+  const handleSaveDefinition = () => {
+    const icpCfg = { ...(ga?.icpConfig as Record<string, any> || {}), _definition: defDraft };
+    updateMutation.mutate(
+      { icpConfig: icpCfg },
+      {
+        onSuccess: () => {
+          setDefEditing(false);
+          toast({ title: "Saved", description: "ICP definition saved." });
+        },
+      }
+    );
+  };
+
+  const handleEditDefinition = () => {
+    setDefDraft(savedDefinition || essay || "");
+    setDefEditing(true);
+  };
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(isEditing ? editablePrompt : prompt);
@@ -339,27 +375,91 @@ export function IcpContent() {
         <TabsContent value="definition" className="mt-6">
           <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-icp-definition">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold text-foreground">
-                ICP Definition
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                Human-readable summary of the Ideal Customer Profile, generated from the Property Profile and Asset Description parameters.
-              </p>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <CardTitle className="text-base font-semibold text-foreground">
+                    ICP Definition
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Human-readable summary of the Ideal Customer Profile. Generate from current settings or edit by hand.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={handleGenerateDefinition}
+                    disabled={updateMutation.isPending}
+                    className="text-xs h-8 gap-1.5"
+                    data-testid="button-generate-definition"
+                  >
+                    <IconRefreshCw className="w-3.5 h-3.5" />
+                    {savedDefinition ? "Regenerate" : "Generate"}
+                  </Button>
+                  {!defEditing ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleEditDefinition}
+                      disabled={!savedDefinition && !essay}
+                      className="text-xs h-8 gap-1.5"
+                      data-testid="button-edit-definition"
+                    >
+                      <IconPencil className="w-3.5 h-3.5" />
+                      Edit
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={handleSaveDefinition}
+                        disabled={updateMutation.isPending}
+                        className="text-xs h-8 gap-1.5"
+                        data-testid="button-save-definition"
+                      >
+                        {updateMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setDefEditing(false)}
+                        className="text-xs h-8"
+                        data-testid="button-cancel-definition"
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              {essay ? (
+              {defEditing ? (
+                <textarea
+                  value={defDraft}
+                  onChange={(e) => setDefDraft(e.target.value)}
+                  className="w-full min-h-[400px] text-sm leading-relaxed font-sans text-foreground/90 bg-muted/40 border border-border rounded p-4 resize-y focus:outline-none focus:ring-1 focus:ring-ring"
+                  data-testid="textarea-icp-definition"
+                />
+              ) : savedDefinition ? (
                 <div
                   className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90"
                   data-testid="text-icp-definition"
                 >
-                  {essay.split("\n\n").map((paragraph, i) => (
+                  {savedDefinition.split("\n\n").map((paragraph, i) => (
                     <p key={i} className="mb-3 last:mb-0">{paragraph}</p>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground italic py-4 text-center">
-                  Configure the Asset Description parameters to see the ICP definition.
-                </p>
+                <div className="text-center py-12 text-muted-foreground">
+                  <IconBookOpen className="w-8 h-8 mx-auto mb-3 opacity-40" />
+                  <p className="text-sm font-medium">No ICP definition generated yet</p>
+                  <p className="text-xs mt-1">
+                    Click <strong>Generate</strong> to build the definition from your current Property Profile and Asset Description.
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>

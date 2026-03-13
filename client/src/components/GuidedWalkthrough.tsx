@@ -10,18 +10,22 @@ interface WalkthroughState {
   shownThisSession: boolean;
   tourActive: boolean;
   promptVisible: boolean;
+  triggerCount: number;
   setShownThisSession: (v: boolean) => void;
   setTourActive: (v: boolean) => void;
   setPromptVisible: (v: boolean) => void;
+  triggerPrompt: () => void;
 }
 
 export const useWalkthroughStore = create<WalkthroughState>()((set) => ({
   shownThisSession: false,
   tourActive: false,
   promptVisible: false,
+  triggerCount: 0,
   setShownThisSession: (v: boolean) => set({ shownThisSession: v }),
   setTourActive: (v: boolean) => set({ tourActive: v }),
   setPromptVisible: (v: boolean) => set({ promptVisible: v }),
+  triggerPrompt: () => set((s) => ({ triggerCount: s.triggerCount + 1 })),
 }));
 
 async function updateTourPromptPreference(hide: boolean): Promise<void> {
@@ -118,7 +122,7 @@ function TourPromptDialog({ onAccept, onDecline }: { onAccept: () => void; onDec
 }
 
 function GuidedWalkthrough() {
-  const { shownThisSession, tourActive, setShownThisSession, setTourActive, setPromptVisible } = useWalkthroughStore();
+  const { shownThisSession, tourActive, triggerCount, setShownThisSession, setTourActive, setPromptVisible } = useWalkthroughStore();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const tourSteps = getTourSteps(user?.firstName);
@@ -126,11 +130,21 @@ function GuidedWalkthrough() {
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const hasAutoStarted = useRef(false);
+  const lastTrigger = useRef(0);
 
   const setShowPrompt = useCallback((v: boolean) => {
     setShowPromptLocal(v);
     setPromptVisible(v);
   }, [setPromptVisible]);
+
+  useEffect(() => {
+    if (triggerCount > lastTrigger.current) {
+      lastTrigger.current = triggerCount;
+      setTourActive(false);
+      setStep(0);
+      setShowPrompt(true);
+    }
+  }, [triggerCount, setTourActive, setShowPrompt]);
 
   useEffect(() => {
     if (user && !user.hideTourPrompt && !shownThisSession && !hasAutoStarted.current) {

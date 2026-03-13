@@ -4,8 +4,10 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SaveButton } from "@/components/ui/save-button";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { IconSliders } from "@/components/icons";
+import { IconSliders, IconCompass } from "@/components/icons";
 import { SettingsTabProps } from "./types";
+import { useAuth } from "@/lib/auth";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function OtherTab({
   currentGlobal,
@@ -78,11 +80,56 @@ export function OtherTab({
         </CardContent>
       </Card>
 
+      <TourPromptCard />
+
       <SaveButton 
         onClick={handleSaveGlobal} 
         disabled={!globalDraft} 
         isPending={updateGlobalPending} 
       />
     </div>
+  );
+}
+
+function TourPromptCard() {
+  const { user, refetch } = useAuth();
+  const queryClient = useQueryClient();
+  const hideTour = user?.hideTourPrompt ?? false;
+
+  const handleToggle = async (showOnLogin: boolean) => {
+    await fetch("/api/profile/tour-prompt", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hide: !showOnLogin }),
+      credentials: "include",
+    });
+    queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+    refetch();
+  };
+
+  return (
+    <Card className="bg-card border-border shadow-sm">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 font-display">
+          <IconCompass className="w-5 h-5 text-primary" />
+          Guided Tour
+          <HelpTooltip text="Control whether the guided tour prompt appears when you log in. If you previously dismissed the tour with 'Don't show this again', you can re-enable it here." />
+        </CardTitle>
+        <CardDescription className="label-text">Manage the welcome tour prompt shown on login.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+          <div>
+            <Label className="label-text font-medium flex items-center gap-1">Show tour prompt on login <HelpTooltip text="When ON, you'll see a prompt offering a guided tour of the platform each time you log in. When OFF, the tour prompt is suppressed. You can always start the tour manually from the sidebar." /></Label>
+            <p className="text-xs text-muted-foreground mt-0.5">Display the guided walkthrough offer after signing in</p>
+          </div>
+          <Switch
+            checked={!hideTour}
+            onCheckedChange={handleToggle}
+            data-testid="switch-tour-prompt"
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 }

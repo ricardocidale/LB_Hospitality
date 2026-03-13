@@ -20,6 +20,18 @@ import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 import OpenAI from "openai";
 
+// Lazy singleton — avoids creating a new client per request
+let _openaiClient: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!_openaiClient) {
+    _openaiClient = new OpenAI({
+      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    });
+  }
+  return _openaiClient;
+}
+
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
   // CALCULATION ENDPOINTS
@@ -92,10 +104,7 @@ export function register(app: Express) {
       const globalAssumptions = await storage.getGlobalAssumptions(req.user!.id);
       const llmModel = globalAssumptions?.marcelaLlmModel || "gpt-4.1";
 
-      const openai = new OpenAI({
-        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-      });
+      const openai = getOpenAI();
 
       const results = latestRun.results as any;
       const summaryText = JSON.stringify({

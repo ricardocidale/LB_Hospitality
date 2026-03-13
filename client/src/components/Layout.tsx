@@ -8,8 +8,8 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconHelp, IconResearch, IconTarget } from "@/components/icons";
-import { useState, useEffect } from "react";
+import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconHelp, IconResearch, IconTarget, IconHome } from "@/components/icons";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -26,6 +26,9 @@ import { RebeccaChatbot } from "@/components/RebeccaChatbot";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
 import { SidebarResearchStatus } from "@/components/research/SidebarResearchStatus";
+import { useAdminSection } from "@/lib/admin-nav";
+import { navGroups as adminNavGroups } from "@/components/admin/AdminSidebar";
+import type { AdminSection } from "@/components/admin/AdminSidebar";
 
 type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 
@@ -42,53 +45,59 @@ function MarcelaWidgetGated() {
 interface NavGroupDef {
   label: string;
   items: NavLink[];
+  dividerAfter?: boolean;
 }
 
 function SidebarNav({ groups, isActiveLink, onNavigate }: { groups: NavGroupDef[]; isActiveLink: (href: string) => boolean; onNavigate?: () => void }) {
   return (
     <nav className="flex-1 overflow-y-auto px-2 pt-1 space-y-1">
-      {groups.filter(g => g.items.length > 0).map((group) => (
-        <div key={group.label || "misc"} className="py-1">
-          {group.label && (
-            <p className="text-[11px] font-medium text-muted-foreground px-3 pb-1 pt-2">{group.label}</p>
-          )}
-          <ul className="space-y-0.5">
-            {group.items.map((item) => {
-              const active = isActiveLink(item.href);
-              const isAction = item.href.startsWith("#");
-              return (
-                <li key={item.href}>
-                  {isAction ? (
-                    <Button
-                      variant="ghost"
-                      onClick={() => { item.onClick?.(); onNavigate?.(); }}
-                      className={cn(
-                        "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors justify-start",
-                        active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      )}
-                      data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                    >
-                      <item.icon className="w-4 h-4 shrink-0" />
-                      <span>{item.label}</span>
-                    </Button>
-                  ) : (
-                    <Link href={item.href} onClick={onNavigate}>
-                      <span
+      {groups.filter(g => g.items.length > 0).map((group, idx) => (
+        <div key={group.label || `misc-${idx}`}>
+          <div className="py-1">
+            {group.label && (
+              <p className="text-[11px] font-medium text-muted-foreground px-3 pb-1 pt-2">{group.label}</p>
+            )}
+            <ul className="space-y-0.5">
+              {group.items.map((item) => {
+                const active = isActiveLink(item.href);
+                const isAction = item.href.startsWith("#");
+                return (
+                  <li key={item.href}>
+                    {isAction ? (
+                      <Button
+                        variant="ghost"
+                        onClick={() => { item.onClick?.(); onNavigate?.(); }}
                         className={cn(
-                          "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
+                          "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors justify-start",
                           active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                         )}
                         data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                       >
                         <item.icon className="w-4 h-4 shrink-0" />
                         <span>{item.label}</span>
-                      </span>
-                    </Link>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+                      </Button>
+                    ) : (
+                      <Link href={item.href} onClick={onNavigate}>
+                        <span
+                          className={cn(
+                            "flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] transition-colors",
+                            active ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                          data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
+                          <item.icon className="w-4 h-4 shrink-0" />
+                          <span>{item.label}</span>
+                        </span>
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          {group.dividerAfter && (
+            <div className="mx-3 my-1 border-b border-sidebar-border" />
+          )}
         </div>
       ))}
     </nav>
@@ -127,8 +136,10 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
   const sb = (key: string) => (global as any)?.[key] !== false;
   const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarCompare") || sb("sidebarTimeline");
+  const onAdminRoute = location.startsWith("/admin");
+  const [adminSection, setAdminSectionState] = useAdminSection();
 
-  const navGroups: NavGroupDef[] = [
+  const homeNavGroups: NavGroupDef[] = useMemo(() => [
     {
       label: "Home",
       items: [
@@ -141,7 +152,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       label: "Tools",
       items: [
         ...(showAnalysis && hasManagementAccess ? [{ href: "/analysis", label: "Simulation", icon: IconAnalysis }] : []),
-        ...(hasManagementAccess ? [{ href: "/icp", label: "ICP", icon: IconTarget }] : []),
         ...(sb("sidebarPropertyFinder") && hasManagementAccess ? [{ href: "/property-finder", label: "Property Finder", icon: IconPropertyFinder }] : []),
         ...(sb("sidebarMapView") && hasManagementAccess ? [{ href: "/map", label: "Map View", icon: IconMapPin }] : []),
       ].filter(Boolean),
@@ -161,12 +171,50 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
         ...(isAdmin ? [{ href: "/admin", label: "Admin Settings", icon: IconShield }] : []),
       ],
     },
-  ].filter(g => g.items.length > 0);
+  ].filter(g => g.items.length > 0), [hasManagementAccess, isAdmin, global]);
 
-  const isActiveLink = (href: string) =>
-    location === href ||
-    (href === "/portfolio" && location.startsWith("/property/")) ||
-    (href !== "/" && location.startsWith(href + "/"));
+  const adminSidebarGroups: NavGroupDef[] = useMemo(() => {
+    const groups: NavGroupDef[] = [
+      {
+        label: "",
+        items: [{ href: "/", label: "Home", icon: IconHome }],
+        dividerAfter: true,
+      },
+    ];
+    for (const ag of adminNavGroups) {
+      groups.push({
+        label: ag.label,
+        items: ag.sections.map((s) => ({
+          href: `#admin-${s.value}`,
+          label: s.label,
+          icon: s.icon,
+          onClick: () => setAdminSectionState(s.value),
+        })),
+      });
+    }
+    groups.push({
+      label: "Logs",
+      items: [{
+        href: "#admin-activity",
+        label: "Activity",
+        icon: IconDashboard,
+        onClick: () => setAdminSectionState("activity"),
+      }],
+    });
+    return groups;
+  }, []);
+
+  const navGroups = onAdminRoute ? adminSidebarGroups : homeNavGroups;
+
+  const isActiveLink = (href: string) => {
+    if (href.startsWith("#admin-")) {
+      const section = href.replace("#admin-", "") as AdminSection;
+      return adminSection === section;
+    }
+    return location === href ||
+      (href === "/portfolio" && location.startsWith("/property/")) ||
+      (href !== "/" && location.startsWith(href + "/"));
+  };
 
   const sidebarHeader = (
     <div className="flex items-center gap-2.5 px-4 pt-4 pb-2">

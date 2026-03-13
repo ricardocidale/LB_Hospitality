@@ -1,8 +1,7 @@
-import { useState } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import AdminSidebar, { type AdminSection, navGroups, getGroupForSection } from "@/components/admin/AdminSidebar";
+import { type AdminSection, navGroups, getGroupForSection } from "@/components/admin/AdminSidebar";
 import {
   CompaniesTab, ActivityTab, VerificationTab,
   DatabaseTab,
@@ -25,6 +24,7 @@ import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { useAdminSection } from "@/lib/admin-nav";
 
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   users:            { title: "Users",                subtitle: "Manage user accounts and assignments" },
@@ -85,7 +85,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
 }
 
 export default function Admin() {
-  const [activeSection, setActiveSection] = useState<AdminSection>("users");
+  const [activeSection, setActiveSection] = useAdminSection();
 
   const meta = sectionMeta[activeSection];
   const activeGroupId = getGroupForSection(activeSection);
@@ -110,17 +110,8 @@ export default function Admin() {
             }
           />
 
-          <div className="flex gap-6 items-start">
-            <AdminSidebar
-              activeSection={activeSection}
-              onSectionChange={setActiveSection}
-            />
-
-            <div className="flex-1 min-w-0">
-              <div className="space-y-6" data-testid={`admin-content-${activeSection}`}>
-                <SectionContent section={activeSection} onNavigate={setActiveSection} />
-              </div>
-            </div>
+          <div className="space-y-6" data-testid={`admin-content-${activeSection}`}>
+            <SectionContent section={activeSection} onNavigate={setActiveSection} />
           </div>
         </div>
       </Layout>

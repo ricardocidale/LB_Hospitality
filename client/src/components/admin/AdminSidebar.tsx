@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { X, Share2 } from "lucide-react";
 import {
   IconMenu, IconHelpCircle, IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
-  IconUpload, IconPanelLeft, IconProperties, IconTrending,
+  IconUpload, IconPanelLeft, IconProperties, IconTrending, IconTarget,
   IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear,
   IconBriefcase, IconResearch, IconBookOpen, IconPhone, IconMessageCircle,
 } from "@/components/icons";
@@ -57,6 +57,16 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    id: "research-cat",
+    label: "Research",
+    icon: IconResearch,
+    description: "ICP & AI research tools",
+    sections: [
+      { value: "icp", label: "ICP", icon: IconTarget },
+      { value: "research", label: "Research Center", icon: IconResearch },
+    ],
+  },
+  {
     id: "design",
     label: "Design",
     icon: IconSwatchBook,
@@ -79,9 +89,8 @@ const navGroups: NavGroup[] = [
     id: "system",
     label: "System",
     icon: IconShield,
-    description: "Research & infrastructure",
+    description: "Infrastructure & monitoring",
     sections: [
-      { value: "research", label: "Research", icon: IconResearch },
       { value: "notifications", label: "Notifications", icon: IconPhone },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
       { value: "diagrams", label: "Diagrams", icon: Share2 },

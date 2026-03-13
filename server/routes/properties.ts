@@ -209,27 +209,27 @@ export function register(app: Express) {
     try {
       const propertyId = Number(req.params.id);
       const categories = req.body as Array<{ id?: number; name: string; rate: number; isActive: boolean; sortOrder: number }>;
-      const results = [];
-      for (const cat of categories) {
-        if (cat.id) {
-          const updated = await storage.updateFeeCategory(cat.id, {
-            name: cat.name,
-            rate: cat.rate,
-            isActive: cat.isActive,
-            sortOrder: cat.sortOrder,
-          });
-          if (updated) results.push(updated);
-        } else {
-          const created = await storage.createFeeCategory({
-            propertyId,
-            name: cat.name,
-            rate: cat.rate,
-            isActive: cat.isActive,
-            sortOrder: cat.sortOrder,
-          });
-          results.push(created);
-        }
-      }
+      // Run all category updates/creates in parallel (independent rows)
+      const results = (await Promise.all(
+        categories.map(async (cat) => {
+          if (cat.id) {
+            return storage.updateFeeCategory(cat.id, {
+              name: cat.name,
+              rate: cat.rate,
+              isActive: cat.isActive,
+              sortOrder: cat.sortOrder,
+            });
+          } else {
+            return storage.createFeeCategory({
+              propertyId,
+              name: cat.name,
+              rate: cat.rate,
+              isActive: cat.isActive,
+              sortOrder: cat.sortOrder,
+            });
+          }
+        })
+      )).filter(Boolean);
       logActivity(req, "update", "fee-categories", propertyId);
       res.json(results);
     } catch (error) {

@@ -8,6 +8,12 @@ import { requireAdmin } from "../../auth";
 import { type InsertGlobalAssumptions, type ResearchConfig, type AiModelEntry } from "@shared/schema";
 import { logAndSendError } from "../helpers";
 
+// Lazy singletons for AI model listing — avoids re-creating clients per request
+let _oaiClient: OpenAI | null = null;
+function getOAI() { return _oaiClient ??= new OpenAI({ apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY, baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL }); }
+let _anthropicClient: Anthropic | null = null;
+function getAnthropic() { return _anthropicClient ??= new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }); }
+
 const researchEventConfigSchema = z.object({
   enabled: z.boolean().optional(),
   focusAreas: z.array(z.string()).optional(),
@@ -72,10 +78,7 @@ function formatLabel(id: string, provider: string): string {
 
 async function fetchOpenAIModels(): Promise<AiModelEntry[]> {
   try {
-    const client = new OpenAI({
-      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-    });
+    const client = getOAI();
     const list = await client.models.list();
     const models: AiModelEntry[] = [];
     for await (const m of list) {
@@ -92,7 +95,7 @@ async function fetchOpenAIModels(): Promise<AiModelEntry[]> {
 
 async function fetchAnthropicModels(): Promise<AiModelEntry[]> {
   try {
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = getAnthropic();
     const resp = await client.models.list({ limit: 100 });
     const models: AiModelEntry[] = [];
     for (const m of resp.data) {

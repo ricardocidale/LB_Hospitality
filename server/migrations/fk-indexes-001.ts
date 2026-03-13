@@ -9,22 +9,23 @@ const TAG = "fk-indexes-001";
  * Safe to run multiple times — uses IF NOT EXISTS.
  */
 export async function runFkIndexes001(): Promise<void> {
-  try {
-    await db.execute(sql`
-      CREATE INDEX IF NOT EXISTS alert_rules_property_id_idx ON alert_rules (property_id)
-    `);
+  const indexes = [
+    `CREATE INDEX IF NOT EXISTS alert_rules_property_id_idx ON alert_rules (property_id)`,
+    `CREATE INDEX IF NOT EXISTS notification_logs_alert_rule_id_idx ON notification_logs (alert_rule_id)`,
+    `CREATE INDEX IF NOT EXISTS notification_logs_property_id_idx ON notification_logs (property_id)`,
+  ];
 
-    await db.execute(sql`
-      CREATE INDEX IF NOT EXISTS notification_logs_alert_rule_id_idx ON notification_logs (alert_rule_id)
-    `);
-
-    await db.execute(sql`
-      CREATE INDEX IF NOT EXISTS notification_logs_property_id_idx ON notification_logs (property_id)
-    `);
-
-    logger.info(`[${TAG}] FK indexes created (or already existed)`);
-  } catch (error: any) {
-    logger.error(`[${TAG}] Migration failed: ${String(error)}`, TAG);
-    throw error;
+  for (const ddl of indexes) {
+    try {
+      await db.execute(sql.raw(ddl));
+    } catch (error: any) {
+      if (error?.code === "42703" || error?.code === "42P01") {
+        logger.info(`[${TAG}] Skipping index (column/table not yet created): ${ddl.slice(0, 60)}…`);
+      } else {
+        logger.error(`[${TAG}] Migration failed: ${String(error)}`, TAG);
+        throw error;
+      }
+    }
   }
+  logger.info(`[${TAG}] FK indexes migration complete`);
 }

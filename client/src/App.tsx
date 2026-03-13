@@ -26,6 +26,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { lazy, Suspense, useState, useEffect, useCallback } from "react";
+import { setAdminSection as setAdminSectionFn } from "@/lib/admin-nav";
 import {
   ErrorBoundary,
   FinancialErrorBoundary,
@@ -36,7 +37,12 @@ import { initClientSentry, setClientUser, Sentry } from "@/lib/sentry";
 import { initAnalytics, identifyUser, trackUserLogin } from "@/lib/analytics";
 
 initClientSentry();
-initAnalytics();
+// Defer analytics init to after first paint — not needed for rendering
+if (typeof requestIdleCallback === "function") {
+  requestIdleCallback(() => initAnalytics());
+} else {
+  setTimeout(initAnalytics, 0);
+}
 
 // Lazy-load Login (pulls Three.js ~600KB via SpinningLogo3D) and ResearchRefreshOverlay (also Three.js)
 const Login = lazy(() => import("@/pages/Login"));
@@ -158,6 +164,15 @@ function CheckerRoute({
       <Component />
     </Suspense>
   );
+}
+
+function IcpRedirect() {
+  const { user, isLoading, hasManagementAccess } = useAuth();
+  if (isLoading) return <PageLoader />;
+  if (!user) return <Redirect to="/login" />;
+  if (!hasManagementAccess) return <Redirect to="/" />;
+  setAdminSectionFn("icp");
+  return <Redirect to="/admin" />;
 }
 
 /** Router — declares all client-side routes and handles the research refresh overlay. */
@@ -301,7 +316,7 @@ function Router() {
           <AdminRoute component={IcpStudio} />
         </Route>
         <Route path="/icp">
-          <ManagementRoute component={Icp} />
+          <IcpRedirect />
         </Route>
         <Route path="/profile">
           <ProtectedRoute component={Profile} />

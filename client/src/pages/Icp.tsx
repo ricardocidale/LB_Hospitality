@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import { SelfHealingBoundary } from "@/components/ErrorBoundary";
 import { PageHeader } from "@/components/ui/page-header";
 import { AnimatedPage, AnimatedSection } from "@/components/graphics/motion/AnimatedPage";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CurrentThemeTab, type CurrentThemeTabItem } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,24 +35,21 @@ import {
   generateIcpEssay,
 } from "@/components/admin/icp-config";
 
-function useHmrKey() {
-  const [key, setKey] = useState(0);
-  useEffect(() => {
-    if (import.meta.hot) {
-      const bump = () => setKey((k) => k + 1);
-      import.meta.hot.on("vite:afterUpdate", bump);
-      return () => import.meta.hot!.off("vite:afterUpdate", bump);
-    }
-  }, []);
-  return key;
-}
+const ICP_TABS: CurrentThemeTabItem[] = [
+  { value: "icp-location", label: "Location", icon: IconMapPin },
+  { value: "icp-profile", label: "Property Profile", icon: IconHotel },
+  { value: "icp-description", label: "Asset Description", icon: IconTarget },
+  { value: "icp-prompt", label: "AI Prompt", icon: IconSparkles },
+  { value: "icp-definition", label: "ICP Definition", icon: IconBookOpen },
+  { value: "icp-research", label: "Research", icon: IconFlaskConical },
+  { value: "icp-sources", label: "Sources", icon: IconFileStack },
+];
 
 interface IcpContentProps {
   onSaveStateChange?: (state: AdminSaveState | null) => void;
 }
 
 export function IcpContent({ onSaveStateChange }: IcpContentProps) {
-  const hmrKey = useHmrKey();
   const { data: ga } = useGlobalAssumptions();
   const updateMutation = useUpdateAdminConfig();
   const { toast } = useToast();
@@ -61,7 +58,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState("location");
+  const [activeTab, setActiveTab] = useState("icp-location");
   const [defEditing, setDefEditing] = useState(false);
   const [defDraft, setDefDraft] = useState("");
 
@@ -80,20 +77,20 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     };
   }, []);
 
-  const handleLocationSaveState = useMemo(() => handleSubTabSaveState("location"), [handleSubTabSaveState]);
-  const handleDescriptionSaveState = useMemo(() => handleSubTabSaveState("description"), [handleSubTabSaveState]);
-  const handleProfileSaveState = useMemo(() => handleSubTabSaveState("profile"), [handleSubTabSaveState]);
+  const handleLocationSaveState = useMemo(() => handleSubTabSaveState("icp-location"), [handleSubTabSaveState]);
+  const handleDescriptionSaveState = useMemo(() => handleSubTabSaveState("icp-description"), [handleSubTabSaveState]);
+  const handleProfileSaveState = useMemo(() => handleSubTabSaveState("icp-profile"), [handleSubTabSaveState]);
 
   const isCurrentTabDirty = useCallback((): boolean => {
-    if (activeTab === "prompt" && isEditing) return true;
-    if (activeTab === "definition" && defEditing) return true;
+    if (activeTab === "icp-prompt" && isEditing) return true;
+    if (activeTab === "icp-definition" && defEditing) return true;
     return tabSaveState.current[activeTab]?.isDirty ?? false;
   }, [activeTab, isEditing, defEditing]);
 
   const saveCurrentTab = useCallback(() => {
-    if (activeTab === "prompt" && isEditing) {
+    if (activeTab === "icp-prompt" && isEditing) {
       localSaveRef.current?.();
-    } else if (activeTab === "definition" && defEditing) {
+    } else if (activeTab === "icp-definition" && defEditing) {
       localSaveRef.current?.();
     } else {
       tabSaveState.current[activeTab]?.onSave();
@@ -249,7 +246,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 
   useEffect(() => {
     if (
-      activeTab === "prompt" &&
+      activeTab === "icp-prompt" &&
       !prompt.trim() &&
       ga &&
       !autoGenPromptRef.current &&
@@ -289,9 +286,9 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   }, [editablePrompt, updateMutation, toast, mutateError]);
 
   useEffect(() => {
-    if (activeTab === "prompt" && isEditing) {
+    if (activeTab === "icp-prompt" && isEditing) {
       localSaveRef.current = handleSaveEdit;
-    } else if (activeTab === "definition" && defEditing) {
+    } else if (activeTab === "icp-definition" && defEditing) {
       localSaveRef.current = handleSaveDefinition;
     } else {
       localSaveRef.current = null;
@@ -357,51 +354,22 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 
   return (
     <div className="space-y-4">
-      <Tabs key={hmrKey} value={activeTab} onValueChange={handleTabSwitch} className="w-full">
-        <TabsList className="inline-flex flex-wrap h-auto gap-1 justify-start">
-          <TabsTrigger value="location" className="text-sm gap-1.5" data-testid="tab-icp-location">
-            <IconMapPin className="w-4 h-4" />
-            Location
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="text-sm gap-1.5" data-testid="tab-icp-profile">
-            <IconHotel className="w-4 h-4" />
-            Property Profile
-          </TabsTrigger>
-          <TabsTrigger value="description" className="text-sm gap-1.5" data-testid="tab-icp-description">
-            <IconTarget className="w-4 h-4" />
-            Asset Description
-          </TabsTrigger>
-          <TabsTrigger value="prompt" className="text-sm gap-1.5" data-testid="tab-icp-prompt">
-            <IconSparkles className="w-4 h-4" />
-            AI Prompt
-          </TabsTrigger>
-          <TabsTrigger value="definition" className="text-sm gap-1.5" data-testid="tab-icp-definition">
-            <IconBookOpen className="w-4 h-4" />
-            ICP Definition
-          </TabsTrigger>
-          <TabsTrigger value="research" className="text-sm gap-1.5" data-testid="tab-icp-research">
-            <IconFlaskConical className="w-4 h-4" />
-            Research
-          </TabsTrigger>
-          <TabsTrigger value="sources" className="text-sm gap-1.5" data-testid="tab-icp-sources">
-            <IconFileStack className="w-4 h-4" />
-            Sources
-          </TabsTrigger>
-        </TabsList>
+      <CurrentThemeTab tabs={ICP_TABS} activeTab={activeTab} onTabChange={handleTabSwitch} />
 
-        <TabsContent value="location" className="mt-6">
+      <div className="mt-6">
+        {activeTab === "icp-location" && (
           <IcpLocationTab onSaveStateChange={handleLocationSaveState} />
-        </TabsContent>
+        )}
 
-        <TabsContent value="profile" className="mt-6">
+        {activeTab === "icp-profile" && (
           <CompanyProfileTab onSaveStateChange={handleProfileSaveState} />
-        </TabsContent>
+        )}
 
-        <TabsContent value="description" className="mt-6">
+        {activeTab === "icp-description" && (
           <AssetDefinitionTab onSaveStateChange={handleDescriptionSaveState} />
-        </TabsContent>
+        )}
 
-        <TabsContent value="prompt" className="mt-6">
+        {activeTab === "icp-prompt" && (
           <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-ai-prompt">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold text-foreground">
@@ -526,9 +494,9 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="definition" className="mt-6">
+        {activeTab === "icp-definition" && (
           <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-icp-definition">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-4">
@@ -619,16 +587,16 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="research" className="mt-6">
+        {activeTab === "icp-research" && (
           <IcpResearchTab />
-        </TabsContent>
+        )}
 
-        <TabsContent value="sources" className="mt-6">
+        {activeTab === "icp-sources" && (
           <IcpSourcesTab />
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
 
       <AlertDialog open={pendingTab !== null} onOpenChange={(open) => { if (!open) setPendingTab(null); }}>
         <AlertDialogContent>

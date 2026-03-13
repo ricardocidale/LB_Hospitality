@@ -1,7 +1,9 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import type { Logo, User, AdminCompany } from "./types";
+import type { Logo, User, AdminCompany, UserGroup, AssetDesc } from "./types";
+
+interface ThemeEntry { id: number; name: string; isDefault: boolean }
 
 export function adminFetch<T>(url: string, errorMsg: string): () => Promise<T> {
   return async () => {
@@ -45,6 +47,27 @@ export function useAdminCompanies() {
   return useQuery<AdminCompany[]>({
     queryKey: ["admin", "companies"],
     queryFn: adminFetch<AdminCompany[]>("/api/admin/companies", "Failed to fetch companies"),
+  });
+}
+
+export function useAdminUserGroups() {
+  return useQuery<UserGroup[]>({
+    queryKey: ["admin", "user-groups"],
+    queryFn: adminFetch<UserGroup[]>("/api/user-groups", "Failed to fetch user groups"),
+  });
+}
+
+export function useAdminThemes() {
+  return useQuery<ThemeEntry[]>({
+    queryKey: ["admin", "all-themes"],
+    queryFn: adminFetch<ThemeEntry[]>("/api/available-themes", "Failed to fetch themes"),
+  });
+}
+
+export function useAdminAssetDescriptions() {
+  return useQuery<AssetDesc[]>({
+    queryKey: ["admin", "asset-descriptions"],
+    queryFn: adminFetch<AssetDesc[]>("/api/asset-descriptions", "Failed to fetch asset descriptions"),
   });
 }
 

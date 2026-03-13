@@ -32,9 +32,9 @@ import { IconEye, IconEyeOff, IconCalendar, IconSave, IconPeople, IconTrash, Ico
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { adminFetch, useAdminLogos } from "./hooks";
+import { useAdminLogos, useAdminUsers, useAdminUserGroups, useAdminCompanies } from "./hooks";
 import defaultLogo from "@/assets/logo.png";
-import type { User, UserGroup } from "./types";
+import type { User } from "./types";
 
 type Company = { id: number; name: string; logoId: number | null; isActive: boolean };
 
@@ -63,30 +63,10 @@ export default function UsersTab() {
   const [resetAllDialogOpen, setResetAllDialogOpen] = useState(false);
   const [showResetAllPassword, setShowResetAllPassword] = useState(false);
 
-  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
-    queryKey: ["admin", "users"],
-    queryFn: async () => {
-      const res = await fetch("/api/admin/users", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch users");
-      return res.json();
-    },
-  });
-
-  const { data: userGroupsList } = useQuery<UserGroup[]>({
-    queryKey: ["admin", "user-groups"],
-    queryFn: adminFetch<UserGroup[]>("/api/user-groups", "Failed to fetch user groups"),
-  });
-
+  const { data: users, isLoading: usersLoading } = useAdminUsers();
+  const { data: userGroupsList } = useAdminUserGroups();
   const { data: adminLogos } = useAdminLogos();
-
-  const { data: companiesList } = useQuery<Company[]>({
-    queryKey: ["admin", "companies"],
-    queryFn: async () => {
-      const res = await fetch("/api/companies", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch companies");
-      return res.json();
-    },
-  });
+  const { data: companiesList } = useAdminCompanies();
 
   const companyLogoMap = useMemo(() => {
     const map: Record<number, string> = {};

@@ -2,14 +2,14 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~795 source files, ~139,015 lines, 2,940 tests across 127 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~802 source files, ~142,590 lines, 2,941 tests across 127 files. Hosted on Replit.
 
 ---
 
 ## User Preferences
 
 - Simple, everyday language. Ask clarifying questions before implementing — do not assume.
-- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 2,940-test proof system must always pass.
+- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 2,941-test proof system must always pass.
 - Always format money as currency (commas, appropriate precision).
 - All skills stored under `.claude/` only (never elsewhere).
 - Company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -51,7 +51,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,940 tests, 500 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 2,941 tests, 500 golden tests, verification commands |
 | Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -77,7 +77,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (2,940 Tests, 127 Files)
+## Testing & Proof System (2,941 Tests, 127 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -87,7 +87,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 2,940) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 2,941) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
@@ -142,7 +142,7 @@ All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify (~4 lines)
-npm run test:summary   # All 2,940 tests, 1-line output
+npm run test:summary   # All 2,941 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact output
 npm run db:push        # Push schema changes
 npm run diff:summary   # Compact git status + diff stat

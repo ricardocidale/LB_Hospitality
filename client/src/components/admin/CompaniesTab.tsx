@@ -27,7 +27,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Loader2 } from "lucide-react";
 import { IconPlus, IconTrash, IconPencil, IconBuilding2, IconSave, IconImage, IconFileText, IconPalette } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
-import type { User, Logo, AdminCompany } from "./types";
+import { useAdminUsers, useAdminLogos, useAdminThemes, useAdminCompanies } from "./hooks";
+import type { AdminCompany } from "./types";
 
 export default function CompaniesTab() {
   const { toast } = useToast();
@@ -37,32 +38,9 @@ export default function CompaniesTab() {
   const [editingCompany, setEditingCompany] = useState<AdminCompany | null>(null);
   const [companyForm, setCompanyForm] = useState({ name: "", type: "spv" as string, description: "", logoId: null as number | null, themeId: null as number | null });
 
-  const { data: users } = useQuery<User[]>({
-    queryKey: ["admin", "users"],
-    queryFn: async () => {
-      const res = await fetch("/api/admin/users", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch users");
-      return res.json();
-    },
-  });
-
-  const { data: adminLogos } = useQuery<Logo[]>({
-    queryKey: ["admin", "logos"],
-    queryFn: async () => {
-      const res = await fetch("/api/admin/logos", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch logos");
-      return res.json();
-    },
-  });
-
-  const { data: allThemes } = useQuery<Array<{ id: number; name: string; isDefault: boolean }>>({
-    queryKey: ["admin", "all-themes"],
-    queryFn: async () => {
-      const res = await fetch("/api/available-themes", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch themes");
-      return res.json();
-    },
-  });
+  const { data: users } = useAdminUsers();
+  const { data: adminLogos } = useAdminLogos();
+  const { data: allThemes } = useAdminThemes();
 
   const { data: adminCompanies } = useQuery<AdminCompany[]>({
     queryKey: ["admin", "companies"],

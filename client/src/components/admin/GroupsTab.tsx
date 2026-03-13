@@ -19,7 +19,8 @@ import { IconPlus, IconSave, IconEye, IconPeople, IconProperties, IconPencil, Ic
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import type { Logo, UserGroup, AssetDesc } from "./types";
+import { useAdminLogos, useAdminCompanies, useAdminUserGroups, useAdminThemes, useAdminAssetDescriptions } from "./hooks";
+import type { UserGroup } from "./types";
 import type { Property } from "@shared/schema";
 
 type GroupUser = { id: number; email: string; firstName: string | null; lastName: string | null; name: string | null; role: string; userGroupId: number | null; company: string | null; companyId: number | null; title: string | null };
@@ -39,50 +40,11 @@ export default function GroupsTab() {
   const [expandedVisibility, setExpandedVisibility] = useState<number | null>(null);
   const [pendingVisibility, setPendingVisibility] = useState<Record<number, Set<number>>>({});
 
-  const { data: adminLogos } = useQuery<Logo[]>({
-    queryKey: ["admin", "logos"],
-    queryFn: async () => {
-      const res = await fetch("/api/logos", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch logos");
-      return res.json();
-    },
-  });
-
-  const { data: companies } = useQuery<Company[]>({
-    queryKey: ["admin", "companies"],
-    queryFn: async () => {
-      const res = await fetch("/api/companies", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch companies");
-      return res.json();
-    },
-  });
-
-  const { data: userGroupsList } = useQuery<UserGroup[]>({
-    queryKey: ["admin", "user-groups"],
-    queryFn: async () => {
-      const res = await fetch("/api/user-groups", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch user groups");
-      return res.json();
-    },
-  });
-
-  const { data: allThemes } = useQuery<Array<{ id: number; name: string; isDefault: boolean }>>({
-    queryKey: ["admin", "all-themes"],
-    queryFn: async () => {
-      const res = await fetch("/api/available-themes", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch themes");
-      return res.json();
-    },
-  });
-
-  const { data: assetDescriptions } = useQuery<AssetDesc[]>({
-    queryKey: ["admin", "asset-descriptions"],
-    queryFn: async () => {
-      const res = await fetch("/api/asset-descriptions", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch asset descriptions");
-      return res.json();
-    },
-  });
+  const { data: adminLogos } = useAdminLogos();
+  const { data: companies } = useAdminCompanies();
+  const { data: userGroupsList } = useAdminUserGroups();
+  const { data: allThemes } = useAdminThemes();
+  const { data: assetDescriptions } = useAdminAssetDescriptions();
 
   const { data: allProperties } = useQuery<Property[]>({
     queryKey: ["properties"],

@@ -201,7 +201,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminLogos } from "./hooks";
+import { useAdminLogos, useAdminUsers, useAdminUserGroups } from "./hooks";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import type { User, UserGroup, AdminCompany } from "./types";
 
@@ -228,23 +228,8 @@ function JobTitleInput({
 }
 
 function GroupAssignmentTab() {
-  const { data: users, isLoading: usersLoading } = useQuery<User[]>({
-    queryKey: ["admin", "users"],
-    queryFn: async () => {
-      const res = await fetch("/api/admin/users", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch users");
-      return res.json();
-    },
-  });
-
-  const { data: userGroupsList } = useQuery<UserGroup[]>({
-    queryKey: ["admin", "user-groups"],
-    queryFn: async () => {
-      const res = await fetch("/api/user-groups", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch user groups");
-      return res.json();
-    },
-  });
+  const { data: users, isLoading: usersLoading } = useAdminUsers();
+  const { data: userGroupsList } = useAdminUserGroups();
 
   const { data: adminLogos } = useAdminLogos();
   const queryClient = useQueryClient();

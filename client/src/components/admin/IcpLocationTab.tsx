@@ -1,0 +1,434 @@
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { IconPlus, IconTrash, IconMapPin, IconGlobe, IconSave } from "@/components/icons";
+import { X } from "lucide-react";
+import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import type { IcpLocation, IcpLocationCity } from "./icp-config";
+
+interface GeoCountry {
+  name: string;
+  isoCode: string;
+  flag: string;
+}
+interface GeoState {
+  name: string;
+  isoCode: string;
+}
+interface GeoCity {
+  name: string;
+  stateCode: string;
+  latitude: string;
+  longitude: string;
+}
+
+function useGeoCountries() {
+  return useQuery<GeoCountry[]>({
+    queryKey: ["geo-countries"],
+    queryFn: async () => {
+      const res = await fetch("/api/geo/countries", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch countries");
+      return res.json();
+    },
+    staleTime: Infinity,
+  });
+}
+
+function useGeoStates(countryCode: string) {
+  return useQuery<GeoState[]>({
+    queryKey: ["geo-states", countryCode],
+    queryFn: async () => {
+      const res = await fetch(`/api/geo/states?country=${countryCode}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch states");
+      return res.json();
+    },
+    enabled: !!countryCode,
+    staleTime: Infinity,
+  });
+}
+
+function useGeoCities(countryCode: string, stateCode: string) {
+  return useQuery<GeoCity[]>({
+    queryKey: ["geo-cities", countryCode, stateCode],
+    queryFn: async () => {
+      const res = await fetch(`/api/geo/cities?country=${countryCode}&state=${stateCode}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch cities");
+      return res.json();
+    },
+    enabled: !!countryCode && !!stateCode,
+    staleTime: Infinity,
+  });
+}
+
+function LocationCard({
+  location,
+  onUpdate,
+  onRemove,
+}: {
+  location: IcpLocation;
+  onUpdate: (loc: IcpLocation) => void;
+  onRemove: () => void;
+}) {
+  const { data: countries = [] } = useGeoCountries();
+  const { data: states = [] } = useGeoStates(location.countryCode);
+
+  const [addingState, setAddingState] = useState("");
+  const [addingCity, setAddingCity] = useState("");
+  const [addingCityState, setAddingCityState] = useState("");
+  const [cityRadius, setCityRadius] = useState(25);
+
+  const { data: citiesForState = [] } = useGeoCities(location.countryCode, addingCityState);
+
+  const handleCountryChange = (isoCode: string) => {
+    const country = countries.find((c) => c.isoCode === isoCode);
+    if (country) {
+      onUpdate({ ...location, country: country.name, countryCode: isoCode, states: [], cities: [] });
+    }
+  };
+
+  const handleAddState = (stateCode: string) => {
+    if (!stateCode || location.states.includes(stateCode)) return;
+    onUpdate({ ...location, states: [...location.states, stateCode] });
+    setAddingState("");
+  };
+
+  const handleRemoveState = (stateCode: string) => {
+    onUpdate({
+      ...location,
+      states: location.states.filter((s) => s !== stateCode),
+      cities: location.cities.filter((c) => {
+        const cityData = citiesForState.find((gc) => gc.name === c.name);
+        return !cityData || cityData.stateCode !== stateCode;
+      }),
+    });
+  };
+
+  const handleAddCity = () => {
+    if (!addingCity) return;
+    if (location.cities.some((c) => c.name === addingCity)) return;
+    onUpdate({
+      ...location,
+      cities: [...location.cities, { name: addingCity, radius: cityRadius }],
+    });
+    setAddingCity("");
+    setCityRadius(25);
+  };
+
+  const handleRemoveCity = (cityName: string) => {
+    onUpdate({
+      ...location,
+      cities: location.cities.filter((c) => c.name !== cityName),
+    });
+  };
+
+  const handleCityRadiusChange = (cityName: string, radius: number) => {
+    onUpdate({
+      ...location,
+      cities: location.cities.map((c) => (c.name === cityName ? { ...c, radius } : c)),
+    });
+  };
+
+  const stateNames = (codes: string[]) =>
+    codes.map((code) => {
+      const s = states.find((st) => st.isoCode === code);
+      return s ? s.name : code;
+    });
+
+  return (
+    <Card className="bg-card border border-border/80 shadow-sm" data-testid={`card-location-${location.id}`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <IconMapPin className="w-4 h-4 text-muted-foreground" />
+            {location.country || "New Location"}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onRemove}
+            className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
+            data-testid={`button-remove-location-${location.id}`}
+          >
+            <IconTrash className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label className="text-xs font-medium text-foreground">Country</Label>
+          <Select value={location.countryCode} onValueChange={handleCountryChange}>
+            <SelectTrigger className="bg-card" data-testid={`select-country-${location.id}`}>
+              <SelectValue placeholder="Select country" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[280px]">
+              {countries.map((c) => (
+                <SelectItem key={c.isoCode} value={c.isoCode}>
+                  {c.flag} {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {location.countryCode && (
+          <div className="space-y-2">
+            <Label className="text-xs font-medium text-foreground">States / Provinces</Label>
+            <div className="flex items-center gap-2">
+              <Select value={addingState} onValueChange={handleAddState}>
+                <SelectTrigger className="bg-card flex-1" data-testid={`select-state-${location.id}`}>
+                  <SelectValue placeholder="Add state / province" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[280px]">
+                  {states
+                    .filter((s) => !location.states.includes(s.isoCode))
+                    .map((s) => (
+                      <SelectItem key={s.isoCode} value={s.isoCode}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {location.states.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {stateNames(location.states).map((name, i) => (
+                  <Badge
+                    key={location.states[i]}
+                    variant="secondary"
+                    className="text-xs gap-1 pr-1"
+                  >
+                    {name}
+                    <button
+                      onClick={() => handleRemoveState(location.states[i])}
+                      className="ml-0.5 hover:text-red-500"
+                      data-testid={`remove-state-${location.states[i]}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {location.countryCode && location.states.length > 0 && (
+          <div className="space-y-2">
+            <Label className="text-xs font-medium text-foreground">Cities</Label>
+            <div className="flex items-center gap-2">
+              <Select value={addingCityState} onValueChange={setAddingCityState}>
+                <SelectTrigger className="bg-card w-[140px]" data-testid={`select-city-state-${location.id}`}>
+                  <SelectValue placeholder="State" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[280px]">
+                  {location.states.map((sc) => {
+                    const s = states.find((st) => st.isoCode === sc);
+                    return (
+                      <SelectItem key={sc} value={sc}>
+                        {s?.name || sc}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              <Select value={addingCity} onValueChange={setAddingCity}>
+                <SelectTrigger className="bg-card flex-1" data-testid={`select-city-${location.id}`}>
+                  <SelectValue placeholder="Select city" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[280px]">
+                  {citiesForState
+                    .filter((c) => !location.cities.some((lc) => lc.name === c.name))
+                    .map((c) => (
+                      <SelectItem key={`${c.name}-${c.stateCode}`} value={c.name}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <div className="flex items-center gap-1">
+                <Input
+                  type="number"
+                  value={cityRadius}
+                  onChange={(e) => setCityRadius(Number(e.target.value) || 25)}
+                  className="w-16 bg-card text-xs"
+                  min={1}
+                  max={500}
+                  data-testid={`input-radius-new-${location.id}`}
+                />
+                <span className="text-xs text-muted-foreground whitespace-nowrap">mi</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleAddCity}
+                disabled={!addingCity}
+                className="h-9 px-2"
+                data-testid={`button-add-city-${location.id}`}
+              >
+                <IconPlus className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+
+            {location.cities.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                {location.cities.map((city) => (
+                  <div
+                    key={city.name}
+                    className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border/60 bg-muted/30"
+                    data-testid={`city-card-${city.name}`}
+                  >
+                    <span className="text-xs font-medium text-foreground truncate">{city.name}</span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Input
+                        type="number"
+                        value={city.radius}
+                        onChange={(e) => handleCityRadiusChange(city.name, Number(e.target.value) || 25)}
+                        className="w-14 h-7 bg-card text-xs text-center"
+                        min={1}
+                        max={500}
+                        data-testid={`input-radius-${city.name}`}
+                      />
+                      <span className="text-[10px] text-muted-foreground">mi</span>
+                      <button
+                        onClick={() => handleRemoveCity(city.name)}
+                        className="text-muted-foreground hover:text-red-500 transition-colors"
+                        data-testid={`remove-city-${city.name}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function IcpLocationTab() {
+  const { data: ga } = useGlobalAssumptions();
+  const updateMutation = useUpdateGlobalAssumptions();
+  const { toast } = useToast();
+
+  const [locations, setLocations] = useState<IcpLocation[]>([]);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    if (ga?.icpConfig) {
+      const cfg = ga.icpConfig as Record<string, any>;
+      setLocations(cfg._locations || []);
+      setDirty(false);
+    }
+  }, [ga?.icpConfig]);
+
+  const handleAddLocation = () => {
+    const newLoc: IcpLocation = {
+      id: `loc-${Date.now()}`,
+      country: "",
+      countryCode: "",
+      states: [],
+      cities: [],
+    };
+    setLocations((prev) => [...prev, newLoc]);
+    setDirty(true);
+  };
+
+  const handleUpdateLocation = useCallback((id: string, updated: IcpLocation) => {
+    setLocations((prev) => prev.map((l) => (l.id === id ? updated : l)));
+    setDirty(true);
+  }, []);
+
+  const handleRemoveLocation = useCallback((id: string) => {
+    setLocations((prev) => prev.filter((l) => l.id !== id));
+    setDirty(true);
+  }, []);
+
+  const handleSave = () => {
+    const existing = (ga?.icpConfig as Record<string, any>) || {};
+    updateMutation.mutate(
+      {
+        icpConfig: {
+          ...existing,
+          _locations: locations,
+        },
+      } as any,
+      {
+        onSuccess: () => {
+          setDirty(false);
+          toast({ title: "Saved", description: "Target locations saved." });
+        },
+      }
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <IconGlobe className="w-4 h-4 text-muted-foreground" />
+            Target Locations
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Define geographic regions where the ICP is seeking properties. Each location specifies a country, states/provinces, and cities with a search radius.
+          </p>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleAddLocation}
+          className="text-xs h-8 gap-1.5"
+          data-testid="button-add-location"
+        >
+          <IconPlus className="w-3.5 h-3.5" />
+          Add Location
+        </Button>
+      </div>
+
+      {locations.length === 0 ? (
+        <Card className="bg-card border border-dashed border-border shadow-sm">
+          <CardContent className="py-12 text-center">
+            <IconMapPin className="w-8 h-8 mx-auto mb-3 text-muted-foreground/40" />
+            <p className="text-sm font-medium text-muted-foreground">No target locations defined</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Click <strong>Add Location</strong> to define where the ICP is seeking properties.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          {locations.map((loc) => (
+            <LocationCard
+              key={loc.id}
+              location={loc}
+              onUpdate={(updated) => handleUpdateLocation(loc.id, updated)}
+              onRemove={() => handleRemoveLocation(loc.id)}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          size="lg"
+          onClick={handleSave}
+          disabled={!dirty || updateMutation.isPending}
+          className="shadow-xl rounded-full px-8 h-12 flex items-center gap-2"
+          data-testid="button-save-locations"
+        >
+          <IconSave className="w-5 h-5" />
+          {updateMutation.isPending ? "Saving..." : "Save Locations"}
+        </Button>
+      </div>
+    </div>
+  );
+}

@@ -26,6 +26,7 @@ import * as geospatialRoutes from "./routes/geospatial";
 import * as notificationRoutes from "./routes/notifications";
 import * as plaidRoutes from "./routes/plaid";
 import * as documentRoutes from "./routes/documents";
+import * as geoRoutes from "./routes/geo";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -57,6 +58,7 @@ export async function registerRoutes(
   notificationRoutes.register(app);
   plaidRoutes.register(app);
   documentRoutes.register(app);
+  geoRoutes.register(app);
 
   registerTwilioWebSocket(httpServer);
 

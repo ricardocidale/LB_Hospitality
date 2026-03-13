@@ -1,3 +1,16 @@
+export interface IcpLocationCity {
+  name: string;
+  radius: number;
+}
+
+export interface IcpLocation {
+  id: string;
+  country: string;
+  countryCode: string;
+  states: string[];
+  cities: IcpLocationCity[];
+}
+
 export interface IcpConfig {
   roomsMin: number;
   roomsMax: number;

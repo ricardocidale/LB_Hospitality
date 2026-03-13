@@ -6,9 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen } from "@/components/icons";
+import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin } from "@/components/icons";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
 import CompanyProfileTab from "@/components/company/CompanyProfileTab";
+import IcpLocationTab from "@/components/admin/IcpLocationTab";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -143,7 +144,11 @@ export function IcpContent() {
   return (
     <div className="space-y-4">
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="w-full grid grid-cols-4 h-10 max-w-2xl">
+        <TabsList className="w-full grid grid-cols-5 h-10 max-w-3xl">
+          <TabsTrigger value="location" className="text-sm gap-1.5" data-testid="tab-icp-location">
+            <IconMapPin className="w-4 h-4" />
+            Location
+          </TabsTrigger>
           <TabsTrigger value="profile" className="text-sm gap-1.5" data-testid="tab-icp-profile">
             <IconHotel className="w-4 h-4" />
             Property Profile
@@ -161,6 +166,10 @@ export function IcpContent() {
             ICP Definition
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="location" className="mt-6">
+          <IcpLocationTab />
+        </TabsContent>
 
         <TabsContent value="profile" className="mt-6">
           <CompanyProfileTab />

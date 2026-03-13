@@ -56,16 +56,20 @@ export function registerGoogleAuthRoutes(app: Express) {
     try {
       const { state, code, error: oauthError } = req.query;
 
+      logger.info(`Google callback query: state=${state ? "present" : "missing"}, code=${code ? "present" : "missing"}, error=${oauthError || "none"}`, "auth");
+
       if (oauthError) {
-        logger.error(`Google OAuth error: ${oauthError}`, "auth");
+        logger.error(`Google OAuth error: ${oauthError} (desc: ${req.query.error_description || "none"})`, "auth");
         return res.redirect("/login?error=google_failed");
       }
 
       if (!state || typeof state !== "string" || !pendingStates.has(state)) {
+        logger.error(`Google callback: invalid state (pending states count: ${pendingStates.size})`, "auth");
         return res.redirect("/login?error=invalid_state");
       }
 
       if (!code || typeof code !== "string") {
+        logger.error("Google callback: missing authorization code", "auth");
         return res.redirect("/login?error=google_failed");
       }
 

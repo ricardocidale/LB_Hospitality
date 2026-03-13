@@ -9,6 +9,7 @@ import {
 import PeopleTab from "@/components/admin/PeopleTab";
 import BrandingTab from "@/components/admin/BrandingTab";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
+import { IcpContent } from "@/pages/Icp";
 import RevenueShareTab from "@/components/admin/RevenueShareTab";
 import OtherAssumptionsTab from "@/components/admin/OtherAssumptionsTab";
 import GroupsTab from "@/components/admin/GroupsTab";
@@ -52,7 +53,7 @@ function SectionContent({ section, onNavigate }: { section: AdminSection; onNavi
     case "users":            return <PeopleTab />;
     case "activity":         return <ActivityTab />;
     case "branding":         return <BrandingTab />;
-    case "icp":              return <AssetDefinitionTab />;
+    case "icp":              return <IcpContent />;
     case "revshare":         return <RevenueShareTab />;
     case "otherassumptions": return <OtherAssumptionsTab />;
     case "companies":        return <CompaniesTab />;

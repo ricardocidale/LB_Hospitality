@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
 import { Loader2 } from "lucide-react";
 import {
-  IconRefreshCw, IconBookOpen, IconAlertTriangle, IconFileDown, IconMail,
+  IconRefreshCw, IconBookOpen, IconAlertTriangle, IconFileDown,
   IconDollarSign, IconPackage, IconBuilding2, IconTarget, IconUsers,
   IconTrendingUp, IconGlobe, IconBriefcase, IconMapPin, IconStar,
   IconZap, IconShield, IconLayers, IconHeart, IconPieChart, IconBed,
@@ -25,7 +25,7 @@ import {
   ScatterChart, Scatter, LineChart, Line, RadarChart, Radar,
   PolarGrid, PolarAngleAxis,
 } from "recharts";
-import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
+import { downloadResearchPDF } from "@/lib/exports/researchPdfExport";
 import { useToast } from "@/hooks/use-toast";
 
 type GroupKey = "operations" | "marketing" | "industry";
@@ -95,7 +95,6 @@ export default function CompanyResearch() {
   const { data: globalRes, isLoading: loadingGlobal } = useMarketResearch("global");
   const { data: globalAssumptions } = useGlobalAssumptions();
   const [activeGroup, setActiveGroup] = useState<GroupKey>("operations");
-  const [isEmailing, setIsEmailing] = useState(false);
   const { toast } = useToast();
   const { isGenerating, streamedContent, generateResearch } = useCompanyResearchStream();
 
@@ -167,25 +166,6 @@ export default function CompanyResearch() {
                           llmModel: companyRes?.llmModel || undefined,
                         }),
                         testId: "button-export-pdf",
-                      },
-                      {
-                        label: isEmailing ? "Sending..." : "Email PDF",
-                        icon: <IconMail className="w-3.5 h-3.5" />,
-                        onClick: async () => {
-                          if (isEmailing) return;
-                          setIsEmailing(true);
-                          try {
-                            const result = await emailResearchPDF({
-                              type: "company", title: `${companyName} Research`,
-                              subtitle: "Operations, marketing, and industry analysis",
-                              content: companyContent, updatedAt: companyRes?.updatedAt,
-                              llmModel: companyRes?.llmModel || undefined,
-                            });
-                            toast({ title: result.success ? "Email sent" : "Failed", description: result.success ? "PDF emailed." : result.error || "Could not send.", variant: result.success ? "default" : "destructive" });
-                          } catch { toast({ title: "Email failed", variant: "destructive" }); }
-                          finally { setIsEmailing(false); }
-                        },
-                        testId: "button-email-pdf",
                       },
                     ]}
                   />

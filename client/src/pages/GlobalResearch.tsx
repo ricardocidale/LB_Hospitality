@@ -5,11 +5,11 @@ import { useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
 import { Loader2, ArrowLeft } from "lucide-react";
-import { IconRefreshCw, IconGlobe, IconTrendingUp, IconHotel, IconDollarSign, IconLandmark, IconSparkles, IconBookOpen, IconAlertTriangle, IconMail, IconFileDown } from "@/components/icons";
+import { IconRefreshCw, IconGlobe, IconTrendingUp, IconHotel, IconDollarSign, IconLandmark, IconSparkles, IconBookOpen, IconAlertTriangle, IconFileDown } from "@/components/icons";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
+import { downloadResearchPDF } from "@/lib/exports/researchPdfExport";
 import { useToast } from "@/hooks/use-toast";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { fireResearchConfetti } from "@/lib/confetti";
@@ -53,7 +53,6 @@ export default function GlobalResearch() {
   const { data: research, isLoading, isError } = useMarketResearch("global");
   const [, setLocation] = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isEmailing, setIsEmailing] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
   const queryClient = useQueryClient();
   const abortRef = useRef<AbortController | null>(null);
@@ -189,35 +188,6 @@ export default function GlobalResearch() {
                       promptConditions: (research as any)?.promptConditions || undefined,
                     }),
                     testId: "button-export-research-pdf",
-                  },
-                  {
-                    label: isEmailing ? "Sending..." : "Email PDF",
-                    icon: <IconMail className="w-3.5 h-3.5" />,
-                    onClick: async () => {
-                      if (isEmailing) return;
-                      setIsEmailing(true);
-                      try {
-                        const result = await emailResearchPDF({
-                          type: "global",
-                          title: "Global Industry Research",
-                          subtitle: `${global?.propertyLabel || "Boutique hotel"} industry data and benchmarks`,
-                          content,
-                          updatedAt: research?.updatedAt,
-                          llmModel: research?.llmModel || undefined,
-                          promptConditions: (research as any)?.promptConditions || undefined,
-                        });
-                        if (result.success) {
-                          toast({ title: "Email sent", description: "Research PDF has been emailed to you." });
-                        } else {
-                          toast({ title: "Email failed", description: result.error || "Could not send email.", variant: "destructive" });
-                        }
-                      } catch {
-                        toast({ title: "Email failed", description: "Could not send email.", variant: "destructive" });
-                      } finally {
-                        setIsEmailing(false);
-                      }
-                    },
-                    testId: "button-email-research-pdf",
                   },
                 ]}
               />

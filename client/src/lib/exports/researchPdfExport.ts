@@ -16,12 +16,10 @@
  *   - Research conditions (what AI model was used, what parameters were set)
  *   - Page numbers and confidential footer on every page
  *
- * The report can be either downloaded directly or emailed as an attachment
- * (via the /api/email-research-pdf server endpoint + Gmail integration).
+ * The report can be downloaded directly as a PDF file.
  *
  * Uses jsPDF for PDF rendering and jspdf-autotable for data tables.
  */
-import { apiRequest } from "@/lib/queryClient";
 
 interface BrandingData {
   userName: string;
@@ -611,31 +609,3 @@ export async function downloadResearchPDF(options: ResearchExportOptions): Promi
   doc.save(filename);
 }
 
-/**
- * Build the research PDF, convert it to base64, and send it as an email
- * attachment via the server's Gmail integration (/api/email-research-pdf).
- */
-export async function emailResearchPDF(options: ResearchExportOptions): Promise<{ success: boolean; error?: string }> {
-  const doc = await buildResearchDoc(options);
-  const arrayBuf = doc.output("arraybuffer");
-  const bytes = new Uint8Array(arrayBuf);
-  let binary = "";
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  const base64 = btoa(binary);
-  const filename = `${options.title.replace(/[^a-zA-Z0-9]/g, "_")}_Research.pdf`;
-
-  const res = await apiRequest("POST", "/api/email-research-pdf", {
-    pdfBase64: base64,
-    filename,
-    subject: `${options.title} — AI Research Report`,
-    researchType: options.type,
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Email failed" }));
-    return { success: false, error: err.error };
-  }
-  return { success: true };
-}

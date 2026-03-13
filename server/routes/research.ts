@@ -5,7 +5,6 @@ import { researchGenerateSchema, logActivity, logAndSendError } from "./helpers"
 import { fromZodError } from "zod-validation-error";
 import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, extractResearchValues } from "../ai/aiResearch";
 import { validateResearchValues } from "../../calc/research/validate-research";
-import { sendResearchEmail } from "../integrations/gmail";
 import { processNotificationEvent } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
 import Anthropic from "@anthropic-ai/sdk";
@@ -18,7 +17,6 @@ export function register(app: Express) {
   // MARKET RESEARCH
   // AI-powered research generation using Claude/GPT/Gemini. Streams responses
   // via Server-Sent Events (SSE) and persists results to the database.
-  // POST /api/email-research-pdf — emails a PDF report via Gmail integration.
   // ────────────────────────────────────────────────────────────
 
   // Research status summary — used by the Research Hub page
@@ -233,21 +231,6 @@ export function register(app: Express) {
       console.error("Research generation error:", error);
       res.write(`data: ${JSON.stringify({ type: "error", message: "Generation failed" })}\n\n`);
       res.end();
-    }
-  });
-
-  app.post("/api/email-research-pdf", requireAuth, async (req, res) => {
-    try {
-      const { email, propertyId, content } = req.body;
-      if (!email || !content) {
-        return res.status(400).json({ error: "Email and content required" });
-      }
-
-      await sendResearchEmail(email, "Market Research Report", content);
-      logActivity(req, "email-pdf", "market_research", propertyId, "PDF Report");
-      res.json({ success: true });
-    } catch (error) {
-      logAndSendError(res, "Failed to email PDF", error);
     }
   });
 

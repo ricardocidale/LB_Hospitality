@@ -4,7 +4,6 @@ import { cache } from "../cache";
 import { type CircuitState } from "../integrations/base";
 import { getTwilioHealthCheck } from "../integrations/twilio";
 import { getElevenLabsHealthCheck } from "../integrations/elevenlabs";
-import { getGmailHealthCheck } from "../integrations/gmail";
 import { getStripeHealthCheck } from "../integrations/stripeClient";
 import { getPlaidHealthCheck } from "../integrations/plaid";
 import { getSendGridHealthCheck } from "../integrations/sendgrid";
@@ -26,7 +25,6 @@ export function register(app: Express) {
       const checks = await Promise.allSettled([
         getTwilioHealthCheck(),
         getElevenLabsHealthCheck(),
-        getGmailHealthCheck(),
         getStripeHealthCheck(),
         getPlaidHealthCheck(),
         getSendGridHealthCheck(),

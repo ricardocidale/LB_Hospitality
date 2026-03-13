@@ -9,11 +9,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import {
   IconRefreshCw, IconMapPin, IconBookOpen,
-  IconMail, IconFileDown, IconTrendingUp, IconDollarSign,
+  IconFileDown, IconTrendingUp, IconDollarSign,
   IconBarChart3, IconPieChart, IconTarget,
 } from "@/components/icons";
 import { useRoute } from "wouter";
-import { downloadResearchPDF, emailResearchPDF } from "@/lib/exports/researchPdfExport";
+import { downloadResearchPDF } from "@/lib/exports/researchPdfExport";
 import { useToast } from "@/hooks/use-toast";
 import { useResearchStream } from "@/components/property-research/useResearchStream";
 import { ResearchFreshnessBadge } from "@/components/research/ResearchFreshnessBadge";
@@ -663,7 +663,6 @@ export default function PropertyMarketResearch() {
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId);
   const { data: global } = useGlobalAssumptions();
   const { data: research, isLoading: researchLoading } = useMarketResearch("property", propertyId);
-  const [isEmailing, setIsEmailing] = useState(false);
   const [activeTab, setActiveTab] = useState("market");
   const { toast } = useToast();
 
@@ -738,35 +737,6 @@ export default function PropertyMarketResearch() {
                           promptConditions: (research as any)?.promptConditions || undefined,
                         }),
                         testId: "button-export-research-pdf",
-                      },
-                      {
-                        label: isEmailing ? "Sending..." : "Email PDF",
-                        icon: <IconMail className="w-3.5 h-3.5" />,
-                        onClick: async () => {
-                          if (isEmailing) return;
-                          setIsEmailing(true);
-                          try {
-                            const result = await emailResearchPDF({
-                              type: "property",
-                              title: `Market Research: ${property.name}`,
-                              subtitle: `${property.location} · ${property.market} · ${property.roomCount} rooms`,
-                              content,
-                              updatedAt: research?.updatedAt,
-                              llmModel: research?.llmModel || undefined,
-                              promptConditions: (research as any)?.promptConditions || undefined,
-                            });
-                            if (result.success) {
-                              toast({ title: "Email sent", description: "Research PDF has been emailed to you." });
-                            } else {
-                              toast({ title: "Email failed", description: result.error || "Could not send email.", variant: "destructive" });
-                            }
-                          } catch {
-                            toast({ title: "Email failed", description: "Could not send email.", variant: "destructive" });
-                          } finally {
-                            setIsEmailing(false);
-                          }
-                        },
-                        testId: "button-email-research-pdf",
                       },
                     ]}
                   />

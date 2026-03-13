@@ -131,38 +131,48 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Sequential: prod-sync-001 must run before 002
   const { runProdSync001 } = await import("./migrations/prod-sync-001");
   await runProdSync001();
-
   const { runProdSync002 } = await import("./migrations/prod-sync-002");
   await runProdSync002();
 
-  const { runMigration: runResearchConfig001 } = await import("./migrations/research-config-001");
-  await runResearchConfig001();
-
-  const { runMigration: runInflationPerEntity001 } = await import("./migrations/inflation-per-entity-001");
-  await runInflationPerEntity001();
-
-  const { runMigration: runCompaniesTheme001 } = await import("./migrations/companies-theme-001");
-  await runCompaniesTheme001();
-
-  const { runIcpConfigMigration } = await import("./migrations/icp-config-001");
-  await runIcpConfigMigration();
-
-  const { runMarcelaVoice001 } = await import("./migrations/marcela-voice-001");
-  await runMarcelaVoice001();
-
-  const { runPropertyPhotos001 } = await import("./migrations/property-photos-001");
-  await runPropertyPhotos001();
-
-  const { runPlaid001 } = await import("./migrations/plaid-001");
-  await runPlaid001();
-
-  const { runDocuments001 } = await import("./migrations/documents-001");
-  await runDocuments001();
-
-  const { runCompositeIndexes001 } = await import("./migrations/composite-indexes-001");
-  await runCompositeIndexes001();
+  // Independent schema migrations — run in parallel for faster startup
+  const [
+    { runMigration: runResearchConfig001 },
+    { runMigration: runInflationPerEntity001 },
+    { runMigration: runCompaniesTheme001 },
+    { runIcpConfigMigration },
+    { runMarcelaVoice001 },
+    { runPropertyPhotos001 },
+    { runPlaid001 },
+    { runDocuments001 },
+    { runCompositeIndexes001 },
+    { runFkIndexes001 },
+  ] = await Promise.all([
+    import("./migrations/research-config-001"),
+    import("./migrations/inflation-per-entity-001"),
+    import("./migrations/companies-theme-001"),
+    import("./migrations/icp-config-001"),
+    import("./migrations/marcela-voice-001"),
+    import("./migrations/property-photos-001"),
+    import("./migrations/plaid-001"),
+    import("./migrations/documents-001"),
+    import("./migrations/composite-indexes-001"),
+    import("./migrations/fk-indexes-001"),
+  ]);
+  await Promise.all([
+    runResearchConfig001(),
+    runInflationPerEntity001(),
+    runCompaniesTheme001(),
+    runIcpConfigMigration(),
+    runMarcelaVoice001(),
+    runPropertyPhotos001(),
+    runPlaid001(),
+    runDocuments001(),
+    runCompositeIndexes001(),
+    runFkIndexes001(),
+  ]);
 
   await seedAdminUser(); // Must complete first — users are FK dependencies
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");

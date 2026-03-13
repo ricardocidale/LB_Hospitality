@@ -25,7 +25,6 @@ import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import { RebeccaChatbot } from "@/components/RebeccaChatbot";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
-import { SidebarResearchStatus } from "@/components/research/SidebarResearchStatus";
 import { useAdminSection } from "@/lib/admin-nav";
 import { navGroups as adminNavGroups } from "@/components/admin/AdminSidebar";
 import type { AdminSection } from "@/components/admin/AdminSidebar";
@@ -225,7 +224,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
   const sidebarFooter = (
     <div className="px-2 pb-3 pt-1 space-y-5">
-      <SidebarResearchStatus onNavigate={() => setMobileOpen(false)} />
       <Button
         variant="ghost"
         onClick={() => { logout(); setMobileOpen(false); }}

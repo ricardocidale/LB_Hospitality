@@ -1,26 +1,67 @@
 /**
  * NavigationTab.tsx — Sidebar navigation visibility controls.
  *
- * Lets admins toggle which pages appear in the sidebar for non-admin users.
- * For example, the "Property Finder" or "Management Co." pages can be
- * hidden if they're not relevant to a particular deployment.
+ * One toggle per sidebar menu item. Always-visible items are shown
+ * as locked (non-toggleable) so admins see the full picture of what
+ * the sidebar looks like. Hidden pages are still accessible via direct
+ * URL — this is a UX simplification, not a security control.
  *
- * Each toggleable page has:
- *   • Page key (e.g. "propertyFinder", "company", "companyAssumptions")
- *   • Display name
- *   • Current visibility state (shown / hidden)
- *
- * Hidden pages are still accessible via direct URL (this is a UX
- * simplification, not a security control). Admin users always see
- * all pages regardless of these settings.
- *
- * Settings are persisted server-side at GET/PATCH /api/admin/navigation.
+ * Settings are persisted via GET/PUT /api/global-assumptions.
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { IconSettingsGear } from "@/components/icons";import { invalidateAllFinancialQueries } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import { Lock } from "lucide-react";
+import {
+  IconDashboard, IconProperties, IconBriefcase,
+  IconAnalysis, IconPropertyFinder, IconMapPin,
+  IconProfile, IconScenarios, IconSettings,
+  IconHelp, IconShield,
+} from "@/components/icons";
+import { cn } from "@/lib/utils";
+
+// Matches exactly what Layout.tsx renders in homeNavGroups
+const SIDEBAR_STRUCTURE = [
+  {
+    group: "Home",
+    items: [
+      { key: null, label: "Dashboard", icon: IconDashboard, description: "Portfolio overview and key metrics" },
+      { key: null, label: "Properties", icon: IconProperties, description: "Individual property cards and details" },
+      { key: null, label: "Management Co.", icon: IconBriefcase, description: "Visible to users with management access" },
+    ],
+  },
+  {
+    group: "Tools",
+    items: [
+      { key: "sidebarSensitivity", label: "Simulation", icon: IconAnalysis, description: "Sensitivity, financing, compare, and timeline analysis" },
+      { key: "sidebarPropertyFinder", label: "Property Finder", icon: IconPropertyFinder, description: "Search and discover new property opportunities" },
+      { key: "sidebarMapView", label: "Map View", icon: IconMapPin, description: "Geographic overview of portfolio properties" },
+    ],
+  },
+  {
+    group: "Settings",
+    items: [
+      { key: null, label: "My Profile", icon: IconProfile, description: "User profile and preferences" },
+      { key: "sidebarScenarios", label: "My Scenarios", icon: IconScenarios, description: "Saved scenario snapshots" },
+      { key: null, label: "General", icon: IconSettings, description: "Visible to users with management access" },
+    ],
+  },
+  {
+    group: "Other",
+    items: [
+      { key: "sidebarUserManual", label: "Help", icon: IconHelp, description: "Methodology documentation and user guide" },
+      { key: null, label: "Admin", icon: IconShield, description: "Visible to admin users only" },
+    ],
+  },
+] as const;
+
+const AI_ASSISTANT = {
+  key: "showAiAssistant",
+  label: "AI Assistant",
+  description: "Floating AI chat widget available on every page",
+};
 
 export default function NavigationTab() {
   const { toast } = useToast();
@@ -54,57 +95,102 @@ export default function NavigationTab() {
     },
     onError: (_err, _vars, context) => {
       if (context?.prev) queryClient.setQueryData(["globalAssumptions"], context.prev);
-      toast({ title: "Error", description: "Failed to save sidebar settings.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to save navigation settings.", variant: "destructive" });
     },
     onSuccess: () => {
-      invalidateAllFinancialQueries(queryClient);
-      toast({ title: "Sidebar updated", description: "Navigation visibility saved for all users." });
+      queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+      toast({ title: "Navigation updated", description: "Visibility saved for all users." });
     },
   });
 
-  const sidebarToggles = [
-    { key: "sidebarPropertyFinder", label: "Property Finder", description: "Search and discover new property opportunities" },
-    { key: "sidebarSensitivity", label: "Sensitivity Analysis", description: "Run what-if scenarios on key assumptions" },
-    { key: "sidebarFinancing", label: "Financing Analysis", description: "Analyze debt structures and refinance options" },
-    { key: "sidebarCompare", label: "Compare", description: "Side-by-side property comparison" },
-    { key: "sidebarTimeline", label: "Timeline", description: "Visual timeline of acquisitions and milestones" },
-    { key: "sidebarMapView", label: "Map View", description: "Geographic overview (only for properties with addresses)" },
-    { key: "sidebarScenarios", label: "My Scenarios", description: "Saved scenario snapshots per user" },
-    { key: "sidebarUserManual", label: "User Manual", description: "Methodology documentation and help" },
-    { key: "showAiAssistant", label: "AI Assistant", description: "Floating AI chat widget available on every page" },
-  ];
+  const isOn = (key: string) => (globalAssumptions as any)?.[key] !== false;
 
   return (
-    <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-sidebar-settings">
-      <CardHeader>
-        <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconSettingsGear className="w-5 h-5" /> Navigation Visibility</CardTitle>
-        <CardDescription className="label-text">Toggle which optional pages appear in the sidebar for non-admin users. Core pages (Dashboard, Properties, Management Co., Settings, Profile, Admin Settings) are always visible.</CardDescription>
-      </CardHeader>
-      <CardContent className="relative space-y-1">
-        {sidebarToggles.map((toggle) => {
-          const isOn = globalAssumptions?.[toggle.key] !== false;
-          return (
-            <div
-              key={toggle.key}
-              className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-muted transition-colors"
-              data-testid={`sidebar-toggle-${toggle.key}`}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-foreground font-medium text-sm">{toggle.label}</p>
-                <p className="text-muted-foreground text-xs mt-0.5">{toggle.description}</p>
+    <div className="space-y-4" data-testid="card-sidebar-settings">
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold text-foreground">Sidebar Menu</CardTitle>
+          <CardDescription className="label-text">
+            Controls which items appear in the sidebar for non-admin users. Locked items are always visible or role-based — they cannot be hidden here.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {SIDEBAR_STRUCTURE.map((section) => (
+            <div key={section.group}>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 px-1">
+                {section.group}
+              </p>
+              <div className="rounded-xl border border-border/60 overflow-hidden divide-y divide-border/40">
+                {section.items.map((item) => {
+                  const toggleable = item.key !== null;
+                  const on = toggleable ? isOn(item.key as string) : true;
+                  return (
+                    <div
+                      key={item.label}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 transition-colors",
+                        toggleable ? "hover:bg-muted/50" : "bg-muted/20",
+                      )}
+                      data-testid={toggleable ? `sidebar-toggle-${item.key}` : undefined}
+                    >
+                      <item.icon className={cn("w-4 h-4 shrink-0", on ? "text-foreground" : "text-muted-foreground/50")} />
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("text-sm font-medium", on ? "text-foreground" : "text-muted-foreground/60")}>
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
+                      </div>
+                      {toggleable ? (
+                        <Switch
+                          checked={on}
+                          onCheckedChange={(checked) =>
+                            updateSidebarMutation.mutate({ [item.key as string]: checked })
+                          }
+                          className="data-[state=checked]:bg-primary"
+                          data-testid={`switch-${item.key}`}
+                        />
+                      ) : (
+                        <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/50 flex items-center gap-1">
+                          <Lock className="w-2.5 h-2.5" />
+                          Always on
+                        </Badge>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              <Switch
-                checked={isOn}
-                onCheckedChange={(checked) => {
-                  updateSidebarMutation.mutate({ [toggle.key]: checked });
-                }}
-                className="data-[state=checked]:bg-primary"
-                data-testid={`switch-${toggle.key}`}
-              />
             </div>
-          );
-        })}
-      </CardContent>
-    </Card>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold text-foreground">AI Widget</CardTitle>
+          <CardDescription className="label-text">
+            Floating assistant available on every page — not a sidebar item.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div
+            className="flex items-center justify-between px-4 py-3 rounded-xl border border-border/60 hover:bg-muted/50 transition-colors"
+            data-testid={`sidebar-toggle-${AI_ASSISTANT.key}`}
+          >
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">{AI_ASSISTANT.label}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{AI_ASSISTANT.description}</p>
+            </div>
+            <Switch
+              checked={isOn(AI_ASSISTANT.key)}
+              onCheckedChange={(checked) =>
+                updateSidebarMutation.mutate({ [AI_ASSISTANT.key]: checked })
+              }
+              className="data-[state=checked]:bg-primary"
+              data-testid={`switch-${AI_ASSISTANT.key}`}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

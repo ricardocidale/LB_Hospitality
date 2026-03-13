@@ -134,7 +134,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   useEffect(() => { setMobileOpen(false); }, [location]);
 
   const sb = (key: string) => (global as any)?.[key] !== false;
-  const showAnalysis = sb("sidebarSensitivity") || sb("sidebarFinancing") || sb("sidebarCompare") || sb("sidebarTimeline");
+  const showAnalysis = sb("sidebarSensitivity");
   const onAdminRoute = location.startsWith("/admin");
   const [adminSection, setAdminSectionState] = useAdminSection();
 

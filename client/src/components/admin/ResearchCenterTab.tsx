@@ -268,6 +268,64 @@ const DEFAULT_PROMPT_BUILDER: PromptBuilderConfig = {
   },
 };
 
+const DEFAULT_ICP_MGMT_QUESTIONS: PromptQuestion[] = [
+  {
+    id: "default-mkt",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Marketing fees charged by hotel management companies as a percentage of Total Revenue? The app default is 2.0% of Total Revenue for Marketing. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 0,
+  },
+  {
+    id: "default-it",
+    question: "What are the Industry Benchmark Ranges (min–max %) for IT fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for IT. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 1,
+  },
+  {
+    id: "default-acct",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Accounting fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.5% of Total Revenue for Accounting. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 2,
+  },
+  {
+    id: "default-res",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Reservations fees charged by hotel management companies as a percentage of Total Revenue? The app default is 2.0% of Total Revenue for Reservations. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 3,
+  },
+  {
+    id: "default-gm",
+    question: "What are the Industry Benchmark Ranges (min–max %) for General Management fees charged by hotel management companies as a percentage of Total Revenue? The app default is 2.0% of Total Revenue for General Management. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 4,
+  },
+  {
+    id: "default-ins",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Insurance fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for Insurance. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, group purchasing leverage), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 5,
+  },
+  {
+    id: "default-propops",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Property Operations fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for Property Operations. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property age, complexity, market tier, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 6,
+  },
+  {
+    id: "default-other",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Other Services fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for Other Services. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (service scope, property needs, market tier), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 7,
+  },
+  {
+    id: "default-basefee",
+    question: "What are the Industry Benchmark Ranges (min–max %) for the overall Base Management Fee charged by hotel management companies as a percentage of Total Revenue? The app default is 8.5% of Total Revenue. This fee represents the aggregate compensation for day-to-day hotel operations and is the sum of all service category fees. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the base management fee is calculated in the USALI waterfall, identify factors that influence where a specific property or management company falls within the range (property size, market tier, brand strength, full-service vs. limited-service, chain scale), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 8,
+  },
+  {
+    id: "default-incentive",
+    question: "What are the Industry Benchmark Ranges (min–max %) for the Incentive Management Fee charged by hotel management companies as a percentage of Gross Operating Profit (GOP)? The app default is 12% of GOP. Please explain how GOP is calculated (Total Revenue minus Total Operating Expenses per USALI), describe the typical GOP hurdle or owner's priority return that must be met before the incentive fee is triggered, provide the benchmark range (low–high %), identify factors that influence where a specific property or company falls within the range (property performance, owner negotiation leverage, management company track record, market conditions), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 9,
+  },
+  {
+    id: "default-markup",
+    question: "What are the Industry Benchmark Ranges (min–max %) for the centralized service markup (cost-plus pass-through) applied by hotel management companies on services they procure on behalf of properties? The app default is a 20% markup. Please explain the cost-plus pass-through model (management company procures a service externally and passes the cost through to the property with a markup), provide the benchmark range (low–high %), identify factors that influence where a specific markup falls within the range (volume discounts, service type, management company scale, competitive landscape), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    sortOrder: 10,
+  },
+];
+
 interface ResearchSection {
   title: string;
   locationKey?: string;
@@ -483,23 +541,49 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
 
   useEffect(() => {
     if (!ga) return;
+    if (seededRef.current || updateMutation.isPending) return;
     const cfg = (ga.icpConfig as Record<string, any>) || {};
+
+    const needSourcesSeed = !cfg._sources;
+    const savedPb = cfg._promptBuilder as Partial<PromptBuilderConfig> | undefined;
+    const needQuestionsSeed = !savedPb || !Array.isArray(savedPb.questions) || savedPb.questions.length === 0;
+
     if (cfg._sources) {
       setSources(cfg._sources as IcpSources);
-    } else if (!seededRef.current && !updateMutation.isPending) {
-      seededRef.current = true;
-      const seeded: IcpSources = { urls: [...DEFAULT_URL_SEEDS], files: [] };
-      setSources(seeded);
-      const existing = (ga.icpConfig as Record<string, any>) || {};
-      updateMutation.mutate(
-        { icpConfig: { ...existing, _sources: seeded } },
-        {
-          onSuccess: () => {
-            toast({ title: "Sources Loaded", description: "10 default research sources have been added." });
-          },
-        }
-      );
     }
+
+    if (!needSourcesSeed && !needQuestionsSeed) return;
+
+    seededRef.current = true;
+    const existing = { ...cfg };
+    const messages: string[] = [];
+
+    if (needSourcesSeed) {
+      const seededSources: IcpSources = { urls: [...DEFAULT_URL_SEEDS], files: [] };
+      setSources(seededSources);
+      existing._sources = seededSources;
+      messages.push("10 default research sources");
+    }
+
+    if (needQuestionsSeed) {
+      const seededPb: PromptBuilderConfig = {
+        ...DEFAULT_PROMPT_BUILDER,
+        ...savedPb,
+        questions: [...DEFAULT_ICP_MGMT_QUESTIONS],
+      };
+      setPromptBuilder(seededPb);
+      existing._promptBuilder = seededPb;
+      messages.push("11 default Industry Benchmark Ranges questions");
+    }
+
+    updateMutation.mutate(
+      { icpConfig: existing },
+      {
+        onSuccess: () => {
+          toast({ title: "Defaults Loaded", description: `${messages.join(" and ")} have been added.` });
+        },
+      }
+    );
   }, [ga?.icpConfig]);
 
   const saveSources = (updated: IcpSources) => {
@@ -583,6 +667,24 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
     };
     setPromptBuilder(updated);
     savePromptBuilder(updated);
+  };
+
+  const handleReinsertDefaults = () => {
+    const existingIds = new Set(promptBuilder.questions.map((q) => q.id));
+    const missing = DEFAULT_ICP_MGMT_QUESTIONS.filter((dq) => !existingIds.has(dq.id));
+    if (missing.length === 0) {
+      toast({ title: "No Changes", description: "All default Industry Benchmark Ranges questions are already present." });
+      return;
+    }
+    const nextOrder = promptBuilder.questions.length;
+    const reinserted = missing.map((q, i) => ({ ...q, sortOrder: nextOrder + i }));
+    const updated = {
+      ...promptBuilder,
+      questions: [...promptBuilder.questions, ...reinserted],
+    };
+    setPromptBuilder(updated);
+    savePromptBuilder(updated);
+    toast({ title: "Defaults Restored", description: `${missing.length} default question${missing.length > 1 ? "s" : ""} re-inserted.` });
   };
 
   const handleContextChange = (key: keyof PromptBuilderConfig["context"], checked: boolean) => {
@@ -998,6 +1100,10 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
             <Button size="sm" variant="default" onClick={handleAddQuestion} disabled={!newQuestionText.trim() || updateMutation.isPending} className="h-9 text-xs gap-1.5" data-testid="button-add-question">
               <IconPlus className="w-3.5 h-3.5" />
               Add Question
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleReinsertDefaults} disabled={updateMutation.isPending} className="h-9 text-xs gap-1.5" data-testid="button-reinsert-defaults">
+              <IconRefreshCw className="w-3.5 h-3.5" />
+              Re-insert Default Questions
             </Button>
           </div>
 

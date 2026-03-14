@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { SaveButton } from "@/components/ui/save-button";
 import { Loader2 } from "lucide-react";
-import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin, IconFlaskConical, IconFileStack } from "@/components/icons";
+import { IconTarget, IconHotel, IconSparkles, IconCopy, IconPencil, IconTrash, IconRefreshCw, IconWand2, IconBookOpen, IconMapPin, IconFlaskConical, IconFileStack, IconAlertTriangle } from "@/components/icons";
+import { Skeleton } from "@/components/ui/skeleton";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";
 import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import IcpLocationTab from "@/components/admin/IcpLocationTab";

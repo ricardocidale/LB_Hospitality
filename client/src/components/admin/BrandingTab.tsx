@@ -3,8 +3,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IconPhone, IconGlobe, IconHash, IconCalendar, IconProperties, IconMail, IconMapPin } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
+import { useGeoSelect, GEO_CLEAR_VALUE } from "@/hooks/use-geo";
 import LogoSelector from "./LogoSelector";
 import type { AdminSaveState } from "@/components/admin/types/save-state";
 
@@ -89,6 +91,14 @@ export default function BrandingTab({ onNavigate, onSaveStateChange }: BrandingT
     setForm(prev => ({ ...prev, [field]: value }));
     setIsDirty(true);
   };
+
+  const geo = useGeoSelect({
+    countryName: form.companyCountry,
+    stateName: form.companyStateProvince,
+    onCountryChange: (v) => updateField("companyCountry", v),
+    onStateChange: (v) => updateField("companyStateProvince", v),
+    onCityChange: (v) => updateField("companyCity", v),
+  });
 
   return (
     <div className="space-y-6">
@@ -226,36 +236,54 @@ export default function BrandingTab({ onNavigate, onSaveStateChange }: BrandingT
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="label-text text-foreground">City</Label>
-                    <Input
-                      value={form.companyCity}
-                      onChange={(e) => updateField("companyCity", e.target.value)}
-                      placeholder="San Francisco"
-                      className="bg-card"
-                      data-testid="input-company-city"
-                    />
+                    <Label className="label-text text-foreground">Country</Label>
+                    <Select value={geo.countryCode || GEO_CLEAR_VALUE} onValueChange={geo.handleCountryChange}>
+                      <SelectTrigger className="bg-card" data-testid="select-company-country">
+                        <SelectValue placeholder="Select country" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[280px]">
+                        <SelectItem value={GEO_CLEAR_VALUE} className="text-muted-foreground">None</SelectItem>
+                        {geo.countries.map((c) => (
+                          <SelectItem key={c.isoCode} value={c.isoCode}>
+                            {c.flag} {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label className="label-text text-foreground">State / Province</Label>
-                    <Input
-                      value={form.companyStateProvince}
-                      onChange={(e) => updateField("companyStateProvince", e.target.value)}
-                      placeholder="CA"
-                      className="bg-card"
-                      data-testid="input-company-state"
-                    />
+                    <Select value={geo.stateCode || GEO_CLEAR_VALUE} onValueChange={geo.handleStateChange} disabled={!geo.countryCode}>
+                      <SelectTrigger className="bg-card" data-testid="select-company-state">
+                        <SelectValue placeholder={geo.countryCode ? "Select state" : "Select country first"} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[280px]">
+                        <SelectItem value={GEO_CLEAR_VALUE} className="text-muted-foreground">None</SelectItem>
+                        {geo.states.map((s) => (
+                          <SelectItem key={s.isoCode} value={s.isoCode}>
+                            {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="label-text text-foreground">Country</Label>
-                    <Input
-                      value={form.companyCountry}
-                      onChange={(e) => updateField("companyCountry", e.target.value)}
-                      placeholder="United States"
-                      className="bg-card"
-                      data-testid="input-company-country"
-                    />
+                    <Label className="label-text text-foreground">City</Label>
+                    <Select value={form.companyCity || GEO_CLEAR_VALUE} onValueChange={geo.handleCityChange} disabled={!geo.stateCode}>
+                      <SelectTrigger className="bg-card" data-testid="select-company-city">
+                        <SelectValue placeholder={geo.stateCode ? "Select city" : "Select state first"} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[280px]">
+                        <SelectItem value={GEO_CLEAR_VALUE} className="text-muted-foreground">None</SelectItem>
+                        {geo.cities.map((c) => (
+                          <SelectItem key={c.name} value={c.name}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label className="label-text text-foreground">Zip / Postal Code</Label>

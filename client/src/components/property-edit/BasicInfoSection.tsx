@@ -14,9 +14,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { useGeoSelect, GEO_CLEAR_VALUE } from "@/hooks/use-geo";
 import type { PropertyEditSectionProps } from "./types";
 
 export default function BasicInfoSection({ draft, onChange, onNumberChange }: PropertyEditSectionProps) {
+  const geo = useGeoSelect({
+    countryName: draft.country || "",
+    stateName: draft.stateProvince || "",
+    onCountryChange: (v) => onChange("country", v || null),
+    onStateChange: (v) => onChange("stateProvince", v || null),
+    onCityChange: (v) => onChange("city", v || null),
+  });
   return (
     <div className="relative overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="relative p-6">
@@ -46,20 +54,56 @@ export default function BasicInfoSection({ draft, onChange, onNumberChange }: Pr
                 <Input value={draft.streetAddress || ""} onChange={(e) => onChange("streetAddress", e.target.value || null)} placeholder="123 Main Street" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="space-y-2">
-                <Label className="label-text text-muted-foreground text-sm">City</Label>
-                <Input value={draft.city || ""} onChange={(e) => onChange("city", e.target.value || null)} placeholder="Austin" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
+                <Label className="label-text text-muted-foreground text-sm">Country</Label>
+                <Select value={geo.countryCode || GEO_CLEAR_VALUE} onValueChange={geo.handleCountryChange}>
+                  <SelectTrigger className="bg-card border-primary/30 text-foreground" data-testid="select-property-country">
+                    <SelectValue placeholder="Select country" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[280px]">
+                    <SelectItem value={GEO_CLEAR_VALUE} className="text-muted-foreground">None</SelectItem>
+                    {geo.countries.map((c) => (
+                      <SelectItem key={c.isoCode} value={c.isoCode}>
+                        {c.flag} {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-muted-foreground text-sm">State / Province / Region</Label>
-                <Input value={draft.stateProvince || ""} onChange={(e) => onChange("stateProvince", e.target.value || null)} placeholder="Texas" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
+                <Select value={geo.stateCode || GEO_CLEAR_VALUE} onValueChange={geo.handleStateChange} disabled={!geo.countryCode}>
+                  <SelectTrigger className="bg-card border-primary/30 text-foreground" data-testid="select-property-state">
+                    <SelectValue placeholder={geo.countryCode ? "Select state" : "Select country first"} />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[280px]">
+                    <SelectItem value={GEO_CLEAR_VALUE} className="text-muted-foreground">None</SelectItem>
+                    {geo.states.map((s) => (
+                      <SelectItem key={s.isoCode} value={s.isoCode}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="label-text text-muted-foreground text-sm">City</Label>
+                <Select value={draft.city || GEO_CLEAR_VALUE} onValueChange={geo.handleCityChange} disabled={!geo.stateCode}>
+                  <SelectTrigger className="bg-card border-primary/30 text-foreground" data-testid="select-property-city">
+                    <SelectValue placeholder={geo.stateCode ? "Select city" : "Select state first"} />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[280px]">
+                    <SelectItem value={GEO_CLEAR_VALUE} className="text-muted-foreground">None</SelectItem>
+                    {geo.cities.map((c) => (
+                      <SelectItem key={c.name} value={c.name}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label className="label-text text-muted-foreground text-sm">Postal / ZIP Code</Label>
                 <Input value={draft.zipPostalCode || ""} onChange={(e) => onChange("zipPostalCode", e.target.value || null)} placeholder="78701" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
-              </div>
-              <div className="space-y-2">
-                <Label className="label-text text-muted-foreground text-sm">Country</Label>
-                <Input value={draft.country || ""} onChange={(e) => onChange("country", e.target.value || null)} placeholder="United States" className="bg-card border-primary/30 text-foreground placeholder:text-muted-foreground" />
               </div>
             </div>
           </div>

@@ -3,10 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Shield } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 
+const DEFAULT_COMPANY_NAME = "Hospitality Business Group";
+
 function PrivacyContent() {
-  const companyName = "Hospitality Business Group";
+  const { user } = useAuth();
+  const { data: branding } = useQuery({
+    queryKey: ["my-branding"],
+    queryFn: async () => {
+      const res = await fetch("/api/my-branding", { credentials: "include" });
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: !!user,
+  });
+  const companyName = branding?.companyName || DEFAULT_COMPANY_NAME;
   const effectiveDate = "March 13, 2026";
 
   return (

@@ -114,10 +114,13 @@ export function register(app: Express) {
         if (defaultLogo) logoUrl = defaultLogo.url;
       }
 
-      res.json({ logoUrl, themeName, themeColors, groupCompanyName });
+      const ga = await storage.getGlobalAssumptions(u.id);
+      const companyName = ga?.companyName || null;
+
+      res.json({ logoUrl, themeName, themeColors, groupCompanyName, companyName });
     } catch (error) {
       console.error("Error fetching my-branding:", error);
-      res.json({ logoUrl: null, themeName: null, themeColors: null, groupCompanyName: null });
+      res.json({ logoUrl: null, themeName: null, themeColors: null, groupCompanyName: null, companyName: null });
     }
   });
 

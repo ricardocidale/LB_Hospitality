@@ -34,7 +34,7 @@ export type { AdminSaveState };
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   users:            { title: "Users",                subtitle: "Manage user accounts and assignments" },
   activity:         { title: "Activity",             subtitle: "Login logs, audit trail, and session monitoring" },
-  branding:         { title: "Management Company",   subtitle: "Identity and contact information" },
+  branding:         { title: "Hospitality Management Company",   subtitle: "Identity and contact information" },
   icp:              { title: "Ideal Customer Profile", subtitle: "Define the target property type for AI research" },
   revshare:         { title: "Revenue Streams",       subtitle: "Service categories, fee defaults, and incentive fees" },
   otherassumptions: { title: "Other Assumptions",    subtitle: "Company-specific inflation and financial defaults" },

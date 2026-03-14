@@ -36,7 +36,7 @@ import {
 const ICP_TABS: CurrentThemeTabItem[] = [
   { value: "icp-location", label: "Location", icon: IconMapPin },
   { value: "icp-profile", label: "Property Profile", icon: IconHotel },
-  { value: "icp-description", label: "Asset Description", icon: IconTarget },
+  { value: "icp-description", label: "Property Description", icon: IconTarget },
   { value: "icp-definition", label: "ICP Definition", icon: IconBookOpen },
 ];
 

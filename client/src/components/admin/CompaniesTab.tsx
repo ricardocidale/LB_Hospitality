@@ -87,14 +87,21 @@ export default function CompaniesTab() {
   const deleteCompanyMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/companies/${id}`, { method: "DELETE", credentials: "include" });
-      if (!res.ok) throw new Error("Failed to delete company");
-      return res.json();
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || "Failed to delete company");
+      }
+      if (res.status === 204) return null;
+      return res.json().catch(() => null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "companies"] });
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       toast({ title: "Company Deleted", description: "Company has been deleted." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
     },
   });
 

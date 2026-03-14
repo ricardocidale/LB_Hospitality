@@ -6,6 +6,47 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Check, X, Search, ChevronDown } from "lucide-react";
 import { IconEye, IconBell, IconStar, IconTrendingUp, IconUsers, IconDollarSign, IconAlertCircle } from "@/components/icons";
+import { BarChartCard } from "@/lib/charts/BarChartCard";
+import { LineChartMulti } from "@/lib/charts/LineChartMulti";
+import type { ChartConfig } from "@/components/ui/chart";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+const barChartData = [
+  { name: "Q1", value: 320, fill: "var(--color-q1)" },
+  { name: "Q2", value: 450, fill: "var(--color-q2)" },
+  { name: "Q3", value: 390, fill: "var(--color-q3)" },
+  { name: "Q4", value: 520, fill: "var(--color-q4)" },
+];
+
+const barChartConfig: ChartConfig = {
+  q1: { label: "Q1", color: "hsl(var(--chart-1))" },
+  q2: { label: "Q2", color: "hsl(var(--chart-2))" },
+  q3: { label: "Q3", color: "hsl(var(--chart-3))" },
+  q4: { label: "Q4", color: "hsl(var(--chart-4))" },
+  value: { label: "Revenue ($K)" },
+};
+
+const lineChartData = [
+  { month: "Jan", revenue: 180, noi: 95, occupancy: 72 },
+  { month: "Feb", revenue: 200, noi: 110, occupancy: 75 },
+  { month: "Mar", revenue: 220, noi: 120, occupancy: 78 },
+  { month: "Apr", revenue: 250, noi: 140, occupancy: 82 },
+  { month: "May", revenue: 270, noi: 155, occupancy: 85 },
+  { month: "Jun", revenue: 300, noi: 170, occupancy: 88 },
+];
+
+const lineChartConfig: ChartConfig = {
+  revenue: { label: "Revenue", color: "hsl(var(--chart-1))" },
+  noi: { label: "NOI", color: "hsl(var(--chart-2))" },
+  occupancy: { label: "Occupancy", color: "hsl(var(--chart-3))" },
+};
+
+const lineChartSeries = [
+  { dataKey: "revenue", color: "var(--color-revenue)", label: "Revenue" },
+  { dataKey: "noi", color: "var(--color-noi)", label: "NOI" },
+  { dataKey: "occupancy", color: "var(--color-occupancy)", label: "Occupancy" },
+];
 
 interface ThemePreviewProps {
   themeName?: string;
@@ -214,23 +255,81 @@ export function ThemePreview({ themeName }: ThemePreviewProps) {
         <Separator />
 
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Chart Colors</p>
-          <div className="flex gap-1 items-end h-24">
-            {[65, 80, 45, 90, 55].map((height, i) => (
-              <div
-                key={i}
-                className="flex-1 rounded-t-md transition-all"
-                style={{
-                  height: `${height}%`,
-                  backgroundColor: `hsl(var(--chart-${i + 1}))`,
-                }}
-                data-testid={`preview-chart-bar-${i}`}
-              />
-            ))}
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3" data-testid="preview-section-bar-chart">Bar Chart</p>
+          <div className="h-[200px]" data-testid="preview-bar-chart">
+            <BarChartCard
+              data={barChartData}
+              config={barChartConfig}
+              layout="horizontal"
+              showLabel={false}
+              barRadius={4}
+              className="h-full w-full"
+            />
           </div>
-          <div className="flex gap-1 mt-2">
-            {["Q1", "Q2", "Q3", "Q4", "Q5"].map((label, i) => (
-              <div key={i} className="flex-1 text-center text-[10px] text-muted-foreground">{label}</div>
+        </div>
+
+        <Separator />
+
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3" data-testid="preview-section-line-chart">Line Chart</p>
+          <div className="h-[200px]" data-testid="preview-line-chart">
+            <LineChartMulti
+              data={lineChartData}
+              config={lineChartConfig}
+              series={lineChartSeries}
+              xAxisKey="month"
+              xAxisFormatter={(v) => v}
+              className="h-full w-full"
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3" data-testid="preview-section-infotips">Infotips</p>
+          <TooltipProvider>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card" data-testid="preview-infotip-adr">
+                <span className="text-sm text-foreground font-medium">ADR</span>
+                <InfoTooltip
+                  text="Average Daily Rate — the average rental income per paid occupied room over a given period."
+                  formula="ADR = Total Room Revenue / Number of Rooms Sold"
+                  side="right"
+                />
+              </div>
+              <div className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card" data-testid="preview-infotip-caprate">
+                <span className="text-sm text-foreground font-medium">Cap Rate</span>
+                <InfoTooltip
+                  text="Capitalization Rate — measures the rate of return on a real estate investment property based on its net operating income."
+                  formula="Cap Rate = NOI / Property Value"
+                  side="right"
+                />
+              </div>
+              <div className="flex items-center gap-2 p-3 rounded-lg border border-border bg-card" data-testid="preview-infotip-ffe">
+                <span className="text-sm text-foreground font-medium">FF&E Reserve</span>
+                <InfoTooltip
+                  text="Furniture, Fixtures & Equipment Reserve — funds set aside for the periodic replacement of furniture, fixtures, and equipment."
+                  side="right"
+                />
+              </div>
+            </div>
+          </TooltipProvider>
+        </div>
+
+        <Separator />
+
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3" data-testid="preview-section-chart-colors">Chart Colors</p>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex flex-col items-center gap-1" data-testid={`preview-chart-swatch-${i}`}>
+                <div
+                  className="w-8 h-8 rounded-md border border-border"
+                  style={{ backgroundColor: `hsl(var(--chart-${i}))` }}
+                />
+                <span className="text-[10px] text-muted-foreground">Chart {i}</span>
+              </div>
             ))}
           </div>
         </div>

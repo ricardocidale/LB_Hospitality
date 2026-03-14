@@ -195,7 +195,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
       {
         onSuccess: () => {
           setDefEditing(false);
-          toast({ title: "Generated", description: "ICP for Mgmt Co definition updated from current profile." });
+          toast({ title: "Generated", description: "ICP Management Co definition updated from current profile." });
         },
         onError: mutateError,
       }
@@ -208,7 +208,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
       {
         onSuccess: () => {
           setDefEditing(false);
-          toast({ title: "Saved", description: "ICP for Mgmt Co definition saved." });
+          toast({ title: "Saved", description: "ICP Management Co definition saved." });
         },
         onError: mutateError,
       }
@@ -234,7 +234,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
     return (
       <div className="w-full p-8 text-center">
         <IconAlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load ICP for Mgmt Co configuration</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load ICP Management Co configuration</h3>
         <p className="text-muted-foreground text-sm mb-4">
           Could not fetch global assumptions. Check your connection and try again.
         </p>
@@ -346,7 +346,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <IconBookOpen className="w-8 h-8 mx-auto mb-3 opacity-40" />
-                  <p className="text-sm font-medium">No ICP for Mgmt Co definition generated yet</p>
+                  <p className="text-sm font-medium">No ICP Management Co definition generated yet</p>
                   <p className="text-xs mt-1">
                     Click <strong>Generate</strong> to build the definition from your current Property Profile and Property Description.
                   </p>

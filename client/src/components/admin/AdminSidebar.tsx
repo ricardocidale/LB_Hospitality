@@ -60,9 +60,9 @@ const navGroups: NavGroup[] = [
     id: "research-cat",
     label: "Research",
     icon: IconResearch,
-    description: "ICP for Mgmt Co & AI research tools",
+    description: "ICP Management Co & AI research tools",
     sections: [
-      { value: "icp", label: "ICP for Mgmt Co", icon: IconTarget },
+      { value: "icp", label: "ICP Management Co", icon: IconTarget },
       { value: "research", label: "Research Center", icon: IconResearch },
     ],
   },

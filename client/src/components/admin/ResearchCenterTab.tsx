@@ -750,7 +750,7 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
         }
       }
 
-      toast({ title: "Research Complete", description: "ICP for Mgmt Co market research report has been generated and saved." });
+      toast({ title: "Research Complete", description: "ICP Management Co market research report has been generated and saved." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to generate research", variant: "destructive" });
     } finally {
@@ -945,8 +945,8 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
   return (
     <div className="space-y-4">
       <EnableToggle
-        label="ICP for Mgmt Co Research"
-        description="AI-powered research using the ICP for Mgmt Co definition to identify acquisition targets"
+        label="ICP Management Co Research"
+        description="AI-powered research using the ICP Management Co definition to identify acquisition targets"
         enabled={enabled}
         onChange={onToggle}
       />
@@ -1553,7 +1553,7 @@ function PropertyResearchSection({ config, onChange }: { config: ResearchEventCo
       />
       {config.enabled && (
         <>
-          <DataInputsCard title="Data Inputs" items={["Location", "Room Count", "ADR", "Acquisition Price", "ICP for Mgmt Co Context"]} />
+          <DataInputsCard title="Data Inputs" items={["Location", "Room Count", "ADR", "Acquisition Price", "ICP Management Co Context"]} />
 
           <div className="space-y-3">
             <Label className="text-sm font-medium">Deterministic Tools</Label>

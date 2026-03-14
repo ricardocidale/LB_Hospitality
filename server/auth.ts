@@ -390,11 +390,13 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
 }
 
 /**
- * Seeds the database with default users (admin, checker, and Reynaldo) using
- * credentials from environment variables (`ADMIN_PASSWORD`, `CHECKER_PASSWORD`,
- * `REYNALDO_PASSWORD`). If users already exist, their passwords are reset to match
- * the current environment variable values. A default "Development" scenario is
- * created for each seeded user.
+ * Seeds the database with default users (admin, checker, partners) using
+ * credentials from environment variables. Ricardo (ricardo.cidale@norfolkgroup.io)
+ * is a special case: his password is hardcoded to "admin123" and reset on every
+ * startup regardless of FORCE_RESEED_PASSWORDS. Other users read passwords from
+ * their respective env vars (e.g. PASSWORD_CHECKER, PASSWORD_REYNALDO) with
+ * PASSWORD_DEFAULT as fallback, and only reset when FORCE_RESEED_PASSWORDS=true.
+ * A default "Development" scenario is created for each seeded user.
  * @returns A promise that resolves when all seed operations are complete.
  */
 export async function seedAdminUser() {
@@ -420,8 +422,12 @@ export async function seedAdminUser() {
     { email: "wlaruffa@gmail.com", envVar: "PASSWORD_WILLIAM", role: "partner", firstName: "William", lastName: "Laruffa", company: "Independent", title: "Partner", userGroupId: 3 },
   ];
 
+  const RICARDO_EMAIL = "ricardo.cidale@norfolkgroup.io";
+  const RICARDO_PASSWORD = "admin123";
+
   for (const seed of userSeeds) {
-    const password = process.env[seed.envVar] || defaultPassword;
+    const isRicardo = seed.email === RICARDO_EMAIL;
+    const password = isRicardo ? RICARDO_PASSWORD : (process.env[seed.envVar] || defaultPassword);
     if (!password) {
       console.warn(`${seed.envVar} not set and no PASSWORD_DEFAULT. Skipping ${seed.email}.`);
       continue;
@@ -430,7 +436,7 @@ export async function seedAdminUser() {
     let user = await storage.getUserByEmail(seed.email);
 
     if (!user) {
-      if (seed.email === "ricardo.cidale@norfolkgroup.io") {
+      if (isRicardo) {
         const oldAdmin = await storage.getUserByEmail("admin");
         if (oldAdmin) {
           const passwordHash = await hashPassword(password);
@@ -468,11 +474,10 @@ export async function seedAdminUser() {
         logger.info(`User created: ${seed.email}`, "auth");
       }
     } else {
-      // ONLY reset password if FORCE_RESEED_PASSWORDS is explicitly set
-      if (process.env.FORCE_RESEED_PASSWORDS === 'true') {
+      if (isRicardo || process.env.FORCE_RESEED_PASSWORDS === 'true') {
         const passwordHash = await hashPassword(password);
         await storage.updateUserPassword(user.id, passwordHash);
-        logger.info(`User password force-reset: ${seed.email}`, "auth");
+        logger.info(`User password ${isRicardo ? 'reset' : 'force-reset'}: ${seed.email}`, "auth");
       } else {
         logger.info(`User exists, password preserved: ${seed.email}`, "auth");
       }

@@ -29,6 +29,10 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Generate Research"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -101,6 +105,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run exports:check"
+
+[[workflows.workflow]]
+name = "Generate Research"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "tsx script/run-research.ts"
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [agent]
 mockupState = "FULLSTACK"

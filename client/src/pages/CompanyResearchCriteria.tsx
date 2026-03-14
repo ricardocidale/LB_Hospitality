@@ -439,29 +439,14 @@ export default function CompanyResearchCriteria() {
                 </Card>
               )}
 
-              <Card className="border border-border rounded-lg p-5 space-y-4">
-                <SectionHeading icon={IconMapPin} title="Geographic Targets" />
-                <div className="space-y-4">
-                  {icpDescriptive.usRegions && (
-                    <div className="space-y-1.5">
-                      <p className="label-text text-muted-foreground font-medium text-[11px] uppercase tracking-wide">United States</p>
-                      <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{icpDescriptive.usRegions}</p>
-                    </div>
-                  )}
-                  {icpDescriptive.latAmRegions && (
-                    <div className="space-y-1.5">
-                      <p className="label-text text-muted-foreground font-medium text-[11px] uppercase tracking-wide">Latin America</p>
-                      <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{icpDescriptive.latAmRegions}</p>
-                    </div>
-                  )}
-                  {icpDescriptive.emeaRegions && (
-                    <div className="space-y-1.5">
-                      <p className="label-text text-muted-foreground font-medium text-[11px] uppercase tracking-wide">EMEA</p>
-                      <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{icpDescriptive.emeaRegions}</p>
-                    </div>
-                  )}
-                </div>
-              </Card>
+              {icpDescriptive.locationDetails && (
+                <Card className="border border-border rounded-lg p-5 space-y-4">
+                  <SectionHeading icon={IconMapPin} title="Details about Location" />
+                  <div className="space-y-1.5">
+                    <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{icpDescriptive.locationDetails}</p>
+                  </div>
+                </Card>
+              )}
 
               {(icpDescriptive.exclusions || icpDescriptive.regulatoryNotes) && (
                 <Card className="border border-border rounded-lg p-5 space-y-4">

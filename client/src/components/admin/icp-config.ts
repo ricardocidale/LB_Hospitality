@@ -314,9 +314,7 @@ export interface IcpDescriptive {
   propertyTypes: string;
   fbLevel: string;
   locationCharacteristics: string;
-  usRegions: string;
-  latAmRegions: string;
-  emeaRegions: string;
+  locationDetails: string;
   conditionNotes: string;
   groundsTopography: string;
   vendorServices: string;
@@ -329,9 +327,44 @@ export const DEFAULT_ICP_DESCRIPTIVE: IcpDescriptive = {
   propertyTypes: "Luxury boutique hotel, estate hotel, hacienda, lodge, manor, or large private estate suitable for conversion into a full-service hospitality operation. Properties must convey exclusivity, architectural character, and a strong sense of place. Chain-affiliated or conventional box hotels are excluded.",
   fbLevel: "Full-service F&B operation with chef-driven restaurant, bar/lounge program, room service, and event catering. Farm-to-table or locally sourced menus preferred. Breakfast included in rate or available à la carte. Dinner service minimum 5 nights/week. Private dining and wine pairing experiences for up to 20 guests. Commercial kitchen capable of supporting 60+ covers per service. Liquor license required or transferable. Seasonal menus and local partnerships encouraged. F&B revenue target: 35%–60% of room revenue.",
   locationCharacteristics: "Near-total privacy: secluded or estate-like setting, ideally not visible from public roads. Proximity to tourism demand generators (wine regions, mountains, beaches, cultural landmarks, national parks). Walkable or short drive to dining, shopping, and recreation. Rideshare services (Uber/Lyft) must be available in the area. Property accessible by paved road year-round.",
-  usRegions: "Northeast: Hudson Valley NY, Berkshires MA, Catskills NY, Litchfield Hills CT\nSoutheast: Asheville NC, Charleston SC, Savannah GA, Florida Gulf Coast, Charlottesville VA\nSouthwest: Austin TX Hill Country, Sedona AZ, Santa Fe NM, Fredericksburg TX\nWest: Napa/Sonoma CA, Park City/Eden UT, Jackson Hole WY, Bend OR",
-  latAmRegions: "Colombia: Medellín, Cartagena, Coffee Triangle (Eje Cafetero), Santa Marta/Tayrona, Villa de Leyva\nMexico: San Miguel de Allende, Oaxaca, Riviera Nayarit, Valle de Guadalupe\nCosta Rica: Guanacaste, Central Valley, Osa Peninsula",
-  emeaRegions: "France: Provence, Loire Valley, Bordeaux, Côte d'Azur, Dordogne\nUAE: Dubai (Jumeirah, Al Barari, Hatta)\nPortugal: Alentejo, Douro Valley, Algarve\nItaly: Tuscany, Umbria, Amalfi Coast, Lake Como\nSpain: Mallorca, Andalusia, Basque Country",
+  locationDetails: `United States — Northeast
+Hudson Valley NY: rolling meadows with wildflower borders, stone walls, and seasonal foliage; properties often feature heritage gardens and creek-side walking paths. Guests arrive via tree-lined country lanes with views of the Catskill escarpment.
+Berkshires MA: mist-draped hills, mature birch and maple canopy, spring-fed ponds; estate settings with manicured lawns, sculpture gardens, and covered bridges. Autumn foliage draws peak-season visitors.
+Catskills NY: forested mountain slopes with rushing creeks, hemlock groves, and wide valley views; rustic-luxe appeal with firepit clearings and trout streams on-property.
+Litchfield Hills CT: pastoral horse country with white-fenced paddocks, colonial stone walls, and gentle hills; village greens and covered bridges within a short drive.
+
+United States — Southeast
+Asheville NC: Blue Ridge panoramas, rhododendron-lined drives, and cool mountain air; properties sit among old-growth hardwoods with long-range layered mountain views.
+Charleston SC: live-oak allées draped in Spanish moss, tidal marshes, and warm coastal breezes; historic brick and ironwork lend timeless architectural character.
+Savannah GA: garden squares, fountain courtyards, and jasmine-scented walkways; properties benefit from the city's walkable historic district and coastal island proximity.
+Charlottesville VA: rolling Piedmont countryside, vineyard-studded hills, and Blue Ridge foothills; estates often feature boxwood gardens, spring houses, and farm-to-table orchards.
+
+United States — Southwest
+Austin TX Hill Country: limestone bluffs, spring-fed swimming holes, and live-oak savannas; sunset views over the Pedernales River valley with wildflower meadows in spring.
+Sedona AZ: red-rock buttes, juniper-dotted mesas, and dramatic canyon light at golden hour; properties framed by Cathedral Rock or Boynton Canyon vistas.
+Santa Fe NM: high-desert light, adobe architecture, piñon-pine hillsides, and distant Sangre de Cristo peaks; aromatic sage and lavender gardens surround courtyard estates.
+Fredericksburg TX: peach orchards, rolling ranchland, and German-heritage stone farmsteads; wildflower-season draws visitors to hillside estates with panoramic views.
+
+United States — West
+Napa/Sonoma CA: vineyard-framed estates with lavender-lined drives, mature olive groves, and sunset views over rolling hills; morning fog burns off to reveal orderly vine rows and distant coastal ridges.
+Park City/Eden UT: alpine meadows, aspen groves that shimmer gold in autumn, and ski-in/ski-out proximity; summer wildflower trails and mountain-lake reflections.
+Jackson Hole WY: Grand Teton backdrop, sage-covered flats, and Snake River corridor; properties offer big-sky drama with elk and moose sightings at dawn.
+Bend OR: Cascade peaks, ponderosa-pine forests, and high-desert river canyons; year-round outdoor culture with mountain views from nearly every vantage.
+
+Latin America
+Medellín, Colombia: eternal-spring climate in a lush Andean valley; properties perched on hillsides with coffee-farm panoramas and flowering bougainvillea terraces.
+Cartagena, Colombia: Caribbean sea breezes, coral-stone ramparts, and bougainvillea-draped colonial courtyards; rooftop terraces overlook the old walled city and harbor.
+Coffee Triangle, Colombia: emerald-green coffee plantations cascading down volcanic slopes; hacienda estates with hummingbird gardens and mountain-mist mornings.
+San Miguel de Allende, Mexico: cobblestone streets, baroque-colonial facades, and rooftop views of the Parroquia; terraced gardens with fountain courtyards and jacaranda canopy.
+Oaxaca, Mexico: Sierra Madre valleys, agave fields, and ancient Zapotec ruins nearby; courtyard haciendas with bougainvillea walls and mezcal-tasting patios.
+Guanacaste, Costa Rica: Pacific-coast dry forest transitioning to tropical beach; howler monkeys, sunset surf breaks, and open-air estate living year-round.
+
+Europe, Middle East & Africa
+Provence, France: lavender fields, cypress-lined lanes, and honey-stone mas farmhouses; cicada-song summers with views of Mont Ventoux or the Luberon ridge.
+Tuscany, Italy: undulating hills striped with olive groves and vineyards, medieval stone villas, and golden-hour light that painters have chased for centuries.
+Douro Valley, Portugal: terraced vineyards cascading to the river, quintas with azulejo-tiled facades, and port-wine heritage lending old-world romance.
+Mallorca, Spain: Serra de Tramuntana mountain backdrop, turquoise coves, and centuries-old finca estates surrounded by almond and citrus orchards.
+Dubai, UAE (Al Barari): lush desert-garden enclave with over 1,200 species of tropical plants, private lagoons, and spa-resort tranquility minutes from the city center.`,
   conditionNotes: "Property in good to excellent structural condition; cosmetic renovation acceptable but no major structural remediation. No active pest infestation, mold, asbestos, or lead paint issues. Historic or heritage designation acceptable if renovation flexibility exists. Unique architectural provenance preferred (colonial, farmhouse, mid-century modern, Mediterranean).",
   groundsTopography: "Gentle rolling hills, flat meadows, or terraced hillside; no extreme slopes requiring retaining walls. Mature landscaping preferred (established trees, manicured gardens, hedgerows for privacy). Water features valued (pond, creek, lake frontage, fountain). Mountain, valley, ocean, vineyard, or pastoral views. Irrigation system for landscaping preferred.",
   vendorServices: "The management company coordinates third-party vendor services to each property:\n• IT: PMS, channel manager, booking engine, Wi-Fi, POS, security/surveillance, smart room technology\n• Housekeeping: daily staffing, commercial laundry, deep cleaning crews, pest control\n• Grounds: landscaping, pool/spa maintenance, HVAC/mechanical, painting/carpentry\n• Professional: accounting, legal, insurance, marketing/PR, revenue management\n• F&B: food purveyors, beverage distributors, kitchen equipment maintenance",
@@ -630,16 +663,9 @@ export function generateIcpPrompt(c: IcpConfig, d: IcpDescriptive, propertyLabel
       lines.push(...buildLocationSection(locations[i], i, c, d, propertyLabel, amenityTiers));
     }
   } else {
-    lines.push(`━━━ PREFERRED GEOGRAPHIES ━━━`);
+    lines.push(`━━━ LOCATION DETAILS ━━━`);
     lines.push(``);
-    lines.push(`United States:`);
-    lines.push(d.usRegions);
-    lines.push(``);
-    lines.push(`Latin America:`);
-    lines.push(d.latAmRegions);
-    lines.push(``);
-    lines.push(`EMEA:`);
-    lines.push(d.emeaRegions);
+    lines.push(d.locationDetails);
     lines.push(``);
   }
 
@@ -893,9 +919,7 @@ export const DESCRIPTIVE_SECTIONS: DescriptiveSection[] = [
   { key: "propertyTypes", label: "Property Type & Positioning", rows: 4, help: "Target property types, architectural character, exclusions" },
   { key: "fbLevel", label: "Food & Beverage Level", rows: 5, help: "Describe the expected F&B operation level: restaurant concept, service style, cuisine direction, bar program, event catering, and revenue expectations" },
   { key: "locationCharacteristics", label: "Location Characteristics", rows: 4, help: "Privacy requirements, accessibility, tourism demand generators" },
-  { key: "usRegions", label: "Preferred US Regions", rows: 5, help: "Markets and sub-markets in the United States" },
-  { key: "latAmRegions", label: "Preferred Latin America", rows: 4, help: "Markets and sub-markets in Latin America" },
-  { key: "emeaRegions", label: "Preferred EMEA", rows: 5, help: "Markets and sub-markets in Europe, Middle East & Africa" },
+  { key: "locationDetails", label: "Details about Location", rows: 12, help: "Rich descriptive details about what makes each target location desirable — ambiance, scenery, unique natural features, guest arrival experience, seasonal flora, and other location-specific character notes" },
   { key: "conditionNotes", label: "Property Condition Notes", rows: 3, help: "Structural condition, historic designation, architectural style" },
   { key: "groundsTopography", label: "Grounds & Topography", rows: 3, help: "Terrain, landscaping, water features, views" },
   { key: "vendorServices", label: "Vendor & Managed Services", rows: 6, help: "Third-party services coordinated through the management company" },

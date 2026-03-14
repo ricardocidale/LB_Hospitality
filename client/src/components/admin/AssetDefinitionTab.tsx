@@ -170,7 +170,19 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
       if (ga.icpConfig) {
         setConfig({ ...DEFAULT_ICP_CONFIG, ...(ga.icpConfig as Partial<IcpConfig>) });
         if ((ga.icpConfig as any)._descriptive) {
-          setDesc({ ...DEFAULT_ICP_DESCRIPTIVE, ...((ga.icpConfig as any)._descriptive as Partial<IcpDescriptive>) });
+          const saved = (ga.icpConfig as any)._descriptive as Record<string, any>;
+          const migrated = { ...saved };
+          if (!migrated.locationDetails && (migrated.usRegions || migrated.latAmRegions || migrated.emeaRegions)) {
+            const parts: string[] = [];
+            if (migrated.usRegions) parts.push(`United States:\n${migrated.usRegions}`);
+            if (migrated.latAmRegions) parts.push(`Latin America:\n${migrated.latAmRegions}`);
+            if (migrated.emeaRegions) parts.push(`EMEA:\n${migrated.emeaRegions}`);
+            migrated.locationDetails = parts.join("\n\n");
+          }
+          delete migrated.usRegions;
+          delete migrated.latAmRegions;
+          delete migrated.emeaRegions;
+          setDesc({ ...DEFAULT_ICP_DESCRIPTIVE, ...(migrated as Partial<IcpDescriptive>) });
         }
         if ((ga.icpConfig as any)._customAmenities) {
           setCustomAmenities((ga.icpConfig as any)._customAmenities as CustomAmenity[]);

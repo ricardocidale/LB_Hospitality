@@ -344,8 +344,11 @@ export interface IcpLocationTabProps {
 }
 
 export default function IcpLocationTab({ onSaveStateChange }: IcpLocationTabProps = {}) {
-  const { data: ga } = useGlobalAssumptions();
+  const { data: ga, isLoading: gaLoading } = useGlobalAssumptions();
   const updateMutation = useUpdateAdminConfig();
+
+  // Guard: wait for data before rendering
+  if (gaLoading && !ga) return null;
   const { toast } = useToast();
 
   const [locations, setLocations] = useState<IcpLocation[]>([]);

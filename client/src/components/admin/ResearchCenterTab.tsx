@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,21 +7,27 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, ChevronDown, ChevronRight } from "lucide-react";
 import {
-  IconPlus, IconBrain, IconExternalLink, IconLibrary, IconRefreshCw,
-  IconResearch, IconProperties, IconGlobe, IconMapPin, IconTarget,
-  IconBuilding, IconTrendingUp, IconSettings, IconDollarSign,
+  IconPlus, IconBrain, IconExternalLink, IconRefreshCw,
+  IconResearch, IconProperties, IconMapPin, IconTarget,
+  IconTrendingUp, IconFlaskConical, IconDownload, IconSparkles,
+  IconCopy, IconPencil, IconTrash, IconWand2,
+  IconLink, IconFile, IconFileText, IconUpload, IconGlobe,
 } from "@/components/icons";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
-import type { ResearchConfig, ResearchEventConfig, AiModelEntry } from "@shared/schema";
-import { RESEARCH_SOURCES } from "@shared/constants";
-
-// ── Constants ──────────────────────────────────────────────────────────────
+import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
+import type { ResearchConfig, ResearchEventConfig, ResearchSourceEntry, AiModelEntry } from "@shared/schema";
+import {
+  type IcpConfig,
+  type IcpDescriptive,
+  DEFAULT_ICP_CONFIG,
+  DEFAULT_ICP_DESCRIPTIVE,
+  generateIcpPrompt,
+} from "./icp-config";
 
 const DETERMINISTIC_TOOLS = [
   { name: "compute_property_metrics",    description: "RevPAR, room revenue, GOP, NOI margin" },
@@ -33,25 +39,6 @@ const DETERMINISTIC_TOOLS = [
   { name: "compute_cost_benchmarks",     description: "USALI cost rate benchmarks" },
   { name: "compute_service_fee",         description: "Service fee calculations" },
   { name: "compute_markup_waterfall",    description: "Markup waterfall" },
-];
-
-const EXPANDED_SOURCES = [
-  { name: "STR (CoStar)", category: "Hospitality", url: "https://str.com" },
-  { name: "PKF Hospitality Research", category: "Hospitality", url: "https://www.pkfhotels.com" },
-  { name: "CBRE Hotels Research", category: "Hospitality", url: "https://www.cbre.com/industries/hotels" },
-  { name: "HVS", category: "Hospitality", url: "https://hvs.com" },
-  { name: "USALI 12th Edition", category: "Hospitality", url: undefined },
-  { name: "Real Capital Analytics (MSCI)", category: "Investment", url: "https://www.msci.com/real-capital-analytics" },
-  { name: "Preqin", category: "Investment", url: "https://www.preqin.com" },
-  { name: "PitchBook", category: "Investment", url: "https://pitchbook.com" },
-  { name: "Lodging Econometrics", category: "Investment", url: "https://lodgingeconometrics.com" },
-  { name: "Trepp (CMBS)", category: "Investment", url: "https://www.trepp.com" },
-  { name: "AHLA Investment Survey", category: "Investment", url: "https://www.ahla.com" },
-  { name: "FRED (Federal Reserve)", category: "Economics", url: "https://fred.stlouisfed.org" },
-  { name: "BLS", category: "Economics", url: "https://www.bls.gov" },
-  { name: "TSA Throughput Data", category: "Economics", url: undefined },
-  { name: "IRS Publication 946", category: "Regulatory", url: undefined },
-  { name: "SBA 504 Program", category: "Regulatory", url: "https://www.sba.gov" },
 ];
 
 const FALLBACK_MODELS: AiModelEntry[] = [
@@ -76,20 +63,6 @@ const MACRO_INDICATORS = [
   "Interest Rates", "Inflation", "Labor Market", "Travel Demand", "Supply Pipeline",
 ];
 
-const OPERATIONS_FOCUS = [
-  "Fee Benchmarks", "Vendor Analysis", "Overhead Benchmarks", "Competitive Analysis",
-];
-
-const PERSONA_TYPES = [
-  "Guest Personas", "Investor Profiles", "Lender Profiles", "Owner Profiles",
-];
-
-const ICP_DEPTHS = [
-  { value: "full", label: "Full" },
-  { value: "summary", label: "Summary" },
-  { value: "none", label: "None" },
-];
-
 const DEFAULT_EVENT_CONFIG: ResearchEventConfig = {
   enabled: true,
   focusAreas: [],
@@ -103,8 +76,6 @@ const DEFAULT_EVENT_CONFIG: ResearchEventConfig = {
 function mergeConfig(saved: Partial<ResearchEventConfig> | undefined): ResearchEventConfig {
   return { ...DEFAULT_EVENT_CONFIG, ...saved };
 }
-
-// ── Reusable Components ────────────────────────────────────────────────────
 
 function TagInput({ tags, onChange, placeholder, testIdPrefix }: {
   tags: string[];
@@ -205,9 +176,1010 @@ function CheckboxGroup({ items, selected, onChange }: {
   );
 }
 
-// ── Tab: Property Research ─────────────────────────────────────────────────
+function CollapsibleSection({ title, icon, description, defaultOpen, children }: {
+  title: string;
+  icon: React.ReactNode;
+  description: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen ?? true);
+  return (
+    <Card className="bg-card border border-border/80 shadow-sm">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors rounded-t-lg"
+        data-testid={`section-toggle-${title.toLowerCase().replace(/\s+/g, "-")}`}
+      >
+        <div className="flex items-center gap-3">
+          {icon}
+          <div className="text-left">
+            <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+            <p className="text-xs text-muted-foreground">{description}</p>
+          </div>
+        </div>
+        {open ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+      </button>
+      {open && (
+        <CardContent className="pt-0 pb-5">
+          {children}
+        </CardContent>
+      )}
+    </Card>
+  );
+}
 
-function PropertyTab({ config, onChange }: { config: ResearchEventConfig; onChange: (c: ResearchEventConfig) => void }) {
+interface UrlSource {
+  id: string;
+  url: string;
+  label: string;
+  addedAt: string;
+}
+
+interface FileSource {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  origin: "local" | "google-drive";
+  objectPath?: string;
+  driveUrl?: string;
+  addedAt: string;
+}
+
+interface IcpSources {
+  urls: UrlSource[];
+  files: FileSource[];
+}
+
+interface ResearchSection {
+  title: string;
+  locationKey?: string;
+  content: string;
+}
+
+interface IcpResearchReport {
+  generatedAt: string;
+  model: string;
+  sections: ResearchSection[];
+  extractedMetrics: Record<string, any>;
+}
+
+const DEFAULT_URL_SEEDS: UrlSource[] = [
+  { id: "default-str", url: "https://str.com", label: "STR", addedAt: new Date().toISOString() },
+  { id: "default-cbre", url: "https://www.cbre.com/industries/hotels", label: "CBRE Hotels", addedAt: new Date().toISOString() },
+  { id: "default-hvs", url: "https://hvs.com", label: "HVS", addedAt: new Date().toISOString() },
+  { id: "default-jll", url: "https://www.jll.com/en/industries/hotels-and-hospitality", label: "JLL Hotels", addedAt: new Date().toISOString() },
+  { id: "default-hnn", url: "https://hotelnewsnow.com", label: "Hotel News Now", addedAt: new Date().toISOString() },
+  { id: "default-hnet", url: "https://www.hospitalitynet.org", label: "Hospitality Net", addedAt: new Date().toISOString() },
+  { id: "default-pkf", url: "https://www.pkfhotels.com", label: "PKF", addedAt: new Date().toISOString() },
+  { id: "default-fred", url: "https://fred.stlouisfed.org", label: "FRED", addedAt: new Date().toISOString() },
+  { id: "default-ahla", url: "https://www.ahla.com", label: "AHLA", addedAt: new Date().toISOString() },
+  { id: "default-lodging", url: "https://lodgingmagazine.com", label: "Lodging Magazine", addedAt: new Date().toISOString() },
+];
+
+const DEFAULT_SOURCES: IcpSources = { urls: [], files: [] };
+
+function isValidUrl(str: string): boolean {
+  try {
+    const u = new URL(str);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const PROPERTY_DEFAULT_SOURCES: ResearchSourceEntry[] = [
+  { id: "prop-str", url: "https://str.com", label: "STR (CoStar)", category: "Hospitality", addedAt: new Date().toISOString() },
+  { id: "prop-cbre", url: "https://www.cbre.com/industries/hotels", label: "CBRE Hotels", category: "Hospitality", addedAt: new Date().toISOString() },
+  { id: "prop-hvs", url: "https://hvs.com", label: "HVS", category: "Hospitality", addedAt: new Date().toISOString() },
+  { id: "prop-pkf", url: "https://www.pkfhotels.com", label: "PKF Hospitality", category: "Hospitality", addedAt: new Date().toISOString() },
+  { id: "prop-rca", url: "https://www.msci.com/real-capital-analytics", label: "Real Capital Analytics (MSCI)", category: "Investment", addedAt: new Date().toISOString() },
+];
+
+const MARKET_DEFAULT_SOURCES: ResearchSourceEntry[] = [
+  { id: "mkt-fred", url: "https://fred.stlouisfed.org", label: "FRED (Federal Reserve)", category: "Economics", addedAt: new Date().toISOString() },
+  { id: "mkt-bls", url: "https://www.bls.gov", label: "BLS", category: "Economics", addedAt: new Date().toISOString() },
+  { id: "mkt-preqin", url: "https://www.preqin.com", label: "Preqin", category: "Investment", addedAt: new Date().toISOString() },
+  { id: "mkt-trepp", url: "https://www.trepp.com", label: "Trepp (CMBS)", category: "Investment", addedAt: new Date().toISOString() },
+  { id: "mkt-ahla", url: "https://www.ahla.com", label: "AHLA", category: "Industry", addedAt: new Date().toISOString() },
+  { id: "mkt-lodging", url: "https://lodgingeconometrics.com", label: "Lodging Econometrics", category: "Industry", addedAt: new Date().toISOString() },
+];
+
+function SourceLibrary({ sources, onChange, testIdPrefix, defaultSources }: {
+  sources: ResearchSourceEntry[];
+  onChange: (sources: ResearchSourceEntry[]) => void;
+  testIdPrefix: string;
+  defaultSources: ResearchSourceEntry[];
+}) {
+  const [newUrl, setNewUrl] = useState("");
+  const [newLabel, setNewLabel] = useState("");
+
+  useEffect(() => {
+    if (sources.length === 0 && defaultSources.length > 0) {
+      onChange([...defaultSources]);
+    }
+  }, []);
+
+  function handleAdd() {
+    const trimmedUrl = newUrl.trim();
+    if (!trimmedUrl || !isValidUrl(trimmedUrl)) return;
+    if (sources.some((s) => s.url === trimmedUrl)) return;
+    onChange([
+      ...sources,
+      {
+        id: `src-${Date.now()}`,
+        url: trimmedUrl,
+        label: newLabel.trim() || new URL(trimmedUrl).hostname,
+        addedAt: new Date().toISOString(),
+      },
+    ]);
+    setNewUrl("");
+    setNewLabel("");
+  }
+
+  function handleRemove(id: string) {
+    onChange(sources.filter((s) => s.id !== id));
+  }
+
+  return (
+    <div className="space-y-3">
+      <Label className="text-sm font-medium flex items-center gap-1.5">
+        <IconLink className="w-3.5 h-3.5 text-muted-foreground" />
+        Source Library
+      </Label>
+      <div className="flex items-end gap-2">
+        <div className="flex-1 space-y-1">
+          <Label className="text-xs">URL</Label>
+          <Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://example.com/report" className="h-8 text-xs bg-card" onKeyDown={(e) => e.key === "Enter" && handleAdd()} data-testid={`input-${testIdPrefix}-url`} />
+        </div>
+        <div className="w-40 space-y-1">
+          <Label className="text-xs">Label</Label>
+          <Input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Optional" className="h-8 text-xs bg-card" onKeyDown={(e) => e.key === "Enter" && handleAdd()} data-testid={`input-${testIdPrefix}-label`} />
+        </div>
+        <Button size="sm" variant="outline" onClick={handleAdd} disabled={!newUrl.trim()} className="h-8 text-xs gap-1" data-testid={`button-add-${testIdPrefix}`}>
+          <IconPlus className="w-3 h-3" />
+          Add
+        </Button>
+      </div>
+      {sources.length > 0 ? (
+        <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+          {sources.map((source) => (
+            <div key={source.id} className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg border border-border/60 bg-muted/20 group hover:bg-muted/40 transition-colors" data-testid={`${testIdPrefix}-source-${source.id}`}>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <IconGlobe className="w-3 h-3 text-muted-foreground shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-foreground truncate">{source.label}</p>
+                  <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline truncate block">{source.url}</a>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <IconExternalLink className="w-3 h-3" />
+                </a>
+                <button onClick={() => handleRemove(source.id)} className="text-muted-foreground hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-${testIdPrefix}-${source.id}`}>
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground italic py-2">No sources configured.</p>
+      )}
+    </div>
+  );
+}
+
+function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle: (v: boolean) => void }) {
+  const { data: ga, refetch } = useGlobalAssumptions();
+  const updateMutation = useUpdateAdminConfig();
+  const { toast } = useToast();
+
+  const [report, setReport] = useState<IcpResearchReport | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [streamContent, setStreamContent] = useState("");
+  const [exportFormat, setExportFormat] = useState<"pdf" | "docx">("pdf");
+  const [exportOrientation, setExportOrientation] = useState<"portrait" | "landscape">("portrait");
+  const [isExporting, setIsExporting] = useState(false);
+  const streamRef = useRef<HTMLDivElement>(null);
+
+  const [editablePrompt, setEditablePrompt] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const [sources, setSources] = useState<IcpSources>(DEFAULT_SOURCES);
+  const [newUrl, setNewUrl] = useState("");
+  const [newLabel, setNewLabel] = useState("");
+  const [urlSearch, setUrlSearch] = useState("");
+  const [driveUrl, setDriveUrl] = useState("");
+  const [driveName, setDriveName] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const seededRef = useRef(false);
+
+  const [activeSubTab, setActiveSubTab] = useState<"prompt" | "research" | "sources">("prompt");
+
+  const prompt = ga?.assetDescription || "";
+
+  const config: IcpConfig = (() => {
+    if (ga?.icpConfig) return { ...DEFAULT_ICP_CONFIG, ...(ga.icpConfig as Partial<IcpConfig>) };
+    return DEFAULT_ICP_CONFIG;
+  })();
+
+  const desc: IcpDescriptive = (() => {
+    if (ga?.icpConfig && (ga.icpConfig as any)?._descriptive) {
+      return { ...DEFAULT_ICP_DESCRIPTIVE, ...((ga.icpConfig as any)._descriptive as Partial<IcpDescriptive>) };
+    }
+    return DEFAULT_ICP_DESCRIPTIVE;
+  })();
+
+  const propertyLabel = ga?.propertyLabel || "Boutique Hotel";
+
+  const promptOpts = {
+    locations: ((ga?.icpConfig as any)?._locations ?? []) as import("./icp-config").IcpLocation[],
+    customAmenities: ((ga?.icpConfig as any)?._customAmenities ?? []) as { label: string; priority: import("./icp-config").Priority }[],
+  };
+
+  useEffect(() => {
+    if (ga?.icpConfig) {
+      const cfg = ga.icpConfig as Record<string, any>;
+      if (cfg._research) setReport(cfg._research as IcpResearchReport);
+    }
+  }, [ga?.icpConfig]);
+
+  useEffect(() => {
+    if (!ga) return;
+    const cfg = (ga.icpConfig as Record<string, any>) || {};
+    if (cfg._sources) {
+      setSources(cfg._sources as IcpSources);
+    } else if (!seededRef.current && !updateMutation.isPending) {
+      seededRef.current = true;
+      const seeded: IcpSources = { urls: [...DEFAULT_URL_SEEDS], files: [] };
+      setSources(seeded);
+      const existing = (ga.icpConfig as Record<string, any>) || {};
+      updateMutation.mutate(
+        { icpConfig: { ...existing, _sources: seeded } },
+        {
+          onSuccess: () => {
+            toast({ title: "Sources Loaded", description: "10 default research sources have been added." });
+          },
+        }
+      );
+    }
+  }, [ga?.icpConfig]);
+
+  const saveSources = (updated: IcpSources) => {
+    const existing = (ga?.icpConfig as Record<string, any>) || {};
+    updateMutation.mutate(
+      { icpConfig: { ...existing, _sources: updated } },
+      {
+        onSuccess: () => {
+          toast({ title: "Saved", description: "Research sources updated." });
+        },
+      }
+    );
+  };
+
+  const mutateError = useCallback(() => {
+    toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
+  }, [toast]);
+
+  const handleGenerate = () => {
+    const generated = generateIcpPrompt(config, desc, propertyLabel, promptOpts);
+    updateMutation.mutate(
+      { assetDescription: generated },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          toast({ title: "Generated", description: "AI prompt generated from current profile and description." });
+        },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to save generated prompt.", variant: "destructive" });
+        },
+      }
+    );
+  };
+
+  const handleEdit = () => {
+    setEditablePrompt(prompt);
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = () => {
+    updateMutation.mutate(
+      { assetDescription: editablePrompt },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          toast({ title: "Saved", description: "AI prompt updated." });
+        },
+        onError: mutateError,
+      }
+    );
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditablePrompt("");
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(isEditing ? editablePrompt : prompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleClear = () => {
+    updateMutation.mutate(
+      { assetDescription: "" },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          setEditablePrompt("");
+          toast({ title: "Cleared", description: "AI prompt cleared." });
+        },
+        onError: mutateError,
+      }
+    );
+  };
+
+  const handleOptimize = async () => {
+    const currentPrompt = isEditing ? editablePrompt : prompt;
+    if (!currentPrompt.trim()) {
+      toast({ title: "Nothing to optimize", description: "Generate or enter a prompt first.", variant: "destructive" });
+      return;
+    }
+    setIsOptimizing(true);
+    try {
+      const res = await fetch("/api/ai/optimize-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ prompt: currentPrompt }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to optimize");
+      }
+      const { optimized } = await res.json();
+      updateMutation.mutate(
+        { assetDescription: optimized },
+        {
+          onSuccess: () => {
+            setIsEditing(false);
+            toast({ title: "Optimized", description: "Prompt has been optimized by AI." });
+          },
+          onError: mutateError,
+        }
+      );
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to optimize prompt", variant: "destructive" });
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
+  const handleGenerateResearch = useCallback(async () => {
+    setIsGenerating(true);
+    setStreamContent("");
+    setReport(null);
+
+    try {
+      const res = await fetch("/api/research/icp/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to start research generation");
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No response stream");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const event = JSON.parse(line.slice(6));
+            if (event.type === "content") {
+              setStreamContent((prev) => prev + event.data);
+              if (streamRef.current) {
+                streamRef.current.scrollTop = streamRef.current.scrollHeight;
+              }
+            } else if (event.type === "done" && event.report) {
+              setReport(event.report);
+              await refetch();
+            } else if (event.type === "error") {
+              throw new Error(event.message);
+            }
+          } catch {}
+        }
+      }
+
+      toast({ title: "Research Complete", description: "ICP market research report has been generated and saved." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Failed to generate research", variant: "destructive" });
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [refetch, toast]);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const res = await fetch("/api/research/icp/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ format: exportFormat, orientation: exportOrientation }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Export failed");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `icp-research-report.${exportFormat}`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "Exported", description: `Report exported as ${exportFormat.toUpperCase()}.` });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Export failed", variant: "destructive" });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const formatMetricValue = (val: any) => {
+    if (!val || typeof val !== "object" || !("value" in val)) return null;
+    const v = val.value;
+    const u = val.unit || "";
+    if (u === "USD") return `$${Number(v).toLocaleString()}`;
+    if (u === "%") return `${v}%`;
+    return `${v} ${u}`.trim();
+  };
+
+  const handleAddUrl = () => {
+    const trimmedUrl = newUrl.trim();
+    if (!trimmedUrl) return;
+    if (!isValidUrl(trimmedUrl)) {
+      toast({ title: "Invalid URL", description: "Please enter a valid URL starting with http:// or https://", variant: "destructive" });
+      return;
+    }
+    if (sources.urls.some((s) => s.url === trimmedUrl)) {
+      toast({ title: "Duplicate", description: "This URL is already in your sources.", variant: "destructive" });
+      return;
+    }
+    const updated: IcpSources = {
+      ...sources,
+      urls: [
+        ...sources.urls,
+        {
+          id: `url-${Date.now()}`,
+          url: trimmedUrl,
+          label: newLabel.trim() || new URL(trimmedUrl).hostname,
+          addedAt: new Date().toISOString(),
+        },
+      ],
+    };
+    setSources(updated);
+    saveSources(updated);
+    setNewUrl("");
+    setNewLabel("");
+  };
+
+  const handleRemoveUrl = (id: string) => {
+    const updated: IcpSources = {
+      ...sources,
+      urls: sources.urls.filter((u) => u.id !== id),
+    };
+    setSources(updated);
+    saveSources(updated);
+  };
+
+  const handleLocalFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploading(true);
+
+    try {
+      const newFiles: FileSource[] = [];
+      for (const file of Array.from(files)) {
+        const res = await fetch("/api/uploads/direct", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": file.type || "application/octet-stream" },
+          body: await file.arrayBuffer().then((b) => new Uint8Array(b)),
+        });
+
+        let objectPath = "";
+        if (res.ok) {
+          const data = await res.json();
+          objectPath = data.url || data.objectPath || "";
+        }
+
+        newFiles.push({
+          id: `file-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          name: file.name,
+          size: file.size,
+          type: file.type || "application/octet-stream",
+          origin: "local",
+          objectPath,
+          addedAt: new Date().toISOString(),
+        });
+      }
+
+      const updated: IcpSources = {
+        ...sources,
+        files: [...sources.files, ...newFiles],
+      };
+      setSources(updated);
+      saveSources(updated);
+      toast({ title: "Files Added", description: `${newFiles.length} file(s) added to research sources.` });
+    } catch (err: any) {
+      toast({ title: "Upload Error", description: err.message || "Failed to upload files", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleAddGoogleDrive = () => {
+    const trimmedUrl = driveUrl.trim();
+    if (!trimmedUrl) return;
+    if (!isValidUrl(trimmedUrl)) {
+      toast({ title: "Invalid URL", description: "Please enter a valid Google Drive link.", variant: "destructive" });
+      return;
+    }
+    if (sources.files.some((f) => f.driveUrl === trimmedUrl)) {
+      toast({ title: "Duplicate", description: "This Google Drive file is already in your sources.", variant: "destructive" });
+      return;
+    }
+    const name = driveName.trim() || trimmedUrl.split("/").pop() || "Google Drive File";
+    const updated: IcpSources = {
+      ...sources,
+      files: [
+        ...sources.files,
+        {
+          id: `gdrive-${Date.now()}`,
+          name,
+          size: 0,
+          type: "application/google-drive",
+          origin: "google-drive",
+          driveUrl: trimmedUrl,
+          addedAt: new Date().toISOString(),
+        },
+      ],
+    };
+    setSources(updated);
+    saveSources(updated);
+    setDriveUrl("");
+    setDriveName("");
+  };
+
+  const handleRemoveFile = (id: string) => {
+    const updated: IcpSources = {
+      ...sources,
+      files: sources.files.filter((f) => f.id !== id),
+    };
+    setSources(updated);
+    saveSources(updated);
+  };
+
+  const filteredUrls = urlSearch.trim()
+    ? sources.urls.filter(
+        (u) =>
+          u.url.toLowerCase().includes(urlSearch.toLowerCase()) ||
+          u.label.toLowerCase().includes(urlSearch.toLowerCase())
+      )
+    : sources.urls;
+
+  return (
+    <div className="space-y-4">
+      <EnableToggle
+        label="ICP Research"
+        description="AI-powered research using the ICP definition to identify acquisition targets"
+        enabled={enabled}
+        onChange={onToggle}
+      />
+      {!enabled ? null : (<>
+      <div className="flex gap-2 border-b border-border/50 pb-2">
+        {(["prompt", "research", "sources"] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveSubTab(tab)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              activeSubTab === tab
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            }`}
+            data-testid={`subtab-icp-${tab}`}
+          >
+            {tab === "prompt" ? "AI Prompt" : tab === "research" ? "Research" : "Sources"}
+          </button>
+        ))}
+      </div>
+
+      {activeSubTab === "prompt" && (
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-sm font-semibold text-foreground">AI Research Prompt</h4>
+            <p className="text-xs text-muted-foreground mt-1">
+              This prompt is served to the AI research engine based on ICP configuration.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button size="sm" variant="default" onClick={handleGenerate} disabled={updateMutation.isPending} className="text-xs h-8 gap-1.5" data-testid="button-generate-prompt">
+              <IconRefreshCw className="w-3.5 h-3.5" />
+              Generate
+            </Button>
+            {!isEditing ? (
+              <Button size="sm" variant="outline" onClick={handleEdit} disabled={!prompt} className="text-xs h-8 gap-1.5" data-testid="button-edit-prompt">
+                <IconPencil className="w-3.5 h-3.5" />
+                Edit
+              </Button>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <Button size="sm" variant="default" onClick={handleSaveEdit} disabled={updateMutation.isPending} className="text-xs h-8 gap-1.5" data-testid="button-save-edit">
+                  Save Edit
+                </Button>
+                <Button size="sm" variant="ghost" onClick={handleCancelEdit} className="text-xs h-8" data-testid="button-cancel-edit">
+                  Cancel
+                </Button>
+              </div>
+            )}
+            <Button size="sm" variant="outline" onClick={handleOptimize} disabled={isOptimizing || (!prompt && !editablePrompt)} className="text-xs h-8 gap-1.5" data-testid="button-optimize-prompt">
+              {isOptimizing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconWand2 className="w-3.5 h-3.5" />}
+              Optimize
+            </Button>
+            <Button size="sm" variant="ghost" onClick={handleCopy} disabled={!prompt && !editablePrompt} className="text-xs h-8 gap-1.5" data-testid="button-copy-prompt">
+              <IconCopy className="w-3.5 h-3.5" />
+              {copied ? "Copied" : "Copy"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={handleClear} disabled={!prompt || updateMutation.isPending} className="text-xs h-8 gap-1.5 text-red-500 hover:text-red-600" data-testid="button-clear-prompt">
+              <IconTrash className="w-3.5 h-3.5" />
+              Clear
+            </Button>
+          </div>
+
+          {isEditing ? (
+            <textarea
+              value={editablePrompt}
+              onChange={(e) => setEditablePrompt(e.target.value)}
+              className="w-full min-h-[500px] text-xs leading-relaxed font-mono text-foreground/90 bg-muted/40 border border-border rounded p-4 resize-y focus:outline-none focus:ring-1 focus:ring-ring"
+              data-testid="textarea-ai-prompt"
+            />
+          ) : prompt ? (
+            <pre className="whitespace-pre-wrap text-xs leading-relaxed font-mono text-foreground/90 bg-muted/40 border border-border rounded p-4 max-h-[600px] overflow-y-auto" data-testid="text-ai-prompt">
+              {prompt}
+            </pre>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <IconSparkles className="w-8 h-8 mx-auto mb-3 opacity-40" />
+              <p className="text-sm font-medium">No AI prompt generated yet</p>
+              <p className="text-xs mt-1">Click <strong>Generate</strong> to build the prompt from ICP configuration.</p>
+            </div>
+          )}
+
+          {(isEditing ? editablePrompt : prompt) && (
+            <p className="text-xs text-muted-foreground italic">
+              {(isEditing ? editablePrompt : prompt).length.toLocaleString()} characters
+            </p>
+          )}
+        </div>
+      )}
+
+      {activeSubTab === "research" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <IconFlaskConical className="w-4 h-4 text-muted-foreground" />
+                ICP Market Research
+              </h4>
+              <p className="text-xs text-muted-foreground mt-1">
+                AI-powered market research based on all ICP parameters.
+              </p>
+            </div>
+            <Button size="sm" variant="default" onClick={handleGenerateResearch} disabled={isGenerating} className="text-xs h-8 gap-1.5" data-testid="button-generate-research">
+              {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
+              {isGenerating ? "Generating..." : report ? "Regenerate" : "Generate Research"}
+            </Button>
+          </div>
+
+          {isGenerating && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Analyzing markets and generating report...</span>
+              </div>
+              <div ref={streamRef} className="max-h-[500px] overflow-y-auto bg-muted/40 border border-border rounded-lg p-4 font-mono text-xs leading-relaxed text-foreground/80 whitespace-pre-wrap" data-testid="stream-content">
+                {streamContent || "Waiting for response..."}
+              </div>
+            </div>
+          )}
+
+          {!isGenerating && !report && (
+            <div className="text-center py-12">
+              <IconFlaskConical className="w-8 h-8 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-sm font-medium text-muted-foreground" data-testid="text-no-research">No research report generated yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Click <strong>Generate Research</strong> to produce a market analysis.</p>
+            </div>
+          )}
+
+          {!isGenerating && report && (
+            <div className="space-y-6" data-testid="research-report">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <p className="text-xs text-muted-foreground">
+                  Generated {new Date(report.generatedAt).toLocaleString()} using {report.model}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Select value={exportFormat} onValueChange={(v: "pdf" | "docx") => setExportFormat(v)}>
+                    <SelectTrigger className="h-8 w-24 text-xs bg-card" data-testid="select-export-format">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pdf">PDF</SelectItem>
+                      <SelectItem value="docx">DOCX</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={exportOrientation} onValueChange={(v: "portrait" | "landscape") => setExportOrientation(v)}>
+                    <SelectTrigger className="h-8 w-28 text-xs bg-card" data-testid="select-export-orientation">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="portrait">Portrait</SelectItem>
+                      <SelectItem value="landscape">Landscape</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button size="sm" variant="outline" onClick={handleExport} disabled={isExporting} className="text-xs h-8 gap-1.5" data-testid="button-export-research">
+                    {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconDownload className="w-3.5 h-3.5" />}
+                    Export
+                  </Button>
+                </div>
+              </div>
+
+              {report.sections.map((section, idx) => (
+                <div key={idx} className="space-y-2" data-testid={`section-${idx}`}>
+                  <h3 className="text-sm font-semibold text-foreground border-b border-border/60 pb-1">{section.title}</h3>
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    {section.content.split("\n\n").filter(Boolean).map((para, pi) => (
+                      <p key={pi} className="text-xs leading-relaxed text-foreground/85 mb-2 last:mb-0">{para}</p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {report.extractedMetrics && Object.keys(report.extractedMetrics).length > 0 && (
+                <div className="space-y-3" data-testid="extracted-metrics">
+                  <h3 className="text-sm font-semibold text-foreground border-b border-border/60 pb-1">Key Extracted Metrics</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {Object.entries(report.extractedMetrics)
+                      .filter(([k]) => k !== "locationMetrics")
+                      .map(([key, val]) => {
+                        const formatted = formatMetricValue(val);
+                        if (!formatted) return null;
+                        return (
+                          <div key={key} className="bg-muted/40 rounded-lg p-3 border border-border/40" data-testid={`metric-${key}`}>
+                            <p className="text-lg font-bold text-foreground">{formatted}</p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5">{val.description || key}</p>
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  {report.extractedMetrics.locationMetrics && Array.isArray(report.extractedMetrics.locationMetrics) && (
+                    <div className="space-y-3">
+                      {report.extractedMetrics.locationMetrics.map((loc: any, li: number) => (
+                        <div key={li} className="bg-muted/30 rounded-lg p-3 border border-border/40" data-testid={`location-metric-${li}`}>
+                          <h4 className="text-xs font-semibold text-foreground mb-2">{loc.location}</h4>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {[
+                              ["ADR", loc.avgAdr], ["Occupancy", loc.avgOccupancy], ["RevPAR", loc.avgRevPAR],
+                              ["Cap Rate", loc.capRate], ["Land/Acre", loc.avgLandCostPerAcre], ["Demand Growth", loc.demandGrowthRate],
+                            ].map(([label, metric]) => {
+                              const formatted = formatMetricValue(metric);
+                              if (!formatted) return null;
+                              return (
+                                <div key={label as string} className="text-center">
+                                  <p className="text-sm font-bold text-foreground">{formatted}</p>
+                                  <p className="text-[10px] text-muted-foreground">{label as string}</p>
+                                </div>
+                              );
+                            })}
+                            {loc.competitiveIntensity && (
+                              <div className="text-center">
+                                <p className="text-sm font-bold text-foreground capitalize">{loc.competitiveIntensity}</p>
+                                <p className="text-[10px] text-muted-foreground">Competition</p>
+                              </div>
+                            )}
+                            {loc.investmentRating && (
+                              <div className="text-center">
+                                <p className="text-sm font-bold text-foreground">{loc.investmentRating}</p>
+                                <p className="text-[10px] text-muted-foreground">Rating</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeSubTab === "sources" && (
+        <div className="space-y-5">
+          <div>
+            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <IconLink className="w-4 h-4 text-muted-foreground" />
+              URL Sources
+            </h4>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Hospitality industry databases, market reports, investment research (STR, HVS, CBRE, PKF).
+            </p>
+          </div>
+
+          <div className="flex items-end gap-2">
+            <div className="flex-1 space-y-1">
+              <Label className="text-xs">URL</Label>
+              <Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://example.com/market-report" className="h-9 text-xs bg-card" onKeyDown={(e) => e.key === "Enter" && handleAddUrl()} data-testid="input-new-url" />
+            </div>
+            <div className="w-48 space-y-1">
+              <Label className="text-xs">Label (optional)</Label>
+              <Input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Market Report 2025" className="h-9 text-xs bg-card" onKeyDown={(e) => e.key === "Enter" && handleAddUrl()} data-testid="input-url-label" />
+            </div>
+            <Button size="sm" variant="default" onClick={handleAddUrl} disabled={!newUrl.trim() || updateMutation.isPending} className="h-9 text-xs gap-1.5" data-testid="button-add-url">
+              <IconPlus className="w-3.5 h-3.5" />
+              Add
+            </Button>
+          </div>
+
+          {sources.urls.length > 3 && (
+            <Input value={urlSearch} onChange={(e) => setUrlSearch(e.target.value)} placeholder="Search sources..." className="h-8 text-xs bg-muted/30" data-testid="input-search-urls" />
+          )}
+
+          {filteredUrls.length > 0 ? (
+            <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+              {filteredUrls.map((source) => (
+                <div key={source.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border/60 bg-muted/20 group hover:bg-muted/40 transition-colors" data-testid={`url-source-${source.id}`}>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <IconGlobe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-foreground truncate">{source.label}</p>
+                      <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline truncate block">{source.url}</a>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                      <IconExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                    <button onClick={() => handleRemoveUrl(source.id)} className="text-muted-foreground hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-url-${source.id}`}>
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-muted-foreground">
+              <IconLink className="w-6 h-6 mx-auto mb-2 opacity-30" />
+              <p className="text-xs">No URL sources added yet</p>
+            </div>
+          )}
+
+          <div className="pt-4 border-t border-border/40">
+            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <IconFile className="w-4 h-4 text-muted-foreground" />
+              File Sources
+            </h4>
+            <p className="text-xs text-muted-foreground mt-0.5">Upload documents or add Google Drive links.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-2 p-3 rounded-lg border border-dashed border-border/60 bg-muted/10">
+              <Label className="text-xs font-medium flex items-center gap-1.5">
+                <IconUpload className="w-3.5 h-3.5" />
+                Local Files
+              </Label>
+              <input ref={fileInputRef} type="file" multiple onChange={handleLocalFileSelect} className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.json,.pptx,.rtf" data-testid="input-file-upload" />
+              <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="w-full text-xs h-8 gap-1.5" data-testid="button-upload-local">
+                {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconUpload className="w-3.5 h-3.5" />}
+                {isUploading ? "Uploading..." : "Choose Files"}
+              </Button>
+              <p className="text-[10px] text-muted-foreground">PDF, DOC, DOCX, XLS, XLSX, CSV, TXT, PPTX</p>
+            </div>
+
+            <div className="space-y-2 p-3 rounded-lg border border-dashed border-border/60 bg-muted/10">
+              <Label className="text-xs font-medium flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7z" />
+                  <polyline points="14,2 14,8 20,8" />
+                </svg>
+                Google Drive
+              </Label>
+              <Input value={driveUrl} onChange={(e) => setDriveUrl(e.target.value)} placeholder="https://drive.google.com/file/d/..." className="h-8 text-xs bg-card" data-testid="input-drive-url" />
+              <div className="flex gap-1.5">
+                <Input value={driveName} onChange={(e) => setDriveName(e.target.value)} placeholder="File name (optional)" className="h-8 text-xs bg-card flex-1" data-testid="input-drive-name" />
+                <Button size="sm" variant="outline" onClick={handleAddGoogleDrive} disabled={!driveUrl.trim() || updateMutation.isPending} className="h-8 text-xs gap-1" data-testid="button-add-drive">
+                  <IconPlus className="w-3 h-3" />
+                  Add
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {sources.files.length > 0 && (
+            <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+              {sources.files.map((file) => (
+                <div key={file.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border/60 bg-muted/20 group hover:bg-muted/40 transition-colors" data-testid={`file-source-${file.id}`}>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    {file.origin === "google-drive" ? (
+                      <svg className="w-3.5 h-3.5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M15 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7z" />
+                        <polyline points="14,2 14,8 20,8" />
+                      </svg>
+                    ) : (
+                      <IconFileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-medium text-foreground truncate">{file.name}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {file.origin === "google-drive" ? "Google Drive" : "Local upload"}
+                        {file.size > 0 && ` · ${formatFileSize(file.size)}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {file.driveUrl && (
+                      <a href={file.driveUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                        <IconExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                    <button onClick={() => handleRemoveFile(file.id)} className="text-muted-foreground hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-file-${file.id}`}>
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      </>)}
+    </div>
+  );
+}
+
+function PropertyResearchSection({ config, onChange }: { config: ResearchEventConfig; onChange: (c: ResearchEventConfig) => void }) {
   function patch(p: Partial<ResearchEventConfig>) { onChange({ ...config, ...p }); }
   const allToolsEnabled = (config.enabledTools ?? []).length === 0;
 
@@ -220,7 +1192,7 @@ function PropertyTab({ config, onChange }: { config: ResearchEventConfig; onChan
     <div className="space-y-5">
       <EnableToggle
         label="Property Research"
-        description="Per-property market analysis triggered from property pages"
+        description="Per-property market analysis: RevPAR, ADR, occupancy, cap rates against market benchmarks"
         enabled={config.enabled}
         onChange={(v) => patch({ enabled: v })}
       />
@@ -302,149 +1274,27 @@ function PropertyTab({ config, onChange }: { config: ResearchEventConfig; onChan
               rows={3} className="text-sm resize-none"
             />
           </div>
+
+          <SourceLibrary
+            sources={config.sources ?? []}
+            onChange={(s) => patch({ sources: s })}
+            testIdPrefix="prop-src"
+            defaultSources={PROPERTY_DEFAULT_SOURCES}
+          />
         </>
       )}
     </div>
   );
 }
 
-// ── Tab: Operations Research ───────────────────────────────────────────────
-
-function OperationsTab({ config, onChange }: { config: ResearchEventConfig; onChange: (c: ResearchEventConfig) => void }) {
+function MarketResearchSection({ config, onChange }: { config: ResearchEventConfig; onChange: (c: ResearchEventConfig) => void }) {
   function patch(p: Partial<ResearchEventConfig>) { onChange({ ...config, ...p }); }
 
   return (
     <div className="space-y-5">
       <EnableToggle
-        label="Operations Research"
-        description="Management company fee structures, overhead, and industry benchmarks"
-        enabled={config.enabled}
-        onChange={(v) => patch({ enabled: v })}
-      />
-      {config.enabled && (
-        <>
-          <DataInputsCard title="Data Inputs" items={["Company Fee Structure", "Overhead Budget", "Vendor Contracts", "Staffing Data"]} />
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Operational Focus Areas</Label>
-            <p className="text-xs text-muted-foreground">Toggle which operational dimensions to include in research.</p>
-            <CheckboxGroup
-              items={OPERATIONS_FOCUS}
-              selected={config.focusAreas ?? []}
-              onChange={(v) => patch({ focusAreas: v })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Custom Instructions</Label>
-            <Textarea
-              value={config.customInstructions ?? ""}
-              onChange={(e) => patch({ customInstructions: e.target.value })}
-              placeholder="e.g. Focus on third-party management fee benchmarks for select-service hotels..."
-              rows={3} className="text-sm resize-none"
-            />
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Tab: Marketing Research ────────────────────────────────────────────────
-
-function MarketingTab({ config, onChange }: { config: ResearchEventConfig; onChange: (c: ResearchEventConfig) => void }) {
-  function patch(p: Partial<ResearchEventConfig>) { onChange({ ...config, ...p }); }
-  // Parse ICP depth from enabledTools (storing as a simple convention: "icp:full", "icp:summary", "icp:none")
-  const icpDepth = (config.enabledTools ?? []).find((t) => t.startsWith("icp:"))?.replace("icp:", "") ?? "full";
-
-  function setIcpDepth(depth: string) {
-    const filtered = (config.enabledTools ?? []).filter((t) => !t.startsWith("icp:"));
-    patch({ enabledTools: [...filtered, `icp:${depth}`] });
-  }
-
-  return (
-    <div className="space-y-5">
-      <EnableToggle
-        label="Marketing Research"
-        description="Guest demographics, investor profiles, and market persona analysis"
-        enabled={config.enabled}
-        onChange={(v) => patch({ enabled: v })}
-      />
-      {config.enabled && (
-        <>
-          <DataInputsCard title="Data Inputs" items={["ICP Configuration", "Guest Demographics", "Investor Profiles", "Market Regions"]} />
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Persona Types</Label>
-            <p className="text-xs text-muted-foreground">Select which persona categories to research.</p>
-            <CheckboxGroup
-              items={PERSONA_TYPES}
-              selected={config.focusAreas ?? []}
-              onChange={(v) => patch({ focusAreas: v })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium flex items-center gap-1.5">
-              <IconMapPin className="w-3.5 h-3.5 text-muted-foreground" />
-              Market Regions (from ICP)
-            </Label>
-            <p className="text-xs text-muted-foreground">Auto-populated from ICP configuration. Add regions in ICP Studio.</p>
-            {(config.regions ?? []).length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {(config.regions ?? []).map((r) => (
-                  <Badge key={r} variant="outline" className="text-xs">{r}</Badge>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground italic">No regions configured. Visit ICP Studio to set up market regions.</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">ICP Integration Depth</Label>
-            <div className="flex gap-3">
-              {ICP_DEPTHS.map((d) => (
-                <label key={d.value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="icp-depth"
-                    value={d.value}
-                    checked={icpDepth === d.value}
-                    onChange={() => setIcpDepth(d.value)}
-                    className="accent-primary"
-                  />
-                  <span className="text-sm">{d.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Custom Questions</Label>
-            <Textarea
-              value={config.customQuestions ?? ""}
-              onChange={(e) => patch({ customQuestions: e.target.value })}
-              placeholder="e.g. What are the top guest segments for boutique hotels in the Northeast?"
-              rows={3} className="text-sm resize-none"
-            />
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Tab: Industry Research ─────────────────────────────────────────────────
-
-function IndustryTab({ config, onChange }: { config: ResearchEventConfig; onChange: (c: ResearchEventConfig) => void }) {
-  function patch(p: Partial<ResearchEventConfig>) { onChange({ ...config, ...p }); }
-
-  return (
-    <div className="space-y-5">
-      <EnableToggle
-        label="Industry Research"
-        description="Industry-wide trends, macro indicators, and regulatory environment"
+        label="Market Research"
+        description="Macro real estate and hospitality market analysis: trends, economic indicators, supply/demand dynamics"
         enabled={config.enabled}
         onChange={(v) => patch({ enabled: v })}
       />
@@ -482,6 +1332,16 @@ function IndustryTab({ config, onChange }: { config: ResearchEventConfig; onChan
           </div>
 
           <div className="space-y-2">
+            <Label className="text-sm font-medium">Custom Instructions</Label>
+            <Textarea
+              value={config.customInstructions ?? ""}
+              onChange={(e) => patch({ customInstructions: e.target.value })}
+              placeholder="e.g. Focus on interest rate impact on hotel cap rates, analyze supply pipeline risk..."
+              rows={3} className="text-sm resize-none"
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label className="text-sm font-medium">Custom Questions</Label>
             <Textarea
               value={config.customQuestions ?? ""}
@@ -490,40 +1350,26 @@ function IndustryTab({ config, onChange }: { config: ResearchEventConfig; onChan
               rows={3} className="text-sm resize-none"
             />
           </div>
+
+          <SourceLibrary
+            sources={config.sources ?? []}
+            onChange={(s) => patch({ sources: s })}
+            testIdPrefix="mkt-src"
+            defaultSources={MARKET_DEFAULT_SOURCES}
+          />
         </>
       )}
     </div>
   );
 }
 
-// ── Tab: Sources & Models ──────────────────────────────────────────────────
-
-function SourcesModelsTab({ draft, setDraft, setIsDirty }: {
+function LlmSelectionCard({ draft, setDraft, setIsDirty }: {
   draft: ResearchConfig;
   setDraft: React.Dispatch<React.SetStateAction<ResearchConfig>>;
   setIsDirty: (v: boolean) => void;
 }) {
   const { toast } = useToast();
   const refreshModels = useRefreshAiModels();
-  const [newName, setNewName] = useState("");
-  const [newUrl, setNewUrl] = useState("");
-  const [newCategory, setNewCategory] = useState("Hospitality");
-
-  const customSources = draft.customSources ?? [];
-
-  function addSource() {
-    if (newName.trim() && newCategory.trim()) {
-      setDraft((prev) => ({ ...prev, customSources: [...(prev.customSources ?? []), { name: newName.trim(), url: newUrl.trim() || undefined, category: newCategory.trim() }] }));
-      setIsDirty(true);
-      setNewName("");
-      setNewUrl("");
-    }
-  }
-
-  function removeSource(idx: number) {
-    setDraft((prev) => ({ ...prev, customSources: (prev.customSources ?? []).filter((_, i) => i !== idx) }));
-    setIsDirty(true);
-  }
 
   const models = (draft.cachedModels && draft.cachedModels.length > 0) ? draft.cachedModels : FALLBACK_MODELS;
   const grouped = {
@@ -534,224 +1380,99 @@ function SourcesModelsTab({ draft, setDraft, setIsDirty }: {
   const currentModel = draft.preferredLlm || "claude-sonnet-4-6";
   const hasCurrentInList = models.some((m) => m.id === currentModel);
 
-  // Group curated sources by category
-  const curatedByCategory: Record<string, typeof EXPANDED_SOURCES> = {};
-  for (const src of EXPANDED_SOURCES) {
-    (curatedByCategory[src.category] ??= []).push(src);
-  }
-
   return (
-    <div className="space-y-6">
-      {/* AI Model Selection */}
-      <Card className="bg-card border-border shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-sm font-display">
-                <IconBrain className="w-4 h-4 text-primary" />
-                AI Research Model
-                <HelpTooltip text="Choose which AI model powers market research. Use Refresh Models to pull the latest available." />
-              </CardTitle>
-              {draft.cachedModelsAt && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Models last refreshed {new Date(draft.cachedModelsAt).toLocaleDateString()}.
-                </p>
-              )}
-            </div>
-            <Button
-              variant="outline" size="sm" className="gap-1.5"
-              disabled={refreshModels.isPending}
-              onClick={async () => {
-                try {
-                  const result = await refreshModels.mutateAsync();
-                  setDraft((prev) => ({ ...prev, cachedModels: result.models, cachedModelsAt: result.fetchedAt }));
-                  toast({ title: `Loaded ${result.models.length} models from providers` });
-                } catch {
-                  toast({ title: "Failed to refresh models", variant: "destructive" });
-                }
-              }}
-            >
-              {refreshModels.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
-              Refresh Models
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="max-w-md">
-            <Select
-              value={currentModel}
-              onValueChange={(value) => { setDraft((prev) => ({ ...prev, preferredLlm: value })); setIsDirty(true); }}
-            >
-              <SelectTrigger className="bg-card h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {!hasCurrentInList && <SelectItem value={currentModel}>{currentModel} (current)</SelectItem>}
-                {grouped.anthropic.length > 0 && (
-                  <>
-                    <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Anthropic</div>
-                    {grouped.anthropic.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
-                  </>
-                )}
-                {grouped.openai.length > 0 && (
-                  <>
-                    <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">OpenAI</div>
-                    {grouped.openai.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
-                  </>
-                )}
-                {grouped.google.length > 0 && (
-                  <>
-                    <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Google</div>
-                    {grouped.google.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
-                  </>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Curated Source Registry */}
-      <Card className="bg-card border-border shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-sm font-display">
-            <IconLibrary className="w-4 h-4 text-primary" />
-            Curated Source Registry
-          </CardTitle>
-          <CardDescription className="text-xs">16 trusted data sources used by the AI research engine.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {Object.entries(curatedByCategory).map(([category, sources]) => (
-              <div key={category}>
-                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider mb-2">{category}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {sources.map((source) => (
-                    <div key={source.name} className="flex flex-col p-2.5 rounded-lg border border-border/50 bg-muted/30">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-xs font-medium">{source.name}</span>
-                      </div>
-                      {source.url && (
-                        <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline flex items-center gap-1">
-                          {source.url.replace("https://", "").replace("www.", "")}
-                          <IconExternalLink className="w-2.5 h-2.5" />
-                        </a>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Custom Sources */}
-      <Card className="bg-card border-border shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-sm font-display">
-            <IconPlus className="w-4 h-4 text-primary" />
-            Custom Research Sources
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-3 items-end p-4 rounded-xl border border-dashed border-primary/20 bg-primary/5">
-              <div className="space-y-1.5 flex-1 min-w-[200px]">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Source Name</Label>
-                <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Local Planning Dept" className="h-8 text-sm" />
-              </div>
-              <div className="space-y-1.5 flex-1 min-w-[200px]">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">URL (Optional)</Label>
-                <Input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="https://..." className="h-8 text-sm" />
-              </div>
-              <div className="space-y-1.5 w-32">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">Category</Label>
-                <Select value={newCategory} onValueChange={setNewCategory}>
-                  <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {["Hospitality", "Investment", "Economics", "Regulatory", "Operations", "Other"].map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button onClick={addSource} size="sm" className="h-8 px-4" disabled={!newName.trim()}>Add Source</Button>
-            </div>
-
-            {customSources.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                {customSources.map((source, idx) => (
-                  <div key={`${source.name}-${idx}`} className="flex flex-col p-2.5 rounded-lg border border-primary/20 bg-white relative group">
-                    <Button variant="ghost" size="icon" onClick={() => removeSource(idx)} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive h-6 w-6">
-                      <X className="w-3.5 h-3.5" />
-                    </Button>
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-xs font-medium">{source.name}</span>
-                      <Badge variant="secondary" className="text-[10px] uppercase tracking-wider h-4">{source.category}</Badge>
-                    </div>
-                    {source.url && <span className="text-[10px] text-muted-foreground truncate pr-6">{source.url}</span>}
-                  </div>
-                ))}
-              </div>
+    <Card className="bg-card border-border shadow-sm">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-sm font-display">
+              <IconBrain className="w-4 h-4 text-primary" />
+              LLM Selection
+              <HelpTooltip text="Shared AI model used across all three research processes. Use Refresh Models to pull the latest available." />
+            </CardTitle>
+            {draft.cachedModelsAt && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Models last refreshed {new Date(draft.cachedModelsAt).toLocaleDateString()}.
+              </p>
             )}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Cost Estimate */}
-      <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-        <CardContent className="pt-4 pb-3 px-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Estimated Cost Per Full Refresh</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="text-center">
-              <p className="text-lg font-display font-bold text-foreground">$0.12</p>
-              <p className="text-[10px] text-muted-foreground">Property</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-display font-bold text-foreground">$0.08</p>
-              <p className="text-[10px] text-muted-foreground">Operations</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-display font-bold text-foreground">$0.06</p>
-              <p className="text-[10px] text-muted-foreground">Marketing</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-display font-bold text-foreground">$0.10</p>
-              <p className="text-[10px] text-muted-foreground">Industry</p>
-            </div>
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-2 text-center">Estimates based on {currentModel} pricing. Actual costs vary by response length.</p>
-        </CardContent>
-      </Card>
-    </div>
+          <Button
+            variant="outline" size="sm" className="gap-1.5"
+            disabled={refreshModels.isPending}
+            onClick={async () => {
+              try {
+                const result = await refreshModels.mutateAsync();
+                setDraft((prev) => ({ ...prev, cachedModels: result.models, cachedModelsAt: result.fetchedAt }));
+                toast({ title: `Loaded ${result.models.length} models from providers` });
+              } catch {
+                toast({ title: "Failed to refresh models", variant: "destructive" });
+              }
+            }}
+          >
+            {refreshModels.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
+            Refresh Models
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="max-w-md">
+          <Select
+            value={currentModel}
+            onValueChange={(value) => { setDraft((prev) => ({ ...prev, preferredLlm: value })); setIsDirty(true); }}
+          >
+            <SelectTrigger className="bg-card h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {!hasCurrentInList && <SelectItem value={currentModel}>{currentModel} (current)</SelectItem>}
+              {grouped.anthropic.length > 0 && (
+                <>
+                  <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Anthropic</div>
+                  {grouped.anthropic.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
+                </>
+              )}
+              {grouped.openai.length > 0 && (
+                <>
+                  <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">OpenAI</div>
+                  {grouped.openai.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
+                </>
+              )}
+              {grouped.google.length > 0 && (
+                <>
+                  <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Google</div>
+                  {grouped.google.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
+                </>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
-
-// ── Main Component ─────────────────────────────────────────────────────────
 
 interface ResearchCenterTabProps {
   initialTab?: string;
   onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
 }
 
-export default function ResearchCenterTab({ initialTab, onSaveStateChange }: ResearchCenterTabProps) {
+export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterTabProps) {
   const { toast } = useToast();
   const { data: savedConfig, isLoading } = useResearchConfig();
   const saveMutation = useSaveResearchConfig();
 
   const [draft, setDraft] = useState<ResearchConfig>({});
   const [isDirty, setIsDirty] = useState(false);
-  const [activeTab, setActiveTab] = useState(initialTab ?? "property");
 
   useEffect(() => {
     if (savedConfig) {
-      setDraft(savedConfig);
+      const { marketing, ...rest } = savedConfig as ResearchConfig & { marketing?: unknown };
+      setDraft(rest);
       setIsDirty(false);
     }
   }, [savedConfig]);
 
-  function updateConfig(key: "property" | "company" | "global" | "marketing", updated: ResearchEventConfig) {
+  function updateConfig(key: "property" | "global" | "company", updated: ResearchEventConfig) {
     setDraft((prev) => ({ ...prev, [key]: updated }));
     setIsDirty(true);
   }
@@ -788,100 +1509,53 @@ export default function ResearchCenterTab({ initialTab, onSaveStateChange }: Res
 
   return (
     <div className="space-y-5" data-testid="research-center-tab">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-            <IconResearch className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h2 className="text-xl font-display font-bold text-foreground" data-testid="text-research-center-title">Research Center</h2>
-            <p className="text-xs text-muted-foreground">Configure AI research behavior across all research dimensions</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+          <IconResearch className="w-5 h-5 text-primary" />
         </div>
-        <div className="flex items-center gap-2">
-          <a href="/admin/icp-studio" className="text-xs text-primary hover:underline flex items-center gap-1">
-            <IconTarget className="w-3.5 h-3.5" />
-            ICP Studio
-          </a>
+        <div>
+          <h2 className="text-xl font-display font-bold text-foreground" data-testid="text-research-center-title">Research Center</h2>
+          <p className="text-xs text-muted-foreground">All research configuration in one place — three research processes, their sources, and shared LLM selection</p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5 h-10">
-          <TabsTrigger value="property" className="text-xs gap-1.5" data-testid="tab-property">
-            <IconProperties className="w-3.5 h-3.5" />
-            Property
-          </TabsTrigger>
-          <TabsTrigger value="operations" className="text-xs gap-1.5" data-testid="tab-operations">
-            <IconBuilding className="w-3.5 h-3.5" />
-            Operations
-          </TabsTrigger>
-          <TabsTrigger value="marketing" className="text-xs gap-1.5" data-testid="tab-marketing">
-            <IconTarget className="w-3.5 h-3.5" />
-            Marketing
-          </TabsTrigger>
-          <TabsTrigger value="industry" className="text-xs gap-1.5" data-testid="tab-industry">
-            <IconTrendingUp className="w-3.5 h-3.5" />
-            Industry
-          </TabsTrigger>
-          <TabsTrigger value="sources" className="text-xs gap-1.5" data-testid="tab-sources">
-            <IconSettings className="w-3.5 h-3.5" />
-            Sources & Models
-          </TabsTrigger>
-        </TabsList>
+      <LlmSelectionCard draft={draft} setDraft={setDraft} setIsDirty={setIsDirty} />
 
-        <div className="mt-4">
-          <TabsContent value="property">
-            <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
-              <CardContent className="pt-5">
-                <PropertyTab
-                  config={mergeConfig(draft.property)}
-                  onChange={(c) => updateConfig("property", c)}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
+      <CollapsibleSection
+        title="ICP Research"
+        icon={<IconTarget className="w-5 h-5 text-primary" />}
+        description="Management company acquisition target research using the ICP definition as its prompt foundation"
+        defaultOpen={true}
+      >
+        <IcpResearchSection
+          enabled={mergeConfig(draft.company).enabled}
+          onToggle={(v) => updateConfig("company", { ...mergeConfig(draft.company), enabled: v })}
+        />
+      </CollapsibleSection>
 
-          <TabsContent value="operations">
-            <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
-              <CardContent className="pt-5">
-                <OperationsTab
-                  config={mergeConfig(draft.company)}
-                  onChange={(c) => updateConfig("company", c)}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
+      <CollapsibleSection
+        title="Property Research"
+        icon={<IconProperties className="w-5 h-5 text-primary" />}
+        description="Per-property and consolidated portfolio research against market benchmarks"
+        defaultOpen={false}
+      >
+        <PropertyResearchSection
+          config={mergeConfig(draft.property)}
+          onChange={(c) => updateConfig("property", c)}
+        />
+      </CollapsibleSection>
 
-          <TabsContent value="marketing">
-            <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
-              <CardContent className="pt-5">
-                <MarketingTab
-                  config={mergeConfig(draft.marketing)}
-                  onChange={(c) => updateConfig("marketing", c)}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="industry">
-            <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
-              <CardContent className="pt-5">
-                <IndustryTab
-                  config={mergeConfig(draft.global)}
-                  onChange={(c) => updateConfig("global", c)}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="sources">
-            <SourcesModelsTab draft={draft} setDraft={setDraft} setIsDirty={setIsDirty} />
-          </TabsContent>
-        </div>
-      </Tabs>
+      <CollapsibleSection
+        title="Market Research"
+        icon={<IconTrendingUp className="w-5 h-5 text-primary" />}
+        description="Macro real estate and hospitality market analysis — trends, economic indicators, supply/demand"
+        defaultOpen={false}
+      >
+        <MarketResearchSection
+          config={mergeConfig(draft.global)}
+          onChange={(c) => updateConfig("global", c)}
+        />
+      </CollapsibleSection>
     </div>
   );
 }

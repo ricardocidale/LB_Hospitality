@@ -297,6 +297,14 @@ export type Session = typeof sessions.$inferSelect;
 // --- RESEARCH CONFIGURATION TYPES ---
 // Stored as JSONB in global_assumptions.researchConfig.
 // Controls per-event AI research behavior: which tools run, what context is injected.
+export interface ResearchSourceEntry {
+  id: string;
+  url: string;
+  label: string;
+  category?: string;
+  addedAt: string;
+}
+
 export interface ResearchEventConfig {
   enabled: boolean;               // whether this research type is active
   focusAreas: string[];           // injected into prompt as bulleted focus areas
@@ -306,6 +314,7 @@ export interface ResearchEventConfig {
   customQuestions: string;        // specific questions the LLM must address
   enabledTools: string[];         // subset of tool names; empty array = all tools enabled
   refreshIntervalDays?: number;   // days before research is considered stale (default: 7)
+  sources?: ResearchSourceEntry[]; // per-process source library
 }
 
 export interface AiModelEntry {

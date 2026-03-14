@@ -6,6 +6,14 @@ import { requireAdmin, isApiRateLimited } from "../../auth";
 import { type InsertGlobalAssumptions, type ResearchConfig, type AiModelEntry } from "@shared/schema";
 import { logAndSendError, logActivity } from "../helpers";
 
+const researchSourceEntrySchema = z.object({
+  id: z.string(),
+  url: z.string(),
+  label: z.string(),
+  category: z.string().optional(),
+  addedAt: z.string(),
+});
+
 const researchEventConfigSchema = z.object({
   enabled: z.boolean().optional(),
   focusAreas: z.array(z.string()).optional(),
@@ -14,7 +22,8 @@ const researchEventConfigSchema = z.object({
   customInstructions: z.string().optional(),
   customQuestions: z.string().optional(),
   enabledTools: z.array(z.string()).optional(),
-  refreshIntervalDays: z.number().min(7).max(180).optional(),
+  refreshIntervalDays: z.number().min(3).max(180).optional(),
+  sources: z.array(researchSourceEntrySchema).optional(),
 }).strict();
 
 const customSourceSchema = z.object({
@@ -33,6 +42,7 @@ const researchConfigSchema = z.object({
   property: researchEventConfigSchema.optional(),
   company: researchEventConfigSchema.optional(),
   global: researchEventConfigSchema.optional(),
+  marketing: researchEventConfigSchema.optional(),
   preferredLlm: z.string().optional(),
   customSources: z.array(customSourceSchema).optional(),
   cachedModels: z.array(aiModelEntrySchema).optional(),

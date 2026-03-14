@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { globalAssumptions, marketResearch, properties } from "@shared/schema";
-import { seedUsers, seedUserGroups } from "./users";
+import { seedUsers, seedUserGroups, seedUserGroupProperties } from "./users";
 import { seedGlobalAssumptions, seedProperties, seedFeeCategories } from "./properties";
 import { seedDefaultLogos, seedCompanies } from "./branding";
 import { seedMissingMarketResearch, getHudsonEstateResearch, getEdenSummitResearch, getAustinHillsideResearch, getCasaMedellinResearch, getBlueRidgeResearch } from "./research";
@@ -13,7 +13,6 @@ export async function seed() {
   
   logger.info("Starting database seed...", "seed");
 
-  // Check if data already exists
   const existingGlobal = await db.select().from(globalAssumptions).limit(1);
   const existingProperties = await db.select().from(properties).limit(1);
 
@@ -31,19 +30,14 @@ export async function seed() {
     }
   }
 
-  // Seed admin user
   await seedUsers();
 
-  // Seed global assumptions
   await seedGlobalAssumptions();
 
-  // Seed properties
   await seedProperties();
 
-  // Seed fee categories
   await seedFeeCategories();
 
-  // Seed market research
   const seededProperties = await db.select().from(properties);
   const propertyMap: Record<string, number> = {};
   for (const p of seededProperties) {
@@ -54,56 +48,58 @@ export async function seed() {
     {
       userId: null,
       type: "property",
-      propertyId: propertyMap["The Hudson Estate"],
-      title: "Market Research: The Hudson Estate",
-      llmModel: "seed-data",
-      content: getHudsonEstateResearch()
-    },
-    {
-      userId: null,
-      type: "property",
-      propertyId: propertyMap["Eden Summit Lodge"],
-      title: "Market Research: Eden Summit Lodge",
-      llmModel: "seed-data",
-      content: getEdenSummitResearch()
-    },
-    {
-      userId: null,
-      type: "property",
-      propertyId: propertyMap["Austin Hillside"],
-      title: "Market Research: Austin Hillside",
-      llmModel: "seed-data",
-      content: getAustinHillsideResearch()
-    },
-    {
-      userId: null,
-      type: "property",
-      propertyId: propertyMap["Casa Medellín"],
-      title: "Market Research: Casa Medellín",
+      propertyId: propertyMap["Jano Grande Ranch"],
+      title: "Market Research: Jano Grande Ranch",
       llmModel: "seed-data",
       content: getCasaMedellinResearch()
     },
     {
       userId: null,
       type: "property",
-      propertyId: propertyMap["Blue Ridge Manor"],
-      title: "Market Research: Blue Ridge Manor",
+      propertyId: propertyMap["Loch Sheldrake"],
+      title: "Market Research: Loch Sheldrake",
+      llmModel: "seed-data",
+      content: getEdenSummitResearch()
+    },
+    {
+      userId: null,
+      type: "property",
+      propertyId: propertyMap["Belleayre Mountain"],
+      title: "Market Research: Belleayre Mountain",
+      llmModel: "seed-data",
+      content: getHudsonEstateResearch()
+    },
+    {
+      userId: null,
+      type: "property",
+      propertyId: propertyMap["Scott's House"],
+      title: "Market Research: Scott's House",
+      llmModel: "seed-data",
+      content: getAustinHillsideResearch()
+    },
+    {
+      userId: null,
+      type: "property",
+      propertyId: propertyMap["Lakeview Haven Lodge"],
+      title: "Market Research: Lakeview Haven Lodge",
       llmModel: "seed-data",
       content: getBlueRidgeResearch()
     }
-  ];
-  await db.insert(marketResearch).values(marketResearchEntries);
-  logger.info(`Seeded market research for ${marketResearchEntries.length} properties`, "seed");
+  ].filter(e => e.propertyId != null);
 
-  // Seed branding & groups
+  if (marketResearchEntries.length > 0) {
+    await db.insert(marketResearch).values(marketResearchEntries);
+    logger.info(`Seeded market research for ${marketResearchEntries.length} properties`, "seed");
+  }
+
   await seedDefaultLogos();
   await seedUserGroups();
   await seedCompanies();
 
-  // Seed service templates
+  await seedUserGroupProperties();
+
   await seedServiceTemplates();
 
-  // Seed property photos (hero + gallery)
   await seedPropertyPhotos();
 
   logger.info("Database seed completed successfully!", "seed");
@@ -113,9 +109,8 @@ export {
   seedMissingMarketResearch,
   seedDefaultLogos,
   seedUserGroups,
+  seedUserGroupProperties,
   seedCompanies,
   seedServiceTemplates,
   seedPropertyPhotos,
 };
-
-

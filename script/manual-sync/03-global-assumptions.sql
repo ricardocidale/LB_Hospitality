@@ -24,7 +24,12 @@ INSERT INTO global_assumptions (
   property_label, show_company_calculation_details, show_property_calculation_details,
   sidebar_property_finder, sidebar_sensitivity, sidebar_financing, sidebar_compare,
   sidebar_timeline, sidebar_map_view, sidebar_executive_summary, sidebar_scenarios, sidebar_user_manual,
-  show_ai_assistant
+  show_ai_assistant,
+  user_id,
+  company_phone, company_email, company_website, company_ein, company_founding_year,
+  company_street_address, company_city, company_state_province, company_country, company_zip_postal_code,
+  marcela_phone_greeting,
+  icp_config, research_config
 ) OVERRIDING SYSTEM VALUE VALUES (
   7, '2026-04-01', 0.03, 0.085, 0.12,
   75000, 12000, 3000, 0.05, 0.03,
@@ -38,14 +43,20 @@ INSERT INTO global_assumptions (
   3, 3, 3, 3,
   3, 3, 3, 3,
   3, 3,
-  'Hospitality Business Group', 'Funding Vehicle', 0.085, 0.05,
+  'The Norfolk AI Group', 'Funding Vehicle', 0.085, 0.05,
   0.65, 0.6, 0.6,
   'claude-sonnet-4-5', '{"hasFB": true, "level": "luxury", "maxAdr": 600, "minAdr": 150, "acreage": 10, "maxRooms": 80, "minRooms": 10, "hasEvents": true, "description": "Luxury boutique hotels on private estates of 10+ acres, catering to 100+ person exotic, unique, and corporate events in exclusive, secluded settings with full-service F&B, wellness programming, and curated guest experiences.", "hasWellness": true, "privacyLevel": "high", "parkingSpaces": 50, "eventLocations": 2, "maxEventCapacity": 150}', 10,
   3, 2.5, 6, 4.5, 7,
   'Boutique Hotel', TRUE, TRUE,
   TRUE, TRUE, TRUE, TRUE,
   TRUE, FALSE, TRUE, TRUE, TRUE,
-  FALSE
+  FALSE,
+  1,
+  '+1(757)555-0142', 'info@norfolk.ai', 'https://norfolk.ai', '92-1847356', 2024,
+  '150 West Main Street Suite 400', 'Norfolk', 'VA', 'US', '23510',
+  'Hello! This is Marcela, your AI concierge from The Norfolk AI Group. How can I help you today?',
+  '{"targetMarkets": ["luxury travelers", "corporate retreats", "destination weddings", "wellness seekers"], "propertyTypes": ["boutique hotels", "luxury estates", "mountain lodges", "lakefront retreats"], "priceRange": {"min": 150, "max": 600}, "geographicFocus": ["Colombia", "New York Catskills", "Utah", "Caribbean"]}',
+  '{"sources": ["STR Global", "CoStar", "AirDNA", "Booking.com", "local tourism boards"], "updateFrequency": "quarterly", "metrics": ["ADR", "RevPAR", "occupancy rate", "comp set performance"]}'
 )
 ON CONFLICT (id) DO UPDATE SET
   model_start_date = EXCLUDED.model_start_date, inflation_rate = EXCLUDED.inflation_rate,
@@ -86,4 +97,13 @@ ON CONFLICT (id) DO UPDATE SET
   sidebar_financing = EXCLUDED.sidebar_financing, sidebar_compare = EXCLUDED.sidebar_compare,
   sidebar_timeline = EXCLUDED.sidebar_timeline, sidebar_map_view = EXCLUDED.sidebar_map_view,
   sidebar_executive_summary = EXCLUDED.sidebar_executive_summary, sidebar_scenarios = EXCLUDED.sidebar_scenarios,
-  sidebar_user_manual = EXCLUDED.sidebar_user_manual, show_ai_assistant = EXCLUDED.show_ai_assistant;
+  sidebar_user_manual = EXCLUDED.sidebar_user_manual, show_ai_assistant = EXCLUDED.show_ai_assistant,
+  user_id = EXCLUDED.user_id,
+  company_phone = EXCLUDED.company_phone, company_email = EXCLUDED.company_email,
+  company_website = EXCLUDED.company_website, company_ein = EXCLUDED.company_ein,
+  company_founding_year = EXCLUDED.company_founding_year,
+  company_street_address = EXCLUDED.company_street_address, company_city = EXCLUDED.company_city,
+  company_state_province = EXCLUDED.company_state_province, company_country = EXCLUDED.company_country,
+  company_zip_postal_code = EXCLUDED.company_zip_postal_code,
+  marcela_phone_greeting = EXCLUDED.marcela_phone_greeting,
+  icp_config = EXCLUDED.icp_config, research_config = EXCLUDED.research_config;

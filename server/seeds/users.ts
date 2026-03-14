@@ -1,9 +1,18 @@
 import { db } from "../db";
-import { users, companies } from "@shared/schema";
-import { eq, isNull, isNotNull } from "drizzle-orm";
+import { users, companies, properties, userGroupProperties } from "@shared/schema";
+import { eq, and, inArray, isNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { userGroups } from "@shared/schema";
 import { logger } from "../logger";
+
+const NORFOLK_PROPERTY_NAMES = [
+  "Jano Grande Ranch",
+  "Loch Sheldrake",
+  "Belleayre Mountain",
+  "Scott's House",
+  "Lakeview Haven Lodge",
+  "San Diego",
+];
 
 export async function seedUsers() {
   const existingAdmin = await db.select().from(users).where(eq(users.email, "ricardo.cidale@norfolkgroup.io")).limit(1);
@@ -74,6 +83,47 @@ export async function seedUserGroups() {
       await db.update(users).set({ userGroupId: defaultGroup.id }).where(isNull(users.userGroupId));
       logger.info(`Assigned ${unassigned.length} unassigned user(s) to '${defaultGroup.name}' group`, "seed");
     }
+  }
+}
+
+export async function seedUserGroupProperties() {
+  const allGroups = await db.select().from(userGroups);
+  const norfolkGroup = allGroups.find(g => g.name === "The Norfolk AI Group");
+  if (!norfolkGroup) {
+    logger.info("Norfolk AI Group not found, skipping user_group_properties seed", "seed");
+    return;
+  }
+
+  const norfolkProps = await db.select({ id: properties.id })
+    .from(properties)
+    .where(inArray(properties.name, NORFOLK_PROPERTY_NAMES));
+
+  if (norfolkProps.length === 0) {
+    logger.info("No Norfolk AI properties found, skipping user_group_properties seed", "seed");
+    return;
+  }
+
+  let linked = 0;
+  for (const prop of norfolkProps) {
+    const existing = await db.select().from(userGroupProperties)
+      .where(
+        and(
+          eq(userGroupProperties.userGroupId, norfolkGroup.id),
+          eq(userGroupProperties.propertyId, prop.id),
+        )
+      )
+      .limit(1);
+
+    if (existing.length === 0) {
+      await db.insert(userGroupProperties).values({
+        userGroupId: norfolkGroup.id,
+        propertyId: prop.id,
+      });
+      linked++;
+    }
+  }
+  if (linked > 0) {
+    logger.info(`Linked ${linked} properties to 'The Norfolk AI Group' user group`, "seed");
   }
 }
 

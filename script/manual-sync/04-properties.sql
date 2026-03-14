@@ -41,7 +41,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Vereda El Salado', 'Medellín', 'Antioquia', '050001', 'Colombia',
   '{"adr": {"mid": 180, "source": "seed", "display": "$120–$260"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 10.5, "source": "seed", "display": "9%–12%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 4, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "30%–38%"}, "landValue": {"mid": 15, "source": "seed", "display": "10%–20%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.3, "source": "seed", "display": "0.2%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 2.5, "source": "seed", "display": "2%–3.5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3, "source": "seed", "display": "2%–4%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 14, "source": "seed", "display": "10%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, 3
+  1, 3
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -69,7 +69,8 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values, refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id,
+  refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
 
 -- 2. Loch Sheldrake (Nov 2026) — Sullivan County, NY — Full Equity + Refi
 INSERT INTO properties (
@@ -164,7 +165,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Upper Delaware River Valley', 'Highmount', 'New York', '12441', 'United States',
   '{"adr": {"mid": 350, "source": "seed", "display": "$280–$450"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 7.5, "source": "seed", "display": "6.5%–8.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 31, "source": "seed", "display": "29%–34%"}, "landValue": {"mid": 40, "source": "seed", "display": "30%–50%"}, "occupancy": {"mid": 76, "source": "seed", "display": "70%–82%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.6, "source": "seed", "display": "0.4%–0.8%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 2.5, "source": "seed", "display": "1.8%–3.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, 3
+  1, 3
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -192,7 +193,8 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values, refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id,
+  refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
 
 -- 4. Scott's House (Aug 2027) — Ogden Valley, Utah — Financed (no refi)
 INSERT INTO properties (
@@ -225,7 +227,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Eden', 'Eden', 'Utah', '84310', 'United States',
   '{"adr": {"mid": 380, "source": "seed", "display": "$300–$475"}, "costFB": {"mid": 8, "source": "seed", "display": "6%–10%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8, "source": "seed", "display": "7%–9%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 32, "source": "seed", "display": "25%–40%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 25, "source": "seed", "display": "24%–26%"}, "landValue": {"mid": 30, "source": "seed", "display": "25%–35%"}, "occupancy": {"mid": 65, "source": "seed", "display": "58%–72%"}, "rampMonths": {"mid": 14, "source": "seed", "display": "10–18 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.6%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.5, "source": "seed", "display": "3.5%–5.5%"}, "startOccupancy": {"mid": 42, "source": "seed", "display": "35%–50%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 19, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 0.9, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, NULL
+  1, NULL
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -253,7 +255,7 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id;
 
 -- 5. Lakeview Haven Lodge (Dec 2027) — Ogden Valley, Utah — Financed (no refi)
 INSERT INTO properties (
@@ -286,7 +288,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Pineview Reservoir', 'Huntsville', 'Utah', '84317', 'United States',
   '{"adr": {"mid": 370, "source": "seed", "display": "$280–$475"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8.5, "source": "seed", "display": "8%–9.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 36, "source": "seed", "display": "30%–42%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 25, "source": "seed", "display": "24%–26%"}, "landValue": {"mid": 20, "source": "seed", "display": "15%–25%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 0.8, "source": "seed", "display": "0.6%–1.2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, NULL
+  1, NULL
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -314,7 +316,7 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id;
 
 -- 6. San Diego (Apr 2028) — Cartagena, Colombia — Financed (no refi)
 INSERT INTO properties (
@@ -347,7 +349,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Cochera del Hobo, Barrio San Diego', 'Cartagena', 'Bolívar', '130001', 'Colombia',
   '{"adr": {"mid": 220, "source": "seed", "display": "$160–$280"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 0.8, "source": "seed", "display": "0.5%–1.2%"}, "capRate": {"mid": 9.5, "source": "seed", "display": "8.5%–11%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 28, "source": "seed", "display": "22%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 4, "source": "seed", "display": "3%–5%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "33%–38%"}, "landValue": {"mid": 30, "source": "seed", "display": "25%–35%"}, "occupancy": {"mid": 70, "source": "seed", "display": "62%–78%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "14–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.6%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 3, "source": "seed", "display": "2%–4%"}, "startOccupancy": {"mid": 38, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3.5, "source": "seed", "display": "2.5%–4.5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 15, "source": "seed", "display": "11%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1.5, "source": "seed", "display": "1%–2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, NULL
+  1, NULL
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -375,4 +377,4 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id;

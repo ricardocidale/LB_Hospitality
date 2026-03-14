@@ -91,24 +91,21 @@ describe("Seed Constants Drift — Property Revenue & Fee Rates", () => {
 });
 
 describe("Seed Data Structural Integrity", () => {
-  it("seeds exactly 5 properties", () => {
-    const propertyNames = ["The Hudson Estate", "Eden Summit Lodge", "Austin Hillside", "Casa Medellín", "Blue Ridge Manor"];
+  it("seeds exactly 6 Norfolk AI properties", () => {
+    const propertyNames = ["Jano Grande Ranch", "Loch Sheldrake", "Belleayre Mountain", "Scott's House", "Lakeview Haven Lodge", "San Diego"];
     for (const name of propertyNames) {
       expect(seedPropsContent).toContain(`name: "${name}"`);
     }
   });
 
-  it("all seed properties have userId omitted (defaults to null = shared)", () => {
-    // Properties should NOT have explicit userId set — the DB default is null
-    const propSection = seedPropsContent.slice(
-      seedPropsContent.indexOf("async seedProperties"),
-      seedPropsContent.indexOf("async seedFeeCategories"),
-    );
-    expect(propSection).not.toContain("userId:");
+  it("all seed properties have userId set to adminUserId", () => {
+    const propStart = seedPropsContent.indexOf("export async function seedProperties");
+    const propEnd = seedPropsContent.indexOf("export async function seedFeeCategories");
+    const propSection = seedPropsContent.slice(propStart, propEnd);
+    expect(propSection).toContain("userId: adminUserId");
   });
 
   it("financed properties have per-property financing fields", () => {
-    // Casa Medellín and Blue Ridge Manor are Financed
     expect(seedPropsContent).toContain('type: "Financed"');
     expect(seedPropsContent).toContain("acquisitionLTV:");
     expect(seedPropsContent).toContain("acquisitionInterestRate:");
@@ -116,19 +113,18 @@ describe("Seed Data Structural Integrity", () => {
     expect(seedPropsContent).toContain("acquisitionClosingCostRate:");
   });
 
-  it("Full Equity properties use SEED_DEBT_ASSUMPTIONS for refinance", () => {
-    expect(seedPropsContent).toContain("SEED_DEBT_ASSUMPTIONS");
-    expect(seedPropsContent).toContain("refinanceLTV: SEED_DEBT_ASSUMPTIONS.refiLTV");
-    expect(seedPropsContent).toContain("refinanceInterestRate: SEED_DEBT_ASSUMPTIONS.interestRate");
+  it("Full Equity properties have refinance fields", () => {
+    expect(seedPropsContent).toContain('type: "Full Equity"');
+    expect(seedPropsContent).toContain("refinanceLTV:");
+    expect(seedPropsContent).toContain("refinanceInterestRate:");
   });
 
   it("all properties have operationsStartDate after acquisitionDate", () => {
-    // Extract acquisition and ops dates for each property block
     const acqDates = [...seedPropsContent.matchAll(/acquisitionDate:\s*"(\d{4}-\d{2}-\d{2})"/g)].map(m => m[1]);
     const opsDates = [...seedPropsContent.matchAll(/operationsStartDate:\s*"(\d{4}-\d{2}-\d{2})"/g)].map(m => m[1]);
-    expect(acqDates.length).toBe(5);
-    expect(opsDates.length).toBe(5);
-    for (let i = 0; i < 5; i++) {
+    expect(acqDates.length).toBe(6);
+    expect(opsDates.length).toBe(6);
+    for (let i = 0; i < 6; i++) {
       expect(opsDates[i] >= acqDates[i]).toBe(true);
     }
   });
@@ -143,7 +139,7 @@ describe("Seed Data Structural Integrity", () => {
     expect(seedIndexContent).toContain("seedServiceTemplates()");
   });
 
-  it("global assumptions sets companyName to Hospitality Business Group", () => {
-    expect(seedPropsContent).toContain('companyName: "Hospitality Business Group"');
+  it("global assumptions sets companyName to The Norfolk AI Group", () => {
+    expect(seedPropsContent).toContain('companyName: "The Norfolk AI Group"');
   });
 });

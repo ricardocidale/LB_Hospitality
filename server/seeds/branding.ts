@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { eq } from "drizzle-orm";
-import { logos, companies, designThemes } from "@shared/schema";
+import { logos, companies, designThemes, properties } from "@shared/schema";
 import { logger } from "../logger";
 
 export async function seedDefaultLogos() {
@@ -37,17 +37,26 @@ export async function seedDefaultLogos() {
 }
 
 export async function seedCompanies() {
-  const existing = await db.select().from(companies);
-  if (existing.length > 0) {
-    return;
-  }
-
   const [defaultTheme] = await db.select().from(designThemes).where(eq(designThemes.isDefault, true));
   const defaultThemeId = defaultTheme?.id ?? null;
 
+  const existing = await db.select().from(companies);
+  const existingNames = new Set(existing.map(c => c.name));
+
+  const allProperties = await db.select({ id: properties.id, name: properties.name }).from(properties);
+
+  const spvMapping: Record<string, string> = {
+    "Jano Grande Ranch": "Jano Grande Ranch LLC",
+    "Loch Sheldrake": "Loch Sheldrake LLC",
+    "Belleayre Mountain": "Belleayre Mountain LLC",
+    "Scott's House": "Scott's House LLC",
+    "Lakeview Haven Lodge": "Lakeview Haven Lodge LLC",
+    "San Diego": "San Diego Boutique LLC",
+  };
+
   const companiesToSeed = [
     { name: "Hospitality Business Group", type: "management" as const, description: "Management company overseeing all hotel SPVs" },
-    { name: "The Norfolk AI Group", type: "management" as const, description: "AI-powered hospitality technology group" },
+    { name: "The Norfolk AI Group", type: "management" as const, description: "AI-powered hospitality technology and management group based in Norfolk, VA" },
     { name: "KIT Capital", type: "management" as const, description: "Investment and capital management firm" },
     { name: "Numeratti Endeavors", type: "management" as const, description: "Strategic investment ventures" },
     { name: "HBG Property 1 LLC", type: "spv" as const, description: "SPV for first hotel property" },
@@ -55,10 +64,37 @@ export async function seedCompanies() {
     { name: "General", type: "spv" as const, description: "Default catch-all company" },
   ];
 
-  for (const c of companiesToSeed) {
-    await db.insert(companies).values({ ...c, themeId: defaultThemeId });
+  for (const prop of allProperties) {
+    const spvName = spvMapping[prop.name];
+    if (spvName && !companiesToSeed.some(c => c.name === spvName)) {
+      companiesToSeed.push({
+        name: spvName,
+        type: "spv" as const,
+        description: `SPV entity for ${prop.name} property`,
+      });
+    }
   }
-  logger.info(`Seeded ${companiesToSeed.length} companies (themeId=${defaultThemeId})`, "seed");
+
+  let added = 0;
+  for (const c of companiesToSeed) {
+    if (!existingNames.has(c.name)) {
+      await db.insert(companies).values({ ...c, themeId: defaultThemeId });
+      added++;
+    }
+  }
+  if (added > 0) {
+    logger.info(`Seeded ${added} new companies including Norfolk AI SPVs (themeId=${defaultThemeId})`, "seed");
+  }
+
+  if (defaultThemeId) {
+    const needsUpdate = existing.filter(c => c.themeId !== defaultThemeId);
+    for (const c of needsUpdate) {
+      await db.update(companies).set({ themeId: defaultThemeId }).where(eq(companies.id, c.id));
+    }
+    if (needsUpdate.length > 0) {
+      logger.info(`Assigned default theme to ${needsUpdate.length} existing companies`, "seed");
+    }
+  }
 
   const allCompanies = await db.select().from(companies);
   let logosCreated = 0;

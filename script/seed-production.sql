@@ -25,22 +25,29 @@ DELETE FROM properties WHERE id NOT IN (32, 33, 35, 39, 41, 43);
 -- =============================================================================
 -- COMPANIES
 -- =============================================================================
-INSERT INTO companies (id, name, type, description, logo_id, is_active) OVERRIDING SYSTEM VALUE VALUES
-  (1, 'Hospitality Business Group', 'management', 'Management company overseeing all hotel SPVs', 1, TRUE),
-  (2, 'HBG Property 1 LLC', 'spv', 'SPV for first hotel property', 2, TRUE),
-  (3, 'HBG Property 2 LLC', 'spv', 'SPV for second hotel property', 3, TRUE)
+INSERT INTO companies (id, name, type, description, logo_id, is_active, theme_id) OVERRIDING SYSTEM VALUE VALUES
+  (1, 'Hospitality Business Group', 'management', 'Management company overseeing all hotel SPVs', 1, TRUE, NULL),
+  (2, 'HBG Property 1 LLC', 'spv', 'SPV for first hotel property', 2, TRUE, NULL),
+  (3, 'HBG Property 2 LLC', 'spv', 'SPV for second hotel property', 3, TRUE, NULL),
+  (10, 'The Norfolk AI Group', 'management', 'AI-powered hospitality technology and management group based in Norfolk, VA', NULL, TRUE, 14),
+  (11, 'Jano Grande Ranch LLC', 'spv', 'SPV entity for Jano Grande Ranch property', NULL, TRUE, 14),
+  (12, 'Loch Sheldrake LLC', 'spv', 'SPV entity for Loch Sheldrake property', NULL, TRUE, 14),
+  (13, 'Belleayre Mountain LLC', 'spv', 'SPV entity for Belleayre Mountain property', NULL, TRUE, 14),
+  (14, 'Scott''s House LLC', 'spv', 'SPV entity for Scott''s House property', NULL, TRUE, 14),
+  (15, 'Lakeview Haven Lodge LLC', 'spv', 'SPV entity for Lakeview Haven Lodge property', NULL, TRUE, 14),
+  (16, 'San Diego Boutique LLC', 'spv', 'SPV entity for San Diego property', NULL, TRUE, 14)
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, type = EXCLUDED.type, description = EXCLUDED.description,
-  logo_id = EXCLUDED.logo_id, is_active = EXCLUDED.is_active;
+  logo_id = EXCLUDED.logo_id, is_active = EXCLUDED.is_active, theme_id = EXCLUDED.theme_id;
 
 -- =============================================================================
 -- LOGOS
 -- =============================================================================
 INSERT INTO logos (id, name, url, is_default, company_name) OVERRIDING SYSTEM VALUE VALUES
-  (1, 'Hospitality Business Group', '/logos/default-hbg.png', TRUE, 'Hospitality Business Group'),
-  (2, 'Norfolk AI - Blue', '/logos/norfolk-ai-blue.png', FALSE, 'Hospitality Business Group'),
-  (3, 'Norfolk AI - Yellow', '/logos/norfolk-ai-yellow.png', FALSE, 'Hospitality Business Group'),
-  (4, 'Norfolk AI - Wireframe', '/logos/norfolk-ai-wireframe.png', FALSE, 'Hospitality Business Group')
+  (1, 'The Norfolk AI Group', '/logos/default-hbg.png', TRUE, 'The Norfolk AI Group'),
+  (2, 'Norfolk AI - Blue', '/logos/norfolk-ai-blue.png', FALSE, 'The Norfolk AI Group'),
+  (3, 'Norfolk AI - Yellow', '/logos/norfolk-ai-yellow.png', FALSE, 'The Norfolk AI Group'),
+  (4, 'Norfolk AI - Wireframe', '/logos/norfolk-ai-wireframe.png', FALSE, 'The Norfolk AI Group')
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, url = EXCLUDED.url, is_default = EXCLUDED.is_default,
   company_name = EXCLUDED.company_name;
@@ -50,7 +57,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- =============================================================================
 INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, is_default) OVERRIDING SYSTEM VALUE VALUES
   (1, 'KIT Group', NULL, NULL, NULL, FALSE),
-  (2, 'Norfolk Group', NULL, NULL, NULL, FALSE),
+  (2, 'The Norfolk AI Group', NULL, NULL, NULL, FALSE),
   (3, 'General', NULL, NULL, NULL, TRUE)
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, is_default = EXCLUDED.is_default;
@@ -71,7 +78,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- via seedAdminUser() in server/auth.ts
 -- =============================================================================
 INSERT INTO users (id, email, password_hash, role, first_name, last_name, company, company_id, title, user_group_id, selected_theme_id) OVERRIDING SYSTEM VALUE VALUES
-  (1, 'admin', '$2b$12$LEFrDu6a77FlYOEDQeKtU.TQHAkpW9iFs8E0e/Awt6F.PfiRK9UUO', 'admin', 'Ricardo', 'Cidale', 'Norfolk Group', NULL, 'Partner', 2, NULL),
+  (1, 'admin', '$2b$12$LEFrDu6a77FlYOEDQeKtU.TQHAkpW9iFs8E0e/Awt6F.PfiRK9UUO', 'admin', 'Ricardo', 'Cidale', 'The Norfolk AI Group', NULL, 'Partner', 2, NULL),
   (2, 'rosario@kitcapital.com', '$2b$12$Mu44raajtDj0ziaX9rBrze37JJei1rd7.zKAYzEZKrXlYYT/qqL4q', 'partner', 'Rosario', 'David', 'KIT Capital', NULL, 'COO', 1, NULL),
   (4, 'kit@kitcapital.com', '$2b$12$Rdwzg7sKCitjg1uh.9XTh.PHuhkDpjyMMQYoyPd1LnTwuAeagXjku', 'partner', 'Dov', 'Tuzman', 'KIT Capital', NULL, 'Principal', 1, NULL),
   (6, 'checker@norfolkgroup.io', '$2b$12$W.PjaLvNEaABPiCgl5BarOR06IGkAQlHFalWYQuLxzZSnJa.iOMaO', 'checker', 'Checker', NULL, 'Norfolk AI', NULL, 'Checker', 2, NULL),
@@ -88,7 +95,7 @@ ON CONFLICT (id) DO UPDATE SET
 -- GLOBAL ASSUMPTIONS
 -- =============================================================================
 INSERT INTO global_assumptions (
-  id, model_start_date, inflation_rate, base_management_fee, incentive_management_fee,
+  id, user_id, model_start_date, inflation_rate, base_management_fee, incentive_management_fee,
   staff_salary, travel_cost_per_client, it_license_per_client, marketing_rate, misc_ops_rate,
   office_lease_start, professional_services_start, tech_infra_start, business_insurance_start,
   standard_acq_package, debt_assumptions, commission_rate, fixed_cost_escalation_rate,
@@ -107,9 +114,13 @@ INSERT INTO global_assumptions (
   property_label, show_company_calculation_details, show_property_calculation_details,
   sidebar_property_finder, sidebar_sensitivity, sidebar_financing, sidebar_compare,
   sidebar_timeline, sidebar_map_view, sidebar_executive_summary, sidebar_scenarios, sidebar_user_manual,
-  show_ai_assistant
+  show_ai_assistant,
+  company_phone, company_email, company_website, company_ein, company_founding_year,
+  company_street_address, company_city, company_state_province, company_country, company_zip_postal_code,
+  marcela_phone_greeting,
+  icp_config, research_config
 ) OVERRIDING SYSTEM VALUE VALUES (
-  7, '2026-04-01', 0.03, 0.085, 0.12,
+  7, 1, '2026-04-01', 0.03, 0.085, 0.12,
   75000, 12000, 3000, 0.05, 0.03,
   36000, 24000, 18000, 12000,
   '{"monthsToOps": 6, "purchasePrice": 3800000, "preOpeningCosts": 200000, "operatingReserve": 250000, "buildingImprovements": 1200000}', '{"acqLTV": 0.75, "refiLTV": 0.75, "interestRate": 0.09, "amortizationYears": 25, "acqClosingCostRate": 0.02, "refiClosingCostRate": 0.03}', 0.05, 0.03,
@@ -121,16 +132,22 @@ INSERT INTO global_assumptions (
   3, 3, 3, 3,
   3, 3, 3, 3,
   3, 3,
-  'Hospitality Business Group', 'Funding Vehicle', 0.085, 0.05,
+  'The Norfolk AI Group', 'Funding Vehicle', 0.085, 0.05,
   0.65, 0.6, 0.6,
   'claude-sonnet-4-5', '{"hasFB": true, "level": "luxury", "maxAdr": 600, "minAdr": 150, "acreage": 10, "maxRooms": 80, "minRooms": 10, "hasEvents": true, "description": "Luxury boutique hotels on private estates of 10+ acres, catering to 100+ person exotic, unique, and corporate events in exclusive, secluded settings with full-service F&B, wellness programming, and curated guest experiences.", "hasWellness": true, "privacyLevel": "high", "parkingSpaces": 50, "eventLocations": 2, "maxEventCapacity": 150}', 10,
   3, 2.5, 6, 4.5, 7,
   'Boutique Hotel', TRUE, TRUE,
   TRUE, TRUE, TRUE, TRUE,
   TRUE, FALSE, TRUE, TRUE, TRUE,
-  FALSE
+  FALSE,
+  '+1 (757) 555-0142', 'info@norfolk.ai', 'https://norfolk.ai', '92-1847356', 2024,
+  '150 West Main Street, Suite 400', 'Norfolk', 'VA', 'United States', '23510',
+  'Hello, this is Marcela from The Norfolk AI Group. How can I help you today?',
+  '{"guestSegments": [{"name": "Corporate Retreats", "weight": 0.30, "avgGroupSize": 25, "avgStayNights": 3, "seasonality": "year-round"}, {"name": "Luxury Leisure", "weight": 0.25, "avgGroupSize": 2, "avgStayNights": 4, "seasonality": "peak"}, {"name": "Weddings & Social Events", "weight": 0.20, "avgGroupSize": 80, "avgStayNights": 2, "seasonality": "spring-fall"}, {"name": "Wellness Retreats", "weight": 0.15, "avgGroupSize": 12, "avgStayNights": 5, "seasonality": "year-round"}, {"name": "Adventure & Experiential", "weight": 0.10, "avgGroupSize": 6, "avgStayNights": 3, "seasonality": "seasonal"}], "demographics": {"ageRange": "35-65", "incomeLevel": "HHI $250K+", "geography": "US East Coast, Latin America, International", "travelStyle": "Experiential luxury, privacy-focused"}, "bookingBehavior": {"leadTimeDays": 90, "directBookingPct": 0.60, "repeatGuestPct": 0.35, "avgRevenuePerGuest": 1200}}',
+  '{"property": {"enabled": true, "focusAreas": ["boutique hospitality", "luxury lodging", "event venues", "F&B operations", "wellness tourism"], "regions": ["US Northeast", "US Mountain West", "Colombia", "Latin America"], "timeHorizon": "10-year", "customInstructions": "Focus on boutique hotels with 10-80 rooms, event-driven revenue models, and properties on 10+ acre estates. Emphasize AI-driven operations and technology integration.", "customQuestions": "", "enabledTools": []}, "company": {"enabled": true, "focusAreas": ["hospitality management companies", "hotel investment", "PropTech", "AI in hospitality"], "regions": ["United States", "Latin America"], "timeHorizon": "5-year", "customInstructions": "Research AI-powered hospitality management trends, boutique hotel acquisition strategies, and technology-driven operational efficiencies.", "customQuestions": "", "enabledTools": []}}'
 )
 ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
   model_start_date = EXCLUDED.model_start_date, inflation_rate = EXCLUDED.inflation_rate,
   base_management_fee = EXCLUDED.base_management_fee, incentive_management_fee = EXCLUDED.incentive_management_fee,
   staff_salary = EXCLUDED.staff_salary, travel_cost_per_client = EXCLUDED.travel_cost_per_client,
@@ -169,7 +186,15 @@ ON CONFLICT (id) DO UPDATE SET
   sidebar_financing = EXCLUDED.sidebar_financing, sidebar_compare = EXCLUDED.sidebar_compare,
   sidebar_timeline = EXCLUDED.sidebar_timeline, sidebar_map_view = EXCLUDED.sidebar_map_view,
   sidebar_executive_summary = EXCLUDED.sidebar_executive_summary, sidebar_scenarios = EXCLUDED.sidebar_scenarios,
-  sidebar_user_manual = EXCLUDED.sidebar_user_manual, show_ai_assistant = EXCLUDED.show_ai_assistant;
+  sidebar_user_manual = EXCLUDED.sidebar_user_manual, show_ai_assistant = EXCLUDED.show_ai_assistant,
+  company_phone = EXCLUDED.company_phone, company_email = EXCLUDED.company_email,
+  company_website = EXCLUDED.company_website, company_ein = EXCLUDED.company_ein,
+  company_founding_year = EXCLUDED.company_founding_year,
+  company_street_address = EXCLUDED.company_street_address, company_city = EXCLUDED.company_city,
+  company_state_province = EXCLUDED.company_state_province, company_country = EXCLUDED.company_country,
+  company_zip_postal_code = EXCLUDED.company_zip_postal_code,
+  marcela_phone_greeting = EXCLUDED.marcela_phone_greeting,
+  icp_config = EXCLUDED.icp_config, research_config = EXCLUDED.research_config;
 
 -- =============================================================================
 -- PROPERTIES (all 6, sorted by acquisition date)
@@ -206,7 +231,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Vereda El Salado', 'Medellín', 'Antioquia', '050001', 'Colombia',
   '{"adr": {"mid": 180, "source": "seed", "display": "$120–$260"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 10.5, "source": "seed", "display": "9%–12%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 4, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "30%–38%"}, "landValue": {"mid": 15, "source": "seed", "display": "10%–20%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.3, "source": "seed", "display": "0.2%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 2.5, "source": "seed", "display": "2%–3.5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3, "source": "seed", "display": "2%–4%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 14, "source": "seed", "display": "10%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, 3
+  1, 3
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -234,7 +259,8 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values, refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id,
+  refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
 
 -- 2. Loch Sheldrake (Nov 2026) — Sullivan County, NY — Full Equity + Refi
 INSERT INTO properties (
@@ -267,7 +293,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Loch Sheldrake', 'Loch Sheldrake', 'New York', '12759', 'United States',
   '{"adr": {"mid": 310, "source": "seed", "display": "$240–$380"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8.5, "source": "seed", "display": "7.5%–9.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 28, "source": "seed", "display": "22%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5.5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 30, "source": "seed", "display": "28%–33%"}, "landValue": {"mid": 30, "source": "seed", "display": "25%–35%"}, "occupancy": {"mid": 68, "source": "seed", "display": "60%–75%"}, "rampMonths": {"mid": 15, "source": "seed", "display": "12–18 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.5, "source": "seed", "display": "0.3%–0.7%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.5, "source": "seed", "display": "3.5%–5.5%"}, "startOccupancy": {"mid": 45, "source": "seed", "display": "35%–50%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 18, "source": "seed", "display": "14%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 2.2, "source": "seed", "display": "1.8%–2.8%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, 3
+  1, 3
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -329,7 +355,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Upper Delaware River Valley', 'Highmount', 'New York', '12441', 'United States',
   '{"adr": {"mid": 350, "source": "seed", "display": "$280–$450"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 7.5, "source": "seed", "display": "6.5%–8.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 30, "source": "seed", "display": "25%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 31, "source": "seed", "display": "29%–34%"}, "landValue": {"mid": 40, "source": "seed", "display": "30%–50%"}, "occupancy": {"mid": 76, "source": "seed", "display": "70%–82%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.6, "source": "seed", "display": "0.4%–0.8%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 2.5, "source": "seed", "display": "1.8%–3.5%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, 3
+  1, 3
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -357,7 +383,8 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values, refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id,
+  refinance_years_after_acquisition = EXCLUDED.refinance_years_after_acquisition;
 
 -- 4. Scott's House (Aug 2027) — Ogden Valley, Utah — Financed (no refi)
 INSERT INTO properties (
@@ -390,7 +417,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Eden', 'Eden', 'Utah', '84310', 'United States',
   '{"adr": {"mid": 380, "source": "seed", "display": "$300–$475"}, "costFB": {"mid": 8, "source": "seed", "display": "6%–10%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8, "source": "seed", "display": "7%–9%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 32, "source": "seed", "display": "25%–40%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 25, "source": "seed", "display": "24%–26%"}, "landValue": {"mid": 30, "source": "seed", "display": "25%–35%"}, "occupancy": {"mid": 65, "source": "seed", "display": "58%–72%"}, "rampMonths": {"mid": 14, "source": "seed", "display": "10–18 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.6%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.5, "source": "seed", "display": "3.5%–5.5%"}, "startOccupancy": {"mid": 42, "source": "seed", "display": "35%–50%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 19, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 0.9, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, NULL
+  1, NULL
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -418,7 +445,7 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id;
 
 -- 5. Lakeview Haven Lodge (Dec 2027) — Ogden Valley, Utah — Financed (no refi)
 INSERT INTO properties (
@@ -451,7 +478,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Pineview Reservoir', 'Huntsville', 'Utah', '84317', 'United States',
   '{"adr": {"mid": 370, "source": "seed", "display": "$280–$475"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "capRate": {"mid": 8.5, "source": "seed", "display": "8%–9.5%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 36, "source": "seed", "display": "30%–42%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "4%–7%"}, "costOther": {"mid": 5, "source": "seed", "display": "3%–6%"}, "incomeTax": {"mid": 25, "source": "seed", "display": "24%–26%"}, "landValue": {"mid": 20, "source": "seed", "display": "15%–25%"}, "occupancy": {"mid": 62, "source": "seed", "display": "55%–70%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "12–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.5%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 4.2, "source": "seed", "display": "3.5%–5%"}, "startOccupancy": {"mid": 40, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 4, "source": "seed", "display": "3%–5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 20, "source": "seed", "display": "15%–22%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 0.8, "source": "seed", "display": "0.6%–1.2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, NULL
+  1, NULL
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -479,7 +506,7 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id;
 
 -- 6. San Diego (Apr 2028) — Cartagena, Colombia — Financed (no refi)
 INSERT INTO properties (
@@ -512,7 +539,7 @@ INSERT INTO properties (
   0.085, 0.12,
   'Cochera del Hobo, Barrio San Diego', 'Cartagena', 'Bolívar', '130001', 'Colombia',
   '{"adr": {"mid": 220, "source": "seed", "display": "$160–$280"}, "costFB": {"mid": 9, "source": "seed", "display": "7%–12%"}, "costIT": {"mid": 0.8, "source": "seed", "display": "0.5%–1.2%"}, "capRate": {"mid": 9.5, "source": "seed", "display": "8.5%–11%"}, "costFFE": {"mid": 4, "source": "seed", "display": "3%–5%"}, "catering": {"mid": 28, "source": "seed", "display": "22%–35%"}, "svcFeeIT": {"mid": 0.5, "source": "seed", "display": "0.3%–0.8%"}, "costAdmin": {"mid": 5, "source": "seed", "display": "3%–6%"}, "costOther": {"mid": 4, "source": "seed", "display": "3%–5%"}, "incomeTax": {"mid": 35, "source": "seed", "display": "33%–38%"}, "landValue": {"mid": 30, "source": "seed", "display": "25%–35%"}, "occupancy": {"mid": 70, "source": "seed", "display": "62%–78%"}, "rampMonths": {"mid": 18, "source": "seed", "display": "14–24 mo"}, "incentiveFee": {"mid": 10, "source": "seed", "display": "8%–12%"}, "costInsurance": {"mid": 0.4, "source": "seed", "display": "0.3%–0.6%"}, "costMarketing": {"mid": 2, "source": "seed", "display": "1%–3%"}, "costUtilities": {"mid": 3, "source": "seed", "display": "2%–4%"}, "startOccupancy": {"mid": 38, "source": "seed", "display": "30%–45%"}, "costPropertyOps": {"mid": 3.5, "source": "seed", "display": "2.5%–4.5%"}, "svcFeeMarketing": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costHousekeeping": {"mid": 15, "source": "seed", "display": "11%–18%"}, "svcFeeAccounting": {"mid": 1, "source": "seed", "display": "0.5%–1.5%"}, "costPropertyTaxes": {"mid": 1.5, "source": "seed", "display": "1%–2%"}, "svcFeeGeneralMgmt": {"mid": 1, "source": "seed", "display": "0.7%–1.2%"}, "svcFeeReservations": {"mid": 1.5, "source": "seed", "display": "1%–2%"}}',
-  NULL, NULL
+  1, NULL
 )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, location = EXCLUDED.location, market = EXCLUDED.market, image_url = EXCLUDED.image_url,
@@ -540,10 +567,28 @@ ON CONFLICT (id) DO UPDATE SET
   base_management_fee_rate = EXCLUDED.base_management_fee_rate, incentive_management_fee_rate = EXCLUDED.incentive_management_fee_rate,
   street_address = EXCLUDED.street_address, city = EXCLUDED.city, state_province = EXCLUDED.state_province,
   zip_postal_code = EXCLUDED.zip_postal_code, country = EXCLUDED.country,
-  research_values = EXCLUDED.research_values;
+  research_values = EXCLUDED.research_values, user_id = EXCLUDED.user_id;
 
 -- =============================================================================
--- PROPERTY FEE CATEGORIES
+-- USER GROUP PROPERTIES (link Norfolk AI Group to all 6 properties)
+-- =============================================================================
+DELETE FROM user_group_properties WHERE user_group_id = 2;
+INSERT INTO user_group_properties (user_group_id, property_id) VALUES
+  (2, 32), (2, 33), (2, 35), (2, 39), (2, 41), (2, 43)
+ON CONFLICT DO NOTHING;
+
+-- =============================================================================
+-- PROPERTY DESCRIPTIONS
+-- =============================================================================
+UPDATE properties SET description = 'A luxury hacienda retreat set in the lush hills of Antioquia, offering curated cultural experiences and farm-to-table dining amid Colombia''s coffee country.' WHERE id = 35 AND description IS NULL;
+UPDATE properties SET description = 'A serene lakeside retreat in Sullivan County''s Catskill region, blending rustic charm with modern luxury for year-round mountain and lake experiences.' WHERE id = 43 AND description IS NULL;
+UPDATE properties SET description = 'An alpine lodge nestled in the Western Catskills, offering four-season mountain recreation with ski-in access and panoramic ridge-line views.' WHERE id = 32 AND description IS NULL;
+UPDATE properties SET description = 'A modern mountain retreat in Utah''s Ogden Valley, combining contemporary design with dramatic Wasatch Range views and year-round outdoor adventure.' WHERE id = 39 AND description IS NULL;
+UPDATE properties SET description = 'A lakefront lodge overlooking Pineview Reservoir in Ogden Valley, offering tranquil waterfront living with mountain-backed sunsets and kayaking.' WHERE id = 33 AND description IS NULL;
+UPDATE properties SET description = 'A colonial boutique hotel in Cartagena''s historic walled city, blending 17th-century architecture with Caribbean luxury, rooftop dining, and old-world charm.' WHERE id = 41 AND description IS NULL;
+
+-- =============================================================================
+-- PROPERTY FEE CATEGORIES (8 categories matching service templates)
 -- Delete all and reinsert to ensure clean state
 -- =============================================================================
 DELETE FROM property_fee_categories;
@@ -554,31 +599,49 @@ INSERT INTO property_fee_categories (id, property_id, name, rate, is_active, sor
   (23, 32, 'Accounting', 0.015, TRUE, 3),
   (24, 32, 'Reservations', 0.02, TRUE, 4),
   (25, 32, 'General Management', 0.02, TRUE, 5),
+  (50, 32, 'Insurance', 0.01, TRUE, 6),
+  (51, 32, 'Property Operations', 0.01, TRUE, 7),
+  (52, 32, 'Other Services', 0.01, TRUE, 8),
   (1, 33, 'Marketing', 0.02, TRUE, 1),
   (2, 33, 'IT', 0.01, TRUE, 2),
   (3, 33, 'Accounting', 0.015, TRUE, 3),
   (4, 33, 'Reservations', 0.02, TRUE, 4),
   (5, 33, 'General Management', 0.02, TRUE, 5),
+  (53, 33, 'Insurance', 0.01, TRUE, 6),
+  (54, 33, 'Property Operations', 0.01, TRUE, 7),
+  (55, 33, 'Other Services', 0.01, TRUE, 8),
   (16, 35, 'Marketing', 0.02, TRUE, 1),
   (17, 35, 'IT', 0.01, TRUE, 2),
   (18, 35, 'Accounting', 0.015, TRUE, 3),
   (19, 35, 'Reservations', 0.02, TRUE, 4),
   (20, 35, 'General Management', 0.02, TRUE, 5),
+  (56, 35, 'Insurance', 0.01, TRUE, 6),
+  (57, 35, 'Property Operations', 0.01, TRUE, 7),
+  (58, 35, 'Other Services', 0.01, TRUE, 8),
   (26, 39, 'Marketing', 0.02, TRUE, 1),
   (27, 39, 'IT', 0.01, TRUE, 2),
   (28, 39, 'Accounting', 0.015, TRUE, 3),
   (29, 39, 'Reservations', 0.02, TRUE, 4),
   (30, 39, 'General Management', 0.02, TRUE, 5),
+  (59, 39, 'Insurance', 0.01, TRUE, 6),
+  (60, 39, 'Property Operations', 0.01, TRUE, 7),
+  (61, 39, 'Other Services', 0.01, TRUE, 8),
   (31, 41, 'Marketing', 0.02, TRUE, 1),
   (32, 41, 'IT', 0.01, TRUE, 2),
   (33, 41, 'Accounting', 0.015, TRUE, 3),
   (34, 41, 'Reservations', 0.02, TRUE, 4),
   (35, 41, 'General Management', 0.02, TRUE, 5),
+  (62, 41, 'Insurance', 0.01, TRUE, 6),
+  (63, 41, 'Property Operations', 0.01, TRUE, 7),
+  (64, 41, 'Other Services', 0.01, TRUE, 8),
   (36, 43, 'Marketing', 0.02, TRUE, 1),
   (37, 43, 'IT', 0.01, TRUE, 2),
   (38, 43, 'Accounting', 0.015, TRUE, 3),
   (39, 43, 'Reservations', 0.02, TRUE, 4),
-  (40, 43, 'General Management', 0.02, TRUE, 5);
+  (40, 43, 'General Management', 0.02, TRUE, 5),
+  (65, 43, 'Insurance', 0.01, TRUE, 6),
+  (66, 43, 'Property Operations', 0.01, TRUE, 7),
+  (67, 43, 'Other Services', 0.01, TRUE, 8);
 
 -- =============================================================================
 -- MARKET RESEARCH

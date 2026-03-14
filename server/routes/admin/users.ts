@@ -36,7 +36,7 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ error: "User already exists" });
       }
 
-      const { email, password, role, firstName, lastName, company, companyId, title } = validation.data;
+      const { email, password, role, firstName, lastName, company, companyId, title, userGroupId } = validation.data;
       const passwordHash = password ? await hashPassword(password) : null;
 
       const defaultGroup = await storage.getDefaultUserGroup();
@@ -50,7 +50,7 @@ export function registerUserRoutes(app: Express) {
         company,
         companyId,
         title,
-        userGroupId: defaultGroup?.id ?? null,
+        userGroupId: userGroupId !== undefined ? userGroupId : (defaultGroup?.id ?? null),
       });
 
       logActivity(req, "create-user", "user", user.id, email, { role });
@@ -64,7 +64,7 @@ export function registerUserRoutes(app: Express) {
     try {
       const id = parseParamId(req.params.id, res, "user ID");
       if (id === null) return;
-      const { email, firstName, lastName, company, companyId, title, role } = req.body;
+      const { email, firstName, lastName, company, companyId, title, role, userGroupId } = req.body;
 
       if (role !== undefined) {
         const roleResult = roleSchema.safeParse(role);
@@ -83,6 +83,7 @@ export function registerUserRoutes(app: Express) {
       if (company !== undefined) profileData.company = company;
       if (companyId !== undefined) profileData.companyId = companyId;
       if (title !== undefined) profileData.title = title;
+      if (userGroupId !== undefined) profileData.userGroupId = userGroupId;
 
       if (Object.keys(profileData).length > 0) {
         await storage.updateUserProfile(id, profileData as any);

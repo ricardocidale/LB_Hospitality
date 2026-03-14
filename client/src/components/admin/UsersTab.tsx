@@ -28,11 +28,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
-import { IconEye, IconEyeOff, IconCalendar, IconSave, IconPeople, IconTrash, IconKey, IconPencil, IconUserPlus, IconShield, IconMail, IconUserCog, IconSettingsGear, IconProperties } from "@/components/icons";
+import { IconEye, IconEyeOff, IconCalendar, IconSave, IconPeople, IconTrash, IconKey, IconPencil, IconUserPlus, IconShield, IconMail, IconUserCog, IconSettingsGear, IconProperties, IconBuilding2, IconImage, IconPalette, IconFileText, IconPlus } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { useAdminLogos, useAdminUsers, useAdminUserGroups, useAdminCompanies } from "./hooks";
+import { useAdminLogos, useAdminUsers, useAdminUserGroups, useAdminCompanies, useAdminThemes, useAdminAssetDescriptions } from "./hooks";
 import defaultLogo from "@/assets/logo.png";
 import type { User } from "./types";
 
@@ -50,12 +50,18 @@ export default function UsersTab() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", companyId: null as number | null, title: "", role: "partner" as string });
-  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", companyId: null as number | null, title: "", role: "partner" as string, password: "" });
+  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: "partner" as string });
+  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: "partner" as string, password: "" });
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [inlineCompanyOpen, setInlineCompanyOpen] = useState(false);
+  const [inlineCompanyForm, setInlineCompanyForm] = useState({ name: "", description: "", logoId: null as number | null, themeId: null as number | null });
+  const [inlineCompanyTarget, setInlineCompanyTarget] = useState<"new" | "edit">("new");
+  const [inlineGroupOpen, setInlineGroupOpen] = useState(false);
+  const [inlineGroupForm, setInlineGroupForm] = useState({ name: "", themeId: null as number | null, assetDescriptionId: null as number | null });
+  const [inlineGroupTarget, setInlineGroupTarget] = useState<"new" | "edit">("new");
   const [sortField, setSortField] = useState<SortField>("group");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [resetAllPassword, setResetAllPassword] = useState("");
@@ -67,6 +73,8 @@ export default function UsersTab() {
   const { data: userGroupsList } = useAdminUserGroups();
   const { data: adminLogos } = useAdminLogos();
   const { data: companiesList } = useAdminCompanies();
+  const { data: allThemes } = useAdminThemes();
+  const { data: assetDescriptions } = useAdminAssetDescriptions();
 
   const companyLogoMap = useMemo(() => {
     const map: Record<number, string> = {};
@@ -137,8 +145,53 @@ export default function UsersTab() {
     });
   }, [users, sortField, sortDir, groupNameMap]);
 
+  const inlineCreateCompanyMutation = useMutation({
+    mutationFn: async (data: { name: string; type: string; description?: string | null; logoId?: number | null; themeId?: number | null }) => {
+      const res = await fetch("/api/companies", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to create company");
+      return res.json();
+    },
+    onSuccess: (newCompany) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "companies"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      setInlineCompanyOpen(false);
+      setInlineCompanyForm({ name: "", description: "", logoId: null, themeId: null });
+      if (inlineCompanyTarget === "new") {
+        setNewUser(prev => ({ ...prev, companyId: newCompany.id }));
+      } else {
+        setEditUser(prev => ({ ...prev, companyId: newCompany.id }));
+      }
+      toast({ title: "Company Created", description: `"${newCompany.name}" has been created and selected.` });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const inlineCreateGroupMutation = useMutation({
+    mutationFn: async (data: { name: string; themeId?: number | null; assetDescriptionId?: number | null }) => {
+      const res = await fetch("/api/user-groups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "include" });
+      if (!res.ok) throw new Error("Failed to create group");
+      return res.json();
+    },
+    onSuccess: (newGroup) => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-groups"] });
+      setInlineGroupOpen(false);
+      setInlineGroupForm({ name: "", themeId: null, assetDescriptionId: null });
+      if (inlineGroupTarget === "new") {
+        setNewUser(prev => ({ ...prev, userGroupId: newGroup.id }));
+      } else {
+        setEditUser(prev => ({ ...prev, userGroupId: newGroup.id }));
+      }
+      toast({ title: "Group Created", description: `"${newGroup.name}" has been created and selected.` });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
   const createMutation = useMutation({
-    mutationFn: async (data: { email: string; password?: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string }) => {
+    mutationFn: async (data: { email: string; password?: string; firstName?: string; lastName?: string; companyId?: number | null; userGroupId?: number | null; title?: string; role?: string }) => {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -154,7 +207,7 @@ export default function UsersTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setDialogOpen(false);
-      setNewUser({ email: "", password: "", firstName: "", lastName: "", companyId: null, title: "", role: "partner" });
+      setNewUser({ email: "", password: "", firstName: "", lastName: "", companyId: null, userGroupId: null, title: "", role: "partner" });
       toast({ title: "User Created", description: "New user has been registered." });
     },
     onError: (error: Error) => {
@@ -231,7 +284,7 @@ export default function UsersTab() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number; data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; userGroupId?: number | null; title?: string; role?: string } }) => {
       const res = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -399,7 +452,7 @@ export default function UsersTab() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
+                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, userGroupId: user.userGroupId ?? null, title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <IconPencil className="w-4 h-4" />
                       </Button>
@@ -468,7 +521,10 @@ export default function UsersTab() {
           </div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Company</Label>
-            <Select value={newUser.companyId != null ? String(newUser.companyId) : "none"} onValueChange={(v) => setNewUser({ ...newUser, companyId: v === "none" ? null : parseInt(v) })} data-testid="select-new-user-company">
+            <Select value={newUser.companyId != null ? String(newUser.companyId) : "none"} onValueChange={(v) => {
+              if (v === "__add_new__") { setInlineCompanyTarget("new"); setInlineCompanyForm({ name: "", description: "", logoId: null, themeId: null }); setInlineCompanyOpen(true); return; }
+              setNewUser({ ...newUser, companyId: v === "none" ? null : parseInt(v) });
+            }} data-testid="select-new-user-company">
               <SelectTrigger data-testid="select-new-user-company"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">No Company</SelectItem>
@@ -480,6 +536,23 @@ export default function UsersTab() {
                     </span>
                   </SelectItem>
                 ))}
+                <SelectItem value="__add_new__"><span className="flex items-center gap-2 text-primary"><IconPlus className="w-4 h-4" />Add New Company</span></SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconUserCog className="w-4 h-4 text-muted-foreground" />Group</Label>
+            <Select value={newUser.userGroupId != null ? String(newUser.userGroupId) : "none"} onValueChange={(v) => {
+              if (v === "__add_new__") { setInlineGroupTarget("new"); setInlineGroupForm({ name: "", themeId: null, assetDescriptionId: null }); setInlineGroupOpen(true); return; }
+              setNewUser({ ...newUser, userGroupId: v === "none" ? null : parseInt(v) });
+            }} data-testid="select-new-user-group">
+              <SelectTrigger data-testid="select-new-user-group"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Group</SelectItem>
+                {userGroupsList?.map(g => (
+                  <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                ))}
+                <SelectItem value="__add_new__"><span className="flex items-center gap-2 text-primary"><IconPlus className="w-4 h-4" />Add New Group</span></SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -499,7 +572,11 @@ export default function UsersTab() {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setDialogOpen(false)} data-testid="button-cancel-add-user">Cancel</Button>
-          <Button variant="outline" onClick={() => createMutation.mutate(newUser)} disabled={createMutation.isPending || !newUser.email} data-testid="button-create-user" className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => {
+            const payload: Record<string, any> = { ...newUser };
+            if (payload.userGroupId === null) delete payload.userGroupId;
+            createMutation.mutate(payload as typeof newUser);
+          }} disabled={createMutation.isPending || !newUser.email} data-testid="button-create-user" className="flex items-center gap-2">
             {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             Save
           </Button>
@@ -554,7 +631,10 @@ export default function UsersTab() {
           </div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Company</Label>
-            <Select value={editUser.companyId != null ? String(editUser.companyId) : "none"} onValueChange={(v) => setEditUser({ ...editUser, companyId: v === "none" ? null : parseInt(v) })} data-testid="select-edit-company">
+            <Select value={editUser.companyId != null ? String(editUser.companyId) : "none"} onValueChange={(v) => {
+              if (v === "__add_new__") { setInlineCompanyTarget("edit"); setInlineCompanyForm({ name: "", description: "", logoId: null, themeId: null }); setInlineCompanyOpen(true); return; }
+              setEditUser({ ...editUser, companyId: v === "none" ? null : parseInt(v) });
+            }} data-testid="select-edit-company">
               <SelectTrigger data-testid="select-edit-company"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">No Company</SelectItem>
@@ -566,6 +646,23 @@ export default function UsersTab() {
                     </span>
                   </SelectItem>
                 ))}
+                <SelectItem value="__add_new__"><span className="flex items-center gap-2 text-primary"><IconPlus className="w-4 h-4" />Add New Company</span></SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconUserCog className="w-4 h-4 text-muted-foreground" />Group</Label>
+            <Select value={editUser.userGroupId != null ? String(editUser.userGroupId) : "none"} onValueChange={(v) => {
+              if (v === "__add_new__") { setInlineGroupTarget("edit"); setInlineGroupForm({ name: "", themeId: null, assetDescriptionId: null }); setInlineGroupOpen(true); return; }
+              setEditUser({ ...editUser, userGroupId: v === "none" ? null : parseInt(v) });
+            }} data-testid="select-edit-group">
+              <SelectTrigger data-testid="select-edit-group"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Group</SelectItem>
+                {userGroupsList?.map(g => (
+                  <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                ))}
+                <SelectItem value="__add_new__"><span className="flex items-center gap-2 text-primary"><IconPlus className="w-4 h-4" />Add New Group</span></SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -597,10 +694,11 @@ export default function UsersTab() {
           <Button variant="outline" onClick={() => setEditDialogOpen(false)} data-testid="button-cancel-edit">Cancel</Button>
           <Button variant="outline" onClick={() => {
             if (!selectedUser) return;
-            const data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string } = {
+            const data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; userGroupId?: number | null; title?: string; role?: string } = {
               firstName: editUser.firstName,
               lastName: editUser.lastName,
               companyId: editUser.companyId,
+              userGroupId: editUser.userGroupId,
               title: editUser.title,
             };
             if (editUser.email !== originalEmail) {
@@ -616,6 +714,112 @@ export default function UsersTab() {
           }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">
             {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <Dialog open={inlineCompanyOpen} onOpenChange={setInlineCompanyOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="font-display">New Company</DialogTitle>
+          <DialogDescription className="label-text">Create a new company to assign to this user</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconBuilding2 className="w-4 h-4 text-muted-foreground" />Company Name</Label>
+            <Input value={inlineCompanyForm.name} onChange={(e) => setInlineCompanyForm({ ...inlineCompanyForm, name: e.target.value })} placeholder="e.g., Norfolk Group" data-testid="input-inline-company-name" />
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconImage className="w-4 h-4 text-muted-foreground" />Logo</Label>
+            <Select value={inlineCompanyForm.logoId != null ? String(inlineCompanyForm.logoId) : "none"} onValueChange={(v) => setInlineCompanyForm({ ...inlineCompanyForm, logoId: v === "none" ? null : parseInt(v) })}>
+              <SelectTrigger data-testid="trigger-inline-company-logo"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Logo</SelectItem>
+                {adminLogos?.map(logo => (
+                  <SelectItem key={logo.id} value={String(logo.id)}>
+                    <span className="flex items-center gap-2">
+                      <img src={logo.url} alt="" className="w-5 h-5 rounded object-contain shrink-0" />
+                      {logo.name}{logo.isDefault ? " (Default)" : ""}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconPalette className="w-4 h-4 text-muted-foreground" />Theme</Label>
+            <Select value={inlineCompanyForm.themeId != null ? String(inlineCompanyForm.themeId) : "none"} onValueChange={(v) => setInlineCompanyForm({ ...inlineCompanyForm, themeId: v === "none" ? null : parseInt(v) })}>
+              <SelectTrigger data-testid="trigger-inline-company-theme"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Theme</SelectItem>
+                {allThemes?.map(theme => (
+                  <SelectItem key={theme.id} value={String(theme.id)}>{theme.name}{theme.isDefault ? " (Default)" : ""}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconFileText className="w-4 h-4 text-muted-foreground" />Description</Label>
+            <Input value={inlineCompanyForm.description} onChange={(e) => setInlineCompanyForm({ ...inlineCompanyForm, description: e.target.value })} placeholder="Optional description" data-testid="input-inline-company-description" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setInlineCompanyOpen(false)} data-testid="button-cancel-inline-company">Cancel</Button>
+          <Button variant="outline" onClick={() => {
+            inlineCreateCompanyMutation.mutate({ ...inlineCompanyForm, type: "spv", description: inlineCompanyForm.description || null });
+          }} disabled={!inlineCompanyForm.name || inlineCreateCompanyMutation.isPending} data-testid="button-save-inline-company" className="flex items-center gap-2">
+            {inlineCreateCompanyMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+            Create
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <Dialog open={inlineGroupOpen} onOpenChange={setInlineGroupOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="font-display">Create User Group</DialogTitle>
+          <DialogDescription className="label-text">Create a new group to assign to this user</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconPeople className="w-4 h-4 text-muted-foreground" />Group Name</Label>
+            <Input value={inlineGroupForm.name} onChange={(e) => setInlineGroupForm({ ...inlineGroupForm, name: e.target.value })} placeholder="e.g., KIT Capital Team" data-testid="input-inline-group-name" />
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconPalette className="w-4 h-4 text-muted-foreground" />Theme</Label>
+            <Select value={inlineGroupForm.themeId != null ? String(inlineGroupForm.themeId) : "default"} onValueChange={(v) => setInlineGroupForm({ ...inlineGroupForm, themeId: v === "default" ? null : parseInt(v) })}>
+              <SelectTrigger data-testid="select-inline-group-theme"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default Theme</SelectItem>
+                {allThemes?.map(theme => (
+                  <SelectItem key={theme.id} value={String(theme.id)}>{theme.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Property Description (Property Label)</Label>
+            <Select value={inlineGroupForm.assetDescriptionId != null ? String(inlineGroupForm.assetDescriptionId) : "default"} onValueChange={(v) => setInlineGroupForm({ ...inlineGroupForm, assetDescriptionId: v === "default" ? null : parseInt(v) })}>
+              <SelectTrigger data-testid="select-inline-group-asset-desc"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default Label</SelectItem>
+                {assetDescriptions?.map(ad => (
+                  <SelectItem key={ad.id} value={String(ad.id)}>{ad.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setInlineGroupOpen(false)} data-testid="button-cancel-inline-group">Cancel</Button>
+          <Button variant="outline" onClick={() => {
+            if (!inlineGroupForm.name) { toast({ title: "Name Required", description: "Please enter a group name.", variant: "destructive" }); return; }
+            inlineCreateGroupMutation.mutate(inlineGroupForm);
+          }} disabled={!inlineGroupForm.name || inlineCreateGroupMutation.isPending} data-testid="button-save-inline-group" className="flex items-center gap-2">
+            {inlineCreateGroupMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+            Create
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -95,7 +95,9 @@ export class SelfHealingBoundary extends React.Component<SelfHealingBoundaryProp
       return;
     }
     if (this.retryTimer) clearTimeout(this.retryTimer);
-    const delay = this.props.retryDelayMs ?? 150;
+    // Exponential backoff: 300ms → 900ms → 2700ms — gives async queries time to resolve
+    const baseDelay = this.props.retryDelayMs ?? 300;
+    const delay = baseDelay * Math.pow(3, this.state.retryCount);
     this.retryTimer = setTimeout(() => {
       this.retryTimer = null;
       this.setState((prev) => ({

@@ -15,10 +15,13 @@ export interface CompanyProfileTabProps {
 }
 
 export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileTabProps = {}) {
-  const { data: global } = useGlobalAssumptions();
+  const { data: global, isLoading: globalLoading } = useGlobalAssumptions();
   const updateGlobal = useUpdateAdminConfig();
   const { toast } = useToast();
   const [draft, setDraft] = useState<any>(null);
+
+  // Guard: wait for data before rendering form fields
+  if (globalLoading && !global) return null;
 
   const current = draft ?? global ?? {};
   const assetDef = current.assetDefinition ?? {};

@@ -94,7 +94,7 @@ export default function IcpSourcesTab() {
     const cfg = (ga.icpConfig as Record<string, any>) || {};
     if (cfg._sources) {
       setSources(cfg._sources as IcpSources);
-    } else if (!seededRef.current) {
+    } else if (!seededRef.current && !updateMutation.isPending) {
       seededRef.current = true;
       const seeded: IcpSources = { urls: [...DEFAULT_URL_SEEDS], files: [] };
       setSources(seeded);
@@ -108,7 +108,7 @@ export default function IcpSourcesTab() {
         }
       );
     }
-  }, [ga]);
+  }, [ga?.icpConfig]);
 
   const save = (updated: IcpSources) => {
     const existing = (ga?.icpConfig as Record<string, any>) || {};

@@ -50,8 +50,31 @@ interface IcpContentProps {
   onSaveStateChange?: (state: AdminSaveState | null) => void;
 }
 
+function IcpLoadingSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-9 w-28 rounded-md" />
+        ))}
+      </div>
+      <Card className="bg-card border border-border/80">
+        <CardContent className="pt-6 space-y-4">
+          <Skeleton className="h-5 w-48" />
+          <Skeleton className="h-3 w-80" />
+          <div className="space-y-3 pt-2">
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-32 w-full rounded-md" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export function IcpContent({ onSaveStateChange }: IcpContentProps) {
-  const { data: ga } = useGlobalAssumptions();
+  const { data: ga, isLoading: gaLoading, error: gaError, refetch: gaRefetch } = useGlobalAssumptions();
   const updateMutation = useUpdateAdminConfig();
   const { toast } = useToast();
 
@@ -352,6 +375,24 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
       setIsOptimizing(false);
     }
   };
+
+  // Layer 1: Loading gate — prevent sub-tabs from rendering before data is ready
+  if (gaLoading) return <IcpLoadingSkeleton />;
+  if (gaError) {
+    return (
+      <div className="w-full p-8 text-center">
+        <IconAlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+        <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load ICP configuration</h3>
+        <p className="text-muted-foreground text-sm mb-4">
+          Could not fetch global assumptions. Check your connection and try again.
+        </p>
+        <Button onClick={() => gaRefetch()}>
+          <IconRefreshCw className="w-4 h-4" />
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

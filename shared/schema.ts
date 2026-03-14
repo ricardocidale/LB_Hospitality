@@ -220,7 +220,7 @@ export const userGroupProperties = pgTable("user_group_properties", {
 export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  passwordHash: text("password_hash"),
   role: text("role").notNull().default("partner"), // "admin", "partner", "checker", "investor"
   firstName: text("first_name"),
   lastName: text("last_name"),
@@ -243,7 +243,7 @@ export type UserRole = typeof VALID_USER_ROLES[number];
 
 export const insertUserSchema = z.object({
   email: z.string(),
-  passwordHash: z.string(),
+  passwordHash: z.string().nullable().optional(),
   role: z.enum(VALID_USER_ROLES).optional().default("partner"),
   firstName: z.string().nullable().optional(),
   lastName: z.string().nullable().optional(),

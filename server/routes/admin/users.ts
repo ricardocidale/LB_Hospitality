@@ -37,7 +37,7 @@ export function registerUserRoutes(app: Express) {
       }
 
       const { email, password, role, firstName, lastName, company, companyId, title } = validation.data;
-      const passwordHash = await hashPassword(password);
+      const passwordHash = password ? await hashPassword(password) : null;
 
       const defaultGroup = await storage.getDefaultUserGroup();
 

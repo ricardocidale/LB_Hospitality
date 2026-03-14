@@ -70,7 +70,7 @@ export const loginSchema = z.object({
 
 export const createUserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(8).optional().or(z.literal("")),
   firstName: z.string().max(50).optional(),
   lastName: z.string().max(50).optional(),
   company: z.string().max(100).optional(),

@@ -138,7 +138,7 @@ export default function UsersTab() {
   }, [users, sortField, sortDir, groupNameMap]);
 
   const createMutation = useMutation({
-    mutationFn: async (data: { email: string; password: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string }) => {
+    mutationFn: async (data: { email: string; password?: string; firstName?: string; lastName?: string; companyId?: number | null; title?: string; role?: string }) => {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -454,9 +454,9 @@ export default function UsersTab() {
             <Input value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} placeholder="user@example.com" data-testid="input-new-user-email" />
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />Password</Label>
+            <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />Password <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label>
             <div className="relative">
-              <Input type={showNewUserPassword ? "text" : "password"} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Secure password" data-testid="input-new-user-password" />
+              <Input type={showNewUserPassword ? "text" : "password"} value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} placeholder="Leave blank for Google-only sign-in" data-testid="input-new-user-password" />
               <Button type="button" variant="ghost" size="icon" onClick={() => setShowNewUserPassword(!showNewUserPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground" data-testid="button-toggle-new-password">
                 {showNewUserPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
               </Button>
@@ -499,7 +499,7 @@ export default function UsersTab() {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setDialogOpen(false)} data-testid="button-cancel-add-user">Cancel</Button>
-          <Button variant="outline" onClick={() => createMutation.mutate(newUser)} disabled={createMutation.isPending || !newUser.email || !newUser.password} data-testid="button-create-user" className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => createMutation.mutate(newUser)} disabled={createMutation.isPending || !newUser.email} data-testid="button-create-user" className="flex items-center gap-2">
             {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             Save
           </Button>

@@ -47,6 +47,11 @@ export function register(app: Express) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
       
+      if (!user.passwordHash) {
+        recordLoginAttempt(clientIp, false);
+        return res.status(401).json({ error: "Please sign in with Google" });
+      }
+
       const valid = await verifyPassword(password, user.passwordHash);
       if (!valid) {
         recordLoginAttempt(clientIp, false);
@@ -91,6 +96,11 @@ export function register(app: Express) {
         return res.status(401).json({ error: "Password required" });
       }
 
+      if (!user.passwordHash) {
+        recordLoginAttempt(clientIp, false);
+        return res.status(401).json({ error: "Please sign in with Google" });
+      }
+
       const isValid = await verifyPassword(password, user.passwordHash);
       if (!isValid) {
         recordLoginAttempt(clientIp, false);
@@ -125,6 +135,9 @@ export function register(app: Express) {
       const user = await storage.getUserByEmail("ricardo.cidale@norfolkgroup.io");
       if (!user) {
         return res.status(401).json({ error: "Admin user not found" });
+      }
+      if (!user.passwordHash) {
+        return res.status(401).json({ error: "Please sign in with Google" });
       }
       const isValid = await verifyPassword(adminPassword, user.passwordHash);
       if (!isValid) {
@@ -235,6 +248,10 @@ export function register(app: Express) {
       const user = await storage.getUserById(req.user!.id);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.passwordHash) {
+        return res.status(401).json({ error: "Your account uses Google sign-in and does not have a password set" });
       }
 
       const validPassword = await verifyPassword(validation.data.currentPassword, user.passwordHash);

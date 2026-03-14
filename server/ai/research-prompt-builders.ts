@@ -200,7 +200,19 @@ Research the following areas for management companies that specialize in this ty
 6. Typical contract terms and duration
 7. **Company Income Tax**: Recommend an effective corporate income tax rate for the management company entity. Include federal/state breakdown, entity structure considerations (C-Corp vs pass-through), and explain how company income tax is calculated: Pre-Tax Income = Total Fee Revenue - Total Vendor Costs - Total Operating Expenses; Company Income Tax = max(0, Pre-Tax Income) × Company Tax Rate. The system default is 30% but the actual rate depends on jurisdiction and entity structure. Include this as a "companyIncomeTax" section in your response with recommendedRate, effectiveRange, entityNotes, calculationMethodology, and rationale.
 8. **Cost of Equity (WACC Input)**: Recommend a cost of equity (required equity return) for private hospitality investments in this asset class. This is used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, CAPM is not used — instead provide a direct hurdle rate based on: asset class risk profile, property type (boutique hotel vs full-service), market tier (primary/secondary/tertiary), current interest rate environment, and illiquidity premium for private real estate. Typical range: 15%–25%. Include this as a "costOfEquity" section in your response with recommendedRate (e.g. "18%–22%"), rationale, riskFactors (array of factors that push rate higher or lower), and comparables (e.g. "Private boutique hotel equity returns average 18–22% in secondary markets").
-Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.${buildEventConfigSuffix(ec)}`;
+Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.
+
+9. **ICP Comparison Against Market Data**: Evaluate the user's Ideal Customer Profile (ICP) against real market data for comparable management companies. Identify what similar operator profiles are succeeding at — markets, property sizes, fee structures, staffing levels, and growth rates that are working — and where the defined target may have gaps, blind spots, or elevated risk. Highlight any mismatches between the ICP assumptions and observed industry benchmarks.
+
+10. **Experience Vertical Analysis**: Analyze growing experience verticals in boutique hospitality that represent strong revenue opportunities for management companies. Cover the following segments with market sizing, growth rates, competitive density, and revenue potential:
+    - Wellness retreats (spa, meditation, fitness, holistic health)
+    - Corporate retreats and executive offsites
+    - Exotic and experiential hospitality (adventure lodges, eco-resorts, glamping, immersive cultural stays)
+    - Consensual adult lifestyle retreats (swinger retreats, couples-focused lifestyle events, clothing-optional resorts)
+    - Yoga, mindfulness, and spiritual retreat programming
+    - Relationship and couples retreats
+    - Emerging niche segments in boutique hospitality
+    For each vertical, include estimated addressable market size, trailing and projected growth rates, typical ADR premiums vs. standard boutique operations, and key success factors for management companies entering each segment.${buildEventConfigSuffix(ec)}`;
 
     prompt += buildMarketIntelligenceBlock(params.marketIntelligence);
     prompt += buildSourceRegistryBlock(ec?.customSources, params.researchVariables?.customSources);
@@ -218,10 +230,13 @@ Focus specifically on management companies specializing in ${label.toLowerCase()
   const defaultFocusAreas = [
     "Market Overview & Trends",
     "Event Hospitality (wellness, corporate, yoga, relationship retreats)",
+    "Experience & Lifestyle Verticals (wellness retreats, exotic experiential hospitality, consensual adult lifestyle retreats, swinger retreats, adventure lodges, eco-resorts, couples retreats, emerging boutique segments)",
     "Financial Benchmarks (ADR, occupancy, RevPAR)",
     "Cap Rates & Investment Returns",
     "Debt Market Conditions",
-    "Emerging Trends",
+    "Supply Pipeline & Competitive Landscape",
+    "Regulatory Environment & Licensing",
+    "Emerging Trends & Niche Hospitality Segments",
   ];
   const focusAreas = (ec?.focusAreas?.length ? ec.focusAreas : rv?.focusAreas?.length ? rv.focusAreas : null) ?? defaultFocusAreas;
 

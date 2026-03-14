@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { SaveButton } from "@/components/ui/save-button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, X, ChevronDown, ChevronRight } from "lucide-react";
 import {
   IconPlus, IconBrain, IconExternalLink, IconRefreshCw,
@@ -1869,56 +1870,88 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
         </div>
         <div>
           <h2 className="text-xl font-display font-bold text-foreground" data-testid="text-research-center-title">Research Center</h2>
-          <p className="text-xs text-muted-foreground">All research configuration in one place — three research processes, their sources, and shared LLM selection</p>
+          <p className="text-xs text-muted-foreground">Strategic intelligence hub — company research, property benchmarks, market analysis, and AI engine configuration</p>
         </div>
       </div>
 
-      <LlmSelectionCard draft={draft} setDraft={setDraft} setIsDirty={setIsDirty} />
+      <Tabs defaultValue="icp" className="w-full">
+        <TabsList className="justify-start w-full h-auto flex-wrap gap-1 bg-muted/50 p-1">
+          <TabsTrigger value="icp" className="gap-1.5 text-xs" data-testid="tab-icp-management-co">
+            <IconTarget className="w-3.5 h-3.5" />
+            ICP Management Co
+          </TabsTrigger>
+          <TabsTrigger value="properties" className="gap-1.5 text-xs" data-testid="tab-properties">
+            <IconProperties className="w-3.5 h-3.5" />
+            Properties
+          </TabsTrigger>
+          <TabsTrigger value="general-market" className="gap-1.5 text-xs" data-testid="tab-general-market">
+            <IconTrendingUp className="w-3.5 h-3.5" />
+            General Market
+          </TabsTrigger>
+          <TabsTrigger value="llm" className="gap-1.5 text-xs" data-testid="tab-llm">
+            <IconBrain className="w-3.5 h-3.5" />
+            LLM
+          </TabsTrigger>
+        </TabsList>
 
-      <CollapsibleSection
-        title="ICP for Mgmt Co Research"
-        icon={<IconTarget className="w-5 h-5 text-primary" />}
-        description="Management company acquisition target research using the ICP for Mgmt Co definition as its prompt foundation"
-        defaultOpen={true}
-      >
-        <IcpResearchSection
-          enabled={mergeConfig(draft.company).enabled}
-          onToggle={(v) => updateConfig("company", { ...mergeConfig(draft.company), enabled: v })}
-        />
-      </CollapsibleSection>
+        <TabsContent value="icp" className="mt-4 space-y-5">
+          <IcpResearchSection
+            enabled={mergeConfig(draft.company).enabled}
+            onToggle={(v) => updateConfig("company", { ...mergeConfig(draft.company), enabled: v })}
+          />
+          <div className="flex justify-end pb-8">
+            <SaveButton
+              onClick={handleSave}
+              isPending={saveMutation.isPending}
+              hasChanges={isDirty}
+              data-testid="button-save-icp-config"
+            />
+          </div>
+        </TabsContent>
 
-      <CollapsibleSection
-        title="Property Research"
-        icon={<IconProperties className="w-5 h-5 text-primary" />}
-        description="Per-property and consolidated portfolio research against market benchmarks"
-        defaultOpen={false}
-      >
-        <PropertyResearchSection
-          config={mergeConfig(draft.property)}
-          onChange={(c) => updateConfig("property", c)}
-        />
-      </CollapsibleSection>
+        <TabsContent value="properties" className="mt-4 space-y-5">
+          <PropertyResearchSection
+            config={mergeConfig(draft.property)}
+            onChange={(c) => updateConfig("property", c)}
+          />
+          <div className="flex justify-end pb-8">
+            <SaveButton
+              onClick={handleSave}
+              isPending={saveMutation.isPending}
+              hasChanges={isDirty}
+              data-testid="button-save-property-config"
+            />
+          </div>
+        </TabsContent>
 
-      <CollapsibleSection
-        title="Market Research"
-        icon={<IconTrendingUp className="w-5 h-5 text-primary" />}
-        description="Macro real estate and hospitality market analysis — trends, economic indicators, supply/demand"
-        defaultOpen={false}
-      >
-        <MarketResearchSection
-          config={mergeConfig(draft.global)}
-          onChange={(c) => updateConfig("global", c)}
-        />
-      </CollapsibleSection>
+        <TabsContent value="general-market" className="mt-4 space-y-5">
+          <MarketResearchSection
+            config={mergeConfig(draft.global)}
+            onChange={(c) => updateConfig("global", c)}
+          />
+          <div className="flex justify-end pb-8">
+            <SaveButton
+              onClick={handleSave}
+              isPending={saveMutation.isPending}
+              hasChanges={isDirty}
+              data-testid="button-save-market-config"
+            />
+          </div>
+        </TabsContent>
 
-      <div className="flex justify-end pb-8">
-        <SaveButton 
-          onClick={handleSave} 
-          isPending={saveMutation.isPending}
-          hasChanges={isDirty}
-          data-testid="button-save-research-config"
-        />
-      </div>
+        <TabsContent value="llm" className="mt-4 space-y-5">
+          <LlmSelectionCard draft={draft} setDraft={setDraft} setIsDirty={setIsDirty} />
+          <p className="text-xs text-muted-foreground italic">This model is shared across all three research processes (ICP Management Co, Properties, General Market).</p>
+          <div className="flex justify-end pb-8">
+            <SaveButton
+              onClick={handleSave}
+              isPending={saveMutation.isPending}
+              hasChanges={isDirty}
+              data-testid="button-save-llm-config"
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

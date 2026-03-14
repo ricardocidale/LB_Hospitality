@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -419,18 +419,22 @@ export default function IcpLocationTab({ onSaveStateChange }: IcpLocationTabProp
     );
   }, [ga?.icpConfig, locations, updateMutation, toast]);
 
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+
+  const isPending = updateMutation.isPending;
   useEffect(() => {
     if (dirty) {
       onSaveStateChange?.({
         isDirty: true,
-        isPending: updateMutation.isPending,
-        onSave: handleSave,
+        isPending,
+        onSave: () => handleSaveRef.current(),
       });
     } else {
       onSaveStateChange?.(null);
     }
     return () => onSaveStateChange?.(null);
-  }, [dirty, handleSave, updateMutation.isPending, onSaveStateChange]);
+  }, [dirty, isPending, onSaveStateChange]);
 
   if (gaLoading && !ga) return null;
 

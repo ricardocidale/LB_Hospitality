@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -218,18 +218,22 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
     );
   }, [config, desc, customAmenities, hiddenFields, propertyLabel, generatedPrompt, updateMutation, toast]);
 
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+
+  const isPending = updateMutation.isPending;
   useEffect(() => {
     if (dirty) {
       onSaveStateChange?.({
         isDirty: true,
-        isPending: updateMutation.isPending,
-        onSave: handleSave,
+        isPending,
+        onSave: () => handleSaveRef.current(),
       });
     } else {
       onSaveStateChange?.(null);
     }
     return () => onSaveStateChange?.(null);
-  }, [dirty, handleSave, updateMutation.isPending, onSaveStateChange]);
+  }, [dirty, isPending, onSaveStateChange]);
 
   if (gaLoading && !ga) return null;
 

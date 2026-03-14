@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -41,18 +41,23 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
     });
   }, [draft, updateGlobal, toast]);
 
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+
+  const isPending = updateGlobal.isPending;
+  const hasDraft = !!draft;
   useEffect(() => {
-    if (!!draft) {
+    if (hasDraft) {
       onSaveStateChange?.({
         isDirty: true,
-        isPending: updateGlobal.isPending,
-        onSave: handleSave,
+        isPending,
+        onSave: () => handleSaveRef.current(),
       });
     } else {
       onSaveStateChange?.(null);
     }
     return () => onSaveStateChange?.(null);
-  }, [!!draft, handleSave, updateGlobal.isPending, onSaveStateChange]);
+  }, [hasDraft, isPending, onSaveStateChange]);
 
   if (globalLoading && !global) return null;
 

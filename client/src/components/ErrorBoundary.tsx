@@ -90,9 +90,7 @@ export class SelfHealingBoundary extends React.Component<SelfHealingBoundaryProp
     const maxRetries = this.props.maxRetries ?? 3;
     const nextRetry = this.state.retryCount + 1;
     if (nextRetry > maxRetries) {
-      console.error("SelfHealingBoundary exhausted retries:", error, errorInfo);
-      console.error("SelfHealingBoundary error message:", error?.message, "stack:", error?.stack);
-      console.error("SelfHealingBoundary component stack:", errorInfo?.componentStack);
+      console.error("SelfHealingBoundary exhausted retries:", error?.message, errorInfo?.componentStack);
       captureClientException(error, { boundary: "SelfHealingBoundary" });
       return;
     }

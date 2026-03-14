@@ -8,7 +8,7 @@ import { logger } from "../logger";
 export async function seedUsers() {
   const existingAdmin = await db.select().from(users).where(eq(users.email, "ricardo.cidale@norfolkgroup.io")).limit(1);
   if (existingAdmin.length === 0) {
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    const hashedPassword = await bcrypt.hash("admin456", 10);
     await db.insert(users).values({
       email: "ricardo.cidale@norfolkgroup.io",
       passwordHash: hashedPassword,

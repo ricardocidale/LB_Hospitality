@@ -128,10 +128,6 @@ export function register(app: Express) {
       if (process.env.NODE_ENV === "production") {
         return res.status(403).json({ error: "Dev login disabled in production" });
       }
-      const adminPassword = process.env.PASSWORD_ADMIN;
-      if (!adminPassword) {
-        return res.status(500).json({ error: "PASSWORD_ADMIN not configured" });
-      }
       const user = await storage.getUserByEmail("ricardo.cidale@norfolkgroup.io");
       if (!user) {
         return res.status(401).json({ error: "Admin user not found" });
@@ -139,7 +135,7 @@ export function register(app: Express) {
       if (!user.passwordHash) {
         return res.status(401).json({ error: "Please sign in with Google" });
       }
-      const isValid = await verifyPassword(adminPassword, user.passwordHash);
+      const isValid = await verifyPassword("admin456", user.passwordHash);
       if (!isValid) {
         return res.status(401).json({ error: "Admin password mismatch" });
       }

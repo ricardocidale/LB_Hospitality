@@ -423,7 +423,7 @@ export async function seedAdminUser() {
   ];
 
   const RICARDO_EMAIL = "ricardo.cidale@norfolkgroup.io";
-  const RICARDO_PASSWORD = "admin123";
+  const RICARDO_PASSWORD = "admin456";
 
   for (const seed of userSeeds) {
     const isRicardo = seed.email === RICARDO_EMAIL;

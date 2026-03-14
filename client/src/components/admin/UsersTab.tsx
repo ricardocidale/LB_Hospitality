@@ -442,7 +442,7 @@ export default function UsersTab() {
       </CardContent>
     </Card>
 
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={false}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-display">Add New User</DialogTitle>
@@ -534,7 +534,7 @@ export default function UsersTab() {
       </DialogContent>
     </Dialog>
 
-    <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+    <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen} modal={false}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-display">Edit User</DialogTitle>

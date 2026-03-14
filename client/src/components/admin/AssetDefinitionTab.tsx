@@ -153,8 +153,11 @@ export interface AssetDefinitionTabProps {
 
 export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitionTabProps = {}) {
   const { toast } = useToast();
-  const { data: ga } = useGlobalAssumptions();
+  const { data: ga, isLoading: gaLoading } = useGlobalAssumptions();
   const updateMutation = useUpdateAdminConfig();
+
+  // Guard: wait for data before rendering form fields
+  if (gaLoading && !ga) return null;
 
   const [propertyLabel, setPropertyLabel] = useState("");
   const [config, setConfig] = useState<IcpConfig>(DEFAULT_ICP_CONFIG);

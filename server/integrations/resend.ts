@@ -1,45 +1,37 @@
+import { Resend } from "resend";
 import { BaseIntegrationService, type IntegrationHealth } from "./base";
-
-const SENDGRID_API_URL = "https://api.sendgrid.com/v3";
 
 interface EmailAttachment {
   content: string;
   filename: string;
   type?: string;
-  disposition?: string;
 }
 
-class SendGridIntegration extends BaseIntegrationService {
-  readonly serviceName = "sendgrid";
+class ResendIntegration extends BaseIntegrationService {
+  readonly serviceName = "resend";
 
-  private getApiKey(): string {
-    const key = process.env.SENDGRID_API_KEY;
-    if (!key) throw new Error("SENDGRID_API_KEY not configured");
-    return key;
+  private getClient(): Resend {
+    const key = process.env.RESEND_API_KEY;
+    if (!key) throw new Error("RESEND_API_KEY not configured");
+    return new Resend(key);
   }
 
-  private getFromEmail(): string {
-    return process.env.SENDGRID_FROM_EMAIL || "noreply@hbg-portal.com";
-  }
-
-  private getFromName(): string {
-    return process.env.SENDGRID_FROM_NAME || "HBG Portal";
+  private getFromAddress(): string {
+    return "HBG Portal <noreply@h-analysis.com>";
   }
 
   async healthCheck(): Promise<IntegrationHealth> {
     const start = Date.now();
     const { lastError, lastErrorAt } = this.getLastError();
     try {
-      const apiKey = this.getApiKey();
-      const response = await fetch(`${SENDGRID_API_URL}/user/credits`, {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      });
-      const healthy = response.ok;
+      const resend = this.getClient();
+      const { error } = await resend.apiKeys.list();
+      const healthy = !error;
       return {
         name: this.serviceName,
         healthy,
         latencyMs: Date.now() - start,
-        lastError: healthy ? lastError : `API returned ${response.status}`,
+        lastError: healthy ? lastError : (error?.message ?? "Unknown error"),
         lastErrorAt: healthy ? lastErrorAt : Date.now(),
         circuitState: this.getCircuitState(),
       };
@@ -62,36 +54,32 @@ class SendGridIntegration extends BaseIntegrationService {
     attachments?: EmailAttachment[];
   }): Promise<void> {
     return this.execute("sendEmail", async () => {
-      const apiKey = this.getApiKey();
+      const resend = this.getClient();
 
-      const payload: any = {
-        personalizations: [{ to: [{ email: params.to }] }],
-        from: { email: this.getFromEmail(), name: this.getFromName() },
+      const emailPayload: {
+        from: string;
+        to: string[];
+        subject: string;
+        html: string;
+        attachments?: { content: Buffer; filename: string; contentType: string }[];
+      } = {
+        from: this.getFromAddress(),
+        to: [params.to],
         subject: params.subject,
-        content: [{ type: "text/html", value: params.html }],
+        html: params.html,
       };
 
       if (params.attachments?.length) {
-        payload.attachments = params.attachments.map((a) => ({
-          content: a.content,
+        emailPayload.attachments = params.attachments.map((a) => ({
+          content: Buffer.from(a.content, "base64"),
           filename: a.filename,
-          type: a.type || "application/pdf",
-          disposition: a.disposition || "attachment",
+          contentType: a.type || "application/pdf",
         }));
       }
 
-      const response = await fetch(`${SENDGRID_API_URL}/mail/send`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`SendGrid API error (${response.status}): ${text}`);
+      const { error } = await resend.emails.send(emailPayload);
+      if (error) {
+        throw new Error(`Resend API error: ${error.message}`);
       }
     });
   }
@@ -195,6 +183,50 @@ class SendGridIntegration extends BaseIntegrationService {
       html,
     });
   }
+
+  async sendWelcomeEmail(params: {
+    to: string;
+    userName: string;
+    loginUrl?: string;
+  }): Promise<void> {
+    const loginLink = params.loginUrl || "#";
+    const html = brandedTemplate(
+      "Welcome to HBG Portal",
+      `<p>Hi <strong>${params.userName}</strong>,</p>
+      <p>Welcome to HBG Portal! Your account has been created and you're ready to get started.</p>
+      <p>You can log in at any time to access your properties, financial reports, and analytics tools.</p>
+      <p style="margin-top:24px;"><a href="${loginLink}" class="btn">Log In to Your Account</a></p>
+      <p style="margin-top:16px;color:#94a3b8;font-size:13px;">If you have any questions, reach out to your account administrator.</p>`
+    );
+
+    await this.sendEmailInternal({
+      to: params.to,
+      subject: "Welcome to HBG Portal",
+      html,
+    });
+  }
+
+  async sendPasswordResetEmail(params: {
+    to: string;
+    userName: string;
+    resetUrl: string;
+    expiresInMinutes?: number;
+  }): Promise<void> {
+    const expiry = params.expiresInMinutes || 60;
+    const html = brandedTemplate(
+      "Reset Your Password",
+      `<p>Hi <strong>${params.userName}</strong>,</p>
+      <p>We received a request to reset your password. Click the button below to choose a new password.</p>
+      <p style="margin-top:24px;"><a href="${params.resetUrl}" class="btn">Reset Password</a></p>
+      <p style="margin-top:16px;color:#94a3b8;font-size:13px;">This link will expire in ${expiry} minutes. If you didn't request this, you can safely ignore this email.</p>`
+    );
+
+    await this.sendEmailInternal({
+      to: params.to,
+      subject: "Reset Your Password — HBG Portal",
+      html,
+    });
+  }
 }
 
 function brandedTemplate(title: string, body: string, companyName = "HBG Portal"): string {
@@ -222,17 +254,20 @@ table.metrics td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-siz
 </div></body></html>`;
 }
 
-const sendGridIntegration = new SendGridIntegration();
+const resendIntegration = new ResendIntegration();
 
-// Exported functions for backward compatibility
-export const sendReportShareEmail = (params: Parameters<typeof sendGridIntegration.sendReportShareEmail>[0]) =>
-  sendGridIntegration.sendReportShareEmail(params);
-export const sendScenarioSummaryEmail = (params: Parameters<typeof sendGridIntegration.sendScenarioSummaryEmail>[0]) =>
-  sendGridIntegration.sendScenarioSummaryEmail(params);
-export const sendNotificationEmail = (params: Parameters<typeof sendGridIntegration.sendNotificationEmail>[0]) =>
-  sendGridIntegration.sendNotificationEmail(params);
-export const testSendGridConnection = () => sendGridIntegration.healthCheck().then((h) => ({
+export const sendReportShareEmail = (params: Parameters<typeof resendIntegration.sendReportShareEmail>[0]) =>
+  resendIntegration.sendReportShareEmail(params);
+export const sendScenarioSummaryEmail = (params: Parameters<typeof resendIntegration.sendScenarioSummaryEmail>[0]) =>
+  resendIntegration.sendScenarioSummaryEmail(params);
+export const sendNotificationEmail = (params: Parameters<typeof resendIntegration.sendNotificationEmail>[0]) =>
+  resendIntegration.sendNotificationEmail(params);
+export const sendWelcomeEmail = (params: Parameters<typeof resendIntegration.sendWelcomeEmail>[0]) =>
+  resendIntegration.sendWelcomeEmail(params);
+export const sendPasswordResetEmail = (params: Parameters<typeof resendIntegration.sendPasswordResetEmail>[0]) =>
+  resendIntegration.sendPasswordResetEmail(params);
+export const testResendConnection = () => resendIntegration.healthCheck().then((h) => ({
   success: h.healthy,
   error: h.lastError,
 }));
-export const getSendGridHealthCheck = () => sendGridIntegration.healthCheck();
+export const getResendHealthCheck = () => resendIntegration.healthCheck();

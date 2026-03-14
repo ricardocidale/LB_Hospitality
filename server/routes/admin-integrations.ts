@@ -5,7 +5,7 @@ import { type CircuitState } from "../integrations/base";
 import { getTwilioHealthCheck } from "../integrations/twilio";
 import { getElevenLabsHealthCheck } from "../integrations/elevenlabs";
 import { getPlaidHealthCheck } from "../integrations/plaid";
-import { getSendGridHealthCheck } from "../integrations/sendgrid";
+import { getResendHealthCheck } from "../integrations/resend";
 import { getGeospatialHealthCheck } from "../integrations/geospatial";
 import { getDocumentAIHealthCheck } from "../integrations/document-ai";
 import { logActivity, cachePatternSchema } from "./helpers";
@@ -27,7 +27,7 @@ export function register(app: Express) {
         getTwilioHealthCheck(),
         getElevenLabsHealthCheck(),
         getPlaidHealthCheck(),
-        getSendGridHealthCheck(),
+        getResendHealthCheck(),
         getGeospatialHealthCheck(),
         getDocumentAIHealthCheck(),
       ]);

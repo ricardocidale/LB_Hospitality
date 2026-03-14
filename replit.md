@@ -102,7 +102,7 @@ Working capital (AR/AP days), NOL carryforward (80% utilization cap), MIRR, day-
 Sentry (error tracking), PostHog (analytics), Upstash Redis (caching with SWR), circuit breakers on all integrations. Admin Integrations tab shows health/cache/circuit state.
 
 ## Communication & Alerts
-SendGrid email + Slack webhooks. Alert rules engine with metric thresholds, cooldowns, multi-channel delivery. Admin Notifications tab. `ShareEmailModal` for branded report sharing.
+Resend email + Slack webhooks. Alert rules engine with metric thresholds, cooldowns, multi-channel delivery. Admin Notifications tab. `ShareEmailModal` for branded report sharing.
 
 ## D3.js Visualizations
 WaterfallChart (revenue-to-NOI bridge), SensitivityHeatMap (ADR × Occupancy grid), TornadoDiagram (assumption impact ranking). Export to PDF/PPTX via `toCanvas()`.

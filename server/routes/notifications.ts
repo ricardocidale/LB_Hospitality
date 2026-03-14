@@ -5,7 +5,7 @@ import { insertAlertRuleSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { storage } from "../storage";
 import { testSlackWebhook } from "../integrations/slack";
-import { testSendGridConnection, sendReportShareEmail, sendScenarioSummaryEmail } from "../integrations/sendgrid";
+import { testResendConnection, sendReportShareEmail, sendScenarioSummaryEmail } from "../integrations/resend";
 import { processNotificationEvent } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
 
@@ -130,12 +130,12 @@ export function register(app: Express) {
     }
   });
 
-  app.post("/api/notifications/test-sendgrid", requireAdmin, async (_req, res) => {
+  app.post("/api/notifications/test-resend", requireAdmin, async (_req, res) => {
     try {
-      const result = await testSendGridConnection();
+      const result = await testResendConnection();
       res.json(result);
     } catch (error) {
-      logAndSendError(res, "Failed to test SendGrid connection", error);
+      logAndSendError(res, "Failed to test Resend connection", error);
     }
   });
 

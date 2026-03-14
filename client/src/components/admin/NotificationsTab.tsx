@@ -75,11 +75,11 @@ export default function NotificationsTab() {
   });
 
   const [slackWebhookUrl, setSlackWebhookUrl] = useState("");
-  const [sendgridEnabled, setSendgridEnabled] = useState(false);
+  const [resendEnabled, setResendEnabled] = useState(false);
 
   useEffect(() => {
     if (settings.slack_webhook_url) setSlackWebhookUrl(settings.slack_webhook_url);
-    setSendgridEnabled(settings.sendgrid_enabled === "true");
+    setResendEnabled(settings.resend_enabled === "true");
   }, [settings]);
 
   const saveSettingsMutation = useMutation({
@@ -201,27 +201,27 @@ export default function NotificationsTab() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5" /> SendGrid Email
+                <Mail className="w-5 h-5" /> Resend Email
               </CardTitle>
               <CardDescription>
-                Enable branded email notifications via SendGrid. Requires SENDGRID_API_KEY environment variable.
+                Enable branded email notifications via Resend. Requires RESEND_API_KEY environment variable.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
                 <Switch
-                  data-testid="switch-sendgrid-enabled"
-                  checked={sendgridEnabled}
+                  data-testid="switch-resend-enabled"
+                  checked={resendEnabled}
                   onCheckedChange={(checked) => {
-                    setSendgridEnabled(checked);
-                    saveSettingsMutation.mutate({ sendgrid_enabled: checked ? "true" : "false" });
+                    setResendEnabled(checked);
+                    saveSettingsMutation.mutate({ resend_enabled: checked ? "true" : "false" });
                   }}
                 />
-                <Label>Enable SendGrid email delivery</Label>
+                <Label>Enable Resend email delivery</Label>
               </div>
               <p className="text-sm text-muted-foreground">
-                When enabled, report sharing and system notifications will be sent via SendGrid branded templates.
-                Set <code className="text-xs bg-muted px-1 py-0.5 rounded">SENDGRID_API_KEY</code> in environment variables.
+                When enabled, report sharing and system notifications will be sent via Resend branded templates.
+                Set <code className="text-xs bg-muted px-1 py-0.5 rounded">RESEND_API_KEY</code> in environment variables.
               </p>
             </CardContent>
           </Card>

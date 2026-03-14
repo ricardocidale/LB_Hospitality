@@ -48,7 +48,7 @@ export default function ShareEmailModal({
       onOpenChange(false);
     },
     onError: () => {
-      toast({ title: "Failed to send", description: "Could not deliver the email. Check your SendGrid configuration.", variant: "destructive" });
+      toast({ title: "Failed to send", description: "Could not deliver the email. Check your Resend configuration.", variant: "destructive" });
     },
   });
 

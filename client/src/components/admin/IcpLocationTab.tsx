@@ -233,8 +233,9 @@ function LocationCard({
               <HelpTooltip text="Optional. Add specific cities with a search radius (in miles) for more targeted analysis. The radius defines how far from the city center to include." side="right" />
             </Label>
             <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">in</span>
               <Select value={addingCityState} onValueChange={setAddingCityState}>
-                <SelectTrigger className="bg-card w-[140px]" data-testid={`select-city-state-${location.id}`}>
+                <SelectTrigger className="bg-card w-[130px] h-8 text-xs" data-testid={`select-city-state-${location.id}`}>
                   <SelectValue placeholder="State" />
                 </SelectTrigger>
                 <SelectContent className="max-h-[280px]">

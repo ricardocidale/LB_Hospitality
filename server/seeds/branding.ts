@@ -65,12 +65,12 @@ export async function seedCompanies() {
   }
 
   if (defaultThemeId) {
-    const noTheme = existing.filter(c => c.themeId == null);
-    for (const c of noTheme) {
+    const needsUpdate = existing.filter(c => c.themeId !== defaultThemeId);
+    for (const c of needsUpdate) {
       await db.update(companies).set({ themeId: defaultThemeId }).where(eq(companies.id, c.id));
     }
-    if (noTheme.length > 0) {
-      logger.info(`Assigned default theme to ${noTheme.length} existing companies`, "seed");
+    if (needsUpdate.length > 0) {
+      logger.info(`Assigned default theme to ${needsUpdate.length} existing companies`, "seed");
     }
   }
 

@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { IconUsers, IconBuilding2, IconLayoutGrid, IconPeople, IconProperties, IconUserCog } from "@/components/icons";
+import { Badge } from "@/components/ui/badge";
 import UsersTab from "./UsersTab";
 
 interface PeopleTabProps {
@@ -119,6 +120,18 @@ function CompanyAssignmentTab() {
     toast({ title: "Title Updated", description: "User job title has been saved." });
   }, [updateUserMutation, toast]);
 
+  const memberCounts = useMemo(() => {
+    const counts: Record<number, number> = {};
+    if (!companiesList || !users) return counts;
+    companiesList.forEach(c => { counts[c.id] = 0; });
+    users.forEach(u => {
+      if (u.companyId != null && counts[u.companyId] !== undefined) {
+        counts[u.companyId]++;
+      }
+    });
+    return counts;
+  }, [companiesList, users]);
+
   if (usersLoading) {
     return (
       <Card className="bg-card border border-border/80 shadow-sm">
@@ -130,15 +143,66 @@ function CompanyAssignmentTab() {
   }
 
   return (
-    <Card className="bg-card border border-border/80 shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-          <IconProperties className="w-4 h-4 text-muted-foreground" /> Company Assignment
-        </CardTitle>
-        <CardDescription className="label-text">Assign users to management companies.</CardDescription>
-      </CardHeader>
-      <CardContent className="relative">
-        <Table>
+    <div className="space-y-6">
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+            <IconBuilding2 className="w-4 h-4 text-muted-foreground" /> Companies
+          </CardTitle>
+          <CardDescription className="label-text">Quick reference of all companies.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!companiesList || companiesList.length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground">
+              <IconBuilding2 className="w-8 h-8 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">No companies created yet.</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {companiesList.map(company => (
+                <div
+                  key={company.id}
+                  className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3"
+                  data-testid={`company-ref-card-${company.id}`}
+                >
+                  {companyLogoMap[company.id] ? (
+                    <div className="w-8 h-8 rounded-md bg-card border border-border flex items-center justify-center overflow-hidden shrink-0">
+                      <img src={companyLogoMap[company.id]} alt="" className="max-w-full max-h-full object-contain" />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-md bg-muted border border-border flex items-center justify-center shrink-0">
+                      <IconBuilding2 className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-foreground truncate">{company.name}</span>
+                      {company.isActive ? (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">Active</Badge>
+                      ) : (
+                        <Badge variant="destructive" className="text-[10px] px-1.5 py-0 shrink-0">Inactive</Badge>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {memberCounts[company.id] || 0} member{memberCounts[company.id] !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+            <IconProperties className="w-4 h-4 text-muted-foreground" /> Company Assignment
+          </CardTitle>
+          <CardDescription className="label-text">Assign users to management companies.</CardDescription>
+        </CardHeader>
+        <CardContent className="relative">
+          <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
               <TableHead className="text-muted-foreground">User</TableHead>
@@ -189,13 +253,13 @@ function CompanyAssignmentTab() {
             ))}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";

@@ -17,9 +17,20 @@
  *                  rate, not a blended average).
  *
  * Empty years (yearData.length === 0) are skipped entirely via `continue`.
+ *
+ * Optimized: uses direct index arithmetic instead of data.slice() to avoid
+ * intermediate array allocations per year.
  */
 
 import type { MonthlyFinancials } from "../financialEngine";
+import type { YearlyCashFlowResult } from "./loanCalculations";
+import {
+  LoanParams,
+  GlobalLoanParams,
+  calculateLoanParams,
+  getAcquisitionYear,
+} from "./loanCalculations";
+import { DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE } from "../constants";
 
 /** Superset of all yearly fields needed by IS, CF, BS, and export consumers. */
 export interface YearlyPropertyFinancials {
@@ -94,27 +105,15 @@ export interface YearlyPropertyFinancials {
   endingCash: number; // PICK-LAST: last month of year
 }
 
-/** Fields summed directly from MonthlyFinancials via reduce. */
-const SUM_FIELDS = [
-  "soldRooms", "availableRooms",
-  "revenueRooms", "revenueEvents", "revenueFB", "revenueOther", "revenueTotal",
-  "expenseRooms", "expenseFB", "expenseEvents", "expenseOther",
-  "expenseOtherCosts", "expenseMarketing", "expensePropertyOps",
-  "expenseUtilitiesVar", "expenseUtilitiesFixed",
-  "expenseAdmin", "expenseIT", "expenseInsurance", "expenseTaxes", "expenseFFE",
-  "feeBase", "feeIncentive", "totalExpenses", "gop", "agop", "noi", "anoi",
-  "interestExpense", "depreciationExpense", "incomeTax", "netIncome",
-  "principalPayment", "debtPayment", "refinancingProceeds",
-  "accountsReceivable", "accountsPayable", "workingCapitalChange",
-  "cashFlow", "operatingCashFlow", "financingCashFlow",
-] as const;
-
 /**
  * Aggregate engine monthly data into yearly property financials.
  *
  * All values come from the engine's MonthlyFinancials — nothing is re-derived.
  * endingCash uses the last month of each year (pick-last, not sum).
  * expenseUtilities is derived as var + fixed.
+ *
+ * Optimized: uses direct index arithmetic (y*12 to min((y+1)*12, data.length))
+ * instead of data.slice() to avoid allocating intermediate arrays per year.
  */
 export function aggregatePropertyByYear(
   data: MonthlyFinancials[],
@@ -123,17 +122,67 @@ export function aggregatePropertyByYear(
   const results: YearlyPropertyFinancials[] = [];
 
   for (let y = 0; y < years; y++) {
-    const yearData = data.slice(y * 12, (y + 1) * 12);
-    if (yearData.length === 0) continue;
+    const yearStart = y * 12;
+    const yearEnd = Math.min((y + 1) * 12, data.length);
+    if (yearStart >= data.length) continue;
 
-    // Single-pass accumulation for all sum fields
-    const sums: Record<string, number> = {};
-    for (const field of SUM_FIELDS) sums[field] = 0;
+    let soldRooms = 0, availableRooms = 0;
+    let revenueRooms = 0, revenueEvents = 0, revenueFB = 0, revenueOther = 0, revenueTotal = 0;
+    let expenseRooms = 0, expenseFB = 0, expenseEvents = 0, expenseOther = 0;
+    let expenseOtherCosts = 0, expenseMarketing = 0, expensePropertyOps = 0;
+    let expenseUtilitiesVar = 0, expenseUtilitiesFixed = 0;
+    let expenseAdmin = 0, expenseIT = 0, expenseInsurance = 0, expenseTaxes = 0, expenseFFE = 0;
+    let feeBase = 0, feeIncentive = 0;
+    let totalExpenses = 0, gop = 0, agop = 0, noi = 0, anoi = 0;
+    let interestExpense = 0, depreciationExpense = 0, incomeTax = 0, netIncome = 0;
+    let principalPayment = 0, debtPayment = 0, refinancingProceeds = 0;
+    let accountsReceivable = 0, accountsPayable = 0, workingCapitalChange = 0;
+    let cashFlow = 0, operatingCashFlow = 0, financingCashFlow = 0;
     const catFees: Record<string, number> = {};
-    for (const m of yearData) {
-      for (const field of SUM_FIELDS) {
-        sums[field] += (m as unknown as Record<string, number>)[field] ?? 0;
-      }
+
+    for (let mi = yearStart; mi < yearEnd; mi++) {
+      const m = data[mi];
+      soldRooms += m.soldRooms;
+      availableRooms += m.availableRooms;
+      revenueRooms += m.revenueRooms;
+      revenueEvents += m.revenueEvents;
+      revenueFB += m.revenueFB;
+      revenueOther += m.revenueOther;
+      revenueTotal += m.revenueTotal;
+      expenseRooms += m.expenseRooms;
+      expenseFB += m.expenseFB;
+      expenseEvents += m.expenseEvents;
+      expenseOther += m.expenseOther;
+      expenseOtherCosts += m.expenseOtherCosts;
+      expenseMarketing += m.expenseMarketing;
+      expensePropertyOps += m.expensePropertyOps;
+      expenseUtilitiesVar += m.expenseUtilitiesVar;
+      expenseUtilitiesFixed += m.expenseUtilitiesFixed;
+      expenseAdmin += m.expenseAdmin;
+      expenseIT += m.expenseIT;
+      expenseInsurance += m.expenseInsurance;
+      expenseTaxes += m.expenseTaxes;
+      expenseFFE += m.expenseFFE;
+      feeBase += m.feeBase;
+      feeIncentive += m.feeIncentive;
+      totalExpenses += m.totalExpenses;
+      gop += m.gop;
+      agop += m.agop;
+      noi += m.noi;
+      anoi += m.anoi;
+      interestExpense += m.interestExpense;
+      depreciationExpense += m.depreciationExpense;
+      incomeTax += m.incomeTax;
+      netIncome += m.netIncome;
+      principalPayment += m.principalPayment;
+      debtPayment += m.debtPayment;
+      refinancingProceeds += m.refinancingProceeds;
+      accountsReceivable += m.accountsReceivable;
+      accountsPayable += m.accountsPayable;
+      workingCapitalChange += m.workingCapitalChange;
+      cashFlow += m.cashFlow;
+      operatingCashFlow += m.operatingCashFlow;
+      financingCashFlow += m.financingCashFlow;
       if (m.serviceFeesByCategory) {
         for (const [cat, val] of Object.entries(m.serviceFeesByCategory)) {
           catFees[cat] = (catFees[cat] ?? 0) + val;
@@ -142,63 +191,271 @@ export function aggregatePropertyByYear(
     }
 
     let cleanAdr = 0;
-    for (let mi = yearData.length - 1; mi >= 0; mi--) {
-      if (yearData[mi].adr > 0) {
-        cleanAdr = yearData[mi].adr;
+    for (let mi = yearEnd - 1; mi >= yearStart; mi--) {
+      if (data[mi].adr > 0) {
+        cleanAdr = data[mi].adr;
         break;
       }
     }
 
+    const lastMonth = data[yearEnd - 1];
     results.push({
       year: y,
-      soldRooms: sums.soldRooms,
-      availableRooms: sums.availableRooms,
+      soldRooms,
+      availableRooms,
       cleanAdr,
-      revenueRooms: sums.revenueRooms,
-      revenueEvents: sums.revenueEvents,
-      revenueFB: sums.revenueFB,
-      revenueOther: sums.revenueOther,
-      revenueTotal: sums.revenueTotal,
-      expenseRooms: sums.expenseRooms,
-      expenseFB: sums.expenseFB,
-      expenseEvents: sums.expenseEvents,
-      expenseOther: sums.expenseOther,
-      expenseOtherCosts: sums.expenseOtherCosts,
-      expenseMarketing: sums.expenseMarketing,
-      expensePropertyOps: sums.expensePropertyOps,
-      expenseUtilitiesVar: sums.expenseUtilitiesVar,
-      expenseUtilitiesFixed: sums.expenseUtilitiesFixed,
-      expenseUtilities: sums.expenseUtilitiesVar + sums.expenseUtilitiesFixed,
-      expenseAdmin: sums.expenseAdmin,
-      expenseIT: sums.expenseIT,
-      expenseInsurance: sums.expenseInsurance,
-      expenseTaxes: sums.expenseTaxes,
-      expenseFFE: sums.expenseFFE,
-      feeBase: sums.feeBase,
-      feeIncentive: sums.feeIncentive,
+      revenueRooms,
+      revenueEvents,
+      revenueFB,
+      revenueOther,
+      revenueTotal,
+      expenseRooms,
+      expenseFB,
+      expenseEvents,
+      expenseOther,
+      expenseOtherCosts,
+      expenseMarketing,
+      expensePropertyOps,
+      expenseUtilitiesVar,
+      expenseUtilitiesFixed,
+      expenseUtilities: expenseUtilitiesVar + expenseUtilitiesFixed,
+      expenseAdmin,
+      expenseIT,
+      expenseInsurance,
+      expenseTaxes,
+      expenseFFE,
+      feeBase,
+      feeIncentive,
       serviceFeesByCategory: catFees,
-      totalExpenses: sums.totalExpenses,
-      gop: sums.gop,
-      agop: sums.agop,
-      noi: sums.noi,
-      anoi: sums.anoi,
-      interestExpense: sums.interestExpense,
-      depreciationExpense: sums.depreciationExpense,
-      incomeTax: sums.incomeTax,
-      netIncome: sums.netIncome,
-      principalPayment: sums.principalPayment,
-      debtPayment: sums.debtPayment,
-      refinancingProceeds: sums.refinancingProceeds,
-      accountsReceivable: sums.accountsReceivable,
-      accountsPayable: sums.accountsPayable,
-      workingCapitalChange: sums.workingCapitalChange,
-      nolBalance: yearData[yearData.length - 1].nolBalance,
-      cashFlow: sums.cashFlow,
-      operatingCashFlow: sums.operatingCashFlow,
-      financingCashFlow: sums.financingCashFlow,
-      endingCash: yearData[yearData.length - 1].endingCash,
+      totalExpenses,
+      gop,
+      agop,
+      noi,
+      anoi,
+      interestExpense,
+      depreciationExpense,
+      incomeTax,
+      netIncome,
+      principalPayment,
+      debtPayment,
+      refinancingProceeds,
+      accountsReceivable,
+      accountsPayable,
+      workingCapitalChange,
+      nolBalance: lastMonth.nolBalance,
+      cashFlow,
+      operatingCashFlow,
+      financingCashFlow,
+      endingCash: lastMonth.endingCash,
     });
   }
 
   return results;
+}
+
+export interface UnifiedYearlyResult {
+  yearlyIS: YearlyPropertyFinancials[];
+  yearlyCF: YearlyCashFlowResult[];
+}
+
+export function aggregateUnifiedByYear(
+  data: MonthlyFinancials[],
+  property: LoanParams,
+  global: GlobalLoanParams | undefined,
+  years: number,
+): UnifiedYearlyResult {
+  const loan = calculateLoanParams(property, global);
+  const acquisitionYear = getAcquisitionYear(loan);
+  const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
+  const commissionRate = property.dispositionCommission ?? DEFAULT_COMMISSION_RATE;
+
+  const yearlyIS: YearlyPropertyFinancials[] = [];
+  const yearlyCF: YearlyCashFlowResult[] = [];
+  let cumulative = 0;
+
+  for (let y = 0; y < years; y++) {
+    const yearStart = y * 12;
+    const yearEnd = Math.min((y + 1) * 12, data.length);
+    if (yearStart >= data.length) continue;
+
+    let soldRooms = 0, availableRooms = 0;
+    let revenueRooms = 0, revenueEvents = 0, revenueFB = 0, revenueOther = 0, revenueTotal = 0;
+    let expenseRooms = 0, expenseFB = 0, expenseEvents = 0, expenseOther = 0;
+    let expenseOtherCosts = 0, expenseMarketing = 0, expensePropertyOps = 0;
+    let expenseUtilitiesVar = 0, expenseUtilitiesFixed = 0;
+    let expenseAdmin = 0, expenseIT = 0, expenseInsurance = 0, expenseTaxes = 0, expenseFFE = 0;
+    let feeBase = 0, feeIncentive = 0;
+    let totalExpenses = 0, gop = 0, agop = 0, noi = 0, anoi = 0;
+    let interestExpense = 0, depreciationExpense = 0, incomeTax = 0, netIncome = 0;
+    let principalPayment = 0, debtPayment = 0, refinancingProceeds = 0;
+    let accountsReceivable = 0, accountsPayable = 0, workingCapitalChange = 0;
+    let cashFlow = 0, operatingCashFlow = 0, financingCashFlow = 0;
+    const catFees: Record<string, number> = {};
+    let operationalMonthsInYear = 0;
+
+    for (let mi = yearStart; mi < yearEnd; mi++) {
+      const m = data[mi];
+      soldRooms += m.soldRooms;
+      availableRooms += m.availableRooms;
+      revenueRooms += m.revenueRooms;
+      revenueEvents += m.revenueEvents;
+      revenueFB += m.revenueFB;
+      revenueOther += m.revenueOther;
+      revenueTotal += m.revenueTotal;
+      expenseRooms += m.expenseRooms;
+      expenseFB += m.expenseFB;
+      expenseEvents += m.expenseEvents;
+      expenseOther += m.expenseOther;
+      expenseOtherCosts += m.expenseOtherCosts;
+      expenseMarketing += m.expenseMarketing;
+      expensePropertyOps += m.expensePropertyOps;
+      expenseUtilitiesVar += m.expenseUtilitiesVar;
+      expenseUtilitiesFixed += m.expenseUtilitiesFixed;
+      expenseAdmin += m.expenseAdmin;
+      expenseIT += m.expenseIT;
+      expenseInsurance += m.expenseInsurance;
+      expenseTaxes += m.expenseTaxes;
+      expenseFFE += m.expenseFFE;
+      feeBase += m.feeBase;
+      feeIncentive += m.feeIncentive;
+      totalExpenses += m.totalExpenses;
+      gop += m.gop;
+      agop += m.agop;
+      noi += m.noi;
+      anoi += m.anoi;
+      interestExpense += m.interestExpense;
+      depreciationExpense += m.depreciationExpense;
+      incomeTax += m.incomeTax;
+      netIncome += m.netIncome;
+      principalPayment += m.principalPayment;
+      debtPayment += m.debtPayment;
+      refinancingProceeds += m.refinancingProceeds;
+      accountsReceivable += m.accountsReceivable;
+      accountsPayable += m.accountsPayable;
+      workingCapitalChange += m.workingCapitalChange;
+      cashFlow += m.cashFlow;
+      operatingCashFlow += m.operatingCashFlow;
+      financingCashFlow += m.financingCashFlow;
+      if (m.serviceFeesByCategory) {
+        for (const [cat, val] of Object.entries(m.serviceFeesByCategory)) {
+          catFees[cat] = (catFees[cat] ?? 0) + val;
+        }
+      }
+      if (m.revenueTotal > 0 || m.noi !== 0) operationalMonthsInYear++;
+    }
+
+    let cleanAdr = 0;
+    for (let mi = yearEnd - 1; mi >= yearStart; mi--) {
+      if (data[mi].adr > 0) {
+        cleanAdr = data[mi].adr;
+        break;
+      }
+    }
+
+    const lastMonth = data[yearEnd - 1];
+
+    yearlyIS.push({
+      year: y,
+      soldRooms,
+      availableRooms,
+      cleanAdr,
+      revenueRooms,
+      revenueEvents,
+      revenueFB,
+      revenueOther,
+      revenueTotal,
+      expenseRooms,
+      expenseFB,
+      expenseEvents,
+      expenseOther,
+      expenseOtherCosts,
+      expenseMarketing,
+      expensePropertyOps,
+      expenseUtilitiesVar,
+      expenseUtilitiesFixed,
+      expenseUtilities: expenseUtilitiesVar + expenseUtilitiesFixed,
+      expenseAdmin,
+      expenseIT,
+      expenseInsurance,
+      expenseTaxes,
+      expenseFFE,
+      feeBase,
+      feeIncentive,
+      serviceFeesByCategory: catFees,
+      totalExpenses,
+      gop,
+      agop,
+      noi,
+      anoi,
+      interestExpense,
+      depreciationExpense,
+      incomeTax,
+      netIncome,
+      principalPayment,
+      debtPayment,
+      refinancingProceeds,
+      accountsReceivable,
+      accountsPayable,
+      workingCapitalChange,
+      nolBalance: lastMonth.nolBalance,
+      cashFlow,
+      operatingCashFlow,
+      financingCashFlow,
+      endingCash: lastMonth.endingCash,
+    });
+
+    const cfOperatingCashFlow = netIncome + depreciationExpense;
+    const cashFromOperations = cfOperatingCashFlow - workingCapitalChange;
+    const freeCashFlow = cashFromOperations;
+    const freeCashFlowToEquity = freeCashFlow - principalPayment;
+    const btcf = anoi - debtPayment;
+    const taxableIncome = anoi - interestExpense - depreciationExpense;
+    const atcf = btcf - incomeTax;
+
+    const isLastYear = y === years - 1;
+    const annualizedNOI = operationalMonthsInYear >= 12
+      ? noi
+      : operationalMonthsInYear > 0
+        ? (noi / operationalMonthsInYear) * 12
+        : 0;
+    let exitValue = 0;
+    if (isLastYear && exitCapRate > 0) {
+      const grossValue = annualizedNOI / exitCapRate;
+      const commission = grossValue * commissionRate;
+      const outstandingDebt = yearEnd > yearStart ? data[yearEnd - 1].debtOutstanding : 0;
+      exitValue = grossValue - commission - outstandingDebt;
+    }
+
+    const capitalExpenditures = y === acquisitionYear ? loan.equityInvested : 0;
+    const netCashFlowToInvestors = atcf + refinancingProceeds + (isLastYear ? exitValue : 0) - (y === acquisitionYear ? loan.equityInvested : 0);
+    cumulative += netCashFlowToInvestors;
+
+    yearlyCF.push({
+      year: y,
+      noi,
+      anoi,
+      interestExpense,
+      depreciation: depreciationExpense,
+      netIncome,
+      taxLiability: incomeTax,
+      operatingCashFlow: cfOperatingCashFlow,
+      workingCapitalChange,
+      cashFromOperations,
+      maintenanceCapex: expenseFFE,
+      freeCashFlow,
+      principalPayment,
+      debtService: debtPayment,
+      freeCashFlowToEquity,
+      btcf,
+      taxableIncome,
+      atcf,
+      capitalExpenditures,
+      refinancingProceeds,
+      exitValue,
+      netCashFlowToInvestors,
+      cumulativeCashFlow: cumulative,
+    });
+  }
+
+  return { yearlyIS, yearlyCF };
 }

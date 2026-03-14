@@ -76,46 +76,96 @@ export function generateCompanyProForma(
   const opsStartParsed = global.companyOpsStartDate ? parseDateComponents(global.companyOpsStartDate) : startParsed;
   
   const propertyFinancials = properties.map(p => generatePropertyProForma(p, global, months));
-  
-  for (let m = 0; m < months; m++) {
-    const totalMonths = startParsed.month + m;
-    const currentYear = startParsed.year + Math.floor(totalMonths / 12);
-    const currentMonth = totalMonths % 12;
-    const currentDate = new Date(currentYear, currentMonth, 1);
-    const year = Math.floor(m / 12);
-    
-    const opsStartDate = new Date(opsStartParsed.year, opsStartParsed.month, 1);
-    const firstSafeDate = new Date(tranche1Parsed.year, tranche1Parsed.month, 1);
-    const hasStartedOps = currentDate >= opsStartDate && currentDate >= firstSafeDate;
 
-    const monthsSinceCompanyOps = hasStartedOps
-      ? (currentYear - opsStartParsed.year) * 12 + (currentMonth - opsStartParsed.month)
-      : 0;
+  // ── Pre-computed month indices (Task 6: eliminate Date allocations) ──
+  const opsStartMonthIdx = (opsStartParsed.year - startParsed.year) * 12 + (opsStartParsed.month - startParsed.month);
+  const firstSafeMonthIdx = (tranche1Parsed.year - startParsed.year) * 12 + (tranche1Parsed.month - startParsed.month);
+  const opsGateIdx = Math.max(opsStartMonthIdx, firstSafeMonthIdx);
+  const tranche1MonthIdx = (tranche1Parsed.year - startParsed.year) * 12 + (tranche1Parsed.month - startParsed.month);
+  const tranche2MonthIdx = tranche2Parsed
+    ? (tranche2Parsed.year - startParsed.year) * 12 + (tranche2Parsed.month - startParsed.month)
+    : -1;
+
+  // ── Pre-computed active property count timeline (Task 6) ──
+  const activePropertyTimeline = new Array(months);
+  for (let m = 0; m < months; m++) {
+    let count = 0;
+    for (let i = 0; i < properties.length; i++) {
+      const pf = propertyFinancials[i];
+      if (m < pf.length && pf[m].revenueTotal > 0) count++;
+    }
+    activePropertyTimeline[m] = count;
+  }
+
+  // ── Hoisted loop-invariant constants (Task 6) ──
+  const companyInflation = global.companyInflationRate ?? global.inflationRate;
+  const fixedEscalationRate = global.fixedCostEscalationRate ?? companyInflation;
+  const yearlyPartnerComp = [
+    global.partnerCompYear1 ?? DEFAULT_PARTNER_COMP[0],
+    global.partnerCompYear2 ?? DEFAULT_PARTNER_COMP[1],
+    global.partnerCompYear3 ?? DEFAULT_PARTNER_COMP[2],
+    global.partnerCompYear4 ?? DEFAULT_PARTNER_COMP[3],
+    global.partnerCompYear5 ?? DEFAULT_PARTNER_COMP[4],
+    global.partnerCompYear6 ?? DEFAULT_PARTNER_COMP[5],
+    global.partnerCompYear7 ?? DEFAULT_PARTNER_COMP[6],
+    global.partnerCompYear8 ?? DEFAULT_PARTNER_COMP[7],
+    global.partnerCompYear9 ?? DEFAULT_PARTNER_COMP[8],
+    global.partnerCompYear10 ?? DEFAULT_PARTNER_COMP[9],
+  ];
+  const staffSalary = global.staffSalary ?? DEFAULT_STAFF_SALARY;
+  const tier1Max = global.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
+  const tier1Fte = global.staffTier1Fte ?? STAFFING_TIERS[0].fte;
+  const tier2Max = global.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties;
+  const tier2Fte = global.staffTier2Fte ?? STAFFING_TIERS[1].fte;
+  const tier3Fte = global.staffTier3Fte ?? STAFFING_TIERS[2].fte;
+  const officeLeaseStart = global.officeLeaseStart ?? DEFAULT_OFFICE_LEASE;
+  const professionalServicesStart = global.professionalServicesStart ?? DEFAULT_PROFESSIONAL_SERVICES;
+  const techInfraStart = global.techInfraStart ?? DEFAULT_TECH_INFRA;
+  const businessInsuranceStart = global.businessInsuranceStart ?? DEFAULT_BUSINESS_INSURANCE;
+  const travelCostPerClient = global.travelCostPerClient ?? DEFAULT_TRAVEL_PER_CLIENT;
+  const itLicensePerClient = global.itLicensePerClient ?? DEFAULT_IT_LICENSE_PER_CLIENT;
+  const marketingRate = global.marketingRate ?? DEFAULT_MARKETING_RATE;
+  const miscOpsRate = global.miscOpsRate ?? DEFAULT_MISC_OPS_RATE;
+  const companyTaxRate = global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE;
+  const safeTranche1Amount = global.safeTranche1Amount ?? DEFAULT_SAFE_TRANCHE;
+  const safeTranche2Amount = global.safeTranche2Amount ?? DEFAULT_SAFE_TRANCHE;
+  const hasServiceTemplates = serviceTemplates && serviceTemplates.length > 0;
+
+  // ── Pre-computed escalation factor arrays (Task 6) ──
+  const maxMonthsSinceOps = opsStartMonthIdx < 0 ? months - 1 + Math.abs(opsStartMonthIdx) : months - 1;
+  const maxCompanyOpsYear = Math.floor(maxMonthsSinceOps / 12) + 1;
+  const fixedCostFactors = new Array(maxCompanyOpsYear);
+  const variableCostFactors = new Array(maxCompanyOpsYear);
+  for (let y = 0; y < maxCompanyOpsYear; y++) {
+    fixedCostFactors[y] = Math.pow(1 + fixedEscalationRate, y);
+    variableCostFactors[y] = Math.pow(1 + companyInflation, y);
+  }
+
+  // ── Pre-computed property base fee rates ──
+  const propBaseFeeRates = properties.map(p => p.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
+  const propIds = properties.map((p, i) => String(p.id ?? i));
+
+  for (let m = 0; m < months; m++) {
+    const year = Math.floor(m / 12);
+    const hasStartedOps = m >= opsGateIdx;
+
+    const monthsSinceCompanyOps = hasStartedOps ? m - opsStartMonthIdx : 0;
     const companyOpsYear = Math.floor(monthsSinceCompanyOps / 12);
-    const companyInflation = global.companyInflationRate ?? global.inflationRate;
-    const fixedEscalationRate = global.fixedCostEscalationRate ?? companyInflation;
-    const fixedCostFactor = Math.pow(1 + fixedEscalationRate, companyOpsYear);
-    const variableCostFactor = Math.pow(1 + companyInflation, companyOpsYear);
+    const fixedCostFactor = fixedCostFactors[companyOpsYear];
+    const variableCostFactor = variableCostFactors[companyOpsYear];
+    const activePropertyCount = activePropertyTimeline[m];
     
     let totalPropertyRevenue = 0;
     let totalPropertyGOP = 0;
-    let activePropertyCount = 0;
     
     for (let i = 0; i < properties.length; i++) {
       const pf = propertyFinancials[i];
       if (m < pf.length) {
         totalPropertyRevenue += pf[m].revenueTotal;
         totalPropertyGOP += pf[m].gop;
-        if (pf[m].revenueTotal > 0) activePropertyCount++;
       }
     }
     
-    // ── Fee aggregation ───────────────────────────────────────────────────────
-    // base fee:      revenue × rate  (flat % of total revenue per property)
-    // incentive fee: GOP × rate, floored at 0 — no negative incentive fees.
-    // Both are summed across all active properties for the company's total revenue.
-    // These amounts mirror the feeBase + feeIncentive expenses in each property SPV;
-    // the intercompany eliminations zero out in consolidation.
     let baseFeeRevenue = 0;
     let incentiveFeeRevenue = 0;
     const incentiveFeeByPropertyId: Record<string, number> = {};
@@ -127,7 +177,7 @@ export function generateCompanyProForma(
     for (let i = 0; i < properties.length; i++) {
       const pf = propertyFinancials[i];
       if (m < pf.length) {
-        const propId = String(properties[i].id ?? i);
+        const propId = propIds[i];
         const propIncentive = pf[m].feeIncentive;
         incentiveFeeRevenue += propIncentive;
         incentiveFeeByPropertyId[propId] = propIncentive;
@@ -147,8 +197,7 @@ export function generateCompanyProForma(
           serviceFeeBreakdown.byPropertyId[propId] = propServiceTotal;
           baseFeeRevenue += propServiceTotal;
         } else {
-          const propBaseFee = properties[i].baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
-          const propServiceFee = pf[m].revenueTotal * propBaseFee;
+          const propServiceFee = pf[m].revenueTotal * propBaseFeeRates[i];
           baseFeeRevenue += propServiceFee;
           serviceFeeBreakdown.byPropertyId[propId] = propServiceFee;
           serviceFeeBreakdown.byCategory["Service Fee"] = (serviceFeeBreakdown.byCategory["Service Fee"] || 0) + propServiceFee;
@@ -164,10 +213,10 @@ export function generateCompanyProForma(
     let costOfCentralizedServices: AggregatedServiceCosts | null = null;
     let totalVendorCost = 0;
     let grossProfit = totalRevenue;
-    if (serviceTemplates && serviceTemplates.length > 0) {
+    if (hasServiceTemplates) {
       costOfCentralizedServices = computeCostOfServices(
         serviceFeeBreakdown.byCategory,
-        serviceTemplates,
+        serviceTemplates!,
       );
       totalVendorCost = costOfCentralizedServices.totalVendorCost;
       grossProfit = totalRevenue - totalVendorCost;
@@ -186,64 +235,50 @@ export function generateCompanyProForma(
     
     if (hasStartedOps) {
       const modelYear = year + 1;
-      const yearlyPartnerComp = [
-        global.partnerCompYear1 ?? DEFAULT_PARTNER_COMP[0],
-        global.partnerCompYear2 ?? DEFAULT_PARTNER_COMP[1],
-        global.partnerCompYear3 ?? DEFAULT_PARTNER_COMP[2],
-        global.partnerCompYear4 ?? DEFAULT_PARTNER_COMP[3],
-        global.partnerCompYear5 ?? DEFAULT_PARTNER_COMP[4],
-        global.partnerCompYear6 ?? DEFAULT_PARTNER_COMP[5],
-        global.partnerCompYear7 ?? DEFAULT_PARTNER_COMP[6],
-        global.partnerCompYear8 ?? DEFAULT_PARTNER_COMP[7],
-        global.partnerCompYear9 ?? DEFAULT_PARTNER_COMP[8],
-        global.partnerCompYear10 ?? DEFAULT_PARTNER_COMP[9],
-      ];
       const yearIndex = Math.min(modelYear - 1, DEFAULT_PARTNER_COMP.length - 1);
       const totalPartnerCompForYear = yearlyPartnerComp[yearIndex];
       
-      const staffSalary = (global.staffSalary ?? DEFAULT_STAFF_SALARY);
-      const tier1Max = global.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
-      const tier1Fte = global.staffTier1Fte ?? STAFFING_TIERS[0].fte;
-      const tier2Max = global.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties;
-      const tier2Fte = global.staffTier2Fte ?? STAFFING_TIERS[1].fte;
-      const tier3Fte = global.staffTier3Fte ?? STAFFING_TIERS[2].fte;
       const staffFTE = activePropertyCount <= tier1Max ? tier1Fte
         : activePropertyCount <= tier2Max ? tier2Fte
         : tier3Fte;
       
       partnerCompensation = totalPartnerCompForYear / 12;
       staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;
-      officeLease = ((global.officeLeaseStart ?? DEFAULT_OFFICE_LEASE) * fixedCostFactor) / 12;
-      professionalServices = ((global.professionalServicesStart ?? DEFAULT_PROFESSIONAL_SERVICES) * fixedCostFactor) / 12;
-      techInfrastructure = ((global.techInfraStart ?? DEFAULT_TECH_INFRA) * fixedCostFactor) / 12;
-      businessInsurance = ((global.businessInsuranceStart ?? DEFAULT_BUSINESS_INSURANCE) * fixedCostFactor) / 12;
+      officeLease = (officeLeaseStart * fixedCostFactor) / 12;
+      professionalServices = (professionalServicesStart * fixedCostFactor) / 12;
+      techInfrastructure = (techInfraStart * fixedCostFactor) / 12;
+      businessInsurance = (businessInsuranceStart * fixedCostFactor) / 12;
       
-      travelCosts = (activePropertyCount * (global.travelCostPerClient ?? DEFAULT_TRAVEL_PER_CLIENT) * variableCostFactor) / 12;
-      itLicensing = (activePropertyCount * (global.itLicensePerClient ?? DEFAULT_IT_LICENSE_PER_CLIENT) * variableCostFactor) / 12;
-      marketing = totalRevenue * (global.marketingRate ?? DEFAULT_MARKETING_RATE);
-      miscOps = totalRevenue * (global.miscOpsRate ?? DEFAULT_MISC_OPS_RATE);
+      travelCosts = (activePropertyCount * travelCostPerClient * variableCostFactor) / 12;
+      itLicensing = (activePropertyCount * itLicensePerClient * variableCostFactor) / 12;
+      marketing = totalRevenue * marketingRate;
+      miscOps = totalRevenue * miscOpsRate;
     }
     
     const totalExpenses = partnerCompensation + staffCompensation + officeLease + professionalServices +
       techInfrastructure + businessInsurance + travelCosts + itLicensing + marketing + miscOps;
 
     const preTaxIncome = totalRevenue - totalVendorCost - totalExpenses;
-    const companyTaxRate = global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE;
     const companyIncomeTax = preTaxIncome > 0 ? preTaxIncome * companyTaxRate : 0;
     const netIncome = preTaxIncome - companyIncomeTax;
     
     let safeFunding1 = 0;
     let safeFunding2 = 0;
-    if (currentYear === tranche1Parsed.year && currentMonth === tranche1Parsed.month) {
-      safeFunding1 = global.safeTranche1Amount ?? DEFAULT_SAFE_TRANCHE;
+    if (m === tranche1MonthIdx) {
+      safeFunding1 = safeTranche1Amount;
     }
-    if (tranche2Parsed && currentYear === tranche2Parsed.year && currentMonth === tranche2Parsed.month) {
-      safeFunding2 = global.safeTranche2Amount ?? DEFAULT_SAFE_TRANCHE;
+    if (m === tranche2MonthIdx) {
+      safeFunding2 = safeTranche2Amount;
     }
     const safeFunding = safeFunding1 + safeFunding2;
     
     const cashFlow = netIncome + safeFunding;
     cumulativeCompanyCash += cashFlow;
+
+    const totalMonths = startParsed.month + m;
+    const currentYear = startParsed.year + Math.floor(totalMonths / 12);
+    const currentMonth = totalMonths % 12;
+    const currentDate = new Date(currentYear, currentMonth, 1);
 
     results.push({
       date: currentDate,

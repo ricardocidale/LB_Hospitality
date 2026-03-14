@@ -47,13 +47,18 @@ export function aggregateCashFlowByYear(
   const results: YearlyCashFlowResult[] = [];
   let cumulative = 0;
 
+  const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
+  const commissionRate = property.dispositionCommission ?? DEFAULT_COMMISSION_RATE;
+
   for (let y = 0; y < years; y++) {
-    const yearData = data.slice(y * 12, (y + 1) * 12);
-    // Single-pass aggregation — one loop instead of 11 separate .reduce() calls
+    const yearStart = y * 12;
+    const yearEnd = Math.min((y + 1) * 12, data.length);
     let noi = 0, anoi = 0, interestExpense = 0, principalPayment = 0,
         debtService = 0, depreciationExpense = 0, taxLiability = 0,
         netIncome = 0, refiProceeds = 0, expenseFFE = 0, workingCapitalChange = 0;
-    for (const m of yearData) {
+    let operationalMonthsInYear = 0;
+    for (let mi = yearStart; mi < yearEnd; mi++) {
+      const m = data[mi];
       noi += m.noi;
       anoi += m.anoi;
       interestExpense += m.interestExpense;
@@ -65,6 +70,7 @@ export function aggregateCashFlowByYear(
       refiProceeds += m.refinancingProceeds;
       expenseFFE += m.expenseFFE;
       workingCapitalChange += m.workingCapitalChange;
+      if (m.revenueTotal > 0 || m.noi !== 0) operationalMonthsInYear++;
     }
 
     const operatingCashFlow = netIncome + depreciationExpense;
@@ -75,15 +81,7 @@ export function aggregateCashFlowByYear(
     const taxableIncome = anoi - interestExpense - depreciationExpense;
     const atcf = btcf - taxLiability;
 
-    // Capital events (exit only in final year)
-    // BUG FIX: If the final projection year has fewer than 12 operational months
-    // (property started mid-year or model ends mid-year), annualize the NOI
-    // before applying the exit cap rate. Using partial-year NOI directly would
-    // understate exit value and destroy investor returns.
-    const exitCapRate = property.exitCapRate ?? global?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
-    const commissionRate = property.dispositionCommission ?? DEFAULT_COMMISSION_RATE;
     const isLastYear = y === years - 1;
-    const operationalMonthsInYear = yearData.filter(m => m.revenueTotal > 0 || m.noi !== 0).length;
     const annualizedNOI = operationalMonthsInYear >= 12
       ? noi
       : operationalMonthsInYear > 0
@@ -93,7 +91,7 @@ export function aggregateCashFlowByYear(
     if (isLastYear && exitCapRate > 0) {
       const grossValue = annualizedNOI / exitCapRate;
       const commission = grossValue * commissionRate;
-      const outstandingDebt = yearData.length > 0 ? yearData[yearData.length - 1].debtOutstanding : 0;
+      const outstandingDebt = yearEnd > yearStart ? data[yearEnd - 1].debtOutstanding : 0;
       exitValue = grossValue - commission - outstandingDebt;
     }
 

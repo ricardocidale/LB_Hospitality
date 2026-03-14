@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { Property } from "@shared/schema";
 import type { GlobalResponse } from "@/lib/api";
 import { 
@@ -7,25 +7,31 @@ import {
 } from "@/lib/financialEngine";
 import { 
   PROJECTION_YEARS, 
-  DAYS_PER_MONTH 
 } from "@/lib/constants";
 import { 
   LoanParams, 
   GlobalLoanParams 
 } from "@/lib/financial/loanCalculations";
-import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import {
   aggregatePropertyByYear,
+  aggregateUnifiedByYear,
   YearlyPropertyFinancials
 } from "@/lib/financial/yearlyAggregator";
+import type { YearlyCashFlowResult } from "@/lib/financial/loanCalculations";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import { DashboardFinancials } from "./types";
+import type { MonthlyFinancials } from "@/lib/financialEngine";
 
-/** Adapter: wraps standalone IRR solver to return a plain number (annual rate). */
 function calculateIRR(cashFlows: number[]): number {
   const result = computeIRR(cashFlows, 1);
   return result.irr_periodic ?? 0;
+}
+
+interface CachedPropertyResult {
+  property: Property;
+  financials: MonthlyFinancials[];
+  updatedAtMs: number;
 }
 
 export function usePortfolioFinancials(
@@ -35,27 +41,51 @@ export function usePortfolioFinancials(
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
   const projectionMonths = projectionYears * 12;
 
+  const cacheRef = useRef<Map<number, CachedPropertyResult>>(new Map());
+  const prevGlobalRef = useRef<GlobalResponse | undefined>(undefined);
+
   const allPropertyFinancials = useMemo(() => {
     if (!properties || !global) return [];
-    return properties.map(p => {
+    if (prevGlobalRef.current !== global) {
+      cacheRef.current = new Map();
+      prevGlobalRef.current = global;
+    }
+    const cache = cacheRef.current;
+    const newCache = new Map<number, CachedPropertyResult>();
+    const result: CachedPropertyResult[] = properties.map(p => {
+      const cached = cache.get(p.id);
+      const updatedAtMs = p.updatedAt ? new Date(p.updatedAt as string | Date).getTime() : 0;
+      if (cached && cached.updatedAtMs === updatedAtMs) {
+        newCache.set(p.id, cached);
+        return cached;
+      }
       const financials = generatePropertyProForma(p as any, global as any, projectionMonths);
-      return { property: p, financials };
+      const entry: CachedPropertyResult = { property: p, financials, updatedAtMs };
+      newCache.set(p.id, entry);
+      return entry;
     });
+    cacheRef.current = newCache;
+    return result;
   }, [properties, global, projectionMonths]);
 
-  const allPropertyYearlyCF = useMemo(() => {
-    if (!properties || !global || allPropertyFinancials.length === 0) return [];
-    return allPropertyFinancials.map(({ property: prop, financials }) =>
-      aggregateCashFlowByYear(financials, prop as unknown as LoanParams, global as unknown as GlobalLoanParams, projectionYears)
-    );
+  const { allPropertyYearlyCF, allPropertyYearlyIS } = useMemo(() => {
+    if (!properties || !global || allPropertyFinancials.length === 0) {
+      return { allPropertyYearlyCF: [] as YearlyCashFlowResult[][], allPropertyYearlyIS: [] as YearlyPropertyFinancials[][] };
+    }
+    const cfResults: YearlyCashFlowResult[][] = [];
+    const isResults: YearlyPropertyFinancials[][] = [];
+    for (const { property: prop, financials } of allPropertyFinancials) {
+      const unified = aggregateUnifiedByYear(
+        financials,
+        prop as unknown as LoanParams,
+        global as unknown as GlobalLoanParams,
+        projectionYears
+      );
+      cfResults.push(unified.yearlyCF);
+      isResults.push(unified.yearlyIS);
+    }
+    return { allPropertyYearlyCF: cfResults, allPropertyYearlyIS: isResults };
   }, [allPropertyFinancials, properties, global, projectionYears]);
-
-  const allPropertyYearlyIS = useMemo(() =>
-    allPropertyFinancials.map(({ financials }) =>
-      aggregatePropertyByYear(financials, projectionYears)
-    ),
-    [allPropertyFinancials, projectionYears]
-  );
 
   const yearlyConsolidatedCache = useMemo(() => {
     if (!allPropertyYearlyIS.length) return [] as YearlyPropertyFinancials[];
@@ -82,30 +112,19 @@ export function usePortfolioFinancials(
   }, [allPropertyYearlyIS, projectionYears]);
 
   const weightedMetricsByYear = useMemo(() => {
-    if (!properties || !properties.length || !allPropertyFinancials.length) return [];
+    if (!allPropertyYearlyIS.length) return [];
     return Array.from({ length: projectionYears }, (_, yearIndex) => {
-      const startMonth = yearIndex * 12;
-      const endMonth = startMonth + 12;
-
       let totalAvailableRoomNights = 0;
       let totalRoomsSold = 0;
       let totalRoomRevenue = 0;
 
-      properties.forEach((prop, idx) => {
-        const { financials } = allPropertyFinancials[idx];
-        const yearData = financials.slice(startMonth, endMonth);
-        const roomCount = prop.roomCount;
-
-        yearData.forEach(month => {
-          const daysInMonth = DAYS_PER_MONTH;
-          const availableRooms = roomCount * daysInMonth;
-          const roomsSold = availableRooms * month.occupancy;
-
-          totalAvailableRoomNights += availableRooms;
-          totalRoomsSold += roomsSold;
-          totalRoomRevenue += month.revenueRooms;
-        });
-      });
+      for (const propYearly of allPropertyYearlyIS) {
+        const py = propYearly[yearIndex];
+        if (!py) continue;
+        totalAvailableRoomNights += py.availableRooms;
+        totalRoomsSold += py.soldRooms;
+        totalRoomRevenue += py.revenueRooms;
+      }
 
       const weightedADR = totalRoomsSold > 0 ? totalRoomRevenue / totalRoomsSold : 0;
       const weightedOcc = totalAvailableRoomNights > 0 ? totalRoomsSold / totalAvailableRoomNights : 0;
@@ -113,7 +132,7 @@ export function usePortfolioFinancials(
 
       return { weightedADR, weightedOcc, revPAR, totalAvailableRoomNights };
     });
-  }, [properties, allPropertyFinancials, projectionYears]);
+  }, [allPropertyYearlyIS, projectionYears]);
 
   const stats = useMemo(() => {
     if (!yearlyConsolidatedCache.length || !global) return null;

@@ -22,7 +22,7 @@
  * Key constants (immutable): DEPRECIATION_YEARS=27.5 (IRS Pub 946),
  * DAYS_PER_MONTH=30.5 (industry standard 365/12).
  */
-import { addMonths, differenceInMonths, isBefore, startOfMonth } from "date-fns";
+import { startOfMonth } from "date-fns";
 import { pmt } from "@calc/shared/pmt";
 import { computeRefinance } from '@calc/refinance';
 import { DEFAULT_ACCOUNTING_POLICY } from '@domain/types/accounting-policy';
@@ -180,34 +180,82 @@ export function generatePropertyProForma(
   const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
   const baseMonthlyOtherRev = baseMonthlyRoomRev * revShareOther;
   const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
-  
+
+  // ── Pre-computed month indices (Task 1: eliminate date-fns from hot loop) ──
+  const startYear = modelStart.getFullYear();
+  const startMonth = modelStart.getMonth();
+  const opsStartIdx = (opsStart.getFullYear() - startYear) * 12 + (opsStart.getMonth() - startMonth);
+  const acqMonthIdx = (acquisitionDate.getFullYear() - startYear) * 12 + (acquisitionDate.getMonth() - startMonth);
+
+  // ── Pre-computed days-in-month lookup for ACT/360 and ACT/365 ──
+  const needsDaysLookup = dayCountConvention === 'ACT/360' || dayCountConvention === 'ACT/365';
+  const daysInMonthLookup: number[] = needsDaysLookup ? new Array(months) : [];
+  if (needsDaysLookup) {
+    for (let i = 0; i < months; i++) {
+      const totalM = startMonth + i;
+      const y = startYear + Math.floor(totalM / 12);
+      const m = totalM % 12;
+      daysInMonthLookup[i] = new Date(y, m + 1, 0).getDate();
+    }
+  }
+
+  // ── Hoisted loop-invariant default resolutions (Task 3) ──
+  const costRateRooms = property.costRateRooms ?? DEFAULT_COST_RATE_ROOMS;
+  const costRateFB = property.costRateFB ?? DEFAULT_COST_RATE_FB;
+  const costRateAdmin = property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN;
+  const costRateMarketing = property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING;
+  const costRatePropertyOps = property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS;
+  const costRateUtilities = property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES;
+  const costRateInsurance = property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE;
+  const costRateTaxes = property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES;
+  const costRateIT = property.costRateIT ?? DEFAULT_COST_RATE_IT;
+  const costRateFFE = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
+  const costRateOther = property.costRateOther ?? DEFAULT_COST_RATE_OTHER;
+  const eventExpenseRate = global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE;
+  const otherExpenseRate = global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE;
+  const utilitiesVariableSplit = global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT;
+  const utilitiesFixedSplit = 1 - utilitiesVariableSplit;
+  const adrGrowthRate = property.adrGrowthRate ?? 0;
+  const effectiveInflation = property.inflationRate ?? global.inflationRate;
+  const fixedEscalationRate = global.fixedCostEscalationRate ?? effectiveInflation;
+  const incentiveFeeRate = property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE;
+  const baseMgmtFeeRate = property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE;
+  const activeFeeCategories = property.feeCategories?.filter(c => c.isActive);
+  const hasActiveFeeCategories = activeFeeCategories && activeFeeCategories.length > 0;
+  const rampMonths = Math.max(1, property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS);
+  const availableRooms = property.roomCount * DAYS_PER_MONTH;
+  const totalPropertyValueDiv12 = totalPropertyValue / 12;
+  const isFinanced = property.type === "Financed";
+  const loanN = loanTerm * 12;
+
+  // ── Pre-computed escalation factor arrays (Task 2) ──
+  const maxMonthsSinceOps = opsStartIdx < 0 ? months - 1 + Math.abs(opsStartIdx) : months - 1;
+  const maxOpsYear = Math.floor(maxMonthsSinceOps / 12) + 1;
+  const adrFactors = new Array(maxOpsYear);
+  const fixedEscFactors = new Array(maxOpsYear);
+  for (let y = 0; y < maxOpsYear; y++) {
+    adrFactors[y] = safeNum(Math.pow(1 + adrGrowthRate, y));
+    fixedEscFactors[y] = safeNum(Math.pow(1 + fixedEscalationRate, y));
+  }
+  const monthlyEscRate = escalationMethod === 'monthly' ? Math.pow(1 + fixedEscalationRate, 1 / 12) - 1 : 0;
+
   for (let i = 0; i < months; i++) {
-    // ── Temporal gates ──────────────────────────────────────────────────────
-    // !isBefore(x, threshold) is used instead of x >= threshold because
-    // date-fns isBefore/isAfter do not consider same-day equal. Using
-    // !isBefore correctly treats the threshold month as "already active".
-    const currentDate = addMonths(modelStart, i);
-    const isOperational = !isBefore(currentDate, opsStart);
-    const monthsSinceOps = isOperational ? differenceInMonths(currentDate, opsStart) : 0;
+    // ── Temporal gates (index arithmetic instead of date-fns) ────────────────
+    const isOperational = i >= opsStartIdx;
+    const monthsSinceOps = isOperational ? i - opsStartIdx : 0;
 
     const opsYear = Math.floor(monthsSinceOps / 12);
-    const currentAdr = safeNum(baseAdr * Math.pow(1 + (property.adrGrowthRate ?? 0), opsYear));
-    const effectiveInflation = property.inflationRate ?? global.inflationRate;
-    const fixedEscalationRate = global.fixedCostEscalationRate ?? effectiveInflation;
+    const currentAdr = safeNum(baseAdr * adrFactors[opsYear]);
     let fixedCostFactor: number;
     if (escalationMethod === 'monthly') {
-      const monthlyEscRate = Math.pow(1 + fixedEscalationRate, 1 / 12) - 1;
       fixedCostFactor = safeNum(Math.pow(1 + monthlyEscRate, monthsSinceOps));
     } else {
-      fixedCostFactor = safeNum(Math.pow(1 + fixedEscalationRate, opsYear));
+      fixedCostFactor = fixedEscFactors[opsYear];
     }
 
     // ── Occupancy ramp ───────────────────────────────────────────────────────
-    // Step-function: occupancy increases by occupancyGrowthStep every
-    // occupancyRampMonths until it reaches maxOccupancy.
     let occupancy = 0;
     if (isOperational) {
-      const rampMonths = Math.max(1, property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS);
       const rampSteps = Math.floor(monthsSinceOps / rampMonths);
       occupancy = Math.min(
         property.maxOccupancy,
@@ -216,10 +264,6 @@ export function generatePropertyProForma(
     }
 
     // ── Revenue ──────────────────────────────────────────────────────────────
-    // Room revenue = rooms × ADR × occupancy × 30.5 days (DAYS_PER_MONTH).
-    // Events and F&B are derived from room revenue via revenue-share rates.
-    // F&B gets an additional cateringBoostMultiplier (default 1.30).
-    const availableRooms = property.roomCount * DAYS_PER_MONTH;
     const soldRooms = isOperational ? availableRooms * occupancy : 0;
     const revenueRooms = soldRooms * currentAdr;
 
@@ -230,24 +274,6 @@ export function generatePropertyProForma(
     const revenueTotal = revenueRooms + revenueEvents + revenueFB + revenueOther;
 
     // ── Department expenses ──────────────────────────────────────────────────
-    // Variable costs keyed to each revenue stream.
-    // Fixed costs use a gate (fixedGate=0 pre-ops, 1 once operational) and
-    // escalate annually at fixedCostEscalationRate.
-    const costRateRooms = property.costRateRooms ?? DEFAULT_COST_RATE_ROOMS;
-    const costRateFB = property.costRateFB ?? DEFAULT_COST_RATE_FB;
-    const costRateAdmin = property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN;
-    const costRateMarketing = property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING;
-    const costRatePropertyOps = property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS;
-    const costRateUtilities = property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES;
-    const costRateInsurance = property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE;
-    const costRateTaxes = property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES;
-    const costRateIT = property.costRateIT ?? DEFAULT_COST_RATE_IT;
-    const costRateFFE = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
-    const costRateOther = property.costRateOther ?? DEFAULT_COST_RATE_OTHER;
-    const eventExpenseRate = global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE;
-    const otherExpenseRate = global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE;
-    const utilitiesVariableSplit = global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT;
-
     const expenseRooms = revenueRooms * costRateRooms;
     const expenseFB = revenueFB * costRateFB;
     const expenseEvents = revenueEvents * eventExpenseRate;
@@ -257,31 +283,27 @@ export function generatePropertyProForma(
     const expenseFFE = revenueTotal * costRateFFE;
 
     const fixedGate = isOperational ? 1 : 0;
-    const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactor * fixedGate;
-    const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactor * fixedGate;
-    const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactor * fixedGate;
-    const expenseInsurance = (totalPropertyValue / 12) * costRateInsurance * fixedCostFactor * fixedGate;
-    const expenseTaxes = (totalPropertyValue / 12) * costRateTaxes * fixedCostFactor * fixedGate;
-    const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
-    const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
+    const fixedCostFactorGated = fixedCostFactor * fixedGate;
+    const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactorGated;
+    const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactorGated;
+    const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactorGated;
+    const expenseInsurance = totalPropertyValueDiv12 * costRateInsurance * fixedCostFactorGated;
+    const expenseTaxes = totalPropertyValueDiv12 * costRateTaxes * fixedCostFactorGated;
+    const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * utilitiesFixedSplit) * fixedCostFactorGated;
+    const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactorGated;
     
     // ── Undistributed expenses + management fees ─────────────────────────────
-    // GOP = revenue - dept expenses.
-    // feeBase: revenue × flat rate, OR sum of active service fee categories.
-    // feeIncentive: GOP × incentive rate, floored at 0 (no negative incentive).
-    // USALI Waterfall: AGOP = GOP - fees, NOI = AGOP - fixed charges, ANOI = NOI - FF&E.
     const serviceFeesByCategory: Record<string, number> = {};
     let feeBase: number;
-    const activeFeeCategories = property.feeCategories?.filter(c => c.isActive);
-    if (activeFeeCategories && activeFeeCategories.length > 0) {
+    if (hasActiveFeeCategories) {
       feeBase = 0;
-      for (const cat of activeFeeCategories) {
+      for (const cat of activeFeeCategories!) {
         const catFee = revenueTotal * cat.rate;
         serviceFeesByCategory[cat.name] = catFee;
         feeBase += catFee;
       }
     } else {
-      feeBase = revenueTotal * (property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
+      feeBase = revenueTotal * baseMgmtFeeRate;
     }
     
     const totalOperatingExpenses = 
@@ -290,44 +312,35 @@ export function generatePropertyProForma(
       expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseOtherCosts;
       
     const gop = revenueTotal - totalOperatingExpenses;
-    const feeIncentive = Math.max(0, gop * (property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
+    const feeIncentive = Math.max(0, gop * incentiveFeeRate);
     const agop = gop - feeBase - feeIncentive;
     const noi = agop - expenseInsurance - expenseTaxes;
     const anoi = noi - expenseFFE;
     
     // ── Debt service ──────────────────────────────────────────────────────────
-    // PMT = principal × rate / (1 - (1+rate)^-n).
-    // Interest = outstandingBalance × monthlyRate (income statement).
-    // Principal = PMT - interest (financing activity, NOT on income statement).
-    // Debt only accrues after acquisitionDate. Zero for Full Equity properties.
     let debtPayment = 0;
     let interestExpense = 0;
     let principalPayment = 0;
     let debtOutstanding = 0;
 
-    const isAcquired = !isBefore(currentDate, acquisitionDate);
-    const monthsSinceAcquisition = isAcquired ? differenceInMonths(currentDate, acquisitionDate) : 0;
+    const isAcquired = i >= acqMonthIdx;
+    const monthsSinceAcquisition = isAcquired ? i - acqMonthIdx : 0;
     
-    if (isAcquired && property.type === "Financed") {
-      const n = loanTerm * 12;
-      const loanAmount = originalLoanAmount;
-      
-      if (loanAmount > 0 && acqDebtMonthCount < n) {
+    if (isAcquired && isFinanced) {
+      if (originalLoanAmount > 0 && acqDebtMonthCount < loanN) {
         debtPayment = monthlyPayment;
         
         if (loanRate === 0) {
-          const straightLinePrincipal = loanAmount / n;
+          const straightLinePrincipal = originalLoanAmount / loanN;
           principalPayment = straightLinePrincipal;
           interestExpense = 0;
           debtOutstanding = Math.max(0, prevDebtOutstanding - straightLinePrincipal);
         } else {
           let effectiveMonthlyRate: number;
           if (dayCountConvention === 'ACT/360') {
-            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-            effectiveMonthlyRate = loanRate * daysInMonth / 360;
+            effectiveMonthlyRate = loanRate * daysInMonthLookup[i] / 360;
           } else if (dayCountConvention === 'ACT/365') {
-            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-            effectiveMonthlyRate = loanRate * daysInMonth / 365;
+            effectiveMonthlyRate = loanRate * daysInMonthLookup[i] / 365;
           } else {
             effectiveMonthlyRate = monthlyRate;
           }
@@ -336,11 +349,14 @@ export function generatePropertyProForma(
           debtOutstanding = Math.max(0, prevDebtOutstanding - principalPayment);
         }
         acqDebtMonthCount++;
-      } else if (loanAmount > 0) {
+      } else if (originalLoanAmount > 0) {
         debtOutstanding = 0;
       }
       prevDebtOutstanding = debtOutstanding;
     }
+
+    // ── Current date for output (computed via arithmetic, no date-fns) ────────
+    const currentDate = new Date(startYear, startMonth + i, 1);
 
     // ── Income statement ──────────────────────────────────────────────────────
     const landValue = property.purchasePrice * landPct;

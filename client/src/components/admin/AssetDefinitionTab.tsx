@@ -293,7 +293,7 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
         <CardContent className="space-y-4">
           <div className="flex items-end gap-4">
             <div className="flex-1 max-w-md space-y-1">
-              <Label className="label-text text-foreground text-xs">ICP Label</Label>
+              <Label className="label-text text-foreground text-xs">ICP for Mgmt Co Label</Label>
               <Input
                 value={propertyLabel}
                 onChange={(e) => { setPropertyLabel(e.target.value); setDirty(true); }}
@@ -632,7 +632,7 @@ function DescriptiveTab({
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
         Qualitative descriptions and preferences. These are combined with the numeric parameters
-        to produce the full ICP context.
+        to produce the full ICP for Mgmt Co context.
       </p>
       {DESCRIPTIVE_SECTIONS.map((section) => (
         <div key={section.key} className="space-y-1.5">

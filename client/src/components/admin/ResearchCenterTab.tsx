@@ -618,7 +618,7 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
         }
       }
 
-      toast({ title: "Research Complete", description: "ICP market research report has been generated and saved." });
+      toast({ title: "Research Complete", description: "ICP for Mgmt Co market research report has been generated and saved." });
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to generate research", variant: "destructive" });
     } finally {
@@ -801,8 +801,8 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
   return (
     <div className="space-y-4">
       <EnableToggle
-        label="ICP Research"
-        description="AI-powered research using the ICP definition to identify acquisition targets"
+        label="ICP for Mgmt Co Research"
+        description="AI-powered research using the ICP for Mgmt Co definition to identify acquisition targets"
         enabled={enabled}
         onChange={onToggle}
       />
@@ -830,7 +830,7 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
           <div>
             <h4 className="text-sm font-semibold text-foreground">AI Research Prompt</h4>
             <p className="text-xs text-muted-foreground mt-1">
-              This prompt is served to the AI research engine based on ICP configuration.
+              This prompt is served to the AI research engine based on ICP for Mgmt Co configuration.
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -882,7 +882,7 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
             <div className="text-center py-12 text-muted-foreground">
               <IconSparkles className="w-8 h-8 mx-auto mb-3 opacity-40" />
               <p className="text-sm font-medium">No AI prompt generated yet</p>
-              <p className="text-xs mt-1">Click <strong>Generate</strong> to build the prompt from ICP configuration.</p>
+              <p className="text-xs mt-1">Click <strong>Generate</strong> to build the prompt from ICP for Mgmt Co configuration.</p>
             </div>
           )}
 
@@ -900,10 +900,10 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
             <div>
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <IconFlaskConical className="w-4 h-4 text-muted-foreground" />
-                ICP Market Research
+                ICP for Mgmt Co Market Research
               </h4>
               <p className="text-xs text-muted-foreground mt-1">
-                AI-powered market research based on all ICP parameters.
+                AI-powered market research based on all ICP for Mgmt Co parameters.
               </p>
             </div>
             <Button size="sm" variant="default" onClick={handleGenerateResearch} disabled={isGenerating} className="text-xs h-8 gap-1.5" data-testid="button-generate-research">
@@ -1198,7 +1198,7 @@ function PropertyResearchSection({ config, onChange }: { config: ResearchEventCo
       />
       {config.enabled && (
         <>
-          <DataInputsCard title="Data Inputs" items={["Location", "Room Count", "ADR", "Acquisition Price", "ICP Context"]} />
+          <DataInputsCard title="Data Inputs" items={["Location", "Room Count", "ADR", "Acquisition Price", "ICP for Mgmt Co Context"]} />
 
           <div className="space-y-3">
             <Label className="text-sm font-medium">Deterministic Tools</Label>
@@ -1522,9 +1522,9 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
       <LlmSelectionCard draft={draft} setDraft={setDraft} setIsDirty={setIsDirty} />
 
       <CollapsibleSection
-        title="ICP Research"
+        title="ICP for Mgmt Co Research"
         icon={<IconTarget className="w-5 h-5 text-primary" />}
-        description="Management company acquisition target research using the ICP definition as its prompt foundation"
+        description="Management company acquisition target research using the ICP for Mgmt Co definition as its prompt foundation"
         defaultOpen={true}
       >
         <IcpResearchSection

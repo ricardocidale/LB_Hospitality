@@ -37,7 +37,7 @@ const ICP_TABS: CurrentThemeTabItem[] = [
   { value: "icp-location", label: "Location", icon: IconMapPin },
   { value: "icp-profile", label: "Property Profile", icon: IconHotel },
   { value: "icp-description", label: "Property Description", icon: IconTarget },
-  { value: "icp-definition", label: "ICP for Mgmt Co Definition", icon: IconBookOpen },
+  { value: "icp-definition", label: "ICP Definition", icon: IconBookOpen },
 ];
 
 interface IcpContentProps {
@@ -269,7 +269,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <CardTitle className="text-base font-semibold text-foreground">
-                    ICP for Mgmt Co Definition
+                    ICP Definition
                   </CardTitle>
                   <p className="text-xs text-muted-foreground mt-1">
                     Human-readable summary of the Ideal Customer Profile. Generate from current settings or edit by hand.

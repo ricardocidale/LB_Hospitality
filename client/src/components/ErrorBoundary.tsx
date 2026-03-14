@@ -123,12 +123,17 @@ export class SelfHealingBoundary extends React.Component<SelfHealingBoundaryProp
             <IconAlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              A component error occurred. Reload the page to try again.
+              A component error occurred. Try again or reload the page.
             </p>
-            <Button onClick={() => window.location.reload()}>
-              <IconRefreshCw className="w-4 h-4" />
-              Reload page
-            </Button>
+            <div className="flex items-center justify-center gap-3">
+              <Button onClick={() => this.setState({ hasError: false, error: null, retryCount: 0, retryKey: this.state.retryKey + 1 })}>
+                <IconRefreshCw className="w-4 h-4" />
+                Try Again
+              </Button>
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                Reload page
+              </Button>
+            </div>
           </div>
         );
       }

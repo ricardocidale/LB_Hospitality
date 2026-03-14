@@ -13,6 +13,7 @@ import { ADMIN_TEXTAREA } from "./styles";
 import {
   type IcpConfig,
   type IcpDescriptive,
+  type IcpLocation,
   type Priority,
   type UnitType,
   DEFAULT_ICP_CONFIG,
@@ -192,9 +193,11 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
     setDirty(true);
   }, []);
 
+  const locations = useMemo(() => ((ga?.icpConfig as any)?._locations ?? []) as IcpLocation[], [ga?.icpConfig]);
+
   const generatedPrompt = useMemo(
-    () => generateIcpPrompt(config, desc, propertyLabel),
-    [config, desc, propertyLabel]
+    () => generateIcpPrompt(config, desc, propertyLabel, { locations, customAmenities }),
+    [config, desc, propertyLabel, locations, customAmenities]
   );
 
   const handleSave = useCallback(() => {

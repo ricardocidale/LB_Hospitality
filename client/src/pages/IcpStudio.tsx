@@ -26,7 +26,7 @@ import {
 } from "@/components/icons";
 import { Loader2 } from "lucide-react";
 import {
-  type IcpConfig, type IcpDescriptive, type Priority,
+  type IcpConfig, type IcpDescriptive, type IcpLocation, type Priority,
   DEFAULT_ICP_CONFIG, DEFAULT_ICP_DESCRIPTIVE,
   generateIcpPrompt,
 } from "@/components/admin/icp-config";
@@ -127,12 +127,13 @@ function generateStudioPrompt(
   qualitative: Record<string, string>,
   quantitative: IcpConfig,
   descriptive: IcpDescriptive,
+  locations?: IcpLocation[],
+  customAmenities?: { label: string; priority: Priority }[],
 ): string {
   const sections: string[] = [];
 
   sections.push("# IDEAL CUSTOMER PROFILE — STRATEGIC RESEARCH DIRECTIVE\n");
 
-  // Qualitative vision sections
   for (const s of QUALITATIVE_SECTIONS) {
     const text = qualitative[s.key]?.trim();
     if (text) {
@@ -140,7 +141,6 @@ function generateStudioPrompt(
     }
   }
 
-  // Quantitative summary
   sections.push("## Quantitative Parameters\n");
   for (const g of QUANT_GROUPS) {
     sections.push(`### ${g.title}`);
@@ -156,9 +156,8 @@ function generateStudioPrompt(
     sections.push("");
   }
 
-  // Include the full ICP prompt from the existing generator
   sections.push("---\n");
-  sections.push(generateIcpPrompt(quantitative, descriptive, "Portfolio"));
+  sections.push(generateIcpPrompt(quantitative, descriptive, "Portfolio", { locations, customAmenities }));
 
   return sections.join("\n");
 }
@@ -226,9 +225,12 @@ export default function IcpStudio() {
 
   // ── Auto-generated prompt ──────────────────────────────────────────────────
 
+  const locations = useMemo(() => ((global as any)?.icpConfig?._locations ?? []) as IcpLocation[], [global]);
+  const customAmenities = useMemo(() => ((global as any)?.icpConfig?._customAmenities ?? []) as { label: string; priority: Priority }[], [global]);
+
   const autoPrompt = useMemo(
-    () => generateStudioPrompt(qualitative, quantitative, descriptive),
-    [qualitative, quantitative, descriptive],
+    () => generateStudioPrompt(qualitative, quantitative, descriptive, locations, customAmenities),
+    [qualitative, quantitative, descriptive, locations, customAmenities],
   );
 
   const activePrompt = promptMode === "auto" ? autoPrompt : manualPrompt;

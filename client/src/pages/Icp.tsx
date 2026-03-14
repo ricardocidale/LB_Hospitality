@@ -196,6 +196,11 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
 
   const propertyLabel = ga?.propertyLabel || "Boutique Hotel";
 
+  const promptOpts = useMemo(() => ({
+    locations: ((ga?.icpConfig as any)?._locations ?? []) as import("@/components/admin/icp-config").IcpLocation[],
+    customAmenities: ((ga?.icpConfig as any)?._customAmenities ?? []) as { label: string; priority: import("@/components/admin/icp-config").Priority }[],
+  }), [ga?.icpConfig]);
+
   const savedDefinition = (ga?.icpConfig as any)?._definition as string | undefined;
 
   const essay = useMemo(
@@ -253,7 +258,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   const handleGenerate = () => {
     userClearedPromptRef.current = false;
     autoGenPromptRef.current = true;
-    const generated = generateIcpPrompt(config, desc, propertyLabel);
+    const generated = generateIcpPrompt(config, desc, propertyLabel, promptOpts);
     updateMutation.mutate(
       { assetDescription: generated },
       {
@@ -277,7 +282,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
       !userClearedPromptRef.current &&
       !updateMutation.isPending
     ) {
-      const preview = generateIcpPrompt(config, desc, propertyLabel);
+      const preview = generateIcpPrompt(config, desc, propertyLabel, promptOpts);
       if (preview.trim()) {
         autoGenPromptRef.current = true;
         handleGenerate();

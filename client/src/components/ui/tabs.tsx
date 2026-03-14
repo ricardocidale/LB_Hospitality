@@ -78,7 +78,7 @@ function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: Current
                 className={cn(
                   "flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap shrink-0",
                   isActive
-                    ? "bg-accent text-foreground shadow-sm"
+                    ? "bg-accent text-accent-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                 )}
                 data-testid={`tab-${tab.value}`}
@@ -86,7 +86,7 @@ function CurrentThemeTab({ tabs, activeTab, onTabChange, rightContent }: Current
                 {Icon && (
                   <Icon className={cn(
                     "w-4 h-4 shrink-0",
-                    isActive ? "text-foreground" : "text-muted-foreground"
+                    isActive ? "text-accent-foreground" : "text-muted-foreground"
                   )} />
                 )}
                 <span className="text-xs sm:text-sm">{tab.label}</span>

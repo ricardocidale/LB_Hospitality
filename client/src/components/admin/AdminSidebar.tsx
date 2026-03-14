@@ -152,7 +152,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
                       "relative w-full flex items-center gap-2.5 px-3 py-[7px] h-auto rounded-lg text-left justify-start transition-all duration-150 group/item cursor-pointer",
                       isActive
                         ? "bg-muted text-foreground font-medium"
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                     )}
                   >
                     <Icon
@@ -196,7 +196,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
             "relative w-full flex items-center gap-2.5 px-3 py-[7px] h-auto rounded-lg text-left justify-start transition-all duration-150 group/item cursor-pointer",
             activeSection === "activity"
               ? "bg-muted text-foreground font-medium"
-              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           )}
         >
           <IconActivity
@@ -222,7 +222,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
         <Link
           href="/help"
           data-testid="admin-nav-help"
-          className="relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 text-muted-foreground hover:bg-accent hover:text-foreground"
+          className="relative w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-left transition-all duration-150 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         >
           <IconHelpCircle className="w-4 h-4 shrink-0" />
           <span className="text-[13px] font-normal">Help</span>

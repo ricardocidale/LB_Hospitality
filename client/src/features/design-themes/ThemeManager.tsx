@@ -134,106 +134,77 @@ export function ThemeManager() {
               <Loader2 className="w-8 h-8 mx-auto text-muted-foreground animate-spin" />
             </div>
           ) : designThemes && designThemes.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {designThemes.map((theme) => (
-                <div key={theme.id} className={`p-5 rounded-2xl border-2 hover-lift ${theme.isDefault ? 'border-primary/30 bg-primary/5' : 'border-border bg-card'}`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-display text-lg text-foreground font-semibold">{theme.name}</h3>
-                        {theme.isDefault && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary text-primary-foreground">Default</span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1 max-w-2xl">{theme.description}</p>
+                <div key={theme.id} className={`p-3 rounded-xl border hover-lift ${theme.isDefault ? 'border-primary/30 bg-primary/5' : 'border-border bg-card'}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <h3 className="font-display text-sm text-foreground font-semibold truncate">{theme.name}</h3>
+                      {theme.isDefault && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-primary text-primary-foreground shrink-0">Default</span>
+                      )}
+                      {theme.description && (
+                        <span className="text-xs text-muted-foreground truncate hidden sm:inline">— {theme.description}</span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setEditingTheme(theme)}>
-                        <IconPencil className="w-4 h-4" />
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setEditingTheme(theme)}>
+                        <IconPencil className="w-3.5 h-3.5" />
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
-                        className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => deleteThemeMutation.mutate(theme.id)}
                         disabled={theme.isDefault}
                       >
-                        <IconTrash className="w-4 h-4" />
+                        <IconTrash className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </div>
 
-                  {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <IconPalette className="w-4 h-4 text-primary" />
-                        <h4 className="font-display text-sm font-semibold text-foreground">Palette Colors</h4>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).length > 0 && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mr-0.5">Palette</span>
                         {theme.colors.filter(c => c.description?.startsWith('PALETTE:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
-                          <div key={`palette-${idx}`} className="p-3 rounded-xl bg-muted border border-border">
-                            <div className="flex items-center gap-3 mb-2">
-                              <div
-                                className="w-10 h-10 rounded-lg border border-border shadow-inner"
-                                style={{ backgroundColor: color.hexCode }}
-                              />
-                              <div>
-                                <p className="font-medium text-sm text-foreground">{color.name}</p>
-                                <p className="font-mono text-xs text-muted-foreground">{color.hexCode}</p>
-                              </div>
-                            </div>
-                            <p className="text-xs text-muted-foreground line-clamp-2">{color.description?.replace('PALETTE: ', '')}</p>
+                          <div key={`palette-${idx}`} className="group relative flex items-center gap-1.5 px-1.5 py-1 rounded-md bg-muted/60 border border-border/50">
+                            <div className="w-5 h-5 rounded border border-border/60 shrink-0" style={{ backgroundColor: color.hexCode }} />
+                            <span className="text-[11px] text-foreground font-medium">{color.name}</span>
+                            <span className="font-mono text-[10px] text-muted-foreground">{color.hexCode}</span>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {theme.colors.filter(c => c.description?.startsWith('CHART:')).length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <IconActivity className="w-4 h-4 text-primary" />
-                        <h4 className="font-display text-sm font-semibold text-foreground">Chart Colors</h4>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {theme.colors.filter(c => c.description?.startsWith('CHART:')).length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mr-0.5">Charts</span>
                         {theme.colors.filter(c => c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
-                          <div key={`chart-${idx}`} className="p-3 rounded-xl bg-muted border border-border">
-                            <div className="flex items-center gap-3 mb-2">
-                              <div
-                                className="w-10 h-10 rounded-lg border border-border shadow-inner"
-                                style={{ backgroundColor: color.hexCode }}
-                              />
-                              <div>
-                                <p className="font-medium text-sm text-foreground">{color.name}</p>
-                                <p className="font-mono text-xs text-muted-foreground">{color.hexCode}</p>
-                              </div>
-                            </div>
-                            <p className="text-xs text-muted-foreground line-clamp-2">{color.description?.replace('CHART: ', '')}</p>
+                          <div
+                            key={`chart-${idx}`}
+                            className="w-5 h-5 rounded border border-border/60 cursor-default"
+                            style={{ backgroundColor: color.hexCode }}
+                            title={`${color.name}: ${color.hexCode}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).length > 0
+                      && theme.colors.filter(c => c.description?.startsWith('PALETTE:')).length === 0 && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mr-0.5">Colors</span>
+                        {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
+                          <div key={`other-${idx}`} className="flex items-center gap-1.5 px-1.5 py-1 rounded-md bg-muted/60 border border-border/50">
+                            <div className="w-5 h-5 rounded border border-border/60 shrink-0" style={{ backgroundColor: color.hexCode }} />
+                            <span className="text-[11px] text-foreground font-medium">{color.name}</span>
+                            <span className="font-mono text-[10px] text-muted-foreground">{color.hexCode}</span>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
-
-                  {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                      {theme.colors.filter(c => !c.description?.startsWith('PALETTE:') && !c.description?.startsWith('CHART:')).sort((a, b) => a.rank - b.rank).map((color, idx) => (
-                        <div key={`other-${idx}`} className="p-3 rounded-xl bg-muted border border-border">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div
-                              className="w-10 h-10 rounded-lg border border-border shadow-inner"
-                              style={{ backgroundColor: color.hexCode }}
-                            />
-                            <div>
-                              <p className="font-medium text-sm text-foreground">{color.name}</p>
-                              <p className="font-mono text-xs text-muted-foreground">{color.hexCode}</p>
-                            </div>
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2">{color.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

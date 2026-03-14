@@ -406,7 +406,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
                     Edit
                   </Button>
                 ) : (
-                  <>
+                  <div className="flex items-center gap-1.5">
                     <Button
                       size="sm"
                       variant="default"
@@ -426,7 +426,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
                     >
                       Cancel
                     </Button>
-                  </>
+                  </div>
                 )}
                 <Button
                   size="sm"
@@ -533,7 +533,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
                       Edit
                     </Button>
                   ) : (
-                    <>
+                    <div className="flex items-center gap-1.5">
                       <Button
                         size="sm"
                         variant="default"
@@ -554,7 +554,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
                       >
                         Cancel
                       </Button>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>

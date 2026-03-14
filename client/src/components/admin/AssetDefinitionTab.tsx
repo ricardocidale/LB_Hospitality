@@ -381,13 +381,13 @@ function AmenityCard({
         {hasValue && (
           <div className="flex items-center gap-1.5 flex-wrap">
             {field.type === "currency" ? (
-              <>
+              <div className="flex items-center gap-1.5">
                 <span className="text-xs text-muted-foreground">$</span>
                 <CurrencyInput
                   value={config[field.key as keyof IcpConfig] as number}
                   onChange={(v) => updateConfig(field.key as keyof IcpConfig, v as any)}
                 />
-              </>
+              </div>
             ) : (
               <NumberInput
                 value={config[field.key as keyof IcpConfig] as number}
@@ -396,23 +396,23 @@ function AmenityCard({
               />
             )}
             {field.pair && (
-              <>
+              <div className="flex items-center gap-1.5">
                 <span className="text-[10px] text-muted-foreground">{field.pairLabel}</span>
                 {field.type === "currency" ? (
-                  <>
+                  <div className="flex items-center gap-1.5">
                     <span className="text-xs text-muted-foreground">$</span>
                     <CurrencyInput
                       value={config[field.pair as keyof IcpConfig] as number}
                       onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
                     />
-                  </>
+                  </div>
                 ) : (
                   <NumberInput
                     value={config[field.pair as keyof IcpConfig] as number}
                     onChange={(v) => updateConfig(field.pair as keyof IcpConfig, v as any)}
                   />
                 )}
-              </>
+              </div>
             )}
             <UnitLabel unitType={field.unitType} suffix={field.suffix} />
           </div>

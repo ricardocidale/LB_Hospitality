@@ -46,7 +46,7 @@ export function useAdminUsers() {
 export function useAdminCompanies() {
   return useQuery<AdminCompany[]>({
     queryKey: ["admin", "companies"],
-    queryFn: adminFetch<AdminCompany[]>("/api/admin/companies", "Failed to fetch companies"),
+    queryFn: adminFetch<AdminCompany[]>("/api/companies", "Failed to fetch companies"),
   });
 }
 

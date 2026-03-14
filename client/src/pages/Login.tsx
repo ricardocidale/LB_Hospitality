@@ -94,12 +94,12 @@ export default function Login() {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-muted p-6 md:p-10 overflow-auto">
-      <div className="w-full max-w-sm md:max-w-3xl mx-auto">
+      <div className="w-full max-w-sm md:max-w-[880px] mx-auto">
         <div className="flex flex-col gap-6">
           <Card className="overflow-hidden">
-            <CardContent className="grid p-0 md:grid-cols-2">
-              <form onSubmit={handleSubmit} className="p-6 md:p-8">
-                <div className="flex flex-col gap-6">
+            <CardContent className="grid p-0 md:grid-cols-[3fr_2fr]">
+              <form onSubmit={handleSubmit} className="flex items-center justify-center p-6 md:p-10 md:py-12">
+                <div className="flex flex-col gap-6 w-full max-w-sm">
                   <div className="flex flex-col items-center text-center">
                     <div className="mb-2 drop-shadow-[0_0_12px_rgba(159,188,164,0.4)]">
                       <SpinningLogo3D size={72} onClick={handleAdminLogin} />

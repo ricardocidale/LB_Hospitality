@@ -285,10 +285,19 @@
   * {
     @apply border-border;
   }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+  }
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-size: 14px;
     line-height: 1.5;
+  }
+  #root {
+    min-height: 100%;
   }
 
   /* Swiss Modernist Typography Scale - Applied via utility classes */

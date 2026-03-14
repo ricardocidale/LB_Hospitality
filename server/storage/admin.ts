@@ -155,8 +155,10 @@ export class AdminStorage {
     if (group?.isDefault) throw new Error("Cannot delete the default user group");
     const defaultGroup = await this.getDefaultUserGroup();
     if (!defaultGroup) throw new Error("Cannot delete group: no default group exists to reassign users");
-    await db.update(users).set({ userGroupId: defaultGroup.id, updatedAt: new Date() }).where(eq(users.userGroupId, id));
-    await db.delete(userGroups).where(eq(userGroups.id, id));
+    await db.transaction(async (tx) => {
+      await tx.update(users).set({ userGroupId: defaultGroup.id, updatedAt: new Date() }).where(eq(users.userGroupId, id));
+      await tx.delete(userGroups).where(eq(userGroups.id, id));
+    });
   }
 
   /** Assign a user to a group (or remove from a group by passing null). */
@@ -195,8 +197,10 @@ export class AdminStorage {
    * to null) so the foreign key doesn't block the delete.
    */
   async deleteCompany(id: number): Promise<void> {
-    await db.update(users).set({ companyId: null, updatedAt: new Date() }).where(eq(users.companyId, id));
-    await db.delete(companies).where(eq(companies.id, id));
+    await db.transaction(async (tx) => {
+      await tx.update(users).set({ companyId: null, updatedAt: new Date() }).where(eq(users.companyId, id));
+      await tx.delete(companies).where(eq(companies.id, id));
+    });
   }
 
   // ── Research Questions ──────────────────────────────────────

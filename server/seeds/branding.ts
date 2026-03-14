@@ -37,11 +37,13 @@ export async function seedDefaultLogos() {
 }
 
 export async function seedCompanies() {
+  const existing = await db.select().from(companies);
+  if (existing.length > 0) {
+    return;
+  }
+
   const [defaultTheme] = await db.select().from(designThemes).where(eq(designThemes.isDefault, true));
   const defaultThemeId = defaultTheme?.id ?? null;
-
-  const existing = await db.select().from(companies);
-  const existingNames = new Set(existing.map(c => c.name));
 
   const companiesToSeed = [
     { name: "Hospitality Business Group", type: "management" as const, description: "Management company overseeing all hotel SPVs" },
@@ -53,39 +55,20 @@ export async function seedCompanies() {
     { name: "General", type: "spv" as const, description: "Default catch-all company" },
   ];
 
-  let added = 0;
   for (const c of companiesToSeed) {
-    if (!existingNames.has(c.name)) {
-      await db.insert(companies).values({ ...c, themeId: defaultThemeId });
-      added++;
-    }
+    await db.insert(companies).values({ ...c, themeId: defaultThemeId });
   }
-  if (added > 0) {
-    logger.info(`Seeded ${added} new companies (themeId=${defaultThemeId})`, "seed");
-  }
-
-  if (defaultThemeId) {
-    const needsUpdate = existing.filter(c => c.themeId !== defaultThemeId);
-    for (const c of needsUpdate) {
-      await db.update(companies).set({ themeId: defaultThemeId }).where(eq(companies.id, c.id));
-    }
-    if (needsUpdate.length > 0) {
-      logger.info(`Assigned default theme to ${needsUpdate.length} existing companies`, "seed");
-    }
-  }
+  logger.info(`Seeded ${companiesToSeed.length} companies (themeId=${defaultThemeId})`, "seed");
 
   const allCompanies = await db.select().from(companies);
-  const allLogos = await db.select().from(logos);
-  const logosById = new Map(allLogos.map(l => [l.id, l]));
   let logosCreated = 0;
   for (const c of allCompanies) {
-    if (c.logoId && logosById.has(c.logoId)) continue;
     const logoUrl = `/api/letter-logo/${encodeURIComponent(c.name)}`;
     const [logo] = await db.insert(logos).values({ name: c.name, companyName: c.name, url: logoUrl, isDefault: false }).returning();
     await db.update(companies).set({ logoId: logo.id }).where(eq(companies.id, c.id));
     logosCreated++;
   }
   if (logosCreated > 0) {
-    logger.info(`Created ${logosCreated} letter logos for companies without logos`, "seed");
+    logger.info(`Created ${logosCreated} letter logos for companies`, "seed");
   }
 }

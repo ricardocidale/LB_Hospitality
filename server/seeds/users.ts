@@ -22,8 +22,8 @@ export async function seedUsers() {
 
 export async function seedUserGroups() {
   const existing = await db.select().from(userGroups);
-  const hasDefault = existing.some(g => g.isDefault);
 
+  const hasDefault = existing.some(g => g.isDefault);
   if (!hasDefault) {
     const existingGeneral = existing.find(g => g.name === "General");
     if (existingGeneral) {
@@ -78,6 +78,11 @@ export async function seedUserGroups() {
 }
 
 export async function seedUserCompanyAssignments() {
+  const usersWithCompany = await db.select().from(users).where(isNotNull(users.companyId)).limit(1);
+  if (usersWithCompany.length > 0) {
+    return;
+  }
+
   const companyNameToEmail: Record<string, string[]> = {
     "The Norfolk AI Group": ["ricardo.cidale@norfolkgroup.io", "checker@norfolkgroup.io", "reynaldo.fagundes@norfolk.ai"],
     "KIT Capital": ["kit@kitcapital.com", "rosario@kitcapital.com", "lemazniku@icloud.com"],

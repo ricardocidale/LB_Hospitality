@@ -94,14 +94,27 @@ export default function CompaniesTab() {
       if (res.status === 204) return null;
       return res.json().catch(() => null);
     },
+    onMutate: async (id: number) => {
+      await queryClient.cancelQueries({ queryKey: ["admin", "companies"] });
+      const previousCompanies = queryClient.getQueryData<AdminCompany[]>(["admin", "companies"]);
+      queryClient.setQueryData<AdminCompany[]>(["admin", "companies"], (old) =>
+        old ? old.filter((c) => c.id !== id) : old
+      );
+      return { previousCompanies };
+    },
     onSuccess: () => {
+      toast({ title: "Company Deleted", description: "Company has been deleted." });
+    },
+    onError: (error: Error, _id: number, context) => {
+      if (context?.previousCompanies) {
+        queryClient.setQueryData(["admin", "companies"], context.previousCompanies);
+      }
+      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "companies"] });
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      toast({ title: "Company Deleted", description: "Company has been deleted." });
-    },
-    onError: (error: Error) => {
-      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
     },
   });
 

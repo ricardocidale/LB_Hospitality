@@ -232,7 +232,40 @@ interface FileSource {
 interface IcpSources {
   urls: UrlSource[];
   files: FileSource[];
+  allowUnrestricted?: boolean;
 }
+
+interface PromptQuestion {
+  id: string;
+  question: string;
+  sortOrder: number;
+}
+
+interface PromptBuilderConfig {
+  questions: PromptQuestion[];
+  additionalInstructions: string;
+  context: {
+    location: boolean;
+    propertyProfile: boolean;
+    propertyDescription: boolean;
+    questions: boolean;
+    additionalInstructions: boolean;
+    financialResults: boolean;
+  };
+}
+
+const DEFAULT_PROMPT_BUILDER: PromptBuilderConfig = {
+  questions: [],
+  additionalInstructions: "",
+  context: {
+    location: true,
+    propertyProfile: true,
+    propertyDescription: true,
+    questions: true,
+    additionalInstructions: true,
+    financialResults: false,
+  },
+};
 
 interface ResearchSection {
   title: string;
@@ -385,6 +418,7 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
   const { toast } = useToast();
 
   const [report, setReport] = useState<IcpResearchReport | null>(null);
+  const [researchMarkdown, setResearchMarkdown] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamContent, setStreamContent] = useState("");
   const [exportFormat, setExportFormat] = useState<"pdf" | "docx">("pdf");
@@ -407,7 +441,12 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
   const fileInputRef = useRef<HTMLInputElement>(null);
   const seededRef = useRef(false);
 
-  const [activeSubTab, setActiveSubTab] = useState<"prompt" | "research" | "sources">("prompt");
+  const [promptBuilder, setPromptBuilder] = useState<PromptBuilderConfig>(DEFAULT_PROMPT_BUILDER);
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+  const [editingQuestionText, setEditingQuestionText] = useState("");
+  const [newQuestionText, setNewQuestionText] = useState("");
+
+  const [activeSubTab, setActiveSubTab] = useState<"ai-prompt" | "icp-ai-prompt" | "research-text" | "research-markdown" | "sources">("ai-prompt");
 
   const prompt = ga?.assetDescription || "";
 
@@ -434,6 +473,10 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
     if (ga?.icpConfig) {
       const cfg = ga.icpConfig as Record<string, any>;
       if (cfg._research) setReport(cfg._research as IcpResearchReport);
+      if (cfg._researchMarkdown) setResearchMarkdown(cfg._researchMarkdown as string);
+      if (cfg._promptBuilder) {
+        setPromptBuilder({ ...DEFAULT_PROMPT_BUILDER, ...(cfg._promptBuilder as Partial<PromptBuilderConfig>) });
+      }
     }
   }, [ga?.icpConfig]);
 
@@ -473,6 +516,90 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
   const mutateError = useCallback(() => {
     toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
   }, [toast]);
+
+  const savePromptBuilder = useCallback((updated: PromptBuilderConfig) => {
+    const existing = (ga?.icpConfig as Record<string, any>) || {};
+    updateMutation.mutate(
+      { icpConfig: { ...existing, _promptBuilder: updated } },
+      {
+        onSuccess: () => {
+          toast({ title: "Saved", description: "Prompt builder configuration updated." });
+        },
+        onError: mutateError,
+      }
+    );
+  }, [ga?.icpConfig, updateMutation, toast, mutateError]);
+
+  const handleAddQuestion = () => {
+    const text = newQuestionText.trim();
+    if (!text) return;
+    const updated = {
+      ...promptBuilder,
+      questions: [...promptBuilder.questions, { id: `q-${Date.now()}`, question: text, sortOrder: promptBuilder.questions.length }],
+    };
+    setPromptBuilder(updated);
+    setNewQuestionText("");
+    savePromptBuilder(updated);
+  };
+
+  const handleEditQuestion = (id: string) => {
+    const q = promptBuilder.questions.find((q) => q.id === id);
+    if (!q) return;
+    setEditingQuestionId(id);
+    setEditingQuestionText(q.question);
+  };
+
+  const handleSaveEditQuestion = () => {
+    if (!editingQuestionId || !editingQuestionText.trim()) return;
+    const updated = {
+      ...promptBuilder,
+      questions: promptBuilder.questions.map((q) =>
+        q.id === editingQuestionId ? { ...q, question: editingQuestionText.trim() } : q
+      ),
+    };
+    setPromptBuilder(updated);
+    setEditingQuestionId(null);
+    setEditingQuestionText("");
+    savePromptBuilder(updated);
+  };
+
+  const handleCopyQuestion = (id: string) => {
+    const q = promptBuilder.questions.find((q) => q.id === id);
+    if (!q) return;
+    const updated = {
+      ...promptBuilder,
+      questions: [...promptBuilder.questions, { id: `q-${Date.now()}`, question: q.question, sortOrder: promptBuilder.questions.length }],
+    };
+    setPromptBuilder(updated);
+    savePromptBuilder(updated);
+    toast({ title: "Copied", description: "Question duplicated." });
+  };
+
+  const handleDeleteQuestion = (id: string) => {
+    const updated = {
+      ...promptBuilder,
+      questions: promptBuilder.questions.filter((q) => q.id !== id),
+    };
+    setPromptBuilder(updated);
+    savePromptBuilder(updated);
+  };
+
+  const handleContextChange = (key: keyof PromptBuilderConfig["context"], checked: boolean) => {
+    const updated = {
+      ...promptBuilder,
+      context: { ...promptBuilder.context, [key]: checked },
+    };
+    setPromptBuilder(updated);
+    savePromptBuilder(updated);
+  };
+
+  const handleInstructionsChange = useCallback((value: string) => {
+    setPromptBuilder((prev) => ({ ...prev, additionalInstructions: value }));
+  }, []);
+
+  const handleSaveInstructions = () => {
+    savePromptBuilder(promptBuilder);
+  };
 
   const handleGenerate = () => {
     const generated = generateIcpPrompt(config, desc, propertyLabel, promptOpts);
@@ -573,12 +700,14 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
     setIsGenerating(true);
     setStreamContent("");
     setReport(null);
+    setResearchMarkdown("");
 
     try {
       const res = await fetch("/api/research/icp/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
+        body: JSON.stringify({ promptBuilder: promptBuilder }),
       });
 
       if (!res.ok) {
@@ -611,6 +740,7 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
               }
             } else if (event.type === "done" && event.report) {
               setReport(event.report);
+              if (event.markdown) setResearchMarkdown(event.markdown);
               await refetch();
             } else if (event.type === "error") {
               throw new Error(event.message);
@@ -625,7 +755,7 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
     } finally {
       setIsGenerating(false);
     }
-  }, [refetch, toast]);
+  }, [refetch, toast, promptBuilder]);
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -653,6 +783,18 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handleExportMarkdown = () => {
+    if (!researchMarkdown) return;
+    const blob = new Blob([researchMarkdown], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "icp-research-report.md";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "Exported", description: "Research exported as Markdown." });
   };
 
   const formatMetricValue = (val: any) => {
@@ -808,30 +950,161 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
         onChange={onToggle}
       />
       {!enabled ? null : (<>
-      <div className="flex gap-2 border-b border-border/50 pb-2">
-        {(["prompt", "research", "sources"] as const).map((tab) => (
+      <div className="flex gap-2 border-b border-border/50 pb-2 overflow-x-auto">
+        {([
+          { key: "ai-prompt", label: "AI Prompt" },
+          { key: "icp-ai-prompt", label: "ICP AI Prompt" },
+          { key: "research-text", label: "Research Text" },
+          { key: "research-markdown", label: "Research Markdown" },
+          { key: "sources", label: "Sources" },
+        ] as const).map((tab) => (
           <button
-            key={tab}
+            key={tab.key}
             type="button"
-            onClick={() => setActiveSubTab(tab)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-              activeSubTab === tab
+            onClick={() => setActiveSubTab(tab.key as typeof activeSubTab)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+              activeSubTab === tab.key
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             }`}
-            data-testid={`subtab-icp-${tab}`}
+            data-testid={`subtab-icp-${tab.key}`}
           >
-            {tab === "prompt" ? "AI Prompt" : tab === "research" ? "Research" : "Sources"}
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {activeSubTab === "prompt" && (
+      {activeSubTab === "ai-prompt" && (
+        <div className="space-y-5">
+          <div>
+            <h4 className="text-sm font-semibold text-foreground">Research Questions</h4>
+            <p className="text-xs text-muted-foreground mt-1">
+              Define the questions the ICP AI Prompt should answer when generating research.
+            </p>
+          </div>
+
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <Input
+                value={newQuestionText}
+                onChange={(e) => setNewQuestionText(e.target.value)}
+                placeholder="e.g. What are the average ADR ranges by location for boutique luxury hotels?"
+                className="h-9 text-xs bg-card"
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddQuestion(); } }}
+                data-testid="input-new-question"
+              />
+            </div>
+            <Button size="sm" variant="default" onClick={handleAddQuestion} disabled={!newQuestionText.trim() || updateMutation.isPending} className="h-9 text-xs gap-1.5" data-testid="button-add-question">
+              <IconPlus className="w-3.5 h-3.5" />
+              Add Question
+            </Button>
+          </div>
+
+          {promptBuilder.questions.length > 0 ? (
+            <div className="space-y-2 max-h-[350px] overflow-y-auto">
+              {promptBuilder.questions.map((q, idx) => (
+                <div key={q.id} className="flex items-start gap-2 px-3 py-2.5 rounded-lg border border-border/60 bg-muted/20 group hover:bg-muted/40 transition-colors" data-testid={`question-${q.id}`}>
+                  <span className="text-[10px] font-bold text-muted-foreground mt-0.5 shrink-0 w-5">{idx + 1}.</span>
+                  {editingQuestionId === q.id ? (
+                    <div className="flex-1 space-y-2">
+                      <Input
+                        value={editingQuestionText}
+                        onChange={(e) => setEditingQuestionText(e.target.value)}
+                        className="h-8 text-xs bg-card"
+                        onKeyDown={(e) => { if (e.key === "Enter") handleSaveEditQuestion(); }}
+                        autoFocus
+                        data-testid="input-edit-question"
+                      />
+                      <div className="flex gap-1.5">
+                        <Button size="sm" variant="default" onClick={handleSaveEditQuestion} className="text-xs h-7" data-testid="button-save-edit-question">Save</Button>
+                        <Button size="sm" variant="ghost" onClick={() => setEditingQuestionId(null)} className="text-xs h-7">Cancel</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="flex-1 text-xs text-foreground/90 leading-relaxed">{q.question}</p>
+                      <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleEditQuestion(q.id)} className="text-muted-foreground hover:text-primary p-0.5" data-testid={`edit-question-${q.id}`}>
+                          <IconPencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => handleCopyQuestion(q.id)} className="text-muted-foreground hover:text-primary p-0.5" data-testid={`copy-question-${q.id}`}>
+                          <IconCopy className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => handleDeleteQuestion(q.id)} className="text-muted-foreground hover:text-red-500 p-0.5" data-testid={`delete-question-${q.id}`}>
+                          <IconTrash className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-muted-foreground">
+              <IconResearch className="w-6 h-6 mx-auto mb-2 opacity-30" />
+              <p className="text-xs">No research questions defined yet. Add questions above.</p>
+            </div>
+          )}
+
+          <div className="pt-4 border-t border-border/40 space-y-3">
+            <div>
+              <Label className="text-sm font-medium">Additional Instructions</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Custom instructions to guide how the AI builds the research prompt and report.
+              </p>
+            </div>
+            <Textarea
+              value={promptBuilder.additionalInstructions}
+              onChange={(e) => handleInstructionsChange(e.target.value)}
+              onBlur={handleSaveInstructions}
+              placeholder="e.g. Focus on luxury boutique segment specifically, highlight competitive landscape per market, include fee ranges for management and incentive fees..."
+              rows={4}
+              className="text-xs resize-none bg-card"
+              data-testid="textarea-additional-instructions"
+            />
+          </div>
+
+          <div className="pt-4 border-t border-border/40 space-y-3">
+            <div>
+              <Label className="text-sm font-medium">Context for ICP AI Prompt</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Select which data sources the AI should use to build the ICP AI Prompt and generate research.
+              </p>
+            </div>
+            <div className="space-y-2.5">
+              {([
+                { key: "location" as const, label: "Location", desc: "Target countries, states, cities, and radii" },
+                { key: "propertyProfile" as const, label: "Property Profile", desc: "Room counts, ADR, occupancy, financial targets" },
+                { key: "propertyDescription" as const, label: "Property Description", desc: "Property types, F&B levels, exclusions" },
+                { key: "questions" as const, label: "Questions", desc: "Research questions defined above" },
+                { key: "additionalInstructions" as const, label: "Additional Instructions", desc: "Custom instructions written above" },
+                { key: "financialResults" as const, label: "Financial Results", desc: "Current financial reports for the Management Company" },
+              ]).map((item) => (
+                <div key={item.key} className="flex items-start gap-2.5">
+                  <Checkbox
+                    id={`ctx-${item.key}`}
+                    checked={promptBuilder.context[item.key]}
+                    onCheckedChange={(v) => handleContextChange(item.key, !!v)}
+                    className="mt-0.5"
+                    data-testid={`checkbox-context-${item.key}`}
+                  />
+                  <label htmlFor={`ctx-${item.key}`} className="cursor-pointer leading-tight">
+                    <span className="text-xs font-medium text-foreground">{item.label}</span>
+                    <span className="text-[10px] text-muted-foreground block">{item.desc}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === "icp-ai-prompt" && (
         <div className="space-y-4">
           <div>
-            <h4 className="text-sm font-semibold text-foreground">AI Research Prompt</h4>
+            <h4 className="text-sm font-semibold text-foreground">ICP AI Research Prompt</h4>
             <p className="text-xs text-muted-foreground mt-1">
-              This prompt is served to the AI research engine based on ICP for Mgmt Co configuration.
+              This prompt is generated from your AI Prompt configuration and served to the AI research engine.
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -882,8 +1155,8 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <IconSparkles className="w-8 h-8 mx-auto mb-3 opacity-40" />
-              <p className="text-sm font-medium">No AI prompt generated yet</p>
-              <p className="text-xs mt-1">Click <strong>Generate</strong> to build the prompt from ICP for Mgmt Co configuration.</p>
+              <p className="text-sm font-medium">No ICP AI prompt generated yet</p>
+              <p className="text-xs mt-1">Click <strong>Generate</strong> to build the prompt from your AI Prompt configuration.</p>
             </div>
           )}
 
@@ -895,22 +1168,24 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
         </div>
       )}
 
-      {activeSubTab === "research" && (
+      {activeSubTab === "research-text" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <IconFlaskConical className="w-4 h-4 text-muted-foreground" />
-                ICP for Mgmt Co Market Research
+                Research Text
               </h4>
               <p className="text-xs text-muted-foreground mt-1">
-                AI-powered market research based on all ICP for Mgmt Co parameters.
+                Formatted market research with charts and metrics. Export as PDF.
               </p>
             </div>
-            <Button size="sm" variant="default" onClick={handleGenerateResearch} disabled={isGenerating} className="text-xs h-8 gap-1.5" data-testid="button-generate-research">
-              {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
-              {isGenerating ? "Generating..." : report ? "Regenerate" : "Generate Research"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="default" onClick={handleGenerateResearch} disabled={isGenerating} className="text-xs h-8 gap-1.5" data-testid="button-generate-research">
+                {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
+                {isGenerating ? "Generating..." : report ? "Regenerate" : "Generate Research"}
+              </Button>
+            </div>
           </div>
 
           {isGenerating && (
@@ -1037,8 +1312,86 @@ function IcpResearchSection({ enabled, onToggle }: { enabled: boolean; onToggle:
         </div>
       )}
 
+      {activeSubTab === "research-markdown" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <IconFileText className="w-4 h-4 text-muted-foreground" />
+                Research Markdown
+              </h4>
+              <p className="text-xs text-muted-foreground mt-1">
+                Raw markdown output from the AI research engine. Export as .md file.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="default" onClick={handleGenerateResearch} disabled={isGenerating} className="text-xs h-8 gap-1.5" data-testid="button-regenerate-markdown">
+                {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
+                {isGenerating ? "Generating..." : researchMarkdown ? "Regenerate" : "Generate"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleExportMarkdown} disabled={!researchMarkdown} className="text-xs h-8 gap-1.5" data-testid="button-export-markdown">
+                <IconDownload className="w-3.5 h-3.5" />
+                Export .md
+              </Button>
+            </div>
+          </div>
+
+          {isGenerating && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Generating markdown research report...</span>
+              </div>
+              <div ref={streamRef} className="max-h-[500px] overflow-y-auto bg-muted/40 border border-border rounded-lg p-4 font-mono text-xs leading-relaxed text-foreground/80 whitespace-pre-wrap" data-testid="stream-markdown">
+                {streamContent || "Waiting for response..."}
+              </div>
+            </div>
+          )}
+
+          {!isGenerating && !researchMarkdown && (
+            <div className="text-center py-12">
+              <IconFileText className="w-8 h-8 mx-auto mb-3 text-muted-foreground/40" />
+              <p className="text-sm font-medium text-muted-foreground" data-testid="text-no-markdown">No markdown research generated yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Click <strong>Generate</strong> to produce a markdown research report.</p>
+            </div>
+          )}
+
+          {!isGenerating && researchMarkdown && (
+            <div className="space-y-2" data-testid="research-markdown-content">
+              <p className="text-xs text-muted-foreground">
+                {researchMarkdown.length.toLocaleString()} characters
+              </p>
+              <pre className="whitespace-pre-wrap text-xs leading-relaxed font-mono text-foreground/90 bg-muted/40 border border-border rounded p-4 max-h-[700px] overflow-y-auto" data-testid="text-research-markdown">
+                {researchMarkdown}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+
       {activeSubTab === "sources" && (
         <div className="space-y-5">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium flex items-center gap-1.5">
+                <IconGlobe className="w-3.5 h-3.5 text-muted-foreground" />
+                Allow Unrestricted Search
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                When enabled, the AI can search beyond the listed sources. When disabled, research is restricted to sources below.
+              </p>
+            </div>
+            <Switch
+              checked={sources.allowUnrestricted ?? false}
+              onCheckedChange={(v) => {
+                const updated = { ...sources, allowUnrestricted: v };
+                setSources(updated);
+                saveSources(updated);
+              }}
+              data-testid="switch-allow-unrestricted"
+            />
+          </div>
+
           <div>
             <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <IconLink className="w-4 h-4 text-muted-foreground" />

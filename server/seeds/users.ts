@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { users, companies, properties, userGroupProperties } from "@shared/schema";
-import { eq, and, inArray, isNull } from "drizzle-orm";
+import { eq, and, inArray, isNull, isNotNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { userGroups } from "@shared/schema";
 import { logger } from "../logger";

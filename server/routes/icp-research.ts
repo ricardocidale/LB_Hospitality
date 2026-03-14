@@ -31,22 +31,45 @@ interface IcpResearchSection {
   content: string;
 }
 
+interface PromptBuilderConfig {
+  questions?: { id: string; question: string; sortOrder: number }[];
+  additionalInstructions?: string;
+  context?: {
+    location?: boolean;
+    propertyProfile?: boolean;
+    propertyDescription?: boolean;
+    questions?: boolean;
+    additionalInstructions?: boolean;
+    financialResults?: boolean;
+  };
+}
+
 function buildIcpResearchPrompt(
   icpConfig: Record<string, any>,
   assetDescription: string,
   propertyLabel: string,
+  promptBuilder?: PromptBuilderConfig,
+  financialSummary?: string,
 ): string {
+  const ctx = promptBuilder?.context ?? {
+    location: true, propertyProfile: true, propertyDescription: true,
+    questions: true, additionalInstructions: true, financialResults: false,
+  };
+
   const locations = (icpConfig._locations || []) as IcpLocation[];
   const descriptive = icpConfig._descriptive || {};
-  const sources = icpConfig._sources as { urls?: any[]; files?: any[] } | undefined;
+  const sources = icpConfig._sources as { urls?: any[]; files?: any[]; allowUnrestricted?: boolean } | undefined;
 
-  const locationBlock = locations.length > 0
-    ? locations.map((loc) => {
-        const cities = loc.cities.map((c) => `${c.name} (${c.radius}mi radius)`).join(", ");
-        const notes = loc.notes ? `\n  Additional context: ${loc.notes}` : "";
-        return `- ${loc.country} > ${loc.states.join(", ")} > Cities: ${cities}${notes}`;
-      }).join("\n")
-    : "No specific locations defined.";
+  let locationBlock = "";
+  if (ctx.location !== false) {
+    locationBlock = locations.length > 0
+      ? locations.map((loc) => {
+          const cities = loc.cities.map((c) => `${c.name} (${c.radius}mi radius)`).join(", ");
+          const notes = loc.notes ? `\n  Additional context: ${loc.notes}` : "";
+          return `- ${loc.country} > ${loc.states.join(", ")} > Cities: ${cities}${notes}`;
+        }).join("\n")
+      : "No specific locations defined.";
+  }
 
   let sourcesBlock = "";
   if (sources) {
@@ -56,68 +79,110 @@ function buildIcpResearchPrompt(
       return `- [Uploaded] ${f.name}`;
     }).join("\n");
     if (urlList || fileList) {
-      sourcesBlock = `\n═══ REFERENCE SOURCES ═══\nThe user has provided the following reference sources. Incorporate relevant data, statistics, and insights from these sources into your analysis where applicable.\n${urlList ? `\nURLs:\n${urlList}` : ""}${fileList ? `\nFiles:\n${fileList}` : ""}\n`;
+      const restriction = sources.allowUnrestricted
+        ? "You may also search beyond these sources when needed."
+        : "IMPORTANT: You MUST restrict your research to ONLY the sources listed below. Do not reference or cite information from any other sources.";
+      sourcesBlock = `\n═══ REFERENCE SOURCES ═══\n${restriction}\n${urlList ? `\nURLs:\n${urlList}` : ""}${fileList ? `\nFiles:\n${fileList}` : ""}\n`;
     }
+  }
+
+  let questionsBlock = "";
+  if (ctx.questions !== false && promptBuilder?.questions && promptBuilder.questions.length > 0) {
+    const qs = promptBuilder.questions
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((q, i) => `${i + 1}. ${q.question}`)
+      .join("\n");
+    questionsBlock = `\n═══ RESEARCH QUESTIONS TO ANSWER ═══\nThe research report MUST answer each of the following questions with specific data and analysis:\n${qs}\n`;
+  }
+
+  let instructionsBlock = "";
+  if (ctx.additionalInstructions !== false && promptBuilder?.additionalInstructions?.trim()) {
+    instructionsBlock = `\n═══ ADDITIONAL INSTRUCTIONS ═══\n${promptBuilder.additionalInstructions.trim()}\n`;
+  }
+
+  let financialBlock = "";
+  if (ctx.financialResults !== false && financialSummary) {
+    financialBlock = `\n═══ MANAGEMENT COMPANY FINANCIAL RESULTS ═══\nThe following financial performance data represents the management company's current position. Use this to assess how the company's financial health affects ICP attractiveness, investor appeal, and competitive positioning.\n${financialSummary}\n`;
+  }
+
+  let profileBlock = "";
+  if (ctx.propertyProfile !== false) {
+    profileBlock = `\n═══ PROPERTY PROFILE PARAMETERS ═══
+Room count range: ${icpConfig.roomsMin || "N/A"}–${icpConfig.roomsMax || "N/A"}
+Sweet spot: ${icpConfig.roomsSweetSpotMin || "N/A"}–${icpConfig.roomsSweetSpotMax || "N/A"}
+F&B Rating: ${icpConfig.fbRating || "N/A"}/5
+Land range: ${icpConfig.landAcresMin || "N/A"}–${icpConfig.landAcresMax || "N/A"} acres\n`;
+  }
+
+  let descriptionBlock = "";
+  if (ctx.propertyDescription !== false) {
+    descriptionBlock = `\n═══ PROPERTY TYPES ═══
+${descriptive.propertyTypes || "Boutique luxury hotel"}
+
+═══ EXCLUSIONS ═══
+${descriptive.exclusions || "None specified"}\n`;
   }
 
   return `You are a senior hospitality investment research analyst specializing in boutique luxury hotels and resorts. Produce a comprehensive ICP (Ideal Customer Profile) market research report for a hotel management company seeking to acquire or manage properties matching the profile below.
 
 ═══ PROPERTY LABEL ═══
 ${propertyLabel}
-
-═══ TARGET LOCATIONS ═══
-${locationBlock}
-
+${ctx.location !== false ? `\n═══ TARGET LOCATIONS ═══\n${locationBlock}\n` : ""}
 ═══ ASSET DESCRIPTION / AI PROMPT ═══
 ${assetDescription || "No asset description provided."}
+${profileBlock}${descriptionBlock}${questionsBlock}${instructionsBlock}${financialBlock}${sourcesBlock}
 
-═══ PROPERTY PROFILE PARAMETERS ═══
-Room count range: ${icpConfig.roomsMin || "N/A"}–${icpConfig.roomsMax || "N/A"}
-Sweet spot: ${icpConfig.roomsSweetSpotMin || "N/A"}–${icpConfig.roomsSweetSpotMax || "N/A"}
-F&B Rating: ${icpConfig.fbRating || "N/A"}/5
-Land range: ${icpConfig.landAcresMin || "N/A"}–${icpConfig.landAcresMax || "N/A"} acres
-
-═══ PROPERTY TYPES ═══
-${descriptive.propertyTypes || "Boutique luxury hotel"}
-
-═══ EXCLUSIONS ═══
-${descriptive.exclusions || "None specified"}
-${sourcesBlock}
+═══ GRANULARITY REQUIREMENTS ═══
+Research must be granular and location-specific where it matters:
+- ADR: Always presented as a RANGE (low–high). Must vary by specific street, zone, neighborhood within a city when the location definition is that specific. Different sub-markets within the same city can have dramatically different ADR ranges.
+- Occupancy: Provide seasonal ranges and annual averages per location/sub-market.
+- Commercial loan rates: These are typically statewide, regional, or national — use the appropriate geographic scope.
+- Management fees: Provide ranges in both USD and percentage, varying by location/market and property type/amenities.
+- Incentive fees: Provide ranges in both USD and percentage, explain how they vary by market conditions and property performance.
+- Service fees: For each service the management company provides, give a range in USD and percentage that may vary per location, market, or amenity level.
+- Key Performance Indicators: Identify critical KPIs for the business in each market.
+- Competitive landscape: Identify competitive or adjacent companies in each prospect property location/market.
+- Operating costs: USALI-based benchmarks that vary by location, property size, and service level.
 
 ═══ REPORT STRUCTURE ═══
 Produce the report in the following JSON format:
 {
   "generalMarket": {
     "title": "General Market Overview",
-    "content": "Multi-paragraph analysis of the boutique luxury hotel market nationally/globally — trends, ADR benchmarks, occupancy patterns, cap rates, investor sentiment, regulatory environment, and competitive landscape. NOT location-specific."
+    "content": "Multi-paragraph analysis of the boutique luxury hotel market nationally/globally — trends, ADR benchmarks (as ranges), occupancy patterns, cap rates, investor sentiment, regulatory environment, competitive landscape, and fee structures. NOT location-specific."
   },
   "locations": [
     {
-      "locationKey": "Country > State",
+      "locationKey": "Country > State > City/Zone",
       "title": "Market Analysis: [Location Name]",
-      "content": "Multi-paragraph deep dive for this specific market — local demand drivers, tourism statistics, seasonality, competitive set, typical ADR ranges, occupancy benchmarks, land/acquisition costs, development pipeline, regulatory/tax considerations, and opportunity assessment."
+      "content": "Deep dive for this specific market including: local demand drivers and tourism statistics, seasonality analysis, competitive set with named competitors, ADR ranges by sub-market/zone, occupancy benchmarks (seasonal and annual), RevPAR analysis, land and acquisition cost ranges, management fee ranges (USD and %), incentive fee ranges (USD and %), service fee ranges for each service (USD and %), commercial lending rates and terms, development pipeline, regulatory/tax considerations, key performance indicators, and opportunity assessment. Be as granular as the location specificity allows."
     }
   ],
   "conclusion": {
     "title": "Conclusion & Strategic Recommendations",
-    "content": "Synthesis of findings, ranked location attractiveness, risk/reward assessment, timing considerations, and actionable next steps for the management company."
+    "content": "Synthesis including: ranked location attractiveness, risk/reward per market, fee structure recommendations per location, competitive positioning strategy, KPI targets by market, timing considerations, and actionable next steps."
   },
   "extractedMetrics": {
-    "nationalAvgAdr": { "value": 0, "unit": "USD", "description": "National average ADR for boutique luxury segment" },
+    "nationalAvgAdr": { "value": 0, "unit": "USD", "range": "low-high", "description": "National average ADR range for boutique luxury segment" },
     "nationalAvgOccupancy": { "value": 0, "unit": "%", "description": "National average occupancy rate" },
     "nationalAvgRevPAR": { "value": 0, "unit": "USD", "description": "National average RevPAR" },
     "avgCapRate": { "value": 0, "unit": "%", "description": "Average cap rate for boutique luxury hotels" },
+    "avgManagementFee": { "value": 0, "unit": "%", "range": "low-high", "description": "Average management fee percentage range" },
+    "avgIncentiveFee": { "value": 0, "unit": "%", "range": "low-high", "description": "Average incentive fee percentage range" },
     "locationMetrics": [
       {
         "location": "Location name",
-        "avgAdr": { "value": 0, "unit": "USD" },
+        "avgAdr": { "value": 0, "unit": "USD", "range": "low-high" },
         "avgOccupancy": { "value": 0, "unit": "%" },
         "avgRevPAR": { "value": 0, "unit": "USD" },
         "capRate": { "value": 0, "unit": "%" },
         "avgLandCostPerAcre": { "value": 0, "unit": "USD" },
         "demandGrowthRate": { "value": 0, "unit": "%" },
+        "managementFeeRange": { "value": 0, "unit": "%", "range": "low-high" },
+        "incentiveFeeRange": { "value": 0, "unit": "%", "range": "low-high" },
         "competitiveIntensity": "low|medium|high",
-        "investmentRating": "A+|A|B+|B|C"
+        "investmentRating": "A+|A|B+|B|C",
+        "keyCompetitors": ["Company A", "Company B"]
       }
     ]
   }
@@ -126,10 +191,72 @@ Produce the report in the following JSON format:
 IMPORTANT:
 - Use real market data and current industry benchmarks. Base your analysis on actual hospitality industry reports, STR data patterns, and real estate investment metrics.
 - All numeric values in extractedMetrics must be realistic numbers, not placeholders.
-- Each location section should be 3-5 substantial paragraphs.
+- ADR values MUST be presented as ranges (e.g., "$250-$450") reflecting the specific sub-market granularity.
+- Fee structures (management, incentive, service) MUST include both USD amounts and percentages as ranges.
+- Each location section should be 4-8 substantial paragraphs covering all required granular topics.
 - The general market section should be 4-6 paragraphs.
-- The conclusion should be 3-4 paragraphs.
+- The conclusion should be 3-5 paragraphs.
 - Return ONLY valid JSON, no markdown fences or extra text.`;
+}
+
+function buildMarkdownFromReport(report: IcpResearchReport, propertyLabel: string): string {
+  const lines: string[] = [];
+  lines.push(`# ICP Market Research Report — ${propertyLabel}`);
+  lines.push(`*Generated: ${new Date(report.generatedAt).toLocaleString()} | Model: ${report.model}*`);
+  lines.push("");
+
+  for (const section of report.sections) {
+    lines.push(`## ${section.title}`);
+    if (section.locationKey) lines.push(`*Location: ${section.locationKey}*`);
+    lines.push("");
+    lines.push(section.content);
+    lines.push("");
+  }
+
+  if (report.extractedMetrics && Object.keys(report.extractedMetrics).length > 0) {
+    lines.push("## Key Extracted Metrics");
+    lines.push("");
+    lines.push("| Metric | Value | Unit |");
+    lines.push("|--------|-------|------|");
+    for (const [key, val] of Object.entries(report.extractedMetrics)) {
+      if (key === "locationMetrics") continue;
+      if (val && typeof val === "object" && "value" in val) {
+        const range = val.range ? ` (${val.range})` : "";
+        lines.push(`| ${val.description || key} | ${val.value}${range} | ${val.unit || ""} |`);
+      }
+    }
+    lines.push("");
+
+    if (report.extractedMetrics.locationMetrics && Array.isArray(report.extractedMetrics.locationMetrics)) {
+      for (const loc of report.extractedMetrics.locationMetrics) {
+        lines.push(`### ${loc.location || "Location"}`);
+        lines.push("");
+        lines.push("| Metric | Value |");
+        lines.push("|--------|-------|");
+        const entries: [string, any][] = [
+          ["ADR", loc.avgAdr], ["Occupancy", loc.avgOccupancy], ["RevPAR", loc.avgRevPAR],
+          ["Cap Rate", loc.capRate], ["Land Cost/Acre", loc.avgLandCostPerAcre],
+          ["Demand Growth", loc.demandGrowthRate], ["Management Fee Range", loc.managementFeeRange],
+          ["Incentive Fee Range", loc.incentiveFeeRange],
+        ];
+        for (const [label, metric] of entries) {
+          if (metric && typeof metric === "object" && "value" in metric) {
+            const range = metric.range ? ` (${metric.range})` : "";
+            lines.push(`| ${label} | ${metric.value}${range} ${metric.unit || ""} |`);
+          }
+        }
+        if (loc.competitiveIntensity) lines.push(`| Competitive Intensity | ${loc.competitiveIntensity} |`);
+        if (loc.investmentRating) lines.push(`| Investment Rating | ${loc.investmentRating} |`);
+        if (loc.keyCompetitors && Array.isArray(loc.keyCompetitors)) {
+          lines.push("");
+          lines.push(`**Key Competitors:** ${loc.keyCompetitors.join(", ")}`);
+        }
+        lines.push("");
+      }
+    }
+  }
+
+  return lines.join("\n");
 }
 
 export function register(app: Express) {
@@ -147,7 +274,7 @@ export function register(app: Express) {
       const propertyLabel = ga.propertyLabel || "Hotel";
       const model = (ga.researchConfig as any)?.preferredLlm || ga.preferredLlm || "claude-sonnet-4-6";
 
-      const prompt = buildIcpResearchPrompt(icpConfig, assetDescription, propertyLabel);
+      const promptBuilder = (req.body?.promptBuilder || icpConfig._promptBuilder || {}) as PromptBuilderConfig;
 
       const anthropic = getAnthropicClient();
 
@@ -157,11 +284,46 @@ export function register(app: Express) {
 
       res.write(`data: ${JSON.stringify({ type: "status", message: "Starting ICP market research..." })}\n\n`);
 
+      let financialSummary: string | undefined;
+      if (promptBuilder.context?.financialResults) {
+        try {
+          const companies = await storage.getAllCompanies();
+          const mgmtCompany = companies.find((c: any) => c.type === "management");
+          const props = await storage.getAllProperties(req.user!.id);
+          const managedProps = mgmtCompany
+            ? props.filter((p: any) => p.companyId === mgmtCompany.id)
+            : props;
+
+          const lines: string[] = [];
+          if (mgmtCompany) lines.push(`Management Company: ${mgmtCompany.name}`);
+          lines.push(`Properties in portfolio: ${managedProps.length}`);
+          lines.push(`Base Management Fee: ${((ga.baseManagementFee || 0) * 100).toFixed(1)}%`);
+          lines.push(`Incentive Management Fee: ${((ga.incentiveManagementFee || 0) * 100).toFixed(1)}%`);
+
+          for (const p of managedProps) {
+            const revPAR = (p.startAdr || 0) * (p.startOccupancy || 0);
+            lines.push(`\n--- ${p.name} ---`);
+            lines.push(`  Keys: ${p.roomCount || 0}`);
+            lines.push(`  Starting ADR: $${(p.startAdr || 0).toFixed(0)}`);
+            lines.push(`  Starting Occupancy: ${((p.startOccupancy || 0) * 100).toFixed(0)}%`);
+            lines.push(`  ADR Growth Rate: ${((p.adrGrowthRate || 0) * 100).toFixed(1)}%`);
+            lines.push(`  RevPAR: $${revPAR.toFixed(0)}`);
+          }
+
+          financialSummary = lines.join("\n");
+        } catch (err) {
+          console.warn("[icp-research] Failed to gather financial context:", err);
+          res.write(`data: ${JSON.stringify({ type: "status", message: "Warning: Could not load financial data — continuing without financial context." })}\n\n`);
+        }
+      }
+
+      const prompt = buildIcpResearchPrompt(icpConfig, assetDescription, propertyLabel, promptBuilder, financialSummary);
+
       let fullContent = "";
 
       const stream = await anthropic.messages.stream({
         model,
-        max_tokens: 8000,
+        max_tokens: 12000,
         messages: [{ role: "user", content: prompt }],
       });
 
@@ -218,10 +380,12 @@ export function register(app: Express) {
         });
       }
 
-      const updatedIcpConfig = { ...icpConfig, _research: report };
+      const markdown = buildMarkdownFromReport(report, propertyLabel);
+
+      const updatedIcpConfig = { ...icpConfig, _research: report, _researchMarkdown: markdown };
       await storage.patchGlobalAssumptions(ga.id, { icpConfig: updatedIcpConfig });
 
-      res.write(`data: ${JSON.stringify({ type: "done", report })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: "done", report, markdown })}\n\n`);
       res.end();
     } catch (error: any) {
       console.error("ICP research generation error:", error);

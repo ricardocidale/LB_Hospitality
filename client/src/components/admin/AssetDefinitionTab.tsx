@@ -156,9 +156,6 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
   const { data: ga, isLoading: gaLoading } = useGlobalAssumptions();
   const updateMutation = useUpdateAdminConfig();
 
-  // Guard: wait for data before rendering form fields
-  if (gaLoading && !ga) return null;
-
   const [propertyLabel, setPropertyLabel] = useState("");
   const [config, setConfig] = useState<IcpConfig>(DEFAULT_ICP_CONFIG);
   const [desc, setDesc] = useState<IcpDescriptive>(DEFAULT_ICP_DESCRIPTIVE);
@@ -233,6 +230,8 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
     }
     return () => onSaveStateChange?.(null);
   }, [dirty, handleSave, updateMutation.isPending, onSaveStateChange]);
+
+  if (gaLoading && !ga) return null;
 
   const addCustomAmenity = () => {
     const newAmenity: CustomAmenity = {

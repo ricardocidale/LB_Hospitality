@@ -20,12 +20,6 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
   const { toast } = useToast();
   const [draft, setDraft] = useState<any>(null);
 
-  // Guard: wait for data before rendering form fields
-  if (globalLoading && !global) return null;
-
-  const current = draft ?? global ?? {};
-  const assetDef = current.assetDefinition ?? {};
-
   const handleNestedChange = useCallback((group: string, field: string, value: any) => {
     setDraft((prev: any) => {
       const base = prev ?? global ?? {};
@@ -60,6 +54,10 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
     return () => onSaveStateChange?.(null);
   }, [!!draft, handleSave, updateGlobal.isPending, onSaveStateChange]);
 
+  if (globalLoading && !global) return null;
+
+  const current = draft ?? global ?? {};
+  const assetDef = current.assetDefinition ?? {};
   const hasExternalSaveHandler = !!onSaveStateChange;
 
   return (

@@ -346,9 +346,6 @@ export interface IcpLocationTabProps {
 export default function IcpLocationTab({ onSaveStateChange }: IcpLocationTabProps = {}) {
   const { data: ga, isLoading: gaLoading } = useGlobalAssumptions();
   const updateMutation = useUpdateAdminConfig();
-
-  // Guard: wait for data before rendering
-  if (gaLoading && !ga) return null;
   const { toast } = useToast();
 
   const [locations, setLocations] = useState<IcpLocation[]>([]);
@@ -434,6 +431,8 @@ export default function IcpLocationTab({ onSaveStateChange }: IcpLocationTabProp
     }
     return () => onSaveStateChange?.(null);
   }, [dirty, handleSave, updateMutation.isPending, onSaveStateChange]);
+
+  if (gaLoading && !ga) return null;
 
   return (
     <div className="space-y-4">

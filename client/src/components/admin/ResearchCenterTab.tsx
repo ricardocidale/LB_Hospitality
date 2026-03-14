@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { SaveButton } from "@/components/ui/save-button";
 import { Loader2, X, ChevronDown, ChevronRight } from "lucide-react";
 import {
   IconPlus, IconBrain, IconExternalLink, IconRefreshCw,
@@ -1556,6 +1557,15 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
           onChange={(c) => updateConfig("global", c)}
         />
       </CollapsibleSection>
+
+      <div className="flex justify-end pb-8">
+        <SaveButton 
+          onClick={handleSave} 
+          isPending={saveMutation.isPending}
+          hasChanges={isDirty}
+          data-testid="button-save-research-config"
+        />
+      </div>
     </div>
   );
 }

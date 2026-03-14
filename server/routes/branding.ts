@@ -156,7 +156,7 @@ export function register(app: Express) {
     }
   });
 
-  // Asset Descriptions CRUD
+  // Property Descriptions CRUD
   app.get("/api/asset-descriptions", requireAuth, async (req, res) => {
     try {
       const descriptions = await storage.getAllAssetDescriptions();

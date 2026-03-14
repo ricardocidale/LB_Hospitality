@@ -84,7 +84,7 @@ export default function PropertyResearchCriteria() {
     if (assetDef.maxEventCapacity) assetInputs.push({ label: "Max Event Capacity", value: `${assetDef.maxEventCapacity} guests` });
     if (assetDef.acreage) assetInputs.push({ label: "Acreage", value: `${assetDef.acreage} acres` });
     if (assetDef.privacyLevel) assetInputs.push({ label: "Privacy Level", value: assetDef.privacyLevel });
-    if (assetDef.description) assetInputs.push({ label: "Asset Description", value: assetDef.description });
+    if (assetDef.description) assetInputs.push({ label: "Property Description", value: assetDef.description });
   }
 
   const focusAreas = eventConfig.focusAreas?.length ? eventConfig.focusAreas : [];

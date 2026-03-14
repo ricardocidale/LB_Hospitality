@@ -362,7 +362,7 @@ export default function GroupsTab() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-sm font-medium"><IconProperties className="w-4 h-4 text-muted-foreground/80" /> Asset Description (Property Label)</Label>
+              <Label className="flex items-center gap-2 text-sm font-medium"><IconProperties className="w-4 h-4 text-muted-foreground/80" /> Property Description (Property Label)</Label>
               <Select value={groupForm.assetDescriptionId != null ? String(groupForm.assetDescriptionId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, assetDescriptionId: v === "default" ? null : parseInt(v) })}>
                 <SelectTrigger data-testid="select-group-asset-desc"><SelectValue /></SelectTrigger>
                 <SelectContent>

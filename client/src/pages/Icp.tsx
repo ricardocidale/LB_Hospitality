@@ -348,7 +348,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
                   <IconBookOpen className="w-8 h-8 mx-auto mb-3 opacity-40" />
                   <p className="text-sm font-medium">No ICP definition generated yet</p>
                   <p className="text-xs mt-1">
-                    Click <strong>Generate</strong> to build the definition from your current Property Profile and Asset Description.
+                    Click <strong>Generate</strong> to build the definition from your current Property Profile and Property Description.
                   </p>
                 </div>
               )}

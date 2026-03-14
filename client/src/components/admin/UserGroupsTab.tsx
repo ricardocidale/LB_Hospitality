@@ -426,7 +426,7 @@ export default function UserGroupsTab() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Asset Description</Label>
+            <Label className="flex items-center gap-2"><IconProperties className="w-4 h-4 text-muted-foreground" />Property Description</Label>
             <Select value={groupForm.assetDescriptionId != null ? String(groupForm.assetDescriptionId) : "default"} onValueChange={(v) => setGroupForm({ ...groupForm, assetDescriptionId: v === "default" ? null : parseInt(v) })} data-testid="select-group-asset-desc">
               <SelectTrigger data-testid="select-group-asset-desc"><SelectValue /></SelectTrigger>
               <SelectContent>

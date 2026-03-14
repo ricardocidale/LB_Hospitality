@@ -283,7 +283,7 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold text-foreground">
-            Ideal Customer Profile — Asset Description
+            Ideal Customer Profile — Property Description
           </CardTitle>
           <p className="text-xs text-muted-foreground mt-1">
             Define the target property profile with deterministic parameters and descriptive context.

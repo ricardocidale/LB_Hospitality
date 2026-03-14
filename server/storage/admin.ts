@@ -84,7 +84,7 @@ export class AdminStorage {
     await db.delete(logos).where(eq(logos.id, id));
   }
 
-  // ── Asset Descriptions ──────────────────────────────────────
+  // ── Property Descriptions ──────────────────────────────────────
 
   /** List all asset descriptions, ordered by creation date. */
   async getAllAssetDescriptions(): Promise<AssetDescription[]> {

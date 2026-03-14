@@ -117,10 +117,10 @@ export function register(app: Express) {
       const ga = await storage.getGlobalAssumptions(u.id);
       const companyName = ga?.companyName || null;
 
-      res.json({ logoUrl, themeName, themeColors, groupCompanyName, companyName });
+      res.json({ logoUrl, themeName, themeColors, groupCompanyName, companyName, selectedThemeId: u.selectedThemeId ?? null });
     } catch (error) {
       console.error("Error fetching my-branding:", error);
-      res.json({ logoUrl: null, themeName: null, themeColors: null, groupCompanyName: null, companyName: null });
+      res.json({ logoUrl: null, themeName: null, themeColors: null, groupCompanyName: null, companyName: null, selectedThemeId: null });
     }
   });
 

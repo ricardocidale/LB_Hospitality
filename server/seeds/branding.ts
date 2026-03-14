@@ -50,6 +50,7 @@ export async function seedCompanies() {
     { name: "Numeratti Endeavors", type: "management" as const, description: "Strategic investment ventures" },
     { name: "HBG Property 1 LLC", type: "spv" as const, description: "SPV for first hotel property" },
     { name: "HBG Property 2 LLC", type: "spv" as const, description: "SPV for second hotel property" },
+    { name: "General", type: "spv" as const, description: "Default catch-all company" },
   ];
 
   let added = 0;

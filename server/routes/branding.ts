@@ -256,6 +256,10 @@ export function register(app: Express) {
 
   app.patch("/api/companies/:id", requireAdmin, async (req, res) => {
     try {
+      const existing = await storage.getCompany(Number(req.params.id));
+      if (existing?.name === "General" && "name" in req.body && req.body.name !== "General") {
+        return res.status(400).json({ error: "The General company cannot be renamed" });
+      }
       const company = await storage.updateCompany(Number(req.params.id), req.body);
       res.json(company);
     } catch (error) {
@@ -265,6 +269,10 @@ export function register(app: Express) {
 
   app.delete("/api/companies/:id", requireAdmin, async (req, res) => {
     try {
+      const existing = await storage.getCompany(Number(req.params.id));
+      if (existing?.name === "General") {
+        return res.status(400).json({ error: "The General company cannot be deleted" });
+      }
       await storage.deleteCompany(Number(req.params.id));
       res.json({ success: true });
     } catch (error) {

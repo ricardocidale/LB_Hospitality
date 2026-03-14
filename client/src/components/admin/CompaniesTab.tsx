@@ -165,6 +165,7 @@ export default function CompaniesTab() {
                         }} className="text-muted-foreground hover:text-foreground hover:bg-muted" data-testid={`button-edit-company-${company.id}`}>
                           <IconPencil className="w-4 h-4" />
                         </Button>
+                        {company.name !== "General" && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-company-${company.id}`}>
@@ -186,6 +187,7 @@ export default function CompaniesTab() {
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                        )}
                       </div>
                     </div>
                     {company.description && (
@@ -226,7 +228,8 @@ export default function CompaniesTab() {
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><IconBuilding2 className="w-4 h-4 text-muted-foreground" />Company Name</Label>
-            <Input value={companyForm.name} onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })} placeholder="e.g., Norfolk Group" data-testid="input-company-form-name" />
+            <Input value={companyForm.name} onChange={(e) => setCompanyForm({ ...companyForm, name: e.target.value })} placeholder="e.g., Norfolk Group" data-testid="input-company-form-name" disabled={editingCompany?.name === "General"} />
+            {editingCompany?.name === "General" && <p className="text-xs text-muted-foreground">The General company cannot be renamed.</p>}
           </div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><IconImage className="w-4 h-4 text-muted-foreground" />Logo</Label>

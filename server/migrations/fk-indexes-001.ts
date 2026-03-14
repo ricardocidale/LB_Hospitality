@@ -7,6 +7,10 @@ const TAG = "fk-indexes-001";
 /**
  * Adds indexes on foreign key columns used in cascade deletes and joins.
  * Safe to run multiple times — uses IF NOT EXISTS.
+ *
+ * This migration must be called AFTER drizzle push (table creation) to ensure
+ * all referenced tables and columns exist. It is invoked from server/index.ts
+ * in the post-push sequential phase.
  */
 export async function runFkIndexes001(): Promise<void> {
   const indexes = [
@@ -18,13 +22,14 @@ export async function runFkIndexes001(): Promise<void> {
   for (const ddl of indexes) {
     try {
       await db.execute(sql.raw(ddl));
-    } catch (error: any) {
-      if (error?.code === "42703" || error?.code === "42P01") {
-        logger.info(`[${TAG}] Skipping index (column/table not yet created): ${ddl.slice(0, 60)}…`);
-      } else {
-        logger.error(`[${TAG}] Migration failed: ${String(error)}`, TAG);
+    } catch (error: unknown) {
+      const pgCode = (error as { code?: string })?.code;
+      if (pgCode === "42703" || pgCode === "42P01") {
+        logger.error(`[${TAG}] Required table/column missing for: ${ddl.slice(0, 60)}… — schema may be out of sync`, TAG);
         throw error;
       }
+      logger.error(`[${TAG}] Migration failed: ${String(error)}`, TAG);
+      throw error;
     }
   }
   logger.info(`[${TAG}] FK indexes migration complete`);

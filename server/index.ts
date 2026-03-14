@@ -150,7 +150,6 @@ app.use((req, res, next) => {
     { runPlaid001 },
     { runDocuments001 },
     { runCompositeIndexes001 },
-    { runFkIndexes001 },
     { runMigration: runAutoResearchRefresh001 },
   ] = await Promise.all([
     import("./migrations/research-config-001"),
@@ -162,7 +161,6 @@ app.use((req, res, next) => {
     import("./migrations/plaid-001"),
     import("./migrations/documents-001"),
     import("./migrations/composite-indexes-001"),
-    import("./migrations/fk-indexes-001"),
     import("./migrations/auto-research-refresh-001"),
   ]);
   await Promise.all([
@@ -175,9 +173,12 @@ app.use((req, res, next) => {
     runPlaid001(),
     runDocuments001(),
     runCompositeIndexes001(),
-    runFkIndexes001(),
     runAutoResearchRefresh001(),
   ]);
+
+  // FK indexes must run after all table-creating migrations complete
+  const { runFkIndexes001 } = await import("./migrations/fk-indexes-001");
+  await runFkIndexes001();
 
   await seedAdminUser(); // Must complete first — users are FK dependencies
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");

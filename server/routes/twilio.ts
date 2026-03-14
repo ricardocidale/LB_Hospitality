@@ -109,7 +109,8 @@ export function register(app: Express) {
 
       const conversation = await chatStorage.createConversation(
         `SMS: ${body.slice(0, 40)}${body.length > 40 ? "..." : ""}`,
-        "sms"
+        "sms",
+        userId
       );
 
       await chatStorage.createMessage(conversation.id, "user", body.trim());
@@ -224,19 +225,22 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
 
                 logger.info(`Caller said: "${userTranscript.trim()}"`, "Twilio Voice");
 
+                const callerUser = callerNumber ? await storage.getUserByPhoneNumber(callerNumber) : undefined;
+                const callerUserId = callerUser?.id;
+
                 if (!conversationId) {
                   const conv = await chatStorage.createConversation(
                     `Phone: ${userTranscript.slice(0, 40)}${userTranscript.length > 40 ? "..." : ""}`,
-                    "phone"
+                    "phone",
+                    callerUserId
                   );
                   conversationId = conv.id;
                 }
 
                 await chatStorage.createMessage(conversationId, "user", userTranscript.trim());
 
-                const user = callerNumber ? await storage.getUserByPhoneNumber(callerNumber) : undefined;
-                const userId = user?.id;
-                const isAdmin = user?.role === "admin";
+                const userId = callerUserId;
+                const isAdmin = callerUser?.role === "admin";
 
                 const [contextPrompt, allMessages, phoneRagChunks] = await Promise.all([
                   buildContextPrompt(userId),

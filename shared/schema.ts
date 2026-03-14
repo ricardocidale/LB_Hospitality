@@ -92,8 +92,8 @@ export const companies = pgTable("companies", {
   name: text("name").notNull().unique(),
   type: text("type").notNull().default("spv"),
   description: text("description"),
-  logoId: integer("logo_id"),
-  themeId: integer("theme_id"),
+  logoId: integer("logo_id").references(() => logos.id, { onDelete: "set null" }),
+  themeId: integer("theme_id").references(() => designThemes.id, { onDelete: "set null" }),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -182,7 +182,7 @@ export const userGroups = pgTable("user_groups", {
   name: text("name").notNull(),
   logoId: integer("logo_id"),
   themeId: integer("theme_id"),
-  assetDescriptionId: integer("asset_description_id"),
+  assetDescriptionId: integer("asset_description_id").references(() => assetDescriptions.id, { onDelete: "set null" }),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
@@ -227,8 +227,8 @@ export const users = pgTable("users", {
   company: text("company"),
   companyId: integer("company_id").references(() => companies.id, { onDelete: "set null" }),
   title: text("title"),
-  userGroupId: integer("user_group_id"),
-  selectedThemeId: integer("selected_theme_id"),
+  userGroupId: integer("user_group_id").references(() => userGroups.id, { onDelete: "set null" }),
+  selectedThemeId: integer("selected_theme_id").references(() => designThemes.id, { onDelete: "set null" }),
   phoneNumber: text("phone_number"),
   hideTourPrompt: boolean("hide_tour_prompt").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -1394,10 +1394,13 @@ export const verificationRuns = pgTable("verification_runs", {
 // between the user and the AI. This is standard chat persistence boilerplate.
 export const conversations = pgTable("conversations", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   channel: text("channel").notNull().default("web"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("conversations_user_id_idx").on(table.userId),
+]);
 
 export const messages = pgTable("messages", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

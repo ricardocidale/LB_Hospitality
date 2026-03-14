@@ -26,7 +26,7 @@
  * by every route file in server/routes/.
  */
 import { db } from "../db";
-import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
+import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, notificationPreferences, plaidConnections, documentExtractions, docusignEnvelopes, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { UserStorage } from "./users";
 import { PropertyStorage } from "./properties";
@@ -263,6 +263,11 @@ export class DatabaseStorage implements IStorage {
       await tx.delete(marketResearch).where(eq(marketResearch.userId, id));
       await tx.delete(prospectiveProperties).where(eq(prospectiveProperties.userId, id));
       await tx.delete(savedSearches).where(eq(savedSearches.userId, id));
+      await tx.delete(notificationPreferences).where(eq(notificationPreferences.userId, id));
+      await tx.delete(plaidConnections).where(eq(plaidConnections.userId, id));
+      await tx.delete(documentExtractions).where(eq(documentExtractions.userId, id));
+      await tx.delete(docusignEnvelopes).where(eq(docusignEnvelopes.userId, id));
+      await tx.delete(conversations).where(eq(conversations.userId, id));
       await tx.delete(properties).where(eq(properties.userId, id));
       await tx.delete(globalAssumptions).where(eq(globalAssumptions.userId, id));
       await tx.delete(loginLogs).where(eq(loginLogs.userId, id));

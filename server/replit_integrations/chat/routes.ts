@@ -324,8 +324,8 @@ function buildSystemPrompt(isVoice: boolean, isAdmin: boolean): string {
 export function registerChatRoutes(app: Express): void {
   app.get("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
-      const conversations = await chatStorage.getAllConversations();
-      res.json(conversations);
+      const convos = await chatStorage.getAllConversationsForUser(req.user!.id);
+      res.json(convos);
     } catch (error) {
       console.error("Error fetching conversations:", error);
       res.status(500).json({ error: "Failed to fetch conversations" });
@@ -335,7 +335,7 @@ export function registerChatRoutes(app: Express): void {
   app.get("/api/conversations/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id as string);
-      const conversation = await chatStorage.getConversation(id);
+      const conversation = await chatStorage.getConversationForUser(id, req.user!.id);
       if (!conversation) {
         return res.status(404).json({ error: "Conversation not found" });
       }
@@ -350,7 +350,7 @@ export function registerChatRoutes(app: Express): void {
   app.post("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
       const { title } = req.body;
-      const conversation = await chatStorage.createConversation(title || "New Chat");
+      const conversation = await chatStorage.createConversation(title || "New Chat", "web", req.user!.id);
       res.status(201).json(conversation);
     } catch (error) {
       console.error("Error creating conversation:", error);
@@ -361,7 +361,10 @@ export function registerChatRoutes(app: Express): void {
   app.delete("/api/conversations/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id as string);
-      await chatStorage.deleteConversation(id);
+      const deleted = await chatStorage.deleteConversationForUser(id, req.user!.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting conversation:", error);
@@ -378,9 +381,13 @@ export function registerChatRoutes(app: Express): void {
         return res.status(400).json({ error: "Message content is required" });
       }
 
-      await chatStorage.createMessage(conversationId, "user", content.trim());
+      const userId = req.user!.id;
+      const conversation = await chatStorage.getConversationForUser(conversationId, userId);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
 
-      const userId = (req as any).user?.id;
+      await chatStorage.createMessage(conversationId, "user", content.trim());
       const [contextPrompt, userRole, ragChunks] = await Promise.all([
         buildContextPrompt(userId),
         getUserRole(userId),
@@ -453,6 +460,12 @@ export function registerChatRoutes(app: Express): void {
         chunkSchedule: [120, 160, 250, 290],
       };
 
+      const userId = req.user!.id;
+      const conversation = await chatStorage.getConversationForUser(conversationId, userId);
+      if (!conversation) {
+        return res.status(404).json({ error: "Conversation not found" });
+      }
+
       const rawBuffer = Buffer.from(audio, "base64");
       const { buffer: audioBuffer, format: inputFormat } = await ensureCompatibleFormat(rawBuffer);
 
@@ -463,8 +476,6 @@ export function registerChatRoutes(app: Express): void {
       }
 
       await chatStorage.createMessage(conversationId, "user", userTranscript.trim());
-
-      const userId = (req as any).user?.id;
       const [contextPrompt, userRole, ragChunksVoice] = await Promise.all([
         buildContextPrompt(userId),
         getUserRole(userId),

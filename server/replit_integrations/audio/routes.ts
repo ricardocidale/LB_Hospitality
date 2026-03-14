@@ -37,7 +37,8 @@ export function registerAudioRoutes(app: Express): void {
   app.post("/api/conversations", async (req: Request, res: Response) => {
     try {
       const { title } = req.body;
-      const conversation = await chatStorage.createConversation(title || "New Chat");
+      const userId = req.user?.id;
+      const conversation = await chatStorage.createConversation(title || "New Chat", "web", userId);
       res.status(201).json(conversation);
     } catch (error) {
       console.error("Error creating conversation:", error);

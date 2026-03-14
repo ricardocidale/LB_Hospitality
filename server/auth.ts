@@ -44,7 +44,7 @@ declare global {
     interface User {
       id: number;
       email: string;
-      passwordHash: string;
+      passwordHash: string | null;
       role: string;
       firstName: string | null;
       lastName: string | null;
@@ -53,6 +53,8 @@ declare global {
       title: string | null;
       userGroupId: number | null;
       selectedThemeId: number | null;
+      phoneNumber: string | null;
+      hideTourPrompt: boolean;
       createdAt: Date;
       updatedAt: Date;
     }

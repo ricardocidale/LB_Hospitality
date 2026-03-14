@@ -102,7 +102,7 @@ export function ThemeManager() {
     )}
 
     <div className="mb-6">
-      <ThemePreview />
+      <ThemePreview themeName={activeTheme?.name} />
     </div>
 
     <Card className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border shadow-2xl">

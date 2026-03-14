@@ -7,7 +7,11 @@ import { Separator } from "@/components/ui/separator";
 import { Check, X, Search, ChevronDown } from "lucide-react";
 import { IconEye, IconBell, IconStar, IconTrendingUp, IconUsers, IconDollarSign, IconAlertCircle } from "@/components/icons";
 
-export function ThemePreview() {
+interface ThemePreviewProps {
+  themeName?: string;
+}
+
+export function ThemePreview({ themeName }: ThemePreviewProps) {
   const [previewOpen, setPreviewOpen] = useState(true);
 
   if (!previewOpen) {
@@ -33,7 +37,9 @@ export function ThemePreview() {
               <IconEye className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg font-display text-foreground">Live Preview</CardTitle>
+              <CardTitle className="text-lg font-display text-foreground">
+                Live Preview{themeName ? ` — ${themeName}` : ""}
+              </CardTitle>
               <CardDescription className="text-muted-foreground">See how your theme looks on real UI elements</CardDescription>
             </div>
           </div>

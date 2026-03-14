@@ -180,8 +180,8 @@ export type InsertAssetDescription = z.infer<typeof insertAssetDescriptionSchema
 export const userGroups = pgTable("user_groups", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: text("name").notNull(),
-  logoId: integer("logo_id"),
-  themeId: integer("theme_id"),
+  logoId: integer("logo_id").references(() => logos.id, { onDelete: "set null" }),
+  themeId: integer("theme_id").references(() => designThemes.id, { onDelete: "set null" }),
   assetDescriptionId: integer("asset_description_id").references(() => assetDescriptions.id, { onDelete: "set null" }),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),

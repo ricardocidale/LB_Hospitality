@@ -176,6 +176,10 @@ app.use((req, res, next) => {
     runAutoResearchRefresh001(),
   ]);
 
+  // Notification logs schema fix must run before FK indexes
+  const { runNotificationLogs001 } = await import("./migrations/notification-logs-001");
+  await runNotificationLogs001();
+
   // FK indexes must run after all table-creating migrations complete
   const { runFkIndexes001 } = await import("./migrations/fk-indexes-001");
   await runFkIndexes001();

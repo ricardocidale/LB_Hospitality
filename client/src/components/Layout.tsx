@@ -218,6 +218,17 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
   const sidebarFooter = (
     <div className="px-2 pb-3 pt-1 space-y-0.5">
+      <button
+        onClick={() => {
+          setMobileOpen(false);
+          useWalkthroughStore.getState().triggerPrompt();
+        }}
+        className="flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        data-testid="nav-tour"
+      >
+        <IconCompass className="w-4 h-4 shrink-0" />
+        <span>Tour</span>
+      </button>
       {sb("sidebarUserManual") && (
         <Link href="/help" onClick={() => setMobileOpen(false)}>
           <span
@@ -232,17 +243,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           </span>
         </Link>
       )}
-      <button
-        onClick={() => {
-          setMobileOpen(false);
-          useWalkthroughStore.getState().triggerPrompt();
-        }}
-        className="flex items-center gap-2.5 w-full h-8 px-3 rounded-md text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-        data-testid="nav-tour"
-      >
-        <IconCompass className="w-4 h-4 shrink-0" />
-        <span>Tour</span>
-      </button>
       {isAdmin && (
         <Link href="/admin" onClick={() => setMobileOpen(false)}>
           <span

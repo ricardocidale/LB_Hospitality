@@ -55,6 +55,7 @@ export default function PropertyResearchCriteria() {
   const eventConfig: Partial<ResearchEventConfig> = researchConfig.property ?? {};
   const assetDef = global?.assetDefinition as any;
   const propertyLabel = global?.propertyLabel ?? "Boutique Hotel";
+  const icpDefinition = ((global as any)?.icpConfig as Record<string, any>)?._definition as string | undefined;
 
   const propertyInputs = [
     { label: "Property Name", value: property.name },
@@ -107,6 +108,27 @@ export default function PropertyResearchCriteria() {
             variant="dark"
             backLink={`/property/${propertyId}/edit`}
           />
+
+          {icpDefinition && (
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/3 p-6" data-testid="criteria-icp-definition">
+              <div className="flex items-start gap-3 mb-3">
+                <IconFileText className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {propertyLabel} — Target Profile
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    The fund's official description of its ideal customer profile and target asset class, used by the AI to understand what types of properties to benchmark against.
+                  </p>
+                </div>
+              </div>
+              <div className="pl-8">
+                <div className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                  {icpDefinition}
+                </div>
+              </div>
+            </Card>
+          )}
 
           <Card className="bg-primary/5 border-primary/20 p-4" data-testid="criteria-advisory-notice">
             <div className="flex gap-3">

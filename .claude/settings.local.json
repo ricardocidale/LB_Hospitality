@@ -45,5 +45,9 @@
       "Read(//tmp/**)"
     ],
     "deny": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ],
+  "enableAllProjectMcpServers": true
 }

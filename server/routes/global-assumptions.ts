@@ -1,9 +1,9 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireManagementAccess, requireAdmin } from "../auth";
-import { insertGlobalAssumptionsSchema } from "@shared/schema";
+import { insertGlobalAssumptionsSchema, updateServiceTemplateSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { logActivity, logAndSendError } from "./helpers";
+import { logActivity, logAndSendError, parseParamId } from "./helpers";
 import { z } from "zod";
 
 export function register(app: Express) {
@@ -74,6 +74,34 @@ export function register(app: Express) {
       res.json(assumptions);
     } catch (error) {
       logAndSendError(res, "Failed to update global assumptions", error);
+    }
+  });
+
+  app.get("/api/company/service-templates", requireManagementAccess, async (_req, res) => {
+    try {
+      const templates = await storage.getAllServiceTemplates();
+      res.json(templates);
+    } catch (error) {
+      logAndSendError(res, "Failed to fetch service templates", error);
+    }
+  });
+
+  app.patch("/api/company/service-templates/:id", requireManagementAccess, async (req, res) => {
+    try {
+      const id = parseParamId(req.params.id, res, "template ID");
+      if (id === null) return;
+
+      const validation = updateServiceTemplateSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+
+      const template = await storage.updateServiceTemplate(id, validation.data);
+      if (!template) return res.status(404).json({ error: "Service template not found" });
+      logActivity(req, "update-service-template", "service-template", id, template.name);
+      res.json(template);
+    } catch (error) {
+      logAndSendError(res, "Failed to update service template", error);
     }
   });
 }

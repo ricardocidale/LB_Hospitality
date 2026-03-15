@@ -1,4 +1,4 @@
-import { globalAssumptions, scenarios, propertyFeeCategories, propertyPhotos, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
+import { globalAssumptions, scenarios, propertyFeeCategories, propertyPhotos, companyServiceTemplates, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
 import { db } from "../db";
 import { eq, desc, isNull, inArray } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
@@ -212,10 +212,24 @@ export class FinancialStorage {
    * from shared/constants.ts.
    */
   async seedDefaultFeeCategories(propertyId: number): Promise<FeeCategory[]> {
-    const { DEFAULT_SERVICE_FEE_CATEGORIES } = await import("@shared/constants");
     const existing = await this.getFeeCategoriesByProperty(propertyId);
     if (existing.length > 0) return existing;
 
+    const templates = await db.select().from(companyServiceTemplates).orderBy(companyServiceTemplates.sortOrder);
+
+    if (templates.length > 0) {
+      const activeTemplates = templates.filter(t => t.isActive);
+      if (activeTemplates.length === 0) return [];
+      const values = activeTemplates.map(t => ({
+        propertyId,
+        name: t.name,
+        rate: t.defaultRate,
+        sortOrder: t.sortOrder,
+      }));
+      return await db.insert(propertyFeeCategories).values(values).returning();
+    }
+
+    const { DEFAULT_SERVICE_FEE_CATEGORIES } = await import("@shared/constants");
     const values = DEFAULT_SERVICE_FEE_CATEGORIES.map(cat => ({
       propertyId,
       name: cat.name,

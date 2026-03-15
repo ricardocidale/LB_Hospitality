@@ -230,30 +230,146 @@ const L2_AUTH = `flowchart TB
     UT -->|fallback| GT -->|fallback| DT
   end`;
 
-const L2_AI = `flowchart LR
-  subgraph Marcela["Marcela (Voice)"]
-    EL[ElevenLabs API] --> Voice[Voice Widget]
-    Voice --> Audio[Audio Stream]
-    KB[Knowledge Base] --> EL
-    Twilio[Twilio] --> EL
-  end
-  subgraph Rebecca["Rebecca (Text)"]
-    Gemini[Gemini API] --> Chat[Chat Panel]
-    Props[Property Metrics] --> Gemini
-    GA2[Global Assumptions] --> Gemini
-  end
-  User([User]) --> Voice
-  User --> Chat`;
+const L2_AI = `flowchart TB
+  User([Guest / Admin]) --> ConvaiWidget[ElevenLabs Convai Widget]
+  ConvaiWidget --> Marcela{"Marcela\\nVoice Agent"}
 
-const L2_RESEARCH = `flowchart LR
-  Trigger([Research Trigger]) --> Config[Admin]
-  Config --> Builder[Prompt Builder]
-  Builder --> Tools[Deterministic Tools]
-  Tools --> LLM[AI Model]
-  LLM --> Extract[Value Extraction]
-  Extract --> Validate[Post-LLM Validation]
-  Validate --> Store[Database Storage]
-  Store --> Display[UI Display]`;
+  subgraph ClientTools["Client-Side Tools (browser)"]
+    direction TB
+    nav[navigateToPage\\nRoute to any portal page]
+    showProp[showPropertyDetails\\nOpen property detail view]
+    editProp[openPropertyEditor\\nLaunch assumption editor]
+    tour[startGuidedTour\\nBegin interactive walkthrough]
+  end
+
+  subgraph ServerTools["Server-Side Webhooks (API)"]
+    direction TB
+    getProp[getProperties\\nList all portfolio properties]
+    getPropDet[getPropertyDetails\\nSingle property financials]
+    getPort[getPortfolioSummary\\nAggregated portfolio metrics]
+    getGA[getGlobalAssumptions\\nShared assumption values]
+  end
+
+  Marcela -->|"client_tool calls"| ClientTools
+  Marcela -->|"server_tool webhooks"| ServerTools
+
+  subgraph KB["Knowledge Base (RAG)"]
+    direction TB
+    StaticKB["Static KB Markdown\\nProduct docs, USALI glossary,\\nhospitality terminology"]
+    DynamicKB["Dynamic Live-Data Docs\\nProperty snapshots, portfolio\\nmetrics synced to ElevenLabs"]
+    StaticKB --> RAG["RAG Retrieval"]
+    DynamicKB --> RAG
+  end
+
+  RAG -->|"contextual grounding"| Marcela
+
+  subgraph Integrity["Deterministic Integrity Rule"]
+    Rule["Marcela NEVER calculates —\\nshe calls deterministic\\nengine tools for all numbers"]
+  end
+
+  ServerTools -.->|"all numbers from"| Engine[("Financial Engine\\n(Property + Company)")]
+  Integrity -.-> Marcela
+
+  style Marcela fill:#7c3aed,color:#fff,stroke:#6d28d9
+  style Rule fill:#dc2626,color:#fff,stroke:#b91c1c
+  style Engine fill:#2563eb,color:#fff,stroke:#1d4ed8
+  style RAG fill:#16a34a,color:#fff,stroke:#15803d`;
+
+const L2_RESEARCH = `flowchart TB
+  subgraph Trigger["Research Trigger"]
+    direction TB
+    PropTrig([Property-Level\\nSingle asset research])
+    CompTrig([Company-Level\\nICP-driven portfolio research])
+  end
+
+  subgraph Context["Context Assembly"]
+    direction TB
+    ICP["ICP / Asset Definition\\nTarget market, brand tier,\\nservice level positioning"]
+    Location["Location Profile\\nCity, submarket, MSA,\\ndemand generators"]
+    PropProfile["Property Profile\\nRoom count, star class,\\nF&B outlets, meeting space"]
+    FinContext["Financial Context\\nCurrent ADR, occupancy,\\nRevPAR assumptions"]
+  end
+
+  PropTrig -->|"property-specific"| Location
+  PropTrig --> PropProfile
+  PropTrig --> FinContext
+  CompTrig -->|"ICP-driven"| ICP
+  ICP --> Location
+  ICP --> PropProfile
+
+  subgraph PromptBuilder["Prompt Builder"]
+    direction TB
+    LocBlock["Location Intelligence Block"]
+    ProfBlock["Property Profile Block"]
+    FinBlock["Financial Context Block"]
+    LocBlock & ProfBlock & FinBlock --> Prompt["Assembled Research Prompt"]
+  end
+
+  Location --> LocBlock
+  PropProfile --> ProfBlock
+  FinContext --> FinBlock
+
+  subgraph LLM["Tool-Augmented LLM (Claude 3.5 Sonnet)"]
+    direction TB
+    WebSearch["Web Search\\nLive market data,\\nSTR reports, news"]
+    CompADR["compute_adr_projection\\nADR growth modeling"]
+    CompOcc["compute_occupancy_ramp\\nStabilization curve"]
+    WebSearch & CompADR & CompOcc --> Response["Structured LLM Response"]
+  end
+
+  Prompt --> LLM
+
+  subgraph Output["Structured Output"]
+    direction TB
+    CompLand["Competitive Landscape\\nComp set, positioning,\\nrate intelligence"]
+    OpBench["Operating Cost Benchmarks\\nCPOR, labor ratios,\\nF&B cost percentages"]
+    LocalEcon["Local Economics\\nDemand drivers, supply\\npipeline, tourism trends"]
+  end
+
+  Response --> CompLand
+  Response --> OpBench
+  Response --> LocalEcon
+
+  subgraph ValueExtract["Value Extraction"]
+    Extractor["research-value-extractor\\nMaps narrative text to\\ntyped financial assumptions"]
+  end
+
+  CompLand & OpBench & LocalEcon --> Extractor
+
+  subgraph Validation["Post-LLM Validation"]
+    Checks["Consistency Checks\\nRange bounds, cross-field\\nlogic, outlier detection"]
+  end
+
+  Extractor --> Checks
+
+  Checks --> Store[("market_research table\\nPostgreSQL")]
+
+  subgraph UI["UI Display"]
+    direction TB
+    Pills["Benchmark Pills\\nShown next to each\\nassumption input field"]
+    ApplyDialog["Apply Research Dialog\\nReview & selectively adopt\\nresearch values"]
+  end
+
+  Store --> Pills
+  Store --> ApplyDialog
+
+  subgraph Freshness["30-Day Refresh Cycle"]
+    direction LR
+    Fresh["🟢 Fresh\\n< 30 days old"]
+    Stale["🔴 Stale\\n≥ 30 days old"]
+    Fresh -.->|"after 30 days"| Stale
+    Stale -.->|"re-trigger"| PropTrig & CompTrig
+  end
+
+  Store -.-> Fresh
+
+  style PropTrig fill:#2563eb,color:#fff,stroke:#1d4ed8
+  style CompTrig fill:#7c3aed,color:#fff,stroke:#6d28d9
+  style Response fill:#16a34a,color:#fff,stroke:#15803d
+  style Extractor fill:#d97706,color:#fff,stroke:#b45309
+  style Store fill:#2563eb,color:#fff,stroke:#1d4ed8
+  style Fresh fill:#16a34a,color:#fff,stroke:#15803d
+  style Stale fill:#dc2626,color:#fff,stroke:#b91c1c`;
 
 const L2_MANCO = `flowchart TB
   subgraph Revenue["Revenue"]
@@ -577,21 +693,21 @@ export default function DiagramsTab() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="ai">
-              <AccordionTrigger className="text-sm font-semibold">AI Assistant Channels</AccordionTrigger>
+              <AccordionTrigger className="text-sm font-semibold">Marcela Voice Agent Architecture</AccordionTrigger>
               <AccordionContent>
                 <DiagramCard
-                  title="Marcela (Voice) & Rebecca (Text)"
-                  description="Two AI channels — Norfolk AI voice + Norfolk AI text analysis"
+                  title="Marcela Dual-Channel Tool System"
+                  description="ElevenLabs Convai → Client-side tools (navigation, property views, guided tours) + Server-side webhooks (portfolio data, financials) → Knowledge Base RAG (static docs + live-synced data) — Marcela never calculates, she calls deterministic engine tools"
                   chart={L2_AI}
                 />
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="research">
-              <AccordionTrigger className="text-sm font-semibold">Research Pipeline</AccordionTrigger>
+              <AccordionTrigger className="text-sm font-semibold">Market Research Pipeline</AccordionTrigger>
               <AccordionContent>
                 <DiagramCard
-                  title="AI Research Generation"
-                  description="Trigger → Tools → LLM → Validation → Storage"
+                  title="ICP-Driven Research & Value Extraction"
+                  description="Property or Company trigger → ICP/Asset context assembly → Prompt Builder → Tool-augmented Claude (web search + compute tools) → Structured output (comp set, benchmarks, local economics) → Value extraction to financial assumptions → Validation → Storage → Benchmark pills & Apply Research dialog — 30-day compulsory refresh cycle"
                   chart={L2_RESEARCH}
                 />
               </AccordionContent>

@@ -4,7 +4,7 @@ import { DashboardTabProps } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction, chartAction } from "@/components/ui/export-toolbar";
 import { FinancialChart } from "@/components/ui/financial-chart";
-import { dashboardExports, generatePortfolioBalanceSheetData, generatePortfolioCashFlowData, generatePortfolioInvestmentData, toExportData } from "./dashboardExports";
+import { dashboardExports, generatePortfolioBalanceSheetData, generatePortfolioCashFlowData, generatePortfolioInvestmentData, buildAllPortfolioStatements, exportPortfolioExcel, toExportData } from "./dashboardExports";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
 export function BalanceSheetTab({ financials, properties, global, projectionYears, getFiscalYear }: DashboardTabProps) {
@@ -44,8 +44,11 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
       case 'csv': 
         dashboardExports.exportToCSV(years, rows, "portfolio-balance-sheet.csv"); 
         break;
-      case 'excel': 
-        dashboardExports.exportToExcel(years, rows, "Portfolio - Balance Sheet.xlsx", "Balance Sheet"); 
+      case 'excel':
+        exportPortfolioExcel(
+          buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, modelStartDate),
+          global?.companyName || "Portfolio"
+        );
         break;
     }
   };

@@ -14,6 +14,7 @@ import {
 } from "@/lib/constants";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
+import { propertyEquityInvested } from "@/lib/financial/equityCalculations";
 import {
   applyCurrencyFormat,
   applyHeaderStyle,
@@ -215,7 +216,8 @@ export async function exportFullPropertyWorkbook(
   years: number,
   modelStartDate: string,
   fiscalYearStartMonth: number,
-  propertyIndex: number
+  propertyIndex: number,
+  companyName?: string
 ) {
   const XLSX = await import("xlsx");
   const yearly = aggregateByYear(data, years, modelStartDate, fiscalYearStartMonth);
@@ -225,9 +227,9 @@ export async function exportFullPropertyWorkbook(
   const totalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
 
   const wb = (XLSX as any).utils.book_new();
-  const safeName = propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
+  const safeCompany = (companyName || "Portfolio").replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 40);
+  const safeProp = propertyName.replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 40);
 
-  // Income Statement sheet — uses shared row builder
   const isRows = buildPropertyISRows(yearly);
   const isWs = (XLSX as any).utils.aoa_to_sheet(isRows);
   setColumnWidths(isWs, [30, ...yearly.map(() => 16)]);
@@ -235,23 +237,40 @@ export async function exportFullPropertyWorkbook(
   await applyHeaderStyle(isWs, isRows);
   (XLSX as any).utils.book_append_sheet(wb, isWs, "Income Statement");
 
-  // Cash Flow sheet — uses shared CF sections computation
   const s = computeCashFlowSections(yearly, cfData, loan, acquisitionYear, totalPropertyCost, years);
 
   const cfHeaders = ["Cash Flow Statement", ...yearly.map((y) => y.label)];
   const cfRows: (string | number)[][] = [
     cfHeaders, [],
     ["CASH FLOW FROM OPERATING ACTIVITIES"],
-    ["  Cash Received", ...yearly.map((y) => y.revenueTotal)],
-    ["  Cash Paid for Expenses", ...yearly.map((y) => -(y.totalExpenses - y.expenseFFE))],
+    ["  Cash Received from Guests & Clients", ...yearly.map((y) => y.revenueTotal)],
+    ["    Guest Room Revenue", ...yearly.map((y) => y.revenueRooms)],
+    ["    Event & Venue Revenue", ...yearly.map((y) => y.revenueEvents)],
+    ["    Food & Beverage Revenue", ...yearly.map((y) => y.revenueFB)],
+    ["    Other Revenue", ...yearly.map((y) => y.revenueOther)],
+    ["  Cash Paid for Operating Expenses", ...yearly.map((y) => -(y.totalExpenses - y.expenseFFE))],
+    ["    Housekeeping & Room Operations", ...yearly.map((y) => y.expenseRooms)],
+    ["    Food & Beverage Costs", ...yearly.map((y) => y.expenseFB)],
+    ["    Event Operations", ...yearly.map((y) => y.expenseEvents)],
+    ["    Marketing & Platform Fees", ...yearly.map((y) => y.expenseMarketing)],
+    ["    Property Operations & Maintenance", ...yearly.map((y) => y.expensePropertyOps)],
+    ["    Utilities (Variable)", ...yearly.map((y) => y.expenseUtilitiesVar)],
+    ["    Utilities (Fixed)", ...yearly.map((y) => y.expenseUtilitiesFixed)],
+    ["    Insurance", ...yearly.map((y) => y.expenseInsurance)],
+    ["    Property Taxes", ...yearly.map((y) => y.expenseTaxes)],
+    ["    Administrative & Compliance", ...yearly.map((y) => y.expenseAdmin)],
+    ["    IT Systems", ...yearly.map((y) => y.expenseIT)],
+    ["    Other Operating Costs", ...yearly.map((y) => y.expenseOther)],
+    ["    Base Management Fee", ...yearly.map((y) => y.feeBase)],
+    ["    Incentive Management Fee", ...yearly.map((y) => y.feeIncentive)],
     ["  Less: Interest Paid", ...cfData.map((cf) => -cf.interestExpense)],
     ["  Less: Income Taxes Paid", ...cfData.map((cf) => -cf.taxLiability)],
     ["Net Cash from Operating Activities", ...s.cashFromOperations],
     [],
     ["CASH FLOW FROM INVESTING ACTIVITIES"],
     ["  Property Acquisition", ...cfData.map((_, i) => (i === acquisitionYear ? -totalPropertyCost : 0))],
-    ["  FF&E Reserve", ...yearly.map((y) => -y.expenseFFE)],
-    ["  Sale Proceeds", ...cfData.map((cf) => cf.exitValue)],
+    ["  FF&E Reserve / Capital Improvements", ...yearly.map((y) => -y.expenseFFE)],
+    ["  Sale Proceeds (Net Exit Value)", ...cfData.map((cf) => cf.exitValue)],
     ["Net Cash from Investing Activities", ...s.cashFromInvesting],
     [],
     ["CASH FLOW FROM FINANCING ACTIVITIES"],
@@ -264,6 +283,13 @@ export async function exportFullPropertyWorkbook(
     ["Net Increase (Decrease) in Cash", ...s.netChangeCash],
     ["Opening Cash Balance", ...s.openingCash],
     ["Closing Cash Balance", ...s.closingCash],
+    [],
+    ["FREE CASH FLOW"],
+    ["  Net Cash from Operating Activities", ...s.cashFromOperations],
+    ["  Less: Capital Expenditures (FF&E)", ...yearly.map((y) => -y.expenseFFE)],
+    ["  Free Cash Flow (FCF)", ...s.fcf],
+    ["  Less: Principal Payments", ...cfData.map((cf) => -cf.principalPayment)],
+    ["  Free Cash Flow to Equity (FCFE)", ...s.fcfe],
   ];
   const cfWs = (XLSX as any).utils.aoa_to_sheet(cfRows);
   setColumnWidths(cfWs, [38, ...yearly.map(() => 16)]);
@@ -271,5 +297,88 @@ export async function exportFullPropertyWorkbook(
   await applyHeaderStyle(cfWs, cfRows);
   (XLSX as any).utils.book_append_sheet(wb, cfWs, "Cash Flow");
 
-  await downloadWorkbook(wb, `${safeName} - Full Workbook.xlsx`);
+  const yearLabels = yearly.map(y => y.label);
+  const ppe = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0);
+  const equityInvestedVal = propertyEquityInvested(property as any);
+
+  const bsYearlyData = Array.from({ length: years }, (_, y) => {
+    const monthsToInclude = (y + 1) * 12;
+    const relevantMonths = data.slice(0, monthsToInclude);
+    const lastMonth = relevantMonths[relevantMonths.length - 1];
+    if (!lastMonth) return { accDep: 0, cash: 0, netPropValue: ppe, totalAssets: ppe, debt: 0, retained: 0 };
+
+    const accDep = relevantMonths.reduce((sum, m) => sum + m.depreciationExpense, 0);
+    const operatingReserve = (property as any).operatingReserve ?? 0;
+    const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
+    const cumulativeDS = relevantMonths.reduce((sum, m) => sum + m.interestExpense + m.principalPayment, 0);
+    const cumulativeTax = relevantMonths.reduce((sum, m) => sum + m.incomeTax, 0);
+    const cumulativeRefi = relevantMonths.reduce((sum, m) => sum + m.refinancingProceeds, 0);
+    const cash = operatingReserve + (cumulativeNOI - cumulativeDS - cumulativeTax) + cumulativeRefi;
+    const netPropValue = ppe - accDep;
+    return {
+      accDep,
+      cash,
+      netPropValue,
+      totalAssets: netPropValue + cash,
+      debt: lastMonth.debtOutstanding,
+      retained: relevantMonths.reduce((sum, m) => sum + m.cashFlow, 0),
+    };
+  });
+
+  const bsRows: (string | number)[][] = [
+    ["Balance Sheet", ...yearLabels],
+    [],
+    ["ASSETS"],
+    ["  Property Value (at cost)", ...bsYearlyData.map(() => ppe)],
+    ["  Less: Accumulated Depreciation", ...bsYearlyData.map(d => -d.accDep)],
+    ["  Net Property Value", ...bsYearlyData.map(d => d.netPropValue)],
+    ["  Cash & Reserves", ...bsYearlyData.map(d => d.cash)],
+    ["Total Assets", ...bsYearlyData.map(d => d.totalAssets)],
+    [],
+    ["LIABILITIES"],
+    ["  Outstanding Debt", ...bsYearlyData.map(d => d.debt)],
+    ["Total Liabilities", ...bsYearlyData.map(d => d.debt)],
+    [],
+    ["EQUITY"],
+    ["  Initial Equity Invested", ...bsYearlyData.map(() => equityInvestedVal)],
+    ["  Retained Earnings", ...bsYearlyData.map(d => d.retained)],
+    ["Total Equity", ...bsYearlyData.map(d => equityInvestedVal + d.retained)],
+    [],
+    ["Total Liabilities + Equity", ...bsYearlyData.map(d => d.debt + equityInvestedVal + d.retained)],
+  ];
+
+  const bsWs = (XLSX as any).utils.aoa_to_sheet(bsRows);
+  setColumnWidths(bsWs, [30, ...yearLabels.map(() => 16)]);
+  await applyCurrencyFormat(bsWs, bsRows);
+  await applyHeaderStyle(bsWs, bsRows);
+  (XLSX as any).utils.book_append_sheet(wb, bsWs, "Balance Sheet");
+
+  const totalExitValue = cfData.reduce((sum, cf) => sum + cf.exitValue, 0);
+  const totalCashFlow = data.reduce((sum, m) => sum + m.cashFlow, 0);
+  const cashOnCash = equityInvestedVal > 0 ? (totalCashFlow / equityInvestedVal) * 100 : 0;
+  const equityMultiple = equityInvestedVal > 0 ? (totalCashFlow + totalExitValue) / equityInvestedVal : 0;
+
+  const iaRows: (string | number)[][] = [
+    ["Investment Analysis", ...yearLabels],
+    [],
+    ["PROPERTY METRICS"],
+    ["  Initial Equity Invested", ...yearly.map(() => equityInvestedVal)],
+    ["  Total Exit Value", ...yearly.map(() => totalExitValue)],
+    ["  Equity Multiple", ...yearly.map(() => equityMultiple)],
+    ["  Cash-on-Cash Return (%)", ...yearly.map(() => cashOnCash)],
+    [],
+    ["ANNUAL PERFORMANCE"],
+    ["  Net Operating Income (NOI)", ...yearly.map(y => y.noi)],
+    ["  Adjusted NOI (ANOI)", ...yearly.map(y => y.anoi)],
+    ["  GAAP Net Income", ...yearly.map(y => y.netIncome)],
+    ["  Cash Flow", ...yearly.map((_, i) => cfData[i]?.freeCashFlowToEquity ?? 0)],
+  ];
+
+  const iaWs = (XLSX as any).utils.aoa_to_sheet(iaRows);
+  setColumnWidths(iaWs, [30, ...yearLabels.map(() => 16)]);
+  await applyCurrencyFormat(iaWs, iaRows);
+  await applyHeaderStyle(iaWs, iaRows);
+  (XLSX as any).utils.book_append_sheet(wb, iaWs, "Investment Analysis");
+
+  await downloadWorkbook(wb, `${safeCompany} - ${safeProp} Financial Statements.xlsx`);
 }

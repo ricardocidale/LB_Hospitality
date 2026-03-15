@@ -137,11 +137,37 @@ export function generatePortfolioIncomeData(
   yearlyConsolidatedCache: YearlyPropertyFinancials[],
   projectionYears: number,
   getFiscalYear: (i: number) => number,
-  summaryOnly?: boolean
+  summaryOnly?: boolean,
+  allPropertyYearlyIS?: YearlyPropertyFinancials[][],
+  propertyNames?: string[]
 ): ExportData {
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
   const c = (i: number) => yearlyConsolidatedCache[i];
+  const p = (idx: number, i: number) => allPropertyYearlyIS?.[idx]?.[i];
   const rows: ExportRow[] = [];
+  const hasProps = allPropertyYearlyIS && propertyNames && propertyNames.length > 0;
+
+  if (!summaryOnly) {
+    rows.push({ category: "Operational Metrics", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Total Rooms Available", values: years.map((_, i) => c(i)?.availableRooms ?? 0), indent: 1 });
+    const adrVals = years.map((_, i) => {
+      const sold = c(i)?.soldRooms ?? 0;
+      return sold > 0 ? (c(i)?.revenueRooms ?? 0) / sold : 0;
+    });
+    rows.push({ category: "ADR (Effective)", values: adrVals, indent: 1 });
+    const occVals = years.map((_, i) => {
+      const sold = c(i)?.soldRooms ?? 0;
+      const avail = c(i)?.availableRooms ?? 0;
+      return avail > 0 ? sold / avail : 0;
+    });
+    rows.push({ category: "Occupancy", values: occVals, indent: 1 });
+    const revparVals = years.map((_, i) => {
+      const rev = c(i)?.revenueRooms ?? 0;
+      const avail = c(i)?.availableRooms ?? 0;
+      return avail > 0 ? rev / avail : 0;
+    });
+    rows.push({ category: "RevPAR", values: revparVals, indent: 1 });
+  }
 
   rows.push({ category: "Total Revenue", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), isHeader: true });
   if (!summaryOnly) {
@@ -149,19 +175,30 @@ export function generatePortfolioIncomeData(
     rows.push({ category: "Event Revenue", values: years.map((_, i) => c(i)?.revenueEvents ?? 0), indent: 1 });
     rows.push({ category: "F&B Revenue", values: years.map((_, i) => c(i)?.revenueFB ?? 0), indent: 1 });
     rows.push({ category: "Other Revenue", values: years.map((_, i) => c(i)?.revenueOther ?? 0), indent: 1 });
+    if (hasProps) {
+      propertyNames!.forEach((name, idx) => {
+        rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.revenueTotal ?? 0), indent: 2 });
+      });
+    }
   }
 
+  const totalOpEx = (i: number) => {
+    const data = c(i);
+    if (!data) return 0;
+    return data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther +
+      data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar +
+      data.expenseAdmin + data.expenseIT + data.expenseUtilitiesFixed + data.expenseOtherCosts;
+  };
+
   rows.push({
-    category: "Operating Expenses (Undistributed)",
-    values: years.map((_, i) => {
-      const data = c(i);
-      if (!data) return 0;
-      return data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar +
-        data.expenseAdmin + data.expenseIT + data.expenseUtilitiesFixed + data.expenseOtherCosts;
-    }),
+    category: "Operating Expenses",
+    values: years.map((_, i) => totalOpEx(i)),
     isHeader: true,
   });
   if (!summaryOnly) {
+    rows.push({ category: "Room Expense", values: years.map((_, i) => c(i)?.expenseRooms ?? 0), indent: 1 });
+    rows.push({ category: "F&B Expense", values: years.map((_, i) => c(i)?.expenseFB ?? 0), indent: 1 });
+    rows.push({ category: "Event Expense", values: years.map((_, i) => c(i)?.expenseEvents ?? 0), indent: 1 });
     rows.push({ category: "Marketing", values: years.map((_, i) => c(i)?.expenseMarketing ?? 0), indent: 1 });
     rows.push({ category: "Property Ops", values: years.map((_, i) => c(i)?.expensePropertyOps ?? 0), indent: 1 });
     rows.push({ category: "Admin & General", values: years.map((_, i) => c(i)?.expenseAdmin ?? 0), indent: 1 });
@@ -171,24 +208,50 @@ export function generatePortfolioIncomeData(
   }
 
   rows.push({ category: "Gross Operating Profit", values: years.map((_, i) => c(i)?.gop ?? 0), isHeader: true });
+  if (!summaryOnly && hasProps) {
+    propertyNames!.forEach((name, idx) => {
+      rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.gop ?? 0), indent: 1 });
+    });
+  }
+
   rows.push({ category: "Management Fees", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), isHeader: true });
   if (!summaryOnly) {
     rows.push({ category: "Base Fee", values: years.map((_, i) => c(i)?.feeBase ?? 0), indent: 1 });
+    const catSet = new Set<string>();
+    for (const yc of yearlyConsolidatedCache) for (const k of Object.keys(yc?.serviceFeesByCategory ?? {})) catSet.add(k);
+    catSet.forEach(cat => {
+      rows.push({ category: cat, values: years.map((_, i) => c(i)?.serviceFeesByCategory?.[cat] ?? 0), indent: 2 });
+    });
     rows.push({ category: "Incentive Fee", values: years.map((_, i) => c(i)?.feeIncentive ?? 0), indent: 1 });
   }
   rows.push({ category: "Adjusted GOP (AGOP)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true });
+  if (!summaryOnly && hasProps) {
+    propertyNames!.forEach((name, idx) => {
+      rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.agop ?? 0), indent: 1 });
+    });
+  }
 
   rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), isHeader: true });
   if (!summaryOnly) {
     rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
-    rows.push({ category: "Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
+    rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
   }
 
   rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true });
+  if (!summaryOnly && hasProps) {
+    propertyNames!.forEach((name, idx) => {
+      rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.noi ?? 0), indent: 1 });
+    });
+  }
   if (!summaryOnly) {
     rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1 });
   }
   rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.anoi ?? 0), isHeader: true });
+  if (!summaryOnly && hasProps) {
+    propertyNames!.forEach((name, idx) => {
+      rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.anoi ?? 0), indent: 1 });
+    });
+  }
 
   if (!summaryOnly) {
     rows.push({ category: "Interest Expense", values: years.map((_, i) => c(i)?.interestExpense ?? 0), indent: 1 });
@@ -280,39 +343,64 @@ export function generatePortfolioInvestmentData(
   return { years, rows };
 }
 
+export function buildAllPortfolioStatements(
+  financials: DashboardFinancials,
+  properties: Property[],
+  projectionYears: number,
+  getFiscalYear: (i: number) => number,
+  modelStartDate?: Date
+): {
+  incomeData: ExportData;
+  cashFlowData: ExportData;
+  balanceSheetData: ExportData;
+  investmentData: ExportData;
+} {
+  const allExpandedCF = new Set(["cfo", "cfi", "cff"]);
+  const propertyNames = properties.map(p => p.name);
+
+  return {
+    incomeData: generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, false, financials.allPropertyYearlyIS, propertyNames),
+    cashFlowData: generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear, allExpandedCF, true, propertyNames),
+    balanceSheetData: generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate),
+    investmentData: generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear),
+  };
+}
+
 export async function exportPortfolioExcel(
-  years: number[],
-  incomeRows: ExportRow[],
-  cashFlowRows: ExportRow[]
+  datasets: {
+    incomeData: ExportData;
+    cashFlowData: ExportData;
+    balanceSheetData: ExportData;
+    investmentData: ExportData;
+  },
+  companyName = "Portfolio"
 ): Promise<void> {
   const XLSX = await import("xlsx");
   const wb = (XLSX as any).utils.book_new();
 
-  const incomeWsData = [
-    ["Income Statement", ...years.map(String)],
-    ...incomeRows.map(row => [
-      (row.indent ? "  ".repeat(row.indent) : "") + row.category,
-      ...row.values,
-    ]),
+  const sheets: { name: string; data: ExportData }[] = [
+    { name: "Income Statement", data: datasets.incomeData },
+    { name: "Cash Flow", data: datasets.cashFlowData },
+    { name: "Balance Sheet", data: datasets.balanceSheetData },
+    { name: "Investment Analysis", data: datasets.investmentData },
   ];
-  const incomeWs = (XLSX as any).utils.aoa_to_sheet(incomeWsData);
-  incomeWs["!cols"] = [{ wch: 38 }, ...years.map(() => ({ wch: 16 }))];
-  await applyPortfolioExcelFormat(incomeWs, incomeWsData);
-  (XLSX as any).utils.book_append_sheet(wb, incomeWs, "Income Statement");
 
-  const cfWsData = [
-    ["Cash Flow", ...years.map(String)],
-    ...cashFlowRows.map(row => [
-      (row.indent ? "  ".repeat(row.indent) : "") + row.category,
-      ...row.values,
-    ]),
-  ];
-  const cfWs = (XLSX as any).utils.aoa_to_sheet(cfWsData);
-  cfWs["!cols"] = [{ wch: 38 }, ...years.map(() => ({ wch: 16 }))];
-  await applyPortfolioExcelFormat(cfWs, cfWsData);
-  (XLSX as any).utils.book_append_sheet(wb, cfWs, "Cash Flow");
+  for (const sheet of sheets) {
+    const wsData = [
+      [sheet.name, ...sheet.data.years.map(String)],
+      ...sheet.data.rows.map(row => [
+        (row.indent ? "  ".repeat(row.indent) : "") + row.category,
+        ...row.values,
+      ]),
+    ];
+    const ws = (XLSX as any).utils.aoa_to_sheet(wsData);
+    ws["!cols"] = [{ wch: 38 }, ...sheet.data.years.map(() => ({ wch: 16 }))];
+    await applyPortfolioExcelFormat(ws, wsData);
+    (XLSX as any).utils.book_append_sheet(wb, ws, sheet.name);
+  }
 
-  (XLSX as any).writeFile(wb, "Portfolio - Financial Statements.xlsx");
+  const safeName = companyName.replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 60);
+  (XLSX as any).writeFile(wb, `${safeName} - Consolidated Financial Statements.xlsx`);
 }
 
 async function applyPortfolioExcelFormat(ws: any, rows: (string | number)[][]): Promise<void> {
@@ -573,16 +661,8 @@ export const dashboardExports = {
     exportPortfolioCSV(years, rows, filename);
   },
 
-  exportToExcel: async (years: number[], rows: ExportRow[], filename = "portfolio-income-statement.xlsx", sheetName = "Income Statement") => {
-    const XLSX = await import("xlsx");
-    const wb = (XLSX as any).utils.book_new();
-    const wsData = [
-      ["Category", ...years.map(String)],
-      ...rows.map(row => [row.category, ...row.values]),
-    ];
-    const ws = (XLSX as any).utils.aoa_to_sheet(wsData);
-    (XLSX as any).utils.book_append_sheet(wb, ws, sheetName);
-    (XLSX as any).writeFile(wb, filename);
+  exportToExcel: async (_years: number[], _rows: ExportRow[], _filename = "portfolio-income-statement.xlsx", _sheetName = "Income Statement") => {
+    console.warn("dashboardExports.exportToExcel is deprecated. Use exportPortfolioExcel instead.");
   },
 
   exportToPPTX: async (data: any, companyName?: string) => {

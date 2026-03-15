@@ -18,6 +18,8 @@ import {
   generatePortfolioBalanceSheetData,
   exportPortfolioPDF,
   exportPortfolioCSV,
+  buildAllPortfolioStatements,
+  exportPortfolioExcel,
   toExportData,
   ExportRow
 } from "./dashboardExports";
@@ -90,7 +92,10 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
         exportPortfolioCSV(years, rows, "portfolio-cash-flow.csv");
         break;
       case 'excel':
-        dashboardExports.exportToExcel(years, rows, "portfolio-cash-flow.xlsx", "Cash Flow");
+        exportPortfolioExcel(
+          buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
+          global?.companyName || "Portfolio"
+        );
         break;
     }
   };

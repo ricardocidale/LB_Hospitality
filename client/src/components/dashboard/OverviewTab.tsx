@@ -13,7 +13,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { CurrentThemeTab } from "@/components/ui/tabs";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
-import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioIncomeData, generatePortfolioBalanceSheetData, exportPortfolioPDF, exportPortfolioCSV, exportDashboardComprehensivePDF, toExportData } from "./dashboardExports";
+import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioIncomeData, generatePortfolioBalanceSheetData, exportPortfolioPDF, exportPortfolioCSV, buildAllPortfolioStatements, exportPortfolioExcel, exportDashboardComprehensivePDF, toExportData } from "./dashboardExports";
 import { Link } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RadialGauge } from "@/lib/charts";
@@ -324,7 +324,10 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
         exportPortfolioCSV(years, rows, "portfolio-overview.csv");
         break;
       case 'excel':
-        dashboardExports.exportToExcel(years, rows, "portfolio-overview.xlsx", "Overview");
+        exportPortfolioExcel(
+          buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
+          global?.companyName || "Portfolio"
+        );
         break;
       case 'pptx':
         dashboardExports.exportToPPTX({

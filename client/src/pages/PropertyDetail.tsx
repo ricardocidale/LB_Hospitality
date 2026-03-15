@@ -237,36 +237,20 @@ export default function PropertyDetail() {
   };
 
   const handleExcelExport = () => {
-    if (activeTab === "income") {
-      exportPropertyIncomeStatement(
-        financials,
-        property.name,
-        projectionYears,
-        global.modelStartDate,
-        fiscalYearStartMonth
-      );
-    } else if (activeTab === "cashflow") {
-      exportPropertyCashFlow(
-        financials,
-        property as unknown as LoanParams,
-        global as unknown as GlobalLoanParams,
-        property.name,
-        projectionYears,
-        global.modelStartDate,
-        fiscalYearStartMonth
-      );
-    } else if (activeTab === "balance") {
-      exportPropertyBalanceSheet(
-        [property] as unknown as LoanParams[],
-        global,
-        [{ property: property as unknown as LoanParams, data: financials }],
-        projectionYears,
-        global.modelStartDate,
-        fiscalYearStartMonth,
-        property.name,
-        0
-      );
-    }
+    exportFullPropertyWorkbook(
+      financials,
+      property as unknown as LoanParams,
+      [property] as unknown as LoanParams[],
+      global as unknown as GlobalLoanParams,
+      global,
+      [{ property: property as unknown as LoanParams, data: financials }],
+      property.name,
+      projectionYears,
+      global.modelStartDate,
+      fiscalYearStartMonth,
+      0,
+      global?.companyName || "Portfolio"
+    );
   };
 
   const exportIncomeStatementPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended') => {

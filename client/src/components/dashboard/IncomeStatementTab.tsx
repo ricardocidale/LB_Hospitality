@@ -9,7 +9,7 @@ import { CalcDetailsProvider, useCalcDetails } from "@/components/financial-tabl
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
-import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioBalanceSheetData, toExportData } from "./dashboardExports";
+import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioBalanceSheetData, buildAllPortfolioStatements, exportPortfolioExcel, toExportData } from "./dashboardExports";
 import { useExpandableRows } from "./useExpandableRows";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
@@ -294,7 +294,12 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     }
     switch(action) {
       case 'csv': dashboardExports.exportToCSV(years, rows); break;
-      case 'excel': dashboardExports.exportToExcel(years, rows); break;
+      case 'excel':
+        exportPortfolioExcel(
+          buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
+          global?.companyName || "Portfolio"
+        );
+        break;
     }
   };
 

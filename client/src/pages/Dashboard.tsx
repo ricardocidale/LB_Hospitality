@@ -56,6 +56,7 @@ import {
   generatePortfolioCashFlowData,
   generatePortfolioInvestmentData,
   generatePortfolioBalanceSheetData,
+  buildAllPortfolioStatements,
   exportPortfolioExcel,
   exportPortfolioCSV,
   exportPortfolioPDF,
@@ -189,10 +190,9 @@ export default function Dashboard() {
     const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
 
-    const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear);
-    const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear);
-    exportPortfolioExcel(incomeData.years, incomeData.rows, cashFlowData.rows);
-  }, [financials, global]);
+    const datasets = buildAllPortfolioStatements(financials, properties || [], projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined);
+    exportPortfolioExcel(datasets, global?.companyName || "Portfolio");
+  }, [financials, global, properties]);
 
   const handleExportCSV = useCallback(() => {
     const data = getExportData();

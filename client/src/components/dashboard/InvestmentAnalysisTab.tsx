@@ -12,6 +12,7 @@ import {
   generatePortfolioBalanceSheetData,
   exportPortfolioPDF,
   exportPortfolioCSV,
+  buildAllPortfolioStatements,
   exportPortfolioExcel,
   toExportData
 } from "./dashboardExports";
@@ -60,9 +61,10 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
         exportPortfolioCSV(years, rows, "portfolio-investment-analysis.csv");
         break;
       case 'excel':
-        const { rows: incomeRows } = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear);
-        const { rows: cfRows } = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear);
-        exportPortfolioExcel(years, incomeRows, cfRows); 
+        exportPortfolioExcel(
+          buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
+          global?.companyName || "Portfolio"
+        );
         break;
       case 'pptx':
         dashboardExports.exportToPPTX({

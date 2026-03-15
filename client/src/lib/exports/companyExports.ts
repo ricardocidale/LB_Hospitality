@@ -89,7 +89,7 @@ export const exportCompanyCSV = (
   downloadCSV(csvContent, `${name} - ${typeLabel}.csv`);
 };
 
-export const handleExcelExport = (
+export const handleExcelExport = async (
   activeTab: string,
   financials: any[],
   projectionYears: number,
@@ -97,21 +97,208 @@ export const handleExcelExport = (
   fiscalYearStartMonth: number
 ) => {
   if (!global) return;
-  if (activeTab === 'cashflow') {
-    exportCompanyCashFlow(financials, projectionYears, global.modelStartDate, fiscalYearStartMonth);
-  } else if (activeTab === 'balance') {
-    exportCompanyBalanceSheet(
-      financials,
-      global.safeTranche1Amount || 0,
-      global.safeTranche2Amount || 0,
-      global.modelStartDate,
-      fiscalYearStartMonth,
-      projectionYears
-    );
-  } else {
-    exportCompanyIncomeStatement(financials, projectionYears, global.modelStartDate, fiscalYearStartMonth);
-  }
+  await exportCompanyFullWorkbook(financials, projectionYears, global, fiscalYearStartMonth);
 };
+
+async function exportCompanyFullWorkbook(
+  data: any[],
+  years: number,
+  global: any,
+  fiscalYearStartMonth: number
+) {
+  const { getFiscalYearForModelYear } = await import("@/lib/financialEngine");
+  const XLSX = await import("xlsx");
+  const wb = (XLSX as any).utils.book_new();
+  const companyName = global?.companyName || "Management Company";
+  const modelStartDate = global.modelStartDate;
+
+  const yearLabels: string[] = [];
+  for (let y = 0; y < years; y++) {
+    yearLabels.push(String(getFiscalYearForModelYear(modelStartDate, fiscalYearStartMonth, y)));
+  }
+
+  const yearlyData: any[] = [];
+  for (let y = 0; y < years; y++) {
+    const yearSlice = data.slice(y * 12, (y + 1) * 12);
+    if (yearSlice.length === 0) continue;
+    const vendorCostByCategory: Record<string, number> = {};
+    yearSlice.forEach((m: any) => {
+      if (m.costOfCentralizedServices) {
+        for (const [catName, cat] of Object.entries(m.costOfCentralizedServices.byCategory) as any) {
+          if (cat.serviceModel === 'centralized') {
+            vendorCostByCategory[catName] = (vendorCostByCategory[catName] ?? 0) + cat.vendorCost;
+          }
+        }
+      }
+    });
+    yearlyData.push({
+      baseFee: yearSlice.reduce((a: number, m: any) => a + m.baseFeeRevenue, 0),
+      incentiveFee: yearSlice.reduce((a: number, m: any) => a + m.incentiveFeeRevenue, 0),
+      totalRevenue: yearSlice.reduce((a: number, m: any) => a + m.totalRevenue, 0),
+      totalVendorCost: yearSlice.reduce((a: number, m: any) => a + m.totalVendorCost, 0),
+      grossProfit: yearSlice.reduce((a: number, m: any) => a + m.grossProfit, 0),
+      vendorCostByCategory,
+      partnerComp: yearSlice.reduce((a: number, m: any) => a + m.partnerCompensation, 0),
+      staffComp: yearSlice.reduce((a: number, m: any) => a + m.staffCompensation, 0),
+      officeLease: yearSlice.reduce((a: number, m: any) => a + m.officeLease, 0),
+      profServices: yearSlice.reduce((a: number, m: any) => a + m.professionalServices, 0),
+      techInfra: yearSlice.reduce((a: number, m: any) => a + m.techInfrastructure, 0),
+      bizInsurance: yearSlice.reduce((a: number, m: any) => a + m.businessInsurance, 0),
+      travel: yearSlice.reduce((a: number, m: any) => a + m.travelCosts, 0),
+      itLicensing: yearSlice.reduce((a: number, m: any) => a + m.itLicensing, 0),
+      marketing: yearSlice.reduce((a: number, m: any) => a + m.marketing, 0),
+      miscOps: yearSlice.reduce((a: number, m: any) => a + m.miscOps, 0),
+      totalExpenses: yearSlice.reduce((a: number, m: any) => a + m.totalExpenses, 0),
+      netIncome: yearSlice.reduce((a: number, m: any) => a + m.netIncome, 0),
+      safeFunding: yearSlice.reduce((a: number, m: any) => a + m.safeFunding, 0),
+      cashFlow: yearSlice.reduce((a: number, m: any) => a + m.cashFlow, 0),
+    });
+  }
+
+  const hasVendorCosts = yearlyData.some((y: any) => y.totalVendorCost > 0);
+  const centralizedCategories: string[] = [];
+  if (hasVendorCosts) {
+    const sample = yearlyData.find((y: any) => Object.keys(y.vendorCostByCategory).length > 0);
+    if (sample) centralizedCategories.push(...Object.keys(sample.vendorCostByCategory));
+  }
+
+  const addSheet = async (sheetName: string, rows: (string | number)[][]) => {
+    const ws = (XLSX as any).utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 38 }, ...yearLabels.map(() => ({ wch: 16 }))];
+    const { applyCurrencyFormat, applyHeaderStyle } = await import("@/lib/exports/excel/helpers");
+    applyCurrencyFormat(ws, rows);
+    applyHeaderStyle(ws, rows);
+    (XLSX as any).utils.book_append_sheet(wb, ws, sheetName);
+  };
+
+  const isRows: (string | number)[][] = [
+    ["Income Statement", ...yearLabels],
+    [],
+    ["REVENUE"],
+    ["  Base Management Fees", ...yearlyData.map(y => y.baseFee)],
+    ["  Incentive Management Fees", ...yearlyData.map(y => y.incentiveFee)],
+    ["Total Revenue", ...yearlyData.map(y => y.totalRevenue)],
+    [],
+  ];
+  if (hasVendorCosts) {
+    isRows.push(["COST OF CENTRALIZED SERVICES"]);
+    centralizedCategories.forEach(catName => {
+      isRows.push([`  ${catName} (Vendor Cost)`, ...yearlyData.map(y => y.vendorCostByCategory[catName] ?? 0)]);
+    });
+    isRows.push(["Total Vendor Cost", ...yearlyData.map(y => y.totalVendorCost)]);
+    isRows.push([]);
+    isRows.push(["Gross Profit", ...yearlyData.map(y => y.grossProfit)]);
+    isRows.push([]);
+  }
+  isRows.push(
+    ["OPERATING EXPENSES"],
+    ["  Partner Compensation", ...yearlyData.map(y => y.partnerComp)],
+    ["  Staff Compensation", ...yearlyData.map(y => y.staffComp)],
+    ["  Office Lease", ...yearlyData.map(y => y.officeLease)],
+    ["  Professional Services", ...yearlyData.map(y => y.profServices)],
+    ["  Technology Infrastructure", ...yearlyData.map(y => y.techInfra)],
+    ["  Business Insurance", ...yearlyData.map(y => y.bizInsurance)],
+    ["  Travel Costs", ...yearlyData.map(y => y.travel)],
+    ["  IT Licensing", ...yearlyData.map(y => y.itLicensing)],
+    ["  Marketing", ...yearlyData.map(y => y.marketing)],
+    ["  Miscellaneous Operations", ...yearlyData.map(y => y.miscOps)],
+    ["Total Expenses", ...yearlyData.map(y => y.totalExpenses)],
+    [],
+    ["Net Income", ...yearlyData.map(y => y.netIncome)],
+    [],
+    ["FUNDING"],
+    ["  Funding Received", ...yearlyData.map(y => y.safeFunding)],
+    ["Cash Flow", ...yearlyData.map(y => y.cashFlow)],
+  );
+  await addSheet("Income Statement", isRows);
+
+  let cumulative = 0;
+  const openingCash = yearlyData.map((_: any, i: number) => {
+    if (i === 0) return 0;
+    let cum = 0;
+    for (let j = 0; j < i; j++) cum += yearlyData[j].cashFlow;
+    return cum;
+  });
+  const closingCash = yearlyData.map((y: any) => {
+    cumulative += y.cashFlow;
+    return cumulative;
+  });
+  const hasCFVendorCosts = yearlyData.some((y: any) => y.totalVendorCost > 0);
+
+  const cfRows: (string | number)[][] = [
+    ["Cash Flow Statement", ...yearLabels],
+    [],
+    ["CASH FLOW FROM OPERATING ACTIVITIES"],
+    ["  Cash Received from Management Fees", ...yearlyData.map(y => y.totalRevenue)],
+    ["    Base Management Fees", ...yearlyData.map(y => y.baseFee)],
+    ["    Incentive Management Fees", ...yearlyData.map(y => y.incentiveFee)],
+  ];
+  if (hasCFVendorCosts) {
+    cfRows.push(["  Cash Paid to Service Vendors", ...yearlyData.map(y => -y.totalVendorCost)]);
+  }
+  cfRows.push(
+    ["  Cash Paid for Operating Expenses", ...yearlyData.map(y => -y.totalExpenses)],
+    ["    Compensation", ...yearlyData.map(y => -(y.partnerComp + y.staffComp))],
+    ["    Fixed Overhead", ...yearlyData.map(y => -(y.officeLease + y.profServices + y.techInfra + y.bizInsurance))],
+    ["    Variable Costs", ...yearlyData.map(y => -(y.travel + y.itLicensing + y.marketing + y.miscOps))],
+    ["Net Cash from Operating Activities", ...yearlyData.map(y => y.totalRevenue - y.totalVendorCost - y.totalExpenses)],
+    [],
+    ["CASH FLOW FROM FINANCING ACTIVITIES"],
+    ["  Funding Received", ...yearlyData.map(y => y.safeFunding)],
+    ["Net Cash from Financing Activities", ...yearlyData.map(y => y.safeFunding)],
+    [],
+    ["Net Increase (Decrease) in Cash", ...yearlyData.map(y => y.cashFlow)],
+    ["Opening Cash Balance", ...openingCash],
+    ["Closing Cash Balance", ...closingCash],
+  );
+  await addSheet("Cash Flow", cfRows);
+
+  const totalSafeFunding = (global.safeTranche1Amount || 0) + (global.safeTranche2Amount || 0);
+  const cumRetainedEarnings = yearlyData.map((_: any, i: number) => {
+    let cum = 0;
+    for (let j = 0; j <= i; j++) cum += yearlyData[j].netIncome;
+    return cum;
+  });
+  const cashByYear = cumRetainedEarnings.map((re: number) => totalSafeFunding + re);
+
+  const bsRows: (string | number)[][] = [
+    [`Balance Sheet`, ...yearLabels],
+    [],
+    ["ASSETS"],
+    ["  Cash & Cash Equivalents", ...cashByYear],
+    ["Total Assets", ...cashByYear],
+    [],
+    ["LIABILITIES"],
+    ["  Funding Notes Payable", ...yearlyData.map(() => totalSafeFunding)],
+    ["Total Liabilities", ...yearlyData.map(() => totalSafeFunding)],
+    [],
+    ["EQUITY"],
+    ["  Retained Earnings", ...cumRetainedEarnings],
+    ["Total Equity", ...cumRetainedEarnings],
+    [],
+    ["Total Liabilities + Equity", ...cashByYear],
+  ];
+  await addSheet("Balance Sheet", bsRows);
+
+  const iaRows: (string | number)[][] = [
+    ["Investment Analysis", ...yearLabels],
+    [],
+    ["COMPANY METRICS"],
+    ["  Total Revenue", ...yearlyData.map(y => y.totalRevenue)],
+    ["  Total Expenses", ...yearlyData.map(y => y.totalExpenses)],
+    ["  Net Income", ...yearlyData.map(y => y.netIncome)],
+    ["  Net Income Margin (%)", ...yearlyData.map(y => y.totalRevenue > 0 ? (y.netIncome / y.totalRevenue) * 100 : 0)],
+    [],
+    ["CASH POSITION"],
+    ["  Annual Cash Flow", ...yearlyData.map(y => y.cashFlow)],
+    ["  Closing Cash Balance", ...closingCash],
+    ["  Funding Received", ...yearlyData.map(y => y.safeFunding)],
+  ];
+  await addSheet("Investment Analysis", iaRows);
+
+  const safeName = companyName.replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 60);
+  (XLSX as any).writeFile(wb, `${safeName} - Management Company Financial Statements.xlsx`);
+}
 
 export const exportChartPNG = async (
   chartRef: React.RefObject<HTMLDivElement | null>,

@@ -39,7 +39,7 @@ export default function ManagementCompanyTab({ onNavigate, initialTab }: Managem
         </TabsList>
 
         <TabsContent value="identity" className="mt-6">
-          <BrandingTab onNavigate={onNavigate} />
+          <BrandingTab />
         </TabsContent>
 
         <TabsContent value="asset" className="mt-6">

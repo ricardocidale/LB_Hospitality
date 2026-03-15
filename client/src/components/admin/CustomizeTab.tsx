@@ -74,7 +74,7 @@ export default function CustomizeTab() {
       </div>
 
       <div className="mt-2">
-        {activeSection === "branding" && <BrandingTab onNavigate={handleBrandingNavigate} />}
+        {activeSection === "branding" && <BrandingTab />}
         {activeSection === "themes" && <ThemesTab />}
         {activeSection === "logos" && <LogosTab />}
         {activeSection === "navigation" && <NavigationTab />}

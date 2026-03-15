@@ -56,7 +56,7 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
   switch (section) {
     case "users":            return <PeopleTab />;
     case "activity":         return <ActivityTab />;
-    case "branding":         return <BrandingTab onSaveStateChange={onSaveStateChange} />;
+    case "branding":         return <BrandingTab />;
     case "icp":              return (
       <SelfHealingBoundary>
         <IcpContent onSaveStateChange={onSaveStateChange} />

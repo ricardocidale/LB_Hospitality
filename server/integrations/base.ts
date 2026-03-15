@@ -58,15 +58,15 @@ export abstract class BaseIntegrationService {
   abstract readonly serviceName: string;
 
   protected circuitConfig: CircuitBreakerConfig = {
-    failureThreshold: 5,
-    windowMs: 60_000,
-    cooldownMs: 30_000,
+    failureThreshold: CIRCUIT_BREAKER_FAILURE_THRESHOLD,
+    windowMs: CIRCUIT_BREAKER_WINDOW_MS,
+    cooldownMs: CIRCUIT_BREAKER_COOLDOWN_MS,
   };
 
   protected retryConfig: RetryConfig = {
-    maxAttempts: 3,
-    baseDelayMs: 200,
-    maxDelayMs: 5_000,
+    maxAttempts: RETRY_MAX_ATTEMPTS,
+    baseDelayMs: RETRY_BASE_DELAY_MS,
+    maxDelayMs: RETRY_MAX_DELAY_MS,
   };
 
   abstract healthCheck(): Promise<IntegrationHealth>;

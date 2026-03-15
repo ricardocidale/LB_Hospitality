@@ -3,6 +3,7 @@ import { getAnthropicClient } from "../ai/clients";
 import { requireAuth } from "../auth";
 import { z } from "zod";
 import { generateWithAgentSkills, buildAgentSkillsPrompt } from "../ai/agentSkillsExport";
+import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -314,7 +315,7 @@ function validateAIOutput(result: any, format: string): void {
 async function generateWithAnthropic(prompt: string, format: string): Promise<any> {
   const client = getAnthropicClient();
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 120_000);
+  const timeout = setTimeout(() => controller.abort(), AI_GENERATION_TIMEOUT_MS);
   let response;
   try {
     response = await client.messages.create({

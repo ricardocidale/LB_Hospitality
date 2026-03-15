@@ -107,6 +107,19 @@ export function registerGoogleAuthRoutes(app: Express) {
         return res.redirect("/login?error=no_account");
       }
 
+      if (user.googleId && payload.sub && user.googleId !== payload.sub) {
+        logger.error(`Google ID mismatch for user ${user.id}: stored=${user.googleId}, incoming=${payload.sub}`, "auth");
+        return res.redirect("/login?error=google_id_mismatch");
+      }
+
+      if (payload.sub && !user.googleId) {
+        try {
+          await storage.updateUserGoogleId(user.id, payload.sub);
+        } catch (e) {
+          logger.error(`Failed to store googleId for user ${user.id}: ${e}`, "auth");
+        }
+      }
+
       const sessionId = generateSessionId();
       const expiresAt = getSessionExpiryDate();
       const clientIp = req.ip || req.socket.remoteAddress || "unknown";

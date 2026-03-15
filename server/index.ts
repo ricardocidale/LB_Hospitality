@@ -150,6 +150,7 @@ app.use((req, res, next) => {
     { runCompositeIndexes001 },
     { runMigration: runAutoResearchRefresh001 },
     { runFundingInterest001 },
+    { runGoogleId001 },
   ] = await Promise.all([
     import("./migrations/research-config-001"),
     import("./migrations/inflation-per-entity-001"),
@@ -162,6 +163,7 @@ app.use((req, res, next) => {
     import("./migrations/composite-indexes-001"),
     import("./migrations/auto-research-refresh-001"),
     import("./migrations/funding-interest-001"),
+    import("./migrations/google-id-001"),
   ]);
   await Promise.all([
     runResearchConfig001(),
@@ -175,6 +177,7 @@ app.use((req, res, next) => {
     runCompositeIndexes001(),
     runAutoResearchRefresh001(),
     runFundingInterest001(),
+    runGoogleId001(),
   ]);
 
   // Notification logs schema fix must run before FK indexes

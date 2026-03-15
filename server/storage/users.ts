@@ -85,6 +85,10 @@ export class UserStorage {
     await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, id));
   }
 
+  async updateUserGoogleId(id: number, googleId: string): Promise<void> {
+    await db.update(users).set({ googleId, updatedAt: new Date() }).where(eq(users.id, id));
+  }
+
   // Sessions
   /** Create a new login session (called after successful authentication). */
   async createSession(userId: number, sessionId: string, expiresAt: Date): Promise<Session> {
@@ -121,6 +125,7 @@ export class UserStorage {
           userGroupId: users.userGroupId,
           selectedThemeId: users.selectedThemeId,
           phoneNumber: users.phoneNumber,
+          googleId: users.googleId,
           hideTourPrompt: users.hideTourPrompt,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,

@@ -232,6 +232,7 @@ export const users = pgTable("users", {
   userGroupId: integer("user_group_id").references(() => userGroups.id, { onDelete: "set null" }),
   selectedThemeId: integer("selected_theme_id").references(() => designThemes.id, { onDelete: "set null" }),
   phoneNumber: text("phone_number"),
+  googleId: text("google_id"),
   hideTourPrompt: boolean("hide_tour_prompt").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -253,6 +254,7 @@ export const insertUserSchema = z.object({
   companyId: z.number().nullable().optional(),
   title: z.string().nullable().optional(),
   phoneNumber: z.string().nullable().optional(),
+  googleId: z.string().nullable().optional(),
   userGroupId: z.number().nullable().optional(),
 });
 

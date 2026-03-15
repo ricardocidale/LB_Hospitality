@@ -511,24 +511,64 @@ const L2_VERIFICATION_TIERS = `flowchart TB
 // ─────────────────────────────────────────────────
 
 const L3_PROPERTY = `flowchart TB
-  Acquire([Acquisition]) --> PreOps[Pre-Operations Gap]
-  PreOps -->|debt payments, reserve covers costs| OpsStart[Operations Start]
-  OpsStart --> Revenue[Revenue Generation]
-  Revenue --> IS[Income Statement]
-  IS --> NOI[NOI Calculation]
-  NOI --> CF[Cash Flow]
-  CF -->|optional| Refi[Refinance]
-  Refi --> CF2[Updated Cash Flow]
-  CF2 --> Exit[Exit Valuation]
-  Exit --> Waterfall[Equity Waterfall]
-  Waterfall --> Net[Net Proceeds]
+  subgraph Acquisition["Phase 1 — Acquisition (acquisitionDate)"]
+    direction TB
+    PP[Purchase Price] --> BI[+ Building Improvements]
+    BI --> POC[+ Pre-Opening Costs]
+    POC --> TPC[Total Project Cost]
+    TPC --> CS{Capital Structure}
+    CS -->|Equity contribution| Equity[Equity In]
+    CS -->|Loan sized by LTV & DSCR| AcqLoan[Acquisition Loan]
+    TPC --> Depr[Depreciation Basis = Purchase + Improvements − Land Value]
+  end
 
-  subgraph ExitCalc["Exit Waterfall"]
-    GrossVal[Gross Value = NOI / Cap Rate]
-    Commission[Less Commission]
-    Debt[Less Outstanding Debt]
-    GrossVal --> Commission --> Debt --> Net2[Net to Equity]
-  end`;
+  subgraph PreOpen["Phase 2 — Pre-Opening Gap"]
+    direction TB
+    DS1[Debt Service Begins\nIO or Amortizing] --> Reserve[Operating Reserve\nCovers Shortfall]
+    DepAccrual[Depreciation Accrues] --> NOLBuild[NOL Builds]
+    NoRev([No Revenue Yet])
+  end
+
+  subgraph Operations["Phase 3 — Operations (operationsStartDate)"]
+    direction TB
+    OccRamp[Occupancy Ramp\nStep-function: Start % → Max %] --> RoomRev[Room Revenue\nADR × Occupancy × Rooms]
+    RoomRev --> Ancillary[Ancillary Revenue\n% of Room Revenue]
+    RoomRev --> TotalRev[Total Revenue]
+    Ancillary --> TotalRev
+    TotalRev --> USALI[USALI Expense Application]
+    USALI --> GOP[Gross Operating Profit]
+    GOP --> MgmtFee[Less Management Fees]
+    MgmtFee --> NOI[Net Operating Income]
+    NOI --> ANOI[Adjusted NOI\nLess FF&E Reserve]
+    ANOI --> DSvc[Less Debt Service]
+    DSvc --> Tax[Less Income Tax\nw/ NOL Carryforward]
+    Tax --> FCFE[Free Cash Flow to Equity]
+  end
+
+  subgraph Refinance["Phase 4 — Refinance (Optional, at refinanceDate)"]
+    direction TB
+    RefiTrigger([Refinance Triggered]) --> NewLoan[New Loan Sized by\nUpdated NOI · LTV · DSCR]
+    NewLoan --> Payoff[Payoff Acquisition Debt]
+    Payoff --> NetProc{Net Proceeds\n+Positive / −Negative}
+    NetProc --> DSRecalc[Debt Service Recalculated]
+  end
+
+  subgraph Exit["Phase 5 — Exit"]
+    direction TB
+    ExitVal[Exit Valuation\nForward-Year NOI ÷ Exit Cap Rate] --> DispComm[Less Disposition Commission]
+    DispComm --> DebtPayoff[Less Outstanding Debt Payoff]
+    DebtPayoff --> NetEquity[Net Equity Proceeds]
+    NetEquity --> Returns[Return Metrics]
+    Returns --> IRR[IRR]
+    Returns --> MOIC[MOIC]
+    Returns --> CoC[Cash-on-Cash]
+  end
+
+  Acquisition --> PreOpen
+  PreOpen -->|operationsStartDate| Operations
+  Operations -->|refinanceDate| Refinance
+  Refinance --> Operations
+  Operations -->|exitDate| Exit`;
 
 const L3_SEEDING = `flowchart TB
   Start([Server Start]) --> Seed[seedAdminUser]
@@ -721,8 +761,8 @@ export default function DiagramsTab() {
               <AccordionTrigger className="text-sm font-semibold">Property Lifecycle</AccordionTrigger>
               <AccordionContent>
                 <DiagramCard
-                  title="Acquisition → Operations → Exit"
-                  description="Full property lifecycle including pre-ops gap, refinance, and exit waterfall"
+                  title="Investment Lifecycle & Cash Flow Engine"
+                  description="Five-phase property lifecycle — Acquisition capital structure, Pre-Opening gap funding, Operations occupancy ramp through USALI waterfall to FCFE, optional Refinance with debt restructuring, and Exit valuation with IRR / MOIC / Cash-on-Cash return metrics"
                   chart={L3_PROPERTY}
                 />
               </AccordionContent>

@@ -20,7 +20,7 @@
  */
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import {
@@ -157,7 +157,7 @@ export function InvestmentAnalysis({
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Total Equity
-              <HelpTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." manualSection="investment-returns" />
+              <InfoTooltip text="Total initial capital required from investors across all properties, including purchase price, improvements, pre-opening costs, and operating reserves (net of any financing)." manualSection="investment-returns" />
             </p>
             <div className="text-2xl font-bold text-foreground font-mono">{formatMoney(totalInitialEquityIA)}</div>
           </div>
@@ -165,7 +165,7 @@ export function InvestmentAnalysis({
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Exit Value ({getFiscalYear(projectionYears - 1)})
-              <HelpTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} manualSection="investment-returns" />
+              <InfoTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} manualSection="investment-returns" />
             </p>
             <div className="text-2xl font-bold text-emerald-600 font-mono">{formatMoney(totalExitValueIA)}</div>
           </div>
@@ -173,7 +173,7 @@ export function InvestmentAnalysis({
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Equity Multiple
-              <HelpTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." manualSection="investment-returns" manualLabel="MOIC formula in the Manual" />
+              <InfoTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." manualSection="investment-returns" manualLabel="MOIC formula in the Manual" />
             </p>
             <div className="text-2xl font-bold text-blue-600 font-mono">{equityMultipleIA.toFixed(2)}x</div>
           </div>
@@ -181,7 +181,7 @@ export function InvestmentAnalysis({
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Avg Cash-on-Cash
-              <HelpTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." />
+              <InfoTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." />
             </p>
             <div className="text-2xl font-bold text-amber-600 font-mono">{cashOnCashIA.toFixed(1)}%</div>
           </div>
@@ -189,7 +189,7 @@ export function InvestmentAnalysis({
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Portfolio IRR
-              <HelpTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." manualSection="investment-returns" manualLabel="IRR methodology in the Manual" />
+              <InfoTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." manualSection="investment-returns" manualLabel="IRR methodology in the Manual" />
             </p>
             <div className="text-2xl font-bold text-secondary font-mono">{(portfolioIRRIA * 100).toFixed(1)}%</div>
           </div>
@@ -270,7 +270,7 @@ export function InvestmentAnalysis({
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   )}
                   Free Cash Flow to Equity (FCFE)
-                  <HelpTooltip text="GAAP FCFE = Cash from Operations - Principal Payments. For hotels where FF&E reserves are included in NOI, this equals After-Tax Cash Flow (ATCF)." manualSection="investment-returns" manualLabel="FCFE formula in the Manual" />
+                  <InfoTooltip text="GAAP FCFE = Cash from Operations - Principal Payments. For hotels where FF&E reserves are included in NOI, this equals After-Tax Cash Flow (ATCF)." manualSection="investment-returns" manualLabel="FCFE formula in the Manual" />
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">-</TableCell>
                 {Array.from({ length: projectionYears }, (_, y) => {
@@ -317,7 +317,7 @@ export function InvestmentAnalysis({
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground flex items-center gap-1">
                       = Before-Tax Cash Flow (BTCF)
-                      <HelpTooltip text="BTCF = NOI - Debt Service. Cash available before income taxes." manualSection="property-formulas" />
+                      <InfoTooltip text="BTCF = NOI - Debt Service. Cash available before income taxes." manualSection="property-formulas" />
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => {
@@ -391,7 +391,7 @@ export function InvestmentAnalysis({
                   <TableRow className="bg-green-50/30 dark:bg-green-950/20 border-t">
                     <TableCell className="sticky left-0 bg-green-50/30 dark:bg-green-950/20 pl-8 text-sm font-medium flex items-center gap-1">
                       After-Tax Cash Flow (ATCF)
-                      <HelpTooltip text="ATCF = BTCF - Tax Liability. Cash available to investors after all taxes paid." manualSection="property-formulas" />
+                      <InfoTooltip text="ATCF = BTCF - Tax Liability. Cash available to investors after all taxes paid." manualSection="property-formulas" />
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => {
@@ -551,7 +551,7 @@ export function InvestmentAnalysis({
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     Exit Cap Rate
-                    <HelpTooltip text="Capitalization rate used to value the property at sale. Lower cap rate = higher valuation." manualSection="investment-returns" />
+                    <InfoTooltip text="Capitalization rate used to value the property at sale. Lower cap rate = higher valuation." manualSection="investment-returns" />
                   </div>
                 </TableHead>
                 <TableHead className="text-right">Exit Value ({getFiscalYear(10)})</TableHead>
@@ -559,13 +559,13 @@ export function InvestmentAnalysis({
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     Equity Multiple
-                    <HelpTooltip text="Total cash returned ÷ Equity invested. A 2.0x means $2 back for every $1 invested." manualSection="investment-returns" />
+                    <InfoTooltip text="Total cash returned ÷ Equity invested. A 2.0x means $2 back for every $1 invested." manualSection="investment-returns" />
                   </div>
                 </TableHead>
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     IRR
-                    <HelpTooltip text="Internal Rate of Return - the annualized return that makes NPV of all cash flows = 0." manualSection="investment-returns" />
+                    <InfoTooltip text="Internal Rate of Return - the annualized return that makes NPV of all cash flows = 0." manualSection="investment-returns" />
                   </div>
                 </TableHead>
               </TableRow>
@@ -613,7 +613,7 @@ export function InvestmentAnalysis({
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5">
             Discounted Cash Flow (DCF) Analysis
-            <HelpTooltip text="DCF values the portfolio by discounting future cash flows to present value using the Weighted Average Cost of Capital (WACC). WACC blends the cost of equity and after-tax cost of debt, weighted by capital structure." manualSection="investment-returns" />
+            <InfoTooltip text="DCF values the portfolio by discounting future cash flows to present value using the Weighted Average Cost of Capital (WACC). WACC blends the cost of equity and after-tax cost of debt, weighted by capital structure." manualSection="investment-returns" />
           </CardTitle>
           <p className="text-sm text-muted-foreground">
             Portfolio valuation using WACC-discounted ATCF and terminal value
@@ -672,7 +672,7 @@ export function InvestmentAnalysis({
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
                       WACC
-                      <HelpTooltip text={`Weighted Average Cost of Capital. Blends cost of equity (${(costOfEquity * 100).toFixed(1)}%) and after-tax cost of debt (${(afterTaxDebtCost * 100).toFixed(1)}%) weighted by capital structure (${(equityWeight * 100).toFixed(0)}% equity / ${(debtWeight * 100).toFixed(0)}% debt).`} manualSection="investment-returns" />
+                      <InfoTooltip text={`Weighted Average Cost of Capital. Blends cost of equity (${(costOfEquity * 100).toFixed(1)}%) and after-tax cost of debt (${(afterTaxDebtCost * 100).toFixed(1)}%) weighted by capital structure (${(equityWeight * 100).toFixed(0)}% equity / ${(debtWeight * 100).toFixed(0)}% debt).`} manualSection="investment-returns" />
                     </p>
                     <div className="text-2xl font-bold text-foreground font-mono">{(discountRate * 100).toFixed(1)}%</div>
                     <p className="text-[10px] text-muted-foreground mt-1">
@@ -682,14 +682,14 @@ export function InvestmentAnalysis({
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
                       DCF Portfolio Value
-                      <HelpTooltip text="Sum of all discounted operating cash flows plus the discounted terminal (exit) value. Represents the present value of the entire portfolio." />
+                      <InfoTooltip text="Sum of all discounted operating cash flows plus the discounted terminal (exit) value. Represents the present value of the entire portfolio." />
                     </p>
                     <div className="text-2xl font-bold text-foreground font-mono">{formatMoney(dcfValue)}</div>
                   </div>
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
                       Net Present Value (NPV)
-                      <HelpTooltip text="DCF Portfolio Value minus Total Equity Invested. A positive NPV indicates the investment creates value above the required return." />
+                      <InfoTooltip text="DCF Portfolio Value minus Total Equity Invested. A positive NPV indicates the investment creates value above the required return." />
                     </p>
                     <div className={`text-2xl font-bold font-mono ${npv >= 0 ? 'text-accent' : 'text-destructive'}`}>
                       {formatMoney(npv)}
@@ -698,7 +698,7 @@ export function InvestmentAnalysis({
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
                       Value Creation
-                      <HelpTooltip text="NPV as a percentage of total equity invested. Shows how much value is created (or destroyed) relative to the investment." />
+                      <InfoTooltip text="NPV as a percentage of total equity invested. Shows how much value is created (or destroyed) relative to the investment." />
                     </p>
                     <div className={`text-2xl font-bold font-mono ${valueCreation >= 0 ? 'text-accent' : 'text-destructive'}`}>
                       {valueCreation >= 0 ? '+' : ''}{valueCreation.toFixed(1)}%

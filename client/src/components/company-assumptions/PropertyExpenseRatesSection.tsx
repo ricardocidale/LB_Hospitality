@@ -18,7 +18,7 @@
  */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import {
   DEFAULT_EVENT_EXPENSE_RATE,
@@ -35,14 +35,14 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center gap-2">
           Property Expense Rates
-          <HelpTooltip text="Default expense rates applied to specific revenue streams at the property level" />
+          <InfoTooltip text="Default expense rates applied to specific revenue streams at the property level" />
         </h3>
         
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Event Expense Rate (% of Event Revenue)
-              <HelpTooltip text="Operating costs for events as a percentage of event revenue (labor, setup, coordination)" />
+              <InfoTooltip text="Operating costs for events as a percentage of event revenue (labor, setup, coordination)" />
               <ResearchBadge value={researchValues.eventExpense?.display} onClick={() => researchValues.eventExpense && onChange("eventExpenseRate", researchValues.eventExpense.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-event-expense" />
             </Label>
             <EditableValue
@@ -67,7 +67,7 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Other Revenue Expense Rate (% of Other Revenue)
-              <HelpTooltip text="Operating costs for other revenue (spa, parking, retail) as a percentage of that department's revenue" />
+              <InfoTooltip text="Operating costs for other revenue (spa, parking, retail) as a percentage of that department's revenue" />
               <ResearchBadge value={researchValues.otherExpenseRate?.display} onClick={() => researchValues.otherExpenseRate && onChange("otherExpenseRate", researchValues.otherExpenseRate.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-other-expense" />
             </Label>
             <EditableValue
@@ -92,7 +92,7 @@ export default function PropertyExpenseRatesSection({ formData, onChange, global
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Utilities Variable Split (% Variable vs Fixed)
-              <HelpTooltip text="How much of the utilities expense rate scales with current property revenue (variable) vs stays anchored to Year 1 base revenue (fixed). Example: 60% means 60% of utilities cost varies with occupancy, 40% is fixed overhead." />
+              <InfoTooltip text="How much of the utilities expense rate scales with current property revenue (variable) vs stays anchored to Year 1 base revenue (fixed). Example: 60% means 60% of utilities cost varies with occupancy, 40% is fixed overhead." />
               <ResearchBadge value={researchValues.utilitiesVariableSplit?.display} onClick={() => researchValues.utilitiesVariableSplit && onChange("utilitiesVariableSplit", researchValues.utilitiesVariableSplit.mid / 100)} sourceType="industry" sourceName="USALI benchmarks" data-testid="badge-utilities-split" />
             </Label>
             <EditableValue

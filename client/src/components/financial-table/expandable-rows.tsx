@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { useCalcDetails } from "./context";
@@ -45,7 +45,7 @@ export function ExpandableLineItem({
               <ChevronRight className="w-4 h-4 flex-shrink-0" />
             )}
             <span className="ml-1">{label}</span>
-            {showDetails && tooltip && <HelpTooltip text={tooltip} />}
+            {showDetails && tooltip && <InfoTooltip text={tooltip} />}
           </span>
         </TableCell>
         {values.map((v, i) => {
@@ -100,7 +100,7 @@ export function ExpandableMetricRow({
               <ChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             )}
             {label}
-            {showDetails && tooltip && <HelpTooltip text={tooltip} />}
+            {showDetails && tooltip && <InfoTooltip text={tooltip} />}
           </span>
         </TableCell>
         {values.map((v, i) => (
@@ -173,7 +173,7 @@ export function ExpandableBalanceSheetLineItem({
               <ChevronRight className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             )}
             {label}
-            {showDetails && tooltip && <HelpTooltip text={tooltip} />}
+            {showDetails && tooltip && <InfoTooltip text={tooltip} />}
           </span>
         </TableCell>
         <TableCell className="text-right font-mono">

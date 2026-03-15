@@ -6,7 +6,7 @@ import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction } 
 import { ChevronRight, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider, useCalcDetails } from "@/components/financial-table-rows";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioBalanceSheetData, toExportData } from "./dashboardExports";
@@ -447,7 +447,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                               expandedRows.has(row.rowId) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
                             )}
                             {row.category}
-                            {row.tooltip && <HelpTooltip text={row.tooltip} />}
+                            {row.tooltip && <InfoTooltip text={row.tooltip} />}
                           </div>
                         </TableCell>
                         {row.values.map((val, vIdx) => (

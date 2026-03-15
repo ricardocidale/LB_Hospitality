@@ -16,7 +16,7 @@
  * years (e.g. 2025, 2026, 2027…) rather than abstract "Year 1, Year 2…".
  */
 import { Label } from "@/components/ui/label";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { formatMoney } from "@/lib/financialEngine";
 import { DEFAULT_PARTNER_COMP, DEFAULT_PARTNER_COUNT } from "@/lib/constants";
@@ -31,7 +31,7 @@ export default function PartnerCompSection({ formData, onChange, global, modelSt
         <div>
           <h3 className="text-lg font-display text-foreground flex items-center gap-2">
             Partner Compensation Schedule
-            <HelpTooltip text="Annual total partner compensation and partner count for each year. Individual partner compensation = Total ÷ Partner Count." manualSection="company-formulas" />
+            <InfoTooltip text="Annual total partner compensation and partner count for each year. Individual partner compensation = Total ÷ Partner Count." manualSection="company-formulas" />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Configure total partner compensation and headcount by year</p>
         </div>

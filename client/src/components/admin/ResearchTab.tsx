@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Loader2, X } from "lucide-react";
 import { IconSave, IconPlus, IconBrain, IconExternalLink, IconLibrary, IconRefreshCw, IconResearch, IconProperties, IconGlobe, IconMapPin } from "@/components/icons";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
@@ -177,7 +177,7 @@ function EventConfigSection({
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-1.5">
                 Refresh Interval (Days)
-                <HelpTooltip text="How many days before research results are considered stale and eligible for automatic refresh." />
+                <InfoTooltip text="How many days before research results are considered stale and eligible for automatic refresh." />
               </Label>
               <Input
                 type="number"
@@ -521,7 +521,7 @@ export default function ResearchTab() {
               <CardTitle className="flex items-center gap-2 text-base font-display">
                 <IconBrain className="w-5 h-5 text-primary" />
                 AI Research Model
-                <HelpTooltip text="Choose which AI model powers the market research feature. Use Update LLM List to pull the latest available models from OpenAI, Anthropic, Google, and xAI." />
+                <InfoTooltip text="Choose which AI model powers the market research feature. Use Update LLM List to pull the latest available models from OpenAI, Anthropic, Google, and xAI." />
               </CardTitle>
               <CardDescription className="text-xs mt-1">
                 Select the AI model used for generating market research reports.
@@ -559,7 +559,7 @@ export default function ResearchTab() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2 max-w-md">
-            <Label className="text-sm font-medium flex items-center gap-1">Preferred Model <HelpTooltip text="The AI model used for generating market research. Each model has different strengths for analysis." /></Label>
+            <Label className="text-sm font-medium flex items-center gap-1">Preferred Model <InfoTooltip text="The AI model used for generating market research. Each model has different strengths for analysis." /></Label>
             {(() => {
               const models = (draft.cachedModels && draft.cachedModels.length > 0) ? draft.cachedModels : FALLBACK_MODELS;
               const grouped = {

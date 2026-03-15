@@ -14,7 +14,7 @@
  */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import { DEFAULT_COMPANY_TAX_RATE } from "@/lib/constants";
 import EditableValue from "./EditableValue";
@@ -27,11 +27,11 @@ export default function TaxSection({ formData, onChange, global, researchValues 
       <div className="space-y-4">
         <h3 className="text-lg font-display text-foreground flex items-center gap-2">
           Company Income Tax
-          <HelpTooltip text="Income tax rate applied to the management company's positive net income for after-tax cash flow calculations. Each property SPV has its own income tax rate set on its assumptions page." manualSection="company-formulas" />
+          <InfoTooltip text="Income tax rate applied to the management company's positive net income for after-tax cash flow calculations. Each property SPV has its own income tax rate set on its assumptions page." manualSection="company-formulas" />
         </h3>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label className="text-foreground label-text flex items-center gap-1">Company Income Tax Rate<HelpTooltip text="Income tax rate applied to the management company's positive net income. This is separate from property-level income taxes, which are set per property on each property's assumptions page." />
+            <Label className="text-foreground label-text flex items-center gap-1">Company Income Tax Rate<InfoTooltip text="Income tax rate applied to the management company's positive net income. This is separate from property-level income taxes, which are set per property on each property's assumptions page." />
               <ResearchBadge value={researchValues.companyTaxRate?.display} onClick={() => researchValues.companyTaxRate && onChange("companyTaxRate", researchValues.companyTaxRate.mid / 100)} sourceType="industry" sourceName="AICPA/IRS benchmarks" data-testid="badge-company-tax" />
             </Label>
             <EditableValue

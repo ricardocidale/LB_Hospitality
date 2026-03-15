@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImagePlus, Sparkles, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { usePropertyPhotos, useSetHeroPhoto, useDeletePropertyPhoto, useUpdatePropertyPhoto, useReorderPhotos } from "@/lib/api";
 import { PhotoCard } from "./PhotoCard";
@@ -72,7 +71,7 @@ export function PhotoAlbumGrid({
           <Images className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-semibold">Photo Album</h3>
           <span className="text-xs text-muted-foreground">({photos.length})</span>
-          <HelpTooltip text="Manage multiple photos for this property. Mark one as the hero image — it will represent the property on portfolio cards, detail pages, and exports." />
+          <InfoTooltip text="Manage multiple photos for this property. Mark one as the hero image — it will represent the property on portfolio cards, detail pages, and exports." />
         </div>
         <div className="flex items-center gap-1.5">
           <Button variant="outline" size="sm" className="h-7 text-xs gap-1.5" onClick={() => setGenerateOpen(true)}>

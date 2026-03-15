@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { SaveButton } from "@/components/ui/save-button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, X, ChevronDown, ChevronRight } from "lucide-react";
@@ -1729,7 +1729,7 @@ function PropertyResearchSection({ config, onChange }: { config: ResearchEventCo
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-1.5">
               Refresh Interval
-              <HelpTooltip text="Days before research results are considered stale." />
+              <InfoTooltip text="Days before research results are considered stale." />
             </Label>
             <Input
               type="number" min={3} max={14}
@@ -1877,7 +1877,7 @@ function LlmSelectionCard({ draft, setDraft, setIsDirty }: {
             <CardTitle className="flex items-center gap-2 text-sm font-display">
               <IconBrain className="w-4 h-4 text-primary" />
               LLM Selection
-              <HelpTooltip text="Configure the AI model architecture for research. Choose between a dual-model setup (reasoning + workhorse) or a single primary model." />
+              <InfoTooltip text="Configure the AI model architecture for research. Choose between a dual-model setup (reasoning + workhorse) or a single primary model." />
             </CardTitle>
             {draft.cachedModelsAt && (
               <p className="text-xs text-muted-foreground mt-1">

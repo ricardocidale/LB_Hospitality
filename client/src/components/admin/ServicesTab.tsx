@@ -22,7 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
-import { IconPlus, IconRefreshCw, IconSave, IconArrowRightLeft, IconHelpCircle, IconBookOpen, IconPencil, IconTrash, IconPackage, IconProperties } from "@/components/icons";
+import { IconPlus, IconRefreshCw, IconSave, IconArrowRightLeft, IconBookOpen, IconPencil, IconTrash, IconPackage, IconProperties } from "@/components/icons";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import {
   useServiceTemplates,
   useCreateServiceTemplate,
@@ -382,17 +383,7 @@ export default function ServicesTab() {
                             <span>Markup: <span className="font-mono">{((t.serviceMarkup ?? 0) * 100).toFixed(0)}%</span></span>
                           )}
                           {t.serviceModel === "centralized" && (
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <IconHelpCircle className="w-3 h-3 text-muted-foreground" />
-                              </TooltipTrigger>
-                              <TooltipContent side="right">
-                                <p className="max-w-xs text-xs">
-                                  Effective margin: {(((t.serviceMarkup ?? 0) / (1 + (t.serviceMarkup ?? 0))) * 100).toFixed(1)}% of revenue.
-                                  Vendor cost = fee / (1 + {((t.serviceMarkup ?? 0) * 100).toFixed(0)}%).
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
+                            <InfoTooltip text={`Effective margin: ${(((t.serviceMarkup ?? 0) / (1 + (t.serviceMarkup ?? 0))) * 100).toFixed(1)}% of revenue. Vendor cost = fee / (1 + ${((t.serviceMarkup ?? 0) * 100).toFixed(0)}%).`} side="right" />
                           )}
                         </div>
                       </div>

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { useCalcDetails, SUBTOTAL_BG, GRAND_TOTAL_CLASS } from "./context";
 
@@ -34,7 +34,7 @@ export function SectionHeader({
       <TableCell colSpan={colSpan} className={cn("font-medium py-2", textColor)}>
         <span className="flex items-center gap-1.5">
           {label}
-          {showDetails && tooltip && <HelpTooltip text={tooltip} />}
+          {showDetails && tooltip && <InfoTooltip text={tooltip} />}
         </span>
       </TableCell>
     </TableRow>
@@ -80,7 +80,7 @@ export function SubtotalRow({
       <TableCell className="sticky left-0 py-1.5" style={cellStyle}>
         <span className="flex items-center gap-1">
           {label}
-          {showDetails && tooltip && <HelpTooltip text={tooltip} />}
+          {showDetails && tooltip && <InfoTooltip text={tooltip} />}
         </span>
       </TableCell>
       {values.map((v, i) => (
@@ -143,7 +143,7 @@ export function LineItem({
       >
         <span className="flex items-center gap-1">
           {label}
-          {showDetails && tooltip && <HelpTooltip text={tooltip} />}
+          {showDetails && tooltip && <InfoTooltip text={tooltip} />}
         </span>
       </TableCell>
       {values.map((v, i) => {
@@ -192,7 +192,7 @@ export function GrandTotalRow({
       <TableCell className="sticky left-0 bg-primary/70 py-1.5">
         <span className="flex items-center gap-1">
           {label}
-          {showDetails && tooltip && <HelpTooltip text={tooltip} light={lightTooltip} />}
+          {showDetails && tooltip && <InfoTooltip text={tooltip} light={lightTooltip} />}
         </span>
       </TableCell>
       {values.map((v, i) => (

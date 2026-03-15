@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Loader2, X } from "lucide-react";
 import { IconWand2 } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
@@ -54,7 +54,7 @@ export default function DescriptionSection({ draft, onChange }: PropertyEditSect
         <div className="space-y-3">
           <Label className="label-text text-foreground flex items-center gap-1.5">
             Description
-            <HelpTooltip text="A narrative description of the property. This is used in reports, exports, and as context for AI research. Describe the property's unique features, target market, and investment appeal." />
+            <InfoTooltip text="A narrative description of the property. This is used in reports, exports, and as context for AI research. Describe the property's unique features, target market, and investment appeal." />
           </Label>
           <Textarea
             value={draft.description || ""}

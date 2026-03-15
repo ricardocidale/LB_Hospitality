@@ -8,7 +8,7 @@
  */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import { DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE } from "@/lib/constants";
 import { DEFAULT_COST_OF_EQUITY } from "@shared/constants";
@@ -22,14 +22,14 @@ export default function ExitAssumptionsSection({ formData, onChange, global, res
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center gap-2">
           Exit, Sale & Valuation Assumptions
-          <HelpTooltip text="Default values for property exit valuations, WACC discount rate, and sale transactions." manualSection="investment-returns" />
+          <InfoTooltip text="Default values for property exit valuations, WACC discount rate, and sale transactions." manualSection="investment-returns" />
         </h3>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Cost of Equity (Re)
-              <HelpTooltip text="Required equity return for private hospitality investment. Used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, this is the investor's hurdle rate (typically 15–25%), not CAPM-derived." manualSection="investment-returns" />
+              <InfoTooltip text="Required equity return for private hospitality investment. Used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, this is the investor's hurdle rate (typically 15–25%), not CAPM-derived." manualSection="investment-returns" />
               <ResearchBadge value={researchValues.costOfEquity?.display} onClick={() => researchValues.costOfEquity && onChange("costOfEquity", researchValues.costOfEquity.mid / 100)} sourceType="industry" sourceName="Private RE equity benchmarks" data-testid="badge-cost-of-equity" />
             </Label>
             <EditableValue
@@ -54,7 +54,7 @@ export default function ExitAssumptionsSection({ formData, onChange, global, res
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Default Exit Cap Rate
-              <HelpTooltip text="Capitalization rate used for property valuation at exit. Higher cap rate = lower valuation." manualSection="investment-returns" />
+              <InfoTooltip text="Capitalization rate used for property valuation at exit. Higher cap rate = lower valuation." manualSection="investment-returns" />
               <ResearchBadge value={researchValues.exitCapRate?.display} onClick={() => researchValues.exitCapRate && onChange("exitCapRate", researchValues.exitCapRate.mid / 100)} sourceType="industry" sourceName="CBRE Cap Rate Survey" data-testid="badge-exit-cap" />
             </Label>
             <EditableValue
@@ -79,7 +79,7 @@ export default function ExitAssumptionsSection({ formData, onChange, global, res
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Default Sales Commission Rate (% of Gross Sale Price)
-              <HelpTooltip text="Default broker commission for new properties. Each property can override this with its own disposition commission on its assumptions page." />
+              <InfoTooltip text="Default broker commission for new properties. Each property can override this with its own disposition commission on its assumptions page." />
               <ResearchBadge value={researchValues.salesCommission?.display} onClick={() => researchValues.salesCommission && onChange("salesCommissionRate", researchValues.salesCommission.mid / 100)} sourceType="industry" sourceName="NAR transaction data" data-testid="badge-sales-commission" />
             </Label>
             <EditableValue

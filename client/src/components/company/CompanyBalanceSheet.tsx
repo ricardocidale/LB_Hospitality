@@ -27,7 +27,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import type { CompanyBalanceSheetProps } from "./types";
 
 export default function CompanyBalanceSheet({
@@ -260,7 +260,7 @@ export default function CompanyBalanceSheet({
                   <TableCell>
                     <span className="flex items-center gap-1">
                       TOTAL EQUITY
-                      <HelpTooltip text="Total Equity = Retained Earnings. For this management company, equity is entirely composed of cumulative net income." />
+                      <InfoTooltip text="Total Equity = Retained Earnings. For this management company, equity is entirely composed of cumulative net income." />
                     </span>
                   </TableCell>
                   <TableCell className="text-right font-mono">{formatMoney(totalEquity)}</TableCell>

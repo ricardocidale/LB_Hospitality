@@ -21,7 +21,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import EditableValue from "./EditableValue";
 import type { CompensationSectionProps } from "./types";
@@ -34,7 +34,7 @@ export default function CompensationSection({ formData, onChange, global, resear
         <div>
           <h3 className="text-lg font-display text-foreground flex items-center">
             Compensation
-            <HelpTooltip text="Annual salaries for management company team members" />
+            <InfoTooltip text="Annual salaries for management company team members" />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Configure partner compensation, staff salaries, and staffing tiers</p>
         </div>
@@ -42,7 +42,7 @@ export default function CompensationSection({ formData, onChange, global, resear
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Staff Salary (Avg)
-              <HelpTooltip text="Average annual salary per staff FTE. Staffing scales based on the tiers configured below." />
+              <InfoTooltip text="Average annual salary per staff FTE. Staffing scales based on the tiers configured below." />
               <ResearchBadge value={researchValues.staffSalary?.display} onClick={() => researchValues.staffSalary && onChange("staffSalary", researchValues.staffSalary.mid)} sourceType="industry" sourceName="AHLA Lodging Industry Survey" data-testid="badge-staff-salary" />
             </Label>
             <EditableValue
@@ -67,7 +67,7 @@ export default function CompensationSection({ formData, onChange, global, resear
           <div className="mb-3">
             <Label className="flex items-center text-foreground label-text font-medium">
               Staffing Tiers
-              <HelpTooltip text="Define how many full-time employees (FTE) are needed based on the number of properties under management. Each tier sets a maximum property count and the FTE required." />
+              <InfoTooltip text="Define how many full-time employees (FTE) are needed based on the number of properties under management. Each tier sets a maximum property count and the FTE required." />
             </Label>
             <p className="text-xs text-muted-foreground mt-1">Set the FTE headcount for each portfolio size bracket</p>
           </div>

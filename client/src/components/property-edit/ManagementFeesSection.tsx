@@ -20,7 +20,7 @@
  */
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
@@ -34,7 +34,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">
             Management and Service Fees by Hospitality Management Company
-            <HelpTooltip text="Fees paid by this property to the management company. Service fees are broken into categories (each a % of Total Revenue). The Incentive Fee is a % of Gross Operating Profit (GOP) collected when GOP is positive." />
+            <InfoTooltip text="Fees paid by this property to the management company. Service fees are broken into categories (each a % of Total Revenue). The Incentive Fee is a % of Gross Operating Profit (GOP) collected when GOP is positive." />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Fees charged by the management company for operating this property</p>
         </div>
@@ -64,7 +64,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
                   <div className="flex flex-col gap-0.5">
                     <Label className={`flex items-center label-text gap-1.5 ${cat.isActive ? 'text-foreground' : 'text-muted-foreground line-through'}`}>
                       {cat.name}
-                      <HelpTooltip text={`${cat.name} service fee = Total Revenue × ${(cat.rate * 100).toFixed(1)}%. Charged monthly as part of the management company's service fees.`} />
+                      <InfoTooltip text={`${cat.name} service fee = Total Revenue × ${(cat.rate * 100).toFixed(1)}%. Charged monthly as part of the management company's service fees.`} />
                     </Label>
                     <ResearchBadge value={rv?.display} onClick={() => rv && onFeeCategoryChange(idx, "rate", rv.mid / 100)} />
                   </div>
@@ -110,7 +110,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
                 <div className="flex flex-col gap-0.5">
                   <Label className="flex items-center label-text text-foreground gap-1.5">
                     Incentive Fee (% of GOP)
-                    <HelpTooltip text="Incentive Management Fee = max(0, GOP) × this rate. Only charged when Gross Operating Profit is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
+                    <InfoTooltip text="Incentive Management Fee = max(0, GOP) × this rate. Only charged when Gross Operating Profit is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
                   </Label>
                   <ResearchBadge entry={researchValues.incentiveFee} onClick={() => researchValues.incentiveFee && onChange("incentiveManagementFeeRate", researchValues.incentiveFee.mid / 100)} />
                 </div>

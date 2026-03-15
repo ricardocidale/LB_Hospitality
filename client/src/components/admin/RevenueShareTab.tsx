@@ -26,11 +26,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Loader2, Check, X, ChevronDown, ChevronUp } from "lucide-react";
 import {
   IconPlus, IconSave, IconInfo, IconPercent, IconDollarSign, IconArrowRightLeft,
-  IconHelpCircle, IconBookOpen, IconRefreshCw, IconPencil, IconTrash, IconPackage, IconTrending,
+  IconBookOpen, IconRefreshCw, IconPencil, IconTrash, IconPackage, IconTrending,
 } from "@/components/icons";
 import {
   useServiceTemplates,
@@ -451,7 +451,7 @@ export default function RevenueShareTab() {
               <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
                 <IconPackage className="w-4 h-4 text-muted-foreground" />
                 Service Categories
-                <HelpTooltip text="Each category represents a specific service the management company provides to properties. The fee for each category is charged as a percentage of the property's Total Revenue. Together, all active categories sum to the Base Management Fee. Properties inherit these defaults but can customize rates individually." />
+                <InfoTooltip text="Each category represents a specific service the management company provides to properties. The fee for each category is charged as a percentage of the property's Total Revenue. Together, all active categories sum to the Base Management Fee. Properties inherit these defaults but can customize rates individually." />
               </CardTitle>
               <CardDescription className="label-text">
                 Toggle services ON/OFF to include or exclude them globally for all properties.
@@ -608,7 +608,7 @@ export default function RevenueShareTab() {
                           <div className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-lg p-3">
                             <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
                               Cost-Plus Markup
-                              <HelpTooltip text={`Centralized model: The management company procures this service from vendors and passes the cost through with a ${((t.serviceMarkup ?? 0) * 100).toFixed(0)}% markup. Effective margin: ${(((t.serviceMarkup ?? 0) / (1 + (t.serviceMarkup ?? 0))) * 100).toFixed(1)}% of fee revenue.`} />
+                              <InfoTooltip text={`Centralized model: The management company procures this service from vendors and passes the cost through with a ${((t.serviceMarkup ?? 0) * 100).toFixed(0)}% markup. Effective margin: ${(((t.serviceMarkup ?? 0) / (1 + (t.serviceMarkup ?? 0))) * 100).toFixed(1)}% of fee revenue.`} />
                             </div>
                             {isEditingMarkup ? (
                               <div className="flex items-center gap-1.5">
@@ -697,7 +697,7 @@ export default function RevenueShareTab() {
                 <div className="flex items-center gap-2">
                   <IconTrending className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-primary">Total Base Management Fee</span>
-                  <HelpTooltip text="The sum of all active service category rates. This is the effective Base Management Fee charged to each property as a percentage of their Total Revenue. It is deducted from GOP to calculate Adjusted Gross Operating Profit (AGOP) in the USALI waterfall." />
+                  <InfoTooltip text="The sum of all active service category rates. This is the effective Base Management Fee charged to each property as a percentage of their Total Revenue. It is deducted from GOP to calculate Adjusted Gross Operating Profit (AGOP) in the USALI waterfall." />
                 </div>
                 <span className="text-lg font-display font-bold text-primary font-mono">{(totalServiceRate * 100).toFixed(1)}%</span>
               </div>
@@ -712,7 +712,7 @@ export default function RevenueShareTab() {
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
             <IconDollarSign className="w-4 h-4 text-muted-foreground" />
             Incentive Management Fee
-            <HelpTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from GOP to arrive at Adjusted Gross Operating Profit (AGOP), which flows through to NOI and ANOI." />
+            <InfoTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from GOP to arrive at Adjusted Gross Operating Profit (AGOP), which flows through to NOI and ANOI." />
           </CardTitle>
           <CardDescription className="label-text">
             Performance bonus as a percentage of each property's Gross Operating Profit (GOP).
@@ -762,7 +762,7 @@ export default function RevenueShareTab() {
       <Card className="bg-muted/50 border border-border/60 shadow-sm">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-3">
-            <IconHelpCircle className="w-4 h-4 text-muted-foreground" />
+            <IconInfo className="w-4 h-4 text-muted-foreground" />
             <span className="text-xs font-medium text-foreground uppercase tracking-wider">USALI Waterfall Impact</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-center text-xs">
@@ -811,7 +811,7 @@ export default function RevenueShareTab() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-1">
                   Service Model
-                  <HelpTooltip text="Centralized: The management company procures this service from vendors and passes cost through with a markup. The property pays fee = vendor cost × (1 + markup%). Direct: The company provides oversight only — the entire fee is recognized as revenue with no vendor cost." />
+                  <InfoTooltip text="Centralized: The management company procures this service from vendors and passes cost through with a markup. The property pays fee = vendor cost × (1 + markup%). Direct: The company provides oversight only — the entire fee is recognized as revenue with no vendor cost." />
                 </Label>
                 <Select value={form.serviceModel} onValueChange={(v) => setForm({ ...form, serviceModel: v as "centralized" | "direct" })}>
                   <SelectTrigger data-testid="select-service-model">
@@ -826,7 +826,7 @@ export default function RevenueShareTab() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-1">
                   Default Fee Rate
-                  <HelpTooltip text="The percentage of a property's Total Revenue charged for this service. e.g. 2.0 means 2.0% of Total Revenue. All active service rates sum to the Base Management Fee." />
+                  <InfoTooltip text="The percentage of a property's Total Revenue charged for this service. e.g. 2.0 means 2.0% of Total Revenue. All active service rates sum to the Base Management Fee." />
                 </Label>
                 <div className="relative">
                   <Input
@@ -847,7 +847,7 @@ export default function RevenueShareTab() {
               <div className="space-y-2 bg-muted rounded-lg p-3 border border-border/60">
                 <Label className="text-sm font-medium flex items-center gap-1">
                   Cost-Plus Markup
-                  <HelpTooltip text="When the company procures a service for a property, it charges cost × (1 + markup%). e.g. 20% markup means a $1,000 vendor invoice becomes $1,200 to the property. The $200 difference is the company's gross profit on this service." />
+                  <InfoTooltip text="When the company procures a service for a property, it charges cost × (1 + markup%). e.g. 20% markup means a $1,000 vendor invoice becomes $1,200 to the property. The $200 difference is the company's gross profit on this service." />
                 </Label>
                 <p className="text-xs text-muted-foreground">
                   If markup is 20% and the company procures a service for $1.00, the property is charged $1.20.

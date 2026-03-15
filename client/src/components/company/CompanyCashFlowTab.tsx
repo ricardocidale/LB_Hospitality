@@ -26,7 +26,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import type { CompanyTabProps } from "./types";
 
 export default function CompanyCashFlowTab({
@@ -414,7 +414,7 @@ export default function CompanyCashFlowTab({
               <TableCell className="sticky left-0 bg-card text-xs text-muted-foreground italic pl-6">
                 <span className="flex items-center gap-1">
                   % of Revenue
-                  <HelpTooltip text="Operating Cash Flow as a percentage of Total Revenue. Indicates how much of revenue converts to cash." />
+                  <InfoTooltip text="Operating Cash Flow as a percentage of Total Revenue. Indicates how much of revenue converts to cash." />
                 </span>
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
@@ -563,7 +563,7 @@ export default function CompanyCashFlowTab({
               <TableCell className="sticky left-0 bg-card text-muted-foreground">
                 <span className="flex items-center gap-1">
                   Months of Runway
-                  <HelpTooltip text="Closing Cash ÷ Average Monthly Burn Rate. Indicates how many months the company can operate before running out of cash at the current expense rate." />
+                  <InfoTooltip text="Closing Cash ÷ Average Monthly Burn Rate. Indicates how many months the company can operate before running out of cash at the current expense rate." />
                 </span>
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {

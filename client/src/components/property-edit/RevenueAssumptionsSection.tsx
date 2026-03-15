@@ -24,7 +24,7 @@
  * show AI benchmarks when available.
  */
 import { Label } from "@/components/ui/label";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
@@ -51,7 +51,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
               <div className="flex flex-col gap-0.5">
                 <Label className="label-text text-foreground flex items-center gap-1.5">
                   Starting ADR
-                  <HelpTooltip text="The average nightly rate charged per occupied room when the hotel first opens. This is the foundation of all revenue projections — room revenue, F&B, and events all flow from ADR × occupancy." />
+                  <InfoTooltip text="The average nightly rate charged per occupied room when the hotel first opens. This is the foundation of all revenue projections — room revenue, F&B, and events all flow from ADR × occupancy." />
                 </Label>
                 <ResearchBadge entry={researchValues.adr} onClick={() => researchValues.adr && onChange("startAdr", researchValues.adr.mid)} />
               </div>
@@ -76,7 +76,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
-                <Label className="label-text text-foreground flex items-center gap-1.5">ADR Annual Growth<HelpTooltip text="The yearly percentage increase applied to ADR, compounding each year. A 3.5% growth rate means a $250 ADR becomes ~$259 in Year 2, ~$268 in Year 3, and so on. Reflects pricing power, inflation, and market positioning." /></Label>
+                <Label className="label-text text-foreground flex items-center gap-1.5">ADR Annual Growth<InfoTooltip text="The yearly percentage increase applied to ADR, compounding each year. A 3.5% growth rate means a $250 ADR becomes ~$259 in Year 2, ~$268 in Year 3, and so on. Reflects pricing power, inflation, and market positioning." /></Label>
                 <ResearchBadge entry={researchValues.adrGrowth} onClick={() => researchValues.adrGrowth && onChange("adrGrowthRate", researchValues.adrGrowth.mid / 100)} />
               </div>
               <EditableValue
@@ -104,7 +104,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
               <div className="flex flex-col gap-0.5">
                 <Label className="label-text text-foreground flex items-center gap-1.5">
                   Starting Occupancy
-                  <HelpTooltip text="The percentage of rooms sold in the first month of operations. New hotels typically open well below their long-term potential while they build awareness and reputation. This is the starting point of the occupancy ramp." />
+                  <InfoTooltip text="The percentage of rooms sold in the first month of operations. New hotels typically open well below their long-term potential while they build awareness and reputation. This is the starting point of the occupancy ramp." />
                 </Label>
                 <ResearchBadge entry={researchValues.startOccupancy} onClick={() => researchValues.startOccupancy && onChange("startOccupancy", researchValues.startOccupancy.mid / 100)} />
               </div>
@@ -131,7 +131,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
               <div className="flex flex-col gap-0.5">
                 <Label className="label-text text-foreground flex items-center gap-1.5">
                   Stabilized Occupancy
-                  <HelpTooltip text="The maximum occupancy the property will reach once fully ramped. The occupancy growth step increases occupancy toward this ceiling at regular intervals. Once reached, occupancy stays here for the remainder of the projection." />
+                  <InfoTooltip text="The maximum occupancy the property will reach once fully ramped. The occupancy growth step increases occupancy toward this ceiling at regular intervals. Once reached, occupancy stays here for the remainder of the projection." />
                 </Label>
                 <ResearchBadge entry={researchValues.occupancy} onClick={() => researchValues.occupancy && onChange("maxOccupancy", researchValues.occupancy.mid / 100)} />
               </div>
@@ -160,7 +160,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
               <div className="flex flex-col gap-0.5">
                 <Label className="label-text text-foreground flex items-center gap-1.5">
                   Occupancy Ramp
-                  <HelpTooltip text="How many months pass between each occupancy step-up. For example, if set to 9 months with a 5% growth step, occupancy jumps by 5 percentage points every 9 months until it hits the stabilized maximum. A shorter ramp means faster fill-up." />
+                  <InfoTooltip text="How many months pass between each occupancy step-up. For example, if set to 9 months with a 5% growth step, occupancy jumps by 5 percentage points every 9 months until it hits the stabilized maximum. A shorter ramp means faster fill-up." />
                 </Label>
                 <ResearchBadge entry={researchValues.rampMonths} onClick={() => researchValues.rampMonths && onChange("occupancyRampMonths", researchValues.rampMonths.mid)} />
               </div>
@@ -185,7 +185,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex flex-col gap-0.5">
-                <Label className="label-text text-foreground flex items-center gap-1.5">Occupancy Growth Step<HelpTooltip text="The size of each occupancy increase during the ramp-up period. Every time the ramp interval elapses, occupancy jumps by this many percentage points. Example: starting at 40% with a 5% step → 40%, 45%, 50%, 55%… until the stabilized maximum is reached." /></Label>
+                <Label className="label-text text-foreground flex items-center gap-1.5">Occupancy Growth Step<InfoTooltip text="The size of each occupancy increase during the ramp-up period. Every time the ramp interval elapses, occupancy jumps by this many percentage points. Example: starting at 40% with a 5% step → 40%, 45%, 50%, 55%… until the stabilized maximum is reached." /></Label>
                 <ResearchBadge entry={researchValues.occupancyStep} onClick={() => researchValues.occupancyStep && onChange("occupancyGrowthStep", researchValues.occupancyStep.mid / 100)} />
               </div>
               <EditableValue
@@ -211,7 +211,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
         <div className="space-y-4 pt-2 border-t border-primary/15">
           <Label className="label-text text-foreground flex items-center gap-1.5">
             Additional Revenue as % of Room Revenue
-            <HelpTooltip text="Configure how much additional revenue each stream generates as a percentage of room revenue. F&B revenue gets boosted by the catering boost percentage." />
+            <InfoTooltip text="Configure how much additional revenue each stream generates as a percentage of room revenue. F&B revenue gets boosted by the catering boost percentage." />
           </Label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:items-end">
             <div className="space-y-2">
@@ -219,7 +219,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
                 <div className="flex flex-col gap-0.5">
                   <Label className="label-text text-foreground flex items-center gap-1.5">
                     Events
-                    <HelpTooltip text="Revenue from meetings, weddings, and other events as a percentage of room revenue." />
+                    <InfoTooltip text="Revenue from meetings, weddings, and other events as a percentage of room revenue." />
                     <GaapBadge rule="ASC 606: Event revenue recognized when the event occurs (point-in-time). Deposits recorded as deferred revenue until the performance obligation is satisfied." />
                   </Label>
                   <ResearchBadge entry={researchValues.revShareEvents} onClick={() => researchValues.revShareEvents && onChange("revShareEvents", researchValues.revShareEvents.mid / 100)} />
@@ -248,7 +248,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
                 <div className="flex flex-col gap-0.5">
                   <Label className="label-text text-foreground flex items-center gap-1.5">
                     F&B
-                    <HelpTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by the catering boost percentage below." />
+                    <InfoTooltip text="Base food & beverage revenue as a percentage of room revenue. This gets boosted by the catering boost percentage below." />
                     <GaapBadge rule="ASC 606: F&B revenue recognized at the point of sale. Bundled packages (e.g., room + breakfast) must allocate revenue to each performance obligation based on standalone selling prices." />
                   </Label>
                   <ResearchBadge entry={researchValues.revShareFB} onClick={() => researchValues.revShareFB && onChange("revShareFB", researchValues.revShareFB.mid / 100)} />
@@ -277,7 +277,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
                 <div className="flex flex-col gap-0.5">
                   <Label className="label-text text-foreground flex items-center gap-1.5">
                     Other
-                    <HelpTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
+                    <InfoTooltip text="Revenue from spa, parking, activities, and other ancillary services." />
                   </Label>
                   <ResearchBadge entry={researchValues.revShareOther} onClick={() => researchValues.revShareOther && onChange("revShareOther", researchValues.revShareOther.mid / 100)} />
                 </div>
@@ -304,7 +304,7 @@ export default function RevenueAssumptionsSection({ draft, onChange, researchVal
               <div className="flex justify-between items-center">
                 <Label className="label-text text-foreground flex items-center gap-1.5">
                   Catering Boost
-                  <HelpTooltip text="Percentage uplift applied to base F&B revenue from catered events. For example, 30% means total F&B = Base F&B × 1.30." />
+                  <InfoTooltip text="Percentage uplift applied to base F&B revenue from catered events. For example, 30% means total F&B = Base F&B × 1.30." />
                   <ResearchBadge entry={researchValues.catering} onClick={() => researchValues.catering && onChange("cateringBoostPercent", researchValues.catering.mid / 100)} />
                 </Label>
                 <EditableValue

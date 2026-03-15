@@ -15,7 +15,7 @@
  * the model: a 50 bps change can swing the property IRR by several points.
  */
 import { Label } from "@/components/ui/label";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Slider } from "@/components/ui/slider";
 import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
@@ -36,7 +36,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">
             Other Assumptions
-            <HelpTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
+            <InfoTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Exit valuation and tax rate assumptions</p>
         </div>
@@ -57,7 +57,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               <div className="flex flex-col gap-0.5">
                 <Label className="flex items-center label-text text-foreground gap-1.5">
                   Exit Cap Rate
-                  <HelpTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
+                  <InfoTooltip text={`The capitalization rate used to determine terminal (exit) value. Exit Value = Year ${exitYear} NOI ÷ Cap Rate. A lower cap rate implies higher property valuation.`} />
                   <GaapBadge rule="ASC 360: The exit cap rate determines terminal value for impairment testing. Gain on sale = Sale Price − (Adjusted Basis − Accumulated Depreciation). Depreciation recapture taxed at up to 25% under IRC §1250." />
                 </Label>
                 <ResearchBadge entry={researchValues.capRate} onClick={() => researchValues.capRate && onChange("exitCapRate", researchValues.capRate.mid / 100)} />
@@ -87,7 +87,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               <div className="flex flex-col gap-0.5">
                 <Label className="flex items-center label-text text-foreground gap-1.5">
                   Income Tax Rate
-                  <HelpTooltip text="Income tax rate for this property's SPV entity, applied to taxable income (NOI minus interest and depreciation) to calculate after-tax cash flow. Set per property to reflect the jurisdiction where the property is located." />
+                  <InfoTooltip text="Income tax rate for this property's SPV entity, applied to taxable income (NOI minus interest and depreciation) to calculate after-tax cash flow. Set per property to reflect the jurisdiction where the property is located." />
                   <GaapBadge rule="IRC §168: Taxable income = NOI − Interest − Depreciation. The 27.5-year straight-line depreciation on the building portion creates a non-cash deduction that shelters cash flow from taxes." />
                 </Label>
                 <ResearchBadge entry={researchValues.incomeTax} onClick={() => researchValues.incomeTax && onChange("taxRate", researchValues.incomeTax.mid / 100)} />
@@ -117,7 +117,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               <div className="flex flex-col gap-0.5">
                 <Label className="flex items-center label-text text-foreground gap-1.5">
                   Inflation Rate
-                  <HelpTooltip text="Annual inflation rate for this property. Escalates fixed operating costs and serves as the floor for revenue growth. If left blank, the global system default is used." />
+                  <InfoTooltip text="Annual inflation rate for this property. Escalates fixed operating costs and serves as the floor for revenue growth. If left blank, the global system default is used." />
                 </Label>
                 <ResearchBadge entry={researchValues.inflationRate} onClick={() => researchValues.inflationRate && onChange("inflationRate", researchValues.inflationRate.mid / 100)} />
               </div>
@@ -143,7 +143,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               <div className="flex flex-col gap-0.5">
                 <Label className="flex items-center label-text text-foreground gap-1.5">
                   Sale Commission
-                  <HelpTooltip text="Broker commission percentage applied when this property is sold." />
+                  <InfoTooltip text="Broker commission percentage applied when this property is sold." />
                 </Label>
                 <ResearchBadge entry={researchValues.saleCommission} onClick={() => researchValues.saleCommission && onChange("dispositionCommission", researchValues.saleCommission.mid / 100)} />
               </div>

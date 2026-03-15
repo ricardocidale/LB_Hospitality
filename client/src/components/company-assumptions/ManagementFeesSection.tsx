@@ -14,7 +14,7 @@
  * consistency and spotting outliers.
  */
 import { Link } from "wouter";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { formatPercent } from "@/lib/financialEngine";
 import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
@@ -29,7 +29,7 @@ export default function ManagementFeesSection({ formData, onChange, global, prop
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center">
           Revenue — Management Fees
-          <HelpTooltip text="Management fees are defined per property. Each property sets its own Base Fee (% of Revenue) and Incentive Fee (% of GOP). Edit these rates on each property's assumptions page." manualSection="company-formulas" />
+          <InfoTooltip text="Management fees are defined per property. Each property sets its own Base Fee (% of Revenue) and Incentive Fee (% of GOP). Edit these rates on each property's assumptions page." manualSection="company-formulas" />
         </h3>
         <p className="text-sm text-muted-foreground mb-3">Fee rates are set individually on each property. This table shows the current rates for reference.</p>
         <div className="rounded-lg border border-border overflow-hidden">

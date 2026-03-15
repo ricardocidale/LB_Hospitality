@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Plus, X } from "lucide-react";
-import { IconSave, IconHelpCircle } from "@/components/icons";
+import { IconSave } from "@/components/icons";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { ADMIN_TEXTAREA } from "./styles";
 import {
@@ -125,22 +125,6 @@ function UnitLabel({ unitType, suffix }: { unitType?: UnitType; suffix?: string 
   return null;
 }
 
-function HelpTooltip({ text }: { text: string }) {
-  return (
-    <TooltipProvider delayDuration={200}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button type="button" variant="ghost" size="icon" className="text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-1 shrink-0 h-5 w-5">
-            <IconHelpCircle className="w-3.5 h-3.5" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">
-          {text}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
 
 interface CustomAmenity {
   id: string;
@@ -394,7 +378,7 @@ function AmenityCard({
       <div className="space-y-2.5">
         <div className="flex items-start gap-1.5 pr-5">
           <span className="text-xs font-semibold text-foreground leading-tight">{field.label}</span>
-          {field.help && <HelpTooltip text={field.help} />}
+          {field.help && <InfoTooltip text={field.help} />}
         </div>
 
         <PriorityRadio value={priority} onChange={onPriorityChange} />

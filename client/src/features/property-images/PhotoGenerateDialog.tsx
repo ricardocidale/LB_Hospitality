@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGenerateImage, type GenerationStyle } from "./useGenerateImage";
 import { useAddPropertyPhoto } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Progress } from "@/components/ui/progress";
 import type { PropertyPhoto } from "@shared/schema";
 
@@ -141,7 +141,7 @@ export function PhotoGenerateDialog({
           </DialogTitle>
           <DialogDescription>
             Create a professional property image using AI.
-            <HelpTooltip text="Choose a generation style: Standard uses Gemini/OpenAI, while specialized styles use architecture-optimized models for photorealistic renders." />
+            <InfoTooltip text="Choose a generation style: Standard uses Gemini/OpenAI, while specialized styles use architecture-optimized models for photorealistic renders." />
           </DialogDescription>
         </DialogHeader>
 

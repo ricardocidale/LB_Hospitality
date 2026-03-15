@@ -15,7 +15,7 @@
  */
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import defaultLogo from "@/assets/logo.png";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import type { CompanySetupSectionProps } from "./types";
@@ -27,7 +27,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
         <div>
           <h3 className="text-lg font-display text-foreground flex items-center">
             Company Setup
-            <HelpTooltip text="When the management company begins operations and starts incurring costs" />
+            <InfoTooltip text="When the management company begins operations and starts incurring costs" />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Configure the management company name and when it starts operations</p>
         </div>
@@ -35,7 +35,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
           <div className="flex flex-col gap-2">
             <Label className="flex items-center text-foreground label-text">
               Company Logo
-              <HelpTooltip text="The company logo displayed in the navigation. Managed in Admin Settings > Branding." />
+              <InfoTooltip text="The company logo displayed in the navigation. Managed in Admin Settings > Branding." />
             </Label>
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-lg border border-border bg-card flex items-center justify-center overflow-hidden">
@@ -51,7 +51,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
           <div className="flex flex-col gap-2">
             <Label className="flex items-center text-foreground label-text">
               Company Name
-              <HelpTooltip text="The name of the hospitality management company. Only administrators can change this." />
+              <InfoTooltip text="The name of the hospitality management company. Only administrators can change this." />
             </Label>
             <Input
               type="text"
@@ -68,7 +68,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
           <div className="flex flex-col gap-2">
             <Label className="flex items-center text-foreground label-text">
               Operations Start Date
-              <HelpTooltip text="The date when the management company begins operations, starts paying salaries, and incurs overhead costs" />
+              <InfoTooltip text="The date when the management company begins operations, starts paying salaries, and incurs overhead costs" />
             </Label>
             <Input
               type="date"
@@ -81,7 +81,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
           <div className="flex flex-col gap-2">
             <Label className="flex items-center text-foreground label-text">
               Projection Years
-              <HelpTooltip text="Number of years to project financial statements. Affects all charts, tables, and verification checks." />
+              <InfoTooltip text="Number of years to project financial statements. Affects all charts, tables, and verification checks." />
             </Label>
             <Input
               type="number"

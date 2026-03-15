@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { useCalcDetails } from "./context";
@@ -29,7 +29,7 @@ export function MetricRow({ label, values, tooltip, highlights }: MetricRowProps
       <TableCell className="pl-6 sticky left-0 bg-card py-1">
         <span className="flex items-center gap-1">
           {label}
-          {showDetails && tooltip && <HelpTooltip text={tooltip} />}
+          {showDetails && tooltip && <InfoTooltip text={tooltip} />}
         </span>
       </TableCell>
       {values.map((v, i) => (

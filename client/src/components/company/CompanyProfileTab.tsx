@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { SaveButton } from "@/components/ui/save-button";
 import { IconHotel } from "@/components/icons";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
@@ -79,7 +79,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
           <CardTitle className="flex items-center gap-2 font-display">
             <IconHotel className="w-5 h-5 text-primary" />
             General Property Description
-            <HelpTooltip text="Defines the target property profile for the portfolio. These parameters guide market research searches, comp set analysis, and financial benchmarks." manualSection="global-assumptions" />
+            <InfoTooltip text="Defines the target property profile for the portfolio. These parameters guide market research searches, comp set analysis, and financial benchmarks." manualSection="global-assumptions" />
           </CardTitle>
           <CardDescription className="label-text">Characterize the target property profile for the portfolio</CardDescription>
         </CardHeader>
@@ -87,7 +87,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="label-text flex items-center gap-1">Minimum Rooms <HelpTooltip text="Minimum number of guest rooms for the target property profile. Used to filter market research and comparable properties." /></Label>
+                <Label className="label-text flex items-center gap-1">Minimum Rooms <InfoTooltip text="Minimum number of guest rooms for the target property profile. Used to filter market research and comparable properties." /></Label>
                 <span className="text-sm font-mono text-primary">{assetDef.minRooms ?? 10}</span>
               </div>
               <Slider
@@ -105,7 +105,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="label-text flex items-center gap-1">Maximum Rooms <HelpTooltip text="Maximum number of guest rooms for the target property profile. Defines the upper bound for comp set analysis." /></Label>
+                <Label className="label-text flex items-center gap-1">Maximum Rooms <InfoTooltip text="Maximum number of guest rooms for the target property profile. Defines the upper bound for comp set analysis." /></Label>
                 <span className="text-sm font-mono text-primary">{assetDef.maxRooms ?? 80}</span>
               </div>
               <Slider
@@ -125,7 +125,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="label-text flex items-center gap-1">Minimum ADR <HelpTooltip text="Minimum Average Daily Rate target. Sets the floor for market research rate comparisons." /></Label>
+                <Label className="label-text flex items-center gap-1">Minimum ADR <InfoTooltip text="Minimum Average Daily Rate target. Sets the floor for market research rate comparisons." /></Label>
                 <span className="text-sm font-mono text-primary">${assetDef.minAdr ?? 150}</span>
               </div>
               <Slider
@@ -143,7 +143,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="label-text flex items-center gap-1">Maximum ADR <HelpTooltip text="Maximum Average Daily Rate target. Sets the ceiling for market research rate comparisons." /></Label>
+                <Label className="label-text flex items-center gap-1">Maximum ADR <InfoTooltip text="Maximum Average Daily Rate target. Sets the ceiling for market research rate comparisons." /></Label>
                 <span className="text-sm font-mono text-primary">${assetDef.maxAdr ?? 600}</span>
               </div>
               <Slider
@@ -162,7 +162,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-              <Label className="label-text flex items-center gap-1">Food & Beverage (F&B) <HelpTooltip text="Whether target properties include Food & Beverage operations like restaurants and bars." /></Label>
+              <Label className="label-text flex items-center gap-1">Food & Beverage (F&B) <InfoTooltip text="Whether target properties include Food & Beverage operations like restaurants and bars." /></Label>
               <Switch
                 checked={assetDef.hasFB ?? true}
                 onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasFB", checked)}
@@ -170,7 +170,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
               />
             </div>
             <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-              <Label className="label-text flex items-center gap-1">Event Hosting <HelpTooltip text="Whether target properties host events such as weddings, corporate meetings, and social gatherings." /></Label>
+              <Label className="label-text flex items-center gap-1">Event Hosting <InfoTooltip text="Whether target properties host events such as weddings, corporate meetings, and social gatherings." /></Label>
               <Switch
                 checked={assetDef.hasEvents ?? true}
                 onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasEvents", checked)}
@@ -178,7 +178,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
               />
             </div>
             <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-              <Label className="label-text flex items-center gap-1">Wellness Programming <HelpTooltip text="Whether target properties include spa or wellness services like massage, yoga, and fitness programs." /></Label>
+              <Label className="label-text flex items-center gap-1">Wellness Programming <InfoTooltip text="Whether target properties include spa or wellness services like massage, yoga, and fitness programs." /></Label>
               <Switch
                 checked={assetDef.hasWellness ?? true}
                 onCheckedChange={(checked) => handleNestedChange("assetDefinition", "hasWellness", checked)}
@@ -188,7 +188,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <Label className="label-text flex items-center gap-1">Property Level <HelpTooltip text="Service tier classification: Budget, Average, or Luxury. Affects comp set selection and benchmark ranges." /></Label>
+              <Label className="label-text flex items-center gap-1">Property Level <InfoTooltip text="Service tier classification: Budget, Average, or Luxury. Affects comp set selection and benchmark ranges." /></Label>
               <RadioGroup
                 value={assetDef.level ?? "luxury"}
                 onValueChange={(val) => handleNestedChange("assetDefinition", "level", val)}
@@ -210,7 +210,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
               </RadioGroup>
             </div>
             <div className="space-y-3">
-              <Label className="label-text flex items-center gap-1">Privacy Level <HelpTooltip text="Level of guest privacy: High for secluded estates, Moderate for suburban settings, Low for urban locations." /></Label>
+              <Label className="label-text flex items-center gap-1">Privacy Level <InfoTooltip text="Level of guest privacy: High for secluded estates, Moderate for suburban settings, Low for urban locations." /></Label>
               <RadioGroup
                 value={assetDef.privacyLevel ?? "high"}
                 onValueChange={(val) => handleNestedChange("assetDefinition", "privacyLevel", val)}
@@ -235,7 +235,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="label-text flex items-center gap-1">Event Locations <HelpTooltip text="Number of distinct event spaces available on the property (ballrooms, gardens, terraces, etc.)." /></Label>
+                <Label className="label-text flex items-center gap-1">Event Locations <InfoTooltip text="Number of distinct event spaces available on the property (ballrooms, gardens, terraces, etc.)." /></Label>
                 <span className="text-sm font-mono text-primary">{assetDef.eventLocations ?? 2}</span>
               </div>
               <Slider
@@ -253,7 +253,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="label-text flex items-center gap-1">Max Event Capacity <HelpTooltip text="Maximum number of guests that can be accommodated at events across all event spaces." /></Label>
+                <Label className="label-text flex items-center gap-1">Max Event Capacity <InfoTooltip text="Maximum number of guests that can be accommodated at events across all event spaces." /></Label>
                 <span className="text-sm font-mono text-primary">{assetDef.maxEventCapacity ?? 150}</span>
               </div>
               <Slider
@@ -271,7 +271,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="label-text flex items-center gap-1">Parking Spaces <HelpTooltip text="Number of on-site parking spaces available for guests and event attendees." /></Label>
+                <Label className="label-text flex items-center gap-1">Parking Spaces <InfoTooltip text="Number of on-site parking spaces available for guests and event attendees." /></Label>
                 <span className="text-sm font-mono text-primary">{assetDef.parkingSpaces ?? 50}</span>
               </div>
               <Slider
@@ -291,7 +291,7 @@ export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileT
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label className="label-text flex items-center gap-1">Acreage <HelpTooltip text="Total property land area in acres. Larger acreage typically supports more amenities and privacy." /></Label>
+                <Label className="label-text flex items-center gap-1">Acreage <InfoTooltip text="Total property land area in acres. Larger acreage typically supports more amenities and privacy." /></Label>
                 <span className="text-sm font-mono text-primary">{assetDef.acreage ?? 5} acres</span>
               </div>
               <Slider

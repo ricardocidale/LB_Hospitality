@@ -18,7 +18,7 @@
  */
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import EditableValue from "./EditableValue";
 import type { VariableCostsSectionProps } from "./types";
@@ -30,13 +30,13 @@ export default function VariableCostsSection({ formData, onChange, global, resea
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center">
           Variable Costs
-          <HelpTooltip text="Costs that scale with property count or revenue" />
+          <InfoTooltip text="Costs that scale with property count or revenue" />
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Travel Cost per Client
-              <HelpTooltip text="Annual travel expense budget per managed property" />
+              <InfoTooltip text="Annual travel expense budget per managed property" />
               <ResearchBadge value={researchValues.travelPerClient?.display} onClick={() => researchValues.travelPerClient && onChange("travelCostPerClient", researchValues.travelPerClient.mid)} sourceType="industry" sourceName="AHLA Lodging Survey" data-testid="badge-travel-per-client" />
             </Label>
             <EditableValue
@@ -61,7 +61,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               IT/Licensing per Client
-              <HelpTooltip text="PMS, revenue management, and software licenses per B&B property" />
+              <InfoTooltip text="PMS, revenue management, and software licenses per B&B property" />
               <ResearchBadge value={researchValues.itLicensePerClient?.display} onClick={() => researchValues.itLicensePerClient && onChange("itLicensePerClient", researchValues.itLicensePerClient.mid)} sourceType="industry" sourceName="HFTP Technology Survey" data-testid="badge-it-license" />
             </Label>
             <EditableValue
@@ -86,7 +86,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Marketing (% of Mgmt Fee Revenue)
-              <HelpTooltip text="Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
+              <InfoTooltip text="Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
               <ResearchBadge value={researchValues.marketingRate?.display} onClick={() => researchValues.marketingRate && onChange("marketingRate", researchValues.marketingRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-marketing-rate" />
             </Label>
             <EditableValue
@@ -111,7 +111,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Misc Operations (% of Mgmt Fee Revenue)
-              <HelpTooltip text="General operating expenses as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
+              <InfoTooltip text="General operating expenses as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
               <ResearchBadge value={researchValues.miscOpsRate?.display} onClick={() => researchValues.miscOpsRate && onChange("miscOpsRate", researchValues.miscOpsRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-misc-ops" />
             </Label>
             <EditableValue

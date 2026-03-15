@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Search, Check, X, Loader2 } from "lucide-react";
 import { IconGlobe, IconMessageSquare, IconPencil, IconTrash, IconRefreshCw, IconPlus } from "@/components/icons";
 import { DEFAULT_INFLATION_RATE } from "@shared/constants";
@@ -131,7 +131,7 @@ export function IndustryResearchTab() {
           <CardTitle className="flex items-center gap-2 font-display">
             <IconGlobe className="w-5 h-5 text-primary" />
             Your Model Context
-            <HelpTooltip text="These values come from your systemwide assumptions and are automatically included in the research prompt so the AI tailors its analysis to your portfolio." />
+            <InfoTooltip text="These values come from your systemwide assumptions and are automatically included in the research prompt so the AI tailors its analysis to your portfolio." />
           </CardTitle>
           <CardDescription className="label-text">These systemwide settings shape your research. Edit them in General Configuration and Management Co. Profile.</CardDescription>
         </CardHeader>
@@ -178,7 +178,7 @@ export function IndustryResearchTab() {
           <CardTitle className="flex items-center gap-2 font-display">
             <Search className="w-5 h-5 text-primary" />
             Research Variables
-            <HelpTooltip text="Configure what the AI should research. Select focus areas, target regions, and time horizon. Add custom questions for specific topics." />
+            <InfoTooltip text="Configure what the AI should research. Select focus areas, target regions, and time horizon. Add custom questions for specific topics." />
           </CardTitle>
           <CardDescription className="label-text">Customize the scope and focus of AI-generated industry research</CardDescription>
         </CardHeader>
@@ -252,7 +252,7 @@ export function IndustryResearchTab() {
             <Label className="label-text font-medium flex items-center gap-1">
               <IconMessageSquare className="w-4 h-4" />
               Custom Research Questions
-              <HelpTooltip text="Add specific research questions or qualifiers for the AI to address. Each question is sent to the AI as part of the research prompt." />
+              <InfoTooltip text="Add specific research questions or qualifiers for the AI to address. Each question is sent to the AI as part of the research prompt." />
             </Label>
 
             {researchQuestions.length > 0 && (

@@ -13,7 +13,7 @@
  */
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import type { PropertyEditSectionProps } from "./types";
 
 export default function TimelineSection({ draft, onChange }: PropertyEditSectionProps) {
@@ -28,14 +28,14 @@ export default function TimelineSection({ draft, onChange }: PropertyEditSection
           <div className="space-y-2">
             <Label className="flex items-center label-text text-foreground">
               Acquisition Date
-              <HelpTooltip text="The date when the property is purchased. Equity investment occurs on this date. Pre-opening costs and building improvements are incurred during the period between acquisition and operations start." />
+              <InfoTooltip text="The date when the property is purchased. Equity investment occurs on this date. Pre-opening costs and building improvements are incurred during the period between acquisition and operations start." />
             </Label>
             <Input type="date" value={draft.acquisitionDate} onChange={(e) => onChange("acquisitionDate", e.target.value)} className="bg-card border-primary/30 text-foreground" />
           </div>
           <div className="space-y-2">
             <Label className="flex items-center label-text text-foreground">
               Operations Start Date
-              <HelpTooltip text="The date when the property begins operating and generating revenue. All revenues and operating expenses start on this date. The period between acquisition and operations start is used for renovations and pre-opening preparation." />
+              <InfoTooltip text="The date when the property begins operating and generating revenue. All revenues and operating expenses start on this date. The period between acquisition and operations start is used for renovations and pre-opening preparation." />
             </Label>
             <Input type="date" value={draft.operationsStartDate} onChange={(e) => onChange("operationsStartDate", e.target.value)} className="bg-card border-primary/30 text-foreground" />
           </div>

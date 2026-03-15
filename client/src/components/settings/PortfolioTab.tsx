@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { DEFAULT_COMMISSION_RATE, DEFAULT_LTV, DEFAULT_ACQ_CLOSING_COST_RATE, DEFAULT_REFI_LTV, DEFAULT_REFI_CLOSING_COST_RATE } from "@/lib/constants";
 import { SettingsTabProps } from "./types";
 
@@ -16,14 +16,14 @@ export function PortfolioTab({
         <CardHeader>
           <CardTitle className="flex items-center font-display">
             Disposition — Defaults for New Properties
-            <HelpTooltip text="Default sale commission for newly created properties. Each property can override this in its own settings." manualSection="global-assumptions" />
+            <InfoTooltip text="Default sale commission for newly created properties. Each property can override this in its own settings." manualSection="global-assumptions" />
           </CardTitle>
           <CardDescription className="label-text">Default costs applied to new properties at creation. Override per property in Property Edit.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Real Estate Commission <HelpTooltip text="Broker commission percentage paid on property sale. Industry standard is 4–6%, split between buyer's and seller's agents." /></Label>
+              <Label className="label-text flex items-center gap-1">Real Estate Commission <InfoTooltip text="Broker commission percentage paid on property sale. Industry standard is 4–6%, split between buyer's and seller's agents." /></Label>
               <span className="text-sm font-mono text-primary">{((currentGlobal.commissionRate || DEFAULT_COMMISSION_RATE) * 100).toFixed(1)}%</span>
             </div>
             <Slider 
@@ -45,14 +45,14 @@ export function PortfolioTab({
         <CardHeader>
           <CardTitle className="flex items-center font-display">
             Acquisition Financing — Defaults for New Properties
-            <HelpTooltip text="Default loan terms applied to newly created properties. Each property can override these in its own settings." />
+            <InfoTooltip text="Default loan terms applied to newly created properties. Each property can override these in its own settings." />
           </CardTitle>
           <CardDescription className="label-text">Default loan terms applied to new properties at creation. Override per property in Property Edit.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">LTV <HelpTooltip text="Loan-to-Value ratio — percentage of purchase price financed by debt. Typical hotel acquisitions use 60–75% LTV." /></Label>
+              <Label className="label-text flex items-center gap-1">LTV <InfoTooltip text="Loan-to-Value ratio — percentage of purchase price financed by debt. Typical hotel acquisitions use 60–75% LTV." /></Label>
               <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqLTV || DEFAULT_LTV) * 100).toFixed(0)}%</span>
             </div>
             <Slider 
@@ -69,7 +69,7 @@ export function PortfolioTab({
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Interest Rate <HelpTooltip text="Annual interest rate on the acquisition loan. Market rates vary; currently 6–8% for commercial hospitality loans." /></Label>
+              <Label className="label-text flex items-center gap-1">Interest Rate <InfoTooltip text="Annual interest rate on the acquisition loan. Market rates vary; currently 6–8% for commercial hospitality loans." /></Label>
               <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.interestRate || 0) * 100).toFixed(1)}%</span>
             </div>
             <Slider 
@@ -86,7 +86,7 @@ export function PortfolioTab({
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Term <HelpTooltip text="Loan amortization period in years. Standard commercial mortgages use 20–30 year amortization." /></Label>
+              <Label className="label-text flex items-center gap-1">Term <InfoTooltip text="Loan amortization period in years. Standard commercial mortgages use 20–30 year amortization." /></Label>
               <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.amortizationYears || 25} yrs</span>
             </div>
             <Slider 
@@ -103,7 +103,7 @@ export function PortfolioTab({
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Closing Costs <HelpTooltip text="Transaction costs as a percentage of loan amount — includes lender fees, legal, appraisal, and title insurance." /></Label>
+              <Label className="label-text flex items-center gap-1">Closing Costs <InfoTooltip text="Transaction costs as a percentage of loan amount — includes lender fees, legal, appraisal, and title insurance." /></Label>
               <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.acqClosingCostRate || DEFAULT_ACQ_CLOSING_COST_RATE) * 100).toFixed(1)}%</span>
             </div>
             <Slider 
@@ -125,14 +125,14 @@ export function PortfolioTab({
         <CardHeader>
           <CardTitle className="flex items-center font-display">
             Refinancing — Defaults for New Properties
-            <HelpTooltip text="Default refinancing terms applied to newly created properties. Each property can override these in its own settings." manualSection="funding-financing" />
+            <InfoTooltip text="Default refinancing terms applied to newly created properties. Each property can override these in its own settings." manualSection="funding-financing" />
           </CardTitle>
           <CardDescription className="label-text">Default refinancing terms applied to new properties at creation. Override per property in Property Edit.</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Years After Acq. <HelpTooltip text="Number of years after acquisition before refinancing. Typically 2–5 years to allow value appreciation." /></Label>
+              <Label className="label-text flex items-center gap-1">Years After Acq. <InfoTooltip text="Number of years after acquisition before refinancing. Typically 2–5 years to allow value appreciation." /></Label>
               <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.refiPeriodYears || 3} yrs</span>
             </div>
             <Slider 
@@ -149,7 +149,7 @@ export function PortfolioTab({
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Refi LTV <HelpTooltip text="Loan-to-Value ratio for refinancing. Often lower than acquisition LTV (60–70%) to maintain equity buffer." /></Label>
+              <Label className="label-text flex items-center gap-1">Refi LTV <InfoTooltip text="Loan-to-Value ratio for refinancing. Often lower than acquisition LTV (60–70%) to maintain equity buffer." /></Label>
               <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiLTV || DEFAULT_REFI_LTV) * 100).toFixed(0)}%</span>
             </div>
             <Slider 
@@ -166,7 +166,7 @@ export function PortfolioTab({
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Refi Rate <HelpTooltip text="Expected annual interest rate for the refinance loan." /></Label>
+              <Label className="label-text flex items-center gap-1">Refi Rate <InfoTooltip text="Expected annual interest rate for the refinance loan." /></Label>
               <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiInterestRate || currentGlobal.debtAssumptions?.interestRate || 0.08) * 100).toFixed(1)}%</span>
             </div>
             <Slider 
@@ -183,7 +183,7 @@ export function PortfolioTab({
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Refi Term <HelpTooltip text="Amortization period for the refinance loan." /></Label>
+              <Label className="label-text flex items-center gap-1">Refi Term <InfoTooltip text="Amortization period for the refinance loan." /></Label>
               <span className="text-sm font-mono text-primary whitespace-nowrap">{currentGlobal.debtAssumptions?.refiAmortizationYears || currentGlobal.debtAssumptions?.amortizationYears || 25} yrs</span>
             </div>
             <Slider 
@@ -200,7 +200,7 @@ export function PortfolioTab({
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Refi Closing <HelpTooltip text="Refinance closing costs as a percentage of the new loan amount." /></Label>
+              <Label className="label-text flex items-center gap-1">Refi Closing <InfoTooltip text="Refinance closing costs as a percentage of the new loan amount." /></Label>
               <span className="text-sm font-mono text-primary">{((currentGlobal.debtAssumptions?.refiClosingCostRate || DEFAULT_REFI_CLOSING_COST_RATE) * 100).toFixed(1)}%</span>
             </div>
             <Slider 

@@ -1,4 +1,4 @@
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 
 export function formatPct(val: number | null | undefined, decimals = 2): string {
   if (val == null) return "N/A";
@@ -39,7 +39,7 @@ export function InputField({
     <div className="space-y-1">
       <label className="text-xs font-medium text-muted-foreground flex items-center">
         {label}
-        {helpText && <HelpTooltip text={helpText} />}
+        {helpText && <InfoTooltip text={helpText} />}
       </label>
       <div className="relative">
         {prefix && (

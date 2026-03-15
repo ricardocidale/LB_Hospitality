@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { IconPlus, IconTrash, IconMapPin, IconGlobe } from "@/components/icons";
 import type { AdminSaveState } from "@/components/admin/types/save-state";
 import { X } from "lucide-react";
@@ -165,7 +165,7 @@ function LocationCard({
         <div className="space-y-2">
           <Label className="text-xs font-medium text-foreground flex items-center">
             Country <span className="text-red-400 ml-0.5">*</span>
-            <HelpTooltip text="Required. The country where target customers or investment properties are located." side="right" />
+            <InfoTooltip text="Required. The country where target customers or investment properties are located." side="right" />
           </Label>
           <Select value={location.countryCode} onValueChange={handleCountryChange}>
             <SelectTrigger className="bg-card" data-testid={`select-country-${location.id}`}>
@@ -185,7 +185,7 @@ function LocationCard({
           <div className="space-y-2">
             <Label className="text-xs font-medium text-foreground flex items-center">
               States / Provinces
-              <HelpTooltip text="Optional. Narrow the location to specific states or provinces. Leave empty to target the entire country." side="right" />
+              <InfoTooltip text="Optional. Narrow the location to specific states or provinces. Leave empty to target the entire country." side="right" />
             </Label>
             <div className="flex items-center gap-2">
               <Select value={addingState} onValueChange={handleAddState}>
@@ -230,7 +230,7 @@ function LocationCard({
           <div className="space-y-2">
             <Label className="text-xs font-medium text-foreground flex items-center">
               Cities
-              <HelpTooltip text="Optional. Add specific cities with a search radius (in miles) for more targeted analysis. The radius defines how far from the city center to include." side="right" />
+              <InfoTooltip text="Optional. Add specific cities with a search radius (in miles) for more targeted analysis. The radius defines how far from the city center to include." side="right" />
             </Label>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground whitespace-nowrap">in</span>
@@ -325,7 +325,7 @@ function LocationCard({
         <div className="space-y-1.5 pt-2 border-t border-border/40">
           <Label className="text-xs font-medium text-foreground flex items-center">
             Additional Notes
-            <HelpTooltip text="Optional. Free-text context for the AI research engine — e.g. neighborhoods to exclude, proximity preferences, zoning notes, or market nuances specific to this location." side="right" />
+            <InfoTooltip text="Optional. Free-text context for the AI research engine — e.g. neighborhoods to exclude, proximity preferences, zoning notes, or market nuances specific to this location." side="right" />
           </Label>
           <textarea
             value={location.notes || ""}

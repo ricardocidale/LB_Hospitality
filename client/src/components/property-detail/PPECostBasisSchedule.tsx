@@ -25,7 +25,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { IconInfo } from "@/components/icons";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT } from "@shared/constants";
 import { DEFAULT_LTV } from "@/lib/financial/loanCalculations";
 import type { PPECostBasisScheduleProps } from "./types";
@@ -106,7 +106,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
         <td className="py-3 px-4 font-semibold text-foreground flex items-center gap-2">
           {isOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
           {label}
-          {tooltip && <HelpTooltip text={tooltip} />}
+          {tooltip && <InfoTooltip text={tooltip} />}
         </td>
         <td className="py-3 px-4 text-right font-semibold font-mono text-foreground">{value}</td>
       </tr>
@@ -118,7 +118,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
       <td className={`py-2 px-4 ${indent ? "pl-12" : "pl-8"} ${muted ? "text-muted-foreground" : "text-muted-foreground"} ${bold ? "font-semibold text-foreground" : ""}`}>
         <span className="flex items-center gap-1">
           {label}
-          {tooltip && <HelpTooltip text={tooltip} />}
+          {tooltip && <InfoTooltip text={tooltip} />}
         </span>
       </td>
       <td className={`py-2 px-4 text-right font-mono ${muted ? "text-muted-foreground" : "text-muted-foreground"} ${bold ? "font-semibold text-foreground" : ""}`}>{value}</td>
@@ -130,7 +130,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
       <CardHeader className="pb-2">
         <CardTitle className="text-foreground flex items-center gap-2">
           PP&E / Cost Basis Schedule
-          <HelpTooltip text="Shows the underlying asset values, depreciation basis, and fixed-cost anchors used by the financial engine. Click each section to expand details." manualSection="property-formulas" />
+          <InfoTooltip text="Shows the underlying asset values, depreciation basis, and fixed-cost anchors used by the financial engine. Click each section to expand details." manualSection="property-formulas" />
         </CardTitle>
         <p className="text-sm text-muted-foreground">
           {property.name} — Checker transparency view

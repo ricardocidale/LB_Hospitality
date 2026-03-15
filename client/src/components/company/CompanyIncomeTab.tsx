@@ -26,7 +26,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/graphics";
-import { HelpTooltip } from "@/components/ui/help-tooltip";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import type { CompanyTabProps } from "./types";
 
 export default function CompanyIncomeTab({
@@ -631,7 +631,7 @@ export default function CompanyIncomeTab({
               <TableCell className="sticky left-0 bg-card text-xs text-muted-foreground italic pl-6">
                 <span className="flex items-center gap-1">
                   OpEx % of Revenue
-                  <HelpTooltip text="Total Operating Expenses as a percentage of Total Revenue. Lower is better — indicates operational efficiency." />
+                  <InfoTooltip text="Total Operating Expenses as a percentage of Total Revenue. Lower is better — indicates operational efficiency." />
                 </span>
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
@@ -716,7 +716,7 @@ export default function CompanyIncomeTab({
               <TableCell className="sticky left-0 bg-card text-muted-foreground">
                 <span className="flex items-center gap-1">
                   Net Margin
-                  <HelpTooltip text="Net Income as a percentage of Total Revenue. Measures overall profitability after all expenses and taxes." />
+                  <InfoTooltip text="Net Income as a percentage of Total Revenue. Measures overall profitability after all expenses and taxes." />
                 </span>
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {

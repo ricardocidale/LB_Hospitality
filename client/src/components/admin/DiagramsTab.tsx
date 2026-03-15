@@ -60,6 +60,85 @@ const L1_TWO_ENTITY = `flowchart TB
   MC -- "ManCo EBITDA\\n(fee income − costs)" --> Elim
   Elim -- "Net: fees cancel out" --> PortNOI`;
 
+const L1_INTEGRATIONS = `flowchart TB
+  Platform((HBG Platform))
+
+  subgraph AI["AI & LLM"]
+    Claude[Anthropic Claude\nResearch & exports]
+    OpenAI_[OpenAI\nEmbeddings & chat]
+    Gemini_[Google Gemini\nRebecca advisor]
+  end
+
+  subgraph VoiceAI["Voice AI"]
+    EL[ElevenLabs / Convai\nMarcela voice agent]
+  end
+
+  subgraph Financial["Financial Services"]
+    Plaid[Plaid\nBank linking & USALI]
+  end
+
+  subgraph Geo["Geospatial"]
+    GMaps[Google Maps / Places\nGeocoding & POI search]
+    MapLibre[MapLibre GL\n3D globe rendering]
+  end
+
+  subgraph DocIntel["Document Intelligence"]
+    DocAI[Google Cloud Doc AI\nOCR & extraction]
+  end
+
+  subgraph Comms["Communication"]
+    Twilio_[Twilio\nSMS notification alerts]
+    Resend[Resend\nTransactional email delivery]
+  end
+
+  subgraph ImgGen["Image Generation"]
+    Replicate[Replicate\nAI architectural renders]
+  end
+
+  subgraph Observe["Observability"]
+    Sentry[Sentry\nReal-time error tracking]
+    PostHog[PostHog\nProduct usage analytics]
+  end
+
+  subgraph Storage["Storage"]
+    ObjStore[Replit Object Storage\nFile & asset storage]
+    Redis[Upstash Redis\nCache & sessions]
+    PG[(PostgreSQL\nPrimary database)]
+  end
+
+  Claude -->|"research results"| Platform
+  Platform -->|"analysis prompts"| Claude
+  Platform -->|"embedding requests"| OpenAI_
+  OpenAI_ -->|"vectors"| Platform
+  Platform -->|"advisor queries"| Gemini_
+  Gemini_ -->|"insights"| Platform
+
+  Platform -->|"voice config"| EL
+  EL -->|"audio stream"| Platform
+
+  Platform -->|"link request"| Plaid
+  Plaid -->|"bank transactions"| Platform
+
+  Platform -->|"geocode queries"| GMaps
+  GMaps -->|"coordinates & POIs"| Platform
+  MapLibre -.->|"renders map UI"| Platform
+
+  Platform -->|"document scans"| DocAI
+  DocAI -->|"structured data"| Platform
+
+  Platform -->|"SMS alerts"| Twilio_
+  Platform -->|"email sends"| Resend
+
+  Platform -->|"render prompts"| Replicate
+  Replicate -->|"generated images"| Platform
+
+  Platform -->|"error events"| Sentry
+  Platform -->|"analytics events"| PostHog
+
+  Platform <-->|"read/write"| ObjStore
+  Platform <-->|"cache ops"| Redis
+  Platform <-->|"queries"| PG`;
+
 // ─────────────────────────────────────────────────
 // LEVEL 2 — Domain Flows
 // ─────────────────────────────────────────────────
@@ -295,6 +374,11 @@ export default function DiagramsTab() {
             title="Two-Entity Model"
             description="Property SPVs, Management Company, and Consolidated view with intercompany elimination"
             chart={L1_TWO_ENTITY}
+          />
+          <DiagramCard
+            title="Integration & Infrastructure Map"
+            description="All external services organized by category with data flow directions"
+            chart={L1_INTEGRATIONS}
           />
         </TabsContent>
 

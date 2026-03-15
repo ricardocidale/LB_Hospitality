@@ -143,16 +143,77 @@ const L1_INTEGRATIONS = `flowchart TB
 // LEVEL 2 — Domain Flows
 // ─────────────────────────────────────────────────
 
-const L2_FINANCIAL = `flowchart LR
-  GA[Global Assumptions] --> Engine[Financial Engine]
-  PA[Property Assumptions] --> Engine
-  Engine --> IS[Income Statement]
-  Engine --> CF[Cash Flow]
-  Engine --> BS[Balance Sheet]
-  IS --> Export[Export Suite]
-  CF --> Export
-  BS --> Export
-  Export --> PDF & Excel & CSV & PPTX & PNG`;
+const L2_FINANCIAL = `flowchart TB
+  subgraph Revenue["Revenue"]
+    RR["Room Revenue\\n(ADR × Occ × Rooms × Days)"]
+    FB["F&B Revenue\\n(RevPAR × F&B Capture %)"]
+    EV["Events & Banquet Revenue\\n(Event Pace × Avg Check)"]
+    OTH["Other Income\\n(Parking, Spa, Retail, Misc)"]
+  end
+
+  RR --> TR(["Total Revenue"])
+  FB --> TR
+  EV --> TR
+  OTH --> TR
+
+  subgraph DeptExp["Departmental Expenses"]
+    HK["Housekeeping\\n(CPOR × Occupied Rooms)"]
+    FBC["F&B Cost\\n(F&B Rev × Cost %)"]
+    EVC["Events Cost\\n(Events Rev × Cost %)"]
+    OE["Other Dept Expense\\n(Other Rev × Cost %)"]
+  end
+
+  TR --> |"less"| HK
+  TR --> |"less"| FBC
+  TR --> |"less"| EVC
+  TR --> |"less"| OE
+  HK --> DeptTotal["Total Dept Expenses"]
+  FBC --> DeptTotal
+  EVC --> DeptTotal
+  OE --> DeptTotal
+  TR --> GOP(["GROSS OPERATING PROFIT (GOP)"])
+  DeptTotal --> |"subtracted"| GOP
+
+  subgraph MgmtFees["Management Fees"]
+    BF["Base Fee\\n(% of Total Revenue)"]
+    IF["Incentive Fee\\n(% of GOP)"]
+  end
+
+  GOP --> |"less"| BF
+  GOP --> |"less"| IF
+  BF --> FeeTotal["Total Mgmt Fees"]
+  IF --> FeeTotal
+  GOP --> AGOP(["ADJUSTED GOP (AGOP)"])
+  FeeTotal --> |"subtracted"| AGOP
+
+  subgraph FixedCharges["Fixed Charges"]
+    INS["Insurance\\n(per key / year)"]
+    PT["Property Tax\\n(assessed value × mill rate)"]
+  end
+
+  AGOP --> |"less"| INS
+  AGOP --> |"less"| PT
+  INS --> ChargeTotal["Total Fixed Charges"]
+  PT --> ChargeTotal
+  AGOP --> NOI(["NET OPERATING INCOME (NOI)"])
+  ChargeTotal --> |"subtracted"| NOI
+
+  NOI --> |"less"| FFE["FF&E Reserve\\n(% of Total Revenue)"]
+  FFE --> ANOI(["ADJUSTED NOI (ANOI)"])
+
+  ANOI --> |"less"| INT["Interest Expense\\n(Debt Service)"]
+  INT --> |"less"| DEP["Depreciation\\n(Straight-Line)"]
+  DEP --> PTI(["Pre-Tax Income"])
+  PTI --> |"less"| TAX["Income Tax\\n(NOL carryforward applied)"]
+  TAX --> NI(["NET INCOME"])
+
+  style GOP fill:#2563eb,color:#fff,stroke:#1d4ed8
+  style AGOP fill:#2563eb,color:#fff,stroke:#1d4ed8
+  style NOI fill:#2563eb,color:#fff,stroke:#1d4ed8
+  style ANOI fill:#2563eb,color:#fff,stroke:#1d4ed8
+  style NI fill:#16a34a,color:#fff,stroke:#15803d
+  style TR fill:#7c3aed,color:#fff,stroke:#6d28d9
+  style PTI fill:#7c3aed,color:#fff,stroke:#6d28d9`;
 
 const L2_AUTH = `flowchart TB
   Login([Login]) --> Session[Session Created]
@@ -388,8 +449,8 @@ export default function DiagramsTab() {
               <AccordionTrigger className="text-sm font-semibold">Financial Calculation Pipeline</AccordionTrigger>
               <AccordionContent>
                 <DiagramCard
-                  title="Financial Pipeline"
-                  description="Assumptions → Engine → Statements → Exports"
+                  title="USALI Income Waterfall"
+                  description="Revenue → Departmental Expenses → GOP → Management Fees → AGOP → Fixed Charges → NOI → FF&E Reserve → ANOI → Debt Service → Depreciation → Pre-Tax Income → Tax → Net Income"
                   chart={L2_FINANCIAL}
                 />
               </AccordionContent>

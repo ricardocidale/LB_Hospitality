@@ -100,6 +100,14 @@ Ask these questions in order:
 
 If a setting doesn't clearly fit any category, it likely needs a conversation before implementation.
 
+## Transitional Exceptions
+
+The architecture above represents the target state. As of March 2026, some legacy patterns may still exist in the codebase:
+
+- **Benchmark/research values** on the Company Assumptions page (e.g., exit cap rate ranges, sales commission ranges) are read-only display from research panels — they are NOT editable duplicate controls and do not violate overlap rules.
+- **Property default cost rates** (rooms, F&B, admin, marketing, etc.) currently fall back to hardcoded constants in `shared/constants.ts` because the General Settings Property Defaults tab does not yet expose all of them as editable fields. As those fields are added to the UI, the hardcoded fallbacks should be progressively removed.
+- If you encounter a setting that appears to be editable in two places, check whether one is truly read-only or a research benchmark before flagging it as an overlap violation.
+
 ## Key Files
 
 | File | Purpose |

@@ -11,7 +11,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 - Simple, everyday language. Ask clarifying questions before implementing — do not assume.
 - **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 3,022-test proof system must always pass.
 - Always format money as currency (commas, appropriate precision).
-- All skills stored under `.claude/` only (never elsewhere).
+- Primary skills in `.claude/skills/`; business domain & pattern skills in `.agents/skills/`.
 - Company name is "Hospitality Business Group" (or "Hospitality Business" for short).
 - Update skills and manuals after every feature change.
 - All UI components must reference a theme via the theme engine.
@@ -60,7 +60,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
 | Codebase Arch | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, UI component catalog (80+), ElevenLabs architecture |
 | Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel hooks, styles, tooltip patterns |
-| Admin (19 tabs) | `.claude/skills/admin/SKILL.md` | 19-tab shell pattern, extraction guide, API routes |
+| Admin (18 sections) | `.claude/skills/admin/SKILL.md` | 18-section shell pattern, extraction guide, API routes |
 | Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
 | Finance (21 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, fee categories, funding interest, etc. |
@@ -81,7 +81,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | UI Blocks | `.claude/skills/ui-blocks/SKILL.md` | Reference shadcn block patterns |
 | Property Chatbot | `server/routes/chat.ts` | Gemini-powered property analysis chat (`/api/chat`) |
 | Rules (19) | `.claude/rules/` | All behavioral constraints |
-| Business Domain (13) | `.agents/skills/` | Business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings |
+| Business Domain & Patterns (13) | `.agents/skills/` | Business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings architecture |
 
 ---
 

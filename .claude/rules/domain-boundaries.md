@@ -12,8 +12,8 @@ The application is organized into independent domains. Each domain owns its stor
 | **AI Agents** | (reads only) | ai, chat, twilio, marcela-tools | ElevenLabs, Twilio, Anthropic, Gemini, OpenAI | Financial (read-only via `buildPropertyContext`) |
 | **Photos/Media** | PhotoStorage | property-photos, uploads | Replicate, Gemini | Properties (hero sync denormalization) |
 | **Research** | ResearchStorage | research | Anthropic, calc/research tools | Financial (validation only, non-destructive) |
-| **Documents** | DocumentStorage | documents | Document AI, DocuSign | Properties (field mapping, read-only) |
-| **Notifications** | NotificationStorage | notifications | SendGrid, Slack | — |
+| **Documents** | DocumentStorage | documents | Document AI | Properties (field mapping, read-only) |
+| **Notifications** | NotificationStorage | notifications | Resend | — |
 
 **Admin** is a meta-domain that configures all others. It is not an independent domain.
 

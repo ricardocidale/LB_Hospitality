@@ -37,7 +37,7 @@ Variants stored in `property_photos.variants` JSONB column. Originals preserved.
 | Full project instructions | `.claude/claude.md` |
 | Architecture & tech stack | `.claude/claude.md` § Tech Stack |
 | Financial engine rules | `.claude/rules/financial-engine.md` |
-| Admin page (10 tabs + AI Agent 9 sub-tabs) | `.claude/skills/admin/SKILL.md` |
+| Admin page (18 sections) | `.claude/skills/admin/SKILL.md` |
 | AI assistant (Marcela) | `.claude/skills/marcela-ai/SKILL.md` |
 | ElevenLabs architecture | `.claude/skills/codebase-architecture/SKILL.md` |
 | Twilio telephony | `.claude/skills/twilio-telephony/` |
@@ -60,12 +60,13 @@ Variants stored in `property_photos.variants` JSONB column. Originals preserved.
 Three-tier cascade: `property.inflationRate → companyInflationRate → global.inflationRate`. The `DEFAULT_INFLATION_RATE` constant in `shared/constants.ts` is the single source of truth (0.03). Per-property and per-company rates are nullable; null means use the next level up in the cascade.
 
 ## Admin Sidebar Structure
-Five categories + Logs + Help:
-- **Brand**: Management Company, Ideal Customer Profile, Revenue Streams, Other Assumptions
+Six groups + Logs + Help (18 sections total):
+- **Brand**: Management Company, Revenue Streams, Other Assumptions
 - **Business**: Users (3 sub-tabs), Companies, Groups
+- **Research**: ICP Management Co, Research Center
 - **Design**: Logos, Themes
-- **AI Agents**: Marcela/Voice (9 sub-tabs), Rebecca/Text, Knowledge Base, Twilio
-- **System**: Research, Notifications, Navigation, Diagrams, Verification, Database, Integrations
+- **AI Agents**: AI Agents (9 sub-tabs: Marcela/Voice, Rebecca/Text, Knowledge Base, Twilio, etc.)
+- **System**: Notifications, Navigation, Diagrams, Verification, Database, Integrations
 - **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
 
 ## Property Description & Photos
@@ -102,7 +103,7 @@ Working capital (AR/AP days), NOL carryforward (80% utilization cap), MIRR, day-
 Sentry (error tracking), PostHog (analytics), Upstash Redis (caching with SWR), circuit breakers on all integrations. Admin Integrations tab shows health/cache/circuit state.
 
 ## Communication & Alerts
-Resend email + Slack webhooks. Alert rules engine with metric thresholds, cooldowns, multi-channel delivery. Admin Notifications tab. `ShareEmailModal` for branded report sharing.
+Resend email. Alert rules engine with metric thresholds, cooldowns, multi-channel delivery. Admin Notifications tab. `ShareEmailModal` for branded report sharing.
 
 ## D3.js Visualizations
 WaterfallChart (revenue-to-NOI bridge), SensitivityHeatMap (ADR × Occupancy grid), TornadoDiagram (assumption impact ranking). Export to PDF/PPTX via `toCanvas()`.

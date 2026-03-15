@@ -50,9 +50,17 @@ describe("logAndSendError", () => {
     const res = mockRes();
     const err = new Error("boom");
     logAndSendError(res, "Failed", err);
-    expect(console.error).toHaveBeenCalledWith("Failed", err);
+    expect(console.error).toHaveBeenCalledWith("Failed", "boom");
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: "Failed" });
+  });
+
+  it("logs with domain prefix when provided", () => {
+    const res = mockRes();
+    const err = new Error("timeout");
+    logAndSendError(res, "Request failed", err, "api");
+    expect(console.error).toHaveBeenCalledWith("[ERROR] [api] Request failed", "timeout");
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 
   it("handles non-Error objects as the error argument", () => {

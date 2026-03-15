@@ -29,7 +29,7 @@ export default function Section02Navigation({ expanded, onToggle, sectionRef }: 
         rows={[
           ["Dashboard", "Portfolio overview with KPI cards and consolidated charts", "Everyone"],
           ["Properties", "View and manage individual hotel properties", "Everyone"],
-          ["Management Co.", "Management company financials and assumptions", "Partners, Admins"],
+          ["Management Company", "Management company financials and assumptions", "Partners, Admins"],
           ["Simulation", "Four-tab modeling suite: Sensitivity, Compare, Timeline, and Financing analysis", "Partners, Admins"],
           ["Systemwide Assumptions", "Configure model-wide parameters like inflation and staffing", "Partners, Admins"],
           ["Scenarios", "Save and load different assumption snapshots", "Partners, Admins"],

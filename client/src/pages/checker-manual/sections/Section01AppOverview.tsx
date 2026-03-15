@@ -23,7 +23,7 @@ import { SectionCard } from "@/components/ui/section-card";
           rows={[
             ["Dashboard", "Portfolio overview with KPI cards and consolidated financials", "/"],
             ["Properties", "Individual property SPV details and financials", "/portfolio"],
-            ["Management Co.", "Management company financials and assumptions", "/company"],
+            ["Management Company", "Management company financials and assumptions", "/company"],
             ["Property Finder", "Search and save prospective properties", "/property-finder"],
             ["Sensitivity Analysis", "Variable sensitivity testing", "/sensitivity"],
             ["Financing Analysis", "Debt and equity analysis tools", "/financing"],

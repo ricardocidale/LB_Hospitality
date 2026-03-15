@@ -29,7 +29,7 @@ const SIDEBAR_STRUCTURE = [
     items: [
       { key: null, label: "Dashboard", icon: IconDashboard, description: "Portfolio overview and key metrics" },
       { key: null, label: "Properties", icon: IconProperties, description: "Individual property cards and details" },
-      { key: null, label: "Management Co.", icon: IconBriefcase, description: "Visible to users with management access" },
+      { key: null, label: "Management Company", icon: IconBriefcase, description: "Visible to users with management access" },
     ],
   },
   {

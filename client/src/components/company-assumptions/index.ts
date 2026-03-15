@@ -2,7 +2,7 @@
  * company-assumptions/index.ts
  *
  * Barrel export for the Management Company assumptions editor sections.
- * These components appear on the "Management Co. Assumptions" page and let
+ * These components appear on the "Management Company Assumptions" page and let
  * the user configure every input that drives the management company's
  * financial model — from company setup and funding through compensation,
  * overhead, variable costs, taxes, and exit assumptions.

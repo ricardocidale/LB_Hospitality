@@ -22,7 +22,7 @@ import { Search } from "lucide-react";
 import { IconDashboard, IconProperties, IconBriefcase, IconSettings, IconAnalysis, IconCalculator, IconProfile, IconScenarios, IconExport, IconVerify, IconRefresh } from "@/components/icons";const navigationItems = [
   { label: "Dashboard", href: "/", icon: IconDashboard },
   { label: "Properties", href: "/portfolio", icon: IconProperties },
-  { label: "Management Co.", href: "/company", icon: IconBriefcase },
+  { label: "Management Company", href: "/company", icon: IconBriefcase },
   { label: "Settings", href: "/settings", icon: IconSettings },
   { label: "Sensitivity", href: "/sensitivity", icon: IconAnalysis },
   { label: "Financing", href: "/financing", icon: IconCalculator },

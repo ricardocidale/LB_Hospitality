@@ -23,7 +23,7 @@ const L1_APP_FLOW = `flowchart LR
   Role -->|checker| Dashboard
   Role -->|investor| Dashboard
   Dashboard --> Properties[Properties]
-  Dashboard --> Company[Management Co.]
+  Dashboard --> Company[Management Company]
   Dashboard --> Analysis[Analysis]
   Properties --> Engine[Financial Engine]
   Company --> Engine

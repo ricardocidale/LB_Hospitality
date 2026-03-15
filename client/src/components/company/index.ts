@@ -2,7 +2,7 @@
  * company/index.ts
  *
  * Barrel export for the Management Company financial statement components.
- * The "Management Co." page shows the consolidated financials of the
+ * The "Management Company" page shows the consolidated financials of the
  * hospitality management company itself (as opposed to individual property
  * SPVs). Revenue comes from base management fees (% of property revenue) and
  * incentive fees (% of GOP — Gross Operating Profit). Expenses are the

@@ -133,7 +133,7 @@ export function IndustryResearchTab() {
             Your Model Context
             <InfoTooltip text="These values come from your systemwide assumptions and are automatically included in the research prompt so the AI tailors its analysis to your portfolio." />
           </CardTitle>
-          <CardDescription className="label-text">These systemwide settings shape your research. Edit them in General Configuration and Management Co. Profile.</CardDescription>
+          <CardDescription className="label-text">These systemwide settings shape your research. Edit them in General Configuration and Management Company Profile.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

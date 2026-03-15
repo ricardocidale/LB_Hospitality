@@ -40,6 +40,11 @@ async function getAdminUserId(): Promise<number | null> {
 }
 
 export async function seedGlobalAssumptions() {
+  const existing = await db.select().from(globalAssumptions).limit(1);
+  if (existing.length > 0) {
+    return;
+  }
+
   const adminUserId = await getAdminUserId();
 
   await db.insert(globalAssumptions).values({

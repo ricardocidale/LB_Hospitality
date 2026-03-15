@@ -99,6 +99,7 @@ export async function seedCompanies() {
   const allCompanies = await db.select().from(companies);
   let logosCreated = 0;
   for (const c of allCompanies) {
+    if (c.logoId) continue;
     const logoUrl = `/api/letter-logo/${encodeURIComponent(c.name)}`;
     const [logo] = await db.insert(logos).values({ name: c.name, companyName: c.name, url: logoUrl, isDefault: false }).returning();
     await db.update(companies).set({ logoId: logo.id }).where(eq(companies.id, c.id));

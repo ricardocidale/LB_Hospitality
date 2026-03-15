@@ -188,7 +188,7 @@ app.use((req, res, next) => {
   await runDbHygiene001();
 
   await seedAdminUser(); // Must complete first — users are FK dependencies
-  const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");
+  const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos, seedGlobalAssumptions } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");
   const { seedUserCompanyAssignments } = await import("./seeds/users");
 
@@ -201,6 +201,7 @@ app.use((req, res, next) => {
     seedFeeCategories(),
     seedServiceTemplates(),
     seedPropertyPhotos(),
+    seedGlobalAssumptions(),
   ]);
   // These depend on groups/companies existing
   await seedCompanies();

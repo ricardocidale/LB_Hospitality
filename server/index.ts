@@ -188,6 +188,13 @@ app.use((req, res, next) => {
   await runDbHygiene001();
 
   await seedAdminUser(); // Must complete first — users are FK dependencies
+
+  // Fix legacy data: convert any non-shared properties and global assumptions to shared (userId=NULL).
+  // This corrects a historical bug where seed scripts created data with userId = adminUserId,
+  // making properties and assumptions invisible to non-admin users.
+  const { fixLegacyOwnership } = await import("./migrations/fix-shared-ownership");
+  await fixLegacyOwnership();
+
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos, seedGlobalAssumptions } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");
   const { seedUserCompanyAssignments } = await import("./seeds/users");

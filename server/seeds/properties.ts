@@ -1,6 +1,6 @@
 import { db } from "../db";
-import { properties, globalAssumptions, propertyFeeCategories, users } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { properties, globalAssumptions, propertyFeeCategories } from "@shared/schema";
+import { eq, isNull } from "drizzle-orm";
 import { logger } from "../logger";
 import {
   DEFAULT_REV_SHARE_EVENTS,
@@ -34,21 +34,26 @@ import {
   DEFAULT_COMPANY_TAX_RATE,
 } from "@shared/constants";
 
-async function getAdminUserId(): Promise<number | null> {
-  const [admin] = await db.select({ id: users.id }).from(users).where(eq(users.role, "admin")).limit(1);
-  return admin?.id ?? null;
-}
-
 export async function seedGlobalAssumptions() {
-  const existing = await db.select().from(globalAssumptions).limit(1);
-  if (existing.length > 0) {
+  // Check for a shared (userId IS NULL) row first — that's the canonical singleton
+  const [shared] = await db.select().from(globalAssumptions)
+    .where(isNull(globalAssumptions.userId))
+    .limit(1);
+  if (shared) return;
+
+  // Fix legacy: if a non-shared row exists (userId != NULL), convert it to shared
+  const [legacy] = await db.select().from(globalAssumptions).limit(1);
+  if (legacy && legacy.userId !== null) {
+    await db.update(globalAssumptions)
+      .set({ userId: null, updatedAt: new Date() })
+      .where(eq(globalAssumptions.id, legacy.id));
+    logger.info("Converted legacy global assumptions to shared (userId=NULL)", "seed");
     return;
   }
-
-  const adminUserId = await getAdminUserId();
+  if (legacy) return; // Row exists with userId=null already
 
   await db.insert(globalAssumptions).values({
-    userId: adminUserId,
+    userId: null,
     modelStartDate: "2026-04-01",
     companyOpsStartDate: "2026-06-01",
     fiscalYearStartMonth: 1,
@@ -181,11 +186,9 @@ export async function seedGlobalAssumptions() {
 }
 
 export async function seedProperties() {
-  const adminUserId = await getAdminUserId();
-
   await db.insert(properties).values([
     {
-      userId: adminUserId,
+      userId: null,
       name: "Jano Grande Ranch",
       description: "A luxury hacienda retreat set in the lush hills of Antioquia, offering curated cultural experiences and farm-to-table dining amid Colombia's coffee country.",
       streetAddress: "Vereda El Salado",
@@ -241,7 +244,7 @@ export async function seedProperties() {
       incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
-      userId: adminUserId,
+      userId: null,
       name: "Loch Sheldrake",
       description: "A serene lakeside retreat in Sullivan County's Catskill region, blending rustic charm with modern luxury for year-round mountain and lake experiences.",
       streetAddress: "Loch Sheldrake",
@@ -297,7 +300,7 @@ export async function seedProperties() {
       incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
-      userId: adminUserId,
+      userId: null,
       name: "Belleayre Mountain",
       description: "An alpine lodge nestled in the Western Catskills, offering four-season mountain recreation with ski-in access and panoramic ridge-line views.",
       streetAddress: "Upper Delaware River Valley",
@@ -353,7 +356,7 @@ export async function seedProperties() {
       incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
-      userId: adminUserId,
+      userId: null,
       name: "Scott's House",
       description: "A modern mountain retreat in Utah's Ogden Valley, combining contemporary design with dramatic Wasatch Range views and year-round outdoor adventure.",
       streetAddress: "Eden",
@@ -406,7 +409,7 @@ export async function seedProperties() {
       incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
-      userId: adminUserId,
+      userId: null,
       name: "Lakeview Haven Lodge",
       description: "A lakefront lodge overlooking Pineview Reservoir in Ogden Valley, offering tranquil waterfront living with mountain-backed sunsets and kayaking.",
       streetAddress: "Pineview Reservoir",
@@ -459,7 +462,7 @@ export async function seedProperties() {
       incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
     },
     {
-      userId: adminUserId,
+      userId: null,
       name: "San Diego",
       description: "A colonial boutique hotel in Cartagena's historic walled city, blending 17th-century architecture with Caribbean luxury, rooftop dining, and old-world charm.",
       streetAddress: "Cochera del Hobo, Barrio San Diego",

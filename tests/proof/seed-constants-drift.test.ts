@@ -97,11 +97,12 @@ describe("Seed Data Structural Integrity", () => {
     }
   });
 
-  it("all seed properties have userId set to adminUserId", () => {
+  it("all seed properties have userId set to null (shared ownership)", () => {
     const propStart = seedPropsContent.indexOf("export async function seedProperties");
     const propEnd = seedPropsContent.indexOf("export async function seedFeeCategories");
     const propSection = seedPropsContent.slice(propStart, propEnd);
-    expect(propSection).toContain("userId: adminUserId");
+    expect(propSection).toContain("userId: null");
+    expect(propSection).not.toContain("userId: adminUserId");
   });
 
   it("financed properties have per-property financing fields", () => {

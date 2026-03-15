@@ -18,18 +18,19 @@ interface MetricRowProps {
   /** Pre-formatted string values (e.g. "18.1%", "1.45x", "N/A") */
   values: string[];
   tooltip?: string;
+  formula?: string;
   /** Highlight class per value — e.g. "text-accent" or "text-destructive" */
   highlights?: (string | undefined)[];
 }
 
-export function MetricRow({ label, values, tooltip, highlights }: MetricRowProps) {
+export function MetricRow({ label, values, tooltip, formula, highlights }: MetricRowProps) {
   const showDetails = useCalcDetails();
   return (
     <TableRow>
       <TableCell className="pl-6 sticky left-0 bg-card py-1">
         <span className="flex items-center gap-1">
           {label}
-          {showDetails && tooltip && <InfoTooltip text={tooltip} />}
+          {showDetails && tooltip && <InfoTooltip text={tooltip} formula={formula} />}
         </span>
       </TableCell>
       {values.map((v, i) => (

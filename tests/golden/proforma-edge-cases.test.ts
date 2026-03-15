@@ -48,7 +48,7 @@ describe("Golden Pro-Forma Edge Cases", () => {
       });
     });
 
-    it("calculates NOI correctly: NOI = GOP - MgmtFees - Insurance - Taxes", () => {
+    it("calculates NOI correctly: NOI = GOP - MgmtFees - Taxes", () => {
       // Hand-calc for first month:
       // RevRooms = 20 * 30.5 * 350 * 0.8 = 170,800
       // Ancillary: Events(30%)=51,240, FB(18%*1.22)=37,507.68, Other(5%)=8,540

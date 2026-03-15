@@ -30,13 +30,13 @@ export default function VariableCostsSection({ formData, onChange, global, resea
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center">
           Variable Costs
-          <InfoTooltip text="Costs that scale with property count or revenue" />
+          <InfoTooltip text="Company-level costs that grow as your portfolio grows. These are calculated per property and multiplied by the number of active properties under management." formula="Monthly = (Travel + IT/Licensing) × Active Properties ÷ 12" />
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Travel Cost per Client
-              <InfoTooltip text="Annual travel expense budget per managed property" />
+              <InfoTooltip text="Annual budget for site visits, client meetings, and property inspections per managed property. Includes flights, hotel stays, and ground transportation." formula="Monthly Travel = Cost × Active Properties ÷ 12" />
               <ResearchBadge value={researchValues.travelPerClient?.display} onClick={() => researchValues.travelPerClient && onChange("travelCostPerClient", researchValues.travelPerClient.mid)} sourceType="industry" sourceName="AHLA Lodging Survey" data-testid="badge-travel-per-client" />
             </Label>
             <EditableValue
@@ -61,7 +61,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               IT/Licensing per Client
-              <InfoTooltip text="PMS, revenue management, and software licenses per B&B property" />
+              <InfoTooltip text="Annual software and technology licensing cost per property — includes PMS (property management system), revenue management tools, channel manager, and accounting integrations." formula="Monthly IT = Cost × Active Properties ÷ 12" />
               <ResearchBadge value={researchValues.itLicensePerClient?.display} onClick={() => researchValues.itLicensePerClient && onChange("itLicensePerClient", researchValues.itLicensePerClient.mid)} sourceType="industry" sourceName="HFTP Technology Survey" data-testid="badge-it-license" />
             </Label>
             <EditableValue
@@ -86,7 +86,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Marketing
-              <InfoTooltip text="Calculated as a percentage of management fee revenue. Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)." />
+              <InfoTooltip text="Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees). Covers brand website, advertising, industry events, and business development." formula="Monthly Marketing = Total Fee Revenue × Rate ÷ 12" />
               <ResearchBadge value={researchValues.marketingRate?.display} onClick={() => researchValues.marketingRate && onChange("marketingRate", researchValues.marketingRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-marketing-rate" />
             </Label>
             <EditableValue
@@ -111,7 +111,7 @@ export default function VariableCostsSection({ formData, onChange, global, resea
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Misc Operations
-              <InfoTooltip text="Calculated as a percentage of management fee revenue. General operating expenses as a percentage of total management fee revenue (base + incentive fees collected from properties)." />
+              <InfoTooltip text="General operating costs not covered elsewhere — office supplies, postage, bank fees, and incidentals. Expressed as a percentage of total management fee revenue." formula="Monthly Misc = Total Fee Revenue × Rate ÷ 12" />
               <ResearchBadge value={researchValues.miscOpsRate?.display} onClick={() => researchValues.miscOpsRate && onChange("miscOpsRate", researchValues.miscOpsRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-misc-ops" />
             </Label>
             <EditableValue

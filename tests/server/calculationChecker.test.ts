@@ -79,7 +79,7 @@ describe("calculationChecker — Full Equity property", () => {
     expect(agopCheck).toBeDefined();
     expect(agopCheck!.passed).toBe(true);
 
-    const noiCheck = checks.find(c => c.metric === "NOI = AGOP - Insurance - Taxes");
+    const noiCheck = checks.find(c => c.metric === "NOI = AGOP - Taxes");
     expect(noiCheck).toBeDefined();
     expect(noiCheck!.passed).toBe(true);
 

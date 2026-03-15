@@ -60,6 +60,7 @@ interface SubtotalRowProps {
   labelBg?: string;
   /** Override the entire row background (default: ice-blue dark) */
   bgColor?: string;
+  formula?: string;
 }
 
 export function SubtotalRow({
@@ -70,6 +71,7 @@ export function SubtotalRow({
   positiveColor = "text-accent-foreground",
   bgColor,
   labelBg,
+  formula,
 }: SubtotalRowProps) {
   const showDetails = useCalcDetails();
   const rowStyle = bgColor ? { backgroundColor: bgColor } : { backgroundColor: SUBTOTAL_BG };
@@ -80,7 +82,7 @@ export function SubtotalRow({
       <TableCell className="sticky left-0 py-1.5" style={cellStyle}>
         <span className="flex items-center gap-1">
           {label}
-          {showDetails && tooltip && <InfoTooltip text={tooltip} />}
+          {showDetails && tooltip && <InfoTooltip text={tooltip} formula={formula} />}
         </span>
       </TableCell>
       {values.map((v, i) => (
@@ -111,6 +113,7 @@ interface LineItemProps {
   /** Indent the label (true = one level, or pass a number for deeper) */
   indent?: boolean | number;
   tooltip?: string;
+  formula?: string;
   /** Show "0" instead of "-" when value is zero */
   showZero?: boolean;
   /** Display values as negative (prepend minus / wrap in parens) */
@@ -126,6 +129,7 @@ export function LineItem({
   values,
   indent,
   tooltip,
+  formula,
   showZero,
   negate,
   formatAsPercent,
@@ -143,7 +147,7 @@ export function LineItem({
       >
         <span className="flex items-center gap-1">
           {label}
-          {showDetails && tooltip && <InfoTooltip text={tooltip} />}
+          {showDetails && tooltip && <InfoTooltip text={tooltip} formula={formula} />}
         </span>
       </TableCell>
       {values.map((v, i) => {

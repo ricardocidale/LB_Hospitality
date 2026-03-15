@@ -3,7 +3,7 @@
  *
  * Tests a property with permanently zero occupancy — a "failed asset" that
  * never generates any revenue. This isolates the behavior of fixed costs
- * that are based on property value (insurance, property taxes) vs. all
+ * that are based on property value (property taxes) vs. all
  * revenue-driven costs which should be exactly $0.
  *
  * PROPERTY: 20 rooms, $200 ADR, 0% start occupancy, 0% max occupancy
@@ -14,8 +14,8 @@
  *           0% growth, 0% inflation, 0% fixed cost escalation
  *
  * Key insight: With zero occupancy, ALL revenue = $0 and ALL revenue-based
- * expenses = $0. Only property-value-based costs accrue: insurance and
- * property taxes. This produces a negative NOI every month, draining the
+ * expenses = $0. Only property-value-based costs accrue: property taxes.
+ * This produces a negative NOI every month, draining the
  * operating reserve. At exit, negative NOI / cap rate = negative gross value.
  *
  * Projection: 10 years (120 months) starting 2026-04-01.
@@ -27,7 +27,7 @@ import { aggregatePropertyByYear } from "../../client/src/lib/financial/yearlyAg
 import { aggregateCashFlowByYear } from "../../client/src/lib/financial/cashFlowAggregator";
 import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE, DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
-  DEFAULT_COST_RATE_FFE,
+  DEFAULT_COST_RATE_FFE, DEFAULT_COST_RATE_TAXES,
   DAYS_PER_MONTH, DEPRECIATION_YEARS, DEFAULT_LAND_VALUE_PERCENT,
 } from "../../shared/constants";
 
@@ -115,7 +115,8 @@ const H_GOP = H_REV_TOTAL - H_TOTAL_OP_EXP;                                     
 const H_FEE_BASE = H_REV_TOTAL * DEFAULT_BASE_MANAGEMENT_FEE_RATE;                // $0
 const H_FEE_INCENTIVE = Math.max(0, H_GOP * DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE); // max(0, 0) = $0
 const H_AGOP = H_GOP - H_FEE_BASE - H_FEE_INCENTIVE;                             // $0
-const H_ANOI = H_NOI - H_EXP_FFE;                                                 // -4166.67 - 0 = -4166.67
+const H_NOI = H_AGOP - H_EXP_TAXES;                                               // 0 - 2500 = -2500
+const H_ANOI = H_NOI - H_EXP_FFE;                                                 // -2500 - 0 = -2500
 
 // Depreciation
 const H_LAND_PCT = DEFAULT_LAND_VALUE_PERCENT;                                     // 0.25
@@ -187,13 +188,8 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
     });
   });
 
-  // ─── 3. Insurance & Property Taxes (Property-Value Based) ─────────────────
-  describe("Insurance & Property Taxes (property-value based, NOT revenue)", () => {
-    it("insurance = ($1,000,000 / 12) × 0.02 = $1,666.67/mo", () => {
-      for (let i = 0; i < MONTHS; i++) {
-      }
-    });
-
+  // ─── 3. Property Taxes (Property-Value Based) ─────────────────
+  describe("Property Taxes (property-value based, NOT revenue)", () => {
     it("property taxes = ($1,000,000 / 12) × 0.03 = $2,500.00/mo", () => {
       for (let i = 0; i < MONTHS; i++) {
         expect(propFinancials[i].expenseTaxes).toBeCloseTo(H_EXP_TAXES, 2);
@@ -217,8 +213,8 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
   });
 
   // ─── 5. NOI = -$4,166.67/mo ──────────────────────────────────────────────
-  describe("NOI = -$4,166.67/mo (only insurance + taxes)", () => {
-    it("NOI = $0 - $1,666.67 - $2,500.00 = -$4,166.67 every month", () => {
+  describe("NOI = -$4,166.67/mo (only taxes)", () => {
+    it("NOI = AGOP - taxes every month", () => {
       for (let i = 0; i < MONTHS; i++) {
         expect(propFinancials[i].noi).toBeCloseTo(H_NOI, 2);
       }
@@ -362,12 +358,12 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
 
   // ─── Exit Value (Negative Gross Value) ────────────────────────────────────
   describe("Exit — Negative Gross Value from Negative NOI", () => {
-    it("annual NOI = -$50,000", () => {
-      expect(H_ANNUAL_NOI).toBeCloseTo(-50_000, 2);
+    it("annual NOI = -$30,000", () => {
+      expect(H_ANNUAL_NOI).toBeCloseTo(-30_000, 2);
     });
 
-    it("gross value = -$50,000 / 0.085 = -$588,235.29", () => {
-      expect(H_GROSS_VALUE).toBeCloseTo(-588_235.29, 0);
+    it("gross value = -$30,000 / 0.085 = -$352,941.18", () => {
+      expect(H_GROSS_VALUE).toBeCloseTo(-352_941.18, 0);
     });
 
     it("exit value is negative (worthless asset)", () => {

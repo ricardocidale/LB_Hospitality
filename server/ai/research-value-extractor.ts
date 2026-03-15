@@ -118,8 +118,6 @@ export function extractResearchValues(content: Record<string, any>): Record<stri
     }
   }
 
-  }
-
   // Marketing Costs
   const mca = c.marketingCosts;
   if (mca?.marketingCostRate) {

@@ -187,7 +187,8 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <MetricRow
         label="Total Rooms Available"
-        tooltip="Total room-nights available for the year. Calculated as Room Count × Days per Month × 12."
+        tooltip="Total room-nights available for the year. This is the theoretical maximum supply of room-nights your property can sell."
+        formula="Room Count × 30.5 days × 12 months"
         values={yd.map((y) => y.availableRooms.toLocaleString())}
       />
 
@@ -278,22 +279,22 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         />
       </ExpandableMetricRow>
 
-      <LineItem label="Room Revenue"        values={yd.map((y) => y.revenueRooms)} tooltip="Income from guest room bookings. Calculated as Room Count × Days × ADR × Occupancy." />
-      <LineItem label="Food & Beverage"     values={yd.map((y) => y.revenueFB)} tooltip="Income from restaurants, bars, room service, and catering. Calculated as a percentage of Room Revenue (F&B Rev Share), boosted by the catering factor." />
-      <LineItem label="Events & Functions"   values={yd.map((y) => y.revenueEvents)} tooltip="Income from conferences, weddings, and banquet bookings. Calculated as a percentage of Room Revenue (Events Rev Share)." />
-      <LineItem label="Other Revenue"        values={yd.map((y) => y.revenueOther)} tooltip="Income from spa, parking, retail, and ancillary services. Calculated as a percentage of Room Revenue (Other Rev Share)." />
-      <SubtotalRow label="Total Revenue"     values={yd.map((y) => y.revenueTotal)} positive />
+      <LineItem label="Room Revenue"        values={yd.map((y) => y.revenueRooms)} tooltip="Income from guest room bookings — the primary revenue driver for any hotel. Grows with both ADR increases and occupancy ramp-up." formula="Rooms × Days × ADR × Occupancy" />
+      <LineItem label="Food & Beverage"     values={yd.map((y) => y.revenueFB)} tooltip="Income from restaurants, bars, room service, minibar, and catering operations. Expressed as a percentage of Room Revenue, then boosted by the catering uplift factor for properties with significant banquet business." formula="Room Revenue × F&B Share × (1 + Catering Boost)" />
+      <LineItem label="Events & Functions"   values={yd.map((y) => y.revenueEvents)} tooltip="Income from conferences, weddings, corporate events, and banquet bookings. Driven by the property's event facilities and local demand." formula="Room Revenue × Events Share" />
+      <LineItem label="Other Revenue"        values={yd.map((y) => y.revenueOther)} tooltip="Ancillary income from spa services, parking, resort fees, retail shops, and other guest amenities." formula="Room Revenue × Other Share" />
+      <SubtotalRow label="Total Revenue"     values={yd.map((y) => y.revenueTotal)} positive tooltip="All revenue streams combined — rooms, food & beverage, events, and other income. This is the top line against which expense ratios are measured." />
 
       <SpacerRow colSpan={colSpan} />
 
       {/* ── Operating Expenses ── */}
       <SectionHeader label="Operating Expenses" colSpan={colSpan} />
 
-      <LineItem label="Housekeeping"             values={yd.map((y) => y.expenseRooms)} tooltip="Variable cost: percentage of room revenue. Scales directly with occupancy and ADR." />
-      <LineItem label="Food & Beverage"          values={yd.map((y) => y.expenseFB)} tooltip="Variable cost: percentage of F&B revenue. Scales with food & beverage volume." />
-      <LineItem label="Events & Functions"        values={yd.map((y) => y.expenseEvents)} tooltip="Variable cost: percentage of events revenue. Scales with event bookings." />
-      <LineItem label="Other Departments"         values={yd.map((y) => y.expenseOther)} tooltip="Variable cost: percentage of other revenue." />
-      <LineItem label="Sales & Marketing"         values={yd.map((y) => y.expenseMarketing)} tooltip="Variable cost: percentage of total revenue allocated to marketing." />
+      <LineItem label="Housekeeping"             values={yd.map((y) => y.expenseRooms)} tooltip="USALI Rooms Department — variable cost covering cleaning labor, linens, guest supplies, and amenities. Directly proportional to room revenue: when occupancy rises, so does this cost." formula="Room Revenue × Housekeeping Rate" />
+      <LineItem label="Food & Beverage"          values={yd.map((y) => y.expenseFB)} tooltip="USALI F&B Department — variable cost covering kitchen labor, food procurement, and beverage costs. Scales with F&B revenue volume." formula="F&B Revenue × F&B Expense Rate" />
+      <LineItem label="Events & Functions"        values={yd.map((y) => y.expenseEvents)} tooltip="Variable cost for event setup, staffing, and AV equipment. Scales with events revenue." formula="Events Revenue × Event Expense Rate" />
+      <LineItem label="Other Departments"         values={yd.map((y) => y.expenseOther)} tooltip="Variable costs for ancillary departments (spa, parking, retail). Scales with other revenue." formula="Other Revenue × Other Dept Rate" />
+      <LineItem label="Sales & Marketing"         values={yd.map((y) => y.expenseMarketing)} tooltip="Variable cost for advertising, OTA commissions, loyalty programs, and local promotions. Scales with total revenue." formula="Total Revenue × Marketing Rate" />
 
       {/* Fixed cost lines — expandable with formula breakdown */}
       {hasContext ? (
@@ -368,13 +369,13 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         </>
       )}
 
-      <SubtotalRow label="Total Operating Expenses" values={yd.map((y) => y.revenueTotal - y.gop)} tooltip="Sum of all departmental and undistributed operating expenses." />
+      <SubtotalRow label="Total Operating Expenses" values={yd.map((y) => y.revenueTotal - y.gop)} tooltip="All departmental and undistributed operating expenses combined. Includes both variable costs (scale with revenue) and fixed costs (anchored to Year 1 base, escalating with inflation). Does NOT include property taxes, FF&E reserves, or management fees." />
       <MarginRow label="% of Total Revenue" values={yd.map((y) => y.revenueTotal - y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
       {/* ── Profitability ── */}
-      <SubtotalRow label="Gross Operating Profit (GOP)" values={yd.map((y) => y.gop)} positive tooltip="Total Revenue minus all Operating Expenses. The property's core operating profitability before management fees and reserves." />
+      <SubtotalRow label="Gross Operating Profit (GOP)" values={yd.map((y) => y.gop)} positive tooltip="The property's core operating profitability — revenue after all departmental and overhead costs. This is the key metric for comparing operational efficiency across properties, regardless of ownership structure or financing." formula="Total Revenue − Total Operating Expenses" />
       {isExpanded("gopFormula") ? (
         <>
           <FormulaDetailRow
@@ -401,7 +402,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       {/* ── Management Fees (USALI: deducted from GOP before fixed charges) ── */}
       <SectionHeader label="Management Fees" colSpan={colSpan} />
 
-      <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Percentage of total revenue paid to the management company for operating the property." />
+      <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Fixed percentage of total revenue paid to the management company for day-to-day hotel operations. This is the guaranteed fee — paid regardless of profitability." formula="Total Revenue × Base Fee Rate" />
       {(() => {
         const catSet = new Set<string>();
         for (const y of yd) for (const k of Object.keys(y.serviceFeesByCategory ?? {})) catSet.add(k);
@@ -410,11 +411,11 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
         )) : null;
       })()}
-      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance-based fee paid to the management company, calculated as a percentage of Gross Operating Profit (GOP)." />
+      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance bonus paid to the management company when the property is profitable. Only kicks in when GOP is positive — aligns the operator's incentives with owner returns." formula="max(0, GOP × Incentive Rate)" />
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Income Before Fixed Charges (IBFC)" values={yd.map((y) => y.agop)} positive tooltip="GOP minus all management fees. Per USALI 11th Edition, this is the property's operating profit before non-operating fixed charges." />
+      <SubtotalRow label="Income Before Fixed Charges (IBFC)" values={yd.map((y) => y.agop)} positive tooltip="GOP after deducting management fees. Per USALI 11th Edition, this represents the property's operating profit available to the owner before non-operating charges like property taxes and reserves." formula="GOP − Base Fee − Incentive Fee" />
       {isExpanded("ibfcFormula") ? (
         <>
           <FormulaDetailRow
@@ -492,7 +493,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="Income Before Fixed Charges minus property taxes. Per USALI 11th Edition, this is the property's net income from operations before reserves and debt service." />
+      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="The most widely used metric in commercial real estate valuation. NOI is what the property earns after all operating costs, fees, and property taxes — but before debt service and reserves. Used directly in cap rate valuation (Property Value = NOI ÷ Cap Rate)." formula="IBFC − Property Taxes" />
       {isExpanded("noiFormula") ? (
         <>
           <FormulaDetailRow
@@ -519,11 +520,11 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       {/* ── FF&E Reserve ── */}
       <SectionHeader label="Reserves" colSpan={colSpan} />
 
-      <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Furniture, Fixtures & Equipment reserve — set aside for capital replacements and renovations." />
+      <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Annual set-aside for replacing furniture, fixtures, and equipment (carpets, HVAC, case goods, soft goods). Required by most hotel lenders (typically 3–5% of revenue). This is a reserve, not an actual expense — actual replacements are capitalized and depreciated." formula="Total Revenue × FF&E Rate" />
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="NOI minus FF&E reserve. Per USALI 11th Edition, the property's income available for debt service and returns." />
+      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="The owner's true operating cash flow — NOI after setting aside the FF&E reserve. This is what's available to service debt, pay income taxes, and generate investor returns. ANOI is the starting point for cash-on-cash return calculations." formula="NOI − FF&E Reserve" />
       {isExpanded("anoiFormula") ? (
         <>
           <FormulaDetailRow
@@ -550,14 +551,14 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       {/* ── Below ANOI ── */}
       <SectionHeader label="Below ANOI" colSpan={colSpan} />
 
-      <LineItem label="Interest Expense"  values={yd.map((y) => y.interestExpense)} tooltip="Interest portion of mortgage debt service payments." />
-      <LineItem label="Depreciation"      values={yd.map((y) => y.depreciationExpense)} tooltip="Non-cash expense per ASC 360: straight-line depreciation of the depreciable building basis over 27.5 years." />
-      <LineItem label="Income Tax"        values={yd.map((y) => y.incomeTax)} tooltip="Federal/state income tax applied to pre-tax income (ANOI minus interest and depreciation)." />
+      <LineItem label="Interest Expense"  values={yd.map((y) => y.interestExpense)} tooltip="The interest portion of monthly mortgage payments. Only appears for financed properties — cash purchases show $0. Interest expense is tax-deductible, reducing taxable income." formula="Loan Balance × Monthly Rate" />
+      <LineItem label="Depreciation"      values={yd.map((y) => y.depreciationExpense)} tooltip="Non-cash accounting expense that spreads the building's cost over its useful life. Reduces taxable income without reducing actual cash — a major tax advantage of real estate investing. Land is not depreciable." formula="(Building Value + Improvements) ÷ 27.5 years ÷ 12 months" />
+      <LineItem label="Income Tax"        values={yd.map((y) => y.incomeTax)} tooltip="Federal/state income tax on the property's taxable income. Only applies when taxable income is positive — operating losses produce $0 tax. Negative taxable income (from depreciation) can shelter other income." formula="max(0, (ANOI − Interest − Depreciation) × Tax Rate)" />
 
       <SpacerRow colSpan={colSpan} />
 
       {/* ── Bottom Line ── */}
-      <SubtotalRow label="GAAP Net Income" values={yd.map((y) => y.netIncome)} positive tooltip="The bottom line: ANOI minus interest, depreciation, and income tax. This is the GAAP-compliant net income figure." />
+      <SubtotalRow label="GAAP Net Income" values={yd.map((y) => y.netIncome)} positive tooltip="The accounting bottom line after all expenses, including non-cash depreciation. Note: Net Income differs from Cash Flow because depreciation reduces income on paper without using cash. Negative net income in early years is common and often intentional (depreciation shelters taxable income)." formula="ANOI − Interest − Depreciation − Income Tax" />
       <MarginRow label="% of Total Revenue" values={yd.map((y) => y.netIncome)} baseValues={yd.map((y) => y.revenueTotal)} />
     </TableShell>
   );

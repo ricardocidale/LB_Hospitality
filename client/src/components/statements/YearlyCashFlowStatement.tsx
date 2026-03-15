@@ -384,7 +384,8 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
       <SubtotalRow
         label="Net Cash from Operating Activities"
         values={cashFromOperations}
-        tooltip="Total cash generated from property operations = Revenue - Operating Expenses - Interest - Taxes (ASC 230)."
+        tooltip="Total cash from day-to-day property operations — the most important cash flow metric. Unlike GAAP Net Income, this excludes non-cash items like depreciation. Positive CFO means the property generates cash; negative means it consumes cash."
+        formula="CFO = Revenue − OpEx − Interest − Taxes"
       />
       <MarginRow label="% of Total Revenue" values={cashFromOperations} baseValues={yearlyDetails.map(y => y.revenueTotal)} />
 
@@ -505,7 +506,8 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         values={fcfValues}
         positive
         bgColor="rgba(37, 125, 65, 0.08)"
-        tooltip="FCF = Net Cash from Operating Activities - Capital Expenditures. Cash available to service debt and distribute to investors."
+        tooltip="Cash available after covering operations and capital maintenance. This is the property's discretionary cash — what's left to pay down debt, distribute to investors, or reinvest."
+        formula="FCF = Operating Cash Flow − FF&E Reserve"
       />
       <MarginRow label="% of Total Revenue" values={fcfValues} baseValues={yearlyDetails.map(y => y.revenueTotal)} />
 
@@ -521,7 +523,8 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         values={fcfeValues}
         positive
         bgColor="rgba(37, 125, 65, 0.08)"
-        tooltip="FCFE = FCF - Principal Payments. Cash available for distribution to investors after all obligations."
+        tooltip="The equity investor's bottom line — what's left after the property pays for operations, capital reserves, and debt service. This is the actual cash that can be distributed to investors."
+        formula="FCFE = FCF − Principal Payments"
       />
       <MarginRow label="% of Total Revenue" values={fcfeValues} baseValues={yearlyDetails.map(y => y.revenueTotal)} />
 
@@ -534,14 +537,16 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         label="Cash-on-Cash Return"
         values={cocValues}
         highlights={cocHighlights}
-        tooltip="Annual after-tax cash flow divided by initial equity. Shows the cash yield on your investment each year."
+        tooltip="Annual cash yield on your equity investment — similar to a dividend yield. A 10% CoC means you receive $10 in annual cash for every $100 invested. Excludes appreciation and exit value."
+        formula="CoC = Annual Cash Flow ÷ Total Equity"
       />
 
       <MetricRow
         label="Debt Service Coverage Ratio"
         values={dscrValues}
         highlights={dscrHighlights}
-        tooltip="ANOI divided by debt service. Lenders typically require 1.25× minimum. Higher is better."
+        tooltip="How many times the property's operating income covers its debt payments. Lenders typically require 1.25× minimum. Below 1.0× means the property can't cover its debt from operations."
+        formula="DSCR = ANOI ÷ Annual Debt Service"
       />
     </TableShell>
   );

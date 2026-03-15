@@ -184,7 +184,7 @@ describe("computeCostBenchmarks", () => {
     });
     expect(result.department_costs.length).toBe(2);
     expect(result.undistributed_costs.length).toBe(7);
-    expect(result.property_value_costs.length).toBe(2);
+    expect(result.property_value_costs.length).toBe(1);
     expect(result.total_operating_costs).toBeGreaterThan(0);
   });
 
@@ -210,16 +210,16 @@ describe("computeCostBenchmarks", () => {
     expect(adminCost?.base).toBe("Total Revenue");
   });
 
-  it("insurance uses property value base", () => {
+  it("property taxes uses property value base", () => {
     const result = computeCostBenchmarks({
       annual_room_revenue: 2000000,
       annual_total_revenue: 3000000,
       purchase_price: 10000000,
-      cost_rate_insurance: 0.02,
+      cost_rate_taxes: 0.02,
     });
-    const insurance = result.property_value_costs.find(c => c.category === "Insurance");
-    expect(insurance?.annual_amount).toBeCloseTo(200000, 0);
-    expect(insurance?.base).toBe("Property Value");
+    const taxes = result.property_value_costs.find(c => c.category === "Property Taxes");
+    expect(taxes?.annual_amount).toBeCloseTo(200000, 0);
+    expect(taxes?.base).toBe("Property Value");
   });
 
   it("computes operating cost ratio", () => {

@@ -23,6 +23,7 @@ import {
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE, DEFAULT_COST_RATE_ROOMS,
   DEFAULT_COST_RATE_FB, DEFAULT_COST_RATE_ADMIN, DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_IT, DEFAULT_COST_RATE_FFE, DEFAULT_COST_RATE_OTHER,
+  DEFAULT_COST_RATE_PROPERTY_OPS, DEFAULT_COST_RATE_UTILITIES,
   DEFAULT_EVENT_EXPENSE_RATE, DEFAULT_OTHER_EXPENSE_RATE, DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DAYS_PER_MONTH, DEPRECIATION_YEARS, DEFAULT_LAND_VALUE_PERCENT,
   DEFAULT_COMPANY_TAX_RATE,
@@ -111,6 +112,7 @@ const H_A_GOP = H_A_REV_TOTAL - H_A_TOTAL_OP_EXP;
 const H_A_FEE_BASE = H_A_REV_TOTAL * 0.085;
 const H_A_FEE_INCENTIVE = Math.max(0, H_A_GOP * 0.12);
 const H_A_AGOP = H_A_GOP - H_A_FEE_BASE - H_A_FEE_INCENTIVE;
+const H_A_NOI = H_A_AGOP - H_A_EXP_TAXES;
 const H_A_ANOI = H_A_NOI - H_A_EXP_FFE;
 
 // Income statement (Cash property — no debt)
@@ -126,13 +128,14 @@ const H_A_CASH_FLOW = H_A_ANOI - 0 - H_A_TAX;
 // ═══════════════════════════════════════════════════════════════════
 
 // Zero occupancy → zero revenue → zero revenue-driven expenses
-// Only purchase-price-driven expenses remain: insurance + taxes
+// Only purchase-price-driven expenses remain: taxes
 const H_B_REV_TOTAL = 0;
 const H_B_EXP_TAXES = (800_000 / 12) * DEFAULT_COST_RATE_TAXES;
 // GOP = 0 - 0 = 0 (no revenue-driven expenses either)
 const H_B_GOP = 0;
 const H_B_FEE_BASE = 0;  // 8.5% of $0
 const H_B_FEE_INCENTIVE = 0;  // max(0, 0 × 12%) = 0
+const H_B_NOI = -H_B_EXP_TAXES;  // AGOP(0) - taxes
 const H_B_FFE = 0;  // FFE is revenue-based
 const H_B_ANOI = H_B_NOI - H_B_FFE;
 
@@ -142,7 +145,7 @@ const H_B_DEPR = H_B_BUILDING / DEPRECIATION_YEARS / 12;
 const H_B_TAXABLE = H_B_ANOI - H_B_DEPR;
 const H_B_TAX = H_B_TAXABLE > 0 ? H_B_TAXABLE * 0.25 : 0;
 const H_B_NET_INCOME = H_B_ANOI - H_B_DEPR - H_B_TAX;
-const H_B_CASH_FLOW = H_B_ANOI - H_B_TAX;  // negative (insurance + taxes drain cash)
+const H_B_CASH_FLOW = H_B_ANOI - H_B_TAX;  // negative (taxes drain cash)
 
 // ═══════════════════════════════════════════════════════════════════
 // HAND CALCULATIONS — COMPANY (only 1 active property)
@@ -166,7 +169,7 @@ const H_CO_MARKETING = H_CO_TOTAL_REV * 0.05;
 const H_CO_MISC = H_CO_TOTAL_REV * 0.03;
 
 const H_CO_TOTAL_EXP = H_CO_PARTNER_COMP + H_CO_STAFF_COMP + H_CO_OFFICE +
-  H_CO_TRAVEL + H_CO_IT_LICENSE + H_CO_MARKETING + H_CO_MISC;
+  H_CO_PROF_SERVICES + H_CO_TECH + H_CO_TRAVEL + H_CO_IT_LICENSE + H_CO_MARKETING + H_CO_MISC;
 
 const H_CO_PRE_TAX = H_CO_TOTAL_REV - H_CO_TOTAL_EXP;
 const H_CO_TAX = H_CO_PRE_TAX > 0 ? H_CO_PRE_TAX * DEFAULT_COMPANY_TAX_RATE : 0;
@@ -212,10 +215,10 @@ describe("Golden: Mixed Portfolio — 1 Active + 1 Inactive Property", () => {
     }
   });
 
-  // ─── 4. Property B insurance/taxes still accrue ─────────────────────
-  it("4. Property B: insurance and taxes still accrue (purchase-price-based)", () => {
-    // Insurance and taxes are embedded in NOI as fixed costs
-    // With 0 revenue and 0 revenue-driven expenses, NOI = -(insurance + taxes)
+  // ─── 4. Property B taxes still accrue ─────────────────────
+  it("4. Property B: taxes still accrue (purchase-price-based)", () => {
+    // Taxes are embedded in NOI as fixed costs
+    // With 0 revenue and 0 revenue-driven expenses, NOI = -(taxes)
     expect(propB[0].noi).toBeCloseTo(H_B_NOI, 2);
     expect(H_B_NOI).toBeLessThan(0);  // must be negative
   });
@@ -350,7 +353,7 @@ describe("Golden: Mixed Portfolio — 1 Active + 1 Inactive Property", () => {
   });
 
   // ─── 18. Property B NOI is negative ────────────────────────────────
-  it("18. Property B: NOI is negative (insurance + taxes with no revenue)", () => {
+  it("18. Property B: NOI is negative (taxes with no revenue)", () => {
     for (let i = 0; i < MONTHS; i++) {
       expect(propB[i].noi).toBeLessThan(0);
     }

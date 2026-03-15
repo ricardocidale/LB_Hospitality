@@ -34,7 +34,7 @@ export default function CompensationSection({ formData, onChange, global, resear
         <div>
           <h3 className="text-lg font-display text-foreground flex items-center">
             Compensation
-            <InfoTooltip text="Annual salaries for management company team members" />
+            <InfoTooltip text="Total compensation expense for the management company. Includes partner draws and staff salaries. Staff headcount is determined by the portfolio size (staffing tiers below)." formula="Monthly = (Partner Comp + FTE × Salary) ÷ 12" />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Configure partner compensation, staff salaries, and staffing tiers</p>
         </div>
@@ -42,7 +42,7 @@ export default function CompensationSection({ formData, onChange, global, resear
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Staff Salary
-              <InfoTooltip text="Average across all staff positions. Average annual salary per staff FTE. Staffing scales based on the tiers configured below." />
+              <InfoTooltip text="Average annual salary per full-time staff member. The total staff cost depends on how many FTEs your portfolio size requires (see tiers below). As you add properties, you may cross into a higher staffing tier." formula="Staff Cost = FTE Count × Salary ÷ 12" />
               <ResearchBadge value={researchValues.staffSalary?.display} onClick={() => researchValues.staffSalary && onChange("staffSalary", researchValues.staffSalary.mid)} sourceType="industry" sourceName="AHLA Lodging Industry Survey" data-testid="badge-staff-salary" />
             </Label>
             <EditableValue
@@ -67,7 +67,7 @@ export default function CompensationSection({ formData, onChange, global, resear
           <div className="mb-3">
             <Label className="flex items-center text-foreground label-text font-medium">
               Staffing Tiers
-              <InfoTooltip text="Define how many full-time employees (FTE) are needed based on the number of properties under management. Each tier sets a maximum property count and the FTE required." />
+              <InfoTooltip text="Portfolio-based staffing model. As the number of managed properties grows, you'll need more staff. Each tier defines the FTE headcount for a range of property counts. The system automatically selects the right tier based on your active property count." />
             </Label>
             <p className="text-xs text-muted-foreground mt-1">Set the FTE headcount for each portfolio size bracket</p>
           </div>

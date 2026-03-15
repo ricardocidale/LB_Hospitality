@@ -29,13 +29,13 @@ export default function FixedOverheadSection({ formData, onChange, global, model
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center">
           Fixed Overhead (<span className="font-mono">{modelStartYear}</span>)
-          <InfoTooltip text="Starting annual costs that escalate yearly at the fixed cost escalation rate" manualSection="company-formulas" />
+          <InfoTooltip text="Annual overhead costs for running the management company. These are set at Year 1 values and increase each year by the escalation rate below. Unlike variable costs, these don't change with portfolio size." formula="Year N Cost = Starting Cost × (1 + Escalation)^(N-1)" manualSection="company-formulas" />
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Fixed Cost Escalation Rate
-              <InfoTooltip text="Annual percentage increase applied to all fixed costs" />
+              <InfoTooltip text="Annual inflation factor applied to all fixed overhead costs (office lease, professional services, tech). This compounds each year, so a 3% rate means costs grow ~34% over 10 years." />
             </Label>
             <EditableValue
               value={formData.fixedCostEscalationRate ?? global.fixedCostEscalationRate}
@@ -59,7 +59,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Office Lease
-              <InfoTooltip text="Annual rent for corporate office space" />
+              <InfoTooltip text="Annual cost for the management company's corporate office — rent, utilities, and common area charges. This is the Year 1 value; it escalates annually at the rate above." />
               <ResearchBadge value={researchValues.officeLease?.display} onClick={() => researchValues.officeLease && onChange("officeLeaseStart", researchValues.officeLease.mid)} sourceType="industry" sourceName="HFTP/AICPA benchmarks" data-testid="badge-office-lease" />
             </Label>
             <EditableValue
@@ -84,7 +84,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Professional Services
-              <InfoTooltip text="Legal, accounting, and consulting fees" />
+              <InfoTooltip text="Annual budget for external legal counsel, CPA/audit fees, and specialized consulting. Year 1 value, escalates annually." />
               <ResearchBadge value={researchValues.professionalServices?.display} onClick={() => researchValues.professionalServices && onChange("professionalServicesStart", researchValues.professionalServices.mid)} sourceType="industry" sourceName="AICPA practice benchmarks" data-testid="badge-professional-services" />
             </Label>
             <EditableValue
@@ -109,7 +109,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Tech Infrastructure
-              <InfoTooltip text="Annual cloud hosting, software, and IT services" />
+              <InfoTooltip text="Company-level technology costs — cloud hosting, corporate software subscriptions, cybersecurity, and IT support. Separate from per-property IT licenses (configured in Variable Costs)." />
               <ResearchBadge value={researchValues.techInfra?.display} onClick={() => researchValues.techInfra && onChange("techInfraStart", researchValues.techInfra.mid)} sourceType="industry" sourceName="HFTP Technology Survey" data-testid="badge-tech-infra" />
             </Label>
             <EditableValue

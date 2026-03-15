@@ -28,7 +28,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     totalProjectionCashFlow
   } = financials;
 
-  const IS_ROW_KEYS = useMemo(() => ["metrics", "revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"], []);
+  const IS_ROW_KEYS = useMemo(() => ["metrics", "revenue", "expenses", "gop", "fees", "ibfc", "fixed", "noi", "ffe", "anoi"], []);
   const { expandedRows, expandedFormulas, toggleRow, toggleFormula, toggleAll, allRowsExpanded } = useExpandableRows(IS_ROW_KEYS);
   const tabContentRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -41,8 +41,8 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
         year: getFiscalYear(i),
         Revenue: c?.revenueTotal ?? 0,
         GOP: c?.gop ?? 0,
-        AGOP: c?.agop ?? 0,
-        NOI: c?.noi ?? 0,
+        IBFC: c ? c.agop : 0,
+        NOI: c ? c.noi : 0,
         ANOI: c?.anoi ?? 0,
       };
     });
@@ -223,8 +223,8 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       pushRow({ category: "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), indent: 1, isFormula: true });
     }
 
-    rows.push({ category: "Adjusted GOP (AGOP)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true, rowId: "agop" });
-    if (activeExpanded.has("agop")) {
+    rows.push({ category: "Income Before Fixed Charges (IBFC)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true, rowId: "ibfc" });
+    if (activeExpanded.has("ibfc")) {
       pushRow({ category: "= GOP − Management Fees", values: years.map((_, i) => c(i)?.agop ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
@@ -244,7 +244,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
     rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, rowId: "noi" });
     if (activeExpanded.has("noi")) {
-      pushRow({ category: "= AGOP − Fixed Charges", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
+      pushRow({ category: "= IBFC − Fixed Charges (Insurance + Taxes)", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
           category: prop.name,
@@ -276,7 +276,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
   const { years, rows } = generateIncomeStatementData();
 
-  const allRowKeys = ["metrics", "revenue", "expenses", "gop", "fees", "agop", "fixed", "noi", "ffe", "anoi"];
+  const allRowKeys = ["metrics", "revenue", "expenses", "gop", "fees", "ibfc", "fixed", "noi", "ffe", "anoi"];
   const allExpandedSet = new Set(allRowKeys);
   const emptySet = new Set<string>();
 
@@ -351,7 +351,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       />
       <FinancialChart
         data={chartData}
-        series={["revenue", "gop", "agop", "noi", "anoi"]}
+        series={["revenue", "gop", "ibfc", "noi", "anoi"]}
         title={`Income Statement Trends (${projectionYears}-Year Projection)`}
         id="dashboard-income-chart"
       />

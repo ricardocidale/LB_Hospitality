@@ -7,8 +7,8 @@
  *      default rates, and choose centralized vs direct service model.
  *   2. Incentive Management Fee — a performance fee (% of GOP).
  *
- * These two fee types together transform GOP → AGOP → NOI → ANOI in the
- * USALI waterfall. Values set here are defaults that each property inherits.
+ * These two fee types are deducted below NOI in the USALI waterfall to arrive
+ * at ANOI. Values set here are defaults that each property inherits.
  * Properties can override rates individually.
  *
  * This tab does NOT modify the financial engine or schema —
@@ -405,7 +405,7 @@ export default function RevenueShareTab() {
             <strong>Incentive Fee</strong> — a performance bonus charged as a percentage of Gross Operating Profit (GOP), only collected when GOP is positive.
           </p>
           <p className="text-xs italic">
-            Together, these fees transform the USALI waterfall: Revenue → GOP → AGOP (after service fees & incentive fee) → NOI → ANOI.
+            Together, these fees are deducted from GOP in the USALI waterfall: Revenue → GOP → Mgmt Fees → IBFC → Fixed Charges → NOI → FF&E → ANOI.
             Values set here are defaults — each property can override them individually.
           </p>
         </AlertDescription>
@@ -693,7 +693,7 @@ export default function RevenueShareTab() {
                 <div className="flex items-center gap-2">
                   <IconTrending className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-primary">Total Base Management Fee</span>
-                  <InfoTooltip text="The sum of all active service category rates. This is the effective Base Management Fee charged to each property as a percentage of their Total Revenue. It is deducted from GOP to calculate Adjusted Gross Operating Profit (AGOP) in the USALI waterfall." />
+                  <InfoTooltip text="The sum of all active service category rates. This is the effective Base Management Fee charged to each property as a percentage of their Total Revenue. It is deducted from GOP to calculate Income Before Fixed Charges (IBFC) in the USALI waterfall." />
                 </div>
                 <span className="text-lg font-display font-bold text-primary font-mono">{(totalServiceRate * 100).toFixed(1)}%</span>
               </div>
@@ -708,7 +708,7 @@ export default function RevenueShareTab() {
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
             <IconDollarSign className="w-4 h-4 text-muted-foreground" />
             Incentive Management Fee
-            <InfoTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from GOP to arrive at Adjusted Gross Operating Profit (AGOP), which flows through to NOI and ANOI." />
+            <InfoTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from GOP to arrive at Income Before Fixed Charges (IBFC) per the USALI standard." />
           </CardTitle>
           <CardDescription className="label-text">
             Performance bonus as a percentage of each property's Gross Operating Profit (GOP).
@@ -773,9 +773,9 @@ export default function RevenueShareTab() {
             </div>
             <div className="flex items-center justify-center text-muted-foreground font-mono">→</div>
             <div className="bg-primary/10 rounded-lg p-2.5 border border-primary/30">
-              <div className="font-semibold text-primary">AGOP</div>
+              <div className="font-semibold text-primary">ANOI</div>
               <div className="text-primary/70 mt-0.5">
-                GOP − {(totalServiceRate * 100).toFixed(1)}% base − {parseFloat(displayIncentive || "0").toFixed(1)}% incentive
+                NOI − FF&E Reserve
               </div>
             </div>
           </div>

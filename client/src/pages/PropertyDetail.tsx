@@ -106,7 +106,7 @@ export default function PropertyDetail() {
         year: String(getFiscalYear(y)),
         Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
         GOP: yearData.reduce((a, m) => a + m.gop, 0),
-        AGOP: yearData.reduce((a, m) => a + m.agop, 0),
+        IBFC: yearData.reduce((a, m) => a + m.agop, 0),
         NOI: yearData.reduce((a, m) => a + m.noi, 0),
         ANOI: yearData.reduce((a, m) => a + m.anoi, 0),
         CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
@@ -319,7 +319,7 @@ export default function PropertyDetail() {
     );
 
     body.push(
-      [{ content: "Adjusted GOP (AGOP)", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.agop), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+      [{ content: "Income Before Fixed Charges (IBFC)", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.agop), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
     );
 
     if (!isShort) {

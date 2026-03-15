@@ -9,8 +9,8 @@
  *   • Event Revenue      — meetings, banquets, catering
  *   • Total Revenue      — sum of all revenue streams
  *   • GOP                — Gross Operating Profit (revenue minus operating expenses)
- *   • AGOP               — Adjusted GOP (GOP minus management fees)
- *   • NOI                — Net Operating Income (AGOP minus fixed charges)
+ *   • IBFC               — Income Before Fixed Charges (GOP minus management fees)
+ *   • NOI                — Net Operating Income (IBFC minus fixed charges)
  *   • ANOI               — Adjusted NOI (NOI minus FF&E reserve)
  *   • Cash Flow          — ANOI minus debt service minus income tax
  *
@@ -103,16 +103,16 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
                 <TableCell className="text-right bg-accent/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.gop, 0))}</TableCell>
               </TableRow>
 
-              {/* AGOP */}
+              {/* IBFC = GOP − Management Fees */}
               <TableRow className="bg-accent/5 border-border font-medium">
-                <TableCell className="sticky left-0 bg-accent/10 z-10 border-r border-border text-sm">Adjusted GOP (AGOP)</TableCell>
+                <TableCell className="sticky left-0 bg-accent/10 z-10 border-r border-border text-sm">Income Before Fixed Charges (IBFC)</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono text-sm">{formatMoney(m.agop)}</TableCell>
                 ))}
                 <TableCell className="text-right bg-accent/20 font-mono text-sm">{formatMoney(first12Months.reduce((a, b) => a + b.agop, 0))}</TableCell>
               </TableRow>
 
-              {/* NOI */}
+              {/* NOI = IBFC − Fixed Charges */}
               <TableRow className="bg-primary/5 border-border font-medium">
                 <TableCell className="sticky left-0 bg-primary/10 z-10 border-r border-border text-sm">Net Operating Income (NOI)</TableCell>
                 {first12Months.map((m, i) => (

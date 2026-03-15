@@ -224,7 +224,8 @@ export function generatePortfolioIncomeData(
     });
     rows.push({ category: "Incentive Fee", values: years.map((_, i) => c(i)?.feeIncentive ?? 0), indent: 1 });
   }
-  rows.push({ category: "Adjusted GOP (AGOP)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true });
+
+  rows.push({ category: "Income Before Fixed Charges (IBFC)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true });
   if (!summaryOnly && hasProps) {
     propertyNames!.forEach((name, idx) => {
       rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.agop ?? 0), indent: 1 });
@@ -243,6 +244,7 @@ export function generatePortfolioIncomeData(
       rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.noi ?? 0), indent: 1 });
     });
   }
+
   if (!summaryOnly) {
     rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1 });
   }

@@ -9,7 +9,7 @@ export const sections = [
   { id: "defaults", title: "Default Values & Assumptions", subtitle: "Where the default numbers come from", icon: IconInfo },
   { id: "revenue", title: "Revenue Calculations", subtitle: "How we project rooms, F&B, and events revenue", icon: IconTrendingUp },
   { id: "expenses", title: "Operating Expenses", subtitle: "How we calculate property operating costs", icon: IconWallet },
-  { id: "noi-gop", title: "GOP and ANOI", subtitle: "Gross Operating Profit and Adjusted NOI", icon: IconBarChart3 },
+  { id: "noi-gop", title: "GOP, NOI, and ANOI", subtitle: "Gross Operating Profit, Net Operating Income, and Adjusted NOI", icon: IconBarChart3 },
   { id: "debt", title: "Debt & Financing", subtitle: "Loan calculations and refinancing", icon: IconBuilding2 },
   { id: "cash-flow", title: "Free Cash Flow (GAAP Method)", subtitle: "How we calculate cash available to investors", icon: IconDollarSign },
   { id: "balance-sheet", title: "Balance Sheet", subtitle: "Assets, liabilities, and equity per GAAP standards", icon: IconBookOpen },

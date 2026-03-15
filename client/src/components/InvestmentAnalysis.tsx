@@ -298,7 +298,7 @@ export function InvestmentAnalysis({
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => (
                       <TableCell key={y} className="text-right text-sm text-muted-foreground">
-                        {formatMoney(getConsolidatedYearlyDetails(y).noi)}
+                        {formatMoney(getYearlyConsolidated(y)?.anoi ?? 0)}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -317,7 +317,7 @@ export function InvestmentAnalysis({
                   <TableRow className="bg-muted/5">
                     <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground flex items-center gap-1">
                       = Before-Tax Cash Flow (BTCF)
-                      <InfoTooltip text="BTCF = NOI - Debt Service. Cash available before income taxes." manualSection="property-formulas" />
+                      <InfoTooltip text="BTCF = ANOI − Debt Service. Cash available before income taxes." manualSection="property-formulas" />
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                     {Array.from({ length: projectionYears }, (_, y) => {

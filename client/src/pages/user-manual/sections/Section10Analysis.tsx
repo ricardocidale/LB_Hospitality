@@ -50,7 +50,7 @@ export default function Section10Analysis({ expanded, onToggle, sectionRef }: Se
             headers={["Card", "Description"]}
             rows={[
               ["Base IRR", "Baseline internal rate of return, with delta to the adjusted scenario"],
-              ["Base ANOI", "Baseline Adjusted NOI (NOI minus FF&E reserve) with percent change under current scenario"],
+              ["Base ANOI", "Baseline Adjusted Net Operating Income (NOI minus FF&E reserve) with percent change under current scenario"],
               ["Exit Value", "Baseline exit proceeds with percent change under current scenario"],
               ["Adjusted IRR", "IRR under the current slider settings — green if higher than base, red if lower"],
             ]}
@@ -121,8 +121,8 @@ export default function Section10Analysis({ expanded, onToggle, sectionRef }: Se
           headers={["Sub-Tab", "What It Shows"]}
           rows={[
             ["DSCR Sizing", "Calculates the maximum supportable loan based on Debt Service Coverage Ratio. Lenders typically require 1.20×–1.35× minimum. Shows a gauge with pass/fail threshold markers."],
-            ["Debt Yield", "Debt Yield = ANOI ÷ Loan Amount. Measures how quickly a lender recovers principal at foreclosure. Minimum 8–10% typically required. Identifies whether DSCR or LTV is the binding constraint."],
-            ["Stress Test", "A matrix showing DSCR at every combination of interest rate change (in basis points) and ANOI change (%). Cells turn red when DSCR falls below the minimum threshold — reveals the breaking point."],
+            ["Debt Yield", "Debt Yield = Adjusted Net Operating Income (ANOI) ÷ Loan Amount. Measures how quickly a lender recovers principal at foreclosure. Minimum 8–10% typically required. Identifies whether DSCR or LTV is the binding constraint."],
+            ["Stress Test", "A matrix showing Debt Service Coverage Ratio (DSCR) at every combination of interest rate change (in basis points) and ANOI change (%). Cells turn red when DSCR falls below the minimum threshold — reveals the breaking point."],
             ["Prepayment", "Calculates the cost of early loan payoff using three industry-standard methods: Yield Maintenance (compensates lender for lost interest income), Step-Down 5-4-3-2-1 (penalty percentage declines each year), and Defeasance (replace loan collateral with treasury securities)."],
           ]}
         />

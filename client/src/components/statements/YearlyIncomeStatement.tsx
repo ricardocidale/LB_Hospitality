@@ -14,9 +14,9 @@
  *   Undistributed Expenses — admin, marketing, utilities, maintenance, IT
  *   Gross Operating Profit (GOP) — revenue minus all operating expenses
  *   Management Fees        — base fee + incentive fee to operator
- *   Adjusted GOP (AGOP)    — GOP minus management fees
+ *   Income Before Fixed Charges (IBFC) — GOP minus management fees
  *   Fixed Charges           — property tax + insurance
- *   Net Operating Income (NOI) — AGOP minus fixed charges
+ *   Net Operating Income (NOI) — IBFC minus fixed charges
  *   FF&E Reserve            — furniture, fixtures & equipment set-aside
  *   Adjusted NOI (ANOI)     — NOI minus FF&E reserve
  *   Debt Service             — mortgage principal + interest (if financed)
@@ -399,7 +399,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      {/* ── Management Fees ── */}
+      {/* ── Management Fees (USALI: deducted from GOP before fixed charges) ── */}
       <SectionHeader label="Management Fees" colSpan={colSpan} />
 
       <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Percentage of total revenue paid to the management company for operating the property." />
@@ -411,26 +411,26 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
         )) : null;
       })()}
-      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance-based fee paid to the management company, calculated as a percentage of GOP." />
+      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance-based fee paid to the management company, calculated as a percentage of Gross Operating Profit (GOP)." />
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Adjusted GOP (AGOP)" values={yd.map((y) => y.agop)} positive tooltip="AGOP is not a standard USALI line item but is widely used in hotel management agreements. It represents GOP minus all management fees (base, service, and incentive) — the property's operating profit after management company compensation. Sources: Chatlyn Glossary, Canary Technologies, Law Insider, HFTP USALI 12th Ed." />
-      {isExpanded("agopFormula") ? (
+      <SubtotalRow label="Income Before Fixed Charges (IBFC)" values={yd.map((y) => y.agop)} positive tooltip="GOP minus all management fees. Per USALI 11th Edition, this is the property's operating profit before non-operating fixed charges." />
+      {isExpanded("ibfcFormula") ? (
         <>
           <FormulaDetailRow
-            label="= GOP − Base Fee − Service Fees − Incentive Fee"
-            values={yd.map((y) => `${fmt(y.gop)} − ${fmt(y.feeBase + Object.values(y.serviceFeesByCategory ?? {}).reduce((s: number, v) => s + (v as number), 0))} − ${fmt(y.feeIncentive)}`)}
+            label="= GOP − Base Mgmt Fee − Incentive Fee"
+            values={yd.map((y) => `${fmt(y.gop)} − ${fmt(y.feeBase)} − ${fmt(y.feeIncentive)}`)}
             colCount={years}
           />
           <FormulaDetailRow
-            label="= AGOP"
+            label="= IBFC"
             values={yd.map((y) => fmt(y.agop))}
             colCount={years}
           />
         </>
       ) : (
-        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("agopFormula")} data-expandable-row="true">
+        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("ibfcFormula")} data-expandable-row="true">
           <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
@@ -535,11 +535,11 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="AGOP minus fixed charges (insurance and property taxes). The property's net income from operations before reserves. Per USALI 12th Ed (HFTP, 2026)." />
+      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="Income Before Fixed Charges minus insurance and property taxes. Per USALI 11th Edition, this is the property's net income from operations before reserves and debt service." />
       {isExpanded("noiFormula") ? (
         <>
           <FormulaDetailRow
-            label="= AGOP − Insurance − Property Taxes"
+            label="= IBFC − Insurance − Property Taxes"
             values={yd.map((y) => `${fmt(y.agop)} − ${fmt(y.expenseInsurance)} − ${fmt(y.expenseTaxes)}`)}
             colCount={years}
           />
@@ -566,7 +566,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="NOI minus FF&E reserve. The property's income available for debt service and returns." />
+      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="NOI minus FF&E reserve. Per USALI 11th Edition, the property's income available for debt service and returns." />
       {isExpanded("anoiFormula") ? (
         <>
           <FormulaDetailRow

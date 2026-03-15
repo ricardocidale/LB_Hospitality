@@ -17,7 +17,7 @@
  *     A&G + Sales & Marketing + POM + Utilities
  *     = GOP (Gross Operating Profit)
  *   Management Fees (base + incentive)
- *     = AGOP (Adjusted Gross Operating Profit)
+ *     = IBFC (Income Before Fixed Charges)
  *   Fixed Charges (Property Tax + Insurance)
  *     = NOI (Net Operating Income)
  *   FF&E Reserve
@@ -66,12 +66,13 @@ export default function IncomeStatementTab({
     const noi = yd.noi;
     const ffe = yd.expenseFFE;
 
+    const ibfc = gop - mgmtFees;
     const items: WaterfallItem[] = [
       { label: "Total Revenue", value: totalRev, type: "subtotal" },
       { label: "Dept. Expenses", value: -deptExpenses, type: "negative" },
       { label: "GOP", value: gop, type: "subtotal" },
-      { label: "Undistributed", value: -undistributed, type: "negative" },
       { label: "Mgmt Fees", value: -mgmtFees, type: "negative" },
+      { label: "IBFC", value: ibfc, type: "subtotal" },
       { label: "Fixed Charges", value: -fixedCharges, type: "negative" },
       { label: "NOI", value: noi, type: "subtotal" },
       { label: "FF&E Reserve", value: -ffe, type: "negative" },

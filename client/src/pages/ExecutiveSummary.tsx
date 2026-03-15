@@ -80,7 +80,6 @@ function buildWaterfallData(yearData: {
   expenseFFE: number;
 }): WaterfallItem[] {
   const deptExpenses = yearData.revenueTotal - yearData.gop;
-  const undistributed = yearData.gop - yearData.agop - yearData.feeBase - yearData.feeIncentive;
   const fees = yearData.feeBase + yearData.feeIncentive;
   const fixedCharges = yearData.agop - yearData.noi;
   const ffe = yearData.expenseFFE;
@@ -95,13 +94,10 @@ function buildWaterfallData(yearData: {
 
   items.push({ name: "GOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
 
-  items.push({ name: "Undistributed", value: undistributed, base: running - undistributed, fill: "hsl(var(--chart-3))", isSubtotal: false });
-  running -= undistributed;
-
   items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
   running -= fees;
 
-  items.push({ name: "AGOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  items.push({ name: "IBFC", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
 
   items.push({ name: "Fixed Charges", value: fixedCharges, base: running - fixedCharges, fill: "hsl(var(--chart-5))", isSubtotal: false });
   running -= fixedCharges;

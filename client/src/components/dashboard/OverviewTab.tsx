@@ -58,7 +58,6 @@ function buildWaterfallData(yearData: {
   expenseFFE: number;
 }): WaterfallItem[] {
   const deptExpenses = yearData.revenueTotal - yearData.gop;
-  const undistributed = yearData.gop - yearData.agop - yearData.feeBase - yearData.feeIncentive;
   const fees = yearData.feeBase + yearData.feeIncentive;
   const fixedCharges = yearData.agop - yearData.noi;
   const ffe = yearData.expenseFFE;
@@ -70,11 +69,9 @@ function buildWaterfallData(yearData: {
   items.push({ name: "Dept. Expenses", value: deptExpenses, base: running - deptExpenses, fill: "hsl(var(--chart-2))", isSubtotal: false });
   running -= deptExpenses;
   items.push({ name: "GOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
-  items.push({ name: "Undistributed", value: undistributed, base: running - undistributed, fill: "hsl(var(--chart-3))", isSubtotal: false });
-  running -= undistributed;
   items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
   running -= fees;
-  items.push({ name: "AGOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  items.push({ name: "IBFC", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
   items.push({ name: "Fixed Charges", value: fixedCharges, base: running - fixedCharges, fill: "hsl(var(--chart-5))", isSubtotal: false });
   running -= fixedCharges;
   items.push({ name: "NOI", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
@@ -541,8 +538,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Revenue & ANOI Projection</span>
               </AccordionTrigger>
               <InfoTooltip
-                text="Revenue is total income from all hotel operations. ANOI (Adjusted Net Operating Income) is the bottom operating line after all expenses, management fees, insurance, taxes, and FF&E reserve."
-                formula="ANOI = Revenue − OpEx − Mgmt Fees − Insurance − Taxes − FF&E"
+                text="Revenue is total income from all hotel operations. ANOI (Adjusted Net Operating Income) is the bottom operating line after all operating expenses, management fees, fixed charges, and FF&E reserve."
+                formula="ANOI = NOI − FF&E Reserve"
                 light
                 side="right"
               />
@@ -859,8 +856,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   <span className="text-sm font-semibold text-foreground tracking-wide uppercase">USALI Profit Waterfall</span>
                 </AccordionTrigger>
                 <InfoTooltip
-                  text="How total revenue flows down to ANOI through each layer of operating expenses, following the USALI framework."
-                  formula="Revenue → GOP → AGOP → NOI → ANOI"
+                  text="How total revenue flows down to ANOI through each layer of operating expenses, following the USALI 11th Edition framework."
+                  formula="Revenue → GOP → IBFC → NOI → ANOI"
                   light
                   side="right"
                 />

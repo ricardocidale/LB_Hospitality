@@ -67,7 +67,7 @@ export interface ExportRowMeta {
 }
 
 const KNOWN_ABBREVS = new Set([
-  "GOP", "NOI", "AGOP", "ANOI", "GAAP", "FFE", "FF&E",
+  "GOP", "NOI", "AGOP", "IBFC", "ANOI", "GAAP", "FFE", "FF&E",
   "DSCR", "IRR", "CFO", "CFI", "CFF", "IT", "F&B",
   "PP&E", "ADR", "REVPAR", "LTV", "EBITDA", "WACC",
   "FCFE", "FCFF", "FY", "YOY",

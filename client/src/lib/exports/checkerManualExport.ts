@@ -59,8 +59,8 @@ const PROPERTY_FORMULAS = [
   ["F-P-02", "Available Rooms", "Room Count × Days in Month"],
   ["F-P-03", "Room Revenue", "Available Rooms × Occupancy × ADR"],
   ["F-P-09", "GOP", "Total Revenue − Total Operating Expenses"],
-  ["F-P-10", "AGOP", "GOP − Management Fees (base + incentive)"],
-  ["F-P-11", "NOI", "AGOP − Fixed Charges (insurance + property taxes)"],
+  ["F-P-10", "IBFC", "GOP − Management Fees (base + incentive)"],
+  ["F-P-11", "NOI", "IBFC − Fixed Charges (Insurance + Taxes)"],
   ["F-P-12", "ANOI", "NOI − FF&E Reserve"],
   ["F-P-13", "Depreciable Basis", "Price × (1 − Land%) + Improvements"],
   ["F-P-14", "Monthly Depreciation", "Depreciable Basis / 27.5 / 12"],
@@ -104,7 +104,7 @@ const BUSINESS_RULES = [
 
 /** Three-phase testing methodology — simple → moderate → edge-case scenarios. */
 const TESTING_PHASES = [
-  ["Phase 1", "Simple Scenarios", "Single property, all-cash, verify revenue/expense/GOP/AGOP/NOI/ANOI"],
+  ["Phase 1", "Simple Scenarios", "Single property, all-cash, verify revenue/expense/GOP/NOI/ANOI"],
   ["Phase 2", "Moderate", "Multiple properties, financing, refi, global changes, scenarios"],
   ["Phase 3", "Edge Cases", "Zero revenue, 100% LTV, extreme cap rates, mid-year acquisition"],
 ];
@@ -423,7 +423,9 @@ export async function exportFullData(user: { email?: string; role?: string; comp
         ["GOP", ...yearly.map(yr => formatMoney(yr.gop))],
         ["Base Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeBase))],
         ["Incentive Mgmt Fee", ...yearly.map(yr => formatMoney(yr.feeIncentive))],
-        ["AGOP", ...yearly.map(yr => formatMoney(yr.agop))],
+        ["IBFC", ...yearly.map(yr => formatMoney(yr.agop))],
+        ["Insurance", ...yearly.map(yr => formatMoney(yr.expenseInsurance))],
+        ["Property Taxes", ...yearly.map(yr => formatMoney(yr.expenseTaxes))],
         ["NOI", ...yearly.map(yr => formatMoney(yr.noi))],
         ["ANOI", ...yearly.map(yr => formatMoney(yr.anoi))],
         ["Depreciation", ...yearly.map(yr => formatMoney(yr.depreciationExpense))],

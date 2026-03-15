@@ -230,7 +230,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-foreground flex items-center gap-1">FF&E Reserve<InfoTooltip text="Variable set-aside for future replacement of furniture, fixtures, and equipment. Scales with total revenue. Industry standard: 3–5%." /><GaapBadge rule="USALI Standard: FF&E reserve is deducted below GOP to arrive at NOI. Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx." /></Label>
+                        <Label className="text-sm label-text text-foreground flex items-center gap-1">FF&E Reserve<InfoTooltip text="Variable set-aside for future replacement of furniture, fixtures, and equipment. Scales with total revenue. Industry standard: 3–5%." /><GaapBadge rule="USALI Standard: FF&E reserve is deducted from NOI (Net Operating Income) to arrive at ANOI (Adjusted Net Operating Income). Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx." /></Label>
                         <ResearchBadge entry={researchValues.costFFE} onClick={() => researchValues.costFFE && onChange("costRateFFE", researchValues.costFFE.mid / 100)} />
                       </div>
                       <EditableValue

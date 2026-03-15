@@ -26,8 +26,8 @@ import { YearlyAggregation } from "./types";
 
 /**
  * Build the row data for a single-property Income Statement following the
- * USALI layout: Revenue → Operating Expenses → GOP → Non-operating → NOI →
- * Below-NOI items → GAAP Net Income.
+ * USALI layout: Revenue → Operating Expenses → GOP → Mgmt Fees → IBFC →
+ * Fixed Charges → NOI → FF&E → ANOI → Below-ANOI → GAAP Net Income.
  */
 export function buildPropertyISRows(yearly: YearlyAggregation[]): (string | number)[][] {
   return [
@@ -57,11 +57,11 @@ export function buildPropertyISRows(yearly: YearlyAggregation[]): (string | numb
     [],
     ["Gross Operating Profit (GOP)", ...yearly.map((y) => y.gop)],
     [],
-    ["NON-OPERATING EXPENSES"],
+    ["MANAGEMENT FEES"],
     ["  Base Management Fee", ...yearly.map((y) => y.feeBase)],
     ["  Incentive Management Fee", ...yearly.map((y) => y.feeIncentive)],
     [],
-    ["Adjusted GOP (AGOP)", ...yearly.map((y) => y.agop)],
+    ["Income Before Fixed Charges (IBFC)", ...yearly.map((y) => y.agop)],
     [],
     ["FIXED CHARGES"],
     ["  Insurance", ...yearly.map((y) => y.expenseInsurance)],

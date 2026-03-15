@@ -12,6 +12,7 @@
 import { db } from "../db";
 import { marketRates, type MarketRate } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { EXTERNAL_API_TIMEOUT_MS } from "../constants";
 
 // ---------------------------------------------------------------------------
 // FRED API
@@ -42,7 +43,7 @@ export async function fetchFredRate(seriesId: string): Promise<{ value: number; 
     });
 
     const response = await fetch(`${FRED_BASE_URL}?${params}`, {
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(EXTERNAL_API_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -75,7 +76,7 @@ export async function fetchFrankfurterRate(targetCurrency: string): Promise<{ va
   try {
     const response = await fetch(
       `${FRANKFURTER_BASE_URL}?base=USD&symbols=${targetCurrency}`,
-      { signal: AbortSignal.timeout(8000) },
+      { signal: AbortSignal.timeout(EXTERNAL_API_TIMEOUT_MS) },
     );
 
     if (!response.ok) {

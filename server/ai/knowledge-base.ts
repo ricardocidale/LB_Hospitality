@@ -2,6 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import { logger } from "../logger";
 import { getOpenAIClient } from "./clients";
+import {
+  KB_MIN_PARAGRAPH_LENGTH,
+  KB_MAX_TITLE_LENGTH,
+  KB_EMBEDDING_MAX_LENGTH,
+  KB_WORDS_PER_CHUNK_ESTIMATE,
+  KB_EMBEDDING_BATCH_SIZE,
+} from "../constants";
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const CHUNK_SIZE = 800;
@@ -10,7 +17,7 @@ const TOP_K = 8;
 const MAX_RAG_CONTEXT_CHARS = 4000;
 
 export function splitIntoChunks(text: string, title: string, source: string, category: string): { title: string; content: string; source: string; category: string }[] {
-  const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 20);
+  const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > KB_MIN_PARAGRAPH_LENGTH);
   const chunks: { title: string; content: string; source: string; category: string }[] = [];
   let current = "";
   let currentTitle = title;
@@ -24,14 +31,14 @@ export function splitIntoChunks(text: string, title: string, source: string, cat
     if ((current + "\n\n" + para).length > CHUNK_SIZE && current.length > 0) {
       chunks.push({ title: currentTitle, content: current.trim(), source, category });
       const words = current.split(/\s+/);
-      const overlapWords = words.slice(-Math.floor(CHUNK_OVERLAP / 5));
+      const overlapWords = words.slice(-Math.floor(CHUNK_OVERLAP / KB_WORDS_PER_CHUNK_ESTIMATE));
       current = overlapWords.join(" ") + "\n\n" + para;
     } else {
       current = current ? current + "\n\n" + para : para;
     }
   }
 
-  if (current.trim().length > 20) {
+  if (current.trim().length > KB_MIN_PARAGRAPH_LENGTH) {
     chunks.push({ title: currentTitle, content: current.trim(), source, category });
   }
 
@@ -583,7 +590,7 @@ async function loadAttachedAssets(): Promise<{ title: string; content: string; s
         .replace(/Pasted\s+/i, "")
         .trim();
 
-      if (title.length > 80) title = title.slice(0, 80);
+      if (title.length > KB_MAX_TITLE_LENGTH) title = title.slice(0, KB_MAX_TITLE_LENGTH);
 
       const category = file.includes("Business_Model") || file.includes("Market_Research")
         ? "specification"
@@ -602,16 +609,15 @@ async function loadAttachedAssets(): Promise<{ title: string; content: string; s
 async function generateEmbedding(text: string): Promise<number[]> {
   const response = await getOpenAIClient().embeddings.create({
     model: EMBEDDING_MODEL,
-    input: text.slice(0, 8000),
+    input: text.slice(0, KB_EMBEDDING_MAX_LENGTH),
   });
   return response.data[0].embedding;
 }
 
 async function generateEmbeddings(texts: string[]): Promise<number[][]> {
-  const batchSize = 20;
   const results: number[][] = [];
-  for (let i = 0; i < texts.length; i += batchSize) {
-    const batch = texts.slice(i, i + batchSize).map(t => t.slice(0, 8000));
+  for (let i = 0; i < texts.length; i += KB_EMBEDDING_BATCH_SIZE) {
+    const batch = texts.slice(i, i + KB_EMBEDDING_BATCH_SIZE).map(t => t.slice(0, KB_EMBEDDING_MAX_LENGTH));
     const response = await getOpenAIClient().embeddings.create({
       model: EMBEDDING_MODEL,
       input: batch,

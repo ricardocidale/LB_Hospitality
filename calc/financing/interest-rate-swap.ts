@@ -36,6 +36,13 @@ import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING } from "../shared/utils.js";
 
+/** Rounding tolerance for net swap payments — amounts below this are treated as neutral */
+const NET_PAYMENT_THRESHOLD = 0.01;
+/** Rate scenario steps (basis points expressed as decimals) for ±100-300 bps sensitivity analysis */
+const RATE_STEP_100_BPS = 0.01;
+const RATE_STEP_200_BPS = 0.02;
+const RATE_STEP_300_BPS = 0.03;
+
 export interface InterestRateSwapInput {
   notional_amount: number;
   fixed_rate: number;
@@ -106,7 +113,6 @@ export function computeInterestRateSwap(input: InterestRateSwapInput): InterestR
   const annual_floating_cost = r(periodFloatingPayment * periodsPerYear);
   const annual_net_swap_payment = r(annual_fixed_cost - annual_floating_cost);
 
-  const NET_PAYMENT_THRESHOLD = 0.01;
   const period_cash_flows: SwapPeriodCashFlow[] = [];
   for (let i = 1; i <= totalPeriods; i++) {
     const net = r(periodFixedPayment - periodFloatingPayment);
@@ -127,18 +133,13 @@ export function computeInterestRateSwap(input: InterestRateSwapInput): InterestR
 
   const total_swap_cost_over_term = r(annual_net_swap_payment * input.swap_term_years);
 
-  const RATE_STEP_DOWN_2 = 0.02;
-  const RATE_STEP_DOWN_1 = 0.01;
-  const RATE_STEP_UP_1 = 0.01;
-  const RATE_STEP_UP_2 = 0.02;
-  const RATE_STEP_UP_3 = 0.03;
   const scenarioRates = input.rate_scenarios ?? [
-    allInFloating - RATE_STEP_DOWN_2,
-    allInFloating - RATE_STEP_DOWN_1,
+    allInFloating - RATE_STEP_200_BPS,
+    allInFloating - RATE_STEP_100_BPS,
     allInFloating,
-    allInFloating + RATE_STEP_UP_1,
-    allInFloating + RATE_STEP_UP_2,
-    allInFloating + RATE_STEP_UP_3,
+    allInFloating + RATE_STEP_100_BPS,
+    allInFloating + RATE_STEP_200_BPS,
+    allInFloating + RATE_STEP_300_BPS,
   ];
 
   const rate_scenarios: SwapScenarioResult[] = scenarioRates.map(floatingRate => {

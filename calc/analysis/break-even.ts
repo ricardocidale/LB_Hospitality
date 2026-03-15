@@ -162,7 +162,7 @@ export function computeBreakEven(input: BreakEvenInput): BreakEvenOutput {
 
   // Sensitivity: ADR drop 10%
   const adrDrop = solveBreakEvenOccupancy(
-    input.room_count, input.adr * 0.9, days,
+    input.room_count, input.adr * SENSITIVITY_ADR_DROP, days,
     input.variable_cost_rate, input.fixed_costs_monthly,
     mgmtRate, ffeRate, debtService + tax, ancPct,
   );
@@ -170,7 +170,7 @@ export function computeBreakEven(input: BreakEvenInput): BreakEvenOutput {
   // Sensitivity: Fixed costs up 10%
   const fixedUp = solveBreakEvenOccupancy(
     input.room_count, input.adr, days,
-    input.variable_cost_rate, input.fixed_costs_monthly * 1.1,
+    input.variable_cost_rate, input.fixed_costs_monthly * SENSITIVITY_COST_UP,
     mgmtRate, ffeRate, debtService + tax, ancPct,
   );
 

@@ -31,6 +31,15 @@ import { authMiddleware, requireAuth, seedAdminUser, cleanupRateLimitMaps } from
 import { storage } from "./storage";
 import { log as serverLog } from "./logger";
 import { initSentry, sentryRequestHandler, sentryErrorHandler, setupSentryExpressErrorHandler } from "./sentry";
+import {
+  COMPRESSION_THRESHOLD_BYTES,
+  CACHE_MAX_AGE_SECONDS,
+  CACHE_STALE_REVALIDATE_SECONDS,
+  HSTS_MAX_AGE_SECONDS,
+  MARKET_RATE_REFRESH_INTERVAL_MS,
+  SESSION_CLEANUP_INTERVAL_MS,
+  MI_CACHE_INVALIDATION_INTERVAL_MS,
+} from "./constants";
 
 initSentry();
 
@@ -45,7 +54,7 @@ declare module "http" {
 
 app.set("trust proxy", 1); // Replit runs behind a reverse proxy
 app.use(sentryRequestHandler());
-app.use(compression({ threshold: 1024 })); // Compress responses > 1KB
+app.use(compression({ threshold: COMPRESSION_THRESHOLD_BYTES }));
 app.use(cookieParser());
 
 app.use((req, res, next) => {
@@ -54,7 +63,7 @@ app.use((req, res, next) => {
   res.setHeader("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
   res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.elevenlabs.io wss://api.elevenlabs.io https://*.ingest.sentry.io https://*.sentry.io https://us.i.posthog.com https://app.posthog.com; media-src 'self' blob:; frame-ancestors 'self' https://*.replit.dev https://*.replit.app https://*.repl.co");
   if (process.env.NODE_ENV === "production") {
-    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    res.setHeader("Strict-Transport-Security", `max-age=${HSTS_MAX_AGE_SECONDS}; includeSubDomains`);
   }
   next();
 });
@@ -110,7 +119,7 @@ const CACHEABLE_PATHS = new Set([
 ]);
 app.use((req, res, next) => {
   if (req.method === "GET" && CACHEABLE_PATHS.has(req.path)) {
-    res.setHeader("Cache-Control", "private, max-age=300, stale-while-revalidate=600");
+    res.setHeader("Cache-Control", `private, max-age=${CACHE_MAX_AGE_SECONDS}, stale-while-revalidate=${CACHE_STALE_REVALIDATE_SECONDS}`);
   }
   next();
 });
@@ -263,7 +272,7 @@ app.use((req, res, next) => {
     () => {
       log(`serving on port ${port}`);
 
-      // Refresh stale market rates every 5 minutes
+      // Refresh stale market rates periodically
       setInterval(async () => {
         try {
           const { refreshAllStaleRates } = await import("./data/marketRates");
@@ -279,9 +288,9 @@ app.use((req, res, next) => {
         } catch (err) {
           console.error("FRED market intelligence refresh error:", err);
         }
-      }, 5 * 60 * 1000);
+      }, MARKET_RATE_REFRESH_INTERVAL_MS);
 
-      // Clean expired sessions and stale rate-limit entries every hour
+      // Clean expired sessions and stale rate-limit entries periodically
       setInterval(async () => {
         try {
           const sessions = await storage.deleteExpiredSessions();
@@ -291,7 +300,7 @@ app.use((req, res, next) => {
         } catch (err) {
           console.error("Periodic cleanup error:", err);
         }
-      }, 60 * 60 * 1000);
+      }, SESSION_CLEANUP_INTERVAL_MS);
 
       // Invalidate stale property-level MI cache daily so next research regen gets fresh data
       setInterval(async () => {
@@ -302,7 +311,7 @@ app.use((req, res, next) => {
         } catch (err) {
           console.error("MI cache invalidation error:", err);
         }
-      }, 24 * 60 * 60 * 1000);
+      }, MI_CACHE_INVALIDATION_INTERVAL_MS);
     },
   );
 })();

@@ -6,6 +6,8 @@
  * returns an empty array so the AI proceeds with training knowledge only.
  */
 
+import { EXTERNAL_API_TIMEOUT_MS } from "../constants";
+
 interface WebSearchResult {
   title: string;
   url: string;
@@ -33,7 +35,7 @@ export async function webSearch(
 
     const response = await fetch(
       `https://www.googleapis.com/customsearch/v1?${params}`,
-      { signal: AbortSignal.timeout(8000) }
+      { signal: AbortSignal.timeout(EXTERNAL_API_TIMEOUT_MS) }
     );
 
     if (!response.ok) {

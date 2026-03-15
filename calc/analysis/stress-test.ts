@@ -52,6 +52,13 @@ import {
   STRESS_SEVERITY_CRITICAL_PCT,
 } from "../../shared/constants.js";
 
+/** Risk score weight for critical-severity scenarios (NOI drop > 30%) */
+const RISK_WEIGHT_CRITICAL = 3;
+/** Risk score weight for severe-severity scenarios (NOI drop 15–30%) */
+const RISK_WEIGHT_SEVERE = 2;
+/** Risk score weight for scenarios where NOI goes negative (below breakeven) */
+const RISK_WEIGHT_BELOW_BREAKEVEN = 4;
+
 export interface StressTestInput {
   property_name?: string;
   base_adr: number;
@@ -192,7 +199,7 @@ export function computeStressTest(input: StressTestInput): StressTestOutput {
   const criticalCount = results.filter(s => s.severity === "critical").length;
   const severeCount = results.filter(s => s.severity === "severe").length;
   const portfolio_risk_score = totalScenarios > 0
-    ? Math.round(((criticalCount * 3 + severeCount * 2 + belowBreakeven * 4) / totalScenarios) * 100) / 100
+    ? Math.round(((criticalCount * RISK_WEIGHT_CRITICAL + severeCount * RISK_WEIGHT_SEVERE + belowBreakeven * RISK_WEIGHT_BELOW_BREAKEVEN) / totalScenarios) * 100) / 100
     : 0;
 
   return {

@@ -1,6 +1,14 @@
 import { cache } from "../cache";
 import { logger } from "../logger";
 import { startSpanAsync, captureException } from "../sentry";
+import {
+  CIRCUIT_BREAKER_FAILURE_THRESHOLD,
+  CIRCUIT_BREAKER_WINDOW_MS,
+  CIRCUIT_BREAKER_COOLDOWN_MS,
+  RETRY_MAX_ATTEMPTS,
+  RETRY_BASE_DELAY_MS,
+  RETRY_MAX_DELAY_MS,
+} from "../constants";
 
 export type CircuitState = "closed" | "open" | "half-open";
 

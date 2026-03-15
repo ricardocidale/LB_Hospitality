@@ -34,7 +34,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Context Loading Protocol
 
-With 170 skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
+With 176 skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
 - **Financial calc** → specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual** → `component-library/SKILL.md` + `ui/theme-engine.md` + specific UI skill
 - **Testing** → `testing/SKILL.md` + relevant sub-skill only
@@ -63,7 +63,8 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Admin (15 sections) | `.claude/skills/admin/SKILL.md` | 15-section shell pattern, extraction guide, API routes |
 | Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
-| Finance (21 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, fee categories, funding interest, etc. |
+| Finance (22 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, fee categories, funding interest, diagnostic decision tree, etc. |
+| Funding Strategy | `.claude/skills/funding-strategy/SKILL.md` | SAFE tranche modeling, cash runway, investor thesis, FRED rates |
 | Research (23 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, ICP profile, research center, etc. |
 | Chart Library | `.claude/skills/charts/SKILL.md` | 12 Recharts + 3 D3.js chart components |
 | Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, responsive helpers |
@@ -79,7 +80,12 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Tool Schemas | `.claude/skills/tool-schemas/SKILL.md` | Tool schema organization for calc/ deterministic tools |
 | Tour | `.claude/skills/tour/SKILL.md` | Guided tour/walkthrough component for onboarding |
 | UI Blocks | `.claude/skills/ui-blocks/SKILL.md` | Reference shadcn block patterns |
-| Property Chatbot | `server/routes/chat.ts` | Gemini-powered property analysis chat (`/api/chat`) |
+| Market Intelligence | `.claude/skills/market-intelligence/SKILL.md` | FRED, hospitality benchmarks, grounded research, BaseIntegrationService |
+| ICP Research | `.claude/skills/icp-research/SKILL.md` | ICP profile definition, AI research center, prompt builder |
+| Rebecca Chatbot | `.claude/skills/rebecca-chatbot/SKILL.md` | Gemini-powered portfolio analytics chat |
+| Document Intelligence | `.claude/skills/document-intelligence/SKILL.md` | Google Document AI OCR pipeline, field mapping |
+| Map View | `.claude/skills/map-view/SKILL.md` | MapLibre GL, Supercluster clustering, globe animation |
+| Notifications | `.claude/skills/notifications/SKILL.md` | Alert rules, Resend email, notification logs |
 | Rules (19) | `.claude/rules/` | All behavioral constraints |
 | Business Domain & Patterns (13) | `.agents/skills/` | Business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings architecture |
 

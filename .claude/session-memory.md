@@ -8,9 +8,14 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 15, 2026 — Skills Hygiene Plan Execution
+- Created 7 new skills: funding-strategy, market-intelligence (+ adding-integrations sub-skill), finance/diagnostic-decision-tree, icp-research, rebecca-chatbot, document-intelligence, map-view, notifications
+- Updated proof-system (4-phase → 7-phase), context-loading (routing + counts), claude.md Skill Router (7 new rows)
+- Final: 176 skill files across 33 directories. Finance now 22 sub-skills.
+
 ## Session: March 15, 2026 — Documentation Update (Task #135)
 - Updated `claude.md` with current project state: ~795 source files, ~144K lines, 3,022 tests across 135 test files
-- Skill router updated: UI (43), Finance (21), Research (21), Testing (8), 170 total skill files across 69 directories
+- Skill router updated: UI (43), Finance (22), Research (23), Testing (8), 176 total skill files across 33 directories
 - Recent Changes section replaced with March 15 entries covering ~60 merged tasks since March 12
 - 6 new migrations added to migration list, Key Rules updated with Resend, ICP split, LLM dual-model, Norfolk AI
 

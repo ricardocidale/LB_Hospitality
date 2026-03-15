@@ -6,7 +6,7 @@ description: Token-efficient context loading protocol. Maps common task types to
 # Context Loading Protocol
 
 ## Purpose
-With 170 skill files, loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
+With 176 skill files, loading everything wastes tokens and slows responses. This skill maps common task types to the **minimum required** skill set, ensuring fast, focused sessions.
 
 ## Golden Rule
 **Load `claude.md` first (always loaded automatically). Then load only the skills needed for the current task. Never load all skills at once.**
@@ -98,6 +98,7 @@ With 170 skill files, loading everything wastes tokens and slows responses. This
 | Research badge data flow | `ui/research-badges.md`, `research/SKILL.md` | Analysis skills |
 | Research questions CRUD | `research/research-questions/SKILL.md` | Analysis skills, finance |
 | Research validation, deterministic tools, research tool schemas | `research/SKILL.md`, `rules/research-precision.md`, `tool-schemas/SKILL.md` | Finance engine, UI |
+| ICP definition / research | `icp-research/SKILL.md` | Property-level research |
 | Any research change | **Always also load**: `research/SKILL.md` (master) | — |
 
 #### Marcela AI & Voice
@@ -110,6 +111,7 @@ With 170 skill files, loading everything wastes tokens and slows responses. This
 | Voice UX (widget states) | `marcela-ai/voice-ux-patterns.md` | Twilio, finance |
 | Admin Marcela tab config | `admin/admin-refactor-map.md`, `marcela-ai/marcela-architecture.md` | Finance skills |
 | RAG knowledge base | `marcela-ai/marcela-architecture.md` | Voice, Twilio skills |
+| Rebecca chatbot / text chat | `rebecca-chatbot/SKILL.md` | Marcela voice skills |
 | Any Marcela change | **Always also load**: `marcela-ai/marcela-architecture.md` | — |
 
 #### Admin Page Refactoring
@@ -129,6 +131,16 @@ With 170 skill files, loading everything wastes tokens and slows responses. This
 | ElevenLabs architecture | `codebase-architecture/SKILL.md` § ElevenLabs | Finance, research |
 | Module boundaries / re-exports | `codebase-architecture/SKILL.md` | Finance, research |
 | Tooltip system | `codebase-architecture/SKILL.md` § Tooltips, `admin-components/SKILL.md` § Tooltip Explainers | Finance |
+
+#### Funding, Maps, Notifications, Documents
+| Task | Load These Skills | Skip |
+|------|------------------|------|
+| Capital strategy / SAFE tranches | `funding-strategy/SKILL.md`, `rules/financial-engine.md` | UI skills, research |
+| Map view / geospatial | `map-view/SKILL.md` | Finance, research |
+| Notifications / alert rules | `notifications/SKILL.md` | Finance, research |
+| Email sharing (Resend) | `notifications/SKILL.md` | Finance, UI skills |
+| Document OCR / extraction | `document-intelligence/SKILL.md` | Finance, research |
+| Financial diagnostics | `finance/diagnostic-decision-tree.md`, `proof-system/SKILL.md` | UI skills |
 
 #### Database & Infrastructure
 | Task | Load These Skills | Skip |
@@ -187,6 +199,6 @@ User asks for verification, release prep, or comprehensive review.
 
 ## Cross-References
 - Skill Router: `claude.md` § Skill Router
-- All skills: `.claude/skills/` (28 directories, 170 files)
+- All skills: `.claude/skills/` (33 directories, 176 files)
 - Rules: `.claude/rules/` (19 files)
 - Manuals: `.claude/manuals/` (2 manuals)

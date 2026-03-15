@@ -17,11 +17,14 @@ npx vitest run tests/golden/      # Run 269 hand-calculated golden tests (~3s)
 npx tsx tests/proof/verify-runner.ts  # 7-phase orchestrator directly
 ```
 
-## 4-Phase Verification
+## 7-Phase Verification
 1. **Scenarios** — 5 golden scenarios test every financial structure
 2. **Hardcoded Detection** — Scans 8 finance files for magic numbers
 3. **Reconciliation** — Generates artifact reports with math checks
-4. **Artifact Summary** — Produces JSON + Markdown proof reports
+4. **Data Integrity** — Shared ownership, singleton queries, portfolio dynamics
+5. **Domain Boundaries** — No prohibited cross-domain imports
+6. **Recalculation Enforcement** — Every financial mutation invalidates queries
+7. **Artifact Summary** — Produces JSON + Markdown proof reports
 
 ## Audit Opinion Outputs
 - **UNQUALIFIED** — All checks pass. No human verification needed.

@@ -66,15 +66,11 @@ export const OUTPUT_FORMATS = [
 export const LLM_MODELS = [
   { value: "glm-45-air-fp8", label: "GLM-4.5-Air", description: "Great for agentic use cases", provider: "ElevenLabs" },
   { value: "qwen3-30b-a3b", label: "Qwen3-30B-A3B", description: "Ultra low latency", provider: "ElevenLabs" },
-  { value: "qwen3-4b", label: "Qwen3-4B", description: "Ultra low latency, compact", provider: "ElevenLabs" },
-  { value: "gpt-oss-120b", label: "GPT-OSS-120B", description: "Open-source model from OpenAI", provider: "ElevenLabs" },
-  { value: "gpt-oss-20b", label: "GPT-OSS-20B", description: "Open-source model, compact", provider: "ElevenLabs" },
-  { value: "watt-tool-70b", label: "Watt Tool 70B", description: "Tool-use optimized", provider: "ElevenLabs" },
-  { value: "watt-tool-8b", label: "Watt Tool 8B", description: "Tool-use optimized, compact", provider: "ElevenLabs" },
 
   { value: "gemini-3.1-pro-preview", label: "Gemini 3.1 Pro Preview", description: "Google's most capable model", provider: "Google" },
   { value: "gemini-3-flash-preview", label: "Gemini 3 Flash Preview", description: "Fast next-gen model", provider: "Google" },
   { value: "gemini-3.1-flash-lite-preview", label: "Gemini 3.1 Flash Lite Preview", description: "Fastest next-gen model", provider: "Google" },
+  { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro", description: "Advanced reasoning model", provider: "Google" },
   { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash", description: "Fast thinking model", provider: "Google" },
   { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite", description: "Lightweight and fast", provider: "Google" },
   { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash", description: "Fast multimodal model", provider: "Google" },
@@ -100,6 +96,11 @@ export const LLM_MODELS = [
   { value: "grok-4.20-beta", label: "Grok 4.20 Beta", description: "xAI's latest model", provider: "xAI" },
   { value: "grok-4", label: "Grok 4", description: "xAI's flagship model", provider: "xAI" },
   { value: "grok-4-1-fast", label: "Grok 4.1 Fast", description: "Fast xAI model", provider: "xAI" },
+  { value: "grok-4-fast", label: "Grok 4 Fast", description: "Fast Grok 4", provider: "xAI" },
+  { value: "grok-3", label: "Grok 3", description: "Strong general model", provider: "xAI" },
+  { value: "grok-3-mini", label: "Grok 3 Mini", description: "Compact Grok 3", provider: "xAI" },
+  { value: "grok-code-fast-1", label: "Grok Code Fast 1", description: "Code-optimized model", provider: "xAI" },
+
   { value: "custom-llm", label: "Custom LLM", description: "Use your own LLM endpoint", provider: "Other" },
 ];
 

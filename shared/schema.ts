@@ -320,11 +320,11 @@ export interface ResearchEventConfig {
 export interface AiModelEntry {
   id: string;
   label: string;
-  provider: "openai" | "anthropic" | "google" | "tesla" | "microsoft";
+  provider: "openai" | "anthropic" | "google" | "xai" | "tesla" | "microsoft";
 }
 
 export type LlmMode = "dual" | "primary-only";
-export type LlmVendor = "openai" | "anthropic" | "google" | "tesla" | "microsoft";
+export type LlmVendor = "openai" | "anthropic" | "google" | "xai" | "tesla" | "microsoft";
 
 export interface ResearchConfig {
   property?: Partial<ResearchEventConfig>;

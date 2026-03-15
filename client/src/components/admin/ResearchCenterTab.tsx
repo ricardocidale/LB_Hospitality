@@ -46,9 +46,12 @@ const DETERMINISTIC_TOOLS = [
 
 const FALLBACK_MODELS: AiModelEntry[] = [
   { id: "claude-opus-4-6", label: "Anthropic Claude Opus 4.6", provider: "anthropic" },
-  { id: "claude-sonnet-4-6", label: "Anthropic Claude Sonnet 4.6", provider: "anthropic" },
+  { id: "claude-opus-4-5", label: "Anthropic Claude Opus 4.5", provider: "anthropic" },
   { id: "claude-sonnet-4-5", label: "Anthropic Claude Sonnet 4.5", provider: "anthropic" },
   { id: "claude-haiku-4-5", label: "Anthropic Claude Haiku 4.5", provider: "anthropic" },
+  { id: "claude-opus-4-1", label: "Anthropic Claude Opus 4.1", provider: "anthropic" },
+  { id: "claude-opus-4", label: "Anthropic Claude Opus 4", provider: "anthropic" },
+  { id: "claude-sonnet-4", label: "Anthropic Claude Sonnet 4", provider: "anthropic" },
   { id: "gpt-5.4", label: "OpenAI GPT 5.4", provider: "openai" },
   { id: "gpt-5.4-pro", label: "OpenAI GPT 5.4 Pro", provider: "openai" },
   { id: "o3", label: "OpenAI o3", provider: "openai" },
@@ -57,6 +60,11 @@ const FALLBACK_MODELS: AiModelEntry[] = [
   { id: "gemini-3.1-pro-preview", label: "Google Gemini 3.1 Pro Preview", provider: "google" },
   { id: "gemini-3-flash-preview", label: "Google Gemini 3 Flash Preview", provider: "google" },
   { id: "gemini-2.5-flash", label: "Google Gemini 2.5 Flash", provider: "google" },
+  { id: "gemini-2.0-flash", label: "Google Gemini 2.0 Flash", provider: "google" },
+  { id: "grok-4", label: "xAI Grok 4", provider: "xai" },
+  { id: "grok-4-fast", label: "xAI Grok 4 Fast", provider: "xai" },
+  { id: "grok-3", label: "xAI Grok 3", provider: "xai" },
+  { id: "grok-3-mini", label: "xAI Grok 3 Mini", provider: "xai" },
 ];
 
 const TIME_HORIZONS = [
@@ -1832,8 +1840,9 @@ function MarketResearchSection({ config, onChange }: { config: ResearchEventConf
 const LLM_VENDORS: { value: LlmVendor; label: string }[] = [
   { value: "openai", label: "OpenAI" },
   { value: "google", label: "Google" },
-  { value: "tesla", label: "Tesla" },
   { value: "anthropic", label: "Anthropic" },
+  { value: "xai", label: "xAI" },
+  { value: "tesla", label: "Tesla" },
   { value: "microsoft", label: "Microsoft" },
 ];
 
@@ -1891,7 +1900,7 @@ function LlmSelectionCard({ draft, setDraft, setIsDirty }: {
             }}
           >
             {refreshModels.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
-            Refresh Models
+            Update LLM List
           </Button>
         </div>
       </CardHeader>

@@ -35,7 +35,7 @@ const customSourceSchema = z.object({
 const aiModelEntrySchema = z.object({
   id: z.string(),
   label: z.string(),
-  provider: z.enum(["openai", "anthropic", "google"]),
+  provider: z.enum(["openai", "anthropic", "google", "xai"]),
 });
 
 const researchConfigSchema = z.object({
@@ -57,6 +57,7 @@ const CHAT_MODEL_PATTERNS: Record<string, RegExp[]> = {
   openai: [/^gpt-5/, /^o\d/],
   anthropic: [/^claude-/],
   google: [/^gemini-/],
+  xai: [/^grok-/],
 };
 
 const EXCLUDE_PATTERNS = [
@@ -73,7 +74,7 @@ function shouldInclude(id: string, provider: string): boolean {
 }
 
 function formatLabel(id: string, provider: string): string {
-  const prefix = provider === "openai" ? "OpenAI" : provider === "anthropic" ? "Anthropic" : "Google";
+  const prefix = provider === "openai" ? "OpenAI" : provider === "anthropic" ? "Anthropic" : provider === "xai" ? "xAI" : "Google";
   const name = id
     .replace(/-/g, " ")
     .replace(/\b\w/g, c => c.toUpperCase())
@@ -134,6 +135,28 @@ async function fetchGeminiModels(): Promise<AiModelEntry[]> {
   }
 }
 
+async function fetchXaiModels(): Promise<AiModelEntry[]> {
+  try {
+    const apiKey = process.env.XAI_API_KEY;
+    if (!apiKey) return [];
+    const res = await fetch("https://api.x.ai/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!res.ok) throw new Error(`xAI API returned ${res.status}`);
+    const body = await res.json() as { data: { id: string }[] };
+    const models: AiModelEntry[] = [];
+    for (const m of body.data) {
+      if (shouldInclude(m.id, "xai")) {
+        models.push({ id: m.id, label: formatLabel(m.id, "xai"), provider: "xai" });
+      }
+    }
+    return models.sort((a, b) => a.id.localeCompare(b.id));
+  } catch (e) {
+    console.error("[research] Failed to fetch xAI models:", (e as Error).message);
+    return [];
+  }
+}
+
 export function registerResearchConfigRoutes(app: Express) {
   app.get("/api/admin/research-config", requireAdmin, async (_req, res) => {
     try {
@@ -150,12 +173,13 @@ export function registerResearchConfigRoutes(app: Express) {
       if (isApiRateLimited(req.user!.id, "ai-models-refresh", 1)) {
         return res.status(429).json({ error: "Model refresh rate-limited to 1 per minute" });
       }
-      const [openai, anthropic, google] = await Promise.all([
+      const [openai, anthropic, google, xai] = await Promise.all([
         fetchOpenAIModels(),
         fetchAnthropicModels(),
         fetchGeminiModels(),
+        fetchXaiModels(),
       ]);
-      const models = [...anthropic, ...openai, ...google];
+      const models = [...anthropic, ...openai, ...google, ...xai];
 
       const ga = await storage.getGlobalAssumptions();
       if (ga) {

@@ -87,6 +87,7 @@ With 176 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Map View | `.claude/skills/map-view/SKILL.md` | MapLibre GL, Supercluster clustering, globe animation |
 | Notifications | `.claude/skills/notifications/SKILL.md` | Alert rules, Resend email, notification logs |
 | Rules (19) | `.claude/rules/` | All behavioral constraints |
+| Settings Architecture | `.agents/skills/settings-architecture/SKILL.md` | Three configuration surfaces (Mgmt Co, General Settings, Admin), property edit overrides, overlap prevention, decision tree for placing new settings |
 | Business Domain & Patterns (13) | `.agents/skills/` | Business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings architecture |
 
 ---
@@ -107,6 +108,9 @@ With 176 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Recent Changes (March 15, 2026)
 
+- **Settings Architecture Governance** (Task #148) — Finalized `settings-architecture` skill defining where every setting belongs: Management Company owns entity config + revenue model, General Settings owns property defaults (3 tabs: Property Defaults, Macro, Other), Admin owns system-only config, Property Edit owns per-property overrides. Decision tree and overlap prevention rules formalized.
+- **Property Creation Defaults from Global Assumptions** (Task #147) — `buildPropertyDefaultsFromGlobal()` reads `global_assumptions` for property defaults; hardcoded constants are last-resort fallbacks only.
+- **Settings Consolidation** (Task #146) — ManagementFeesSection is single source for revenue model (service CRUD + incentive + per-property summary). Dead admin tabs removed. General Settings reduced to 3 tabs.
 - **Insurance Removal** — Removed insurance expense from entire codebase. NOI formula is now `IBFC − Property Taxes`. All engines, schemas, UI, tests, and AI knowledge updated.
 - **Tooltip & Help Text Enrichment** — Added `formula` prop to `LineItem`, `SubtotalRow`, and `MetricRow` components. Enriched tooltips across income statement, cash flow statement, and company assumption sections with investor-facing descriptions and inline formula display.
 - **USALI 12th Edition Service Consolidation** (Task #136) — Updated SERVICE_HELP descriptions with USALI 12th Edition Schedule 16 references. Renamed "IT" → "IT & Technology" across all UI surfaces.
@@ -149,6 +153,7 @@ With 176 skill files, **never load all skills at once**. Use `.claude/skills/con
 - **ICP = Profile + Research Center** — two separate pages, not one monolithic ICP page
 - **LLM dual-model config** — primary + fallback model with vendor selection (OpenAI, Anthropic, Gemini) in Admin LLM tab
 - **Norfolk AI theme** — additional theme preset alongside Tuscan Olive Grove
+- **Settings placement** — Use `settings-architecture` skill decision tree before placing any new setting. Three surfaces only: Mgmt Co (entity config), General Settings (property defaults + macro + other), Admin (system-only)
 
 ---
 

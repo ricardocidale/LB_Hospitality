@@ -216,7 +216,7 @@ function Router() {
         fetch("/api/global-assumptions", { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
       ])
         .then(([refreshData, gaData]) => {
-          if (gaData && gaData.autoResearchRefreshEnabled === false) return;
+          if (!gaData || gaData.autoResearchRefreshEnabled !== true) return;
 
           if (!refreshData || !refreshData.lastRefresh) {
             setShowResearchRefresh(true);

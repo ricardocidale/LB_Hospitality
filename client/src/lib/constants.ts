@@ -50,6 +50,9 @@ export {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
   DEFAULT_TERM_YEARS,
+  DEFAULT_ROOM_COUNT,
+  DEFAULT_START_ADR,
+  DEFAULT_MAX_OCCUPANCY,
 } from "@shared/constants";
 
 // Re-export loan defaults from shared (no longer duplicated here)
@@ -58,11 +61,8 @@ export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
 export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
 
 // Property defaults — starting values for a new boutique hotel property
-export const DEFAULT_ROOM_COUNT = 10;
-export const DEFAULT_START_ADR = 250;
 export const DEFAULT_ADR_GROWTH_RATE = 0.03;
 export const DEFAULT_START_OCCUPANCY = 0.55;
-export const DEFAULT_MAX_OCCUPANCY = 0.85;
 export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
 
 // Company cost defaults — annual amounts for the management company's overhead

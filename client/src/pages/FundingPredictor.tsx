@@ -12,7 +12,7 @@ import { generateCompanyProForma, formatMoney } from "@/lib/financialEngine";
 import { analyzeFundingNeeds } from "@/lib/financial/funding-predictor";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
-import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "@shared/constants";
+import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE, DEFAULT_TRANCHE_BUFFER_MULTIPLIER, DEFAULT_EARLY_STAGE_CAP_DISCOUNT, DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM, DEFAULT_FUNDING_ROUNDING_INCREMENT } from "@shared/constants";
 import { Button } from "@/components/ui/button";
 import { Loader2, ExternalLink, Search } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
@@ -684,7 +684,7 @@ function ResearchTab({ analysis, fundingLabel, marketRates, global, navigate }: 
               <div className="space-y-0">
                 <StatRow label="Operating Reserve" value={formatMoney(OPERATING_RESERVE_BUFFER)} />
                 <StatRow label="Company Funding Buffer" value={formatMoney(COMPANY_FUNDING_BUFFER)} />
-                <StatRow label="Tranche Buffer Multiplier" value="1.15×" />
+                <StatRow label="Tranche Buffer Multiplier" value={`${DEFAULT_TRANCHE_BUFFER_MULTIPLIER}×`} />
               </div>
             </div>
             <div>
@@ -692,8 +692,8 @@ function ResearchTab({ analysis, fundingLabel, marketRates, global, navigate }: 
               <div className="space-y-0">
                 <StatRow label="Default Valuation Cap" value={formatMoney(DEFAULT_SAFE_VALUATION_CAP)} />
                 <StatRow label="Default Discount Rate" value={`${(DEFAULT_SAFE_DISCOUNT_RATE * 100).toFixed(0)}%`} />
-                <StatRow label="Early-Stage Cap Discount" value="20%" />
-                <StatRow label="Early-Stage Discount Premium" value="5 pp" />
+                <StatRow label="Early-Stage Cap Discount" value={`${(DEFAULT_EARLY_STAGE_CAP_DISCOUNT * 100).toFixed(0)}%`} />
+                <StatRow label="Early-Stage Discount Premium" value={`${(DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM * 100).toFixed(0)} pp`} />
               </div>
             </div>
           </div>
@@ -714,10 +714,10 @@ function ResearchTab({ analysis, fundingLabel, marketRates, global, navigate }: 
               The engine generates a month-by-month company pro forma from all property-level financials, computing net income (fee revenue minus corporate overhead) each month. The cumulative cash position without funding reveals the peak cash deficit — the maximum capital the company needs before fee revenue exceeds expenses.
             </p>
             <p>
-              The total raise target adds the operating reserve ({formatMoney(OPERATING_RESERVE_BUFFER)}) and company funding buffer ({formatMoney(COMPANY_FUNDING_BUFFER)}) to the peak deficit, then rounds up to the nearest $50K. Tranches are sized using the 1.15× buffer multiplier applied to the cash deficit at each tranche timing point.
+              The total raise target adds the operating reserve ({formatMoney(OPERATING_RESERVE_BUFFER)}) and company funding buffer ({formatMoney(COMPANY_FUNDING_BUFFER)}) to the peak deficit, then rounds up to the nearest {formatMoney(DEFAULT_FUNDING_ROUNDING_INCREMENT)}. Tranches are sized using the {DEFAULT_TRANCHE_BUFFER_MULTIPLIER}× buffer multiplier applied to the cash deficit at each tranche timing point.
             </p>
             <p>
-              Valuation caps and discount rates are calibrated against the 10-Year Treasury yield (risk-free rate proxy). Early tranches receive a 20% cap discount and 5 percentage point discount premium to compensate investors for pre-revenue risk. Later tranches use the configured base terms as the company demonstrates revenue traction.
+              Valuation caps and discount rates are calibrated against the 10-Year Treasury yield (risk-free rate proxy). Early tranches receive a {(DEFAULT_EARLY_STAGE_CAP_DISCOUNT * 100).toFixed(0)}% cap discount and {(DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM * 100).toFixed(0)} percentage point discount premium to compensate investors for pre-revenue risk. Later tranches use the configured base terms as the company demonstrates revenue traction.
             </p>
           </div>
         </ContentPanel>

@@ -11,17 +11,17 @@ const DUPLICATE_FKS: DuplicateFk[] = [
   {
     table: "notification_logs",
     drop: "notification_logs_alert_rule_id_fkey",
-    keep: "notification_logs_alert_rule_id_alert_rules_id_fk",
+    keep: "notification_logs_alert_rule_id_fk",
   },
   {
     table: "notification_logs",
     drop: "notification_logs_property_id_fkey",
-    keep: "notification_logs_property_id_properties_id_fk",
+    keep: "notification_logs_property_id_fk",
   },
   {
     table: "conversations",
     drop: "conversations_user_id_fkey",
-    keep: "conversations_user_id_users_id_fk",
+    keep: "conversations_user_id_fk",
   },
 ];
 

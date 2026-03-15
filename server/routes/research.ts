@@ -9,7 +9,7 @@ import { processNotificationEvent } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
 import { getAnthropicClient } from "../ai/clients";
 import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
-import { DEFAULT_RESEARCH_EVENT_CONFIG } from "../../shared/constants";
+import { DEFAULT_RESEARCH_EVENT_CONFIG, DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS, DEFAULT_ROOM_COUNT, DEFAULT_START_ADR, DEFAULT_MAX_OCCUPANCY } from "../../shared/constants";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
 
 export function register(app: Express) {
@@ -30,7 +30,7 @@ export function register(app: Express) {
 
       const getStatus = (updatedAt: Date | null | undefined, type: 'property' | 'company' | 'global'): "fresh" | "stale" | "missing" => {
         if (!updatedAt) return "missing";
-        const intervalDays = researchConfig[type]?.refreshIntervalDays ?? 30;
+        const intervalDays = researchConfig[type]?.refreshIntervalDays ?? DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS;
         const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
         return Date.now() - new Date(updatedAt).getTime() < intervalMs ? "fresh" : "stale";
       };
@@ -177,9 +177,9 @@ export function register(app: Express) {
               const property = await storage.getProperty(propertyId);
               if (property) {
                 const validated = validateResearchValues(researchValues, {
-                  roomCount: property.roomCount ?? 20,
-                  startAdr: property.startAdr ?? 300,
-                  maxOccupancy: property.maxOccupancy ?? 0.85,
+                  roomCount: property.roomCount ?? DEFAULT_ROOM_COUNT,
+                  startAdr: property.startAdr ?? DEFAULT_START_ADR,
+                  maxOccupancy: property.maxOccupancy ?? DEFAULT_MAX_OCCUPANCY,
                   purchasePrice: property.purchasePrice ?? undefined,
                   costRateRooms: property.costRateRooms ?? undefined,
                   costRateFB: property.costRateFB ?? undefined,

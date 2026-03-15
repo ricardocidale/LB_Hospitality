@@ -171,6 +171,18 @@ export const DAYS_PER_MONTH = 30.5;
 export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
 
 // ──────────────────────────────────────────────────────────
+// PROPERTY-LEVEL DEFAULTS
+// Fallbacks for property-specific fields when not set by the user.
+// ──────────────────────────────────────────────────────────
+
+// Default room count for a boutique hotel (used as creation default)
+export const DEFAULT_ROOM_COUNT = 10;
+// Default starting ADR (Average Daily Rate) in dollars
+export const DEFAULT_START_ADR = 250;
+// Default stabilized max occupancy (85%)
+export const DEFAULT_MAX_OCCUPANCY = 0.85;
+
+// ──────────────────────────────────────────────────────────
 // INFLATION & COST ESCALATION
 // ──────────────────────────────────────────────────────────
 

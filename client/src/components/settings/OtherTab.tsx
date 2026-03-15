@@ -72,7 +72,7 @@ export function OtherTab({
               <p className="text-xs text-muted-foreground mt-0.5">Automatically refresh stale research data after login (checks every 30 business days)</p>
             </div>
             <Switch
-              checked={currentGlobal.autoResearchRefreshEnabled ?? true}
+              checked={currentGlobal.autoResearchRefreshEnabled ?? false}
               onCheckedChange={(checked) => handleGlobalChange("autoResearchRefreshEnabled", checked)}
               data-testid="switch-auto-research-refresh"
             />

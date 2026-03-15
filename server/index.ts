@@ -140,6 +140,113 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // ── Phase 1: Register routes and open port FAST ──────────────────────
+  // The deployment platform requires the port to open within ~60s.
+  // Migrations and seeds run AFTER the port is open.
+
+  registerImageRoutes(app);
+  const { registerGoogleAuthRoutes } = await import("./routes/google-auth");
+  registerGoogleAuthRoutes(app);
+  await registerRoutes(httpServer, app);
+
+  setupSentryExpressErrorHandler(app);
+
+  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = process.env.NODE_ENV === "production" && status >= 500
+      ? "Internal Server Error"
+      : err.message || "Internal Server Error";
+
+    console.error("Internal Server Error:", err);
+
+    if (res.headersSent) {
+      return next(err);
+    }
+
+    return res.status(status).json({ error: message });
+  });
+
+  // importantly only setup vite in development and after
+  // setting up all the other routes so the catch-all route
+  // doesn't interfere with the other routes
+  if (process.env.NODE_ENV === "production") {
+    serveStatic(app);
+  } else {
+    const { setupVite } = await import("./vite");
+    await setupVite(httpServer, app);
+  }
+
+  // ALWAYS serve the app on the port specified in the environment variable PORT
+  // Other ports are firewalled. Default to 5000 if not specified.
+  // this serves both the API and the client.
+  // It is the only port that is not firewalled.
+  const port = parseInt(process.env.PORT || "5000", 10);
+  httpServer.listen(
+    {
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    },
+    () => {
+      log(`serving on port ${port}`);
+
+      // ── Phase 2: Migrations + seeds (runs after port is open) ────────
+      runMigrationsAndSeeds().catch(err => {
+        console.error("[ERROR] [startup] Migrations/seeds failed:", err);
+      });
+
+      // Refresh stale market rates periodically
+      setInterval(async () => {
+        try {
+          const { refreshAllStaleRates } = await import("./data/marketRates");
+          const refreshed = await refreshAllStaleRates();
+          if (refreshed > 0) log(`Refreshed ${refreshed} stale market rates`);
+        } catch (err) {
+          console.error("Market rate refresh error:", err);
+        }
+        try {
+          const { getMarketIntelligenceAggregator } = await import("./services/MarketIntelligenceAggregator");
+          const aggregator = getMarketIntelligenceAggregator();
+          await aggregator.refreshFREDRates();
+        } catch (err) {
+          console.error("FRED market intelligence refresh error:", err);
+        }
+      }, MARKET_RATE_REFRESH_INTERVAL_MS);
+
+      // Clean expired sessions and stale rate-limit entries periodically
+      setInterval(async () => {
+        try {
+          const sessions = await storage.deleteExpiredSessions();
+          if (sessions > 0) log(`Cleaned ${sessions} expired sessions`);
+          const rateLimits = cleanupRateLimitMaps();
+          if (rateLimits > 0) log(`Cleaned ${rateLimits} stale rate-limit entries`);
+        } catch (err) {
+          console.error("Periodic cleanup error:", err);
+        }
+      }, SESSION_CLEANUP_INTERVAL_MS);
+
+      // Invalidate stale property-level MI cache daily so next research regen gets fresh data
+      setInterval(async () => {
+        try {
+          const { cache } = await import("./cache");
+          const invalidated = await cache.invalidate("mi:property:*");
+          if (invalidated > 0) log(`Invalidated ${invalidated} stale MI cache entries`);
+        } catch (err) {
+          console.error("MI cache invalidation error:", err);
+        }
+      }, MI_CACHE_INVALIDATION_INTERVAL_MS);
+    },
+  );
+})();
+
+/**
+ * Runs all database migrations and seed operations. Called after the HTTP server
+ * is listening so the deployment port-open check succeeds immediately.
+ * Errors are caught and logged but do not crash the server.
+ */
+async function runMigrationsAndSeeds() {
+  const startTime = Date.now();
+
   // Independent schema migrations — run in parallel for faster startup
   const [
     { runMigration: runResearchConfig001 },
@@ -226,92 +333,5 @@ app.use((req, res, next) => {
   const { cleanOrphanedLogos } = await import("./migrations/db-hygiene-001");
   await cleanOrphanedLogos();
 
-  registerImageRoutes(app);
-  const { registerGoogleAuthRoutes } = await import("./routes/google-auth");
-  registerGoogleAuthRoutes(app);
-  await registerRoutes(httpServer, app);
-
-  setupSentryExpressErrorHandler(app);
-
-  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = process.env.NODE_ENV === "production" && status >= 500
-      ? "Internal Server Error"
-      : err.message || "Internal Server Error";
-
-    console.error("Internal Server Error:", err);
-
-    if (res.headersSent) {
-      return next(err);
-    }
-
-    return res.status(status).json({ error: message });
-  });
-
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (process.env.NODE_ENV === "production") {
-    serveStatic(app);
-  } else {
-    const { setupVite } = await import("./vite");
-    await setupVite(httpServer, app);
-  }
-
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-
-      // Refresh stale market rates periodically
-      setInterval(async () => {
-        try {
-          const { refreshAllStaleRates } = await import("./data/marketRates");
-          const refreshed = await refreshAllStaleRates();
-          if (refreshed > 0) log(`Refreshed ${refreshed} stale market rates`);
-        } catch (err) {
-          console.error("Market rate refresh error:", err);
-        }
-        try {
-          const { getMarketIntelligenceAggregator } = await import("./services/MarketIntelligenceAggregator");
-          const aggregator = getMarketIntelligenceAggregator();
-          await aggregator.refreshFREDRates();
-        } catch (err) {
-          console.error("FRED market intelligence refresh error:", err);
-        }
-      }, MARKET_RATE_REFRESH_INTERVAL_MS);
-
-      // Clean expired sessions and stale rate-limit entries periodically
-      setInterval(async () => {
-        try {
-          const sessions = await storage.deleteExpiredSessions();
-          if (sessions > 0) log(`Cleaned ${sessions} expired sessions`);
-          const rateLimits = cleanupRateLimitMaps();
-          if (rateLimits > 0) log(`Cleaned ${rateLimits} stale rate-limit entries`);
-        } catch (err) {
-          console.error("Periodic cleanup error:", err);
-        }
-      }, SESSION_CLEANUP_INTERVAL_MS);
-
-      // Invalidate stale property-level MI cache daily so next research regen gets fresh data
-      setInterval(async () => {
-        try {
-          const { cache } = await import("./cache");
-          const invalidated = await cache.invalidate("mi:property:*");
-          if (invalidated > 0) log(`Invalidated ${invalidated} stale MI cache entries`);
-        } catch (err) {
-          console.error("MI cache invalidation error:", err);
-        }
-      }, MI_CACHE_INVALIDATION_INTERVAL_MS);
-    },
-  );
-})();
+  log(`Migrations and seeds completed in ${Date.now() - startTime}ms`);
+}

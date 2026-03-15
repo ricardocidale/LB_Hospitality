@@ -11,7 +11,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -43,7 +42,6 @@ const SEED_GLOBAL_ASSUMPTIONS = {
   officeLeaseStart: 36000,
   professionalServicesStart: 24000,
   techInfraStart: 18000,
-  businessInsuranceStart: 12000,
   standardAcqPackage: { monthsToOps: 6, purchasePrice: 3800000, preOpeningCosts: 200000, operatingReserve: 250000, buildingImprovements: 1200000 },
   commissionRate: DEFAULT_COMMISSION_RATE,
   fixedCostEscalationRate: 0.03,
@@ -331,7 +329,7 @@ describe("Database Sync — Seed Constants Integrity", () => {
       const totalCostRate =
         DEFAULT_COST_RATE_ROOMS + DEFAULT_COST_RATE_FB + DEFAULT_COST_RATE_ADMIN +
         DEFAULT_COST_RATE_MARKETING + DEFAULT_COST_RATE_PROPERTY_OPS + DEFAULT_COST_RATE_UTILITIES +
-        DEFAULT_COST_RATE_INSURANCE + DEFAULT_COST_RATE_TAXES + DEFAULT_COST_RATE_IT +
+        DEFAULT_COST_RATE_TAXES + DEFAULT_COST_RATE_IT +
         DEFAULT_COST_RATE_FFE + DEFAULT_COST_RATE_OTHER;
       expect(totalCostRate).toBeGreaterThan(0.40);
       expect(totalCostRate).toBeLessThan(0.70);

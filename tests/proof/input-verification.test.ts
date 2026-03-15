@@ -217,7 +217,6 @@ describe("Fixed Cost Escalation Verification", () => {
     const expectedPropOps = baseTotalRev * property.costRatePropertyOps * factor;
     const expectedIT = baseTotalRev * property.costRateIT * factor;
     const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
-    const expectedInsurance = (totalPropertyValue / 12) * property.costRateInsurance * factor;
     const expectedTaxes = (totalPropertyValue / 12) * property.costRateTaxes * factor;
     const expectedUtilFixed = baseTotalRev * (property.costRateUtilities * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT)) * factor;
     const expectedOther = baseTotalRev * property.costRateOther * factor;
@@ -225,7 +224,6 @@ describe("Fixed Cost Escalation Verification", () => {
     expect(result[48].expenseAdmin).toBeCloseTo(expectedAdmin, 2);
     expect(result[48].expensePropertyOps).toBeCloseTo(expectedPropOps, 2);
     expect(result[48].expenseIT).toBeCloseTo(expectedIT, 2);
-    expect(result[48].expenseInsurance).toBeCloseTo(expectedInsurance, 2);
     expect(result[48].expenseTaxes).toBeCloseTo(expectedTaxes, 2);
     expect(result[48].expenseUtilitiesFixed).toBeCloseTo(expectedUtilFixed, 2);
     expect(result[48].expenseOtherCosts).toBeCloseTo(expectedOther, 2);

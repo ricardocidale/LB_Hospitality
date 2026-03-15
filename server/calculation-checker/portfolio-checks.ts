@@ -161,9 +161,8 @@ export function runCompanyChecks(
       const officeLease = ((globalAssumptions.officeLeaseStart ?? 0) * fixedFactor) / 12;
       const profServices = ((globalAssumptions.professionalServicesStart ?? 0) * fixedFactor) / 12;
       const tech = ((globalAssumptions.techInfraStart ?? 0) * fixedFactor) / 12;
-      const insurance = ((globalAssumptions.businessInsuranceStart ?? 0) * fixedFactor) / 12;
 
-      companyExpenses = partnerComp + staffComp + officeLease + profServices + tech + insurance;
+      companyExpenses = partnerComp + staffComp + officeLease + profServices + tech;
     }
 
     const companyCashFlow = companyRevenue - companyExpenses + safeFunding;

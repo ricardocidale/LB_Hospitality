@@ -613,7 +613,7 @@ describe("Expense Detail: All expense line items correctly summed", () => {
     "expenseRooms", "expenseFB", "expenseEvents", "expenseOther",
     "expenseOtherCosts", "expenseMarketing", "expensePropertyOps",
     "expenseUtilitiesVar", "expenseUtilitiesFixed",
-    "expenseAdmin", "expenseIT", "expenseInsurance",
+    "expenseAdmin", "expenseIT",
     "expenseTaxes", "expenseFFE",
   ] as const;
 
@@ -877,7 +877,7 @@ describe("GOP-to-NOI Relationship at Yearly Level", () => {
   it("NOI = GOP - feeBase - feeIncentive - FFE every year", () => {
     for (const y of yearly) {
       expect(y.anoi).toBeCloseTo(
-        y.gop - y.feeBase - y.feeIncentive - y.expenseInsurance - y.expenseTaxes - y.expenseFFE, 2,
+        y.gop - y.feeBase - y.feeIncentive - y.expenseTaxes - y.expenseFFE, 2,
       );
     }
   });

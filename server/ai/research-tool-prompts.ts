@@ -33,7 +33,7 @@ const TOOL_PROMPTS: Record<string, ToolPromptBuilder> = {
     `Cost context: ${input.property_level || "luxury"} hotel, ${input.location}, ${input.room_count || 20} rooms, ADR $${input.current_adr || 300}, F&B: ${input.has_fb ?? true}, Events: ${input.has_events ?? true}, Market: ${input.market_region || "North America"}. Use compute_cost_benchmarks for dollar amounts from rates. Provide USALI-aligned rates: Room Revenue-based (housekeeping, F&B COGS), Total Revenue-based (admin, ops, utilities, FF&E, marketing, IT, other). Cite PKF Trends, STR HOST, CBRE.`,
 
   analyze_property_value_costs: (input) =>
-    `Property value cost context: ${input.property_level || "luxury"} hotel, ${input.location}, ${input.room_count || 20} rooms, $${(input.purchase_price || 0).toLocaleString()} purchase, $${(input.building_improvements || 0).toLocaleString()} improvements, ${input.market_region || "North America"}. Costs are % of property value, not revenue. Provide insurance and property tax rates with jurisdiction-specific context.`,
+    `Property value cost context: ${input.property_level || "luxury"} hotel, ${input.location}, ${input.room_count || 20} rooms, $${(input.purchase_price || 0).toLocaleString()} purchase, $${(input.building_improvements || 0).toLocaleString()} improvements, ${input.market_region || "North America"}. Costs are % of property value, not revenue. Provide property tax rates with jurisdiction-specific context.`,
 
   analyze_management_service_fees: (input) =>
     `Service fee context: ${input.property_level || "luxury"} hotel, ${input.location}, ${input.room_count || 20} rooms, F&B: ${input.has_fb ?? true}, Events: ${input.has_events ?? true}, ${input.market_region || "North America"}. 6 categories (% of Total Revenue): Marketing, Technology & Reservations, Accounting, Revenue Management, General Mgmt, Procurement. Plus incentive fee (% of GOP). Provide rates, total fee rate, and industry ranges.`,
@@ -47,8 +47,6 @@ const TOOL_PROMPTS: Record<string, ToolPromptBuilder> = {
   analyze_local_economics: (input) =>
     `Local economic context: ${input.location} (${input.market_region || "North America"}). Focus on inflation rates (CPI), interest rates (SOFR, Prime, Mortgage), and general economic health. Research FRED and BLS data for this specific location. Provide inflationRate and interestRate for this market.`,
 
-  analyze_insurance_costs: (input) =>
-    `Insurance context: ${input.location}, property type: ${input.property_type || "boutique hotel"}, estimated property value: $${(input.property_value || 0).toLocaleString()}. Research hospitality insurance benchmarks, liability coverage, and property insurance premiums for this location. Provide insuranceCostRate as % of property value.`,
 
   analyze_marketing_costs: (input) =>
     `Marketing context: ${input.location}, property level: ${input.property_level || "luxury"}. Research hospitality marketing costs, digital spend, OTA commissions, and direct booking costs for this property level. Provide marketingCostRate as % of total revenue.`,

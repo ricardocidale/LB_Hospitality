@@ -12,7 +12,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -22,14 +21,13 @@ import {
 interface CostBenchmarksInput {
   annual_room_revenue: number;
   annual_total_revenue: number;
-  purchase_price?: number;        // for insurance/tax calculations
+  purchase_price?: number;        // for tax calculations
   cost_rate_rooms?: number;
   cost_rate_fb?: number;
   cost_rate_admin?: number;
   cost_rate_marketing?: number;
   cost_rate_property_ops?: number;
   cost_rate_utilities?: number;
-  cost_rate_insurance?: number;
   cost_rate_taxes?: number;
   cost_rate_it?: number;
   cost_rate_ffe?: number;
@@ -66,7 +64,6 @@ export function computeCostBenchmarks(input: CostBenchmarksInput): CostBenchmark
     cost_rate_marketing = DEFAULT_COST_RATE_MARKETING,
     cost_rate_property_ops = DEFAULT_COST_RATE_PROPERTY_OPS,
     cost_rate_utilities = DEFAULT_COST_RATE_UTILITIES,
-    cost_rate_insurance = DEFAULT_COST_RATE_INSURANCE,
     cost_rate_taxes = DEFAULT_COST_RATE_TAXES,
     cost_rate_it = DEFAULT_COST_RATE_IT,
     cost_rate_ffe = DEFAULT_COST_RATE_FFE,
@@ -97,7 +94,6 @@ export function computeCostBenchmarks(input: CostBenchmarksInput): CostBenchmark
   ];
 
   const property_value_costs: CostLine[] = [
-    makeLine("Insurance", cost_rate_insurance, "Property Value", purchase_price),
     makeLine("Property Taxes", cost_rate_taxes, "Property Value", purchase_price),
   ];
 

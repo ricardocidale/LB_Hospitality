@@ -35,7 +35,6 @@ const CASH_PROPERTY = {
   costRateMarketing: 0.01,
   costRatePropertyOps: 0.04,
   costRateUtilities: 0.05,
-  costRateInsurance: 0.02,
   costRateTaxes: 0.03,
   costRateIT: 0.005,
   costRateFFE: 0.04,
@@ -75,7 +74,6 @@ function aggregateYearly(monthlyData: ReturnType<typeof generatePropertyProForma
     feeBase: number;
     feeIncentive: number;
     agop: number;
-    expenseInsurance: number;
     expenseTaxes: number;
     noi: number;
     expenseFFE: number;
@@ -94,7 +92,6 @@ function aggregateYearly(monthlyData: ReturnType<typeof generatePropertyProForma
     const feeBase = slice.reduce((s, m) => s + m.feeBase, 0);
     const feeIncentive = slice.reduce((s, m) => s + m.feeIncentive, 0);
     const agop = slice.reduce((s, m) => s + m.agop, 0);
-    const expenseInsurance = slice.reduce((s, m) => s + m.expenseInsurance, 0);
     const expenseTaxes = slice.reduce((s, m) => s + m.expenseTaxes, 0);
     const noi = slice.reduce((s, m) => s + m.noi, 0);
     const expenseFFE = slice.reduce((s, m) => s + m.expenseFFE, 0);
@@ -120,7 +117,6 @@ function aggregateYearly(monthlyData: ReturnType<typeof generatePropertyProForma
       feeBase,
       feeIncentive,
       agop,
-      expenseInsurance,
       expenseTaxes,
       noi,
       expenseFFE,

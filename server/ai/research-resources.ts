@@ -18,7 +18,6 @@ export const PROPERTY_RESEARCH_SKILLS = [
   "management-service-fees",
   "income-tax",
   "local-economics",
-  "insurance-costs",
   "marketing-costs",
 ];
 

@@ -193,7 +193,6 @@ export default function PropertyDetail() {
       ["  Property Operations & Maintenance", ...yearlyDetails.map(y => y.expensePropertyOps.toFixed(0))],
       ["  Utilities (Variable)", ...yearlyDetails.map(y => y.expenseUtilitiesVar.toFixed(0))],
       ["  Utilities (Fixed)", ...yearlyDetails.map(y => y.expenseUtilitiesFixed.toFixed(0))],
-      ["  Insurance", ...yearlyDetails.map(y => y.expenseInsurance.toFixed(0))],
       ["  Property Taxes", ...yearlyDetails.map(y => y.expenseTaxes.toFixed(0))],
       ["  Administrative & Compliance", ...yearlyDetails.map(y => y.expenseAdmin.toFixed(0))],
       ["  IT Systems", ...yearlyDetails.map(y => y.expenseIT.toFixed(0))],
@@ -300,7 +299,7 @@ export default function PropertyDetail() {
       );
     }
     body.push(
-      [{ content: "Total Operating Expenses", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.totalExpenses - y.expenseFFE - y.expenseInsurance - y.expenseTaxes), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+      [{ content: "Total Operating Expenses", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.totalExpenses - y.expenseFFE - y.expenseTaxes), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
     );
 
     body.push(
@@ -325,12 +324,11 @@ export default function PropertyDetail() {
     if (!isShort) {
       body.push(
         [{ content: "FIXED CHARGES", colSpan: years + 1, styles: { fontStyle: "bold", fillColor: iceBlueHeader } }],
-        ["  Insurance", ...yearlyDetails.map(y => fmtNum(y.expenseInsurance))],
         ["  Property Taxes", ...yearlyDetails.map(y => fmtNum(y.expenseTaxes))]
       );
     }
     body.push(
-      [{ content: "Total Fixed Charges", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.expenseInsurance + y.expenseTaxes), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
+      [{ content: "Total Fixed Charges", styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }, ...yearlyDetails.map(y => ({ content: fmtNum(y.expenseTaxes), styles: { fontStyle: "bold", fillColor: [208, 234, 251] } }))]
     );
 
     body.push(

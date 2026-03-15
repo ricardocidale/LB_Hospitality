@@ -7,7 +7,7 @@
  *   • Funding — SAFE note tranches (amount, date, valuation cap, discount rate)
  *   • Management Fees — base and incentive fee structures applied to properties
  *   • Compensation — partner comp schedule (by year) and staff salary assumptions
- *   • Fixed Overhead — office lease, professional services, tech, insurance start dates
+ *   • Fixed Overhead — office lease, professional services, tech start dates
  *   • Variable Costs — travel per client, IT licensing, marketing %, misc ops %
  *   • Tax — company income tax rate
  *   • Exit & Sale — exit cap rate, sales commission rate
@@ -84,7 +84,6 @@ export default function CompanyAssumptions() {
       officeLease: { display: "$24K–$48K", mid: 36000 },
       professionalServices: { display: "$18K–$36K", mid: 24000 },
       techInfra: { display: "$12K–$24K", mid: 18000 },
-      businessInsurance: { display: "$8K–$18K", mid: 12000 },
       travelPerClient: { display: "$8K–$18K", mid: 12000 },
       itLicensePerClient: { display: "$2K–$5K", mid: 3000 },
       companyTaxRate: { display: "25%–35%", mid: 30 },

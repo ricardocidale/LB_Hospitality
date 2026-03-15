@@ -46,7 +46,7 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
           <div className="font-semibold">= Gross Operating Profit (GOP)</div>
           <div>− Management Fees (Base + Incentive)</div>
           <div className="font-semibold">= Income Before Fixed Charges (IBFC)</div>
-          <div>− Fixed Charges (Insurance + Property Taxes)</div>
+          <div>− Fixed Charges (Property Taxes)</div>
           <div className="font-semibold">= Net Operating Income (NOI)</div>
           <div>− FF&E Reserve</div>
           <div className="font-semibold">= Adjusted NOI (ANOI)</div>
@@ -82,7 +82,7 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
             ["RevPAR", "Room Revenue ÷ Available Rooms — revenue per available room"],
             ["GOP (Gross Operating Profit)", "Total Revenue minus departmental operating expenses"],
             ["IBFC (Income Before Fixed Charges)", "GOP minus management fees"],
-            ["NOI (Net Operating Income)", "IBFC minus fixed charges (insurance + property taxes)"],
+            ["NOI (Net Operating Income)", "IBFC minus fixed charges (property taxes)"],
             ["ANOI (Adjusted NOI)", "NOI minus FF&E reserve"],
             ["DSCR (Debt Service Coverage Ratio)", "ANOI ÷ Total Debt Service — measures ability to cover loan payments"],
             ["Cash-on-Cash Return", "Annual after-tax cash flow ÷ total equity invested"],

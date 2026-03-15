@@ -10,7 +10,7 @@
  * Industry) chart of accounts:
  *   • Rooms expense, F&B expense (departmental)
  *   • A&G, S&M, POM, Utilities (undistributed)
- *   • Property tax, insurance, FF&E reserve (fixed charges)
+ *   • Property tax, FF&E reserve (fixed charges)
  *
  * Research Badges show AI-generated benchmarks for the configured property
  * type and market, giving users a sense of what's "normal" before they

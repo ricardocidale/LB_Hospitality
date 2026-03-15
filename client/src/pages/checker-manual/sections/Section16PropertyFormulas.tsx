@@ -30,7 +30,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["F-P-08", "Operating Expenses", "Σ (undistributedExpenses)"],
             ["F-P-09", "Gross Operating Profit", "Total Revenue − Operating Expenses"],
             ["F-P-10", "Income Before Fixed Charges (IBFC)", "GOP − Base Mgmt Fee − Incentive Fee"],
-            ["F-P-11", "Net Operating Income (NOI)", "IBFC − Insurance − Property Taxes"],
+            ["F-P-11", "Net Operating Income (NOI)", "IBFC − Property Taxes"],
             ["F-P-12", "Adjusted NOI (ANOI)", "NOI − FF&E Reserve"],
             ["F-P-13", "Depreciable Basis", "(Purchase Price + Improvements) × (1 − Land Value %)"],
             ["F-P-14", "Depreciation", "Depreciable Basis / 27.5 / 12 (monthly straight-line)"],

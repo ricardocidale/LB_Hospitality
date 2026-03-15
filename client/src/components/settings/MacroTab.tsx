@@ -56,7 +56,7 @@ export function MacroTab({
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label className="label-text flex items-center gap-1">Inflation Escalator Factor <InfoTooltip text="Global default annual inflation rate that escalates fixed operating costs (Admin & General, Property Ops, Insurance, Taxes, IT, Utilities-fixed, Other) each year. This is overridden by per-property or per-company rates if set. Fixed costs use Year 1 base dollar amounts × (1 + this rate)^year. Based on CPI forecasts — the Federal Reserve targets 2% annually." manualSection="global-assumptions" /></Label>
+              <Label className="label-text flex items-center gap-1">Inflation Escalator Factor <InfoTooltip text="Global default annual inflation rate that escalates fixed operating costs (Admin & General, Property Ops, Taxes, IT, Utilities-fixed, Other) each year. This is overridden by per-property or per-company rates if set. Fixed costs use Year 1 base dollar amounts × (1 + this rate)^year. Based on CPI forecasts — the Federal Reserve targets 2% annually." manualSection="global-assumptions" /></Label>
               <span className="text-sm font-mono text-primary">{(currentGlobal.inflationRate * 100).toFixed(1)}%</span>
             </div>
             <Slider 

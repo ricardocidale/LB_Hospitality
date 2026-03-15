@@ -84,7 +84,6 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   const fixedCostEscRate = global.fixedCostEscalationRate ?? 0.03;
   const costRatePropertyOps = property.costRatePropertyOps ?? 0.04;
   const costRateAdmin = property.costRateAdmin ?? 0.08;
-  const costRateInsurance = property.costRateInsurance ?? 0.02;
   const costRateTaxes = property.costRateTaxes ?? 0.03;
   const costRateIT = property.costRateIT ?? 0.02;
   const costRateOther = property.costRateOther ?? 0.05;
@@ -200,7 +199,6 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
                       <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-blue-700">
                         <span>Property Operations: {pct(costRatePropertyOps)} → {fmt(baseMonthlyTotalRev * costRatePropertyOps)}/mo</span>
                         <span>Admin & General: {pct(costRateAdmin)} → {fmt(baseMonthlyTotalRev * costRateAdmin)}/mo</span>
-                        <span>Insurance: {pct(costRateInsurance)} of property value → {fmt(totalPropertyValue / 12 * costRateInsurance)}/mo</span>
                         <span>Property Taxes: {pct(costRateTaxes)} of property value → {fmt(totalPropertyValue / 12 * costRateTaxes)}/mo</span>
                         <span>IT & Technology: {pct(costRateIT)} → {fmt(baseMonthlyTotalRev * costRateIT)}/mo</span>
                         <span>Other Costs: {pct(costRateOther)} → {fmt(baseMonthlyTotalRev * costRateOther)}/mo</span>

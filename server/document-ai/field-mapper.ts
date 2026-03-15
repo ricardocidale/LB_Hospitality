@@ -91,13 +91,8 @@ const FIELD_MAPPINGS: FieldMapping[] = [
     isPercentage: true,
   },
   {
-    propertyField: "costRateInsurance",
-    aliases: ["insurance", "insurance expense", "insurance cost", "property insurance"],
-    isPercentage: true,
-  },
-  {
     propertyField: "costRateTaxes",
-    aliases: ["property taxes", "taxes", "real estate taxes", "property tax", "tax expense"],
+    aliases: ["property taxes", "taxes", "real estate taxes", "property tax", "tax expense", "tax assessment"],
     isPercentage: true,
   },
   {

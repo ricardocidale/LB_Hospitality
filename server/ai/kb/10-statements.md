@@ -7,7 +7,7 @@ Income Statement — Follows the USALI (Uniform System of Accounts for the Lodgi
 1. Total Revenue (Rooms, F&B, Events, Other)
 2. Less: Operating Expenses (departmental + undistributed) = Gross Operating Profit (GOP)
 3. Less: Management Fees (base + incentive) = Adjusted GOP (AGOP)
-4. Less: Fixed Charges (insurance + property taxes) = Net Operating Income (NOI)
+4. Less: Fixed Charges (property taxes) = Net Operating Income (NOI)
 5. Less: FF&E Reserve = Adjusted NOI (ANOI)
 6. Less: Interest, depreciation, income tax = GAAP Net Income
 

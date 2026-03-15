@@ -43,7 +43,6 @@ export const RESEARCH_TO_PROPERTY_MAP: {
   { researchKey: "costMarketing", propertyField: "costRateMarketing", label: "Marketing Rate", divisor: 100, format: "percent" },
   { researchKey: "costIT", propertyField: "costRateIT", label: "IT Costs Rate", divisor: 100, format: "percent" },
   { researchKey: "costOther", propertyField: "costRateOther", label: "Other Costs Rate", divisor: 100, format: "percent" },
-  { researchKey: "costInsurance", propertyField: "costRateInsurance", label: "Insurance Rate", divisor: 100, format: "percent" },
   { researchKey: "costPropertyTaxes", propertyField: "costRateTaxes", label: "Property Tax Rate", divisor: 100, format: "percent" },
   { researchKey: "incentiveFee", propertyField: "incentiveManagementFeeRate", label: "Incentive Fee Rate", divisor: 100, format: "percent" },
   { researchKey: "incomeTax", propertyField: "taxRate", label: "Income Tax Rate", divisor: 100, format: "percent" },

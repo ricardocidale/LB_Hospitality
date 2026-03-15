@@ -44,7 +44,6 @@ export interface YearlyDetail {
   expensePropertyOps: number;
   expenseUtilitiesVar: number;
   expenseUtilitiesFixed: number;
-  expenseInsurance: number;
   expenseTaxes: number;
   expenseAdmin: number;
   expenseIT: number;

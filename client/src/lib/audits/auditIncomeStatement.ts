@@ -124,7 +124,7 @@ export function auditIncomeStatement(
       });
     }
 
-    const expectedNOI = m.agop - m.expenseInsurance - m.expenseTaxes;
+    const expectedNOI = m.agop - m.expenseTaxes;
     const noiMatch = withinTolerance(expectedNOI, m.noi);
     if (!noiMatch) {
       findings.push({
@@ -136,7 +136,7 @@ export function auditIncomeStatement(
         expected: expectedNOI.toFixed(2),
         actual: m.noi.toFixed(2),
         variance: formatVariance(expectedNOI, m.noi),
-        recommendation: `Month ${i + 1}: NOI = AGOP - Insurance - Property Taxes`,
+        recommendation: `Month ${i + 1}: NOI = AGOP - Property Taxes`,
         workpaperRef: `WP-IS-NOI-M${i + 1}`
       });
     }

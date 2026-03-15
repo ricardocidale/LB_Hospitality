@@ -668,7 +668,6 @@ export default function CompanyIcpDefinition() {
                   <DataCard label="Office Lease" value={fmt$(global.officeLeaseStart)} />
                   <DataCard label="Professional Services" value={fmt$(global.professionalServicesStart)} />
                   <DataCard label="Tech Infrastructure" value={fmt$(global.techInfraStart)} />
-                  <DataCard label="Business Insurance" value={fmt$(global.businessInsuranceStart)} />
                   <DataCard label="Travel per Client" value={fmt$(global.travelCostPerClient)} />
                   <DataCard label="IT License per Client" value={fmt$(global.itLicensePerClient)} />
                 </div>

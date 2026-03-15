@@ -15,7 +15,7 @@
  *   Gross Operating Profit (GOP) — revenue minus all operating expenses
  *   Management Fees        — base fee + incentive fee to operator
  *   Income Before Fixed Charges (IBFC) — GOP minus management fees
- *   Fixed Charges           — property tax + insurance
+ *   Fixed Charges           — property tax
  *   Net Operating Income (NOI) — IBFC minus fixed charges
  *   FF&E Reserve            — furniture, fixtures & equipment set-aside
  *   Adjusted NOI (ANOI)     — NOI minus FF&E reserve
@@ -111,7 +111,6 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       propertyOps: property.costRatePropertyOps ?? 0.04,
       utilities: property.costRateUtilities ?? 0.05,
       admin: property.costRateAdmin ?? 0.08,
-      insurance: property.costRateInsurance ?? 0.02,
       taxes: property.costRateTaxes ?? 0.03,
       it: property.costRateIT ?? 0.02,
       other: property.costRateOther ?? 0.05,
@@ -445,47 +444,6 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       {hasContext ? (
         <>
           <ExpandableLineItem
-            label="Insurance"
-            tooltip={`Based on property value: ${pct(costRates.insurance)} of ${fmt(totalPropertyValue)} (${fmt(totalPropertyValue / 12)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
-            values={yd.map((y) => y.expenseInsurance)}
-            expanded={isExpanded("insurance")}
-            onToggle={() => toggle("insurance")}
-          >
-            {hasContext && (
-              <>
-                <FormulaDetailRow
-                  label={`Property Value (Purchase + Improvements)`}
-                  values={yd.map(() => fmt(totalPropertyValue))}
-                  colCount={years}
-                />
-                <FormulaDetailRow
-                  label={`Monthly base: ${fmt(totalPropertyValue)} ÷ 12 × ${pct(costRates.insurance)}`}
-                  values={yd.map(() => `${fmt(totalPropertyValue / 12 * costRates.insurance)}/mo base`)}
-                  colCount={years}
-                />
-                <FormulaDetailRow
-                  label="Monthly base × escalation factor, summed over 12 months"
-                  values={yd.map((y) => {
-                    const factors = getMonthlyFactors(y.year);
-                    const operatingMonths = factors.filter(f => f > 0).length;
-                    const uniqueFactors = Array.from(new Set(factors.filter(f => f > 0)));
-                    if (uniqueFactors.length === 1) {
-                      return `×${uniqueFactors[0].toFixed(4)} × ${operatingMonths} mo`;
-                    }
-                    return uniqueFactors.map(f => `×${f.toFixed(4)}`).join(", ") + ` (${operatingMonths} mo)`;
-                  })}
-                  colCount={years}
-                />
-                <FormulaDetailRow
-                  label="= Annual total (sum of monthly amounts)"
-                  values={yd.map((_, i) => fmt(yd[i].expenseInsurance))}
-                  colCount={years}
-                />
-              </>
-            )}
-          </ExpandableLineItem>
-
-          <ExpandableLineItem
             label="Property Taxes"
             tooltip={`Based on property value: ${pct(costRates.taxes)} of ${fmt(totalPropertyValue)} (${fmt(totalPropertyValue / 12)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseTaxes)}
@@ -528,19 +486,18 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         </>
       ) : (
         <>
-          <LineItem label="Insurance"       values={yd.map((y) => y.expenseInsurance)} tooltip="Based on property value (Purchase Price + Building Improvements), adjusted annually by inflation." />
           <LineItem label="Property Taxes"   values={yd.map((y) => y.expenseTaxes)} tooltip="Based on property value (Purchase Price + Building Improvements), adjusted annually by inflation." />
         </>
       )}
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="Income Before Fixed Charges minus insurance and property taxes. Per USALI 11th Edition, this is the property's net income from operations before reserves and debt service." />
+      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="Income Before Fixed Charges minus property taxes. Per USALI 11th Edition, this is the property's net income from operations before reserves and debt service." />
       {isExpanded("noiFormula") ? (
         <>
           <FormulaDetailRow
-            label="= IBFC − Insurance − Property Taxes"
-            values={yd.map((y) => `${fmt(y.agop)} − ${fmt(y.expenseInsurance)} − ${fmt(y.expenseTaxes)}`)}
+            label="= IBFC − Property Taxes"
+            values={yd.map((y) => `${fmt(y.agop)} − ${fmt(y.expenseTaxes)}`)}
             colCount={years}
           />
           <FormulaDetailRow

@@ -308,7 +308,7 @@ export function crossValidateFinancingCalculators(
   let noiErrors = 0;
   for (const m of monthlyData) {
     const expectedAGOP = m.gop - m.feeBase - m.feeIncentive;
-    const expectedNOI = m.agop - m.expenseInsurance - m.expenseTaxes;
+    const expectedNOI = m.agop - m.expenseTaxes;
     const expectedANOI = m.noi - m.expenseFFE;
     if (!withinTolerance(m.agop, expectedAGOP) || !withinTolerance(m.noi, expectedNOI) || !withinTolerance(m.anoi, expectedANOI)) {
       noiErrors++;
@@ -316,7 +316,7 @@ export function crossValidateFinancingCalculators(
   }
   results.push({
     name: 'USALI: Waterfall Identity (AGOP → NOI → ANOI)',
-    description: 'AGOP = GOP − Fees; NOI = AGOP − Insurance − Taxes; ANOI = NOI − FF&E',
+    description: 'AGOP = GOP − Fees; NOI = AGOP − Taxes; ANOI = NOI − FF&E',
     passed: noiErrors === 0,
     severity: 'critical',
     expected: '0 errors',
@@ -474,13 +474,13 @@ export function crossValidateFinancingCalculators(
     source: 'USALI 12th Edition: Furniture, Fixtures & Equipment Reserve',
   });
 
-  // 18. Total Expenses Identity: TotalExp = OpEx + Fees + Insurance + Taxes + FF&E
+  // 18. Total Expenses Identity: TotalExp = OpEx + Fees + Taxes + FF&E
   let totalExpErrors = 0;
   for (const m of monthlyData) {
     const opEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
       m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
       m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseOtherCosts;
-    const expectedTotalExp = opEx + m.feeBase + m.feeIncentive + m.expenseInsurance + m.expenseTaxes + m.expenseFFE;
+    const expectedTotalExp = opEx + m.feeBase + m.feeIncentive + m.expenseTaxes + m.expenseFFE;
     
     if (!withinTolerance(m.totalExpenses, expectedTotalExp)) {
       totalExpErrors++;
@@ -488,7 +488,7 @@ export function crossValidateFinancingCalculators(
   }
   results.push({
     name: 'USALI: Total Expenses Identity',
-    description: 'Total Expenses = Operating Expenses + Management Fees + Insurance + Taxes + FF&E Reserve',
+    description: 'Total Expenses = Operating Expenses + Management Fees + Taxes + FF&E Reserve',
     passed: totalExpErrors === 0,
     severity: 'critical',
     expected: '0 errors',

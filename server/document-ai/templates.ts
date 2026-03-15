@@ -255,7 +255,6 @@ function renderInvestmentMemo(
       <tr><td>Marketing</td><td>${formatPercent(property.costRateMarketing)}</td></tr>
       <tr><td>Property Ops</td><td>${formatPercent(property.costRatePropertyOps)}</td></tr>
       <tr><td>Utilities</td><td>${formatPercent(property.costRateUtilities)}</td></tr>
-      <tr><td>Insurance</td><td>${formatPercent(property.costRateInsurance)}</td></tr>
       <tr><td>Taxes</td><td>${formatPercent(property.costRateTaxes)}</td></tr>
       <tr><td>IT & Telecom</td><td>${formatPercent(property.costRateIT)}</td></tr>
       <tr><td>FF&E Reserve</td><td>${formatPercent(property.costRateFFE)}</td></tr>

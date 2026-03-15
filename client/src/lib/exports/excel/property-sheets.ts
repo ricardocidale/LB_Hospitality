@@ -64,7 +64,7 @@ export function buildPropertyISRows(yearly: YearlyAggregation[]): (string | numb
     ["Income Before Fixed Charges (IBFC)", ...yearly.map((y) => y.agop)],
     [],
     ["FIXED CHARGES"],
-    ["  Insurance", ...yearly.map((y) => y.expenseInsurance)],
+    
     ["  Property Taxes", ...yearly.map((y) => y.expenseTaxes)],
     [],
     ["Net Operating Income (NOI)", ...yearly.map((y) => y.noi)],
@@ -154,7 +154,7 @@ export async function exportPropertyCashFlow(
     ["    Property Operations & Maintenance", ...yearly.map((y) => y.expensePropertyOps)],
     ["    Utilities (Variable)", ...yearly.map((y) => y.expenseUtilitiesVar)],
     ["    Utilities (Fixed)", ...yearly.map((y) => y.expenseUtilitiesFixed)],
-    ["    Insurance", ...yearly.map((y) => y.expenseInsurance)],
+    
     ["    Property Taxes", ...yearly.map((y) => y.expenseTaxes)],
     ["    Administrative & Compliance", ...yearly.map((y) => y.expenseAdmin)],
     ["    IT Systems", ...yearly.map((y) => y.expenseIT)],
@@ -256,7 +256,7 @@ export async function exportFullPropertyWorkbook(
     ["    Property Operations & Maintenance", ...yearly.map((y) => y.expensePropertyOps)],
     ["    Utilities (Variable)", ...yearly.map((y) => y.expenseUtilitiesVar)],
     ["    Utilities (Fixed)", ...yearly.map((y) => y.expenseUtilitiesFixed)],
-    ["    Insurance", ...yearly.map((y) => y.expenseInsurance)],
+    
     ["    Property Taxes", ...yearly.map((y) => y.expenseTaxes)],
     ["    Administrative & Compliance", ...yearly.map((y) => y.expenseAdmin)],
     ["    IT Systems", ...yearly.map((y) => y.expenseIT)],

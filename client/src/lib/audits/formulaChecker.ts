@@ -96,7 +96,7 @@ export function checkPropertyFormulas(monthlyData: MonthlyFinancials[]): Formula
       m.expenseUtilitiesVar + m.expenseAdmin + m.expenseIT + 
       m.expenseUtilitiesFixed + m.expenseOtherCosts;
     
-    const expectedTotalExpenses = totalOperatingExpenses + m.feeBase + m.feeIncentive + m.expenseInsurance + m.expenseTaxes + m.expenseFFE;
+    const expectedTotalExpenses = totalOperatingExpenses + m.feeBase + m.feeIncentive + m.expenseTaxes + m.expenseFFE;
     results.push({
       passed: withinTolerance(expectedTotalExpenses, m.totalExpenses),
       name: `${monthLabel}: Total Expenses Formula`,
@@ -124,11 +124,11 @@ export function checkPropertyFormulas(monthlyData: MonthlyFinancials[]): Formula
       expected: expectedAGOP.toFixed(2),
       actual: m.agop.toFixed(2)
     });
-    const expectedNOI = m.agop - m.expenseInsurance - m.expenseTaxes;
+    const expectedNOI = m.agop - m.expenseTaxes;
     results.push({
       passed: withinTolerance(expectedNOI, m.noi),
       name: `${monthLabel}: NOI Formula`,
-      description: "NOI = AGOP - Insurance - Property Taxes",
+      description: "NOI = AGOP - Property Taxes",
       expected: expectedNOI.toFixed(2),
       actual: m.noi.toFixed(2)
     });
@@ -200,7 +200,7 @@ export function checkMetricFormulas(yearlyData: Array<{
   feeBase: number;
   feeIncentive: number;
   agop: number;
-  expenseInsurance: number;
+  
   expenseTaxes: number;
   noi: number;
   expenseFFE: number;
@@ -264,8 +264,8 @@ export function checkMetricFormulas(yearlyData: Array<{
       actual: y.agop.toFixed(2)
     });
 
-    // NOI = AGOP - Insurance - Taxes
-    const expectedNOI = y.agop - y.expenseInsurance - y.expenseTaxes;
+    // NOI = AGOP - Taxes
+    const expectedNOI = y.agop - y.expenseTaxes;
     results.push({
       passed: withinTolerance(expectedNOI, y.noi),
       name: `${yearLabel}: NOI Formula`,

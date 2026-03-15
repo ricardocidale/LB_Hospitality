@@ -68,7 +68,6 @@ export const DEFAULT_COST_RATE_ADMIN = 0.08;        // General & Administrative 
 export const DEFAULT_COST_RATE_MARKETING = 0.01;    // Sales & Marketing
 export const DEFAULT_COST_RATE_PROPERTY_OPS = 0.04; // Property Operations & Maintenance (POM)
 export const DEFAULT_COST_RATE_UTILITIES = 0.05;    // Utilities (electric, water, gas, internet)
-export const DEFAULT_COST_RATE_INSURANCE = 0.02;    // Property insurance
 export const DEFAULT_COST_RATE_TAXES = 0.03;        // Property/real estate taxes
 export const DEFAULT_COST_RATE_IT = 0.005;          // Information Technology
 export const DEFAULT_COST_RATE_FFE = 0.04;          // Furniture, Fixtures & Equipment reserve (FF&E)
@@ -182,7 +181,7 @@ export const DEFAULT_OCCUPANCY_RAMP_MONTHS = 6;
 export const DEFAULT_INFLATION_RATE = 0.03;
 
 // Annual escalation rate for fixed operating expenses (office lease,
-// insurance, professional services). Applied as compound growth each year.
+// professional services). Applied as compound growth each year.
 // Defaults to the system inflation rate when not explicitly overridden.
 export const DEFAULT_FIXED_COST_ESCALATION_RATE = DEFAULT_INFLATION_RATE;
 

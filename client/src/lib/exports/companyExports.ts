@@ -143,7 +143,7 @@ async function exportCompanyFullWorkbook(
       officeLease: yearSlice.reduce((a: number, m: any) => a + m.officeLease, 0),
       profServices: yearSlice.reduce((a: number, m: any) => a + m.professionalServices, 0),
       techInfra: yearSlice.reduce((a: number, m: any) => a + m.techInfrastructure, 0),
-      bizInsurance: yearSlice.reduce((a: number, m: any) => a + m.businessInsurance, 0),
+      
       travel: yearSlice.reduce((a: number, m: any) => a + m.travelCosts, 0),
       itLicensing: yearSlice.reduce((a: number, m: any) => a + m.itLicensing, 0),
       marketing: yearSlice.reduce((a: number, m: any) => a + m.marketing, 0),
@@ -201,7 +201,7 @@ async function exportCompanyFullWorkbook(
     ["  Office Lease", ...yearlyData.map(y => y.officeLease)],
     ["  Professional Services", ...yearlyData.map(y => y.profServices)],
     ["  Technology Infrastructure", ...yearlyData.map(y => y.techInfra)],
-    ["  Business Insurance", ...yearlyData.map(y => y.bizInsurance)],
+    
     ["  Travel Costs", ...yearlyData.map(y => y.travel)],
     ["  IT Licensing", ...yearlyData.map(y => y.itLicensing)],
     ["  Marketing", ...yearlyData.map(y => y.marketing)],
@@ -265,7 +265,7 @@ async function exportCompanyFullWorkbook(
   cfRows.push(
     ["  Cash Paid for Operating Expenses", ...yearlyData.map(y => -y.totalExpenses)],
     ["    Compensation", ...yearlyData.map(y => -(y.partnerComp + y.staffComp))],
-    ["    Fixed Overhead", ...yearlyData.map(y => -(y.officeLease + y.profServices + y.techInfra + y.bizInsurance))],
+    ["    Fixed Overhead", ...yearlyData.map(y => -(y.officeLease + y.profServices + y.techInfra))],
     ["    Variable Costs", ...yearlyData.map(y => -(y.travel + y.itLicensing + y.marketing + y.miscOps))],
   );
   const cfHasInterest = yearlyData.some((y: any) => y.fundingInterestExpense > 0);

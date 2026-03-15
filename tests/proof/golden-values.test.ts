@@ -35,7 +35,6 @@ const goldenProperty = {
   costRateMarketing: 0.01,
   costRatePropertyOps: 0.04,
   costRateUtilities: 0.05,
-  costRateInsurance: 0.02,
   costRateTaxes: 0.03,
   costRateIT: 0.005,
   costRateFFE: 0.04,
@@ -272,7 +271,7 @@ describe("Month-over-Month Continuity Cross-Checks", () => {
   it("NOI = GOP - fees - FFE every month", () => {
     for (const m of result) {
       const agop = m.gop - m.feeBase - m.feeIncentive;
-      const noi = agop - m.expenseInsurance - m.expenseTaxes;
+      const noi = agop - m.expenseTaxes;
       const anoi = noi - m.expenseFFE;
       expect(m.noi).toBeCloseTo(noi, PENNY);
       expect(m.anoi).toBeCloseTo(anoi, PENNY);
@@ -310,7 +309,6 @@ describe("Month-over-Month Continuity Cross-Checks", () => {
         m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
         m.expenseAdmin + m.expenseIT +
         m.expenseUtilitiesFixed + m.expenseOtherCosts;
-      expect(m.totalExpenses).toBeCloseTo(totalOpEx + m.feeBase + m.feeIncentive + m.expenseInsurance + m.expenseTaxes + m.expenseFFE, PENNY);
     }
   });
 

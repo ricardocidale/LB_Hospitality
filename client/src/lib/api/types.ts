@@ -60,7 +60,6 @@ export interface GlobalResponse {
   officeLeaseStart: number;
   professionalServicesStart: number;
   techInfraStart: number;
-  businessInsuranceStart: number;
   // Variable costs
   travelCostPerClient: number;
   itLicensePerClient: number;

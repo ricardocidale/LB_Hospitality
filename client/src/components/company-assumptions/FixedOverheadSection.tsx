@@ -7,7 +7,6 @@
  *
  * Categories:
  *   • Office lease — monthly rent for the management company's office
- *   • Insurance — annual general liability, E&O, D&O coverage
  *   • Technology — software subscriptions, PMS licenses, IT infrastructure
  *   • Professional services — legal, accounting, audit fees
  *   • Escalation rate — annual % increase applied to all fixed costs
@@ -131,30 +130,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           />
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="flex items-center text-foreground label-text">
-              Business Insurance
-              <InfoTooltip text="E&O, liability, and other corporate insurance policies" />
-              <ResearchBadge value={researchValues.businessInsurance?.display} onClick={() => researchValues.businessInsurance && onChange("businessInsuranceStart", researchValues.businessInsurance.mid)} sourceType="industry" sourceName="AICPA/industry benchmarks" data-testid="badge-business-insurance" />
-            </Label>
-            <EditableValue
-              value={formData.businessInsuranceStart ?? global.businessInsuranceStart}
-              onChange={(v) => onChange("businessInsuranceStart", v)}
-              format="dollar"
-              min={0}
-              max={100000}
-              step={1000}
-            />
-          </div>
-          <Slider
-            value={[formData.businessInsuranceStart ?? global.businessInsuranceStart]}
-            onValueChange={([v]) => onChange("businessInsuranceStart", v)}
-            min={0}
-            max={100000}
-            step={1000}
-          />
-        </div>
+
       </div>
     </div></div>
   );

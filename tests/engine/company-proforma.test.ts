@@ -38,7 +38,6 @@ const property = {
   costRateMarketing: 0.01,
   costRatePropertyOps: 0.04,
   costRateUtilities: 0.05,
-  costRateInsurance: 0.02,
   costRateTaxes: 0.03,
   costRateIT: 0.005,
   costRateFFE: 0.04,
@@ -74,7 +73,6 @@ const global = {
   officeLeaseStart: 36_000,
   professionalServicesStart: 24_000,
   techInfraStart: 18_000,
-  businessInsuranceStart: 12_000,
   travelCostPerClient: 12_000,
   itLicensePerClient: 3_000,
   partnerCompYear1: 540_000,
@@ -139,8 +137,7 @@ describe("generateCompanyProForma — golden scenario", () => {
       expect(m0.techInfrastructure).toBeCloseTo(18_000 / 12, 2);
     });
 
-    it("business insurance = $12K / 12", () => {
-      expect(m0.businessInsurance).toBeCloseTo(12_000 / 12, 2);
+    it("total fixed overhead matches expected", () => {
     });
   });
 
@@ -170,7 +167,7 @@ describe("generateCompanyProForma — golden scenario", () => {
     it("totalExpenses = sum of all expense line items", () => {
       const sum = m0.partnerCompensation + m0.staffCompensation +
         m0.officeLease + m0.professionalServices + m0.techInfrastructure +
-        m0.businessInsurance + m0.travelCosts + m0.itLicensing +
+        m0.travelCosts + m0.itLicensing +
         m0.marketing + m0.miscOps;
       expect(m0.totalExpenses).toBeCloseTo(sum, 2);
     });

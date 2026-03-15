@@ -493,7 +493,6 @@ function OperatingTab({ content }: { content: any }) {
   const costPie = [];
   if (ops?.laborPct || ops?.totalLabor) costPie.push({ name: "Labor", value: ops.laborPct ?? 45 });
   if (ops?.utilitiesPct || ops?.utilities) costPie.push({ name: "Utilities", value: ops.utilitiesPct ?? 8 });
-  if (pv?.insurance) costPie.push({ name: "Insurance", value: pv.insurancePct ?? 5 });
   if (pv?.propertyTax) costPie.push({ name: "Property Tax", value: pv.propertyTaxPct ?? 7 });
   if (costPie.length) costPie.push({ name: "Other", value: Math.max(5, 100 - costPie.reduce((s, d) => s + d.value, 0)) });
 
@@ -503,7 +502,6 @@ function OperatingTab({ content }: { content: any }) {
       <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {ops?.costPerRoom && <MetricCard label="Cost per Room" value={`$${Math.round(ops.costPerRoom).toLocaleString()}`} />}
         {ops?.laborPerKey && <MetricCard label="Labor per Key" value={`$${Math.round(ops.laborPerKey).toLocaleString()}`} />}
-        {pv?.insurance && <MetricCard label="Insurance" value={`$${Math.round(pv.insurance).toLocaleString()}`} sub="Annual premium" />}
         {pv?.propertyTax && <MetricCard label="Property Tax" value={`$${Math.round(pv.propertyTax).toLocaleString()}`} sub="Annual" />}
       </motion.div>
 
@@ -780,7 +778,7 @@ export default function PropertyMarketResearch() {
                 </div>
                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800">
                   <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-1">Cost Benchmarks</p>
-                  <p className="text-xs text-blue-700 dark:text-blue-400">Operating costs, insurance, taxes, and USALI rates</p>
+                  <p className="text-xs text-blue-700 dark:text-blue-400">Operating costs, taxes, and USALI rates</p>
                 </div>
                 <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-200 dark:border-amber-800">
                   <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 mb-1">Assumption Guidance</p>

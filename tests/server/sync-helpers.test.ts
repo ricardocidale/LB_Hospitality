@@ -118,7 +118,7 @@ describe("Seed constants shape", () => {
   it("SEED_PROPERTY_DEFAULTS has all cost rates", () => {
     const rates = [
       "costRateRooms", "costRateFB", "costRateAdmin", "costRateMarketing",
-      "costRatePropertyOps", "costRateUtilities", "costRateInsurance",
+      "costRatePropertyOps", "costRateUtilities",
       "costRateTaxes", "costRateIT", "costRateFFE", "costRateOther",
     ];
     for (const rate of rates) {

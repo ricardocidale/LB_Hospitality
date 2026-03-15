@@ -60,7 +60,6 @@ export interface IndependentMonthlyResult {
   agop: number;
   feeBase: number;
   feeIncentive: number;
-  expenseInsurance: number;
   expenseTaxes: number;
   noi: number;
   anoi: number;

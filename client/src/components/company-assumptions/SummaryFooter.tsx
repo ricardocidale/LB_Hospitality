@@ -3,7 +3,7 @@
  *
  * Renders a read-only summary bar at the bottom of the Company Assumptions
  * page showing key derived metrics:
- *   • Total fixed overhead (sum of office, insurance, tech, professional svcs)
+ *   • Total fixed overhead (sum of office, tech, professional svcs)
  *   • Current staffing tier and FTE count
  *   • Annual staff cost (FTEs × average salary × (1 + burden rate))
  *   • Total partner draws

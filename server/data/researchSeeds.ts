@@ -27,7 +27,6 @@ type RegionProfile = {
   costMarketing: [number, number, number];
   costIT: [number, number, number];
   costOther: [number, number, number];
-  costInsurance: [number, number, number];
   costPropertyTaxes: [number, number, number];
   svcFeeMarketing: [number, number, number];
   svcFeeTechRes: [number, number, number];
@@ -65,7 +64,6 @@ const US_BASE: RegionProfile = {
   costMarketing: [1, 2, 3],
   costIT: [0.5, 1, 1.5],
   costOther: [3, 5, 6],
-  costInsurance: [0.3, 0.4, 0.5],
   costPropertyTaxes: [1.0, 1.5, 2.5],
   svcFeeMarketing: [0.5, 1.0, 1.5],
   svcFeeTechRes: [1.0, 2.0, 2.5],
@@ -130,7 +128,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("capRate", 6.5, 7.5, 8.5);
       s("landValue", 30, 40, 50);
       s("costUtilities", 3.5, 4.2, 5.0);
-      s("costInsurance", 0.4, 0.6, 0.8);
       s("costPropertyTaxes", 1.8, 2.5, 3.5);
       s("incomeTax", 29, 31, 34);
       break;
@@ -140,7 +137,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("occupancy", 68, 74, 80);
       s("capRate", 7.0, 8.0, 9.0);
       s("landValue", 25, 30, 40);
-      s("costInsurance", 0.6, 0.9, 1.4);
       s("costPropertyTaxes", 1.2, 1.8, 2.5);
       s("incomeTax", 21, 21, 21);
       break;
@@ -151,7 +147,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("capRate", 6.5, 7.5, 8.5);
       s("landValue", 30, 38, 45);
       s("costUtilities", 3.5, 4.0, 5.0);
-      s("costInsurance", 0.5, 0.7, 1.0);
       s("costPropertyTaxes", 1.0, 1.1, 1.25);
       s("incomeTax", 29, 31, 35);
       break;
@@ -160,7 +155,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("adr", 200, 260, 340);
       s("occupancy", 65, 70, 76);
       s("capRate", 8.0, 8.5, 9.5);
-      s("costInsurance", 0.4, 0.6, 0.9);
       s("costPropertyTaxes", 1.8, 2.2, 3.0);
       s("incomeTax", 21, 21, 21);
       break;
@@ -170,7 +164,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("occupancy", 62, 68, 75);
       s("capRate", 8.0, 8.5, 9.5);
       s("catering", [30, 38, 45]);
-      s("costInsurance", 0.3, 0.5, 0.7);
       s("costPropertyTaxes", 0.8, 1.2, 1.8);
       s("incomeTax", 24, 26, 28);
       break;
@@ -181,7 +174,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("capRate", 8.0, 8.5, 9.5);
       s("catering", [30, 36, 42]);
       s("costUtilities", 3.5, 4.2, 5.0);
-      s("costInsurance", 0.3, 0.4, 0.5);
       s("costPropertyTaxes", 0.6, 0.8, 1.2);
       s("incomeTax", 24, 25, 26);
       break;
@@ -192,7 +184,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("capRate", 6.0, 7.0, 8.0);
       s("landValue", 35, 42, 50);
       s("costUtilities", 4.0, 5.0, 6.5);
-      s("costInsurance", 0.5, 0.8, 1.2);
       s("costPropertyTaxes", 1.0, 1.4, 1.8);
       s("incomeTax", 28, 31, 33);
       break;
@@ -211,7 +202,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("occupancy", [58, 65, 72]);
       s("capRate", 7.5, 8.5, 9.5);
       s("costUtilities", 3.5, 4.5, 5.5);
-      s("costInsurance", 0.4, 0.5, 0.7);
       s("costPropertyTaxes", 1.5, 2.0, 2.8);
       s("incomeTax", 26, 28, 31);
       break;
@@ -238,7 +228,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("adr", 250, 320, 420);
       s("occupancy", [60, 68, 75]);
       s("capRate", 7.5, 8.5, 9.5);
-      s("costInsurance", 0.3, 0.4, 0.5);
       s("costPropertyTaxes", 0.7, 1.0, 1.4);
       s("incomeTax", 23, 24, 25);
       break;
@@ -252,7 +241,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("costAdmin", [3, 4, 6]);
       s("costPropertyOps", [2, 3, 4]);
       s("costUtilities", [2.0, 2.5, 3.5]);
-      s("costInsurance", [0.2, 0.3, 0.5]);
       s("costPropertyTaxes", [0.5, 1.0, 1.5]);
       s("incomeTax", [30, 35, 38]);
       break;
@@ -265,7 +253,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("costHousekeeping", [10, 14, 18]);
       s("costAdmin", [3, 4, 6]);
       s("costUtilities", [2.0, 2.8, 3.5]);
-      s("costInsurance", [0.3, 0.4, 0.6]);
       s("costPropertyTaxes", [0.3, 0.5, 0.8]);
       s("incomeTax", [28, 30, 33]);
       break;
@@ -278,7 +265,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("costHousekeeping", [10, 14, 18]);
       s("costAdmin", [3, 4, 6]);
       s("costUtilities", [2.5, 3.0, 4.0]);
-      s("costInsurance", [0.3, 0.4, 0.6]);
       s("costPropertyTaxes", [0.2, 0.3, 0.5]);
       s("incomeTax", [28, 30, 33]);
       break;
@@ -289,7 +275,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("capRate", 8.0, 9.5, 11.0);
       s("landValue", [20, 28, 35]);
       s("costUtilities", [4.0, 5.5, 7.0]);
-      s("costInsurance", [0.8, 1.2, 1.8]);
       s("costPropertyTaxes", [0.3, 0.5, 1.0]);
       s("incomeTax", [20, 25, 30]);
       break;
@@ -301,7 +286,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("costHousekeeping", [10, 14, 18]);
       s("costAdmin", [3, 4, 6]);
       s("costUtilities", [2.0, 2.8, 3.5]);
-      s("costInsurance", [0.3, 0.4, 0.6]);
       s("costPropertyTaxes", [1.0, 1.5, 2.5]);
       s("incomeTax", [30, 34, 38]);
       break;
@@ -313,7 +297,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("costHousekeeping", [10, 14, 18]);
       s("costAdmin", [3, 4, 6]);
       s("costUtilities", [2.5, 3.0, 4.0]);
-      s("costInsurance", [0.2, 0.3, 0.5]);
       s("costPropertyTaxes", [0.5, 1.0, 1.5]);
       s("incomeTax", [30, 35, 38]);
       break;
@@ -323,7 +306,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("occupancy", [65, 72, 78]);
       s("capRate", 5.5, 7.0, 8.5);
       s("costUtilities", [3.5, 4.5, 6.0]);
-      s("costInsurance", [0.3, 0.4, 0.6]);
       s("costPropertyTaxes", [0.5, 1.0, 2.0]);
       s("incomeTax", [20, 25, 30]);
       break;
@@ -338,7 +320,6 @@ function applyRegionOverrides(base: RegionProfile, region: string): RegionProfil
       s("costAdmin", [3, 4, 6]);
       s("costPropertyOps", [2, 3, 4]);
       s("costUtilities", [2.0, 2.8, 3.5]);
-      s("costInsurance", [0.3, 0.4, 0.6]);
       s("costPropertyTaxes", [0.3, 0.6, 1.0]);
       s("incomeTax", [25, 30, 35]);
       break;
@@ -371,7 +352,6 @@ const FIELD_SOURCES: Record<string, string> = {
   costMarketing: "USALI undistributed",
   costIT: "HFTP Technology Survey",
   costOther: "USALI undistributed",
-  costInsurance: "AICPA/industry data",
   costPropertyTaxes: "Local assessor data",
   svcFeeMarketing: "HVS Mgmt Agreement Study",
   svcFeeTechRes: "HVS Mgmt Agreement Study",

@@ -79,7 +79,6 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Events Revenue", "ASC 606", "Point-in-time recognition when event occurs; deposits = deferred revenue"],
             ["F&B Revenue", "ASC 606", "Revenue at point of sale; bundled packages allocated to standalone selling prices"],
             ["FF&E Reserve", "USALI", "Deducted below GOP to arrive at NOI; actual replacements capitalized 5–7 years"],
-            ["Insurance", "GAAP Matching", "Expensed as incurred; prepaid portions amortized monthly; not capitalizable"],
             ["Property Taxes", "IRC §164", "Fully deductible operating expense; based on assessed value, not market value"],
             ["Sale Commission", "IRC §1001", "Reduces amount realized on sale; deducted from gross proceeds"],
           ]}
@@ -114,7 +113,6 @@ import { SectionCard } from "@/components/ui/section-card";
             ["costRateMarketing", "Sales & Marketing", "5%", "% of Revenue"],
             ["costRatePropertyOps", "Property Operations & Maintenance", "4%", "% of Revenue"],
             ["costRateUtilities", "Utilities", "5%", "% of Revenue"],
-            ["costRateInsurance", "Property Insurance", "2%", "% of Property Value"],
             ["costRateTaxes", "Property Taxes", "3%", "% of Property Value"],
             ["costRateIT", "Information Technology", "2%", "% of Revenue"],
             ["costRateFFE", "FF&E Reserve", "4%", "% of Revenue"],

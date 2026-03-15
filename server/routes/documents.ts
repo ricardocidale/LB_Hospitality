@@ -202,7 +202,7 @@ export function register(app: Express) {
             const percentFields = [
               "startOccupancy", "maxOccupancy", "exitCapRate", "taxRate",
               "costRateRooms", "costRateFB", "costRateAdmin", "costRateMarketing",
-              "costRatePropertyOps", "costRateUtilities", "costRateInsurance",
+              "costRatePropertyOps", "costRateUtilities",
               "costRateTaxes", "costRateIT", "costRateFFE", "costRateOther",
               "revShareEvents", "revShareFB", "revShareOther", "adrGrowthRate",
               "dispositionCommission", "baseManagementFeeRate", "incentiveManagementFeeRate",
@@ -248,7 +248,7 @@ export function register(app: Express) {
           const percentFields = [
             "startOccupancy", "maxOccupancy", "exitCapRate", "taxRate",
             "costRateRooms", "costRateFB", "costRateAdmin", "costRateMarketing",
-            "costRatePropertyOps", "costRateUtilities", "costRateInsurance",
+            "costRatePropertyOps", "costRateUtilities",
             "costRateTaxes", "costRateIT", "costRateFFE", "costRateOther",
             "revShareEvents", "revShareFB", "revShareOther", "adrGrowthRate",
             "dispositionCommission", "baseManagementFeeRate", "incentiveManagementFeeRate",

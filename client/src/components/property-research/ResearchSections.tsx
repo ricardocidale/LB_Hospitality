@@ -15,7 +15,7 @@
  *   • Land Value            – underlying land valuation for the basis split
  *   • Catering              – F&B / wedding / event revenue potential
  *   • Operating Costs       – USALI-based operating cost benchmarks
- *   • Property Value Costs  – insurance and property tax rate analysis
+ *   • Property Value Costs  – property tax rate analysis
  *   • Management Fees       – management and service fee benchmarks
  *   • Income Tax            – income tax rate analysis
  *   • Sources               – citations for the AI-generated data
@@ -428,19 +428,6 @@ export function ResearchSections({ content }: { content: any }) {
       {content.propertyValueCostAnalysis && (
         <SectionCard icon={IconHome} title="Property Value Cost Analysis" color={sectionColors.propertyValueCosts}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-            {content.propertyValueCostAnalysis.insurance && (
-              <div>
-                <MetricCard label="Insurance Rate" value={content.propertyValueCostAnalysis.insurance.recommendedRate || "N/A"} color={sectionColors.propertyValueCosts} confidence={content.propertyValueCostAnalysis.insurance.confidence} />
-                {content.propertyValueCostAnalysis.insurance.industryRange && (
-                  <p className="text-xs text-slate-500 mt-2 ml-1">Industry Range: {content.propertyValueCostAnalysis.insurance.industryRange}</p>
-                )}
-                {content.propertyValueCostAnalysis.insurance.rationale && (
-                  <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-slate-400 mt-3">
-                    <p className="text-sm text-foreground leading-relaxed">{content.propertyValueCostAnalysis.insurance.rationale}</p>
-                  </div>
-                )}
-              </div>
-            )}
             {content.propertyValueCostAnalysis.propertyTaxes && (
               <div>
                 <MetricCard label="Property Tax Rate" value={content.propertyValueCostAnalysis.propertyTaxes.recommendedRate || "N/A"} color={sectionColors.propertyValueCosts} confidence={content.propertyValueCostAnalysis.propertyTaxes.confidence} />

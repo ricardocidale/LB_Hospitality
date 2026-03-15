@@ -65,7 +65,6 @@ const GLOBAL = {
   staffTier2MaxProperties: 6, staffTier2Fte: 4.5, staffTier3Fte: 7.0,
   partnerCompYear1: 540_000, partnerCompYear2: 540_000,
   officeLeaseStart: 36_000, professionalServicesStart: 24_000,
-  techInfraStart: 18_000, businessInsuranceStart: 12_000,
   travelCostPerClient: 12_000, itLicensePerClient: 3_000,
   marketingRate: 0.05, miscOpsRate: 0.03,
 } as any;

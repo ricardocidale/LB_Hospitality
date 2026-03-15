@@ -178,7 +178,6 @@ export class DocumentAIService extends BaseIntegrationService {
             ["Marketing", "$105,250"],
             ["Property Operations", "$147,350"],
             ["Utilities", "$126,300"],
-            ["Insurance", "$63,150"],
             ["Property Taxes", "$84,200"],
             ["IT & Telecom", "$42,100"],
             ["FF&E Reserve", "$84,200"],

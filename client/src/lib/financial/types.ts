@@ -67,7 +67,6 @@ export interface PropertyInput {
   costRateMarketing: number;
   costRatePropertyOps: number;
   costRateUtilities: number;
-  costRateInsurance: number;
   costRateTaxes: number;
   costRateIT: number;
   costRateFFE: number;
@@ -149,7 +148,6 @@ export interface GlobalInput {
   officeLeaseStart?: number;
   professionalServicesStart?: number;
   techInfraStart?: number;
-  businessInsuranceStart?: number;
   travelCostPerClient?: number;
   itLicensePerClient?: number;
   miscOpsRate?: number;
@@ -196,7 +194,6 @@ export interface MonthlyFinancials {
   serviceFeesByCategory: Record<string, number>;
   expenseAdmin: number;
   expenseIT: number;
-  expenseInsurance: number;
   expenseTaxes: number;
   expenseUtilitiesFixed: number;
   expenseOtherCosts: number;
@@ -254,7 +251,6 @@ export interface CompanyMonthlyFinancials {
   officeLease: number;
   professionalServices: number;
   techInfrastructure: number;
-  businessInsurance: number;
   travelCosts: number;
   itLicensing: number;
   marketing: number;

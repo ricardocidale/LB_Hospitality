@@ -17,7 +17,6 @@ const OVERHEAD_BENCHMARKS = [
   { category: "Office Lease", range: "$24K–$48K/yr", note: "Scales with team size; shared or virtual offices at small scale" },
   { category: "Professional Services", range: "$18K–$36K/yr", note: "Legal, accounting, audit; increases with property count and regulatory complexity" },
   { category: "Technology Infrastructure", range: "$12K–$24K/yr", note: "Cloud PMS, BI tools, cybersecurity; per-seat licensing adds to cost" },
-  { category: "Business Insurance", range: "$8K–$18K/yr", note: "E&O, D&O, general liability; premiums increase with AUM" },
   { category: "Travel per Client", range: "$8K–$18K/yr per property", note: "Owner meetings, site visits, brand audits; higher for remote properties" },
   { category: "IT/Licensing per Client", range: "$2K–$5K/yr per property", note: "PMS, RMS, channel manager licenses allocated per property" },
   { category: "Marketing (% of fee revenue)", range: "3%–8%", note: "Brand marketing, digital advertising, PR; higher at startup stage" },

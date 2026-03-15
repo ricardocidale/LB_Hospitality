@@ -31,7 +31,6 @@ const baseGlobal = makeGlobal({
   officeLeaseStart: 36_000,
   professionalServicesStart: 24_000,
   techInfraStart: 18_000,
-  businessInsuranceStart: 12_000,
   travelCostPerClient: 12_000,
   itLicensePerClient: 3_000,
   partnerCompYear1: 540_000,

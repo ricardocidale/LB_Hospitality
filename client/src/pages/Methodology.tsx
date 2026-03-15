@@ -31,7 +31,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -183,7 +182,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                     <li>&#8226; Revenue = management fees from all properties</li>
                     <li>&#8226; Partner compensation (defined per-year array)</li>
                     <li>&#8226; Staff costs scale with property count (tiered)</li>
-                    <li>&#8226; Fixed costs: office, insurance, professional services</li>
+                    <li>&#8226; Fixed costs: office, professional services</li>
                     <li>&#8226; Variable costs: travel, IT, marketing</li>
                     <li>&#8226; Funding instrument for working capital</li>
                   </ul>
@@ -497,7 +496,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
                   <div>GOP = Total Revenue − Total Operating Expenses</div>
                   <div>IBFC = GOP − Management Fees (base + incentive)</div>
-                  <div>NOI = IBFC − Fixed Charges (Insurance + Property Taxes)</div>
+                  <div>NOI = IBFC − Fixed Charges (Property Taxes)</div>
                   <div>ANOI = NOI − FF&E Reserve</div>
                 </div>
               </div>

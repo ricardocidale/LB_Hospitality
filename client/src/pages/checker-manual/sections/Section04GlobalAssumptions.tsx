@@ -93,7 +93,6 @@ import { SectionCard } from "@/components/ui/section-card";
             ["officeLeaseStart", "Annual office lease cost (Year 1)", "$36,000", "$/year", "Mgmt Co."],
             ["professionalServicesStart", "Annual legal/accounting/advisory (Year 1)", "$24,000", "$/year", "Mgmt Co."],
             ["techInfraStart", "Annual technology infrastructure (Year 1)", "$18,000", "$/year", "Mgmt Co."],
-            ["businessInsuranceStart", "Annual business insurance (Year 1)", "$12,000", "$/year", "Mgmt Co."],
           ]}
         />
         <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Variable Costs (Management Company)</h3>

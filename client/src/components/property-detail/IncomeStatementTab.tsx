@@ -18,7 +18,7 @@
  *     = GOP (Gross Operating Profit)
  *   Management Fees (base + incentive)
  *     = IBFC (Income Before Fixed Charges)
- *   Fixed Charges (Property Tax + Insurance)
+ *   Fixed Charges (Property Tax)
  *     = NOI (Net Operating Income)
  *   FF&E Reserve
  *     = ANOI (Adjusted Net Operating Income)
@@ -62,7 +62,7 @@ export default function IncomeStatementTab({
     const undistributed = yd.expenseAdmin + yd.expenseMarketing + yd.expensePropertyOps +
       yd.expenseUtilitiesVar + yd.expenseUtilitiesFixed + yd.expenseIT + yd.expenseOtherCosts;
     const mgmtFees = yd.feeBase + yd.feeIncentive;
-    const fixedCharges = yd.expenseInsurance + yd.expenseTaxes;
+    const fixedCharges = yd.expenseTaxes;
     const noi = yd.noi;
     const ffe = yd.expenseFFE;
 

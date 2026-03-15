@@ -26,7 +26,6 @@ const prop = {
   costRateMarketing: 0.01,
   costRatePropertyOps: 0.04,
   costRateUtilities: 0.05,
-  costRateInsurance: 0.02,
   costRateTaxes: 0.03,
   costRateIT: 0.005,
   costRateFFE: 0.04,

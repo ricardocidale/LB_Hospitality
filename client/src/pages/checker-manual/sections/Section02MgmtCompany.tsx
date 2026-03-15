@@ -26,7 +26,6 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Office Lease", "Annual / 12 × (1 + inflation)^year", "Fixed cost / Company inflation"],
             ["Professional Services", "Annual / 12 × (1 + inflation)^year", "Fixed cost / Company inflation"],
             ["Tech Infrastructure", "Annual / 12 × (1 + inflation)^year", "Fixed cost / Company inflation"],
-            ["Business Insurance", "Annual / 12 × (1 + inflation)^year", "Fixed cost / Company inflation"],
             ["Travel", "Properties × cost/client / 12 × (1 + inflation)^year", "Company inflation"],
             ["IT Licensing", "Properties × cost/client / 12 × (1 + inflation)^year", "Company inflation"],
             ["Marketing", "Portfolio Revenue × rate × (1 + inflation)^year", "Company inflation"],

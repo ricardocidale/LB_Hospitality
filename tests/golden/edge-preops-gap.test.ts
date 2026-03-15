@@ -26,7 +26,6 @@ import {
   DEFAULT_CATERING_BOOST_PCT, DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE, DEFAULT_COST_RATE_ROOMS,
   DEFAULT_COST_RATE_FB, DEFAULT_COST_RATE_ADMIN, DEFAULT_COST_RATE_MARKETING,
-  DEFAULT_COST_RATE_PROPERTY_OPS, DEFAULT_COST_RATE_UTILITIES, DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_IT, DEFAULT_COST_RATE_FFE, DEFAULT_COST_RATE_OTHER,
   DEFAULT_EVENT_EXPENSE_RATE, DEFAULT_OTHER_EXPENSE_RATE, DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DAYS_PER_MONTH, DEPRECIATION_YEARS, DEFAULT_LAND_VALUE_PERCENT,
@@ -60,7 +59,6 @@ const GLOBAL = {
   staffSalary: 75_000, staffTier1MaxProperties: 3, staffTier1Fte: 2.5,
   partnerCompYear1: 540_000, partnerCompYear2: 540_000,
   officeLeaseStart: 36_000, professionalServicesStart: 24_000,
-  techInfraStart: 18_000, businessInsuranceStart: 12_000,
   travelCostPerClient: 12_000, itLicensePerClient: 3_000,
   marketingRate: 0.05, miscOpsRate: 0.03,
 } as any;
@@ -174,7 +172,6 @@ describe("Golden Edge: Pre-Operations Gap", () => {
     it("fixed expenses activate at month 6", () => {
       expect(propF[5].expenseAdmin).toBe(0);  // pre-ops
       expect(propF[6].expenseAdmin).toBeGreaterThan(0);  // operational
-      expect(propF[6].expenseInsurance).toBeGreaterThan(0);
       expect(propF[6].expenseTaxes).toBeGreaterThan(0);
     });
 

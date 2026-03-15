@@ -42,7 +42,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -206,7 +205,6 @@ export function generatePropertyProForma(
   const costRateMarketing = property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING;
   const costRatePropertyOps = property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS;
   const costRateUtilities = property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES;
-  const costRateInsurance = property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE;
   const costRateTaxes = property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES;
   const costRateIT = property.costRateIT ?? DEFAULT_COST_RATE_IT;
   const costRateFFE = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
@@ -287,7 +285,6 @@ export function generatePropertyProForma(
     const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactorGated;
     const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactorGated;
     const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactorGated;
-    const expenseInsurance = totalPropertyValueDiv12 * costRateInsurance * fixedCostFactorGated;
     const expenseTaxes = totalPropertyValueDiv12 * costRateTaxes * fixedCostFactorGated;
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * utilitiesFixedSplit) * fixedCostFactorGated;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactorGated;
@@ -314,7 +311,7 @@ export function generatePropertyProForma(
     const gop = revenueTotal - totalOperatingExpenses;
     const feeIncentive = Math.max(0, gop * incentiveFeeRate);
     const agop = gop - feeBase - feeIncentive;
-    const noi = agop - expenseInsurance - expenseTaxes;
+    const noi = agop - expenseTaxes;
     const anoi = noi - expenseFFE;
     
     // ── Debt service ──────────────────────────────────────────────────────────
@@ -401,7 +398,7 @@ export function generatePropertyProForma(
 
     // ── Working capital (AR/AP tracking) ──────────────────────────────────────
     const currentAR = isOperational ? (revenueTotal / 30) * arDays : 0;
-    const totalOpCosts = totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes;
+    const totalOpCosts = totalOperatingExpenses + feeBase + feeIncentive + expenseTaxes;
     const currentAP = isOperational ? (totalOpCosts / 30) * apDays : 0;
     const workingCapitalChange = (currentAR - prevAR) - (currentAP - prevAP);
     prevAR = currentAR;
@@ -443,11 +440,10 @@ export function generatePropertyProForma(
       serviceFeesByCategory,
       expenseAdmin,
       expenseIT,
-      expenseInsurance,
       expenseTaxes,
       expenseUtilitiesFixed,
       expenseOtherCosts,
-      totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes + expenseFFE,
+      totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseTaxes + expenseFFE,
       gop,
       agop,
       noi,

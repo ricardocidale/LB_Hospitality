@@ -63,7 +63,6 @@ export interface YearlyPropertyFinancials {
   expenseUtilities: number; // derived: var + fixed
   expenseAdmin: number;
   expenseIT: number;
-  expenseInsurance: number;
   expenseTaxes: number;
   expenseFFE: number;
 
@@ -131,7 +130,7 @@ export function aggregatePropertyByYear(
     let expenseRooms = 0, expenseFB = 0, expenseEvents = 0, expenseOther = 0;
     let expenseOtherCosts = 0, expenseMarketing = 0, expensePropertyOps = 0;
     let expenseUtilitiesVar = 0, expenseUtilitiesFixed = 0;
-    let expenseAdmin = 0, expenseIT = 0, expenseInsurance = 0, expenseTaxes = 0, expenseFFE = 0;
+    let expenseAdmin = 0, expenseIT = 0, expenseTaxes = 0, expenseFFE = 0;
     let feeBase = 0, feeIncentive = 0;
     let totalExpenses = 0, gop = 0, agop = 0, noi = 0, anoi = 0;
     let interestExpense = 0, depreciationExpense = 0, incomeTax = 0, netIncome = 0;
@@ -160,7 +159,6 @@ export function aggregatePropertyByYear(
       expenseUtilitiesFixed += m.expenseUtilitiesFixed;
       expenseAdmin += m.expenseAdmin;
       expenseIT += m.expenseIT;
-      expenseInsurance += m.expenseInsurance;
       expenseTaxes += m.expenseTaxes;
       expenseFFE += m.expenseFFE;
       feeBase += m.feeBase;
@@ -221,7 +219,6 @@ export function aggregatePropertyByYear(
       expenseUtilities: expenseUtilitiesVar + expenseUtilitiesFixed,
       expenseAdmin,
       expenseIT,
-      expenseInsurance,
       expenseTaxes,
       expenseFFE,
       feeBase,
@@ -283,7 +280,7 @@ export function aggregateUnifiedByYear(
     let expenseRooms = 0, expenseFB = 0, expenseEvents = 0, expenseOther = 0;
     let expenseOtherCosts = 0, expenseMarketing = 0, expensePropertyOps = 0;
     let expenseUtilitiesVar = 0, expenseUtilitiesFixed = 0;
-    let expenseAdmin = 0, expenseIT = 0, expenseInsurance = 0, expenseTaxes = 0, expenseFFE = 0;
+    let expenseAdmin = 0, expenseIT = 0, expenseTaxes = 0, expenseFFE = 0;
     let feeBase = 0, feeIncentive = 0;
     let totalExpenses = 0, gop = 0, agop = 0, noi = 0, anoi = 0;
     let interestExpense = 0, depreciationExpense = 0, incomeTax = 0, netIncome = 0;
@@ -313,7 +310,6 @@ export function aggregateUnifiedByYear(
       expenseUtilitiesFixed += m.expenseUtilitiesFixed;
       expenseAdmin += m.expenseAdmin;
       expenseIT += m.expenseIT;
-      expenseInsurance += m.expenseInsurance;
       expenseTaxes += m.expenseTaxes;
       expenseFFE += m.expenseFFE;
       feeBase += m.feeBase;
@@ -376,7 +372,6 @@ export function aggregateUnifiedByYear(
       expenseUtilities: expenseUtilitiesVar + expenseUtilitiesFixed,
       expenseAdmin,
       expenseIT,
-      expenseInsurance,
       expenseTaxes,
       expenseFFE,
       feeBase,

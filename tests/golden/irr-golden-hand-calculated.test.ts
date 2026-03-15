@@ -12,7 +12,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -117,7 +116,6 @@ describe("Golden Lodge — Hand-Calculated IRR Scenario", () => {
   const expenseAdmin = revenueTotal * DEFAULT_COST_RATE_ADMIN; // 134,043.84 * 0.08 = 10,723.5072
   const expensePropertyOps = revenueTotal * DEFAULT_COST_RATE_PROPERTY_OPS; // 134,043.84 * 0.04 = 5,361.7536
   const expenseIT = revenueTotal * DEFAULT_COST_RATE_IT; // 134,043.84 * 0.005 = 670.2192
-  const expenseInsurance = (totalPropertyValue / 12) * DEFAULT_COST_RATE_INSURANCE;
   // (2,000,000 / 12) * 0.02 = 166,666.667 * 0.02 = 3,333.3333...
   const expenseTaxes = (totalPropertyValue / 12) * DEFAULT_COST_RATE_TAXES;
   // (2,000,000 / 12) * 0.03 = 166,666.667 * 0.03 = 5,000.00
@@ -137,7 +135,7 @@ describe("Golden Lodge — Hand-Calculated IRR Scenario", () => {
   const feeBase = revenueTotal * DEFAULT_BASE_MANAGEMENT_FEE_RATE; // 134,043.84 * 0.085
   const feeIncentive = Math.max(0, gop * DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE); // gop * 0.12
   const agop = gop - feeBase - feeIncentive;
-  const noi = agop - expenseInsurance - expenseTaxes;
+  const noi = agop - expenseTaxes;
   const anoi = noi - expenseFFE;
 
   // ── Debt service Month 1 ───────────────────────────────────────────────
@@ -187,7 +185,6 @@ describe("Golden Lodge — Hand-Calculated IRR Scenario", () => {
     expect(m.expenseAdmin).toBeCloseTo(expenseAdmin, PENNY);
     expect(m.expensePropertyOps).toBeCloseTo(expensePropertyOps, PENNY);
     expect(m.expenseIT).toBeCloseTo(expenseIT, PENNY);
-    expect(m.expenseInsurance).toBeCloseTo(expenseInsurance, PENNY);
     expect(m.expenseTaxes).toBeCloseTo(expenseTaxes, PENNY);
     expect(m.expenseUtilitiesFixed).toBeCloseTo(expenseUtilitiesFixed, PENNY);
     expect(m.expenseOtherCosts).toBeCloseTo(expenseOtherCosts, PENNY);
@@ -258,7 +255,6 @@ describe("Golden Lodge — Hand-Calculated IRR Scenario", () => {
     expect(m12.expenseAdmin).toBeCloseTo(m.expenseAdmin, PENNY);
     expect(m12.expensePropertyOps).toBeCloseTo(m.expensePropertyOps, PENNY);
     expect(m12.expenseIT).toBeCloseTo(m.expenseIT, PENNY);
-    expect(m12.expenseInsurance).toBeCloseTo(m.expenseInsurance, PENNY);
     expect(m12.expenseTaxes).toBeCloseTo(m.expenseTaxes, PENNY);
     expect(m12.expenseUtilitiesFixed).toBeCloseTo(m.expenseUtilitiesFixed, PENNY);
     expect(m12.expenseOtherCosts).toBeCloseTo(m.expenseOtherCosts, PENNY);

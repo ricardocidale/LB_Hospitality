@@ -4,7 +4,7 @@ GOP (Gross Operating Profit) — Total revenue minus total operating expenses. T
 
 AGOP (Adjusted Gross Operating Profit) — GOP minus management fees (base and incentive). This is the property's operating profit after paying the management company.
 
-NOI (Net Operating Income) — AGOP minus fixed charges (insurance and property taxes). The property's net income from operations before reserves.
+NOI (Net Operating Income) — AGOP minus fixed charges (property taxes). The property's net income from operations before reserves.
 
 ANOI (Adjusted Net Operating Income) — NOI minus the FF&E reserve. This is the income available for debt service, taxes, and equity returns.
 

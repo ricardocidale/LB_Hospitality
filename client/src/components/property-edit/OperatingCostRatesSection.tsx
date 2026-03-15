@@ -17,7 +17,6 @@
  *
  *   Fixed Charges:
  *     • Property tax rate
- *     • Insurance rate
  *     • FF&E reserve (Furniture, Fixtures & Equipment replacement fund,
  *       typically 3–5% of revenue, required by most lenders)
  *     • Income tax rate (property-level, separate from company tax)
@@ -40,7 +39,6 @@ import {
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -55,7 +53,7 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">
             Operating Cost Rates
-            <InfoTooltip text="Expense rates grouped by calculation basis — some scale with revenue, others are fixed amounts that escalate with inflation, and property-value-based charges like insurance and taxes." />
+            <InfoTooltip text="Expense rates grouped by calculation basis — some scale with revenue, others are fixed amounts that escalate with inflation, and property-value-based charges like taxes." />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Expense allocation as percentage of revenue</p>
         </div>
@@ -326,29 +324,6 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                 <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">Based on Property Value</h4>
                 <p className="text-xs text-muted-foreground mb-4">Calculated as a percentage of total property value (Purchase Price + Building Improvements), adjusted annually by the Inflation Escalator Factor.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <div className="flex flex-col gap-0.5">
-                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Insurance<InfoTooltip text="Based on total property value, not revenue. Covers property liability, damage, workers' comp, and business interruption coverage. Escalates annually with inflation." /><GaapBadge rule="GAAP Matching Principle: Insurance premiums are expensed as incurred over the policy period. Prepaid portions are recorded as current assets and amortized monthly. Not capitalizable into property basis." /></Label>
-                        <ResearchBadge entry={researchValues.costInsurance} onClick={() => researchValues.costInsurance && onChange("costRateInsurance", researchValues.costInsurance.mid / 100)} />
-                      </div>
-                      <EditableValue
-                        value={(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100}
-                        onChange={(val) => onChange("costRateInsurance", val / 100)}
-                        format="percent"
-                        min={0}
-                        max={15}
-                        step={1}
-                      />
-                    </div>
-                    <Slider 
-                      value={[(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100]}
-                      onValueChange={(vals: number[]) => onChange("costRateInsurance", vals[0] / 100)}
-                      min={0}
-                      max={15}
-                      step={1}
-                    />
-                  </div>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col gap-0.5">

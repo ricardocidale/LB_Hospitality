@@ -14,7 +14,6 @@ Undistributed expenses cover the rest:
 - IT systems
 
 Fixed charges are deducted below AGOP to arrive at NOI:
-- Insurance
 - Property taxes
 
 There is also an FF&E Reserve (Furniture, Fixtures, and Equipment). This is a percentage of total revenue set aside for replacing worn-out items. It is deducted below NOI to arrive at ANOI.

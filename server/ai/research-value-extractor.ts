@@ -79,7 +79,6 @@ export function extractResearchValues(content: Record<string, any>): Record<stri
   // Property value costs
   const pvc = c.propertyValueCostAnalysis;
   if (pvc) {
-    const v1 = parseCostRate(pvc.insurance); if (v1) vals.costInsurance = entry(v1);
     const v2 = parseCostRate(pvc.propertyTaxes); if (v2) vals.costPropertyTaxes = entry(v2);
   }
 
@@ -119,11 +118,6 @@ export function extractResearchValues(content: Record<string, any>): Record<stri
     }
   }
 
-  // Insurance Costs
-  const ica = c.insuranceCosts;
-  if (ica?.insuranceCostRate) {
-    const pct = parsePct(ica.insuranceCostRate);
-    if (pct != null) vals.costInsurance = entry({ display: ica.insuranceCostRate, mid: pct });
   }
 
   // Marketing Costs

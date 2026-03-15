@@ -339,8 +339,8 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
 
         <ExpandableLineItem
           label="Overhead & Administration"
-          values={yearlyDetails.map(y => y.expenseMarketing + y.expensePropertyOps + y.expenseUtilitiesVar + y.expenseUtilitiesFixed + y.expenseInsurance + y.expenseTaxes + y.expenseAdmin + y.expenseIT + y.expenseOtherCosts)}
-          tooltip="Fixed and semi-variable overhead: marketing, property ops, utilities, insurance, taxes, admin, IT, and other costs."
+          values={yearlyDetails.map(y => y.expenseMarketing + y.expensePropertyOps + y.expenseUtilitiesVar + y.expenseUtilitiesFixed + y.expenseTaxes + y.expenseAdmin + y.expenseIT + y.expenseOtherCosts)}
+          tooltip="Fixed and semi-variable overhead: marketing, property ops, utilities, taxes, admin, IT, and other costs."
           expanded={!!expanded.cfOverhead}
           onToggle={() => toggleSection('cfOverhead')}
         >
@@ -348,7 +348,6 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
           <LineItem label="Property Operations & Maintenance" values={yearlyDetails.map(y => y.expensePropertyOps)} indent />
           <LineItem label="Utilities (Variable)" values={yearlyDetails.map(y => y.expenseUtilitiesVar)} indent />
           <LineItem label="Utilities (Fixed)" values={yearlyDetails.map(y => y.expenseUtilitiesFixed)} indent />
-          <LineItem label="Insurance" values={yearlyDetails.map(y => y.expenseInsurance)} indent />
           <LineItem label="Property Taxes" values={yearlyDetails.map(y => y.expenseTaxes)} indent />
           <LineItem label="Administrative & Compliance" values={yearlyDetails.map(y => y.expenseAdmin)} indent />
           <LineItem label="IT Systems" values={yearlyDetails.map(y => y.expenseIT)} indent />

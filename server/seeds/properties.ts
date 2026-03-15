@@ -12,7 +12,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -84,7 +83,6 @@ export async function seedGlobalAssumptions() {
     officeLeaseStart: 36000,
     professionalServicesStart: 24000,
     techInfraStart: 18000,
-    businessInsuranceStart: 12000,
     travelCostPerClient: 12000,
     itLicensePerClient: 3000,
     marketingRate: 0.05,
@@ -223,7 +221,7 @@ export async function seedProperties() {
       costRateMarketing: 0.015,
       costRatePropertyOps: 0.05,
       costRateUtilities: 0.04,
-      costRateInsurance: 0.018,
+      
       costRateTaxes: 0.016,
       costRateIT: 0.005,
       costRateFFE: 0.04,
@@ -279,7 +277,7 @@ export async function seedProperties() {
       costRateMarketing: 0.02,
       costRatePropertyOps: 0.055,
       costRateUtilities: 0.055,
-      costRateInsurance: 0.028,
+      
       costRateTaxes: 0.035,
       costRateIT: 0.005,
       costRateFFE: 0.04,
@@ -335,7 +333,7 @@ export async function seedProperties() {
       costRateMarketing: 0.02,
       costRatePropertyOps: 0.06,
       costRateUtilities: 0.055,
-      costRateInsurance: 0.03,
+      
       costRateTaxes: 0.035,
       costRateIT: 0.005,
       costRateFFE: 0.04,
@@ -388,7 +386,7 @@ export async function seedProperties() {
       costRateMarketing: 0.02,
       costRatePropertyOps: 0.05,
       costRateUtilities: 0.05,
-      costRateInsurance: 0.025,
+      
       costRateTaxes: 0.02,
       costRateIT: 0.005,
       costRateFFE: 0.04,
@@ -441,7 +439,7 @@ export async function seedProperties() {
       costRateMarketing: 0.02,
       costRatePropertyOps: 0.055,
       costRateUtilities: 0.05,
-      costRateInsurance: 0.025,
+      
       costRateTaxes: 0.02,
       costRateIT: 0.005,
       costRateFFE: 0.04,
@@ -494,7 +492,7 @@ export async function seedProperties() {
       costRateMarketing: 0.015,
       costRatePropertyOps: 0.035,
       costRateUtilities: 0.04,
-      costRateInsurance: 0.025,
+      
       costRateTaxes: 0.025,
       costRateIT: 0.005,
       costRateFFE: 0.04,

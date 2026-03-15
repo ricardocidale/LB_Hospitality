@@ -101,7 +101,6 @@ Operating Costs (annual, escalate with inflation):
 - Office lease: ${usd((ga as any).officeLeaseStart)}
 - Professional services (legal & accounting): ${usd((ga as any).professionalServicesStart)}
 - Technology infrastructure: ${usd((ga as any).techInfraStart)}
-- Business insurance: ${usd((ga as any).businessInsuranceStart)}
 - Travel per property: ${usd((ga as any).travelCostPerClient)}
 - IT license per property: ${usd((ga as any).itLicensePerClient)}
 - Marketing rate: ${pct((ga as any).marketingRate)} of revenue
@@ -150,7 +149,6 @@ Expense rates:
 - Marketing: ${pct(Number(p.costRateMarketing))}
 - Property operations & maintenance: ${pct(Number(p.costRatePropertyOps))}
 - Utilities: ${pct(Number(p.costRateUtilities))}
-- Insurance: ${pct(Number(p.costRateInsurance))}
 - Property taxes: ${pct(Number(p.costRateTaxes))}
 - IT systems: ${pct(Number(p.costRateIT))}
 - FF&E reserve: ${pct(Number(p.costRateFFE))}

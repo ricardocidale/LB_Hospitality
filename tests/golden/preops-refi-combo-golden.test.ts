@@ -22,7 +22,6 @@ import {
   DEFAULT_CATERING_BOOST_PCT, DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE, DEFAULT_COST_RATE_ROOMS,
   DEFAULT_COST_RATE_FB, DEFAULT_COST_RATE_ADMIN, DEFAULT_COST_RATE_MARKETING,
-  DEFAULT_COST_RATE_PROPERTY_OPS, DEFAULT_COST_RATE_UTILITIES, DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_IT, DEFAULT_COST_RATE_FFE, DEFAULT_COST_RATE_OTHER,
   DEFAULT_EVENT_EXPENSE_RATE, DEFAULT_OTHER_EXPENSE_RATE, DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DAYS_PER_MONTH, DEPRECIATION_YEARS, DEFAULT_LAND_VALUE_PERCENT,
@@ -84,7 +83,6 @@ const GLOBAL = {
   officeLeaseStart: 36_000,
   professionalServicesStart: 24_000,
   techInfraStart: 18_000,
-  businessInsuranceStart: 12_000,
   travelCostPerClient: 12_000,
   itLicensePerClient: 3_000,
   marketingRate: 0.05,
@@ -122,7 +120,6 @@ const H_BASE_TOTAL_REV = H_REV_TOTAL;
 const H_EXP_ADMIN = H_BASE_TOTAL_REV * DEFAULT_COST_RATE_ADMIN;
 const H_EXP_PROP_OPS = H_BASE_TOTAL_REV * DEFAULT_COST_RATE_PROPERTY_OPS;
 const H_EXP_IT = H_BASE_TOTAL_REV * DEFAULT_COST_RATE_IT;
-const H_EXP_INSURANCE = (H_TOTAL_PROP_VALUE / 12) * DEFAULT_COST_RATE_INSURANCE;
 const H_EXP_TAXES = (H_TOTAL_PROP_VALUE / 12) * DEFAULT_COST_RATE_TAXES;
 const H_EXP_UTIL_FIXED = H_BASE_TOTAL_REV * (DEFAULT_COST_RATE_UTILITIES * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT));
 const H_EXP_OTHER_COSTS = H_BASE_TOTAL_REV * DEFAULT_COST_RATE_OTHER;
@@ -135,7 +132,6 @@ const H_GOP = H_REV_TOTAL - H_TOTAL_OP_EXP;
 const H_FEE_BASE = H_REV_TOTAL * DEFAULT_BASE_MANAGEMENT_FEE_RATE;
 const H_FEE_INCENTIVE = Math.max(0, H_GOP * DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE);
 const H_AGOP = H_GOP - H_FEE_BASE - H_FEE_INCENTIVE;
-const H_NOI = H_AGOP - H_EXP_INSURANCE - H_EXP_TAXES;
 const H_ANOI = H_NOI - H_EXP_FFE;
 
 // Original loan
@@ -340,7 +336,6 @@ describe("Golden Scenario: Pre-Ops Gap + Refinance Combo", () => {
     it("fixed expenses activate at month 6", () => {
       expect(propF[5].expenseAdmin).toBe(0);
       expect(propF[6].expenseAdmin).toBeCloseTo(H_EXP_ADMIN, 2);
-      expect(propF[6].expenseInsurance).toBeCloseTo(H_EXP_INSURANCE, 2);
       expect(propF[6].expenseTaxes).toBeCloseTo(H_EXP_TAXES, 2);
     });
 
@@ -538,7 +533,6 @@ describe("Golden Scenario: Pre-Ops Gap + Refinance Combo", () => {
     it("zero fixed expenses during pre-ops", () => {
       for (let i = 0; i < 6; i++) {
         expect(propF[i].expenseAdmin).toBe(0);
-        expect(propF[i].expenseInsurance).toBe(0);
         expect(propF[i].expenseTaxes).toBe(0);
         expect(propF[i].expensePropertyOps).toBe(0);
       }

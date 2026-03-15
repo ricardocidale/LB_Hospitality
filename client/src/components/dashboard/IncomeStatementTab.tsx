@@ -235,16 +235,15 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       });
     }
 
-    rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), isHeader: true, rowId: "fixed" });
+    rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), isHeader: true, rowId: "fixed" });
     if (activeExpanded.has("fixed")) {
-      rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
       rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
-      pushRow({ category: "= Insurance + Property Taxes", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), indent: 1, isFormula: true });
+      pushRow({ category: "= Property Taxes", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), indent: 1, isFormula: true });
     }
 
     rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, rowId: "noi" });
     if (activeExpanded.has("noi")) {
-      pushRow({ category: "= IBFC − Fixed Charges (Insurance + Taxes)", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
+      pushRow({ category: "= IBFC − Fixed Charges (Taxes)", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
           category: prop.name,

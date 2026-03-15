@@ -55,7 +55,7 @@ describe("Golden Pro-Forma Edge Cases", () => {
       // TotalRev = 170,800 + 51,240 + 37,507.68 + 8,540 = 268,087.68
       const m = result[0];
       const expectedMgmtFees = m.revenueTotal * 0.05 + Math.max(0, m.gop * 0.15);
-      expect(m.noi).toBeCloseTo(m.gop - expectedMgmtFees - m.expenseInsurance - m.expenseTaxes, PENNY);
+      expect(m.noi).toBeCloseTo(m.gop - expectedMgmtFees - m.expenseTaxes, PENNY);
     });
 
     it("calculates ANOI correctly: ANOI = NOI - FFE", () => {

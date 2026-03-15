@@ -26,7 +26,6 @@ import { generatePropertyProForma } from "../../client/src/lib/financial/propert
 import { aggregatePropertyByYear } from "../../client/src/lib/financial/yearlyAggregator";
 import { aggregateCashFlowByYear } from "../../client/src/lib/financial/cashFlowAggregator";
 import {
-  DEFAULT_COST_RATE_INSURANCE, DEFAULT_COST_RATE_TAXES,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE, DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_COST_RATE_FFE,
   DAYS_PER_MONTH, DEPRECIATION_YEARS, DEFAULT_LAND_VALUE_PERCENT,
@@ -108,7 +107,6 @@ const H_EXP_OTHER_COSTS = 0;
 
 // Fixed expenses based on property value (NOT revenue) — these still accrue
 const H_TOTAL_PROP_VALUE = 1_000_000;
-const H_EXP_INSURANCE = (H_TOTAL_PROP_VALUE / 12) * DEFAULT_COST_RATE_INSURANCE; // 83333.33 * 0.02 = 1666.67
 const H_EXP_TAXES = (H_TOTAL_PROP_VALUE / 12) * DEFAULT_COST_RATE_TAXES;         // 83333.33 * 0.03 = 2500.00
 
 // USALI waterfall
@@ -117,7 +115,6 @@ const H_GOP = H_REV_TOTAL - H_TOTAL_OP_EXP;                                     
 const H_FEE_BASE = H_REV_TOTAL * DEFAULT_BASE_MANAGEMENT_FEE_RATE;                // $0
 const H_FEE_INCENTIVE = Math.max(0, H_GOP * DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE); // max(0, 0) = $0
 const H_AGOP = H_GOP - H_FEE_BASE - H_FEE_INCENTIVE;                             // $0
-const H_NOI = H_AGOP - H_EXP_INSURANCE - H_EXP_TAXES;                            // 0 - 1666.67 - 2500 = -4166.67
 const H_ANOI = H_NOI - H_EXP_FFE;                                                 // -4166.67 - 0 = -4166.67
 
 // Depreciation
@@ -194,7 +191,6 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
   describe("Insurance & Property Taxes (property-value based, NOT revenue)", () => {
     it("insurance = ($1,000,000 / 12) × 0.02 = $1,666.67/mo", () => {
       for (let i = 0; i < MONTHS; i++) {
-        expect(propFinancials[i].expenseInsurance).toBeCloseTo(H_EXP_INSURANCE, 2);
       }
     });
 

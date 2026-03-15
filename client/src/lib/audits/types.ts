@@ -70,7 +70,6 @@ export interface PropertyAuditInput {
   costRateMarketing: number;
   costRatePropertyOps: number;
   costRateUtilities: number;
-  costRateInsurance: number;
   costRateTaxes: number;
   costRateIT: number;
   costRateFFE: number;

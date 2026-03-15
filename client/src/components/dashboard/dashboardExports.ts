@@ -232,9 +232,8 @@ export function generatePortfolioIncomeData(
     });
   }
 
-  rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseInsurance ?? 0) + (c(i)?.expenseTaxes ?? 0)), isHeader: true });
+  rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), isHeader: true });
   if (!summaryOnly) {
-    rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
     rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
   }
 

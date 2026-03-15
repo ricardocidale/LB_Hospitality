@@ -129,11 +129,11 @@ export function runIndependentVerification(
       ));
 
       checks.push(check(
-        "NOI = AGOP - Insurance - Taxes",
+        "NOI = AGOP - Taxes",
         "P&L",
         "USALI",
-        "AGOP - Insurance - Property Taxes",
-        m.agop - m.expenseInsurance - m.expenseTaxes,
+        "AGOP - Property Taxes",
+        m.agop - m.expenseTaxes,
         m.noi,
         "critical"
       ));

@@ -41,7 +41,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -289,7 +288,7 @@ export type Session = typeof sessions.$inferSelect;
 //   - Funding instrument (tranche amounts, optional valuation cap, optional discount rate)
 //   - Partner compensation (yearly salary schedule for up to 10 years)
 //   - Staffing tiers (FTE headcount scales with portfolio size)
-//   - Fixed overhead (office lease, professional services, tech, insurance)
+//   - Fixed overhead (office lease, professional services, tech)
 //   - Variable costs (travel, IT licenses, marketing, misc ops)
 //   - Debt assumptions (acquisition and refinance LTV, interest rate, etc.)
 //   - Exit assumptions (cap rate, commission, tax rate)
@@ -415,7 +414,6 @@ export const globalAssumptions = pgTable("global_assumptions", {
   officeLeaseStart: real("office_lease_start").notNull(),
   professionalServicesStart: real("professional_services_start").notNull(),
   techInfraStart: real("tech_infra_start").notNull(),
-  businessInsuranceStart: real("business_insurance_start").notNull(),
   
   // Cost variables - Variable costs
   travelCostPerClient: real("travel_cost_per_client").notNull(),
@@ -664,7 +662,6 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   officeLeaseStart: true,
   professionalServicesStart: true,
   techInfraStart: true,
-  businessInsuranceStart: true,
   travelCostPerClient: true,
   itLicensePerClient: true,
   marketingRate: true,
@@ -817,7 +814,6 @@ export const properties = pgTable("properties", {
   costRateMarketing: real("cost_rate_marketing").notNull().default(DEFAULT_COST_RATE_MARKETING),
   costRatePropertyOps: real("cost_rate_property_ops").notNull().default(DEFAULT_COST_RATE_PROPERTY_OPS),
   costRateUtilities: real("cost_rate_utilities").notNull().default(DEFAULT_COST_RATE_UTILITIES),
-  costRateInsurance: real("cost_rate_insurance").notNull().default(DEFAULT_COST_RATE_INSURANCE),
   costRateTaxes: real("cost_rate_taxes").notNull().default(DEFAULT_COST_RATE_TAXES),
   costRateIT: real("cost_rate_it").notNull().default(DEFAULT_COST_RATE_IT),
   costRateFFE: real("cost_rate_ffe").notNull().default(DEFAULT_COST_RATE_FFE),
@@ -934,7 +930,6 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   costRateMarketing: true,
   costRatePropertyOps: true,
   costRateUtilities: true,
-  costRateInsurance: true,
   costRateTaxes: true,
   costRateIT: true,
   costRateFFE: true,

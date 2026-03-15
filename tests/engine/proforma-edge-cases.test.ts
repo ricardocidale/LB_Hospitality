@@ -63,7 +63,6 @@ function assertNoNaNOrInfinity(result: ReturnType<typeof generatePropertyProForm
     "expenseFFE",
     "expenseAdmin",
     "expenseIT",
-    "expenseInsurance",
     "expenseTaxes",
     "expenseUtilitiesFixed",
     "expenseOtherCosts",
@@ -499,7 +498,6 @@ describe("Edge Case: Zero Cost Rates (all costRate fields = 0)", () => {
     costRateMarketing: 0,
     costRatePropertyOps: 0,
     costRateUtilities: 0,
-    costRateInsurance: 0,
     costRateTaxes: 0,
     costRateIT: 0,
     costRateFFE: 0,
@@ -526,7 +524,6 @@ describe("Edge Case: Zero Cost Rates (all costRate fields = 0)", () => {
       expect(m.expenseAdmin).toBe(0);
       expect(m.expensePropertyOps).toBe(0);
       expect(m.expenseIT).toBe(0);
-      expect(m.expenseInsurance).toBe(0);
       expect(m.expenseTaxes).toBe(0);
       expect(m.expenseUtilitiesFixed).toBe(0);
       expect(m.expenseOtherCosts).toBe(0);
@@ -595,7 +592,6 @@ describe("Edge Case: Pre-Operations Period", () => {
       expect(result[i].expenseAdmin).toBe(0);
       expect(result[i].expensePropertyOps).toBe(0);
       expect(result[i].expenseIT).toBe(0);
-      expect(result[i].expenseInsurance).toBe(0);
       expect(result[i].expenseTaxes).toBe(0);
       expect(result[i].expenseUtilitiesFixed).toBe(0);
       expect(result[i].expenseOtherCosts).toBe(0);
@@ -674,7 +670,6 @@ describe("Edge Case: NaN/Infinity validation across multiple configurations", ()
         costRateMarketing: 0,
         costRatePropertyOps: 0,
         costRateUtilities: 0,
-        costRateInsurance: 0,
         costRateTaxes: 0,
         costRateIT: 0,
         costRateFFE: 0,
@@ -972,7 +967,6 @@ describe("Edge Case: Zero purchase price", () => {
 
   it("insurance and property tax expenses are $0 (value-based)", () => {
     for (const m of result) {
-      expect(m.expenseInsurance).toBe(0);
       expect(m.expenseTaxes).toBe(0);
     }
   });
@@ -1140,7 +1134,7 @@ describe("Edge Case: GOP and NOI accounting identity", () => {
   it("NOI = GOP - feeBase - feeIncentive - FFE", () => {
     for (const m of result) {
       const agop = m.gop - m.feeBase - m.feeIncentive;
-      const noi = agop - m.expenseInsurance - m.expenseTaxes;
+      const noi = agop - m.expenseTaxes;
       const anoi = noi - m.expenseFFE;
       expect(m.noi).toBeCloseTo(noi, 2);
       expect(m.anoi).toBeCloseTo(anoi, 2);

@@ -10,7 +10,6 @@ import {
   DEFAULT_OFFICE_LEASE,
   DEFAULT_PROFESSIONAL_SERVICES,
   DEFAULT_TECH_INFRA,
-  DEFAULT_BUSINESS_INSURANCE,
   DEFAULT_TRAVEL_PER_CLIENT,
   DEFAULT_IT_LICENSE_PER_CLIENT,
   DEFAULT_MARKETING_RATE,
@@ -30,7 +29,6 @@ export interface GlobalAssumptions {
   officeLeaseStart: number; // 36000
   professionalServicesStart: number; // 24000
   techInfraStart: number; // 18000
-  businessInsuranceStart: number; // 12000
   standardAcqPackage: {
     purchasePrice: number; // 2300000
     buildingImprovements: number; // 800000
@@ -85,7 +83,6 @@ export interface Property {
   costRateMarketing: number;
   costRatePropertyOps: number;
   costRateUtilities: number;
-  costRateInsurance: number;
   costRateTaxes: number;
   costRateIT: number;
   costRateFFE: number;
@@ -117,7 +114,6 @@ const INITIAL_GLOBAL: GlobalAssumptions = {
   officeLeaseStart: DEFAULT_OFFICE_LEASE,
   professionalServicesStart: DEFAULT_PROFESSIONAL_SERVICES,
   techInfraStart: DEFAULT_TECH_INFRA,
-  businessInsuranceStart: DEFAULT_BUSINESS_INSURANCE,
   standardAcqPackage: {
     purchasePrice: 2300000,
     buildingImprovements: 800000,
@@ -165,7 +161,6 @@ const INITIAL_PROPERTIES: Property[] = [
     costRateMarketing: 0.01,
     costRatePropertyOps: 0.04,
     costRateUtilities: 0.05,
-    costRateInsurance: 0.02,
     costRateTaxes: 0.03,
     costRateIT: 0.005,
     costRateFFE: 0.04
@@ -199,7 +194,6 @@ const INITIAL_PROPERTIES: Property[] = [
     costRateMarketing: 0.01,
     costRatePropertyOps: 0.04,
     costRateUtilities: 0.05,
-    costRateInsurance: 0.02,
     costRateTaxes: 0.03,
     costRateIT: 0.005,
     costRateFFE: 0.04
@@ -233,7 +227,6 @@ const INITIAL_PROPERTIES: Property[] = [
     costRateMarketing: 0.01,
     costRatePropertyOps: 0.04,
     costRateUtilities: 0.05,
-    costRateInsurance: 0.02,
     costRateTaxes: 0.03,
     costRateIT: 0.005,
     costRateFFE: 0.04
@@ -267,7 +260,6 @@ const INITIAL_PROPERTIES: Property[] = [
     costRateMarketing: 0.01,
     costRatePropertyOps: 0.04,
     costRateUtilities: 0.05,
-    costRateInsurance: 0.02,
     costRateTaxes: 0.03,
     costRateIT: 0.005,
     costRateFFE: 0.04
@@ -301,7 +293,6 @@ const INITIAL_PROPERTIES: Property[] = [
     costRateMarketing: 0.01,
     costRatePropertyOps: 0.04,
     costRateUtilities: 0.05,
-    costRateInsurance: 0.02,
     costRateTaxes: 0.03,
     costRateIT: 0.005,
     costRateFFE: 0.04

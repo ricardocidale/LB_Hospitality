@@ -10,7 +10,7 @@
  * Expenses (company's own overhead, not property-level costs):
  *   • Partner Compensation   – draws and equity comp for founding partners
  *   • Staff Compensation     – salaries for operational employees (scaled by tier)
- *   • Fixed Overhead         – office lease, insurance, tech, professional services
+ *   • Fixed Overhead         – office lease, tech, professional services
  *   • Variable Costs         – marketing, travel, and other costs that scale
  *     with portfolio size or as a percentage of management fee revenue
  *
@@ -454,7 +454,7 @@ export default function CompanyIncomeTab({
               values={Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const comp = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
-                const fixed = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
+                const fixed = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure, 0);
                 const variable = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
                 return `${formatMoney(comp)} + ${formatMoney(fixed)} + ${formatMoney(variable)}`;
               })}
@@ -513,7 +513,7 @@ export default function CompanyIncomeTab({
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
                     const yearData = financials.slice(y * 12, (y + 1) * 12);
-                    const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
+                    const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure, 0);
                     return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                   })}
                 </TableRow>
@@ -540,14 +540,6 @@ export default function CompanyIncomeTab({
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.techInfrastructure, 0);
-                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
-                      })}
-                    </TableRow>
-                    <TableRow className="bg-muted/50">
-                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Business Insurance</TableCell>
-                      {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
-                        const total = yearData.reduce((a, m) => a + m.businessInsurance, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
                     </TableRow>

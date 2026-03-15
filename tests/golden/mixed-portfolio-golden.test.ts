@@ -22,7 +22,6 @@ import {
   DEFAULT_CATERING_BOOST_PCT, DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE, DEFAULT_COST_RATE_ROOMS,
   DEFAULT_COST_RATE_FB, DEFAULT_COST_RATE_ADMIN, DEFAULT_COST_RATE_MARKETING,
-  DEFAULT_COST_RATE_PROPERTY_OPS, DEFAULT_COST_RATE_UTILITIES, DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_IT, DEFAULT_COST_RATE_FFE, DEFAULT_COST_RATE_OTHER,
   DEFAULT_EVENT_EXPENSE_RATE, DEFAULT_OTHER_EXPENSE_RATE, DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DAYS_PER_MONTH, DEPRECIATION_YEARS, DEFAULT_LAND_VALUE_PERCENT,
@@ -70,7 +69,6 @@ const GLOBAL = {
   partnerCompYear6: 540_000, partnerCompYear7: 540_000, partnerCompYear8: 540_000,
   partnerCompYear9: 540_000, partnerCompYear10: 540_000,
   officeLeaseStart: 36_000, professionalServicesStart: 24_000,
-  techInfraStart: 18_000, businessInsuranceStart: 12_000,
   travelCostPerClient: 12_000, itLicensePerClient: 3_000,
   marketingRate: 0.05, miscOpsRate: 0.03,
 } as any;
@@ -101,7 +99,6 @@ const H_A_EXP_ADMIN = H_A_REV_TOTAL * DEFAULT_COST_RATE_ADMIN;
 const H_A_EXP_PROP_OPS = H_A_REV_TOTAL * DEFAULT_COST_RATE_PROPERTY_OPS;
 const H_A_EXP_IT = H_A_REV_TOTAL * DEFAULT_COST_RATE_IT;
 // Fixed expenses (purchase-price-driven)
-const H_A_EXP_INSURANCE = (1_500_000 / 12) * DEFAULT_COST_RATE_INSURANCE;
 const H_A_EXP_TAXES = (1_500_000 / 12) * DEFAULT_COST_RATE_TAXES;
 const H_A_EXP_UTIL_FIXED = H_A_REV_TOTAL * (DEFAULT_COST_RATE_UTILITIES * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT));
 const H_A_EXP_OTHER_COSTS = H_A_REV_TOTAL * DEFAULT_COST_RATE_OTHER;
@@ -114,7 +111,6 @@ const H_A_GOP = H_A_REV_TOTAL - H_A_TOTAL_OP_EXP;
 const H_A_FEE_BASE = H_A_REV_TOTAL * 0.085;
 const H_A_FEE_INCENTIVE = Math.max(0, H_A_GOP * 0.12);
 const H_A_AGOP = H_A_GOP - H_A_FEE_BASE - H_A_FEE_INCENTIVE;
-const H_A_NOI = H_A_AGOP - H_A_EXP_INSURANCE - H_A_EXP_TAXES;
 const H_A_ANOI = H_A_NOI - H_A_EXP_FFE;
 
 // Income statement (Cash property — no debt)
@@ -132,13 +128,11 @@ const H_A_CASH_FLOW = H_A_ANOI - 0 - H_A_TAX;
 // Zero occupancy → zero revenue → zero revenue-driven expenses
 // Only purchase-price-driven expenses remain: insurance + taxes
 const H_B_REV_TOTAL = 0;
-const H_B_EXP_INSURANCE = (800_000 / 12) * DEFAULT_COST_RATE_INSURANCE;
 const H_B_EXP_TAXES = (800_000 / 12) * DEFAULT_COST_RATE_TAXES;
 // GOP = 0 - 0 = 0 (no revenue-driven expenses either)
 const H_B_GOP = 0;
 const H_B_FEE_BASE = 0;  // 8.5% of $0
 const H_B_FEE_INCENTIVE = 0;  // max(0, 0 × 12%) = 0
-const H_B_NOI = 0 - 0 - H_B_EXP_INSURANCE - H_B_EXP_TAXES;  // negative
 const H_B_FFE = 0;  // FFE is revenue-based
 const H_B_ANOI = H_B_NOI - H_B_FFE;
 
@@ -165,7 +159,6 @@ const H_CO_STAFF_COMP = (2.5 * 75_000) / 12;  // 15,625 (tier 1: 1 ≤ 3)
 const H_CO_OFFICE = 36_000 / 12;  // 3,000
 const H_CO_PROF_SERVICES = 24_000 / 12;  // 2,000
 const H_CO_TECH = 18_000 / 12;  // 1,500
-const H_CO_INSURANCE = 12_000 / 12;  // 1,000
 // Variable costs scale with activePropertyCount = 1 (not 2!)
 const H_CO_TRAVEL = (1 * 12_000) / 12;  // 1,000 (1 active property)
 const H_CO_IT_LICENSE = (1 * 3_000) / 12;  // 250 (1 active property)
@@ -173,7 +166,6 @@ const H_CO_MARKETING = H_CO_TOTAL_REV * 0.05;
 const H_CO_MISC = H_CO_TOTAL_REV * 0.03;
 
 const H_CO_TOTAL_EXP = H_CO_PARTNER_COMP + H_CO_STAFF_COMP + H_CO_OFFICE +
-  H_CO_PROF_SERVICES + H_CO_TECH + H_CO_INSURANCE +
   H_CO_TRAVEL + H_CO_IT_LICENSE + H_CO_MARKETING + H_CO_MISC;
 
 const H_CO_PRE_TAX = H_CO_TOTAL_REV - H_CO_TOTAL_EXP;
@@ -372,7 +364,6 @@ describe("Golden: Mixed Portfolio — 1 Active + 1 Inactive Property", () => {
     expect(comp[0].officeLease).toBeCloseTo(H_CO_OFFICE, 2);
     expect(comp[0].professionalServices).toBeCloseTo(H_CO_PROF_SERVICES, 2);
     expect(comp[0].techInfrastructure).toBeCloseTo(H_CO_TECH, 2);
-    expect(comp[0].businessInsurance).toBeCloseTo(H_CO_INSURANCE, 2);
   });
 
   // ─── 20. Company net income ────────────────────────────────────────

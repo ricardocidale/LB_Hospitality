@@ -438,7 +438,7 @@ function CostStructure({ content, hasData, onGenerate }: { content: any; hasData
   const treemapData = [
     { name: "Salaries", size: 42, fill: "#6366f1" }, { name: "Benefits", size: 12, fill: "#8b5cf6" },
     { name: "Technology", size: 14, fill: "#10b981" }, { name: "Office/Admin", size: 10, fill: "#f59e0b" },
-    { name: "Insurance", size: 8, fill: "#ef4444" }, { name: "Travel", size: 6, fill: "#06b6d4" },
+    { name: "Travel", size: 6, fill: "#06b6d4" },
     { name: "Professional Svcs", size: 5, fill: "#ec4899" }, { name: "Other", size: 3, fill: "#94a3b8" },
   ];
 

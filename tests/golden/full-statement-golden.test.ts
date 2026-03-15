@@ -20,7 +20,7 @@ import { pmt } from "../../calc/shared/pmt";
 import {
   DEFAULT_COST_RATE_ROOMS, DEFAULT_COST_RATE_FB, DEFAULT_COST_RATE_ADMIN,
   DEFAULT_COST_RATE_MARKETING, DEFAULT_COST_RATE_PROPERTY_OPS, DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE, DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_IT,
+  DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE, DEFAULT_COST_RATE_OTHER,
   DEFAULT_EVENT_EXPENSE_RATE, DEFAULT_OTHER_EXPENSE_RATE, DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER,
@@ -84,7 +84,6 @@ const GLOBAL = {
   officeLeaseStart: 36_000,
   professionalServicesStart: 24_000,
   techInfraStart: 18_000,
-  businessInsuranceStart: 12_000,
   travelCostPerClient: 12_000,
   itLicensePerClient: 3_000,
   marketingRate: 0.05,
@@ -122,7 +121,6 @@ const H_BASE_TOTAL_REV = H_REV_TOTAL; // same since 0% growth and occ at target
 const H_EXP_ADMIN = H_BASE_TOTAL_REV * DEFAULT_COST_RATE_ADMIN;
 const H_EXP_PROP_OPS = H_BASE_TOTAL_REV * DEFAULT_COST_RATE_PROPERTY_OPS;
 const H_EXP_IT = H_BASE_TOTAL_REV * DEFAULT_COST_RATE_IT;
-const H_EXP_INSURANCE = (H_TOTAL_PROP_VALUE / 12) * DEFAULT_COST_RATE_INSURANCE;
 const H_EXP_TAXES = (H_TOTAL_PROP_VALUE / 12) * DEFAULT_COST_RATE_TAXES;
 const H_EXP_UTIL_FIXED = H_BASE_TOTAL_REV * (DEFAULT_COST_RATE_UTILITIES * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT));
 const H_EXP_OTHER_COSTS = H_BASE_TOTAL_REV * DEFAULT_COST_RATE_OTHER;
@@ -199,14 +197,13 @@ const H_CO_STAFF_COMP = (2.5 * 75_000 * 1) / 12;                   // 15,625
 const H_CO_OFFICE = (36_000 * 1) / 12;                              // 3,000
 const H_CO_PROF_SERV = (24_000 * 1) / 12;                           // 2,000
 const H_CO_TECH = (18_000 * 1) / 12;                                // 1,500
-const H_CO_INSURANCE = (12_000 * 1) / 12;                           // 1,000
 const H_CO_TRAVEL = (1 * 12_000 * 1) / 12;                          // 1,000
 const H_CO_IT_LIC = (1 * 3_000 * 1) / 12;                           // 250
 const H_CO_MARKETING = H_CO_TOTAL_REV * 0.05;
 const H_CO_MISC = H_CO_TOTAL_REV * 0.03;
 
 const H_CO_TOTAL_EXP = H_CO_PARTNER_COMP + H_CO_STAFF_COMP + H_CO_OFFICE +
-  H_CO_PROF_SERV + H_CO_TECH + H_CO_INSURANCE + H_CO_TRAVEL +
+  H_CO_PROF_SERV + H_CO_TECH + H_CO_TRAVEL +
   H_CO_IT_LIC + H_CO_MARKETING + H_CO_MISC;
 
 const H_CO_PRE_TAX = H_CO_TOTAL_REV - H_CO_TOTAL_EXP;              // no vendor costs
@@ -258,7 +255,6 @@ describe("Golden Scenario: Full Financial Statements", () => {
       expect(m0.expenseAdmin).toBeCloseTo(H_EXP_ADMIN, 2);
       expect(m0.expensePropertyOps).toBeCloseTo(H_EXP_PROP_OPS, 2);
       expect(m0.expenseIT).toBeCloseTo(H_EXP_IT, 2);
-      expect(m0.expenseInsurance).toBeCloseTo(H_EXP_INSURANCE, 2);
       expect(m0.expenseTaxes).toBeCloseTo(H_EXP_TAXES, 2);
       expect(m0.expenseUtilitiesFixed).toBeCloseTo(H_EXP_UTIL_FIXED, 2);
       expect(m0.expenseOtherCosts).toBeCloseTo(H_EXP_OTHER_COSTS, 2);
@@ -483,7 +479,6 @@ describe("Golden Scenario: Full Financial Statements", () => {
       expect(c0.officeLease).toBeCloseTo(H_CO_OFFICE, 2);
       expect(c0.professionalServices).toBeCloseTo(H_CO_PROF_SERV, 2);
       expect(c0.techInfrastructure).toBeCloseTo(H_CO_TECH, 2);
-      expect(c0.businessInsurance).toBeCloseTo(H_CO_INSURANCE, 2);
       expect(c0.travelCosts).toBeCloseTo(H_CO_TRAVEL, 2);
       expect(c0.itLicensing).toBeCloseTo(H_CO_IT_LIC, 2);
       expect(c0.marketing).toBeCloseTo(H_CO_MARKETING, 2);

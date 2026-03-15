@@ -57,7 +57,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -126,7 +125,6 @@ function convertToAuditInput(property: any): PropertyAuditInput {
     costRateMarketing: property.costRateMarketing,
     costRatePropertyOps: property.costRatePropertyOps,
     costRateUtilities: property.costRateUtilities,
-    costRateInsurance: property.costRateInsurance,
     costRateTaxes: property.costRateTaxes,
     costRateIT: property.costRateIT,
     costRateFFE: property.costRateFFE,
@@ -297,7 +295,6 @@ function aggregateToYearly(monthlyData: MonthlyFinancials[]): Array<{
   feeBase: number;
   feeIncentive: number;
   agop: number;
-  expenseInsurance: number;
   expenseTaxes: number;
   noi: number;
   expenseFFE: number;
@@ -322,7 +319,6 @@ function aggregateToYearly(monthlyData: MonthlyFinancials[]): Array<{
         feeBase: 0,
         feeIncentive: 0,
         agop: 0,
-        expenseInsurance: 0,
         expenseTaxes: 0,
         noi: 0,
         expenseFFE: 0,
@@ -348,7 +344,6 @@ function aggregateToYearly(monthlyData: MonthlyFinancials[]): Array<{
     y.feeBase += m.feeBase;
     y.feeIncentive += m.feeIncentive;
     y.agop += m.agop;
-    y.expenseInsurance += m.expenseInsurance;
     y.expenseTaxes += m.expenseTaxes;
     y.noi += m.noi;
     y.expenseFFE += m.expenseFFE;
@@ -415,9 +410,8 @@ function computeMonthlyPL(tc: TestCase) {
   const baseFee = totalRev * (tc.property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
   const incentiveFee = Math.max(0, gop * (tc.property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
   const agop = gop - baseFee - incentiveFee;
-  const expenseInsurance = (totalPropertyValue / 12) * (tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE);
   const expenseTaxes = (totalPropertyValue / 12) * (tc.property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES);
-  const noi = agop - expenseInsurance - expenseTaxes;
+  const noi = agop - expenseTaxes;
   const ffeFee = totalRev * (tc.property.costRateFFE ?? DEFAULT_COST_RATE_FFE);
   const anoi = noi - ffeFee;
 
@@ -586,7 +580,6 @@ function buildEngineInputs(tc: TestCase): { property: any; global: any } {
       costRateMarketing: tc.property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING,
       costRatePropertyOps: tc.property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS,
       costRateUtilities: tc.property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES,
-      costRateInsurance: tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE,
       costRateTaxes: tc.property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES,
       costRateIT: tc.property.costRateIT ?? DEFAULT_COST_RATE_IT,
       costRateFFE: tc.property.costRateFFE ?? DEFAULT_COST_RATE_FFE,
@@ -711,7 +704,7 @@ function buildChecksForTestCase(testCase: TestCase): KnownValueCheck[] {
 
   checks.push({
     label: "NOI",
-    formula: "Hand-calc vs Engine: AGOP − Insurance − Property Taxes",
+    formula: "Hand-calc vs Engine: AGOP − Property Taxes",
     expected: r2(pl.noi),
     calculated: engineMonth ? r2(engineMonth.noi) : r2(pl.noi),
     passed: engineMonth ? match(pl.noi, engineMonth.noi) : true,

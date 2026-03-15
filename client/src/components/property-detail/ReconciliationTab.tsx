@@ -50,7 +50,6 @@ const USALI_LINE_ITEMS = [
   { category: "Property Operations", key: "expensePropertyOps", type: "expense" },
   { category: "Utilities", key: "expenseUtilitiesVar", type: "expense" },
   { category: "IT & Telecom", key: "expenseIT", type: "expense" },
-  { category: "Insurance", key: "expenseInsurance", type: "expense" },
   { category: "Property Taxes", key: "expenseTaxes", type: "expense" },
   { category: "FF&E Reserve", key: "expenseFFE", type: "expense" },
   { category: "Management Fee", key: "feeBase", type: "expense" },

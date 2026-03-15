@@ -47,7 +47,7 @@ function extractMethodologyContent(): { title: string; content: string; source: 
 
 Properties P&L: Each property is modeled independently. Revenue from rooms, F&B, events, other. Expenses per USALI standards. Debt service for financed properties. Full balance sheet and cash flow statement. IRR and equity multiple at exit.
 
-Management Company P&L: Revenue = management fees from all properties. Partner compensation (defined per-year array). Staff costs scale with property count (tiered). Fixed costs: office, insurance, professional services. Variable costs: travel, IT, marketing. Funding instrument for working capital.
+Management Company P&L: Revenue = management fees from all properties. Partner compensation (defined per-year array). Staff costs scale with property count (tiered). Fixed costs: office, professional services. Variable costs: travel, IT, marketing. Funding instrument for working capital.
 
 Fund Flow: Guests pay Room + F&B + Event Revenue. Less: Operating Expenses, Debt Service = Free Cash Flow to Equity (FCFE). Management Fees (base + incentive) flow from properties to Management Company. Revenue = Management Fees from all properties. Less: Staff, Office, Travel, Partner Comp = Company Net Income.
 
@@ -148,7 +148,6 @@ Departmental Expenses (as percentage of relevant revenue):
 Undistributed Expenses:
 - Property Operations & Maintenance: percentage of Total Revenue
 - Utilities: split between fixed and variable components
-- Insurance: percentage of Total Revenue
 - Property Taxes: percentage of Total Revenue
 - IT Systems: percentage of Total Revenue
 
@@ -164,7 +163,7 @@ FF&E Reserve: percentage of Total Revenue set aside for furniture, fixtures, and
 
 GOP (Gross Operating Profit) = Total Revenue − Total Operating Expenses
 AGOP (Adjusted Gross Operating Profit) = GOP − Management Fees (base + incentive)
-NOI (Net Operating Income) = AGOP − Fixed Charges (insurance + property taxes)
+NOI (Net Operating Income) = AGOP − Fixed Charges (property taxes)
 ANOI (Adjusted Net Operating Income) = NOI − FF&E Reserve
 
 Management Fees:
@@ -218,7 +217,6 @@ Expense Categories:
 - Partner Compensation: defined per-year array for each of 3 partners
 - Staff Costs: scale with property count in tiers (1-3, 4-6, 7-10 properties)
 - Office Rent: fixed cost with annual escalation
-- Insurance: fixed cost
 - Professional Services: fixed cost (legal, accounting)
 - Travel: variable cost per property
 - IT: fixed cost with annual escalation
@@ -315,7 +313,6 @@ GAAP/IRS Rules by Field:
 - Events Revenue → ASC 606: Event revenue is recognized when the event occurs (point-in-time). Deposits are recorded as deferred revenue until the performance obligation is satisfied.
 - F&B Revenue → ASC 606: F&B revenue is recognized at the point of sale. Bundled packages (e.g., room + breakfast) must allocate revenue to each performance obligation based on standalone selling prices.
 - FF&E Reserve → USALI Standard: FF&E reserve is deducted below NOI to arrive at ANOI. Actual FF&E replacements are capitalized and depreciated over 5–7 years (IRS Class Life), not expensed. The reserve funds future CapEx.
-- Insurance → GAAP Matching Principle: Insurance premiums are expensed as incurred over the policy period. Prepaid portions are recorded as current assets and amortized monthly. Not capitalizable into property basis.
 - Property Taxes → IRC §164: Property taxes are fully deductible as an operating expense for income tax purposes. Based on assessed value, not market value. Reassessment may occur upon sale or significant improvement.
 - Sale Commission → IRC §1001: Sales commission reduces the amount realized on disposition and is deducted from gross sale proceeds.`,
     source: "User Manual",
@@ -404,7 +401,7 @@ Income Statement (USALI Waterfall):
 - = Gross Operating Profit (GOP)
 - Less: Management Fees (base + incentive)
 - = Adjusted GOP (AGOP)
-- Less: Fixed Charges (insurance + property taxes)
+- Less: Fixed Charges (property taxes)
 - = Net Operating Income (NOI)
 - Less: FF&E Reserve
 - = Adjusted NOI (ANOI)

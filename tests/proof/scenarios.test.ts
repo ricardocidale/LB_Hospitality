@@ -346,11 +346,11 @@ describe("Proof Scenario 4: OpCo Fees + SPV Fees (Portfolio Aggregate)", () => {
   it("portfolio NOI = independently computed NOI for each property", () => {
     for (let i = 0; i < 120; i++) {
       const agopA = resultA[i].gop - resultA[i].feeBase - resultA[i].feeIncentive;
-      const noiA = agopA - resultA[i].expenseInsurance - resultA[i].expenseTaxes;
+      const noiA = agopA - resultA[i].expenseTaxes;
       const anoiA = noiA - resultA[i].expenseFFE;
 
       const agopB = resultB[i].gop - resultB[i].feeBase - resultB[i].feeIncentive;
-      const noiB = agopB - resultB[i].expenseInsurance - resultB[i].expenseTaxes;
+      const noiB = agopB - resultB[i].expenseTaxes;
       const anoiB = noiB - resultB[i].expenseFFE;
 
       expect(resultA[i].noi).toBeCloseTo(noiA, 2);

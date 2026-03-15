@@ -12,7 +12,6 @@ import {
   DEFAULT_COST_RATE_MARKETING,
   DEFAULT_COST_RATE_PROPERTY_OPS,
   DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_TAXES,
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
@@ -211,7 +210,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const costRateMarketing = property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING;
     const costRatePropertyOps = property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS;
     const costRateUtilities = property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES;
-    const costRateInsurance = property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE;
+    
     const costRateTaxes = property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES;
     const costRateIT = property.costRateIT ?? DEFAULT_COST_RATE_IT;
     const costRateFFE = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
@@ -233,7 +232,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactor * fixedGate;
     const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactor * fixedGate;
     const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactor * fixedGate;
-    const expenseInsurance = (totalPropertyValue / 12) * costRateInsurance * fixedCostFactor * fixedGate;
+    
     const expenseTaxes = (totalPropertyValue / 12) * costRateTaxes * fixedCostFactor * fixedGate;
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
@@ -247,7 +246,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const gop = revenueTotal - totalOperatingExpenses;
     const feeIncentive = Math.max(0, gop * (property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
     const agop = gop - feeBase - feeIncentive;
-    const noi = agop - expenseInsurance - expenseTaxes;
+    const noi = agop - expenseTaxes;
     const anoi = noi - expenseFFE;
 
     let debtPayment = 0;
@@ -316,7 +315,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const cashFlow = anoi - debtPayment - incomeTax;
 
     const currentAR = isOperational ? (revenueTotal / 30) * arDays : 0;
-    const totalOpCosts = totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes;
+    const totalOpCosts = totalOperatingExpenses + feeBase + feeIncentive + expenseTaxes;
     const currentAP = isOperational ? (totalOpCosts / 30) * apDays : 0;
     const workingCapitalChange = (currentAR - prevAR) - (currentAP - prevAP);
     prevAR = currentAR;
@@ -349,7 +348,6 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       agop,
       feeBase,
       feeIncentive,
-      expenseInsurance,
       expenseTaxes,
       noi,
       anoi,
@@ -366,7 +364,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       endingCash: cumulativeCash,
       cashShortfall: cumulativeCash < 0,
       expenseFFE,
-      totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseInsurance + expenseTaxes + expenseFFE,
+      totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseTaxes + expenseFFE,
       accountsReceivable: currentAR,
       accountsPayable: currentAP,
       workingCapitalChange,

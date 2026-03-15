@@ -7,7 +7,7 @@
  * SPVs). Revenue comes from base management fees (% of property revenue) and
  * incentive fees (% of GOP — Gross Operating Profit). Expenses are the
  * company's own overhead: partner compensation, staff salaries, office lease,
- * tech, insurance, travel, marketing, etc.
+ * tech, travel, marketing, etc.
  *
  *   • CompanyHeader      – summary bar with total revenue, EBITDA, and cash
  *   • CompanyIncomeTab   – multi-year income statement for the management entity

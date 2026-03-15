@@ -1,7 +1,6 @@
 import type { NotificationEvent } from "./events";
 import { getEventLabel } from "./events";
 import type { AlertRule, Property } from "@shared/schema";
-import { sendSlackNotification } from "../integrations/slack";
 import { sendNotificationEmail } from "../integrations/resend";
 import { db } from "../db";
 import { alertRules, notificationLogs, notificationSettings } from "@shared/schema";
@@ -33,21 +32,7 @@ async function logNotification(
 }
 
 export async function processNotificationEvent(event: NotificationEvent): Promise<void> {
-  const slackWebhookUrl = await getNotificationSetting("slack_webhook_url");
   const resendEnabled = await getNotificationSetting("resend_enabled");
-
-  if (slackWebhookUrl) {
-    try {
-      await sendSlackNotification(slackWebhookUrl, event);
-      await logNotification(event, "slack", "sent", { recipient: "channel" });
-    } catch (error: any) {
-      console.error("Slack notification failed:", error.message);
-      await logNotification(event, "slack", "failed", {
-        recipient: "channel",
-        errorMessage: error.message,
-      });
-    }
-  }
 
   if (resendEnabled === "true" && event.metadata?.recipientEmail && event.type !== "REPORT_SHARED") {
     try {

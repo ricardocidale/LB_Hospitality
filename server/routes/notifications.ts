@@ -4,10 +4,7 @@ import { logAndSendError } from "./helpers";
 import { insertAlertRuleSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { storage } from "../storage";
-import { testSlackWebhook } from "../integrations/slack";
 import { testResendConnection, sendReportShareEmail, sendScenarioSummaryEmail } from "../integrations/resend";
-import { processNotificationEvent } from "../notifications/engine";
-import { createEvent } from "../notifications/events";
 
 export function register(app: Express) {
   // --- Alert Rules CRUD ---
@@ -81,9 +78,6 @@ export function register(app: Express) {
     try {
       const updates = req.body as Record<string, string | null>;
       for (const [key, value] of Object.entries(updates)) {
-        if (key === "slack_webhook_url" && value && !value.startsWith("https://hooks.slack.com/")) {
-          return res.status(400).json({ error: "Invalid Slack webhook URL" });
-        }
         await storage.setNotificationSetting(key, value);
       }
       res.json({ success: true });
@@ -116,20 +110,6 @@ export function register(app: Express) {
   });
 
   // --- Test integrations ---
-  app.post("/api/notifications/test-slack", requireAdmin, async (req, res) => {
-    try {
-      const { webhookUrl } = req.body;
-      if (!webhookUrl) return res.status(400).json({ error: "webhookUrl required" });
-      if (!webhookUrl.startsWith("https://hooks.slack.com/")) {
-        return res.status(400).json({ error: "Invalid Slack webhook URL. Must start with https://hooks.slack.com/" });
-      }
-      const result = await testSlackWebhook(webhookUrl);
-      res.json(result);
-    } catch (error) {
-      logAndSendError(res, "Failed to test Slack webhook", error);
-    }
-  });
-
   app.post("/api/notifications/test-resend", requireAdmin, async (_req, res) => {
     try {
       const result = await testResendConnection();
@@ -157,16 +137,6 @@ export function register(app: Express) {
         status: "sent",
         metadata: { propertyName },
       });
-
-      const slackUrl = await storage.getNotificationSetting("slack_webhook_url");
-      if (slackUrl) {
-        const event = createEvent("REPORT_SHARED", {
-          propertyName,
-          message: `Report shared with ${to}`,
-        });
-        const { sendSlackNotification } = await import("../integrations/slack");
-        await sendSlackNotification(slackUrl, event).catch(() => {});
-      }
 
       res.json({ success: true });
     } catch (error) {

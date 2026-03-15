@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Plus, TestTube, Bell, MessageSquare, Mail, AlertTriangle, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Trash2, Plus, Bell, MessageSquare, Mail, AlertTriangle, CheckCircle, XCircle, Clock } from "lucide-react";
 import type { AlertRule, Property } from "@shared/schema";
 
 const METRIC_OPTIONS = [
@@ -74,11 +74,9 @@ export default function NotificationsTab() {
     queryKey: ["/api/properties"],
   });
 
-  const [slackWebhookUrl, setSlackWebhookUrl] = useState("");
   const [resendEnabled, setResendEnabled] = useState(false);
 
   useEffect(() => {
-    if (settings.slack_webhook_url) setSlackWebhookUrl(settings.slack_webhook_url);
     setResendEnabled(settings.resend_enabled === "true");
   }, [settings]);
 
@@ -89,20 +87,6 @@ export default function NotificationsTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications/settings"] });
       toast({ title: "Settings saved" });
-    },
-  });
-
-  const testSlackMutation = useMutation({
-    mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/notifications/test-slack", { webhookUrl: slackWebhookUrl });
-      return res.json();
-    },
-    onSuccess: (data: any) => {
-      if (data.success) {
-        toast({ title: "Slack test successful", description: "Check your Slack channel for the test message" });
-      } else {
-        toast({ title: "Slack test failed", description: data.error, variant: "destructive" });
-      }
     },
   });
 
@@ -157,47 +141,6 @@ export default function NotificationsTab() {
         </TabsList>
 
         <TabsContent value="channels" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" /> Slack Integration
-              </CardTitle>
-              <CardDescription>
-                Configure an incoming webhook to receive alerts and system notifications in a Slack channel.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="slack-webhook">Webhook URL</Label>
-                <Input
-                  id="slack-webhook"
-                  data-testid="input-slack-webhook"
-                  type="url"
-                  placeholder="https://hooks.slack.com/services/..."
-                  value={slackWebhookUrl}
-                  onChange={(e) => setSlackWebhookUrl(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  data-testid="button-save-slack"
-                  onClick={() => saveSettingsMutation.mutate({ slack_webhook_url: slackWebhookUrl || null })}
-                  disabled={saveSettingsMutation.isPending}
-                >
-                  Save
-                </Button>
-                <Button
-                  variant="outline"
-                  data-testid="button-test-slack"
-                  onClick={() => testSlackMutation.mutate()}
-                  disabled={!slackWebhookUrl || testSlackMutation.isPending}
-                >
-                  <TestTube className="w-4 h-4 mr-1" /> Test
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

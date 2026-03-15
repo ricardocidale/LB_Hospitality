@@ -1510,7 +1510,7 @@ export const NOTIFICATION_EVENT_TYPES = [
 ] as const;
 export type NotificationEventType = typeof NOTIFICATION_EVENT_TYPES[number];
 
-export const NOTIFICATION_CHANNELS = ["email", "slack"] as const;
+export const NOTIFICATION_CHANNELS = ["email"] as const;
 export type NotificationChannel = typeof NOTIFICATION_CHANNELS[number];
 
 export const ALERT_OPERATORS = ["<", ">", "=", "!="] as const;

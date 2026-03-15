@@ -44,7 +44,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
   "ai-agents":     { title: "AI Agents",             subtitle: "Configure and manage Marcela (voice) and Rebecca (text) assistants" },
   research:         { title: "Research Center",      subtitle: "Strategic intelligence hub — ICP company research, property benchmarks, market analysis, and AI engine" },
-  notifications:    { title: "Notifications",         subtitle: "Slack, email channels, alert rules, and delivery tracking" },
+  notifications:    { title: "Notifications",         subtitle: "Email channels, alert rules, and delivery tracking" },
   navigation:       { title: "Navigation",           subtitle: "Control which sidebar pages are visible to users" },
   diagrams:         { title: "Diagrams",              subtitle: "Application workflow diagrams and architecture" },
   verification:     { title: "Verification",         subtitle: "Independent GAAP financial audit and compliance" },

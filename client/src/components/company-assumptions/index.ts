@@ -30,6 +30,5 @@ export { default as ExitAssumptionsSection } from "./ExitAssumptionsSection";
 export { default as PropertyExpenseRatesSection } from "./PropertyExpenseRatesSection";
 export { default as CateringSection } from "./CateringSection";
 export { default as PartnerCompSection } from "./PartnerCompSection";
-export { default as ServiceTemplatesSection } from "./ServiceTemplatesSection";
 export { default as SummaryFooter } from "./SummaryFooter";
 export type * from "./types";

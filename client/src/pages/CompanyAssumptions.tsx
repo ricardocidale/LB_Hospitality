@@ -45,7 +45,6 @@ import {
   CompanySetupSection,
   FundingSection,
   ManagementFeesSection,
-  ServiceTemplatesSection,
   CompensationSection,
   FixedOverheadSection,
   VariableCostsSection,
@@ -281,12 +280,9 @@ export default function CompanyAssumptions() {
 
         <FundingSection formData={formData} onChange={handleUpdate} global={global} />
 
-        <ServiceTemplatesSection />
+        <ManagementFeesSection formData={formData} onChange={handleUpdate} global={global} properties={properties} allFeeCategories={allFeeCategories} />
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <ManagementFeesSection formData={formData} onChange={handleUpdate} global={global} properties={properties} allFeeCategories={allFeeCategories} />
-          <CompensationSection formData={formData} onChange={handleUpdate} global={global} researchValues={researchValues} />
-        </div>
+        <CompensationSection formData={formData} onChange={handleUpdate} global={global} researchValues={researchValues} />
 
         <ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">

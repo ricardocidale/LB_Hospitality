@@ -570,23 +570,156 @@ const L3_PROPERTY = `flowchart TB
   Refinance --> Operations
   Operations -->|exitDate| Exit`;
 
-const L3_SEEDING = `flowchart TB
-  Start([Server Start]) --> Seed[seedAdminUser]
-  Seed --> Check{User Exists?}
-  Check -->|No| Create[Create User + Hash Password]
-  Check -->|Yes| Guard{FORCE_RESEED_PASSWORDS?}
-  Guard -->|true| Reset[Reset Password]
-  Guard -->|false| Preserve[Preserve Password]
-  Reset --> Profile[Update Profile Fields]
-  Preserve --> Profile
-  Create --> Profile
-  Profile --> Scenario[Create Default Scenario]
+const L3_DATA_MODEL = `erDiagram
+  Users ||--o{ Properties : "owns"
+  Users ||--o{ Scenarios : "creates"
+  Users ||--o{ Sessions : "authenticates"
+  Users ||--o{ LoginLogs : "logs"
+  Users ||--o{ ActivityLogs : "generates"
+  Users ||--o{ Conversations : "starts"
+  Users ||--o{ MarketResearch : "requests"
+  Users ||--o{ ProspectiveProperties : "saves"
+  Users ||--o{ VerificationRuns : "runs"
+  Users ||--o{ AlertRules : "configures"
+  Users ||--o{ GlobalAssumptions : "edits"
+  Users }o--o| UserGroups : "belongs to"
+  Users }o--o| Companies : "assigned to"
 
-  subgraph ProdSync["Production Sync (fill-only)"]
-    FillCheck[isFieldEmpty?]
-    FillCheck -->|empty| Fill[Fill from defaults]
-    FillCheck -->|has value| Skip[Skip - preserve user data]
-  end`;
+  UserGroups ||--o{ UserGroupProperties : "filters via"
+  Properties ||--o{ UserGroupProperties : "visible in"
+
+  Properties ||--o{ PropertyPhotos : "has"
+  Properties ||--o{ PropertyFeeCategories : "has"
+  Properties ||--o{ MarketResearch : "subject of"
+
+  Conversations ||--o{ Messages : "contains"
+
+  Companies }o--o| Logos : "branded with"
+  UserGroups }o--o| Logos : "branded with"
+  UserGroups }o--o| DesignThemes : "styled by"
+  Users }o--o| DesignThemes : "overrides with"
+
+  AlertRules ||--o{ NotificationLogs : "triggers"
+
+  Users {
+    int id PK
+    string username
+    string role "admin | partner | checker | investor"
+    int companyId FK
+    int userGroupId FK
+  }
+  UserGroups {
+    int id PK
+    string name
+    int logoId FK
+    int themeId FK
+  }
+  Companies {
+    int id PK
+    string name
+    string type "management | spv"
+    int logoId FK
+  }
+  Properties {
+    int id PK
+    string name
+    int userId FK
+    string status
+    jsonb financialData
+  }
+  UserGroupProperties {
+    int userGroupId FK
+    int propertyId FK
+  }
+  Scenarios {
+    int id PK
+    int userId FK
+    string name
+    jsonb snapshot
+  }
+  GlobalAssumptions {
+    int id PK
+    int userId FK
+    jsonb data
+  }
+  VerificationRuns {
+    int id PK
+    int userId FK
+    string auditOpinion
+  }
+  MarketResearch {
+    int id PK
+    int userId FK
+    int propertyId FK
+    string status
+  }
+  ResearchQuestions {
+    int id PK
+    string question
+    int sortOrder
+  }
+  Conversations {
+    int id PK
+    int userId FK
+    string title
+  }
+  Messages {
+    int id PK
+    int conversationId FK
+    string role
+    text content
+  }
+  PropertyPhotos {
+    int id PK
+    int propertyId FK
+    string url
+  }
+  PropertyFeeCategories {
+    int id PK
+    int propertyId FK
+    string category
+  }
+  ProspectiveProperties {
+    int id PK
+    int userId FK
+    string name
+  }
+  ActivityLogs {
+    int id PK
+    int userId FK
+    string action
+    string entityType
+  }
+  AlertRules {
+    int id PK
+    int userId FK
+    string metric
+    string operator
+  }
+  NotificationLogs {
+    int id PK
+    int alertRuleId FK
+    string channel
+  }
+  Sessions {
+    string sid PK
+    int userId FK
+    timestamp expires
+  }
+  LoginLogs {
+    int id PK
+    int userId FK
+    timestamp timestamp
+  }
+  DesignThemes {
+    int id PK
+    string name
+    jsonb colors
+  }
+  Logos {
+    int id PK
+    string url
+  }`;
 
 const L3_EXPORT = `flowchart LR
   Page([Data Page]) --> ExportMenu[ExportMenu Component]
@@ -604,27 +737,64 @@ const L3_EXPORT = `flowchart LR
   PPTX --> Download
   TablePNG --> Download`;
 
-const L3_ADMIN_CONFIG = `flowchart TB
-  Admin([Admin]) --> Themes[Theme Management]
-  Admin --> Groups[Group Management]
-  Admin --> Users[User Management]
+const L3_ROLE_ACCESS = `flowchart TB
+  subgraph Roles["User Roles"]
+    direction LR
+    Admin["🔑 Admin"]
+    Partner["🤝 Partner"]
+    Checker["✅ Checker"]
+    Investor["📊 Investor"]
+  end
 
-  Themes --> Default[Set Default Theme]
-  Themes --> Create[Create Custom Theme]
+  subgraph Gates["Permission Gates"]
+    isAdmin{"isAdmin"}
+    hasMgmt{"hasManagementAccess\\n(all except Investor)"}
+    reqChecker{"requireChecker"}
+    groupFilter{"Property Group Filter\\n(Admin bypasses)"}
+  end
 
-  Groups --> AssignTheme[Assign Theme to Group]
-  Groups --> AssignLogo[Assign Logo to Group]
+  subgraph AdminPanel["Admin-Only Panel"]
+    UserMgmt["User Management"]
+    GroupMgmt["Group Management"]
+    ThemeMgmt["Theme Management"]
+    Diagrams["System Diagrams"]
+    AlertConfig["Alert Configuration"]
+  end
 
-  Users --> AssignGroup[Assign User to Group]
-  Users --> AssignUserTheme[Override User Theme]
+  subgraph FullToolkit["Investment Toolkit"]
+    Dash["Dashboard"]
+    Props["Properties"]
+    MgmtCo["Management Company"]
+    Sim["Simulation"]
+    Finder["Property Finder"]
+    MapView["Map View"]
+    Scenarios["Scenarios"]
+    Settings["Settings"]
+  end
 
-  subgraph Cascade["Resolution Cascade"]
-    direction TB
-    UserTheme[User Theme Override]
-    GroupTheme[Group Theme]
-    SystemDefault[System Default]
-    UserTheme -->|fallback| GroupTheme -->|fallback| SystemDefault
-  end`;
+  subgraph CheckerTools["Checker Tools"]
+    Verify["Verification Panel"]
+    Manual["Checker Manual"]
+    ReadOnly["Read-Only Financials"]
+  end
+
+  subgraph InvestorView["Investor View"]
+    InvDash["Dashboard"]
+    InvProps["Filtered Properties"]
+  end
+
+  Admin --> isAdmin --> AdminPanel
+  Admin --> hasMgmt --> FullToolkit
+  Partner --> hasMgmt
+  Checker --> reqChecker --> CheckerTools
+  Checker --> hasMgmt
+  Investor --> InvestorView
+
+  Admin -.->|"bypasses"| groupFilter
+  Partner --> groupFilter
+  Checker --> groupFilter
+  Investor --> groupFilter
+  groupFilter -->|"sees only mapped properties"| Props`;
 
 // ─────────────────────────────────────────────────
 // Component
@@ -756,7 +926,7 @@ export default function DiagramsTab() {
         </TabsContent>
 
         <TabsContent value="3" className="mt-4">
-          <Accordion type="multiple" defaultValue={["property", "seeding", "export", "admin"]}>
+          <Accordion type="multiple" defaultValue={["property", "data-model", "export", "role-access"]}>
             <AccordionItem value="property">
               <AccordionTrigger className="text-sm font-semibold">Property Lifecycle</AccordionTrigger>
               <AccordionContent>
@@ -767,13 +937,13 @@ export default function DiagramsTab() {
                 />
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="seeding">
-              <AccordionTrigger className="text-sm font-semibold">Seeding & Password Flow</AccordionTrigger>
+            <AccordionItem value="data-model">
+              <AccordionTrigger className="text-sm font-semibold">Data Model ER Diagram</AccordionTrigger>
               <AccordionContent>
                 <DiagramCard
-                  title="Seeding & Password Management"
-                  description="Server startup seeding with password guard and production fill-only sync"
-                  chart={L3_SEEDING}
+                  title="Entity Relationship Diagram"
+                  description="Core data entities and their relationships — users, properties, scenarios, research, and support tables"
+                  chart={L3_DATA_MODEL}
                 />
               </AccordionContent>
             </AccordionItem>
@@ -787,13 +957,13 @@ export default function DiagramsTab() {
                 />
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="admin">
-              <AccordionTrigger className="text-sm font-semibold">Admin Cascade</AccordionTrigger>
+            <AccordionItem value="role-access">
+              <AccordionTrigger className="text-sm font-semibold">Role-Based Access Control</AccordionTrigger>
               <AccordionContent>
                 <DiagramCard
-                  title="Theme & Branding Cascade"
-                  description="Admin → Themes → Groups → Users resolution chain"
-                  chart={L3_ADMIN_CONFIG}
+                  title="Role-Based Access Control"
+                  description="Four user roles, sidebar visibility, permission gates, and property group filtering"
+                  chart={L3_ROLE_ACCESS}
                 />
               </AccordionContent>
             </AccordionItem>

@@ -16,8 +16,10 @@ import {
   DEFAULT_MISC_OPS_RATE,
 } from './constants';
 
-// --- GLOBAL ASSUMPTIONS ---
-export interface GlobalAssumptions {
+// --- LOCAL STORE TYPES (legacy — canonical types live in shared/schema.ts) ---
+// These types are used only by the local Zustand store for client-side fallback data.
+// For database-backed GlobalAssumptions, import from "@shared/schema" instead.
+interface StoreGlobalAssumptions {
   modelStartDate: string;
   inflationRate: number; // 0.03
   partnerSalary: number; // 150000
@@ -46,8 +48,7 @@ export interface GlobalAssumptions {
   };
 }
 
-// --- PROPERTY MODEL ---
-export interface Property {
+interface StoreProperty {
   id: string;
   name: string;
   location: string;

@@ -62,6 +62,7 @@ import {
 import {
   DEFAULT_AR_DAYS,
   DEFAULT_AP_DAYS,
+  WORKING_CAPITAL_DAYS_PER_MONTH,
   DEFAULT_ESCALATION_METHOD,
   DEFAULT_COST_SEG_5YR_PCT,
   DEFAULT_COST_SEG_7YR_PCT,
@@ -397,9 +398,9 @@ export function generatePropertyProForma(
     const netIncome = anoi - interestExpense - depreciationExpense - incomeTax;
 
     // ── Working capital (AR/AP tracking) ──────────────────────────────────────
-    const currentAR = isOperational ? (revenueTotal / 30) * arDays : 0;
+    const currentAR = isOperational ? (revenueTotal / WORKING_CAPITAL_DAYS_PER_MONTH) * arDays : 0;
     const totalOpCosts = totalOperatingExpenses + feeBase + feeIncentive + expenseTaxes;
-    const currentAP = isOperational ? (totalOpCosts / 30) * apDays : 0;
+    const currentAP = isOperational ? (totalOpCosts / WORKING_CAPITAL_DAYS_PER_MONTH) * apDays : 0;
     const workingCapitalChange = (currentAR - prevAR) - (currentAP - prevAP);
     prevAR = currentAR;
     prevAP = currentAP;

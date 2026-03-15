@@ -296,6 +296,10 @@ export const DEFAULT_RESEARCH_EVENT_CONFIG = {
 };
 
 // ── Working Capital Defaults ──────────────────────────────────────────────
+// Divisor for daily revenue/cost approximation in AR/AP calculations.
+// Uses calendar month (30 days) rather than DAYS_PER_MONTH (30.5) because
+// AR/AP DSO/DPO conventions assume a 30-day month per industry practice.
+export const WORKING_CAPITAL_DAYS_PER_MONTH = 30;
 export const DEFAULT_AR_DAYS = 30;
 export const DEFAULT_AP_DAYS = 45;
 

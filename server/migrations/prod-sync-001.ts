@@ -1,14 +1,15 @@
 import { db } from "../db";
 import { globalAssumptions, designThemes, properties } from "@shared/schema";
-import { isNull, eq, isNotNull, sql } from "drizzle-orm";
+import { isNull, eq, isNotNull, sql, desc } from "drizzle-orm";
 import { logger } from "../logger";
 
 async function ensureColumn(table: string, column: string, definition: string): Promise<void> {
-  const check = await db.execute(sql.raw(
-    `SELECT 1 FROM information_schema.columns WHERE table_name='${table}' AND column_name='${column}'`
-  ));
+  const check = await db.execute(sql`
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = ${table} AND column_name = ${column}
+  `);
   if ((check as any).rows?.length === 0 || (Array.isArray(check) && check.length === 0)) {
-    await db.execute(sql.raw(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`));
+    await db.execute(sql`ALTER TABLE ${sql.identifier(table)} ADD COLUMN ${sql.identifier(column)} ${sql.raw(definition)}`);
     logger.info(`added ${table}.${column}`, "migration");
   }
 }
@@ -22,7 +23,7 @@ export async function runProdSync001(): Promise<void> {
     .select({ id: globalAssumptions.id })
     .from(globalAssumptions)
     .where(isNull(globalAssumptions.userId))
-    .orderBy(globalAssumptions.id);
+    .orderBy(desc(globalAssumptions.id));
 
   if (gaRows.length > 1) {
     const keepId = gaRows[gaRows.length - 1].id;

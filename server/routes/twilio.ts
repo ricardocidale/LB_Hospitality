@@ -24,6 +24,45 @@ import type OpenAI from "openai";
 import { getOpenAIClient } from "../ai/clients";
 import { retrieveRelevantChunks, buildRAGContext } from "../ai/knowledge-base";
 import { logger } from "../logger";
+import twilio from "twilio";
+
+/**
+ * Middleware to validate Twilio webhook request signatures.
+ * Rejects requests that don't have a valid X-Twilio-Signature header.
+ * Falls back to allowing requests if TWILIO_AUTH_TOKEN is not configured (dev mode).
+ */
+function validateTwilioSignature(req: import("express").Request, res: import("express").Response, next: import("express").NextFunction): void {
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!authToken) {
+    // No auth token configured — allow in development
+    next();
+    return;
+  }
+
+  const signature = req.headers["x-twilio-signature"] as string;
+  if (!signature) {
+    logger.error("Missing X-Twilio-Signature header", "twilio");
+    res.status(403).type("text/xml").send(
+      `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Unauthorized request.</Say><Hangup/></Response>`
+    );
+    return;
+  }
+
+  const protocol = req.headers["x-forwarded-proto"] || "https";
+  const host = req.headers.host || req.hostname;
+  const url = `${protocol}://${host}${req.originalUrl}`;
+  const isValid = twilio.validateRequest(authToken, signature, url, req.body || {});
+
+  if (!isValid) {
+    logger.error("Invalid Twilio signature", "twilio");
+    res.status(403).type("text/xml").send(
+      `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Unauthorized request.</Say><Hangup/></Response>`
+    );
+    return;
+  }
+
+  next();
+}
 
 async function buildContextPrompt(userId?: number): Promise<string> {
   try {
@@ -54,7 +93,7 @@ async function buildContextPrompt(userId?: number): Promise<string> {
 }
 
 export function register(app: Express) {
-  app.post("/api/twilio/voice/incoming", async (req, res) => {
+  app.post("/api/twilio/voice/incoming", validateTwilioSignature, async (req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaTwilioEnabled) {
@@ -85,7 +124,7 @@ export function register(app: Express) {
     }
   });
 
-  app.post("/api/twilio/sms/incoming", async (req, res) => {
+  app.post("/api/twilio/sms/incoming", validateTwilioSignature, async (req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaSmsEnabled) {
@@ -149,7 +188,7 @@ export function register(app: Express) {
     }
   });
 
-  app.post("/api/twilio/voice/status", async (_req, res) => {
+  app.post("/api/twilio/voice/status", validateTwilioSignature, async (_req, res) => {
     res.status(200).send("OK");
   });
 }

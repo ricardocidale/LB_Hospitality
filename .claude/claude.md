@@ -2,14 +2,14 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~804 source files, ~145,374 lines, 3,021 tests across 128 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~796 source files, ~144,335 lines, 3,022 tests across 135 files. Hosted on Replit.
 
 ---
 
 ## User Preferences
 
 - Simple, everyday language. Ask clarifying questions before implementing — do not assume.
-- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 3,021-test proof system must always pass.
+- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 3,022-test proof system must always pass.
 - Always format money as currency (commas, appropriate precision).
 - All skills stored under `.claude/` only (never elsewhere).
 - Company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -51,7 +51,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,021 tests, 583 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,022 tests, 583 golden tests, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -64,7 +64,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
 | Finance (21 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, fee categories, funding interest, etc. |
-| Research (21 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, ICP profile, research center, etc. |
+| Research (23 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, ICP profile, research center, etc. |
 | Chart Library | `.claude/skills/charts/SKILL.md` | 12 Recharts + 3 D3.js chart components |
 | Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, responsive helpers |
 | UI (43 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation, Magic UI effects, consistent card widths, save button placement |
@@ -72,13 +72,20 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Constants Ref | `.claude/skills/finance/constants-and-config.md` | All named constants and protected fields |
 | Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |
 | Release Checklist | `.claude/skills/proof-system/release-audit-checklist.md` | Pre-release audit (load for releases) |
+| Coding Conventions | `.claude/skills/coding-conventions/SKILL.md` | Naming, formatting, context reduction, skill organization |
+| ElevenLabs | `.claude/skills/elevenlabs/SKILL.md` | ElevenLabs SDK reference, speech-to-text, text-to-speech, conversational AI |
+| Help Page | `.claude/skills/help-page/SKILL.md` | Help page with User Manual, Checker Manual, Guided Tour tabs |
+| Property Finder | `.claude/skills/property-finder/SKILL.md` | External listing search, favorites, saved searches via RapidAPI |
+| Tool Schemas | `.claude/skills/tool-schemas/SKILL.md` | Tool schema organization for calc/ deterministic tools |
+| Tour | `.claude/skills/tour/SKILL.md` | Guided tour/walkthrough component for onboarding |
+| UI Blocks | `.claude/skills/ui-blocks/SKILL.md` | Reference shadcn block patterns |
 | Property Chatbot | `server/routes/chat.ts` | Gemini-powered property analysis chat (`/api/chat`) |
 | Rules (19) | `.claude/rules/` | All behavioral constraints |
-| Business Domain (8) | `.agents/skills/` | Business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision |
+| Business Domain (13) | `.agents/skills/` | Business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings |
 
 ---
 
-## Testing & Proof System (3,021 Tests, 128 Files)
+## Testing & Proof System (3,022 Tests, 135 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -161,7 +168,7 @@ All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify (~4 lines)
-npm run test:summary   # All 3,021 tests, 1-line output
+npm run test:summary   # All 3,022 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact output
 npm run db:push        # Push schema changes
 npm run diff:summary   # Compact git status + diff stat

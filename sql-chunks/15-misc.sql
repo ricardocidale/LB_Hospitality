@@ -1,2 +1,0 @@
-INSERT INTO research_questions (id, question, sort_order, created_at) OVERRIDING SYSTEM VALUE VALUES (1, 'What is the average wellness retreat pricing in Costa Rica?', 0, '2026-02-15 01:10:29.043329');
-INSERT INTO saved_searches (id, user_id, name, location, price_min, price_max, beds_min, lot_size_min, property_type, saved_at) OVERRIDING SYSTEM VALUE VALUES (1, 1, 'One', 'Austin', '1000000', '5000000', '4', '1', NULL, '2026-02-06 09:22:17.107204');

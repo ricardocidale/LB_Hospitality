@@ -1,8 +1,0 @@
-INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, created_at, is_default) OVERRIDING SYSTEM VALUE VALUES (14, 'The Mountain Company', 16, 14, NULL, '2026-03-06 22:32:06.237802', false);
-INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, created_at, is_default) OVERRIDING SYSTEM VALUE VALUES (16, 'The Forest Lodge', 18, 14, NULL, '2026-03-06 22:32:06.244979', false);
-INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, created_at, is_default) OVERRIDING SYSTEM VALUE VALUES (17, 'The Desert Bloom', 19, 14, NULL, '2026-03-06 22:32:06.249348', false);
-INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, created_at, is_default) OVERRIDING SYSTEM VALUE VALUES (18, 'The Urban Loft', 20, 14, NULL, '2026-03-06 22:32:06.2634', false);
-INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, created_at, is_default) OVERRIDING SYSTEM VALUE VALUES (15, 'The Coastal House', 17, 14, NULL, '2026-03-06 22:32:06.241833', false);
-INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, created_at, is_default) OVERRIDING SYSTEM VALUE VALUES (2, 'The Norfolk AI Group', 1, 14, NULL, '2026-02-11 17:48:38.388248', false);
-INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, created_at, is_default) OVERRIDING SYSTEM VALUE VALUES (1, 'KIT Capital Group', 24, NULL, NULL, '2026-02-11 17:48:38.388248', false);
-INSERT INTO user_groups (id, name, logo_id, theme_id, asset_description_id, created_at, is_default) OVERRIDING SYSTEM VALUE VALUES (3, 'General', 1, NULL, NULL, '2026-02-13 01:57:55.630388', true);

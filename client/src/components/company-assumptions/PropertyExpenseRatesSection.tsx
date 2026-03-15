@@ -12,7 +12,7 @@
  *   • A&G, S&M, POM, Utilities (undistributed)
  *   • Property tax, insurance, FF&E reserve (fixed charges)
  *
- * Research badges show AI-generated benchmarks for the configured property
+ * Research Badges show AI-generated benchmarks for the configured property
  * type and market, giving users a sense of what's "normal" before they
  * customize individual properties.
  */

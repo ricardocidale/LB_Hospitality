@@ -323,10 +323,10 @@ GAAP/IRS Rules by Field:
   });
 
   chunks.push({
-    title: "AI Research Badges & Market Calibration",
-    content: `The property edit page displays amber research badges next to assumption fields that have AI-researched market data. Click any badge to auto-fill the recommended value.
+    title: "Research Badges & Market Calibration",
+    content: `The property edit page displays Research Badges next to assumption fields that have AI-researched market data. A Research Badge is a small inline pill showing a label-value pair such as "(Industry: $240–$380)". Click any Research Badge to auto-fill the recommended value.
 
-Research badges appear on these fields after running AI market research for a property:
+Research Badges appear on these fields after running AI market research for a property:
 - Starting ADR: Market-dependent range from AI ADR analysis
 - Starting Occupancy: Market-dependent range from AI occupancy analysis
 - ADR Annual Growth: Generic range 3–5% per year
@@ -337,9 +337,11 @@ Research badges appear on these fields after running AI market research for a pr
 - Sale Commission: Generic range 4–6% of gross sale price
 - Exit Cap Rate: Market-dependent from AI cap rate analysis
 
+Research Badges are color-coded by source type: blue for live market API data (FRED, BLS), amber for industry benchmarks (HVS, CBRE, STR), and purple for AI-generated research.
+
 AI research uses Claude Sonnet to analyze the property's market, competitive set, and location. The research covers ADR benchmarks, occupancy trends, cap rate analysis, revenue mix benchmarks, and disposition norms.
 
-Important: Research values are advisory only. The financial engine never uses AI-generated values directly. Users must explicitly accept a recommendation by clicking the research badge. This ensures no LLM output enters financial calculations without human review.
+Important: Research Badges are advisory only. The financial engine never uses AI-generated values directly. Users must explicitly accept a recommendation by clicking the Research Badge. This ensures no LLM output enters financial calculations without human review.
 
 Research can be run from the property detail page or the property edit page. Multiple research types are available: ADR analysis, occupancy analysis, cap rate analysis, operating cost benchmarks, and property value analysis.`,
     source: "Platform Guide",

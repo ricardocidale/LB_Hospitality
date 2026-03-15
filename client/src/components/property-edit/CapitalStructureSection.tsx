@@ -20,7 +20,7 @@
  *     • FF&E useful life (typically 5-7 years)
  *     • Cost basis = purchase price − land value (straight-line depreciation)
  *
- * Research badges (ResearchBadge) appear next to key inputs when AI-generated
+ * Research Badges appear next to key inputs when AI-generated
  * market benchmarks are available; clicking them auto-fills the input.
  */
 import { Input } from "@/components/ui/input";

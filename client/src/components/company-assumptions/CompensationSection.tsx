@@ -15,7 +15,7 @@
  *   • Annual salary escalation rate (cost-of-living raises)
  *   • FTE counts for each tier
  *
- * Research badges show AI-generated salary benchmarks for hospitality
+ * Research Badges show AI-generated salary benchmarks for hospitality
  * management roles in the user's market, when available.
  */
 import { Label } from "@/components/ui/label";

@@ -57,7 +57,7 @@ import { SectionCard } from "@/components/ui/section-card";
           ]}
         />
         <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Inline Badges</h3>
-        <p className="text-muted-foreground text-sm mb-2">Assumption fields display two types of inline badges next to their labels:</p>
+        <p className="text-muted-foreground text-sm mb-2">Assumption fields display two types of inline badges next to their labels: GAAP/IRS badges and Research Badges.</p>
         <ManualTable
           headers={["Badge", "Color", "Purpose", "Interaction"]}
           rows={[
@@ -99,7 +99,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Exit Cap Rate", "Market-dependent", "AI property research (capRateAnalysis)"],
           ]}
         />
-        <Callout>Research badges only appear when AI market research has been run for the property. GAAP badges are always visible.</Callout>
+        <Callout>Research Badges only appear when AI market research has been run for the property. GAAP badges are always visible.</Callout>
         <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Revenue Shares & Cost Rates</h3>
         <ManualTable
           headers={["Variable", "Description", "Default", "Unit"]}

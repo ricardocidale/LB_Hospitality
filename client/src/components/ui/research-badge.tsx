@@ -1,14 +1,24 @@
 /**
- * research-badge.tsx — Compact badge for researched metric values.
+ * research-badge.tsx — Research Badge component.
  *
- * Displays a small pill showing a data point (e.g. "Industry: $280-$420").
+ * A Research Badge is a small inline pill that appears next to assumption
+ * fields throughout the portal. It displays a label-value pair such as
+ * "(Industry: $240–$380)" representing an AI-researched or market-sourced
+ * benchmark range. Clicking a Research Badge auto-fills the field with
+ * the recommended midpoint value.
+ *
  * Color-coded by source type:
- *   - market (blue)   — live API data (FRED, BLS, Frankfurter)
+ *   - market (blue)    — live API data (FRED, BLS, Frankfurter)
  *   - industry (amber) — cited benchmark from industry publications
  *   - ai (purple)      — AI-generated research
  *   - seed (amber)     — legacy/backward-compat for existing seed values
  *
  * Tooltip shows the source name and date on hover.
+ *
+ * Research Badges only appear after AI market research has been run for the
+ * property or company. They are advisory only — the financial engine never
+ * uses AI-generated values directly. Users must explicitly accept a
+ * recommendation by clicking the Research Badge.
  */
 import * as React from "react";
 import { cn } from "@/lib/utils";

@@ -13,7 +13,7 @@
  *     local compliance, etc.)
  *   • Miscellaneous variable — a catch-all percentage of total revenue
  *
- * Research badges display AI-benchmarked industry averages for marketing
+ * Research Badges display AI-benchmarked industry averages for marketing
  * spend and travel budgets when available.
  */
 import { Label } from "@/components/ui/label";

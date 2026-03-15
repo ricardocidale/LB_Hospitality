@@ -20,7 +20,7 @@
  *   Growth:
  *     • Revenue growth rate applied after stabilization year
  *
- * All rates use sliders with EditableValue for precise entry. Research badges
+ * All rates use sliders with EditableValue for precise entry. Research Badges
  * show AI benchmarks when available.
  */
 import { Label } from "@/components/ui/label";

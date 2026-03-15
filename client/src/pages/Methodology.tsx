@@ -453,7 +453,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                 </p>
                 <ul className="text-sm text-muted-foreground space-y-2">
                   <li>&#8226; <strong className="text-blue-600">Blue ⓘ badges</strong> — GAAP/IRS compliance rules. Hover to see the accounting standard that governs the field (e.g., ASC 805 for Purchase Price, IRC §168 for Income Tax).</li>
-                  <li>&#8226; <strong className="text-amber-600">Amber research badges</strong> — AI-researched market ranges. Click to auto-fill the recommended value based on market research for the property's location. Only visible after running AI market research.</li>
+                  <li>&#8226; <strong className="text-amber-600">Research Badges</strong> — AI-researched market ranges displayed as inline pills (e.g., "Industry: $240–$380"). Click any Research Badge to auto-fill the recommended value based on market research for the property's location. Only visible after running AI market research.</li>
                 </ul>
               </div>
             </MethodologySection>

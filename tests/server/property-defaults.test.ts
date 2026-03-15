@@ -245,6 +245,21 @@ describe("buildPropertyDefaultsFromGlobal", () => {
     expect(defaults.acquisitionTermYears).toBe(DEFAULT_TERM_YEARS);
   });
 
+  it("returns hardcoded constants when no global_assumptions exists", () => {
+    const defaults = buildPropertyDefaultsFromGlobal(undefined);
+
+    expect(defaults.exitCapRate).toBe(DEFAULT_EXIT_CAP_RATE);
+    expect(defaults.dispositionCommission).toBe(DEFAULT_COMMISSION_RATE);
+    expect(defaults.baseManagementFeeRate).toBe(DEFAULT_BASE_MANAGEMENT_FEE_RATE);
+    expect(defaults.incentiveManagementFeeRate).toBe(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE);
+    expect(defaults.taxRate).toBe(DEFAULT_TAX_RATE);
+    expect(defaults.acquisitionLTV).toBe(DEFAULT_LTV);
+    expect(defaults.acquisitionInterestRate).toBe(DEFAULT_INTEREST_RATE);
+    expect(defaults.acquisitionTermYears).toBe(DEFAULT_TERM_YEARS);
+    expect(defaults.costRateRooms).toBe(DEFAULT_COST_RATE_ROOMS);
+    expect(defaults.revShareEvents).toBe(DEFAULT_REV_SHARE_EVENTS);
+  });
+
   it("merge logic: body values override global defaults", () => {
     const ga = makeGlobal({ exitCapRate: 0.09 });
     const defaults = buildPropertyDefaultsFromGlobal(ga);

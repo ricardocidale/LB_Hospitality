@@ -42,14 +42,14 @@ interface DebtAssumptions {
   refiClosingCostRate?: number;
 }
 
-export function buildPropertyDefaultsFromGlobal(ga: GlobalAssumptions): Record<string, unknown> {
-  const debt = (ga.debtAssumptions as DebtAssumptions) ?? {};
+export function buildPropertyDefaultsFromGlobal(ga?: GlobalAssumptions): Record<string, unknown> {
+  const debt = (ga?.debtAssumptions as DebtAssumptions) ?? {};
   return {
-    exitCapRate: ga.exitCapRate ?? DEFAULT_EXIT_CAP_RATE,
+    exitCapRate: ga?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE,
     taxRate: DEFAULT_TAX_RATE,
-    dispositionCommission: ga.salesCommissionRate ?? DEFAULT_COMMISSION_RATE,
-    baseManagementFeeRate: ga.baseManagementFee ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE,
-    incentiveManagementFeeRate: ga.incentiveManagementFee ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+    dispositionCommission: ga?.salesCommissionRate ?? DEFAULT_COMMISSION_RATE,
+    baseManagementFeeRate: ga?.baseManagementFee ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+    incentiveManagementFeeRate: ga?.incentiveManagementFee ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 
     costRateRooms: DEFAULT_COST_RATE_ROOMS,
     costRateFB: DEFAULT_COST_RATE_FB,
@@ -165,9 +165,7 @@ export function register(app: Express) {
       }
 
       const globalDefaults = await storage.getGlobalAssumptions();
-      const inheritedDefaults = globalDefaults
-        ? buildPropertyDefaultsFromGlobal(globalDefaults)
-        : {};
+      const inheritedDefaults = buildPropertyDefaultsFromGlobal(globalDefaults);
 
       const mergedData: Record<string, unknown> = {};
       for (const [key, globalValue] of Object.entries(inheritedDefaults)) {

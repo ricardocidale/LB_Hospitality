@@ -309,6 +309,87 @@ const L2_MANCO = `flowchart TB
   Check -->|No| OK["✓ Sufficient Cash"]
   Funding --> Cash`;
 
+const L2_DUAL_ENGINE = `flowchart TB
+  Assumptions["Property Assumptions\\n(Revenue, Expenses, Debt, CapEx)"]
+
+  Assumptions --> ClientEngine
+  Assumptions --> ServerChecker
+
+  subgraph ClientSide["Client-Side Engine (Real-Time UI)"]
+    ClientEngine["Property Financial Engine\\n(deterministic calc pipeline)"]
+    ClientEngine --> ClientIS["Income Statement"]
+    ClientEngine --> ClientCF["Cash Flow Statement"]
+    ClientEngine --> ClientBS["Balance Sheet"]
+    ClientIS & ClientCF & ClientBS --> ClientResults["Client-Side Results\\n(displayed in UI)"]
+  end
+
+  subgraph ServerSide["Server-Side Checker (Independent Recalculation)"]
+    ServerChecker["Calculation Checker\\n(isolated recalculation)"]
+    ServerChecker --> ServerIS["Income Statement"]
+    ServerChecker --> ServerCF["Cash Flow Statement"]
+    ServerChecker --> ServerBS["Balance Sheet"]
+    ServerIS & ServerCF & ServerBS --> ServerResults["Server-Side Results\\n(never shown to user)"]
+  end
+
+  ClientResults --> Compare{"Cross-Calculator\\nValidation"}
+  ServerResults --> Compare
+
+  Compare -->|"values match\\nwithin tolerance"| Clean["✓ Unqualified Opinion\\n(clean audit)"]
+  Compare -->|"minor deviations\\n< materiality threshold"| Qualified["⚠ Qualified Opinion\\n(minor issues noted)"]
+  Compare -->|"material differences\\nexceed threshold"| Adverse["✗ Adverse Opinion\\n(material failures)"]`;
+
+const L2_VERIFICATION_TIERS = `flowchart TB
+  subgraph Tier1["Tier 1 — Property-Level Checks"]
+    direction TB
+    T1Rev["Revenue Formula Verification\\n(ADR × Occupancy × Rooms × 365)"]
+    T1Debt["Debt Service PMT\\n(ASC 470 — amortization schedules)"]
+    T1Depr["Depreciation Basis\\n(ASC 360 — cost allocation)"]
+    T1CF["Cash Flow Reconciliation\\n(ASC 230 — operating / investing / financing)"]
+    T1Rev --> T1Gate{"All Property\\nChecks Pass?"}
+    T1Debt --> T1Gate
+    T1Depr --> T1Gate
+    T1CF --> T1Gate
+  end
+
+  subgraph Tier2["Tier 2 — Company-Level Checks"]
+    direction TB
+    T2Fees["Management Fee Calculations\\n(ASC 606 — base + incentive recognition)"]
+    T2ManCo["ManCo Cash Flow\\n(fee revenue − operating costs)"]
+    T2SAFE["SAFE Tranche Validation\\n(funding gate dates & amounts)"]
+    T2Fees --> T2Gate{"All Company\\nChecks Pass?"}
+    T2ManCo --> T2Gate
+    T2SAFE --> T2Gate
+  end
+
+  subgraph Tier3["Tier 3 — Consolidated Checks"]
+    direction TB
+    T3Elim["Intercompany Elimination\\n(ASC 810 — ManCo fees = SPV expenses)"]
+    T3Port["Portfolio Totals\\n(sum of all property NOI)"]
+    T3Bal["Balance Sheet Identity\\n(Assets = Liabilities + Equity)"]
+    T3Elim --> T3Gate{"All Consolidated\\nChecks Pass?"}
+    T3Port --> T3Gate
+    T3Bal --> T3Gate
+  end
+
+  T1Gate -->|"pass"| Tier2
+  T2Gate -->|"pass"| Tier3
+
+  subgraph Pipeline["Four-Stage Verification Pipeline"]
+    direction LR
+    Stage1["Stage 1:\\nFormula Checker"]
+    Stage2["Stage 2:\\nGAAP Compliance"]
+    Stage3["Stage 3:\\nFull Auditor"]
+    Stage4["Stage 4:\\nCross-Calculator\\nValidation"]
+    Stage1 --> Stage2 --> Stage3 --> Stage4
+  end
+
+  T3Gate -->|"pass"| Pipeline
+
+  Stage4 --> Opinion{"Audit Opinion"}
+  Opinion -->|"all checks pass"| Unqual["Unqualified\\n(Clean — no exceptions)"]
+  Opinion -->|"non-material issues"| Qual["Qualified\\n(Minor issues noted)"]
+  Opinion -->|"material failures"| Adv["Adverse\\n(Statements unreliable)"]`;
+
 // ─────────────────────────────────────────────────
 // LEVEL 3 — Detailed Sub-flows
 // ─────────────────────────────────────────────────
@@ -444,7 +525,7 @@ export default function DiagramsTab() {
         </TabsContent>
 
         <TabsContent value="2" className="mt-4">
-          <Accordion type="multiple" defaultValue={["financial", "manco", "auth", "ai", "research"]}>
+          <Accordion type="multiple" defaultValue={["financial", "manco", "dual-engine", "verification", "auth", "ai", "research"]}>
             <AccordionItem value="financial">
               <AccordionTrigger className="text-sm font-semibold">Financial Calculation Pipeline</AccordionTrigger>
               <AccordionContent>
@@ -462,6 +543,26 @@ export default function DiagramsTab() {
                   title="ManCo Financial Model"
                   description="Revenue (Base + Incentive + Service Fees) → Expenses (Fixed, Variable, Staffing, Partner Comp) → SAFE Funding → Bottom Line"
                   chart={L2_MANCO}
+                />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="dual-engine">
+              <AccordionTrigger className="text-sm font-semibold">Dual-Engine Verification Architecture</AccordionTrigger>
+              <AccordionContent>
+                <DiagramCard
+                  title="Client Engine vs Server Checker"
+                  description="Property assumptions feed both engines in parallel — client-side for real-time UI, server-side for independent verification — then cross-validated for audit opinion"
+                  chart={L2_DUAL_ENGINE}
+                />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="verification">
+              <AccordionTrigger className="text-sm font-semibold">Three-Tier Verification Pipeline</AccordionTrigger>
+              <AccordionContent>
+                <DiagramCard
+                  title="Verification Tiers & GAAP Compliance"
+                  description="Tier 1 (Property — revenue, debt service, depreciation, cash flow) → Tier 2 (Company — fees, ManCo, SAFE) → Tier 3 (Consolidated — elimination, totals, balance sheet identity) with ASC 230/360/470/606/810 references"
+                  chart={L2_VERIFICATION_TIERS}
                 />
               </AccordionContent>
             </AccordionItem>

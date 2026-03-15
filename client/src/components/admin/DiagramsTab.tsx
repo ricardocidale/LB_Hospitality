@@ -33,24 +33,32 @@ const L1_APP_FLOW = `flowchart LR
 
 const L1_TWO_ENTITY = `flowchart TB
   subgraph SPV["Property SPVs"]
-    P1[Hotel A] --> Fees1[Mgmt Fees]
-    P2[Hotel B] --> Fees2[Mgmt Fees]
-    P3[Hotel C] --> Fees3[Mgmt Fees]
+    P1[Hotel A]
+    P2[Hotel B]
+    P3[Hotel C]
+    P1 --> BF1["Base Fee\\n% of Total Revenue"]
+    P1 --> IF1["Incentive Fee\\n% of GOP"]
+    P2 --> BF2["Base Fee\\n% of Total Revenue"]
+    P2 --> IF2["Incentive Fee\\n% of GOP"]
+    P3 --> BF3["Base Fee\\n% of Total Revenue"]
+    P3 --> IF3["Incentive Fee\\n% of GOP"]
   end
   subgraph MC["Management Company"]
-    FeeRev[Fee Revenue] --> OpEx[Operating Expenses]
-    OpEx --> CompNOI[Company NOI]
+    FeeRev["Fee Revenue\\n(Base + Incentive)"]
+    SvcFees["Service Fee Revenue\\n(per-category)"]
+    FeeRev --> OpEx[Operating Expenses]
+    SvcFees --> OpEx
+    OpEx --> EBITDA[ManCo EBITDA]
   end
-  Fees1 --> FeeRev
-  Fees2 --> FeeRev
-  Fees3 --> FeeRev
+  BF1 & BF2 & BF3 --> FeeRev
+  IF1 & IF2 & IF3 --> FeeRev
   subgraph Consol["Consolidated View"]
-    Elim[Intercompany Elimination]
+    Elim["Intercompany Elimination\\n(ManCo fees = SPV expenses)"]
     PortNOI[Portfolio NOI]
   end
-  SPV --> Elim
-  MC --> Elim
-  Elim --> PortNOI`;
+  SPV -- "SPV NOI\\n(after mgmt fee expense)" --> Elim
+  MC -- "ManCo EBITDA\\n(fee income − costs)" --> Elim
+  Elim -- "Net: fees cancel out" --> PortNOI`;
 
 // ─────────────────────────────────────────────────
 // LEVEL 2 — Domain Flows
@@ -106,6 +114,60 @@ const L2_RESEARCH = `flowchart LR
   Extract --> Validate[Post-LLM Validation]
   Validate --> Store[Database Storage]
   Store --> Display[UI Display]`;
+
+const L2_MANCO = `flowchart TB
+  subgraph Revenue["Revenue"]
+    direction TB
+    BaseFee["Base Management Fees\\n% of each property Total Revenue"]
+    IncentFee["Incentive Fees\\n% of each property GOP"]
+    SvcFee["Service Fee Categories\\nDirect vs Centralized/Pass-Through"]
+  end
+
+  subgraph Expenses["Expenses"]
+    direction TB
+    subgraph Fixed["Fixed Overhead"]
+      Office["Office Lease"]
+      ProfSvc["Professional Services"]
+      Tech["Tech Infrastructure"]
+      Infl(("Escalated by\\nInflation Rate"))
+      Office & ProfSvc & Tech --> Infl
+    end
+    subgraph Variable["Variable Costs"]
+      TravelIT["Travel & IT\\n(per client)"]
+      MktgMisc["Marketing & Misc\\n(% of revenue)"]
+    end
+    subgraph Staff["Staffing Tiers"]
+      T1["Tier 1: ≤3 properties → 2.5 FTE"]
+      T2["Tier 2: ≤6 properties → 4.5 FTE"]
+      T3["Tier 3: 7+ properties → 7.0 FTE"]
+    end
+    PartnerComp["Partner Compensation\\n(10-year schedule)"]
+  end
+
+  subgraph Funding["SAFE Funding"]
+    direction TB
+    S1["SAFE Tranche 1\\n(date + amount)"]
+    S2["SAFE Tranche 2\\n(date + amount)"]
+    Gate{"Operational Gate"}
+    S1 --> Gate
+    S2 --> Gate
+    OpsDate["companyOpsStartDate"] --> Gate
+    SafeDate["safeTranche1Date"] --> Gate
+    Gate -->|"BOTH dates reached"| Go["Operations Begin"]
+  end
+
+  Revenue --> NetRev["Total ManCo Revenue"]
+  Expenses --> TotalExp["Total ManCo Expenses"]
+  NetRev --> EBITDA["EBITDA"]
+  TotalExp --> EBITDA
+  EBITDA --> PreTax["Pre-Tax Income"]
+  PreTax --> Tax["Tax Provision"]
+  Tax --> NetInc["Net Income"]
+  NetInc --> Cash["Cash Position"]
+  Cash --> Check{"Shortfall?"}
+  Check -->|Yes| Flag["⚠ Shortfall Flagged"]
+  Check -->|No| OK["✓ Sufficient Cash"]
+  Funding --> Cash`;
 
 // ─────────────────────────────────────────────────
 // LEVEL 3 — Detailed Sub-flows
@@ -237,7 +299,7 @@ export default function DiagramsTab() {
         </TabsContent>
 
         <TabsContent value="2" className="mt-4">
-          <Accordion type="multiple" defaultValue={["financial", "auth", "ai", "research"]}>
+          <Accordion type="multiple" defaultValue={["financial", "manco", "auth", "ai", "research"]}>
             <AccordionItem value="financial">
               <AccordionTrigger className="text-sm font-semibold">Financial Calculation Pipeline</AccordionTrigger>
               <AccordionContent>
@@ -245,6 +307,16 @@ export default function DiagramsTab() {
                   title="Financial Pipeline"
                   description="Assumptions → Engine → Statements → Exports"
                   chart={L2_FINANCIAL}
+                />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="manco">
+              <AccordionTrigger className="text-sm font-semibold">Management Company Engine</AccordionTrigger>
+              <AccordionContent>
+                <DiagramCard
+                  title="ManCo Financial Model"
+                  description="Revenue (Base + Incentive + Service Fees) → Expenses (Fixed, Variable, Staffing, Partner Comp) → SAFE Funding → Bottom Line"
+                  chart={L2_MANCO}
                 />
               </AccordionContent>
             </AccordionItem>

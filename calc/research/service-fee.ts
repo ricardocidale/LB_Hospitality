@@ -26,7 +26,7 @@ interface ServiceFeeOutput {
 // skipcalcscan — static industry reference data, not configurable assumptions
 const SERVICE_BENCHMARKS: Record<string, { low: number; mid: number; high: number; notes: string }> = {
   marketing: { low: 0.015, mid: 0.025, high: 0.04, notes: "Digital marketing, OTA management, brand campaigns. Boutique hotels typically 2-4% of revenue." },
-  it: { low: 0.01, mid: 0.015, high: 0.025, notes: "PMS, RMS, channel manager, cybersecurity. Per-property licensing $2K-$5K/yr." },
+  technology_reservations: { low: 0.02, mid: 0.03, high: 0.04, notes: "PMS, booking engine, channel manager, CRS, cybersecurity. Combined technology and central reservation systems." },
   accounting: { low: 0.01, mid: 0.02, high: 0.03, notes: "Monthly close, reporting, tax prep, audit support. Scale economies at 5+ properties." },
   revenue_management: { low: 0.015, mid: 0.02, high: 0.03, notes: "Dynamic pricing, demand forecasting, competitive analysis." },
   procurement: { low: 0.005, mid: 0.01, high: 0.02, notes: "Group purchasing, vendor negotiation, FF&E sourcing." },
@@ -35,8 +35,14 @@ const SERVICE_BENCHMARKS: Record<string, { low: number; mid: number; high: numbe
   general_management: { low: 0.03, mid: 0.05, high: 0.08, notes: "Base management fee covering day-to-day operations oversight." },
 };
 
+const LEGACY_KEY_ALIASES: Record<string, string> = {
+  it: "technology_reservations",
+  reservations: "technology_reservations",
+};
+
 export function computeServiceFee(input: ServiceFeeInput): ServiceFeeOutput {
-  const key = input.serviceType.toLowerCase().replace(/[\s/&]+/g, "_");
+  const rawKey = input.serviceType.toLowerCase().replace(/[\s/&]+/g, "_");
+  const key = LEGACY_KEY_ALIASES[rawKey] ?? rawKey;
   const bench = SERVICE_BENCHMARKS[key] ?? { low: 0.01, mid: 0.02, high: 0.03, notes: `No specific benchmark for "${input.serviceType}". Using general service range 1-3%.` };
 
   return {

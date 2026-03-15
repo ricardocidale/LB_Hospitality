@@ -292,9 +292,9 @@ describe("Database Sync — Seed Constants Integrity", () => {
       expect(marketing?.rate).toBe(0.02);
     });
 
-    it("IT fee is 1%", () => {
-      const it = DEFAULT_SERVICE_FEE_CATEGORIES.find(c => c.name === "IT");
-      expect(it?.rate).toBe(0.01);
+    it("Technology & Reservations fee is 2.5%", () => {
+      const tr = DEFAULT_SERVICE_FEE_CATEGORIES.find(c => c.name === "Technology & Reservations");
+      expect(tr?.rate).toBe(0.025);
     });
 
     it("Accounting fee is 1.5%", () => {
@@ -302,14 +302,14 @@ describe("Database Sync — Seed Constants Integrity", () => {
       expect(accounting?.rate).toBe(0.015);
     });
 
-    it("Reservations fee is 2%", () => {
-      const reservations = DEFAULT_SERVICE_FEE_CATEGORIES.find(c => c.name === "Reservations");
-      expect(reservations?.rate).toBe(0.02);
+    it("Revenue Management fee is 1%", () => {
+      const rm = DEFAULT_SERVICE_FEE_CATEGORIES.find(c => c.name === "Revenue Management");
+      expect(rm?.rate).toBe(0.01);
     });
 
-    it("General Management fee is 2%", () => {
+    it("General Management fee is 1.5%", () => {
       const gm = DEFAULT_SERVICE_FEE_CATEGORIES.find(c => c.name === "General Management");
-      expect(gm?.rate).toBe(0.02);
+      expect(gm?.rate).toBe(0.015);
     });
   });
 

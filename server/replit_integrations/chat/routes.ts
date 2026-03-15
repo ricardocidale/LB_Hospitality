@@ -234,8 +234,8 @@ async function buildContextPrompt(userId?: number): Promise<string> {
             costPropertyOps: "Property Ops %", costUtilities: "Utilities %", costFFE: "FF&E Reserve %",
             costMarketing: "Marketing %", costIT: "IT %", costOther: "Other OpEx %",
             costInsurance: "Insurance %", costPropertyTaxes: "Property Taxes %",
-            svcFeeMarketing: "Svc Fee Marketing %", svcFeeIT: "Svc Fee IT %",
-            svcFeeAccounting: "Svc Fee Accounting %", svcFeeReservations: "Svc Fee Reservations %",
+            svcFeeMarketing: "Svc Fee Marketing %", svcFeeTechReservations: "Svc Fee Tech & Reservations %",
+            svcFeeAccounting: "Svc Fee Accounting %", svcFeeRevenueMgmt: "Svc Fee Revenue Mgmt %",
             svcFeeGeneralMgmt: "Svc Fee General Mgmt %", incentiveFee: "Incentive Fee %",
             incomeTax: "Income Tax Rate %",
           };

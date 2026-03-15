@@ -514,13 +514,10 @@ export async function seedFeeCategories() {
   const allProps = await db.select({ id: properties.id }).from(properties);
   const defaultCategories = [
     { name: "Marketing", rate: 0.02, sortOrder: 1 },
-    { name: "IT", rate: 0.01, sortOrder: 2 },
+    { name: "Technology & Reservations", rate: 0.025, sortOrder: 2 },
     { name: "Accounting", rate: 0.015, sortOrder: 3 },
-    { name: "Reservations", rate: 0.02, sortOrder: 4 },
-    { name: "General Management", rate: 0.02, sortOrder: 5 },
-    { name: "Insurance", rate: 0.01, sortOrder: 6 },
-    { name: "Property Operations", rate: 0.01, sortOrder: 7 },
-    { name: "Other Services", rate: 0.01, sortOrder: 8 },
+    { name: "Revenue Management", rate: 0.01, sortOrder: 4 },
+    { name: "General Management", rate: 0.015, sortOrder: 5 },
   ];
 
   let inserted = 0;

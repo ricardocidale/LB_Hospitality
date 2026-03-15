@@ -52,9 +52,9 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
             {feeDraft?.map((cat, idx) => {
               const svcFeeMap: Record<string, { display: string; mid: number } | null> = {
                 'Marketing': researchValues.svcFeeMarketing ?? null,
-                'IT': researchValues.svcFeeIT ?? null,
+                'Technology & Reservations': researchValues.svcFeeTechReservations ?? null,
                 'Accounting': researchValues.svcFeeAccounting ?? null,
-                'Reservations': researchValues.svcFeeReservations ?? null,
+                'Revenue Management': researchValues.svcFeeRevenueMgmt ?? null,
                 'General Management': researchValues.svcFeeGeneralMgmt ?? null,
               };
               const rv = svcFeeMap[cat.name];

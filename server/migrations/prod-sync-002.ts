@@ -17,11 +17,11 @@ const CANONICAL_USERS: Record<string, { role: "admin" | "partner" | "checker"; u
 };
 
 const CANONICAL_FEE_CATEGORIES = [
-  { name: "Marketing",          rate: 0.02, sortOrder: 1 },
-  { name: "IT",                 rate: 0.01, sortOrder: 2 },
-  { name: "Accounting",         rate: 0.015, sortOrder: 3 },
-  { name: "Reservations",       rate: 0.02, sortOrder: 4 },
-  { name: "General Management", rate: 0.02, sortOrder: 5 },
+  { name: "Marketing",                rate: 0.02, sortOrder: 1 },
+  { name: "Technology & Reservations", rate: 0.025, sortOrder: 2 },
+  { name: "Accounting",               rate: 0.015, sortOrder: 3 },
+  { name: "Revenue Management",       rate: 0.01, sortOrder: 4 },
+  { name: "General Management",       rate: 0.015, sortOrder: 5 },
 ];
 
 export interface SyncResult {

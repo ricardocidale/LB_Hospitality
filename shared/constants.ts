@@ -93,11 +93,11 @@ export const DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE = 0.12;   // 12% of Gross Ope
 // ──────────────────────────────────────────────────────────
 
 export const DEFAULT_SERVICE_FEE_CATEGORIES = [
-  { name: "Marketing", rate: 0.02, sortOrder: 1 },          // 2.0% — brand, digital, campaigns
-  { name: "IT", rate: 0.01, sortOrder: 2 },                 // 1.0% — PMS, booking engine, support
-  { name: "Accounting", rate: 0.015, sortOrder: 3 },        // 1.5% — bookkeeping, reporting, audit prep
-  { name: "Reservations", rate: 0.02, sortOrder: 4 },       // 2.0% — central reservation system
-  { name: "General Management", rate: 0.02, sortOrder: 5 }, // 2.0% — executive oversight, HR
+  { name: "Marketing", rate: 0.02, sortOrder: 1 },                    // 2.0% — brand, digital, campaigns
+  { name: "Technology & Reservations", rate: 0.025, sortOrder: 2 },   // 2.5% — PMS, booking engine, channel manager, CRS
+  { name: "Accounting", rate: 0.015, sortOrder: 3 },                  // 1.5% — bookkeeping, reporting, audit prep
+  { name: "Revenue Management", rate: 0.01, sortOrder: 4 },           // 1.0% — dynamic pricing, demand forecasting
+  { name: "General Management", rate: 0.015, sortOrder: 5 },          // 1.5% — executive oversight, HR
 ] as const;
 
 // ──────────────────────────────────────────────────────────
@@ -119,18 +119,15 @@ export type ServiceModel = 'centralized' | 'direct';
 export const DEFAULT_SERVICE_MODEL: ServiceModel = 'centralized';
 
 // Default service template categories. These seed the company_service_templates
-// table on first run. Rates intentionally sum to DEFAULT_BASE_MANAGEMENT_FEE_RATE (8.5%).
-// The first 5 match DEFAULT_SERVICE_FEE_CATEGORIES (property fee categories).
-// The last 3 are new eligible categories with rates that extend the total.
+// table on first run. The first 5 match DEFAULT_SERVICE_FEE_CATEGORIES (property fee categories).
+// The 6th (Procurement) is an additional centralized service category.
 export const DEFAULT_SERVICE_TEMPLATES = [
-  { name: "Marketing",            defaultRate: 0.02,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 1 },
-  { name: "IT",                   defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 2 },
-  { name: "Accounting",           defaultRate: 0.015, serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 3 },
-  { name: "Reservations",         defaultRate: 0.02,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 4 },
-  { name: "General Management",   defaultRate: 0.02,  serviceModel: 'direct'      as ServiceModel, serviceMarkup: 0.20, sortOrder: 5 },
-  { name: "Insurance",            defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 6 },
-  { name: "Property Operations",  defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 7 },
-  { name: "Other Services",       defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 8 },
+  { name: "Marketing",                defaultRate: 0.02,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 1 },
+  { name: "Technology & Reservations", defaultRate: 0.025, serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 2 },
+  { name: "Accounting",               defaultRate: 0.015, serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 3 },
+  { name: "Revenue Management",       defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 4 },
+  { name: "General Management",       defaultRate: 0.015, serviceModel: 'direct'      as ServiceModel, serviceMarkup: 0.20, sortOrder: 5 },
+  { name: "Procurement",              defaultRate: 0.01,  serviceModel: 'centralized' as ServiceModel, serviceMarkup: 0.20, sortOrder: 6 },
 ] as const;
 
 // ──────────────────────────────────────────────────────────

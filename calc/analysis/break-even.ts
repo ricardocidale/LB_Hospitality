@@ -44,6 +44,11 @@
  */
 import { DAYS_PER_MONTH, DEFAULT_COST_RATE_FFE } from "../../shared/constants.js";
 
+/** Sensitivity factor: ADR drops by 10% (multiplier 0.9) */
+const SENSITIVITY_ADR_DROP = 0.9;
+/** Sensitivity factor: fixed costs rise by 10% (multiplier 1.1) */
+const SENSITIVITY_COST_UP = 1.1;
+
 export interface BreakEvenInput {
   property_name?: string;
   room_count: number;

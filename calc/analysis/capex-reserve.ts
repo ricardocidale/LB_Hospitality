@@ -46,6 +46,15 @@ import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, sumArray } from "../shared/utils.js";
 import { DEFAULT_COST_RATE_FFE, DEFAULT_INFLATION_RATE } from "../../shared/constants.js";
 
+/** Industry benchmark: $5,000 per key per year for full-service hotel FF&E reserves (ISHC standard) */
+const INDUSTRY_BENCHMARK_PER_KEY = 5000;
+/** Funded ratio ≥ 100%: reserve contributions fully cover annualized replacement costs */
+const FUNDING_RATIO_ADEQUATE = 1.0;
+/** Funded ratio 75–99%: reserve is marginally short of full coverage */
+const FUNDING_RATIO_MARGINAL = 0.75;
+/** Funded ratio 50–74%: reserve is materially underfunded */
+const FUNDING_RATIO_UNDERFUNDED = 0.5;
+
 export interface CapexCategory {
   label: string;
   useful_life_years: number;
@@ -185,14 +194,13 @@ export function computeCapexReserve(input: CapexReserveInput): CapexReserveOutpu
     ? ratio(totalAnnualNeeded / input.annual_revenue)
     : ffeRate;
 
-  const INDUSTRY_BENCHMARK_PER_KEY = 5000;
   const industry_benchmark_per_key = INDUSTRY_BENCHMARK_PER_KEY;
 
   let underfunding_risk: "adequate" | "marginal" | "underfunded" | "critical";
   const fundedRatio = totalAnnualNeeded > 0 ? annual_reserve_amount / totalAnnualNeeded : 1;
-  if (fundedRatio >= 1.0) underfunding_risk = "adequate";
-  else if (fundedRatio >= 0.75) underfunding_risk = "marginal";
-  else if (fundedRatio >= 0.5) underfunding_risk = "underfunded";
+  if (fundedRatio >= FUNDING_RATIO_ADEQUATE) underfunding_risk = "adequate";
+  else if (fundedRatio >= FUNDING_RATIO_MARGINAL) underfunding_risk = "marginal";
+  else if (fundedRatio >= FUNDING_RATIO_UNDERFUNDED) underfunding_risk = "underfunded";
   else underfunding_risk = "critical";
 
   return {

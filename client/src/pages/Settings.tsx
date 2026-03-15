@@ -59,7 +59,7 @@ export default function Settings() {
       return;
     }
     const numValue = parseFloat(value);
-    const stringKeys = ["preferredLlm", "companyName", "companyOpsStartDate", "companyPhone", "companyEmail", "companyWebsite", "companyEin"];
+    const stringKeys = ["preferredLlm", "companyName", "companyOpsStartDate", "companyPhone", "companyEmail", "companyWebsite", "companyEin", "fundingSourceLabel", "safeTranche1Date", "safeTranche2Date"];
     if (!isNaN(numValue) && !stringKeys.includes(key)) {
       setGlobalDraft({ ...currentGlobal, [key]: numValue });
     } else {

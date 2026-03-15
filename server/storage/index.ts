@@ -13,7 +13,6 @@
  *   ActivityStorage     — activity logs, verification runs
  *   ResearchStorage     — market research, research questions
  *   PhotoStorage        — property photos, hero sync
- *   PlaidStorage        — Plaid connections, transactions, categorization cache
  *   DocumentStorage     — document extractions
  *   ServiceStorage      — company service templates, template-to-property sync
  *   NotificationStorage — alert rules, notification logs, preferences, settings
@@ -26,7 +25,7 @@
  * by every route file in server/routes/.
  */
 import { db } from "../db";
-import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, notificationPreferences, plaidConnections, documentExtractions, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
+import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, notificationPreferences, documentExtractions, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { UserStorage } from "./users";
 import { PropertyStorage } from "./properties";
@@ -35,7 +34,6 @@ import { AdminStorage } from "./admin";
 import { ActivityStorage, type ActivityLogFilters } from "./activity";
 import { ResearchStorage } from "./research";
 import { PhotoStorage } from "./photos";
-import { PlaidStorage } from "./plaid";
 import { DocumentStorage } from "./documents";
 import { ServiceStorage } from "./services";
 import { NotificationStorage } from "./notifications";
@@ -48,7 +46,6 @@ export interface IStorage extends
   ActivityStorage,
   ResearchStorage,
   PhotoStorage,
-  PlaidStorage,
   DocumentStorage,
   ServiceStorage,
   NotificationStorage {
@@ -63,7 +60,6 @@ export class DatabaseStorage implements IStorage {
   private activity = new ActivityStorage();
   private research = new ResearchStorage();
   private photos = new PhotoStorage();
-  private plaid = new PlaidStorage();
   private documents = new DocumentStorage();
   private services = new ServiceStorage();
   private notifications = new NotificationStorage();
@@ -197,22 +193,6 @@ export class DatabaseStorage implements IStorage {
   setHeroPhoto = this.photos.setHeroPhoto.bind(this.photos);
   reorderPhotos = this.photos.reorderPhotos.bind(this.photos);
 
-  // Plaid
-  createPlaidConnection = this.plaid.createPlaidConnection.bind(this.plaid);
-  getPlaidConnectionsByProperty = this.plaid.getPlaidConnectionsByProperty.bind(this.plaid);
-  getPlaidConnectionById = this.plaid.getPlaidConnectionById.bind(this.plaid);
-  getPlaidConnectionByItemId = this.plaid.getPlaidConnectionByItemId.bind(this.plaid);
-  updatePlaidConnectionSync = this.plaid.updatePlaidConnectionSync.bind(this.plaid);
-  updatePlaidConnectionAccounts = this.plaid.updatePlaidConnectionAccounts.bind(this.plaid);
-  updatePlaidConnectionToken = this.plaid.updatePlaidConnectionToken.bind(this.plaid);
-  deletePlaidConnection = this.plaid.deletePlaidConnection.bind(this.plaid);
-  createPlaidTransactions = this.plaid.createPlaidTransactions.bind(this.plaid);
-  getPlaidTransactionsByProperty = this.plaid.getPlaidTransactionsByProperty.bind(this.plaid);
-  removePlaidTransactionsByIds = this.plaid.removePlaidTransactionsByIds.bind(this.plaid);
-  updatePlaidTransactionCategories = this.plaid.updatePlaidTransactionCategories.bind(this.plaid);
-  getCategorizationCache = this.plaid.getCategorizationCache.bind(this.plaid);
-  upsertCategorizationCache = this.plaid.upsertCategorizationCache.bind(this.plaid);
-
   // Document Intelligence
   createDocumentExtraction = this.documents.createDocumentExtraction.bind(this.documents);
   getDocumentExtraction = this.documents.getDocumentExtraction.bind(this.documents);
@@ -259,7 +239,6 @@ export class DatabaseStorage implements IStorage {
       await tx.delete(prospectiveProperties).where(eq(prospectiveProperties.userId, id));
       await tx.delete(savedSearches).where(eq(savedSearches.userId, id));
       await tx.delete(notificationPreferences).where(eq(notificationPreferences.userId, id));
-      await tx.delete(plaidConnections).where(eq(plaidConnections.userId, id));
       await tx.delete(documentExtractions).where(eq(documentExtractions.userId, id));
       await tx.delete(conversations).where(eq(conversations.userId, id));
       await tx.delete(properties).where(eq(properties.userId, id));

@@ -23,7 +23,6 @@ DatabaseStorage (facade) ── delegates to:
     ├── ActivityStorage     — activity_logs
     ├── ResearchStorage     — market_research, research_questions, prospective_properties
     ├── PhotoStorage        — property_photos
-    ├── PlaidStorage        — plaid_connections, plaid_transactions
     ├── DocumentStorage     — document_extractions, extraction_fields, docusign_envelopes
     ├── ServiceStorage      — service_templates, property_services
     └── NotificationStorage — alert_rules, notification_logs, notification_preferences, notification_settings
@@ -41,7 +40,6 @@ DatabaseStorage (facade) ── delegates to:
 | `server/storage/activity.ts` | Activity logs |
 | `server/storage/research.ts` | Market research, research questions |
 | `server/storage/photos.ts` | Property photos |
-| `server/storage/plaid.ts` | Plaid connections, transactions |
 | `server/storage/documents.ts` | Document extractions, DocuSign envelopes |
 | `server/storage/notifications.ts` | Alert rules, notification logs/preferences/settings |
 | `server/storage/services.ts` | Service templates and property services |

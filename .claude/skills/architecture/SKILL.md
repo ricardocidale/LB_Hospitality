@@ -93,9 +93,6 @@ Enforced across all scenarios. See `.claude/manuals/user-manual/skills/02-busine
 **Notifications & alerts**
 - `alert_rules`, `notification_logs`, `notification_preferences`, `notification_settings`
 
-**Third-party integrations**
-- `plaid_connections`, `plaid_transactions`, `plaid_categorization_cache`
-
 **Document intelligence**
 - `document_extractions`, `extraction_fields`, `docusign_envelopes`
 

@@ -107,9 +107,6 @@ Resend email + Slack webhooks. Alert rules engine with metric thresholds, cooldo
 ## D3.js Visualizations
 WaterfallChart (revenue-to-NOI bridge), SensitivityHeatMap (ADR × Occupancy grid), TornadoDiagram (assumption impact ranking). Export to PDF/PPTX via `toCanvas()`.
 
-## Financial Account Reconciliation (Plaid)
-Plaid bank linking for actual vs. projected reconciliation per property. AES-256-GCM encrypted tokens, two-tier USALI categorization (rules + AI), row-level access control. Tables: `plaid_connections`, `plaid_transactions`, `plaid_categorization_cache`. Env: `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV`, optional `PLAID_TOKEN_ENCRYPTION_KEY`. Files: `server/crypto/plaid-tokens.ts`, `server/integrations/plaid*.ts`, `server/storage/plaid.ts`, `server/routes/plaid.ts`, `ReconciliationTab.tsx`.
-
 ## Document Intelligence Pipeline
 Property detail "Documents" tab. Document AI OCR extraction, fuzzy USALI field mapping, confidence-scored review UI. Tables: `document_extractions`, `extraction_fields`. Key files: `server/integrations/document-ai.ts`, `server/document-ai/`, `server/routes/documents.ts`, `server/storage/documents.ts`, `client/src/components/documents/`.
 

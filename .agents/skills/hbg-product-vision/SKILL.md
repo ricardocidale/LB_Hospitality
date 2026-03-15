@@ -157,7 +157,6 @@ Based on proposed and in-progress tasks:
 
 | Area | Direction |
 |------|-----------|
-| **Plaid** | Deeper integration for actual-vs-projected reconciliation (compare real bank transactions against pro forma) |
 | **Document Intelligence** | Enhanced automated data extraction from financial documents |
 | **Scenario Comparison** | Richer side-by-side tools with sensitivity visualization |
 | **Export Formats** | Expanded format support and template customization |

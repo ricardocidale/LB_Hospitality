@@ -73,10 +73,6 @@ const L1_INTEGRATIONS = `flowchart TB
     EL[ElevenLabs / Convai\nMarcela voice agent]
   end
 
-  subgraph Financial["Financial Services"]
-    Plaid[Plaid\nBank linking & USALI]
-  end
-
   subgraph Geo["Geospatial"]
     GMaps[Google Maps / Places\nGeocoding & POI search]
     MapLibre[MapLibre GL\n3D globe rendering]
@@ -115,9 +111,6 @@ const L1_INTEGRATIONS = `flowchart TB
 
   Platform -->|"voice config"| EL
   EL -->|"audio stream"| Platform
-
-  Platform -->|"link request"| Plaid
-  Plaid -->|"bank transactions"| Platform
 
   Platform -->|"geocode queries"| GMaps
   GMaps -->|"coordinates & POIs"| Platform

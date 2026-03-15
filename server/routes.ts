@@ -24,7 +24,6 @@ import * as premiumExportRoutes from "./routes/premium-exports";
 import * as adminIntegrationRoutes from "./routes/admin-integrations";
 import * as geospatialRoutes from "./routes/geospatial";
 import * as notificationRoutes from "./routes/notifications";
-import * as plaidRoutes from "./routes/plaid";
 import * as documentRoutes from "./routes/documents";
 import * as geoRoutes from "./routes/geo";
 import * as icpResearchRoutes from "./routes/icp-research";
@@ -57,7 +56,6 @@ export async function registerRoutes(
   adminIntegrationRoutes.register(app);
   geospatialRoutes.register(app);
   notificationRoutes.register(app);
-  plaidRoutes.register(app);
   documentRoutes.register(app);
   geoRoutes.register(app);
   icpResearchRoutes.register(app);

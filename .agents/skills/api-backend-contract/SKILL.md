@@ -61,7 +61,6 @@ All routes are organized by domain. Each module exports a `register(app)` functi
 | Module | File | Key Endpoints |
 |--------|------|--------------|
 | **Google Auth** | `server/routes/google-auth.ts` | OAuth 2.0 login/callback |
-| **Plaid** | `server/routes/plaid.ts` | Bank account linking, transaction sync |
 | **Twilio** | `server/routes/twilio.ts` | SMS notifications (HTTP + WebSocket) |
 | **Documents** | `server/routes/documents.ts` | Document upload, OCR extraction |
 | **Geospatial** | `server/routes/geospatial.ts` | Geocoding, Places autocomplete, POI |

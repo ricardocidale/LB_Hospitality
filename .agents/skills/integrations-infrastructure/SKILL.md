@@ -61,18 +61,6 @@ See the `marcela-ai-system` skill for the full Marcela architecture.
 
 ---
 
-## Financial Services: Plaid
-
-| Aspect | Detail |
-|--------|--------|
-| **Use cases** | Bank account linking, transaction sync, AI-powered USALI categorization |
-| **USALI mapping** | Transactions are categorized into hospitality expense categories using AI |
-| **Env vars** | `PLAID_CLIENT_ID`, `PLAID_SECRET`, `PLAID_ENV` |
-| **Files** | `server/integrations/plaid.ts`, `server/integrations/plaid-categorization.ts` |
-| **Routes** | `server/routes/plaid.ts` |
-
----
-
 ## Geospatial: Google Maps Platform
 
 | Aspect | Detail |

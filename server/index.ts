@@ -52,7 +52,7 @@ app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
-  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.plaid.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.elevenlabs.io wss://api.elevenlabs.io https://*.ingest.sentry.io https://*.sentry.io https://us.i.posthog.com https://app.posthog.com https://*.plaid.com; media-src 'self' blob:; frame-ancestors 'self' https://*.replit.dev https://*.replit.app https://*.repl.co");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.elevenlabs.io wss://api.elevenlabs.io https://*.ingest.sentry.io https://*.sentry.io https://us.i.posthog.com https://app.posthog.com; media-src 'self' blob:; frame-ancestors 'self' https://*.replit.dev https://*.replit.app https://*.repl.co");
   if (process.env.NODE_ENV === "production") {
     res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   }
@@ -145,7 +145,6 @@ app.use((req, res, next) => {
     { runIcpConfigMigration },
     { runMarcelaVoice001 },
     { runPropertyPhotos001 },
-    { runPlaid001 },
     { runDocuments001 },
     { runCompositeIndexes001 },
     { runMigration: runAutoResearchRefresh001 },
@@ -158,7 +157,6 @@ app.use((req, res, next) => {
     import("./migrations/icp-config-001"),
     import("./migrations/marcela-voice-001"),
     import("./migrations/property-photos-001"),
-    import("./migrations/plaid-001"),
     import("./migrations/documents-001"),
     import("./migrations/composite-indexes-001"),
     import("./migrations/auto-research-refresh-001"),
@@ -172,7 +170,6 @@ app.use((req, res, next) => {
     runIcpConfigMigration(),
     runMarcelaVoice001(),
     runPropertyPhotos001(),
-    runPlaid001(),
     runDocuments001(),
     runCompositeIndexes001(),
     runAutoResearchRefresh001(),
@@ -187,6 +184,10 @@ app.use((req, res, next) => {
   // FK indexes must run after all table-creating migrations complete
   const { runFkIndexes001 } = await import("./migrations/fk-indexes-001");
   await runFkIndexes001();
+
+  // Drop removed integration tables
+  const { runDropPlaid001 } = await import("./migrations/drop-plaid-001");
+  await runDropPlaid001();
 
   await seedAdminUser(); // Must complete first — users are FK dependencies
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");

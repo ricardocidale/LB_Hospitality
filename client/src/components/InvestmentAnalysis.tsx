@@ -173,7 +173,7 @@ export function InvestmentAnalysis({
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Equity Multiple
-              <InfoTooltip text="Total cash returned to investors divided by total equity invested. A 2.0x multiple means investors receive $2 back for every $1 invested." manualSection="investment-returns" manualLabel="MOIC formula in the Manual" />
+              <InfoTooltip text="Total cash returned divided by total equity invested. A 2.0x multiple means investors received $2 for every $1 invested." manualSection="investment-returns" manualLabel="MOIC formula in the Manual" />
             </p>
             <div className="text-2xl font-bold text-blue-600 font-mono">{equityMultipleIA.toFixed(2)}x</div>
           </div>
@@ -189,7 +189,7 @@ export function InvestmentAnalysis({
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
             <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
               Portfolio IRR
-              <InfoTooltip text="Internal Rate of Return - the annualized return that makes the net present value of all cash flows (investments, distributions, and exit) equal to zero. The gold standard metric for real estate investments." manualSection="investment-returns" manualLabel="IRR methodology in the Manual" />
+              <InfoTooltip text="Internal Rate of Return — the annualized return that makes the net present value of all cash flows equal to zero." manualSection="investment-returns" manualLabel="IRR methodology in the Manual" />
             </p>
             <div className="text-2xl font-bold text-secondary font-mono">{(portfolioIRRIA * 100).toFixed(1)}%</div>
           </div>
@@ -559,13 +559,13 @@ export function InvestmentAnalysis({
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     Equity Multiple
-                    <InfoTooltip text="Total cash returned ÷ Equity invested. A 2.0x means $2 back for every $1 invested." manualSection="investment-returns" />
+                    <InfoTooltip text="Total cash returned divided by total equity invested. A 2.0x multiple means investors received $2 for every $1 invested." manualSection="investment-returns" />
                   </div>
                 </TableHead>
                 <TableHead className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     IRR
-                    <InfoTooltip text="Internal Rate of Return - the annualized return that makes NPV of all cash flows = 0." manualSection="investment-returns" />
+                    <InfoTooltip text="Internal Rate of Return — the annualized return that makes the net present value of all cash flows equal to zero." manualSection="investment-returns" />
                   </div>
                 </TableHead>
               </TableRow>

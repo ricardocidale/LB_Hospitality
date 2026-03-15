@@ -397,7 +397,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <div className="bg-card rounded-lg p-3 sm:p-6 border border-border shadow-sm flex flex-col" data-testid="gauge-portfolio-irr">
                   <p className="text-xs font-medium tracking-widest text-foreground/60 uppercase mb-3 text-center label-text flex items-center justify-center gap-1">
                     Portfolio IRR
-                    <InfoTooltip text="Internal Rate of Return — the annualized return that makes the net present value of all cash flows equal to zero." formula="NPV = Σ CFₜ / (1 + IRR)ᵗ = 0" light side="bottom" />
+                    <InfoTooltip text="Internal Rate of Return — the annualized return that makes the net present value of all cash flows equal to zero." formula="NPV = Σ CFₜ / (1+IRR)ᵗ = 0" light side="bottom" />
                   </p>
                   <div className="flex-1 flex items-center justify-center">
                     <RadialGauge
@@ -477,7 +477,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                     </div>
                     <div className="min-w-0">
                       <p className="text-lg sm:text-2xl font-bold text-emerald-700 font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
-                      <p className="text-xs sm:text-sm text-foreground/60 label-text flex items-center">Equity Multiple<InfoTooltip text="Total distributions plus residual value divided by total equity invested. A 2.0x multiple means investors received double their investment." formula="EM = (Total Distributions + Exit Value) / Total Equity" light side="right" /></p>
+                      <p className="text-xs sm:text-sm text-foreground/60 label-text flex items-center">Equity Multiple<InfoTooltip text="Total cash returned divided by total equity invested. A 2.0x multiple means investors received $2 for every $1 invested." formula="EM = (Total Distributions + Exit Value) / Total Equity" light side="right" /></p>
                     </div>
                   </div>
                 </div>
@@ -710,7 +710,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 <span className="text-sm font-semibold text-foreground tracking-wide uppercase">Portfolio Insights</span>
               </AccordionTrigger>
               <InfoTooltip
-                text="Automated intelligence observations about portfolio performance, diversification, and risk factors."
+                text="AI-generated observations about portfolio performance, diversification, and risk factors."
                 light
                 side="right"
               />
@@ -856,7 +856,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   <span className="text-sm font-semibold text-foreground tracking-wide uppercase">USALI Profit Waterfall</span>
                 </AccordionTrigger>
                 <InfoTooltip
-                  text="Revenue cascade through operating expenses to net income following the Uniform System of Accounts for the Lodging Industry (USALI). Shows how total revenue flows down to ANOI after departmental expenses, undistributed costs, management fees, fixed charges, and FF&E reserve."
+                  text="How total revenue flows down to ANOI through each layer of operating expenses, following the USALI framework."
                   formula="Revenue → GOP → AGOP → NOI → ANOI"
                   light
                   side="right"

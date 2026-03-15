@@ -27,7 +27,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
         <div>
           <h3 className="text-lg font-display text-foreground flex items-center">
             Company Setup
-            <InfoTooltip text="When the management company begins operations and starts incurring costs" />
+            <InfoTooltip text="Configure the management company identity, launch date, and projection horizon." />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Configure the management company name and when it starts operations</p>
         </div>
@@ -51,7 +51,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
           <div className="flex flex-col gap-2">
             <Label className="flex items-center text-foreground label-text">
               Company Name
-              <InfoTooltip text="The name of the hospitality management company. Only administrators can change this." />
+              <InfoTooltip text="The name of the hospitality management company." />
             </Label>
             <Input
               type="text"

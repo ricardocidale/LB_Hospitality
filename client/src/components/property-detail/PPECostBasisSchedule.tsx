@@ -130,7 +130,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
       <CardHeader className="pb-2">
         <CardTitle className="text-foreground flex items-center gap-2">
           PP&E / Cost Basis Schedule
-          <InfoTooltip text="Shows the underlying asset values, depreciation basis, and fixed-cost anchors used by the financial engine. Click each section to expand details." manualSection="property-formulas" />
+          <InfoTooltip text="Asset values, depreciation basis, and cost anchors that drive the property's financial projections. Expand each section for details." manualSection="property-formulas" />
         </CardTitle>
         <p className="text-sm text-muted-foreground">
           {property.name} — Checker transparency view
@@ -145,7 +145,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
             </tr>
           </thead>
           <tbody>
-            <SectionRow sectionKey="acquisition" label="Acquisition & Project Cost" value={fmt(totalProjectCost)} tooltip="Total capital required to acquire, improve, and open the property." />
+            <SectionRow sectionKey="acquisition" label="Acquisition & Project Cost" value={fmt(totalProjectCost)} tooltip="Total capital required to acquire, improve, and open the property — the full day-one investment." />
             {openSections.acquisition && (
               <>
                 <DetailRow label="Purchase Price" value={fmt(purchasePrice)} />
@@ -154,12 +154,12 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
                 <DetailRow label="Building Improvements" value={fmt(buildingImprovements)} />
                 <DetailRow label="Pre-Opening Costs" value={fmt(preOpeningCosts)} />
                 <DetailRow label="Operating Reserve" value={fmt(operatingReserve)} />
-                <DetailRow label="Total Property Value (Price + Improvements)" value={fmt(totalPropertyValue)} bold tooltip="Used as the basis for loan calculations (LTV applied to this amount)." />
+                <DetailRow label="Total Property Value (Price + Improvements)" value={fmt(totalPropertyValue)} bold tooltip="Basis for loan sizing — LTV is applied to this amount." />
                 <DetailRow label="Total Project Cost" value={fmt(totalProjectCost)} bold />
               </>
             )}
 
-            <SectionRow sectionKey="depreciation" label="Depreciation Schedule (ASC 360)" value={fmt(annualDepreciation) + " /yr"} tooltip="Straight-line depreciation over 27.5 years. Land is excluded from the depreciable basis." />
+            <SectionRow sectionKey="depreciation" label="Depreciation Schedule (ASC 360)" value={fmt(annualDepreciation) + " /yr"} tooltip="Annual non-cash expense that reduces taxable income. Building and improvements depreciate over 27.5 years; land is excluded." />
             {openSections.depreciation && (
               <>
                 <DetailRow label="Building Value (from purchase)" value={fmt(buildingValue)} />
@@ -176,7 +176,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
               sectionKey="fixedCostAnchor"
               label="Fixed Cost Anchor (Year 1 Base Revenue)"
               value={fmt(baseAnnualTotalRev) + " /yr"}
-              tooltip="Fixed operating costs (Property Ops, Admin, IT, etc.) are calculated as a rate × this Year 1 base revenue, then escalated annually. They do NOT scale with actual revenue growth. Insurance and Property Taxes are calculated separately based on property value."
+              tooltip="Fixed operating costs are anchored to this Year 1 revenue figure and escalate with inflation — they do not scale with actual revenue growth."
             />
             {openSections.fixedCostAnchor && (
               <>
@@ -216,11 +216,11 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
 
             {property.type === "Financed" && (
               <>
-                <SectionRow sectionKey="loanBasis" label="Loan & Equity Basis" value={fmt(loanAmount)} tooltip="Loan amount is based on LTV × Total Property Value (purchase price + improvements). Equity = Total Project Cost − Loan." />
+                <SectionRow sectionKey="loanBasis" label="Loan & Equity Basis" value={fmt(loanAmount)} tooltip="Loan sized as LTV × property value. Equity covers the remainder of the total project cost." />
                 {openSections.loanBasis && (
                   <>
                     <DetailRow label="Financing Type" value={property.type} />
-                    <DetailRow label="Total Property Value (Loan Basis)" value={fmt(totalPropertyValue)} tooltip="LTV is applied to this amount, not the total project cost." />
+                    <DetailRow label="Total Property Value (Loan Basis)" value={fmt(totalPropertyValue)} tooltip="LTV is applied to this amount, not the total project cost including reserves." />
                     <DetailRow label={`Loan-to-Value (LTV): ${pct(ltv)}`} value={fmt(loanAmount)} bold />
                     <DetailRow label="Equity Required" value={fmt(equityRequired)} bold />
                     <DetailRow label="Interest Rate" value={pct(property.acquisitionInterestRate ?? global.debtAssumptions?.interestRate ?? 0.09)} />
@@ -231,7 +231,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
             )}
             {property.type === "Full Equity" && (
               <>
-                <SectionRow sectionKey="loanBasis" label="Equity Basis" value={fmt(totalProjectCost)} tooltip="Full equity deal — no debt financing. Total equity equals the full project cost." />
+                <SectionRow sectionKey="loanBasis" label="Equity Basis" value={fmt(totalProjectCost)} tooltip="No debt financing — total equity equals the full project cost." />
                 {openSections.loanBasis && (
                   <>
                     <DetailRow label="Financing Type" value="Full Equity (No Debt)" />

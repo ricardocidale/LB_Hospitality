@@ -26,14 +26,14 @@ export function OtherTab({
           <CardTitle className="flex items-center gap-2 font-display">
             <IconSliders className="w-5 h-5 text-primary" />
             Calculation Transparency
-            <InfoTooltip text="Control whether formula breakdowns and help icons are visible in financial reports. When turned on, tables show expandable rows with step-by-step calculations and help icons explaining each line item. When turned off, tables display clean numbers only — ideal for investor presentations." manualSection="financial-statements" />
+            <InfoTooltip text="Show or hide step-by-step formula breakdowns in financial reports. Turn off for clean, investor-ready presentations." manualSection="financial-statements" />
           </CardTitle>
           <CardDescription className="label-text">Show or hide the formula verification details and help icons in financial statements.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
             <div>
-              <Label className="label-text font-medium flex items-center gap-1">Management Company Reports <InfoTooltip text="When ON, the Company page financial statements show expandable formula rows and help icons that explain how each line item is calculated. Turn OFF for a clean investor-ready view with numbers only." /></Label>
+              <Label className="label-text font-medium flex items-center gap-1">Management Company Reports <InfoTooltip text="Toggles formula breakdowns and help icons in company-level financial reports." /></Label>
               <p className="text-xs text-muted-foreground mt-0.5">Income statement, cash flow, and balance sheet on the Company page</p>
             </div>
             <Switch
@@ -44,7 +44,7 @@ export function OtherTab({
           </div>
           <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
             <div>
-              <Label className="label-text font-medium flex items-center gap-1">Property Reports <InfoTooltip text="When ON, all property-level financial statements show expandable formula rows and help icons that explain how each line item is calculated — including fixed-cost escalation factors and revenue breakdowns. Turn OFF for clean investor presentations across all properties." /></Label>
+              <Label className="label-text font-medium flex items-center gap-1">Property Reports <InfoTooltip text="Toggles formula breakdowns and help icons in property-level financial reports." /></Label>
               <p className="text-xs text-muted-foreground mt-0.5">All property-level income statements, cash flows, and balance sheets</p>
             </div>
             <Switch
@@ -61,14 +61,14 @@ export function OtherTab({
           <CardTitle className="flex items-center gap-2 font-display">
             <IconSliders className="w-5 h-5 text-primary" />
             Research Automation
-            <InfoTooltip text="Control automatic AI research refresh behavior. When enabled, the system checks whether any research (property, company, or global) is stale after login and automatically triggers a refresh overlay." />
+            <InfoTooltip text="Automatically refresh stale research data after login." />
           </CardTitle>
           <CardDescription className="label-text">Configure automatic research refresh behavior on login.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
             <div>
-              <Label className="label-text font-medium flex items-center gap-1">Auto-refresh research on login <InfoTooltip text="When ON, the system checks after each login whether any research (property, company, or global) hasn't been refreshed in the last 30 business days and automatically triggers a full refresh. When OFF, this post-login staleness check and overlay are completely skipped." /></Label>
+              <Label className="label-text font-medium flex items-center gap-1">Auto-refresh research on login <InfoTooltip text="Checks for stale research after login and triggers a refresh if data is older than 30 business days." /></Label>
               <p className="text-xs text-muted-foreground mt-0.5">Automatically refresh stale research data after login (checks every 30 business days)</p>
             </div>
             <Switch

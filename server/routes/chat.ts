@@ -64,14 +64,38 @@ export function register(app: Express) {
         cachedPropertyContext = { text: propertyContext, timestamp: now, count: properties.length };
       }
 
+      const ga = global as any;
+      const fundingInterestRate = ga?.fundingInterestRate ?? 0;
+      const fundingLines: string[] = [];
+      fundingLines.push(`Funding Source: ${ga?.fundingSourceLabel ?? "Funding Vehicle"}`);
+      fundingLines.push(`Tranche 1: $${(ga?.safeTranche1Amount ?? 0).toLocaleString()} (${ga?.safeTranche1Date ?? "N/A"})`);
+      fundingLines.push(`Tranche 2: $${(ga?.safeTranche2Amount ?? 0).toLocaleString()} (${ga?.safeTranche2Date ?? "N/A"})`);
+      if ((ga?.safeValuationCap ?? 0) > 0) {
+        fundingLines.push(`Valuation Cap: $${(ga.safeValuationCap).toLocaleString()}`);
+      }
+      if ((ga?.safeDiscountRate ?? 0) > 0) {
+        fundingLines.push(`Discount Rate: ${(ga.safeDiscountRate * 100).toFixed(0)}%`);
+      }
+      if (fundingInterestRate > 0) {
+        fundingLines.push(`Interest Rate: ${(fundingInterestRate * 100).toFixed(1)}% annual`);
+        fundingLines.push(`Interest Payment: ${ga?.fundingInterestPaymentFrequency === "quarterly" ? "Paid Quarterly" : ga?.fundingInterestPaymentFrequency === "annually" ? "Paid Annually" : "Accrues Only"}`);
+      }
+      const baseFee = ga?.baseManagementFee ?? 0;
+      const incentiveFee = ga?.incentiveManagementFee ?? 0;
+
       const contextBlock = [
         "PORTFOLIO DATA:",
         propertyContext,
         "",
-        `Company: ${(global as any)?.companyName ?? "Management Company"}`,
+        `Company: ${ga?.companyName ?? "Management Company"}`,
         `Properties in Portfolio: ${properties.length}`,
-        `Projection Years: ${(global as any)?.projectionYears ?? 10}`,
-        `Inflation Rate: ${((global as any)?.inflationRate ?? 0.03) * 100}%`,
+        `Projection Years: ${ga?.projectionYears ?? 10}`,
+        `Inflation Rate: ${((ga?.inflationRate ?? 0.03) * 100).toFixed(1)}%`,
+        `Base Management Fee: ${(baseFee * 100).toFixed(1)}%`,
+        `Incentive Management Fee: ${(incentiveFee * 100).toFixed(1)}%`,
+        "",
+        "FUNDING:",
+        ...fundingLines,
       ].join("\n");
 
       const chatHistory = history.map((msg) => ({

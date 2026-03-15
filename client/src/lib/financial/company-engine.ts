@@ -67,8 +67,11 @@ export function generateCompanyProForma(
   months: number = PROJECTION_MONTHS,
   serviceTemplates?: ServiceTemplate[],
 ): CompanyMonthlyFinancials[] {
-  const results: any[] = []; // Using any[] to match the existing return type in the original file which has more fields than the interface
+  const results: any[] = [];
   let cumulativeCompanyCash = 0;
+  let cumulativeAccruedInterest = 0;
+  let monthsOfAccrual = 0;
+  let cumulativePrincipal = 0;
 
   const startParsed = parseDateComponents(global.modelStartDate);
   const tranche1Parsed = global.safeTranche1Date ? parseDateComponents(global.safeTranche1Date) : startParsed;
@@ -129,6 +132,8 @@ export function generateCompanyProForma(
   const companyTaxRate = global.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE;
   const safeTranche1Amount = global.safeTranche1Amount ?? DEFAULT_SAFE_TRANCHE;
   const safeTranche2Amount = global.safeTranche2Amount ?? DEFAULT_SAFE_TRANCHE;
+  const fundingInterestRate = global.fundingInterestRate ?? 0;
+  const fundingInterestPaymentFrequency = global.fundingInterestPaymentFrequency ?? 'accrues_only';
   const hasServiceTemplates = serviceTemplates && serviceTemplates.length > 0;
 
   // ── Pre-computed escalation factor arrays (Task 6) ──
@@ -258,10 +263,6 @@ export function generateCompanyProForma(
     const totalExpenses = partnerCompensation + staffCompensation + officeLease + professionalServices +
       techInfrastructure + businessInsurance + travelCosts + itLicensing + marketing + miscOps;
 
-    const preTaxIncome = totalRevenue - totalVendorCost - totalExpenses;
-    const companyIncomeTax = preTaxIncome > 0 ? preTaxIncome * companyTaxRate : 0;
-    const netIncome = preTaxIncome - companyIncomeTax;
-    
     let safeFunding1 = 0;
     let safeFunding2 = 0;
     if (m === tranche1MonthIdx) {
@@ -271,8 +272,30 @@ export function generateCompanyProForma(
       safeFunding2 = safeTranche2Amount;
     }
     const safeFunding = safeFunding1 + safeFunding2;
+    cumulativePrincipal += safeFunding;
+
+    const fundingInterestExpense = fundingInterestRate > 0 ? cumulativePrincipal * fundingInterestRate / 12 : 0;
+    cumulativeAccruedInterest += fundingInterestExpense;
+
+    let fundingInterestPayment = 0;
+    if (fundingInterestRate > 0 && cumulativeAccruedInterest > 0) {
+      if (fundingInterestExpense > 0) {
+        monthsOfAccrual++;
+      }
+      const paymentInterval = fundingInterestPaymentFrequency === 'quarterly' ? 3 :
+                               fundingInterestPaymentFrequency === 'annually' ? 12 : 0;
+      if (paymentInterval > 0 && monthsOfAccrual > 0 && monthsOfAccrual % paymentInterval === 0) {
+        fundingInterestPayment = cumulativeAccruedInterest;
+        cumulativeAccruedInterest = 0;
+      }
+    }
+
+    const ebitda = totalRevenue - totalVendorCost - totalExpenses;
+    const preTaxIncome = ebitda - fundingInterestExpense;
+    const companyIncomeTax = preTaxIncome > 0 ? preTaxIncome * companyTaxRate : 0;
+    const netIncome = preTaxIncome - companyIncomeTax;
     
-    const cashFlow = netIncome + safeFunding;
+    const cashFlow = netIncome + fundingInterestExpense + safeFunding - fundingInterestPayment;
     cumulativeCompanyCash += cashFlow;
 
     const totalMonths = startParsed.month + m;
@@ -303,6 +326,9 @@ export function generateCompanyProForma(
       marketing,
       miscOps,
       totalExpenses,
+      fundingInterestExpense,
+      fundingInterestPayment,
+      cumulativeAccruedInterest,
       preTaxIncome,
       companyIncomeTax,
       netIncome,

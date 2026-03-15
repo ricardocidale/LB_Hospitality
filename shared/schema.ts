@@ -29,6 +29,8 @@ import { z } from "zod";
 import {
   DEFAULT_SAFE_VALUATION_CAP,
   DEFAULT_SAFE_DISCOUNT_RATE,
+  DEFAULT_FUNDING_INTEREST_RATE,
+  DEFAULT_FUNDING_INTEREST_PAYMENT_FREQUENCY,
   DEFAULT_REV_SHARE_EVENTS,
   DEFAULT_REV_SHARE_FB,
   DEFAULT_REV_SHARE_OTHER,
@@ -372,6 +374,8 @@ export const globalAssumptions = pgTable("global_assumptions", {
   safeTranche2Date: text("safe_tranche2_date").notNull().default("2027-04-01"),
   safeValuationCap: real("safe_valuation_cap").notNull().default(DEFAULT_SAFE_VALUATION_CAP),
   safeDiscountRate: real("safe_discount_rate").notNull().default(DEFAULT_SAFE_DISCOUNT_RATE),
+  fundingInterestRate: real("funding_interest_rate").notNull().default(DEFAULT_FUNDING_INTEREST_RATE),
+  fundingInterestPaymentFrequency: text("funding_interest_payment_frequency").notNull().default(DEFAULT_FUNDING_INTEREST_PAYMENT_FREQUENCY),
   
   // Cost variables - Compensation (yearly partner compensation and count)
   partnerCompYear1: real("partner_comp_year1").notNull().default(540000),
@@ -627,6 +631,8 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   safeTranche2Date: true,
   safeValuationCap: true,
   safeDiscountRate: true,
+  fundingInterestRate: true,
+  fundingInterestPaymentFrequency: true,
   partnerCompYear1: true,
   partnerCompYear2: true,
   partnerCompYear3: true,

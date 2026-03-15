@@ -152,6 +152,9 @@ async function exportCompanyFullWorkbook(
       netIncome: yearSlice.reduce((a: number, m: any) => a + m.netIncome, 0),
       safeFunding: yearSlice.reduce((a: number, m: any) => a + m.safeFunding, 0),
       cashFlow: yearSlice.reduce((a: number, m: any) => a + m.cashFlow, 0),
+      fundingInterestExpense: yearSlice.reduce((a: number, m: any) => a + (m.fundingInterestExpense ?? 0), 0),
+      fundingInterestPayment: yearSlice.reduce((a: number, m: any) => a + (m.fundingInterestPayment ?? 0), 0),
+      cumulativeAccruedInterest: yearSlice.length > 0 ? (yearSlice[yearSlice.length - 1].cumulativeAccruedInterest ?? 0) : 0,
     });
   }
 
@@ -190,6 +193,7 @@ async function exportCompanyFullWorkbook(
     isRows.push(["Gross Profit", ...yearlyData.map(y => y.grossProfit)]);
     isRows.push([]);
   }
+  const hasInterest = yearlyData.some((y: any) => y.fundingInterestExpense > 0);
   isRows.push(
     ["OPERATING EXPENSES"],
     ["  Partner Compensation", ...yearlyData.map(y => y.partnerComp)],
@@ -204,7 +208,29 @@ async function exportCompanyFullWorkbook(
     ["  Miscellaneous Operations", ...yearlyData.map(y => y.miscOps)],
     ["Total Expenses", ...yearlyData.map(y => y.totalExpenses)],
     [],
-    ["Net Income", ...yearlyData.map(y => y.netIncome)],
+    [hasInterest ? "Operating Income (EBITDA)" : "Net Income", ...yearlyData.map(y => {
+      const ebitda = y.totalRevenue - y.totalVendorCost - y.totalExpenses;
+      return hasInterest ? ebitda : y.netIncome;
+    })],
+  );
+  if (hasInterest) {
+    isRows.push(
+      [],
+      ["Interest Expense", ...yearlyData.map(y => -y.fundingInterestExpense)],
+      ["Pre-Tax Income", ...yearlyData.map(y => {
+        const ebitda = y.totalRevenue - y.totalVendorCost - y.totalExpenses;
+        return ebitda - y.fundingInterestExpense;
+      })],
+      ["Tax Expense", ...yearlyData.map(y => {
+        const ebitda = y.totalRevenue - y.totalVendorCost - y.totalExpenses;
+        const preTax = ebitda - y.fundingInterestExpense;
+        const taxRate = global?.companyTaxRate ?? 0;
+        return preTax > 0 ? -(preTax * taxRate) : 0;
+      })],
+      ["Net Income", ...yearlyData.map(y => y.netIncome)],
+    );
+  }
+  isRows.push(
     [],
     ["FUNDING"],
     ["  Funding Received", ...yearlyData.map(y => y.safeFunding)],
@@ -241,11 +267,29 @@ async function exportCompanyFullWorkbook(
     ["    Compensation", ...yearlyData.map(y => -(y.partnerComp + y.staffComp))],
     ["    Fixed Overhead", ...yearlyData.map(y => -(y.officeLease + y.profServices + y.techInfra + y.bizInsurance))],
     ["    Variable Costs", ...yearlyData.map(y => -(y.travel + y.itLicensing + y.marketing + y.miscOps))],
-    ["Net Cash from Operating Activities", ...yearlyData.map(y => y.totalRevenue - y.totalVendorCost - y.totalExpenses)],
+  );
+  const cfHasInterest = yearlyData.some((y: any) => y.fundingInterestExpense > 0);
+  if (cfHasInterest) {
+    cfRows.push(
+      ["  Add Back: Interest Expense", ...yearlyData.map(y => y.fundingInterestExpense)],
+    );
+  }
+  cfRows.push(
+    ["Net Cash from Operating Activities", ...yearlyData.map(y => {
+      const opsCF = y.netIncome + y.fundingInterestExpense;
+      return opsCF;
+    })],
     [],
     ["CASH FLOW FROM FINANCING ACTIVITIES"],
     ["  Funding Received", ...yearlyData.map(y => y.safeFunding)],
-    ["Net Cash from Financing Activities", ...yearlyData.map(y => y.safeFunding)],
+  );
+  if (cfHasInterest) {
+    cfRows.push(
+      ["  Interest Paid on Notes", ...yearlyData.map(y => -y.fundingInterestPayment)],
+    );
+  }
+  cfRows.push(
+    ["Net Cash from Financing Activities", ...yearlyData.map(y => y.safeFunding - y.fundingInterestPayment)],
     [],
     ["Net Increase (Decrease) in Cash", ...yearlyData.map(y => y.cashFlow)],
     ["Opening Cash Balance", ...openingCash],
@@ -259,25 +303,33 @@ async function exportCompanyFullWorkbook(
     for (let j = 0; j <= i; j++) cum += yearlyData[j].netIncome;
     return cum;
   });
-  const cashByYear = cumRetainedEarnings.map((re: number) => totalSafeFunding + re);
-
+  const bsHasAccruedInterest = yearlyData.some((y: any) => y.cumulativeAccruedInterest > 0);
+  const totalLiabilitiesByYear = yearlyData.map((y: any) => totalSafeFunding + y.cumulativeAccruedInterest);
+  const totalEquityByYear = cumRetainedEarnings;
   const bsRows: (string | number)[][] = [
     [`Balance Sheet`, ...yearLabels],
     [],
     ["ASSETS"],
-    ["  Cash & Cash Equivalents", ...cashByYear],
-    ["Total Assets", ...cashByYear],
+    ["  Cash & Cash Equivalents", ...closingCash],
+    ["Total Assets", ...closingCash],
     [],
     ["LIABILITIES"],
     ["  Funding Notes Payable", ...yearlyData.map(() => totalSafeFunding)],
-    ["Total Liabilities", ...yearlyData.map(() => totalSafeFunding)],
+  ];
+  if (bsHasAccruedInterest) {
+    bsRows.push(
+      ["  Accrued Interest on Notes", ...yearlyData.map(y => y.cumulativeAccruedInterest)],
+    );
+  }
+  bsRows.push(
+    ["Total Liabilities", ...totalLiabilitiesByYear],
     [],
     ["EQUITY"],
     ["  Retained Earnings", ...cumRetainedEarnings],
-    ["Total Equity", ...cumRetainedEarnings],
+    ["Total Equity", ...totalEquityByYear],
     [],
-    ["Total Liabilities + Equity", ...cashByYear],
-  ];
+    ["Total Liabilities + Equity", ...totalLiabilitiesByYear.map((l: number, i: number) => l + totalEquityByYear[i])],
+  );
   await addSheet("Balance Sheet", bsRows);
 
   const cumRevenue = yearlyData.map((_: any, i: number) => {

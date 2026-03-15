@@ -15,8 +15,10 @@
  *     with portfolio size or as a percentage of management fee revenue
  *
  * Bottom Line:
- *   • EBITDA = Revenue − Total Expenses (before depreciation, interest, and tax)
- *   • Net Income = EBITDA − Tax
+ *   • Operating Income (EBITDA) = Revenue − Total Expenses
+ *   • Interest Expense = Outstanding Principal × Annual Rate ÷ 12
+ *   • Pre-Tax Income = Operating Income − Interest Expense
+ *   • Net Income = Pre-Tax Income − Tax
  *
  * The table renders one column per projection year. Each row shows the dollar
  * amount and (for expense rows) the percentage of total revenue.
@@ -647,10 +649,15 @@ export default function CompanyIncomeTab({
               })}
             </TableRow>
             <TableRow className="bg-muted font-semibold border-border">
-              <TableCell className="sticky left-0 bg-muted text-foreground">EBITDA</TableCell>
+              <TableCell className="sticky left-0 bg-muted text-foreground">
+                <span className="flex items-center gap-1">
+                  Operating Income (EBITDA)
+                  <InfoTooltip text="Earnings Before Depreciation, Interest, and Tax. Revenue minus all operating expenses, before interest on funding instruments and income tax." />
+                </span>
+              </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
-                const total = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
+                const total = yearData.reduce((a, m) => a + (m.preTaxIncome + m.fundingInterestExpense), 0);
                 return (
                   <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
                     {formatMoney(total)}
@@ -672,6 +679,44 @@ export default function CompanyIncomeTab({
                   : `${formatMoney(revenue)} − ${formatMoney(expenses)}`;
               })}
             />
+            {financials.some(m => m.fundingInterestExpense > 0) && (
+              <>
+                <TableRow>
+                  <TableCell className="sticky left-0 bg-card pl-6 text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      Interest Expense
+                      <InfoTooltip text="Monthly simple interest accrued on outstanding funding principal. Calculated as: Outstanding Principal × Annual Rate ÷ 12. This is a non-cash expense when interest accrues only, or a cash expense when paid out." />
+                    </span>
+                  </TableCell>
+                  {Array.from({ length: projectionYears }, (_, y) => {
+                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const total = yearData.reduce((a, m) => a + m.fundingInterestExpense, 0);
+                    return <TableCell key={y} className="text-right text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
+                  })}
+                </TableRow>
+                <FormulaRow
+                  rowKey="formula-interest-expense"
+                  label={`= Outstanding Principal × ${((global.fundingInterestRate ?? 0) * 100).toFixed(1)}% ÷ 12 (monthly)`}
+                  values={Array.from({ length: projectionYears }, (_, y) => {
+                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const total = yearData.reduce((a, m) => a + m.fundingInterestExpense, 0);
+                    return formatMoney(total);
+                  })}
+                />
+              </>
+            )}
+            <TableRow className={financials.some(m => m.fundingInterestExpense > 0) ? "bg-muted/50 font-medium" : "hidden"}>
+              <TableCell className="sticky left-0 bg-muted/50 text-foreground">Pre-Tax Income</TableCell>
+              {Array.from({ length: projectionYears }, (_, y) => {
+                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const total = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
+                return (
+                  <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
+                    {formatMoney(total)}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
             <TableRow>
               <TableCell className="sticky left-0 bg-card pl-6 text-muted-foreground">Tax</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
@@ -682,12 +727,12 @@ export default function CompanyIncomeTab({
             </TableRow>
             <FormulaRow
               rowKey="formula-tax"
-              label={`= ${((global.companyTaxRate ?? 0) * 100).toFixed(0)}% × EBITDA`}
+              label={`= ${((global.companyTaxRate ?? 0) * 100).toFixed(0)}% × ${financials.some(m => m.fundingInterestExpense > 0) ? 'Pre-Tax Income' : 'Operating Income'}`}
               values={Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
-                const ebitda = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
+                const preTaxIncome = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
                 const rate = ((global.companyTaxRate ?? 0) * 100).toFixed(0);
-                return `${rate}% × ${formatMoney(ebitda)}`;
+                return `${rate}% × ${formatMoney(preTaxIncome)}`;
               })}
             />
             <TableRow className="bg-primary/10 font-bold">
@@ -704,12 +749,15 @@ export default function CompanyIncomeTab({
             </TableRow>
             <FormulaRow
               rowKey="formula-netIncome"
-              label="= EBITDA − Tax"
+              label={financials.some(m => m.fundingInterestExpense > 0) ? "= Operating Income − Interest Expense − Tax" : "= Operating Income − Tax"}
               values={Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
-                const ebitda = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
+                const ebitda = yearData.reduce((a, m) => a + (m.preTaxIncome + m.fundingInterestExpense), 0);
+                const interest = yearData.reduce((a, m) => a + m.fundingInterestExpense, 0);
                 const tax = yearData.reduce((a, m) => a + m.companyIncomeTax, 0);
-                return `${formatMoney(ebitda)} − ${formatMoney(tax)}`;
+                return interest > 0
+                  ? `${formatMoney(ebitda)} − ${formatMoney(interest)} − ${formatMoney(tax)}`
+                  : `${formatMoney(ebitda)} − ${formatMoney(tax)}`;
               })}
             />
             <TableRow>

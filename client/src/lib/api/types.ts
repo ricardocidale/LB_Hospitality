@@ -26,6 +26,8 @@ export interface GlobalResponse {
   safeTranche2Date: string;
   safeValuationCap: number;
   safeDiscountRate: number;
+  fundingInterestRate: number;
+  fundingInterestPaymentFrequency: string;
   // Compensation - partner comp by year
   partnerCompYear1: number;
   partnerCompYear2: number;

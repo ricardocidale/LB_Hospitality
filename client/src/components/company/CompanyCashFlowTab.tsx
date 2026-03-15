@@ -393,7 +393,9 @@ export default function CompanyCashFlowTab({
               <TableCell className="sticky left-0 bg-card">Net Cash from Operating Activities</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
-                const total = yearData.reduce((a, m) => a + m.netIncome, 0);
+                const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
+                const interestAddback = yearData.reduce((a, m) => a + (m.fundingInterestExpense ?? 0), 0);
+                const total = netIncome + interestAddback;
                 return (
                   <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
                     {formatMoney(total)}
@@ -401,13 +403,37 @@ export default function CompanyCashFlowTab({
                 );
               })}
             </TableRow>
+            {financials.some(m => (m.fundingInterestExpense ?? 0) > 0) && (
+              <TableRow>
+                <TableCell className="sticky left-0 bg-card pl-6 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    Add Back: Interest Expense
+                    <InfoTooltip text="Interest expense is reclassified from operating to financing activities. The full amount is added back here and interest payments appear in financing cash flow." />
+                  </span>
+                </TableCell>
+                {Array.from({ length: projectionYears }, (_, y) => {
+                  const yearData = financials.slice(y * 12, (y + 1) * 12);
+                  const interestAddback = yearData.reduce((a, m) => a + (m.fundingInterestExpense ?? 0), 0);
+                  return (
+                    <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">
+                      {interestAddback > 0 ? formatMoney(interestAddback) : '-'}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            )}
             <FormulaRow
               rowKey="formula-operatingCF"
-              label={financials.some(m => m.totalVendorCost > 0) ? "= Revenue − Vendor Costs − Expenses − Tax" : "= Total Revenue − Total Expenses − Tax"}
+              label={
+                financials.some(m => (m.fundingInterestExpense ?? 0) > 0)
+                  ? (financials.some(m => m.totalVendorCost > 0) ? "= Revenue − Vendor Costs − Expenses − Tax + Interest Addback" : "= Net Income + Interest Expense Addback")
+                  : (financials.some(m => m.totalVendorCost > 0) ? "= Revenue − Vendor Costs − Expenses − Tax" : "= Total Revenue − Total Expenses − Tax")
+              }
               values={Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
-                return formatMoney(netIncome);
+                const interestAddback = yearData.reduce((a, m) => a + (m.fundingInterestExpense ?? 0), 0);
+                return formatMoney(netIncome + interestAddback);
               })}
             />
             <TableRow>
@@ -419,7 +445,9 @@ export default function CompanyCashFlowTab({
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
-                const cashFromOps = yearData.reduce((a, m) => a + m.netIncome, 0);
+                const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
+                const interestAddback = yearData.reduce((a, m) => a + (m.fundingInterestExpense ?? 0), 0);
+                const cashFromOps = netIncome + interestAddback;
                 const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                 const pct = totalRevenue > 0 ? (cashFromOps / totalRevenue) * 100 : 0;
                 return (
@@ -478,21 +506,50 @@ export default function CompanyCashFlowTab({
                 </TableRow>
               </>
             )}
+            {financials.some(m => (m.fundingInterestPayment ?? 0) > 0) && (
+              <TableRow>
+                <TableCell className="sticky left-0 bg-card pl-6 text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    Interest Paid on Notes
+                    <InfoTooltip text="Cash payments of accrued interest on funding notes per the payment schedule." />
+                  </span>
+                </TableCell>
+                {Array.from({ length: projectionYears }, (_, y) => {
+                  const yearData = financials.slice(y * 12, (y + 1) * 12);
+                  const total = yearData.reduce((a, m) => a + (m.fundingInterestPayment ?? 0), 0);
+                  return (
+                    <TableCell key={y} className="text-right text-muted-foreground font-mono">
+                      {total > 0 ? `(${formatMoney(total)})` : '-'}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            )}
             <TableRow className="border-t-2 border-border font-semibold">
               <TableCell className="sticky left-0 bg-card">Net Cash from Financing Activities</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
-                const total = yearData.reduce((a, m) => a + m.safeFunding, 0);
-                return <TableCell key={y} className="text-right font-mono">{total > 0 ? formatMoney(total) : '-'}</TableCell>;
+                const funding = yearData.reduce((a, m) => a + m.safeFunding, 0);
+                const interestPaid = yearData.reduce((a, m) => a + (m.fundingInterestPayment ?? 0), 0);
+                const total = funding - interestPaid;
+                return <TableCell key={y} className="text-right font-mono">{total !== 0 ? formatMoney(total) : '-'}</TableCell>;
               })}
             </TableRow>
             <FormulaRow
               rowKey="formula-financingCF"
-              label={`= ${fundingLabel} Funding Received (Tranche 1 + Tranche 2)`}
+              label={
+                financials.some(m => (m.fundingInterestPayment ?? 0) > 0)
+                  ? `= ${fundingLabel} Funding Received − Interest Paid on Notes`
+                  : `= ${fundingLabel} Funding Received (Tranche 1 + Tranche 2)`
+              }
               values={Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const t1 = yearData.reduce((a, m) => a + m.safeFunding1, 0);
                 const t2 = yearData.reduce((a, m) => a + m.safeFunding2, 0);
+                const interestPaid = yearData.reduce((a, m) => a + (m.fundingInterestPayment ?? 0), 0);
+                if (interestPaid > 0) {
+                  return `${formatMoney(t1 + t2)} − ${formatMoney(interestPaid)}`;
+                }
                 return t1 + t2 > 0 ? `${formatMoney(t1)} + ${formatMoney(t2)}` : '—';
               })}
             />
@@ -514,8 +571,12 @@ export default function CompanyCashFlowTab({
               label="= Operating Cash Flow + Financing Cash Flow"
               values={Array.from({ length: projectionYears }, (_, y) => {
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
-                const opsCF = yearData.reduce((a, m) => a + m.netIncome, 0);
-                const finCF = yearData.reduce((a, m) => a + m.safeFunding, 0);
+                const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
+                const interestAddback = yearData.reduce((a, m) => a + (m.fundingInterestExpense ?? 0), 0);
+                const opsCF = netIncome + interestAddback;
+                const funding = yearData.reduce((a, m) => a + m.safeFunding, 0);
+                const interestPaid = yearData.reduce((a, m) => a + (m.fundingInterestPayment ?? 0), 0);
+                const finCF = funding - interestPaid;
                 return `${formatMoney(opsCF)} + ${formatMoney(finCF)}`;
               })}
             />

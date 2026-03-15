@@ -210,6 +210,10 @@ export const DEFAULT_PROJECTION_YEARS = 10;
 export const DEFAULT_SAFE_VALUATION_CAP = 2500000;
 // Discount rate: investors get this % discount to the next round's price (0 = not applicable)
 export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;
+// Funding interest rate: annual simple interest on outstanding principal (0 = no interest)
+export const DEFAULT_FUNDING_INTEREST_RATE = 0;
+// Funding interest payment frequency: "accrues_only" | "quarterly" | "annually"
+export const DEFAULT_FUNDING_INTEREST_PAYMENT_FREQUENCY = "accrues_only";
 
 // ──────────────────────────────────────────────────────────
 // SEED DEBT ASSUMPTIONS

@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatMoney } from "@/lib/financialEngine";
 import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "@shared/constants";
 import EditableValue from "./EditableValue";
@@ -34,8 +35,10 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
 
   const hasValuationCap = (formData.safeValuationCap ?? global.safeValuationCap) > 0;
   const hasDiscountRate = (formData.safeDiscountRate ?? global.safeDiscountRate) > 0;
+  const hasInterestRate = (formData.fundingInterestRate ?? global.fundingInterestRate ?? 0) > 0;
   const [showValuationCap, setShowValuationCap] = useState(hasValuationCap);
   const [showDiscountRate, setShowDiscountRate] = useState(hasDiscountRate);
+  const [showInterestRate, setShowInterestRate] = useState(hasInterestRate);
 
   return (
     <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
@@ -219,6 +222,68 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
                     max={50}
                     step={5}
                   />
+                </>
+              )}
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center text-foreground label-text">
+                  Interest Rate
+                  <InfoTooltip text="Annual simple interest rate on outstanding principal. Common for convertible notes and interest-bearing SAFEs. Interest accrues monthly and flows through the income statement as Interest Expense." manualSection="funding-financing" />
+                </Label>
+                <Switch
+                  checked={showInterestRate}
+                  onCheckedChange={(checked) => {
+                    setShowInterestRate(checked);
+                    if (!checked) {
+                      onChange("fundingInterestRate", 0);
+                      onChange("fundingInterestPaymentFrequency", "accrues_only");
+                    } else if ((formData.fundingInterestRate ?? global.fundingInterestRate ?? 0) <= 0) {
+                      onChange("fundingInterestRate", 0.06);
+                    }
+                  }}
+                  data-testid="toggle-interest-rate"
+                />
+              </div>
+              {showInterestRate && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Annual Rate</span>
+                    <EditableValue
+                      value={formData.fundingInterestRate ?? global.fundingInterestRate ?? 0}
+                      onChange={(v) => onChange("fundingInterestRate", v)}
+                      format="percent"
+                      min={0}
+                      max={0.15}
+                      step={0.005}
+                    />
+                  </div>
+                  <Slider
+                    value={[(formData.fundingInterestRate ?? global.fundingInterestRate ?? 0) * 100]}
+                    onValueChange={([v]) => onChange("fundingInterestRate", v / 100)}
+                    min={0}
+                    max={15}
+                    step={0.5}
+                  />
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      Payment Frequency
+                      <InfoTooltip text="How often accrued interest is paid out. 'Accrues Only' means interest accumulates as a liability until conversion (standard for convertible notes). Quarterly or annually pays out the accrued interest, reducing cash." />
+                    </span>
+                    <Select
+                      value={formData.fundingInterestPaymentFrequency ?? global.fundingInterestPaymentFrequency ?? "accrues_only"}
+                      onValueChange={(v) => onChange("fundingInterestPaymentFrequency", v)}
+                    >
+                      <SelectTrigger className="w-40 h-8 text-xs" data-testid="select-interest-payment-frequency">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="accrues_only">Accrues Only</SelectItem>
+                        <SelectItem value="quarterly">Paid Quarterly</SelectItem>
+                        <SelectItem value="annually">Paid Annually</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </>
               )}
             </div>

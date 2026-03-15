@@ -116,6 +116,8 @@ export interface GlobalInput {
   safeTranche1Date?: string;
   safeTranche2Amount?: number;
   safeTranche2Date?: string;
+  fundingInterestRate?: number;
+  fundingInterestPaymentFrequency?: string;
   // Staffing tiers
   staffTier1MaxProperties?: number;
   staffTier1Fte?: number;
@@ -258,6 +260,9 @@ export interface CompanyMonthlyFinancials {
   marketing: number;
   miscOps: number;
   totalExpenses: number;
+  fundingInterestExpense: number;
+  fundingInterestPayment: number;
+  cumulativeAccruedInterest: number;
   preTaxIncome: number;
   companyIncomeTax: number;
   netIncome: number;

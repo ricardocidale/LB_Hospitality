@@ -206,6 +206,9 @@ export async function exportCompanyIncomeStatement(
     marketing: number;
     miscOps: number;
     totalExpenses: number;
+    interestExpense: number;
+    preTaxIncome: number;
+    tax: number;
     netIncome: number;
     safeFunding: number;
     cashFlow: number;
@@ -246,6 +249,9 @@ export async function exportCompanyIncomeStatement(
       marketing: yearSlice.reduce((a, m) => a + m.marketing, 0),
       miscOps: yearSlice.reduce((a, m) => a + m.miscOps, 0),
       totalExpenses: yearSlice.reduce((a, m) => a + m.totalExpenses, 0),
+      interestExpense: yearSlice.reduce((a, m) => a + m.fundingInterestExpense, 0),
+      preTaxIncome: yearSlice.reduce((a, m) => a + m.preTaxIncome, 0),
+      tax: yearSlice.reduce((a, m) => a + m.companyIncomeTax, 0),
       netIncome: yearSlice.reduce((a, m) => a + m.netIncome, 0),
       safeFunding: yearSlice.reduce((a, m) => a + m.safeFunding, 0),
       cashFlow: yearSlice.reduce((a, m) => a + m.cashFlow, 0),
@@ -297,6 +303,17 @@ export async function exportCompanyIncomeStatement(
     ["  Miscellaneous Operations", ...yearlyData.map((y) => y.miscOps)],
     ["Total Expenses", ...yearlyData.map((y) => y.totalExpenses)],
     [],
+    ["Operating Income (EBITDA)", ...yearlyData.map((y) => y.preTaxIncome + y.interestExpense)],
+  );
+
+  const hasInterest = yearlyData.some(y => y.interestExpense > 0);
+  if (hasInterest) {
+    rows.push(["  Interest Expense", ...yearlyData.map((y) => -y.interestExpense)]);
+    rows.push(["Pre-Tax Income", ...yearlyData.map((y) => y.preTaxIncome)]);
+  }
+
+  rows.push(
+    ["  Tax", ...yearlyData.map((y) => -y.tax)],
     ["Net Income", ...yearlyData.map((y) => y.netIncome)],
     [],
     ["FUNDING"],
@@ -334,6 +351,7 @@ export async function exportCompanyCashFlow(
     totalVendorCost: number;
     safeFunding: number;
     totalExpenses: number;
+    interestPayment: number;
     partnerComp: number;
     staffComp: number;
     officeLease: number;
@@ -360,6 +378,7 @@ export async function exportCompanyCashFlow(
       totalVendorCost: yearSlice.reduce((a, m) => a + m.totalVendorCost, 0),
       safeFunding: yearSlice.reduce((a, m) => a + m.safeFunding, 0),
       totalExpenses: yearSlice.reduce((a, m) => a + m.totalExpenses, 0),
+      interestPayment: yearSlice.reduce((a, m) => a + m.fundingInterestPayment, 0),
       partnerComp: yearSlice.reduce((a, m) => a + m.partnerCompensation, 0),
       staffComp: yearSlice.reduce((a, m) => a + m.staffCompensation, 0),
       officeLease: yearSlice.reduce((a, m) => a + m.officeLease, 0),
@@ -421,7 +440,15 @@ export async function exportCompanyCashFlow(
     [],
     ["CASH FLOW FROM FINANCING ACTIVITIES"],
     ["  Funding Received", ...yearlyData.map((y) => y.safeFunding)],
-    ["Net Cash from Financing Activities", ...yearlyData.map((y) => y.safeFunding)],
+  );
+
+  const hasCFInterest = yearlyData.some(y => y.interestPayment > 0);
+  if (hasCFInterest) {
+    rows.push(["  Interest Paid on Notes", ...yearlyData.map((y) => -y.interestPayment)]);
+  }
+
+  rows.push(
+    ["Net Cash from Financing Activities", ...yearlyData.map((y) => y.safeFunding - y.interestPayment)],
     [],
     ["Net Increase (Decrease) in Cash", ...yearlyData.map((y) => y.cashFlow)],
     ["Opening Cash Balance", ...openingCash],
@@ -453,10 +480,12 @@ export async function exportCompanyBalanceSheet(
   const XLSX = await import("xlsx");
   const cumulativeNetIncome = data.reduce((a, m) => a + m.netIncome, 0);
   const totalSafeFunding = safeTranche1Amount + safeTranche2Amount;
-  const cashBalance = totalSafeFunding + cumulativeNetIncome;
+  const lastMonth = data[data.length - 1];
+  const cashBalance = lastMonth?.endingCash ?? 0;
+  const accruedInterestBalance = lastMonth?.cumulativeAccruedInterest ?? 0;
   const totalAssets = cashBalance;
   const safeNotesPayable = totalSafeFunding;
-  const totalLiabilities = safeNotesPayable;
+  const totalLiabilities = safeNotesPayable + accruedInterestBalance;
   const retainedEarnings = cumulativeNetIncome;
   const totalEquity = retainedEarnings;
 
@@ -474,6 +503,13 @@ export async function exportCompanyBalanceSheet(
     ["LIABILITIES"],
     ["  Long-Term Liabilities"],
     ["    Funding Notes Payable", safeNotesPayable],
+  ];
+
+  if (accruedInterestBalance > 0) {
+    rows.push(["    Accrued Interest on Notes", accruedInterestBalance]);
+  }
+
+  rows.push(
     ["  Total Long-Term Liabilities", totalLiabilities],
     ["TOTAL LIABILITIES", totalLiabilities],
     [],
@@ -482,7 +518,7 @@ export async function exportCompanyBalanceSheet(
     ["TOTAL EQUITY", totalEquity],
     [],
     ["TOTAL LIABILITIES + EQUITY", totalLiabilities + totalEquity],
-  ];
+  );
 
   const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [35, 18]);

@@ -151,6 +151,7 @@ app.use((req, res, next) => {
     { runDocuments001 },
     { runCompositeIndexes001 },
     { runMigration: runAutoResearchRefresh001 },
+    { runFundingInterest001 },
   ] = await Promise.all([
     import("./migrations/research-config-001"),
     import("./migrations/inflation-per-entity-001"),
@@ -162,6 +163,7 @@ app.use((req, res, next) => {
     import("./migrations/documents-001"),
     import("./migrations/composite-indexes-001"),
     import("./migrations/auto-research-refresh-001"),
+    import("./migrations/funding-interest-001"),
   ]);
   await Promise.all([
     runResearchConfig001(),
@@ -174,6 +176,7 @@ app.use((req, res, next) => {
     runDocuments001(),
     runCompositeIndexes001(),
     runAutoResearchRefresh001(),
+    runFundingInterest001(),
   ]);
 
   // Notification logs schema fix must run before FK indexes

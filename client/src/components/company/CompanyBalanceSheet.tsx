@@ -47,25 +47,21 @@ export default function CompanyBalanceSheet({
       <div>
         <h3 className="text-lg font-display text-foreground mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(projectionYears - 1)})</h3>
         {(() => {
-          // Cumulative net income across all projected months = retained earnings
           const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
           
-          // SAFE notes are the company's startup funding (see FundingSection)
           const safeTranche1 = global.safeTranche1Amount || 0;
           const safeTranche2 = global.safeTranche2Amount || 0;
           const totalSafeFunding = safeTranche1 + safeTranche2;
           
-          // Assets = Cash (funding received + cumulative profit/loss)
-          const cashBalance = totalSafeFunding + cumulativeNetIncome;
+          const lastMonth = financials[financials.length - 1];
+          const accruedInterestBalance = lastMonth?.cumulativeAccruedInterest ?? 0;
+          
+          const cashBalance = lastMonth?.endingCash ?? 0;
           const totalAssets = cashBalance;
           
-          // Liabilities = SAFE notes (they remain liabilities until a priced
-          // equity round triggers conversion to shares)
           const safeNotesPayable = totalSafeFunding;
-          const totalLiabilities = safeNotesPayable;
+          const totalLiabilities = safeNotesPayable + accruedInterestBalance;
           
-          // Equity = Retained Earnings (cumulative net income)
-          // Balance sheet equation: Assets = Liabilities + Equity
           const retainedEarnings = cumulativeNetIncome;
           const totalEquity = retainedEarnings;
           const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
@@ -111,10 +107,10 @@ export default function CompanyBalanceSheet({
                     {bsExpanded.cashFormula && (
                       <TableRow className="bg-blue-50/20" data-expandable-row="true">
                         <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
-                          = {fundingLabel} Funding + Cumulative Net Income
+                          = Cumulative Cash Flow (Net Income + Funding{accruedInterestBalance > 0 ? ' + Non-cash Interest − Interest Payments' : ''})
                         </TableCell>
                         <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
-                          {formatMoney(totalSafeFunding)} + {formatMoney(cumulativeNetIncome)}
+                          {formatMoney(cashBalance)}
                         </TableCell>
                       </TableRow>
                     )}
@@ -187,6 +183,17 @@ export default function CompanyBalanceSheet({
                       </TableRow>
                     )}
                   </>
+                )}
+                {accruedInterestBalance > 0 && (
+                  <TableRow>
+                    <TableCell className="pl-8">
+                      <span className="flex items-center gap-1">
+                        Accrued Interest on Notes
+                        <InfoTooltip text="Cumulative unpaid interest that has accrued on the outstanding funding principal. This liability grows each month by the monthly interest amount and is reduced when interest payments are made." />
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right font-mono">{formatMoney(accruedInterestBalance)}</TableCell>
+                  </TableRow>
                 )}
                 <TableRow className="font-medium bg-muted/50">
                   <TableCell className="pl-4">Total Long-Term Liabilities</TableCell>

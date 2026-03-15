@@ -27,11 +27,17 @@ export function setColumnWidths(ws: any, widths: number[]) {
  * Apply Excel number formats to numeric cells based on their row label.
  * - Occupancy rows get a percentage format (e.g. 85.0%)
  * - ADR / RevPAR rows get a decimal currency format ($250.00)
+ * - Percentage/rate rows (IRR, Cash-on-Cash, Net Income Margin, DSCR) get decimal format
+ * - Equity Multiple gets a decimal multiplier format (e.g. 1.85x)
  * - Everything else gets a whole-dollar currency format ($1,234)
  */
 export function applyCurrencyFormat(ws: any, rows: (string | number)[][]): void {
   const currencyFormat = '#,##0';
+  const negCurrencyFormat = '#,##0;(#,##0)';
   const decimalFormat = '#,##0.00';
+  const percentFormat = '0.00"%"';
+  const multiplierFormat = '0.00"x"';
+  const ratioFormat = '0.00';
 
   for (let r = 0; r < rows.length; r++) {
     for (let c = 1; c < rows[r].length; c++) {
@@ -43,8 +49,24 @@ export function applyCurrencyFormat(ws: any, rows: (string | number)[][]): void 
 
       if (label.includes('occupancy %')) {
         cell.z = '0.0"%"';
+      } else if (label === 'occupancy') {
+        cell.z = '0.0%';
+      } else if (label.includes('irr') || label.includes('cash-on-cash') || label.includes('net income margin')) {
+        cell.z = percentFormat;
+      } else if (label.includes('equity multiple')) {
+        cell.z = multiplierFormat;
+      } else if (label.includes('dscr')) {
+        cell.z = ratioFormat;
       } else if (label.includes('adr') || label.includes('revpar')) {
         cell.z = decimalFormat;
+      } else if (
+        label.includes('expense') ||
+        label.includes('depreciation') ||
+        label.includes('liabilit') ||
+        label.includes('debt') ||
+        label.includes('cash paid')
+      ) {
+        cell.z = negCurrencyFormat;
       } else {
         cell.z = currencyFormat;
       }
@@ -62,14 +84,27 @@ export function applyHeaderStyle(ws: any, rows: (string | number)[][]): void {
     if (!label) continue;
 
     const isSection = label === label.toUpperCase() && label.length > 2 && !label.startsWith(' ');
-    const isTotalRow = label.toLowerCase().startsWith('total') ||
-      label.toLowerCase().includes('gaap net') ||
-      label.toLowerCase().includes('adjusted noi') ||
-      label.toLowerCase().includes('gross operating') ||
-      label.toLowerCase().includes('net cash flow') ||
-      label.toLowerCase().includes('closing cash') ||
-      label.toLowerCase().includes('net income') ||
-      label.toLowerCase().includes('free cash flow');
+    const lower = label.toLowerCase();
+    const isTotalRow = lower.startsWith('total') ||
+      lower.includes('gaap net') ||
+      lower.includes('adjusted noi') ||
+      lower.includes('adjusted gop') ||
+      lower.includes('gross operating') ||
+      lower.includes('net operating income') ||
+      lower.includes('net cash flow') ||
+      lower.includes('net change in cash') ||
+      lower.includes('net increase') ||
+      lower.includes('closing cash') ||
+      lower.includes('net income') ||
+      lower.includes('free cash flow') ||
+      lower.includes('gross profit') ||
+      lower.includes('operating expenses') ||
+      lower.includes('fixed charges') ||
+      lower.includes('management fees') ||
+      lower.includes('portfolio metrics') ||
+      lower.includes('annual performance') ||
+      lower.includes('operational metrics') ||
+      (lower.includes('cash flow') && !lower.startsWith(' '));
 
     if (isSection || isTotalRow) {
       for (let c = 0; c < rows[r].length; c++) {

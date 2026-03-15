@@ -336,9 +336,29 @@ export function generatePortfolioInvestmentData(
   rows.push({ category: "Portfolio Metrics", values: years.map(() => 0), isHeader: true });
   rows.push({ category: "Total Initial Equity", values: years.map(() => financials.totalInitialEquity), indent: 1 });
   rows.push({ category: "Total Exit Value", values: years.map(() => financials.totalExitValue), indent: 1 });
-  rows.push({ category: "Portfolio IRR", values: years.map(() => financials.portfolioIRR * 100), indent: 1 });
+  rows.push({ category: "Portfolio IRR (%)", values: years.map(() => financials.portfolioIRR * 100), indent: 1 });
   rows.push({ category: "Equity Multiple", values: years.map(() => financials.equityMultiple), indent: 1 });
-  rows.push({ category: "Cash-on-Cash Return", values: years.map(() => financials.cashOnCash), indent: 1 });
+  rows.push({ category: "Cash-on-Cash Return (%)", values: years.map(() => financials.cashOnCash), indent: 1 });
+
+  const consolidatedNOI = years.map((_, i) => financials.yearlyConsolidatedCache[i]?.noi ?? 0);
+  const consolidatedANOI = years.map((_, i) => financials.yearlyConsolidatedCache[i]?.anoi ?? 0);
+  const consolidatedNetIncome = years.map((_, i) => financials.yearlyConsolidatedCache[i]?.netIncome ?? 0);
+  const consolidatedCashFlow = years.map((_, y) =>
+    financials.allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0)
+  );
+  const consolidatedDSCR = years.map((_, y) => {
+    const totalDS = financials.allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0);
+    const totalNOI = financials.yearlyConsolidatedCache[y]?.noi ?? 0;
+    return totalDS > 0 ? totalNOI / totalDS : 0;
+  });
+
+  rows.push({ category: "", values: years.map(() => 0) });
+  rows.push({ category: "Annual Performance", values: years.map(() => 0), isHeader: true });
+  rows.push({ category: "Net Operating Income (NOI)", values: consolidatedNOI, indent: 1 });
+  rows.push({ category: "Adjusted NOI (ANOI)", values: consolidatedANOI, indent: 1 });
+  rows.push({ category: "GAAP Net Income", values: consolidatedNetIncome, indent: 1 });
+  rows.push({ category: "Cash Flow", values: consolidatedCashFlow, indent: 1 });
+  rows.push({ category: "DSCR", values: consolidatedDSCR, indent: 1 });
 
   return { years, rows };
 }
@@ -376,6 +396,7 @@ export async function exportPortfolioExcel(
   companyName = "Portfolio"
 ): Promise<void> {
   const XLSX = await import("xlsx");
+  const { applyCurrencyFormat, applyHeaderStyle, setColumnWidths } = await import("@/lib/exports/excel/helpers");
   const wb = (XLSX as any).utils.book_new();
 
   const sheets: { name: string; data: ExportData }[] = [
@@ -394,39 +415,14 @@ export async function exportPortfolioExcel(
       ]),
     ];
     const ws = (XLSX as any).utils.aoa_to_sheet(wsData);
-    ws["!cols"] = [{ wch: 38 }, ...sheet.data.years.map(() => ({ wch: 16 }))];
-    await applyPortfolioExcelFormat(ws, wsData);
+    setColumnWidths(ws, [38, ...sheet.data.years.map(() => 16)]);
+    applyCurrencyFormat(ws, wsData);
+    applyHeaderStyle(ws, wsData);
     (XLSX as any).utils.book_append_sheet(wb, ws, sheet.name);
   }
 
   const safeName = companyName.replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 60);
   (XLSX as any).writeFile(wb, `${safeName} - Consolidated Financial Statements.xlsx`);
-}
-
-async function applyPortfolioExcelFormat(ws: any, rows: (string | number)[][]): Promise<void> {
-  const XLSX = await import("xlsx");
-  const currencyFormat = "#,##0";
-  for (let r = 0; r < rows.length; r++) {
-    for (let c = 1; c < rows[r].length; c++) {
-      const cellRef = (XLSX as any).utils.encode_cell({ r, c });
-      const cell = ws[cellRef];
-      if (cell && typeof cell.v === "number") {
-        cell.z = currencyFormat;
-      }
-    }
-    const label = String(rows[r][0] || "").trim();
-    const isSection = !label.startsWith(" ") && label.length > 2;
-    if (isSection) {
-      for (let c = 0; c < rows[r].length; c++) {
-        const cellRef = (XLSX as any).utils.encode_cell({ r, c });
-        const cell = ws[cellRef];
-        if (cell) {
-          if (!cell.s) cell.s = {};
-          cell.s.font = { bold: true };
-        }
-      }
-    }
-  }
 }
 
 export function exportPortfolioCSV(

@@ -280,6 +280,22 @@ async function exportCompanyFullWorkbook(
   ];
   await addSheet("Balance Sheet", bsRows);
 
+  const cumRevenue = yearlyData.map((_: any, i: number) => {
+    let cum = 0;
+    for (let j = 0; j <= i; j++) cum += yearlyData[j].totalRevenue;
+    return cum;
+  });
+  const cumNetIncome = yearlyData.map((_: any, i: number) => {
+    let cum = 0;
+    for (let j = 0; j <= i; j++) cum += yearlyData[j].netIncome;
+    return cum;
+  });
+  const cumCashFlow = yearlyData.map((_: any, i: number) => {
+    let cum = 0;
+    for (let j = 0; j <= i; j++) cum += yearlyData[j].cashFlow;
+    return cum;
+  });
+
   const iaRows: (string | number)[][] = [
     ["Investment Analysis", ...yearLabels],
     [],
@@ -293,6 +309,11 @@ async function exportCompanyFullWorkbook(
     ["  Annual Cash Flow", ...yearlyData.map(y => y.cashFlow)],
     ["  Closing Cash Balance", ...closingCash],
     ["  Funding Received", ...yearlyData.map(y => y.safeFunding)],
+    [],
+    ["CUMULATIVE METRICS"],
+    ["  Cumulative Revenue", ...cumRevenue],
+    ["  Cumulative Net Income", ...cumNetIncome],
+    ["  Cumulative Cash Flow", ...cumCashFlow],
   ];
   await addSheet("Investment Analysis", iaRows);
 

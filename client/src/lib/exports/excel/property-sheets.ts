@@ -358,6 +358,19 @@ export async function exportFullPropertyWorkbook(
   const cashOnCash = equityInvestedVal > 0 ? (totalCashFlow / equityInvestedVal) * 100 : 0;
   const equityMultiple = equityInvestedVal > 0 ? (totalCashFlow + totalExitValue) / equityInvestedVal : 0;
 
+  const dscr = cfData.map(cf => cf.debtService > 0 ? cf.noi / cf.debtService : 0);
+
+  let propertyIRR = 0;
+  try {
+    const { computeIRR } = await import("@analytics/returns/irr.js");
+    const irrCashFlows = [-equityInvestedVal, ...cfData.map(cf => cf.freeCashFlowToEquity + cf.exitValue)];
+    const result = computeIRR(irrCashFlows, 1);
+    propertyIRR = (result.irr_periodic ?? 0) * 100;
+  } catch (e) {
+    console.warn("IRR calculation failed for property export, defaulting to 0:", e);
+    propertyIRR = 0;
+  }
+
   const iaRows: (string | number)[][] = [
     ["Investment Analysis", ...yearLabels],
     [],
@@ -366,12 +379,14 @@ export async function exportFullPropertyWorkbook(
     ["  Total Exit Value", ...yearly.map(() => totalExitValue)],
     ["  Equity Multiple", ...yearly.map(() => equityMultiple)],
     ["  Cash-on-Cash Return (%)", ...yearly.map(() => cashOnCash)],
+    ["  IRR (%)", ...yearly.map(() => propertyIRR)],
     [],
     ["ANNUAL PERFORMANCE"],
     ["  Net Operating Income (NOI)", ...yearly.map(y => y.noi)],
     ["  Adjusted NOI (ANOI)", ...yearly.map(y => y.anoi)],
     ["  GAAP Net Income", ...yearly.map(y => y.netIncome)],
     ["  Cash Flow", ...yearly.map((_, i) => cfData[i]?.freeCashFlowToEquity ?? 0)],
+    ["  DSCR", ...dscr],
   ];
 
   const iaWs = (XLSX as any).utils.aoa_to_sheet(iaRows);

@@ -14,7 +14,7 @@
  *   ResearchStorage     — market research, research questions
  *   PhotoStorage        — property photos, hero sync
  *   PlaidStorage        — Plaid connections, transactions, categorization cache
- *   DocumentStorage     — document extractions, DocuSign envelopes
+ *   DocumentStorage     — document extractions
  *   ServiceStorage      — company service templates, template-to-property sync
  *   NotificationStorage — alert rules, notification logs, preferences, settings
  *
@@ -26,7 +26,7 @@
  * by every route file in server/routes/.
  */
 import { db } from "../db";
-import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, notificationPreferences, plaidConnections, documentExtractions, docusignEnvelopes, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
+import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, notificationPreferences, plaidConnections, documentExtractions, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { UserStorage } from "./users";
 import { PropertyStorage } from "./properties";
@@ -222,12 +222,6 @@ export class DatabaseStorage implements IStorage {
   getExtractionFields = this.documents.getExtractionFields.bind(this.documents);
   updateExtractionFieldStatus = this.documents.updateExtractionFieldStatus.bind(this.documents);
   bulkUpdateExtractionFieldStatus = this.documents.bulkUpdateExtractionFieldStatus.bind(this.documents);
-  createDocusignEnvelope = this.documents.createDocusignEnvelope.bind(this.documents);
-  getDocusignEnvelope = this.documents.getDocusignEnvelope.bind(this.documents);
-  getDocusignEnvelopeByEnvelopeId = this.documents.getDocusignEnvelopeByEnvelopeId.bind(this.documents);
-  getPropertyEnvelopes = this.documents.getPropertyEnvelopes.bind(this.documents);
-  updateDocusignEnvelope = this.documents.updateDocusignEnvelope.bind(this.documents);
-
   // Service Templates
   getAllServiceTemplates = this.services.getAllServiceTemplates.bind(this.services);
   getServiceTemplate = this.services.getServiceTemplate.bind(this.services);
@@ -266,7 +260,6 @@ export class DatabaseStorage implements IStorage {
       await tx.delete(notificationPreferences).where(eq(notificationPreferences.userId, id));
       await tx.delete(plaidConnections).where(eq(plaidConnections.userId, id));
       await tx.delete(documentExtractions).where(eq(documentExtractions.userId, id));
-      await tx.delete(docusignEnvelopes).where(eq(docusignEnvelopes.userId, id));
       await tx.delete(conversations).where(eq(conversations.userId, id));
       await tx.delete(properties).where(eq(properties.userId, id));
       await tx.delete(globalAssumptions).where(eq(globalAssumptions.userId, id));

@@ -62,7 +62,6 @@ import {
 } from "@/components/property-detail";
 import PropertyMap from "@/components/PropertyMap";
 import DocumentExtractionPanel from "@/components/documents/DocumentExtractionPanel";
-import DocumentSigningPanel from "@/components/documents/DocumentSigningPanel";
 
 export default function PropertyDetail() {
   const [, params] = useRoute("/property/:id");
@@ -838,7 +837,6 @@ export default function PropertyDetail() {
           <TabsContent value="documents" className="mt-6">
             <div className="grid gap-6 lg:grid-cols-2">
               <DocumentExtractionPanel propertyId={propertyId} />
-              <DocumentSigningPanel propertyId={propertyId} />
             </div>
           </TabsContent>
         </Tabs>

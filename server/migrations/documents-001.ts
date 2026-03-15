@@ -41,28 +41,7 @@ export async function runDocuments001(): Promise<void> {
     `);
     await db.execute(sql`CREATE INDEX IF NOT EXISTS extraction_fields_extraction_id_idx ON extraction_fields(extraction_id)`);
 
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS docusign_envelopes (
-        id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
-        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        envelope_id TEXT,
-        template_type TEXT NOT NULL,
-        recipient_name TEXT NOT NULL,
-        recipient_email TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'created',
-        status_history JSONB NOT NULL DEFAULT '[]',
-        signed_document_path TEXT,
-        template_data JSONB,
-        error_message TEXT,
-        sent_at TIMESTAMP,
-        completed_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT NOW() NOT NULL
-      )
-    `);
-    await db.execute(sql`CREATE INDEX IF NOT EXISTS docusign_envelopes_property_id_idx ON docusign_envelopes(property_id)`);
-    await db.execute(sql`CREATE INDEX IF NOT EXISTS docusign_envelopes_user_id_idx ON docusign_envelopes(user_id)`);
-    await db.execute(sql`CREATE INDEX IF NOT EXISTS docusign_envelopes_envelope_id_idx ON docusign_envelopes(envelope_id)`);
+    await db.execute(sql`DROP TABLE IF EXISTS docusign_envelopes CASCADE`);
 
     logger.info("Migration complete", TAG);
   } catch (error) {

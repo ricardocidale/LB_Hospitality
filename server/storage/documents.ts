@@ -1,6 +1,6 @@
 import { db } from "../db";
-import { documentExtractions, extractionFields, docusignEnvelopes, type DocumentExtraction, type InsertDocumentExtraction, type ExtractionField, type InsertExtractionField, type DocusignEnvelope, type InsertDocusignEnvelope } from "@shared/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { documentExtractions, extractionFields, type DocumentExtraction, type InsertDocumentExtraction, type ExtractionField, type InsertExtractionField } from "@shared/schema";
+import { eq, desc } from "drizzle-orm";
 
 export class DocumentStorage {
   async createDocumentExtraction(data: InsertDocumentExtraction): Promise<DocumentExtraction> {
@@ -58,33 +58,4 @@ export class DocumentStorage {
       .where(eq(extractionFields.extractionId, extractionId));
   }
 
-  async createDocusignEnvelope(data: InsertDocusignEnvelope): Promise<DocusignEnvelope> {
-    const [envelope] = await db.insert(docusignEnvelopes).values(data).returning();
-    return envelope;
-  }
-
-  async getDocusignEnvelope(id: number): Promise<DocusignEnvelope | undefined> {
-    const [envelope] = await db.select().from(docusignEnvelopes).where(eq(docusignEnvelopes.id, id));
-    return envelope;
-  }
-
-  async getDocusignEnvelopeByEnvelopeId(envelopeId: string): Promise<DocusignEnvelope | undefined> {
-    const [envelope] = await db.select().from(docusignEnvelopes).where(eq(docusignEnvelopes.envelopeId, envelopeId));
-    return envelope;
-  }
-
-  async getPropertyEnvelopes(propertyId: number): Promise<DocusignEnvelope[]> {
-    return db.select().from(docusignEnvelopes)
-      .where(eq(docusignEnvelopes.propertyId, propertyId))
-      .orderBy(desc(docusignEnvelopes.createdAt));
-  }
-
-  async updateDocusignEnvelope(id: number, data: Partial<DocusignEnvelope>): Promise<DocusignEnvelope> {
-    const { id: _id, ...updateData } = data;
-    const [updated] = await db.update(docusignEnvelopes)
-      .set(updateData)
-      .where(eq(docusignEnvelopes.id, id))
-      .returning();
-    return updated;
-  }
 }

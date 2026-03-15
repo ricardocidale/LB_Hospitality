@@ -83,7 +83,6 @@ const PUBLIC_API_PATHS = new Set([
   "/api/twilio/voice/incoming",
   "/api/twilio/voice/status",
   "/api/twilio/sms/incoming",
-  "/api/documents/webhook/docusign",
 ]);
 
 const PUBLIC_API_PREFIXES = [
@@ -108,7 +107,6 @@ const CACHEABLE_PATHS = new Set([
   "/api/design-themes",
   "/api/companies",
   "/api/documents/templates",
-  "/api/documents/docusign/status",
 ]);
 app.use((req, res, next) => {
   if (req.method === "GET" && CACHEABLE_PATHS.has(req.path)) {

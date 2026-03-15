@@ -1,0 +1,1 @@
+UPDATE global_assumptions SET icp_config = '[object Object]' WHERE id = 9;

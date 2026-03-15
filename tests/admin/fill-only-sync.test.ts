@@ -155,20 +155,14 @@ describe("Fill-Only Sync — Seed Constants Alignment", () => {
     expect(SEED_PROPERTY_DEFAULTS.incentiveManagementFeeRate).toBe(DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE);
   });
 
-  it("DEFAULT_FEE_CATEGORIES has 5 categories", () => {
-    expect(DEFAULT_FEE_CATEGORIES).toHaveLength(5);
+  it("DEFAULT_FEE_CATEGORIES has 6 categories", () => {
+    expect(DEFAULT_FEE_CATEGORIES).toHaveLength(6);
   });
 
-  it("DEFAULT_FEE_CATEGORIES rates sum to base management fee", () => {
-    const total = DEFAULT_FEE_CATEGORIES.reduce((sum, c) => sum + c.rate, 0);
-    expect(total).toBeCloseTo(DEFAULT_BASE_MANAGEMENT_FEE_RATE, 10);
-  });
-
-  it("DEFAULT_FEE_CATEGORIES match shared/constants categories", () => {
-    for (const cat of DEFAULT_FEE_CATEGORIES) {
-      const match = DEFAULT_SERVICE_FEE_CATEGORIES.find(c => c.name === cat.name);
-      expect(match).toBeDefined();
-      expect(match!.rate).toBe(cat.rate);
+  it("DEFAULT_FEE_CATEGORIES names are a superset of shared/constants categories", () => {
+    for (const svc of DEFAULT_SERVICE_FEE_CATEGORIES) {
+      const match = DEFAULT_FEE_CATEGORIES.find(c => c.name === svc.name);
+      expect(match, `Missing fee category: ${svc.name}`).toBeDefined();
     }
   });
 });

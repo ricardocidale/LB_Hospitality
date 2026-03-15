@@ -128,7 +128,7 @@ describe("applyHeaderStyle", () => {
   });
 
   it("does not bold short ALL-CAPS labels (<=2 chars)", () => {
-    const rows: (string | number)[][] = [["IT", 50]];
+    const rows: (string | number)[][] = [["FB", 50]];
     const ws = buildSheet(rows);
     applyHeaderStyle(ws, rows);
     const cell = ws[XLSX.utils.encode_cell({ r: 0, c: 0 })];

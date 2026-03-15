@@ -102,7 +102,7 @@ describe("updateServiceTemplateSchema", () => {
 
 describe("updateFeeCategorySchema", () => {
   it("accepts valid partial update", () => {
-    const result = updateFeeCategorySchema.safeParse({ name: "IT", rate: 0.02 });
+    const result = updateFeeCategorySchema.safeParse({ name: "Technology & Reservations", rate: 0.025 });
     expect(result.success).toBe(true);
   });
 

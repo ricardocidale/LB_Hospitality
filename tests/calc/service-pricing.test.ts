@@ -16,11 +16,11 @@ describe("computeServiceFee", () => {
     expect(result.highFee).toBe(40_000);
   });
 
-  it("returns IT fee range", () => {
+  it("returns Technology & Reservations fee range (via 'it' alias)", () => {
     const result = computeServiceFee({ propertyRevenue: 2_000_000, serviceType: "it" });
-    expect(result.lowFee).toBe(20_000);
-    expect(result.midFee).toBe(30_000);
-    expect(result.highFee).toBe(50_000);
+    expect(result.lowFee).toBe(40_000);
+    expect(result.midFee).toBe(60_000);
+    expect(result.highFee).toBe(80_000);
   });
 
   it("returns accounting fee range", () => {

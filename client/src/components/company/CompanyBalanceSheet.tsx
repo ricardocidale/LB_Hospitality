@@ -238,16 +238,20 @@ export default function CompanyBalanceSheet({
                       </TableCell>
                       <TableCell className="py-0.5" />
                     </TableRow>
-                    {bsExpanded.equityFormula && (
-                      <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                        <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
-                          = Cumulative Revenue − Cumulative Expenses − Tax
-                        </TableCell>
-                        <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
-                          {formatMoney(cumulativeNetIncome)}
-                        </TableCell>
-                      </TableRow>
-                    )}
+                    {bsExpanded.equityFormula && (() => {
+                      const cumInterest = financials.reduce((a, m) => a + m.fundingInterestExpense, 0);
+                      const hasInt = cumInterest > 0;
+                      return (
+                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                          <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
+                            = Cumulative Revenue − Cumulative Expenses{hasInt ? ' − Interest Expense' : ''} − Tax
+                          </TableCell>
+                          <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">
+                            {formatMoney(cumulativeNetIncome)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })()}
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Cumulative Revenue</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(financials.reduce((a, m) => a + m.totalRevenue, 0))}</TableCell>
@@ -255,6 +259,16 @@ export default function CompanyBalanceSheet({
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Less: Cumulative Expenses</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(-financials.reduce((a, m) => a + m.totalExpenses, 0))}</TableCell>
+                    </TableRow>
+                    {financials.reduce((a, m) => a + m.fundingInterestExpense, 0) > 0 && (
+                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                        <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Less: Interest Expense</TableCell>
+                        <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(-financials.reduce((a, m) => a + m.fundingInterestExpense, 0))}</TableCell>
+                      </TableRow>
+                    )}
+                    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                      <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Less: Tax</TableCell>
+                      <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(-financials.reduce((a, m) => a + m.companyIncomeTax, 0))}</TableCell>
                     </TableRow>
                     <TableRow className="bg-blue-50/40" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">= Net Income</TableCell>

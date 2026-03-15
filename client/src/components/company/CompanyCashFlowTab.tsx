@@ -634,7 +634,9 @@ export default function CompanyCashFlowTab({
                   closingCash += yd.reduce((a, m) => a + m.cashFlow, 0);
                 }
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
-                const monthlyBurn = yearData.reduce((a, m) => a + m.totalExpenses, 0) / 12;
+                const annualExpenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
+                const annualInterestPaid = yearData.reduce((a, m) => a + (m.fundingInterestPayment ?? 0), 0);
+                const monthlyBurn = (annualExpenses + annualInterestPaid) / 12;
                 const months = monthlyBurn > 0 ? closingCash / monthlyBurn : Infinity;
                 return (
                   <TableCell key={y} className={`text-right text-muted-foreground font-mono ${months < 6 ? 'text-destructive' : ''}`}>
@@ -645,7 +647,9 @@ export default function CompanyCashFlowTab({
             </TableRow>
             <FormulaRow
               rowKey="formula-runway"
-              label="= Closing Cash ÷ (Annual Expenses ÷ 12)"
+              label={financials.some(m => (m.fundingInterestPayment ?? 0) > 0)
+                ? "= Closing Cash ÷ ((Annual Expenses + Interest Paid) ÷ 12)"
+                : "= Closing Cash ÷ (Annual Expenses ÷ 12)"}
               values={Array.from({ length: projectionYears }, (_, y) => {
                 let closingCash = 0;
                 for (let i = 0; i <= y; i++) {
@@ -654,7 +658,9 @@ export default function CompanyCashFlowTab({
                 }
                 const yearData = financials.slice(y * 12, (y + 1) * 12);
                 const annualExpenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
-                return `${formatMoney(closingCash)} ÷ ${formatMoney(annualExpenses / 12)}/mo`;
+                const annualInterestPaid = yearData.reduce((a, m) => a + (m.fundingInterestPayment ?? 0), 0);
+                const totalBurn = annualExpenses + annualInterestPaid;
+                return `${formatMoney(closingCash)} ÷ ${formatMoney(totalBurn / 12)}/mo`;
               })}
             />
           </TableBody>

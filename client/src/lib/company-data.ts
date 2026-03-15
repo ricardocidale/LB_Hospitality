@@ -138,6 +138,29 @@ export function generateCompanyIncomeData(
       return yearData.reduce((a, m) => a + m.miscOps, 0);
     }), indent: 1 });
   }
+
+  const hasInterest = financials.some(m => m.fundingInterestExpense > 0);
+  if (hasInterest) {
+    rows.push({ category: "Operating Income (EBITDA)", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + (m.preTaxIncome + m.fundingInterestExpense), 0);
+    }), isHeader: true });
+
+    rows.push({ category: "Interest Expense", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.fundingInterestExpense, 0);
+    }), indent: 1 });
+
+    rows.push({ category: "Pre-Tax Income", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.preTaxIncome, 0);
+    }), indent: 0 });
+
+    rows.push({ category: "Tax", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.companyIncomeTax, 0);
+    }), indent: 1 });
+  }
   
   rows.push({ category: "Net Income", values: years.map((_, y) => {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
@@ -278,10 +301,17 @@ export function generateCompanyCashFlowData(
     }), indent: 3 });
   }
 
+  const cfHasInterest = financials.some(m => m.fundingInterestExpense > 0);
+  if (cfHasInterest) {
+    rows.push({ category: "Add Back: Interest Expense", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.fundingInterestExpense, 0);
+    }), indent: 1 });
+  }
 
   rows.push({ category: "Net Cash from Operating Activities", values: years.map((_, y) => {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
-    return yearData.reduce((a, m) => a + m.netIncome, 0);
+    return yearData.reduce((a, m) => a + m.netIncome + m.fundingInterestExpense, 0);
   }), isSubtotal: true });
 
   rows.push({ category: "Cash Flow from Financing Activities", values: years.map(() => 0), isHeader: true });
@@ -303,27 +333,34 @@ export function generateCompanyCashFlowData(
     }), indent: 2 });
   }
 
+  if (financials.some(m => m.fundingInterestPayment > 0)) {
+    rows.push({ category: "Interest Paid on Notes", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.fundingInterestPayment, 0);
+    }), indent: 1 });
+  }
+
   rows.push({ category: "Net Cash from Financing Activities", values: years.map((_, y) => {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
-    return yearData.reduce((a, m) => a + m.safeFunding, 0);
+    return yearData.reduce((a, m) => a + m.safeFunding - m.fundingInterestPayment, 0);
   }), isSubtotal: true });
 
   rows.push({ category: "Net Increase (Decrease) in Cash", values: years.map((_, y) => {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
-    return yearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
+    return yearData.reduce((a, m) => a + m.cashFlow, 0);
   }), isHeader: true });
 
   let cumCash = 0;
   const openingCash = years.map((_, y) => {
     if (y === 0) return 0;
     const prevYearData = financials.slice(0, y * 12);
-    return prevYearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
+    return prevYearData.reduce((a, m) => a + m.cashFlow, 0);
   });
   rows.push({ category: "Opening Cash Balance", values: openingCash, indent: 0 });
 
   rows.push({ category: "Closing Cash Balance", values: years.map((_, y) => {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
-    cumCash += yearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
+    cumCash += yearData.reduce((a, m) => a + m.cashFlow, 0);
     return cumCash;
   }), isHeader: true });
 
@@ -341,7 +378,7 @@ export function generateCompanyBalanceData(
   let cumCash = 0;
   const cashValues = years.map((_, y) => {
     const yearData = financials.slice(y * 12, (y + 1) * 12);
-    cumCash += yearData.reduce((a, m) => a + m.netIncome + m.safeFunding, 0);
+    cumCash += yearData.reduce((a, m) => a + m.cashFlow, 0);
     return cumCash;
   });
   
@@ -358,18 +395,30 @@ export function generateCompanyBalanceData(
     cumSafe += yearData.reduce((a, m) => a + m.safeFunding, 0);
     return cumSafe;
   });
+
+  const accruedInterestValues = years.map((_, y) => {
+    const yearEnd = financials.slice(y * 12, (y + 1) * 12);
+    return yearEnd.length > 0 ? (yearEnd[yearEnd.length - 1].cumulativeAccruedInterest ?? 0) : 0;
+  });
+  const hasAccruedInterest = accruedInterestValues.some(v => v > 0);
+  const totalLiabilitiesValues = years.map((_, i) => safeValues[i] + accruedInterestValues[i]);
   
   rows.push({ category: "ASSETS", values: years.map(() => 0), isHeader: true });
   rows.push({ category: "Cash & Cash Equivalents", values: cashValues, indent: 1 });
   rows.push({ category: "TOTAL ASSETS", values: cashValues, isHeader: true });
   
   rows.push({ category: "LIABILITIES", values: years.map(() => 0), isHeader: true });
-  rows.push({ category: `${fundingLabel} Notes`, values: safeValues, indent: 1 });
-  rows.push({ category: "TOTAL LIABILITIES", values: safeValues, isHeader: true });
+  rows.push({ category: `${fundingLabel} Notes Payable`, values: safeValues, indent: 1 });
+  if (hasAccruedInterest) {
+    rows.push({ category: "Accrued Interest on Notes", values: accruedInterestValues, indent: 1 });
+  }
+  rows.push({ category: "TOTAL LIABILITIES", values: totalLiabilitiesValues, isHeader: true });
   
   rows.push({ category: "EQUITY", values: years.map(() => 0), isHeader: true });
   rows.push({ category: "Retained Earnings", values: retainedValues, indent: 1 });
   rows.push({ category: "TOTAL EQUITY", values: retainedValues, isHeader: true });
+
+  rows.push({ category: "TOTAL LIABILITIES & EQUITY", values: years.map((_, i) => totalLiabilitiesValues[i] + retainedValues[i]), isHeader: true });
   
   return { years, rows };
 }

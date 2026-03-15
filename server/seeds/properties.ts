@@ -90,7 +90,6 @@ export async function seedGlobalAssumptions() {
     partnerCountYear9: 3,
     partnerCountYear10: 3,
     staffSalary: 75000,
-    businessInsuranceStart: 12000,
     officeLeaseStart: 36000,
     professionalServicesStart: 24000,
     techInfraStart: 18000,

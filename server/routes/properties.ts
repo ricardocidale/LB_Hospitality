@@ -1,8 +1,9 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireManagementAccess } from "../auth";
-import { insertPropertySchema, updatePropertySchema } from "@shared/schema";
+import { insertPropertySchema, updatePropertySchema, updateFeeCategorySchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import { z } from "zod";
 import { logActivity, logAndSendError } from "./helpers";
 import { generateLocationAwareResearchValues } from "../data/researchSeeds";
 import { processNotificationEvent, evaluateAlertRules } from "../notifications/engine";
@@ -53,9 +54,17 @@ export function register(app: Express) {
     }
   });
 
+  const groupPropertyIdsSchema = z.object({
+    propertyIds: z.array(z.number().int()).default([]),
+  });
+
   app.put("/api/user-groups/:id/properties", requireAuth, async (req, res) => {
     try {
-      const propertyIds: number[] = req.body.propertyIds ?? [];
+      const parsed = groupPropertyIdsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const { propertyIds } = parsed.data;
       await storage.setGroupProperties(Number(req.params.id), propertyIds);
       res.json({ success: true });
     } catch (error) {
@@ -205,10 +214,22 @@ export function register(app: Express) {
     }
   });
 
+  const feeCategoryBatchSchema = z.array(z.object({
+    id: z.number().int().optional(),
+    name: z.string().min(1),
+    rate: z.number().min(0).max(1),
+    isActive: z.boolean(),
+    sortOrder: z.number().int(),
+  }));
+
   app.put("/api/properties/:id/fee-categories", requireAuth, async (req, res) => {
     try {
       const propertyId = Number(req.params.id);
-      const categories = req.body as Array<{ id?: number; name: string; rate: number; isActive: boolean; sortOrder: number }>;
+      const parsed = feeCategoryBatchSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const categories = parsed.data;
       // Run all category updates/creates in parallel (independent rows)
       const results = (await Promise.all(
         categories.map(async (cat) => {

@@ -92,18 +92,18 @@ interface StoreProperty {
 
 // --- STORE STATE ---
 interface AppState {
-  global: GlobalAssumptions;
-  properties: Property[];
-  
+  global: StoreGlobalAssumptions;
+  properties: StoreProperty[];
+
   // Actions
-  updateGlobal: (data: Partial<GlobalAssumptions>) => void;
-  updateProperty: (id: string, data: Partial<Property>) => void;
-  addProperty: (property: Omit<Property, "id">) => void;
+  updateGlobal: (data: Partial<StoreGlobalAssumptions>) => void;
+  updateProperty: (id: string, data: Partial<StoreProperty>) => void;
+  addProperty: (property: Omit<StoreProperty, "id">) => void;
   deleteProperty: (id: string) => void;
 }
 
 // --- INITIAL DATA ---
-const INITIAL_GLOBAL: GlobalAssumptions = {
+const INITIAL_GLOBAL: StoreGlobalAssumptions = {
   modelStartDate: "2026-04-01",
   inflationRate: 0.03,
   partnerSalary: 150000,
@@ -132,7 +132,7 @@ const INITIAL_GLOBAL: GlobalAssumptions = {
   }
 };
 
-const INITIAL_PROPERTIES: Property[] = [
+const INITIAL_PROPERTIES: StoreProperty[] = [
   {
     id: "prop-1",
     name: "The Hudson Estate",

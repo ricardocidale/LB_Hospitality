@@ -194,9 +194,20 @@ export function register(app: Express) {
     }
   });
 
+  const updateUserGroupSchema = z.object({
+    name: z.string().min(1).optional(),
+    logoId: z.number().nullable().optional(),
+    themeId: z.number().nullable().optional(),
+    assetDescriptionId: z.number().nullable().optional(),
+  });
+
   app.patch("/api/user-groups/:id", requireAdmin, async (req, res) => {
     try {
-      const group = await storage.updateUserGroup(Number(req.params.id), req.body);
+      const parsed = updateUserGroupSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const group = await storage.updateUserGroup(Number(req.params.id), parsed.data);
       res.json(group);
     } catch (error) {
       logAndSendError(res, "Failed to update user group", error);
@@ -254,13 +265,26 @@ export function register(app: Express) {
     }
   });
 
+  const updateCompanySchema = z.object({
+    name: z.string().min(1).optional(),
+    type: z.enum(["management", "spv"]).optional(),
+    description: z.string().nullable().optional(),
+    logoId: z.number().nullable().optional(),
+    themeId: z.number().nullable().optional(),
+    isActive: z.boolean().optional(),
+  });
+
   app.patch("/api/companies/:id", requireAdmin, async (req, res) => {
     try {
+      const parsed = updateCompanySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
       const existing = await storage.getCompany(Number(req.params.id));
-      if (existing?.name === "General" && "name" in req.body && req.body.name !== "General") {
+      if (existing?.name === "General" && parsed.data.name && parsed.data.name !== "General") {
         return res.status(400).json({ error: "The General company cannot be renamed" });
       }
-      const company = await storage.updateCompany(Number(req.params.id), req.body);
+      const company = await storage.updateCompany(Number(req.params.id), parsed.data);
       res.json(company);
     } catch (error) {
       logAndSendError(res, "Failed to update company", error);

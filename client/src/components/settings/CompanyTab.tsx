@@ -4,12 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { IconProperties, IconPhone, IconMail, IconGlobe, IconHash, IconCalendar, IconDollarSign, IconBanknote } from "@/components/icons";
 import LogoSelector from "@/components/admin/LogoSelector";
 import { SettingsTabProps } from "./types";
 import { formatMoney } from "@/lib/financial/utils";
-import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "@shared/constants";
+import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE, DEFAULT_FUNDING_INTEREST_RATE } from "@shared/constants";
 
 export function CompanyTab({
   currentGlobal,
@@ -20,8 +21,10 @@ export function CompanyTab({
 }) {
   const hasValuationCap = (currentGlobal.safeValuationCap ?? 0) > 0;
   const hasDiscountRate = (currentGlobal.safeDiscountRate ?? 0) > 0;
+  const hasInterestRate = (currentGlobal.fundingInterestRate ?? 0) > 0;
   const [showValuationCap, setShowValuationCap] = useState(hasValuationCap);
   const [showDiscountRate, setShowDiscountRate] = useState(hasDiscountRate);
+  const [showInterestRate, setShowInterestRate] = useState(hasInterestRate);
 
   return (
     <div className="space-y-6 mt-6">
@@ -225,7 +228,7 @@ export function CompanyTab({
             Funding Defaults
             <InfoTooltip text="Default funding vehicle terms that pre-populate new scenarios. These fields are also available on the Company Assumptions page." />
           </CardTitle>
-          <CardDescription className="label-text">Source label, tranche amounts and dates, valuation cap, and discount rate for the funding instrument.</CardDescription>
+          <CardDescription className="label-text">Source label, tranche amounts and dates, valuation cap, discount rate, and interest rate for the funding instrument.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
@@ -385,6 +388,67 @@ export function CompanyTab({
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>0%</span>
                       <span>50%</span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="label-text flex items-center text-foreground">
+                    Interest Rate
+                    <InfoTooltip text="Annual simple interest rate on outstanding principal. Interest accrues monthly and flows through the income statement as Interest Expense." />
+                  </Label>
+                  <Switch
+                    checked={showInterestRate}
+                    onCheckedChange={(checked) => {
+                      setShowInterestRate(checked);
+                      if (!checked) {
+                        handleGlobalChange("fundingInterestRate", "0");
+                        handleGlobalChange("fundingInterestPaymentFrequency", "accrues_only");
+                      } else if ((currentGlobal.fundingInterestRate ?? 0) <= 0) {
+                        handleGlobalChange("fundingInterestRate", DEFAULT_FUNDING_INTEREST_RATE.toString());
+                      }
+                    }}
+                    data-testid="toggle-settings-interest-rate"
+                  />
+                </div>
+                {showInterestRate && (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground">Annual Rate</span>
+                      <span className="text-sm font-mono text-primary">{((currentGlobal.fundingInterestRate ?? 0) * 100).toFixed(1)}%</span>
+                    </div>
+                    <Slider
+                      value={[(currentGlobal.fundingInterestRate ?? DEFAULT_FUNDING_INTEREST_RATE) * 100]}
+                      onValueChange={(vals) => handleGlobalChange("fundingInterestRate", (vals[0] / 100).toString())}
+                      min={0}
+                      max={15}
+                      step={0.5}
+                      data-testid="slider-settings-interest-rate"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>0%</span>
+                      <span>15%</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        Payment Frequency
+                        <InfoTooltip text="How often accrued interest is paid out. 'Accrues Only' means interest accumulates as a liability until conversion." />
+                      </span>
+                      <Select
+                        value={currentGlobal.fundingInterestPaymentFrequency ?? "accrues_only"}
+                        onValueChange={(v) => handleGlobalChange("fundingInterestPaymentFrequency", v)}
+                      >
+                        <SelectTrigger className="w-40 h-8 text-xs" data-testid="select-settings-interest-payment-frequency">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="accrues_only">Accrues Only</SelectItem>
+                          <SelectItem value="quarterly">Paid Quarterly</SelectItem>
+                          <SelectItem value="annually">Paid Annually</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </>
                 )}

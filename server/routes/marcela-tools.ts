@@ -255,6 +255,8 @@ export function register(app: Express) {
         safeTranche1Date: ga.safeTranche1Date,
         safeTranche2Amount: ga.safeTranche2Amount,
         safeTranche2Date: ga.safeTranche2Date,
+        fundingInterestRate: ga.fundingInterestRate ? Math.round(ga.fundingInterestRate * 100 * 10) / 10 + "%" : "0%",
+        fundingInterestPaymentFrequency: ga.fundingInterestPaymentFrequency || "accrues_only",
       });
     } catch (error: any) {
       console.error("Marcela tool error (global assumptions):", error);

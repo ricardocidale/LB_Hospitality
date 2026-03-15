@@ -26,7 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatMoney } from "@/lib/financialEngine";
-import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from "@shared/constants";
+import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE, DEFAULT_FUNDING_INTEREST_RATE } from "@shared/constants";
 import EditableValue from "./EditableValue";
 import type { FundingSectionProps } from "./types";
 
@@ -239,7 +239,7 @@ export default function FundingSection({ formData, onChange, global }: FundingSe
                       onChange("fundingInterestRate", 0);
                       onChange("fundingInterestPaymentFrequency", "accrues_only");
                     } else if ((formData.fundingInterestRate ?? global.fundingInterestRate ?? 0) <= 0) {
-                      onChange("fundingInterestRate", 0.06);
+                      onChange("fundingInterestRate", DEFAULT_FUNDING_INTEREST_RATE);
                     }
                   }}
                   data-testid="toggle-interest-rate"

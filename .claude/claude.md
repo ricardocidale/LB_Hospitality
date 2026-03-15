@@ -74,6 +74,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Release Checklist | `.claude/skills/proof-system/release-audit-checklist.md` | Pre-release audit (load for releases) |
 | Property Chatbot | `server/routes/chat.ts` | Gemini-powered property analysis chat (`/api/chat`) |
 | Rules (19) | `.claude/rules/` | All behavioral constraints |
+| Business Domain (8) | `.agents/skills/` | Business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision |
 
 ---
 
@@ -95,6 +96,9 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 - **Insurance Removal** — Removed insurance expense from entire codebase. NOI formula is now `IBFC − Property Taxes`. All engines, schemas, UI, tests, and AI knowledge updated.
 - **Tooltip & Help Text Enrichment** — Added `formula` prop to `LineItem`, `SubtotalRow`, and `MetricRow` components. Enriched tooltips across income statement, cash flow statement, and company assumption sections with investor-facing descriptions and inline formula display.
+- **USALI 12th Edition Service Consolidation** (Task #136) — Updated SERVICE_HELP descriptions with USALI 12th Edition Schedule 16 references. Renamed "IT" → "IT & Technology" across all UI surfaces.
+- **HBG Business Domain Skills Suite** (Task #137) — Created 8 interconnected SKILL.md files in `.agents/skills/`: hbg-business-model, financial-engine, verification-system, hbg-design-philosophy, integrations-infrastructure, marcela-ai-system, api-backend-contract, hbg-product-vision.
+- **Admin Diagrams Enrichment** (Tasks #138–#140) — Enriched Level 1 Two-Entity Model diagram with fee streams and intercompany elimination detail. Added Level 1 Integration & Infrastructure Map. Added Level 2 Management Company Engine diagram. Replaced Level 2 Financial Pipeline with USALI Income Waterfall diagram.
 - **Fee Category Restructure** (Tasks #108–#109) — Restructured management fee categories and fee schedule UI.
 - **Funding Interest Rate & Accrual** (Task #116) — Interest accrual on funding balances shown on financial statements.
 - **Login Page Redesign + Google Sign-In** (Tasks #63, #131) — New premium login page with Google OAuth integration.

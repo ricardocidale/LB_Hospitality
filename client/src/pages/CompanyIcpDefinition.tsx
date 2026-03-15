@@ -80,6 +80,25 @@ function SectionHeading({ icon: Icon, title }: { icon: React.ComponentType<any>;
   );
 }
 
+const BENCHMARK_SOURCES = [
+  {
+    name: "HVS Management Agreement Study",
+    description: "Industry-standard benchmarks for hotel management agreements — base fees, incentive fees, contract terms, and operator compensation structures.",
+  },
+  {
+    name: "USALI (Uniform System of Accounts for the Lodging Industry)",
+    description: "Standardized chart of accounts and departmental operating expense ratios for hotel financial reporting and benchmarking.",
+  },
+  {
+    name: "CBRE Hotels Research",
+    description: "Cap rate surveys, lending benchmarks, transaction data, and market-level performance metrics for hotel real estate.",
+  },
+  {
+    name: "STR (Smith Travel Research)",
+    description: "Occupancy, ADR, RevPAR trends, ramp-up benchmarks, and competitive set performance data for the lodging industry.",
+  },
+];
+
 export default function CompanyIcpDefinition() {
   const { data: global, isLoading } = useGlobalAssumptions();
   const updateMutation = useUpdateAdminConfig();
@@ -232,15 +251,8 @@ export default function CompanyIcpDefinition() {
     { name: "Chapel", priority: icpConfig.chapel },
   ].filter(a => a.priority !== "no");
 
-  const SEED_SOURCES = [
-    { name: "HVS Management Agreement Study", description: "Industry-standard management fee structures, incentive fee triggers, and contract term benchmarks for hotel management companies." },
-    { name: "USALI (Uniform System of Accounts for the Lodging Industry)", description: "Standardized accounting framework defining operating expense ratios, departmental cost breakdowns, and financial reporting standards." },
-    { name: "CBRE Hotels Research", description: "Cap rate surveys, lending benchmarks, investment market data, and operating performance metrics for the hospitality sector." },
-    { name: "STR (Smith Travel Research)", description: "Occupancy rates, ADR trends, RevPAR benchmarks, ramp-up curves, and competitive set performance data." },
-  ];
-
   const researchContent = companyResearch?.content as any;
-  const researchSources = researchContent?.sources as Array<{ name: string; url?: string; category?: string }> | undefined;
+  const researchSources = researchContent?.sources || researchContent?.references || [];
   const researchMeta = {
     model: companyResearch?.llmModel || null,
     timestamp: companyResearch?.updatedAt ? new Date(companyResearch.updatedAt).toLocaleString() : null,
@@ -355,12 +367,12 @@ export default function CompanyIcpDefinition() {
                   How company research uses your data
                 </p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  The AI researcher uses your company profile, ICP definition, and asset class 
-                  parameters to find relevant management company benchmarks — fee structures, 
-                  compensation norms, GAAP standards, and operating ratios. Your ICP plays a central 
-                  role: it tells the AI <span className="font-medium text-foreground">who your target 
-                  clients are</span>, the property types you manage, and the markets you operate in, 
-                  so it can accurately size your addressable market and benchmark against comparable 
+                  The AI researcher uses your company profile, ICP definition, and asset class
+                  parameters to find relevant management company benchmarks — fee structures,
+                  compensation norms, GAAP standards, and operating ratios. Your ICP plays a central
+                  role: it tells the AI <span className="font-medium text-foreground">who your target
+                  clients are</span>, the property types you manage, and the markets you operate in,
+                  so it can accurately size your addressable market and benchmark against comparable
                   management companies.
                 </p>
               </div>
@@ -456,7 +468,7 @@ export default function CompanyIcpDefinition() {
                     <textarea
                       value={defDraft}
                       onChange={(e) => setDefDraft(e.target.value)}
-                      className="w-full min-h-[300px] text-sm leading-relaxed font-sans text-foreground/90 bg-muted/40 border border-border rounded p-4 resize-y focus:outline-none focus:ring-1 focus:ring-ring"
+                      className="w-full min-h-[400px] text-sm leading-relaxed font-sans text-foreground/90 bg-muted/40 border border-border rounded p-4 resize-y focus:outline-none focus:ring-1 focus:ring-ring"
                       data-testid="textarea-icp-definition"
                     />
                   ) : savedDefinition ? (
@@ -484,7 +496,7 @@ export default function CompanyIcpDefinition() {
                 <Card className="border border-border rounded-lg p-5 space-y-4">
                   <SectionHeading icon={IconTarget} title="Strategic Vision" />
                   <p className="text-xs text-muted-foreground">
-                    Qualitative ICP descriptions that define your target client profile and inform 
+                    Qualitative ICP descriptions that define your target client profile and inform
                     market sizing.
                   </p>
                   <div className="space-y-4">
@@ -506,7 +518,7 @@ export default function CompanyIcpDefinition() {
               <Card className="border border-border rounded-lg p-5 space-y-4">
                 <SectionHeading icon={IconBuilding} title="Physical Property Parameters" />
                 <p className="text-xs text-muted-foreground">
-                  Quantitative ICP parameters that define the ideal property target — used by the 
+                  Quantitative ICP parameters that define the ideal property target — used by the
                   AI to benchmark operating costs, revenue mix, and investment returns.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="criteria-icp-physical">
@@ -604,9 +616,9 @@ export default function CompanyIcpDefinition() {
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">Context vs. Benchmarked Values</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      The values below are used as <span className="font-medium text-foreground">context</span> for 
-                      the AI researcher — they describe your company and portfolio so the AI can find relevant benchmarks. 
-                      The AI <span className="font-medium text-foreground">does not modify</span> these values; instead, 
+                      The values below are used as <span className="font-medium text-foreground">context</span> for
+                      the AI researcher — they describe your company and portfolio so the AI can find relevant benchmarks.
+                      The AI <span className="font-medium text-foreground">does not modify</span> these values; instead,
                       it benchmarks your management fees, operating costs, and compensation against industry standards.
                     </p>
                   </div>
@@ -616,7 +628,7 @@ export default function CompanyIcpDefinition() {
               <Card className="border border-border rounded-lg p-5 space-y-4">
                 <SectionHeading icon={IconDatabase} title="Company Context" />
                 <p className="text-xs text-muted-foreground">
-                  These company-level details shape the AI's understanding of your management 
+                  These company-level details shape the AI's understanding of your management
                   entity and the asset class you specialize in.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="criteria-company-context">
@@ -627,7 +639,7 @@ export default function CompanyIcpDefinition() {
                   {properties.length > 0 && (
                     <DataCard
                       label="Portfolio Markets"
-                      value={[...new Set(properties.map(p => p.location).filter(Boolean))].join(", ") || "—"}
+                      value={Array.from(new Set(properties.map(p => p.location).filter(Boolean))).join(", ") || "—"}
                     />
                   )}
                 </div>
@@ -636,7 +648,7 @@ export default function CompanyIcpDefinition() {
               <Card className="border border-border rounded-lg p-5 space-y-4">
                 <SectionHeading icon={IconDollarSign} title="Fee Structures" />
                 <p className="text-xs text-muted-foreground">
-                  Management fee rates applied across the portfolio — the AI benchmarks these 
+                  Management fee rates applied across the portfolio — the AI benchmarks these
                   against industry standards (HVS, CBRE).
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="criteria-fee-structures">
@@ -700,6 +712,17 @@ export default function CompanyIcpDefinition() {
                   ))}
                 </div>
               </Card>
+
+              {(global as any).portfolioLocations && Array.isArray((global as any).portfolioLocations) && (global as any).portfolioLocations.length > 0 && (
+                <Card className="border border-border rounded-lg p-5 space-y-4">
+                  <SectionHeading icon={IconMapPin} title="Portfolio Locations / Markets" />
+                  <div className="flex flex-wrap gap-1.5">
+                    {((global as any).portfolioLocations as string[]).map((loc, i) => (
+                      <Badge key={i} variant="outline" className="text-xs">{loc}</Badge>
+                    ))}
+                  </div>
+                </Card>
+              )}
             </TabsContent>
 
             {/* ── Industry Standards Tab ── */}
@@ -707,11 +730,11 @@ export default function CompanyIcpDefinition() {
               <Card className="border border-border rounded-lg p-5 space-y-4">
                 <SectionHeading icon={IconFileText} title="Seed Benchmark Sources" />
                 <p className="text-xs text-muted-foreground">
-                  These authoritative industry sources provide the foundational benchmarks that drive 
+                  These authoritative industry sources provide the foundational benchmarks that drive
                   the AI's company-level research analysis.
                 </p>
                 <div className="space-y-3">
-                  {SEED_SOURCES.map((source, i) => (
+                  {BENCHMARK_SOURCES.map((source, i) => (
                     <div key={i} className="rounded-lg border border-border bg-muted/20 p-4 space-y-2">
                       <div className="flex items-center gap-2">
                         <IconFileText className="w-4 h-4 text-primary/70" />
@@ -728,17 +751,17 @@ export default function CompanyIcpDefinition() {
               <Card className="border border-border rounded-lg p-5 space-y-4">
                 <SectionHeading icon={IconSettings} title="Admin Research Configuration" />
                 <p className="text-xs text-muted-foreground">
-                  These settings are managed by your administrator in the Research Center and 
+                  These settings are managed by your administrator in the Research Center and
                   shape how the AI conducts its company-level analysis.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <DataCard label="Preferred LLM" value={preferredLlm} />
                   {timeHorizon && <DataCard label="Investment Horizon" value={timeHorizon} />}
                 </div>
 
                 {regions.length > 0 && (
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 mt-3">
                     <p className="label-text text-muted-foreground font-medium text-[11px] uppercase tracking-wide">Geographic Scope</p>
                     <div className="flex flex-wrap gap-1.5">
                       {regions.map((r) => (
@@ -749,7 +772,7 @@ export default function CompanyIcpDefinition() {
                 )}
 
                 {enabledTools.length > 0 && (
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 mt-3">
                     <p className="label-text text-muted-foreground font-medium text-[11px] uppercase tracking-wide">Enabled Research Tools</p>
                     <div className="flex flex-wrap gap-1.5">
                       {enabledTools.map((tool) => (
@@ -760,7 +783,7 @@ export default function CompanyIcpDefinition() {
                 )}
 
                 {customInstructions && (
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 mt-3">
                     <p className="label-text text-muted-foreground font-medium text-[11px] uppercase tracking-wide">Custom Instructions</p>
                     <Card className="bg-muted/50 border-border p-3">
                       <p className="text-sm text-foreground whitespace-pre-wrap">{customInstructions}</p>
@@ -770,7 +793,7 @@ export default function CompanyIcpDefinition() {
 
                 {!regions.length && !timeHorizon && !enabledTools.length && !customInstructions && (
                   <p className="text-sm text-muted-foreground italic">
-                    No custom research configuration has been set. The AI will use its default 
+                    No custom research configuration has been set. The AI will use its default
                     research methodology for management company analysis.
                   </p>
                 )}
@@ -819,27 +842,29 @@ export default function CompanyIcpDefinition() {
                 <Card className="border border-border rounded-lg p-5 space-y-3">
                   <SectionHeading icon={IconGlobe} title="Curated Sources" />
                   <p className="text-sm text-muted-foreground italic">
-                    No custom sources have been configured. The AI uses its built-in knowledge 
+                    No custom sources have been configured. The AI uses its built-in knowledge
                     of hospitality industry databases, USALI standards, and management company benchmarks.
                   </p>
                 </Card>
               )}
 
-              {researchSources && researchSources.length > 0 && (
+              {Array.isArray(researchSources) && researchSources.length > 0 && (
                 <Card className="border border-border rounded-lg p-5 space-y-4">
                   <SectionHeading icon={IconExternalLink} title="Sources from Last Research Run" />
                   <p className="text-xs text-muted-foreground">
                     External references cited in the most recent company research generation.
                   </p>
                   <div className="space-y-2">
-                    {researchSources.map((source, i) => (
+                    {researchSources.map((source: any, i: number) => (
                       <div key={i} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          {source.category && <Badge variant="outline" className="text-xs shrink-0">{source.category}</Badge>}
-                          <span className="text-sm text-foreground truncate">{source.name}</span>
+                          {source.category && (
+                            <Badge variant="outline" className="text-xs shrink-0">{source.category}</Badge>
+                          )}
+                          <span className="text-sm text-foreground truncate">{source.name || source.title || source.url}</span>
                         </div>
-                        {source.url && (
-                          <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors shrink-0">
+                        {(source.url || source.link) && (
+                          <a href={source.url || source.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors shrink-0">
                             <IconExternalLink className="h-3.5 w-3.5" />
                           </a>
                         )}
@@ -869,12 +894,12 @@ export default function CompanyIcpDefinition() {
             </TabsContent>
           </Tabs>
 
-          <Card className="bg-muted/30 border-border p-4" data-testid="icp-readonly-notice">
+          <Card className="bg-muted/30 border-border p-4" data-testid="criteria-readonly-notice">
             <div className="flex gap-3">
               <IconAlertCircle className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
               <p className="text-sm text-muted-foreground leading-relaxed">
-                The ICP Definition can be generated and edited above. Other tabs are read-only — 
-                to change the ICP profile parameters, visit the ICP Studio in the Admin panel. 
+                The ICP Definition can be generated and edited above. Other tabs are read-only —
+                to change the ICP profile parameters, visit the ICP Studio in the Admin panel.
                 To adjust the research configuration, update the settings in the Research Center.
               </p>
             </div>

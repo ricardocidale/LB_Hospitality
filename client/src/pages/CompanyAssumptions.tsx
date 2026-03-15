@@ -30,7 +30,7 @@ import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
-import { IconPlay, IconAlertTriangle, IconBookOpen } from "@/components/icons";
+import { IconPlay, IconAlertTriangle, IconTarget } from "@/components/icons";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
@@ -73,11 +73,7 @@ export default function CompanyAssumptions() {
   const { data: research } = useMarketResearch("company");
   const companyResearchUpdatedAt = research?.updatedAt ?? null;
 
-  // Extract AI-recommended values from the company-level market research report.
-  // These appear as "suggested" badges next to assumption inputs so the user can
-  // compare their settings against industry benchmarks (e.g. management fee ranges).
   const researchValues = (() => {
-    // Seed-based defaults for company assumptions
     const COMPANY_DEFAULTS: Record<string, { display: string; mid: number }> = {
       staffSalary: { display: "$65K–$90K", mid: 75000 },
       baseFee: { display: "3%–5%", mid: 4 },
@@ -132,10 +128,8 @@ export default function CompanyAssumptions() {
     const compBenchmarks = c.compensationBenchmarks;
     const staffSalary = compBenchmarks?.manager ? parseDollarRange(compBenchmarks.manager) : null;
 
-    // Cost of equity (WACC input)
     const costOfEquity = parsePctRange(c.costOfEquity?.recommendedRate);
 
-    // Merge AI values over seed defaults
     const merged = { ...COMPANY_DEFAULTS };
     const aiOverrides: Record<string, { display: string; mid: number } | null> = {
       baseFee, incentiveFee, eventExpense, marketingRate, staffSalary, costOfEquity,
@@ -236,34 +230,41 @@ export default function CompanyAssumptions() {
           backLink="/company"
           actions={
             <div className="flex items-center gap-3">
-              <Button
-                variant="default"
-                onClick={generateResearch}
-                disabled={isGenerating}
-                data-testid="button-run-company-research"
-                className="relative"
-              >
-                {isGenerating ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <IconPlay className="w-4 h-4" />
+              <div className="relative">
+                <Button
+                  variant="default"
+                  onClick={generateResearch}
+                  disabled={isGenerating}
+                  data-testid="button-run-company-research"
+                >
+                  {isGenerating ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <IconPlay className="w-4 h-4" />
+                  )}
+                  {isGenerating ? "Analyzing…" : "Run Research"}
+                </Button>
+                {companyResearchUpdatedAt && (
+                  <span
+                    className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-background ${
+                      (() => {
+                        const daysAgo = Math.floor((Date.now() - new Date(companyResearchUpdatedAt).getTime()) / (1000 * 60 * 60 * 24));
+                        return daysAgo <= 7 ? "bg-emerald-500" : "bg-amber-500";
+                      })()
+                    }`}
+                    data-testid="indicator-research-freshness"
+                  />
                 )}
-                {isGenerating ? "Analyzing…" : "Run Research"}
-                {!isGenerating && companyResearchUpdatedAt && (
-                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
-                  </span>
+                {!companyResearchUpdatedAt && (
+                  <span
+                    className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-background bg-red-500"
+                    data-testid="indicator-research-freshness"
+                  />
                 )}
-                {!isGenerating && !companyResearchUpdatedAt && (
-                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
-                  </span>
-                )}
-              </Button>
+              </div>
               <Link href="/company/icp-definition" className="text-inherit no-underline">
                 <Button variant="outline" data-testid="button-icp-definition">
-                  <IconBookOpen className="w-4 h-4" />
+                  <IconTarget className="w-4 h-4" />
                   ICP Definition
                 </Button>
               </Link>
@@ -322,6 +323,7 @@ export default function CompanyAssumptions() {
           />
         </div>
       </div>
+
       </AnimatedPage>
     </Layout>
   );

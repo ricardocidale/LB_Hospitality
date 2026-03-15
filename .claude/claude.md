@@ -2,14 +2,14 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~869 source files, ~172,860 lines, 3,024 tests across 135 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~804 source files, ~145,374 lines, 3,021 tests across 128 files. Hosted on Replit.
 
 ---
 
 ## User Preferences
 
 - Simple, everyday language. Ask clarifying questions before implementing — do not assume.
-- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 2,941-test proof system must always pass.
+- **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 3,021-test proof system must always pass.
 - Always format money as currency (commas, appropriate precision).
 - All skills stored under `.claude/` only (never elsewhere).
 - Company name is "Hospitality Business Group" (or "Hospitality Business" for short).
@@ -51,7 +51,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,024 tests, 583 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,021 tests, 583 golden tests, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -77,7 +77,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (2,941 Tests, 131 Files)
+## Testing & Proof System (3,021 Tests, 128 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -87,12 +87,14 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 2,941) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 3,021) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
 ## Recent Changes (March 15, 2026)
 
+- **Insurance Removal** — Removed insurance expense from entire codebase. NOI formula is now `IBFC − Property Taxes`. All engines, schemas, UI, tests, and AI knowledge updated.
+- **Tooltip & Help Text Enrichment** — Added `formula` prop to `LineItem`, `SubtotalRow`, and `MetricRow` components. Enriched tooltips across income statement, cash flow statement, and company assumption sections with investor-facing descriptions and inline formula display.
 - **Fee Category Restructure** (Tasks #108–#109) — Restructured management fee categories and fee schedule UI.
 - **Funding Interest Rate & Accrual** (Task #116) — Interest accrual on funding balances shown on financial statements.
 - **Login Page Redesign + Google Sign-In** (Tasks #63, #131) — New premium login page with Google OAuth integration.
@@ -122,7 +124,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 - **Finance changes must state Active Skill** and pass verification (UNQUALIFIED)
 - **ANOI terminology**: After-fee NOI = "Adjusted NOI (ANOI)". Internal field stays `noi`.
 - **Marcela must NEVER compute financial values** — all data from the calculation engine
-- **Engine chain**: `gop = revenue − opex`, `agop = gop − feeBase − feeIncentive`, `noi = agop − expenseInsurance − expenseTaxes`, `anoi = noi − expenseFFE`
+- **Engine chain**: `gop = revenue − opex`, `agop = gop − feeBase − feeIncentive`, `noi = agop − expenseTaxes`, `anoi = noi − expenseFFE`
 - **Brand colors**: SAGE=#9FBCA4, DARK_GREEN=#257D41, NAVY=#1A2332, SECTION_BG=#EFF5F0, ALT_ROW=#F8FAF9
 - **normalizeCaps() abbreviations**: GOP, NOI, AGOP, ANOI, GAAP, FFE, FF&E, DSCR, IRR, CFO, ADR, REVPAR, LTV, EBITDA, WACC
 - **Icon standard**: `IconPlay` for "Run Research", `IconEye` for "Criteria", `IconBanknote` for Reconciliation
@@ -155,7 +157,7 @@ All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify (~4 lines)
-npm run test:summary   # All 3,024 tests, 1-line output
+npm run test:summary   # All 3,021 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact output
 npm run db:push        # Push schema changes
 npm run diff:summary   # Compact git status + diff stat

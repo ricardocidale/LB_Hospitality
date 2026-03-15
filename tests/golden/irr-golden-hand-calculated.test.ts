@@ -125,7 +125,7 @@ describe("Golden Lodge — Hand-Calculated IRR Scenario", () => {
   const expenseFFE = revenueTotal * DEFAULT_COST_RATE_FFE; // 134,043.84 * 0.04 = 5,361.7536
 
   // ── USALI waterfall ────────────────────────────────────────────────────
-  // totalOperatingExpenses: 11 items (NOT insurance, taxes, FFE)
+  // totalOperatingExpenses: 11 items (NOT taxes, FFE)
   const totalOperatingExpenses =
     expenseRooms + expenseFB + expenseEvents + expenseOther +
     expenseMarketing + expensePropertyOps + expenseUtilitiesVar +

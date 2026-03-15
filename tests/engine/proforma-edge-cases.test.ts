@@ -965,7 +965,7 @@ describe("Edge Case: Zero purchase price", () => {
     }
   });
 
-  it("insurance and property tax expenses are $0 (value-based)", () => {
+  it("property tax expenses are $0 (value-based)", () => {
     for (const m of result) {
       expect(m.expenseTaxes).toBe(0);
     }

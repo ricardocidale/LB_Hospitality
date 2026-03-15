@@ -40,6 +40,16 @@
  * by the financial auditor before running full projections. The `is_valid` flag
  * (true when no critical or material issues) gates whether the engine proceeds.
  */
+import {
+  VALIDATION_EXIT_CAP_RATE_MIN,
+  VALIDATION_EXIT_CAP_RATE_MAX,
+  VALIDATION_INFLATION_RATE_MAX,
+  VALIDATION_BASE_MGMT_FEE_MAX,
+  VALIDATION_INTEREST_RATE_MAX,
+  VALIDATION_ACQ_LTV_MAX,
+  VALIDATION_LAND_VALUE_PCT_MAX,
+} from "../../shared/constants.js";
+
 export interface AssumptionIssue {
   severity: "critical" | "material" | "warning" | "info";
   category: "missing_value" | "out_of_range" | "contradiction" | "timing_conflict" | "business_rule";
@@ -120,44 +130,44 @@ export function checkAssumptionConsistency(input: AssumptionConsistencyInput): A
     });
   }
 
-  if (g.exit_cap_rate !== undefined && (g.exit_cap_rate < 0.03 || g.exit_cap_rate > 0.15)) {
+  if (g.exit_cap_rate !== undefined && (g.exit_cap_rate < VALIDATION_EXIT_CAP_RATE_MIN || g.exit_cap_rate > VALIDATION_EXIT_CAP_RATE_MAX)) {
     issues.push({
       severity: "warning", category: "out_of_range", entity: "global", field: "exit_cap_rate",
       message: `Exit cap rate ${(g.exit_cap_rate * 100).toFixed(1)}% is outside typical hospitality range`,
-      current_value: String(g.exit_cap_rate), expected_range: "0.03 – 0.15 (3% – 15%)",
+      current_value: String(g.exit_cap_rate), expected_range: `${VALIDATION_EXIT_CAP_RATE_MIN} – ${VALIDATION_EXIT_CAP_RATE_MAX} (${VALIDATION_EXIT_CAP_RATE_MIN * 100}% – ${VALIDATION_EXIT_CAP_RATE_MAX * 100}%)`,
     });
   }
 
-  if (g.inflation_rate !== undefined && (g.inflation_rate < 0 || g.inflation_rate > 0.15)) {
+  if (g.inflation_rate !== undefined && (g.inflation_rate < 0 || g.inflation_rate > VALIDATION_INFLATION_RATE_MAX)) {
     issues.push({
       severity: "warning", category: "out_of_range", entity: "global", field: "inflation_rate",
       message: `Inflation rate ${(g.inflation_rate * 100).toFixed(1)}% is outside reasonable range`,
-      current_value: String(g.inflation_rate), expected_range: "0.00 – 0.15 (0% – 15%)",
+      current_value: String(g.inflation_rate), expected_range: `0.00 – ${VALIDATION_INFLATION_RATE_MAX} (0% – ${VALIDATION_INFLATION_RATE_MAX * 100}%)`,
     });
   }
 
-  if (g.base_management_fee !== undefined && (g.base_management_fee < 0 || g.base_management_fee > 0.10)) {
+  if (g.base_management_fee !== undefined && (g.base_management_fee < 0 || g.base_management_fee > VALIDATION_BASE_MGMT_FEE_MAX)) {
     issues.push({
       severity: "warning", category: "out_of_range", entity: "global", field: "base_management_fee",
       message: `Base management fee ${(g.base_management_fee * 100).toFixed(1)}% is outside typical range`,
-      current_value: String(g.base_management_fee), expected_range: "0.02 – 0.05 (2% – 5%)",
+      current_value: String(g.base_management_fee), expected_range: `0.02 – ${VALIDATION_BASE_MGMT_FEE_MAX} (2% – ${VALIDATION_BASE_MGMT_FEE_MAX * 100}%)`,
     });
   }
 
   if (g.debt_assumptions) {
     const da = g.debt_assumptions;
-    if (da.interest_rate !== undefined && (da.interest_rate < 0 || da.interest_rate > 0.25)) {
+    if (da.interest_rate !== undefined && (da.interest_rate < 0 || da.interest_rate > VALIDATION_INTEREST_RATE_MAX)) {
       issues.push({
         severity: "material", category: "out_of_range", entity: "global", field: "debt_assumptions.interest_rate",
         message: `Interest rate ${(da.interest_rate * 100).toFixed(1)}% is outside reasonable range`,
-        current_value: String(da.interest_rate), expected_range: "0.02 – 0.15 (2% – 15%)",
+        current_value: String(da.interest_rate), expected_range: `0.02 – 0.15 (2% – 15%)`,
       });
     }
-    if (da.acq_ltv !== undefined && (da.acq_ltv < 0 || da.acq_ltv > 0.95)) {
+    if (da.acq_ltv !== undefined && (da.acq_ltv < 0 || da.acq_ltv > VALIDATION_ACQ_LTV_MAX)) {
       issues.push({
         severity: "material", category: "out_of_range", entity: "global", field: "debt_assumptions.acq_ltv",
         message: `Acquisition LTV ${(da.acq_ltv * 100).toFixed(0)}% exceeds typical maximum`,
-        current_value: String(da.acq_ltv), expected_range: "0.50 – 0.80 (50% – 80%)",
+        current_value: String(da.acq_ltv), expected_range: `0.50 – 0.80 (50% – 80%)`,
       });
     }
   }
@@ -213,7 +223,7 @@ export function checkAssumptionConsistency(input: AssumptionConsistencyInput): A
         });
       }
 
-      if (prop.land_value_percent !== undefined && (prop.land_value_percent < 0 || prop.land_value_percent > 0.80)) {
+      if (prop.land_value_percent !== undefined && (prop.land_value_percent < 0 || prop.land_value_percent > VALIDATION_LAND_VALUE_PCT_MAX)) {
         issues.push({
           severity: "warning", category: "out_of_range", entity, field: "land_value_percent",
           message: `Land value ${(prop.land_value_percent * 100).toFixed(0)}% is outside typical range`,

@@ -45,6 +45,12 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, roundCents } from "../shared/utils.js";
+import {
+  STRESS_TEST_MIN_DSCR,
+  STRESS_SEVERITY_MODERATE_PCT,
+  STRESS_SEVERITY_SEVERE_PCT,
+  STRESS_SEVERITY_CRITICAL_PCT,
+} from "../../shared/constants.js";
 
 export interface StressTestInput {
   property_name?: string;
@@ -146,12 +152,11 @@ export function computeStressTest(input: StressTestInput): StressTestOutput {
       ? roundCents(((stressed_exit_value - base_exit_value) / Math.abs(base_exit_value)) * 100)
       : 0;
 
-    const MIN_DSCR_THRESHOLD = 1.25;
     let dscr: number | null = null;
     let dscr_passes = true;
     if (input.annual_debt_service && input.annual_debt_service > 0) {
       dscr = ratio(stressed_noi / input.annual_debt_service);
-      dscr_passes = dscr >= MIN_DSCR_THRESHOLD;
+      dscr_passes = dscr >= STRESS_TEST_MIN_DSCR;
       if (!dscr_passes) belowDSCR++;
       if (worstDSCR === null || dscr < worstDSCR) worstDSCR = dscr;
     }
@@ -160,13 +165,10 @@ export function computeStressTest(input: StressTestInput): StressTestOutput {
     if (stressed_noi < worstNOI) worstNOI = stressed_noi;
     if (stressed_exit_value < worstExit) worstExit = stressed_exit_value;
 
-    const SEVERITY_MODERATE = -5;
-    const SEVERITY_SEVERE = -15;
-    const SEVERITY_CRITICAL = -30;
     let severity: "low" | "moderate" | "severe" | "critical";
-    if (noi_impact_pct > SEVERITY_MODERATE) severity = "low";
-    else if (noi_impact_pct > SEVERITY_SEVERE) severity = "moderate";
-    else if (noi_impact_pct > SEVERITY_CRITICAL) severity = "severe";
+    if (noi_impact_pct > STRESS_SEVERITY_MODERATE_PCT) severity = "low";
+    else if (noi_impact_pct > STRESS_SEVERITY_SEVERE_PCT) severity = "moderate";
+    else if (noi_impact_pct > STRESS_SEVERITY_CRITICAL_PCT) severity = "severe";
     else severity = "critical";
 
     results.push({

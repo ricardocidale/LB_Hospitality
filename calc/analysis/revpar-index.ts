@@ -41,6 +41,7 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING } from "../shared/utils.js";
+import { RGI_OUTPERFORMING_THRESHOLD, RGI_UNDERPERFORMING_THRESHOLD } from "../../shared/constants.js";
 
 export interface RevPARIndexInput {
   property_name?: string;
@@ -114,8 +115,8 @@ export function computeRevPARIndex(input: RevPARIndexInput): RevPARIndexOutput {
   }
 
   let penetration_assessment: "outperforming" | "at_market" | "underperforming";
-  if (rgi > 1.05) penetration_assessment = "outperforming";
-  else if (rgi < 0.95) penetration_assessment = "underperforming";
+  if (rgi > RGI_OUTPERFORMING_THRESHOLD) penetration_assessment = "outperforming";
+  else if (rgi < RGI_UNDERPERFORMING_THRESHOLD) penetration_assessment = "underperforming";
   else penetration_assessment = "at_market";
 
   return {

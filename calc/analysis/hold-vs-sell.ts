@@ -46,6 +46,12 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, sumArray } from "../shared/utils.js";
+import {
+  DEFAULT_COMMISSION_RATE,
+  DEFAULT_CAPITAL_GAINS_RATE,
+  DEFAULT_DEP_RECAPTURE_RATE,
+  HOLD_VS_SELL_INDIFFERENCE_PCT,
+} from "../../shared/constants.js";
 
 export interface HoldVsSellInput {
   property_name?: string;
@@ -102,15 +108,12 @@ export function computeHoldVsSell(input: HoldVsSellInput): HoldVsSellOutput {
   const r = rounder(input.rounding_policy);
   const ratio = (v: number) => roundTo(v, RATIO_ROUNDING);
 
-  const DEFAULT_SELL_COMMISSION = 0.05;
-  const DEFAULT_CG_RATE = 0.20;
-  const DEFAULT_DEP_RECAPTURE_RATE = 0.25;
-  const commRate = input.commission_rate ?? DEFAULT_SELL_COMMISSION;
+  const commRate = input.commission_rate ?? DEFAULT_COMMISSION_RATE;
   const debt = input.outstanding_debt ?? 0;
   const capex = input.annual_capex ?? 0;
   const debtService = input.annual_debt_service ?? 0;
   const futureExitCap = input.future_exit_cap_rate ?? input.exit_cap_rate;
-  const cgRate = input.capital_gains_rate ?? DEFAULT_CG_RATE;
+  const cgRate = input.capital_gains_rate ?? DEFAULT_CAPITAL_GAINS_RATE;
   const depRecapRate = input.depreciation_recapture_rate ?? DEFAULT_DEP_RECAPTURE_RATE;
   const accDepreciation = input.accumulated_depreciation ?? 0;
   const costBasis = input.original_cost_basis ?? input.current_market_value;
@@ -185,7 +188,7 @@ export function computeHoldVsSell(input: HoldVsSellInput): HoldVsSellOutput {
   }
 
   let recommendation: "hold" | "sell" | "indifferent";
-  const threshold = input.current_market_value * 0.02;
+  const threshold = input.current_market_value * HOLD_VS_SELL_INDIFFERENCE_PCT;
   if (npv_advantage_hold > threshold) recommendation = "hold";
   else if (npv_advantage_hold < -threshold) recommendation = "sell";
   else recommendation = "indifferent";

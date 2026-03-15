@@ -367,6 +367,59 @@ export const RESEARCH_TAX_RATE_30_PCT = 0.30;
 // Make-vs-buy: savings must exceed this threshold to recommend outsource/in-house
 export const RESEARCH_MAKE_VS_BUY_MARGINAL_THRESHOLD = 0.10;
 
+// ── Hold-vs-Sell Analysis Defaults ──────────────────────────────────────────
+// Default tax rates for disposition analysis (IRC §1 / §1250)
+export const DEFAULT_CAPITAL_GAINS_RATE = 0.20;
+export const DEFAULT_DEP_RECAPTURE_RATE = 0.25;
+// Recommendation dead zone: ±2% of market value = "indifferent"
+export const HOLD_VS_SELL_INDIFFERENCE_PCT = 0.02;
+
+// ── Waterfall Defaults ──────────────────────────────────────────────────────
+// GP catch-up target percentage of total distributions
+export const DEFAULT_GP_CATCH_UP_TARGET_PCT = 0.20;
+
+// ── Stress Test Thresholds ──────────────────────────────────────────────────
+// Minimum DSCR for debt serviceability under stress
+export const STRESS_TEST_MIN_DSCR = 1.25;
+// NOI impact thresholds for severity classification (percentage points)
+export const STRESS_SEVERITY_MODERATE_PCT = -5;
+export const STRESS_SEVERITY_SEVERE_PCT = -15;
+export const STRESS_SEVERITY_CRITICAL_PCT = -30;
+
+// ── RevPAR Index Thresholds ─────────────────────────────────────────────────
+// RGI thresholds for competitive performance assessment
+export const RGI_OUTPERFORMING_THRESHOLD = 1.05;
+export const RGI_UNDERPERFORMING_THRESHOLD = 0.95;
+
+// ── Validation Range Constants ──────────────────────────────────────────────
+// Reasonable bounds for assumption validation (assumption-consistency)
+export const VALIDATION_EXIT_CAP_RATE_MIN = 0.03;
+export const VALIDATION_EXIT_CAP_RATE_MAX = 0.15;
+export const VALIDATION_INFLATION_RATE_MAX = 0.15;
+export const VALIDATION_BASE_MGMT_FEE_MAX = 0.10;
+export const VALIDATION_INTEREST_RATE_MAX = 0.25;
+export const VALIDATION_ACQ_LTV_MAX = 0.95;
+export const VALIDATION_LAND_VALUE_PCT_MAX = 0.80;
+
+// ── Calculation Checker Thresholds ──────────────────────────────────────────
+// Revenue growth variance: flag if actual CAGR differs from expected by more than this
+export const CHECKER_REVENUE_GROWTH_VARIANCE = 0.2;
+// NOI margin reasonable range (%)
+export const CHECKER_NOI_MARGIN_MIN_PCT = 5;
+export const CHECKER_NOI_MARGIN_MAX_PCT = 70;
+// Balance sheet tolerance (dollars)
+export const CHECKER_BALANCE_SHEET_TOLERANCE = 1.0;
+// Minimum DSCR for debt coverage check
+export const CHECKER_MIN_DSCR = 1.0;
+
+// ── Funding Predictor Algorithm Limits ──────────────────────────────────────
+// Maximum discount rate cap for SAFE terms
+export const DEFAULT_MAX_SAFE_DISCOUNT_RATE = 0.30;
+// Risk-free rate sensitivity multiplier for discount adjustment
+export const DEFAULT_RISK_FREE_RATE_SENSITIVITY = 0.1;
+// Rolling year lookback (months - 1, since we include the current month)
+export const TRAILING_YEAR_MONTHS_OFFSET = 11;
+
 // Cap rate valuation bounds: implied value must be within these multipliers of purchase price
 export const RESEARCH_CAP_RATE_VALUATION_MAX_MULTIPLIER = 3.0;
 export const RESEARCH_CAP_RATE_VALUATION_MIN_MULTIPLIER = 0.3;

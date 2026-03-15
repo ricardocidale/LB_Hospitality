@@ -9,6 +9,11 @@ import {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
   DEFAULT_TERM_YEARS,
+  CHECKER_REVENUE_GROWTH_VARIANCE,
+  CHECKER_NOI_MARGIN_MIN_PCT,
+  CHECKER_NOI_MARGIN_MAX_PCT,
+  CHECKER_BALANCE_SHEET_TOLERANCE,
+  CHECKER_MIN_DSCR,
 } from "@shared/constants";
 import type {
   VerificationReport,
@@ -272,7 +277,7 @@ export function runIndependentVerification(
             `Expected ADR growth ${(expectedGrowthRate * 100).toFixed(1)}% vs Actual Revenue CAGR ${(annualGrowthRate * 100).toFixed(1)}%`,
             expectedGrowthRate,
             annualGrowthRate,
-            Math.abs(annualGrowthRate - expectedGrowthRate) > 0.2 ? "material" : "info"
+            Math.abs(annualGrowthRate - expectedGrowthRate) > CHECKER_REVENUE_GROWTH_VARIANCE ? "material" : "info"
           ));
         }
       }
@@ -297,9 +302,9 @@ export function runIndependentVerification(
         "Debt",
         "ASC 470 / Banking",
         `Year 1 NOI $${Math.round(serverYear1.noi).toLocaleString()} / Debt Service $${Math.round(year1DebtService).toLocaleString()} (expect > 1.0x)`,
-        1.0,
+        CHECKER_MIN_DSCR,
         year1DSCR,
-        year1DSCR < 1.0 ? "critical" : "info"
+        year1DSCR < CHECKER_MIN_DSCR ? "critical" : "info"
       ));
     }
 
@@ -313,8 +318,8 @@ export function runIndependentVerification(
         "Industry Benchmark",
         `Year 1: ${noiMarginYear1.toFixed(1)}% → Year ${projectionYears}: ${noiMarginLastYear.toFixed(1)}% (expect 5-60%)`,
         1,
-        (noiMarginLastYear >= 5 && noiMarginLastYear <= 70) ? 1 : 0,
-        (noiMarginLastYear < 5 || noiMarginLastYear > 70) ? "material" : "info"
+        (noiMarginLastYear >= CHECKER_NOI_MARGIN_MIN_PCT && noiMarginLastYear <= CHECKER_NOI_MARGIN_MAX_PCT) ? 1 : 0,
+        (noiMarginLastYear < CHECKER_NOI_MARGIN_MIN_PCT || noiMarginLastYear > CHECKER_NOI_MARGIN_MAX_PCT) ? "material" : "info"
       ));
     }
 
@@ -332,7 +337,7 @@ export function runIndependentVerification(
       const totalLiabilities = m.debtOutstanding;
       const derivedEquity = initialEquity + cumulativeNetIncome;
       const gap = Math.abs(totalAssets - totalLiabilities - derivedEquity);
-      if (gap > 1.0) aleFailedMonths++;
+      if (gap > CHECKER_BALANCE_SHEET_TOLERANCE) aleFailedMonths++;
     }
 
     checks.push(check(

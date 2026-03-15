@@ -49,6 +49,7 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, sumArray } from "../shared/utils.js";
+import { DEFAULT_GP_CATCH_UP_TARGET_PCT } from "../../shared/constants.js";
 
 export interface WaterfallTier {
   label: string;
@@ -126,8 +127,7 @@ export function computeWaterfall(input: WaterfallInput): WaterfallOutput {
 
   let catch_up_amount = 0;
   if (input.catch_up_rate !== undefined && input.catch_up_rate > 0 && remaining > 0) {
-    const DEFAULT_GP_TARGET_PCT = 0.20;
-    const catchUpTarget = input.catch_up_to_gp_pct ?? DEFAULT_GP_TARGET_PCT;
+    const catchUpTarget = input.catch_up_to_gp_pct ?? DEFAULT_GP_CATCH_UP_TARGET_PCT;
     const totalDistributedSoFar = totalToLP + totalToGP;
     const gpTarget = r(totalDistributedSoFar * catchUpTarget / (1 - catchUpTarget));
     const gpShortfall = r(Math.max(0, gpTarget - totalToGP));

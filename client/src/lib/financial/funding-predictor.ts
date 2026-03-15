@@ -21,6 +21,9 @@ import {
   DEFAULT_THREE_TRANCHE_MIN_T2,
   DEFAULT_TREASURY_HIGH_RATE_THRESHOLD,
   DEFAULT_TREASURY_LOW_RATE_THRESHOLD,
+  DEFAULT_MAX_SAFE_DISCOUNT_RATE,
+  DEFAULT_RISK_FREE_RATE_SENSITIVITY,
+  TRAILING_YEAR_MONTHS_OFFSET,
 } from '@shared/constants';
 
 interface FundingGlobalInput extends GlobalInput {
@@ -211,7 +214,7 @@ export function analyzeFundingNeeds(
   const fundingGap = totalRaiseNeeded - currentFunding;
 
   const revenueAtBreakeven = breakevenMonth !== null
-    ? financials.slice(Math.max(0, breakevenMonth - 11), breakevenMonth + 1).reduce((s, m) => s + m.totalRevenue, 0)
+    ? financials.slice(Math.max(0, breakevenMonth - TRAILING_YEAR_MONTHS_OFFSET), breakevenMonth + 1).reduce((s, m) => s + m.totalRevenue, 0)
     : 0;
   const propertiesAtBreakeven = breakevenMonth !== null
     ? countActiveProperties(financials, breakevenMonth)
@@ -296,7 +299,7 @@ function buildTranches(
   };
   const computeTrancheDiscount = (adjustment: number): number | null => {
     if (!hasDiscountRate) return null;
-    return Math.min(0.30, baseDiscount + adjustment + riskFreeRate * 0.1);
+    return Math.min(DEFAULT_MAX_SAFE_DISCOUNT_RATE, baseDiscount + adjustment + riskFreeRate * DEFAULT_RISK_FREE_RATE_SENSITIVITY);
   };
 
   const termsNote = (hasValuationCap || hasDiscountRate)
@@ -323,7 +326,7 @@ function buildTranches(
   const tranche2Amount = Math.max(0, totalRaise - tranche1Amount);
 
   const activeAtMid = countActiveProperties(financials, midpoint);
-  const revenueAtMid = financials.slice(Math.max(0, midpoint - 11), midpoint + 1).reduce((s, m) => s + m.totalRevenue, 0);
+  const revenueAtMid = financials.slice(Math.max(0, midpoint - TRAILING_YEAR_MONTHS_OFFSET), midpoint + 1).reduce((s, m) => s + m.totalRevenue, 0);
 
   const t2TermsNote = (hasValuationCap || hasDiscountRate)
     ? ` Revenue traction de-risks the investment, supporting ${hasValuationCap ? 'a higher valuation cap' : ''}${hasValuationCap && hasDiscountRate ? ' and ' : ''}${hasDiscountRate ? 'lower discount' : ''} compared to Tranche 1.`

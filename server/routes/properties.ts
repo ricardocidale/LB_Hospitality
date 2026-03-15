@@ -10,9 +10,23 @@ import { processNotificationEvent, evaluateAlertRules } from "../notifications/e
 import { createEvent } from "../notifications/events";
 import {
   DEFAULT_EXIT_CAP_RATE,
+  DEFAULT_TAX_RATE,
   DEFAULT_COMMISSION_RATE,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+  DEFAULT_COST_RATE_ROOMS,
+  DEFAULT_COST_RATE_FB,
+  DEFAULT_COST_RATE_ADMIN,
+  DEFAULT_COST_RATE_MARKETING,
+  DEFAULT_COST_RATE_PROPERTY_OPS,
+  DEFAULT_COST_RATE_UTILITIES,
+  DEFAULT_COST_RATE_TAXES,
+  DEFAULT_COST_RATE_IT,
+  DEFAULT_COST_RATE_FFE,
+  DEFAULT_COST_RATE_OTHER,
+  DEFAULT_REV_SHARE_EVENTS,
+  DEFAULT_REV_SHARE_FB,
+  DEFAULT_REV_SHARE_OTHER,
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
   DEFAULT_TERM_YEARS,
@@ -28,19 +42,37 @@ interface DebtAssumptions {
   refiClosingCostRate?: number;
 }
 
-function buildPropertyDefaultsFromGlobal(ga: GlobalAssumptions): Record<string, unknown> {
+export function buildPropertyDefaultsFromGlobal(ga: GlobalAssumptions): Record<string, unknown> {
   const debt = (ga.debtAssumptions as DebtAssumptions) ?? {};
   return {
     exitCapRate: ga.exitCapRate ?? DEFAULT_EXIT_CAP_RATE,
+    taxRate: DEFAULT_TAX_RATE,
     dispositionCommission: ga.salesCommissionRate ?? DEFAULT_COMMISSION_RATE,
     baseManagementFeeRate: ga.baseManagementFee ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE,
     incentiveManagementFeeRate: ga.incentiveManagementFee ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+
+    costRateRooms: DEFAULT_COST_RATE_ROOMS,
+    costRateFB: DEFAULT_COST_RATE_FB,
+    costRateAdmin: DEFAULT_COST_RATE_ADMIN,
+    costRateMarketing: DEFAULT_COST_RATE_MARKETING,
+    costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,
+    costRateUtilities: DEFAULT_COST_RATE_UTILITIES,
+    costRateTaxes: DEFAULT_COST_RATE_TAXES,
+    costRateIT: DEFAULT_COST_RATE_IT,
+    costRateFFE: DEFAULT_COST_RATE_FFE,
+    costRateOther: DEFAULT_COST_RATE_OTHER,
+
+    revShareEvents: DEFAULT_REV_SHARE_EVENTS,
+    revShareFB: DEFAULT_REV_SHARE_FB,
+    revShareOther: DEFAULT_REV_SHARE_OTHER,
+
     acquisitionLTV: debt.acqLTV ?? DEFAULT_LTV,
     acquisitionInterestRate: debt.interestRate ?? DEFAULT_INTEREST_RATE,
     acquisitionTermYears: debt.amortizationYears ?? DEFAULT_TERM_YEARS,
     acquisitionClosingCostRate: debt.acqClosingCostRate ?? SEED_DEBT_ASSUMPTIONS.acqClosingCostRate,
     refinanceLTV: debt.refiLTV ?? DEFAULT_LTV,
     refinanceInterestRate: debt.interestRate ?? DEFAULT_INTEREST_RATE,
+    refinanceTermYears: debt.amortizationYears ?? DEFAULT_TERM_YEARS,
     refinanceClosingCostRate: debt.refiClosingCostRate ?? SEED_DEBT_ASSUMPTIONS.refiClosingCostRate,
   };
 }

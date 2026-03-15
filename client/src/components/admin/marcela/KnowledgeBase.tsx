@@ -22,7 +22,7 @@ const CATEGORY_META: Record<string, { icon: typeof IconFileStack; label: string;
   "Live Data": {
     icon: IconDatabase,
     label: "Live Data",
-    description: "Current portfolio data pulled from the database at rebuild time",
+    description: "User roles and permissions reference",
   },
   "Research": {
     icon: IconGlobe,

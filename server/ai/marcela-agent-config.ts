@@ -137,64 +137,6 @@ export function buildServerTools(baseUrl: string) {
   return [
     {
       type: "webhook" as const,
-      name: "getProperties",
-      description: "Fetch the list of all hotel properties in the portfolio with their key financial metrics (name, location, room count, ADR, occupancy, investment amount, status).",
-      api_schema: {
-        url: `${baseUrl}/api/marcela-tools/properties`,
-        method: "GET" as const,
-        headers,
-      },
-      expects_response: true,
-    },
-    {
-      type: "webhook" as const,
-      name: "getPropertyDetails",
-      description: "Fetch detailed financial data for a specific property including RevPAR, NOI, cap rate, IRR, equity multiple, DSCR, and more. Requires the property ID.",
-      api_schema: {
-        url: `${baseUrl}/api/marcela-tools/property/{property_id}`,
-        method: "GET" as const,
-        headers,
-        path_params_schema: {
-          property_id: { type: "number", description: "The ID of the property to look up" }
-        },
-      },
-      expects_response: true,
-    },
-    {
-      type: "webhook" as const,
-      name: "getPortfolioSummary",
-      description: "Get aggregated portfolio-level metrics: total properties, rooms, investment, weighted average occupancy, ADR, and RevPAR.",
-      api_schema: {
-        url: `${baseUrl}/api/marcela-tools/portfolio-summary`,
-        method: "GET" as const,
-        headers,
-      },
-      expects_response: true,
-    },
-    {
-      type: "webhook" as const,
-      name: "getScenarios",
-      description: "List all saved portfolio scenarios (what-if snapshots) with their names and descriptions.",
-      api_schema: {
-        url: `${baseUrl}/api/marcela-tools/scenarios`,
-        method: "GET" as const,
-        headers,
-      },
-      expects_response: true,
-    },
-    {
-      type: "webhook" as const,
-      name: "getGlobalAssumptions",
-      description: "Get the company-wide financial assumptions including discount rate, inflation rate, tax rate, hold period, and cap rate.",
-      api_schema: {
-        url: `${baseUrl}/api/marcela-tools/global-assumptions`,
-        method: "GET" as const,
-        headers,
-      },
-      expects_response: true,
-    },
-    {
-      type: "webhook" as const,
       name: "getNavigation",
       description: "Get the list of available pages in the portal with their descriptions. Use this to help users find the right page.",
       api_schema: {

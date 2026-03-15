@@ -1497,7 +1497,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
         <AgentCard
           name={marcelaAgentName}
           type="Voice Agent"
-          description="ElevenLabs-powered voice assistant with phone, SMS, and web widget support."
+          description="Knowledge-base assistant powered by ElevenLabs. Answers questions about the platform, methodology, and hospitality concepts."
           icon={IconMic}
           isActive={marcelaEnabled}
           isEnabled={marcelaEnabled}

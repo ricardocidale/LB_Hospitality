@@ -71,8 +71,8 @@ describe("Marcela Agent Config", () => {
     const baseUrl = "https://example.replit.dev";
     const tools = buildServerTools(baseUrl);
 
-    it("returns 6 webhook tools with correct schema", () => {
-      expect(tools.length).toBe(6);
+    it("returns 1 webhook tool with correct schema", () => {
+      expect(tools.length).toBe(1);
       for (const tool of tools) {
         expect(tool.type).toBe("webhook");
         expect(tool.api_schema.url).toContain(baseUrl);
@@ -84,10 +84,7 @@ describe("Marcela Agent Config", () => {
 
     it("includes all expected server tools", () => {
       const names = tools.map(t => t.name);
-      for (const expected of [
-        "getProperties", "getPropertyDetails", "getPortfolioSummary",
-        "getScenarios", "getGlobalAssumptions", "getNavigation",
-      ]) {
+      for (const expected of ["getNavigation"]) {
         expect(names).toContain(expected);
       }
     });

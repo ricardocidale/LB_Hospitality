@@ -11,7 +11,6 @@
  *   • ActivityTab     – login audit log, activity feed, and checker usage analytics
  *   • VerificationTab – independent GAAP financial verification with PDF export
  *   • UserGroupsTab   – group users for branded experiences (logo, theme, asset desc)
- *   • CustomizeTab    – consolidated appearance/config (Branding, Themes, Logos, Navigation)
  *   • DatabaseTab     – view database entity counts and populate production with seed data
  */
 export { default as UsersTab } from "./UsersTab";
@@ -19,10 +18,8 @@ export { default as CompaniesTab } from "./CompaniesTab";
 export { default as ActivityTab } from "./activity";
 export { default as VerificationTab } from "./verification";
 export { default as UserGroupsTab } from "./UserGroupsTab";
-export { default as CustomizeTab } from "./CustomizeTab";
 export { default as DatabaseTab } from "./DatabaseTab";
 export { default as MarcelaTab } from "./MarcelaTab";
 export { default as AIAgentsTab } from "./AIAgentsTab";
-export { default as ManagementCompanyTab } from "./ManagementCompanyTab";
 export { default as ResearchCenterTab } from "./ResearchCenterTab";
 export { default as DesignTab } from "./DesignTab";

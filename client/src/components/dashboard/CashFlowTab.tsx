@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { ChevronRight, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
-import { CalcDetailsProvider } from "@/components/financial-table-rows";
+import { CalcDetailsProvider } from "@/components/financial-table";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";

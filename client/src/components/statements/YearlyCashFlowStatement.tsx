@@ -19,7 +19,7 @@ import {
   SpacerRow,
   MetricRow,
   MarginRow,
-} from "@/components/financial-table-rows";
+} from "@/components/financial-table";
 import { TableRow, TableCell } from "@/components/ui/table";
 import {
   LoanParams,

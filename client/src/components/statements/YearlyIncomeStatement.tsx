@@ -38,7 +38,7 @@ import {
   ExpandableMetricRow,
   ExpandableLineItem,
   useCalcDetails,
-} from "@/components/financial-table-rows";
+} from "@/components/financial-table";
 import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
 import { TableRow, TableCell } from "@/components/ui/table";
 import {

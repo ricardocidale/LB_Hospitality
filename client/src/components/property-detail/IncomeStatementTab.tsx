@@ -28,7 +28,7 @@
  */
 import { useState, useMemo } from "react";
 import { formatMoney } from "@/lib/financialEngine";
-import { YearlyIncomeStatement } from "@/components/YearlyIncomeStatement";
+import { YearlyIncomeStatement } from "@/components/statements/YearlyIncomeStatement";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { ChevronsUpDown } from "lucide-react";

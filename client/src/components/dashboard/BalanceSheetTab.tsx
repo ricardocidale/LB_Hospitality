@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, RefObject } from "react";
-import { ConsolidatedBalanceSheet } from "@/components/ConsolidatedBalanceSheet";
+import { ConsolidatedBalanceSheet } from "@/components/statements/ConsolidatedBalanceSheet";
 import { DashboardTabProps } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction, chartAction } from "@/components/ui/export-toolbar";

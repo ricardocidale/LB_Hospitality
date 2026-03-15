@@ -25,7 +25,7 @@ import {
   BalanceSheetFormulaRow,
   GrandTotalRow,
   SpacerRow,
-} from "@/components/financial-table-rows";
+} from "@/components/financial-table";
 
 interface Props {
   properties: Property[];

@@ -336,9 +336,25 @@ export function register(app: Express) {
     }
   });
 
+  const updateDesignThemeSchema = z.object({
+    name: z.string().min(1).optional(),
+    description: z.string().optional(),
+    colors: z.array(z.object({
+      rank: z.number(),
+      name: z.string(),
+      hexCode: z.string(),
+      description: z.string(),
+    })).optional(),
+    isDefault: z.boolean().optional(),
+  });
+
   app.patch("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
     try {
-      const theme = await storage.updateDesignTheme(Number(req.params.id), req.body);
+      const parsed = updateDesignThemeSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const theme = await storage.updateDesignTheme(Number(req.params.id), parsed.data);
       res.json(theme);
     } catch (error) {
       logAndSendError(res, "Failed to update theme", error);

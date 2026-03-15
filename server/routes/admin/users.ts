@@ -60,11 +60,26 @@ export function registerUserRoutes(app: Express) {
     }
   });
 
+  const updateUserSchema = z.object({
+    email: z.string().email().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    company: z.string().nullable().optional(),
+    companyId: z.number().nullable().optional(),
+    title: z.string().nullable().optional(),
+    role: roleSchema.optional(),
+    userGroupId: z.number().nullable().optional(),
+  });
+
   app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseParamId(req.params.id, res, "user ID");
       if (id === null) return;
-      const { email, firstName, lastName, company, companyId, title, role, userGroupId } = req.body;
+      const parsed = updateUserSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const { email, firstName, lastName, company, companyId, title, role, userGroupId } = parsed.data;
 
       if (role !== undefined) {
         const roleResult = roleSchema.safeParse(role);

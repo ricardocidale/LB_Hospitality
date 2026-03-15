@@ -47,20 +47,16 @@ import { computeMarkupWaterfall } from "@calc/research/markup-waterfall";
 const SERVICE_HELP: Record<string, string> = {
   "Marketing":
     "Brand strategy, digital marketing campaigns, social media management, content creation, OTA channel management (Booking.com, Expedia), SEO/SEM, reputation monitoring, and public relations. Centralized marketing leverages group purchasing power for ad spend. Charged as a percentage of Total Revenue.",
-  "IT":
-    "Property Management System (PMS), booking engine, Wi-Fi infrastructure, cybersecurity, help desk support, system integrations (POS, key systems), and cloud services. Centralizing IT provides economies of scale and consistent tech standards across properties. Charged as a percentage of Total Revenue.",
+  "Technology & Reservations":
+    "Property Management System (PMS), booking engine, Wi-Fi infrastructure, cybersecurity, help desk support, system integrations (POS, key systems), cloud services, Central Reservation System (CRS), call center operations, group booking coordination, and channel distribution strategy. Centralizing technology and reservations provides economies of scale and consistent standards across properties. Charged as a percentage of Total Revenue.",
   "Accounting":
     "Financial reporting per USALI standards, general ledger maintenance, accounts payable/receivable, bank reconciliations, audit preparation, tax filing support, budgeting assistance, and owner reporting packages. Charged as a percentage of Total Revenue.",
-  "Reservations":
-    "Central Reservation System (CRS), call center operations, group booking coordination, rate and yield management, channel distribution strategy, and revenue management analytics. Charged as a percentage of Total Revenue.",
+  "Revenue Management":
+    "Dynamic pricing strategy, rate and yield management, demand forecasting, competitive set analysis, revenue management analytics, and RevPAR optimization. Leverages data-driven insights to maximize property revenue. Charged as a percentage of Total Revenue.",
   "General Management":
     "Executive oversight, strategic planning, human resources (recruitment, training, compliance), quality assurance inspections, brand standards enforcement, and operational consulting. This is typically a 'direct' service where the management company earns an oversight fee. Charged as a percentage of Total Revenue.",
-  "Insurance":
-    "Property and liability insurance procurement through group policies, workers' compensation, claims management, risk assessment, and coverage optimization. Group purchasing power typically yields 15–25% savings vs individual policies. Charged as a percentage of Total Revenue.",
-  "Property Operations":
-    "Facilities management, preventive maintenance programs, energy management and sustainability, vendor procurement and negotiation, capital expenditure planning, and FF&E reserve monitoring. Charged as a percentage of Total Revenue.",
-  "Other Services":
-    "Additional specialized services such as legal coordination, procurement consulting, sustainability/ESG programs, mystery shopping, or custom advisory engagements tailored to property needs. Charged as a percentage of Total Revenue.",
+  "Procurement":
+    "Centralized purchasing, vendor negotiation, supply chain management, group purchasing organization (GPO) coordination, contract management, and cost optimization across the portfolio. Leverages group purchasing power for better pricing. Charged as a percentage of Total Revenue.",
 };
 
 interface FormState {

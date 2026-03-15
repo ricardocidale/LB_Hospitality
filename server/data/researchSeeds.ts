@@ -30,10 +30,11 @@ type RegionProfile = {
   costInsurance: [number, number, number];
   costPropertyTaxes: [number, number, number];
   svcFeeMarketing: [number, number, number];
-  svcFeeIT: [number, number, number];
+  svcFeeTechRes: [number, number, number];
   svcFeeAccounting: [number, number, number];
-  svcFeeReservations: [number, number, number];
+  svcFeeRevMgmt: [number, number, number];
   svcFeeGeneralMgmt: [number, number, number];
+  svcFeeProcurement: [number, number, number];
   incentiveFee: [number, number, number];
   incomeTax: [number, number, number];
   saleCommission: [number, number, number];
@@ -67,10 +68,11 @@ const US_BASE: RegionProfile = {
   costInsurance: [0.3, 0.4, 0.5],
   costPropertyTaxes: [1.0, 1.5, 2.5],
   svcFeeMarketing: [0.5, 1.0, 1.5],
-  svcFeeIT: [0.3, 0.5, 0.8],
+  svcFeeTechRes: [1.0, 2.0, 2.5],
   svcFeeAccounting: [0.5, 1.0, 1.5],
-  svcFeeReservations: [1.0, 1.5, 2.0],
+  svcFeeRevMgmt: [0.5, 1.0, 1.5],
   svcFeeGeneralMgmt: [0.7, 1.0, 1.2],
+  svcFeeProcurement: [0.5, 0.8, 1.0],
   incentiveFee: [8, 10, 12],
   incomeTax: [24, 25, 28],
   saleCommission: [4, 5, 6],
@@ -372,10 +374,11 @@ const FIELD_SOURCES: Record<string, string> = {
   costInsurance: "AICPA/industry data",
   costPropertyTaxes: "Local assessor data",
   svcFeeMarketing: "HVS Mgmt Agreement Study",
-  svcFeeIT: "HVS Mgmt Agreement Study",
+  svcFeeTechRes: "HVS Mgmt Agreement Study",
   svcFeeAccounting: "HVS Mgmt Agreement Study",
-  svcFeeReservations: "HVS Mgmt Agreement Study",
+  svcFeeRevMgmt: "HVS Mgmt Agreement Study",
   svcFeeGeneralMgmt: "HVS Mgmt Agreement Study",
+  svcFeeProcurement: "HVS Mgmt Agreement Study",
   incentiveFee: "HVS Mgmt Agreement Study",
   incomeTax: "IRS/jurisdiction rates",
   saleCommission: "NAR transaction data",

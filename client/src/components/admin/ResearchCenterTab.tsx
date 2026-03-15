@@ -288,8 +288,8 @@ const DEFAULT_ICP_MGMT_QUESTIONS: PromptQuestion[] = [
     sortOrder: 0,
   },
   {
-    id: "default-it",
-    question: "What are the Industry Benchmark Ranges (min–max %) for IT fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for IT. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    id: "default-techres",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Technology & Reservations fees charged by hotel management companies as a percentage of Total Revenue? The app default is 2.0% of Total Revenue for Technology & Reservations. This category covers IT systems (PMS, booking engine, Wi-Fi, cybersecurity), central reservations (CRS, call center, group bookings), and channel distribution. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
     sortOrder: 1,
   },
   {
@@ -298,29 +298,19 @@ const DEFAULT_ICP_MGMT_QUESTIONS: PromptQuestion[] = [
     sortOrder: 2,
   },
   {
-    id: "default-res",
-    question: "What are the Industry Benchmark Ranges (min–max %) for Reservations fees charged by hotel management companies as a percentage of Total Revenue? The app default is 2.0% of Total Revenue for Reservations. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    id: "default-revmgmt",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Revenue Management fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for Revenue Management. This category covers dynamic pricing, yield management, demand forecasting, competitive set analysis, and RevPAR optimization. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, revenue complexity, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
     sortOrder: 3,
   },
   {
     id: "default-gm",
-    question: "What are the Industry Benchmark Ranges (min–max %) for General Management fees charged by hotel management companies as a percentage of Total Revenue? The app default is 2.0% of Total Revenue for General Management. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    question: "What are the Industry Benchmark Ranges (min–max %) for General Management fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.5% of Total Revenue for General Management. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
     sortOrder: 4,
   },
   {
-    id: "default-ins",
-    question: "What are the Industry Benchmark Ranges (min–max %) for Insurance fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for Insurance. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property size, market tier, brand strength, group purchasing leverage), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
+    id: "default-procurement",
+    question: "What are the Industry Benchmark Ranges (min–max %) for Procurement fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for Procurement. This category covers centralized purchasing, vendor negotiation, supply chain management, GPO coordination, and cost optimization. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (portfolio size, purchasing volume, vendor relationships, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
     sortOrder: 5,
-  },
-  {
-    id: "default-propops",
-    question: "What are the Industry Benchmark Ranges (min–max %) for Property Operations fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for Property Operations. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (property age, complexity, market tier, service model), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
-    sortOrder: 6,
-  },
-  {
-    id: "default-other",
-    question: "What are the Industry Benchmark Ranges (min–max %) for Other Services fees charged by hotel management companies as a percentage of Total Revenue? The app default is 1.0% of Total Revenue for Other Services. Please provide the benchmark range (low–high %), explain what revenue base this percentage is applied to, describe how the fee is calculated within the USALI waterfall, identify factors that influence where a specific property falls within the range (service scope, property needs, market tier), and cite sources (HVS Fee Survey, CBRE, STR, JLL, AHLA).",
-    sortOrder: 7,
   },
   {
     id: "default-basefee",

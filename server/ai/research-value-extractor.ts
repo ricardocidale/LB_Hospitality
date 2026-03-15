@@ -90,10 +90,11 @@ export function extractResearchValues(content: Record<string, any>): Record<stri
     if (sf) {
       const m = (k: string, cat: any) => { const v = parseCostRate(cat); if (v) vals[k] = entry(v); };
       m("svcFeeMarketing", sf.marketing);
-      m("svcFeeTechReservations", sf.technology_reservations || sf.technologyReservations || sf.it || sf.reservations);
+      m("svcFeeTechRes", sf.technologyReservations);
       m("svcFeeAccounting", sf.accounting);
-      m("svcFeeRevenueMgmt", sf.revenue_management || sf.revenueManagement);
+      m("svcFeeRevMgmt", sf.revenueManagement);
       m("svcFeeGeneralMgmt", sf.generalManagement);
+      m("svcFeeProcurement", sf.procurement);
     }
     const incV = parseCostRate(msf.incentiveFee); if (incV) vals.incentiveFee = entry(incV);
   }

@@ -97,11 +97,12 @@ export const SEED_PROPERTY_DEFAULTS = {
 };
 
 export const DEFAULT_FEE_CATEGORIES = [
-  { name: "Marketing", rate: 0.02, sortOrder: 1 },
-  { name: "Technology & Reservations", rate: 0.025, sortOrder: 2 },
+  { name: "Marketing", rate: 0.015, sortOrder: 1 },
+  { name: "Technology & Reservations", rate: 0.02, sortOrder: 2 },
   { name: "Accounting", rate: 0.015, sortOrder: 3 },
   { name: "Revenue Management", rate: 0.01, sortOrder: 4 },
   { name: "General Management", rate: 0.015, sortOrder: 5 },
+  { name: "Procurement", rate: 0.01, sortOrder: 6 },
 ];
 
 export function isFieldEmpty(value: unknown): boolean {

@@ -15,6 +15,8 @@ const exportRowSchema = z.object({
 
 const premiumExportSchema = z.object({
   format: z.enum(["xlsx", "pptx", "pdf", "docx"]),
+  orientation: z.enum(["landscape", "portrait"]).optional().default("landscape"),
+  version: z.enum(["short", "extended"]).optional().default("short"),
   entityName: z.string(),
   companyName: z.string().optional().default("Hospitality Business Group"),
   statementType: z.string().optional(),
@@ -95,7 +97,10 @@ function buildFinancialDataContext(data: PremiumExportRequest): string {
 }
 
 function getExcelPrompt(data: PremiumExportRequest): string {
-  return `You are generating a premium Excel financial workbook. Based on the financial data below, produce a JSON structure for Excel generation with enhanced formatting.
+  const versionHint = data.version === "extended"
+    ? "Include all line-item breakdowns and detailed sub-categories in each sheet."
+    : "Show summary-level totals and key aggregates only.";
+  return `You are generating a premium Excel financial workbook. Detail level: ${data.version || "short"}. ${versionHint} Based on the financial data below, produce a JSON structure for Excel generation with enhanced formatting.
 
 Brand palette:
 - Navy: #${BRAND.NAVY_HEX} (header backgrounds)
@@ -137,7 +142,10 @@ Include enhanced formatting instructions like conditional formatting rules, form
 }
 
 function getPptxPrompt(data: PremiumExportRequest): string {
-  return `You are generating a premium PowerPoint investor presentation. Based on the financial data below, produce a JSON structure for slide generation with enhanced layouts.
+  const versionHint = data.version === "extended"
+    ? "Include detailed financial tables with all line-item breakdowns."
+    : "Show summary-level metrics and key aggregates only.";
+  return `You are generating a premium PowerPoint investor presentation. Detail level: ${data.version || "short"}. ${versionHint} Based on the financial data below, produce a JSON structure for slide generation with enhanced layouts.
 
 Brand palette:
 - Navy: #${BRAND.NAVY_HEX} (title slide backgrounds)
@@ -176,7 +184,10 @@ Add insight slides with key takeaways and recommendations that enhance beyond si
 }
 
 function getPdfPrompt(data: PremiumExportRequest): string {
-  return `You are generating a premium PDF financial report. Based on the financial data below, produce a JSON structure for enhanced PDF generation.
+  const versionHint = data.version === "extended"
+    ? "Include all line-item breakdowns and detailed sub-categories."
+    : "Show summary-level totals and key aggregates only.";
+  return `You are generating a premium ${data.orientation || "landscape"}-oriented PDF financial report. Detail level: ${data.version || "short"}. ${versionHint}
 
 Brand palette:
 - Navy: #${BRAND.NAVY_HEX} (header)
@@ -216,7 +227,10 @@ Add executive summary and analysis sections with financial insights. Include obs
 }
 
 function getDocxPrompt(data: PremiumExportRequest): string {
-  return `You are generating a professional investor memo / due diligence report as a Word document. Based on the financial data below, produce a JSON structure for DOCX generation.
+  const versionHint = data.version === "extended"
+    ? "Include comprehensive detail with full line-item breakdowns in appendix tables."
+    : "Keep the memo concise with summary-level figures and key aggregates only.";
+  return `You are generating a professional investor memo / due diligence report as a Word document. Detail level: ${data.version || "short"}. ${versionHint} Based on the financial data below, produce a JSON structure for DOCX generation.
 
 Brand palette:
 - Navy: #${BRAND.NAVY_HEX}
@@ -572,7 +586,7 @@ async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Pro
   const autoTableModule = await import("jspdf-autotable");
   const autoTable = (autoTableModule as any).default || autoTableModule;
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: data.orientation || "landscape", unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
 
@@ -950,11 +964,18 @@ const CONTENT_TYPES: Record<string, string> = {
   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 };
 
-const FILE_SUFFIXES: Record<string, string> = {
-  xlsx: "Premium Report.xlsx",
-  pptx: "Premium Presentation.pptx",
-  pdf: "Premium Report.pdf",
-  docx: "Investor Memo.docx",
+const FORMAT_EXTENSIONS: Record<string, string> = {
+  xlsx: ".xlsx",
+  pptx: ".pptx",
+  pdf: ".pdf",
+  docx: ".docx",
+};
+
+const DEFAULT_REPORT_TYPE: Record<string, string> = {
+  xlsx: "Financial Report",
+  pptx: "Presentation",
+  pdf: "Financial Report",
+  docx: "Investor Memo",
 };
 
 async function generateViaAgentSkills(
@@ -969,7 +990,9 @@ async function generateViaAgentSkills(
     financialContext,
     data.entityName,
     data.companyName || "Hospitality Business Group",
-    data.memoSections as Record<string, string | undefined> | undefined
+    data.memoSections as Record<string, string | undefined> | undefined,
+    data.orientation || "landscape",
+    data.version || "short"
   );
 
   const result = await generateWithAgentSkills({
@@ -1019,8 +1042,10 @@ export function register(app: Express) {
         return res.status(400).json({ error: `Unsupported format: ${data.format}` });
       }
 
-      const safeName = data.entityName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30).trim();
-      const filename = `${safeName} - ${FILE_SUFFIXES[data.format]}`;
+      const safeCompany = (data.companyName || data.entityName).replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 40).trim();
+      const reportType = (data.statementType || DEFAULT_REPORT_TYPE[data.format] || "Report").replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 40).trim();
+      const ext = FORMAT_EXTENSIONS[data.format] || `.${data.format}`;
+      const filename = `${safeCompany} - ${reportType}${ext}`;
       const useAgentSkills = AGENT_SKILLS_FORMATS.has(data.format);
 
       let buffer: Buffer;

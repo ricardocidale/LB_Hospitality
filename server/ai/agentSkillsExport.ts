@@ -175,7 +175,9 @@ export function buildAgentSkillsPrompt(
   financialData: string,
   entityName: string,
   companyName: string,
-  memoSections?: Record<string, string | undefined>
+  memoSections?: Record<string, string | undefined>,
+  orientation: "landscape" | "portrait" = "landscape",
+  version: "short" | "extended" = "short"
 ): string {
   const brandInstructions = `
 Use this exact brand palette throughout:
@@ -193,10 +195,17 @@ Entity: ${entityName}
 Date: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
 `;
 
+  const versionInstructions = version === "extended"
+    ? "Include all line-item breakdowns, sub-categories, and detailed financial tables with full row-level data."
+    : "Show summary-level figures only — top-level totals and key aggregates without line-item breakdowns.";
+
   if (format === "pdf") {
-    return `Create a professional landscape-oriented PDF financial report.
+    return `Create a professional ${orientation}-oriented PDF financial report.
 
 ${brandInstructions}
+
+Report detail level: ${version === "extended" ? "Extended" : "Short"}
+${versionInstructions}
 
 Design requirements:
 - Cover page with Navy background, company name in Sage, report title in White
@@ -219,6 +228,9 @@ ${financialData}`;
     return `Create a professional widescreen (16:9) PowerPoint investor presentation.
 
 ${brandInstructions}
+
+Report detail level: ${version === "extended" ? "Extended" : "Short"}
+${versionInstructions}
 
 Slide design requirements:
 1. Title Slide: Navy background, Sage accent bar at top, company name in Sage, title in White, subtitle below
@@ -250,6 +262,9 @@ ${financialData}`;
     return `Create a professional Word document investor memo / due diligence report.
 
 ${brandInstructions}
+
+Report detail level: ${version === "extended" ? "Extended" : "Short"}
+${versionInstructions}
 
 Document structure:
 1. Header: Company name in Sage, document title in large Navy bold, subtitle with date, "Confidential" notice, Sage divider border

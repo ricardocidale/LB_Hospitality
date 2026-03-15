@@ -1,7 +1,15 @@
+---
+name: settings-architecture
+description: Where every configurable setting belongs in the HBG Portal. Covers the three configuration surfaces (Management Company, General Settings, Admin Panel), property edit overrides, overlap prevention rules, and the decision tree for placing new settings. Use this skill when adding or moving any configurable setting.
+---
+
 # Settings Architecture — Where Configuration Lives
 
-## Purpose
 This skill defines where every configurable setting belongs in the HBG Portal. It prevents settings from being placed in the wrong location and eliminates duplicate controls across pages. Every new setting must be placed according to these rules.
+
+**Related skills:** `hbg-business-model` (dual-entity model context), `financial-engine` (how engines consume settings), `api-backend-contract` (storage interface for global_assumptions and properties), `consistent-card-widths` (layout patterns for settings pages), `save-button-placement` (save button patterns for settings forms)
+
+---
 
 ## The Three Configuration Surfaces
 
@@ -92,9 +100,13 @@ Ask these questions in order:
 
 If a setting doesn't clearly fit any category, it likely needs a conversation before implementation.
 
-## Related Skills
-- `hbg-business-model` — Dual-entity model context
-- `financial-engine` — How property and company engines consume these settings
-- `api-backend-contract` — Storage interface for global_assumptions and properties
-- `consistent-card-widths` — Layout patterns for settings pages
-- `save-button-placement` — Save button patterns for settings forms
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `client/src/pages/Settings.tsx` | General Settings page (Property Defaults, Macro, Other tabs) |
+| `client/src/pages/CompanyAssumptions.tsx` | Management Company assumptions page |
+| `client/src/pages/PropertyEdit.tsx` | Property-level settings and overrides |
+| `client/src/pages/Admin.tsx` | Admin Panel page |
+| `shared/schema.ts` | `globalAssumptions` and `properties` table definitions |
+| `server/storage.ts` | Storage interface for CRUD operations on settings |

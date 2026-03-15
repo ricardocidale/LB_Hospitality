@@ -7,6 +7,10 @@ description: Rules for consistent card widths and page layout containers across 
 
 This skill documents the conventions for page-level width constraints so that cards, headers, and content sections look visually consistent across the application.
 
+**Related skills:** `hbg-design-philosophy` (visual identity), `save-button-placement` (form interaction patterns), `settings-architecture` (settings page layout)
+
+---
+
 ## Problem
 
 Pages historically used inconsistent `max-width` classes (`max-w-2xl`, `max-w-4xl`, `max-w-5xl`, or none), causing cards to render at different widths depending on the page. The rules below eliminate that drift.

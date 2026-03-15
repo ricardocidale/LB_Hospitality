@@ -165,7 +165,7 @@ See the `marcela-ai-system` skill for the full Marcela architecture.
 ### Replit Auth OIDC
 | Aspect | Detail |
 |--------|--------|
-| **Status** | Installed but integration pending (see Task #62) |
+| **Status** | Installed; OIDC integration not yet wired into the application |
 | **Connector** | Replit Integration (javascript_log_in_with_replit) |
 
 ---

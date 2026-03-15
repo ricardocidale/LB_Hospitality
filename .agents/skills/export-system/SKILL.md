@@ -1,7 +1,16 @@
+---
+name: export-system
+description: Shared formatting, styling, and generation patterns for all document exports (PDF, PPTX, Excel, CSV, PNG) used across the hospitality business portal. Covers brand palette, row data model, number formatting, PDF/PPTX/Excel/CSV/PNG helpers, and dashboard export orchestrators. Use this skill when working on any document export feature.
+---
+
 # Export System Skill
 
 Shared formatting, styling, and generation patterns for all document exports
 (PDF, PPTX, Excel, CSV, PNG) used across the hospitality business portal.
+
+**Related skills:** `hbg-design-philosophy` (brand identity and color philosophy), `financial-engine` (data feeding into exports), `api-backend-contract` (server-side export endpoints)
+
+---
 
 ## Architecture
 

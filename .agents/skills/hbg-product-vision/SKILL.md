@@ -139,17 +139,9 @@ This enables multiple investment groups to use the same portal with their own br
 
 ---
 
-## Active Roadmap Themes
+## Roadmap
 
-Based on proposed and in-progress tasks:
-
-| Theme | Description |
-|-------|-------------|
-| NOI/ANOI definition corrections | Ensuring income waterfall definitions match USALI precisely |
-| Research workflow improvements | Inline run-research buttons, criteria/ICP definition in property forms |
-| Dead-code cleanup | Removing unused integrations (DocuSign, Slack) |
-| Sidebar refinements | Navigation polish and organization |
-| Google Sign-In | Enhanced OAuth flow |
+Current priorities and in-flight work are tracked in the project task system. Consult the active task list for the latest roadmap themes and their status rather than relying on a static list here.
 
 ---
 

@@ -5,6 +5,10 @@ description: Rules for placing Save Changes buttons consistently across the app.
 
 # Save Button Placement
 
+**Related skills:** `hbg-design-philosophy` (form interaction patterns), `consistent-card-widths` (page layout conventions), `settings-architecture` (settings page save patterns)
+
+---
+
 ## SaveButton Component
 
 **File:** `client/src/components/ui/save-button.tsx`

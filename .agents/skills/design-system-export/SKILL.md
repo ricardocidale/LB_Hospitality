@@ -7,6 +7,10 @@ description: Replicate the HBG design system in another project. Use when settin
 
 Instructions for replicating the Hospitality Business Group (HBG) design system in another Replit project (e.g., Norfolk Agent Factory).
 
+**Related skills:** `hbg-design-philosophy` (visual identity and UX principles), `consistent-card-widths` (layout conventions), `export-system` (document export styling)
+
+---
+
 ## Architecture Overview
 
 The design system has 5 layers:

@@ -132,6 +132,7 @@ export interface GlobalResponse {
   companyZipPostalCode: string | null;
   // Additional Financial
   companyInflationRate?: number;
+  baseManagementFee: number;
   incentiveManagementFee: number;
   assetDescription: string | null;
   // ICP Config

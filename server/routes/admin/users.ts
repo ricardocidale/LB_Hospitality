@@ -158,10 +158,14 @@ export function registerUserRoutes(app: Express) {
     try {
       const id = parseParamId(req.params.id, res, "user ID");
       if (id === null) return;
-      const { password } = req.body;
-      const validation = validatePassword(password ?? "");
-      if (!validation.valid) {
-        return res.status(400).json({ error: validation.message });
+      const parsed = z.object({ password: z.string().min(6) }).safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const { password } = parsed.data;
+      const pwValidationResult = validatePassword(password);
+      if (!pwValidationResult.valid) {
+        return res.status(400).json({ error: pwValidationResult.message });
       }
       const passwordHash = await hashPassword(password);
       await storage.updateUserPassword(id, passwordHash);
@@ -176,7 +180,11 @@ export function registerUserRoutes(app: Express) {
     try {
       const id = parseParamId(req.params.id, res, "user ID");
       if (id === null) return;
-      const { groupId } = req.body;
+      const parsed = z.object({ groupId: z.number().nullable() }).safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const { groupId } = parsed.data;
       const user = await storage.assignUserToGroup(id, groupId ?? null);
       res.json(user);
     } catch (error) {
@@ -188,7 +196,11 @@ export function registerUserRoutes(app: Express) {
     try {
       const id = parseParamId(req.params.id, res, "user ID");
       if (id === null) return;
-      const { themeId } = req.body;
+      const parsed = z.object({ themeId: z.number().nullable() }).safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const { themeId } = parsed.data;
       await storage.updateUserSelectedTheme(id, themeId ?? null);
       res.json({ success: true });
     } catch (error) {
@@ -198,11 +210,18 @@ export function registerUserRoutes(app: Express) {
 
   app.post("/api/admin/reset-all-passwords", requireAdmin, async (req, res) => {
     try {
-      const { password, confirm } = req.body;
-      if (typeof confirm !== "string" || confirm.trim() !== "RESET ALL PASSWORDS") {
+      const parsed = z.object({
+        password: z.string().min(6),
+        confirm: z.string(),
+      }).safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: fromZodError(parsed.error).message });
+      }
+      const { password, confirm } = parsed.data;
+      if (confirm.trim() !== "RESET ALL PASSWORDS") {
         return res.status(400).json({ error: "Confirmation phrase required" });
       }
-      const pwValidation = validatePassword(password ?? "");
+      const pwValidation = validatePassword(password);
       if (!pwValidation.valid) {
         return res.status(400).json({ error: pwValidation.message });
       }

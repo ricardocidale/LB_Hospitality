@@ -1,7 +1,27 @@
 import type { CompanyMonthlyFinancials, GlobalInput, FundingAnalysis, FundingTranche, CashRunwayPoint } from './types';
 import type { MarketRateResponse } from '@/lib/api/market-rates';
 import { OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from '@/lib/constants';
-import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE } from '@shared/constants';
+import {
+  DEFAULT_SAFE_VALUATION_CAP,
+  DEFAULT_SAFE_DISCOUNT_RATE,
+  DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM,
+  DEFAULT_EARLY_STAGE_CAP_DISCOUNT,
+  DEFAULT_TRANCHE_BUFFER_MULTIPLIER,
+  DEFAULT_FUNDING_ROUNDING_INCREMENT,
+  DEFAULT_TRANCHE1_PERIOD_RATIO,
+  DEFAULT_TRANCHE1_MAX_ALLOCATION,
+  DEFAULT_TRANCHE_BIFURCATION_MONTHS,
+  DEFAULT_TRANCHE2_PERIOD_RATIO,
+  DEFAULT_TRANCHE2_ALLOCATION_PCT,
+  DEFAULT_VALUATION_CAP_UPLIFT,
+  DEFAULT_MIN_DISCOUNT_RATE,
+  DEFAULT_RISK_FREE_RATE_FALLBACK,
+  DEFAULT_SINGLE_TRANCHE_MAX_MONTHS,
+  DEFAULT_SINGLE_TRANCHE_MAX_RAISE,
+  DEFAULT_THREE_TRANCHE_MIN_T2,
+  DEFAULT_TREASURY_HIGH_RATE_THRESHOLD,
+  DEFAULT_TREASURY_LOW_RATE_THRESHOLD,
+} from '@shared/constants';
 
 interface FundingGlobalInput extends GlobalInput {
   propertyLabel?: string;
@@ -11,10 +31,6 @@ interface FundingGlobalInput extends GlobalInput {
   safeValuationCap?: number;
   safeDiscountRate?: number;
 }
-
-const EARLY_STAGE_DISCOUNT_PREMIUM = 0.05;
-const EARLY_STAGE_CAP_DISCOUNT = 0.20;
-const TRANCHE_BUFFER_MULTIPLIER = 1.15;
 
 function getMarketRate(rates: MarketRateResponse[] | undefined, key: string): number | null {
   if (!rates) return null;
@@ -101,9 +117,9 @@ function buildMarketContext(rates: MarketRateResponse[] | undefined): string {
   let context = `Current market environment: ${parts.join(', ')}.`;
 
   if (treasury10y !== null) {
-    if (treasury10y > 4.5) {
+    if (treasury10y > DEFAULT_TREASURY_HIGH_RATE_THRESHOLD) {
       context += ' The elevated rate environment increases the cost of capital, making early-stage investment terms more investor-friendly (higher discounts, lower caps) to compensate for opportunity cost.';
-    } else if (treasury10y < 3.0) {
+    } else if (treasury10y < DEFAULT_TREASURY_LOW_RATE_THRESHOLD) {
       context += ' The low-rate environment reduces investor opportunity cost, supporting more founder-friendly terms (lower discounts, higher caps).';
     } else {
       context += ' The moderate rate environment supports balanced investment terms that reflect both investor risk and the management company\'s growth potential.';
@@ -189,7 +205,7 @@ export function analyzeFundingNeeds(
     : 0;
 
   const totalRaiseRaw = Math.abs(peakCashDeficit) + OPERATING_RESERVE_BUFFER + COMPANY_FUNDING_BUFFER;
-  const totalRaiseNeeded = Math.ceil(totalRaiseRaw / 50000) * 50000;
+  const totalRaiseNeeded = Math.ceil(totalRaiseRaw / DEFAULT_FUNDING_ROUNDING_INCREMENT) * DEFAULT_FUNDING_ROUNDING_INCREMENT;
 
   const currentFunding = (global.safeTranche1Amount ?? 0) + (global.safeTranche2Amount ?? 0);
   const fundingGap = totalRaiseNeeded - currentFunding;
@@ -202,7 +218,7 @@ export function analyzeFundingNeeds(
     : 0;
 
   const treasury10y = getMarketRate(marketRates, 'treasury_10y');
-  const riskFreeRate = treasury10y !== null ? treasury10y / 100 : 0.04;
+  const riskFreeRate = treasury10y !== null ? treasury10y / 100 : DEFAULT_RISK_FREE_RATE_FALLBACK;
 
   const tranches = buildTranches(financials, totalRaiseNeeded, breakevenMonth, global, riskFreeRate, cashWithoutFunding);
 
@@ -287,23 +303,23 @@ function buildTranches(
     ? `, reflected in the ${hasValuationCap ? 'valuation cap' : ''}${hasValuationCap && hasDiscountRate ? ' and ' : ''}${hasDiscountRate ? 'discount rate' : ''}`
     : '';
 
-  if (periodLength <= 18 || totalRaise <= 400000) {
-    const tranche1Amount = Math.ceil(totalRaise / 50000) * 50000;
+  if (periodLength <= DEFAULT_SINGLE_TRANCHE_MAX_MONTHS || totalRaise <= DEFAULT_SINGLE_TRANCHE_MAX_RAISE) {
+    const tranche1Amount = Math.ceil(totalRaise / DEFAULT_FUNDING_ROUNDING_INCREMENT) * DEFAULT_FUNDING_ROUNDING_INCREMENT;
     return [{
       index: 1,
       amount: tranche1Amount,
       month: operationsStartIdx,
       date: financials[operationsStartIdx].date,
-      valuationCap: computeTrancheValuationCap(1 - EARLY_STAGE_CAP_DISCOUNT),
-      discountRate: computeTrancheDiscount(EARLY_STAGE_DISCOUNT_PREMIUM),
+      valuationCap: computeTrancheValuationCap(1 - DEFAULT_EARLY_STAGE_CAP_DISCOUNT),
+      discountRate: computeTrancheDiscount(DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM),
       rationale: `Single tranche at company launch to fund operations until the ${propertyLabel.toLowerCase()} portfolio generates sufficient fee revenue to cover corporate overhead. Pre-revenue ${fundingLabel} investment carries the highest risk${termsNote}.`,
     }];
   }
 
-  const midpoint = operationsStartIdx + Math.floor(periodLength * 0.45);
+  const midpoint = operationsStartIdx + Math.floor(periodLength * DEFAULT_TRANCHE1_PERIOD_RATIO);
   const lowestCashToMid = Math.min(...cashWithoutFunding.slice(operationsStartIdx, midpoint + 1));
-  const tranche1Raw = Math.abs(lowestCashToMid) * TRANCHE_BUFFER_MULTIPLIER + OPERATING_RESERVE_BUFFER;
-  const tranche1Amount = Math.ceil(Math.min(tranche1Raw, totalRaise * 0.65) / 50000) * 50000;
+  const tranche1Raw = Math.abs(lowestCashToMid) * DEFAULT_TRANCHE_BUFFER_MULTIPLIER + OPERATING_RESERVE_BUFFER;
+  const tranche1Amount = Math.ceil(Math.min(tranche1Raw, totalRaise * DEFAULT_TRANCHE1_MAX_ALLOCATION) / DEFAULT_FUNDING_ROUNDING_INCREMENT) * DEFAULT_FUNDING_ROUNDING_INCREMENT;
   const tranche2Amount = Math.max(0, totalRaise - tranche1Amount);
 
   const activeAtMid = countActiveProperties(financials, midpoint);
@@ -319,9 +335,9 @@ function buildTranches(
       amount: tranche1Amount,
       month: operationsStartIdx,
       date: financials[operationsStartIdx].date,
-      valuationCap: computeTrancheValuationCap(1 - EARLY_STAGE_CAP_DISCOUNT),
-      discountRate: computeTrancheDiscount(EARLY_STAGE_DISCOUNT_PREMIUM),
-      rationale: `Initial ${fundingLabel} to fund the first ${Math.ceil(periodLength * 0.45 / 12)} months of operations while the ${propertyLabel.toLowerCase()} portfolio is assembled. This pre-revenue capital covers partner compensation, staffing, and fixed overhead. Investor risk is highest at this stage — the management company has no fee revenue yet${termsNote}.`,
+      valuationCap: computeTrancheValuationCap(1 - DEFAULT_EARLY_STAGE_CAP_DISCOUNT),
+      discountRate: computeTrancheDiscount(DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM),
+      rationale: `Initial ${fundingLabel} to fund the first ${Math.ceil(periodLength * DEFAULT_TRANCHE1_PERIOD_RATIO / 12)} months of operations while the ${propertyLabel.toLowerCase()} portfolio is assembled. This pre-revenue capital covers partner compensation, staffing, and fixed overhead. Investor risk is highest at this stage — the management company has no fee revenue yet${termsNote}.`,
     },
     {
       index: 2,
@@ -334,9 +350,9 @@ function buildTranches(
     },
   ];
 
-  if (periodLength > 48 && tranche2Amount > 500000) {
-    const thirdPoint = operationsStartIdx + Math.floor(periodLength * 0.75);
-    const realloc2 = Math.ceil(tranche2Amount * 0.55 / 50000) * 50000;
+  if (periodLength > DEFAULT_TRANCHE_BIFURCATION_MONTHS && tranche2Amount > DEFAULT_THREE_TRANCHE_MIN_T2) {
+    const thirdPoint = operationsStartIdx + Math.floor(periodLength * DEFAULT_TRANCHE2_PERIOD_RATIO);
+    const realloc2 = Math.ceil(tranche2Amount * DEFAULT_TRANCHE2_ALLOCATION_PCT / DEFAULT_FUNDING_ROUNDING_INCREMENT) * DEFAULT_FUNDING_ROUNDING_INCREMENT;
     const realloc3 = Math.max(0, totalRaise - tranche1Amount - realloc2);
     const activeAtThird = countActiveProperties(financials, thirdPoint);
 
@@ -350,8 +366,8 @@ function buildTranches(
       amount: realloc3,
       month: thirdPoint,
       date: financials[thirdPoint].date,
-      valuationCap: hasValuationCap ? Math.round(baseValuationCap * 1.20) : null,
-      discountRate: hasDiscountRate ? Math.max(0.10, baseDiscount - EARLY_STAGE_DISCOUNT_PREMIUM) : null,
+      valuationCap: hasValuationCap ? Math.round(baseValuationCap * DEFAULT_VALUATION_CAP_UPLIFT) : null,
+      discountRate: hasDiscountRate ? Math.max(DEFAULT_MIN_DISCOUNT_RATE, baseDiscount - DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM) : null,
       rationale: `Final ${fundingLabel} tranche in the later growth phase.${activeAtThird > 0 ? ` The portfolio now includes ${activeAtThird} propert${activeAtThird === 1 ? 'y' : 'ies'} with established revenue history.` : ''}${t3TermsNote}`,
     });
   }

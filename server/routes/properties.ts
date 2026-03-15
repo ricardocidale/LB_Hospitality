@@ -120,7 +120,7 @@ export function register(app: Express) {
         propertyName: property.name,
         message: `New property added: ${property.name}`,
         link: `/property/${property.id}`,
-      })).catch((err) => console.error("Notification error:", err));
+      })).catch((err) => console.error("[ERROR] [properties] Notification error:", err?.message || err));
 
       res.status(201).json(property);
     } catch (error) {
@@ -149,7 +149,7 @@ export function register(app: Express) {
         if (property.maxOccupancy != null) metrics.occupancy = property.maxOccupancy;
         if (Object.keys(metrics).length > 0) {
           evaluateAlertRules(property, metrics).catch((err) =>
-            console.error("Alert evaluation error:", err)
+            console.error("[ERROR] [properties] Alert evaluation error:", err?.message || err)
           );
         }
       }

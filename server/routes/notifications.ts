@@ -3,6 +3,7 @@ import { requireAuth, requireAdmin } from "../auth";
 import { logAndSendError } from "./helpers";
 import { insertAlertRuleSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import { z } from "zod";
 import { storage } from "../storage";
 import { testResendConnection, sendReportShareEmail, sendScenarioSummaryEmail } from "../integrations/resend";
 
@@ -32,7 +33,11 @@ export function register(app: Express) {
 
   app.patch("/api/notifications/alert-rules/:id", requireAdmin, async (req, res) => {
     try {
-      const rule = await storage.updateAlertRule(Number(req.params.id), req.body);
+      const validation = insertAlertRuleSchema.partial().safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const rule = await storage.updateAlertRule(Number(req.params.id), validation.data);
       if (!rule) return res.status(404).json({ error: "Rule not found" });
       res.json(rule);
     } catch (error) {
@@ -76,7 +81,11 @@ export function register(app: Express) {
 
   app.put("/api/notifications/settings", requireAdmin, async (req, res) => {
     try {
-      const updates = req.body as Record<string, string | null>;
+      const validation = z.record(z.string(), z.string().nullable()).safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+      const updates = validation.data;
       for (const [key, value] of Object.entries(updates)) {
         await storage.setNotificationSetting(key, value);
       }
@@ -98,10 +107,15 @@ export function register(app: Express) {
 
   app.put("/api/notifications/preferences", requireAuth, async (req, res) => {
     try {
-      const { eventType, channel, enabled } = req.body;
-      if (!eventType || !channel) {
-        return res.status(400).json({ error: "eventType and channel required" });
+      const validation = z.object({
+        eventType: z.string().min(1),
+        channel: z.string().min(1),
+        enabled: z.boolean().optional().default(true),
+      }).safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { eventType, channel, enabled } = validation.data;
       await storage.upsertNotificationPreference(req.user!.id, eventType, channel, enabled);
       res.json({ success: true });
     } catch (error) {
@@ -122,10 +136,18 @@ export function register(app: Express) {
   // --- Share via Email ---
   app.post("/api/notifications/share-report", requireAuth, async (req, res) => {
     try {
-      const { to, propertyName, metrics, message, attachmentBase64, attachmentFilename } = req.body;
-      if (!to || !propertyName) {
-        return res.status(400).json({ error: "Recipient email and property name required" });
+      const validation = z.object({
+        to: z.string().email(),
+        propertyName: z.string().min(1),
+        metrics: z.record(z.string(), z.any()).optional(),
+        message: z.string().optional(),
+        attachmentBase64: z.string().optional(),
+        attachmentFilename: z.string().optional(),
+      }).safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { to, propertyName, metrics, message, attachmentBase64, attachmentFilename } = validation.data;
 
       await sendReportShareEmail({ to, propertyName, metrics: metrics || {}, message, attachmentBase64, attachmentFilename });
 
@@ -146,10 +168,15 @@ export function register(app: Express) {
 
   app.post("/api/notifications/share-scenarios", requireAuth, async (req, res) => {
     try {
-      const { to, scenarios, message } = req.body;
-      if (!to || !scenarios?.length) {
-        return res.status(400).json({ error: "Recipient email and scenarios required" });
+      const validation = z.object({
+        to: z.string().email(),
+        scenarios: z.array(z.any()).min(1),
+        message: z.string().optional(),
+      }).safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { to, scenarios, message } = validation.data;
 
       await sendScenarioSummaryEmail({ to, scenarios, message });
       res.json({ success: true });

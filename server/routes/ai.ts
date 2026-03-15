@@ -1,6 +1,7 @@
 import { type Express, type Request, type Response } from "express";
 import { getAnthropicClient, getGeminiClient } from "../ai/clients";
 import { requireAuth } from "../auth";
+import { aiRateLimit } from "../middleware/rate-limit";
 import { z } from "zod";
 
 const rewriteSchema = z.object({
@@ -11,7 +12,7 @@ const rewriteSchema = z.object({
 });
 
 export function register(app: Express) {
-  app.post("/api/ai/rewrite-description", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/ai/rewrite-description", requireAuth, aiRateLimit(10), async (req: Request, res: Response) => {
     try {
       const parsed = rewriteSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -57,7 +58,7 @@ Rewritten description:`;
     prompt: z.string().min(1).max(50000),
   });
 
-  app.post("/api/ai/optimize-prompt", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/ai/optimize-prompt", requireAuth, aiRateLimit(10), async (req: Request, res: Response) => {
     try {
       const parsed = optimizeSchema.safeParse(req.body);
       if (!parsed.success) {

@@ -388,7 +388,7 @@ export function register(app: Express) {
       res.write(`data: ${JSON.stringify({ type: "done", report, markdown })}\n\n`);
       res.end();
     } catch (error: any) {
-      console.error("ICP research generation error:", error);
+      console.error("[ERROR] [icp-research] ICP research generation error:", error?.message || error);
       res.write(`data: ${JSON.stringify({ type: "error", message: error.message || "Generation failed" })}\n\n`);
       res.end();
     }
@@ -679,7 +679,7 @@ export function register(app: Express) {
         res.send(buffer);
       }
     } catch (error: any) {
-      console.error("ICP research export error:", error);
+      console.error("[ERROR] [icp-research] ICP research export error:", error?.message || error);
       logAndSendError(res, "Failed to export ICP research", error);
     }
   });

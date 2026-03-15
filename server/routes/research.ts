@@ -223,12 +223,12 @@ export function register(app: Express) {
             propertyId,
             message: `${type === 'property' ? 'Property' : type === 'company' ? 'Company' : 'Global'} research generation complete`,
             link: propertyId ? `/property/${propertyId}/research` : undefined,
-          })).catch((err) => console.error("Notification error:", err));
+          })).catch((err) => console.error("[ERROR] [research] Notification error:", err?.message || err));
         }
       }
       res.end();
     } catch (error) {
-      console.error("Research generation error:", error);
+      console.error("[ERROR] [research] Research generation error:", error instanceof Error ? error.message : error);
       res.write(`data: ${JSON.stringify({ type: "error", message: "Generation failed" })}\n\n`);
       res.end();
     }

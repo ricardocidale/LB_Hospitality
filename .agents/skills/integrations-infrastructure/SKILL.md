@@ -175,7 +175,6 @@ See the `marcela-ai-system` skill for the full Marcela architecture.
 ### Graceful Degradation
 - If an AI provider is unavailable, the system should surface a clear error rather than silently falling back
 - Research generation retries with exponential backoff
-- Plaid sync failures are logged and surfaced in the UI
 
 ### Error Boundaries
 - Each integration file wraps API calls in try/catch
@@ -197,7 +196,6 @@ See the `marcela-ai-system` skill for the full Marcela architecture.
 | OpenAI | `server/ai/clients.ts` | `server/routes/ai.ts` | `AI_INTEGRATIONS_OPENAI_API_KEY` |
 | Gemini | `server/ai/clients.ts` | `server/routes/ai.ts` | `AI_INTEGRATIONS_GEMINI_API_KEY` |
 | ElevenLabs | `server/integrations/elevenlabs.ts` | `server/routes/admin/marcela.ts` | `ELEVENLABS_API_KEY` |
-| Plaid | `server/integrations/plaid.ts` | `server/routes/plaid.ts` | `PLAID_CLIENT_ID`, `PLAID_SECRET` |
 | Google Maps | `server/integrations/geospatial.ts` | `server/routes/geospatial.ts` | `GOOGLE_MAPS_API_KEY` |
 | Document AI | `server/integrations/document-ai.ts` | `server/routes/documents.ts` | Google Cloud credentials |
 | Twilio | `server/integrations/twilio.ts` | `server/routes/twilio.ts` | Replit Connector |

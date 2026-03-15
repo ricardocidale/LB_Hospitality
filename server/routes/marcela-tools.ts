@@ -97,7 +97,7 @@ export function register(app: Express) {
       });
       sendToolResponse(res, { properties: summary, count: summary.length });
     } catch (error: any) {
-      console.error("Marcela tool error (properties):", error);
+      console.error("[ERROR] [marcela-tools] Marcela tool error (properties):", error?.message || error);
       sendToolError(res, "Failed to fetch properties");
     }
   });
@@ -166,7 +166,7 @@ export function register(app: Express) {
         status: p.status,
       });
     } catch (error: any) {
-      console.error("Marcela tool error (property detail):", error);
+      console.error("[ERROR] [marcela-tools] Marcela tool error (property detail):", error?.message || error);
       sendToolError(res, "Failed to fetch property");
     }
   });
@@ -214,7 +214,7 @@ export function register(app: Express) {
         weightedAvgRevpar: avgRevpar,
       });
     } catch (error: any) {
-      console.error("Marcela tool error (portfolio summary):", error);
+      console.error("[ERROR] [marcela-tools] Marcela tool error (portfolio summary):", error?.message || error);
       sendToolError(res, "Failed to compute portfolio summary");
     }
   });
@@ -230,7 +230,7 @@ export function register(app: Express) {
       }));
       sendToolResponse(res, { scenarios: summary, count: summary.length });
     } catch (error: any) {
-      console.error("Marcela tool error (scenarios):", error);
+      console.error("[ERROR] [marcela-tools] Marcela tool error (scenarios):", error?.message || error);
       sendToolError(res, "Failed to fetch scenarios");
     }
   });
@@ -259,7 +259,7 @@ export function register(app: Express) {
         fundingInterestPaymentFrequency: ga.fundingInterestPaymentFrequency || "accrues_only",
       });
     } catch (error: any) {
-      console.error("Marcela tool error (global assumptions):", error);
+      console.error("[ERROR] [marcela-tools] Marcela tool error (global assumptions):", error?.message || error);
       sendToolError(res, "Failed to fetch global assumptions");
     }
   });

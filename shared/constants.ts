@@ -209,6 +209,28 @@ export const DEFAULT_PROJECTION_YEARS = 10;
 export const DEFAULT_SAFE_VALUATION_CAP = 2500000;
 // Discount rate: investors get this % discount to the next round's price (0 = not applicable)
 export const DEFAULT_SAFE_DISCOUNT_RATE = 0.20;
+// ─── Funding Predictor Algorithm Defaults ───
+// Used by the funding-predictor engine to compute raise amounts, tranche splits,
+// and SAFE/convertible-note terms. These are algorithm tuning parameters, not
+// user-facing assumptions.
+export const DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM = 0.05;
+export const DEFAULT_EARLY_STAGE_CAP_DISCOUNT = 0.20;
+export const DEFAULT_TRANCHE_BUFFER_MULTIPLIER = 1.15;
+export const DEFAULT_FUNDING_ROUNDING_INCREMENT = 50_000;
+export const DEFAULT_TRANCHE1_PERIOD_RATIO = 0.45;
+export const DEFAULT_TRANCHE1_MAX_ALLOCATION = 0.65;
+export const DEFAULT_TRANCHE_BIFURCATION_MONTHS = 48;
+export const DEFAULT_TRANCHE2_PERIOD_RATIO = 0.75;
+export const DEFAULT_TRANCHE2_ALLOCATION_PCT = 0.55;
+export const DEFAULT_VALUATION_CAP_UPLIFT = 1.20;
+export const DEFAULT_MIN_DISCOUNT_RATE = 0.10;
+export const DEFAULT_RISK_FREE_RATE_FALLBACK = 0.04;
+export const DEFAULT_SINGLE_TRANCHE_MAX_MONTHS = 18;
+export const DEFAULT_SINGLE_TRANCHE_MAX_RAISE = 400_000;
+export const DEFAULT_THREE_TRANCHE_MIN_T2 = 500_000;
+export const DEFAULT_TREASURY_HIGH_RATE_THRESHOLD = 4.5;
+export const DEFAULT_TREASURY_LOW_RATE_THRESHOLD = 3.0;
+
 // Funding interest rate: annual simple interest on outstanding principal (0 = no interest)
 export const DEFAULT_FUNDING_INTEREST_RATE = 0.08;
 // Funding interest payment frequency: "accrues_only" | "quarterly" | "annually"

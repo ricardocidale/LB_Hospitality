@@ -16,8 +16,8 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { CurrentThemeTab } from "@/components/ui/tabs";
-import { ExportMenu, pdfAction, csvAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
-import { exportTablePNG } from "@/lib/exports/pngExport";
+import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { exportTablePNG, captureChartAsImage } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { usePortfolioFinancials } from "@/components/dashboard";

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, RefObject } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { ChevronRight, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider, useCalcDetails } from "@/components/financial-table";
@@ -299,6 +299,9 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           global?.companyName || "Portfolio"
         );
         break;
+      case 'chart':
+        dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>);
+        break;
     }
   };
 
@@ -376,6 +379,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
               csvAction(() => handleExport('csv')),
               excelAction(() => handleExport('excel')),
               pptxAction(() => handleExport('pptx')),
+              chartAction(() => handleExport('chart')),
               pngAction(() => handleExport('png')),
             ]}
           />

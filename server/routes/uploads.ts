@@ -215,7 +215,7 @@ export function register(app: Express) {
 
           processed++;
         } catch (err) {
-          console.error(`Failed to process photo ${photo.id}:`, err);
+          console.error(`[ERROR] [uploads] Failed to process photo ${photo.id}:`, err instanceof Error ? err.message : err);
           failed++;
         }
       }

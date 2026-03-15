@@ -9,8 +9,10 @@ export function sendError(res: Response, status: number, message: string) {
 }
 
 /** Log an error to console and send a 500 JSON response. */
-export function logAndSendError(res: Response, message: string, error: unknown) {
-  console.error(message, error);
+export function logAndSendError(res: Response, message: string, error: unknown, domain?: string) {
+  const prefix = domain ? `[ERROR] [${domain}] ` : "";
+  const errMsg = error instanceof Error ? error.message : error;
+  console.error(`${prefix}${message}`, errMsg);
   return sendError(res, 500, message);
 }
 
@@ -60,7 +62,7 @@ export function logActivity(
     entityName: entityName ?? undefined,
     metadata: metadata ?? undefined,
     ipAddress,
-  }).catch(err => console.error("Activity log error:", err));
+  }).catch(err => console.error("[ERROR] [activity] Activity log error:", err?.message || err));
 }
 
 export const loginSchema = z.object({

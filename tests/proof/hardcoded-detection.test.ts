@@ -21,6 +21,7 @@ const FINANCE_ENGINE_FILES = [
   "client/src/lib/financial/equityCalculations.ts",
   "client/src/lib/financial/loanCalculations.ts",
   "client/src/lib/financial/cashFlowSections.ts",
+  "client/src/lib/financial/funding-predictor.ts",
   "client/src/lib/audits/crossCalculatorValidation.ts",
 ];
 

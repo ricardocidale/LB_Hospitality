@@ -8,8 +8,11 @@ import { DOCUMENT_TEMPLATES, renderTemplate } from "../document-ai/templates";
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
 import { randomUUID } from "crypto";
 import { z } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 const documentAIService = new DocumentAIService();
+
+const fieldStatusSchema = z.object({ status: z.enum(["approved", "rejected"]) });
 
 // Singleton — avoid creating a new instance per request
 const sharedObjectStorageService = new ObjectStorageService();
@@ -183,11 +186,11 @@ export function register(app: Express) {
   app.patch("/api/documents/fields/:fieldId/status", requireManagementAccess, async (req, res) => {
     try {
       const fieldId = parseInt(String(req.params.fieldId));
-      const { status } = req.body;
-
-      if (!["approved", "rejected"].includes(status)) {
-        return res.status(400).json({ error: "Status must be 'approved' or 'rejected'" });
+      const validation = fieldStatusSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { status } = validation.data;
 
       const updated = await storage.updateExtractionFieldStatus(fieldId, status);
 
@@ -233,11 +236,11 @@ export function register(app: Express) {
   app.post("/api/documents/fields/:extractionId/bulk-status", requireManagementAccess, async (req, res) => {
     try {
       const extractionId = parseInt(String(req.params.extractionId));
-      const { status } = req.body;
-
-      if (!["approved", "rejected"].includes(status)) {
-        return res.status(400).json({ error: "Status must be 'approved' or 'rejected'" });
+      const validation = fieldStatusSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
       }
+      const { status } = validation.data;
 
       if (status === "approved") {
         const fields = await storage.getExtractionFields(extractionId);

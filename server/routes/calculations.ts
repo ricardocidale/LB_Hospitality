@@ -151,7 +151,7 @@ export function register(app: Express) {
       if (!res.headersSent) {
         logAndSendError(res, "AI review failed", error);
       } else {
-        console.error("AI verification review error:", error);
+        console.error("[ERROR] [calculations] AI verification review error:", error?.message || error);
         res.end();
       }
     }

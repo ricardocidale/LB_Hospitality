@@ -1,6 +1,7 @@
 import { type Express, type Request, type Response } from "express";
 import { getGeminiClient } from "../ai/clients";
 import { requireAuth } from "../auth";
+import { aiRateLimit } from "../middleware/rate-limit";
 import { storage } from "../storage";
 import { buildPropertyContext } from "../ai/buildPropertyContext.js";
 import { z } from "zod";
@@ -39,7 +40,7 @@ Keep responses concise and professional. Use bullet points for lists. Format dol
 Do not make up data. Only reference what is provided in the context below.`;
 
 export function register(app: Express) {
-  app.post("/api/chat", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/chat", requireAuth, aiRateLimit(20), async (req: Request, res: Response) => {
     try {
       // Validate input with Zod
       const parsed = chatRequestSchema.safeParse(req.body);

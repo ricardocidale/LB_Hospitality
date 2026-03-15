@@ -181,7 +181,6 @@ export default function Settings() {
           <TabsContent value="company">
             <CompanyTab 
               {...commonProps}
-              setGlobalDraft={setGlobalDraft}
             />
           </TabsContent>
 

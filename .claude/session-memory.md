@@ -8,12 +8,20 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
-## Session: March 13, 2026 — Admin Architecture Review & Hardening (Phases 1-2C)
-- Phase 1 Safety: 7 Zod schemas for Marcela endpoints, 19 audit trail points via `logActivity()`, rate limiting on 3 expensive endpoints, `parseParamId()` helper
-- Phase 2A: Fixed NavigationTab cache invalidation bug, created `useUpdateAdminConfig()` for non-financial GA saves, switched 7 callers
-- Phase 2B: Centralized AI SDK singletons in `server/ai/clients.ts` — replaced 9 per-request instantiations across 7 files
-- Phase 2C: Added 3 shared hooks (`useAdminUserGroups`, `useAdminThemes`, `useAdminAssetDescriptions`) to `hooks.ts`, replaced ~20 inline useQuery blocks across 5 tabs (Groups, Companies, UserGroups, Users, People)
-- Tests 2,940→2,941 (127 files). 0 TS errors. UNQUALIFIED.
+## Session: March 15, 2026 — Documentation Update (Task #135)
+- Updated `claude.md` with current project state: 869 files, ~172,860 lines, 2,941 tests across 131 files
+- Skill router updated: UI (43), Finance (21), Research (21), Testing (8), 170 total skill files across 69 directories
+- Recent Changes section replaced with March 15 entries covering ~60 merged tasks since March 12
+- 6 new migrations added to migration list, Key Rules updated with Resend, ICP split, LLM dual-model, Norfolk AI
+
+## Sessions: March 13–15, 2026 — Major Feature & Polish Sprint (~60 tasks merged)
+- Fee category restructure (#108–#109), funding interest accrual (#116), login redesign + Google Sign-In (#63, #131)
+- ICP split into Profile + Research Center (#71), LLM dual-model architecture (#101), DocuSign/Slack removal (#133, #134)
+- Resend email replacement (#68), Excel 4-sheet standardization (#112), PDF export fixes (#117, #119)
+- Management Company rename (#120), company defaults (#118, #123, #124), sidebar cleanup (#130, #132)
+- Admin hardening phases 1–2C (March 13), UI polish: card widths, save buttons, tabs, tooltips (#45–#49, #107)
+- Norfolk AI theme (#84), DB integrity hardening (#80), deterministic calc optimization (#64)
+- Tests 2,941 (131 files). 0 TS errors. UNQUALIFIED.
 
 ## Session: March 12, 2026 — Infrastructure Contracts Optimization (12 Workstreams)
 - WS1-2: Sealed storage facade — ServiceStorage + NotificationStorage bound to IStorage, `patchGlobalAssumptions` added to FinancialStorage

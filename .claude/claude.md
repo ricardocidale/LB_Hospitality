@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~806 source files, ~145,995 lines, 2,941 tests across 127 files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~869 source files, ~172,860 lines, 2,941 tests across 131 files. Hosted on Replit.
 
 ---
 
@@ -34,7 +34,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Context Loading Protocol
 
-With 168 skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
+With 170 skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
 - **Financial calc** → specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual** → `component-library/SKILL.md` + `ui/theme-engine.md` + specific UI skill
 - **Testing** → `testing/SKILL.md` + relevant sub-skill only
@@ -52,7 +52,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
 | Proof System | `.claude/skills/proof-system/SKILL.md` | 2,941 tests, 500 golden tests, verification commands |
-| Testing (7 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
+| Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
 | Multi-Tenancy | `.claude/skills/multi-tenancy/SKILL.md` | Users, groups, logos, themes, branding resolution |
@@ -63,11 +63,11 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Admin (19 tabs) | `.claude/skills/admin/SKILL.md` | 19-tab shell pattern, extraction guide, API routes |
 | Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
-| Finance (17 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, etc. |
-| Research (17 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, etc. |
+| Finance (21 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, fee categories, funding interest, etc. |
+| Research (21 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, ICP profile, research center, etc. |
 | Chart Library | `.claude/skills/charts/SKILL.md` | 12 Recharts + 3 D3.js chart components |
 | Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, responsive helpers |
-| UI (28 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation, Magic UI effects |
+| UI (43 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation, Magic UI effects, consistent card widths, save button placement |
 | API Routes | `.claude/skills/architecture/api-routes.md` | All REST endpoints (load when writing API code) |
 | Constants Ref | `.claude/skills/finance/constants-and-config.md` | All named constants and protected fields |
 | Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |
@@ -77,7 +77,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (2,941 Tests, 127 Files)
+## Testing & Proof System (2,941 Tests, 131 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -87,20 +87,29 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 2,940) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 2,941) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
-## Recent Changes (March 12, 2026)
+## Recent Changes (March 15, 2026)
 
-- **Infrastructure Contracts Optimization** (12 workstreams) — Sealed IStorage facade (9→11 classes), unified SDK contracts (4→8 health-checked integrations via BaseIntegrationService), enforced 6-domain boundaries with proof tests, protected 36 deterministic tools with registry test, eliminated duplicate hooks, extracted hardcoded constants, fixed all TS errors.
-- **7-Dimension Codebase Audit** — UNQUALIFIED across all dimensions (Formula, Lineage, Assumptions, Workflow, Reporting, Code Quality, GAAP). Fixed 3 findings: hardcoded cap rate in document-ai templates, undocumented research benchmark, KB confidence threshold.
-- **Domain Boundary Rules** — 6 independent domains (Financial Engine, AI Agents, Photos/Media, Research, Documents, Notifications) with prohibited cross-imports enforced by `tests/proof/domain-boundaries.test.ts`.
-- **SDK Integration Health** — All 8 integrations report to `/api/admin/integrations/health`: Twilio, ElevenLabs, Gmail, Stripe (dormant), Plaid, SendGrid, Geospatial, Document AI.
-- **AI Property Image Generation** (Task #31) — Replicate architectural rendering for property photos.
-- **Plaid Financial Reconciliation** (Task #23) — Bank linking for actual vs projected comparison.
-- **3D Globe Flyover** (Task #38) — Interactive Three.js globe visualization.
-- **Document Intelligence** (Task #26) — OCR document extraction + DocuSign e-signatures.
+- **Fee Category Restructure** (Tasks #108–#109) — Restructured management fee categories and fee schedule UI.
+- **Funding Interest Rate & Accrual** (Task #116) — Interest accrual on funding balances shown on financial statements.
+- **Login Page Redesign + Google Sign-In** (Tasks #63, #131) — New premium login page with Google OAuth integration.
+- **ICP Split: Profile & Research Center** (Task #71) — Ideal Customer Profile split into separate Profile and Research Center pages.
+- **LLM Tab Dual-Model Architecture** (Task #101) — Vendor selection with dual-model config (primary + fallback) in Admin.
+- **DocuSign & Slack Integration Removal** (Tasks #133, #134) — Removed DocuSign and Slack integrations from codebase.
+- **Resend Email Replacement** (Task #68) — Resend replaces SendGrid for all transactional email.
+- **Excel Export Standardization** (Task #112) — All Excel exports use standardized 4-sheet workbook format.
+- **Premium PDF Export Fixes** (Tasks #117, #119) — Fixed PDF rendering and layout issues across export types.
+- **Management Company Rename** (Task #120) — "Management Company" label used consistently throughout UI.
+- **Company Defaults in General Settings** (Tasks #118, #123, #124) — Company-level defaults configurable in Admin General Settings.
+- **Sidebar & Navigation Cleanup** (Tasks #130, #132) — Streamlined sidebar navigation and removed unused routes.
+- **Admin Hardening Phases 1–2C** (Session March 13) — Zod validation on Marcela endpoints, audit trail logging, rate limiting, centralized AI SDK singletons, shared admin hooks.
+- **UI Polish** (Tasks #45–#49, #107) — Consistent card widths, save button placement, left-aligned tabs, tooltip standardization.
+- **Norfolk AI Theme** (Task #84) — Norfolk AI theme preset seeded into theme engine.
+- **Database Integrity Hardening** (Task #80) — Foreign key indexes, composite indexes, constraint enforcement.
+- **Performance: Deterministic Calculations** (Task #64) — Optimized calculation engine for deterministic paths.
 
 ---
 
@@ -117,6 +126,10 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 - **Brand colors**: SAGE=#9FBCA4, DARK_GREEN=#257D41, NAVY=#1A2332, SECTION_BG=#EFF5F0, ALT_ROW=#F8FAF9
 - **normalizeCaps() abbreviations**: GOP, NOI, AGOP, ANOI, GAAP, FFE, FF&E, DSCR, IRR, CFO, ADR, REVPAR, LTV, EBITDA, WACC
 - **Icon standard**: `IconPlay` for "Run Research", `IconEye` for "Criteria", `IconBanknote` for Reconciliation
+- **Resend replaces SendGrid** for all transactional email — `server/services/resend.ts`
+- **ICP = Profile + Research Center** — two separate pages, not one monolithic ICP page
+- **LLM dual-model config** — primary + fallback model with vendor selection (OpenAI, Anthropic, Gemini) in Admin LLM tab
+- **Norfolk AI theme** — additional theme preset alongside Tuscan Olive Grove
 
 ---
 
@@ -133,7 +146,7 @@ With 168 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Database Migration Pattern
 
-All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired into `server/index.ts` startup sequence before `seedAdminUser()`. Migration files: `prod-sync-001.ts`, `prod-sync-002.ts`, `research-config-001.ts`, `inflation-per-entity-001.ts`, `companies-theme-001.ts`, `icp-config-001.ts`, `marcela-voice-001.ts`, `property-photos-001.ts`, `plaid-001.ts`, `documents-001.ts`.
+All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired into `server/index.ts` startup sequence before `seedAdminUser()`. Migration files: `prod-sync-001.ts`, `prod-sync-002.ts`, `research-config-001.ts`, `inflation-per-entity-001.ts`, `companies-theme-001.ts`, `icp-config-001.ts`, `marcela-voice-001.ts`, `property-photos-001.ts`, `plaid-001.ts`, `documents-001.ts`, `funding-interest-001.ts`, `google-id-001.ts`, `composite-indexes-001.ts`, `auto-research-refresh-001.ts`, `notification-logs-001.ts`, `fk-indexes-001.ts`.
 
 ---
 

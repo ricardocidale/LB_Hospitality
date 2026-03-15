@@ -331,7 +331,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
 
   const handleSync = () => {
     syncMutation.mutate(undefined, {
-      onSuccess: (data: any) => {
+      onSuccess: (data: { message: string }) => {
         toast({ title: "Sync complete", description: data.message });
       },
       onError: (e: Error) => toast({ title: "Sync failed", description: e.message, variant: "destructive" }),
@@ -790,7 +790,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
                   {properties.length === 0 ? (
                     <tr><td colSpan={hasCategoryData ? allCatNames.length + 3 : 3} className="px-4 py-3 text-center text-muted-foreground">No properties configured</td></tr>
                   ) : (
-                    properties.map((prop: any) => {
+                    properties.map((prop) => {
                       const propCats = allFeeCategories.filter(c => c.propertyId === prop.id);
                       const propTotalServiceRate = propCats.filter(c => c.isActive).reduce((sum, c) => sum + c.rate, 0);
                       return (

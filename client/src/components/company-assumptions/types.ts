@@ -33,8 +33,15 @@ export interface CompanySetupSectionProps extends CompanyAssumptionsSectionProps
 
 export interface FundingSectionProps extends CompanyAssumptionsSectionProps {}
 
+export interface PortfolioPropertySummary {
+  id: number;
+  name: string;
+  baseManagementFeeRate?: number;
+  incentiveManagementFeeRate?: number;
+}
+
 export interface ManagementFeesSectionProps extends CompanyAssumptionsSectionProps {
-  properties: any[];
+  properties: PortfolioPropertySummary[];
   allFeeCategories: FeeCategoryResponse[];
 }
 

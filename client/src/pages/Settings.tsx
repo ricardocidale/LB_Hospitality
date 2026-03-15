@@ -16,7 +16,7 @@ import {
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { IconHotel, IconGlobe, IconSliders, IconBuilding } from "@/components/icons";
+import { IconHotel, IconGlobe, IconSliders } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveButton } from "@/components/ui/save-button";
 import { useState } from "react";
@@ -25,7 +25,6 @@ import {
   PortfolioTab, 
   MacroTab, 
   OtherTab,
-  CompanyTab,
 } from "@/components/settings";
 
 export default function Settings() {
@@ -169,7 +168,6 @@ export default function Settings() {
         <Tabs value={settingsTab} onValueChange={setSettingsTab} className="w-full">
           <CurrentThemeTab
             tabs={[
-              { value: 'company', label: 'Company', icon: IconBuilding },
               { value: 'portfolio', label: 'Property Defaults', icon: IconHotel },
               { value: 'macro', label: 'Macro', icon: IconGlobe },
               { value: 'other', label: 'Other', icon: IconSliders }
@@ -177,12 +175,6 @@ export default function Settings() {
             activeTab={settingsTab}
             onTabChange={setSettingsTab}
           />
-
-          <TabsContent value="company">
-            <CompanyTab 
-              {...commonProps}
-            />
-          </TabsContent>
 
           <TabsContent value="portfolio">
             <PortfolioTab {...commonProps} />

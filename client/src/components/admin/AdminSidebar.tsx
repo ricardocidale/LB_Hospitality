@@ -12,7 +12,7 @@ import { Link } from "wouter";
 
 export type AdminSection =
   | "users" | "activity"
-  | "branding" | "icp" | "revshare" | "otherassumptions"
+  | "icp"
   | "companies" | "groups"
   | "logos" | "themes"
   | "ai-agents"
@@ -34,17 +34,6 @@ interface NavGroup {
 }
 
 const navGroups: NavGroup[] = [
-  {
-    id: "brand",
-    label: "Brand",
-    icon: IconImage,
-    description: "Management company & services",
-    sections: [
-      { value: "branding", label: "Management Company", icon: IconImage },
-      { value: "revshare", label: "Revenue Streams", icon: IconTrending },
-      { value: "otherassumptions", label: "Other Assumptions", icon: IconSettingsGear },
-    ],
-  },
   {
     id: "business",
     label: "Business",
@@ -105,7 +94,7 @@ function getGroupForSection(section: AdminSection): string {
   for (const group of navGroups) {
     if (group.sections.some((s) => s.value === section)) return group.id;
   }
-  return "brand";
+  return "business";
 }
 
 interface AdminSidebarProps {

@@ -1,9 +1,10 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
-import { IconPhone, IconGlobe, IconHash, IconCalendar, IconProperties, IconMail, IconMapPin } from "@/components/icons";
+import { IconPhone, IconGlobe, IconHash, IconCalendar, IconProperties, IconMail, IconMapPin, IconPercent } from "@/components/icons";
 import defaultLogo from "@/assets/logo.png";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { useGeoSelect, GEO_CLEAR_VALUE } from "@/hooks/use-geo";
@@ -34,7 +35,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
           <div className="flex flex-col gap-2">
             <Label className="flex items-center text-foreground label-text">
               Company Logo
-              <InfoTooltip text="The company logo displayed in the navigation. Managed in Admin Settings > Branding." />
+              <InfoTooltip text="The company logo displayed in the navigation. Upload logos via Admin > Logos." />
             </Label>
             <LogoSelector
               label=""
@@ -92,6 +93,45 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
             />
           </div>
         </div>
+
+        <Card className="bg-card border border-border/80 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+              <IconPercent className="w-4 h-4 text-muted-foreground" /> Company Inflation
+            </CardTitle>
+            <CardDescription className="label-text">Specific inflation rate for management company overhead calculations</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="max-w-md space-y-2">
+              <div className="flex justify-between items-center">
+                <Label className="text-foreground label-text flex items-center gap-1">
+                  Company Inflation Rate
+                  <InfoTooltip text="Overrides the global inflation rate for management company overhead cost escalation. If left empty, falls back to the global inflation rate. Three-tier cascade: property → company → global." />
+                </Label>
+                <span className="text-sm font-mono text-primary">
+                  {(formData.companyInflationRate ?? global.companyInflationRate) != null
+                    ? `${(((formData.companyInflationRate ?? global.companyInflationRate) as number) * 100).toFixed(1)}%`
+                    : "Default (Global)"}
+                </span>
+              </div>
+              <Slider
+                value={[((formData.companyInflationRate ?? global.companyInflationRate ?? 0.03) as number) * 100]}
+                onValueChange={([v]) => onChange("companyInflationRate", v / 100)}
+                min={0}
+                max={10}
+                step={0.1}
+                data-testid="slider-company-inflation"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>0%</span>
+                <span>10%</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Falls back to global inflation if not set. Used for escalating management company overhead costs annually.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="space-y-6">

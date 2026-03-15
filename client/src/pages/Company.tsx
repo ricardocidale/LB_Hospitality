@@ -16,8 +16,8 @@
  * analyzeCompanyCashPosition() surfaces any funding shortfall as a warning.
  *
  * Service templates: if centralized-services templates are configured in the
- * Admin > Services tab, they are passed to the engine to compute vendor cost-
- * of-services and gross profit before G&A.
+ * Company Assumptions > Service Categories section, they are passed to the engine
+ * to compute vendor cost-of-services and gross profit before G&A.
  *
  * IRR / equity calculations use shared helpers from equityCalculations.ts.
  * All statement data is pre-generated in lib/company-data.ts to keep this

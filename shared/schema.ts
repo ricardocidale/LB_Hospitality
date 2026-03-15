@@ -973,7 +973,7 @@ export type UpdateProperty = z.infer<typeof updatePropertySchema>;
 // cost-plus markup percentage. These templates are the source of truth for:
 //   1. Seeding new property_fee_categories when a property is created
 //   2. Determining the company's cost-of-service in generateCompanyProForma()
-// Admin can add/remove categories from the Admin > Centralized Services tab.
+// Categories are managed from the Company Assumptions > Service Categories section.
 export const companyServiceTemplates = pgTable("company_service_templates", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: text("name").notNull(),

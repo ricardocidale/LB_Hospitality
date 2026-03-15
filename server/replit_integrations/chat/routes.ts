@@ -90,7 +90,7 @@ The user is working in a financial simulation portal with these main areas:
 14. Property CRUD — Adding/editing/deleting properties
 15. Testing Methodology — 7-phase verification workflow
 
-**Administration** — Admin-only page with tabs: Users, Companies, Activity, Verification, User Groups, Logos, Branding, Themes, Navigation, Database. Admins can manage users, assign roles, create user groups with company branding, and run financial verification.
+**Administration** — Admin-only page with sections: Users, Companies, Activity, Verification, User Groups, Logos, Themes, Navigation, Database, ICP Management Co, Research Center, AI Agents, Integrations, Diagrams, Notifications. Admins can manage users, assign roles, create user groups with group-level branding, and run financial verification. Company-level settings (branding, revenue streams, inflation) are managed on the Company Assumptions page.
 
 **User Roles:**
 - **Admin** — Full access to all features including Administration

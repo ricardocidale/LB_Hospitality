@@ -37,7 +37,7 @@ Variants stored in `property_photos.variants` JSONB column. Originals preserved.
 | Full project instructions | `.claude/claude.md` |
 | Architecture & tech stack | `.claude/claude.md` § Tech Stack |
 | Financial engine rules | `.claude/rules/financial-engine.md` |
-| Admin page (18 sections) | `.claude/skills/admin/SKILL.md` |
+| Admin page (15 sections) | `.claude/skills/admin/SKILL.md` |
 | AI assistant (Marcela) | `.claude/skills/marcela-ai/SKILL.md` |
 | ElevenLabs architecture | `.claude/skills/codebase-architecture/SKILL.md` |
 | Twilio telephony | `.claude/skills/twilio-telephony/` |
@@ -60,14 +60,18 @@ Variants stored in `property_photos.variants` JSONB column. Originals preserved.
 Three-tier cascade: `property.inflationRate → companyInflationRate → global.inflationRate`. The `DEFAULT_INFLATION_RATE` constant in `shared/constants.ts` is the single source of truth (0.03). Per-property and per-company rates are nullable; null means use the next level up in the cascade.
 
 ## Admin Sidebar Structure
-Six groups + Logs + Help (18 sections total):
-- **Brand**: Management Company, Revenue Streams, Other Assumptions
+Five groups + Logs + Help (15 sections total):
 - **Business**: Users (3 sub-tabs), Companies, Groups
 - **Research**: ICP Management Co, Research Center
 - **Design**: Logos, Themes
 - **AI Agents**: AI Agents (9 sub-tabs: Marcela/Voice, Rebecca/Text, Knowledge Base, Twilio, etc.)
 - **System**: Notifications, Navigation, Diagrams, Verification, Database, Integrations
 - **Logs**: Activity (Login Log, Activity Feed, Checker Activity)
+
+## Settings Architecture
+- **Company Assumptions** (`/company/assumptions`): Single source of truth for company config — identity, contact, inflation, funding, service categories & fees, compensation, overhead, costs, tax, exit, property expense rates, partner comp
+- **General Settings** (`/settings`): Property Defaults, Macro, Other tabs
+- **Admin** (`/admin`): System-only config (users, groups, logos, themes, navigation, etc.)
 
 ## Property Description & Photos
 Properties have optional `description` (AI-polished via Gemini) and photo album (`property_photos` table: hero + gallery). Sharp pipeline generates WebP/AVIF variants (thumb/card/hero/full). Frontend uses `<picture>` with srcset.

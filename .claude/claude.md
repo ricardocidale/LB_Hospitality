@@ -60,7 +60,7 @@ With 170 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
 | Codebase Arch | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, UI component catalog (80+), ElevenLabs architecture |
 | Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel hooks, styles, tooltip patterns |
-| Admin (18 sections) | `.claude/skills/admin/SKILL.md` | 18-section shell pattern, extraction guide, API routes |
+| Admin (15 sections) | `.claude/skills/admin/SKILL.md` | 15-section shell pattern, extraction guide, API routes |
 | Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
 | Finance (21 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, fee categories, funding interest, etc. |

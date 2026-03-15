@@ -8,10 +8,7 @@ import {
   DatabaseTab,
 } from "@/components/admin";
 import PeopleTab from "@/components/admin/PeopleTab";
-import BrandingTab from "@/components/admin/BrandingTab";
 import { IcpContent } from "@/pages/Icp";
-import RevenueShareTab from "@/components/admin/RevenueShareTab";
-import OtherAssumptionsTab from "@/components/admin/OtherAssumptionsTab";
 import GroupsTab from "@/components/admin/GroupsTab";
 import LogosTab from "@/components/admin/LogosTab";
 import ThemesTab from "@/components/admin/ThemesTab";
@@ -34,10 +31,7 @@ export type { AdminSaveState };
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   users:            { title: "Users",                subtitle: "Manage user accounts and assignments" },
   activity:         { title: "Activity",             subtitle: "Login logs, audit trail, and session monitoring" },
-  branding:         { title: "Hospitality Management Company",   subtitle: "Identity and contact information" },
   icp:              { title: "Ideal Customer Profile", subtitle: "Define the target property type for AI research" },
-  revshare:         { title: "Revenue Streams",       subtitle: "Service categories, fee defaults, and incentive fees" },
-  otherassumptions: { title: "Other Assumptions",    subtitle: "Company-specific inflation and financial defaults" },
   companies:        { title: "Companies",            subtitle: "Manage companies of interest" },
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
@@ -56,14 +50,11 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
   switch (section) {
     case "users":            return <PeopleTab />;
     case "activity":         return <ActivityTab />;
-    case "branding":         return <BrandingTab />;
     case "icp":              return (
       <SelfHealingBoundary>
         <IcpContent onSaveStateChange={onSaveStateChange} />
       </SelfHealingBoundary>
     );
-    case "revshare":         return <RevenueShareTab />;
-    case "otherassumptions": return <OtherAssumptionsTab onSaveStateChange={onSaveStateChange} />;
     case "companies":        return <CompaniesTab />;
     case "groups":           return <GroupsTab />;
     case "logos":            return <LogosTab />;
@@ -122,13 +113,6 @@ export default function Admin() {
                   onClick={saveState.onSave}
                   hasChanges={saveState.isDirty}
                   isPending={saveState.isPending}
-                  size="sm"
-                  data-testid="button-admin-save"
-                />
-              ) : activeSection === "branding" ? (
-                <SaveButton
-                  hasChanges={false}
-                  isPending={false}
                   size="sm"
                   data-testid="button-admin-save"
                 />

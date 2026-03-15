@@ -131,12 +131,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Sequential: prod-sync-001 must run before 002
-  const { runProdSync001 } = await import("./migrations/prod-sync-001");
-  await runProdSync001();
-  const { runProdSync002 } = await import("./migrations/prod-sync-002");
-  await runProdSync002();
-
   // Independent schema migrations — run in parallel for faster startup
   const [
     { runMigration: runResearchConfig001 },

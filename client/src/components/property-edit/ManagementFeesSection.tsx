@@ -41,8 +41,9 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
 
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <Label className="text-sm font-semibold text-foreground label-text">
-              Service Fee Categories (% of Total Revenue)
+            <Label className="text-sm font-semibold text-foreground label-text flex items-center">
+              Service Fee Categories
+              <InfoTooltip text="Each category is calculated as a percentage of total revenue." />
             </Label>
             <span className={`text-sm font-mono font-semibold ${totalServiceFeeRate > 0.10 ? 'text-amber-600' : 'text-foreground'}`} data-testid="text-total-service-fee">
               Total: {(totalServiceFeeRate * 100).toFixed(1)}%
@@ -109,8 +110,8 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
               <div className="flex justify-between items-center">
                 <div className="flex flex-col gap-0.5">
                   <Label className="flex items-center label-text text-foreground gap-1.5">
-                    Incentive Fee (% of GOP)
-                    <InfoTooltip text="Incentive Management Fee = max(0, GOP) × this rate. Only charged when Gross Operating Profit is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
+                    Incentive Fee
+                    <InfoTooltip text="Calculated as a percentage of Gross Operating Profit (GOP). Incentive Management Fee = max(0, GOP) × this rate. Only charged when GOP is positive, rewarding the management company for strong performance. Industry standard: 10–20% of GOP." />
                   </Label>
                   <ResearchBadge entry={researchValues.incentiveFee} onClick={() => researchValues.incentiveFee && onChange("incentiveManagementFeeRate", researchValues.incentiveFee.mid / 100)} />
                 </div>

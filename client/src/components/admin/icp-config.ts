@@ -741,7 +741,7 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
     fields: [
       { key: "roomsMin", label: "Rooms", type: "number", pair: "roomsMax", pairLabel: "to", defaultPriority: "must", help: "Total number of bookable guest rooms and suites. Range reflects minimum acceptable to maximum manageable inventory." },
       { key: "roomsSweetSpotMin", label: "Sweet spot", type: "number", pair: "roomsSweetSpotMax", pairLabel: "to", defaultPriority: "must", help: "Ideal room count for optimal operations — small enough for boutique feel, large enough for financial viability." },
-      { key: "masterSuitesMin", label: "Master suites (min)", type: "number", defaultPriority: "must", help: "Large premium suites with separate living areas, walk-in closets, and luxury en-suite bathrooms." },
+      { key: "masterSuitesMin", label: "Master suites", type: "number", defaultPriority: "must", help: "Minimum count. Large premium suites with separate living areas, walk-in closets, and luxury en-suite bathrooms." },
       { key: "masterSuiteSqFt", label: "Master suite size", type: "number", unitType: "area", defaultPriority: "must", help: "Minimum floor area per master suite including bedroom, sitting area, and en-suite bathroom." },
     ],
   },
@@ -751,7 +751,7 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
       { key: "bedroomsMin", label: "Bedrooms", type: "number", pair: "bedroomsMax", pairLabel: "to", defaultPriority: "must", help: "Total bedrooms across the property including guest rooms, owner/staff quarters, and auxiliary spaces." },
       { key: "bathroomsMin", label: "Bathrooms", type: "number", pair: "bathroomsMax", pairLabel: "to", defaultPriority: "must", help: "Full bathrooms (toilet, sink, shower/tub). Target at least 1:1 ratio with bedrooms." },
       { key: "halfBaths", label: "Half-baths", type: "number", defaultPriority: "nice", help: "Powder rooms in public and common areas (toilet and sink only). Reduces guest traffic through private wings." },
-      { key: "livingAreas", label: "Living/lounge areas (min)", type: "number", defaultPriority: "must", help: "Distinct living rooms, lounges, or sitting areas available for guest use. Multiple areas allow programming variety." },
+      { key: "livingAreas", label: "Living/lounge areas", type: "number", defaultPriority: "must", help: "Minimum count. Distinct living rooms, lounges, or sitting areas available for guest use. Multiple areas allow programming variety." },
       { key: "diningCapacityMin", label: "Dining capacity", type: "number", pair: "diningCapacityMax", pairLabel: "to", suffix: "guests", defaultPriority: "must", help: "Number of guests the main dining area can seat for a formal meal service." },
     ],
   },
@@ -773,14 +773,14 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
   {
     title: "Food & Beverage",
     fields: [
-      { key: "fbRating", label: "F&B Rating (1–5)", type: "number", defaultPriority: "must", help: "Overall F&B operation rating on a 1–5 scale. 1 = continental breakfast only, 2 = limited F&B, 3 = full breakfast + light dinner, 4 = full-service restaurant + bar, 5 = destination dining with celebrity chef and extensive wine program." },
+      { key: "fbRating", label: "F&B Rating", type: "number", defaultPriority: "must", help: "Rated on a 1–5 scale. 1 = continental breakfast only, 2 = limited F&B, 3 = full breakfast + light dinner, 4 = full-service restaurant + bar, 5 = destination dining with celebrity chef and extensive wine program." },
     ],
   },
   {
     title: "Operational Facilities",
     fields: [
-      { key: "kitchenSqFt", label: "Kitchen (min)", type: "number", unitType: "area", defaultPriority: "must", help: "Commercial or semi-commercial kitchen with hood ventilation, grease trap, walk-in cooler/freezer, prep and dish areas." },
-      { key: "maintenanceSqFt", label: "Maintenance/storage (min)", type: "number", unitType: "area", defaultPriority: "must", help: "Workshop and general storage for maintenance equipment, supplies, and seasonal items." },
+      { key: "kitchenSqFt", label: "Kitchen", type: "number", unitType: "area", defaultPriority: "must", help: "Minimum area. Commercial or semi-commercial kitchen with hood ventilation, grease trap, walk-in cooler/freezer, prep and dish areas." },
+      { key: "maintenanceSqFt", label: "Maintenance/storage", type: "number", unitType: "area", defaultPriority: "must", help: "Minimum area. Workshop and general storage for maintenance equipment, supplies, and seasonal items." },
       { key: "staffQuartersMin", label: "Staff quarters capacity", type: "number", pair: "staffQuartersMax", pairLabel: "to", suffix: "staff", defaultPriority: "must", help: "On-site break room or quarters capacity for key operational staff during shifts." },
       { key: "staffHousingUnits", label: "Staff housing units", type: "number", defaultPriority: "nice", help: "Separate residential units for live-in staff (manager, chef, groundskeeper). Critical for rural locations." },
     ],
@@ -789,7 +789,7 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
     title: "Aquatic & Wellness",
     fields: [
       { key: "pool", label: "Swimming pool", type: "priority", help: "Primary swimming pool for guest use. Heated pools extend seasonal availability." },
-      { key: "poolSqFt", label: "Pool area (min)", type: "number", unitType: "area", linkedPriority: "pool", help: "Minimum surface area of the main pool deck and water area combined." },
+      { key: "poolSqFt", label: "Pool area", type: "number", unitType: "area", linkedPriority: "pool", help: "Minimum surface area of the main pool deck and water area combined." },
       { key: "secondPool", label: "Second pool / plunge", type: "priority", help: "Additional pool, plunge pool, or children's pool. Adds programming flexibility." },
       { key: "hotTub", label: "Hot tub / jacuzzi", type: "priority", help: "Outdoor or indoor hot tub for guest relaxation. Often paired with pool." },
       { key: "spa", label: "Spa facility", type: "priority", help: "Dedicated spa with treatment rooms, relaxation areas. Major ancillary revenue driver." },
@@ -806,9 +806,9 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
       { key: "gym", label: "Gym / fitness center", type: "priority", help: "On-site fitness facility with cardio and strength equipment. Guest expectation at luxury properties." },
       { key: "gymSqFtMin", label: "Gym area", type: "number", pair: "gymSqFtMax", pairLabel: "to", unitType: "area", linkedPriority: "gym", help: "Floor area for fitness equipment, free weights, and stretching space." },
       { key: "tennis", label: "Tennis court", type: "priority", help: "Regulation or half-size tennis court. Hard court, clay, or grass surface." },
-      { key: "tennisCourts", label: "Tennis courts (qty)", type: "number", linkedPriority: "tennis", help: "Number of tennis courts. One court is typical for boutique properties." },
+      { key: "tennisCourts", label: "Tennis courts", type: "number", linkedPriority: "tennis", help: "Quantity of tennis courts. One court is typical for boutique properties." },
       { key: "pickleball", label: "Pickleball court", type: "priority", help: "Fastest-growing racket sport. Can share space with tennis courts or be standalone." },
-      { key: "pickleballCourts", label: "Pickleball courts (qty)", type: "number", linkedPriority: "pickleball", help: "Number of dedicated pickleball courts. Increasingly requested by guests." },
+      { key: "pickleballCourts", label: "Pickleball courts", type: "number", linkedPriority: "pickleball", help: "Quantity of dedicated pickleball courts. Increasingly requested by guests." },
       { key: "basketball", label: "Basketball half-court", type: "priority", help: "Half-court basketball area for recreation. Can double as multi-sport surface." },
       { key: "hikingTrails", label: "Hiking / walking trails", type: "priority", help: "On-property trails through natural areas, gardens, or meadows. Enhances the estate experience." },
     ],
@@ -827,8 +827,8 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
     title: "Outbuildings & Structures",
     fields: [
       { key: "casitas", label: "Casitas / cottages", type: "priority", help: "Detached guest accommodations with private entrances. Premium ADR potential." },
-      { key: "casitasCount", label: "Casitas (qty)", type: "number", linkedPriority: "casitas", help: "Number of individual casitas, cottages, or cabins on property." },
-      { key: "barn", label: "Barn (events/dining)", type: "priority", help: "Restored barn for events, private dining, or entertainment. Rustic luxury appeal." },
+      { key: "casitasCount", label: "Casitas", type: "number", linkedPriority: "casitas", help: "Quantity of individual casitas, cottages, or cabins on property." },
+      { key: "barn", label: "Barn", type: "priority", help: "Used for events and dining. Restored barn for events, private dining, or entertainment. Rustic luxury appeal." },
       { key: "glamping", label: "Glamping / A-frames", type: "priority", help: "Luxury camping structures: safari tents, A-frame cabins, treehouses. Unique inventory." },
       { key: "greenhouse", label: "Greenhouse", type: "priority", help: "Greenhouse or conservatory for growing, events, or dining. Year-round use." },
       { key: "chapel", label: "Chapel / ceremony structure", type: "priority", help: "Dedicated ceremony space for weddings, vow renewals, and spiritual events." },
@@ -843,7 +843,7 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
   {
     title: "Condition Thresholds",
     fields: [
-      { key: "maxRoofAge", label: "Max roof age", type: "number", suffix: "years", defaultPriority: "must", help: "Maximum acceptable age of the roofing system. Older roofs require costly replacement ($50K–$200K+)." },
+      { key: "maxRoofAge", label: "Max roof age", type: "number", suffix: "years", defaultPriority: "must", help: "Maximum acceptable roof age in years. Older roofs require costly replacement ($50K–$200K+)." },
       { key: "minElectricalAmps", label: "Min electrical service", type: "number", suffix: "amps", defaultPriority: "must", help: "Minimum electrical panel amperage. Commercial kitchens and HVAC require 200+ amps." },
       { key: "maxRenovationBudget", label: "Max renovation budget", type: "currency", defaultPriority: "must", help: "Hard cap on total renovation and conversion costs. Properties exceeding this are excluded." },
     ],
@@ -899,9 +899,9 @@ export const PARAMETER_SECTIONS: ParameterSection[] = [
     title: "Fee Structure & Returns",
     fields: [
       { key: "baseMgmtFeeMin", label: "Base management fee", type: "number", suffix: "%", pair: "baseMgmtFeeMax", pairLabel: "to", defaultPriority: "must", help: "Management fee as % of total revenue. Industry range: 3%–12% depending on services." },
-      { key: "incentiveFeeMin", label: "Incentive fee (GOP)", type: "number", suffix: "%", pair: "incentiveFeeMax", pairLabel: "to", defaultPriority: "must", help: "Incentive fee as % of Gross Operating Profit. Aligns manager and owner interests." },
+      { key: "incentiveFeeMin", label: "Incentive fee", type: "number", suffix: "%", pair: "incentiveFeeMax", pairLabel: "to", defaultPriority: "must", help: "Based on Gross Operating Profit (GOP). Incentive fee as % of GOP. Aligns manager and owner interests." },
       { key: "exitCapRateMin", label: "Exit cap rate", type: "number", suffix: "%", pair: "exitCapRateMax", pairLabel: "to", defaultPriority: "must", help: "Capitalization rate assumed at disposition. Lower cap rate = higher property value." },
-      { key: "targetIrr", label: "Target IRR (min)", type: "number", suffix: "%", defaultPriority: "must", help: "Minimum Internal Rate of Return required for the investment to meet hurdle rate." },
+      { key: "targetIrr", label: "Target IRR", type: "number", suffix: "%", defaultPriority: "must", help: "Minimum threshold. Minimum Internal Rate of Return required for the investment to meet hurdle rate." },
       { key: "equityMultipleMin", label: "Equity multiple", type: "number", suffix: "x", pair: "equityMultipleMax", pairLabel: "to", defaultPriority: "must", help: "Total return on invested equity. 2.0x means investors double their money." },
       { key: "holdYearsMin", label: "Hold period", type: "number", suffix: "years", pair: "holdYearsMax", pairLabel: "to", defaultPriority: "must", help: "Planned investment hold period from acquisition to disposition." },
     ],

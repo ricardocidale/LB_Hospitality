@@ -6,6 +6,7 @@ export interface SensitivityVariable {
   range: [number, number];
   defaultValue: number;
   description: string;
+  tooltip?: string;
 }
 
 export interface ScenarioResult {

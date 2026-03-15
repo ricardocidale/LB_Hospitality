@@ -24,6 +24,7 @@ import {
   IconSave, IconHistory, IconTarget, IconSparkles, IconFileText,
   IconEye, IconRefreshCw, IconZap, IconSettings,
 } from "@/components/icons";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Loader2 } from "lucide-react";
 import {
   type IcpConfig, type IcpDescriptive, type IcpLocation, type Priority,
@@ -49,6 +50,7 @@ interface QField {
   label: string;
   suffix?: string;
   pairKey?: keyof IcpConfig;
+  tooltip?: string;
 }
 
 interface QGroup {
@@ -66,10 +68,10 @@ const QUANT_GROUPS: QGroup[] = [
     title: "Physical",
     summary: (c) => `${c.roomsMin}-${c.roomsMax} rooms, ${c.landAcresMin}-${c.landAcresMax} acres`,
     fields: [
-      { key: "roomsMin", label: "Rooms (min)", pairKey: "roomsMax" },
-      { key: "roomsSweetSpotMin", label: "Sweet spot (min)", pairKey: "roomsSweetSpotMax" },
-      { key: "landAcresMin", label: "Land acres (min)", pairKey: "landAcresMax", suffix: "acres" },
-      { key: "builtSqFtMin", label: "Built area (min)", pairKey: "builtSqFtMax", suffix: "sq ft" },
+      { key: "roomsMin", label: "Rooms", pairKey: "roomsMax", tooltip: "Minimum number of rooms" },
+      { key: "roomsSweetSpotMin", label: "Sweet spot", pairKey: "roomsSweetSpotMax", tooltip: "Minimum sweet spot value" },
+      { key: "landAcresMin", label: "Land acres", pairKey: "landAcresMax", suffix: "acres", tooltip: "Minimum land area" },
+      { key: "builtSqFtMin", label: "Built area", pairKey: "builtSqFtMax", suffix: "sq ft", tooltip: "Minimum built area" },
     ],
   },
   {
@@ -77,11 +79,11 @@ const QUANT_GROUPS: QGroup[] = [
     title: "Financial",
     summary: (c) => `${fmt$(c.acquisitionMin)}-${fmt$(c.acquisitionMax)}, ${c.targetIrr}%+ IRR`,
     fields: [
-      { key: "acquisitionMin", label: "Acquisition (min)", pairKey: "acquisitionMax", suffix: "$" },
-      { key: "adrMin", label: "ADR (min)", pairKey: "adrMax", suffix: "$/night" },
+      { key: "acquisitionMin", label: "Acquisition", pairKey: "acquisitionMax", suffix: "$", tooltip: "Minimum acquisition price" },
+      { key: "adrMin", label: "ADR", pairKey: "adrMax", suffix: "$/night", tooltip: "Minimum average daily rate" },
       { key: "targetIrr", label: "Target IRR", suffix: "%" },
-      { key: "exitCapRateMin", label: "Exit cap rate (min)", pairKey: "exitCapRateMax", suffix: "%" },
-      { key: "equityMultipleMin", label: "Equity multiple (min)", pairKey: "equityMultipleMax", suffix: "x" },
+      { key: "exitCapRateMin", label: "Exit cap rate", pairKey: "exitCapRateMax", suffix: "%", tooltip: "Minimum exit cap rate" },
+      { key: "equityMultipleMin", label: "Equity multiple", pairKey: "equityMultipleMax", suffix: "x", tooltip: "Minimum equity multiple" },
     ],
   },
   {
@@ -94,8 +96,8 @@ const QUANT_GROUPS: QGroup[] = [
     },
     fields: [
       { key: "spaTreatmentRooms", label: "Spa treatment rooms" },
-      { key: "parkingMin", label: "Parking (min)", pairKey: "parkingMax" },
-      { key: "diningCapacityMin", label: "Dining capacity (min)", pairKey: "diningCapacityMax" },
+      { key: "parkingMin", label: "Parking", pairKey: "parkingMax", tooltip: "Minimum parking spaces" },
+      { key: "diningCapacityMin", label: "Dining capacity", pairKey: "diningCapacityMax", tooltip: "Minimum dining capacity" },
     ],
   },
   {
@@ -412,8 +414,9 @@ export default function IcpStudio() {
                             <div className="space-y-3 pt-1">
                               {group.fields.map((field) => (
                                 <div key={field.key} className="space-y-1">
-                                  <Label className="text-xs text-muted-foreground">
+                                  <Label className="text-xs text-muted-foreground flex items-center">
                                     {field.label}
+                                    {field.tooltip && <InfoTooltip text={field.tooltip} />}
                                     {field.suffix && (
                                       <span className="text-[10px] ml-1 text-muted-foreground/60">({field.suffix})</span>
                                     )}

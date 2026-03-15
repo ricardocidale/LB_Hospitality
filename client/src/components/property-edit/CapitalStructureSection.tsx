@@ -55,7 +55,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
           <div className="space-y-1.5">
-            <Label className="label-text text-foreground flex items-center gap-1.5">Purchase Price ($)<InfoTooltip text="Total acquisition cost of the property. This is the basis for equity investment, loan sizing, and depreciation calculations." /><GaapBadge rule="ASC 805: Acquisition cost is the fair value of the total consideration transferred. Includes the purchase price of the asset. The depreciable basis excludes the land allocation." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Purchase Price<InfoTooltip text="Total acquisition cost of the property in dollars. This is the basis for equity investment, loan sizing, and depreciation calculations." /><GaapBadge rule="ASC 805: Acquisition cost is the fair value of the total consideration transferred. Includes the purchase price of the asset. The depreciable basis excludes the land allocation." /></Label>
             <Input 
               value={formatMoneyInput(draft.purchasePrice)} 
               onChange={(e) => onNumberChange("purchasePrice", parseMoneyInput(e.target.value).toString())}
@@ -63,7 +63,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="label-text text-foreground flex items-center gap-1.5">Building Improvements ($)<InfoTooltip text="Capital improvements and renovation costs added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /><GaapBadge rule="ASC 360 / IRS Pub 946: Capital improvements are added to the depreciable basis and depreciated over 27.5 years (straight-line). They are not expensed immediately." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Building Improvements<InfoTooltip text="Capital improvements and renovation costs (in dollars) added to the building basis. These are depreciated over 27.5 years along with the building portion of the purchase price." /><GaapBadge rule="ASC 360 / IRS Pub 946: Capital improvements are added to the depreciable basis and depreciated over 27.5 years (straight-line). They are not expensed immediately." /></Label>
             <Input 
               value={formatMoneyInput(draft.buildingImprovements)} 
               onChange={(e) => onNumberChange("buildingImprovements", parseMoneyInput(e.target.value).toString())}
@@ -71,7 +71,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="label-text text-foreground flex items-center gap-1.5">Pre-Opening Costs ($)<InfoTooltip text="One-time costs incurred before the property opens: hiring, training, marketing launch, supplies, licensing, and initial inventory." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Pre-Opening Costs<InfoTooltip text="One-time costs (in dollars) incurred before the property opens: hiring, training, marketing launch, supplies, licensing, and initial inventory." /></Label>
             <Input 
               value={formatMoneyInput(draft.preOpeningCosts)} 
               onChange={(e) => onNumberChange("preOpeningCosts", parseMoneyInput(e.target.value).toString())}
@@ -79,7 +79,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="label-text text-foreground flex items-center gap-1.5">Operating Reserve ($)<InfoTooltip text="Cash reserve set aside at acquisition to cover working capital needs during the ramp-up period before the property reaches stabilized operations." /></Label>
+            <Label className="label-text text-foreground flex items-center gap-1.5">Operating Reserve<InfoTooltip text="Cash reserve (in dollars) set aside at acquisition to cover working capital needs during the ramp-up period before the property reaches stabilized operations." /></Label>
             <Input 
               value={formatMoneyInput(draft.operatingReserve)} 
               onChange={(e) => onNumberChange("operatingReserve", parseMoneyInput(e.target.value).toString())}

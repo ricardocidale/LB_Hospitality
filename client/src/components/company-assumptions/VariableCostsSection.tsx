@@ -85,8 +85,8 @@ export default function VariableCostsSection({ formData, onChange, global, resea
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
-              Marketing (% of Mgmt Fee Revenue)
-              <InfoTooltip text="Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
+              Marketing
+              <InfoTooltip text="Calculated as a percentage of management fee revenue. Corporate marketing spend as a percentage of total management fee revenue (base + incentive fees collected from properties)." />
               <ResearchBadge value={researchValues.marketingRate?.display} onClick={() => researchValues.marketingRate && onChange("marketingRate", researchValues.marketingRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-marketing-rate" />
             </Label>
             <EditableValue
@@ -110,8 +110,8 @@ export default function VariableCostsSection({ formData, onChange, global, resea
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
-              Misc Operations (% of Mgmt Fee Revenue)
-              <InfoTooltip text="General operating expenses as a percentage of total management fee revenue (base + incentive fees collected from properties)" />
+              Misc Operations
+              <InfoTooltip text="Calculated as a percentage of management fee revenue. General operating expenses as a percentage of total management fee revenue (base + incentive fees collected from properties)." />
               <ResearchBadge value={researchValues.miscOpsRate?.display} onClick={() => researchValues.miscOpsRate && onChange("miscOpsRate", researchValues.miscOpsRate.mid / 100)} sourceType="industry" sourceName="AHLA industry benchmarks" data-testid="badge-misc-ops" />
             </Label>
             <EditableValue

@@ -28,8 +28,8 @@ export default function ExitAssumptionsSection({ formData, onChange, global, res
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
-              Cost of Equity (Re)
-              <InfoTooltip text="Required equity return for private hospitality investment. Used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, this is the investor's hurdle rate (typically 15–25%), not CAPM-derived." manualSection="investment-returns" />
+              Cost of Equity
+              <InfoTooltip text="Re — the required equity return used in WACC/DCF calculations. Required equity return for private hospitality investment. Used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, this is the investor's hurdle rate (typically 15–25%), not CAPM-derived." manualSection="investment-returns" />
               <ResearchBadge value={researchValues.costOfEquity?.display} onClick={() => researchValues.costOfEquity && onChange("costOfEquity", researchValues.costOfEquity.mid / 100)} sourceType="industry" sourceName="Private RE equity benchmarks" data-testid="badge-cost-of-equity" />
             </Label>
             <EditableValue
@@ -78,8 +78,8 @@ export default function ExitAssumptionsSection({ formData, onChange, global, res
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
-              Default Sales Commission Rate (% of Gross Sale Price)
-              <InfoTooltip text="Default broker commission for new properties. Each property can override this with its own disposition commission on its assumptions page." />
+              Default Sales Commission Rate
+              <InfoTooltip text="As a percentage of gross sale price. Default broker commission for new properties. Each property can override this with its own disposition commission on its assumptions page." />
               <ResearchBadge value={researchValues.salesCommission?.display} onClick={() => researchValues.salesCommission && onChange("salesCommissionRate", researchValues.salesCommission.mid / 100)} sourceType="industry" sourceName="NAR transaction data" data-testid="badge-sales-commission" />
             </Label>
             <EditableValue

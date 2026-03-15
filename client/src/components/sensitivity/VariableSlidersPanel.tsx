@@ -1,6 +1,7 @@
 import { IconSliders, IconRefreshCw } from "@/components/icons";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import type { SensitivityVariable } from "./types";
 
 interface VariableSlidersPanelProps {
@@ -35,6 +36,7 @@ export function VariableSlidersPanel({ variables, adjustments, onAdjustmentChang
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-semibold text-foreground">{v.label}</label>
+                    {v.tooltip && <InfoTooltip text={v.tooltip} />}
                     {isChanged && (
                       <Button
                         variant="ghost"

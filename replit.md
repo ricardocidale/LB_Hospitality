@@ -75,7 +75,7 @@ Properties have optional `description` (AI-polished via Gemini) and photo album 
 Logos assigned to companies only. Groups derive logos from member companies. Branding chain: user's company logo → default system logo.
 
 ## Research Skills
-Property sub-skills: local-economics, insurance-costs, marketing-costs. Company: outsourcing/make-vs-buy. Global: FX, capital markets, ESG. Source registry: `RESEARCH_SOURCES` in `shared/constants.ts`.
+Property sub-skills: local-economics, marketing-costs. Company: outsourcing/make-vs-buy. Global: FX, capital markets, ESG. Source registry: `RESEARCH_SOURCES` in `shared/constants.ts`.
 
 ## Common Pitfall: Strict Zod Schemas on Admin Save Routes
 When adding new fields to admin config, **always** add to: (1) TypeScript interface in `shared/schema.ts`, (2) Zod schema in route (watch `.strict()`), (3) merge/spread logic in handler.

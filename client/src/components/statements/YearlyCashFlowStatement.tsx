@@ -350,7 +350,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
           <LineItem label="Utilities (Fixed)" values={yearlyDetails.map(y => y.expenseUtilitiesFixed)} indent />
           <LineItem label="Property Taxes" values={yearlyDetails.map(y => y.expenseTaxes)} indent />
           <LineItem label="Administrative & Compliance" values={yearlyDetails.map(y => y.expenseAdmin)} indent />
-          <LineItem label="IT Systems" values={yearlyDetails.map(y => y.expenseIT)} indent />
+          <LineItem label="IT & Technology" values={yearlyDetails.map(y => y.expenseIT)} indent />
           <LineItem label="Other Operating Costs" values={yearlyDetails.map(y => y.expenseOtherCosts)} indent />
         </ExpandableLineItem>
 

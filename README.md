@@ -252,9 +252,8 @@ Every save action in the application triggers a **full financial recalculation**
 | Marketing | 5% | Total Revenue |
 | Property Operations | 4% | Total Revenue |
 | Utilities | 5% (60% variable / 40% fixed) | Total Revenue |
-| Insurance | 2% | Total Revenue |
-| Property Taxes | 3% | Total Revenue |
-| IT Systems | 2% | Total Revenue |
+| Property Taxes | 3% | Property Value |
+| IT & Technology | 0.5% | Total Revenue |
 | FF&E Reserve | 4% | Total Revenue |
 
 ### Profitability Waterfall

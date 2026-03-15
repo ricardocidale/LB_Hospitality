@@ -125,21 +125,21 @@ const H_LAND_VALUE = H_TOTAL_PROP_VALUE * H_LAND_PCT;                           
 const H_MONTHLY_DEPR = H_BUILDING_VALUE / DEPRECIATION_YEARS / 12;                // 750000 / 27.5 / 12 = 2272.73
 
 // Income tax: taxableIncome = ANOI - interest - depreciation
-// = -4166.67 - 0 - 2272.73 = -6439.39 → negative → tax = $0
+// = -2500 - 0 - 2272.73 = -4772.73 → negative → tax = $0
 const H_TAXABLE_INCOME = H_ANOI - 0 - H_MONTHLY_DEPR;
 const H_INCOME_TAX = H_TAXABLE_INCOME > 0 ? H_TAXABLE_INCOME * 0.25 : 0;         // $0
 
 // Net income = ANOI - interest - depreciation - tax
-const H_NET_INCOME = H_ANOI - 0 - H_MONTHLY_DEPR - H_INCOME_TAX;                 // -6439.39
+const H_NET_INCOME = H_ANOI - 0 - H_MONTHLY_DEPR - H_INCOME_TAX;                 // -4772.73
 
 // Cash flow = ANOI - debt payment - tax (cash = no debt)
-const H_CASH_FLOW = H_ANOI - 0 - H_INCOME_TAX;                                   // -4166.67
+const H_CASH_FLOW = H_ANOI - 0 - H_INCOME_TAX;                                   // -2500
 
 // Exit (Year 10)
-const H_ANNUAL_NOI = H_NOI * 12;                                                   // -50,000
-const H_GROSS_VALUE = H_ANNUAL_NOI / 0.085;                                        // -588,235.29
-const H_COMMISSION = H_GROSS_VALUE * 0.05;                                          // -29,411.76
-const H_EXIT_VALUE = H_GROSS_VALUE - H_COMMISSION - 0;                             // -558,823.53 (no debt)
+const H_ANNUAL_NOI = H_NOI * 12;                                                   // -30,000
+const H_GROSS_VALUE = H_ANNUAL_NOI / 0.085;                                        // -352,941.18
+const H_COMMISSION = H_GROSS_VALUE * 0.05;                                          // -17,647.06
+const H_EXIT_VALUE = H_GROSS_VALUE - H_COMMISSION - 0;                             // -335,294.12 (no debt)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TESTS
@@ -212,9 +212,9 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
     });
   });
 
-  // ─── 5. NOI = -$4,166.67/mo ──────────────────────────────────────────────
-  describe("NOI = -$4,166.67/mo (only taxes)", () => {
-    it("NOI = AGOP - taxes every month", () => {
+  // ─── 5. NOI = -$2,500.00/mo ──────────────────────────────────────────────
+  describe("NOI = -$2,500.00/mo (only taxes)", () => {
+    it("NOI = $0 - $2,500.00 = -$2,500.00 every month", () => {
       for (let i = 0; i < MONTHS; i++) {
         expect(propFinancials[i].noi).toBeCloseTo(H_NOI, 2);
       }

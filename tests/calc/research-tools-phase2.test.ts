@@ -210,7 +210,7 @@ describe("computeCostBenchmarks", () => {
     expect(adminCost?.base).toBe("Total Revenue");
   });
 
-  it("property taxes uses property value base", () => {
+  it("property taxes use property value base", () => {
     const result = computeCostBenchmarks({
       annual_room_revenue: 2000000,
       annual_total_revenue: 3000000,

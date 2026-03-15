@@ -45,13 +45,21 @@ export async function seedCompanies() {
 
   const allProperties = await db.select({ id: properties.id, name: properties.name }).from(properties);
 
+  // SPV mapping covers both dev seed property names and production sync property names
   const spvMapping: Record<string, string> = {
+    // Dev seed properties
     "Jano Grande Ranch": "Jano Grande Ranch LLC",
     "Loch Sheldrake": "Loch Sheldrake LLC",
     "Belleayre Mountain": "Belleayre Mountain LLC",
     "Scott's House": "Scott's House LLC",
     "Lakeview Haven Lodge": "Lakeview Haven Lodge LLC",
     "San Diego": "San Diego Boutique LLC",
+    // Production sync properties
+    "The Hudson Estate": "The Hudson Estate LLC",
+    "Eden Summit Lodge": "Eden Summit Lodge LLC",
+    "Austin Hillside": "Austin Hillside LLC",
+    "Casa Medellín": "Casa Medellín LLC",
+    "Blue Ridge Manor": "Blue Ridge Manor LLC",
   };
 
   const companiesToSeed = [

@@ -394,7 +394,7 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
 /**
  * Seeds the database with default users (admin, checker, partners) using
  * credentials from environment variables. Ricardo (ricardo.cidale@norfolkgroup.io)
- * is a special case: his password is hardcoded to "admin123" and reset on every
+ * is a special case: his password is hardcoded to "admin456" and reset on every
  * startup regardless of FORCE_RESEED_PASSWORDS. Other users read passwords from
  * their respective env vars (e.g. PASSWORD_CHECKER, PASSWORD_REYNALDO) with
  * PASSWORD_DEFAULT as fallback, and only reset when FORCE_RESEED_PASSWORDS=true.

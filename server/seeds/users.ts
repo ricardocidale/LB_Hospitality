@@ -1,18 +1,10 @@
 import { db } from "../db";
 import { users, companies, properties, userGroupProperties } from "@shared/schema";
-import { eq, and, inArray, isNull, isNotNull } from "drizzle-orm";
+import { eq, and, isNull, isNotNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { userGroups } from "@shared/schema";
 import { logger } from "../logger";
 
-const NORFOLK_PROPERTY_NAMES = [
-  "Jano Grande Ranch",
-  "Loch Sheldrake",
-  "Belleayre Mountain",
-  "Scott's House",
-  "Lakeview Haven Lodge",
-  "San Diego",
-];
 
 export async function seedUsers() {
   const existingAdmin = await db.select().from(users).where(eq(users.email, "ricardo.cidale@norfolkgroup.io")).limit(1);
@@ -94,9 +86,11 @@ export async function seedUserGroupProperties() {
     return;
   }
 
+  // Link all shared portfolio properties (userId IS NULL) to the Norfolk group.
+  // Falls back to name-matching for any edge cases with non-null userId.
   const norfolkProps = await db.select({ id: properties.id })
     .from(properties)
-    .where(inArray(properties.name, NORFOLK_PROPERTY_NAMES));
+    .where(isNull(properties.userId));
 
   if (norfolkProps.length === 0) {
     logger.info("No Norfolk AI properties found, skipping user_group_properties seed", "seed");

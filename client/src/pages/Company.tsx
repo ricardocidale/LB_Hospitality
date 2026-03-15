@@ -39,7 +39,6 @@ import { Link } from "wouter";
 import { AnimatedPage } from "@/components/graphics";
 import { analyzeCompanyCashPosition } from "@/lib/financial/analyzeCompanyCashPosition";
 import { CompanyHeader, CompanyIncomeTab, CompanyCashFlowTab, CompanyBalanceSheet, CompanyBenchmarkPanel } from "@/components/company";
-import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import { 
   generateCompanyIncomeData, 
   generateCompanyCashFlowData, 
@@ -303,10 +302,6 @@ export default function Company() {
               tableRef={tableRef}
               activeTab={activeTab}
             />
-          </TabsContent>
-
-          <TabsContent value="profile" className="mt-6">
-            <CompanyProfileTab />
           </TabsContent>
 
           {!cashAnalysis.isAdequate ? (

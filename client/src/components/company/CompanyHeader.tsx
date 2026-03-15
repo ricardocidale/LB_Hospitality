@@ -13,7 +13,7 @@
 import React from "react";
 import { Link } from "wouter";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { IconSettings, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconHotel } from "@/components/icons";import { Button } from "@/components/ui/button";
+import { IconSettings, IconIncomeStatement, IconCashFlow, IconBalanceSheet } from "@/components/icons";import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { KPIGrid, InsightPanel, ScrollReveal, formatCompact } from "@/components/graphics";
@@ -64,8 +64,7 @@ export default function CompanyHeader({
           tabs={[
             { value: 'income', label: 'Income Statement', icon: IconIncomeStatement },
             { value: 'cashflow', label: 'Cash Flows', icon: IconCashFlow },
-            { value: 'balance', label: 'Balance Sheet', icon: IconBalanceSheet },
-            { value: 'profile', label: 'Profile', icon: IconHotel }
+            { value: 'balance', label: 'Balance Sheet', icon: IconBalanceSheet }
           ]}
           activeTab={activeTab}
           onTabChange={setActiveTab}
@@ -73,30 +72,26 @@ export default function CompanyHeader({
         />
       </div>
 
-      {activeTab !== 'profile' && (
-        <>
-          <FinancialChart
-            data={yearlyChartData as unknown as Record<string, unknown>[]}
-            series={["revenue", "expenses", "netIncome"]}
-            title={`Management Company Performance (${projectionYears}-Year Projection)`}
-            chartRef={chartRef}
-            id="company"
-          />
+      <FinancialChart
+        data={yearlyChartData as unknown as Record<string, unknown>[]}
+        series={["revenue", "expenses", "netIncome"]}
+        title={`Management Company Performance (${projectionYears}-Year Projection)`}
+        chartRef={chartRef}
+        id="company"
+      />
 
-          <ScrollReveal>
-            <InsightPanel
-              data-testid="insight-company"
-              title="Company Cash Analysis"
-              variant="compact"
-              insights={[
-                { text: "Cash position", metric: cashAnalysis.isAdequate ? "Adequate" : "Needs attention", type: cashAnalysis.isAdequate ? "positive" as const : "warning" as const },
-                ...(cashAnalysis.shortfall > 0 ? [{ text: "Cash shortfall detected", metric: formatMoney(cashAnalysis.shortfall), type: "negative" as const }] : []),
-                { text: "Total company funding", metric: formatMoney(cashAnalysis.totalFunding), type: "neutral" as const },
-              ]}
-            />
-          </ScrollReveal>
-        </>
-      )}
+      <ScrollReveal>
+        <InsightPanel
+          data-testid="insight-company"
+          title="Company Cash Analysis"
+          variant="compact"
+          insights={[
+            { text: "Cash position", metric: cashAnalysis.isAdequate ? "Adequate" : "Needs attention", type: cashAnalysis.isAdequate ? "positive" as const : "warning" as const },
+            ...(cashAnalysis.shortfall > 0 ? [{ text: "Cash shortfall detected", metric: formatMoney(cashAnalysis.shortfall), type: "negative" as const }] : []),
+            { text: "Total company funding", metric: formatMoney(cashAnalysis.totalFunding), type: "neutral" as const },
+          ]}
+        />
+      </ScrollReveal>
     </>
   );
 }

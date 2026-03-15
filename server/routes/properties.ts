@@ -1,13 +1,49 @@
 import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireManagementAccess } from "../auth";
-import { insertPropertySchema, updatePropertySchema, updateFeeCategorySchema } from "@shared/schema";
+import { insertPropertySchema, updatePropertySchema, updateFeeCategorySchema, type GlobalAssumptions } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 import { logActivity, logAndSendError } from "./helpers";
 import { generateLocationAwareResearchValues } from "../data/researchSeeds";
 import { processNotificationEvent, evaluateAlertRules } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
+import {
+  DEFAULT_EXIT_CAP_RATE,
+  DEFAULT_COMMISSION_RATE,
+  DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+  DEFAULT_LTV,
+  DEFAULT_INTEREST_RATE,
+  DEFAULT_TERM_YEARS,
+  SEED_DEBT_ASSUMPTIONS,
+} from "@shared/constants";
+
+interface DebtAssumptions {
+  acqLTV?: number;
+  refiLTV?: number;
+  interestRate?: number;
+  amortizationYears?: number;
+  acqClosingCostRate?: number;
+  refiClosingCostRate?: number;
+}
+
+function buildPropertyDefaultsFromGlobal(ga: GlobalAssumptions): Record<string, unknown> {
+  const debt = (ga.debtAssumptions as DebtAssumptions) ?? {};
+  return {
+    exitCapRate: ga.exitCapRate ?? DEFAULT_EXIT_CAP_RATE,
+    dispositionCommission: ga.salesCommissionRate ?? DEFAULT_COMMISSION_RATE,
+    baseManagementFeeRate: ga.baseManagementFee ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+    incentiveManagementFeeRate: ga.incentiveManagementFee ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+    acquisitionLTV: debt.acqLTV ?? DEFAULT_LTV,
+    acquisitionInterestRate: debt.interestRate ?? DEFAULT_INTEREST_RATE,
+    acquisitionTermYears: debt.amortizationYears ?? DEFAULT_TERM_YEARS,
+    acquisitionClosingCostRate: debt.acqClosingCostRate ?? SEED_DEBT_ASSUMPTIONS.acqClosingCostRate,
+    refinanceLTV: debt.refiLTV ?? DEFAULT_LTV,
+    refinanceInterestRate: debt.interestRate ?? DEFAULT_INTEREST_RATE,
+    refinanceClosingCostRate: debt.refiClosingCostRate ?? SEED_DEBT_ASSUMPTIONS.refiClosingCostRate,
+  };
+}
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -95,9 +131,23 @@ export function register(app: Express) {
         const error = fromZodError(validation.error);
         return res.status(400).json({ error: error.message });
       }
-      
+
+      const globalDefaults = await storage.getGlobalAssumptions();
+      const inheritedDefaults = globalDefaults
+        ? buildPropertyDefaultsFromGlobal(globalDefaults)
+        : {};
+
+      const mergedData: Record<string, unknown> = {};
+      for (const [key, globalValue] of Object.entries(inheritedDefaults)) {
+        const userValue = (validation.data as Record<string, unknown>)[key];
+        if (userValue === undefined || userValue === null) {
+          mergedData[key] = globalValue;
+        }
+      }
+
       const property = await storage.createProperty({
         ...validation.data,
+        ...mergedData,
         userId: null,
       });
 

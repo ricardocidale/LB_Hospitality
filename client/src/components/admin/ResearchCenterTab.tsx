@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
@@ -22,7 +23,7 @@ import {
 } from "@/components/icons";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
-import type { ResearchConfig, ResearchEventConfig, ResearchSourceEntry, AiModelEntry } from "@shared/schema";
+import type { ResearchConfig, ResearchEventConfig, ResearchSourceEntry, AiModelEntry, LlmMode, LlmVendor } from "@shared/schema";
 import {
   type IcpConfig,
   type IcpDescriptive,
@@ -1824,6 +1825,14 @@ function MarketResearchSection({ config, onChange }: { config: ResearchEventConf
   );
 }
 
+const LLM_VENDORS: { value: LlmVendor; label: string }[] = [
+  { value: "openai", label: "OpenAI" },
+  { value: "google", label: "Google" },
+  { value: "tesla", label: "Tesla" },
+  { value: "anthropic", label: "Anthropic" },
+  { value: "microsoft", label: "Microsoft" },
+];
+
 function LlmSelectionCard({ draft, setDraft, setIsDirty }: {
   draft: ResearchConfig;
   setDraft: React.Dispatch<React.SetStateAction<ResearchConfig>>;
@@ -1833,13 +1842,19 @@ function LlmSelectionCard({ draft, setDraft, setIsDirty }: {
   const refreshModels = useRefreshAiModels();
 
   const models = (draft.cachedModels && draft.cachedModels.length > 0) ? draft.cachedModels : FALLBACK_MODELS;
-  const grouped = {
-    anthropic: models.filter((m) => m.provider === "anthropic"),
-    openai: models.filter((m) => m.provider === "openai"),
-    google: models.filter((m) => m.provider === "google"),
+  const mode: LlmMode | undefined = draft.llmMode;
+  const vendor: LlmVendor | undefined = draft.llmVendor;
+  const isDual = mode === "dual";
+
+  const vendorModels = vendor ? models.filter((m) => m.provider === vendor) : [];
+
+  const primaryModel = draft.primaryLlm || draft.preferredLlm || "";
+  const secondaryModel = draft.secondaryLlm || "";
+
+  const updateField = (patch: Partial<ResearchConfig>) => {
+    setDraft((prev) => ({ ...prev, ...patch }));
+    setIsDirty(true);
   };
-  const currentModel = draft.preferredLlm || "claude-sonnet-4-6";
-  const hasCurrentInList = models.some((m) => m.id === currentModel);
 
   return (
     <Card className="bg-card border-border shadow-sm">
@@ -1849,7 +1864,7 @@ function LlmSelectionCard({ draft, setDraft, setIsDirty }: {
             <CardTitle className="flex items-center gap-2 text-sm font-display">
               <IconBrain className="w-4 h-4 text-primary" />
               LLM Selection
-              <HelpTooltip text="Shared AI model used across all three research processes. Use Refresh Models to pull the latest available." />
+              <HelpTooltip text="Configure the AI model architecture for research. Choose between a dual-model setup (reasoning + workhorse) or a single primary model." />
             </CardTitle>
             {draft.cachedModelsAt && (
               <p className="text-xs text-muted-foreground mt-1">
@@ -1860,6 +1875,7 @@ function LlmSelectionCard({ draft, setDraft, setIsDirty }: {
           <Button
             variant="outline" size="sm" className="gap-1.5"
             disabled={refreshModels.isPending}
+            data-testid="button-refresh-models"
             onClick={async () => {
               try {
                 const result = await refreshModels.mutateAsync();
@@ -1875,38 +1891,104 @@ function LlmSelectionCard({ draft, setDraft, setIsDirty }: {
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="max-w-md">
-          <Select
-            value={currentModel}
-            onValueChange={(value) => { setDraft((prev) => ({ ...prev, preferredLlm: value })); setIsDirty(true); }}
+      <CardContent className="space-y-5">
+        <div>
+          <Label className="text-xs font-medium mb-2 block">Model Architecture</Label>
+          <RadioGroup
+            value={mode || ""}
+            onValueChange={(value) => updateField({ llmMode: value as LlmMode })}
+            className="flex flex-col gap-2"
+            data-testid="radio-llm-mode"
           >
-            <SelectTrigger className="bg-card h-9">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {!hasCurrentInList && <SelectItem value={currentModel}>{currentModel} (current)</SelectItem>}
-              {grouped.anthropic.length > 0 && (
-                <>
-                  <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Anthropic</div>
-                  {grouped.anthropic.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
-                </>
-              )}
-              {grouped.openai.length > 0 && (
-                <>
-                  <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">OpenAI</div>
-                  {grouped.openai.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
-                </>
-              )}
-              {grouped.google.length > 0 && (
-                <>
-                  <div className="px-2 py-1.5 text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Google</div>
-                  {grouped.google.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
-                </>
-              )}
-            </SelectContent>
-          </Select>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="dual" id="llm-mode-dual" data-testid="radio-llm-mode-dual" />
+              <Label htmlFor="llm-mode-dual" className="text-sm font-normal cursor-pointer">
+                Primary reasoning + Secondary workhorse
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="primary-only" id="llm-mode-primary" data-testid="radio-llm-mode-primary" />
+              <Label htmlFor="llm-mode-primary" className="text-sm font-normal cursor-pointer">
+                Primary reasoning only
+              </Label>
+            </div>
+          </RadioGroup>
         </div>
+
+        {mode && (
+          <>
+            <div className="max-w-md">
+              <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
+              <Select
+                value={vendor || ""}
+                onValueChange={(value) => {
+                  updateField({ llmVendor: value as LlmVendor, primaryLlm: "", secondaryLlm: "", preferredLlm: "" });
+                }}
+              >
+                <SelectTrigger className="bg-card h-9" data-testid="select-llm-vendor">
+                  <SelectValue placeholder="Select a vendor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LLM_VENDORS.map((v) => (
+                    <SelectItem key={v.value} value={v.value} data-testid={`select-vendor-${v.value}`}>
+                      {v.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {vendor && (
+              <>
+                <div className="max-w-md">
+                  <Label className="text-xs font-medium mb-1.5 block">Primary Reasoning LLM</Label>
+                  <Select
+                    value={primaryModel}
+                    onValueChange={(value) => updateField({ primaryLlm: value, preferredLlm: value })}
+                  >
+                    <SelectTrigger className="bg-card h-9" data-testid="select-primary-llm">
+                      <SelectValue placeholder={vendorModels.length === 0 ? "No models available for this vendor" : "Select primary model"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {primaryModel && !vendorModels.some((m) => m.id === primaryModel) && (
+                        <SelectItem value={primaryModel}>{primaryModel} (current)</SelectItem>
+                      )}
+                      {vendorModels.map((m) => (
+                        <SelectItem key={m.id} value={m.id} data-testid={`select-primary-model-${m.id}`}>
+                          {m.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {isDual && (
+                  <div className="max-w-md">
+                    <Label className="text-xs font-medium mb-1.5 block">Secondary Workhorse LLM</Label>
+                    <Select
+                      value={secondaryModel}
+                      onValueChange={(value) => updateField({ secondaryLlm: value })}
+                    >
+                      <SelectTrigger className="bg-card h-9" data-testid="select-secondary-llm">
+                        <SelectValue placeholder={vendorModels.length === 0 ? "No models available for this vendor" : "Select secondary model"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {secondaryModel && !vendorModels.some((m) => m.id === secondaryModel) && (
+                          <SelectItem value={secondaryModel}>{secondaryModel} (current)</SelectItem>
+                        )}
+                        {vendorModels.map((m) => (
+                          <SelectItem key={m.id} value={m.id} data-testid={`select-secondary-model-${m.id}`}>
+                            {m.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -1928,7 +2010,17 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
   useEffect(() => {
     if (savedConfig) {
       const { marketing, ...rest } = savedConfig as ResearchConfig & { marketing?: unknown };
-      setDraft(rest);
+      const normalized = { ...rest };
+      if (!normalized.llmMode && normalized.preferredLlm) {
+        normalized.llmMode = "primary-only";
+        normalized.primaryLlm = normalized.preferredLlm;
+        const allModels = (normalized.cachedModels && normalized.cachedModels.length > 0) ? normalized.cachedModels : FALLBACK_MODELS;
+        const match = allModels.find((m) => m.id === normalized.preferredLlm);
+        if (match) {
+          normalized.llmVendor = match.provider as LlmVendor;
+        }
+      }
+      setDraft(normalized);
       setIsDirty(false);
     }
   }, [savedConfig]);
@@ -1940,7 +2032,15 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
 
   async function handleSave() {
     try {
-      await saveMutation.mutateAsync(draft);
+      const toSave = { ...draft };
+      if (toSave.primaryLlm) {
+        toSave.preferredLlm = toSave.primaryLlm;
+      }
+      if (toSave.llmMode === "primary-only") {
+        toSave.secondaryLlm = undefined;
+      }
+      await saveMutation.mutateAsync(toSave);
+      setDraft(toSave);
       setIsDirty(false);
       toast({ title: "Research configuration saved" });
     } catch {
@@ -2047,10 +2147,31 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
 
         <TabsContent value="llm" className="mt-4 space-y-5">
           <LlmSelectionCard draft={draft} setDraft={setDraft} setIsDirty={setIsDirty} />
-          <p className="text-xs text-muted-foreground italic">This model is shared across all three research processes (ICP Management Co, Properties, General Market).</p>
+          <p className="text-xs text-muted-foreground italic" data-testid="text-llm-note">
+            {draft.llmMode === "dual"
+              ? "Two models are configured: a primary reasoning LLM for deep analysis and report synthesis, and a secondary workhorse LLM for bulk data tasks. Both are shared across all three research processes."
+              : draft.llmMode === "primary-only"
+                ? "A single primary reasoning model is configured and shared across all three research processes (ICP Management Co, Properties, General Market)."
+                : "Select a model architecture above to configure the LLM(s) used across all three research processes."}
+          </p>
           <div className="flex justify-end pb-8">
             <SaveButton
-              onClick={handleSave}
+              onClick={() => {
+                if (!draft.llmMode) {
+                  toast({ title: "Please select a model architecture before saving", variant: "destructive" });
+                  return;
+                }
+                const effectivePrimary = draft.primaryLlm || draft.preferredLlm;
+                if (!draft.llmVendor || !effectivePrimary) {
+                  toast({ title: "Please select a vendor and primary model before saving", variant: "destructive" });
+                  return;
+                }
+                if (draft.llmMode === "dual" && !draft.secondaryLlm) {
+                  toast({ title: "Please select a secondary workhorse model for dual-model mode", variant: "destructive" });
+                  return;
+                }
+                handleSave();
+              }}
               isPending={saveMutation.isPending}
               hasChanges={isDirty}
               data-testid="button-save-llm-config"

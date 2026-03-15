@@ -320,8 +320,11 @@ export interface ResearchEventConfig {
 export interface AiModelEntry {
   id: string;
   label: string;
-  provider: "openai" | "anthropic" | "google";
+  provider: "openai" | "anthropic" | "google" | "tesla" | "microsoft";
 }
+
+export type LlmMode = "dual" | "primary-only";
+export type LlmVendor = "openai" | "anthropic" | "google" | "tesla" | "microsoft";
 
 export interface ResearchConfig {
   property?: Partial<ResearchEventConfig>;
@@ -329,6 +332,10 @@ export interface ResearchConfig {
   global?:   Partial<ResearchEventConfig>;
   marketing?: Partial<ResearchEventConfig>;
   preferredLlm?: string;
+  llmMode?: LlmMode;
+  llmVendor?: LlmVendor;
+  primaryLlm?: string;
+  secondaryLlm?: string;
   customSources?: { name: string; url?: string; category: string }[];
   cachedModels?: AiModelEntry[];
   cachedModelsAt?: string;

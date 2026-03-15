@@ -189,6 +189,10 @@ app.use((req, res, next) => {
   const { runDropPlaid001 } = await import("./migrations/drop-plaid-001");
   await runDropPlaid001();
 
+  // Database hygiene: drop duplicate FKs (safe to run before seeds)
+  const { runDbHygiene001 } = await import("./migrations/db-hygiene-001");
+  await runDbHygiene001();
+
   await seedAdminUser(); // Must complete first — users are FK dependencies
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");
@@ -207,6 +211,11 @@ app.use((req, res, next) => {
   // These depend on groups/companies existing
   await seedCompanies();
   await seedUserCompanyAssignments();
+
+  // Clean orphaned logos after all seeds have run
+  const { cleanOrphanedLogos } = await import("./migrations/db-hygiene-001");
+  await cleanOrphanedLogos();
+
   registerImageRoutes(app);
   const { registerGoogleAuthRoutes } = await import("./routes/google-auth");
   registerGoogleAuthRoutes(app);

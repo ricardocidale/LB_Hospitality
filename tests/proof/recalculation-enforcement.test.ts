@@ -81,6 +81,7 @@ const FINANCIAL_MUTATIONS = [
   // Service templates
   "useCreateServiceTemplate",
   "useUpdateServiceTemplate",
+  "useUpdateCompanyServiceTemplate",
   "useDeleteServiceTemplate",
   "useSyncServiceTemplates",
   // Property photos (hero changes affect properties.imageUrl)

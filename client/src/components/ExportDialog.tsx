@@ -82,12 +82,25 @@ async function downloadPremiumExport(
   orientation: "landscape" | "portrait",
   version: ExportVersion
 ): Promise<void> {
-  const response = await fetch("/api/exports/premium", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ format, orientation, version, ...payload }),
-  });
+  const controller = new AbortController();
+  const clientTimeout = setTimeout(() => controller.abort(), 200_000);
+  let response;
+  try {
+    response = await fetch("/api/exports/premium", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ format, orientation, version, ...payload }),
+      signal: controller.signal,
+    });
+  } catch (err: any) {
+    clearTimeout(clientTimeout);
+    if (err?.name === "AbortError") {
+      throw new Error("Export timed out — the server took too long to respond. Please try again.");
+    }
+    throw err;
+  }
+  clearTimeout(clientTimeout);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
@@ -153,8 +166,9 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
         toast({ title: "Premium export complete", description: `Your ${premiumFormat.toUpperCase()} file has been downloaded.` });
         onClose();
       } catch (error: any) {
-        console.error("[premium-export] Client error:", error);
-        toast({ title: "Premium export failed", description: error.message || "An unexpected error occurred. Please try again.", variant: "destructive" });
+        const errMsg = error?.message || "An unexpected error occurred. Please try again.";
+        console.error("[premium-export] Client error:", errMsg, error?.stack || "");
+        toast({ title: "Premium export failed", description: errMsg, variant: "destructive" });
       } finally {
         setIsGenerating(false);
       }

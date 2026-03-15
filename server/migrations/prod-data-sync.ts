@@ -3,22 +3,32 @@ import { sql } from "drizzle-orm";
 import { logger } from "../logger";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
+
+const MIGRATION_KEY = "prod-data-sync-v1";
 
 export async function runProdDataSync(): Promise<void> {
   const tag = "prod-data-sync";
 
-  const check = await db.execute(sql`SELECT count(*) as cnt FROM design_themes WHERE name = 'Studio Noir'`);
-  const rows = (check as any).rows ?? check;
-  const count = parseInt(rows[0]?.cnt ?? "0", 10);
-
-  if (count > 0) {
-    logger.info(`${tag}: Studio Noir theme already exists — skipping full data sync`, "migration");
+  if (process.env.NODE_ENV !== "production") {
+    logger.info(`${tag}: skipping in development`, "migration");
     return;
   }
 
-  logger.info(`${tag}: Studio Noir theme missing — running full dev→prod data sync...`, "migration");
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS _migrations_ran (key TEXT PRIMARY KEY, ran_at TIMESTAMPTZ DEFAULT now())`);
 
-  const sqlFile = path.join(__dirname, "prod-data-sync.sql");
+  const already = await db.execute(sql`SELECT 1 FROM _migrations_ran WHERE key = ${MIGRATION_KEY}`);
+  const alreadyRan = ((already as any).rows ?? already).length > 0;
+
+  if (alreadyRan) {
+    logger.info(`${tag}: already ran (${MIGRATION_KEY}) — skipping`, "migration");
+    return;
+  }
+
+  logger.info(`${tag}: first run — syncing dev data into production...`, "migration");
+
+  const currentDir = path.dirname(fileURLToPath(import.meta.url));
+  const sqlFile = path.join(currentDir, "prod-data-sync.sql");
   if (!fs.existsSync(sqlFile)) {
     logger.info(`${tag}: SQL file not found at ${sqlFile}, skipping`, "migration");
     return;
@@ -27,5 +37,7 @@ export async function runProdDataSync(): Promise<void> {
   const sqlContent = fs.readFileSync(sqlFile, "utf-8");
   await db.execute(sql.raw(sqlContent));
 
-  logger.info(`${tag}: Full data sync complete — production now mirrors dev`, "migration");
+  await db.execute(sql`INSERT INTO _migrations_ran (key) VALUES (${MIGRATION_KEY})`);
+
+  logger.info(`${tag}: complete — data sync finished, will not run again`, "migration");
 }

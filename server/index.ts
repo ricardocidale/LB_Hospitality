@@ -131,6 +131,10 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Full dev→prod data sync (runs once if Studio Noir theme is missing)
+  const { runProdDataSync } = await import("./migrations/prod-data-sync");
+  await runProdDataSync();
+
   // Sequential: prod-sync-001 must run before 002
   const { runProdSync001 } = await import("./migrations/prod-sync-001");
   await runProdSync001();

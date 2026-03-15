@@ -427,7 +427,11 @@ const FALLBACK_MODELS: AiModelEntry[] = [
   { id: "claude-haiku-4-5", label: "Anthropic Claude Haiku 4.5", provider: "anthropic" },
   { id: "gpt-5.4", label: "OpenAI GPT 5.4", provider: "openai" },
   { id: "gpt-5.4-pro", label: "OpenAI GPT 5.4 Pro", provider: "openai" },
+  { id: "o3", label: "OpenAI o3", provider: "openai" },
   { id: "o3-pro", label: "OpenAI o3 Pro", provider: "openai" },
+  { id: "o4-mini", label: "OpenAI o4 Mini", provider: "openai" },
+  { id: "gemini-3.1-pro-preview", label: "Google Gemini 3.1 Pro Preview", provider: "google" },
+  { id: "gemini-3-flash-preview", label: "Google Gemini 3 Flash Preview", provider: "google" },
   { id: "gemini-2.5-flash", label: "Google Gemini 2.5 Flash", provider: "google" },
 ];
 

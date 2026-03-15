@@ -54,7 +54,7 @@ const researchConfigSchema = z.object({
 }).strict();
 
 const CHAT_MODEL_PATTERNS: Record<string, RegExp[]> = {
-  openai: [/^gpt-5/, /^gpt-4o/, /^o\d/],
+  openai: [/^gpt-5/, /^o\d/],
   anthropic: [/^claude-/],
   google: [/^gemini-/],
 };
@@ -62,7 +62,7 @@ const CHAT_MODEL_PATTERNS: Record<string, RegExp[]> = {
 const EXCLUDE_PATTERNS = [
   /embed/i, /tts/i, /whisper/i, /dall-e/i, /image/i, /moderation/i,
   /realtime/i, /audio/i, /computer-use/i, /search/i, /chatgpt/i,
-  /instruct/i, /codex/i, /-\d{8}$/, /preview/,
+  /instruct/i, /codex/i, /-\d{8}$/,
 ];
 
 function shouldInclude(id: string, provider: string): boolean {

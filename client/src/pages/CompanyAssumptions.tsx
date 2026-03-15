@@ -30,7 +30,7 @@ import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Loader2 } from "lucide-react";
-import { IconPlay, IconAlertTriangle, IconEye } from "@/components/icons";
+import { IconPlay, IconAlertTriangle, IconBookOpen } from "@/components/icons";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import type { GlobalResponse } from "@/lib/api";
@@ -39,6 +39,8 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { DEFAULT_MODEL_START_DATE } from "@/lib/constants";
 import { useCompanyResearchStream } from "@/components/company-research/useCompanyResearchStream";
+import { ResearchTheater } from "@/components/research/ResearchTheater";
+import type { ResearchJob } from "@/components/research/ResearchTheater";
 import {
   CompanySetupSection,
   FundingSection,
@@ -69,6 +71,7 @@ export default function CompanyAssumptions() {
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
   const [isDirty, setIsDirty] = useState(false);
   const { data: research } = useMarketResearch("company");
+  const companyResearchUpdatedAt = research?.updatedAt ?? null;
 
   // Extract AI-recommended values from the company-level market research report.
   // These appear as "suggested" badges next to assumption inputs so the user can
@@ -208,8 +211,22 @@ export default function CompanyAssumptions() {
     }
   };
 
+  const researchJobs: ResearchJob[] = isGenerating ? [
+    { id: "company-context", label: "Analyzing company context", group: "Preparation", status: streamedContent.length > 0 ? "complete" : "generating" },
+    { id: "icp-profile", label: "Processing ICP profile", group: "Preparation", status: streamedContent.length > 100 ? "complete" : streamedContent.length > 0 ? "generating" : "pending" },
+    { id: "fee-benchmarks", label: "Benchmarking fee structures", group: "Research", status: streamedContent.length > 500 ? "complete" : streamedContent.length > 100 ? "generating" : "pending" },
+    { id: "compensation", label: "Analyzing compensation data", group: "Research", status: streamedContent.length > 1000 ? "complete" : streamedContent.length > 500 ? "generating" : "pending" },
+    { id: "operating-ratios", label: "Calculating operating ratios", group: "Research", status: streamedContent.length > 1500 ? "complete" : streamedContent.length > 1000 ? "generating" : "pending" },
+    { id: "synthesis", label: "Synthesizing findings", group: "Finalization", status: streamedContent.length > 2000 ? "generating" : "pending" },
+  ] : [];
+
   return (
     <Layout>
+      <ResearchTheater
+        jobs={researchJobs}
+        streamingText={streamedContent}
+        isVisible={isGenerating}
+      />
       <AnimatedPage>
       <div className="space-y-6">
         <PageHeader
@@ -224,6 +241,7 @@ export default function CompanyAssumptions() {
                 onClick={generateResearch}
                 disabled={isGenerating}
                 data-testid="button-run-company-research"
+                className="relative"
               >
                 {isGenerating ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -231,11 +249,22 @@ export default function CompanyAssumptions() {
                   <IconPlay className="w-4 h-4" />
                 )}
                 {isGenerating ? "Analyzing…" : "Run Research"}
+                {!isGenerating && companyResearchUpdatedAt && (
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+                  </span>
+                )}
+                {!isGenerating && !companyResearchUpdatedAt && (
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
+                  </span>
+                )}
               </Button>
-              <Link href="/company/criteria" className="text-inherit no-underline">
-                <Button variant="outline" data-testid="button-company-criteria">
-                  <IconEye className="w-4 h-4" />
-                  Criteria
+              <Link href="/company/icp-definition" className="text-inherit no-underline">
+                <Button variant="outline" data-testid="button-icp-definition">
+                  <IconBookOpen className="w-4 h-4" />
+                  ICP Definition
                 </Button>
               </Link>
               <SaveButton 

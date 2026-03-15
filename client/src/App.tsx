@@ -65,7 +65,7 @@ const PropertyResearchCriteria = lazy(
   () => import("@/pages/PropertyResearchCriteria"),
 );
 const CompanyResearch = lazy(() => import("@/pages/CompanyResearch"));
-const CompanyResearchCriteria = lazy(() => import("@/pages/CompanyResearchCriteria"));
+const CompanyIcpDefinition = lazy(() => import("@/pages/CompanyIcpDefinition"));
 const GlobalResearch = lazy(() => import("@/pages/GlobalResearch"));
 const ResearchHub = lazy(() => import("@/pages/ResearchHub"));
 const Admin = lazy(() => import("@/pages/Admin"));
@@ -315,8 +315,11 @@ function Router() {
         <Route path="/research">
           <Redirect to="/" />
         </Route>
+        <Route path="/company/icp-definition">
+          <ManagementRoute component={CompanyIcpDefinition} />
+        </Route>
         <Route path="/company/criteria">
-          <ManagementRoute component={CompanyResearchCriteria} />
+          <Redirect to="/company/icp-definition" />
         </Route>
         <Route path="/company/research">
           <ManagementRoute component={CompanyResearch} />

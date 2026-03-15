@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
-import { useGlobalAssumptions } from "@/lib/api";
+import { useGlobalAssumptions, useUpdateAdminConfig, useMarketResearch, useProperties } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   IconDatabase,
@@ -20,6 +21,9 @@ import {
   IconBuilding,
   IconDollarSign,
   IconMapPin,
+  IconRefreshCw,
+  IconPencil,
+  IconBookOpen,
 } from "@/components/icons";
 import { Loader2 } from "lucide-react";
 import { ExportMenu, pdfAction, pptxAction } from "@/components/ui/export-toolbar";
@@ -31,6 +35,7 @@ import {
   DEFAULT_ICP_DESCRIPTIVE,
   PRIORITY_LABELS,
   type Priority,
+  generateIcpEssay,
 } from "@/components/admin/icp-config";
 import { useToast } from "@/hooks/use-toast";
 
@@ -75,11 +80,74 @@ function SectionHeading({ icon: Icon, title }: { icon: React.ComponentType<any>;
   );
 }
 
-export default function CompanyResearchCriteria() {
+export default function CompanyIcpDefinition() {
   const { data: global, isLoading } = useGlobalAssumptions();
-  const [activeTab, setActiveTab] = useState("company");
+  const updateMutation = useUpdateAdminConfig();
+  const { data: companyResearch } = useMarketResearch("company");
+  const { data: properties = [] } = useProperties();
+  const [activeTab, setActiveTab] = useState("icp-profile");
+  const [defEditing, setDefEditing] = useState(false);
+  const [defDraft, setDefDraft] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const icpConfig: IcpConfig = useMemo(() => ({
+    ...DEFAULT_ICP_CONFIG,
+    ...((global as any)?.icpConfig && typeof (global as any).icpConfig === "object" ? (global as any).icpConfig : {}),
+  }), [global]);
+
+  const icpDescriptive: IcpDescriptive = useMemo(() => ({
+    ...DEFAULT_ICP_DESCRIPTIVE,
+    ...((global as any)?.icpDescriptive && typeof (global as any).icpDescriptive === "object" ? (global as any).icpDescriptive : {}),
+  }), [global]);
+
+  const propertyLabel = global?.propertyLabel ?? "Boutique Hotel";
+  const savedDefinition = (global as any)?.icpConfig?._definition as string | undefined;
+
+  const essay = useMemo(
+    () => generateIcpEssay(icpConfig, icpDescriptive, propertyLabel),
+    [icpConfig, icpDescriptive, propertyLabel]
+  );
+
+  const icpConfigWith = useCallback((overrides: Record<string, any>) => {
+    return { ...((global as any)?.icpConfig as Record<string, any> || {}), ...overrides };
+  }, [global]);
+
+  const handleGenerateDefinition = () => {
+    const md = generateIcpEssay(icpConfig, icpDescriptive, propertyLabel);
+    updateMutation.mutate(
+      { icpConfig: icpConfigWith({ _definition: md }) } as any,
+      {
+        onSuccess: () => {
+          setDefEditing(false);
+          toast({ title: "Generated", description: "ICP definition updated from current profile." });
+        },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to generate. Please try again.", variant: "destructive" });
+        },
+      }
+    );
+  };
+
+  const handleSaveDefinition = useCallback(() => {
+    updateMutation.mutate(
+      { icpConfig: icpConfigWith({ _definition: defDraft }) } as any,
+      {
+        onSuccess: () => {
+          setDefEditing(false);
+          toast({ title: "Saved", description: "ICP definition saved." });
+        },
+        onError: () => {
+          toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
+        },
+      }
+    );
+  }, [icpConfigWith, defDraft, updateMutation, toast]);
+
+  const handleEditDefinition = () => {
+    setDefDraft(savedDefinition || essay || "");
+    setDefEditing(true);
+  };
 
   if (isLoading) {
     return (
@@ -104,17 +172,8 @@ export default function CompanyResearchCriteria() {
   const researchConfig = ((global as any)?.researchConfig as ResearchConfig) ?? {};
   const eventConfig: Partial<ResearchEventConfig> = (researchConfig as any).company ?? {};
   const assetDef = global.assetDefinition as any;
-  const propertyLabel = global.propertyLabel ?? "Boutique Hotel";
   const companyName = global.companyName ?? "Hospitality Business";
 
-  const icpConfig: IcpConfig = {
-    ...DEFAULT_ICP_CONFIG,
-    ...((global as any).icpConfig && typeof (global as any).icpConfig === "object" ? (global as any).icpConfig : {}),
-  };
-  const icpDescriptive: IcpDescriptive = {
-    ...DEFAULT_ICP_DESCRIPTIVE,
-    ...((global as any).icpDescriptive && typeof (global as any).icpDescriptive === "object" ? (global as any).icpDescriptive : {}),
-  };
   const icpQualitative: Record<string, string> = (global as any).icpQualitative ?? {};
 
   const focusAreas = eventConfig.focusAreas?.length ? eventConfig.focusAreas : [
@@ -173,6 +232,21 @@ export default function CompanyResearchCriteria() {
     { name: "Chapel", priority: icpConfig.chapel },
   ].filter(a => a.priority !== "no");
 
+  const SEED_SOURCES = [
+    { name: "HVS Management Agreement Study", description: "Industry-standard management fee structures, incentive fee triggers, and contract term benchmarks for hotel management companies." },
+    { name: "USALI (Uniform System of Accounts for the Lodging Industry)", description: "Standardized accounting framework defining operating expense ratios, departmental cost breakdowns, and financial reporting standards." },
+    { name: "CBRE Hotels Research", description: "Cap rate surveys, lending benchmarks, investment market data, and operating performance metrics for the hospitality sector." },
+    { name: "STR (Smith Travel Research)", description: "Occupancy rates, ADR trends, RevPAR benchmarks, ramp-up curves, and competitive set performance data." },
+  ];
+
+  const researchContent = companyResearch?.content as any;
+  const researchSources = researchContent?.sources as Array<{ name: string; url?: string; category?: string }> | undefined;
+  const researchMeta = {
+    model: companyResearch?.llmModel || null,
+    timestamp: companyResearch?.updatedAt ? new Date(companyResearch.updatedAt).toLocaleString() : null,
+    tokenCount: researchContent?.tokenCount || researchContent?._meta?.tokenCount || null,
+  };
+
   const handleExportPDF = async () => {
     try {
       const response = await fetch("/api/premium-export", {
@@ -181,7 +255,7 @@ export default function CompanyResearchCriteria() {
         body: JSON.stringify({
           format: "pdf",
           reportType: "company-research-criteria",
-          title: `${companyName} Co. — Research Criteria`,
+          title: `${companyName} Co. — ICP Definition`,
           data: {
             companyName,
             propertyLabel,
@@ -189,6 +263,7 @@ export default function CompanyResearchCriteria() {
             icpConfig,
             icpDescriptive,
             icpQualitative,
+            icpDefinition: savedDefinition || essay,
             qualitativeSections: qualitativeSections.map(s => ({ ...s, content: icpQualitative[s.key] })),
             amenityItems,
             focusAreas,
@@ -206,7 +281,7 @@ export default function CompanyResearchCriteria() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${companyName.replace(/\s+/g, "-")}-Research-Criteria.pdf`;
+      a.download = `${companyName.replace(/\s+/g, "-")}-ICP-Definition.pdf`;
       a.click();
       URL.revokeObjectURL(url);
       toast({ title: "Exported", description: "PDF downloaded successfully." });
@@ -223,7 +298,7 @@ export default function CompanyResearchCriteria() {
         body: JSON.stringify({
           format: "pptx",
           reportType: "company-research-criteria",
-          title: `${companyName} Co. — Research Criteria`,
+          title: `${companyName} Co. — ICP Definition`,
           data: {
             companyName,
             propertyLabel,
@@ -231,6 +306,7 @@ export default function CompanyResearchCriteria() {
             icpConfig,
             icpDescriptive,
             icpQualitative,
+            icpDefinition: savedDefinition || essay,
             qualitativeSections: qualitativeSections.map(s => ({ ...s, content: icpQualitative[s.key] })),
             amenityItems,
             focusAreas,
@@ -248,7 +324,7 @@ export default function CompanyResearchCriteria() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${companyName.replace(/\s+/g, "-")}-Research-Criteria.pptx`;
+      a.download = `${companyName.replace(/\s+/g, "-")}-ICP-Definition.pptx`;
       a.click();
       URL.revokeObjectURL(url);
       toast({ title: "Exported", description: "PowerPoint downloaded successfully." });
@@ -262,8 +338,8 @@ export default function CompanyResearchCriteria() {
       <AnimatedPage>
         <div className="space-y-6 max-w-5xl" ref={contentRef}>
           <PageHeader
-            title="Research Criteria"
-            subtitle={`${companyName} Co. — Management Company Research Parameters`}
+            title="ICP Definition"
+            subtitle={`${companyName} Co. — Ideal Customer Profile & Research Parameters`}
             variant="dark"
             backLink="/company/assumptions"
             actions={
@@ -271,7 +347,7 @@ export default function CompanyResearchCriteria() {
             }
           />
 
-          <Card className="bg-primary/5 border-primary/20 p-4" data-testid="criteria-advisory-notice">
+          <Card className="bg-primary/5 border-primary/20 p-4" data-testid="icp-advisory-notice">
             <div className="flex gap-3">
               <IconInfo className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div className="space-y-2">
@@ -293,64 +369,117 @@ export default function CompanyResearchCriteria() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="company" data-testid="tab-company-context">
-                <IconBuilding className="w-3.5 h-3.5 mr-1.5" />
-                Company
-              </TabsTrigger>
-              <TabsTrigger value="icp" data-testid="tab-icp-profile">
+              <TabsTrigger value="icp-profile" data-testid="tab-icp-profile">
                 <IconTarget className="w-3.5 h-3.5 mr-1.5" />
                 ICP Profile
               </TabsTrigger>
-              <TabsTrigger value="config" data-testid="tab-research-config">
-                <IconSettings className="w-3.5 h-3.5 mr-1.5" />
-                Configuration
+              <TabsTrigger value="market-context" data-testid="tab-market-context">
+                <IconBuilding className="w-3.5 h-3.5 mr-1.5" />
+                Market Context
               </TabsTrigger>
-              <TabsTrigger value="sources" data-testid="tab-sources">
+              <TabsTrigger value="industry-standards" data-testid="tab-industry-standards">
+                <IconSettings className="w-3.5 h-3.5 mr-1.5" />
+                Industry Standards
+              </TabsTrigger>
+              <TabsTrigger value="data-sources" data-testid="tab-data-sources">
                 <IconGlobe className="w-3.5 h-3.5 mr-1.5" />
-                Sources & Model
+                Data Sources
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="company" className="space-y-4">
-              <Card className="border border-border rounded-lg p-5 space-y-4">
-                <SectionHeading icon={IconDatabase} title="Company Context" />
-                <p className="text-xs text-muted-foreground">
-                  These company-level details shape the AI's understanding of your management 
-                  entity and the asset class you specialize in.
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="criteria-company-context">
-                  {companyInputs.map((input, i) => (
-                    <DataCard key={i} label={input.label} value={input.value} />
-                  ))}
-                </div>
-              </Card>
-
-              {assetDef?.description && (
-                <Card className="border border-border rounded-lg p-5 space-y-3">
-                  <SectionHeading icon={IconFileText} title="Asset Class Description" />
-                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-                    {assetDef.description}
-                  </p>
-                </Card>
-              )}
-
-              <Card className="border border-border rounded-lg p-5 space-y-4">
-                <SectionHeading icon={IconDollarSign} title="Research Focus Areas" />
-                <p className="text-xs text-muted-foreground">
-                  The AI researcher covers these specific domains for management company analysis.
-                </p>
-                <div className="space-y-1.5">
-                  {focusAreas.map((area, i) => (
-                    <div key={i} className="flex items-center gap-2.5 py-1.5 px-3 rounded-md bg-muted/30">
-                      <span className="text-xs font-mono text-primary/60 w-5">{i + 1}.</span>
-                      <span className="text-sm text-foreground">{area}</span>
+            {/* ── ICP Profile Tab ── */}
+            <TabsContent value="icp-profile" className="space-y-4">
+              <Card className="border border-border rounded-lg overflow-hidden" data-testid="card-icp-definition">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-base font-semibold text-foreground">
+                        ICP Definition
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Human-readable summary of the Ideal Customer Profile. Generate from current settings or edit by hand.
+                      </p>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={handleGenerateDefinition}
+                        disabled={updateMutation.isPending}
+                        className="text-xs h-8 gap-1.5"
+                        data-testid="button-generate-definition"
+                      >
+                        <IconRefreshCw className="w-3.5 h-3.5" />
+                        {savedDefinition ? "Regenerate" : "Generate"}
+                      </Button>
+                      {!defEditing ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleEditDefinition}
+                          disabled={!savedDefinition && !essay}
+                          className="text-xs h-8 gap-1.5"
+                          data-testid="button-edit-definition"
+                        >
+                          <IconPencil className="w-3.5 h-3.5" />
+                          Edit
+                        </Button>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={handleSaveDefinition}
+                            disabled={updateMutation.isPending}
+                            className="text-xs h-8 gap-1.5"
+                            data-testid="button-save-definition"
+                          >
+                            {updateMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setDefEditing(false)}
+                            className="text-xs h-8"
+                            data-testid="button-cancel-definition"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {defEditing ? (
+                    <textarea
+                      value={defDraft}
+                      onChange={(e) => setDefDraft(e.target.value)}
+                      className="w-full min-h-[300px] text-sm leading-relaxed font-sans text-foreground/90 bg-muted/40 border border-border rounded p-4 resize-y focus:outline-none focus:ring-1 focus:ring-ring"
+                      data-testid="textarea-icp-definition"
+                    />
+                  ) : savedDefinition ? (
+                    <div
+                      className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90"
+                      data-testid="text-icp-definition"
+                    >
+                      {savedDefinition.split("\n\n").map((paragraph, i) => (
+                        <p key={i} className="mb-3 last:mb-0">{paragraph}</p>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <IconBookOpen className="w-8 h-8 mx-auto mb-3 opacity-40" />
+                      <p className="text-sm font-medium">No ICP definition generated yet</p>
+                      <p className="text-xs mt-1">
+                        Click <strong>Generate</strong> to build the definition from your current ICP profile settings.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
               </Card>
-            </TabsContent>
 
-            <TabsContent value="icp" className="space-y-4">
               {qualitativeSections.length > 0 && (
                 <Card className="border border-border rounded-lg p-5 space-y-4">
                   <SectionHeading icon={IconTarget} title="Strategic Vision" />
@@ -467,13 +596,146 @@ export default function CompanyResearchCriteria() {
               )}
             </TabsContent>
 
-            <TabsContent value="config" className="space-y-4">
+            {/* ── Market Context Tab ── */}
+            <TabsContent value="market-context" className="space-y-4">
+              <Card className="bg-amber-500/5 border-amber-500/20 p-4" data-testid="context-advisory-note">
+                <div className="flex gap-3">
+                  <IconInfo className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground">Context vs. Benchmarked Values</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      The values below are used as <span className="font-medium text-foreground">context</span> for 
+                      the AI researcher — they describe your company and portfolio so the AI can find relevant benchmarks. 
+                      The AI <span className="font-medium text-foreground">does not modify</span> these values; instead, 
+                      it benchmarks your management fees, operating costs, and compensation against industry standards.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="border border-border rounded-lg p-5 space-y-4">
+                <SectionHeading icon={IconDatabase} title="Company Context" />
+                <p className="text-xs text-muted-foreground">
+                  These company-level details shape the AI's understanding of your management 
+                  entity and the asset class you specialize in.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="criteria-company-context">
+                  {companyInputs.map((input, i) => (
+                    <DataCard key={i} label={input.label} value={input.value} />
+                  ))}
+                  <DataCard label="Property Count" value={`${properties.length} properties`} />
+                  {properties.length > 0 && (
+                    <DataCard
+                      label="Portfolio Markets"
+                      value={[...new Set(properties.map(p => p.location).filter(Boolean))].join(", ") || "—"}
+                    />
+                  )}
+                </div>
+              </Card>
+
+              <Card className="border border-border rounded-lg p-5 space-y-4">
+                <SectionHeading icon={IconDollarSign} title="Fee Structures" />
+                <p className="text-xs text-muted-foreground">
+                  Management fee rates applied across the portfolio — the AI benchmarks these 
+                  against industry standards (HVS, CBRE).
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="criteria-fee-structures">
+                  <DataCard label="Base Management Fee" value={`${global.baseManagementFee}%`} />
+                  <DataCard label="Incentive Management Fee" value={`${global.incentiveManagementFee}%`} />
+                  <DataCard label="Marketing Rate" value={`${global.marketingRate}%`} />
+                  <DataCard label="Misc Ops Rate" value={`${global.miscOpsRate}%`} />
+                </div>
+              </Card>
+
+              <Card className="border border-border rounded-lg p-5 space-y-4">
+                <SectionHeading icon={IconBuilding} title="Overhead Structure" />
+                <p className="text-xs text-muted-foreground">
+                  Fixed overhead costs that define the management company's operational cost base.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="criteria-overhead">
+                  <DataCard label="Office Lease" value={fmt$(global.officeLeaseStart)} />
+                  <DataCard label="Professional Services" value={fmt$(global.professionalServicesStart)} />
+                  <DataCard label="Tech Infrastructure" value={fmt$(global.techInfraStart)} />
+                  <DataCard label="Business Insurance" value={fmt$(global.businessInsuranceStart)} />
+                  <DataCard label="Travel per Client" value={fmt$(global.travelCostPerClient)} />
+                  <DataCard label="IT License per Client" value={fmt$(global.itLicensePerClient)} />
+                </div>
+              </Card>
+
+              <Card className="border border-border rounded-lg p-5 space-y-4">
+                <SectionHeading icon={IconUsers} title="Staffing Model" />
+                <p className="text-xs text-muted-foreground">
+                  Staffing tiers and compensation structure for the management company.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="criteria-staffing">
+                  <DataCard label="Staff Salary (avg)" value={fmt$(global.staffSalary)} />
+                  <DataCard label="Partner Count (Yr 1)" value={`${global.partnerCountYear1} partners`} />
+                  <DataCard label="Partner Comp (Yr 1)" value={fmt$(global.partnerCompYear1)} />
+                  <DataCard label="Tier 1 (≤ props)" value={`≤${global.staffTier1MaxProperties} → ${global.staffTier1Fte} FTE`} />
+                  <DataCard label="Tier 2 (≤ props)" value={`≤${global.staffTier2MaxProperties} → ${global.staffTier2Fte} FTE`} />
+                  <DataCard label="Tier 3 (above)" value={`${global.staffTier3Fte} FTE`} />
+                </div>
+              </Card>
+
+              {assetDef?.description && (
+                <Card className="border border-border rounded-lg p-5 space-y-3">
+                  <SectionHeading icon={IconFileText} title="Asset Class Description" />
+                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+                    {assetDef.description}
+                  </p>
+                </Card>
+              )}
+
+              <Card className="border border-border rounded-lg p-5 space-y-4">
+                <SectionHeading icon={IconDollarSign} title="Research Focus Areas" />
+                <p className="text-xs text-muted-foreground">
+                  The AI researcher covers these specific domains for management company analysis.
+                </p>
+                <div className="space-y-1.5">
+                  {focusAreas.map((area, i) => (
+                    <div key={i} className="flex items-center gap-2.5 py-1.5 px-3 rounded-md bg-muted/30">
+                      <span className="text-xs font-mono text-primary/60 w-5">{i + 1}.</span>
+                      <span className="text-sm text-foreground">{area}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </TabsContent>
+
+            {/* ── Industry Standards Tab ── */}
+            <TabsContent value="industry-standards" className="space-y-4">
+              <Card className="border border-border rounded-lg p-5 space-y-4">
+                <SectionHeading icon={IconFileText} title="Seed Benchmark Sources" />
+                <p className="text-xs text-muted-foreground">
+                  These authoritative industry sources provide the foundational benchmarks that drive 
+                  the AI's company-level research analysis.
+                </p>
+                <div className="space-y-3">
+                  {SEED_SOURCES.map((source, i) => (
+                    <div key={i} className="rounded-lg border border-border bg-muted/20 p-4 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <IconFileText className="w-4 h-4 text-primary/70" />
+                        <h4 className="text-sm font-medium text-foreground">{source.name}</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {source.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
               <Card className="border border-border rounded-lg p-5 space-y-4">
                 <SectionHeading icon={IconSettings} title="Admin Research Configuration" />
                 <p className="text-xs text-muted-foreground">
                   These settings are managed by your administrator in the Research Center and 
                   shape how the AI conducts its company-level analysis.
                 </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <DataCard label="Preferred LLM" value={preferredLlm} />
+                  {timeHorizon && <DataCard label="Investment Horizon" value={timeHorizon} />}
+                </div>
 
                 {regions.length > 0 && (
                   <div className="space-y-1.5">
@@ -483,13 +745,6 @@ export default function CompanyResearchCriteria() {
                         <Badge key={r} variant="outline" className="text-xs">{r}</Badge>
                       ))}
                     </div>
-                  </div>
-                )}
-
-                {timeHorizon && (
-                  <div className="space-y-1.5">
-                    <p className="label-text text-muted-foreground font-medium text-[11px] uppercase tracking-wide">Investment Horizon</p>
-                    <p className="text-sm text-foreground">{timeHorizon}</p>
                   </div>
                 )}
 
@@ -534,7 +789,8 @@ export default function CompanyResearchCriteria() {
               )}
             </TabsContent>
 
-            <TabsContent value="sources" className="space-y-4">
+            {/* ── Data Sources Tab ── */}
+            <TabsContent value="data-sources" className="space-y-4">
               {customSources.length > 0 && (
                 <Card className="border border-border rounded-lg p-5 space-y-4">
                   <SectionHeading icon={IconGlobe} title="Curated Sources" />
@@ -569,20 +825,57 @@ export default function CompanyResearchCriteria() {
                 </Card>
               )}
 
-              <Card className="border border-border rounded-lg p-5 space-y-3">
-                <SectionHeading icon={IconCpu} title="AI Model" />
-                <DataCard label="Preferred Model" value={preferredLlm} />
+              {researchSources && researchSources.length > 0 && (
+                <Card className="border border-border rounded-lg p-5 space-y-4">
+                  <SectionHeading icon={IconExternalLink} title="Sources from Last Research Run" />
+                  <p className="text-xs text-muted-foreground">
+                    External references cited in the most recent company research generation.
+                  </p>
+                  <div className="space-y-2">
+                    {researchSources.map((source, i) => (
+                      <div key={i} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          {source.category && <Badge variant="outline" className="text-xs shrink-0">{source.category}</Badge>}
+                          <span className="text-sm text-foreground truncate">{source.name}</span>
+                        </div>
+                        {source.url && (
+                          <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors shrink-0">
+                            <IconExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              <Card className="border border-border rounded-lg p-5 space-y-4">
+                <SectionHeading icon={IconCpu} title="Generation Metadata" />
+                <p className="text-xs text-muted-foreground">
+                  Details from the most recent company research generation run.
+                </p>
+                {researchMeta.model || researchMeta.timestamp ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {researchMeta.model && <DataCard label="Model" value={researchMeta.model} />}
+                    {researchMeta.timestamp && <DataCard label="Generated" value={researchMeta.timestamp} />}
+                    {researchMeta.tokenCount != null && <DataCard label="Tokens" value={researchMeta.tokenCount.toLocaleString()} />}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    No company research has been generated yet. Run research from the Company Assumptions page to populate this data.
+                  </p>
+                )}
               </Card>
             </TabsContent>
           </Tabs>
 
-          <Card className="bg-muted/30 border-border p-4" data-testid="criteria-readonly-notice">
+          <Card className="bg-muted/30 border-border p-4" data-testid="icp-readonly-notice">
             <div className="flex gap-3">
               <IconAlertCircle className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
               <p className="text-sm text-muted-foreground leading-relaxed">
-                These criteria are read-only. To change the ICP profile, visit the ICP Studio 
-                in the Admin panel. To adjust the research configuration, update the settings 
-                in the Research Center.
+                The ICP Definition can be generated and edited above. Other tabs are read-only — 
+                to change the ICP profile parameters, visit the ICP Studio in the Admin panel. 
+                To adjust the research configuration, update the settings in the Research Center.
               </p>
             </div>
           </Card>

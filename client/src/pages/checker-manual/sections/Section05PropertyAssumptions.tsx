@@ -57,12 +57,12 @@ import { SectionCard } from "@/components/ui/section-card";
           ]}
         />
         <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Inline Badges</h3>
-        <p className="text-muted-foreground text-sm mb-2">Assumption fields display two types of inline badges next to their labels: GAAP/IRS badges and Research Badges.</p>
+        <p className="text-muted-foreground text-sm mb-2">Assumption fields display two types of inline badges next to their labels: GAAP/IRS badges and benchmark range labels.</p>
         <ManualTable
           headers={["Badge", "Color", "Purpose", "Interaction"]}
           rows={[
             ["GAAP/IRS Badge (ⓘ)", "Blue circle, white icon", "Shows the GAAP or IRS rule governing this field", "Hover to see the accounting standard and its implications"],
-            ["Research Badge", "Amber pill", "Shows AI-researched market range for this assumption", "Click to auto-fill the recommended value from market data"],
+            ["Benchmark Range Label", "Light yellow pill", "Shows AI-researched market range for this assumption (e.g., 55%-70%)", "Hover to see source and date; click to auto-fill the recommended value"],
           ]}
         />
         <h4 className="text-foreground text-xs font-semibold mt-3 mb-2">GAAP/IRS Rules by Field</h4>
@@ -84,7 +84,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Sale Commission", "IRC §1001", "Reduces amount realized on sale; deducted from gross proceeds"],
           ]}
         />
-        <h4 className="text-foreground text-xs font-semibold mt-3 mb-2">Research Badge Fields</h4>
+        <h4 className="text-foreground text-xs font-semibold mt-3 mb-2">Benchmark Range Label Fields</h4>
         <ManualTable
           headers={["Field", "Generic Range", "Source"]}
           rows={[
@@ -99,7 +99,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Exit Cap Rate", "Market-dependent", "AI property research (capRateAnalysis)"],
           ]}
         />
-        <Callout>Research Badges only appear when AI market research has been run for the property. GAAP badges are always visible.</Callout>
+        <Callout>Benchmark range labels only appear when AI market research has been run for the property. GAAP badges are always visible.</Callout>
         <h3 className="text-foreground text-sm font-semibold mt-4 mb-2">Revenue Shares & Cost Rates</h3>
         <ManualTable
           headers={["Variable", "Description", "Default", "Unit"]}

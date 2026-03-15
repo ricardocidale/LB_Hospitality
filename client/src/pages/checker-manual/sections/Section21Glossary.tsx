@@ -82,7 +82,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Pro Forma", "Projected financial statements based on assumptions", "—", "Financial Statement"],
             ["Projection Period", "Number of years modeled (configurable, default 10)", "—", "Assumptions"],
             ["Purchase Price", "Acquisition cost of the property asset", "—", "Capital"],
-            ["Research Badge", "Amber inline badge showing AI-researched market range; click to auto-fill recommended value", "—", "UI"],
+            ["Benchmark Range Label", "Light yellow inline label showing AI-researched market range (e.g., 55%-70%); hover for source and date; click to auto-fill recommended value", "—", "UI"],
             ["Refinancing", "Replacing existing debt with new loan, typically post-stabilization", "F-F-06", "Financing"],
             ["Refi Proceeds", "Net cash from refinancing = New Loan − Old Balance − Costs", "F-F-07", "Financing"],
             ["RevPAR", "Revenue Per Available Room = ADR × Occupancy", "—", "Revenue"],

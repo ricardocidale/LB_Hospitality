@@ -1,24 +1,19 @@
 /**
- * research-badge.tsx — Research Badge component.
+ * research-badge.tsx — Benchmark Range Label component.
  *
- * A Research Badge is a small inline pill that appears next to assumption
- * fields throughout the portal. It displays a label-value pair such as
- * "(Industry: $240–$380)" representing an AI-researched or market-sourced
- * benchmark range. Clicking a Research Badge auto-fills the field with
- * the recommended midpoint value.
+ * A small inline pill that appears next to assumption fields throughout the
+ * portal. It displays a benchmark range value such as "55%-70%" representing
+ * an AI-researched or market-sourced benchmark. Clicking the label auto-fills
+ * the field with the recommended midpoint value.
  *
- * Color-coded by source type:
- *   - market (blue)    — live API data (FRED, BLS, Frankfurter)
- *   - industry (amber) — cited benchmark from industry publications
- *   - ai (purple)      — AI-generated research
- *   - seed (amber)     — legacy/backward-compat for existing seed values
+ * All benchmark labels use a consistent light yellow background regardless
+ * of source type. The source context (e.g. "Industry", "Market") appears
+ * only in the tooltip on hover, along with the date.
  *
- * Tooltip shows the source name and date on hover.
- *
- * Research Badges only appear after AI market research has been run for the
+ * Benchmark labels only appear after AI market research has been run for the
  * property or company. They are advisory only — the financial engine never
  * uses AI-generated values directly. Users must explicitly accept a
- * recommendation by clicking the Research Badge.
+ * recommendation by clicking the label.
  */
 import * as React from "react";
 import { cn } from "@/lib/utils";
@@ -58,43 +53,28 @@ const SOURCE_LABELS: Record<BadgeSourceType, string> = {
   seed: "Research",
 };
 
-const SOURCE_STYLES: Record<BadgeSourceType, { light: string; dark: string }> = {
-  market: {
-    light: "text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200",
-    dark: "text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30",
-  },
-  industry: {
-    light: "text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200",
-    dark: "text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30",
-  },
-  ai: {
-    light: "text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200",
-    dark: "text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30",
-  },
-  seed: {
-    light: "text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200",
-    dark: "text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30",
-  },
+const BENCHMARK_STYLE = {
+  light: "text-yellow-800 hover:text-yellow-900 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200",
+  dark: "text-yellow-300 hover:text-yellow-200 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30",
 };
 
 function formatTooltip(sourceType: BadgeSourceType, sourceName?: string, sourceDate?: string): string {
   const parts: string[] = [];
+  const label = SOURCE_LABELS[sourceType];
   if (sourceName) {
     parts.push(sourceName);
+  } else if (label) {
+    parts.push(label);
   }
   if (sourceDate) {
     try {
       const d = new Date(sourceDate);
       parts.push(`updated ${d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`);
     } catch (error) {
-      // Fallback to raw date string if parsing fails
       parts.push(`updated ${sourceDate}`);
     }
   }
-  if (parts.length > 0) {
-    return `${parts.join(", ")}. Click to apply.`;
-  }
-  return "Click to apply research-recommended value";
+  return parts.length > 0 ? parts.join(", ") : "";
 }
 
 function resolveSourceType(source?: string): BadgeSourceType {
@@ -113,9 +93,7 @@ const ResearchBadge = React.forwardRef<HTMLButtonElement, ResearchBadgeProps>(
     if (!value) return null;
 
     const isDark = variant === "dark";
-    const label = SOURCE_LABELS[sourceType];
-    const styles = SOURCE_STYLES[sourceType];
-    const colorClass = isDark ? styles.dark : styles.light;
+    const colorClass = isDark ? BENCHMARK_STYLE.dark : BENCHMARK_STYLE.light;
     const tooltipText = formatTooltip(sourceType, sourceName, sourceDate);
 
     const button = (
@@ -130,11 +108,11 @@ const ResearchBadge = React.forwardRef<HTMLButtonElement, ResearchBadgeProps>(
         )}
         data-testid={props["data-testid"] ?? "badge-research"}
       >
-        ({label}: {value})
+        {value}
       </button>
     );
 
-    if (sourceName || sourceDate) {
+    if (tooltipText) {
       return (
         <TooltipProvider delayDuration={300}>
           <Tooltip>

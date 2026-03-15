@@ -28,7 +28,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Disposition", "Sale commission norms by market", "Sale Commission (4–6%)"],
           ]}
         />
-        <p className="text-muted-foreground text-sm mt-2">When research is available, Research Badges appear next to assumption fields showing the AI-recommended market range. Click any Research Badge to auto-fill the recommended value.</p>
+        <p className="text-muted-foreground text-sm mt-2">When research is available, benchmark range labels appear next to assumption fields showing the AI-recommended market range. Hover to see the data source and date. Click any benchmark label to auto-fill the recommended value.</p>
       </SectionCard>
     );
   }

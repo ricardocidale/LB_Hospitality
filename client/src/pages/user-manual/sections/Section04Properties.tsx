@@ -49,8 +49,8 @@ export default function Section04Properties({ expanded, onToggle, sectionRef }: 
       </div>
 
       <Callout variant="light">
-        When editing assumptions, look for blue badges (GAAP/IRS rules) and Research Badges (AI-researched market ranges) next to field labels.
-        Hover blue badges to see the accounting standard. Click any Research Badge to auto-fill market-recommended values.
+        When editing assumptions, look for blue badges (GAAP/IRS rules) and benchmark range labels (AI-researched market ranges with a light yellow background) next to field labels.
+        Hover blue badges to see the accounting standard. Click any benchmark label to auto-fill market-recommended values.
       </Callout>
     </SectionCard>
   );

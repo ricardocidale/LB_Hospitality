@@ -323,10 +323,10 @@ GAAP/IRS Rules by Field:
   });
 
   chunks.push({
-    title: "Research Badges & Market Calibration",
-    content: `The property edit page displays Research Badges next to assumption fields that have AI-researched market data. A Research Badge is a small inline pill showing a label-value pair such as "(Industry: $240–$380)". Click any Research Badge to auto-fill the recommended value.
+    title: "Benchmark Range Labels & Market Calibration",
+    content: `The property edit page displays benchmark range labels next to assumption fields that have AI-researched market data. A benchmark label is a small inline pill with a light yellow background showing just the range value (e.g., "$240–$380"). Hover to see the data source and date in the tooltip.
 
-Research Badges appear on these fields after running AI market research for a property:
+Benchmark labels appear on these fields after running AI market research for a property:
 - Starting ADR: Market-dependent range from AI ADR analysis
 - Starting Occupancy: Market-dependent range from AI occupancy analysis
 - ADR Annual Growth: Generic range 3–5% per year
@@ -337,11 +337,11 @@ Research Badges appear on these fields after running AI market research for a pr
 - Sale Commission: Generic range 4–6% of gross sale price
 - Exit Cap Rate: Market-dependent from AI cap rate analysis
 
-Research Badges are color-coded by source type: blue for live market API data (FRED, BLS), amber for industry benchmarks (HVS, CBRE, STR), and purple for AI-generated research.
+All benchmark labels use a consistent light yellow background. The source context (e.g., "Industry", "Market") is shown only in the tooltip on hover, not in the label text itself.
 
 AI research uses Claude Sonnet to analyze the property's market, competitive set, and location. The research covers ADR benchmarks, occupancy trends, cap rate analysis, revenue mix benchmarks, and disposition norms.
 
-Important: Research Badges are advisory only. The financial engine never uses AI-generated values directly. Users must explicitly accept a recommendation by clicking the Research Badge. This ensures no LLM output enters financial calculations without human review.
+Important: Benchmark labels are advisory only. The financial engine never uses AI-generated values directly. Users must explicitly accept a recommendation by clicking the label. This ensures no LLM output enters financial calculations without human review.
 
 Research can be run from the property detail page or the property edit page. Multiple research types are available: ADR analysis, occupancy analysis, cap rate analysis, operating cost benchmarks, and property value analysis.`,
     source: "Platform Guide",

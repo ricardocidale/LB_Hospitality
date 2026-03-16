@@ -275,15 +275,15 @@ describe("parseLocalDate single source of truth (context-reduction)", () => {
 // Section 4: .claude is the sole source of truth
 // Rule: documentation.md
 // ─────────────────────────────────────────────────────────────
-describe(".claude is the sole source of truth (documentation)", () => {
+describe("doc harmony — replit.md and claude.md stay in sync", () => {
   const ROOT = path.resolve(".");
   const claudeMd = path.join(ROOT, ".claude", "claude.md");
   const replitMd = path.join(ROOT, "replit.md");
 
-  it(".claude/claude.md exists as the master document", () => {
+  it(".claude/claude.md exists", () => {
     expect(
       fs.existsSync(claudeMd),
-      ".claude/claude.md must exist as the sole source of truth"
+      ".claude/claude.md must exist"
     ).toBe(true);
   });
 
@@ -298,25 +298,27 @@ describe(".claude is the sole source of truth (documentation)", () => {
     ).toBe(0);
   });
 
-  it("replit.md exists and is a slim pointer (≤ 150 lines)", () => {
+  it("replit.md exists and is comprehensive (covers key sections)", () => {
     expect(fs.existsSync(replitMd), "replit.md must exist").toBe(true);
     if (!fs.existsSync(replitMd)) return;
-    const lines = fs.readFileSync(replitMd, "utf-8").split("\n").length;
+    const content = fs.readFileSync(replitMd, "utf-8");
+    const required = ["User Roles", "Key Rules", "Quick Commands", "Skill Router", "Tech Stack"];
+    const missing = required.filter((s) => !content.includes(s));
     expect(
-      lines,
-      `replit.md must be ≤ 150 lines (slim pointer only). Currently ${lines} lines. Move details to .claude/claude.md.`
-    ).toBeLessThanOrEqual(150);
+      missing.length,
+      `replit.md is missing required sections: ${missing.join(", ")}. Both docs must be comprehensive.`
+    ).toBe(0);
   });
 
-  it("replit.md references .claude/claude.md as the master document", () => {
+  it("replit.md references .claude/ skills directory", () => {
     if (!fs.existsSync(replitMd)) return;
     const content = fs.readFileSync(replitMd, "utf-8");
     const hasRef =
-      content.includes(".claude/claude.md") ||
-      content.includes(".claude\\claude.md");
+      content.includes(".claude/skills/") ||
+      content.includes(".claude/rules/");
     expect(
       hasRef,
-      "replit.md must reference .claude/claude.md as the authoritative document"
+      "replit.md must reference .claude/skills/ or .claude/rules/ so agents can find skills"
     ).toBe(true);
   });
 
@@ -328,19 +330,6 @@ describe(".claude is the sole source of truth (documentation)", () => {
       `Found root-level file(s) that could shadow .claude/: ${found.join(", ")}. ` +
       `All project knowledge must live inside .claude/.`
     ).toHaveLength(0);
-  });
-
-  it("replit.md exists and contains a pointer to .claude/claude.md", () => {
-    expect(fs.existsSync(replitMd), "replit.md must exist").toBe(true);
-    if (!fs.existsSync(replitMd)) return;
-    const content = fs.readFileSync(replitMd, "utf-8");
-    const hasPointer =
-      content.includes(".claude/claude.md") ||
-      content.includes(".claude/");
-    expect(
-      hasPointer,
-      "replit.md must contain a pointer to .claude/ as the project knowledge source"
-    ).toBe(true);
   });
 
   it("no .md rule files exist outside .claude/rules/", () => {

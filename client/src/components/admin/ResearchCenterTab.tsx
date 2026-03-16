@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { SaveButton } from "@/components/ui/save-button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, X, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, X, ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import {
   IconPlus, IconBrain, IconExternalLink, IconRefreshCw,
   IconResearch, IconProperties, IconMapPin, IconTarget,

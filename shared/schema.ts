@@ -1191,6 +1191,7 @@ export const designThemes = pgTable("design_themes", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   colors: jsonb("colors").notNull().$type<DesignColor[]>(),
+  iconSet: text("icon_set").notNull().default("lucide"),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -1212,6 +1213,7 @@ export const insertDesignThemeSchema = z.object({
     hexCode: z.string(),
     description: z.string(),
   })),
+  iconSet: z.enum(["lucide", "phosphor"]).optional(),
   isDefault: z.boolean().optional(),
 });
 

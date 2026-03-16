@@ -25,7 +25,7 @@ import {
   IconPencil,
   IconBookOpen,
 } from "@/components/icons";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { ExportMenu, pdfAction, pptxAction } from "@/components/ui/export-toolbar";
 import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
 import {

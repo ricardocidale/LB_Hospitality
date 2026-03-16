@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconPhone, IconCheckCircle2, IconXCircle, IconMessageCircle, IconExternalLink, IconCopy, IconSend } from "@/components/icons";
 import { VoiceSettings, TwilioStatus } from "./types";
 import { useSendTestSms } from "@/features/ai-agent/hooks/use-agent-settings";

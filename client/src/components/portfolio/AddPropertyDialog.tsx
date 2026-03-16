@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconPlus } from "@/components/icons";
 import { PropertyImagePicker } from "@/features/property-images";
 import { CurrencyInput } from "./CurrencyInput";

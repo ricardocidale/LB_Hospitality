@@ -12,7 +12,7 @@
  */
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconCamera } from "@/components/icons";
 import { useUpload } from "@/hooks/use-upload";
 import { useUpdateProperty } from "@/lib/api";

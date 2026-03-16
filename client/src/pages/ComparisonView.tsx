@@ -7,7 +7,7 @@ import { exportTablePNG, captureChartAsImage } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Trophy, Info } from "lucide-react";
+import { Check, Trophy, Info } from "@/components/icons/themed-icons";
 // jspdf, jspdf-autotable, xlsx, pptxgenjs are dynamically imported in export handlers
 
 function fmtMoney(value: number): string {

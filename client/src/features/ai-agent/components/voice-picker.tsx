@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import type { ElevenLabs } from "@elevenlabs/elevenlabs-js"
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "@/components/icons/themed-icons";
 import { IconPause, IconPlay } from "@/components/icons";
 
 import { cn } from "@/lib/utils"

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconClock, IconLogIn } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatDuration } from "@/lib/formatters";

@@ -35,7 +35,7 @@ import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconAlertTriangle, IconDashboard, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconInvestment } from "@/components/icons";import { PageHeader } from "@/components/ui/page-header";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";

@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import {
   IconRefreshCw, IconMapPin, IconBookOpen,
   IconFileDown, IconTrendingUp, IconDollarSign,

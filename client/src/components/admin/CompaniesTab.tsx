@@ -24,7 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconPlus, IconTrash, IconPencil, IconBuilding2, IconSave, IconImage, IconFileText, IconPalette } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminUsers, useAdminLogos, useAdminThemes, useAdminCompanies } from "./hooks";

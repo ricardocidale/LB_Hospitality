@@ -12,7 +12,7 @@
  * Property order can be controlled by the parent (e.g. sort by name or IRR).
  */
 import { formatMoney } from "@/lib/financialEngine";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@/components/icons/themed-icons";
 import { IconTrash, IconMapPin, IconBed, IconCalendar, IconSettings } from "@/components/icons";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";

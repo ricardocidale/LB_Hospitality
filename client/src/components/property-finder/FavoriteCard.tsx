@@ -15,7 +15,7 @@
 import { formatMoney } from "@/lib/financialEngine";
 import { Button } from "@/components/ui/button";
 import type { SavedProspectiveProperty } from "@/lib/api";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X } from "@/components/icons/themed-icons";
 import { IconExternalLink, IconBed, IconBath, IconRuler, IconTrees, IconMapPin, IconStickyNote, IconSave, IconTrash } from "@/components/icons";
 
 function PropertyTypeLabel(type: string | null): string {

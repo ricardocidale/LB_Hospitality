@@ -17,7 +17,7 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-} from "lucide-react";
+} from "@/components/icons/themed-icons";
 
 interface ExtractionField {
   id: number;

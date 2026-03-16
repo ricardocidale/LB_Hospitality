@@ -16,7 +16,7 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { SaveButton } from "@/components/ui/save-button";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconTarget, IconHotel, IconPencil, IconRefreshCw, IconBookOpen, IconMapPin, IconAlertTriangle } from "@/components/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import AssetDefinitionTab from "@/components/admin/AssetDefinitionTab";

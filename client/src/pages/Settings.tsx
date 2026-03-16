@@ -15,7 +15,7 @@ import {
 } from "@/lib/api";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconHotel, IconGlobe, IconSliders } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveButton } from "@/components/ui/save-button";

@@ -18,7 +18,7 @@ import {
   type SavedSearchData,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight } from "@/components/icons/themed-icons";
 import { IconHeart, IconAlertCircle, IconBuilding2 } from "@/components/icons";
 import {
   SearchResultCard,

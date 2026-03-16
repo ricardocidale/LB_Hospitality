@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { ContentPanel } from "@/components/ui/content-panel";
-import { Loader2, Info } from "lucide-react";
+import { Loader2, Info } from "@/components/icons/themed-icons";
 import { IconShield } from "@/components/icons";
 import { formatMoney } from "@/lib/financialEngine";
 import { InputField, formatPct } from "./InputField";

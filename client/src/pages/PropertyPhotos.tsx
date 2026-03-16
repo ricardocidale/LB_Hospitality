@@ -3,7 +3,7 @@ import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useProperty } from "@/lib/api";
 import { PropertyImagePicker, PhotoAlbumGrid } from "@/features/property-images";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "@/components/icons/themed-icons";
 import { IconAlertTriangle } from "@/components/icons";
 import { Link, useRoute } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";

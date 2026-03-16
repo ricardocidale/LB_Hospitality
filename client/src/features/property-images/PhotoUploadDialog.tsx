@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, Loader2, X, ImagePlus, Crop } from "lucide-react";
+import { Upload, Loader2, X, ImagePlus, Crop } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";

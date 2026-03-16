@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown } from "@/components/icons/themed-icons";
 import { IconPlus } from "@/components/icons";
 
 import {

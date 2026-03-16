@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Lock } from "lucide-react";
+import { Lock } from "@/components/icons/themed-icons";
 import {
   IconDashboard, IconProperties, IconBriefcase,
   IconAnalysis, IconPropertyFinder, IconMapPin,

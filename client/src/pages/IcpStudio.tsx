@@ -25,7 +25,7 @@ import {
   IconEye, IconRefreshCw, IconZap, IconSettings,
 } from "@/components/icons";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import {
   type IcpConfig, type IcpDescriptive, type IcpLocation, type Priority,
   DEFAULT_ICP_CONFIG, DEFAULT_ICP_DESCRIPTIVE,

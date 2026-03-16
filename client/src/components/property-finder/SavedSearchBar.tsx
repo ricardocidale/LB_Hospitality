@@ -11,7 +11,7 @@
  */
 import type { SavedSearchData } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X } from "@/components/icons/themed-icons";
 import { IconBookmark } from "@/components/icons";
 
 export function SavedSearchBar({

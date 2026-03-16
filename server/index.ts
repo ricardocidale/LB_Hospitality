@@ -291,6 +291,9 @@ async function runMigrationsAndSeeds() {
   const { runNotificationLogs001 } = await import("./migrations/notification-logs-001");
   await runNotificationLogs001();
 
+  const { runIconSet001 } = await import("./migrations/icon-set-001");
+  await runIconSet001();
+
   // FK indexes must run after all table-creating migrations complete
   const { runFkIndexes001 } = await import("./migrations/fk-indexes-001");
   await runFkIndexes001();

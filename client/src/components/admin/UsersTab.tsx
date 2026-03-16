@@ -27,7 +27,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Loader2, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons/themed-icons";
 import { IconEye, IconEyeOff, IconCalendar, IconSave, IconPeople, IconTrash, IconKey, IconPencil, IconUserPlus, IconShield, IconMail, IconUserCog, IconSettingsGear, IconProperties, IconBuilding2, IconImage, IconPalette, IconFileText, IconPlus } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";

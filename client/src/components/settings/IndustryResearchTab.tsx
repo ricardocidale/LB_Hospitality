@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
-import { Search, Check, X, Loader2 } from "lucide-react";
+import { Search, Check, X, Loader2 } from "@/components/icons/themed-icons";
 import { IconGlobe, IconMessageSquare, IconPencil, IconTrash, IconRefreshCw, IconPlus } from "@/components/icons";
 import { DEFAULT_INFLATION_RATE } from "@shared/constants";
 import { useGlobalAssumptions, useResearchQuestions, useCreateResearchQuestion, useUpdateResearchQuestion, useDeleteResearchQuestion } from "@/lib/api";

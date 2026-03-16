@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
 
 export interface PageHeaderProps {

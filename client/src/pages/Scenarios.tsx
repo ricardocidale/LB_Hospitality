@@ -30,7 +30,7 @@ import { useScenarios, useCreateScenario, useLoadScenario, useUpdateScenario, us
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconSave, IconFolderOpen, IconPencil, IconTrash, IconClock, IconFileStack, IconDownload, IconUpload, IconCopy, IconGitCompareArrows, IconAlertTriangle } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { useState, useRef } from "react";

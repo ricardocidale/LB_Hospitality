@@ -4,27 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, ChevronUp, ChevronDown } from "lucide-react";
+import { Loader2, ChevronUp, ChevronDown } from "@/components/icons/themed-icons";
 import { IconPlus, IconTrash, IconPencil, IconPalette, IconActivity, IconSparkles, IconType, IconSave } from "@/components/icons";
 import { ColorPicker } from "@/components/ui/color-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDesignThemes, useCreateTheme, useUpdateTheme, useDeleteTheme } from "./useDesignThemes";
 import { ThemePreview } from "./ThemePreview";
-import type { DesignTheme, DesignColor } from "./types";
+import type { DesignTheme, DesignColor, IconSetType } from "./types";
 
 export function ThemeManager() {
   const { data: designThemes, isLoading: themesLoading } = useDesignThemes();
   const [themeDialogOpen, setThemeDialogOpen] = useState(false);
   const [editingTheme, setEditingTheme] = useState<DesignTheme | null>(null);
-  const [newTheme, setNewTheme] = useState<{ name: string; description: string; colors: DesignColor[] }>({
+  const [newTheme, setNewTheme] = useState<{ name: string; description: string; colors: DesignColor[]; iconSet: IconSetType }>({
     name: "",
     description: "",
     colors: [{ rank: 1, name: "", hexCode: "#000000", description: "" }],
+    iconSet: "lucide",
   });
 
   const createThemeMutation = useCreateTheme({
     onSuccess: () => {
       setThemeDialogOpen(false);
-      setNewTheme({ name: "", description: "", colors: [{ rank: 1, name: "", hexCode: "#000000", description: "" }] });
+      setNewTheme({ name: "", description: "", colors: [{ rank: 1, name: "", hexCode: "#000000", description: "" }], iconSet: "lucide" });
     },
   });
   const updateThemeMutation = useUpdateTheme({
@@ -102,7 +104,7 @@ export function ThemeManager() {
     )}
 
     <div className="mb-6">
-      <ThemePreview themeName={activeTheme?.name} />
+      <ThemePreview themeName={activeTheme?.name} iconSet={activeTheme?.iconSet} />
     </div>
 
     <Card className="relative overflow-hidden bg-card/80 backdrop-blur-xl border border-border shadow-2xl">
@@ -143,6 +145,9 @@ export function ThemeManager() {
                       {theme.isDefault && (
                         <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-primary text-primary-foreground shrink-0">Default</span>
                       )}
+                      <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-muted text-muted-foreground shrink-0" data-testid={`badge-icon-set-${theme.id}`}>
+                        {theme.iconSet === "phosphor" ? "Phosphor" : "Lucide"}
+                      </span>
                       {theme.description && (
                         <span className="text-xs text-muted-foreground truncate hidden sm:inline">— {theme.description}</span>
                       )}
@@ -248,6 +253,25 @@ export function ThemeManager() {
               }
               placeholder="Describe the design philosophy and inspiration..."
             />
+          </div>
+
+          <div>
+            <Label className="flex items-center gap-2 mb-1"><IconPalette className="w-4 h-4 text-muted-foreground" />Icon Set</Label>
+            <Select
+              value={editingTheme ? editingTheme.iconSet : newTheme.iconSet}
+              onValueChange={(val: IconSetType) => editingTheme
+                ? setEditingTheme({ ...editingTheme, iconSet: val })
+                : setNewTheme({ ...newTheme, iconSet: val })
+              }
+            >
+              <SelectTrigger data-testid="select-icon-set">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lucide">Lucide (default)</SelectItem>
+                <SelectItem value="phosphor">Phosphor</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5">
@@ -391,7 +415,7 @@ export function ThemeManager() {
           <Button
             onClick={() => {
               if (editingTheme) {
-                updateThemeMutation.mutate({ id: editingTheme.id, data: { name: editingTheme.name, description: editingTheme.description, colors: editingTheme.colors } });
+                updateThemeMutation.mutate({ id: editingTheme.id, data: { name: editingTheme.name, description: editingTheme.description, colors: editingTheme.colors, iconSet: editingTheme.iconSet } });
               } else {
                 createThemeMutation.mutate(newTheme);
               }

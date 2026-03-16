@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "@/components/icons/themed-icons";
 import { IconMic, IconMicOff } from "@/components/icons";
 
 import { cn } from "@/lib/utils"

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconFileDown, IconDatabase } from "@/components/icons";
 import { Callout } from "@/components/ui/callout";
 import { SECTIONS } from "./constants";

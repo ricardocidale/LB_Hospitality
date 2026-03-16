@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Minus } from "lucide-react";
+import { Minus } from "@/components/icons/themed-icons";
 import { IconBookOpen, IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import {

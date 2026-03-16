@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconSave, IconMessageSquareText, IconMic, IconEye, IconLanguages, IconThumbsUp, IconTimer, IconToggleLeft, IconMaximize2 } from "@/components/icons";
 import { useAgentConfig, useSaveWidgetSettings, type WidgetSettingsPayload } from "./hooks";
 import { VoiceSettings } from "./types";

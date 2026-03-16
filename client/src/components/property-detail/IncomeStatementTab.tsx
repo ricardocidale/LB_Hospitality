@@ -31,7 +31,7 @@ import { formatMoney } from "@/lib/financialEngine";
 import { YearlyIncomeStatement } from "@/components/statements/YearlyIncomeStatement";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown } from "@/components/icons/themed-icons";
 import WaterfallChart, { type WaterfallItem } from "@/components/charts/WaterfallChart";
 import type { IncomeStatementTabProps } from "./types";
 

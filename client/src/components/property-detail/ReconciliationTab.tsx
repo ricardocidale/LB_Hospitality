@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2 } from "lucide-react";
+import { Building2 } from "@/components/icons/themed-icons";
 import type { MonthlyFinancials } from "@/lib/financial/types";
 
 interface ReconciliationTabProps {

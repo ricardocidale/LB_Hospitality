@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X } from "@/components/icons/themed-icons";
 import { IconWand2 } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import type { PropertyEditSectionProps } from "./types";

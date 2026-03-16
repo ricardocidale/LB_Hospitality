@@ -13,7 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, Loader2, ArrowRight } from "lucide-react";
+import { Check, Loader2, ArrowRight } from "@/components/icons/themed-icons";
 import {
   IconFlaskConical, IconBuilding2, IconBriefcase, IconGlobe, IconRefreshCw,
   IconClock, IconAlertCircle, IconBookOpen,

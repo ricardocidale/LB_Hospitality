@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from "react"
 import { useCallback } from "react"
-import { ArrowDownIcon } from "lucide-react"
+import { ArrowDownIcon } from "@/components/icons/themed-icons"
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom"
 
 import { cn } from "@/lib/utils"

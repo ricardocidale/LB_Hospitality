@@ -23,7 +23,7 @@
 import { useState } from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import { IconInfo } from "@/components/icons";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT } from "@shared/constants";

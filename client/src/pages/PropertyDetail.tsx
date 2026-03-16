@@ -30,7 +30,7 @@ import { generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from
 import { ConsolidatedBalanceSheet } from "@/components/statements/ConsolidatedBalanceSheet";
 import { CalcDetailsProvider } from "@/components/financial-table";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconAlertTriangle, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconPPE, IconBanknote, IconFileStack } from "@/components/icons";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";

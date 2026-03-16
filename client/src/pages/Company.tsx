@@ -31,7 +31,7 @@ import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFisc
 import { useServiceTemplates } from "@/lib/api/services";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconAlertTriangle, IconCheckCircle } from "@/components/icons";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { CalcDetailsProvider } from "@/components/financial-table";

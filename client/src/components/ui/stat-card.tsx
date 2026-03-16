@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/financialEngine";
-import { Minus } from "lucide-react";
+import { Minus } from "@/components/icons/themed-icons";
 import { IconTrendingUp, IconTrendingDown } from "@/components/icons";
 
 export interface StatCardProps {

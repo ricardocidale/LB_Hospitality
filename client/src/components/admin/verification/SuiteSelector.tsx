@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { IconCheckCircle2, IconXCircle, IconPlayCircle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Server, Calculator, Shield, GitCompare, Scale, Sparkles, FlaskConical } from "lucide-react";
+import { Server, Calculator, Shield, GitCompare, Scale, Sparkles, FlaskConical } from "@/components/icons/themed-icons";
 import type { SuiteId, SuiteDefinition, SuiteRunResult } from "./types";
 
 const SUITE_DEFINITIONS: SuiteDefinition[] = [

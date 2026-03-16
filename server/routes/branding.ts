@@ -104,9 +104,11 @@ export function register(app: Express) {
         resolvedTheme = await storage.getDefaultDesignTheme();
       }
 
+      let iconSet: string = "lucide";
       if (resolvedTheme) {
         themeName = resolvedTheme.name;
         themeColors = resolvedTheme.colors as object[];
+        iconSet = resolvedTheme.iconSet ?? "lucide";
       }
 
       if (!logoUrl) {
@@ -117,10 +119,10 @@ export function register(app: Express) {
       const ga = await storage.getGlobalAssumptions(u.id);
       const companyName = ga?.companyName || null;
 
-      res.json({ logoUrl, themeName, themeColors, groupCompanyName, companyName, selectedThemeId: u.selectedThemeId ?? null });
+      res.json({ logoUrl, themeName, themeColors, groupCompanyName, companyName, selectedThemeId: u.selectedThemeId ?? null, iconSet });
     } catch (error) {
       console.error("Error fetching my-branding:", error);
-      res.json({ logoUrl: null, themeName: null, themeColors: null, groupCompanyName: null, companyName: null, selectedThemeId: null });
+      res.json({ logoUrl: null, themeName: null, themeColors: null, groupCompanyName: null, companyName: null, selectedThemeId: null, iconSet: "lucide" });
     }
   });
 
@@ -308,7 +310,7 @@ export function register(app: Express) {
   app.get("/api/available-themes", requireAuth, async (req, res) => {
     try {
       const themes = await storage.getAllDesignThemes();
-      res.json(themes.map(t => ({ id: t.id, name: t.name, description: t.description, isDefault: t.isDefault, colors: t.colors })));
+      res.json(themes.map(t => ({ id: t.id, name: t.name, description: t.description, isDefault: t.isDefault, colors: t.colors, iconSet: t.iconSet })));
     } catch (error) {
       logAndSendError(res, "Failed to fetch themes", error);
     }
@@ -345,6 +347,7 @@ export function register(app: Express) {
       hexCode: z.string(),
       description: z.string(),
     })).optional(),
+    iconSet: z.enum(["lucide", "phosphor"]).optional(),
     isDefault: z.boolean().optional(),
   });
 

@@ -18,7 +18,10 @@ npm run stats          # Live codebase metrics
 ```
 
 ## Tech Stack
-React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis, `@anthropic-ai/sdk@0.78.0`
+React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF, xlsx, pptxgenjs, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis, `@anthropic-ai/sdk@0.78.0`, `@phosphor-icons/react`
+
+## Icon Set System
+Design themes support switchable icon libraries (Lucide default, Phosphor alternative). `design_themes.icon_set` column stores the selection. `IconSetContext` provider in Layout reads from branding API. All UI icons use `themed-icons.tsx` wrappers (60+ mapped icons) that auto-switch based on context. Brand icons in `brand-icons.tsx` are unaffected. Admin ThemeManager has icon set selector dropdown.
 
 ## Market Intelligence Pipeline
 Three-service architecture in `server/services/`: FREDService (SOFR/Treasury/CPI, 24h cache), HospitalityBenchmarkService (CoStar/STR/AirDNA adapter, 7-day cache), GroundedResearchService (Perplexity/Tavily with citations). MarketIntelligenceAggregator composes all three. Data provenance badges: verified/cited/estimated. Types in `shared/market-intelligence.ts`. Frontend: `client/src/components/property-research/`.

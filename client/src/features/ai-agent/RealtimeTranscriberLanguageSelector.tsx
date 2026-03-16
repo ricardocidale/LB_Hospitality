@@ -1,7 +1,7 @@
 
 
 import { useState } from "react"
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from "@/components/icons/themed-icons";
 import { IconGlobe } from "@/components/icons";
 
 import { Button } from "@/components/ui/button"

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import { IconCheckCircle2, IconXCircle, IconAlertTriangle } from "@/components/icons";
 import { formatMoney } from "@/lib/financialEngine";
 import type { CheckResult, VerificationResult } from "./types";

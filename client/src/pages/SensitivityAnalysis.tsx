@@ -7,7 +7,7 @@ import { computeIRR } from "@analytics/returns/irr.js";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconSliders } from "@/components/icons";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { AnimatedPage, ScrollReveal, InsightPanel, type Insight } from "@/components/graphics";

@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon } from "@/components/icons/themed-icons";
 import { IconPhoneIcon, IconPhoneOffIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

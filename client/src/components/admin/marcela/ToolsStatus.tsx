@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconWrench, IconMonitor, IconServer, IconCpu, IconRefreshCw, IconAlertCircle, IconExternalLink } from "@/components/icons";
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 

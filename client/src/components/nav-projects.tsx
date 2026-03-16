@@ -1,4 +1,4 @@
-import { MoreHorizontal, type LucideIcon } from "lucide-react";
+import { MoreHorizontal, type LucideIcon } from "@/components/icons/themed-icons";
 import { IconFolder, IconForward, IconTrash } from "@/components/icons";
 
 import {

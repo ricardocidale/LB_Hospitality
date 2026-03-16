@@ -2,7 +2,7 @@ import { useFREDRates, type FREDRateDataResponse } from "@/lib/api/market-rates"
 import { RateSparkline } from "./RateSparkline";
 import { ProvenanceBadge } from "./ProvenanceBadge";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 
 const RATE_META: Record<string, { label: string; unit: string; color: string; description: string }> = {
   sofr: { label: "SOFR", unit: "%", color: "hsl(160, 60%, 45%)", description: "Secured Overnight Financing Rate" },

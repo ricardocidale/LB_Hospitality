@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconUsers, IconBuilding2, IconLayoutGrid, IconPeople, IconProperties, IconUserCog } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import UsersTab from "./UsersTab";

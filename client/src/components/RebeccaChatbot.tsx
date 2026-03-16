@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, X, Loader2 } from "lucide-react";
+import { Send, X, Loader2 } from "@/components/icons/themed-icons";
 import { IconMessageCircle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

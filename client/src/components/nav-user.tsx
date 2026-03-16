@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreVerticalIcon } from "lucide-react";
+import { MoreVerticalIcon } from "@/components/icons/themed-icons";
 import { IconBellIcon, IconCreditCardIcon, IconLogOutIcon, IconUserCircleIcon } from "@/components/icons";;
 
 import {

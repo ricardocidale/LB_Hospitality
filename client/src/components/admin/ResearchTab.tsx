@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X } from "@/components/icons/themed-icons";
 import { IconSave, IconPlus, IconBrain, IconExternalLink, IconLibrary, IconRefreshCw, IconResearch, IconProperties, IconGlobe, IconMapPin } from "@/components/icons";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
 import type { ResearchConfig, ResearchEventConfig, AiModelEntry } from "@shared/schema";

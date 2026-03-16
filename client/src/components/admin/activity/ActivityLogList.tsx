@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableBody as UITableBody, TableCell as UITableCell } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconClock, IconLogIn, IconLogOut, IconMonitor, IconPeople } from "@/components/icons";
 import { formatDateTime, formatDuration } from "@/lib/formatters";
 import { useQueryClient } from "@tanstack/react-query";

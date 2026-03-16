@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useConversation } from "@elevenlabs/react"
-import { ChevronDown, XIcon, ArrowUpIcon, PhoneIcon } from "lucide-react";
+import { ChevronDown, XIcon, ArrowUpIcon, PhoneIcon } from "@/components/icons/themed-icons";
 import { IconKeyboard, IconMic, IconMicOff } from "@/components/icons";
 
 import { cn } from "@/lib/utils"

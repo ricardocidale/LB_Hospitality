@@ -23,7 +23,7 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions } from "@/lib/api";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconPlus, IconAlertTriangle } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";

@@ -25,7 +25,7 @@
 import React from "react";
 import { formatMoney } from "@/lib/financialEngine";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown } from "@/components/icons/themed-icons";
 import { ScrollReveal } from "@/components/graphics";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import type { CompanyBalanceSheetProps } from "./types";

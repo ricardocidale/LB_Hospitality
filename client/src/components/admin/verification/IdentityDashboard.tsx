@@ -8,7 +8,7 @@ import {
   Scale,
   Loader2,
   RefreshCw,
-} from "lucide-react";
+} from "@/components/icons/themed-icons";
 import { generatePropertyProForma } from "@/lib/financialEngine";
 import { validateFinancialIdentities } from "@calc/validation/financial-identities";
 import { DEFAULT_ROUNDING } from "@calc/shared/utils";

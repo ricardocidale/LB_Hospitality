@@ -13,7 +13,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "wouter";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/components/icons/themed-icons";
 import { IconMapPin, IconSettings, IconMap, IconCamera } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { PropertyPhotoUpload } from "@/components/PropertyPhotoUpload";

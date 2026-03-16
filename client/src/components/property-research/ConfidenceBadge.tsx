@@ -6,7 +6,7 @@
  */
 import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { Check } from "@/components/icons/themed-icons";
 import { IconShield, IconAlertTriangle } from "@/components/icons";
 
 type Confidence = "conservative" | "moderate" | "aggressive";

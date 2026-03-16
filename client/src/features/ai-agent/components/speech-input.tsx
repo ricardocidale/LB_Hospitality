@@ -14,7 +14,7 @@ import {
 } from "react"
 import { cva, VariantProps } from "class-variance-authority"
 import { motion } from "framer-motion"
-import { XIcon } from "lucide-react";
+import { XIcon } from "@/components/icons/themed-icons";
 import { IconMicIcon, IconSquareIcon } from "@/components/icons";
 
 import { cn } from "@/lib/utils"

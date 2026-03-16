@@ -10,7 +10,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown } from "@/components/icons/themed-icons";
 import { IconStar, IconBuilding2, IconFileText, IconEye } from "@/components/icons";
 import { useState } from "react";
 

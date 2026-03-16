@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconSave, IconAlertTriangle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";

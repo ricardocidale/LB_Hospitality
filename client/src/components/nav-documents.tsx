@@ -1,4 +1,4 @@
-import { type LucideIcon, MoreHorizontalIcon } from "lucide-react";
+import { type LucideIcon, MoreHorizontalIcon } from "@/components/icons/themed-icons";
 type AnyIcon = LucideIcon | ((props: any) => React.JSX.Element);
 import { IconFolderIcon, IconShareIcon } from "@/components/icons";
 

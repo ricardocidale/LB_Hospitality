@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconBookOpen, IconUpload, IconFileUp, IconCheckCircle2, IconFileText, IconTrash, IconRefreshCw, IconDatabase, IconFileStack, IconGlobe } from "@/components/icons";
 import { useUploadKBFile, useRemoveKBDocument, useKBSources, useRebuildKB, type KBSource } from "@/features/ai-agent/hooks/use-knowledge-base";
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";

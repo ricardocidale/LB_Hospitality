@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Sparkles, Images } from "lucide-react";
+import { ImagePlus, Sparkles, Images } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { usePropertyPhotos, useSetHeroPhoto, useDeletePropertyPhoto, useUpdatePropertyPhoto, useReorderPhotos } from "@/lib/api";

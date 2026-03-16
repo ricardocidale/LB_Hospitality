@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft } from "@/components/icons/themed-icons";
 import { IconRefreshCw, IconGlobe, IconTrendingUp, IconHotel, IconDollarSign, IconLandmark, IconSparkles, IconBookOpen, IconAlertTriangle, IconFileDown } from "@/components/icons";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";

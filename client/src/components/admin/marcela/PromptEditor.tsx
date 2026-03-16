@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check } from "@/components/icons/themed-icons";
 import { IconMessageSquare, IconGlobe, IconSave, IconRefreshCw, IconAlertCircle, IconFileText, IconType, IconSparkles, IconCopy } from "@/components/icons";
 
 import { useAgentConfig, useSaveAgentPrompt } from "@/features/ai-agent/hooks/use-convai-api";

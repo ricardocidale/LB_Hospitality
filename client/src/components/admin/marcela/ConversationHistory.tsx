@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronRight, Loader2, Check } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, Check } from "@/components/icons/themed-icons";
 import { IconMessageSquare, IconRefreshCw, IconClock, IconInbox, IconMic, IconKeyboard, IconCopy, IconAlertCircle, IconBarChart2, IconCheckCircle2, IconXCircle, IconPlay, IconPause } from "@/components/icons";
 import { useConversations, useConversation } from "@/features/ai-agent/hooks/use-conversations";
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Crop, ZoomIn, ZoomOut, Check } from "lucide-react";
+import { Crop, ZoomIn, ZoomOut, Check } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 

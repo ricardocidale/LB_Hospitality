@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { X, Share2 } from "lucide-react";
+import { X, Share2 } from "@/components/icons/themed-icons";
 import {
   IconMenu, IconHelpCircle, IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconTrending, IconTarget,

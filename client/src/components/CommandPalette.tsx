@@ -18,7 +18,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { useStore } from "@/lib/store";
-import { Search } from "lucide-react";
+import { Search } from "@/components/icons/themed-icons";
 import { IconDashboard, IconProperties, IconBriefcase, IconSettings, IconAnalysis, IconCalculator, IconProfile, IconScenarios, IconExport, IconVerify, IconRefresh } from "@/components/icons";const navigationItems = [
   { label: "Dashboard", href: "/", icon: IconDashboard },
   { label: "Properties", href: "/portfolio", icon: IconProperties },

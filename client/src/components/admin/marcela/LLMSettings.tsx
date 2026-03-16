@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconMessageSquare, IconMic, IconBrain, IconAlertCircle, IconSave } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { VoiceSettings, LLM_MODELS } from "./types";

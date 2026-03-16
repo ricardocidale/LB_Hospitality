@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, X } from "lucide-react";
+import { Plus, X } from "@/components/icons/themed-icons";
 import { IconSave } from "@/components/icons";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";

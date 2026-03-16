@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon } from "@/components/icons/themed-icons";
 import { IconCopyIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

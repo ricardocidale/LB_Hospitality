@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Send, Paperclip } from "lucide-react";
+import { Mail, Send, Paperclip } from "@/components/icons/themed-icons";
 
 interface ShareEmailModalProps {
   open: boolean;

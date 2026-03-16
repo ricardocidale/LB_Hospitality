@@ -6,7 +6,7 @@
  */
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search } from "@/components/icons/themed-icons";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { IconMenu, IconLogOut, IconDashboard, IconProperties, IconBriefcase, IconSettings, IconShield, IconProfile, IconScenarios, IconPropertyFinder, IconAnalysis, IconMapPin, IconHelp, IconResearch, IconTarget, IconHome, IconCompass } from "@/components/icons";
 import { useState, useEffect, useMemo } from "react";
@@ -26,6 +26,8 @@ import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import { RebeccaChatbot } from "@/components/RebeccaChatbot";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
+import { IconSetProvider } from "@/components/icons/IconSetContext";
+import type { IconSetType } from "@/features/design-themes/types";
 import { useAdminSection } from "@/lib/admin-nav";
 import { navGroups as adminNavGroups } from "@/components/admin/AdminSidebar";
 import type { AdminSection } from "@/components/admin/AdminSidebar";
@@ -110,7 +112,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const { data: global } = useGlobalAssumptions();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null; themeColors: DesignColor[] | null; groupCompanyName: string | null }>({
+  const { data: myBranding } = useQuery<{ logoUrl: string | null; themeName: string | null; themeColors: DesignColor[] | null; groupCompanyName: string | null; iconSet?: string }>({
     queryKey: ["my-branding"],
     queryFn: async () => {
       const res = await fetch("/api/my-branding", { credentials: "include" });
@@ -279,7 +281,10 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
     </div>
   );
 
+  const activeIconSet: IconSetType = (myBranding?.iconSet === "phosphor" ? "phosphor" : "lucide");
+
   return (
+    <IconSetProvider value={activeIconSet}>
     <div className="flex min-h-svh w-full">
       <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-svh sticky top-0">
         {sidebarHeader}
@@ -377,5 +382,6 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       <CommandPalette />
       <GuidedWalkthrough />
     </div>
+    </IconSetProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown } from "@/components/icons/themed-icons";
 import { IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { formatMoney } from "@/lib/financialEngine";
 import type { ScenarioResult } from "./types";

@@ -35,7 +35,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, GripVerticalIcon, LoaderIcon, MoreVerticalIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon, GripVerticalIcon, LoaderIcon, MoreVerticalIcon } from "@/components/icons/themed-icons";
 import { IconCheckCircle2Icon, IconCheckCircleIcon, IconColumnsIcon, IconPlusIcon, IconTrendingUpIcon } from "@/components/icons";;
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import { toast } from "sonner"

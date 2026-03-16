@@ -8,7 +8,7 @@
  * Toggled via a "Benchmarks" button in the property detail header.
  */
 import { useMemo } from "react";
-import { Minus } from "lucide-react";
+import { Minus } from "@/components/icons/themed-icons";
 import { IconBookOpen, IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/financialEngine";

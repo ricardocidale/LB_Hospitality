@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import { cn } from "@/lib/utils";
 
 interface SectionCardProps {

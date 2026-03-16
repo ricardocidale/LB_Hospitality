@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronRight, ChevronLeft } from "lucide-react";
+import { X, ChevronRight, ChevronLeft } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
 import { IconHelpCircle, IconCompass } from "@/components/icons";
 import { useAuth } from "@/lib/auth";

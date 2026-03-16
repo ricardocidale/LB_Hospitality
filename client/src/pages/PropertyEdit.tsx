@@ -30,7 +30,7 @@ import { useMarketRates } from "@/lib/api/market-rates";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconAlertTriangle, IconWand2, IconPlay, IconEye } from "@/components/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SaveButton } from "@/components/ui/save-button";

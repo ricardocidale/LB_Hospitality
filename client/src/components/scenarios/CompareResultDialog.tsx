@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Minus } from "lucide-react";
+import { Minus } from "@/components/icons/themed-icons";
 import { IconGitCompareArrows, IconRefreshCw, IconPlusCircle } from "@/components/icons";
 import type { ScenarioCompareResult } from "./types";
 

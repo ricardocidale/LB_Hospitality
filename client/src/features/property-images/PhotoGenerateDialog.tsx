@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Loader2, Plus, Star, AlertTriangle, Image as ImageIcon } from "lucide-react";
+import { Sparkles, Loader2, Plus, Star, AlertTriangle, ImageIcon } from "@/components/icons/themed-icons";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, CheckCircle2, XCircle, FlaskConical, Clock } from "lucide-react";
+import { ChevronDown, CheckCircle2, XCircle, FlaskConical, Clock } from "@/components/icons/themed-icons";
 
 interface GoldenAssertion {
   title: string;

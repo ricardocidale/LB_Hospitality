@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Scale } from "lucide-react";
+import { Loader2, Scale } from "@/components/icons/themed-icons";
 import { IconCheckCircle2, IconXCircle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 // jspdf and jspdf-autotable are dynamically imported in export handlers

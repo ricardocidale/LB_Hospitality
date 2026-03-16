@@ -31,6 +31,7 @@ export class AdminStorage {
         name: data.name,
         description: data.description,
         colors: data.colors,
+        iconSet: data.iconSet || "lucide",
         isDefault: data.isDefault || false,
       })
       .returning();

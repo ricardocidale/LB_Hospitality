@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconEye, IconEyeOff } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import bgImage from "@/assets/hotel-party.jpg";

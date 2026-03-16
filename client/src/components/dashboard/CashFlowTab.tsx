@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
-import { ChevronRight, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronsUpDown } from "@/components/icons/themed-icons";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table";
 import { FinancialChart } from "@/components/ui/financial-chart";

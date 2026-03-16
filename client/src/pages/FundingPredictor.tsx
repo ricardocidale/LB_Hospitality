@@ -14,7 +14,7 @@ import { PROJECTION_YEARS } from "@/lib/constants";
 import { OPERATING_RESERVE_BUFFER, COMPANY_FUNDING_BUFFER } from "@/lib/constants";
 import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE, DEFAULT_TRANCHE_BUFFER_MULTIPLIER, DEFAULT_EARLY_STAGE_CAP_DISCOUNT, DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM, DEFAULT_FUNDING_ROUNDING_INCREMENT } from "@shared/constants";
 import { Button } from "@/components/ui/button";
-import { Loader2, ExternalLink, Search } from "lucide-react";
+import { Loader2, ExternalLink, Search } from "@/components/icons/themed-icons";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { MermaidChart } from "@/lib/charts";
 import { useLocation } from "wouter";

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ComponentProps } from "react";
 import { useConversation } from "@elevenlabs/react";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon } from "@/components/icons/themed-icons";
 import { IconAudioLinesIcon, IconCopyIcon, IconPhoneOffIcon, IconSendIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

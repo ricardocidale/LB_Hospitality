@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { ExportToolbar } from "@/components/ui/export-toolbar";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import {
   IconRefreshCw, IconBookOpen, IconAlertTriangle, IconFileDown,
   IconDollarSign, IconPackage, IconBuilding2, IconTarget, IconUsers,

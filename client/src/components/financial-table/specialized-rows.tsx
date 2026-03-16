@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Money } from "@/components/Money";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown } from "@/components/icons/themed-icons";
 import { useCalcDetails } from "./context";
 
 /* ═══════════════════════════════════════════════

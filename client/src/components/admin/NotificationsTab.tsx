@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Plus, Bell, MessageSquare, Mail, AlertTriangle, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Trash2, Plus, Bell, MessageSquare, Mail, AlertTriangle, CheckCircle, XCircle, Clock } from "@/components/icons/themed-icons";
 import type { AlertRule, Property } from "@shared/schema";
 
 const METRIC_OPTIONS = [

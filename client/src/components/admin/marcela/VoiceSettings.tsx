@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X } from "@/components/icons/themed-icons";
 import { IconVolume2, IconWaves, IconAudioLines, IconZap, IconGauge, IconTimer, IconClock, IconSettings2, IconSave, IconMusic, IconSparkles, IconInfo, IconPlus, IconExternalLink } from "@/components/icons";
 import { VoiceSettings, OUTPUT_FORMATS, TTS_MODEL_FAMILIES, SUGGESTED_AUDIO_TAGS_OPTIONS } from "./types";
 import { DEFAULT_MARCELA_STABILITY, DEFAULT_MARCELA_SIMILARITY_BOOST, DEFAULT_MARCELA_SPEED, DEFAULT_MARCELA_SILENCE_END_CALL_TIMEOUT, DEFAULT_MARCELA_MAX_DURATION, DEFAULT_MARCELA_TURN_TIMEOUT } from "@shared/constants";

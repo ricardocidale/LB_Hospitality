@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Scale } from "lucide-react";
+import { ArrowLeft, Scale } from "@/components/icons/themed-icons";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";

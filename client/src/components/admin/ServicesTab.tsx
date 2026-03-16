@@ -21,7 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, ChevronDown, ChevronUp } from "@/components/icons/themed-icons";
 import { IconPlus, IconRefreshCw, IconSave, IconArrowRightLeft, IconBookOpen, IconPencil, IconTrash, IconPackage, IconProperties } from "@/components/icons";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import {

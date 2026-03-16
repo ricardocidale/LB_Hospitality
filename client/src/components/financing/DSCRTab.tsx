@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconCalculator } from "@/components/icons";
 import { formatMoney } from "@/lib/financialEngine";
 import { Gauge, DonutChart, InsightPanel } from "@/components/graphics";

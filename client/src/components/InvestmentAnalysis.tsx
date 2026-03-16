@@ -21,7 +21,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import { formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import {
   PROJECTION_YEARS,

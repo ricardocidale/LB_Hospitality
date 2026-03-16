@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconSparkles } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 

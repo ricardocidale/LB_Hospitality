@@ -9,7 +9,7 @@ import {
   IconClock,
   IconDollarSign,
 } from "@/components/icons";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X } from "@/components/icons/themed-icons";
 import { cn } from "@/lib/utils";
 
 interface ResearchJob {

@@ -17,7 +17,7 @@ import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
 } from "@/lib/constants";
-import { Loader2, Check, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Check, X, ChevronDown, ChevronUp } from "@/components/icons/themed-icons";
 import {
   IconPlus, IconSave, IconInfo, IconPercent, IconDollarSign, IconArrowRightLeft,
   IconBookOpen, IconPencil, IconTrash, IconPackage, IconTrending,

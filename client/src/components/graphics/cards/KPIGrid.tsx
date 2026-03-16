@@ -1,6 +1,6 @@
 import { motion, type Variants, useMotionValue, useTransform } from "framer-motion";
 import { type ReactNode, useRef } from "react";
-import { Minus } from "lucide-react";
+import { Minus } from "@/components/icons/themed-icons";
 import { IconTrendingUp, IconTrendingDown } from "@/components/icons";
 import { AnimatedCounter } from "@/components/ui/animated";
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "@/components/icons/themed-icons";
 type AnyIcon = LucideIcon | ((props: any) => React.JSX.Element);
 import { IconMailIcon, IconPlusCircleIcon } from "@/components/icons";
 

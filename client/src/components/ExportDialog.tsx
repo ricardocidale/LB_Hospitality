@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles } from "@/components/icons/themed-icons";
 import { useToast } from "@/hooks/use-toast";
 
 export type ExportVersion = "short" | "extended";

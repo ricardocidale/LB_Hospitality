@@ -29,7 +29,7 @@ import Layout from "@/components/Layout";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { useGlobalAssumptions, useUpdateGlobalAssumptions, useMarketResearch, useProperties, useAllFeeCategories } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconPlay, IconAlertTriangle, IconTarget } from "@/components/icons";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";

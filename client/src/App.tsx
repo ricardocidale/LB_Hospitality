@@ -31,7 +31,7 @@ import {
   ErrorBoundary,
   FinancialErrorBoundary,
 } from "@/components/ErrorBoundary";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import NotFound from "@/pages/not-found";
 import { initClientSentry, setClientUser, Sentry } from "@/lib/sentry";
 import { initAnalytics, identifyUser, trackUserLogin } from "@/lib/analytics";

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@/components/icons/themed-icons";
 import { IconUser, IconEye, IconEyeOff, IconKey, IconClipboardCheck, IconPalette } from "@/components/icons";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { SaveButton } from "@/components/ui/save-button";

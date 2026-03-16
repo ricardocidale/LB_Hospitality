@@ -16,7 +16,7 @@
  */
 import { useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Phone, PhoneOff } from "lucide-react";
+import { Loader2, Phone, PhoneOff } from "@/components/icons/themed-icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

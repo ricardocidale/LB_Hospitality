@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, ArrowRight, X, Check } from "lucide-react";
+import { Loader2, ArrowRight, X, Check } from "@/components/icons/themed-icons";
 import { IconPlus, IconSave, IconStar, IconSparkles, IconHardDrive, IconLink, IconWand2, IconTrash, IconProperties, IconImage, IconTag, IconPencil } from "@/components/icons";
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";

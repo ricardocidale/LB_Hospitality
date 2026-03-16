@@ -1,4 +1,4 @@
-import { Search } from "lucide-react"
+import { Search } from "@/components/icons/themed-icons"
 
 import { Label } from "@/components/ui/label"
 import {

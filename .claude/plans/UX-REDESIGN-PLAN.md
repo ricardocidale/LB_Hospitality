@@ -1625,15 +1625,20 @@ const dailyRate = monthlyRate / globalAssumptions.daysPerMonth;
 - Test: non-admin sees read-only summary on /company
 
 ### Phase 8: Code Constants Migration
-**Effort:** Medium | **Risk:** High (touches financial engine)
+**Effort:** Large | **Risk:** High (touches financial engine + 30+ test files)
+
+**NOTE (from audit):** `DEPRECIATION_YEARS` is used in 42 files, `DAYS_PER_MONTH` in 48 files. The key calculation point is `resolve-assumptions.ts` line 158: `buildingValue / DEPRECIATION_YEARS / 12`. Over 30 test files import these constants directly for golden value assertions.
 
 - Refactor `shared/constants.ts` to `SEED_DEFAULTS` object (used only by migrations/seeds)
-- Update property engine: read `depreciationYears` from property entity, not constant
+- Update `resolve-assumptions.ts`: read `depreciationYears` from property input, not constant
+- Update property engine: pass `depreciationYears` through the property context
 - Update all engine code: read `daysPerMonth` from globalAssumptions, not constant
 - Replace all remaining `DEFAULT_*` constant usages with database reads
-- **Critical:** Run full test suite after each constant migration
+- **Update 30+ test files:** Tests should continue using the constant value (27.5, 30.5) as the expected golden value, but test fixtures must populate the new entity fields
+- **Critical:** Run full test suite after EACH constant migration (not all at once)
 - Run `npm run test:summary` — all tests must pass
 - Run `npm run verify:summary` — must show UNQUALIFIED
+- **Recommendation:** Migrate one constant at a time. Start with `DEPRECIATION_YEARS` (simpler — property-scoped). Then `DAYS_PER_MONTH` (complex — used everywhere). Then remaining `DEFAULT_*` constants.
 
 ### Phase 9: Expose Hidden Property Fields
 **Effort:** Small | **Risk:** Low
@@ -1666,15 +1671,17 @@ const dailyRate = monthlyRate / globalAssumptions.daysPerMonth;
 | 1 | Schema & Database | Small | Low | — |
 | 2 | Admin Model Defaults UI | Medium | Medium | Phase 1 |
 | 3 | Governed Field Component | Small | Low | — |
-| 4 | Property Creation Pre-fill | Small | Medium | Phase 1 |
+| 4 | Property Creation Pre-fill (extend existing) | Small | Medium | Phase 1 |
 | 5 | Company Page Read-Only Panel | Small | Low | — |
 | 6 | Eliminate Settings Page | Small | Low | Phase 2 |
 | 7 | Company Assumptions Consolidation | Medium | Medium | Phase 2, 5 |
-| 8 | Code Constants Migration | Medium | High | Phase 1, 4 |
+| 8 | Code Constants Migration | **Large** | **High** | Phase 1, 4 |
 | 9 | Expose Hidden Property Fields | Small | Low | Phase 4 |
 | 10 | Testing & Documentation | Medium | Low | All phases |
 
 **Parallelizable:** Phases 3, 4, 5 can run in parallel after Phase 1. Phase 6 can overlap with Phase 7.
+
+**Phase 8 note:** This is the highest-risk phase. DEPRECIATION_YEARS is referenced in 42 files, DAYS_PER_MONTH in 48 files, and 30+ test files import these constants. Migrate one constant at a time, running the full test suite after each. Budget significant effort here.
 
 ---
 

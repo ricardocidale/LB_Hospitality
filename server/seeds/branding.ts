@@ -43,55 +43,56 @@ export async function seedCompanies() {
   const existing = await db.select().from(companies);
   const existingNames = new Set(existing.map(c => c.name));
 
-  const allProperties = await db.select({ id: properties.id, name: properties.name }).from(properties);
-
-  // SPV mapping covers both dev seed property names and production sync property names
-  const spvMapping: Record<string, string> = {
-    // Dev seed properties
-    "Jano Grande Ranch": "Jano Grande Ranch LLC",
-    "Loch Sheldrake": "Loch Sheldrake LLC",
-    "Belleayre Mountain": "Belleayre Mountain LLC",
-    "Scott's House": "Scott's House LLC",
-    "Lakeview Haven Lodge": "Lakeview Haven Lodge LLC",
-    "San Diego": "San Diego Boutique LLC",
-    // Production sync properties
-    "The Hudson Estate": "The Hudson Estate LLC",
-    "Eden Summit Lodge": "Eden Summit Lodge LLC",
-    "Austin Hillside": "Austin Hillside LLC",
-    "Casa Medellín": "Casa Medellín LLC",
-    "Blue Ridge Manor": "Blue Ridge Manor LLC",
-  };
-
-  const companiesToSeed = [
-    { name: "Hospitality Business Group", type: "management" as const, description: "Management company overseeing all hotel SPVs" },
-    { name: "The Norfolk AI Group", type: "management" as const, description: "AI-powered hospitality technology and management group based in Norfolk, VA" },
-    { name: "KIT Capital", type: "management" as const, description: "Investment and capital management firm" },
-    { name: "Numeratti Endeavors", type: "management" as const, description: "Strategic investment ventures" },
-    { name: "HBG Property 1 LLC", type: "spv" as const, description: "SPV for first hotel property" },
-    { name: "HBG Property 2 LLC", type: "spv" as const, description: "SPV for second hotel property" },
-    { name: "General", type: "spv" as const, description: "Default catch-all company" },
-  ];
-
-  for (const prop of allProperties) {
-    const spvName = spvMapping[prop.name];
-    if (spvName && !companiesToSeed.some(c => c.name === spvName)) {
-      companiesToSeed.push({
-        name: spvName,
-        type: "spv" as const,
-        description: `SPV entity for ${prop.name} property`,
-      });
+  if (existing.length > 0) {
+    // Companies already exist — only ensure "General" exists (required by system).
+    // Do NOT re-create user-deleted companies on restart.
+    if (!existingNames.has("General")) {
+      await db.insert(companies).values({ name: "General", type: "spv", description: "Default catch-all company", themeId: defaultThemeId });
+      logger.info("Re-created required 'General' company", "seed");
     }
-  }
+  } else {
+    // First-time setup: seed all initial companies
+    const allProperties = await db.select({ id: properties.id, name: properties.name }).from(properties);
 
-  let added = 0;
-  for (const c of companiesToSeed) {
-    if (!existingNames.has(c.name)) {
+    const spvMapping: Record<string, string> = {
+      "Jano Grande Ranch": "Jano Grande Ranch LLC",
+      "Loch Sheldrake": "Loch Sheldrake LLC",
+      "Belleayre Mountain": "Belleayre Mountain LLC",
+      "Scott's House": "Scott's House LLC",
+      "Lakeview Haven Lodge": "Lakeview Haven Lodge LLC",
+      "San Diego": "San Diego Boutique LLC",
+      "The Hudson Estate": "The Hudson Estate LLC",
+      "Eden Summit Lodge": "Eden Summit Lodge LLC",
+      "Austin Hillside": "Austin Hillside LLC",
+      "Casa Medellín": "Casa Medellín LLC",
+      "Blue Ridge Manor": "Blue Ridge Manor LLC",
+    };
+
+    const companiesToSeed = [
+      { name: "Hospitality Business Group", type: "management" as const, description: "Management company overseeing all hotel SPVs" },
+      { name: "The Norfolk AI Group", type: "management" as const, description: "AI-powered hospitality technology and management group based in Norfolk, VA" },
+      { name: "KIT Capital", type: "management" as const, description: "Investment and capital management firm" },
+      { name: "Numeratti Endeavors", type: "management" as const, description: "Strategic investment ventures" },
+      { name: "HBG Property 1 LLC", type: "spv" as const, description: "SPV for first hotel property" },
+      { name: "HBG Property 2 LLC", type: "spv" as const, description: "SPV for second hotel property" },
+      { name: "General", type: "spv" as const, description: "Default catch-all company" },
+    ];
+
+    for (const prop of allProperties) {
+      const spvName = spvMapping[prop.name];
+      if (spvName && !companiesToSeed.some(c => c.name === spvName)) {
+        companiesToSeed.push({
+          name: spvName,
+          type: "spv" as const,
+          description: `SPV entity for ${prop.name} property`,
+        });
+      }
+    }
+
+    for (const c of companiesToSeed) {
       await db.insert(companies).values({ ...c, themeId: defaultThemeId });
-      added++;
     }
-  }
-  if (added > 0) {
-    logger.info(`Seeded ${added} new companies including Norfolk AI SPVs (themeId=${defaultThemeId})`, "seed");
+    logger.info(`Seeded ${companiesToSeed.length} companies including Norfolk AI SPVs (themeId=${defaultThemeId})`, "seed");
   }
 
   if (defaultThemeId) {

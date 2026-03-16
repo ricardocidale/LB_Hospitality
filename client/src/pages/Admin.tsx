@@ -35,7 +35,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
-  "ai-agents":     { title: "AI Agents",             subtitle: "Configure and manage Marcela (voice) and Rebecca (text) assistants" },
+  "ai-agents":     { title: "AI Agents",             subtitle: "Configure and manage your AI text assistant" },
   research:         { title: "Research Center",      subtitle: "Strategic intelligence hub — ICP company research, property benchmarks, market analysis, and AI engine" },
   notifications:    { title: "Notifications",         subtitle: "Email channels, alert rules, and delivery tracking" },
   navigation:       { title: "Navigation",           subtitle: "Control which sidebar pages are visible to users" },

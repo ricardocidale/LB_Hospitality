@@ -69,7 +69,7 @@ const navGroups: NavGroup[] = [
     id: "ai-agent",
     label: "AI Agents",
     icon: IconBot,
-    description: "Marcela (voice) & Rebecca (text)",
+    description: "AI text assistant configuration",
     sections: [
       { value: "ai-agents", label: "AI Agents", icon: IconBot },
     ],

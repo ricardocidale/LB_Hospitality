@@ -1,18 +1,9 @@
-/**
- * AIAgentsTab.tsx — Unified AI Agents admin page.
- *
- * Replaces four separate admin sections (Marcela, Rebecca, Knowledge Base, Twilio)
- * with a single premium page featuring:
- *   - Agent toggle bar with mutual exclusion
- *   - Expandable config sections for each agent
- *   - All Marcela sub-tabs + Knowledge Base (8 tabs)
- *   - Rebecca config with matching tab pattern
- */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
-  IconMic,
   IconMessageCircle,
   IconAlertTriangle,
   IconRefreshCw,
@@ -20,23 +11,12 @@ import {
 } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
-import { Orb } from "@/features/ai-agent/components/orb";
-import {
-  useMarcelaSettings,
-  useSaveMarcelaSettings,
-} from "@/features/ai-agent/hooks/use-agent-settings";
-import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
-import type { VoiceSettings } from "./marcela/types";
-
-import { AgentCard, PageSkeleton } from "./ai-agents/agent-shared";
-import { MarcelaConfig } from "./ai-agents/MarcelaConfig";
+import { PageSkeleton } from "./ai-agents/agent-shared";
 import { RebeccaConfig } from "./ai-agents/RebeccaConfig";
-
-type ActiveAgent = "marcela" | "rebecca" | null;
 
 interface AIAgentsTabProps {
   onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
@@ -46,39 +26,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const {
-    data: marcelaData,
-    isLoading: marcelaLoading,
-    isError: marcelaError,
-    refetch: refetchMarcela,
-  } = useMarcelaSettings();
-  const saveMarcela = useSaveMarcelaSettings();
-  const { data: agentConfig } = useAgentConfig();
-
-  const [marcelaDraft, setMarcelaDraft] = useState<VoiceSettings | null>(null);
-  const [marcelaDirty, setMarcelaDirty] = useState(false);
-
-  useEffect(() => {
-    if (marcelaData && !marcelaDraft) setMarcelaDraft({ ...marcelaData });
-  }, [marcelaData, marcelaDraft]);
-
-  const updateMarcelaField = useCallback(
-    <K extends keyof VoiceSettings>(key: K, value: VoiceSettings[K]) => {
-      if (!marcelaDraft) return;
-      setMarcelaDraft({ ...marcelaDraft, [key]: value });
-      setMarcelaDirty(true);
-    },
-    [marcelaDraft],
-  );
-
-  const handleSaveMarcela = useCallback(() => {
-    if (marcelaDraft)
-      saveMarcela.mutate(marcelaDraft, {
-        onSuccess: () => setMarcelaDirty(false),
-      });
-  }, [marcelaDraft, saveMarcela]);
-
-  const { data: globalData, isLoading: globalLoading } = useQuery<
+  const { data: globalData, isLoading: globalLoading, isError: globalError, refetch: refetchGlobal } = useQuery<
     Record<string, any>
   >({
     queryKey: ["globalAssumptions"],
@@ -97,6 +45,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
   const [rebeccaChatEngine, setRebeccaChatEngine] = useState<"gemini" | "perplexity">("gemini");
   const [rebeccaInitialized, setRebeccaInitialized] = useState(false);
   const [rebeccaDirty, setRebeccaDirty] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
 
   useEffect(() => {
     if (globalData && !rebeccaInitialized) {
@@ -138,62 +87,10 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
     },
   });
 
-  const [activeAgent, setActiveAgent] = useState<ActiveAgent>(null);
-  const [isToggling, setIsToggling] = useState<"marcela" | "rebecca" | null>(
-    null,
-  );
-
-  useEffect(() => {
-    if (activeAgent !== null) return;
-    const marcelaOn = marcelaDraft?.marcelaEnabled ?? false;
-    const rebeccaOn = globalData?.rebeccaEnabled ?? false;
-    if (marcelaOn) setActiveAgent("marcela");
-    else if (rebeccaOn) setActiveAgent("rebecca");
-    else if (marcelaDraft) setActiveAgent("marcela");
-  }, [marcelaDraft, globalData, activeAgent]);
-
-  const handleToggleMarcela = useCallback(
-    async (enabled: boolean) => {
-      // MARCELA ISOLATED — toggle is disabled, show informational toast
-      toast({
-        title: "Marcela is temporarily disabled",
-        description: "Voice agent is isolated. Configuration is preserved.",
-        variant: "default",
-      });
-      return;
-
-      // Original toggle logic preserved for restoration:
-      // if (!marcelaDraft) return;
-      // setIsToggling("marcela");
-      // try {
-      //   if (enabled) {
-      //     await apiRequest("POST", "/api/admin/voice-settings", { ...marcelaDraft, marcelaEnabled: true });
-      //     setMarcelaDraft({ ...marcelaDraft, marcelaEnabled: true });
-      //     setMarcelaDirty(false);
-      //     toast({ title: "Marcela activated", description: "Voice agent enabled." });
-      //   } else {
-      //     await apiRequest("POST", "/api/admin/voice-settings", { ...marcelaDraft, marcelaEnabled: false, showAiAssistant: false });
-      //     setMarcelaDraft({ ...marcelaDraft, marcelaEnabled: false, showAiAssistant: false });
-      //     setMarcelaDirty(false);
-      //     toast({ title: "Marcela deactivated", description: "Voice agent disabled." });
-      //   }
-      //   queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
-      //   queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
-      //   queryClient.invalidateQueries({ queryKey: ["admin", "marcela-signed-url"] });
-      // } catch (err: any) {
-      //   toast({ title: "Error", description: err.message || "Toggle failed", variant: "destructive" });
-      // } finally {
-      //   setIsToggling(null);
-      // }
-    },
-    [toast],
-  );
-
   const handleToggleRebecca = useCallback(
     async (enabled: boolean) => {
-      setIsToggling("rebecca");
+      setIsToggling(true);
       try {
-        // MARCELA ISOLATED: Rebecca operates independently — no mutual exclusion
         await apiRequest("PATCH", "/api/global-assumptions", {
           rebeccaEnabled: enabled,
         });
@@ -211,43 +108,29 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
           variant: "destructive",
         });
       } finally {
-        setIsToggling(null);
+        setIsToggling(false);
       }
     },
     [queryClient, toast],
   );
 
-  const marcelaSaveRef = useRef<(() => void) | undefined>(undefined);
-  marcelaSaveRef.current = handleSaveMarcela;
   const rebeccaSaveRef = useRef<(() => void) | undefined>(undefined);
   rebeccaSaveRef.current = () => saveRebeccaMutation.mutate();
 
   useEffect(() => {
-    if (activeAgent === "marcela") {
-      onSaveStateChange?.({
-        isDirty: marcelaDirty,
-        isPending: saveMarcela.isPending,
-        onSave: () => marcelaSaveRef.current?.(),
-      });
-    } else if (activeAgent === "rebecca") {
-      onSaveStateChange?.({
-        isDirty: rebeccaDirty,
-        isPending: saveRebeccaMutation.isPending,
-        onSave: () => rebeccaSaveRef.current?.(),
-      });
-    } else {
-      onSaveStateChange?.(null);
-    }
+    onSaveStateChange?.({
+      isDirty: rebeccaDirty,
+      isPending: saveRebeccaMutation.isPending,
+      onSave: () => rebeccaSaveRef.current?.(),
+    });
     return () => onSaveStateChange?.(null);
-  }, [activeAgent, marcelaDirty, rebeccaDirty, saveMarcela.isPending, saveRebeccaMutation.isPending, onSaveStateChange]);
+  }, [rebeccaDirty, saveRebeccaMutation.isPending, onSaveStateChange]);
 
-  const isLoading = marcelaLoading || globalLoading;
-
-  if (isLoading || (!marcelaError && !marcelaDraft)) {
+  if (globalLoading) {
     return <PageSkeleton />;
   }
 
-  if (marcelaError || !marcelaDraft) {
+  if (globalError || (!globalLoading && !globalData)) {
     return (
       <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
         <IconAlertTriangle className="w-10 h-10 text-amber-500" />
@@ -262,8 +145,9 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => refetchMarcela()}
+          onClick={() => refetchGlobal()}
           className="gap-2"
+          data-testid="button-retry-load"
         >
           <IconRefreshCw className="w-4 h-4" /> Retry
         </Button>
@@ -271,20 +155,8 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
     );
   }
 
-  const marcelaEnabled = marcelaDraft.marcelaEnabled;
-  const marcelaAgentName = marcelaDraft.aiAgentName || "Marcela";
-
   return (
     <div className="space-y-6">
-      {/* MARCELA ISOLATED — amber banner */}
-      <div className="rounded-lg border border-amber-300/60 bg-amber-50/50 p-4 flex items-start gap-3" data-testid="banner-marcela-isolated">
-        <IconAlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-        <div>
-          <p className="font-semibold text-amber-900 text-sm">Marcela voice agent is temporarily disabled</p>
-          <p className="text-amber-700 text-xs mt-0.5">Configuration is preserved. All ElevenLabs API calls and phone endpoints are gated. Rebecca operates independently.</p>
-        </div>
-      </div>
-
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -299,92 +171,123 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
               AI Agents
             </h2>
             <p className="text-muted-foreground text-sm">
-              Configure and manage your AI assistants
+              Configure and manage your AI text assistant
             </p>
           </div>
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <AgentCard
-          name={marcelaAgentName}
-          type="Voice Agent"
-          description="Knowledge-base assistant powered by ElevenLabs. Answers questions about the platform, methodology, and hospitality concepts."
-          icon={IconMic}
-          isActive={marcelaEnabled}
-          isEnabled={marcelaEnabled}
-          isSelected={activeAgent === "marcela"}
-          onToggle={handleToggleMarcela}
-          onSelect={() => setActiveAgent("marcela")}
-          isToggling={isToggling === "marcela"}
-          accentFrom="from-emerald-500/5"
-          accentTo="to-teal-500/3"
-          orbElement={
-            <div className="w-8 h-8 rounded-lg overflow-hidden">
-              <Orb
-                colors={["#9fbca4", "#4a7c5c"]}
-                agentState={agentConfig ? "thinking" : null}
-                seed={42}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut", delay: 0.05 }}
+        className="rounded-xl border border-border/60 bg-card p-5"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div
+              className={cn(
+                "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300",
+                rebeccaEnabled
+                  ? "bg-primary/10 shadow-sm"
+                  : "bg-muted/60",
+              )}
+            >
+              <IconMessageCircle
+                className={cn(
+                  "w-6 h-6 transition-colors duration-300",
+                  rebeccaEnabled ? "text-primary" : "text-muted-foreground/60",
+                )}
               />
             </div>
-          }
-        />
-        <AgentCard
-          name={rebeccaDisplayName || "Rebecca"}
-          type="Text Agent"
-          description="AI-powered property analysis chatbot. Answers portfolio questions using pre-computed metrics."
-          icon={IconMessageCircle}
-          isActive={rebeccaEnabled}
-          isEnabled={rebeccaEnabled}
-          isSelected={activeAgent === "rebecca"}
-          onToggle={handleToggleRebecca}
-          onSelect={() => setActiveAgent("rebecca")}
-          isToggling={isToggling === "rebecca"}
-          accentFrom="from-violet-500/5"
-          accentTo="to-purple-500/3"
-        />
-      </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base font-display font-bold text-foreground">
+                  {rebeccaDisplayName || "Rebecca"}
+                </h3>
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    "text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0",
+                    rebeccaEnabled
+                      ? "bg-primary/10 text-primary border-primary/20"
+                      : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  Text Agent
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                AI-powered property analysis chatbot. Answers portfolio questions using pre-computed metrics.
+              </p>
+              <div className="flex items-center gap-1.5 mt-2">
+                <motion.div
+                  className={cn(
+                    "w-2 h-2 rounded-full",
+                    rebeccaEnabled ? "bg-green-500" : "bg-muted-foreground/30",
+                  )}
+                  animate={
+                    rebeccaEnabled
+                      ? { scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }
+                      : {}
+                  }
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+                <span
+                  className={cn(
+                    "text-[11px] font-medium",
+                    rebeccaEnabled ? "text-green-700" : "text-muted-foreground/50",
+                  )}
+                >
+                  {rebeccaEnabled ? "Active" : "Inactive"}
+                </span>
+              </div>
+            </div>
+          </div>
 
-      <AnimatePresence mode="wait">
-        {activeAgent === "marcela" && (
-          <MarcelaConfig
-            key="marcela-config"
-            draft={marcelaDraft}
-            isDirty={marcelaDirty}
-            updateField={updateMarcelaField}
-            onSave={handleSaveMarcela}
-            isSaving={saveMarcela.isPending}
-          />
-        )}
-        {activeAgent === "rebecca" && (
-          <RebeccaConfig
-            key="rebecca-config"
-            enabled={rebeccaEnabled}
-            displayName={rebeccaDisplayName}
-            systemPrompt={rebeccaSystemPrompt}
-            chatEngine={rebeccaChatEngine}
-            onEnabledChange={(v) => {
-              setRebeccaEnabled(v);
-              setRebeccaDirty(true);
-            }}
-            onDisplayNameChange={(v) => {
-              setRebeccaDisplayName(v);
-              setRebeccaDirty(true);
-            }}
-            onSystemPromptChange={(v) => {
-              setRebeccaSystemPrompt(v);
-              setRebeccaDirty(true);
-            }}
-            onChatEngineChange={(v) => {
-              setRebeccaChatEngine(v);
-              setRebeccaDirty(true);
-            }}
-            onSave={() => saveRebeccaMutation.mutate()}
-            isSaving={saveRebeccaMutation.isPending}
-            isDirty={rebeccaDirty}
-          />
-        )}
-      </AnimatePresence>
+          <div className="shrink-0">
+            {isToggling ? (
+              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            ) : (
+              <Switch
+                checked={rebeccaEnabled}
+                onCheckedChange={handleToggleRebecca}
+                data-testid="switch-agent-rebecca"
+              />
+            )}
+          </div>
+        </div>
+      </motion.div>
+
+      <RebeccaConfig
+        enabled={rebeccaEnabled}
+        displayName={rebeccaDisplayName}
+        systemPrompt={rebeccaSystemPrompt}
+        chatEngine={rebeccaChatEngine}
+        onEnabledChange={(v) => {
+          setRebeccaEnabled(v);
+          setRebeccaDirty(true);
+        }}
+        onDisplayNameChange={(v) => {
+          setRebeccaDisplayName(v);
+          setRebeccaDirty(true);
+        }}
+        onSystemPromptChange={(v) => {
+          setRebeccaSystemPrompt(v);
+          setRebeccaDirty(true);
+        }}
+        onChatEngineChange={(v) => {
+          setRebeccaChatEngine(v);
+          setRebeccaDirty(true);
+        }}
+        onSave={() => saveRebeccaMutation.mutate()}
+        isSaving={saveRebeccaMutation.isPending}
+        isDirty={rebeccaDirty}
+      />
     </div>
   );
 }

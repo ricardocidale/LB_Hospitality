@@ -281,6 +281,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           </div>
         </div>
       )}
+      <Separator className="my-2" />
       <Button
         variant="ghost"
         onClick={() => { logout(); setMobileOpen(false); }}

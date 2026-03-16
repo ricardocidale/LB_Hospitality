@@ -83,7 +83,7 @@ export function auditBalanceSheet(
 
   // ── A = L + E identity check (ASC 210) ──────────────────────────────────
   const totalPropValue = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
-  const isFinanced = property.type === "Financed" || (property.acquisitionLTV != null && property.acquisitionLTV > 0);
+  const isFinanced = property.type === "Financed";
   const originalLoanAmount = isFinanced ? totalPropValue * (property.acquisitionLTV ?? DEFAULT_LTV) : 0;
   const initialEquity = totalPropValue - originalLoanAmount + (property.operatingReserve || 0);
 

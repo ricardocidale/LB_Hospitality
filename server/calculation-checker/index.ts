@@ -294,35 +294,59 @@ export function runIndependentVerification(
     }
 
     if (property.type === "Financed" && loanAmount > 0) {
-      let dscrYearLabel = "Year 1";
-      let dscrNoi = serverYear1.noi;
-      let dscrDebtService = independentCalc.slice(0, 12).reduce((s, m) => s + m.debtPayment, 0);
+      const rampMonths = property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS;
+      const startOcc = property.startOccupancy ?? 0;
+      const maxOcc = property.maxOccupancy ?? 1;
+      const growthStep = property.occupancyGrowthStep ?? 0;
+      const stepsToStabilize = growthStep > 0 ? Math.ceil((maxOcc - startOcc) / growthStep) : 0;
+      const rampUpMonthsTotal = stepsToStabilize * rampMonths;
 
-      if (dscrNoi === 0 && dscrDebtService === 0) {
-        for (let yr = 1; yr < projectionYears; yr++) {
-          const start = yr * 12;
-          const end = Math.min(start + 12, independentCalc.length);
-          const yrMetrics = aggregateYearMetrics(independentCalc.slice(start, end));
-          const yrDebt = independentCalc.slice(start, end).reduce((s, m) => s + m.debtPayment, 0);
-          if (yrMetrics.noi > 0 || yrDebt > 0) {
-            dscrYearLabel = `Year ${yr + 1}`;
-            dscrNoi = yrMetrics.noi;
-            dscrDebtService = yrDebt;
-            break;
-          }
-        }
+      const firstOpIdx = independentCalc.findIndex(m => m.revenueRooms > 0);
+      const stabilizedMonthIdx = firstOpIdx >= 0 ? firstOpIdx + rampUpMonthsTotal : -1;
+      const stabilizedYearIdx = stabilizedMonthIdx >= 0 ? Math.floor(stabilizedMonthIdx / 12) : -1;
+
+      let dscrYearLabel: string;
+      let dscrNoi: number;
+      let dscrDebtService: number;
+      let isStabilized = false;
+
+      if (stabilizedYearIdx >= 0 && stabilizedYearIdx < projectionYears) {
+        const start = stabilizedYearIdx * 12;
+        const end = Math.min(start + 12, independentCalc.length);
+        const yrMetrics = aggregateYearMetrics(independentCalc.slice(start, end));
+        const yrDebt = independentCalc.slice(start, end).reduce((s, m) => s + m.debtPayment, 0);
+        dscrYearLabel = `Year ${stabilizedYearIdx + 1}`;
+        dscrNoi = yrMetrics.noi;
+        dscrDebtService = yrDebt;
+        isStabilized = true;
+      } else {
+        const lastStart = (projectionYears - 1) * 12;
+        const lastEnd = Math.min(lastStart + 12, independentCalc.length);
+        const lastMetrics = aggregateYearMetrics(independentCalc.slice(lastStart, lastEnd));
+        const lastDebt = independentCalc.slice(lastStart, lastEnd).reduce((s, m) => s + m.debtPayment, 0);
+        dscrYearLabel = `Year ${projectionYears}`;
+        dscrNoi = lastMetrics.noi;
+        dscrDebtService = lastDebt;
+        isStabilized = false;
       }
 
       const dscr = dscrDebtService > 0 ? dscrNoi / dscrDebtService : 0;
 
+      let severity: "critical" | "material" | "info";
+      if (!isStabilized) {
+        severity = "info";
+      } else {
+        severity = dscr < CHECKER_MIN_DSCR ? "critical" : "info";
+      }
+
       checks.push(check(
-        `DSCR Reasonableness (${dscrYearLabel})`,
+        `DSCR Reasonableness (${dscrYearLabel}${!isStabilized ? " — still ramping" : " — stabilized"})`,
         "Debt",
         "ASC 470 / Banking",
         `${dscrYearLabel} NOI $${Math.round(dscrNoi).toLocaleString()} / Debt Service $${Math.round(dscrDebtService).toLocaleString()} (expect > 1.0x)`,
         CHECKER_MIN_DSCR,
         dscr,
-        dscr < CHECKER_MIN_DSCR ? "critical" : "info"
+        severity
       ));
     }
 

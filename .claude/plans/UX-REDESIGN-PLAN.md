@@ -174,7 +174,9 @@ ADMIN ONLY
     │
     ├── RESEARCH group
     │   ├── ICP Management Co      ICP editor
-    │   └── Research Center        LLM selection, tool toggles, per-event config
+    │   ├── Research Center        Per-domain config, tool toggles, per-event settings
+    │   ├── Research Sources  ★ NEW  3 subsections: Mgmt Co, Properties, Market & Industry
+    │   └── Research LLMs    ★ NEW  2 models × 3 domains = 6 LLM slots
     │
     ├── DESIGN group
     │   ├── Logos                   Logo pool management
@@ -259,6 +261,8 @@ ADMIN ONLY
 │  RESEARCH                  │
 │  ○ ICP Management Co       │
 │  ○ Research Center         │
+│  ○ Research Sources  ★ NEW │
+│  ○ Research LLMs     ★ NEW │
 │                            │
 │  DESIGN                    │
 │  ○ Logos                   │
@@ -540,6 +544,166 @@ A governed field is any value backed by regulation, tax law, or industry standar
 
 ---
 
+## 6b. Research Center Restructure
+
+### The Problem
+
+Currently the Research Center has:
+- **One flat LLM configuration** — a single primary + secondary model shared across all research types
+- **Sources loosely organized** — property and market sources exist as pre-configured lists in client code (`research-shared.tsx`), not as admin-configurable collections
+- No way to say "use Claude for property research but Gemini for market research"
+
+### The Solution
+
+Centralize sources and LLMs behind the admin wall with **domain-specific configuration** for three research contexts.
+
+### Research Sources — New Admin Tab
+
+A new "Research Sources" item in the Research group of the admin sidebar. Three subsections:
+
+#### Sources for Management Company
+Knowledge sources that feed ICP and company-level research:
+- Hospitality management industry reports
+- AHLA, PKF, HVS publications
+- Outsourcing and vendor benchmarking sources
+- Admin can add/remove URLs with labels and categories
+
+#### Sources for Properties
+Knowledge sources that feed per-property market research:
+- STR (CoStar), CBRE Hotels, HVS, Real Capital Analytics
+- Local market reports, comp set data
+- Property-specific benchmarking sources
+- Admin can add/remove URLs with labels and categories
+
+#### Sources for Market & Industry
+Knowledge sources that feed global/macro research:
+- FRED (Federal Reserve), BLS, Preqin, Trepp
+- Lodging Econometrics, AHLA
+- Economic outlook, capital markets, ESG reports
+- Admin can add/remove URLs with labels and categories
+
+**Current state:** Sources are hardcoded in `client/src/components/admin/research-center/research-shared.tsx` as `PROPERTY_DEFAULT_SOURCES` and `MARKET_DEFAULT_SOURCES`. The restructure moves these into the database as admin-editable configurations within each domain's `ResearchEventConfig.sources` array.
+
+**Data model:** Each source is a `ResearchSourceEntry`:
+```typescript
+{ id: string; url: string; label: string; category?: string; addedAt: string; }
+```
+
+Stored in `researchConfig.property.sources`, `researchConfig.company.sources`, `researchConfig.global.sources` (already supported by the JSONB schema — just needs UI).
+
+### Research LLMs — New Admin Tab
+
+A new "Research LLMs" item in the Research group. Two models per domain = 6 LLM slots:
+
+| Domain | Primary LLM (Reasoning) | Secondary LLM (Workhorse) |
+|--------|------------------------|--------------------------|
+| **Management Company** | e.g., Claude Opus | e.g., Gemini Flash |
+| **Properties** | e.g., Claude Sonnet | e.g., GPT-4o |
+| **Market & Industry** | e.g., Gemini Pro | e.g., Claude Haiku |
+
+**Why two per domain:**
+- **Primary (Reasoning)** — Used for complex analysis, synthesis, and recommendations. Higher quality, slower, more expensive.
+- **Secondary (Workhorse)** — Used for data extraction, summarization, and routine tasks. Faster, cheaper.
+
+**Current state:** The Research Center has a single LLM tab with `primaryLlm` + `secondaryLlm` + `llmMode` (dual/primary-only) shared across all research types. The restructure replaces this with domain-specific configuration.
+
+**Data model change:** Extend `ResearchEventConfig` with LLM fields:
+
+```typescript
+export interface ResearchEventConfig {
+  // ... existing fields ...
+  primaryLlm?: string;      // NEW — reasoning model for this domain
+  secondaryLlm?: string;    // NEW — workhorse model for this domain
+  llmMode?: LlmMode;        // NEW — "dual" | "primary-only" per domain
+}
+```
+
+The top-level `researchConfig.primaryLlm` and `researchConfig.secondaryLlm` become fallbacks for domains that don't have their own configuration (backward compatibility).
+
+**LLM resolution chain:**
+```
+Domain-specific model → Top-level researchConfig model → globalAssumptions.preferredLlm → hardcoded default
+```
+
+### UI Layout
+
+**Research Sources tab:**
+```
+┌─────────────────────────────────────────────────────┐
+│  Research Sources                                    │
+│                                                      │
+│  ┌─ Management Company ──────────────────────────┐  │
+│  │  ○ AHLA (ahla.com)                    [✕]     │  │
+│  │  ○ PKF Hospitality (pkfhotels.com)    [✕]     │  │
+│  │  ○ + Add Source                               │  │
+│  └───────────────────────────────────────────────┘  │
+│                                                      │
+│  ┌─ Properties ──────────────────────────────────┐  │
+│  │  ○ STR / CoStar (str.com)             [✕]     │  │
+│  │  ○ CBRE Hotels (cbre.com/hotels)      [✕]     │  │
+│  │  ○ HVS (hvs.com)                     [✕]     │  │
+│  │  ○ Real Capital Analytics (msci.com)  [✕]     │  │
+│  │  ○ + Add Source                               │  │
+│  └───────────────────────────────────────────────┘  │
+│                                                      │
+│  ┌─ Market & Industry ───────────────────────────┐  │
+│  │  ○ FRED (fred.stlouisfed.org)         [✕]     │  │
+│  │  ○ BLS (bls.gov)                     [✕]     │  │
+│  │  ○ Preqin (preqin.com)               [✕]     │  │
+│  │  ○ Lodging Econometrics              [✕]     │  │
+│  │  ○ + Add Source                               │  │
+│  └───────────────────────────────────────────────┘  │
+│                                                      │
+│  [Save]                                              │
+└─────────────────────────────────────────────────────┘
+```
+
+**Research LLMs tab:**
+```
+┌─────────────────────────────────────────────────────┐
+│  Research LLMs                                       │
+│                                                      │
+│  ┌─ Management Company ──────────────────────────┐  │
+│  │  Primary (Reasoning):   [Claude Opus     ▾]   │  │
+│  │  Secondary (Workhorse): [Gemini Flash    ▾]   │  │
+│  │  Mode: ○ Dual  ○ Primary Only                 │  │
+│  └───────────────────────────────────────────────┘  │
+│                                                      │
+│  ┌─ Properties ──────────────────────────────────┐  │
+│  │  Primary (Reasoning):   [Claude Sonnet   ▾]   │  │
+│  │  Secondary (Workhorse): [GPT-4o          ▾]   │  │
+│  │  Mode: ○ Dual  ○ Primary Only                 │  │
+│  └───────────────────────────────────────────────┘  │
+│                                                      │
+│  ┌─ Market & Industry ───────────────────────────┐  │
+│  │  Primary (Reasoning):   [Gemini Pro      ▾]   │  │
+│  │  Secondary (Workhorse): [Claude Haiku    ▾]   │  │
+│  │  Mode: ○ Dual  ○ Primary Only                 │  │
+│  └───────────────────────────────────────────────┘  │
+│                                                      │
+│  [Save]                                              │
+│                                                      │
+│  Available Models: [Refresh Models]                  │
+│  Anthropic: Claude Opus, Sonnet, Haiku               │
+│  OpenAI: GPT-5.4, o3, o4-mini                       │
+│  Google: Gemini 3.1, 2.5, Flash                      │
+│  xAI: Grok 4, Grok 3                                │
+└─────────────────────────────────────────────────────┘
+```
+
+### Implementation
+
+This is **Phase 3** in the dependency structure (can run in parallel with Phase 2 — Model Defaults UI):
+
+1. **Schema:** Extend `ResearchEventConfig` interface with `primaryLlm`, `secondaryLlm`, `llmMode` fields
+2. **Server:** Update `server/routes/research.ts` to read domain-specific LLM from `researchConfig[type].primaryLlm` with fallback to top-level
+3. **Admin UI:** Create `ResearchSourcesTab.tsx` and `ResearchLlmsTab.tsx` components
+4. **Migrate defaults:** Move hardcoded source lists from `research-shared.tsx` into database as initial seed values
+5. **Admin sidebar:** Add two new items to Research group
+6. **Test:** Verify research generation uses domain-specific LLM when configured, falls back when not
+
+---
+
 ## 7. Page Changes
 
 ### 7.1 Settings Page → ELIMINATED
@@ -659,7 +823,7 @@ Only change to admin sidebar: "Model Defaults" added as first item in Business g
 | Show calc details (×2) | Admin > Navigation & Display (moved FROM Settings) |
 | Show tour prompt | Admin > Navigation & Display (moved FROM Settings) |
 | Auto-refresh research | Admin > Research Center (moved FROM Settings) |
-| Preferred LLM (primary/secondary) | Admin > Research Center (already there) |
+| Preferred LLM (per-domain, 6 slots) | Admin > Research LLMs ★ NEW (restructured from Research Center) |
 | Rebecca enabled/config | Admin > AI Agents |
 
 ---
@@ -755,12 +919,25 @@ Update `shared/schema/config.ts` with new fields.
 
 Create `ModelDefaultsTab.tsx` with 3 sub-tabs (MarketMacroTab, CompanyOperationsTab, PropertyUnderwritingTab). Follow existing admin tab patterns (see `PeopleTab.tsx`, `CompensationSection.tsx`). Wire to `PATCH /api/global-assumptions`. Add to `AdminSidebar.tsx` as first item in Business group.
 
-### Phase 3: Governed Field Component
+### Phase 3: Research Center Restructure
+**Effort:** Medium | **Risk:** Low | **Depends on:** Phase 1
+
+Centralize research sources and LLMs with domain-specific configuration. See Section 6b for full specification.
+
+- Extend `ResearchEventConfig` interface with `primaryLlm`, `secondaryLlm`, `llmMode` fields
+- Create `ResearchSourcesTab.tsx` — 3 subsections (Mgmt Co, Properties, Market & Industry) for admin-editable source URLs
+- Create `ResearchLlmsTab.tsx` — 2 models × 3 domains = 6 LLM slots with mode toggle per domain
+- Migrate hardcoded source lists from `research-shared.tsx` to database seed values
+- Update `server/routes/research.ts` to read domain-specific LLM with fallback chain
+- Add both tabs to admin sidebar Research group
+- **Can run in parallel with Phase 2** (Model Defaults UI)
+
+### Phase 4: Governed Field Component
 **Effort:** Small | **Risk:** Low | **Depends on:** Nothing
 
 Create `GovernedField.tsx` component with shield icon, authority badge, collapsible helper text. Apply to depreciation years and days per month. Add governed fields reference to Help page.
 
-### Phase 4: Extend Property Creation Pre-fill
+### Phase 5: Extend Property Creation Pre-fill
 **Effort:** Small | **Risk:** Medium | **Depends on:** Phase 1
 
 **Already exists:** `buildPropertyDefaultsFromGlobal()` in `server/routes/properties.ts` fills cost rates, financing, exit, fees from `globalAssumptions`.
@@ -770,23 +947,23 @@ Create `GovernedField.tsx` component with shield icon, authority badge, collapsi
 - Include `depreciationYears` from database
 - Update `AddPropertyDialog` to read initial form values from API instead of client-side constants
 
-### Phase 5: Company Page Read-Only Panel
+### Phase 6: Company Page Read-Only Panel
 **Effort:** Small | **Risk:** Low | **Depends on:** Nothing
 
 Create `ModelInputsPanel.tsx` — read-only expandable accordion on `/company` page. Reads from `globalAssumptions`. Shows "Edit in Admin > Model Defaults" link for admins.
 
-### Phase 6: Eliminate Settings Page
+### Phase 7: Eliminate Settings Page
 **Effort:** Small | **Risk:** Low | **Depends on:** Phase 2
 
 Remove `/settings` route. Remove "General Settings" from sidebar. Add redirect. Move display toggles to Navigation & Display tab. Move research auto-refresh to Research Center. Move tour toggle to Navigation & Display.
 
-### Phase 7: Company Assumptions Consolidation
-**Effort:** Medium | **Risk:** Medium | **Depends on:** Phase 2, 5
+### Phase 8: Company Assumptions Consolidation
+**Effort:** Medium | **Risk:** Medium | **Depends on:** Phase 2, 6
 
 Move company identity fields to Model Defaults > Company Operations > Identity. Move exit/expense fields to Property Underwriting. Redirect `/company/assumptions` for non-admins. Admin edits company values via Model Defaults.
 
-### Phase 8: Code Constants Migration
-**Effort:** Large | **Risk:** High | **Depends on:** Phase 1, 4
+### Phase 9: Code Constants Migration
+**Effort:** Large | **Risk:** High | **Depends on:** Phase 1, 5
 
 **Scope:** `DEPRECIATION_YEARS` referenced in 42 files. `DAYS_PER_MONTH` in 48 files. 30+ test files import these constants directly.
 
@@ -798,34 +975,56 @@ Move company identity fields to Model Defaults > Company Operations > Identity. 
 
 **Migrate one constant at a time.** Start with `DEPRECIATION_YEARS` (simpler — property-scoped). Then `DAYS_PER_MONTH`. Then remaining `DEFAULT_*`. Run full test suite after each.
 
-### Phase 9: Expose Hidden Property Fields
-**Effort:** Small | **Risk:** Low | **Depends on:** Phase 4
+### Phase 10: Expose Hidden Property Fields
+**Effort:** Small | **Risk:** Low | **Depends on:** Phase 5
 
 Add to Property Edit form fields that exist in schema but not in UI: property inflation rate, AR/AP days, cost segregation settings, day count convention, escalation method. Pre-fill from defaults.
 
-### Phase 10: Testing & Documentation
+### Phase 11: Testing & Documentation
 **Effort:** Medium | **Risk:** Low | **Depends on:** All phases
 
-New tests: model-defaults proof test, governed-fields engine test, settings-elimination test. Update existing tests. Update Help page. Run `npm run verify:summary` — must show UNQUALIFIED. Run `npm run health`.
+New tests: model-defaults proof test, governed-fields engine test, research-center restructure test, settings-elimination test. Update existing tests. Update Help page. Run `npm run verify:summary` — must show UNQUALIFIED. Run `npm run health`.
 
 ### Summary
+
+```
+Phase 1: Schema & Database (no deps)
+    ├── Phase 2: Model Defaults Admin Tab (depends on 1)  ─┐
+    │                                                       ├─ can run in parallel
+    ├── Phase 3: Research Center Restructure (depends on 1) ┘
+    │
+    ├── Phase 4: Governed Field Component (no deps)
+    ├── Phase 5: Extend Property Creation Pre-fill (depends on 1)
+    ├── Phase 6: Company Page Read-Only Panel (no deps)
+    │
+    ├── Phase 7: Eliminate Settings Page (depends on 2)
+    ├── Phase 8: Company Assumptions Consolidation (depends on 2, 6)
+    │
+    ├── Phase 9: Code Constants Migration (depends on 1, 5) ← HIGHEST RISK
+    ├── Phase 10: Expose Hidden Property Fields (depends on 5)
+    │
+    └── Phase 11: Testing & Documentation (depends on all)
+```
 
 | Phase | Work | Effort | Risk | Depends On |
 |-------|------|--------|------|------------|
 | 1 | Schema & Database | Small | Low | — |
 | 2 | Admin Model Defaults UI | Medium | Medium | 1 |
-| 3 | Governed Field Component | Small | Low | — |
-| 4 | Extend Property Creation Pre-fill | Small | Medium | 1 |
-| 5 | Company Page Read-Only Panel | Small | Low | — |
-| 6 | Eliminate Settings Page | Small | Low | 2 |
-| 7 | Company Assumptions Consolidation | Medium | Medium | 2, 5 |
-| 8 | Code Constants Migration | **Large** | **High** | 1, 4 |
-| 9 | Expose Hidden Property Fields | Small | Low | 4 |
-| 10 | Testing & Documentation | Medium | Low | All |
+| 3 | Research Center Restructure | Medium | Low | 1 |
+| 4 | Governed Field Component | Small | Low | — |
+| 5 | Extend Property Creation Pre-fill | Small | Medium | 1 |
+| 6 | Company Page Read-Only Panel | Small | Low | — |
+| 7 | Eliminate Settings Page | Small | Low | 2 |
+| 8 | Company Assumptions Consolidation | Medium | Medium | 2, 6 |
+| 9 | Code Constants Migration | **Large** | **High** | 1, 5 |
+| 10 | Expose Hidden Property Fields | Small | Low | 5 |
+| 11 | Testing & Documentation | Medium | Low | All |
 
-**Parallelizable:** Phases 3, 4, 5 can run in parallel after Phase 1.
+**Parallelizable:** Phases 2 + 3 in parallel. Phases 4, 5, 6 in parallel. Phase 7 + 8 after Phase 2.
 
-**Phase 8 warning:** Highest-risk phase. 90+ files reference the constants. Migrate one at a time, full test suite after each.
+**Phase 9 warning:** Highest-risk phase. 90+ files reference the constants. Migrate one at a time, full test suite after each.
+
+**Note:** Replit has created Task #166 covering Phase 1 + Phase 2 + Phase 5 (schema extension, Model Defaults tab, property creation defaults). The task scoping explicitly defers Phase 4 (governed fields), Phase 7 (settings elimination), and Phase 3 (research restructure) to follow-up tasks.
 
 ---
 

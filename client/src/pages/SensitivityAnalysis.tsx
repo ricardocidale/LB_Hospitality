@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
-import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAULT_INFLATION_RATE } from "@/lib/constants";
+import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAULT_INFLATION_RATE, DEFAULT_COST_RATE_INSURANCE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -54,6 +54,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       { id: "exitCapRate", label: "Exit Cap Rate", unit: "%", step: 0.25, range: [-3, 3], defaultValue: 0, description: "Adjust exit cap rate", tooltip: "Higher value = lower property valuation" },
       { id: "inflation", label: "Inflation Rate", unit: "%", step: 0.5, range: [-3, 5], defaultValue: 0, description: "Adjust general inflation rate", tooltip: "Impacts properties using default inflation" },
       { id: "interestRate", label: "Interest Rate", unit: "%", step: 0.25, range: [-3, 5], defaultValue: 0, description: "Adjust debt financing interest rate" },
+      { id: "insuranceRate", label: "Insurance Rate", unit: "%", step: 0.25, range: [-1, 3], defaultValue: 0, description: "Adjust property insurance cost rate", tooltip: "Percentage of total property value charged annually for insurance" },
     ];
   }, [global]);
 
@@ -85,6 +86,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           ),
           adrGrowthRate: Math.max(0, prop.adrGrowthRate + (overrides.adrGrowth ?? 0) / 100),
           interestRate: Math.max(0.005, ((prop as any).interestRate ?? 0.065) + (overrides.interestRate ?? 0) / 100),
+          costRateInsurance: Math.max(0, (prop.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) + (overrides.insuranceRate ?? 0) / 100),
         };
 
         const adjGlobal = {

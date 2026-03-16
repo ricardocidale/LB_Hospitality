@@ -39,6 +39,7 @@ const METRICS: MetricRow[] = [
   { label: "Max Occupancy", key: "maxOccupancy", format: "percent", bestDir: "high" },
   { label: "Purchase Price", key: "purchasePrice", format: "money", bestDir: "low" },
   { label: "Building Improvements", key: "buildingImprovements", format: "money", bestDir: "low" },
+  { label: "Insurance Rate", key: "costRateInsurance", format: "percent", bestDir: "low" },
   { label: "Financing Type", key: "type", format: "text" },
 ];
 

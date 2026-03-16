@@ -40,6 +40,7 @@ Room Revenue = Room Count x DAYS_PER_MONTH (30.5) x ADR x Occupancy
 Total Revenue
   - Departmental Expenses (Rooms, F&B, Events, Other)
   - Undistributed Operating Expenses (Admin, Marketing, Property Ops, Utilities, IT, Other)
+  - Insurance
   = GOP (Gross Operating Profit)
   - Management Fees (Base Fee + Incentive Fee)
   = AGOP (Adjusted Gross Operating Profit)
@@ -64,7 +65,7 @@ Total Revenue
 | **ANOI** | NOI minus FF&E Reserve |
 
 ### Insurance
-- **Property insurance** = `(purchasePrice + buildingImprovements) / 12 * costRateInsurance` (default 1.5%)
+- **Property insurance** = `(totalPropertyValue / 12) × costRateInsurance × fixedCostFactor` (default 1.5%)
 - Included in `totalOperatingExpenses` (before GOP), NOT in fixed charges
 - **Company insurance** = `DEFAULT_BUSINESS_INSURANCE_START / 12` = $1,000/mo
 

@@ -108,7 +108,7 @@ DEPARTMENTAL / OPERATING EXPENSES
     Other Costs                   = baseDollar × (1 + escalationRate)^year
 
   Property-Value-Based Costs (anchored to purchase price + improvements, escalate):
-    Insurance                     = (totalPropertyValue / 12) × rate × (1 + escalationRate)^year
+    Insurance (expenseInsurance)   = (totalPropertyValue / 12) × costRateInsurance × (1 + escalationRate)^year
     Property Taxes                = (totalPropertyValue / 12) × rate × (1 + escalationRate)^year
   ─────────────────────────────────────────────────
   TOTAL OPERATING EXPENSES        = Sum of all variable + fixed expenses

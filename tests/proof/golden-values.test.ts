@@ -83,8 +83,9 @@ describe("Golden Value Tests — Penny-Exact Verification", () => {
   const expTaxes = (1_000_000 / 12) * 0.03;
   const expUtilFixed = revTotal * (0.05 * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT));
   const expOtherCosts = revTotal * 0.05;
+  const expInsurance = (1_000_000 / 12) * 0.015;
   const totalOpEx = expRooms + expFB + expEvents + expOther + expMarketing +
-    expPropOps + expUtilVar + expAdmin + expIT + expUtilFixed + expOtherCosts;
+    expPropOps + expUtilVar + expAdmin + expIT + expUtilFixed + expInsurance + expOtherCosts;
   const gop = revTotal - totalOpEx;
   const feeBase = revTotal * DEFAULT_BASE_MANAGEMENT_FEE_RATE;
   const feeIncentive = Math.max(0, gop * DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE);
@@ -262,7 +263,7 @@ describe("Month-over-Month Continuity Cross-Checks", () => {
       const totalOpEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
         m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
         m.expenseAdmin + m.expenseIT +
-        m.expenseUtilitiesFixed + m.expenseOtherCosts;
+        m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
       expect(m.gop).toBeCloseTo(m.revenueTotal - totalOpEx, PENNY);
     }
   });
@@ -307,7 +308,7 @@ describe("Month-over-Month Continuity Cross-Checks", () => {
       const totalOpEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
         m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
         m.expenseAdmin + m.expenseIT +
-        m.expenseUtilitiesFixed + m.expenseOtherCosts;
+        m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
     }
   });
 

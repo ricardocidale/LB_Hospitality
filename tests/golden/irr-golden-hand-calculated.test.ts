@@ -16,6 +16,7 @@ import {
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
+  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_EVENT_EXPENSE_RATE,
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
@@ -122,14 +123,15 @@ describe("Golden Lodge — Hand-Calculated IRR Scenario", () => {
   const expenseUtilitiesFixed = revenueTotal * (DEFAULT_COST_RATE_UTILITIES * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT));
   // 134,043.84 * (0.05 * 0.40) = 134,043.84 * 0.02 = 2,680.8768
   const expenseOtherCosts = revenueTotal * DEFAULT_COST_RATE_OTHER; // 134,043.84 * 0.05 = 6,702.192
+  const expenseInsurance = (totalPropertyValue / 12) * DEFAULT_COST_RATE_INSURANCE;
   const expenseFFE = revenueTotal * DEFAULT_COST_RATE_FFE; // 134,043.84 * 0.04 = 5,361.7536
 
   // ── USALI waterfall ────────────────────────────────────────────────────
-  // totalOperatingExpenses: 11 items (NOT taxes, FFE)
+  // totalOperatingExpenses: 12 items (NOT taxes, FFE)
   const totalOperatingExpenses =
     expenseRooms + expenseFB + expenseEvents + expenseOther +
     expenseMarketing + expensePropertyOps + expenseUtilitiesVar +
-    expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseOtherCosts;
+    expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseInsurance + expenseOtherCosts;
 
   const gop = revenueTotal - totalOperatingExpenses;
   const feeBase = revenueTotal * DEFAULT_BASE_MANAGEMENT_FEE_RATE; // 134,043.84 * 0.085
@@ -192,11 +194,11 @@ describe("Golden Lodge — Hand-Calculated IRR Scenario", () => {
   });
 
   it("Month 1 USALI waterfall", () => {
-    // Verify totalOperatingExpenses (the 11-item sum)
+    // Verify totalOperatingExpenses (the 12-item sum)
     const engineTotalOpex =
       m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
       m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
-      m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseOtherCosts;
+      m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
     expect(engineTotalOpex).toBeCloseTo(totalOperatingExpenses, PENNY);
 
     expect(m.gop).toBeCloseTo(gop, PENNY);

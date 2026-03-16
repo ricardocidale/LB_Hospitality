@@ -53,6 +53,7 @@ export function buildPropertyISRows(yearly: YearlyAggregation[]): (string | numb
     ["  Utilities", ...yearly.map((y) => y.expenseUtilities)],
     ["  Administrative & General", ...yearly.map((y) => y.expenseAdmin)],
     ["  IT & Technology", ...yearly.map((y) => y.expenseIT)],
+    ["  Insurance", ...yearly.map((y) => y.expenseInsurance)],
     ["  Other Costs", ...yearly.map((y) => y.expenseOtherCosts)],
     [],
     ["Gross Operating Profit (GOP)", ...yearly.map((y) => y.gop)],
@@ -156,6 +157,7 @@ export async function exportPropertyCashFlow(
     ["    Utilities (Fixed)", ...yearly.map((y) => y.expenseUtilitiesFixed)],
     
     ["    Property Taxes", ...yearly.map((y) => y.expenseTaxes)],
+    ["    Insurance", ...yearly.map((y) => y.expenseInsurance)],
     ["    Administrative & Compliance", ...yearly.map((y) => y.expenseAdmin)],
     ["    IT Systems", ...yearly.map((y) => y.expenseIT)],
     ["    Other Operating Costs", ...yearly.map((y) => y.expenseOther)],
@@ -258,6 +260,7 @@ export async function exportFullPropertyWorkbook(
     ["    Utilities (Fixed)", ...yearly.map((y) => y.expenseUtilitiesFixed)],
     
     ["    Property Taxes", ...yearly.map((y) => y.expenseTaxes)],
+    ["    Insurance", ...yearly.map((y) => y.expenseInsurance)],
     ["    Administrative & Compliance", ...yearly.map((y) => y.expenseAdmin)],
     ["    IT Systems", ...yearly.map((y) => y.expenseIT)],
     ["    Other Operating Costs", ...yearly.map((y) => y.expenseOther)],

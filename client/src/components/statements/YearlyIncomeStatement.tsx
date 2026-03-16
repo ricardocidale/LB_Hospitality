@@ -112,6 +112,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       utilities: property.costRateUtilities ?? 0.05,
       admin: property.costRateAdmin ?? 0.08,
       taxes: property.costRateTaxes ?? 0.03,
+      insurance: property.costRateInsurance ?? 0.015,
       it: property.costRateIT ?? 0.02,
       other: property.costRateOther ?? 0.05,
     };
@@ -350,6 +351,16 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           </ExpandableLineItem>
 
           <ExpandableLineItem
+            label="Insurance"
+            tooltip={`Property insurance: ${pct(costRates.insurance)} of property value, escalating ${pct(fixedEscRate)}/yr. Based on Purchase Price + Building Improvements.`}
+            values={yd.map((y) => y.expenseInsurance)}
+            expanded={isExpanded("insurance")}
+            onToggle={() => toggle("insurance")}
+          >
+            {fixedCostFormulaRows("insurance", yd.map((y) => y.expenseInsurance))}
+          </ExpandableLineItem>
+
+          <ExpandableLineItem
             label="Other Costs"
             tooltip={`USALI fixed cost: ${pct(costRates.other)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseOtherCosts)}
@@ -365,6 +376,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           <LineItem label="Utilities"                 values={yd.map((y) => y.expenseUtilities)} tooltip="Split into variable (scales with revenue) and fixed (anchored to Year 1 base revenue)." />
           <LineItem label="Administrative & General"  values={yd.map((y) => y.expenseAdmin)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
           <LineItem label="IT & Technology"           values={yd.map((y) => y.expenseIT)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
+          <LineItem label="Insurance"                 values={yd.map((y) => y.expenseInsurance)} tooltip="Property insurance: based on property value, escalating annually." />
           <LineItem label="Other Costs"               values={yd.map((y) => y.expenseOtherCosts)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
         </>
       )}

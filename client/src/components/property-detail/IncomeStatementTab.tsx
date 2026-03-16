@@ -60,7 +60,7 @@ export default function IncomeStatementTab({
     const deptExpenses = yd.expenseRooms + yd.expenseFB + yd.expenseEvents + (yd as any).expenseOther;
     const gop = yd.gop;
     const undistributed = yd.expenseAdmin + yd.expenseMarketing + yd.expensePropertyOps +
-      yd.expenseUtilitiesVar + yd.expenseUtilitiesFixed + yd.expenseIT + yd.expenseOtherCosts;
+      yd.expenseUtilitiesVar + yd.expenseUtilitiesFixed + yd.expenseIT + yd.expenseInsurance + yd.expenseOtherCosts;
     const mgmtFees = yd.feeBase + yd.feeIncentive;
     const fixedCharges = yd.expenseTaxes;
     const noi = yd.noi;

@@ -130,6 +130,32 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           />
         </div>
 
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label className="flex items-center text-foreground label-text">
+              Business Insurance
+              <InfoTooltip text="Annual corporate insurance premium — general liability, errors & omissions (E&O), and cyber liability for the management company. This is the company's own policy, separate from each property's insurance. Year 1 value, escalates annually." />
+            </Label>
+            <EditableValue
+              value={formData.businessInsuranceStart ?? global.businessInsuranceStart}
+              onChange={(v) => onChange("businessInsuranceStart", v)}
+              format="dollar"
+              min={0}
+              max={100000}
+              step={1000}
+              data-testid="input-business-insurance"
+            />
+          </div>
+          <Slider
+            value={[formData.businessInsuranceStart ?? global.businessInsuranceStart]}
+            onValueChange={([v]) => onChange("businessInsuranceStart", v)}
+            min={0}
+            max={100000}
+            step={1000}
+            data-testid="slider-business-insurance"
+          />
+        </div>
+
 
       </div>
     </div></div>

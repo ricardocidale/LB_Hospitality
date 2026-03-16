@@ -211,6 +211,7 @@ export function generatePropertyProForma(
   const costRateIT = property.costRateIT ?? DEFAULT_COST_RATE_IT;
   const costRateFFE = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
   const costRateOther = property.costRateOther ?? DEFAULT_COST_RATE_OTHER;
+  const costRateInsurance = property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE;
   const eventExpenseRate = global.eventExpenseRate ?? DEFAULT_EVENT_EXPENSE_RATE;
   const otherExpenseRate = global.otherExpenseRate ?? DEFAULT_OTHER_EXPENSE_RATE;
   const utilitiesVariableSplit = global.utilitiesVariableSplit ?? DEFAULT_UTILITIES_VARIABLE_SPLIT;
@@ -290,6 +291,7 @@ export function generatePropertyProForma(
     const expenseTaxes = totalPropertyValueDiv12 * costRateTaxes * fixedCostFactorGated;
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * utilitiesFixedSplit) * fixedCostFactorGated;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactorGated;
+    const expenseInsurance = totalPropertyValueDiv12 * costRateInsurance * fixedCostFactorGated;
     
     // ── Undistributed expenses + management fees ─────────────────────────────
     const serviceFeesByCategory: Record<string, number> = {};
@@ -308,7 +310,7 @@ export function generatePropertyProForma(
     const totalOperatingExpenses = 
       expenseRooms + expenseFB + expenseEvents + expenseOther + 
       expenseMarketing + expensePropertyOps + expenseUtilitiesVar + 
-      expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseOtherCosts;
+      expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseInsurance + expenseOtherCosts;
       
     const gop = revenueTotal - totalOperatingExpenses;
     const feeIncentive = Math.max(0, gop * incentiveFeeRate);
@@ -444,6 +446,7 @@ export function generatePropertyProForma(
       expenseIT,
       expenseTaxes,
       expenseUtilitiesFixed,
+      expenseInsurance,
       expenseOtherCosts,
       totalExpenses: totalOperatingExpenses + feeBase + feeIncentive + expenseTaxes + expenseFFE,
       gop,

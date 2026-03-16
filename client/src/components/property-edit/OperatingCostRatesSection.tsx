@@ -43,6 +43,7 @@ import {
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
+  DEFAULT_COST_RATE_INSURANCE,
 } from "@/lib/constants";
 import type { PropertyEditSectionProps } from "./types";
 
@@ -345,6 +346,30 @@ export default function OperatingCostRatesSection({ draft, onChange, globalAssum
                       min={0}
                       max={15}
                       step={1}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-col gap-0.5">
+                        <Label className="text-sm label-text text-foreground flex items-center gap-1">Insurance<InfoTooltip text="Property-level insurance — liability, property damage, and business interruption coverage. Based on total property value (Purchase Price + Building Improvements), separate from the management company's corporate insurance." /></Label>
+                      </div>
+                      <EditableValue
+                        value={(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100}
+                        onChange={(val) => onChange("costRateInsurance", val / 100)}
+                        format="percent"
+                        min={0}
+                        max={5}
+                        step={0.1}
+                        data-testid="input-cost-rate-insurance"
+                      />
+                    </div>
+                    <Slider 
+                      value={[(draft.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE) * 100]}
+                      onValueChange={(vals: number[]) => onChange("costRateInsurance", vals[0] / 100)}
+                      min={0}
+                      max={5}
+                      step={0.1}
+                      data-testid="slider-cost-rate-insurance"
                     />
                   </div>
                 </div>

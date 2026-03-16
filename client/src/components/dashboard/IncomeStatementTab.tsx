@@ -175,7 +175,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       if (!data) return 0;
       return data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther +
         data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar +
-        data.expenseAdmin + data.expenseIT +
+        data.expenseAdmin + data.expenseIT + data.expenseInsurance +
         data.expenseUtilitiesFixed + data.expenseOtherCosts;
     };
 
@@ -194,6 +194,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       rows.push({ category: "Property Ops", values: years.map((_, i) => c(i)?.expensePropertyOps ?? 0), indent: 1 });
       rows.push({ category: "Admin & General", values: years.map((_, i) => c(i)?.expenseAdmin ?? 0), indent: 1 });
       rows.push({ category: "IT & Technology", values: years.map((_, i) => c(i)?.expenseIT ?? 0), indent: 1 });
+      rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
       rows.push({ category: "Utilities", values: years.map((_, i) => (c(i)?.expenseUtilitiesVar ?? 0) + (c(i)?.expenseUtilitiesFixed ?? 0)), indent: 1 });
       rows.push({ category: "Other Expenses", values: years.map((_, i) => (c(i)?.expenseOther ?? 0) + (c(i)?.expenseOtherCosts ?? 0)), indent: 1 });
       pushRow({ category: "= Sum of departmental + undistributed expenses", values: years.map((_, i) => totalOpEx(i)), indent: 1, isFormula: true });

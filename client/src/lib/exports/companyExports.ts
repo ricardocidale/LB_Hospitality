@@ -143,6 +143,7 @@ async function exportCompanyFullWorkbook(
       officeLease: yearSlice.reduce((a: number, m: any) => a + m.officeLease, 0),
       profServices: yearSlice.reduce((a: number, m: any) => a + m.professionalServices, 0),
       techInfra: yearSlice.reduce((a: number, m: any) => a + m.techInfrastructure, 0),
+      businessInsurance: yearSlice.reduce((a: number, m: any) => a + m.businessInsurance, 0),
       
       travel: yearSlice.reduce((a: number, m: any) => a + m.travelCosts, 0),
       itLicensing: yearSlice.reduce((a: number, m: any) => a + m.itLicensing, 0),
@@ -201,6 +202,7 @@ async function exportCompanyFullWorkbook(
     ["  Office Lease", ...yearlyData.map(y => y.officeLease)],
     ["  Professional Services", ...yearlyData.map(y => y.profServices)],
     ["  Technology Infrastructure", ...yearlyData.map(y => y.techInfra)],
+    ["  Business Insurance", ...yearlyData.map(y => y.businessInsurance)],
     
     ["  Travel Costs", ...yearlyData.map(y => y.travel)],
     ["  IT Licensing", ...yearlyData.map(y => y.itLicensing)],

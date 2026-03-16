@@ -101,7 +101,7 @@ function aggregateYearly(monthlyData: ReturnType<typeof generatePropertyProForma
     const totalOpEx = slice.reduce((s, m) =>
       s + m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
       m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
-      m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseOtherCosts, 0);
+      m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts, 0);
 
     years.push({
       year: y + 1,

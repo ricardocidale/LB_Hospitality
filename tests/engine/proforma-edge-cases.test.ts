@@ -65,6 +65,7 @@ function assertNoNaNOrInfinity(result: ReturnType<typeof generatePropertyProForm
     "expenseIT",
     "expenseTaxes",
     "expenseUtilitiesFixed",
+    "expenseInsurance",
     "expenseOtherCosts",
     "refinancingProceeds",
   ] as const;
@@ -502,6 +503,7 @@ describe("Edge Case: Zero Cost Rates (all costRate fields = 0)", () => {
     costRateIT: 0,
     costRateFFE: 0,
     costRateOther: 0,
+    costRateInsurance: 0,
   };
   const result = generatePropertyProForma(prop, baseGlobal, 12);
 
@@ -525,6 +527,7 @@ describe("Edge Case: Zero Cost Rates (all costRate fields = 0)", () => {
       expect(m.expensePropertyOps).toBe(0);
       expect(m.expenseIT).toBe(0);
       expect(m.expenseTaxes).toBe(0);
+      expect(m.expenseInsurance).toBe(0);
       expect(m.expenseUtilitiesFixed).toBe(0);
       expect(m.expenseOtherCosts).toBe(0);
     }
@@ -593,6 +596,7 @@ describe("Edge Case: Pre-Operations Period", () => {
       expect(result[i].expensePropertyOps).toBe(0);
       expect(result[i].expenseIT).toBe(0);
       expect(result[i].expenseTaxes).toBe(0);
+      expect(result[i].expenseInsurance).toBe(0);
       expect(result[i].expenseUtilitiesFixed).toBe(0);
       expect(result[i].expenseOtherCosts).toBe(0);
     }
@@ -1126,6 +1130,7 @@ describe("Edge Case: GOP and NOI accounting identity", () => {
         m.expenseAdmin +
         m.expenseIT +
         m.expenseUtilitiesFixed +
+        m.expenseInsurance +
         m.expenseOtherCosts;
       expect(m.gop).toBeCloseTo(m.revenueTotal - operatingExpenses, 2);
     }

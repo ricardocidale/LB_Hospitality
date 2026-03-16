@@ -113,14 +113,16 @@ function ProtectedRoute({
 
 function AdminRoute({
   component: Component,
+  redirectTo = "/",
 }: {
   component: React.ComponentType;
+  redirectTo?: string;
 }) {
   const { user, isLoading, isAdmin } = useAuth();
 
   if (isLoading) return <PageLoader />;
   if (!user) return <Redirect to="/login" />;
-  if (!isAdmin) return <Redirect to="/" />;
+  if (!isAdmin) return <Redirect to={redirectTo} />;
 
   return (
     <Suspense fallback={<PageLoader />}>
@@ -286,7 +288,7 @@ function Router() {
         </Route>
         <Route path="/company/assumptions">
           <FinancialErrorBoundary>
-            <AdminRoute component={CompanyAssumptions} />
+            <AdminRoute component={CompanyAssumptions} redirectTo="/company" />
           </FinancialErrorBoundary>
         </Route>
         <Route path="/portfolio">

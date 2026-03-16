@@ -40,12 +40,13 @@ export function register(app: Express) {
       if (!current) {
         return res.status(404).json({ error: "Global assumptions not found" });
       }
-      // Mutual exclusion: enabling Rebecca disables Marcela
+      // MARCELA ISOLATED: Mutual exclusion removed — Rebecca operates independently.
+      // To restore: uncomment the block below.
+      // if (validation.data.rebeccaEnabled === true) {
+      //   patch.marcelaEnabled = false;
+      //   patch.showAiAssistant = false;
+      // }
       const patch: Record<string, unknown> = { ...validation.data, updatedAt: new Date() };
-      if (validation.data.rebeccaEnabled === true) {
-        patch.marcelaEnabled = false;
-        patch.showAiAssistant = false;
-      }
       const updated = await storage.patchGlobalAssumptions(current.id, patch);
       logActivity(req, "update", "global_assumptions", updated.id, "Rebecca Config");
       res.json(updated);

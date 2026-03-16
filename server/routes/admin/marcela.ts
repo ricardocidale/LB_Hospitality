@@ -17,6 +17,11 @@ import multer from "multer";
 const upload = multer({ storage: multer.memoryStorage() });
 
 export function registerMarcelaRoutes(app: Express) {
+  // MARCELA ISOLATED: All ElevenLabs-calling endpoints gated.
+  // `as boolean` prevents TS from narrowing to `true` and flagging dead code.
+  const MARCELA_ISOLATED = true as boolean;
+  const MARCELA_DISABLED_MSG = "Marcela is temporarily disabled. Configuration is preserved.";
+
   app.get("/api/admin/knowledge-base/sources", requireAdmin, async (_req, res) => {
     try {
       const sources = await getKBSources();
@@ -27,6 +32,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.post("/api/admin/convai/knowledge-base/rebuild", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       if (isApiRateLimited(req.user!.id, "kb-rebuild", 1)) {
         return res.status(429).json({ error: "Knowledge base rebuild is rate-limited to 1 per minute" });
@@ -73,10 +80,11 @@ export function registerMarcelaRoutes(app: Express) {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
       const patch: Partial<Record<string, unknown>> = { ...parsed.data };
-      // Mutual exclusion: enabling Marcela disables Rebecca
-      if (patch.marcelaEnabled === true) {
-        patch.rebeccaEnabled = false;
-      }
+      // MARCELA ISOLATED: Mutual exclusion removed — Rebecca operates independently.
+      // To restore: uncomment the block below.
+      // if (patch.marcelaEnabled === true) {
+      //   patch.rebeccaEnabled = false;
+      // }
       const updated = await storage.upsertGlobalAssumptions(patch as InsertGlobalAssumptions);
       logActivity(req, "update-voice-settings", "ai-agent", null, null, { fields: Object.keys(parsed.data) });
       res.json(updated);
@@ -114,7 +122,11 @@ export function registerMarcelaRoutes(app: Express) {
     }
   });
 
+  // Remaining ElevenLabs-calling endpoints gated below:
+
   app.post("/api/marcela/scribe-token", requireAuth, async (_req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const apiKey = process.env.ELEVENLABS_API_KEY;
       if (!apiKey) return res.status(503).json({ error: "Service not configured" });
@@ -135,6 +147,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/marcela/signed-url", requireAuth, async (_req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
@@ -166,6 +180,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/health", requireAdmin, async (_req, res) => {
+    // MARCELA ISOLATED — return isolated health status
+    if (MARCELA_ISOLATED) return res.json({ healthy: false, reason: "isolated", apiKeySet: false, agentId: "", signedUrlTest: "skipped — isolated", showAiAssistant: false, marcelaEnabled: false });
     try {
       const ga = await storage.getGlobalAssumptions();
       const agentId = ga?.marcelaAgentId || "";
@@ -197,6 +213,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/agent", requireAdmin, async (_req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
@@ -210,6 +228,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/conversations", requireAdmin, async (_req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
@@ -223,6 +243,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/conversations/:id", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const id = String(req.params.id);
       const conversation = await getConvaiConversation(id);
@@ -233,6 +255,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.post("/api/admin/convai/configure-tools", requireAdmin, async (_req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const result = await configureMarcelaAgent();
       if (result.success) {
@@ -269,6 +293,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.post("/api/admin/convai/knowledge-base/upload", requireAdmin, async (_req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const result = await uploadKnowledgeBase();
       if (result.success) {
@@ -282,6 +308,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.patch("/api/admin/convai/agent/prompt", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const parsed = marcelaPromptSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -313,6 +341,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.patch("/api/admin/convai/agent/widget-settings", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const parsed = marcelaWidgetSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -403,6 +433,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/tools-status", requireAdmin, async (_req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
@@ -433,6 +465,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.post("/api/admin/convai/knowledge-base/upload-file", requireAdmin, upload.single("file"), async (req: any, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
@@ -468,6 +502,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.delete("/api/admin/convai/conversations/:id", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const id = String(req.params.id);
       await deleteConvaiConversation(id);
@@ -478,6 +514,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.patch("/api/admin/convai/agent/llm", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const parsed = marcelaLlmSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -504,6 +542,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.patch("/api/admin/convai/agent/voice", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const parsed = marcelaVoiceSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -594,6 +634,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/conversations/:id/audio", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const id = String(req.params.id);
       const { buffer, contentType } = await getConversationAudio(id);
@@ -606,6 +648,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.delete("/api/admin/convai/agent/knowledge-base/:docId", requireAdmin, async (req, res) => {
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) return res.status(404).json({ error: "Marcela agent not configured" });

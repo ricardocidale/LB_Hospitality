@@ -151,108 +151,56 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
 
   const handleToggleMarcela = useCallback(
     async (enabled: boolean) => {
-      if (!marcelaDraft) return;
-      setIsToggling("marcela");
+      // MARCELA ISOLATED — toggle is disabled, show informational toast
+      toast({
+        title: "Marcela is temporarily disabled",
+        description: "Voice agent is isolated. Configuration is preserved.",
+        variant: "default",
+      });
+      return;
 
-      try {
-        if (enabled) {
-          await apiRequest("POST", "/api/admin/voice-settings", {
-            ...marcelaDraft,
-            marcelaEnabled: true,
-          });
-          await apiRequest("PATCH", "/api/global-assumptions", {
-            rebeccaEnabled: false,
-          });
-          setMarcelaDraft({ ...marcelaDraft, marcelaEnabled: true });
-          setRebeccaEnabled(false);
-          setMarcelaDirty(false);
-          setRebeccaDirty(false);
-          toast({
-            title: "Marcela activated",
-            description: "Voice agent enabled. Rebecca has been deactivated.",
-          });
-        } else {
-          await apiRequest("POST", "/api/admin/voice-settings", {
-            ...marcelaDraft,
-            marcelaEnabled: false,
-            showAiAssistant: false,
-          });
-          setMarcelaDraft({
-            ...marcelaDraft,
-            marcelaEnabled: false,
-            showAiAssistant: false,
-          });
-          setMarcelaDirty(false);
-          toast({
-            title: "Marcela deactivated",
-            description: "Voice agent disabled.",
-          });
-        }
-        queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
-        queryClient.invalidateQueries({
-          queryKey: ["admin", "voice-settings"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["admin", "marcela-signed-url"],
-        });
-      } catch (err: any) {
-        toast({
-          title: "Error",
-          description: err.message || "Toggle failed",
-          variant: "destructive",
-        });
-      } finally {
-        setIsToggling(null);
-      }
+      // Original toggle logic preserved for restoration:
+      // if (!marcelaDraft) return;
+      // setIsToggling("marcela");
+      // try {
+      //   if (enabled) {
+      //     await apiRequest("POST", "/api/admin/voice-settings", { ...marcelaDraft, marcelaEnabled: true });
+      //     setMarcelaDraft({ ...marcelaDraft, marcelaEnabled: true });
+      //     setMarcelaDirty(false);
+      //     toast({ title: "Marcela activated", description: "Voice agent enabled." });
+      //   } else {
+      //     await apiRequest("POST", "/api/admin/voice-settings", { ...marcelaDraft, marcelaEnabled: false, showAiAssistant: false });
+      //     setMarcelaDraft({ ...marcelaDraft, marcelaEnabled: false, showAiAssistant: false });
+      //     setMarcelaDirty(false);
+      //     toast({ title: "Marcela deactivated", description: "Voice agent disabled." });
+      //   }
+      //   queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+      //   queryClient.invalidateQueries({ queryKey: ["admin", "voice-settings"] });
+      //   queryClient.invalidateQueries({ queryKey: ["admin", "marcela-signed-url"] });
+      // } catch (err: any) {
+      //   toast({ title: "Error", description: err.message || "Toggle failed", variant: "destructive" });
+      // } finally {
+      //   setIsToggling(null);
+      // }
     },
-    [marcelaDraft, queryClient, toast],
+    [toast],
   );
 
   const handleToggleRebecca = useCallback(
     async (enabled: boolean) => {
-      if (!marcelaDraft) return;
       setIsToggling("rebecca");
-
       try {
-        if (enabled) {
-          await apiRequest("PATCH", "/api/global-assumptions", {
-            rebeccaEnabled: true,
-          });
-          await apiRequest("POST", "/api/admin/voice-settings", {
-            ...marcelaDraft,
-            marcelaEnabled: false,
-            showAiAssistant: false,
-          });
-          setRebeccaEnabled(true);
-          setMarcelaDraft({
-            ...marcelaDraft,
-            marcelaEnabled: false,
-            showAiAssistant: false,
-          });
-          setMarcelaDirty(false);
-          setRebeccaDirty(false);
-          toast({
-            title: "Rebecca activated",
-            description: "Text agent enabled. Marcela has been deactivated.",
-          });
-        } else {
-          await apiRequest("PATCH", "/api/global-assumptions", {
-            rebeccaEnabled: false,
-          });
-          setRebeccaEnabled(false);
-          setRebeccaDirty(false);
-          toast({
-            title: "Rebecca deactivated",
-            description: "Text agent disabled.",
-          });
-        }
+        // MARCELA ISOLATED: Rebecca operates independently — no mutual exclusion
+        await apiRequest("PATCH", "/api/global-assumptions", {
+          rebeccaEnabled: enabled,
+        });
+        setRebeccaEnabled(enabled);
+        setRebeccaDirty(false);
+        toast({
+          title: enabled ? "Rebecca activated" : "Rebecca deactivated",
+          description: enabled ? "Text agent enabled." : "Text agent disabled.",
+        });
         queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
-        queryClient.invalidateQueries({
-          queryKey: ["admin", "voice-settings"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["admin", "marcela-signed-url"],
-        });
       } catch (err: any) {
         toast({
           title: "Error",
@@ -263,7 +211,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
         setIsToggling(null);
       }
     },
-    [marcelaDraft, queryClient, toast],
+    [queryClient, toast],
   );
 
   const marcelaSaveRef = useRef<(() => void) | undefined>(undefined);
@@ -325,6 +273,15 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
 
   return (
     <div className="space-y-6">
+      {/* MARCELA ISOLATED — amber banner */}
+      <div className="rounded-lg border border-amber-300/60 bg-amber-50/50 p-4 flex items-start gap-3" data-testid="banner-marcela-isolated">
+        <IconAlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+        <div>
+          <p className="font-semibold text-amber-900 text-sm">Marcela voice agent is temporarily disabled</p>
+          <p className="text-amber-700 text-xs mt-0.5">Configuration is preserved. All ElevenLabs API calls and phone endpoints are gated. Rebecca operates independently.</p>
+        </div>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}

@@ -35,13 +35,19 @@ import type { AdminSection } from "@/components/admin/AdminSidebar";
 type NavLink = { href: string; label: string; icon: any; onClick?: () => void };
 
 function MarcelaWidgetGated() {
-  const { data: global } = useGlobalAssumptions();
-  const { tourActive, promptVisible } = useWalkthroughStore();
-  const [location] = useLocation();
-  const onAdminPage = location.startsWith("/admin");
-  const rebeccaActive = !!(global as any)?.rebeccaEnabled;
-  const enabled = !!(global as any)?.showAiAssistant && !!(global as any)?.marcelaEnabled && !rebeccaActive && !tourActive && !promptVisible && !onAdminPage;
-  return <ElevenLabsWidget enabled={enabled} />;
+  // MARCELA ISOLATED: Widget always disabled.
+  // To restore: remove the early return below.
+  // See .claude/plans/MARCELA-ISOLATION.md for full restoration guide.
+  return null;
+
+  // Original logic preserved for restoration:
+  // const { data: global } = useGlobalAssumptions();
+  // const { tourActive, promptVisible } = useWalkthroughStore();
+  // const [location] = useLocation();
+  // const onAdminPage = location.startsWith("/admin");
+  // const rebeccaActive = !!(global as any)?.rebeccaEnabled;
+  // const enabled = !!(global as any)?.showAiAssistant && !!(global as any)?.marcelaEnabled && !rebeccaActive && !tourActive && !promptVisible && !onAdminPage;
+  // return <ElevenLabsWidget enabled={enabled} />;
 }
 
 interface NavGroupDef {

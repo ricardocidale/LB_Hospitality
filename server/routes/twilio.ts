@@ -92,8 +92,20 @@ async function buildContextPrompt(userId?: number): Promise<string> {
   }
 }
 
+// MARCELA ISOLATED: `as boolean` prevents TS from narrowing and flagging dead code.
+const MARCELA_ISOLATED = true as boolean;
+
 export function register(app: Express) {
+
   app.post("/api/twilio/voice/incoming", validateTwilioSignature, async (req, res) => {
+    // MARCELA ISOLATED — always return unavailable TwiML
+    // To restore: remove this block. See .claude/plans/MARCELA-ISOLATION.md
+    if (MARCELA_ISOLATED) {
+      res.type("text/xml");
+      res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Joanna">Our voice assistant is temporarily unavailable. Please contact us through the web portal. Thank you.</Say><Hangup/></Response>`);
+      return;
+    }
+
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaTwilioEnabled) {
@@ -199,6 +211,12 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
   httpServer.on("upgrade", (request, socket, head) => {
     const url = new URL(request.url || "", `http://${request.headers.host}`);
     if (url.pathname === "/api/twilio/voice/stream") {
+      // MARCELA ISOLATED — reject WebSocket upgrade
+      if (MARCELA_ISOLATED) {
+        socket.write("HTTP/1.1 503 Service Temporarily Unavailable\r\n\r\n");
+        socket.destroy();
+        return;
+      }
       wss.handleUpgrade(request, socket, head, (ws) => {
         wss.emit("connection", ws, request);
       });

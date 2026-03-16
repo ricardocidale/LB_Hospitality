@@ -82,7 +82,7 @@ async function generateWithAnthropic(prompt: string, format: string): Promise<an
   let response;
   try {
     response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-3-5-sonnet-20241022",
       max_tokens: 8192,
       messages: [{ role: "user", content: prompt }],
     }, { signal: controller.signal as any });

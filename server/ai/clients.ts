@@ -71,6 +71,16 @@ export function getGeminiClient(): GoogleGenAI {
   return _gemini;
 }
 
+// ── Model normalization ─────────────────────────────────
+
+const DEPRECATED_MODEL_MAP: Record<string, string> = {
+  "claude-sonnet-4-20250514": "claude-3-5-sonnet-20241022",
+};
+
+export function normalizeModelId(model: string): string {
+  return DEPRECATED_MODEL_MAP[model] || model;
+}
+
 // ── Perplexity ──────────────────────────────────────────
 
 let _perplexity: Perplexity | null = null;

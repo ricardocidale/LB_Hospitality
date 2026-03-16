@@ -7,7 +7,7 @@ import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, ex
 import { validateResearchValues } from "../../calc/research/validate-research";
 import { processNotificationEvent } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
-import { getAnthropicClient, getOpenAIClient, getGeminiClient } from "../ai/clients";
+import { getAnthropicClient, getOpenAIClient, getGeminiClient, normalizeModelId } from "../ai/clients";
 import { createResearchClient, resolveVendorFromModel } from "../ai/research-client";
 import type { ResearchConfig, ResearchEventConfig, LlmVendor } from "@shared/schema";
 import { DEFAULT_RESEARCH_EVENT_CONFIG, DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS, DEFAULT_ROOM_COUNT, DEFAULT_START_ADR, DEFAULT_MAX_OCCUPANCY } from "../../shared/constants";
@@ -121,8 +121,8 @@ export function register(app: Express) {
       const researchConfig = (ga?.researchConfig as ResearchConfig) ?? {};
       const contextKey = type === "property" ? "propertyLlm" : type === "global" ? "marketLlm" : "companyLlm";
       const contextLlm = researchConfig[contextKey as keyof ResearchConfig] as import("@shared/schema").ContextLlmConfig | undefined;
-      const model = contextLlm?.primaryLlm || researchConfig.preferredLlm || ga?.preferredLlm || "claude-sonnet-4-20250514";
-      const secondaryModel = contextLlm?.llmMode === "dual" ? contextLlm.secondaryLlm : undefined;
+      const model = normalizeModelId(contextLlm?.primaryLlm || researchConfig.preferredLlm || ga?.preferredLlm || "claude-3-5-sonnet-20241022");
+      const secondaryModel = contextLlm?.llmMode === "dual" && contextLlm.secondaryLlm ? normalizeModelId(contextLlm.secondaryLlm) : undefined;
 
       const configuredVendor = (contextLlm?.llmVendor || "anthropic") as LlmVendor;
       const vendorKey = (["openai", "anthropic", "google"].includes(configuredVendor)

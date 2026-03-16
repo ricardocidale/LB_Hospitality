@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { storage } from "../storage";
 import { requireAuth, isApiRateLimited } from "../auth";
 import { logAndSendError } from "./helpers";
-import { getAnthropicClient } from "../ai/clients";
+import { getAnthropicClient, normalizeModelId } from "../ai/clients";
 
 interface IcpLocationCity {
   name: string;
@@ -275,8 +275,8 @@ export function register(app: Express) {
       const assetDescription = ga.assetDescription || "";
       const propertyLabel = ga.propertyLabel || "Hotel";
       const researchCfg = (ga.researchConfig as import("@shared/schema").ResearchConfig) ?? {};
-      const model = researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || "claude-sonnet-4-20250514";
-      const secondaryModel = researchCfg.companyLlm?.llmMode === "dual" ? researchCfg.companyLlm.secondaryLlm : undefined;
+      const model = normalizeModelId(researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || "claude-3-5-sonnet-20241022");
+      const secondaryModel = researchCfg.companyLlm?.llmMode === "dual" && researchCfg.companyLlm.secondaryLlm ? normalizeModelId(researchCfg.companyLlm.secondaryLlm) : undefined;
 
       const promptBuilder = (req.body?.promptBuilder || icpConfig._promptBuilder || {}) as PromptBuilderConfig;
 

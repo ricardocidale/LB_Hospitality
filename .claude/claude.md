@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 829 source files, ~145K lines, 3,151 tests across 144 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 824 source files, ~145K lines, 3,151 tests across 144 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 
@@ -93,7 +93,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Business Model | `.claude/skills/business-model/SKILL.md` | Dual-entity model, revenue streams, USALI waterfall, management fees, SAFE funding, ICP, property lifecycle |
 | Product Vision | `.claude/skills/product-vision/SKILL.md` | Product identity, design tenets, workflow principles, navigation, user roles, white-labeling |
 | Integrations | `.claude/skills/integrations/SKILL.md` | AI providers, voice AI, geospatial, document intelligence, communication, observability |
-| Settings Architecture | `.claude/skills/settings/SKILL.md` | Three configuration surfaces (Mgmt Co, General Settings, Admin), property edit overrides, overlap prevention, decision tree for placing new settings |
+| Settings Architecture | `.claude/skills/settings/SKILL.md` | Two configuration surfaces (Company Assumptions for admins, Admin panel for system config), read-only Model Inputs panel for non-admins on Company page |
 | Design Export | `.claude/skills/design-export/SKILL.md` | Replicate the HBG design system in another project (components, themes, icons, charts) |
 | Card Widths | `.claude/skills/ui/consistent-card-widths.md` | Page layout width categories, grid patterns, PageHeader alignment |
 | Save Buttons | `.claude/skills/ui/save-button-placement.md` | SaveButton component, three placement patterns, dirty-tracking |
@@ -117,8 +117,9 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Recent Changes (March 16, 2026)
 
-- **Governance Harmonization** (Task #153) — Created 7 new `.claude/skills/` files (business-model, product-vision, integrations, design-export, settings, ui/consistent-card-widths, ui/save-button-placement). All 13 `.agents/skills/` files converted to slim pointers referencing `.claude/skills/` counterparts. Stats updated: 829 source files, ~145K lines, 191 skill files, 3,151 tests across 144 test files.
-- **Settings Architecture Governance** (Task #148) — Finalized `settings-architecture` skill defining where every setting belongs: Management Company owns entity config + revenue model, General Settings owns property defaults (3 tabs: Property Defaults, Macro, Other), Admin owns system-only config, Property Edit owns per-property overrides. Decision tree and overlap prevention rules formalized.
+- **Settings Elimination & Access Control** (Task #168) — Eliminated General Settings page. Migrated calc transparency + tour toggles to Admin Navigation tab, auto-research to Research Center tab. Company Assumptions restricted to admin-only. Non-admins get read-only Model Inputs panel on Company page. `/settings` redirects role-appropriately. Deleted 5 settings components (−684 lines). Stats: 824 source files, ~145K lines.
+- **Governance Harmonization** (Task #153) — Created 7 new `.claude/skills/` files. All 13 `.agents/skills/` files converted to slim pointers.
+- **Settings Architecture Governance** (Task #148) — Superseded by Task #168. Original 3-surface model replaced with 2-surface model (Company Assumptions + Admin).
 - **Property Creation Defaults from Global Assumptions** (Task #147) — `buildPropertyDefaultsFromGlobal()` reads `global_assumptions` for property defaults; hardcoded constants are last-resort fallbacks only.
 - **Settings Consolidation** (Task #146) — ManagementFeesSection is single source for revenue model (service CRUD + incentive + per-property summary). Dead admin tabs removed. General Settings reduced to 3 tabs.
 - **Insurance Removal** — Removed insurance expense from entire codebase. NOI formula is now `IBFC − Property Taxes`. All engines, schemas, UI, tests, and AI knowledge updated.
@@ -163,7 +164,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 - **ICP = Profile + Research Center** — two separate pages, not one monolithic ICP page
 - **LLM dual-model config** — primary + fallback model with vendor selection (OpenAI, Anthropic, Gemini) in Admin LLM tab
 - **Norfolk AI theme** — additional theme preset alongside Tuscan Olive Grove
-- **Settings placement** — Use `settings-architecture` skill decision tree before placing any new setting. Three surfaces only: Mgmt Co (entity config), General Settings (property defaults + macro + other), Admin (system-only)
+- **Settings placement** — General Settings page eliminated (Task #168). Two surfaces: Company Assumptions (admin-only, entity config), Admin panel (system config). Calc transparency + tour toggles moved to Admin Navigation tab. Auto-research toggle moved to Admin Research Center tab. Non-admins see read-only Model Inputs panel on Company page.
 
 ---
 

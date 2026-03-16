@@ -23,15 +23,17 @@
  * All statement data is pre-generated in lib/company-data.ts to keep this
  * page free of inline financial logic.
  */
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useCallback } from "react";
 import { ExportDialog, type PremiumExportPayload } from "@/components/ExportDialog";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import { useServiceTemplates } from "@/lib/api/services";
+import { useAuth } from "@/lib/auth";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Loader2 } from "@/components/icons/themed-icons";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import { IconAlertTriangle, IconCheckCircle } from "@/components/icons";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { CalcDetailsProvider } from "@/components/financial-table";
@@ -57,6 +59,8 @@ export default function Company() {
   const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
   const { data: serviceTemplates } = useServiceTemplates();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
   const [bsExpanded, setBsExpanded] = useState<Record<string, boolean>>({});
@@ -64,6 +68,15 @@ export default function Company() {
   const tableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
+  const [modelInputsOpen, setModelInputsOpen] = useState(false);
+  const modelInputsRef = useRef<HTMLDivElement>(null);
+
+  const handleOpenModelInputs = useCallback(() => {
+    setModelInputsOpen(true);
+    setTimeout(() => {
+      modelInputsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }, []);
 
   const fundingLabel = global?.fundingSourceLabel ?? "Funding Vehicle";
 
@@ -252,6 +265,8 @@ export default function Company() {
             setActiveTab={setActiveTab}
             chartRef={chartRef}
             exportMenuNode={exportMenuNode}
+            isAdmin={isAdmin}
+            onOpenModelInputs={handleOpenModelInputs}
           />
           
           <div className="mt-4 mb-2">
@@ -304,6 +319,42 @@ export default function Company() {
             />
           </TabsContent>
 
+          {!isAdmin && (
+            <div ref={modelInputsRef} className="mt-6" data-testid="panel-model-inputs">
+              <Card className="bg-card border-border shadow-sm">
+                <CardHeader
+                  className="cursor-pointer select-none"
+                  onClick={() => setModelInputsOpen(!modelInputsOpen)}
+                  data-testid="button-toggle-model-inputs"
+                >
+                  <CardTitle className="flex items-center gap-2 text-base font-display">
+                    {modelInputsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    Model Inputs
+                    <span className="text-xs font-normal text-muted-foreground ml-1">(read-only)</span>
+                  </CardTitle>
+                </CardHeader>
+                {modelInputsOpen && (
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <ModelInputItem label="Funding Source" value={fundingLabel} testId="mi-funding-source" />
+                      <ModelInputItem label="SAFE Tranche 1" value={formatMoney(global?.safeTranche1Amount ?? 0)} testId="mi-safe-t1" />
+                      <ModelInputItem label="SAFE Tranche 2" value={formatMoney(global?.safeTranche2Amount ?? 0)} testId="mi-safe-t2" />
+                      <ModelInputItem label="Base Fee" value={`${((global?.baseManagementFee ?? 0) * 100).toFixed(1)}%`} testId="mi-base-fee" />
+                      <ModelInputItem label="Incentive Fee" value={`${((global?.incentiveManagementFee ?? 0) * 100).toFixed(1)}%`} testId="mi-incentive-fee" />
+                      <ModelInputItem label="Staff Salary" value={formatMoney(global?.staffSalary ?? 0)} testId="mi-staff-salary" />
+                      <ModelInputItem label="Staff Tier 1 FTE" value={String(global?.staffTier1Fte ?? 0)} testId="mi-staff-fte" />
+                      <ModelInputItem label="Office Lease" value={`${formatMoney(global?.officeLeaseStart ?? 0)}/yr`} testId="mi-office-lease" />
+                      <ModelInputItem label="Inflation Rate" value={`${((global?.inflationRate ?? 0) * 100).toFixed(1)}%`} testId="mi-inflation" />
+                      <ModelInputItem label="Company Tax Rate" value={`${((global?.companyTaxRate ?? 0) * 100).toFixed(0)}%`} testId="mi-tax-rate" />
+                      <ModelInputItem label="Projection Years" value={String(projectionYears)} testId="mi-projection-years" />
+                      <ModelInputItem label="Professional Services" value={`${formatMoney(global?.professionalServicesStart ?? 0)}/yr`} testId="mi-prof-services" />
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            </div>
+          )}
+
           {!cashAnalysis.isAdequate ? (
             <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-warning">
               <IconAlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
@@ -334,5 +385,14 @@ export default function Company() {
       </div>
       </AnimatedPage>
     </Layout>
+  );
+}
+
+function ModelInputItem({ label, value, testId }: { label: string; value: string; testId: string }) {
+  return (
+    <div className="rounded-lg bg-muted/50 border border-border/60 px-3 py-2">
+      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{label}</p>
+      <p className="text-sm font-semibold text-foreground mt-0.5" data-testid={testId}>{value}</p>
+    </div>
   );
 }

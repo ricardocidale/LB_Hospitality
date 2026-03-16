@@ -55,7 +55,7 @@ export function register(app: Express) {
     }
   });
 
-  app.put("/api/global-assumptions", requireManagementAccess, async (req, res) => {
+  app.put("/api/global-assumptions", requireAdmin, async (req, res) => {
     try {
       const current = await storage.getGlobalAssumptions(req.user!.id);
       const merged = { ...(current ?? {}), ...req.body };
@@ -87,7 +87,7 @@ export function register(app: Express) {
     }
   });
 
-  app.patch("/api/company/service-templates/:id", requireManagementAccess, async (req, res) => {
+  app.patch("/api/company/service-templates/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseParamId(req.params.id, res, "template ID");
       if (id === null) return;

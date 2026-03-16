@@ -53,7 +53,6 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Company = lazy(() => import("@/pages/Company"));
 const CompanyAssumptions = lazy(() => import("@/pages/CompanyAssumptions"));
 const Portfolio = lazy(() => import("@/pages/Portfolio"));
-const Settings = lazy(() => import("@/pages/Settings"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const PropertyDetail = lazy(() => import("@/pages/PropertyDetail"));
 const PropertyEdit = lazy(() => import("@/pages/PropertyEdit"));
@@ -177,6 +176,17 @@ function IcpRedirect() {
   return <Redirect to="/admin" />;
 }
 
+function SettingsRedirect() {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <PageLoader />;
+  if (!user) return <Redirect to="/login" />;
+  if (user.role === "admin") {
+    setAdminSectionFn("navigation");
+    return <Redirect to="/admin" />;
+  }
+  return <Redirect to="/company" />;
+}
+
 /** Router — declares all client-side routes and handles the research refresh overlay. */
 function Router() {
   const { user, isLoading } = useAuth();
@@ -276,7 +286,7 @@ function Router() {
         </Route>
         <Route path="/company/assumptions">
           <FinancialErrorBoundary>
-            <ManagementRoute component={CompanyAssumptions} />
+            <AdminRoute component={CompanyAssumptions} />
           </FinancialErrorBoundary>
         </Route>
         <Route path="/portfolio">
@@ -304,7 +314,7 @@ function Router() {
           </FinancialErrorBoundary>
         </Route>
         <Route path="/settings">
-          <ProtectedRoute component={Settings} />
+          <SettingsRedirect />
         </Route>
         <Route path="/help">
           <ProtectedRoute component={Help} />

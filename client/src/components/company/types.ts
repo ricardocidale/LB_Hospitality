@@ -69,4 +69,6 @@ export interface CompanyHeaderProps {
   setActiveTab: (tab: string) => void;
   chartRef: React.RefObject<HTMLDivElement | null>;
   exportMenuNode: React.ReactNode;
+  isAdmin?: boolean;
+  onOpenModelInputs?: () => void;
 }

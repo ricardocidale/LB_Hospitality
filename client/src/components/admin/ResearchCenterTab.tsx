@@ -1,10 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { SaveButton } from "@/components/ui/save-button";
 import { Loader2 } from "@/components/icons/themed-icons";
 import {
-  IconResearch, IconProperties, IconTarget, IconTrendingUp,
+  IconResearch, IconProperties, IconTarget, IconTrendingUp, IconSliders,
 } from "@/components/icons";
 import { useResearchConfig, useSaveResearchConfig } from "@/lib/api/admin";
 import type { ResearchConfig, ContextLlmConfig, ResearchSourceEntry } from "@shared/schema";
@@ -25,8 +30,44 @@ interface ResearchCenterTabProps {
 
 export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterTabProps) {
   const { toast } = useToast();
+  const rcQueryClient = useQueryClient();
   const { data: savedConfig, isLoading } = useResearchConfig();
   const saveMutation = useSaveResearchConfig();
+
+  const { data: globalAssumptions } = useQuery({
+    queryKey: ["globalAssumptions"],
+    queryFn: async () => {
+      const res = await fetch("/api/global-assumptions", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+  });
+
+  const updateGlobalMutation = useMutation({
+    mutationFn: async (updates: Record<string, boolean>) => {
+      const res = await fetch("/api/global-assumptions", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ ...globalAssumptions, ...updates }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      return res.json();
+    },
+    onMutate: async (updates) => {
+      await rcQueryClient.cancelQueries({ queryKey: ["globalAssumptions"] });
+      const prev = rcQueryClient.getQueryData(["globalAssumptions"]);
+      rcQueryClient.setQueryData(["globalAssumptions"], (old: any) => ({ ...old, ...updates }));
+      return { prev };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev) rcQueryClient.setQueryData(["globalAssumptions"], context.prev);
+      toast({ title: "Error", description: "Failed to save setting.", variant: "destructive" });
+    },
+    onSuccess: () => {
+      rcQueryClient.invalidateQueries({ queryKey: ["globalAssumptions"] });
+    },
+  });
 
   const [draft, setDraft] = useState<ResearchConfig>({});
   const [isDirty, setIsDirty] = useState(false);
@@ -115,6 +156,32 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
           <p className="text-xs text-muted-foreground">Strategic intelligence hub — company research, property benchmarks, market analysis, and per-domain AI engine configuration</p>
         </div>
       </div>
+
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
+            <IconSliders className="w-4 h-4 text-primary" />
+            Research Automation
+            <InfoTooltip text="Automatically refresh stale research data after login." />
+          </CardTitle>
+          <CardDescription className="label-text">Configure automatic research refresh behavior on login.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-border/60 hover:bg-muted/50 transition-colors">
+            <div>
+              <Label className="label-text font-medium flex items-center gap-1">Auto-refresh research on login <InfoTooltip text="Checks for stale research after login and triggers a refresh if data is older than 30 business days." /></Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Automatically refresh stale research data after login (checks every 30 business days)</p>
+            </div>
+            <Switch
+              checked={(globalAssumptions as any)?.autoResearchRefreshEnabled ?? false}
+              onCheckedChange={(checked) =>
+                updateGlobalMutation.mutate({ autoResearchRefreshEnabled: checked })
+              }
+              data-testid="switch-auto-research-refresh"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="icp" className="w-full">
         <TabsList className="justify-start w-full h-auto flex-wrap gap-1 bg-muted/50 p-1">

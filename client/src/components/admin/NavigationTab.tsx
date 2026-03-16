@@ -13,14 +13,17 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Lock } from "@/components/icons/themed-icons";
 import {
   IconDashboard, IconProperties, IconBriefcase,
   IconAnalysis, IconPropertyFinder, IconMapPin,
-  IconProfile, IconScenarios, IconSettings,
-  IconHelp, IconShield,
+  IconProfile, IconScenarios,
+  IconHelp, IconShield, IconSliders, IconCompass,
 } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
 
 // Matches exactly what Layout.tsx renders in homeNavGroups
 const SIDEBAR_STRUCTURE = [
@@ -45,7 +48,6 @@ const SIDEBAR_STRUCTURE = [
     items: [
       { key: null, label: "My Profile", icon: IconProfile, description: "User profile and preferences" },
       { key: "sidebarScenarios", label: "My Scenarios", icon: IconScenarios, description: "Saved scenario snapshots" },
-      { key: null, label: "General", icon: IconSettings, description: "Visible to users with management access" },
     ],
   },
   {
@@ -66,6 +68,7 @@ const AI_ASSISTANT = {
 export default function NavigationTab() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, refetch: refetchAuth } = useAuth();
 
   const { data: globalAssumptions } = useQuery({
     queryKey: ["globalAssumptions"],
@@ -187,6 +190,78 @@ export default function NavigationTab() {
               }
               className="data-[state=checked]:bg-primary"
               data-testid={`switch-${AI_ASSISTANT.key}`}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
+            <IconSliders className="w-4 h-4 text-primary" />
+            Calculation Transparency
+            <InfoTooltip text="Show or hide step-by-step formula breakdowns in financial reports. Turn off for clean, investor-ready presentations." manualSection="financial-statements" />
+          </CardTitle>
+          <CardDescription className="label-text">Show or hide the formula verification details and help icons in financial statements.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-border/60 hover:bg-muted/50 transition-colors">
+            <div>
+              <Label className="label-text font-medium flex items-center gap-1">Management Company Reports <InfoTooltip text="Toggles formula breakdowns and help icons in company-level financial reports." /></Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Income statement, cash flow, and balance sheet on the Company page</p>
+            </div>
+            <Switch
+              checked={(globalAssumptions as any)?.showCompanyCalculationDetails ?? true}
+              onCheckedChange={(checked) =>
+                updateSidebarMutation.mutate({ showCompanyCalculationDetails: checked })
+              }
+              data-testid="switch-company-calc-details"
+            />
+          </div>
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-border/60 hover:bg-muted/50 transition-colors">
+            <div>
+              <Label className="label-text font-medium flex items-center gap-1">Property Reports <InfoTooltip text="Toggles formula breakdowns and help icons in property-level financial reports." /></Label>
+              <p className="text-xs text-muted-foreground mt-0.5">All property-level income statements, cash flows, and balance sheets</p>
+            </div>
+            <Switch
+              checked={(globalAssumptions as any)?.showPropertyCalculationDetails ?? true}
+              onCheckedChange={(checked) =>
+                updateSidebarMutation.mutate({ showPropertyCalculationDetails: checked })
+              }
+              data-testid="switch-property-calc-details"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base font-semibold text-foreground">
+            <IconCompass className="w-4 h-4 text-primary" />
+            Guided Tour
+            <InfoTooltip text="Control whether the guided tour prompt appears when you log in." />
+          </CardTitle>
+          <CardDescription className="label-text">Manage the welcome tour prompt shown on login.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-border/60 hover:bg-muted/50 transition-colors">
+            <div>
+              <Label className="label-text font-medium flex items-center gap-1">Show tour prompt on login <InfoTooltip text="When ON, you'll see a prompt offering a guided tour of the platform each time you log in. When OFF, the tour prompt is suppressed." /></Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Display the guided walkthrough offer after signing in</p>
+            </div>
+            <Switch
+              checked={!(user?.hideTourPrompt ?? false)}
+              onCheckedChange={async (showOnLogin) => {
+                await fetch("/api/profile/tour-prompt", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ hide: !showOnLogin }),
+                  credentials: "include",
+                });
+                queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+                refetchAuth();
+              }}
+              data-testid="switch-tour-prompt"
             />
           </div>
         </CardContent>

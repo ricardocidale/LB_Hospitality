@@ -30,20 +30,29 @@ export default function CompanyHeader({
   setActiveTab,
   chartRef,
   exportMenuNode,
+  isAdmin,
+  onOpenModelInputs,
 }: CompanyHeaderProps) {
+  const assumptionsButton = isAdmin ? (
+    <Link href="/company/assumptions" className="text-inherit no-underline">
+      <Button variant="outline">
+        <IconSettings className="w-4 h-4" />
+        Assumptions
+      </Button>
+    </Link>
+  ) : (
+    <Button variant="outline" onClick={onOpenModelInputs}>
+      <IconSettings className="w-4 h-4" />
+      Model Inputs
+    </Button>
+  );
+
   return (
     <>
       <PageHeader
         title={`${global?.companyName || "Hospitality Management"} Company`}
         subtitle="Corporate Management Entity & Operations"
-        actions={
-          <Link href="/company/assumptions" className="text-inherit no-underline">
-            <Button variant="outline">
-              <IconSettings className="w-4 h-4" />
-              Assumptions
-            </Button>
-          </Link>
-        }
+        actions={assumptionsButton}
       />
 
       <KPIGrid

@@ -26,6 +26,7 @@ import ElevenLabsWidget from "@/features/ai-agent/ElevenLabsWidget";
 import { RebeccaChatbot } from "@/components/RebeccaChatbot";
 
 import { applyThemeColors, resetThemeColors, type ThemeColor as DesignColor } from "@/lib/theme";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { IconSetProvider } from "@/components/icons/IconSetContext";
 import type { IconSetType } from "@/features/design-themes/types";
 import { useAdminSection } from "@/lib/admin-nav";
@@ -264,7 +265,22 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
           </span>
         </Link>
       )}
-      {(sb("sidebarUserManual") || isAdmin) && <Separator className="my-2" />}
+      <Separator className="my-2" />
+      {user && (
+        <div className="flex items-center gap-2.5 px-3 py-2" data-testid="sidebar-user-info">
+          <UserAvatar
+            firstName={user.firstName}
+            lastName={user.lastName}
+            name={user.name}
+            email={user.email}
+            size="sm"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="text-[13px] font-medium text-foreground truncate">{user.name || user.email}</div>
+            {user.title && <div className="text-[11px] text-muted-foreground truncate">{user.title}</div>}
+          </div>
+        </div>
+      )}
       <Button
         variant="ghost"
         onClick={() => { logout(); setMobileOpen(false); }}

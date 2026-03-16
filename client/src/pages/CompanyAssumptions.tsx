@@ -56,6 +56,7 @@ import {
   SummaryFooter,
 } from "@/components/company-assumptions";
 import { GovernedFieldWrapper } from "@/components/ui/governed-field";
+import { GOVERNED_FIELDS } from "@shared/constants";
 
 export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
@@ -338,8 +339,19 @@ export default function CompanyAssumptions() {
                 These values are governed by external authorities and apply uniformly across all properties.
               </p>
               <div className="grid gap-4 lg:grid-cols-2">
-                <GovernedFieldWrapper fieldKey="depreciationYears" />
-                <GovernedFieldWrapper fieldKey="daysPerMonth" />
+                <GovernedFieldWrapper
+                  authority={GOVERNED_FIELDS.depreciationYears.authority}
+                  value={GOVERNED_FIELDS.depreciationYears.value}
+                  helperText={GOVERNED_FIELDS.depreciationYears.helperText}
+                  referenceUrl={GOVERNED_FIELDS.depreciationYears.referenceUrl}
+                  data-testid="governed-field-depreciationYears"
+                />
+                <GovernedFieldWrapper
+                  authority={GOVERNED_FIELDS.daysPerMonth.authority}
+                  value={GOVERNED_FIELDS.daysPerMonth.value}
+                  helperText={GOVERNED_FIELDS.daysPerMonth.helperText}
+                  data-testid="governed-field-daysPerMonth"
+                />
               </div>
             </div>
           </div>

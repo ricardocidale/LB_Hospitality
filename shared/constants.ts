@@ -167,6 +167,35 @@ export const DEPRECIATION_YEARS = 27.5;
 // monthly ADR × occupancy into available-room-night revenue.
 export const DAYS_PER_MONTH = 30.5;
 
+// ──────────────────────────────────────────────────────────
+// GOVERNED FIELD REGISTRY
+// Fields whose values are governed by external authorities and
+// should not be casually edited. Used by GovernedFieldWrapper
+// in the UI to display amber-styled read-only indicators.
+// ──────────────────────────────────────────────────────────
+export interface GovernedFieldMeta {
+  authority: string;
+  value: string;
+  helperText: string;
+  referenceUrl?: string;
+}
+
+export const GOVERNED_FIELDS: Record<string, GovernedFieldMeta> = {
+  depreciationYears: {
+    authority: "IRS Publication 946",
+    value: "27.5 years",
+    helperText:
+      "27.5 years: residential rental property (hotels, motels). 39 years: nonresidential real property. This model uses 27.5-year straight-line depreciation for boutique hotel assets as classified under MACRS. Changing this deviates from standard tax depreciation schedules. Consult your tax advisor.",
+    referenceUrl: "https://www.irs.gov/publications/p946",
+  },
+  daysPerMonth: {
+    authority: "Industry convention (365/12)",
+    value: "30.5 days",
+    helperText:
+      "The hospitality industry standard of 30.5 days per month (365 ÷ 12 = 30.4167, rounded to 30.5) is used for monthly revenue and expense calculations. This ensures consistent monthly periods across all properties and avoids calendar-month variability in financial projections.",
+  },
+};
+
 // How many months between each occupancy growth step during the ramp-up phase
 // after a property opens. New hotels don't fill instantly — occupancy grows
 // in steps until reaching a stabilized level.

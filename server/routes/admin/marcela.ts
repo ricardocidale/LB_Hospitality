@@ -20,7 +20,7 @@ export function registerMarcelaRoutes(app: Express) {
   // MARCELA ISOLATED: All ElevenLabs-calling endpoints gated.
   // `as boolean` prevents TS from narrowing to `true` and flagging dead code.
   const MARCELA_ISOLATED = true as boolean;
-  const MARCELA_DISABLED_MSG = "Marcela is temporarily disabled. Configuration is preserved.";
+  const MARCELA_DISABLED_MSG = "Marcela is temporarily disabled";
 
   app.get("/api/admin/knowledge-base/sources", requireAdmin, async (_req, res) => {
     try {

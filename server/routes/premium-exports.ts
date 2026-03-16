@@ -358,9 +358,8 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
 }
 
 async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Promise<Buffer> {
-  const { jsPDF } = await import("jspdf");
-  const autoTableModule = await import("jspdf-autotable");
-  const autoTable = (autoTableModule as any).default || autoTableModule;
+  const { default: jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
 
   const doc = new jsPDF({ orientation: data.orientation || "landscape", unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();

@@ -196,6 +196,7 @@ export interface MonthlyFinancials {
   expenseIT: number;
   expenseTaxes: number;
   expenseUtilitiesFixed: number;
+  expenseInsurance: number;
   expenseOtherCosts: number;
   totalExpenses: number;
   gop: number;
@@ -251,6 +252,7 @@ export interface CompanyMonthlyFinancials {
   officeLease: number;
   professionalServices: number;
   techInfrastructure: number;
+  businessInsurance: number;
   travelCosts: number;
   itLicensing: number;
   marketing: number;

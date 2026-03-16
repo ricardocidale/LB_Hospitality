@@ -45,6 +45,7 @@ import {
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
+  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COST_OF_EQUITY,
   DEFAULT_TAX_RATE,
@@ -414,6 +415,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   officeLeaseStart: real("office_lease_start").notNull(),
   professionalServicesStart: real("professional_services_start").notNull(),
   techInfraStart: real("tech_infra_start").notNull(),
+  businessInsuranceStart: real("business_insurance_start").notNull().default(12000),
   
   // Cost variables - Variable costs
   travelCostPerClient: real("travel_cost_per_client").notNull(),
@@ -662,6 +664,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   officeLeaseStart: true,
   professionalServicesStart: true,
   techInfraStart: true,
+  businessInsuranceStart: true,
   travelCostPerClient: true,
   itLicensePerClient: true,
   marketingRate: true,
@@ -818,7 +821,8 @@ export const properties = pgTable("properties", {
   costRateIT: real("cost_rate_it").notNull().default(DEFAULT_COST_RATE_IT),
   costRateFFE: real("cost_rate_ffe").notNull().default(DEFAULT_COST_RATE_FFE),
   costRateOther: real("cost_rate_other").notNull().default(DEFAULT_COST_RATE_OTHER),
-  
+  costRateInsurance: real("cost_rate_insurance").notNull().default(DEFAULT_COST_RATE_INSURANCE),
+
   // Revenue Streams (as % of room revenue)
   revShareEvents: real("rev_share_events").notNull().default(DEFAULT_REV_SHARE_EVENTS),
   revShareFB: real("rev_share_fb").notNull().default(DEFAULT_REV_SHARE_FB),
@@ -934,6 +938,7 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   costRateIT: true,
   costRateFFE: true,
   costRateOther: true,
+  costRateInsurance: true,
   revShareEvents: true,
   revShareFB: true,
   revShareOther: true,

@@ -72,6 +72,7 @@ export const DEFAULT_COST_RATE_TAXES = 0.03;        // Property/real estate taxe
 export const DEFAULT_COST_RATE_IT = 0.005;          // Information Technology
 export const DEFAULT_COST_RATE_FFE = 0.04;          // Furniture, Fixtures & Equipment reserve (FF&E)
 export const DEFAULT_COST_RATE_OTHER = 0.05;        // Miscellaneous / other operating expenses
+export const DEFAULT_COST_RATE_INSURANCE = 0.015;   // Property insurance (liability, property, business interruption)
 
 // ──────────────────────────────────────────────────────────
 // MANAGEMENT COMPANY FEE DEFAULTS

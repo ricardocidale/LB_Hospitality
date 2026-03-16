@@ -28,6 +28,7 @@ import {
   DEFAULT_OFFICE_LEASE,
   DEFAULT_PROFESSIONAL_SERVICES,
   DEFAULT_TECH_INFRA,
+  DEFAULT_BUSINESS_INSURANCE,
   DEFAULT_TRAVEL_PER_CLIENT,
   DEFAULT_IT_LICENSE_PER_CLIENT,
   DEFAULT_MARKETING_RATE,
@@ -123,6 +124,7 @@ export function generateCompanyProForma(
   const officeLeaseStart = global.officeLeaseStart ?? DEFAULT_OFFICE_LEASE;
   const professionalServicesStart = global.professionalServicesStart ?? DEFAULT_PROFESSIONAL_SERVICES;
   const techInfraStart = global.techInfraStart ?? DEFAULT_TECH_INFRA;
+  const businessInsuranceStart = global.businessInsuranceStart ?? DEFAULT_BUSINESS_INSURANCE;
   const travelCostPerClient = global.travelCostPerClient ?? DEFAULT_TRAVEL_PER_CLIENT;
   const itLicensePerClient = global.itLicensePerClient ?? DEFAULT_IT_LICENSE_PER_CLIENT;
   const marketingRate = global.marketingRate ?? DEFAULT_MARKETING_RATE;
@@ -230,6 +232,7 @@ export function generateCompanyProForma(
     let officeLease = 0;
     let professionalServices = 0;
     let techInfrastructure = 0;
+    let businessInsurance = 0;
     let travelCosts = 0;
     let itLicensing = 0;
     let marketing = 0;
@@ -249,6 +252,7 @@ export function generateCompanyProForma(
       officeLease = (officeLeaseStart * fixedCostFactor) / 12;
       professionalServices = (professionalServicesStart * fixedCostFactor) / 12;
       techInfrastructure = (techInfraStart * fixedCostFactor) / 12;
+      businessInsurance = (businessInsuranceStart * fixedCostFactor) / 12;
       
       travelCosts = (activePropertyCount * travelCostPerClient * variableCostFactor) / 12;
       itLicensing = (activePropertyCount * itLicensePerClient * variableCostFactor) / 12;
@@ -257,7 +261,7 @@ export function generateCompanyProForma(
     }
     
     const totalExpenses = partnerCompensation + staffCompensation + officeLease + professionalServices +
-      techInfrastructure + travelCosts + itLicensing + marketing + miscOps;
+      techInfrastructure + businessInsurance + travelCosts + itLicensing + marketing + miscOps;
 
     let safeFunding1 = 0;
     let safeFunding2 = 0;
@@ -316,6 +320,7 @@ export function generateCompanyProForma(
       officeLease,
       professionalServices,
       techInfrastructure,
+      businessInsurance,
       travelCosts,
       itLicensing,
       marketing,

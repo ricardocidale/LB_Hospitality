@@ -32,6 +32,7 @@ import {
   SEED_DEBT_ASSUMPTIONS,
   DEFAULT_INFLATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
+  DEFAULT_BUSINESS_INSURANCE_START,
 } from "@shared/constants";
 
 export async function seedGlobalAssumptions() {
@@ -93,7 +94,7 @@ export async function seedGlobalAssumptions() {
     officeLeaseStart: 36000,
     professionalServicesStart: 24000,
     techInfraStart: 18000,
-    businessInsuranceStart: 12000,
+    businessInsuranceStart: DEFAULT_BUSINESS_INSURANCE_START,
     travelCostPerClient: 12000,
     itLicensePerClient: 3000,
     marketingRate: 0.05,

@@ -27,6 +27,8 @@ import {
   SEED_DEBT_ASSUMPTIONS,
   DEFAULT_INFLATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
+  DEFAULT_COST_RATE_INSURANCE,
+  DEFAULT_BUSINESS_INSURANCE_START,
 } from "../shared/constants";
 
 export interface SyncResults {
@@ -55,6 +57,7 @@ export const SEED_GLOBAL_ASSUMPTIONS = {
   officeLeaseStart: 36000,
   professionalServicesStart: 24000,
   techInfraStart: 18000,
+  businessInsuranceStart: DEFAULT_BUSINESS_INSURANCE_START,
   standardAcqPackage: { monthsToOps: 6, purchasePrice: 3800000, preOpeningCosts: 200000, operatingReserve: 250000, buildingImprovements: 1200000 },
   debtAssumptions: SEED_DEBT_ASSUMPTIONS,
   commissionRate: DEFAULT_COMMISSION_RATE,
@@ -86,7 +89,8 @@ export const SEED_PROPERTY_DEFAULTS = {
   costRateMarketing: DEFAULT_COST_RATE_MARKETING, costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,
   costRateUtilities: DEFAULT_COST_RATE_UTILITIES,
   costRateTaxes: DEFAULT_COST_RATE_TAXES, costRateIT: DEFAULT_COST_RATE_IT, costRateFFE: DEFAULT_COST_RATE_FFE,
-  costRateOther: DEFAULT_COST_RATE_OTHER, revShareEvents: DEFAULT_REV_SHARE_EVENTS,
+  costRateOther: DEFAULT_COST_RATE_OTHER, costRateInsurance: DEFAULT_COST_RATE_INSURANCE,
+  revShareEvents: DEFAULT_REV_SHARE_EVENTS,
   revShareFB: DEFAULT_REV_SHARE_FB, revShareOther: DEFAULT_REV_SHARE_OTHER,
   exitCapRate: DEFAULT_EXIT_CAP_RATE, taxRate: DEFAULT_TAX_RATE,
   dispositionCommission: DEFAULT_COMMISSION_RATE,

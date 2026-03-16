@@ -3,6 +3,140 @@
 **Version**: 1.0
 **Date**: 2026-03-16
 **Status**: Draft for approval
+**Planned by**: Claude Code Opus 4.6 (Anthropic) in collaboration with the project owner
+
+---
+
+## Instructions for Replit Agent
+
+This document was authored by **Claude Code Opus 4.6** through an extended conversation with the project owner. It represents a comprehensive analysis of the current application, its UX problems, and a proposed redesign covering everything from navigation to database schema to code governance.
+
+**This is a guide and suggestion, not a rigid specification.**
+
+You (Replit Agent) are free to — and encouraged to:
+
+1. **Use your own judgement.** If something in this plan doesn't make sense given what you see in the actual codebase, trust what you see. The codebase is the ground truth. This plan was written from exploration, not omniscience.
+
+2. **Ask the user questions.** When you encounter ambiguity, conflicting information, or a decision point not covered here, ask the project owner directly. They are the final authority on product decisions.
+
+3. **Replan as needed.** You don't need to follow this plan linearly or literally. If you find a better approach, a simpler implementation, or discover that a section of this plan is outdated or incorrect, adapt. Propose your revised approach to the user and proceed with their approval.
+
+4. **Break work into small steps.** This is a large plan. Don't try to implement it all at once. Pick a phase, confirm the approach with the user, implement, verify (run tests + verify pipeline), then move to the next phase.
+
+5. **Verify constantly.** After any financial change, run `npm run verify:summary`. After any change at all, run `npm run test:summary`. The automated test suite (3,035 tests) and 7-phase verification pipeline are the ultimate arbiters of correctness. If tests pass and verification shows UNQUALIFIED, you're on the right track.
+
+6. **Read the rules.** The `.claude/rules/` directory contains 19 binding governance rules. These were written over months of development and encode hard-won lessons. Read the relevant rules before implementing each phase — they'll save you from known pitfalls.
+
+7. **Don't be constrained by section ordering.** The phases in Section 15 suggest an implementation sequence, but you may find a different order works better. Dependencies are noted — respect those, but otherwise sequence as makes sense.
+
+8. **Flag disagreements.** If you believe a recommendation in this plan is wrong, suboptimal, or conflicts with Replit best practices, say so. The project owner values honest technical feedback over blind compliance.
+
+The goal is a better app, not perfect adherence to this document.
+
+---
+
+## Audit Findings & Plan Corrections (2026-03-16)
+
+A codebase audit was performed after drafting the plan. The following discrepancies were found between the plan's assumptions and the actual codebase. All corrections have been incorporated into the plan sections below, but are listed here for transparency.
+
+### Finding 1: Settings Page Has 3 Tabs (Not As Described)
+
+**Actual state:** The Settings page (`/settings`) has 3 tabs:
+- **"Property Defaults"** (not "Portfolio") — 9 fields: disposition commission + 4 acquisition financing defaults + 4 refinance defaults (all sliders)
+- **"Macro"** — 2 fields: fiscal year start month (dropdown) + inflation escalator factor (slider)
+- **"Other"** — 4 toggle switches: show company calculation details, show property calculation details, auto-refresh research on login, show tour prompt on login
+
+**Total: 15 fields.** The plan correctly identifies all fields but the tab name is "Property Defaults", not "Portfolio".
+
+### Finding 2: Property Creation Already Reads from globalAssumptions
+
+**Actual state:** The server route `POST /api/properties` already:
+1. Fetches `globalAssumptions` from the database
+2. Calls `buildPropertyDefaultsFromGlobal()` to build inherited defaults
+3. Merges: for any field where the user didn't provide a value, fills from globalAssumptions (with constant fallbacks)
+
+This means **the property creation pre-fill flow proposed in Phase 4 partially exists already**. What's missing:
+- Revenue assumption defaults (ADR, occupancy, ramp) are pre-filled on the **client side** from `constants.ts`, NOT from the database
+- The new fields proposed (depreciationYears, daysPerMonth, AR/AP days, cost segregation) don't exist in the schema yet
+- The Admin UI for editing these defaults doesn't exist
+
+**Correction:** Phase 4 should focus on extending the existing `buildPropertyDefaultsFromGlobal()` to include the new database-driven fields, and moving client-side constant pre-fills (ADR, occupancy defaults) to the server-side merge.
+
+### Finding 3: Company Assumptions Page Has More Fields Than Listed
+
+**Actual state verified:** The Company Assumptions page has 12 sections with 63+ editable fields (not counting research badges and computed displays). Key sections verified:
+- **Company Setup** — 14 fields (logo, name, ops start date, projection years, inflation rate, contact info, address)
+- **Funding** — 13 fields + 3 conditional toggles (tranche amounts/dates, valuation cap, discount rate, interest)
+- **Compensation** — 7 fields (staff salary, 6 staffing tier parameters)
+- **Fixed Overhead** — 5 fields (escalation rate + 4 overhead items)
+- **Variable Costs** — 4 fields
+- **Tax** — 1 field (company income tax rate)
+- **Exit Assumptions** — 3 fields (cost of equity, exit cap rate, sales commission)
+- **Property Expense Rates** — 3 fields (event expense, other expense, utilities variable split)
+- Plus: Management Fees, Catering, Partner Comp, Summary Footer sections (not fully audited)
+
+**Correction:** The plan's field inventory in Section 6 (Company Operations tab) is accurate for fields moving to Model Defaults. No changes needed.
+
+### Finding 4: CompaniesTab Manages "Companies of Interest", NOT Management Company Identity
+
+**Actual state:** `CompaniesTab.tsx` manages external companies (SPVs, investors, partners) — it does NOT manage the management company's name, logo, or contact info. The management company identity is stored in `globalAssumptions` fields and edited on the Company Assumptions page.
+
+**Correction to plan:** Section 11 (Field Migration Map) proposed moving company identity fields to "Admin > Companies tab". This is incorrect — the Companies tab manages a different entity. Two options:
+- **Option A:** Add a dedicated "Management Company" card at the top of CompaniesTab (distinguished from "Companies of Interest")
+- **Option B:** Keep management company identity in the new Model Defaults > Company Operations tab (since it's the only management company and these fields drive the model)
+
+**Recommendation:** Option B is simpler. Company name, logo, and contact info stay in Model Defaults > Company Operations > Company Identity section. The CompaniesTab remains for external companies only.
+
+### Finding 5: ResearchCenterTab Already Has Preferred LLM Selection
+
+**Actual state:** `ResearchCenterTab.tsx` already has a 4-tab structure including an "LLM" tab with primary/secondary LLM selection, LLM mode (primary-only / dual), and cached model management. The plan correctly states this stays in Research Center.
+
+**No correction needed** — the plan already says preferred LLM stays in Research Center (Appendix A).
+
+### Finding 6: DEPRECIATION_YEARS and DAYS_PER_MONTH Schema Columns Don't Exist Yet
+
+**Actual state confirmed:**
+- `shared/schema/config.ts` (globalAssumptions): NO `depreciationYears` or `daysPerMonth` columns
+- `shared/schema/properties.ts` (properties): NO `depreciationYears` column
+- The constants are used in 42+ files (DEPRECIATION_YEARS) and 48+ files (DAYS_PER_MONTH)
+- The key usage of DEPRECIATION_YEARS is in `resolve-assumptions.ts` line 158: `buildingValue / DEPRECIATION_YEARS / 12`
+- 30+ test files import these constants directly
+
+**No correction needed** — the plan correctly identifies this as Phase 1 schema work. But note: test migration will be significant (30+ test files reference the constant).
+
+### Finding 7: No "Governed Field" UI Pattern Exists Yet
+
+**Actual state:** There is no shield icon component, authority citation component, or any "governed field" pattern in the UI. This is entirely new work (Phase 3).
+
+**No correction needed** — the plan correctly identifies this as new work.
+
+### Finding 8: Two-Layer Default System (Client + Server)
+
+**Actual state:** Property defaults come from TWO separate layers:
+- **Client layer:** `Portfolio.tsx` pre-fills form with client constants (DEFAULT_ROOM_COUNT, DEFAULT_START_ADR, DEFAULT_ADR_GROWTH_RATE, DEFAULT_START_OCCUPANCY, DEFAULT_MAX_OCCUPANCY, DEFAULT_OCCUPANCY_RAMP_MONTHS, DEFAULT_OCCUPANCY_GROWTH_STEP, DEFAULT_CATERING_BOOST_PCT)
+- **Server layer:** `buildPropertyDefaultsFromGlobal()` fills operating cost rates, financing terms, exit rates, management fees from globalAssumptions
+
+**Correction:** The plan should note that unifying these into a single database-driven flow requires:
+1. Moving client-side defaults (ADR, occupancy, ramp) into globalAssumptions as new columns
+2. Updating `buildPropertyDefaultsFromGlobal()` to include them
+3. Updating the AddPropertyDialog to read initial values from the API instead of constants
+
+### Finding 9: Settings Tab Name Discrepancy
+
+**Actual state:** Settings page tab 1 is labeled **"Property Defaults"**, not "Portfolio" as stated in several places in the plan.
+
+**Correction:** Minor naming fix. The content is correctly identified regardless of tab label.
+
+### Summary of Required Plan Corrections
+
+| Section | Issue | Correction |
+|---------|-------|------------|
+| Section 6, Company Operations | Company identity proposed to move to CompaniesTab | Keep in Model Defaults > Company Operations (CompaniesTab is for external companies) |
+| Section 8 | Company identity "moved to Admin > Companies" | Remove this; keep identity in Company Operations tab |
+| Section 11 | Field migration: "Company name → Admin > Companies" | Change to: "Company name → Admin > Model Defaults > Company Operations > Identity" |
+| Phase 4 | "Property creation reads from defaults" | Note: partially implemented already. Focus on extending `buildPropertyDefaultsFromGlobal()` and unifying client-side constants |
+| Phase 8 | "Replace code constants" | Note: 30+ test files will need updates. Budget significant test migration effort. |
+| General | Settings tab called "Portfolio" | Correct name is "Property Defaults" |
 
 ---
 
@@ -826,6 +960,25 @@ hospitality financial models."
 
 **Banner text:** *"These values drive the management company pro-forma. Changes take effect immediately in the company financial model."*
 
+#### Section: Company Identity
+
+*Note: These fields were previously on the Company Assumptions page (CompanySetupSection). They move here because the CompaniesTab in admin manages external "Companies of Interest", not the management company itself.*
+
+| Field | Type | Default | Notes |
+|-------|------|---------|-------|
+| Company logo | selector | (from logo pool) | Select from uploaded logos |
+| Company name | text | "Hospitality Business" | Management company display name |
+| Email | text | — | Company contact email |
+| Phone | text | — | Company contact phone |
+| Website | text | — | Company website URL |
+| Tax ID / EIN | text | — | Federal employer ID |
+| Founding year | number | — | Year company was established |
+| Street address | text | — | HQ address |
+| Country | select | — | Cascading: country → state → city |
+| State / Province | select | — | |
+| City | select | — | |
+| Zip / Postal code | text | — | |
+
 #### Section: Company Timeline
 
 | Field | Type | Default | Notes |
@@ -1186,11 +1339,11 @@ Same visual treatment as admin. The governance info travels with the field. A us
 
 | Current Location | Field | Moves To |
 |-----------------|-------|----------|
-| Company Setup | Company name | Admin > Companies |
-| Company Setup | Company logo | Admin > Companies |
-| Company Setup | Contact info (phone, email, website) | Admin > Companies |
-| Company Setup | Address (street, city, state, country, zip) | Admin > Companies |
-| Company Setup | EIN, founding year | Admin > Companies |
+| Company Setup | Company name | Admin > Model Defaults > Company Operations > Identity |
+| Company Setup | Company logo | Admin > Model Defaults > Company Operations > Identity |
+| Company Setup | Contact info (phone, email, website) | Admin > Model Defaults > Company Operations > Identity |
+| Company Setup | Address (street, city, state, country, zip) | Admin > Model Defaults > Company Operations > Identity |
+| Company Setup | EIN, founding year | Admin > Model Defaults > Company Operations > Identity |
 | Company Setup | Model start date | Admin > Model Defaults > Company Operations > Timeline |
 | Company Setup | Company ops start date | Admin > Model Defaults > Company Operations > Timeline |
 | Company Setup | Projection years | Admin > Model Defaults > Company Operations > Timeline |
@@ -1427,8 +1580,17 @@ const dailyRate = monthlyRate / globalAssumptions.daysPerMonth;
 ### Phase 4: Property Creation Pre-fill
 **Effort:** Small | **Risk:** Medium (must not break existing properties)
 
-- Modify property creation flow (server-side) to read defaults from `globalAssumptions`
-- When creating property: for every field where user didn't provide a value, fill from defaults
+**NOTE (from audit):** The server route `POST /api/properties` already calls `buildPropertyDefaultsFromGlobal()` to fill cost rates, financing terms, exit rates, and management fees from `globalAssumptions`. This phase extends that existing pattern — it does NOT build from scratch.
+
+**What already works:**
+- Server-side merge of globalAssumptions → property for cost rates, financing, exit, fees
+- Schema `.default()` calls as fallback layer
+
+**What needs to change:**
+- Move client-side constant defaults (DEFAULT_START_ADR, DEFAULT_ADR_GROWTH_RATE, DEFAULT_START_OCCUPANCY, DEFAULT_MAX_OCCUPANCY, DEFAULT_OCCUPANCY_RAMP_MONTHS, DEFAULT_OCCUPANCY_GROWTH_STEP, DEFAULT_CATERING_BOOST_PCT) to `globalAssumptions` as new columns
+- Add `depreciationYears` to the property creation merge
+- Update `buildPropertyDefaultsFromGlobal()` to include the new columns
+- Update `AddPropertyDialog` to read initial form values from the API (globalAssumptions) instead of client-side constants
 - Ensure existing properties are untouched
 - Test: create new property, verify all fields match defaults
 - Test: existing properties unchanged
@@ -1455,7 +1617,7 @@ const dailyRate = monthlyRate / globalAssumptions.daysPerMonth;
 ### Phase 7: Company Assumptions Consolidation
 **Effort:** Medium | **Risk:** Medium
 
-- Move company identity fields (name, logo, contact, address, EIN) to Companies tab in admin
+- Move company identity fields (name, logo, contact, address, EIN) to Model Defaults > Company Operations > Identity section
 - Move exit assumptions and expense rates to Property Underwriting defaults
 - Redirect `/company/assumptions` → `/company` for non-admins, → `/admin?section=model-defaults` for admins
 - Remove CompanyAssumptions page components (or repurpose read-only parts for the Model Inputs panel)

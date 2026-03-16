@@ -28,6 +28,11 @@
 import { useState } from "react";
 import { MonthlyFinancials, formatMoney } from "@/lib/financialEngine";
 import {
+  DEFAULT_COST_RATE_PROPERTY_OPS, DEFAULT_COST_RATE_UTILITIES,
+  DEFAULT_COST_RATE_ADMIN, DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_INSURANCE,
+  DEFAULT_COST_RATE_IT, DEFAULT_COST_RATE_OTHER,
+} from "@shared/constants";
+import {
   TableShell,
   SectionHeader,
   SubtotalRow,
@@ -108,13 +113,13 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
     totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
     fixedEscRate = global.fixedCostEscalationRate ?? property.inflationRate ?? global.inflationRate ?? DEFAULT_INFLATION_RATE;
     costRates = {
-      propertyOps: property.costRatePropertyOps ?? 0.04,
-      utilities: property.costRateUtilities ?? 0.05,
-      admin: property.costRateAdmin ?? 0.08,
-      taxes: property.costRateTaxes ?? 0.03,
-      insurance: property.costRateInsurance ?? 0.015,
-      it: property.costRateIT ?? 0.02,
-      other: property.costRateOther ?? 0.05,
+      propertyOps: property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS,
+      utilities: property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES,
+      admin: property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN,
+      taxes: property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES,
+      insurance: property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE,
+      it: property.costRateIT ?? DEFAULT_COST_RATE_IT,
+      other: property.costRateOther ?? DEFAULT_COST_RATE_OTHER,
     };
   }
 

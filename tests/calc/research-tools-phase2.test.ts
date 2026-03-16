@@ -184,7 +184,7 @@ describe("computeCostBenchmarks", () => {
     });
     expect(result.department_costs.length).toBe(2);
     expect(result.undistributed_costs.length).toBe(7);
-    expect(result.property_value_costs.length).toBe(1);
+    expect(result.property_value_costs.length).toBe(2); // Property Taxes + Insurance
     expect(result.total_operating_costs).toBeGreaterThan(0);
   });
 

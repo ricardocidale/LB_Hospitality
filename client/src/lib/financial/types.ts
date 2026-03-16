@@ -71,6 +71,7 @@ export interface PropertyInput {
   costRateIT: number;
   costRateFFE: number;
   costRateOther: number;
+  costRateInsurance: number;
   // Revenue Streams
   revShareEvents: number;
   revShareFB: number;
@@ -148,6 +149,7 @@ export interface GlobalInput {
   officeLeaseStart?: number;
   professionalServicesStart?: number;
   techInfraStart?: number;
+  businessInsuranceStart?: number;
   travelCostPerClient?: number;
   itLicensePerClient?: number;
   miscOpsRate?: number;

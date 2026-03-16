@@ -39,9 +39,9 @@ export default function Section01GettingStarted({ expanded, onToggle, sectionRef
           headers={["Role", "Access Level"]}
           rows={[
             ["Admin", "Full access to all features including user management, verification, and system configuration"],
-            ["Partner", "Access to all financial tools, properties, management company, scenarios, and exports"],
+            ["User", "Access to all financial tools, properties, management company, scenarios, and exports"],
+            ["Checker", "User access plus access to the verification engine and Checker Manual"],
             ["Investor", "View-only access to Dashboard, Properties, Profile, and Help"],
-            ["Checker", "Partner access plus access to the verification engine and Checker Manual"],
           ]}
         />
       </div>

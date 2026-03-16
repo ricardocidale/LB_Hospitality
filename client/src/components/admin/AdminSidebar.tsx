@@ -41,7 +41,6 @@ const navGroups: NavGroup[] = [
     icon: IconBriefcase,
     description: "Users, companies & groups",
     sections: [
-      { value: "model-defaults", label: "Model Defaults", icon: IconSliders },
       { value: "users", label: "Users", icon: IconPeople },
       { value: "companies", label: "Companies", icon: IconProperties },
       { value: "groups", label: "Groups", icon: IconUserCog },
@@ -82,6 +81,7 @@ const navGroups: NavGroup[] = [
     icon: IconShield,
     description: "Infrastructure & monitoring",
     sections: [
+      { value: "model-defaults", label: "Model Defaults", icon: IconSliders },
       { value: "notifications", label: "Notifications", icon: IconPhone },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
       { value: "verification", label: "Verification", icon: IconFileCheck },

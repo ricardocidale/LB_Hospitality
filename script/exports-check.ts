@@ -3,6 +3,9 @@
  * Scans for `export function`, `export const`, `export class`, `export type`,
  * `export interface` and checks if they're imported anywhere else.
  *
+ * Separates API contract types (interfaces, types in calc/) from truly unused
+ * function/const exports to reduce false positives.
+ *
  * Usage: npm run exports:check
  */
 import { execSync } from "child_process";
@@ -21,17 +24,13 @@ function run(cmd: string): string {
   }
 }
 
-// Directories to scan for exports
 const exportDirs = ["calc/", "client/src/lib/"];
-
-// Directories to search for usages
 const usageDirs = ["client/src/", "server/", "calc/", "shared/", "tests/"];
 
 const unused: UnusedExport[] = [];
 const used: number[] = [0];
 
 for (const dir of exportDirs) {
-  // Find all exported names
   const exportLines = run(
     `rg -n '^export (function|const|class|type|interface|enum) (\\w+)' ${dir} --glob '*.ts' --glob '*.tsx' -o 2>/dev/null`,
   );
@@ -39,19 +38,14 @@ for (const dir of exportDirs) {
   if (!exportLines) continue;
 
   for (const line of exportLines.split("\n").filter(Boolean)) {
-    // Format: file:line:export kind name
     const match = line.match(/^(.+?):(\d+):export (function|const|class|type|interface|enum) (\w+)/);
     if (!match) continue;
 
     const [, file, , kind, name] = match;
 
-    // Skip index.ts barrel re-exports
     if (file.endsWith("index.ts")) continue;
-
-    // Skip common names that are too generic to search
     if (name.length <= 2) continue;
 
-    // Search for this name being imported or referenced in other files
     const usageCount = run(
       `rg -l '\\b${name}\\b' ${usageDirs.join(" ")} --glob '*.ts' --glob '*.tsx' 2>/dev/null | grep -v '${file}' | wc -l`,
     );
@@ -65,29 +59,64 @@ for (const dir of exportDirs) {
   }
 }
 
-// Output
+const apiContractKinds = new Set(["interface", "type"]);
+const apiContractPaths = ["calc/", "client/src/lib/financial/", "client/src/lib/audits/"];
+
+const apiContracts = unused.filter(
+  u => apiContractKinds.has(u.kind) && apiContractPaths.some(p => u.file.startsWith(p)),
+);
+const schemaContracts = unused.filter(
+  u => u.file.includes("calc/shared/schemas.ts") && u.kind === "const" && u.name.endsWith("Schema"),
+);
+const intentionalFiles = [
+  "client/src/lib/analytics.ts",
+  "client/src/lib/runVerification.ts",
+];
+const intentionalExports = unused.filter(u => intentionalFiles.includes(u.file));
+const contracts = [...apiContracts, ...schemaContracts, ...intentionalExports];
+const contractSet = new Set(contracts.map(c => `${c.file}:${c.name}`));
+const trulyUnused = unused.filter(u => !contractSet.has(`${u.file}:${u.name}`));
+
 console.log("");
 console.log("  Exports Check");
 console.log("  " + "─".repeat(52));
 
-if (unused.length === 0) {
+if (trulyUnused.length === 0 && contracts.length === 0) {
   console.log(`  ✓ All ${used[0]} public exports are used`);
 } else {
-  console.log(`  ${used[0]} exports used, ${unused.length} potentially unused:`);
-  console.log("");
+  console.log(`  ${used[0]} exports used, ${trulyUnused.length} unused, ${contracts.length} API contracts`);
 
-  // Group by file
-  const byFile = new Map<string, UnusedExport[]>();
-  for (const u of unused) {
-    const existing = byFile.get(u.file) ?? [];
-    existing.push(u);
-    byFile.set(u.file, existing);
+  if (trulyUnused.length > 0) {
+    console.log("");
+    console.log("  Unused exports:");
+    const byFile = new Map<string, UnusedExport[]>();
+    for (const u of trulyUnused) {
+      const existing = byFile.get(u.file) ?? [];
+      existing.push(u);
+      byFile.set(u.file, existing);
+    }
+    for (const [file, exports] of byFile) {
+      console.log(`  ${file}`);
+      for (const e of exports) {
+        console.log(`    ${e.kind} ${e.name}`);
+      }
+    }
   }
 
-  for (const [file, exports] of byFile) {
-    console.log(`  ${file}`);
-    for (const e of exports) {
-      console.log(`    ${e.kind} ${e.name}`);
+  if (contracts.length > 0) {
+    console.log("");
+    console.log("  API contracts (kept intentionally):");
+    const byFile = new Map<string, UnusedExport[]>();
+    for (const u of contracts) {
+      const existing = byFile.get(u.file) ?? [];
+      existing.push(u);
+      byFile.set(u.file, existing);
+    }
+    for (const [file, exports] of byFile) {
+      console.log(`  ${file}`);
+      for (const e of exports) {
+        console.log(`    ${e.kind} ${e.name}`);
+      }
     }
   }
 }

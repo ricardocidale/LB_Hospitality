@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 828 source files, ~144K lines, 3,151 tests across 144 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 829 source files, ~145K lines, 3,151 tests across 144 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 
@@ -117,7 +117,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Recent Changes (March 16, 2026)
 
-- **Governance Harmonization** (Task #153) — Created 7 new `.claude/skills/` files (business-model, product-vision, integrations, design-export, settings, ui/consistent-card-widths, ui/save-button-placement). All 13 `.agents/skills/` files converted to slim pointers referencing `.claude/skills/` counterparts. Stats updated: 828 source files, ~144K lines, 191 skill files, 3,151 tests across 144 test files.
+- **Governance Harmonization** (Task #153) — Created 7 new `.claude/skills/` files (business-model, product-vision, integrations, design-export, settings, ui/consistent-card-widths, ui/save-button-placement). All 13 `.agents/skills/` files converted to slim pointers referencing `.claude/skills/` counterparts. Stats updated: 829 source files, ~145K lines, 191 skill files, 3,151 tests across 144 test files.
 - **Settings Architecture Governance** (Task #148) — Finalized `settings-architecture` skill defining where every setting belongs: Management Company owns entity config + revenue model, General Settings owns property defaults (3 tabs: Property Defaults, Macro, Other), Admin owns system-only config, Property Edit owns per-property overrides. Decision tree and overlap prevention rules formalized.
 - **Property Creation Defaults from Global Assumptions** (Task #147) — `buildPropertyDefaultsFromGlobal()` reads `global_assumptions` for property defaults; hardcoded constants are last-resort fallbacks only.
 - **Settings Consolidation** (Task #146) — ManagementFeesSection is single source for revenue model (service CRUD + incentive + per-property summary). Dead admin tabs removed. General Settings reduced to 3 tabs.

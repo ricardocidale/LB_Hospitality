@@ -81,17 +81,6 @@ export function useSyncServiceTemplates() {
   });
 }
 
-export function useCompanyServiceTemplates() {
-  return useQuery<ServiceTemplate[]>({
-    queryKey: ["serviceTemplates"],
-    queryFn: async () => {
-      const res = await fetch("/api/company/service-templates");
-      if (!res.ok) throw new Error("Failed to fetch service templates");
-      return res.json();
-    },
-  });
-}
-
 export function useUpdateCompanyServiceTemplate() {
   const queryClient = useQueryClient();
   return useMutation({

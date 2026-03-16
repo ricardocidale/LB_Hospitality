@@ -85,12 +85,6 @@ export interface FREDRateDataResponse {
   history: { date: string; value: number }[];
 }
 
-export interface MarketIntelligenceStatus {
-  fred: boolean;
-  hospitality: boolean;
-  grounded: boolean;
-}
-
 const FRED_ALL_KEY = ["fredAllRates"];
 
 export function useFREDRates() {
@@ -101,19 +95,3 @@ export function useFREDRates() {
   });
 }
 
-export function useFREDHistory(seriesKey: string) {
-  return useQuery<FREDRateDataResponse>({
-    queryKey: ["fredHistory", seriesKey],
-    queryFn: () => fetchJson<FREDRateDataResponse>(`/api/market-rates/fred-history/${seriesKey}`),
-    staleTime: 5 * 60_000,
-    enabled: !!seriesKey,
-  });
-}
-
-export function useMarketIntelligenceStatus() {
-  return useQuery<MarketIntelligenceStatus>({
-    queryKey: ["marketIntelligenceStatus"],
-    queryFn: () => fetchJson<MarketIntelligenceStatus>("/api/market-intelligence/status"),
-    staleTime: 60_000,
-  });
-}

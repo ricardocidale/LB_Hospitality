@@ -31,6 +31,7 @@ import { EditableValue } from "@/components/ui/editable-value";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import { GaapBadge } from "@/components/ui/gaap-badge";
+import { GovernedFieldWrapper } from "@/components/ui/governed-field";
 import { MarketRateBenchmark } from "@/components/property-research/MarketRateBenchmark";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/formatters";
 import { 
@@ -115,6 +116,8 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
             </div>
           </div>
         </div>
+
+        <GovernedFieldWrapper fieldKey="depreciationYears" />
 
         <div className="space-y-3 pt-2">
           <Label className="label-text text-foreground flex items-center gap-1.5">Type of Funding<InfoTooltip text="How the acquisition is financed. Full Equity means 100% cash investment. Financed means a portion is covered by a mortgage loan." /></Label>

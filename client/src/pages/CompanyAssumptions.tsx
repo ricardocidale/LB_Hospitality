@@ -55,6 +55,7 @@ import {
   PartnerCompSection,
   SummaryFooter,
 } from "@/components/company-assumptions";
+import { GovernedFieldWrapper } from "@/components/ui/governed-field";
 
 export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
@@ -70,6 +71,7 @@ export default function CompanyAssumptions() {
 
   const [formData, setFormData] = useState<Partial<GlobalResponse>>({});
   const [isDirty, setIsDirty] = useState(false);
+  const [dirtyFields, setDirtyFields] = useState<Set<keyof GlobalResponse>>(new Set());
   const { data: research } = useMarketResearch("company");
   const companyResearchUpdatedAt = research?.updatedAt ?? null;
 
@@ -181,6 +183,7 @@ export default function CompanyAssumptions() {
 
   const handleUpdate = <K extends keyof GlobalResponse>(field: K, value: GlobalResponse[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setDirtyFields((prev) => new Set(prev).add(field));
     setIsDirty(true);
   };
 
@@ -189,10 +192,28 @@ export default function CompanyAssumptions() {
     try {
       await updateMutation.mutateAsync(formData);
       setIsDirty(false);
-      toast({
-        title: "Saved",
-        description: "Company assumptions have been updated.",
-      });
+      setDirtyFields(new Set());
+
+      const propertyDefaultKeys: Array<keyof GlobalResponse> = [
+        "eventExpenseRate",
+        "otherExpenseRate",
+        "utilitiesVariableSplit",
+      ];
+      const touchedPropertyDefaults = propertyDefaultKeys.some(
+        (k) => dirtyFields.has(k),
+      );
+
+      if (touchedPropertyDefaults && properties.length > 0) {
+        toast({
+          title: "Property defaults saved",
+          description: `These will apply to new properties. ${properties.length} existing ${properties.length === 1 ? "property retains its" : "properties retain their"} current values.`,
+        });
+      } else {
+        toast({
+          title: "Company settings saved",
+          description: "Changes take effect immediately.",
+        });
+      }
       setLocation("/company");
     } catch (error) {
       console.error("Failed to save company assumptions:", error);
@@ -302,6 +323,26 @@ export default function CompanyAssumptions() {
         <div className="grid gap-6 lg:grid-cols-2">
           <PropertyExpenseRatesSection formData={formData} onChange={handleUpdate} global={global} researchValues={researchValues} />
           <CateringSection />
+        </div>
+        </ScrollReveal>
+
+        <ScrollReveal>
+        <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
+          <div className="relative">
+            <div className="space-y-4">
+              <h3 className="text-lg font-display text-foreground flex items-center gap-2">
+                Model Constants
+                <span className="text-xs font-normal text-muted-foreground">(read-only)</span>
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                These values are governed by external authorities and apply uniformly across all properties.
+              </p>
+              <div className="grid gap-4 lg:grid-cols-2">
+                <GovernedFieldWrapper fieldKey="depreciationYears" />
+                <GovernedFieldWrapper fieldKey="daysPerMonth" />
+              </div>
+            </div>
+          </div>
         </div>
         </ScrollReveal>
 

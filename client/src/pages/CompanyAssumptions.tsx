@@ -341,15 +341,16 @@ export default function CompanyAssumptions() {
               <div className="grid gap-4 lg:grid-cols-2">
                 <GovernedFieldWrapper
                   authority={GOVERNED_FIELDS.depreciationYears.authority}
-                  label={GOVERNED_FIELDS.depreciationYears.value}
+                  label={`${GOVERNED_FIELDS.depreciationYears.fieldName}: ${GOVERNED_FIELDS.depreciationYears.value}`}
                   helperText={GOVERNED_FIELDS.depreciationYears.helperText}
                   referenceUrl={GOVERNED_FIELDS.depreciationYears.referenceUrl}
                   data-testid="governed-field-depreciationYears"
                 />
                 <GovernedFieldWrapper
                   authority={GOVERNED_FIELDS.daysPerMonth.authority}
-                  label={GOVERNED_FIELDS.daysPerMonth.value}
+                  label={`${GOVERNED_FIELDS.daysPerMonth.fieldName}: ${GOVERNED_FIELDS.daysPerMonth.value}`}
                   helperText={GOVERNED_FIELDS.daysPerMonth.helperText}
+                  referenceUrl={GOVERNED_FIELDS.daysPerMonth.referenceUrl}
                   data-testid="governed-field-daysPerMonth"
                 />
               </div>

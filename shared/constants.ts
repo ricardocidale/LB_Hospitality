@@ -174,6 +174,7 @@ export const DAYS_PER_MONTH = 30.5;
 // in the UI to display amber-styled read-only indicators.
 // ──────────────────────────────────────────────────────────
 export interface GovernedFieldMeta {
+  fieldName: string;
   authority: string;
   value: string;
   helperText: string;
@@ -182,6 +183,7 @@ export interface GovernedFieldMeta {
 
 export const GOVERNED_FIELDS: Record<string, GovernedFieldMeta> = {
   depreciationYears: {
+    fieldName: "Depreciation Years",
     authority: "IRS Publication 946",
     value: "27.5 years",
     helperText:
@@ -189,10 +191,12 @@ export const GOVERNED_FIELDS: Record<string, GovernedFieldMeta> = {
     referenceUrl: "https://www.irs.gov/publications/p946",
   },
   daysPerMonth: {
+    fieldName: "Days Per Month",
     authority: "Industry convention (365/12)",
     value: "30.5 days",
     helperText:
       "The hospitality industry standard of 30.5 days per month (365 ÷ 12 = 30.4167, rounded to 30.5) is used for monthly revenue and expense calculations. This ensures consistent monthly periods across all properties and avoids calendar-month variability in financial projections.",
+    referenceUrl: "https://www.ahla.com/resources",
   },
 };
 

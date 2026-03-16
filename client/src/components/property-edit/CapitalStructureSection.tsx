@@ -120,7 +120,7 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
 
         <GovernedFieldWrapper
           authority={GOVERNED_FIELDS.depreciationYears.authority}
-          label={GOVERNED_FIELDS.depreciationYears.value}
+          label={`${GOVERNED_FIELDS.depreciationYears.fieldName}: ${GOVERNED_FIELDS.depreciationYears.value}`}
           helperText={GOVERNED_FIELDS.depreciationYears.helperText}
           referenceUrl={GOVERNED_FIELDS.depreciationYears.referenceUrl}
           data-testid="governed-field-depreciationYears"

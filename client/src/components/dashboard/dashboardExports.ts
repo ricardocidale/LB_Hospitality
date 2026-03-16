@@ -529,15 +529,107 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
   const pageW = 297;
+  const pageH = 210;
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
   const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
+  const dateStr = format(new Date(), "MMMM d, yyyy");
+  const projRange = `${years[0]} \u2013 ${years[years.length - 1]}`;
 
-  drawTitle(doc, `${companyName} \u2014 Consolidated Portfolio Report`, 14, 15, { fontSize: 20 });
-  drawSubtitleRow(doc,
-    `${projectionYears}-Year Financial Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
-    `${properties.length} Properties \u2014 ${financials.totalRooms} Rooms`, 14, 22, pageW);
-  drawSubtitle(doc, `Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27);
-  drawSubtitle(doc, "This report contains: Dashboard Summary, Income Statement, Cash Flow Statement, Balance Sheet, Investment Analysis, and Performance Charts.", 14, 33, { fontSize: 8 });
+  const NAVY: [number, number, number] = [26, 35, 50];
+  const SAGE: [number, number, number] = [159, 188, 164];
+
+  function drawPageChrome() {
+    doc.setFillColor(...NAVY);
+    doc.rect(0, 0, pageW, 1.5, "F");
+    doc.setFillColor(...SAGE);
+    doc.rect(0, 1.5, pageW, 0.8, "F");
+    doc.setFillColor(...NAVY);
+    doc.rect(0, pageH - 1.5, pageW, 1.5, "F");
+    doc.setFillColor(...SAGE);
+    doc.rect(0, pageH - 2.3, pageW, 0.8, "F");
+    doc.setDrawColor(...SAGE);
+    doc.setLineWidth(0.3);
+    doc.line(10, 6, 10, pageH - 6);
+    doc.line(pageW - 10, 6, pageW - 10, pageH - 6);
+  }
+
+  function drawSectionTitle(title: string, subtitle?: string): number {
+    drawPageChrome();
+    doc.setFillColor(...NAVY);
+    doc.rect(16, 10, pageW - 32, 22, "F");
+    doc.setFillColor(...SAGE);
+    doc.rect(16, 30, pageW - 32, 1.2, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(255, 255, 255);
+    doc.text(title, 22, 22);
+    if (subtitle) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...SAGE);
+      doc.text(subtitle, 22, 28);
+    }
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(200, 200, 200);
+    doc.text(companyName, pageW - 22, 22, { align: "right" });
+    return 38;
+  }
+
+  doc.setFillColor(...NAVY);
+  doc.rect(0, 0, pageW, pageH, "F");
+  doc.setFillColor(...SAGE);
+  doc.rect(0, 0, pageW, 3, "F");
+  doc.rect(0, pageH - 3, pageW, 3, "F");
+
+  doc.setDrawColor(159, 188, 164, 60);
+  doc.setLineWidth(0.15);
+  for (let lx = 0; lx < pageW; lx += 12) doc.line(lx, 0, lx, pageH);
+  for (let ly = 0; ly < pageH; ly += 12) doc.line(0, ly, pageW, ly);
+
+  doc.setFillColor(...SAGE);
+  doc.rect(16, pageH * 0.25, 4, 45, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(32);
+  doc.setTextColor(255, 255, 255);
+  doc.text(companyName, 28, pageH * 0.30);
+
+  doc.setFillColor(255, 255, 255);
+  doc.rect(28, pageH * 0.33, 80, 0.5, "F");
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(18);
+  doc.setTextColor(...SAGE);
+  doc.text("Consolidated Portfolio Report", 28, pageH * 0.40);
+
+  doc.setFontSize(12);
+  doc.setTextColor(180, 200, 185);
+  doc.text(`${projectionYears}-Year Financial Projection (${projRange})`, 28, pageH * 0.46);
+
+  doc.setFillColor(40, 50, 65);
+  doc.roundedRect(28, pageH * 0.55, 120, 30, 2, 2, "F");
+  doc.setDrawColor(...SAGE);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(28, pageH * 0.55, 120, 30, 2, 2, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(...SAGE);
+  doc.text("PORTFOLIO", 34, pageH * 0.55 + 8);
+  doc.text("DATE", 34, pageH * 0.55 + 18);
+  doc.text("CLASSIFICATION", 100, pageH * 0.55 + 8);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(220, 220, 220);
+  doc.text(`${properties.length} Properties \u2014 ${financials.totalRooms} Rooms`, 34, pageH * 0.55 + 13);
+  doc.text(dateStr, 34, pageH * 0.55 + 23);
+  doc.text("CONFIDENTIAL", 100, pageH * 0.55 + 13);
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7);
+  doc.setTextColor(120, 130, 140);
+  doc.text("This document contains proprietary financial projections. Distribution is restricted to authorized recipients.", 28, pageH * 0.80);
 
   doc.addPage();
   const metrics: DashboardSummaryMetric[] = [
@@ -554,15 +646,24 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const propertyTable = properties.map(p => ({
     name: p.name, market: p.market, rooms: p.roomCount, status: p.status,
   }));
+  drawPageChrome();
   drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable);
 
+  function withChrome(config: Record<string, any>): Record<string, any> {
+    const origDidDrawPage = config.didDrawPage;
+    return {
+      ...config,
+      didDrawPage: (data: any) => {
+        if (data.pageNumber > 1) drawPageChrome();
+        if (origDidDrawPage) origDidDrawPage(data);
+      },
+    };
+  }
+
   doc.addPage();
-  drawTitle(doc, "Consolidated Income Statement (USALI)", 14, 15, { fontSize: 16 });
-  drawSubtitleRow(doc,
-    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
-    entityTag, 14, 22, pageW);
-  const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", 28);
-  autoTable(doc, incomeConfig);
+  let startY = drawSectionTitle("Consolidated Income Statement (USALI)", `${projectionYears}-Year Projection (${projRange})`);
+  const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", startY);
+  autoTable(doc, withChrome(incomeConfig));
 
   doc.addPage();
   const cashFlowData = generatePortfolioCashFlowData(
@@ -570,38 +671,26 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     new Set(["cfo", "cfi", "cff"]), false,
     properties.map(p => p.name),
   );
-  drawTitle(doc, "Consolidated Cash Flow Statement", 14, 15, { fontSize: 16 });
-  drawSubtitleRow(doc,
-    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
-    entityTag, 14, 22, pageW);
-  const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", 28);
-  autoTable(doc, cfConfig);
+  startY = drawSectionTitle("Consolidated Cash Flow Statement", `${projectionYears}-Year Projection (${projRange})`);
+  const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", startY);
+  autoTable(doc, withChrome(cfConfig));
 
   doc.addPage();
   const balanceSheetData = generatePortfolioBalanceSheetData(
     financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate,
   );
-  drawTitle(doc, "Consolidated Balance Sheet", 14, 15, { fontSize: 16 });
-  drawSubtitleRow(doc,
-    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
-    entityTag, 14, 22, pageW);
-  const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", 28);
-  autoTable(doc, bsConfig);
+  startY = drawSectionTitle("Consolidated Balance Sheet", `${projectionYears}-Year Projection (${projRange})`);
+  const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", startY);
+  autoTable(doc, withChrome(bsConfig));
 
   doc.addPage();
   const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
-  drawTitle(doc, "Portfolio Investment Analysis", 14, 15, { fontSize: 16 });
-  drawSubtitleRow(doc,
-    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[years.length - 1]})`,
-    entityTag, 14, 22, pageW);
-  const invConfig = buildFinancialTableConfig(investmentData.years, investmentData.rows, "landscape", 28);
-  autoTable(doc, invConfig);
+  startY = drawSectionTitle("Portfolio Investment Analysis", `${projectionYears}-Year Projection (${projRange})`);
+  const invConfig = buildFinancialTableConfig(investmentData.years, investmentData.rows, "landscape", startY);
+  autoTable(doc, withChrome(invConfig));
 
   doc.addPage();
-  drawTitle(doc, `${companyName} \u2014 Income Statement Performance Trend`, 14, 15, { fontSize: 16 });
-  drawSubtitleRow(doc,
-    `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`,
-    entityTag, 14, 22, pageW);
+  startY = drawSectionTitle(`Performance Trend`, `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI`);
 
   const chartData = years.map((year, i) => ({
     label: String(year),
@@ -618,10 +707,10 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
 
   drawLineChart({
     doc,
-    x: 14,
-    y: 30,
-    width: 269,
-    height: 150,
+    x: 16,
+    y: startY,
+    width: pageW - 32,
+    height: 140,
     title: `Portfolio Performance (${projectionYears}-Year Projection)`,
     series: [
       { name: "Revenue", data: chartData, color: "#7C3AED" },
@@ -630,7 +719,18 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     ],
   });
 
-  addFooters(doc, companyName);
+  const totalPages = (doc.internal as any).getNumberOfPages();
+  for (let pg = 1; pg <= totalPages; pg++) {
+    doc.setPage(pg);
+    if (pg === 1) continue;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(153, 153, 153);
+    doc.text(companyName, 16, pageH - 5);
+    doc.text("CONFIDENTIAL", pageW / 2, pageH - 5, { align: "center" });
+    doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });
+  }
+
   doc.save(`${companyName} - Consolidated Portfolio Report.pdf`);
 }
 

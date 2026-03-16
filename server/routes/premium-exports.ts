@@ -1,8 +1,7 @@
 import { type Express, type Request, type Response } from "express";
-import { getAnthropicClient } from "../ai/clients";
+import { getGeminiClient } from "../ai/clients";
 import { requireAuth } from "../auth";
 import { z } from "zod";
-import { generateWithAgentSkills, buildAgentSkillsPrompt } from "../ai/agentSkillsExport";
 import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
 import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdfPrompt, getDocxPrompt } from "./premium-export-prompts";
@@ -75,32 +74,30 @@ function validateAIOutput(result: any, format: string): void {
   }
 }
 
-async function generateWithAnthropic(prompt: string, format: string): Promise<any> {
-  const client = getAnthropicClient();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), AI_GENERATION_TIMEOUT_MS);
-  let response;
-  try {
-    response = await client.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 8192,
-      messages: [{ role: "user", content: prompt }],
-    }, { signal: controller.signal as any });
-  } catch (err: any) {
-    if (err?.name === "AbortError" || controller.signal.aborted) {
-      throw new Error("AI generation timed out after 120 seconds");
-    }
-    throw err;
-  } finally {
-    clearTimeout(timeout);
+async function generateWithGemini(prompt: string, format: string): Promise<any> {
+  const client = getGeminiClient();
+
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("AI generation timed out after 120 seconds")), AI_GENERATION_TIMEOUT_MS)
+  );
+
+  const generatePromise = client.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+    config: {
+      maxOutputTokens: 8192,
+      responseMimeType: "application/json",
+    },
+  });
+
+  const response = await Promise.race([generatePromise, timeoutPromise]);
+
+  const text = response.text;
+  if (!text) {
+    throw new Error("No text response from Gemini");
   }
 
-  const textBlock = response.content.find(b => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text response from Anthropic");
-  }
-
-  let jsonStr = textBlock.text.trim();
+  let jsonStr = text.trim();
   const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (jsonMatch) {
     jsonStr = jsonMatch[1].trim();
@@ -365,144 +362,278 @@ async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Pro
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
 
-  const NAVY_RGB: [number, number, number] = [26, 35, 50];
-  const SAGE_RGB: [number, number, number] = [159, 188, 164];
-  const DARK_GREEN_RGB: [number, number, number] = [37, 125, 65];
-  const GRAY_RGB: [number, number, number] = [102, 102, 102];
-  const DARK_TEXT_RGB: [number, number, number] = [61, 61, 61];
-  const SECTION_BG_RGB: [number, number, number] = [239, 245, 240];
-  const ALT_ROW_RGB: [number, number, number] = [248, 250, 249];
+  const NAVY: [number, number, number] = [26, 35, 50];
+  const SAGE: [number, number, number] = [159, 188, 164];
+  const DK_GREEN: [number, number, number] = [37, 125, 65];
+  const GRAY: [number, number, number] = [102, 102, 102];
+  const DK_TEXT: [number, number, number] = [61, 61, 61];
+  const SEC_BG: [number, number, number] = [239, 245, 240];
+  const ALT_ROW: [number, number, number] = [248, 250, 249];
+  const WARM_BG: [number, number, number] = [255, 249, 245];
+  const CARD_BG: [number, number, number] = [245, 249, 246];
 
-  let currentPage = 1;
+  const company = data.companyName || "Hospitality Business Group";
+  const dateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const coverPageNumbers = new Set<number>();
 
-  function drawHeader() {
-    doc.setFillColor(...NAVY_RGB);
-    doc.rect(0, 0, pageW, 28, "F");
-    doc.setFillColor(...SAGE_RGB);
-    doc.rect(0, 26, pageW, 2, "F");
+  function drawPageChrome() {
+    doc.setFillColor(...NAVY);
+    doc.rect(0, 0, pageW, 1.5, "F");
+    doc.setFillColor(...SAGE);
+    doc.rect(0, 1.5, pageW, 0.8, "F");
+
+    doc.setFillColor(...NAVY);
+    doc.rect(0, pageH - 1.5, pageW, 1.5, "F");
+    doc.setFillColor(...SAGE);
+    doc.rect(0, pageH - 2.3, pageW, 0.8, "F");
+
+    doc.setDrawColor(...SAGE);
+    doc.setLineWidth(0.3);
+    doc.line(10, 6, 10, pageH - 6);
+    doc.line(pageW - 10, 6, pageW - 10, pageH - 6);
+  }
+
+  function drawSectionHeader(title: string, subtitle?: string): number {
+    drawPageChrome();
+
+    doc.setFillColor(...NAVY);
+    doc.rect(16, 10, pageW - 32, 22, "F");
+    doc.setFillColor(...SAGE);
+    doc.rect(16, 30, pageW - 32, 1.2, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(255, 255, 255);
+    doc.text(title, 22, 22);
+
+    if (subtitle) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(...SAGE);
+      doc.text(subtitle, 22, 28);
+    }
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(200, 200, 200);
+    doc.text(company, pageW - 22, 22, { align: "right" });
+
+    return 38;
   }
 
   function addNewPage() {
     doc.addPage();
-    currentPage++;
   }
 
   for (let i = 0; i < (aiResult.sections || []).length; i++) {
     const section = aiResult.sections[i];
 
-    if (i > 0 && section.type !== "cover") {
+    if (i > 0) {
       addNewPage();
     }
 
-    let y = 15;
-
     if (section.type === "cover") {
-      drawHeader();
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(255, 255, 255);
-      doc.text(data.companyName || "", 14, 12);
-      doc.setFontSize(16);
-      doc.text(aiResult.report_title || section.title || "", 14, 20);
-      y = 36;
+      coverPageNumbers.add((doc.internal as any).getNumberOfPages());
 
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.setTextColor(...GRAY_RGB);
-      doc.text(`Generated: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`, 14, y);
-      y += 8;
+      doc.setFillColor(...NAVY);
+      doc.rect(0, 0, pageW, pageH, "F");
 
-      if (aiResult.confidential_notice) {
-        doc.setFont("helvetica", "italic");
-        doc.setFontSize(8);
-        doc.text(aiResult.confidential_notice, 14, y);
-        y += 8;
+      doc.setFillColor(...SAGE);
+      doc.rect(0, 0, pageW, 3, "F");
+      doc.rect(0, pageH - 3, pageW, 3, "F");
+
+      doc.setDrawColor(159, 188, 164, 60);
+      doc.setLineWidth(0.15);
+      for (let lx = 0; lx < pageW; lx += 12) {
+        doc.line(lx, 0, lx, pageH);
       }
-    } else if (section.type === "executive_summary" || section.type === "analysis" || section.type === "notes") {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.setTextColor(...DARK_GREEN_RGB);
-      doc.text(section.title || "", 14, y);
-      doc.setDrawColor(...SAGE_RGB);
-      doc.setLineWidth(0.5);
-      doc.line(14, y + 2, 80, y + 2);
-      y += 10;
+      for (let ly = 0; ly < pageH; ly += 12) {
+        doc.line(0, ly, pageW, ly);
+      }
 
-      const paragraphs = section.content?.paragraphs || section.content?.observations || section.content?.items || [];
+      doc.setFillColor(...SAGE);
+      doc.rect(16, pageH * 0.28, 4, 40, "F");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(32);
+      doc.setTextColor(255, 255, 255);
+      doc.text(company, 28, pageH * 0.32);
+
+      doc.setFillColor(255, 255, 255);
+      doc.rect(28, pageH * 0.35, 60, 0.5, "F");
+
+      const reportTitle = aiResult.report_title || section.title || "Financial Report";
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(18);
+      doc.setTextColor(...SAGE);
+      doc.text(reportTitle, 28, pageH * 0.42);
+
+      if (section.subtitle) {
+        doc.setFontSize(12);
+        doc.setTextColor(180, 200, 185);
+        doc.text(section.subtitle, 28, pageH * 0.48);
+      }
+
+      doc.setFillColor(40, 50, 65);
+      doc.roundedRect(28, pageH * 0.58, 100, 30, 2, 2, "F");
+      doc.setDrawColor(...SAGE);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(28, pageH * 0.58, 100, 30, 2, 2, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...SAGE);
+      doc.text("PREPARED", 34, pageH * 0.58 + 8);
+      doc.text("DATE", 34, pageH * 0.58 + 18);
+      doc.text("CLASSIFICATION", 80, pageH * 0.58 + 8);
+
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.setTextColor(...DARK_TEXT_RGB);
-      for (const p of paragraphs) {
-        const lines = doc.splitTextToSize(typeof p === "string" ? p : `${p.metric}: ${p.insight}`, pageW - 28);
-        for (const line of lines) {
-          if (y > pageH - 15) { addNewPage(); y = 15; }
-          doc.text(line, 14, y);
-          y += 4.5;
+      doc.setTextColor(220, 220, 220);
+      doc.text(`For ${data.entityName}`, 34, pageH * 0.58 + 13);
+      doc.text(dateStr, 34, pageH * 0.58 + 23);
+      doc.text("CONFIDENTIAL", 80, pageH * 0.58 + 13);
+
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7);
+      doc.setTextColor(120, 130, 140);
+      doc.text("This document contains proprietary financial projections. Distribution is restricted to authorized recipients.", 28, pageH * 0.82);
+
+    } else if (section.type === "executive_summary" || section.type === "analysis" || section.type === "notes") {
+      let y = drawSectionHeader(
+        section.title || "Executive Summary",
+        `${company} \u2014 ${data.entityName}`
+      );
+
+      const paragraphs = section.content?.paragraphs || section.content?.observations || section.content?.items || [];
+      if (paragraphs.length > 0) {
+        doc.setFillColor(...WARM_BG);
+        const blockH = Math.min(paragraphs.length * 16, pageH - y - 30);
+        doc.roundedRect(16, y, pageW - 32, blockH, 2, 2, "F");
+        doc.setDrawColor(...SAGE);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(16, y, pageW - 32, blockH, 2, 2, "S");
+
+        doc.setFillColor(...DK_GREEN);
+        doc.rect(16, y, 2, blockH, "F");
+
+        y += 6;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(...DK_TEXT);
+        for (const p of paragraphs) {
+          const text = typeof p === "string" ? p : `${p.metric}: ${p.insight}`;
+          const lines = doc.splitTextToSize(text, pageW - 48);
+          for (const line of lines) {
+            if (y > pageH - 20) { addNewPage(); drawPageChrome(); y = 15; }
+            doc.text(line, 24, y);
+            y += 4.5;
+          }
+          y += 3;
         }
-        y += 2;
       }
 
       if (section.content?.highlights) {
+        y += 6;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(...DK_GREEN);
+        doc.text("KEY HIGHLIGHTS", 20, y);
+        doc.setDrawColor(...SAGE);
+        doc.setLineWidth(0.4);
+        doc.line(20, y + 2, 70, y + 2);
+        y += 8;
+
         for (const h of section.content.highlights) {
-          if (y > pageH - 15) { addNewPage(); y = 15; }
+          if (y > pageH - 20) { addNewPage(); drawPageChrome(); y = 15; }
+
+          doc.setFillColor(...CARD_BG);
+          doc.roundedRect(20, y - 3, pageW - 44, 10, 1.5, 1.5, "F");
+
+          doc.setFillColor(...DK_GREEN);
+          doc.circle(24, y + 1.5, 1, "F");
+
           doc.setFont("helvetica", "bold");
           doc.setFontSize(8);
-          doc.setTextColor(...GRAY_RGB);
-          doc.text(`${h.metric}:`, 18, y);
+          doc.setTextColor(...NAVY);
+          doc.text(`${h.metric}`, 28, y + 2);
           doc.setFont("helvetica", "normal");
-          doc.setTextColor(40, 40, 40);
-          doc.text(h.insight || "", 70, y);
-          y += 5;
+          doc.setTextColor(...DK_TEXT);
+          doc.text(h.insight || "", 70, y + 2);
+          y += 12;
         }
       }
+
     } else if (section.type === "metrics_dashboard") {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.setTextColor(...DARK_GREEN_RGB);
-      doc.text(section.title || "Key Metrics", 14, y);
-      y += 8;
+      let y = drawSectionHeader(
+        section.title || "Key Performance Indicators",
+        `${company} \u2014 Investment Overview`
+      );
 
       const metrics = section.content?.metrics || [];
-      const cardW = (pageW - 38) / 3;
-      const cardH = 18;
+      const cols = Math.min(metrics.length, 3);
+      const gap = 6;
+      const cardW = (pageW - 32 - gap * (cols - 1)) / cols;
+      const cardH = 28;
+
       metrics.forEach((m: any, mi: number) => {
-        const col = mi % 3;
-        const row = Math.floor(mi / 3);
-        const x = 14 + col * (cardW + 5);
-        const cy = y + row * (cardH + 4);
+        const col = mi % cols;
+        const row = Math.floor(mi / cols);
+        const x = 16 + col * (cardW + gap);
+        const cy = y + row * (cardH + gap);
 
-        if (cy + cardH > pageH - 15) return;
+        if (cy + cardH > pageH - 20) return;
 
-        doc.setFillColor(245, 249, 246);
-        doc.setDrawColor(...SAGE_RGB);
-        doc.setLineWidth(0.3);
-        doc.roundedRect(x, cy, cardW, cardH, 2, 2, "FD");
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(x, cy, cardW, cardH, 3, 3, "F");
+        doc.setDrawColor(...SAGE);
+        doc.setLineWidth(0.4);
+        doc.roundedRect(x, cy, cardW, cardH, 3, 3, "S");
+
+        doc.setFillColor(...DK_GREEN);
+        doc.rect(x, cy, cardW, 1.5, "F");
 
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.setTextColor(...DARK_GREEN_RGB);
-        doc.text(m.value || "", x + 4, cy + 8);
+        doc.setFontSize(20);
+        doc.setTextColor(...DK_GREEN);
+        const valText = m.value || "";
+        doc.text(valText, x + cardW / 2, cy + 14, { align: "center" });
 
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(7);
-        doc.setTextColor(...GRAY_RGB);
-        doc.text(m.label || "", x + 4, cy + 14);
+        doc.setFontSize(7.5);
+        doc.setTextColor(...GRAY);
+        doc.text(m.label || "", x + cardW / 2, cy + 22, { align: "center" });
+
+        if (m.trend) {
+          const arrow = m.trend === "up" ? "\u25B2" : m.trend === "down" ? "\u25BC" : "";
+          const trendColor: [number, number, number] = m.trend === "up" ? DK_GREEN : [204, 51, 51];
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          doc.setTextColor(...trendColor);
+          doc.text(arrow, x + cardW - 8, cy + 6);
+        }
       });
+
     } else if (section.type === "financial_table") {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.setTextColor(...DARK_GREEN_RGB);
-      doc.text(section.title || "", 14, y);
-      y += 6;
+      let y = drawSectionHeader(
+        section.title || "Financial Statement",
+        `${company} \u2014 ${data.entityName}`
+      );
 
       const years = section.content?.years || [];
       const rows = section.content?.rows || [];
       if (years.length && rows.length) {
+        const numCols = years.length;
+        const labelColW = data.orientation === "portrait" ? 40 : 50;
+        const availableWidth = pageW - 32;
+        const dataColW = (availableWidth - labelColW) / numCols;
+        const fontSize = numCols <= 6 ? 7.5 : numCols <= 10 ? 7 : 6;
+
         const body = rows.map((r: any) => {
           const indent = r.indent ? "  ".repeat(r.indent) : "";
           const vals = (r.values || []).map((v: any) => {
             if (typeof v === "number") {
-              if (v === 0) return "—";
+              if (v === 0) return "\u2014";
               const abs = Math.abs(v);
               const s = abs.toLocaleString("en-US", { maximumFractionDigits: 0 });
               return v < 0 ? `($${s})` : `$${s}`;
@@ -512,46 +643,89 @@ async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Pro
           return [indent + (r.category || ""), ...vals];
         });
 
+        const colStyles: Record<number, any> = { 0: { cellWidth: labelColW } };
+        for (let ci = 1; ci <= numCols; ci++) {
+          colStyles[ci] = { halign: "right", cellWidth: dataColW, font: "courier" };
+        }
+
         autoTable(doc, {
           startY: y,
-          head: [["", ...years]],
+          head: [["", ...years.map((yr: any) => `FY ${yr}`)]],
           body,
-          theme: "grid",
-          styles: { fontSize: 7, cellPadding: 1.5, font: "helvetica", lineColor: [200, 205, 210], lineWidth: 0.25 },
-          headStyles: { fillColor: SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold", halign: "center" },
-          columnStyles: { 0: { cellWidth: 50 }, ...Object.fromEntries(years.map((_: any, i: number) => [i + 1, { halign: "right" }])) },
-          tableLineColor: SAGE_RGB,
-          tableLineWidth: 0.6,
-          didParseCell: ((data: any) => {
-            if (data.section !== "body") return;
-            const idx = data.row.index;
-            if (idx >= rows.length) return;
-            const row = rows[idx];
-            if (row.type === "header") {
-              data.cell.styles.fontStyle = "bold";
-              data.cell.styles.fillColor = SECTION_BG_RGB;
-            } else if (row.type === "total" || row.type === "subtotal") {
-              data.cell.styles.fontStyle = "bold";
-            } else if (idx % 2 === 1) {
-              data.cell.styles.fillColor = ALT_ROW_RGB;
-            }
-          }),
+          margin: { left: 16, right: 16 },
+          styles: {
+            fontSize,
+            cellPadding: { top: 1.8, bottom: 1.8, left: 2, right: 2 },
+            overflow: "linebreak",
+            font: "helvetica",
+            lineColor: [210, 215, 220],
+            lineWidth: 0.2,
+          },
+          headStyles: {
+            fillColor: NAVY,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            halign: "center",
+            lineWidth: 0,
+            fontSize: fontSize + 0.5,
+          },
+          columnStyles: colStyles,
+          tableLineColor: SAGE,
+          tableLineWidth: 0.5,
+          didParseCell: (() => {
+            let dataRowIdx = 0;
+            let lastRowIndex = -1;
+            return (cellData: any) => {
+              if (cellData.section !== "body") return;
+              const idx = cellData.row.index;
+              if (idx >= rows.length) return;
+              const row = rows[idx];
+
+              if (row.type === "header" || row.isHeader) {
+                cellData.cell.styles.fontStyle = "bold";
+                cellData.cell.styles.fillColor = SEC_BG;
+                cellData.cell.styles.lineWidth = { top: 0.5 };
+                cellData.cell.styles.lineColor = { top: SAGE };
+              } else if (row.type === "total" || row.type === "subtotal" || row.isBold) {
+                cellData.cell.styles.fontStyle = "bold";
+                cellData.cell.styles.lineWidth = { top: 0.4 };
+                cellData.cell.styles.lineColor = { top: [180, 185, 190] };
+              } else if (row.isItalic || row.type === "formula") {
+                cellData.cell.styles.fontStyle = "italic";
+                cellData.cell.styles.textColor = GRAY;
+                cellData.cell.styles.fontSize = (cellData.cell.styles.fontSize || fontSize) - 0.5;
+                if (idx !== lastRowIndex) { dataRowIdx++; lastRowIndex = idx; }
+                if (dataRowIdx % 2 === 0) cellData.cell.styles.fillColor = ALT_ROW;
+              } else {
+                if (idx !== lastRowIndex) { dataRowIdx++; lastRowIndex = idx; }
+                if (dataRowIdx % 2 === 0) cellData.cell.styles.fillColor = ALT_ROW;
+              }
+
+              if (cellData.column.index > 0 && !row.isHeader && row.type !== "header") {
+                cellData.cell.styles.font = "courier";
+              }
+            };
+          })(),
+          didDrawPage: () => {
+            drawPageChrome();
+          },
         });
       }
     }
   }
 
   const totalPages = (doc.internal as any).getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setDrawColor(...SAGE_RGB);
-    doc.setLineWidth(0.4);
-    doc.line(14, pageH - 10, pageW - 14, pageH - 10);
+  for (let pg = 1; pg <= totalPages; pg++) {
+    doc.setPage(pg);
+
+    if (coverPageNumbers.has(pg)) continue;
+
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
     doc.setTextColor(153, 153, 153);
-    doc.text(`${data.companyName} — Confidential`, 14, pageH - 6);
-    doc.text(`Page ${i} of ${totalPages}`, pageW - 14, pageH - 6, { align: "right" });
+    doc.text(`${company}`, 16, pageH - 5);
+    doc.text("CONFIDENTIAL", pageW / 2, pageH - 5, { align: "center" });
+    doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });
   }
 
   const arrayBuf = doc.output("arraybuffer");
@@ -730,8 +904,6 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
   return await Packer.toBuffer(docDocument);
 }
 
-const AGENT_SKILLS_FORMATS = new Set(["pdf", "pptx", "docx"]);
-
 const CONTENT_TYPES: Record<string, string> = {
   xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -753,36 +925,6 @@ const DEFAULT_REPORT_TYPE: Record<string, string> = {
   docx: "Investor Memo",
 };
 
-async function generateViaAgentSkills(
-  data: PremiumExportRequest
-): Promise<Buffer> {
-  const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error("Anthropic API key not configured");
-
-  logger.info(`[agent-skills] Building prompt for ${data.format}...`, "premium-export");
-  const financialContext = buildFinancialDataContext(data);
-  const prompt = buildAgentSkillsPrompt(
-    data.format,
-    financialContext,
-    data.entityName,
-    data.companyName || "Hospitality Business Group",
-    data.memoSections as Record<string, string | undefined> | undefined,
-    data.orientation || "landscape",
-    data.version || "short"
-  );
-
-  logger.info(`[agent-skills] Calling Anthropic Agent Skills API...`, "premium-export");
-  const result = await generateWithAgentSkills({
-    format: data.format as "pdf" | "pptx" | "docx",
-    prompt,
-    apiKey,
-    baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-  });
-
-  logger.info(`[agent-skills] Got buffer: ${result.buffer.length} bytes`, "premium-export");
-  return result.buffer;
-}
-
 async function generateViaTemplatePipeline(
   data: PremiumExportRequest
 ): Promise<Buffer> {
@@ -796,8 +938,8 @@ async function generateViaTemplatePipeline(
     default: throw new Error(`Unsupported format: ${data.format}`);
   }
 
-  logger.info(`[template] Calling Anthropic for JSON structure...`, "premium-export");
-  const aiResult = await generateWithAnthropic(prompt, data.format);
+  logger.info(`[template] Calling Gemini for JSON structure...`, "premium-export");
+  const aiResult = await generateWithGemini(prompt, data.format);
   logger.info(`[template] AI returned valid JSON, generating ${data.format} buffer...`, "premium-export");
 
   switch (data.format) {
@@ -827,30 +969,10 @@ export function register(app: Express) {
       const reportType = (data.statementType || DEFAULT_REPORT_TYPE[data.format] || "Report").replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 40).trim();
       const ext = FORMAT_EXTENSIONS[data.format] || `.${data.format}`;
       const filename = `${safeCompany} - ${reportType}${ext}`;
-      const useAgentSkills = AGENT_SKILLS_FORMATS.has(data.format);
 
-      let buffer: Buffer;
-
-      if (useAgentSkills) {
-        logger.info(`Generating ${data.format} via Agent Skills for "${data.entityName}"...`, "premium-export");
-        try {
-          buffer = await generateViaAgentSkills(data);
-          logger.info(`Agent Skills ${data.format} generated (${buffer.length} bytes)`, "premium-export");
-        } catch (skillsError: any) {
-          logger.warn(`Agent Skills failed for ${data.format}, falling back to template pipeline. Error: ${skillsError?.message || String(skillsError)}`, "premium-export");
-          try {
-            buffer = await generateViaTemplatePipeline(data);
-            logger.info(`Template fallback ${data.format} generated (${buffer.length} bytes)`, "premium-export");
-          } catch (fallbackError: any) {
-            logger.error(`Template fallback also failed for ${data.format}. Error: ${fallbackError?.message || String(fallbackError)}`, "premium-export");
-            throw new Error(`Export failed: Agent Skills error — ${skillsError?.message || "unknown"}. Fallback error — ${fallbackError?.message || "unknown"}`);
-          }
-        }
-      } else {
-        logger.info(`Generating ${data.format} via template pipeline for "${data.entityName}"...`, "premium-export");
-        buffer = await generateViaTemplatePipeline(data);
-        logger.info(`Template ${data.format} generated (${buffer.length} bytes)`, "premium-export");
-      }
+      logger.info(`Generating premium ${data.format} via Gemini + template pipeline for "${data.entityName}"...`, "premium-export");
+      const buffer = await generateViaTemplatePipeline(data);
+      logger.info(`Premium ${data.format} generated (${buffer.length} bytes)`, "premium-export");
 
       res.setHeader("Content-Type", contentType);
       res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
@@ -871,7 +993,7 @@ export function register(app: Express) {
   });
 
   app.get("/api/exports/premium/status", requireAuth, async (_req: Request, res: Response) => {
-    const hasApiKey = !!(process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY);
+    const hasApiKey = !!(process.env.AI_INTEGRATIONS_GEMINI_API_KEY);
     res.json({ available: hasApiKey, formats: ["xlsx", "pptx", "pdf", "docx"] });
   });
 }

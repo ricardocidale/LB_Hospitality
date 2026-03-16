@@ -318,6 +318,7 @@ npm run stats          # Codebase metrics
 
 ## Recent Changes (March 16, 2026)
 
+- **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic (broken Agent Skills stub) to Gemini 2.0 Flash. Removed dead `agentSkillsExport` code path. Completely redesigned PDF rendering with enterprise-quality design: full-bleed navy cover page with grid overlay, branded section headers, decorative page chrome (navy/sage borders + vertical rules), KPI metric cards with green accent bars, warm background callout blocks for executive summaries, and professional confidential footer treatment. Both server-side premium PDF and client-side comprehensive dashboard PDF upgraded.
 - **Model Defaults Admin Section** — New "Model Defaults" tab in Admin > Business group. Two sub-tabs: Market & Macro (inflation, cost of equity, days per month, fiscal calendar) and Property Underwriting (expense rates, acquisition/refi financing, depreciation, exit/disposition, default acquisition package). Consolidates all financial seed/default values into one place. Uses GovernedFieldWrapper for IRS/industry-standard values.
 - **Verification Bug Fixes** — Fixed DSCR check (was failing for pre-operational Year 1 properties), fixed Net Income/Cash Flow identity checks (were using naive tax formula ignoring NOL carryforward). Added `incomeTax` to checker engine output.
 - **Role Rename: Partner → User** (Task #163) — Renamed `partner` role to `user` across entire codebase: schema, seeds, auth, UI, AI prompts, diagrams, tests. Data migration updates existing rows.

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { resolvePropertyAssumptions } from "../../client/src/lib/financial/resolve-assumptions.js";
+import { generatePropertyProForma } from "../../client/src/lib/financial/property-engine.js";
 import type { PropertyInput, GlobalInput } from "../../client/src/lib/financial/types.js";
 import { DEPRECIATION_YEARS, DAYS_PER_MONTH } from "../../shared/constants.js";
 
@@ -142,5 +143,65 @@ describe("resolve-assumptions cascade: combined effects", () => {
     const restBasis = prop.purchasePrice * (1 - 0.25) * (1 - 0.1 - 0.1 - 0.1);
     const expectedRestMonthly = restBasis / 20 / 12;
     expect(ctx.costSegRestMonthly).toBeCloseTo(expectedRestMonthly, 2);
+  });
+});
+
+describe("engine end-to-end: DB-backed values affect outputs", () => {
+  it("changing global depreciationYears changes depreciation expense in engine output", () => {
+    const prop = makeProperty({ landValuePercent: 0.2 });
+    const globalDefault = makeGlobal();
+    const global30yr = makeGlobal({ depreciationYears: 30 });
+
+    const resultsDefault = generatePropertyProForma(prop, globalDefault, 48);
+    const results30yr = generatePropertyProForma(prop, global30yr, 48);
+
+    const depDefault = resultsDefault.find(m => m.depreciationExpense > 0)!.depreciationExpense;
+    const dep30yr = results30yr.find(m => m.depreciationExpense > 0)!.depreciationExpense;
+
+    expect(depDefault).not.toBe(dep30yr);
+    const buildingValue = prop.purchasePrice * (1 - 0.2);
+    expect(depDefault).toBeCloseTo(buildingValue / DEPRECIATION_YEARS / 12, 2);
+    expect(dep30yr).toBeCloseTo(buildingValue / 30 / 12, 2);
+  });
+
+  it("property override wins over global in engine output", () => {
+    const prop = makeProperty({ depreciationYears: 15, landValuePercent: 0.2 });
+    const glob = makeGlobal({ depreciationYears: 30 });
+
+    const results = generatePropertyProForma(prop, glob, 48);
+    const dep = results.find(m => m.depreciationExpense > 0)!.depreciationExpense;
+    const buildingValue = prop.purchasePrice * (1 - 0.2);
+    expect(dep).toBeCloseTo(buildingValue / 15 / 12, 2);
+  });
+
+  it("changing global daysPerMonth changes room revenue in engine output", () => {
+    const prop = makeProperty();
+    const globalDefault = makeGlobal();
+    const global31 = makeGlobal({ daysPerMonth: 31 });
+
+    const resultsDefault = generatePropertyProForma(prop, globalDefault, 48);
+    const results31 = generatePropertyProForma(prop, global31, 48);
+
+    const revDefault = resultsDefault.find(m => m.revenueRooms > 0)!.revenueRooms;
+    const rev31 = results31.find(m => m.revenueRooms > 0)!.revenueRooms;
+
+    expect(rev31).toBeGreaterThan(revDefault);
+    expect(rev31 / revDefault).toBeCloseTo(31 / DAYS_PER_MONTH, 4);
+  });
+
+  it("golden outputs preserved when DB values match constants", () => {
+    const prop = makeProperty({ landValuePercent: 0.2 });
+    const globExplicit = makeGlobal({ depreciationYears: DEPRECIATION_YEARS, daysPerMonth: DAYS_PER_MONTH });
+    const globImplicit = makeGlobal();
+
+    const explicit = generatePropertyProForma(prop, globExplicit, 48);
+    const implicit = generatePropertyProForma(prop, globImplicit, 48);
+
+    for (let i = 0; i < explicit.length; i++) {
+      expect(explicit[i].revenueRooms).toBe(implicit[i].revenueRooms);
+      expect(explicit[i].depreciationExpense).toBe(implicit[i].depreciationExpense);
+      expect(explicit[i].noi).toBe(implicit[i].noi);
+      expect(explicit[i].cashFlow).toBe(implicit[i].cashFlow);
+    }
   });
 });

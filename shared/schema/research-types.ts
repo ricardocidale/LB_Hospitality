@@ -27,6 +27,15 @@ export interface AiModelEntry {
 export type LlmMode = "dual" | "primary-only";
 export type LlmVendor = "openai" | "anthropic" | "google" | "xai" | "tesla" | "microsoft";
 
+export interface ContextLlmConfig {
+  llmVendor?: LlmVendor;
+  llmMode?: LlmMode;
+  primaryLlm?: string;
+  secondaryLlm?: string;
+}
+
+export type ResearchDomain = "company" | "property" | "market";
+
 export interface ResearchConfig {
   property?: Partial<ResearchEventConfig>;
   company?:  Partial<ResearchEventConfig>;
@@ -40,4 +49,8 @@ export interface ResearchConfig {
   customSources?: { name: string; url?: string; category: string }[];
   cachedModels?: AiModelEntry[];
   cachedModelsAt?: string;
+  companyLlm?: ContextLlmConfig;
+  propertyLlm?: ContextLlmConfig;
+  marketLlm?: ContextLlmConfig;
+  companySources?: ResearchSourceEntry[];
 }

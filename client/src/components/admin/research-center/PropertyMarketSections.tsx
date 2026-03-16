@@ -13,7 +13,7 @@ import {
 } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { useRefreshAiModels } from "@/lib/api/admin";
-import type { ResearchConfig, ResearchEventConfig, LlmMode, LlmVendor } from "@shared/schema";
+import type { ResearchConfig, ResearchEventConfig, ContextLlmConfig, LlmMode, LlmVendor } from "@shared/schema";
 import {
   DETERMINISTIC_TOOLS, FALLBACK_MODELS, TIME_HORIZONS, MACRO_INDICATORS,
   PROPERTY_DEFAULT_SOURCES, MARKET_DEFAULT_SOURCES, LLM_VENDORS,
@@ -201,6 +201,170 @@ export function MarketResearchSection({ config, onChange }: { config: ResearchEv
         </>
       )}
     </div>
+  );
+}
+
+export function DomainLlmCard({ domain, domainLabel, config, onChange, draft, setDraft, setIsDirty }: {
+  domain: "company" | "property" | "market";
+  domainLabel: string;
+  config: ContextLlmConfig;
+  onChange: (c: ContextLlmConfig) => void;
+  draft: ResearchConfig;
+  setDraft: React.Dispatch<React.SetStateAction<ResearchConfig>>;
+  setIsDirty: (v: boolean) => void;
+}) {
+  const { toast } = useToast();
+  const refreshModels = useRefreshAiModels();
+
+  const models = (draft.cachedModels && draft.cachedModels.length > 0) ? draft.cachedModels : FALLBACK_MODELS;
+  const mode: LlmMode | undefined = config.llmMode;
+  const vendor: LlmVendor | undefined = config.llmVendor;
+  const isDual = mode === "dual";
+
+  const vendorModels = vendor ? models.filter((m) => m.provider === vendor) : [];
+  const primaryModel = config.primaryLlm || "";
+  const secondaryModel = config.secondaryLlm || "";
+
+  const update = (patch: Partial<ContextLlmConfig>) => {
+    onChange({ ...config, ...patch });
+    setIsDirty(true);
+  };
+
+  return (
+    <Card className="bg-card border-border shadow-sm">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-sm font-display" data-testid={`text-llm-title-${domain}`}>
+              <IconBrain className="w-4 h-4 text-primary" />
+              {domainLabel} LLM
+              <InfoTooltip text={`Configure the AI model for ${domainLabel.toLowerCase()} research. Choose between dual-model (reasoning + workhorse) or single primary model.`} />
+            </CardTitle>
+            {draft.cachedModelsAt && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Models last refreshed {new Date(draft.cachedModelsAt).toLocaleDateString()}.
+              </p>
+            )}
+          </div>
+          <Button
+            variant="outline" size="sm" className="gap-1.5"
+            disabled={refreshModels.isPending}
+            data-testid={`button-refresh-models-${domain}`}
+            onClick={async () => {
+              try {
+                const result = await refreshModels.mutateAsync();
+                setDraft((prev) => ({ ...prev, cachedModels: result.models, cachedModelsAt: result.fetchedAt }));
+                toast({ title: `Loaded ${result.models.length} models from providers` });
+              } catch {
+                toast({ title: "Failed to refresh models", variant: "destructive" });
+              }
+            }}
+          >
+            {refreshModels.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconRefreshCw className="w-3.5 h-3.5" />}
+            Update LLM List
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div>
+          <Label className="text-xs font-medium mb-2 block">Model Architecture</Label>
+          <RadioGroup
+            value={mode || ""}
+            onValueChange={(value) => update({ llmMode: value as LlmMode })}
+            className="flex flex-col gap-2"
+            data-testid={`radio-llm-mode-${domain}`}
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="dual" id={`llm-mode-dual-${domain}`} data-testid={`radio-llm-mode-dual-${domain}`} />
+              <Label htmlFor={`llm-mode-dual-${domain}`} className="text-sm font-normal cursor-pointer">
+                Primary reasoning + Secondary workhorse
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="primary-only" id={`llm-mode-primary-${domain}`} data-testid={`radio-llm-mode-primary-${domain}`} />
+              <Label htmlFor={`llm-mode-primary-${domain}`} className="text-sm font-normal cursor-pointer">
+                Primary reasoning only
+              </Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {mode && (
+          <>
+            <div className="max-w-md">
+              <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
+              <Select
+                value={vendor || ""}
+                onValueChange={(value) => {
+                  update({ llmVendor: value as LlmVendor, primaryLlm: "", secondaryLlm: "" });
+                }}
+              >
+                <SelectTrigger className="bg-card h-9" data-testid={`select-llm-vendor-${domain}`}>
+                  <SelectValue placeholder="Select a vendor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LLM_VENDORS.map((v) => (
+                    <SelectItem key={v.value} value={v.value} data-testid={`select-vendor-${domain}-${v.value}`}>
+                      {v.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {vendor && (
+              <>
+                <div className="max-w-md">
+                  <Label className="text-xs font-medium mb-1.5 block">Primary Reasoning LLM</Label>
+                  <Select
+                    value={primaryModel}
+                    onValueChange={(value) => update({ primaryLlm: value })}
+                  >
+                    <SelectTrigger className="bg-card h-9" data-testid={`select-primary-llm-${domain}`}>
+                      <SelectValue placeholder={vendorModels.length === 0 ? "No models available for this vendor" : "Select primary model"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {primaryModel && !vendorModels.some((m) => m.id === primaryModel) && (
+                        <SelectItem value={primaryModel}>{primaryModel} (current)</SelectItem>
+                      )}
+                      {vendorModels.map((m) => (
+                        <SelectItem key={m.id} value={m.id} data-testid={`select-primary-model-${domain}-${m.id}`}>
+                          {m.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {isDual && (
+                  <div className="max-w-md">
+                    <Label className="text-xs font-medium mb-1.5 block">Secondary Workhorse LLM</Label>
+                    <Select
+                      value={secondaryModel}
+                      onValueChange={(value) => update({ secondaryLlm: value })}
+                    >
+                      <SelectTrigger className="bg-card h-9" data-testid={`select-secondary-llm-${domain}`}>
+                        <SelectValue placeholder={vendorModels.length === 0 ? "No models available for this vendor" : "Select secondary model"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {secondaryModel && !vendorModels.some((m) => m.id === secondaryModel) && (
+                          <SelectItem value={secondaryModel}>{secondaryModel} (current)</SelectItem>
+                        )}
+                        {vendorModels.map((m) => (
+                          <SelectItem key={m.id} value={m.id} data-testid={`select-secondary-model-${domain}-${m.id}`}>
+                            {m.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

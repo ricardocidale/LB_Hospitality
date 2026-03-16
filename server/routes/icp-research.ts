@@ -272,7 +272,8 @@ export function register(app: Express) {
       const icpConfig = (ga.icpConfig as Record<string, any>) || {};
       const assetDescription = ga.assetDescription || "";
       const propertyLabel = ga.propertyLabel || "Hotel";
-      const model = (ga.researchConfig as any)?.preferredLlm || ga.preferredLlm || "claude-3-5-sonnet-20241022";
+      const researchCfg = (ga.researchConfig as import("@shared/schema").ResearchConfig) ?? {};
+      const model = researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || "claude-3-5-sonnet-20241022";
 
       const promptBuilder = (req.body?.promptBuilder || icpConfig._promptBuilder || {}) as PromptBuilderConfig;
 

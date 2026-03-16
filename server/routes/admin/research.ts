@@ -38,6 +38,15 @@ const aiModelEntrySchema = z.object({
   provider: z.enum(["openai", "anthropic", "google", "xai"]),
 });
 
+const llmVendorEnum = z.enum(["openai", "anthropic", "google", "xai", "tesla", "microsoft"]);
+
+const contextLlmConfigSchema = z.object({
+  llmVendor: llmVendorEnum.optional(),
+  llmMode: z.enum(["dual", "primary-only"]).optional(),
+  primaryLlm: z.string().optional(),
+  secondaryLlm: z.string().optional(),
+}).strict();
+
 const researchConfigSchema = z.object({
   property: researchEventConfigSchema.optional(),
   company: researchEventConfigSchema.optional(),
@@ -45,12 +54,16 @@ const researchConfigSchema = z.object({
   marketing: researchEventConfigSchema.optional(),
   preferredLlm: z.string().optional(),
   llmMode: z.enum(["dual", "primary-only"]).optional(),
-  llmVendor: z.enum(["openai", "anthropic", "google", "tesla", "microsoft"]).optional(),
+  llmVendor: llmVendorEnum.optional(),
   primaryLlm: z.string().optional(),
   secondaryLlm: z.string().optional(),
   customSources: z.array(customSourceSchema).optional(),
   cachedModels: z.array(aiModelEntrySchema).optional(),
   cachedModelsAt: z.string().optional(),
+  companyLlm: contextLlmConfigSchema.optional(),
+  propertyLlm: contextLlmConfigSchema.optional(),
+  marketLlm: contextLlmConfigSchema.optional(),
+  companySources: z.array(researchSourceEntrySchema).optional(),
 }).strict();
 
 const CHAT_MODEL_PATTERNS: Record<string, RegExp[]> = {
@@ -223,6 +236,10 @@ export function registerResearchConfigRoutes(app: Express) {
         customSources: incoming.customSources ?? current.customSources,
         cachedModels: incoming.cachedModels ?? current.cachedModels,
         cachedModelsAt: incoming.cachedModelsAt ?? current.cachedModelsAt,
+        companyLlm: incoming.companyLlm ?? current.companyLlm,
+        propertyLlm: incoming.propertyLlm ?? current.propertyLlm,
+        marketLlm: incoming.marketLlm ?? current.marketLlm,
+        companySources: incoming.companySources ?? current.companySources,
       };
 
       await storage.upsertGlobalAssumptions({ researchConfig: merged } as InsertGlobalAssumptions);

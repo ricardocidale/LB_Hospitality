@@ -118,7 +118,9 @@ export function register(app: Express) {
       
       // Resolve admin-configured event config for this research type
       const researchConfig = (ga?.researchConfig as ResearchConfig) ?? {};
-      const model = researchConfig.preferredLlm || ga?.preferredLlm || "claude-3-5-sonnet-20241022";
+      const contextKey = type === "property" ? "propertyLlm" : type === "global" ? "marketLlm" : "companyLlm";
+      const contextLlm = researchConfig[contextKey as keyof ResearchConfig] as import("@shared/schema").ContextLlmConfig | undefined;
+      const model = contextLlm?.primaryLlm || researchConfig.preferredLlm || ga?.preferredLlm || "claude-3-5-sonnet-20241022";
       const anthropic = getAnthropicClient();
 
       const rawEventConfig = researchConfig[type as 'property' | 'company' | 'global'];

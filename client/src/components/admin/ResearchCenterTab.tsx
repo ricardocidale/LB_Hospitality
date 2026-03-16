@@ -4,13 +4,19 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SaveButton } from "@/components/ui/save-button";
 import { Loader2 } from "@/components/icons/themed-icons";
 import {
-  IconResearch, IconProperties, IconTarget, IconTrendingUp, IconBrain,
+  IconResearch, IconProperties, IconTarget, IconTrendingUp,
 } from "@/components/icons";
 import { useResearchConfig, useSaveResearchConfig } from "@/lib/api/admin";
-import type { ResearchConfig, LlmVendor } from "@shared/schema";
-import { FALLBACK_MODELS, mergeConfig } from "./research-center/research-shared";
+import type { ResearchConfig, ContextLlmConfig, ResearchSourceEntry } from "@shared/schema";
+import {
+  FALLBACK_MODELS, mergeConfig, normalizeResearchConfig,
+  COMPANY_DEFAULT_SOURCES, CollapsibleSection, SourceLibrary,
+} from "./research-center/research-shared";
 import { IcpResearchSection } from "./research-center/IcpResearchSection";
-import { PropertyResearchSection, MarketResearchSection, LlmSelectionCard } from "./research-center/PropertyMarketSections";
+import {
+  PropertyResearchSection, MarketResearchSection, DomainLlmCard,
+} from "./research-center/PropertyMarketSections";
+import { IconBrain, IconLink } from "@/components/icons";
 
 interface ResearchCenterTabProps {
   initialTab?: string;
@@ -28,16 +34,7 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
   useEffect(() => {
     if (savedConfig) {
       const { marketing, ...rest } = savedConfig as ResearchConfig & { marketing?: unknown };
-      const normalized = { ...rest };
-      if (!normalized.llmMode && normalized.preferredLlm) {
-        normalized.llmMode = "primary-only";
-        normalized.primaryLlm = normalized.preferredLlm;
-        const allModels = (normalized.cachedModels && normalized.cachedModels.length > 0) ? normalized.cachedModels : FALLBACK_MODELS;
-        const match = allModels.find((m) => m.id === normalized.preferredLlm);
-        if (match) {
-          normalized.llmVendor = match.provider as LlmVendor;
-        }
-      }
+      const normalized = normalizeResearchConfig({ ...rest });
       setDraft(normalized);
       setIsDirty(false);
     }
@@ -45,6 +42,27 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
 
   function updateConfig(key: "property" | "global" | "company", updated: import("@shared/schema").ResearchEventConfig) {
     setDraft((prev) => ({ ...prev, [key]: updated }));
+    setIsDirty(true);
+  }
+
+  function updateDomainLlm(domain: "company" | "property" | "market", config: ContextLlmConfig) {
+    const key = `${domain}Llm` as "companyLlm" | "propertyLlm" | "marketLlm";
+    setDraft((prev) => {
+      const next = { ...prev, [key]: config };
+      if (config.primaryLlm) {
+        next.preferredLlm = config.primaryLlm;
+        next.primaryLlm = config.primaryLlm;
+        next.llmMode = config.llmMode;
+        next.llmVendor = config.llmVendor;
+        next.secondaryLlm = config.secondaryLlm;
+      }
+      return next;
+    });
+    setIsDirty(true);
+  }
+
+  function updateCompanySources(sources: ResearchSourceEntry[]) {
+    setDraft((prev) => ({ ...prev, companySources: sources }));
     setIsDirty(true);
   }
 
@@ -94,7 +112,7 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
         </div>
         <div>
           <h2 className="text-xl font-display font-bold text-foreground" data-testid="text-research-center-title">Research Center</h2>
-          <p className="text-xs text-muted-foreground">Strategic intelligence hub — company research, property benchmarks, market analysis, and AI engine configuration</p>
+          <p className="text-xs text-muted-foreground">Strategic intelligence hub — company research, property benchmarks, market analysis, and per-domain AI engine configuration</p>
         </div>
       </div>
 
@@ -102,7 +120,7 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
         <TabsList className="justify-start w-full h-auto flex-wrap gap-1 bg-muted/50 p-1">
           <TabsTrigger value="icp" className="gap-1.5 text-xs" data-testid="tab-icp-management-co">
             <IconTarget className="w-3.5 h-3.5" />
-            ICP Management Co
+            Management Company
           </TabsTrigger>
           <TabsTrigger value="properties" className="gap-1.5 text-xs" data-testid="tab-properties">
             <IconProperties className="w-3.5 h-3.5" />
@@ -110,11 +128,7 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
           </TabsTrigger>
           <TabsTrigger value="general-market" className="gap-1.5 text-xs" data-testid="tab-general-market">
             <IconTrendingUp className="w-3.5 h-3.5" />
-            General Market
-          </TabsTrigger>
-          <TabsTrigger value="llm" className="gap-1.5 text-xs" data-testid="tab-llm">
-            <IconBrain className="w-3.5 h-3.5" />
-            LLM
+            Market & Industry
           </TabsTrigger>
         </TabsList>
 
@@ -123,6 +137,38 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
             enabled={mergeConfig(draft.company).enabled}
             onToggle={(v) => updateConfig("company", { ...mergeConfig(draft.company), enabled: v })}
           />
+
+          <CollapsibleSection
+            title="Sources"
+            icon={<IconLink className="w-4 h-4 text-primary" />}
+            description="Data sources for ICP and company-level research"
+            defaultOpen={false}
+          >
+            <SourceLibrary
+              sources={draft.companySources ?? []}
+              onChange={updateCompanySources}
+              testIdPrefix="co-src"
+              defaultSources={COMPANY_DEFAULT_SOURCES}
+            />
+          </CollapsibleSection>
+
+          <CollapsibleSection
+            title="LLM Configuration"
+            icon={<IconBrain className="w-4 h-4 text-primary" />}
+            description="AI model for company and ICP research"
+            defaultOpen={false}
+          >
+            <DomainLlmCard
+              domain="company"
+              domainLabel="Management Company"
+              config={draft.companyLlm ?? {}}
+              onChange={(c) => updateDomainLlm("company", c)}
+              draft={draft}
+              setDraft={setDraft}
+              setIsDirty={setIsDirty}
+            />
+          </CollapsibleSection>
+
           <div className="flex justify-end pb-8">
             <SaveButton
               onClick={handleSave}
@@ -138,6 +184,24 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
             config={mergeConfig(draft.property)}
             onChange={(c) => updateConfig("property", c)}
           />
+
+          <CollapsibleSection
+            title="LLM Configuration"
+            icon={<IconBrain className="w-4 h-4 text-primary" />}
+            description="AI model for property-level research"
+            defaultOpen={false}
+          >
+            <DomainLlmCard
+              domain="property"
+              domainLabel="Properties"
+              config={draft.propertyLlm ?? {}}
+              onChange={(c) => updateDomainLlm("property", c)}
+              draft={draft}
+              setDraft={setDraft}
+              setIsDirty={setIsDirty}
+            />
+          </CollapsibleSection>
+
           <div className="flex justify-end pb-8">
             <SaveButton
               onClick={handleSave}
@@ -153,46 +217,30 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
             config={mergeConfig(draft.global)}
             onChange={(c) => updateConfig("global", c)}
           />
+
+          <CollapsibleSection
+            title="LLM Configuration"
+            icon={<IconBrain className="w-4 h-4 text-primary" />}
+            description="AI model for market and industry research"
+            defaultOpen={false}
+          >
+            <DomainLlmCard
+              domain="market"
+              domainLabel="Market & Industry"
+              config={draft.marketLlm ?? {}}
+              onChange={(c) => updateDomainLlm("market", c)}
+              draft={draft}
+              setDraft={setDraft}
+              setIsDirty={setIsDirty}
+            />
+          </CollapsibleSection>
+
           <div className="flex justify-end pb-8">
             <SaveButton
               onClick={handleSave}
               isPending={saveMutation.isPending}
               hasChanges={isDirty}
               data-testid="button-save-market-config"
-            />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="llm" className="mt-4 space-y-5">
-          <LlmSelectionCard draft={draft} setDraft={setDraft} setIsDirty={setIsDirty} />
-          <p className="text-xs text-muted-foreground italic" data-testid="text-llm-note">
-            {draft.llmMode === "dual"
-              ? "Two models are configured: a primary reasoning LLM for deep analysis and report synthesis, and a secondary workhorse LLM for bulk data tasks. Both are shared across all three research processes."
-              : draft.llmMode === "primary-only"
-                ? "A single primary reasoning model is configured and shared across all three research processes (ICP Management Co, Properties, General Market)."
-                : "Select a model architecture above to configure the LLM(s) used across all three research processes."}
-          </p>
-          <div className="flex justify-end pb-8">
-            <SaveButton
-              onClick={() => {
-                if (!draft.llmMode) {
-                  toast({ title: "Please select a model architecture before saving", variant: "destructive" });
-                  return;
-                }
-                const effectivePrimary = draft.primaryLlm || draft.preferredLlm;
-                if (!draft.llmVendor || !effectivePrimary) {
-                  toast({ title: "Please select a vendor and primary model before saving", variant: "destructive" });
-                  return;
-                }
-                if (draft.llmMode === "dual" && !draft.secondaryLlm) {
-                  toast({ title: "Please select a secondary workhorse model for dual-model mode", variant: "destructive" });
-                  return;
-                }
-                handleSave();
-              }}
-              isPending={saveMutation.isPending}
-              hasChanges={isDirty}
-              data-testid="button-save-llm-config"
             />
           </div>
         </TabsContent>

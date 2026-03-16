@@ -10,7 +10,7 @@ import { X, ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import {
   IconPlus, IconLink, IconGlobe, IconExternalLink,
 } from "@/components/icons";
-import type { ResearchEventConfig, ResearchSourceEntry, AiModelEntry, LlmVendor } from "@shared/schema";
+import type { ResearchEventConfig, ResearchSourceEntry, ResearchConfig, AiModelEntry, ContextLlmConfig, LlmVendor, LlmMode } from "@shared/schema";
 
 export const DETERMINISTIC_TOOLS = [
   { name: "compute_property_metrics",    description: "RevPAR, room revenue, GOP, NOI margin" },
@@ -94,8 +94,42 @@ export const MARKET_DEFAULT_SOURCES: ResearchSourceEntry[] = [
   { id: "mkt-lodging", url: "https://lodgingeconometrics.com", label: "Lodging Econometrics", category: "Industry", addedAt: new Date().toISOString() },
 ];
 
+export const COMPANY_DEFAULT_SOURCES: ResearchSourceEntry[] = [
+  { id: "co-str", url: "https://str.com", label: "STR (CoStar)", category: "Hospitality", addedAt: new Date().toISOString() },
+  { id: "co-cbre", url: "https://www.cbre.com/industries/hotels", label: "CBRE Hotels", category: "Hospitality", addedAt: new Date().toISOString() },
+  { id: "co-hvs", url: "https://hvs.com", label: "HVS", category: "Hospitality", addedAt: new Date().toISOString() },
+  { id: "co-pkf", url: "https://www.pkfhotels.com", label: "PKF Hospitality", category: "Hospitality", addedAt: new Date().toISOString() },
+];
+
 export function mergeConfig(saved: Partial<ResearchEventConfig> | undefined): ResearchEventConfig {
   return { ...DEFAULT_EVENT_CONFIG, ...saved };
+}
+
+export function normalizeResearchConfig(cfg: ResearchConfig): ResearchConfig {
+  const out = { ...cfg };
+  const globalCtx: ContextLlmConfig = {
+    llmVendor: cfg.llmVendor,
+    llmMode: cfg.llmMode,
+    primaryLlm: cfg.primaryLlm || cfg.preferredLlm,
+    secondaryLlm: cfg.secondaryLlm,
+  };
+  if (!out.companyLlm?.primaryLlm && globalCtx.primaryLlm) {
+    out.companyLlm = { ...globalCtx, ...out.companyLlm };
+  }
+  if (!out.propertyLlm?.primaryLlm && globalCtx.primaryLlm) {
+    out.propertyLlm = { ...globalCtx, ...out.propertyLlm };
+  }
+  if (!out.marketLlm?.primaryLlm && globalCtx.primaryLlm) {
+    out.marketLlm = { ...globalCtx, ...out.marketLlm };
+  }
+  if (!out.llmMode && out.preferredLlm) {
+    out.llmMode = "primary-only";
+    out.primaryLlm = out.preferredLlm;
+    const allModels = (out.cachedModels && out.cachedModels.length > 0) ? out.cachedModels : FALLBACK_MODELS;
+    const match = allModels.find((m) => m.id === out.preferredLlm);
+    if (match) out.llmVendor = match.provider as LlmVendor;
+  }
+  return out;
 }
 
 export function isValidUrl(str: string): boolean {

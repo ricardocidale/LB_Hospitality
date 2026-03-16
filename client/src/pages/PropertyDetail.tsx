@@ -631,7 +631,8 @@ export default function PropertyDetail() {
       { category: "Marketing", values: yearlyDetails.map(y => y.expenseMarketing), indent: 1 },
       { category: "Property Ops", values: yearlyDetails.map(y => y.expensePropertyOps), indent: 1 },
       { category: "Admin & General", values: yearlyDetails.map(y => y.expenseAdmin), indent: 1 },
-      { category: "Adjusted NOI (ANOI)", values: yearlyDetails.map(y => y.noi), isBold: true },
+      { category: "Insurance", values: yearlyDetails.map(y => y.expenseInsurance), indent: 1 },
+      { category: "Adjusted NOI (ANOI)", values: yearlyDetails.map(y => y.anoi), isBold: true },
     ];
 
     const cfRows = [

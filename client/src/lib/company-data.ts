@@ -113,6 +113,11 @@ export function generateCompanyIncomeData(
       return yearData.reduce((a, m) => a + m.techInfrastructure, 0);
     }), indent: 1 });
     
+    rows.push({ category: "Business Insurance", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return yearData.reduce((a, m) => a + m.businessInsurance, 0);
+    }), indent: 1 });
+    
     rows.push({ category: "Travel", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return yearData.reduce((a, m) => a + m.travelCosts, 0);
@@ -252,7 +257,7 @@ export function generateCompanyCashFlowData(
 
     rows.push({ category: "Fixed Overhead", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
-      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure, 0);
+      return -yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
     }), indent: 2 });
 
     rows.push({ category: "Office Lease", values: years.map((_, y) => {
@@ -263,6 +268,16 @@ export function generateCompanyCashFlowData(
     rows.push({ category: "Professional Services", values: years.map((_, y) => {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       return -yearData.reduce((a, m) => a + m.professionalServices, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Tech Infrastructure", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.techInfrastructure, 0);
+    }), indent: 3 });
+
+    rows.push({ category: "Business Insurance", values: years.map((_, y) => {
+      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      return -yearData.reduce((a, m) => a + m.businessInsurance, 0);
     }), indent: 3 });
 
     rows.push({ category: "Variable Costs", values: years.map((_, y) => {

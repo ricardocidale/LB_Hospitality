@@ -200,6 +200,7 @@ export async function exportCompanyIncomeStatement(
     officeLease: number;
     profServices: number;
     techInfra: number;
+    businessInsurance: number;
     travel: number;
     itLicensing: number;
     marketing: number;
@@ -242,6 +243,7 @@ export async function exportCompanyIncomeStatement(
       officeLease: yearSlice.reduce((a, m) => a + m.officeLease, 0),
       profServices: yearSlice.reduce((a, m) => a + m.professionalServices, 0),
       techInfra: yearSlice.reduce((a, m) => a + m.techInfrastructure, 0),
+      businessInsurance: yearSlice.reduce((a, m) => a + m.businessInsurance, 0),
       travel: yearSlice.reduce((a, m) => a + m.travelCosts, 0),
       itLicensing: yearSlice.reduce((a, m) => a + m.itLicensing, 0),
       marketing: yearSlice.reduce((a, m) => a + m.marketing, 0),
@@ -294,6 +296,7 @@ export async function exportCompanyIncomeStatement(
     ["  Office Lease", ...yearlyData.map((y) => y.officeLease)],
     ["  Professional Services", ...yearlyData.map((y) => y.profServices)],
     ["  Technology Infrastructure", ...yearlyData.map((y) => y.techInfra)],
+    ["  Business Insurance", ...yearlyData.map((y) => y.businessInsurance)],
     ["  Travel Costs", ...yearlyData.map((y) => y.travel)],
     ["  IT Licensing", ...yearlyData.map((y) => y.itLicensing)],
     ["  Marketing", ...yearlyData.map((y) => y.marketing)],
@@ -354,6 +357,7 @@ export async function exportCompanyCashFlow(
     officeLease: number;
     profServices: number;
     techInfra: number;
+    businessInsurance: number;
     travel: number;
     itLicensing: number;
     marketing: number;
@@ -380,6 +384,7 @@ export async function exportCompanyCashFlow(
       officeLease: yearSlice.reduce((a, m) => a + m.officeLease, 0),
       profServices: yearSlice.reduce((a, m) => a + m.professionalServices, 0),
       techInfra: yearSlice.reduce((a, m) => a + m.techInfrastructure, 0),
+      businessInsurance: yearSlice.reduce((a, m) => a + m.businessInsurance, 0),
       travel: yearSlice.reduce((a, m) => a + m.travelCosts, 0),
       itLicensing: yearSlice.reduce((a, m) => a + m.itLicensing, 0),
       marketing: yearSlice.reduce((a, m) => a + m.marketing, 0),
@@ -421,10 +426,11 @@ export async function exportCompanyCashFlow(
     ["    Compensation", ...yearlyData.map((y) => -(y.partnerComp + y.staffComp))],
     ["      Partner Compensation", ...yearlyData.map((y) => -y.partnerComp)],
     ["      Staff Compensation", ...yearlyData.map((y) => -y.staffComp)],
-    ["    Fixed Overhead", ...yearlyData.map((y) => -(y.officeLease + y.profServices + y.techInfra))],
+    ["    Fixed Overhead", ...yearlyData.map((y) => -(y.officeLease + y.profServices + y.techInfra + y.businessInsurance))],
     ["      Office Lease", ...yearlyData.map((y) => -y.officeLease)],
     ["      Professional Services", ...yearlyData.map((y) => -y.profServices)],
     ["      Technology Infrastructure", ...yearlyData.map((y) => -y.techInfra)],
+    ["      Business Insurance", ...yearlyData.map((y) => -y.businessInsurance)],
     ["    Variable Costs", ...yearlyData.map((y) => -(y.travel + y.itLicensing + y.marketing + y.miscOps))],
     ["      Travel Costs", ...yearlyData.map((y) => -y.travel)],
     ["      IT Licensing", ...yearlyData.map((y) => -y.itLicensing)],

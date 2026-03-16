@@ -267,7 +267,7 @@ async function exportCompanyFullWorkbook(
   cfRows.push(
     ["  Cash Paid for Operating Expenses", ...yearlyData.map(y => -y.totalExpenses)],
     ["    Compensation", ...yearlyData.map(y => -(y.partnerComp + y.staffComp))],
-    ["    Fixed Overhead", ...yearlyData.map(y => -(y.officeLease + y.profServices + y.techInfra))],
+    ["    Fixed Overhead", ...yearlyData.map(y => -(y.officeLease + y.profServices + y.techInfra + y.businessInsurance))],
     ["    Variable Costs", ...yearlyData.map(y => -(y.travel + y.itLicensing + y.marketing + y.miscOps))],
   );
   const cfHasInterest = yearlyData.some((y: any) => y.fundingInterestExpense > 0);

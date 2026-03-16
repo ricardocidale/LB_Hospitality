@@ -292,7 +292,7 @@ export default function CompanyCashFlowTab({
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
                     const yearData = financials.slice(y * 12, (y + 1) * 12);
-                    const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure, 0);
+                    const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
                     return <TableCell key={y} className="text-right text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
                   })}
                 </TableRow>
@@ -319,6 +319,14 @@ export default function CompanyCashFlowTab({
                       {Array.from({ length: projectionYears }, (_, y) => {
                         const yearData = financials.slice(y * 12, (y + 1) * 12);
                         const total = yearData.reduce((a, m) => a + m.techInfrastructure, 0);
+                        return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
+                      })}
+                    </TableRow>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Business Insurance</TableCell>
+                      {Array.from({ length: projectionYears }, (_, y) => {
+                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const total = yearData.reduce((a, m) => a + m.businessInsurance, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
                       })}
                     </TableRow>

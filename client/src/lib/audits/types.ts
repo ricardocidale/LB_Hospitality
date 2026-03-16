@@ -79,11 +79,14 @@ export interface PropertyAuditInput {
   revShareOther: number;
   baseManagementFeeRate?: number;
   incentiveManagementFeeRate?: number;
+  depreciationYears?: number;
 }
 
 export interface GlobalAuditInput {
   modelStartDate: string;
   inflationRate: number;
+  depreciationYears?: number;
+  daysPerMonth?: number;
   debtAssumptions: {
     interestRate: number;
     amortizationYears: number;

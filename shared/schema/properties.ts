@@ -162,6 +162,8 @@ export const properties = pgTable("properties", {
   costSeg7yrPct: real("cost_seg_7yr_pct").default(DEFAULT_COST_SEG_7YR_PCT),
   costSeg15yrPct: real("cost_seg_15yr_pct").default(DEFAULT_COST_SEG_15YR_PCT),
 
+  depreciationYears: real("depreciation_years"),
+
   description: text("description"),
 
   latitude: real("latitude"),
@@ -251,6 +253,7 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   costSeg5yrPct: true,
   costSeg7yrPct: true,
   costSeg15yrPct: true,
+  depreciationYears: true,
   description: true,
   latitude: true,
   longitude: true,

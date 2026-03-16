@@ -97,6 +97,8 @@ export interface PropertyInput {
   costSeg5yrPct?: number | null;
   costSeg7yrPct?: number | null;
   costSeg15yrPct?: number | null;
+  // Per-property depreciation override (nullable — NULL means use global/constant fallback)
+  depreciationYears?: number | null;
   // Property identity
   id?: number;
   name?: string;
@@ -162,6 +164,9 @@ export interface GlobalInput {
   // Exit & Sale
   exitCapRate?: number;
   salesCommissionRate?: number;
+  // Governed model constants (DB-backed with constant fallbacks)
+  depreciationYears?: number;
+  daysPerMonth?: number;
   debtAssumptions: {
     interestRate: number;
     amortizationYears: number;

@@ -241,6 +241,12 @@ Three-tier cascade: `property.inflationRate → companyInflationRate → global.
 
 ---
 
+## Governed Model Constants (DB-Backed)
+
+`DEPRECIATION_YEARS` (27.5) and `DAYS_PER_MONTH` (30.5) are now DB-backed with constant fallbacks. Cascade: `property.depreciationYears → global.depreciationYears → DEPRECIATION_YEARS constant (27.5)`. `daysPerMonth` is global-only: `global.daysPerMonth → DAYS_PER_MONTH constant (30.5)`. Editable in Company Assumptions under "Model Constants" with governed field wrappers. All engine files (`resolve-assumptions.ts`, `property-engine.ts`), server checker files, and client audit files use the cascade.
+
+---
+
 ## Property Description & Photos
 
 Properties have optional `description` (AI-polished via Gemini) and photo album (`property_photos` table: hero + gallery). Sharp pipeline generates WebP/AVIF variants (thumb/card/hero/full). Frontend uses `<picture>` with srcset.

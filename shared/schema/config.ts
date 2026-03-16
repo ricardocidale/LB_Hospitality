@@ -297,6 +297,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
 
   autoResearchRefreshEnabled: boolean("auto_research_refresh_enabled").notNull().default(false),
 
+  depreciationYears: real("depreciation_years").notNull().default(27.5),
+  daysPerMonth: real("days_per_month").notNull().default(30.5),
+
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
@@ -479,6 +482,8 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   showPropertyCalculationDetails: true,
   sidebarResearch: true,
   lastFullResearchRefresh: true,
+  depreciationYears: true,
+  daysPerMonth: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

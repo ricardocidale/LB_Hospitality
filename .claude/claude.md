@@ -186,6 +186,12 @@ All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired
 
 ---
 
+## Governed Model Constants (DB-Backed)
+
+`DEPRECIATION_YEARS` (27.5) and `DAYS_PER_MONTH` (30.5) are now DB-backed with constant fallbacks. Cascade: `property.depreciationYears → global.depreciationYears → DEPRECIATION_YEARS constant (27.5)`. `daysPerMonth` is global-only: `global.daysPerMonth → DAYS_PER_MONTH constant (30.5)`. Editable in Company Assumptions under "Model Constants" with governed field wrappers. All engine files (`resolve-assumptions.ts`, `property-engine.ts`), server checker files, and client audit files use the cascade.
+
+---
+
 ## Quick Commands
 
 ```bash

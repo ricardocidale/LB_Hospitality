@@ -86,8 +86,8 @@ export function runIndependentVerification(
         "Room Revenue (First Operational Month)",
         "Revenue",
         "ASC 606",
-        `${property.roomCount} rooms × $${Math.round(adrAtFirstOp)} ADR × ${(occAtFirstOp * 100).toFixed(0)}% occ × ${DAYS_PER_MONTH} days`,
-        property.roomCount * adrAtFirstOp * occAtFirstOp * DAYS_PER_MONTH,
+        `${property.roomCount} rooms × $${Math.round(adrAtFirstOp)} ADR × ${(occAtFirstOp * 100).toFixed(0)}% occ × ${(globalAssumptions as any).daysPerMonth ?? DAYS_PER_MONTH} days`,
+        property.roomCount * adrAtFirstOp * occAtFirstOp * ((globalAssumptions as any).daysPerMonth ?? DAYS_PER_MONTH),
         m.revenueRooms,
         "critical"
       ));
@@ -199,8 +199,8 @@ export function runIndependentVerification(
       "Annual Depreciation (Land Excluded)",
       "Balance Sheet",
       "ASC 360 / IRS Pub 946",
-      `$${depBasis.toLocaleString()} depreciable basis ÷ ${DEPRECIATION_YEARS} years`,
-      depBasis / DEPRECIATION_YEARS,
+      `$${depBasis.toLocaleString()} depreciable basis ÷ ${(property as any).depreciationYears ?? (globalAssumptions as any).depreciationYears ?? DEPRECIATION_YEARS} years`,
+      depBasis / ((property as any).depreciationYears ?? (globalAssumptions as any).depreciationYears ?? DEPRECIATION_YEARS),
       (independentCalc.find((m) => m.depreciationExpense > 0)?.depreciationExpense ?? 0) * 12,
       "critical"
     ));
@@ -426,7 +426,7 @@ export function runIndependentVerification(
 
     if ((property as any).costSegEnabled) {
       const costSegDepMonth1 = independentCalc.find(m => m.depreciationExpense > 0);
-      const standardMonthlyDep = depBasis / DEPRECIATION_YEARS / 12;
+      const standardMonthlyDep = depBasis / ((property as any).depreciationYears ?? (globalAssumptions as any).depreciationYears ?? DEPRECIATION_YEARS) / 12;
       if (costSegDepMonth1) {
         checks.push(check(
           "Cost Segregation Depreciation > Standard SL",

@@ -70,6 +70,7 @@ export interface PropertyEngineContext {
   totalPropertyValue: number;
   totalPropertyValueDiv12: number;
 
+  depreciationYears: number;
   costSegEnabled: boolean;
   monthlyDepreciation: number;
   costSeg5yrMonthly: number;
@@ -154,8 +155,11 @@ export function resolvePropertyAssumptions(
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
 
+  const depreciationYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
+  const daysPerMonth = global.daysPerMonth ?? DAYS_PER_MONTH;
+
   const costSegEnabled = property.costSegEnabled ?? false;
-  let monthlyDepreciation = safeNum(buildingValue / DEPRECIATION_YEARS / 12);
+  let monthlyDepreciation = safeNum(buildingValue / depreciationYears / 12);
   let costSeg5yrMonthly = 0;
   let costSeg7yrMonthly = 0;
   let costSeg15yrMonthly = 0;
@@ -176,7 +180,7 @@ export function resolvePropertyAssumptions(
     costSeg5yrMonthly = safeNum(costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / 12);
     costSeg7yrMonthly = safeNum(costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / 12);
     costSeg15yrMonthly = safeNum(costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / 12);
-    costSegRestMonthly = safeNum(costSegRestBasis / DEPRECIATION_YEARS / 12);
+    costSegRestMonthly = safeNum(costSegRestBasis / depreciationYears / 12);
   }
 
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
@@ -198,7 +202,7 @@ export function resolvePropertyAssumptions(
   const escalationMethod = property.escalationMethod ?? DEFAULT_ESCALATION_METHOD;
 
   const baseAdr = property.startAdr;
-  const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * baseAdr * property.startOccupancy;
+  const baseMonthlyRoomRev = property.roomCount * daysPerMonth * baseAdr * property.startOccupancy;
   const revShareEvents = property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS;
   const revShareFB = property.revShareFB ?? DEFAULT_REV_SHARE_FB;
   const revShareOther = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
@@ -248,7 +252,7 @@ export function resolvePropertyAssumptions(
   const activeFeeCategories = property.feeCategories?.filter(c => c.isActive);
   const hasActiveFeeCategories = activeFeeCategories != null && activeFeeCategories.length > 0;
   const rampMonths = Math.max(1, property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS);
-  const availableRooms = property.roomCount * DAYS_PER_MONTH;
+  const availableRooms = property.roomCount * daysPerMonth;
   const totalPropertyValueDiv12 = totalPropertyValue / 12;
   const isFinanced = property.type === "Financed";
   const loanN = loanTerm * 12;
@@ -275,6 +279,7 @@ export function resolvePropertyAssumptions(
     buildingValue,
     totalPropertyValue,
     totalPropertyValueDiv12,
+    depreciationYears,
     costSegEnabled,
     monthlyDepreciation,
     costSeg5yrMonthly,

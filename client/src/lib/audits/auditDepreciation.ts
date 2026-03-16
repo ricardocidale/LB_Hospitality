@@ -15,9 +15,10 @@ export function auditDepreciation(
   const findings: AuditFinding[] = [];
   
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
+  const effectiveDepYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
   const depreciableBasis = property.purchasePrice * (1 - landPct) + property.buildingImprovements;
-  const expectedMonthlyDep = depreciableBasis / DEPRECIATION_YEARS / 12;
-  const expectedAnnualDep = depreciableBasis / DEPRECIATION_YEARS;
+  const expectedMonthlyDep = depreciableBasis / effectiveDepYears / 12;
+  const expectedAnnualDep = depreciableBasis / effectiveDepYears;
 
   const modelStart = startOfMonth(parseLocalDate(global.modelStartDate));
   const acquisitionDate = startOfMonth(parseLocalDate(property.acquisitionDate || property.operationsStartDate));
@@ -88,7 +89,7 @@ export function auditDepreciation(
           expected: expectedMonthlyDep.toFixed(2),
           actual: actualDep.toFixed(2),
           variance: formatVariance(expectedMonthlyDep, actualDep),
-          recommendation: `Month ${i + 1}: Expected $${depreciableBasis.toLocaleString()} / ${DEPRECIATION_YEARS} / 12 = $${expectedMonthlyDep.toFixed(2)}`,
+          recommendation: `Month ${i + 1}: Expected $${depreciableBasis.toLocaleString()} / ${effectiveDepYears} / 12 = $${expectedMonthlyDep.toFixed(2)}`,
           workpaperRef: `WP-DEP-AMT-M${i + 1}`
         });
       }

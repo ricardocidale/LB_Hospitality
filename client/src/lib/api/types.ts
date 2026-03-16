@@ -141,6 +141,9 @@ export interface GlobalResponse {
   icpConfig: Record<string, any> | null;
   // Research Automation
   autoResearchRefreshEnabled: boolean;
+  // Governed model constants (DB-backed)
+  depreciationYears: number;
+  daysPerMonth: number;
   updatedAt: string;
 }
 

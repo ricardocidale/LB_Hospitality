@@ -103,7 +103,9 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const depreciableBasis = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
   const landValue = property.purchasePrice * landPct;
-  const monthlyDepreciation = depreciableBasis / DEPRECIATION_YEARS / 12;
+  const effectiveDepYears = (property as any).depreciationYears ?? (global as any).depreciationYears ?? DEPRECIATION_YEARS;
+  const effectiveDaysPerMonth = (global as any).daysPerMonth ?? DAYS_PER_MONTH;
+  const monthlyDepreciation = depreciableBasis / effectiveDepYears / 12;
 
   const costSegEnabled = (property as any).costSegEnabled ?? false;
   let costSeg5yrMonthly = 0, costSeg7yrMonthly = 0, costSeg15yrMonthly = 0, costSegRestMonthly = 0;
@@ -120,7 +122,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     costSeg5yrMonthly = costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / 12;
     costSeg7yrMonthly = costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / 12;
     costSeg15yrMonthly = costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / 12;
-    costSegRestMonthly = costSegRestBasis / DEPRECIATION_YEARS / 12;
+    costSegRestMonthly = costSegRestBasis / effectiveDepYears / 12;
   }
 
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
@@ -151,7 +153,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const revShareOther_base = property.revShareOther ?? DEFAULT_REV_SHARE_OTHER;
   const cateringBoostPct_base = property.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT;
   const cateringBoostMult_base = 1 + cateringBoostPct_base;
-  const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.startOccupancy;
+  const baseMonthlyRoomRev = property.roomCount * effectiveDaysPerMonth * property.startAdr * property.startOccupancy;
   const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyRoomRev * revShareEvents_base
     + baseMonthlyRoomRev * revShareFB_base * cateringBoostMult_base + baseMonthlyRoomRev * revShareOther_base;
 
@@ -188,7 +190,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       );
     }
 
-    const availableRooms = property.roomCount * DAYS_PER_MONTH;
+    const availableRooms = property.roomCount * effectiveDaysPerMonth;
     const soldRooms = isOperational ? availableRooms * occupancy : 0;
     const revenueRooms = soldRooms * currentAdr;
 
@@ -288,7 +290,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       const dep5 = monthsSinceAcquisition < COST_SEG_5YR_LIFE_MONTHS ? costSeg5yrMonthly : 0;
       const dep7 = monthsSinceAcquisition < COST_SEG_7YR_LIFE_MONTHS ? costSeg7yrMonthly : 0;
       const dep15 = monthsSinceAcquisition < COST_SEG_15YR_LIFE_MONTHS ? costSeg15yrMonthly : 0;
-      const depRest = monthsSinceAcquisition < DEPRECIATION_YEARS * 12 ? costSegRestMonthly : 0;
+      const depRest = monthsSinceAcquisition < effectiveDepYears * 12 ? costSegRestMonthly : 0;
       depreciationExpense = dep5 + dep7 + dep15 + depRest;
       const accDep5 = Math.min(costSeg5yrMonthly * (monthsSinceAcquisition + 1), costSeg5yrBasis);
       const accDep7 = Math.min(costSeg7yrMonthly * (monthsSinceAcquisition + 1), costSeg7yrBasis);

@@ -44,9 +44,11 @@ interface PropertyForValidation {
   incentiveManagementFeeRate?: number | null;
   feeCategories?: { name: string; rate: number; isActive: boolean }[] | null;
   costRateFFE?: number | null;
+  depreciationYears?: number | null;
 }
 
 interface GlobalForValidation {
+  depreciationYears?: number;
 }
 
 const TOLERANCE = 0.001;
@@ -331,7 +333,8 @@ export function crossValidateFinancingCalculators(
     const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
     const landValue = property.purchasePrice * landPct;
     const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
-    const monthlyDep = buildingValue / DEPRECIATION_YEARS / 12;
+    const effectiveDepYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
+    const monthlyDep = buildingValue / effectiveDepYears / 12;
 
     for (let i = 0; i < operatingMonths.length; i++) {
       const m = operatingMonths[i];
@@ -370,7 +373,8 @@ export function crossValidateFinancingCalculators(
   if (depMonths.length > 0) {
     const depLandPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
     const buildingBasis = property.purchasePrice * (1 - depLandPct) + (property.buildingImprovements ?? 0);
-    const expectedMonthlyDep = buildingBasis / DEPRECIATION_YEARS / 12;
+    const effectiveDepYears2 = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
+    const expectedMonthlyDep = buildingBasis / effectiveDepYears2 / 12;
     let depErrors = 0;
     for (const m of depMonths) {
       if (!withinTolerance(m.depreciationExpense, expectedMonthlyDep, 1.0)) {
@@ -379,12 +383,12 @@ export function crossValidateFinancingCalculators(
     }
     results.push({
       name: 'IRS Pub 946: Monthly Depreciation',
-      description: `Monthly depreciation = depreciable basis / ${DEPRECIATION_YEARS} / 12`,
+      description: `Monthly depreciation = depreciable basis / ${effectiveDepYears2} / 12`,
       passed: depErrors === 0,
       severity: 'material',
       expected: expectedMonthlyDep.toFixed(2),
       actual: depMonths[0].depreciationExpense.toFixed(2),
-      source: `IRS Publication 946: ${DEPRECIATION_YEARS}-year straight-line, residential rental`,
+      source: `IRS Publication 946: ${effectiveDepYears2}-year straight-line, residential rental`,
     });
   }
 

@@ -56,7 +56,9 @@ import {
   SummaryFooter,
 } from "@/components/company-assumptions";
 import { GovernedFieldWrapper } from "@/components/ui/governed-field";
-import { GOVERNED_FIELDS } from "@shared/constants";
+import { GOVERNED_FIELDS, DEPRECIATION_YEARS, DAYS_PER_MONTH } from "@shared/constants";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function CompanyAssumptions() {
   const [, setLocation] = useLocation();
@@ -333,26 +335,55 @@ export default function CompanyAssumptions() {
             <div className="space-y-4">
               <h3 className="text-lg font-display text-foreground flex items-center gap-2">
                 Model Constants
-                <span className="text-xs font-normal text-muted-foreground">(read-only)</span>
               </h3>
               <p className="text-sm text-muted-foreground">
-                These values are governed by external authorities and apply uniformly across all properties.
+                These values are governed by external authorities and apply uniformly across all properties. Change with caution.
               </p>
               <div className="grid gap-4 lg:grid-cols-2">
                 <GovernedFieldWrapper
                   authority={GOVERNED_FIELDS.depreciationYears.authority}
-                  label={`${GOVERNED_FIELDS.depreciationYears.fieldName}: ${GOVERNED_FIELDS.depreciationYears.value}`}
+                  label={GOVERNED_FIELDS.depreciationYears.fieldName}
                   helperText={GOVERNED_FIELDS.depreciationYears.helperText}
                   referenceUrl={GOVERNED_FIELDS.depreciationYears.referenceUrl}
                   data-testid="governed-field-depreciationYears"
-                />
+                >
+                  <div className="space-y-1">
+                    <Label htmlFor="depreciationYears" className="text-xs text-amber-700 dark:text-amber-400">Years</Label>
+                    <Input
+                      id="depreciationYears"
+                      type="number"
+                      step="0.5"
+                      min="1"
+                      max="50"
+                      value={formData.depreciationYears ?? DEPRECIATION_YEARS}
+                      onChange={(e) => handleUpdate("depreciationYears", parseFloat(e.target.value) || DEPRECIATION_YEARS)}
+                      className="h-8 text-sm bg-white dark:bg-background border-amber-300 dark:border-amber-700"
+                      data-testid="input-depreciationYears"
+                    />
+                  </div>
+                </GovernedFieldWrapper>
                 <GovernedFieldWrapper
                   authority={GOVERNED_FIELDS.daysPerMonth.authority}
-                  label={`${GOVERNED_FIELDS.daysPerMonth.fieldName}: ${GOVERNED_FIELDS.daysPerMonth.value}`}
+                  label={GOVERNED_FIELDS.daysPerMonth.fieldName}
                   helperText={GOVERNED_FIELDS.daysPerMonth.helperText}
                   referenceUrl={GOVERNED_FIELDS.daysPerMonth.referenceUrl}
                   data-testid="governed-field-daysPerMonth"
-                />
+                >
+                  <div className="space-y-1">
+                    <Label htmlFor="daysPerMonth" className="text-xs text-amber-700 dark:text-amber-400">Days</Label>
+                    <Input
+                      id="daysPerMonth"
+                      type="number"
+                      step="0.5"
+                      min="28"
+                      max="31"
+                      value={formData.daysPerMonth ?? DAYS_PER_MONTH}
+                      onChange={(e) => handleUpdate("daysPerMonth", parseFloat(e.target.value) || DAYS_PER_MONTH)}
+                      className="h-8 text-sm bg-white dark:bg-background border-amber-300 dark:border-amber-700"
+                      data-testid="input-daysPerMonth"
+                    />
+                  </div>
+                </GovernedFieldWrapper>
               </div>
             </div>
           </div>

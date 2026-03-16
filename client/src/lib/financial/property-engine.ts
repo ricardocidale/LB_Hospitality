@@ -20,11 +20,10 @@
  * onward and re-seeds the operating reserve at acqMonthIdx so the reserve
  * is never lost.
  *
- * Key constants (immutable): DEPRECIATION_YEARS=27.5 (IRS Pub 946),
+ * Key constants (DB-backed with fallbacks): DEPRECIATION_YEARS=27.5 (IRS Pub 946),
  * DAYS_PER_MONTH=30.5 (industry standard 365/12).
  */
 import {
-  DEPRECIATION_YEARS,
   PROJECTION_MONTHS,
 } from '../constants';
 import {
@@ -186,7 +185,7 @@ export function generatePropertyProForma(
       const dep5 = monthsSinceAcquisition < COST_SEG_5YR_LIFE_MONTHS ? ctx.costSeg5yrMonthly : 0;
       const dep7 = monthsSinceAcquisition < COST_SEG_7YR_LIFE_MONTHS ? ctx.costSeg7yrMonthly : 0;
       const dep15 = monthsSinceAcquisition < COST_SEG_15YR_LIFE_MONTHS ? ctx.costSeg15yrMonthly : 0;
-      const depRest = monthsSinceAcquisition < DEPRECIATION_YEARS * 12 ? ctx.costSegRestMonthly : 0;
+      const depRest = monthsSinceAcquisition < ctx.depreciationYears * 12 ? ctx.costSegRestMonthly : 0;
       depreciationExpense = dep5 + dep7 + dep15 + depRest;
       const accDep5 = Math.min(ctx.costSeg5yrMonthly * (monthsSinceAcquisition + 1), ctx.costSeg5yrBasis);
       const accDep7 = Math.min(ctx.costSeg7yrMonthly * (monthsSinceAcquisition + 1), ctx.costSeg7yrBasis);

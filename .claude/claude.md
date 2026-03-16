@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 824 source files, ~145K lines, 3,151 tests across 144 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 825 source files, ~145K lines, 3,151 tests across 144 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 
@@ -117,7 +117,8 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Recent Changes (March 16, 2026)
 
-- **Settings Elimination & Access Control** (Task #168) — Eliminated General Settings page. Migrated calc transparency + tour toggles to Admin Navigation tab, auto-research to Research Center tab. Company Assumptions restricted to admin-only. Non-admins get read-only Model Inputs panel on Company page. `/settings` redirects role-appropriately. Deleted 5 settings components (−684 lines). Stats: 824 source files, ~145K lines.
+- **Multi-Vendor Research LLMs** — Removed Anthropic-only constraint from research engine. Created vendor-agnostic `ResearchClient` abstraction (`server/ai/research-client.ts`) with adapters for Anthropic, OpenAI, and Gemini. Two-model waterfall works across all three vendors. Admin Research Center vendor selector now offers all three options. Stats: 825 source files, ~145K lines.
+- **Settings Elimination & Access Control** (Task #168) — Eliminated General Settings page. Migrated calc transparency + tour toggles to Admin Navigation tab, auto-research to Research Center tab. Company Assumptions restricted to admin-only. Non-admins get read-only Model Inputs panel on Company page. `/settings` redirects role-appropriately. Deleted 5 settings components (−684 lines).
 - **Governance Harmonization** (Task #153) — Created 7 new `.claude/skills/` files. All 13 `.agents/skills/` files converted to slim pointers.
 - **Settings Architecture Governance** (Task #148) — Superseded by Task #168. Original 3-surface model replaced with 2-surface model (Company Assumptions + Admin).
 - **Property Creation Defaults from Global Assumptions** (Task #147) — `buildPropertyDefaultsFromGlobal()` reads `global_assumptions` for property defaults; hardcoded constants are last-resort fallbacks only.

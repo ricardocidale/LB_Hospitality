@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync, existsSync } from "fs";
 import { join } from "path";
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 
 export const RESEARCH_SKILLS_DIR = join(process.cwd(), ".claude", "skills", "research");
 

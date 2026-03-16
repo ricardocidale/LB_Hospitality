@@ -79,6 +79,8 @@ export const LLM_VENDORS: { value: LlmVendor; label: string }[] = [
 
 export const RESEARCH_LLM_VENDORS: { value: LlmVendor; label: string }[] = [
   { value: "anthropic", label: "Anthropic" },
+  { value: "openai", label: "OpenAI" },
+  { value: "google", label: "Google (Gemini)" },
 ];
 
 export const PROPERTY_DEFAULT_SOURCES: ResearchSourceEntry[] = [

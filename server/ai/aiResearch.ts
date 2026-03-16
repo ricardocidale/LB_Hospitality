@@ -1,16 +1,16 @@
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import { loadSkill, loadToolDefinitions, validateSkillFolders } from "./research-resources.js";
 import { buildUserPrompt } from "./research-prompt-builders.js";
 import { handleToolCall } from "./research-tool-prompts.js";
+import type { ResearchClient } from "./research-client.js";
 
 export type { ResearchParams } from "./research-prompt-builders.js";
 
 validateSkillFolders();
 
-// Main streaming research generation with tool use
 export async function* generateResearchWithToolsStream(
   params: Parameters<typeof buildUserPrompt>[0],
-  anthropic: Anthropic,
+  client: ResearchClient,
   model: string,
   secondaryModel?: string
 ): AsyncGenerator<{ type: "content" | "done" | "error"; data: string }> {
@@ -23,7 +23,7 @@ export async function* generateResearchWithToolsStream(
   const tools = filteredTools.length > 0 ? filteredTools : allTools;
   const userPrompt = buildUserPrompt(params);
 
-  let messages: Anthropic.MessageParam[] = [
+  let messages: unknown[] = [
     { role: "user", content: userPrompt }
   ];
 
@@ -34,65 +34,47 @@ export async function* generateResearchWithToolsStream(
     iteration++;
     const activeModel = iteration === 1 ? model : (secondaryModel || model);
 
-    const response = await anthropic.messages.create({
+    const response = await client.createMessage({
       model: activeModel,
-      max_tokens: 8192,
+      maxTokens: 8192,
       system: systemPrompt,
       messages,
       tools: params.type === "property" ? tools : undefined,
-      tool_choice: params.type === "property" ? { type: "auto" } : undefined,
+      toolChoice: params.type === "property" ? "auto" : undefined,
     });
 
-    // Check if there are tool use blocks
-    const toolUseBlocks = response.content.filter(
-      (block): block is Anthropic.ContentBlock & { type: "tool_use" } =>
-        block.type === "tool_use"
-    );
-
-    const textBlocks = response.content.filter(
-      (block): block is Anthropic.ContentBlock & { type: "text" } =>
-        block.type === "text"
-    );
-
-    // Stream any text content
-    for (const block of textBlocks) {
-      if (block.text) {
-        yield { type: "content", data: block.text };
-      }
+    for (const text of response.textBlocks) {
+      yield { type: "content", data: text };
     }
 
-    // If no tool calls, we're done
-    if (toolUseBlocks.length === 0 || response.stop_reason === "end_turn") {
+    if (response.toolCalls.length === 0 || response.stopReason === "end_turn") {
       break;
     }
 
-    // Process tool calls
-    messages.push({ role: "assistant", content: response.content });
-
-    const toolResults: Anthropic.ToolResultBlockParam[] = await Promise.all(
-      toolUseBlocks.map(async (toolBlock) => ({
-        type: "tool_result" as const,
-        tool_use_id: toolBlock.id,
-        content: await handleToolCall(toolBlock.name, toolBlock.input as Record<string, any>),
-      }))
+    const results = await Promise.all(
+      response.toolCalls.map((tc) => handleToolCall(tc.name, tc.input))
     );
 
-    messages.push({ role: "user", content: toolResults });
+    const newMessages = client.buildToolResultMessage(
+      response.rawAssistantContent,
+      response.toolCalls,
+      results,
+    );
+    messages.push(...newMessages);
   }
 
   yield { type: "done", data: "" };
 }
 
-// Non-streaming variant for seeding
 export async function generateResearchWithTools(
   params: Parameters<typeof buildUserPrompt>[0],
-  anthropic: Anthropic,
+  client: ResearchClient,
   model: string,
   secondaryModel?: string
 ): Promise<Record<string, any>> {
   let fullText = "";
 
-  for await (const chunk of generateResearchWithToolsStream(params, anthropic, model, secondaryModel)) {
+  for await (const chunk of generateResearchWithToolsStream(params, client, model, secondaryModel)) {
     if (chunk.type === "content") {
       fullText += chunk.data;
     }
@@ -101,10 +83,6 @@ export async function generateResearchWithTools(
   return parseResearchJSON(fullText);
 }
 
-/**
- * Parse raw LLM text into structured JSON, handling markdown code fences.
- * Returns `{ rawResponse }` if parsing fails.
- */
 export function parseResearchJSON(fullText: string): Record<string, any> {
   try {
     const jsonMatch = fullText.match(/```json\s*([\s\S]*?)\s*```/) ||

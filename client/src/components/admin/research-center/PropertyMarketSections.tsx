@@ -310,7 +310,7 @@ export function DomainLlmCard({ domain, domainLabel, config, onChange, draft, se
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1">Research execution currently supports Anthropic models only.</p>
+              <p className="text-xs text-muted-foreground mt-1">Research supports Anthropic, OpenAI, and Gemini models.</p>
             </div>
 
             {vendor && (

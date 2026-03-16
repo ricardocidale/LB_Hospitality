@@ -7,8 +7,9 @@ import { generateResearchWithToolsStream, buildUserPrompt, parseResearchJSON, ex
 import { validateResearchValues } from "../../calc/research/validate-research";
 import { processNotificationEvent } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
-import { getAnthropicClient } from "../ai/clients";
-import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
+import { getAnthropicClient, getOpenAIClient, getGeminiClient } from "../ai/clients";
+import { createResearchClient, resolveVendorFromModel } from "../ai/research-client";
+import type { ResearchConfig, ResearchEventConfig, LlmVendor } from "@shared/schema";
 import { DEFAULT_RESEARCH_EVENT_CONFIG, DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS, DEFAULT_ROOM_COUNT, DEFAULT_START_ADR, DEFAULT_MAX_OCCUPANCY } from "../../shared/constants";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
 
@@ -122,7 +123,17 @@ export function register(app: Express) {
       const contextLlm = researchConfig[contextKey as keyof ResearchConfig] as import("@shared/schema").ContextLlmConfig | undefined;
       const model = contextLlm?.primaryLlm || researchConfig.preferredLlm || ga?.preferredLlm || "claude-3-5-sonnet-20241022";
       const secondaryModel = contextLlm?.llmMode === "dual" ? contextLlm.secondaryLlm : undefined;
-      const anthropic = getAnthropicClient();
+
+      const configuredVendor = (contextLlm?.llmVendor || "anthropic") as LlmVendor;
+      const vendorKey = (["openai", "anthropic", "google"].includes(configuredVendor)
+        ? configuredVendor
+        : resolveVendorFromModel(model)) as "openai" | "anthropic" | "google";
+
+      const researchClient = createResearchClient(vendorKey, {
+        anthropic: vendorKey === "anthropic" ? getAnthropicClient() : undefined,
+        openai: vendorKey === "openai" ? getOpenAIClient() : undefined,
+        gemini: vendorKey === "google" ? getGeminiClient() : undefined,
+      });
 
       const rawEventConfig = researchConfig[type as 'property' | 'company' | 'global'];
       const eventConfig: ResearchEventConfig = { ...DEFAULT_RESEARCH_EVENT_CONFIG, ...(rawEventConfig ?? {}) };
@@ -173,7 +184,7 @@ export function register(app: Express) {
         marketIntelligence,
       };
 
-      const stream = generateResearchWithToolsStream(params, anthropic, model, secondaryModel);
+      const stream = generateResearchWithToolsStream(params, researchClient, model, secondaryModel);
 
       let fullContent = "";
       for await (const chunk of stream) {

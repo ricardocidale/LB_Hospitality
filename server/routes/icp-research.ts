@@ -50,6 +50,7 @@ function buildIcpResearchPrompt(
   propertyLabel: string,
   promptBuilder?: PromptBuilderConfig,
   financialSummary?: string,
+  companySources?: import("@shared/schema").ResearchSourceEntry[],
 ): string {
   const ctx = promptBuilder?.context ?? {
     location: true, propertyProfile: true, propertyDescription: true,
@@ -72,17 +73,18 @@ function buildIcpResearchPrompt(
   }
 
   let sourcesBlock = "";
-  if (sources) {
-    const urlList = (sources.urls || []).map((u: any) => `- ${u.label}: ${u.url}`).join("\n");
-    const fileList = (sources.files || []).map((f: any) => {
+  {
+    const urlList = (sources?.urls || []).map((u: any) => `- ${u.label}: ${u.url}`).join("\n");
+    const fileList = (sources?.files || []).map((f: any) => {
       if (f.origin === "google-drive" && f.driveUrl) return `- [Google Drive] ${f.name}: ${f.driveUrl}`;
       return `- [Uploaded] ${f.name}`;
     }).join("\n");
-    if (urlList || fileList) {
-      const restriction = sources.allowUnrestricted
+    const companySrcList = (companySources || []).map((s) => `- ${s.label}: ${s.url}`).join("\n");
+    if (urlList || fileList || companySrcList) {
+      const restriction = sources?.allowUnrestricted
         ? "You may also search beyond these sources when needed."
         : "IMPORTANT: You MUST restrict your research to ONLY the sources listed below. Do not reference or cite information from any other sources.";
-      sourcesBlock = `\n═══ REFERENCE SOURCES ═══\n${restriction}\n${urlList ? `\nURLs:\n${urlList}` : ""}${fileList ? `\nFiles:\n${fileList}` : ""}\n`;
+      sourcesBlock = `\n═══ REFERENCE SOURCES ═══\n${restriction}\n${urlList ? `\nURLs:\n${urlList}` : ""}${companySrcList ? `\nCompany Research Sources:\n${companySrcList}` : ""}${fileList ? `\nFiles:\n${fileList}` : ""}\n`;
     }
   }
 
@@ -274,6 +276,7 @@ export function register(app: Express) {
       const propertyLabel = ga.propertyLabel || "Hotel";
       const researchCfg = (ga.researchConfig as import("@shared/schema").ResearchConfig) ?? {};
       const model = researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || "claude-3-5-sonnet-20241022";
+      const secondaryModel = researchCfg.companyLlm?.llmMode === "dual" ? researchCfg.companyLlm.secondaryLlm : undefined;
 
       const promptBuilder = (req.body?.promptBuilder || icpConfig._promptBuilder || {}) as PromptBuilderConfig;
 
@@ -318,7 +321,7 @@ export function register(app: Express) {
         }
       }
 
-      const prompt = buildIcpResearchPrompt(icpConfig, assetDescription, propertyLabel, promptBuilder, financialSummary);
+      const prompt = buildIcpResearchPrompt(icpConfig, assetDescription, propertyLabel, promptBuilder, financialSummary, researchCfg.companySources);
 
       let fullContent = "";
 

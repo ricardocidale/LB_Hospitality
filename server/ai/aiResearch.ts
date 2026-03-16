@@ -11,7 +11,8 @@ validateSkillFolders();
 export async function* generateResearchWithToolsStream(
   params: Parameters<typeof buildUserPrompt>[0],
   anthropic: Anthropic,
-  model: string
+  model: string,
+  secondaryModel?: string
 ): AsyncGenerator<{ type: "content" | "done" | "error"; data: string }> {
   const systemPrompt = loadSkill(params.type);
   const allTools = loadToolDefinitions();
@@ -31,9 +32,10 @@ export async function* generateResearchWithToolsStream(
 
   while (iteration < maxIterations) {
     iteration++;
+    const activeModel = iteration === 1 ? model : (secondaryModel || model);
 
     const response = await anthropic.messages.create({
-      model,
+      model: activeModel,
       max_tokens: 8192,
       system: systemPrompt,
       messages,
@@ -85,11 +87,12 @@ export async function* generateResearchWithToolsStream(
 export async function generateResearchWithTools(
   params: Parameters<typeof buildUserPrompt>[0],
   anthropic: Anthropic,
-  model: string
+  model: string,
+  secondaryModel?: string
 ): Promise<Record<string, any>> {
   let fullText = "";
 
-  for await (const chunk of generateResearchWithToolsStream(params, anthropic, model)) {
+  for await (const chunk of generateResearchWithToolsStream(params, anthropic, model, secondaryModel)) {
     if (chunk.type === "content") {
       fullText += chunk.data;
     }

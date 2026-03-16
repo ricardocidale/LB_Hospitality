@@ -121,10 +121,20 @@ export function register(app: Express) {
       const contextKey = type === "property" ? "propertyLlm" : type === "global" ? "marketLlm" : "companyLlm";
       const contextLlm = researchConfig[contextKey as keyof ResearchConfig] as import("@shared/schema").ContextLlmConfig | undefined;
       const model = contextLlm?.primaryLlm || researchConfig.preferredLlm || ga?.preferredLlm || "claude-3-5-sonnet-20241022";
+      const secondaryModel = contextLlm?.llmMode === "dual" ? contextLlm.secondaryLlm : undefined;
       const anthropic = getAnthropicClient();
 
       const rawEventConfig = researchConfig[type as 'property' | 'company' | 'global'];
       const eventConfig: ResearchEventConfig = { ...DEFAULT_RESEARCH_EVENT_CONFIG, ...(rawEventConfig ?? {}) };
+
+      const sourceEntries = eventConfig.sources ?? [];
+      if (type === "company") {
+        const companySrc = researchConfig.companySources ?? [];
+        sourceEntries.push(...companySrc);
+      }
+      if (sourceEntries.length > 0) {
+        eventConfig.customSources = sourceEntries.map((s) => ({ name: s.label, url: s.url, category: s.category || "General" }));
+      }
 
       // If admin disabled this research type, block the request
       if (!eventConfig.enabled) {
@@ -163,7 +173,7 @@ export function register(app: Express) {
         marketIntelligence,
       };
 
-      const stream = generateResearchWithToolsStream(params, anthropic, model);
+      const stream = generateResearchWithToolsStream(params, anthropic, model, secondaryModel);
 
       let fullContent = "";
       for await (const chunk of stream) {

@@ -16,6 +16,7 @@ export interface ResearchEventConfig {
   enabledTools: string[];
   refreshIntervalDays?: number;
   sources?: ResearchSourceEntry[];
+  customSources?: { name: string; url?: string; category: string }[];
 }
 
 export interface AiModelEntry {

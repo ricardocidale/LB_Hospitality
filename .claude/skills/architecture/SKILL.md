@@ -117,7 +117,11 @@ client/src/
 │   └── property-images/          # AI image generation
 ├── lib/
 │   ├── exports/                  # Excel, PPTX, PDF, PNG, CSV export
-│   ├── financialEngine.ts        # Primary calculation engine
+│   ├── financial/                 # Core calculation engines (split modules)
+│   │   ├── property-engine.ts    # Single-property pro-forma (generatePropertyProForma)
+│   │   ├── company-engine.ts     # Management-company pro-forma (generateCompanyProForma)
+│   │   └── index.ts              # Barrel re-export
+│   ├── financialEngine.ts        # Re-export shim (backward compat → ./financial/)
 │   ├── loanCalculations.ts       # Loan amortization and sizing
 │   ├── equityCalculations.ts     # Equity waterfall and distributions
 │   ├── cashFlowAggregator.ts     # Monthly cash flow roll-up

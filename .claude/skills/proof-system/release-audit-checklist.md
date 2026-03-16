@@ -77,7 +77,7 @@ Comprehensive checklist for major releases. Covers all 7 audit dimensions plus i
 - [ ] Cash flow aggregation uses `cashFlowAggregator.ts` (single source of truth)
 - [ ] PMT uses canonical `calc/shared/pmt.ts` (except independent `calculationChecker.ts`)
 - [ ] Equity invested uses `equityCalculations.ts` (single source of truth)
-- [ ] Formatting uses `formatters.ts` or `financialEngine.ts` formatMoney/formatPercent
+- [ ] Formatting uses `formatters.ts` formatMoney/formatPercent
 - [ ] No inline re-implementations of shared utilities
 
 ---
@@ -145,7 +145,7 @@ Comprehensive checklist for major releases. Covers all 7 audit dimensions plus i
 
 ### Architecture
 - [ ] Pure calculations isolated from UI state and network calls
-- [ ] `financialEngine.ts` has no side effects
+- [ ] `financial/property-engine.ts` and `financial/company-engine.ts` have no side effects
 - [ ] `calculationChecker.ts` is fully independent (no imports from client engine)
 - [ ] Feature modules self-contained in `client/src/features/`
 

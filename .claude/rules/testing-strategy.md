@@ -18,7 +18,7 @@ All financial logic, API routes handling mutations, and calculation tools must h
 ### Must Have Tests
 
 - Any change to `calc/` — every tool must have matching tests in `tests/calc/`
-- Any change to `financialEngine.ts`, `calculationChecker.ts`, `loanCalculations.ts` — run `tests/engine/`
+- Any change to `financial/property-engine.ts`, `financial/company-engine.ts`, `calculationChecker.ts`, `loanCalculations.ts` — run `tests/engine/`
 - Any new proof invariant — add to `tests/proof/`
 - Any new API route that mutates data — add integration test
 

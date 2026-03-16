@@ -19,8 +19,8 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 | Check | File | What to Look For |
 |-------|------|-----------------|
 | Missing property assumption | `shared/schema.ts` | Nullable field without `?? 0` fallback |
-| Division by zero | `financialEngine.ts` | `/ roomCount` or `/ occupancy` when property has 0 rooms or 0% |
-| Undefined month index | `financialEngine.ts` | Off-by-one in monthly loop (`month - 1` vs `month`) |
+| Division by zero | `property-engine.ts` | `/ roomCount` or `/ occupancy` when property has 0 rooms or 0% |
+| Undefined month index | `property-engine.ts` | Off-by-one in monthly loop (`month - 1` vs `month`) |
 
 **Quick test:** `npm run test:file -- tests/engine/` — any NaN propagates to multiple failures.
 
@@ -28,10 +28,10 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 
 | Check | File | What to Look For |
 |-------|------|-----------------|
-| Retained earnings not accumulating | `financialEngine.ts` | `retainedEarnings += netIncome` missing or sign-flipped |
+| Retained earnings not accumulating | `property-engine.ts` | `retainedEarnings += netIncome` missing or sign-flipped |
 | Debt balance drift | `loanCalculations.ts` | Principal payment not reducing outstanding balance |
-| Missing equity posting | `financialEngine.ts` | Initial equity contribution not posted to BS |
-| Refinance not swapping debt | `financialEngine.ts` | Old loan not zeroed when new loan starts |
+| Missing equity posting | `property-engine.ts` | Initial equity contribution not posted to BS |
+| Refinance not swapping debt | `property-engine.ts` | Old loan not zeroed when new loan starts |
 
 **Identity:** `Total Assets = Total Liabilities + Total Equity` (Identity #11)
 **Quick test:** `npm run test:file -- tests/proof/golden-values.test.ts`
@@ -40,10 +40,10 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 
 | Check | File | What to Look For |
 |-------|------|-----------------|
-| Principal on income statement | `financialEngine.ts` | Principal must be financing activity only (ASC 470) |
-| Depreciation not added back | `financialEngine.ts` | Operating CF = Net Income + Depreciation |
-| Missing refinance proceeds | `financialEngine.ts` | Refi proceeds must appear in financing CF |
-| Operating reserve not seeded | `financialEngine.ts` | Reserve seeds ending cash at acquisition month |
+| Principal on income statement | `property-engine.ts` | Principal must be financing activity only (ASC 470) |
+| Depreciation not added back | `property-engine.ts` | Operating CF = Net Income + Depreciation |
+| Missing refinance proceeds | `property-engine.ts` | Refi proceeds must appear in financing CF |
+| Operating reserve not seeded | `property-engine.ts` | Reserve seeds ending cash at acquisition month |
 
 **Identity:** `Operating CF + Financing CF = Total Cash Flow` (Identity #9)
 **Quick test:** `npm run test:file -- tests/engine/operating-reserve-cash.test.ts`
@@ -52,9 +52,9 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 
 | Check | File | What to Look For |
 |-------|------|-----------------|
-| Fee rate from wrong source | `financialEngine.ts` | Must use `property.managementFeeRate ?? DEFAULT_*` |
-| Incentive fee threshold | `financialEngine.ts` | Only applies above GOP threshold |
-| Zero-sum violation | `financialEngine.ts` | Σ(property fee expense) must = company fee revenue |
+| Fee rate from wrong source | `property-engine.ts` | Must use `property.managementFeeRate ?? DEFAULT_*` |
+| Incentive fee threshold | `property-engine.ts` | Only applies above GOP threshold |
+| Zero-sum violation | `property-engine.ts` / `company-engine.ts` | Σ(property fee expense) must = company fee revenue |
 
 **Identity:** `Σ(Property Fee Expense) = Management Company Fee Revenue` (Identity #18)
 **Quick test:** `npm run test:file -- tests/engine/per-property-fees.test.ts`
@@ -63,8 +63,8 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 
 | Check | File | What to Look For |
 |-------|------|-----------------|
-| Pre-ops debt payments | `financialEngine.ts` | Gap between acquisition and operations start |
-| Operating reserve missing | `financialEngine.ts` | Reserve must cover pre-revenue debt service |
+| Pre-ops debt payments | `property-engine.ts` | Gap between acquisition and operations start |
+| Operating reserve missing | `property-engine.ts` | Reserve must cover pre-revenue debt service |
 | Funding gate skipped | `funding-predictor.ts` | Company ops can't start before SAFE funding |
 
 **Quick test:** `npm run test:file -- tests/engine/operating-reserve-cash.test.ts`
@@ -73,9 +73,9 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 
 | Check | File | What to Look For |
 |-------|------|-----------------|
-| Zero equity invested | `financialEngine.ts` | Equity = 0 makes IRR undefined |
-| No sign change in cash flows | `financialEngine.ts` | IRR needs negative then positive flows |
-| Exit value missing | `financialEngine.ts` | Exit proceeds not added to final period |
+| Zero equity invested | `property-engine.ts` | Equity = 0 makes IRR undefined |
+| No sign change in cash flows | `property-engine.ts` | IRR needs negative then positive flows |
+| Exit value missing | `property-engine.ts` | Exit proceeds not added to final period |
 
 **Identity:** `NPV at IRR = 0` (Identity #22)
 **Quick test:** `npm run test:file -- tests/engine/` (IRR tests)
@@ -84,9 +84,9 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 
 | Check | File | What to Look For |
 |-------|------|-----------------|
-| Depreciation mismatch | `financialEngine.ts` | Direct: NOI − DS − Tax + Refi; Indirect: NI + Dep − Princ + Refi |
-| Tax calculation | `financialEngine.ts` | Tax = max(0, taxable income × rate) — NOL may differ |
-| Refinance double-count | `financialEngine.ts` | Refi proceeds in both paths but only once each |
+| Depreciation mismatch | `property-engine.ts` | Direct: NOI − DS − Tax + Refi; Indirect: NI + Dep − Princ + Refi |
+| Tax calculation | `property-engine.ts` | Tax = max(0, taxable income × rate) — NOL may differ |
+| Refinance double-count | `property-engine.ts` | Refi proceeds in both paths but only once each |
 
 **Identity:** FCFE Direct = FCFE Indirect (Identity #19 = #20)
 **Quick test:** `npm run test:file -- tests/proof/reconciliation-report.test.ts`
@@ -106,7 +106,7 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 
 | Check | File | What to Look For |
 |-------|------|-----------------|
-| Literal in engine | `financialEngine.ts` | Raw number instead of `DEFAULT_*` constant |
+| Literal in engine | `property-engine.ts` / `company-engine.ts` | Raw number instead of `DEFAULT_*` constant |
 | Missing constant | `shared/constants.ts` | Value exists in code but not as named constant |
 | Fallback without constant | Any calc file | `?? 0.03` instead of `?? DEFAULT_INFLATION_RATE` |
 
@@ -117,10 +117,10 @@ description: Symptom-based triage for financial calculation bugs. Maps common sy
 
 | Check | File | What to Look For |
 |-------|------|-----------------|
-| Old loan not retired | `financialEngine.ts` | Outstanding balance must zero at refi month |
-| Pass 2 not rebuilding | `financialEngine.ts` | Refi triggers full recalc from refi month |
-| Reserve not re-seeded | `financialEngine.ts` | Operating reserve re-seeds at acquisition month in Pass 2 |
-| Per-property fields | `financialEngine.ts` | Must use `property.refiInterestRate`, not `debtAssumptions.*` |
+| Old loan not retired | `property-engine.ts` | Outstanding balance must zero at refi month |
+| Pass 2 not rebuilding | `property-engine.ts` | Refi triggers full recalc from refi month |
+| Reserve not re-seeded | `property-engine.ts` | Operating reserve re-seeds at acquisition month in Pass 2 |
+| Per-property fields | `property-engine.ts` | Must use `property.refiInterestRate`, not `debtAssumptions.*` |
 
 **Quick test:** `npm run test:file -- tests/engine/operating-reserve-cash.test.ts`
 
@@ -151,7 +151,9 @@ npm run health
 
 | File | Lines | Role |
 |------|-------|------|
-| `client/src/lib/financialEngine.ts` | ~1,047 | Core calculation engine |
+| `client/src/lib/financial/property-engine.ts` | ~601 | Single-property pro-forma engine (`generatePropertyProForma`) |
+| `client/src/lib/financial/company-engine.ts` | ~361 | Management-company pro-forma engine (`generateCompanyProForma`) |
+| `client/src/lib/financialEngine.ts` | ~6 | Re-export shim (backward compatibility) |
 | `client/src/lib/loanCalculations.ts` | ~200 | Loan amortization, PMT |
 | `client/src/lib/financialAuditor.ts` | ~300 | Audit orchestrator |
 | `server/calculation-checker/index.ts` | ~400 | Independent server-side recalc |

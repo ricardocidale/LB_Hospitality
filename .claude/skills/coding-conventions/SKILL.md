@@ -48,7 +48,7 @@ description: Coding standards, naming conventions, and development rules for the
 
 ## File Naming
 - Components: PascalCase (e.g., `PropertyDashboard.tsx`)
-- Utilities: camelCase (e.g., `financialEngine.ts`)
+- Utilities: camelCase (e.g., `property-engine.ts`)
 - Skills: kebab-case directories with `SKILL.md` (e.g., `proof-system/SKILL.md`)
 - Tools: snake_case JSON files (e.g., `analyze_market.json`)
 

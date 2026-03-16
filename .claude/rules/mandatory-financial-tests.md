@@ -21,7 +21,7 @@ npm run test:file -- tests/engine/operating-reserve-cash.test.ts
 
 ## When to Run
 
-After ANY change to: `financialEngine.ts`, `financialAuditor.ts`, `calculationChecker.ts`, `runVerification.ts`, `loanCalculations.ts`, `cashFlowAggregator.ts`, seed data, or financial fields in `shared/schema.ts`. Also runs automatically with `npm run test:summary`.
+After ANY change to: `financial/property-engine.ts`, `financial/company-engine.ts`, `financialAuditor.ts`, `calculationChecker.ts`, `runVerification.ts`, `loanCalculations.ts`, `cashFlowAggregator.ts`, seed data, or financial fields in `shared/schema.ts`. Also runs automatically with `npm run test:summary`.
 
 ## If Tests Fail
 

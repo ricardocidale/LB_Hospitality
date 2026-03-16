@@ -60,7 +60,7 @@ Total Revenue = Room Revenue + Total F&B Revenue + Event Revenue + Other Revenue
 
 ## Financial Engine Implementation
 
-Located in `client/src/lib/financialEngine.ts`:
+Located in `client/src/lib/financial/property-engine.ts`:
 
 ```typescript
 const cateringBoostPct = property.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT;
@@ -142,7 +142,7 @@ DEFAULT_COST_RATE_FB = 0.32       // F&B cost rate (USALI: 28-35% for full-servi
 
 | File | Role |
 |------|------|
-| `client/src/lib/financialEngine.ts` | Core calculation engine |
+| `client/src/lib/financial/property-engine.ts` | Property pro-forma engine (F&B revenue calculation) |
 | `client/src/lib/constants.ts` | Default values |
 | `client/src/pages/PropertyEdit.tsx` | User edits catering boost |
 | `client/src/pages/Portfolio.tsx` | Displays property catering boost |

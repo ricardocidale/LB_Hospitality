@@ -894,8 +894,8 @@ This section maps the authoritative rules above to actual code files and functio
 
 | Concept | Code Location | Function/Field |
 |---------|--------------|----------------|
-| Monthly pro forma engine | `client/src/lib/financialEngine.ts` | `generatePropertyProForma()` |
-| Management company pro forma | `client/src/lib/financialEngine.ts` | `generateCompanyProForma()` |
+| Monthly pro forma engine | `client/src/lib/financial/property-engine.ts` | `generatePropertyProForma()` |
+| Management company pro forma | `client/src/lib/financial/company-engine.ts` | `generateCompanyProForma()` |
 | Loan calculations (PMT, balance) | `client/src/lib/loanCalculations.ts` | `calculateLoanParams()` |
 | Yearly cash flows & FCFE | `client/src/lib/loanCalculations.ts` | `calculatePropertyYearlyCashFlows()` |
 | IRR solver | `analytics/returns/irr.ts` | `computeIRR()` (Newton-Raphson) |

@@ -213,7 +213,7 @@ NET CHANGE IN CASH = Operating + Investing + Financing
 
 | Concept | File | Key Fields |
 |---------|------|-----------|
-| Monthly cash lines | `client/src/lib/financialEngine.ts` | `MonthlyFinancials` interface |
+| Monthly cash lines | `client/src/lib/financial/property-engine.ts` | `MonthlyFinancials` interface |
 | Yearly aggregation | `client/src/lib/loanCalculations.ts` | `YearlyCashFlowResult` interface |
 | Three-section mapping | `client/src/lib/cashFlowSections.ts` | `CashFlowSections` interface |
 | Income aggregation | `client/src/lib/yearlyAggregator.ts` | `aggregatePropertyByYear()` |

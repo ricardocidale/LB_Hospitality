@@ -173,7 +173,7 @@ These files re-export from a canonical source to provide backward-compatible or 
 | `components/financial-table-rows.tsx` | `./financial-table/index` | Legacy path |
 | `components/ConsolidatedBalanceSheet.tsx` | `./statements/ConsolidatedBalanceSheet` | Legacy path |
 | `lib/api.ts` | `./api/index` | Shorthand `@/lib/api` |
-| `lib/financialEngine.ts` | `./financial` | Shorthand `@/lib/financialEngine` |
+| `lib/financialEngine.ts` | `./financial` | Re-export shim — new code should import from `@/lib/financial/property-engine` or `@/lib/financial/company-engine` |
 | `lib/exports/excelExport.ts` | `./excel/index` | Legacy path |
 | `pages/CheckerManual.tsx` | `./checker-manual/index` | Router entry |
 
@@ -386,8 +386,10 @@ These are complementary, NOT duplicates. Do not consolidate without checking all
 - `resetThemeColors()` — Remove all dynamic theme variables
 
 ### lib/financial/ — Financial Engine
-Core calculation engine. Never use LLM to compute financial values.
-- `financialEngine.ts` → re-exports from `./financial/` (convenience)
+Core calculation engines. Never use LLM to compute financial values.
+- `property-engine.ts` — Single-property pro-forma (`generatePropertyProForma`, ~601 lines)
+- `company-engine.ts` — Management-company pro-forma (`generateCompanyProForma`, ~361 lines)
+- `../financialEngine.ts` → re-export shim from `./financial/` (backward compat only)
 - Calculators: loan, cash flow, returns, depreciation, tax
 - Types: all financial interfaces
 

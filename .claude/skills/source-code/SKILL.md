@@ -60,7 +60,11 @@ Comprehensive reference for every layer of the Hospitality Business Group simula
 │   │   ├── design-themes/    # Theme manager, types, useDesignThemes hook
 │   │   └── property-images/  # Property image picker, useGenerateImage hook
 │   └── lib/             # Core business logic + utilities
-│       ├── financialEngine.ts     # Monthly pro forma generator (803 lines)
+│       ├── financial/                  # Core calculation engines
+│       │   ├── property-engine.ts     # Single-property pro-forma (601 lines)
+│       │   ├── company-engine.ts      # Management-company pro-forma (361 lines)
+│       │   └── index.ts               # Barrel re-export
+│       ├── financialEngine.ts         # Re-export shim (6 lines, backward compat)
 │       ├── loanCalculations.ts    # Debt sizing, amortization, refinance (394 lines)
 │       ├── equityCalculations.ts  # Equity investment helpers (64 lines)
 │       ├── cashFlowAggregator.ts  # Monthly→yearly CF aggregation (98 lines)
@@ -348,7 +352,7 @@ Eager-loaded pages: Dashboard, Company, CompanyAssumptions, Portfolio, Settings,
 
 ### Core Financial Library
 
-#### `financialEngine.ts` (803 lines)
+#### `financial/property-engine.ts` (601 lines)
 The heart of the simulation. Generates 120 months (10 years) of property-level financials.
 
 **Key function:** `generatePropertyProForma(property, global) → MonthlyFinancials[]`
@@ -365,6 +369,14 @@ The heart of the simulation. Generates 120 months (10 years) of property-level f
 9. Income tax on taxable income
 10. Net income, cash flow, ending cash balance
 11. Refinancing proceeds (if applicable, via `@calc/refinance`)
+
+#### `financial/company-engine.ts` (361 lines)
+Rolls up all property pro-formas into the management company P&L.
+
+**Key function:** `generateCompanyProForma(properties, global) → CompanyMonthlyFinancials[]`
+
+#### `financialEngine.ts` (6 lines — re-export shim)
+Thin backward-compatibility shim that re-exports everything from `./financial/`. New code should import directly from the engine files above.
 
 **Occupancy ramp model:** Linear from `startOccupancy` to `maxOccupancy` over configurable ramp months, with growth steps.
 

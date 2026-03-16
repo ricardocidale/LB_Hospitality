@@ -15,6 +15,6 @@
 1. **Two-entity model**: Property SPVs (individual hotels) + Management Company (OpCo). Never conflate them.
 2. **Shared schema**: `shared/schema.ts` is the single source of truth for all types. Client and server both import from it.
 3. **Storage interface**: All DB access goes through `IStorage` in `server/storage/`. Never query Drizzle directly from routes.
-4. **Independent verification**: `server/calculationChecker.ts` must NEVER import from the client engine (`financialEngine.ts`). Independence is the point.
+4. **Independent verification**: `server/calculationChecker.ts` must NEVER import from the client engine (`financial/property-engine.ts`, `financial/company-engine.ts`). Independence is the point.
 5. **Feature modules**: Self-contained features go in `client/src/features/<name>/` with their own components, hooks, and `index.ts` barrel.
 6. **API prefix**: All server endpoints under `/api/`. RESTful, organized by domain (`/api/auth/`, `/api/admin/`, `/api/properties/`, etc.).

@@ -1,7 +1,7 @@
 # Management Company — Financial Statements
 
 ## Source Components
-- `client/src/lib/financialEngine.ts` (`generateCompanyProForma`)
+- `client/src/lib/financial/company-engine.ts` (`generateCompanyProForma`)
 - `client/src/pages/Company.tsx`
 
 ---

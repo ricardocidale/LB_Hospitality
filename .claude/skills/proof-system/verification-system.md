@@ -19,7 +19,7 @@ Verification System
 │   └── calculationChecker.ts  → Independent recalculation engine
 │       │
 │       └── Completely separate implementation of financial math
-│           (does NOT import from financialEngine.ts)
+│           (does NOT import from financial/property-engine.ts or company-engine.ts)
 │
 └── AI-POWERED (optional)
     └── LLM methodology review via /api/admin/ai-verification

@@ -173,8 +173,8 @@ These would follow the same pattern: expense on property, revenue on company, tr
 
 | Concept | File | Function/Field |
 |---------|------|---------------|
-| Property fee calculation | `client/src/lib/financialEngine.ts` | `feeBase`, `feeIncentive` in `generatePropertyProForma()` |
-| Company fee revenue | `client/src/lib/financialEngine.ts` | `baseFeeRevenue`, `incentiveFeeRevenue` in `generateCompanyProForma()` |
+| Property fee calculation | `client/src/lib/financial/property-engine.ts` | `feeBase`, `feeIncentive` in `generatePropertyProForma()` |
+| Company fee revenue | `client/src/lib/financial/company-engine.ts` | `baseFeeRevenue`, `incentiveFeeRevenue` in `generateCompanyProForma()` |
 | Fee rates (per property) | `shared/schema.ts` | `baseManagementFeeRate`, `incentiveManagementFeeRate` on each property |
 | Default rates | `shared/constants.ts` | `DEFAULT_BASE_MANAGEMENT_FEE_RATE` (5%), `DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE` (15%) |
 | Fee rate UI (edit) | `client/src/pages/PropertyEdit.tsx` | Management Fees section with sliders, tooltips, and research badges |

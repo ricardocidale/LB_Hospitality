@@ -143,7 +143,7 @@ Tests `computeWaterfall()` from `calc/analysis/waterfall.ts`.
 ---
 
 ## File 7: Pro-Forma Engine Edge Cases — `proforma-edge-cases.test.ts` (15 tests)
-Tests `generatePropertyProForma()` from `client/src/lib/financialEngine.ts`.
+Tests `generatePropertyProForma()` from `client/src/lib/financial/property-engine.ts`.
 
 | # | Scenario | Config | Tests | What It Proves |
 |---|----------|--------|-------|----------------|

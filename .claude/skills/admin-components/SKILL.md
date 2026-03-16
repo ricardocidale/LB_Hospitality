@@ -138,7 +138,7 @@ These exist so other code can import from a shorter/legacy path without breaking
 | `components/financial-table-rows.tsx` | `./financial-table/index` | Legacy import path |
 | `components/ConsolidatedBalanceSheet.tsx` | `./statements/ConsolidatedBalanceSheet` | Legacy import path |
 | `lib/api.ts` | `./api/index` | Convenience shorthand |
-| `lib/financialEngine.ts` | `./financial` | Convenience shorthand |
+| `lib/financialEngine.ts` | `./financial` | Re-export shim (new code should import from `financial/property-engine` or `financial/company-engine`) |
 | `lib/exports/excelExport.ts` | `./excel/index` | Legacy import path |
 | `pages/CheckerManual.tsx` | `./checker-manual/index` | Router entry point |
 

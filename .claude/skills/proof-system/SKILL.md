@@ -99,7 +99,7 @@ tests/proof/
 - NPV = 0 at computed IRR (cross-validation)
 
 ## Hardcoded Value Detection
-- Scans: `financialEngine.ts`, `refinance-calculator.ts`, `financial-identities.ts`, `schedule-reconcile.ts`, `consolidation.ts`
+- Scans: `financial/property-engine.ts`, `financial/company-engine.ts`, `refinance-calculator.ts`, `financial-identities.ts`, `schedule-reconcile.ts`, `consolidation.ts`
 - Safe numbers: 0, 1, -1, 2, 12, 100
 - Context exceptions: loop counters, array indices, Math functions, string literals
 

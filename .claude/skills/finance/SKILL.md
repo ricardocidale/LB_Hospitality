@@ -46,7 +46,9 @@ Documents the financial calculation engine — GAAP-compliant (ASC 230, ASC 360,
 | `validate-research.ts` | Post-LLM validation of research output against deterministic math |
 
 ## Key Files
-- `client/src/lib/financialEngine.ts` — Core calculation engine (~1,047 lines)
+- `client/src/lib/financial/property-engine.ts` — Single-property monthly pro-forma generator (`generatePropertyProForma`, ~601 lines)
+- `client/src/lib/financial/company-engine.ts` — Management-company monthly pro-forma generator (`generateCompanyProForma`, ~361 lines)
+- `client/src/lib/financialEngine.ts` — Re-export shim for backward compatibility (re-exports from `./financial/`)
 - `calc/` — 60+ files, 13 computation tools, typed dispatch (includes `calc/services/`, `calc/research/`)
 - `client/src/lib/audits/` — 9-module audit system
 - `client/src/lib/financialAuditor.ts` — Audit orchestrator

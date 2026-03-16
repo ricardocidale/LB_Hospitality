@@ -172,7 +172,8 @@ Files that import from `constants.ts`:
 
 | Consumer | What It Uses |
 |----------|-------------|
-| `financialEngine.ts` | All constants for calculations |
+| `financial/property-engine.ts` | All constants for property pro-forma calculations |
+| `financial/company-engine.ts` | Constants for company pro-forma calculations |
 | `financialAuditor.ts` | Constants for GAAP audit validation |
 | `runVerification.ts` | Constants for verification checks |
 | `loanCalculations.ts` | Re-exports loan-related constants |

@@ -2,7 +2,7 @@
 
 ## Source Components
 - `client/src/components/YearlyIncomeStatement.tsx`
-- `client/src/lib/financialEngine.ts` (`generatePropertyProForma`)
+- `client/src/lib/financial/property-engine.ts` (`generatePropertyProForma`)
 - `client/src/lib/yearlyAggregator.ts` (`aggregatePropertyByYear`)
 
 ---

@@ -89,7 +89,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | UI Blocks | `.claude/skills/ui-blocks/SKILL.md` | Reference shadcn block patterns |
 | Market Intelligence | `.claude/skills/market-intelligence/SKILL.md` | FRED, hospitality benchmarks, grounded research, BaseIntegrationService |
 | ICP Research | `.claude/skills/icp-research/SKILL.md` | ICP profile definition, AI research center, prompt builder |
-| Rebecca Chatbot | `.claude/skills/rebecca-chatbot/SKILL.md` | Gemini-powered portfolio analytics chat |
+| Rebecca Chatbot | `.claude/skills/rebecca-chatbot/SKILL.md` | AI-powered portfolio analytics chat (Gemini or Perplexity engine) |
 | Document Intelligence | `.claude/skills/document-intelligence/SKILL.md` | Google Document AI OCR pipeline, field mapping |
 | Map View | `.claude/skills/map-view/SKILL.md` | MapLibre GL, Supercluster clustering, globe animation |
 | Notifications | `.claude/skills/notifications/SKILL.md` | Alert rules, Resend email, notification logs |
@@ -160,7 +160,7 @@ Design themes support switchable icon libraries (Lucide default, Phosphor altern
 
 ## Market Intelligence Pipeline
 
-Three-service architecture in `server/services/`: FREDService (SOFR/Treasury/CPI, 24h cache), HospitalityBenchmarkService (CoStar/STR/AirDNA adapter, 7-day cache), GroundedResearchService (Perplexity/Tavily with citations). MarketIntelligenceAggregator composes all three. Data provenance badges: verified/cited/estimated. Types in `shared/market-intelligence.ts`. Frontend: `client/src/components/property-research/`.
+Three-service architecture in `server/services/`: FREDService (SOFR/Treasury/CPI, 24h cache), HospitalityBenchmarkService (CoStar/STR/AirDNA adapter, 7-day cache), GroundedResearchService (Perplexity SDK/Tavily with citations). MarketIntelligenceAggregator composes all three. Data provenance badges: verified/cited/estimated. Types in `shared/market-intelligence.ts`. Frontend: `client/src/components/property-research/`.
 
 ---
 

@@ -285,10 +285,11 @@ export const globalAssumptions = pgTable("global_assumptions", {
   marcelaMaxDuration: integer("marcela_max_duration").notNull().default(DEFAULT_MARCELA_MAX_DURATION),
   marcelaCascadeTimeout: integer("marcela_cascade_timeout").notNull().default(DEFAULT_MARCELA_CASCADE_TIMEOUT),
 
-  // Rebecca — Gemini-powered text chatbot
+  // Rebecca — AI text chatbot (Gemini or Perplexity engine)
   rebeccaEnabled: boolean("rebecca_enabled").notNull().default(false),
   rebeccaDisplayName: text("rebecca_display_name").notNull().default("Rebecca"),
   rebeccaSystemPrompt: text("rebecca_system_prompt"),
+  rebeccaChatEngine: text("rebecca_chat_engine").notNull().default("gemini"),
 
   // Research Configuration — per-event admin control over AI research behavior
   researchConfig: jsonb("research_config").$type<ResearchConfig>().default({}),
@@ -474,6 +475,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   rebeccaEnabled: true,
   rebeccaDisplayName: true,
   rebeccaSystemPrompt: true,
+  rebeccaChatEngine: true,
   researchConfig: true,
   autoResearchRefreshEnabled: true,
   companyInflationRate: true,

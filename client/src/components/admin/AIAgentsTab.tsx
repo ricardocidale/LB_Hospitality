@@ -94,6 +94,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
   const [rebeccaEnabled, setRebeccaEnabled] = useState(false);
   const [rebeccaDisplayName, setRebeccaDisplayName] = useState("Rebecca");
   const [rebeccaSystemPrompt, setRebeccaSystemPrompt] = useState("");
+  const [rebeccaChatEngine, setRebeccaChatEngine] = useState<"gemini" | "perplexity">("gemini");
   const [rebeccaInitialized, setRebeccaInitialized] = useState(false);
   const [rebeccaDirty, setRebeccaDirty] = useState(false);
 
@@ -102,6 +103,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
       setRebeccaEnabled(globalData.rebeccaEnabled ?? false);
       setRebeccaDisplayName(globalData.rebeccaDisplayName ?? "Rebecca");
       setRebeccaSystemPrompt(globalData.rebeccaSystemPrompt ?? "");
+      setRebeccaChatEngine((globalData.rebeccaChatEngine as "gemini" | "perplexity") ?? "gemini");
       setRebeccaInitialized(true);
     }
   }, [globalData, rebeccaInitialized]);
@@ -116,6 +118,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
           rebeccaEnabled,
           rebeccaDisplayName: rebeccaDisplayName || "Rebecca",
           rebeccaSystemPrompt: rebeccaSystemPrompt || null,
+          rebeccaChatEngine,
         }),
       });
       if (!res.ok) throw new Error("Failed to save");
@@ -359,6 +362,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
             enabled={rebeccaEnabled}
             displayName={rebeccaDisplayName}
             systemPrompt={rebeccaSystemPrompt}
+            chatEngine={rebeccaChatEngine}
             onEnabledChange={(v) => {
               setRebeccaEnabled(v);
               setRebeccaDirty(true);
@@ -369,6 +373,10 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
             }}
             onSystemPromptChange={(v) => {
               setRebeccaSystemPrompt(v);
+              setRebeccaDirty(true);
+            }}
+            onChatEngineChange={(v) => {
+              setRebeccaChatEngine(v);
               setRebeccaDirty(true);
             }}
             onSave={() => saveRebeccaMutation.mutate()}

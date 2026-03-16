@@ -1,5 +1,5 @@
 import { type Express, type Request, type Response } from "express";
-import { getGeminiClient } from "../ai/clients";
+import { getGeminiClient, getPerplexityClient } from "../ai/clients";
 import { requireAuth } from "../auth";
 import { aiRateLimit } from "../middleware/rate-limit";
 import { storage } from "../storage";
@@ -100,37 +100,69 @@ export function register(app: Express) {
         ...fundingLines,
       ].join("\n");
 
-      const chatHistory = history.map((msg) => ({
-        role: msg.role === "user" ? "user" : ("model" as const),
-        content: msg.content,
-      }));
-
       const systemPrompt = (global as any)?.rebeccaSystemPrompt ?? DEFAULT_SYSTEM_PROMPT;
       const fullSystemPrompt = `${systemPrompt}\n\n${contextBlock}`;
+      const engine = ga?.rebeccaChatEngine ?? "gemini";
 
-      const gemini = getGeminiClient();
-      const contents = [
-        { role: "user" as const, parts: [{ text: fullSystemPrompt }] },
-        { role: "model" as const, parts: [{ text: "Understood. I have the portfolio data and will answer questions based on it." }] },
-        ...chatHistory.map((msg) => ({
-          role: (msg.role === "user" ? "user" : "model") as "user" | "model",
-          parts: [{ text: msg.content }],
-        })),
-        { role: "user" as const, parts: [{ text: message }] },
-      ];
+      if (engine === "perplexity") {
+        const perplexity = getPerplexityClient();
+        const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+          { role: "system", content: fullSystemPrompt },
+          ...history.map((msg) => ({
+            role: msg.role as "user" | "assistant",
+            content: msg.content,
+          })),
+          { role: "user", content: message },
+        ];
 
-      const response = await gemini.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents,
-        config: { maxOutputTokens: 1024 },
-      });
+        const completion = await perplexity.chat.completions.create({
+          model: "sonar",
+          messages,
+          max_tokens: 1024,
+        });
 
-      const text = response.text
-        || "I'm sorry, I couldn't generate a response. Please try again.";
-      res.json({ response: text });
+        const messageContent = completion.choices?.[0]?.message?.content;
+        let text = (typeof messageContent === "string" ? messageContent : "")
+          || "I'm sorry, I couldn't generate a response. Please try again.";
+
+        const citations = completion.citations ?? [];
+        if (citations.length > 0) {
+          const citationLines = citations.map((url: string, i: number) =>
+            `[${i + 1}] ${url}`
+          );
+          text += "\n\n**Sources:**\n" + citationLines.join("\n");
+        }
+
+        res.json({ response: text });
+      } else {
+        const gemini = getGeminiClient();
+        const chatHistory = history.map((msg) => ({
+          role: msg.role === "user" ? "user" : ("model" as const),
+          content: msg.content,
+        }));
+        const contents = [
+          { role: "user" as const, parts: [{ text: fullSystemPrompt }] },
+          { role: "model" as const, parts: [{ text: "Understood. I have the portfolio data and will answer questions based on it." }] },
+          ...chatHistory.map((msg) => ({
+            role: (msg.role === "user" ? "user" : "model") as "user" | "model",
+            parts: [{ text: msg.content }],
+          })),
+          { role: "user" as const, parts: [{ text: message }] },
+        ];
+
+        const response = await gemini.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents,
+          config: { maxOutputTokens: 1024 },
+        });
+
+        const text = response.text
+          || "I'm sorry, I couldn't generate a response. Please try again.";
+        res.json({ response: text });
+      }
     } catch (error: any) {
       console.error("[chat] Error:", error?.message || error);
-      if (error?.message === "Gemini API key not configured") {
+      if (error?.message?.includes("API key not configured")) {
         return res.status(503).json({ error: "Chat service is not available" });
       }
       res.status(500).json({ error: "Failed to generate response" });

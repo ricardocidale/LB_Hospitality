@@ -1,4 +1,5 @@
 import { BaseIntegrationService } from "./BaseIntegrationService";
+import { getPerplexityClient } from "../ai/clients";
 import type { GroundedSearchResult, CitedSource } from "../../shared/market-intelligence";
 
 interface SearchQuery {
@@ -75,42 +76,41 @@ export class GroundedResearchService extends BaseIntegrationService {
       ? ` site:${query.focusSites.join(" OR site:")}`
       : "";
 
-    const response = await this.fetchWithTimeout("https://api.perplexity.ai/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "sonar",
-        messages: [
-          {
-            role: "system",
-            content: "You are a hospitality market research analyst. Provide specific, data-backed answers with current statistics. Always cite your sources.",
-          },
-          {
-            role: "user",
-            content: query.query + siteFilter,
-          },
-        ],
-        return_citations: true,
-        search_recency_filter: "year",
-      }),
+    const client = getPerplexityClient();
+    const response = await client.chat.completions.create({
+      model: "sonar",
+      messages: [
+        {
+          role: "system",
+          content: "You are a hospitality market research analyst. Provide specific, data-backed answers with current statistics. Always cite your sources.",
+        },
+        {
+          role: "user",
+          content: query.query + siteFilter,
+        },
+      ],
+      search_recency_filter: "year",
     });
 
-    const data = await response.json();
-    const message = data.choices?.[0]?.message;
+    const message = response.choices?.[0]?.message;
+    const citations = response.citations ?? [];
+    const searchResults = response.search_results ?? [];
 
-    const sources: CitedSource[] = (data.citations ?? []).map((c: any) => ({
-      title: c.title || c.url || "Source",
-      url: c.url || "",
-      snippet: c.snippet || "",
-      publishedDate: c.published_date || undefined,
-    }));
+    const sources: CitedSource[] = citations.map((url: string) => {
+      const match = searchResults.find((sr) => sr.url === url);
+      return {
+        title: match?.title || url,
+        url,
+        snippet: match?.snippet || "",
+        publishedDate: match?.date || match?.last_updated || undefined,
+      };
+    });
+
+    const content = message?.content;
 
     return {
       query: query.query,
-      answer: message?.content || "",
+      answer: (typeof content === "string" ? content : "") || "",
       sources,
       fetchedAt: new Date().toISOString(),
     };

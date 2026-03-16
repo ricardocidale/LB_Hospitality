@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   IconMessageCircle,
@@ -11,6 +12,7 @@ import {
   IconPlay,
   IconUser,
   IconSparkles,
+  IconZap,
 } from "@/components/icons";
 import { motion } from "framer-motion";
 
@@ -26,9 +28,11 @@ export interface RebeccaConfigProps {
   enabled: boolean;
   displayName: string;
   systemPrompt: string;
+  chatEngine: "gemini" | "perplexity";
   onEnabledChange: (v: boolean) => void;
   onDisplayNameChange: (v: string) => void;
   onSystemPromptChange: (v: string) => void;
+  onChatEngineChange: (v: "gemini" | "perplexity") => void;
   onSave: () => void;
   isSaving: boolean;
   isDirty: boolean;
@@ -38,9 +42,11 @@ export function RebeccaConfig({
   enabled,
   displayName,
   systemPrompt,
+  chatEngine,
   onEnabledChange,
   onDisplayNameChange,
   onSystemPromptChange,
+  onChatEngineChange,
   onSave,
   isSaving,
   isDirty,
@@ -114,6 +120,48 @@ export function RebeccaConfig({
             />
             <p className="text-xs text-muted-foreground/70 pl-6">
               Name shown in the sidebar and chat panel header.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-card border border-border/80 shadow-sm">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+              <IconZap className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <CardTitle className="text-sm font-semibold text-foreground">
+                AI Engine
+              </CardTitle>
+              <CardDescription className="label-text mt-0.5">
+                Choose the AI model that powers {displayName || "Rebecca"}'s responses.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <Label className="label-text font-medium text-xs uppercase tracking-wider text-muted-foreground/70">
+              Chat Engine
+            </Label>
+            <Select
+              value={chatEngine}
+              onValueChange={(v) => onChatEngineChange(v as "gemini" | "perplexity")}
+            >
+              <SelectTrigger className="max-w-sm bg-card border-border" data-testid="select-rebecca-engine">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="gemini" data-testid="option-engine-gemini">Gemini</SelectItem>
+                <SelectItem value="perplexity" data-testid="option-engine-perplexity">Perplexity</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground/70">
+              {chatEngine === "perplexity"
+                ? "Perplexity uses grounded web search — responses include citations from live sources."
+                : "Gemini answers from portfolio data and training knowledge."}
             </p>
           </div>
         </CardContent>

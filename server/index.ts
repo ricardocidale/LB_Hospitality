@@ -294,6 +294,9 @@ async function runMigrationsAndSeeds() {
   const { runIconSet001 } = await import("./migrations/icon-set-001");
   await runIconSet001();
 
+  const { runRebeccaChatEngine001 } = await import("./migrations/rebecca-chat-engine-001");
+  await runRebeccaChatEngine001();
+
   // FK indexes must run after all table-creating migrations complete
   const { runFkIndexes001 } = await import("./migrations/fk-indexes-001");
   await runFkIndexes001();

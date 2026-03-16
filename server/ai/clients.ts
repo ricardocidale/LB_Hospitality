@@ -12,6 +12,7 @@
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
+import { Perplexity } from "@perplexity-ai/perplexity_ai";
 
 // ── OpenAI ──────────────────────────────────────────────
 
@@ -68,4 +69,16 @@ export function getGeminiClient(): GoogleGenAI {
     },
   });
   return _gemini;
+}
+
+// ── Perplexity ──────────────────────────────────────────
+
+let _perplexity: Perplexity | null = null;
+
+export function getPerplexityClient(): Perplexity {
+  if (_perplexity) return _perplexity;
+  const apiKey = process.env.PERPLEXITY_API_KEY;
+  if (!apiKey) throw new Error("Perplexity API key not configured (set PERPLEXITY_API_KEY)");
+  _perplexity = new Perplexity({ apiKey });
+  return _perplexity;
 }

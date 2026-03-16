@@ -1,12 +1,86 @@
----
-name: consistent-card-widths
-description: Rules for consistent card widths and page layout containers across all pages. Covers max-width constraints, grid patterns, PageHeader alignment, and when to use full-width vs constrained layouts.
----
+Rules for consistent card widths and page layout containers across all pages. Covers max-width constraints, grid patterns, PageHeader alignment, and when to use full-width vs constrained layouts.
 
-# Consistent Card Widths
+## Standard Page Content Wrapper
 
-Four width categories: full-width (dashboards/multi-column), `max-w-4xl` (forms/single-column), `max-w-2xl mx-auto` (profile/narrow), full-width delegated (admin tabs). PageHeader must sit inside the width-constraining container. Standard grid: `grid gap-6 lg:grid-cols-2`.
+Every page wraps its content in a `space-y-6` container inside `<Layout>` and `<AnimatedPage>`:
 
-**Canonical reference:** `.claude/skills/ui/consistent-card-widths.md`
+```tsx
+<Layout>
+  <AnimatedPage>
+    <div className="space-y-6">
+      <PageHeader ... />
+      {/* content cards / grids */}
+    </div>
+  </AnimatedPage>
+</Layout>
+```
 
-See also: `.claude/skills/design-system/SKILL.md` (visual identity), `.claude/skills/ui/save-button-placement.md` (form patterns)
+## Width Categories
+
+### 1. Dashboard / Multi-Column Pages (full width — no `max-w-*`)
+
+Pages using side-by-side card grids should **not** apply a `max-w-*` class on the outer wrapper.
+
+**Examples:** `CompanyAssumptions.tsx`, `Admin.tsx`
+
+```tsx
+<div className="space-y-6">
+  <PageHeader ... />
+  <div className="grid gap-6 lg:grid-cols-2">
+    <SectionCard ... />
+    <SectionCard ... />
+  </div>
+</div>
+```
+
+### 2. Form / Single-Column Detail Pages (`max-w-4xl`)
+
+Single column of form fields or stacked cards. Caps width for readable line lengths.
+
+**Examples:** `PropertyEdit.tsx`, `Settings.tsx`
+
+```tsx
+<div className="space-y-6 max-w-4xl">
+  <PageHeader ... />
+  <SectionCard ... />
+</div>
+```
+
+### 3. Narrow Profile / Account Pages (`max-w-2xl mx-auto`)
+
+Minimal form content, centered narrow column.
+
+**Examples:** `Profile.tsx`
+
+### 4. Admin Tab Pages (full width, delegated to tab content)
+
+Admin shell uses `space-y-5` with no max-width. Individual tab components control their own layout.
+
+## Key Rules
+
+1. **PageHeader must sit inside the same width-constraining container as the content cards.** Never place PageHeader outside the `max-w-*` wrapper.
+2. **Use `grid gap-6 lg:grid-cols-2` for side-by-side cards.** Standard two-column grid pattern.
+3. **Do not mix width categories on one page.** Pick one category for the entire page wrapper.
+4. **SectionCard and PageHeader carry no built-in width constraints.** Parent wrapper is solely responsible.
+5. **Admin card styling uses constants from `styles.ts`.** Reference `ADMIN_CARD`, `ADMIN_LINK_CARD` from `client/src/components/admin/styles.ts`.
+
+## Key Files
+
+| File | Role |
+|------|------|
+| `client/src/components/ui/page-header.tsx` | Shared page header component |
+| `client/src/components/ui/section-card.tsx` | Collapsible section card component |
+| `client/src/components/admin/styles.ts` | Admin card style constants |
+| `client/src/pages/CompanyAssumptions.tsx` | Full-width with `lg:grid-cols-2` grids |
+| `client/src/pages/PropertyEdit.tsx` | `max-w-4xl` single-column form |
+| `client/src/pages/Settings.tsx` | `max-w-4xl` single-column form |
+| `client/src/pages/Profile.tsx` | `max-w-2xl mx-auto` narrow column |
+| `client/src/pages/Admin.tsx` | Full-width admin shell |
+
+## New Page Checklist
+
+- [ ] Decide the width category based on content type
+- [ ] Wrap content in `<div className="space-y-6 {max-w-class}">` inside `<Layout>` / `<AnimatedPage>`
+- [ ] Place `<PageHeader>` as the first child **inside** the width wrapper
+- [ ] Use `grid gap-6 lg:grid-cols-2` for any side-by-side card pairs
+- [ ] Verify the page visually matches the width of other pages in the same category

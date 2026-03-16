@@ -39,6 +39,7 @@ export function GovernedFieldWrapper({
           </span>
         </div>
         <button
+          type="button"
           onClick={() => setExpanded(!expanded)}
           className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 shrink-0 p-0.5"
           aria-label={expanded ? "Collapse details" : "Expand details"}

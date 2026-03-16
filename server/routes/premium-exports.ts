@@ -1098,13 +1098,14 @@ export function register(app: Express) {
     } catch (error: any) {
       const errorMsg = error?.message || String(error) || "Unknown error";
       logger.error(`Error: ${errorMsg} ${error?.stack || ""}`, "premium-export");
+      const format = typeof req.body?.format === "string" ? req.body.format : "unknown";
       if (errorMsg.includes("API key not configured")) {
-        return res.status(503).json({ error: "AI service is not available for premium exports" });
+        return res.status(503).json({ error: "AI service is not available for premium exports", format });
       }
       if (errorMsg.includes("timed out") || errorMsg.includes("aborted")) {
-        return res.status(504).json({ error: "Export timed out — the AI service took too long. Please try again." });
+        return res.status(504).json({ error: `Export timed out — the AI service took too long generating ${format.toUpperCase()}. Please try again.`, format });
       }
-      res.status(500).json({ error: errorMsg.length > 300 ? errorMsg.substring(0, 300) + "…" : errorMsg });
+      res.status(500).json({ error: errorMsg.length > 300 ? errorMsg.substring(0, 300) + "…" : errorMsg, format });
     }
   });
 

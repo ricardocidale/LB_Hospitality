@@ -173,6 +173,3 @@ export function pptxColumnWidths(yearCount: number, slideW = 13.33, marginX = 0.
   return { labelW, dataW, tableW };
 }
 
-export function footerText(companyName: string): string {
-  return `${companyName} \u2014 Confidential`;
-}

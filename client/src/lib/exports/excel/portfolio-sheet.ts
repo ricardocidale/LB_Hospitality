@@ -166,8 +166,8 @@ export async function exportPropertyBalanceSheet(
 
   const ws = (XLSX as any).utils.aoa_to_sheet(dataRows);
   setColumnWidths(ws, [30, ...yearLabels.map(() => 16)]);
-  await applyCurrencyFormat(ws, dataRows);
-  await applyHeaderStyle(ws, dataRows);
+  applyCurrencyFormat(ws, dataRows);
+  applyHeaderStyle(ws, dataRows);
 
   const wb = (XLSX as any).utils.book_new();
   (XLSX as any).utils.book_append_sheet(wb, ws, "Balance Sheet");
@@ -323,8 +323,8 @@ export async function exportCompanyIncomeStatement(
 
   const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [35, ...yearLabels.map(() => 16)]);
-  await applyCurrencyFormat(ws, rows);
-  await applyHeaderStyle(ws, rows);
+  applyCurrencyFormat(ws, rows);
+  applyHeaderStyle(ws, rows);
 
   const wb = (XLSX as any).utils.book_new();
   (XLSX as any).utils.book_append_sheet(wb, ws, "Company Income Statement");
@@ -457,8 +457,8 @@ export async function exportCompanyCashFlow(
 
   const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [45, ...yearLabels.map(() => 16)]);
-  await applyCurrencyFormat(ws, rows);
-  await applyHeaderStyle(ws, rows);
+  applyCurrencyFormat(ws, rows);
+  applyHeaderStyle(ws, rows);
 
   const wb = (XLSX as any).utils.book_new();
   (XLSX as any).utils.book_append_sheet(wb, ws, "Company Cash Flow");
@@ -522,8 +522,8 @@ export async function exportCompanyBalanceSheet(
 
   const ws = (XLSX as any).utils.aoa_to_sheet(rows);
   setColumnWidths(ws, [35, 18]);
-  await applyCurrencyFormat(ws, rows);
-  await applyHeaderStyle(ws, rows);
+  applyCurrencyFormat(ws, rows);
+  applyHeaderStyle(ws, rows);
 
   const wb = (XLSX as any).utils.book_new();
   (XLSX as any).utils.book_append_sheet(wb, ws, "Company Balance Sheet");

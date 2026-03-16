@@ -26,7 +26,7 @@ import {
   DEFAULT_COST_RATE_PROPERTY_OPS, DEFAULT_COST_RATE_UTILITIES,
   DEFAULT_EVENT_EXPENSE_RATE, DEFAULT_OTHER_EXPENSE_RATE, DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DAYS_PER_MONTH, DEPRECIATION_YEARS, DEFAULT_LAND_VALUE_PERCENT,
-  DEFAULT_COMPANY_TAX_RATE, DEFAULT_BUSINESS_INSURANCE_START,
+  DEFAULT_COMPANY_TAX_RATE, DEFAULT_BUSINESS_INSURANCE_START, DEFAULT_COST_RATE_INSURANCE,
 } from "../../shared/constants";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -103,10 +103,11 @@ const H_A_EXP_IT = H_A_REV_TOTAL * DEFAULT_COST_RATE_IT;
 const H_A_EXP_TAXES = (1_500_000 / 12) * DEFAULT_COST_RATE_TAXES;
 const H_A_EXP_UTIL_FIXED = H_A_REV_TOTAL * (DEFAULT_COST_RATE_UTILITIES * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT));
 const H_A_EXP_OTHER_COSTS = H_A_REV_TOTAL * DEFAULT_COST_RATE_OTHER;
+const H_A_EXP_INSURANCE = (1_500_000 / 12) * DEFAULT_COST_RATE_INSURANCE;
 
 const H_A_TOTAL_OP_EXP = H_A_EXP_ROOMS + H_A_EXP_FB + H_A_EXP_EVENTS + H_A_EXP_OTHER +
   H_A_EXP_MARKETING + H_A_EXP_PROP_OPS + H_A_EXP_UTIL_VAR +
-  H_A_EXP_ADMIN + H_A_EXP_IT + H_A_EXP_UTIL_FIXED + H_A_EXP_OTHER_COSTS;
+  H_A_EXP_ADMIN + H_A_EXP_IT + H_A_EXP_UTIL_FIXED + H_A_EXP_INSURANCE + H_A_EXP_OTHER_COSTS;
 
 const H_A_GOP = H_A_REV_TOTAL - H_A_TOTAL_OP_EXP;
 const H_A_FEE_BASE = H_A_REV_TOTAL * 0.085;
@@ -128,14 +129,15 @@ const H_A_CASH_FLOW = H_A_ANOI - 0 - H_A_TAX;
 // ═══════════════════════════════════════════════════════════════════
 
 // Zero occupancy → zero revenue → zero revenue-driven expenses
-// Only purchase-price-driven expenses remain: property taxes
+// Only purchase-price-driven expenses remain: property taxes + insurance
 const H_B_REV_TOTAL = 0;
 const H_B_EXP_TAXES = (800_000 / 12) * DEFAULT_COST_RATE_TAXES;
-// GOP = 0 - 0 = 0 (no revenue-driven expenses either)
-const H_B_GOP = 0;
+const H_B_EXP_INSURANCE = (800_000 / 12) * DEFAULT_COST_RATE_INSURANCE;
+// GOP = 0 - insurance (property-value-based expense even at 0% occupancy)
+const H_B_GOP = 0 - H_B_EXP_INSURANCE;
 const H_B_FEE_BASE = 0;  // 8.5% of $0
-const H_B_FEE_INCENTIVE = 0;  // max(0, 0 × 12%) = 0
-const H_B_NOI = -H_B_EXP_TAXES;  // NOI = AGOP - Taxes = 0 - taxes
+const H_B_FEE_INCENTIVE = 0;  // max(0, negative × 12%) = 0
+const H_B_NOI = H_B_GOP - H_B_EXP_TAXES;  // NOI = AGOP - Taxes
 const H_B_FFE = 0;  // FFE is revenue-based
 const H_B_ANOI = H_B_NOI - H_B_FFE;
 

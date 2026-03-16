@@ -27,7 +27,7 @@ import { aggregatePropertyByYear } from "../../client/src/lib/financial/yearlyAg
 import { aggregateCashFlowByYear } from "../../client/src/lib/financial/cashFlowAggregator";
 import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE, DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
-  DEFAULT_COST_RATE_FFE, DEFAULT_COST_RATE_TAXES,
+  DEFAULT_COST_RATE_FFE, DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_INSURANCE,
   DAYS_PER_MONTH, DEPRECIATION_YEARS, DEFAULT_LAND_VALUE_PERCENT,
 } from "../../shared/constants";
 
@@ -108,9 +108,10 @@ const H_EXP_OTHER_COSTS = 0;
 // Fixed expenses based on property value (NOT revenue) — these still accrue
 const H_TOTAL_PROP_VALUE = 1_000_000;
 const H_EXP_TAXES = (H_TOTAL_PROP_VALUE / 12) * DEFAULT_COST_RATE_TAXES;         // 83333.33 * 0.03 = 2500.00
+const H_EXP_INSURANCE = (H_TOTAL_PROP_VALUE / 12) * DEFAULT_COST_RATE_INSURANCE; // 83333.33 * 0.015 = 1250.00
 
 // USALI waterfall
-const H_TOTAL_OP_EXP = 0; // All revenue-driven expenses = $0
+const H_TOTAL_OP_EXP = H_EXP_INSURANCE; // All revenue-driven expenses = $0, but insurance is property-value-based
 const H_GOP = H_REV_TOTAL - H_TOTAL_OP_EXP;                                       // $0
 const H_FEE_BASE = H_REV_TOTAL * DEFAULT_BASE_MANAGEMENT_FEE_RATE;                // $0
 const H_FEE_INCENTIVE = Math.max(0, H_GOP * DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE); // max(0, 0) = $0
@@ -212,18 +213,18 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
     });
   });
 
-  // ─── 5. NOI = -$2,500.00/mo ──────────────────────────────────────────────
-  describe("NOI = -$2,500.00/mo (only taxes)", () => {
-    it("NOI = $0 - $2,500.00 = -$2,500.00 every month", () => {
+  // ─── 5. NOI is negative (taxes + insurance with no revenue) ──────────────
+  describe("NOI is negative (taxes + insurance with no revenue)", () => {
+    it("NOI matches hand calculation every month", () => {
       for (let i = 0; i < MONTHS; i++) {
         expect(propFinancials[i].noi).toBeCloseTo(H_NOI, 2);
       }
     });
   });
 
-  // ─── 6. ANOI = -$4,166.67/mo (FF&E = 0) ─────────────────────────────────
-  describe("ANOI = -$4,166.67/mo (FF&E = 0 since revenue = 0)", () => {
-    it("ANOI = NOI - $0 FF&E = -$4,166.67 every month", () => {
+  // ─── 6. ANOI = NOI - FF&E (FF&E = 0) ─────────────────────────────────────
+  describe("ANOI = NOI - FF&E (FF&E = 0 since revenue = 0)", () => {
+    it("ANOI matches hand calculation every month", () => {
       for (let i = 0; i < MONTHS; i++) {
         expect(propFinancials[i].anoi).toBeCloseTo(H_ANOI, 2);
       }
@@ -261,9 +262,9 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
     });
   });
 
-  // ─── 10. Cash Flow = -$4,166.67/mo ───────────────────────────────────────
-  describe("Cash Flow = -$4,166.67/mo", () => {
-    it("cash flow = ANOI - $0 debt - $0 tax = -$4,166.67 every month", () => {
+  // ─── 10. Cash Flow matches hand calculation ──────────────────────────────
+  describe("Cash Flow matches hand calculation", () => {
+    it("cash flow = ANOI - $0 debt - $0 tax every month", () => {
       for (let i = 0; i < MONTHS; i++) {
         expect(propFinancials[i].cashFlow).toBeCloseTo(H_CASH_FLOW, 2);
       }
@@ -272,14 +273,14 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
 
   // ─── 11. Operating Reserve Seeded Month 0 ─────────────────────────────────
   describe("Operating Reserve Seeded Month 0", () => {
-    it("ending cash month 0 = $15,000 reserve + (-$4,166.67) = $10,833.33", () => {
+    it("ending cash month 0 = $15,000 reserve + monthly cash flow", () => {
       const expectedMonth0 = 15_000 + H_CASH_FLOW;
       expect(propFinancials[0].endingCash).toBeCloseTo(expectedMonth0, 2);
     });
   });
 
-  // ─── 12. Ending Cash Decreases by $4,166.67 Each Month ───────────────────
-  describe("Ending Cash Decreases by $4,166.67 Each Month", () => {
+  // ─── 12. Ending Cash Decreases Each Month ────────────────────────────────
+  describe("Ending Cash Decreases Each Month", () => {
     it("ending cash is cumulative: reserve + sum(cashFlow[0..i])", () => {
       let cumCash = 15_000; // operating reserve
       for (let i = 0; i < MONTHS; i++) {
@@ -358,12 +359,12 @@ describe("Golden Scenario: Zero Occupancy (Failed Asset)", () => {
 
   // ─── Exit Value (Negative Gross Value) ────────────────────────────────────
   describe("Exit — Negative Gross Value from Negative NOI", () => {
-    it("annual NOI = -$30,000", () => {
-      expect(H_ANNUAL_NOI).toBeCloseTo(-30_000, 2);
+    it("annual NOI = 12 × monthly H_NOI", () => {
+      expect(H_ANNUAL_NOI).toBeCloseTo(H_NOI * 12, 2);
     });
 
-    it("gross value = -$30,000 / 0.085 = -$352,941.18", () => {
-      expect(H_GROSS_VALUE).toBeCloseTo(-352_941.18, 0);
+    it("gross value = annual NOI / exit cap rate", () => {
+      expect(H_GROSS_VALUE).toBeCloseTo(H_ANNUAL_NOI / 0.085, 0);
     });
 
     it("exit value is negative (worthless asset)", () => {

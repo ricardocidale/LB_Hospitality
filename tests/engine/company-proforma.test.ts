@@ -167,7 +167,7 @@ describe("generateCompanyProForma — golden scenario", () => {
     it("totalExpenses = sum of all expense line items", () => {
       const sum = m0.partnerCompensation + m0.staffCompensation +
         m0.officeLease + m0.professionalServices + m0.techInfrastructure +
-        m0.travelCosts + m0.itLicensing +
+        m0.businessInsurance + m0.travelCosts + m0.itLicensing +
         m0.marketing + m0.miscOps;
       expect(m0.totalExpenses).toBeCloseTo(sum, 2);
     });

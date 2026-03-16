@@ -16,6 +16,7 @@ import {
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
+  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_TAX_RATE,
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
@@ -215,6 +216,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const costRateIT = property.costRateIT ?? DEFAULT_COST_RATE_IT;
     const costRateFFE = property.costRateFFE ?? DEFAULT_COST_RATE_FFE;
     const costRateOther = property.costRateOther ?? DEFAULT_COST_RATE_OTHER;
+    const costRateInsurance = property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE;
 
     const expenseRooms = revenueRooms * costRateRooms;
     const expenseFB = revenueFB * costRateFB;
@@ -236,12 +238,13 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const expenseTaxes = (totalPropertyValue / 12) * costRateTaxes * fixedCostFactor * fixedGate;
     const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
     const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
+    const expenseInsurance = (totalPropertyValue / 12) * costRateInsurance * fixedCostFactor * fixedGate;
 
     const feeBase = revenueTotal * (property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
     const totalOperatingExpenses =
       expenseRooms + expenseFB + expenseEvents + expenseOther +
       expenseMarketing + expensePropertyOps + expenseUtilitiesVar +
-      expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseOtherCosts;
+      expenseAdmin + expenseIT + expenseUtilitiesFixed + expenseInsurance + expenseOtherCosts;
 
     const gop = revenueTotal - totalOperatingExpenses;
     const feeIncentive = Math.max(0, gop * (property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));

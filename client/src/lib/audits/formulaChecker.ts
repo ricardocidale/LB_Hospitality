@@ -94,7 +94,7 @@ export function checkPropertyFormulas(monthlyData: MonthlyFinancials[]): Formula
     const totalOperatingExpenses = m.expenseRooms + m.expenseFB + m.expenseEvents + 
       m.expenseOther + m.expenseMarketing + m.expensePropertyOps + 
       m.expenseUtilitiesVar + m.expenseAdmin + m.expenseIT + 
-      m.expenseUtilitiesFixed + m.expenseOtherCosts;
+      m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
     
     const expectedTotalExpenses = totalOperatingExpenses + m.feeBase + m.feeIncentive + m.expenseTaxes + m.expenseFFE;
     results.push({

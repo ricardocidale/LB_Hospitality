@@ -193,7 +193,7 @@ export function checkGAAPCompliance(monthlyData: MonthlyFinancials[]): Complianc
     if (m.revenueTotal > 0) {
       const totalOpEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
         m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
-        m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseOtherCosts;
+        m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
       const expectedGOP = m.revenueTotal - totalOpEx;
       const gopCorrect = Math.abs(m.gop - expectedGOP) < 0.01;
       const noiExcludesDebt = m.noi !== m.noi - m.interestExpense || m.debtPayment === 0;

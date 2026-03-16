@@ -288,7 +288,7 @@ export function crossValidateFinancingCalculators(
     const totalOpEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
       m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
       m.expenseAdmin + m.expenseIT +
-      m.expenseUtilitiesFixed + m.expenseOtherCosts;
+      m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
     const expectedGOP = m.revenueTotal - totalOpEx;
     if (!withinTolerance(m.gop, expectedGOP)) {
       gopErrors++;
@@ -479,7 +479,7 @@ export function crossValidateFinancingCalculators(
   for (const m of monthlyData) {
     const opEx = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther +
       m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar +
-      m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseOtherCosts;
+      m.expenseAdmin + m.expenseIT + m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
     const expectedTotalExp = opEx + m.feeBase + m.feeIncentive + m.expenseTaxes + m.expenseFFE;
     
     if (!withinTolerance(m.totalExpenses, expectedTotalExp)) {

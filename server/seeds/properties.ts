@@ -93,6 +93,7 @@ export async function seedGlobalAssumptions() {
     officeLeaseStart: 36000,
     professionalServicesStart: 24000,
     techInfraStart: 18000,
+    businessInsuranceStart: 12000,
     travelCostPerClient: 12000,
     itLicensePerClient: 3000,
     marketingRate: 0.05,

@@ -337,7 +337,7 @@ function aggregateToYearly(monthlyData: MonthlyFinancials[]): Array<{
     const totalOperatingExpenses = m.expenseRooms + m.expenseFB + m.expenseEvents + 
       m.expenseOther + m.expenseMarketing + m.expensePropertyOps + 
       m.expenseUtilitiesVar + m.expenseAdmin + m.expenseIT + 
-      m.expenseUtilitiesFixed + m.expenseOtherCosts;
+      m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
     
     y.expenseOperating += totalOperatingExpenses;
     y.gop += m.gop;

@@ -46,6 +46,7 @@ import {
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
   DEFAULT_COST_RATE_INSURANCE,
+  DEFAULT_BUSINESS_INSURANCE_START,
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COST_OF_EQUITY,
   DEFAULT_TAX_RATE,
@@ -415,7 +416,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   officeLeaseStart: real("office_lease_start").notNull(),
   professionalServicesStart: real("professional_services_start").notNull(),
   techInfraStart: real("tech_infra_start").notNull(),
-  businessInsuranceStart: real("business_insurance_start").notNull().default(12000),
+  businessInsuranceStart: real("business_insurance_start").notNull().default(DEFAULT_BUSINESS_INSURANCE_START),
   
   // Cost variables - Variable costs
   travelCostPerClient: real("travel_cost_per_client").notNull(),

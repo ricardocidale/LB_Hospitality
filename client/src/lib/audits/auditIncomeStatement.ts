@@ -88,7 +88,7 @@ export function auditIncomeStatement(
     const totalDeptExpenses = m.expenseRooms + m.expenseFB + m.expenseEvents + m.expenseOther;
     const totalUndistExpenses = m.expenseMarketing + m.expensePropertyOps + m.expenseUtilitiesVar + 
                                 m.expenseAdmin + m.expenseIT + 
-                                m.expenseUtilitiesFixed + m.expenseOtherCosts;
+                                m.expenseUtilitiesFixed + m.expenseInsurance + m.expenseOtherCosts;
     const expectedGOP = m.revenueTotal - totalDeptExpenses - totalUndistExpenses;
     const gopMatch = withinTolerance(expectedGOP, m.gop);
     

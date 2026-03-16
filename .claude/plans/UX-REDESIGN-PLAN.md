@@ -1,59 +1,38 @@
 # UX Redesign Plan: Defaults Governance & App Simplification
 
-**Version**: 2.0 (clean rewrite, audit-corrected)
+**Version**: 3.0 (scoped to defaults only — no engineering reference, no research restructure)
 **Date**: 2026-03-16
 **Planned by**: Claude Code Opus 4.6 (Anthropic) in collaboration with the project owner
-**Companion document**: `.claude/plans/MARCELA-ISOLATION.md` — execute first
 
 ---
 
 ## For Replit Agent
 
-This plan was written by **Claude Code Opus 4.6** through extended conversation with the project owner, followed by a full codebase audit to verify every claim. It covers UX design, page specifications, database schema, code patterns, SDK usage, and governance rules.
+This plan covers ONE thing: **consolidating all financial defaults into a single "Model Defaults" admin section and simplifying what non-admin users see.** That's it.
 
-**This is a guide and suggestion, not a rigid specification.**
+For other initiatives, see the companion documents:
+- `MARCELA-ISOLATION.md` / `MARCELA-RESTORATION.md` — voice agent management
+- `ADMIN-SYSTEM-CLEANUP.md` — Diagrams and Integrations tab cleanup
+- `APP-UX-ROADMAP.md` — optimizing existing features (no new code)
+- `NEW-FEATURES-BACKLOG.md` — new feature ideas (not approved)
 
-You are encouraged to:
+**Replit Task #166** covers Phases 1 + 2 + 5 of this plan (schema, Model Defaults UI, property creation pre-fill).
 
-1. **Use your judgement.** The codebase is ground truth. If something here conflicts with what you see, trust what you see.
-2. **Ask the owner questions.** They are the final authority on product decisions. When in doubt, ask.
-3. **Replan as needed.** Propose alternatives if you find a better approach. Break work into small steps.
-4. **Verify constantly.** After any change: `npm run test:summary` (3,035+ tests). After financial changes: `npm run verify:summary` (must show UNQUALIFIED).
-5. **Read the rules first.** `.claude/rules/` has 19 binding governance rules. Read the relevant ones before each phase.
-6. **Flag disagreements.** If something is wrong or suboptimal, say so. Honest feedback > blind compliance.
-
-The goal is a better app, not perfect adherence to this document.
+Use your judgement. Ask the owner when in doubt. Verify after every change (`npm run test:summary`, `npm run verify:summary`).
 
 ---
 
 ## Table of Contents
 
-**Part I — What We're Building**
 1. [The Problem](#1-the-problem)
 2. [Design Principles](#2-design-principles)
-3. [Complete App Map (Post-Redesign)](#3-complete-app-map)
-4. [Navigation](#4-navigation)
-5. [Model Defaults — The New Admin Section](#5-model-defaults)
-6. [Governed Fields](#6-governed-fields)
-7. [Page Changes](#7-page-changes)
-8. [Field Migration Map](#8-field-migration-map)
-9. [Data Flow](#9-data-flow)
-10. [Access Control](#10-access-control)
-
-**Part II — How to Build It**
-11. [Implementation Phases](#11-implementation-phases)
-12. [Codebase Architecture](#12-codebase-architecture)
-13. [Database & Schema](#13-database-and-schema)
-14. [Coding Patterns](#14-coding-patterns)
-15. [SDKs, Libraries & Integrations](#15-sdks-libraries-and-integrations)
-16. [Deterministic Tool System](#16-deterministic-tool-system)
-17. [Testing & Verification](#17-testing-and-verification)
-18. [Replit Environment](#18-replit-environment)
-19. [Code Governance](#19-code-governance)
-
----
-
-# Part I — What We're Building
+3. [What Changes for Users](#3-what-changes-for-users)
+4. [Model Defaults — The New Admin Section](#4-model-defaults)
+5. [Governed Fields](#5-governed-fields)
+6. [Page Changes](#6-page-changes)
+7. [Field Migration Map](#7-field-migration-map)
+8. [Data Flow](#8-data-flow)
+9. [Implementation Phases](#9-implementation-phases)
 
 ---
 
@@ -76,8 +55,6 @@ A user asking "where do I set the default interest rate?" has to guess. Exit cap
 
 ## 2. Design Principles
 
-### UX Rules
-
 1. **All defaults in one place** — Admin > Model Defaults with 3 tabs: Market & Macro, Company Operations, Property Underwriting
 2. **Every calculated value traces to a configurable default** — No code constants. If it affects a number, someone can see and change it.
 3. **Defaults are starting points, not live bindings** — They pre-fill entities at creation. Changing a default does NOT retroactively change existing properties.
@@ -86,213 +63,59 @@ A user asking "where do I set the default interest rate?" has to guess. Exit cap
 6. **Config switches are not defaults** — Sidebar toggles, AI settings, display preferences stay in their admin tabs, not in Model Defaults.
 7. **If no one can change a value, it shouldn't be stored** — It's dead code.
 
-### Distinction: Default vs Config Switch
+### Default vs Config Switch
 
 | Type | What It Is | Where It Lives | Example |
 |------|-----------|---------------|---------|
 | **Default** | Starting value that flows into an entity field a user can change | Admin > Model Defaults | Exit cap rate, depreciation years, staff salary |
 | **Config switch** | Platform behavior toggle — no user-facing field it pre-fills | Stays in relevant admin tab | Sidebar visibility, preferred LLM, tour prompt |
 
-### Visual Design Standards
+---
 
-Every page looks like a premium $50K+ financial platform:
-- Animated numbers (NumberTicker, never static)
-- Glassmorphism cards (backdrop blur, layered depth)
-- Staggered reveals (lists cascade in, never all-at-once)
-- Skeleton loading (never spinner-only)
-- Typography: IBM Plex Sans (headings), Inter (body), JetBrains Mono (numbers)
-- All colors via CSS variables / theme tokens (no hardcoded hex)
+## 3. What Changes for Users
+
+### Non-Admin Users
+
+**Before:** Sidebar has "General Settings" with 15 fields. Company Assumptions page has 63+ fields. User can change values that affect the entire model.
+
+**After:**
+- "General Settings" is **gone** from sidebar
+- Company Assumptions page **redirects to `/company`** (read-only Model Inputs panel)
+- Every remaining sidebar item is operational — something they use daily
+- Property Edit still fully editable (property owns its values after creation)
+
+**Sidebar before → after:**
+```
+Before:                          After:
+HOME                             HOME
+  Dashboard                        Dashboard
+  Properties                       Properties
+  Mgmt Company                     Mgmt Company
+TOOLS                            TOOLS
+  Simulation                       Simulation
+  Property Finder                  Property Finder
+  Map View                         Map View
+SETTINGS                         ACCOUNT
+  My Profile                       My Profile
+  My Scenarios                     My Scenarios
+  General Settings  ← REMOVED
+```
+
+### Admin Users
+
+**Before:** Defaults scattered across Settings, Company Assumptions, and code constants. Admin sidebar has no "defaults" section.
+
+**After:**
+- New **"Model Defaults"** as first item in Business group of admin sidebar
+- Three tabs: Market & Macro, Company Operations, Property Underwriting
+- All financial defaults in one place
+- Company identity fields (name, logo, contact) also here (since CompaniesTab manages external companies, not the management company)
 
 ---
 
-## 3. Complete App Map
+## 4. Model Defaults — The New Admin Section
 
-### Post-Redesign Site Map
-
-```
-PUBLIC (no auth)
-├── /login                    3D logo, email+password, Google OAuth
-├── /privacy                  Privacy policy
-└── /terms                    Terms of service
-
-AUTHENTICATED — NON-ADMIN USERS
-├── / (Dashboard)             Portfolio overview + financial statements
-│   ├── Portfolio Overview         KPI cards, charts, distributions
-│   ├── Income Statement           Consolidated multi-year P&L
-│   ├── Cash Flow                  Operating/investing/financing
-│   ├── Balance Sheet              Consolidated BS
-│   └── Investment Analysis        IRR, equity multiple, returns
-│
-├── /portfolio                Property grid + map
-│   ├── Properties tab             Card grid of all properties
-│   └── Map tab                    MapLibre geographic view
-│
-├── /property/:id             Single property financials
-│   ├── Income Statement           Property P&L
-│   ├── Cash Flow                  Property cash flows
-│   ├── Balance Sheet              Property BS
-│   ├── PPE Schedule               Depreciation schedule
-│   └── Reconciliation             (admin/checker only)
-│
-├── /property/:id/edit        Property assumptions editor (8 sections)
-├── /property/:id/photos      Photo management
-├── /property/:id/research    Market research results
-├── /property/:id/criteria    Research criteria editor
-│
-├── /company                  Management company pro-forma
-│   ├── Income tab                 Company P&L
-│   ├── Cash Flow tab              Company cash flows
-│   ├── Balance Sheet tab          Company BS
-│   └── Model Inputs panel  ★ NEW  READ-ONLY expandable summary
-│
-├── /company/icp-definition   ICP target property definition (4 tabs)
-├── /company/research         Company market research (3 groups × 5 sub-tabs)
-│
-├── /analysis                 Analysis hub (5 tabs)
-│   ├── Sensitivity                Sliders + heatmap + tornado
-│   ├── Compare                    Side-by-side up to 4 properties
-│   ├── Timeline                   Acquisition timeline
-│   ├── Financing                  DSCR, debt yield, stress test, prepayment
-│   └── Capital Raise              Funding runway + SAFE modeling
-│
-├── /scenarios                Save/load/compare model snapshots
-├── /property-finder          External property search + favorites
-├── /map                      Portfolio geographic map (full page)
-├── /profile                  User profile + theme selection
-└── /help                     User Manual (17s) + Checker Manual (21s) + Tour
-
-ADMIN ONLY
-└── /admin                    Admin hub with sidebar
-    ├── BUSINESS group
-    │   ├── Model Defaults  ★ NEW  All financial defaults (3 tabs)
-    │   │   ├── Market & Macro
-    │   │   ├── Company Operations
-    │   │   └── Property Underwriting
-    │   ├── Users                  Accounts, company assignment, group assignment
-    │   ├── Companies              External companies of interest (NOT mgmt co)
-    │   └── Groups                 User groups + theme assignment
-    │
-    ├── RESEARCH group
-    │   ├── ICP Management Co      ICP editor
-    │   ├── Research Center        Per-domain config, tool toggles, per-event settings
-    │   ├── Research Sources  ★ NEW  3 subsections: Mgmt Co, Properties, Market & Industry
-    │   └── Research LLMs    ★ NEW  2 models × 3 domains = 6 LLM slots
-    │
-    ├── DESIGN group
-    │   ├── Logos                   Logo pool management
-    │   └── Themes                 Color theme designer
-    │
-    ├── AI AGENTS group
-    │   └── AI Agents              Rebecca text chatbot config
-    │                              (Marcela isolated — see MARCELA-ISOLATION.md)
-    │
-    └── SYSTEM group
-        ├── Navigation & Display   Sidebar toggles + display settings + tour
-        ├── Notifications          Email channels, alert rules
-        ├── Diagrams               Architecture visualizations
-        ├── Verification           GAAP audit + proof suite
-        ├── Database               Entity monitoring + seed data
-        ├── Integrations           Service health + cache
-        └── Activity               Login logs, audit trail
-```
-
-### Removed Routes
-
-| Route | Replacement |
-|-------|------------|
-| `/settings` | Redirects to `/company` (non-admin) or `/admin?section=model-defaults` (admin) |
-| `/company/assumptions` (non-admin) | Redirects to `/company` (read-only Model Inputs panel) |
-
-### Existing Redirects (unchanged)
-`/sensitivity` → `/analysis`, `/financing` → `/analysis`, `/compare` → `/analysis`, `/timeline` → `/analysis`, `/research` → `/`, `/global/research` → `/company/research`, `/methodology` → `/help`, `/executive-summary` → `/`, `/checker-manual` → `/help`, `/icp` → `/admin`
-
----
-
-## 4. Navigation
-
-### Non-Admin Sidebar
-
-```
-┌────────────────────────────┐
-│  [Company Logo]            │
-│  Company Name              │
-├────────────────────────────┤
-│  HOME                      │
-│  ○ Dashboard         /     │
-│  ○ Properties   /portfolio │
-│  ○ Mgmt Company /company  │
-│                            │
-│  TOOLS                     │
-│  ○ Simulation   /analysis  │
-│  ○ Property Finder         │
-│  ○ Map View     /map      │
-│                            │
-│  ACCOUNT                   │
-│  ○ My Profile   /profile  │
-│  ○ My Scenarios /scenarios│
-│                            │
-├────────────────────────────┤
-│  ○ Help         /help     │
-│  ○ Sign Out               │
-│  Privacy · Terms           │
-└────────────────────────────┘
-```
-
-**Removed:** "General Settings" — all content moved to Admin.
-
-**Conditionally visible** (admin toggles in Navigation & Display):
-- Simulation (`sidebarSensitivity`), Property Finder (`sidebarPropertyFinder`), Map View (`sidebarMapView`), Scenarios (`sidebarScenarios`), Help (`sidebarUserManual`)
-
-**Always visible:** Dashboard, Properties, Mgmt Company, My Profile, Sign Out
-
-### Admin Sidebar (on `/admin`)
-
-```
-┌────────────────────────────┐
-│  Admin Panel               │
-│  ← Back to App             │
-├────────────────────────────┤
-│  BUSINESS                  │
-│  ● Model Defaults  ★ NEW  │
-│  ○ Users                   │
-│  ○ Companies               │
-│  ○ Groups                  │
-│                            │
-│  RESEARCH                  │
-│  ○ ICP Management Co       │
-│  ○ Research Center         │
-│  ○ Research Sources  ★ NEW │
-│  ○ Research LLMs     ★ NEW │
-│                            │
-│  DESIGN                    │
-│  ○ Logos                   │
-│  ○ Themes                  │
-│                            │
-│  AI AGENTS                 │
-│  ○ AI Agents               │
-│                            │
-│  SYSTEM                    │
-│  ○ Navigation & Display    │
-│  ○ Notifications           │
-│  ○ Diagrams                │
-│  ○ Verification            │
-│  ○ Database                │
-│  ○ Integrations            │
-│  ○ Activity                │
-└────────────────────────────┘
-```
-
-### Mobile
-- Bottom tab bar: Dashboard, Properties, Company, Profile
-- Hamburger opens sheet drawer with full sidebar
-
----
-
-## 5. Model Defaults — The New Admin Section
-
-### Overview
-
-Single source of truth for all financial defaults. Three tabs, each with grouped sections. Located first in the Business group of the admin sidebar.
+Single source of truth for all financial defaults. Three tabs. Located first in the Business group of the admin sidebar.
 
 ### Tab 1: Market & Macro
 
@@ -318,7 +141,7 @@ Single source of truth for all financial defaults. Three tabs, each with grouped
 
 *"These values drive the management company pro-forma. Changes take effect immediately."*
 
-Since there's only one management company, these ARE the values (not templates). The management company is a singleton.
+Since there's only one management company, these ARE the values (not templates).
 
 #### Company Identity
 
@@ -332,7 +155,7 @@ Since there's only one management company, these ARE the values (not templates).
 | Street address | text | — |
 | Country → State → City → Zip | cascading selects | — |
 
-*Note: These fields currently live on Company Assumptions page (CompanySetupSection). They move here because the Admin > Companies tab manages external "Companies of Interest", not the management company itself.*
+*These move here from Company Assumptions (CompanySetupSection). Admin > Companies tab manages external "Companies of Interest", not the management company.*
 
 #### Company Timeline
 
@@ -510,9 +333,9 @@ Since there's only one management company, these ARE the values (not templates).
 
 ---
 
-## 6. Governed Fields
+## 5. Governed Fields
 
-A governed field is any value backed by regulation, tax law, or industry standard. It's editable but carries authority citation.
+A governed field is any value backed by regulation, tax law, or industry standard. Editable but carries authority citation.
 
 ### Registry
 
@@ -536,187 +359,26 @@ A governed field is any value backed by regulation, tax law, or industry standar
 └──────────────────────────────────────────────────┘
 ```
 
-- **Shield icon** (not warning triangle) — conveys authority, not danger
-- **Collapsible helper text** — expanded on first view, collapsible after
-- **Muted amber background** — `bg-amber-50 border-amber-200` (light), `bg-amber-900/20` (dark)
-- **Same treatment on Property Edit** — governance info travels with the field
-- **Help page section** — each governed field gets authority explanation
+- Shield icon (not warning triangle) — conveys authority, not danger
+- Collapsible helper text — expanded on first view, collapsible after
+- Muted amber background — `bg-amber-50 border-amber-200` (light), `bg-amber-900/20` (dark)
+- Same treatment on Property Edit — governance info travels with the field
 
 ---
 
-## 6b. Research Center Restructure
+## 6. Page Changes
 
-### The Problem
-
-Currently the Research Center has:
-- **One flat LLM configuration** — a single primary + secondary model shared across all research types
-- **Sources loosely organized** — property and market sources exist as pre-configured lists in client code (`research-shared.tsx`), not as admin-configurable collections
-- No way to say "use Claude for property research but Gemini for market research"
-
-### The Solution
-
-Centralize sources and LLMs behind the admin wall with **domain-specific configuration** for three research contexts.
-
-### Research Sources — New Admin Tab
-
-A new "Research Sources" item in the Research group of the admin sidebar. Three subsections:
-
-#### Sources for Management Company
-Knowledge sources that feed ICP and company-level research:
-- Hospitality management industry reports
-- AHLA, PKF, HVS publications
-- Outsourcing and vendor benchmarking sources
-- Admin can add/remove URLs with labels and categories
-
-#### Sources for Properties
-Knowledge sources that feed per-property market research:
-- STR (CoStar), CBRE Hotels, HVS, Real Capital Analytics
-- Local market reports, comp set data
-- Property-specific benchmarking sources
-- Admin can add/remove URLs with labels and categories
-
-#### Sources for Market & Industry
-Knowledge sources that feed global/macro research:
-- FRED (Federal Reserve), BLS, Preqin, Trepp
-- Lodging Econometrics, AHLA
-- Economic outlook, capital markets, ESG reports
-- Admin can add/remove URLs with labels and categories
-
-**Current state:** Sources are hardcoded in `client/src/components/admin/research-center/research-shared.tsx` as `PROPERTY_DEFAULT_SOURCES` and `MARKET_DEFAULT_SOURCES`. The restructure moves these into the database as admin-editable configurations within each domain's `ResearchEventConfig.sources` array.
-
-**Data model:** Each source is a `ResearchSourceEntry`:
-```typescript
-{ id: string; url: string; label: string; category?: string; addedAt: string; }
-```
-
-Stored in `researchConfig.property.sources`, `researchConfig.company.sources`, `researchConfig.global.sources` (already supported by the JSONB schema — just needs UI).
-
-### Research LLMs — New Admin Tab
-
-A new "Research LLMs" item in the Research group. Two models per domain = 6 LLM slots:
-
-| Domain | Primary LLM (Reasoning) | Secondary LLM (Workhorse) |
-|--------|------------------------|--------------------------|
-| **Management Company** | e.g., Claude Opus | e.g., Gemini Flash |
-| **Properties** | e.g., Claude Sonnet | e.g., GPT-4o |
-| **Market & Industry** | e.g., Gemini Pro | e.g., Claude Haiku |
-
-**Why two per domain:**
-- **Primary (Reasoning)** — Used for complex analysis, synthesis, and recommendations. Higher quality, slower, more expensive.
-- **Secondary (Workhorse)** — Used for data extraction, summarization, and routine tasks. Faster, cheaper.
-
-**Current state:** The Research Center has a single LLM tab with `primaryLlm` + `secondaryLlm` + `llmMode` (dual/primary-only) shared across all research types. The restructure replaces this with domain-specific configuration.
-
-**Data model change:** Extend `ResearchEventConfig` with LLM fields:
-
-```typescript
-export interface ResearchEventConfig {
-  // ... existing fields ...
-  primaryLlm?: string;      // NEW — reasoning model for this domain
-  secondaryLlm?: string;    // NEW — workhorse model for this domain
-  llmMode?: LlmMode;        // NEW — "dual" | "primary-only" per domain
-}
-```
-
-The top-level `researchConfig.primaryLlm` and `researchConfig.secondaryLlm` become fallbacks for domains that don't have their own configuration (backward compatibility).
-
-**LLM resolution chain:**
-```
-Domain-specific model → Top-level researchConfig model → globalAssumptions.preferredLlm → hardcoded default
-```
-
-### UI Layout
-
-**Research Sources tab:**
-```
-┌─────────────────────────────────────────────────────┐
-│  Research Sources                                    │
-│                                                      │
-│  ┌─ Management Company ──────────────────────────┐  │
-│  │  ○ AHLA (ahla.com)                    [✕]     │  │
-│  │  ○ PKF Hospitality (pkfhotels.com)    [✕]     │  │
-│  │  ○ + Add Source                               │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                      │
-│  ┌─ Properties ──────────────────────────────────┐  │
-│  │  ○ STR / CoStar (str.com)             [✕]     │  │
-│  │  ○ CBRE Hotels (cbre.com/hotels)      [✕]     │  │
-│  │  ○ HVS (hvs.com)                     [✕]     │  │
-│  │  ○ Real Capital Analytics (msci.com)  [✕]     │  │
-│  │  ○ + Add Source                               │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                      │
-│  ┌─ Market & Industry ───────────────────────────┐  │
-│  │  ○ FRED (fred.stlouisfed.org)         [✕]     │  │
-│  │  ○ BLS (bls.gov)                     [✕]     │  │
-│  │  ○ Preqin (preqin.com)               [✕]     │  │
-│  │  ○ Lodging Econometrics              [✕]     │  │
-│  │  ○ + Add Source                               │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                      │
-│  [Save]                                              │
-└─────────────────────────────────────────────────────┘
-```
-
-**Research LLMs tab:**
-```
-┌─────────────────────────────────────────────────────┐
-│  Research LLMs                                       │
-│                                                      │
-│  ┌─ Management Company ──────────────────────────┐  │
-│  │  Primary (Reasoning):   [Claude Opus     ▾]   │  │
-│  │  Secondary (Workhorse): [Gemini Flash    ▾]   │  │
-│  │  Mode: ○ Dual  ○ Primary Only                 │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                      │
-│  ┌─ Properties ──────────────────────────────────┐  │
-│  │  Primary (Reasoning):   [Claude Sonnet   ▾]   │  │
-│  │  Secondary (Workhorse): [GPT-4o          ▾]   │  │
-│  │  Mode: ○ Dual  ○ Primary Only                 │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                      │
-│  ┌─ Market & Industry ───────────────────────────┐  │
-│  │  Primary (Reasoning):   [Gemini Pro      ▾]   │  │
-│  │  Secondary (Workhorse): [Claude Haiku    ▾]   │  │
-│  │  Mode: ○ Dual  ○ Primary Only                 │  │
-│  └───────────────────────────────────────────────┘  │
-│                                                      │
-│  [Save]                                              │
-│                                                      │
-│  Available Models: [Refresh Models]                  │
-│  Anthropic: Claude Opus, Sonnet, Haiku               │
-│  OpenAI: GPT-5.4, o3, o4-mini                       │
-│  Google: Gemini 3.1, 2.5, Flash                      │
-│  xAI: Grok 4, Grok 3                                │
-└─────────────────────────────────────────────────────┘
-```
-
-### Implementation
-
-This is **Phase 3** in the dependency structure (can run in parallel with Phase 2 — Model Defaults UI):
-
-1. **Schema:** Extend `ResearchEventConfig` interface with `primaryLlm`, `secondaryLlm`, `llmMode` fields
-2. **Server:** Update `server/routes/research.ts` to read domain-specific LLM from `researchConfig[type].primaryLlm` with fallback to top-level
-3. **Admin UI:** Create `ResearchSourcesTab.tsx` and `ResearchLlmsTab.tsx` components
-4. **Migrate defaults:** Move hardcoded source lists from `research-shared.tsx` into database as initial seed values
-5. **Admin sidebar:** Add two new items to Research group
-6. **Test:** Verify research generation uses domain-specific LLM when configured, falls back when not
-
----
-
-## 7. Page Changes
-
-### 7.1 Settings Page → ELIMINATED
+### 6.1 Settings Page → ELIMINATED
 
 The `/settings` page is removed. Its 15 fields move to:
 
 | Current Field | Current Tab | Moves To |
 |--------------|-------------|----------|
 | Disposition commission | Property Defaults | Model Defaults > Property Underwriting > Disposition |
-| Acquisition LTV, rate, term, closing | Property Defaults | Model Defaults > Property Underwriting > Acquisition Financing |
-| Refi LTV, rate, term, closing, years-after | Property Defaults | Model Defaults > Property Underwriting > Refinance Terms |
-| Fiscal year start month | Macro | Model Defaults > Market & Macro > Fiscal Calendar |
-| Inflation escalator | Macro | Model Defaults > Market & Macro > Economic Environment |
+| Acquisition LTV, rate, term, closing | Property Defaults | Model Defaults > Property Underwriting > Acq Financing |
+| Refi LTV, rate, term, closing, years-after | Property Defaults | Model Defaults > Property Underwriting > Refi Terms |
+| Fiscal year start month | Macro | Model Defaults > Market & Macro |
+| Inflation escalator | Macro | Model Defaults > Market & Macro |
 | Show company calc details | Other | Admin > Navigation & Display |
 | Show property calc details | Other | Admin > Navigation & Display |
 | Auto-refresh research | Other | Admin > Research Center |
@@ -724,7 +386,7 @@ The `/settings` page is removed. Its 15 fields move to:
 
 "General Settings" removed from sidebar. `/settings` redirects.
 
-### 7.2 Company Assumptions Page → Admin Only
+### 6.2 Company Assumptions Page → Admin Only
 
 **Current state:** 12 sections, 63+ fields, accessible to management users.
 
@@ -734,7 +396,7 @@ The `/settings` page is removed. Its 15 fields move to:
 - Exit/expense rate fields move to Model Defaults > Property Underwriting
 - `/company/assumptions` redirects to `/company` for non-admins, `/admin?section=model-defaults` for admins
 
-### 7.3 Company Page (`/company`) — New Model Inputs Panel
+### 6.3 Company Page (`/company`) — New Model Inputs Panel
 
 Add a **read-only expandable accordion** below the tab bar:
 
@@ -753,21 +415,19 @@ Add a **read-only expandable accordion** below the tab bar:
 └─────────────────────────────────────────────────────┘
 ```
 
-### 7.4 Property Edit — Pre-fill from Defaults
+### 6.4 Property Edit — Pre-fill from Defaults
 
 When a user creates a new property, all fields are pre-filled from Model Defaults > Property Underwriting. The user sees real numbers in every field on day one, edits what they want, saves. The property then owns its values.
 
 **Current state (from audit):** The server route `POST /api/properties` already calls `buildPropertyDefaultsFromGlobal()` for cost rates, financing, exit, and fees. But revenue defaults (ADR, occupancy, ramp) are pre-filled on the **client side** from constants. This redesign unifies both into a single server-side flow reading everything from the database.
 
-**Governed fields on Property Edit:** Depreciation years shows the same shield + authority citation as in admin.
+### 6.5 Admin Panel — Model Defaults Added
 
-### 7.5 Admin Panel — Model Defaults Added
-
-Only change to admin sidebar: "Model Defaults" added as first item in Business group. All other admin tabs unchanged (except Navigation renamed to "Navigation & Display" and gains display toggle + tour toggle fields from eliminated Settings page).
+"Model Defaults" added as first item in Business group. Navigation tab renamed to "Navigation & Display" and gains display toggle + tour toggle fields from eliminated Settings page.
 
 ---
 
-## 8. Field Migration Map
+## 7. Field Migration Map
 
 ### From Settings Page (15 fields)
 
@@ -823,12 +483,12 @@ Only change to admin sidebar: "Model Defaults" added as first item in Business g
 | Show calc details (×2) | Admin > Navigation & Display (moved FROM Settings) |
 | Show tour prompt | Admin > Navigation & Display (moved FROM Settings) |
 | Auto-refresh research | Admin > Research Center (moved FROM Settings) |
-| Preferred LLM (per-domain, 6 slots) | Admin > Research LLMs ★ NEW (restructured from Research Center) |
+| Preferred LLM | Admin > Research Center (already there) |
 | Rebecca enabled/config | Admin > AI Agents |
 
 ---
 
-## 9. Data Flow
+## 8. Data Flow
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -856,679 +516,96 @@ Only change to admin sidebar: "Model Defaults" added as first item in Business g
 
 **When admin changes a Property Underwriting default** → only affects next property created. Existing properties unchanged.
 
-**When admin changes a Company Operations value** → immediately affects company pro-forma (singleton — direct edit).
+**When admin changes a Company Operations value** → immediately affects company pro-forma (singleton).
 
-**When admin changes a Market & Macro value** → immediately affects research context and any calculation reading this global value.
-
----
-
-## 10. Access Control
-
-### Route Access
-
-| Route | Auth | Management | Admin | Checker |
-|-------|------|-----------|-------|---------|
-| `/` Dashboard | Yes | Yes | Yes | Yes |
-| `/portfolio` | Yes | Yes | Yes | Yes |
-| `/property/:id` | Yes | Yes | Yes | Yes |
-| `/property/:id/edit` | — | Yes | Yes | — |
-| `/company` | — | Yes | Yes | — |
-| `/analysis` | — | Yes | Yes | — |
-| `/scenarios` | — | Yes | Yes | — |
-| `/property-finder` | — | Yes | Yes | — |
-| `/map` | — | Yes | Yes | — |
-| `/profile` | Yes | Yes | Yes | Yes |
-| `/help` | Yes | Yes | Yes | Yes |
-| `/admin` (all sections) | — | — | Yes | — |
-
-### Feature Access
-
-| Feature | Investor | User/Partner | Admin | Checker |
-|---------|----------|-------------|-------|---------|
-| View financial statements | Yes | Yes | Yes | Yes |
-| Edit property assumptions | — | Yes | Yes | — |
-| Create/delete properties | — | Yes | Yes | — |
-| View company pro-forma | — | Yes | Yes | — |
-| Edit company model inputs | — | — | Yes | — |
-| Edit Model Defaults | — | — | Yes | — |
-| Manage users/groups | — | — | Yes | — |
-| Run verification | — | — | Yes | Yes |
+**When admin changes a Market & Macro value** → immediately affects research context and calculations reading this global value.
 
 ---
 
-# Part II — How to Build It
-
----
-
-## 11. Implementation Phases
+## 9. Implementation Phases
 
 ### Phase 1: Schema & Database
 **Effort:** Small | **Risk:** Low | **Depends on:** Nothing
 
-Add new columns to `globalAssumptions` table:
-- `depreciationYears` (real, default 27.5)
-- `daysPerMonth` (real, default 30.5)
-- Revenue defaults currently hardcoded on client: `defaultStartAdr`, `defaultAdrGrowthRate`, `defaultStartOccupancy`, `defaultMaxOccupancy`, `defaultOccupancyRampMonths`, `defaultOccupancyGrowthStep`, `defaultCateringBoostPct`
-
-Write idempotent migration in `server/migrations/model-defaults-001.ts`. Runs automatically on next server start.
-
-Update `shared/schema/config.ts` with new fields.
+Add missing columns to `globalAssumptions` for fields that don't have DB columns yet (revenue defaults, cost segregation, AR/AP days, cost of equity, payroll burden rate). Write idempotent migration. Runs on next server start.
 
 ### Phase 2: Admin Model Defaults UI
 **Effort:** Medium | **Risk:** Medium | **Depends on:** Phase 1
 
-Create `ModelDefaultsTab.tsx` with 3 sub-tabs (MarketMacroTab, CompanyOperationsTab, PropertyUnderwritingTab). Follow existing admin tab patterns (see `PeopleTab.tsx`, `CompensationSection.tsx`). Wire to `PATCH /api/global-assumptions`. Add to `AdminSidebar.tsx` as first item in Business group.
+Create `ModelDefaultsTab.tsx` with 3 sub-tabs. Follow existing admin tab patterns. Wire to `PATCH /api/global-assumptions`. Add to admin sidebar as first item in Business group.
 
-### Phase 3: Research Center Restructure
-**Effort:** Medium | **Risk:** Low | **Depends on:** Phase 1
+**Replit Task #166 covers Phases 1 + 2 + 5.**
 
-Centralize research sources and LLMs with domain-specific configuration. See Section 6b for full specification.
-
-- Extend `ResearchEventConfig` interface with `primaryLlm`, `secondaryLlm`, `llmMode` fields
-- Create `ResearchSourcesTab.tsx` — 3 subsections (Mgmt Co, Properties, Market & Industry) for admin-editable source URLs
-- Create `ResearchLlmsTab.tsx` — 2 models × 3 domains = 6 LLM slots with mode toggle per domain
-- Migrate hardcoded source lists from `research-shared.tsx` to database seed values
-- Update `server/routes/research.ts` to read domain-specific LLM with fallback chain
-- Add both tabs to admin sidebar Research group
-- **Can run in parallel with Phase 2** (Model Defaults UI)
-
-### Phase 4: Governed Field Component
+### Phase 3: Governed Field Component
 **Effort:** Small | **Risk:** Low | **Depends on:** Nothing
 
-Create `GovernedField.tsx` component with shield icon, authority badge, collapsible helper text. Apply to depreciation years and days per month. Add governed fields reference to Help page.
+Create `GovernedField.tsx` component with shield icon, authority badge, collapsible helper text. Apply to depreciation years and days per month.
+
+### Phase 4: Company Page Read-Only Panel
+**Effort:** Small | **Risk:** Low | **Depends on:** Nothing
+
+Create `ModelInputsPanel.tsx` — read-only expandable accordion on `/company` page.
 
 ### Phase 5: Extend Property Creation Pre-fill
 **Effort:** Small | **Risk:** Medium | **Depends on:** Phase 1
 
-**Already exists:** `buildPropertyDefaultsFromGlobal()` in `server/routes/properties.ts` fills cost rates, financing, exit, fees from `globalAssumptions`.
+**Already exists:** `buildPropertyDefaultsFromGlobal()` fills cost rates, financing, exit, fees. Extend it to include revenue defaults (ADR, occupancy, ramp) from database instead of client constants. Update `AddPropertyDialog` to read from API.
 
-**Extend it to:**
-- Include new revenue defaults (ADR, occupancy, ramp) from database instead of client constants
-- Include `depreciationYears` from database
-- Update `AddPropertyDialog` to read initial form values from API instead of client-side constants
-
-### Phase 6: Company Page Read-Only Panel
-**Effort:** Small | **Risk:** Low | **Depends on:** Nothing
-
-Create `ModelInputsPanel.tsx` — read-only expandable accordion on `/company` page. Reads from `globalAssumptions`. Shows "Edit in Admin > Model Defaults" link for admins.
-
-### Phase 7: Eliminate Settings Page
+### Phase 6: Eliminate Settings Page
 **Effort:** Small | **Risk:** Low | **Depends on:** Phase 2
 
-Remove `/settings` route. Remove "General Settings" from sidebar. Add redirect. Move display toggles to Navigation & Display tab. Move research auto-refresh to Research Center. Move tour toggle to Navigation & Display.
+Remove `/settings` route and sidebar item. Add redirect. Move display toggles to Navigation & Display. Move research auto-refresh to Research Center. Move tour toggle to Navigation & Display.
 
-### Phase 8: Company Assumptions Consolidation
-**Effort:** Medium | **Risk:** Medium | **Depends on:** Phase 2, 6
+### Phase 7: Company Assumptions Consolidation
+**Effort:** Medium | **Risk:** Medium | **Depends on:** Phase 2, 4
 
-Move company identity fields to Model Defaults > Company Operations > Identity. Move exit/expense fields to Property Underwriting. Redirect `/company/assumptions` for non-admins. Admin edits company values via Model Defaults.
+Move company identity fields to Model Defaults > Company Operations > Identity. Move exit/expense fields to Property Underwriting. Redirect `/company/assumptions` for non-admins.
 
-### Phase 9: Code Constants Migration
+### Phase 8: Code Constants Migration
 **Effort:** Large | **Risk:** High | **Depends on:** Phase 1, 5
 
-**Scope:** `DEPRECIATION_YEARS` referenced in 42 files. `DAYS_PER_MONTH` in 48 files. 30+ test files import these constants directly.
+**Scope:** `DEPRECIATION_YEARS` referenced in 42 files. `DAYS_PER_MONTH` in 48 files. 30+ test files import these constants.
 
-- Refactor `shared/constants.ts` to `SEED_DEFAULTS` (used only by migrations/seeds)
-- Update `resolve-assumptions.ts` line 158: read `depreciationYears` from property input
-- Update engine: pass `depreciationYears` through property context
-- Update engine: read `daysPerMonth` from globalAssumptions
-- Update 30+ test files: fixtures must populate new entity fields
+Migrate one constant at a time. Start with `DEPRECIATION_YEARS`. Then `DAYS_PER_MONTH`. Then remaining `DEFAULT_*`. Full test suite after each.
 
-**Migrate one constant at a time.** Start with `DEPRECIATION_YEARS` (simpler — property-scoped). Then `DAYS_PER_MONTH`. Then remaining `DEFAULT_*`. Run full test suite after each.
-
-### Phase 10: Expose Hidden Property Fields
-**Effort:** Small | **Risk:** Low | **Depends on:** Phase 5
-
-Add to Property Edit form fields that exist in schema but not in UI: property inflation rate, AR/AP days, cost segregation settings, day count convention, escalation method. Pre-fill from defaults.
-
-### Phase 11: Testing & Documentation
+### Phase 9: Testing & Documentation
 **Effort:** Medium | **Risk:** Low | **Depends on:** All phases
 
-New tests: model-defaults proof test, governed-fields engine test, research-center restructure test, settings-elimination test. Update existing tests. Update Help page. Run `npm run verify:summary` — must show UNQUALIFIED. Run `npm run health`.
+New tests: model-defaults proof test, governed-fields engine test, settings-elimination test. Run `npm run verify:summary` → UNQUALIFIED. Run `npm run health`.
 
 ### Summary
 
 ```
-Phase 1: Schema & Database (no deps)
-    ├── Phase 2: Model Defaults Admin Tab (depends on 1)  ─┐
-    │                                                       ├─ can run in parallel
-    ├── Phase 3: Research Center Restructure (depends on 1) ┘
+Phase 1: Schema (no deps)
+    ├── Phase 2: Model Defaults UI (depends on 1)
+    ├── Phase 3: Governed Fields (no deps)
+    ├── Phase 4: Company Read-Only Panel (no deps)
+    ├── Phase 5: Property Creation Pre-fill (depends on 1)
     │
-    ├── Phase 4: Governed Field Component (no deps)
-    ├── Phase 5: Extend Property Creation Pre-fill (depends on 1)
-    ├── Phase 6: Company Page Read-Only Panel (no deps)
+    ├── Phase 6: Eliminate Settings (depends on 2)
+    ├── Phase 7: Company Assumptions Consolidation (depends on 2, 4)
     │
-    ├── Phase 7: Eliminate Settings Page (depends on 2)
-    ├── Phase 8: Company Assumptions Consolidation (depends on 2, 6)
+    ├── Phase 8: Code Constants Migration (depends on 1, 5) ← HIGHEST RISK
     │
-    ├── Phase 9: Code Constants Migration (depends on 1, 5) ← HIGHEST RISK
-    ├── Phase 10: Expose Hidden Property Fields (depends on 5)
-    │
-    └── Phase 11: Testing & Documentation (depends on all)
+    └── Phase 9: Testing & Documentation (depends on all)
 ```
 
 | Phase | Work | Effort | Risk | Depends On |
 |-------|------|--------|------|------------|
 | 1 | Schema & Database | Small | Low | — |
 | 2 | Admin Model Defaults UI | Medium | Medium | 1 |
-| 3 | Research Center Restructure | Medium | Low | 1 |
-| 4 | Governed Field Component | Small | Low | — |
+| 3 | Governed Field Component | Small | Low | — |
+| 4 | Company Page Read-Only Panel | Small | Low | — |
 | 5 | Extend Property Creation Pre-fill | Small | Medium | 1 |
-| 6 | Company Page Read-Only Panel | Small | Low | — |
-| 7 | Eliminate Settings Page | Small | Low | 2 |
-| 8 | Company Assumptions Consolidation | Medium | Medium | 2, 6 |
-| 9 | Code Constants Migration | **Large** | **High** | 1, 5 |
-| 10 | Expose Hidden Property Fields | Small | Low | 5 |
-| 11 | Testing & Documentation | Medium | Low | All |
+| 6 | Eliminate Settings Page | Small | Low | 2 |
+| 7 | Company Assumptions Consolidation | Medium | Medium | 2, 4 |
+| 8 | Code Constants Migration | **Large** | **High** | 1, 5 |
+| 9 | Testing & Documentation | Medium | Low | All |
 
-**Parallelizable:** Phases 2 + 3 in parallel. Phases 4, 5, 6 in parallel. Phase 7 + 8 after Phase 2.
+**Parallelizable:** Phases 3, 4, 5 can run in parallel after Phase 1.
 
-**Phase 9 warning:** Highest-risk phase. 90+ files reference the constants. Migrate one at a time, full test suite after each.
-
-**Note:** Replit has created Task #166 covering Phase 1 + Phase 2 + Phase 5 (schema extension, Model Defaults tab, property creation defaults). The task scoping explicitly defers Phase 4 (governed fields), Phase 7 (settings elimination), and Phase 3 (research restructure) to follow-up tasks.
+**Phase 8 warning:** Highest-risk phase. 90+ files reference the constants. Migrate one at a time, full test suite after each.
 
 ---
 
-## 12. Codebase Architecture
-
-### Directory Structure
-
-```
-/home/runner/workspace/
-├── client/src/
-│   ├── pages/              Route-level page components
-│   ├── components/
-│   │   ├── ui/             Base components (shadcn/ui + glass, animated, charts)
-│   │   ├── graphics/       Visualization & animation (KPIGrid, DonutChart, etc.)
-│   │   ├── admin/          Admin tab components (15+ tabs)
-│   │   ├── dashboard/      Dashboard tabs
-│   │   ├── company/        Company page components
-│   │   ├── company-assumptions/  Company assumption sections (12)
-│   │   ├── property-detail/     Property detail tabs
-│   │   ├── property-edit/       Property edit form sections (8)
-│   │   ├── settings/       Settings tabs (TO BE REMOVED)
-│   │   └── ...             Other domain components
-│   ├── features/
-│   │   ├── design-themes/  Theme system
-│   │   ├── property-images/ Photo management
-│   │   └── ai-agent/       Marcela voice (ISOLATED — see MARCELA-ISOLATION.md)
-│   ├── hooks/              Custom React hooks
-│   └── lib/
-│       ├── api/            TanStack Query hooks + fetch functions
-│       ├── financial/      Property + Company engines
-│       ├── charts/         12 reusable Recharts components
-│       └── exports/        PDF, Excel, PPTX, CSV, PNG generators
-│
-├── server/
-│   ├── routes/             API handlers (20+ domain files)
-│   │   └── admin/          Admin-only sub-routes
-│   ├── storage/            IStorage interface + 11 sub-storage classes
-│   ├── ai/                 AI integrations + knowledge base
-│   ├── integrations/       External service wrappers (8)
-│   ├── migrations/         Schema migrations (18)
-│   ├── seeds/              Seed data modules
-│   ├── services/           Business services (MI, FRED, benchmarks)
-│   ├── calculation-checker/ Independent verification engine
-│   └── notifications/      Alert rules engine
-│
-├── shared/
-│   ├── schema/             Drizzle table definitions (source of truth for types)
-│   └── constants.ts        Named constants + defaults
-│
-├── calc/                   36 pure deterministic calculation tools
-│   ├── dispatch.ts         Tool registry + router
-│   ├── shared/             Utilities, schemas, types
-│   └── {research,returns,validation,analysis,financing,services}/
-│
-├── tests/                  3,035 tests across 136 files
-│   ├── proof/              Invariant enforcement
-│   ├── engine/             Financial calculations
-│   ├── calc/               Tool tests
-│   └── integration/        API tests
-│
-└── .claude/
-    ├── rules/              19 binding governance rules
-    ├── skills/             186 reference docs (load on demand)
-    ├── tools/              JSON schemas for calc tools
-    └── plans/              This file + MARCELA-ISOLATION.md
-```
-
-### Module Boundaries (Enforced by Tests)
-
-- `calc/` never imports from `server/` or `client/` — pure functions only
-- `server/routes/` never imports `db` directly — all through `IStorage` facade
-- `client/` never imports from `server/` — HTTP API only
-- `shared/` imported by both client and server
-- Features (`client/src/features/`) are self-contained with `index.ts` barrel
-
-### Import Aliases
-
-```
-@/*           → client/src/*
-@shared/*     → shared/*
-@calc/*       → calc/*
-@domain/*     → domain/*
-```
-
----
-
-## 13. Database & Schema
-
-### Schema Definition (Drizzle ORM)
-
-Tables defined in `shared/schema/` using `pgTable()`. Single source of truth for types. Both client and server import from here.
-
-**New columns for this redesign:**
-```typescript
-// shared/schema/config.ts — add to globalAssumptions
-depreciationYears: real("depreciation_years").default(27.5),
-daysPerMonth: real("days_per_month").default(30.5),
-defaultStartAdr: real("default_start_adr").default(250),
-defaultAdrGrowthRate: real("default_adr_growth_rate").default(0.03),
-defaultStartOccupancy: real("default_start_occupancy").default(0.55),
-defaultMaxOccupancy: real("default_max_occupancy").default(0.85),
-defaultOccupancyRampMonths: integer("default_occupancy_ramp_months").default(6),
-defaultOccupancyGrowthStep: real("default_occupancy_growth_step").default(0.05),
-defaultCateringBoostPct: real("default_catering_boost_pct").default(0.22),
-
-// shared/schema/properties.ts — add to properties
-depreciationYears: real("depreciation_years").default(27.5),
-```
-
-### Data Integrity Rules
-
-1. **Shared ownership:** All portfolio data uses `userId = NULL`
-2. **Singleton queries:** `ORDER BY id DESC LIMIT 1` on `globalAssumptions`
-3. **Fill-only sync:** `isFieldEmpty()` + `fillMissingFields()` — never overwrite user values
-4. **No direct `db` imports in routes** — all through `IStorage` facade
-5. **Zod validation** on all request bodies
-
-### Migration Pattern
-
-```typescript
-// server/migrations/model-defaults-001.ts
-export async function migrate(db: NodePgDatabase) {
-  await db.execute(sql`
-    ALTER TABLE global_assumptions
-    ADD COLUMN IF NOT EXISTS depreciation_years REAL DEFAULT 27.5
-  `);
-  // ... more columns
-  console.info("[INFO] [migration] model-defaults-001 complete");
-}
-```
-
-Always idempotent (`IF NOT EXISTS`). Registered in `server/index.ts` startup sequence. Runs automatically.
-
-### Storage Layer
-
-All DB access through `IStorage` interface → `DatabaseStorage` → 11 sub-storage classes:
-UserStorage, PropertyStorage, FinancialStorage, AdminStorage, ActivityStorage, ResearchStorage, PhotoStorage, DocumentStorage, ServiceStorage, NotificationStorage.
-
----
-
-## 14. Coding Patterns
-
-### Component Pattern
-
-```typescript
-import { Card } from "@/components/ui/card";
-import { GlassButton } from "@/components/ui/glass-button";
-
-interface Props { property: Property; onSave: (data: Partial<Property>) => void; }
-
-export function PropertyCard({ property, onSave }: Props) {
-  return (
-    <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
-      <GlassButton variant="primary" onClick={() => onSave(data)}>Save</GlassButton>
-    </Card>
-  );
-}
-```
-
-### Mutation + Invalidation Pattern
-
-```typescript
-import { invalidateAllFinancialQueries } from "@/lib/api";
-
-export function useUpdateProperty() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (data) => apiRequest("PATCH", `/api/properties/${data.id}`, data.updates),
-    onSuccess: () => { invalidateAllFinancialQueries(queryClient); },
-  });
-}
-```
-
-**Every financial mutation** calls `invalidateAllFinancialQueries` in `onSuccess`. Never hand-pick keys.
-
-### API Route Pattern
-
-```typescript
-router.post("/api/properties", requireAuth, async (req, res) => {
-  try {
-    const parsed = insertPropertySchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: parsed.error });
-    const property = await storage.createProperty({ ...parsed.data, userId: null });
-    res.status(201).json(property);
-  } catch (err) {
-    console.error("[ERROR] [properties] Failed to create", err);
-    res.status(500).json({ error: "Failed to create property" });
-  }
-});
-```
-
-### Naming Conventions
-
-| Element | Convention | Example |
-|---------|-----------|---------|
-| Components | PascalCase `.tsx` | `ModelDefaultsTab.tsx` |
-| Utilities | camelCase `.ts` | `loanCalculations.ts` |
-| Calc tools | kebab-case `.ts` | `compute-property-metrics.ts` |
-| Constants | UPPER_SNAKE_CASE | `DEPRECIATION_YEARS` |
-| DB columns | snake_case | `depreciation_years` |
-| API routes | kebab-case | `/api/global-assumptions` |
-| Tool names | snake_case | `compute_property_metrics` |
-| Test files | `*.test.ts` | `break-even.test.ts` |
-
-### No Hardcoded Values
-
-```typescript
-// CORRECT
-const taxRate = globalAssumptions.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE;
-
-// WRONG
-const taxRate = 0.30;
-```
-
-After this redesign, even `DEPRECIATION_YEARS` and `DAYS_PER_MONTH` become database values. Only safe literals in calc code: `0`, `1`, `-1`, `2`, `12`, `100`.
-
----
-
-## 15. SDKs, Libraries & Integrations
-
-### Frontend
-
-| Library | Purpose |
-|---------|---------|
-| React 18 + TypeScript | UI framework (strict mode, ESM) |
-| Wouter 3 | Client routing |
-| TanStack Query 5 | Server state (`staleTime: Infinity`, manual invalidation) |
-| Zustand 4 | Local state (legacy fallback) |
-| Tailwind CSS 4 | Styling (PostCSS) |
-| shadcn/ui | Base components |
-| Recharts 2 | Financial charts |
-| Framer Motion 11 | Animations |
-| Three.js | 3D graphics (lazy-loaded) |
-| Lucide React / Phosphor | Icons (theme-selectable) |
-| jsPDF, SheetJS, pptxgenjs | Export formats (dynamic import) |
-| dom-to-image-more | PNG screenshots (dynamic import) |
-| Zod 3 | Schema validation |
-| date-fns 3 | Date manipulation |
-
-### Backend
-
-| Library | Purpose |
-|---------|---------|
-| Express 5 | HTTP server |
-| Drizzle ORM | PostgreSQL ORM |
-| pg 8 | PostgreSQL driver |
-| esbuild | Server bundling |
-| Vite 5 | Dev server + client build |
-| bcrypt 5 | Password hashing |
-
-### AI SDKs (Lazy Singleton Pattern)
-
-| SDK | Purpose | Env Var |
-|-----|---------|---------|
-| `@anthropic-ai/sdk` | Claude (research, verification) | `ANTHROPIC_API_KEY` |
-| `openai` | GPT (fallback) | `AI_INTEGRATIONS_OPENAI_API_KEY` |
-| `@google/generative-ai` | Gemini (primary research, Rebecca) | `AI_INTEGRATIONS_GEMINI_API_KEY` |
-
-### External Services
-
-| Service | Purpose | Files |
-|---------|---------|-------|
-| FRED | Economic data | `server/services/FREDService.ts` |
-| Resend | Email | `server/integrations/resend.ts` |
-| Google Maps | Geocoding | `server/integrations/geospatial.ts` |
-| Google Document AI | OCR | `server/integrations/document-ai.ts` |
-| Sentry | Error tracking | `server/sentry.ts` |
-| Upstash Redis | Caching | `server/cache.ts` |
-| ElevenLabs | Voice agent | **ISOLATED** — see `MARCELA-ISOLATION.md` |
-| Twilio | SMS/voice | **ISOLATED** — see `MARCELA-ISOLATION.md` |
-
----
-
-## 16. Deterministic Tool System
-
-36 pure-function financial calculators in `calc/`, registered in `calc/dispatch.ts`, validated with Zod, tested with golden values.
-
-| Category | Count | Examples |
-|----------|-------|---------|
-| Research | 10 | `compute_property_metrics`, `compute_adr_projection`, `compute_cap_rate_valuation` |
-| Returns | 6 | `calculate_dcf_npv`, `compute_equity_multiple`, `exit_valuation` |
-| Validation | 5 | `validate_financial_identities`, `funding_gate_checks` |
-| Analysis | 8 | `consolidate_statements`, `break_even_analysis`, `stress_test` |
-| Financing | 5 | `calculate_dscr`, `calculate_debt_yield`, `calculate_prepayment` |
-| Services | 2 | `centralized_service_margin`, `cost_of_services_aggregator` |
-
-### Adding a Tool
-
-1. Implement pure function in `calc/<category>/<name>.ts`
-2. Add Zod schema in `calc/shared/schemas.ts`
-3. Register in `calc/dispatch.ts` with `withRounding()` or `wrap()`
-4. Create JSON schema in `.claude/tools/<category>/<name>.json`
-5. Write tests in `tests/calc/<category>/<name>.test.ts`
-6. Update count in `.claude/rules/deterministic-tools.md`
-7. Run: `npm run test:file -- tests/calc/ && npm run verify:summary`
-
-### Key Rule
-
-Tools in `calc/` MUST never import from `server/` — enforced by `tests/proof/domain-boundaries.test.ts`.
-
----
-
-## 17. Testing & Verification
-
-### Test Suite: 3,035 Tests
-
-| Category | Directory | Purpose |
-|----------|-----------|---------|
-| Proof | `tests/proof/` | Invariant enforcement (GAAP identities, domain boundaries, data integrity) |
-| Engine | `tests/engine/` | Financial calculation correctness |
-| Calc | `tests/calc/` | Deterministic tool I/O |
-| Golden | Spread across above | 500 hand-calculated reference values |
-| Integration | `tests/integration/` | API route behavior |
-
-### Three Gates (Must Pass Before Shipping)
-
-```bash
-npm run test:summary      # Gate 1: 3,035+ tests, 0 failures
-npm run verify:summary    # Gate 2: UNQUALIFIED audit opinion
-npm run health            # Gate 3: tsc + tests + verify + doc harmony
-```
-
-### 7-Phase Verification Pipeline
-
-1. Golden Scenarios (5 scenarios) — full GAAP identity validation
-2. Hardcoded Detection — magic number scanner across finance files
-3. Golden Values (269+ tests) — penny-exact hand-calculated verification
-4. Reconciliation — bridge checks (Sources & Uses, NOI→FCF, BS balance)
-5. Data Integrity — shared ownership, singleton uniqueness
-6. Portfolio Dynamics — dynamic property count, fee zero-sum
-7. Artifact Summary — final audit opinion
-
-### Test Patterns
-
-**Golden test:** Hand-calculate expected values, derive from constants:
-```typescript
-const H_REV = H_SOLD_ROOMS * H_ROOM_RATE; // 20,000
-expect(m0.revenueRooms).toBeCloseTo(H_REV, 2);
-```
-
-**Factory:** `makeProperty()` / `makeGlobal()` with override-only pattern.
-
-**Invariant:** `expect(result.gop).toBeCloseTo(revenue - expenses, 2);`
-
-### New Tests for This Redesign
-
-- `tests/proof/model-defaults.test.ts` — new columns exist, property creation reads from them
-- `tests/engine/governed-fields.test.ts` — engine reads from entity, not constant
-- `tests/proof/settings-elimination.test.ts` — `/settings` redirects, no imports from settings/
-
----
-
-## 18. Replit Environment
-
-### Workspace Configuration
-
-```toml
-# .replit (key sections)
-modules = ["nodejs-20", "web", "javascript", "postgresql-16"]
-run = "npm run dev"
-
-[[ports]]
-localPort = 5000
-externalPort = 80
-
-[deployment]
-deploymentTarget = "autoscale"
-build = ["npm", "run", "build"]
-run = ["node", "./dist/index.cjs"]
-```
-
-Single port (5000→80). Express serves both API and SPA. Autoscale deployment (scales to zero when idle).
-
-### Key Commands
-
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start dev server |
-| `npm run test:summary` | All tests |
-| `npm run verify:summary` | GAAP verification |
-| `npm run health` | Full health check |
-| `npm run build` | Production build |
-
-### Named Workflows (in Replit UI)
-
-Project, Health Check, Run Tests, Verify Financials, Lint Check, Diff Summary, Codebase Stats, Quick Audit, Exports Check.
-
-### Secrets (Replit Secrets Panel)
-
-All API keys in Replit Secrets (encrypted AES-256). Never `.env` files. Key secrets: `DATABASE_URL`, `ADMIN_PASSWORD`, `ANTHROPIC_API_KEY`, `AI_INTEGRATIONS_GEMINI_API_KEY`, `AI_INTEGRATIONS_OPENAI_API_KEY`, `RESEND_API_KEY`, `GOOGLE_MAPS_API_KEY`, `ELEVENLABS_API_KEY` (kept for restoration).
-
-### Database (PostgreSQL on Neon)
-
-Serverless — sleeps after 5 minutes. Pool config handles reconnection (max 20, min 2, idle 60s, maxUses 7500). Migrations run automatically on startup. Schema managed via Drizzle ORM.
-
-### Replit-Specific Gotchas
-
-| Issue | Mitigation |
-|-------|------------|
-| HMR WebSocket drops | Full page refresh (F5) |
-| Filetree lag (790+ files) | `node_modules`, `dist`, `.git` hidden in `.replit` |
-| Neon 5-min sleep | Pool reconnection handles it |
-| Autoscale cold starts (5-10s) | Acceptable for internal tool |
-| Single port only | Express already serves everything on 5000 |
-| 60s post-merge hook timeout | Keep post-merge script fast |
-
-### Prompting Pattern for Replit Agent
-
-```
-Example prompt for Phase 2:
-"Read .claude/plans/UX-REDESIGN-PLAN.md Section 5 (Model Defaults).
-Read .claude/rules/ui-patterns.md and .claude/rules/architecture.md.
-Create client/src/components/admin/ModelDefaultsTab.tsx with 3 sub-tabs.
-Follow the pattern from PeopleTab.tsx. Use GlassButton, PageHeader,
-CurrentThemeTab. Register in AdminSidebar.tsx under Business group."
-```
-
-Break work into focused prompts. One component per prompt. Verify after each.
-
----
-
-## 19. Code Governance
-
-### 19 Binding Rules (`.claude/rules/`)
-
-| Rule | What It Enforces | Automated? |
-|------|-----------------|------------|
-| `architecture.md` | Tech stack, two-entity model, file organization | Manual |
-| `audit-persona.md` | 7 audit dimensions, stop-the-line issues | `verify:summary` |
-| `database-seeding.md` | Shared ownership, fill-only sync | `data-integrity.test.ts` |
-| `design-standards.md` | Premium UI, animations, edge cases | Manual |
-| `deterministic-tools.md` | 36 tools, schema parity, tests | `tool-registry.test.ts` |
-| `documentation.md` | Doc hierarchy, harmony checks | `npm run health` |
-| `domain-boundaries.md` | 6 domains, prohibited crossings | `domain-boundaries.test.ts` |
-| `error-handling.md` | Structured logging, no empty catches | Manual |
-| `exports.md` | 6 formats, placement, naming | Manual |
-| `financial-engine.md` | Two-engine model, 6 GAAP rules | `verify:summary` |
-| `mandatory-financial-tests.md` | 13 critical tests, stop-the-line | `operating-reserve-cash.test.ts` |
-| `no-hardcoded-values.md` | Named constants, DB fallback | `hardcoded-detection.test.ts` |
-| `portfolio-dynamics.md` | Shared ownership, dynamic count, fee zero-sum | `portfolio-dynamics.test.ts` |
-| `recalculate-on-save.md` | `invalidateAllFinancialQueries` mandatory | `recalculation-enforcement.test.ts` |
-| `research-precision.md` | Deterministic tools, admin config | `tool-registry.test.ts` |
-| `security.md` | Auth, Zod validation, secrets, SQL injection | Manual |
-| `session-startup.md` | Context loading, rule loading per task | Manual |
-| `testing-strategy.md` | Test categories, golden patterns | Manual |
-| `ui-patterns.md` | Button labels, accordions, entity cards, test IDs | Manual |
-
-### Financial Change Protocol
-
-1. **State** the relevant `.claude/skills/finance/` sub-skill
-2. **Confirm** which rules and constants apply
-3. **Identify** GAAP invariants that must hold (A=L+E, OCF reconciliation)
-4. **Implement** the smallest safe change
-5. **Run** `npm run test:file -- tests/engine/operating-reserve-cash.test.ts`
-6. **Verify** `npm run verify:summary` → UNQUALIFIED
-7. **Update** documentation (session-memory, skills, claude.md if needed)
-
-### Automated Enforcement
-
-| Test | What It Catches | Failure = |
-|------|----------------|-----------|
-| `hardcoded-detection.test.ts` | Magic numbers in finance code | ADVERSE |
-| `data-integrity.test.ts` | Non-null userId on shared data | ADVERSE |
-| `domain-boundaries.test.ts` | Prohibited cross-domain imports | ADVERSE |
-| `recalculation-enforcement.test.ts` | Missing query invalidation | ADVERSE |
-| `tool-registry.test.ts` | Tools missing schema/tests | ADVERSE |
-| `rule-compliance.test.ts` | Doc harmony, shadow docs | ADVERSE |
-| `operating-reserve-cash.test.ts` | Reserve/debt/refi math | **STOP** |
-| `scenarios.test.ts` | 5 golden scenario GAAP identities | QUALIFIED |
-| `portfolio-dynamics.test.ts` | Dynamic count, fee zero-sum | QUALIFIED |
-| Golden tests (269+) | Hand-calculated values | ADVERSE |
-
-**ADVERSE** = cannot ship. **STOP** = stop all work, fix immediately.
-
-### Code Review Checklist
-
-Before any commit:
-- [ ] `npm run test:summary` passes
-- [ ] `npm run verify:summary` shows UNQUALIFIED
-- [ ] No hardcoded financial values
-- [ ] `data-testid` on interactive elements
-- [ ] No empty catch blocks (annotate with `/* ignore: reason */`)
-- [ ] Component compliance (GlassButton, PageHeader, CurrentThemeTab)
-- [ ] Button labels: "Save" (never "Update")
-- [ ] Theme tokens used (no raw hex)
-- [ ] Auth middleware on new routes
-- [ ] Zod validation on request bodies
-
-### Post-Redesign Constants Model
-
-```
-SEED VALUES (shared/constants.ts)
-  └── Used ONLY to initialize DB on first deployment
-
-DATABASE (globalAssumptions table)
-  └── Source of truth for all defaults
-  └── Admin edits via Model Defaults
-
-ENTITY VALUES (properties table, company model)
-  └── Copied from defaults at creation
-  └── Owned by entity after save
-  └── Changing a default does NOT affect existing entities
-```
-
----
-
-*This document is the complete specification for the UX redesign. It covers design, page specs, field migrations, database schema, code patterns, SDK usage, Replit environment, and governance. A developer working in Replit with no prior knowledge can build the correct implementation from this document. The companion document `.claude/plans/MARCELA-ISOLATION.md` should be executed first.*
+*This document covers only the defaults governance redesign. For other initiatives see the companion documents in `.claude/plans/`.*

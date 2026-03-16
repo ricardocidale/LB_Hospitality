@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 790 source files, ~144K lines, 3,029 tests across 136 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 790 source files, ~144K lines, 3,035 tests across 136 test files. Hosted on Replit.
 
 ---
 
@@ -51,7 +51,7 @@ With 186 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,029 tests, 583 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,035 tests, 583 golden tests, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -108,13 +108,13 @@ With 186 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 3,029) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 3,035) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
 ## Recent Changes (March 16, 2026)
 
-- **Governance Harmonization** (Task #153) — `.claude/` is now single source of truth for all governance. Created 7 new `.claude/skills/` files (business-model, product-vision, integrations, design-export, settings, ui/consistent-card-widths, ui/save-button-placement). All 13 `.agents/skills/` files converted to slim pointers referencing `.claude/skills/` counterparts. Stats updated: 790 source files, ~144K lines, 186 skill files, 3,029 tests across 136 test files.
+- **Governance Harmonization** (Task #153) — `.claude/` is now single source of truth for all governance. Created 7 new `.claude/skills/` files (business-model, product-vision, integrations, design-export, settings, ui/consistent-card-widths, ui/save-button-placement). All 13 `.agents/skills/` files converted to slim pointers referencing `.claude/skills/` counterparts. Stats updated: 790 source files, ~144K lines, 186 skill files, 3,035 tests across 136 test files.
 - **Settings Architecture Governance** (Task #148) — Finalized `settings-architecture` skill defining where every setting belongs: Management Company owns entity config + revenue model, General Settings owns property defaults (3 tabs: Property Defaults, Macro, Other), Admin owns system-only config, Property Edit owns per-property overrides. Decision tree and overlap prevention rules formalized.
 - **Property Creation Defaults from Global Assumptions** (Task #147) — `buildPropertyDefaultsFromGlobal()` reads `global_assumptions` for property defaults; hardcoded constants are last-resort fallbacks only.
 - **Settings Consolidation** (Task #146) — ManagementFeesSection is single source for revenue model (service CRUD + incentive + per-property summary). Dead admin tabs removed. General Settings reduced to 3 tabs.
@@ -186,7 +186,7 @@ All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify (~4 lines)
-npm run test:summary   # All 3,029 tests, 1-line output
+npm run test:summary   # All 3,035 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact output
 npm run db:push        # Push schema changes
 npm run diff:summary   # Compact git status + diff stat

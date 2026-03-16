@@ -1598,4 +1598,955 @@ These are platform behavior toggles. They are NOT financial defaults and do NOT 
 
 ---
 
-*End of plan. This document is the complete specification for the UX redesign. A software engineer and designer with no prior knowledge of the app can build the correct implementation from this document alone.*
+---
+
+# PART II: Engineering Reference
+
+Everything below is the technical specification for how to build, organize, and verify the implementation. It covers the full stack: directory structure, coding patterns, database management, SDK/library usage, tool system, scripts, and testing infrastructure.
+
+---
+
+## 16. Directory Structure & Module Organization
+
+### Root Layout
+
+```
+/home/runner/workspace/
+├── client/                     # React 18 + TypeScript frontend
+│   └── src/
+│       ├── components/         # UI components (organized by domain)
+│       │   ├── ui/             # Base components (shadcn/ui + custom)
+│       │   ├── graphics/       # Visualization & animation components
+│       │   ├── admin/          # Admin panel tab components
+│       │   ├── dashboard/      # Dashboard tab components
+│       │   ├── company/        # Company page components
+│       │   ├── company-assumptions/  # Company assumption sections
+│       │   ├── property-detail/     # Property detail tabs
+│       │   ├── property-edit/       # Property edit form sections
+│       │   ├── portfolio/      # Portfolio cards and dialogs
+│       │   ├── property-finder/# Search and favorites
+│       │   ├── financing/      # Financing analysis tabs
+│       │   ├── sensitivity/    # Sensitivity analysis components
+│       │   ├── research/       # Research UI components
+│       │   ├── scenarios/      # Scenario dialogs
+│       │   ├── settings/       # Settings tabs (TO BE REMOVED)
+│       │   ├── statements/     # Shared financial statement components
+│       │   └── documents/      # Document AI components
+│       ├── features/           # Self-contained feature modules
+│       │   ├── design-themes/  # Theme system (colors, icons, branding)
+│       │   ├── property-images/# Photo upload, crop, hero selection
+│       │   └── ai-agent/       # Marcela voice assistant
+│       ├── hooks/              # Custom React hooks
+│       ├── lib/                # Shared libraries and utilities
+│       │   ├── api/            # TanStack Query hooks + fetch functions
+│       │   ├── financial/      # Financial engines (property + company)
+│       │   ├── charts/         # Reusable Recharts components (12)
+│       │   └── exports/        # Export generators (PDF, Excel, PPTX, CSV, PNG)
+│       └── pages/              # Route-level page components
+│
+├── server/                     # Express 5 + TypeScript backend
+│   ├── routes/                 # API route handlers (domain-organized)
+│   │   └── admin/              # Admin-only sub-routes
+│   ├── storage/                # IStorage interface + 11 sub-storage classes
+│   ├── ai/                     # AI service integrations
+│   │   └── kb/                 # Knowledge base markdown files (18)
+│   ├── integrations/           # External service wrappers (8)
+│   ├── replit_integrations/    # Replit platform connectors
+│   ├── migrations/             # Schema migration scripts (18)
+│   ├── seeds/                  # Seed data modules
+│   ├── services/               # Business services (MI, FRED, benchmarks)
+│   ├── calculation-checker/    # Independent verification engine
+│   ├── notifications/          # Alert rules engine
+│   └── middleware/             # Express middleware (rate limiting)
+│
+├── shared/                     # Shared between client + server
+│   ├── schema.ts               # Re-export barrel
+│   ├── schema/                 # Drizzle table definitions
+│   │   ├── config.ts           # globalAssumptions table
+│   │   ├── properties.ts       # properties table
+│   │   ├── users.ts            # users, sessions tables
+│   │   └── ...                 # Other domain tables
+│   └── constants.ts            # Named constants + defaults
+│
+├── calc/                       # Pure deterministic calculation tools (36)
+│   ├── dispatch.ts             # Tool registry + router
+│   ├── shared/                 # Shared utilities, schemas, types
+│   │   ├── utils.ts            # Rounding, tolerance, helpers
+│   │   ├── schemas.ts          # Zod validation for all tools
+│   │   ├── types.ts            # Shared interfaces
+│   │   └── pmt.ts              # PMT loan payment function
+│   ├── research/               # 10 research tools
+│   ├── returns/                # 6 return calculation tools
+│   ├── validation/             # 5 validation tools
+│   ├── analysis/               # 8 analysis tools
+│   ├── financing/              # 5 financing tools
+│   └── services/               # 2 service tools
+│
+├── domain/                     # Accounting domain layer
+│   ├── accounting-policy.ts    # GAAP rules, depreciation methods
+│   ├── chart-of-accounts.ts    # Account hierarchy
+│   └── types/                  # Domain type definitions
+│
+├── engine/                     # Double-entry posting engine
+├── statements/                 # Statement extraction & reconciliation
+├── analytics/                  # FCF, IRR, metrics, sensitivity
+│
+├── tests/                      # Vitest test suite (3,022 tests)
+│   ├── proof/                  # Invariant enforcement tests
+│   ├── engine/                 # Financial calculation tests
+│   ├── calc/                   # Deterministic tool tests
+│   └── integration/            # API route tests
+│
+├── script/                     # Build, health, audit scripts
+│   ├── build.ts                # esbuild + Vite build
+│   ├── health.ts               # Health check (doc harmony, metrics)
+│   └── ...
+│
+├── migrations/                 # Drizzle migration output
+│
+└── .claude/                    # Architectural documentation
+    ├── claude.md               # Master doc (always loaded)
+    ├── rules/                  # Binding rules (*.md)
+    ├── skills/                 # Reference docs (load on demand)
+    ├── tools/                  # JSON schemas for calc tools
+    │   ├── research/           # 10 tool schemas
+    │   ├── returns/            # 6 tool schemas
+    │   ├── validation/         # 5 tool schemas
+    │   ├── analysis/           # 8 tool schemas
+    │   ├── financing/          # 5 tool schemas
+    │   └── services/           # 2 tool schemas
+    └── plans/                  # Implementation plans
+```
+
+### Module Boundary Rules
+
+1. **`calc/` never imports from `server/` or `client/`** — Pure functions only
+2. **`server/routes/` never imports `db` directly** — All access via `IStorage` facade
+3. **`client/` never imports from `server/`** — Communication via HTTP API only
+4. **`shared/` is imported by both `client/` and `server/`** — Schema, types, constants
+5. **Feature modules (`client/src/features/`) are self-contained** — Own components, hooks, `index.ts` barrel
+
+### Barrel File Convention
+
+Every directory that exports multiple items has an `index.ts` barrel:
+
+```typescript
+// client/src/components/graphics/index.ts
+export { KPIGrid } from "./KPIGrid";
+export { DonutChart } from "./DonutChart";
+export { AnimatedPage } from "./AnimatedPage";
+export { ScrollReveal } from "./ScrollReveal";
+export { formatCompact, formatPercent } from "./formatters";
+export { CHART_COLORS } from "./constants";
+```
+
+### Import Path Aliases
+
+```typescript
+// tsconfig.json paths
+"@/*"           → "client/src/*"
+"@shared/*"     → "shared/*"
+"@calc/*"       → "calc/*"
+"@domain/*"     → "domain/*"
+"@engine/*"     → "engine/*"
+"@statements/*" → "statements/*"
+"@analytics/*"  → "analytics/*"
+```
+
+---
+
+## 17. Coding Conventions & Patterns
+
+### TypeScript Standards
+
+- **Strict mode** enabled (`strict: true` in tsconfig)
+- **ESM modules** (`"type": "module"` in package.json)
+- **No `any`** — use `unknown` and narrow with type guards
+- **No `enum`** — use `as const` objects or union types
+- **Named exports** — no default exports (barrel files re-export)
+- **Interface over type** for object shapes (unless union is needed)
+
+### Naming Conventions
+
+| Element | Convention | Example |
+|---------|-----------|---------|
+| Files (components) | PascalCase | `ModelDefaultsTab.tsx` |
+| Files (utilities) | camelCase | `loanCalculations.ts` |
+| Files (calc tools) | kebab-case | `compute-property-metrics.ts` |
+| Components | PascalCase | `GovernedField` |
+| Hooks | camelCase with `use` prefix | `usePortfolioFinancials` |
+| Constants | UPPER_SNAKE_CASE | `DEPRECIATION_YEARS` |
+| Functions | camelCase | `generatePropertyProForma` |
+| Types/Interfaces | PascalCase | `PropertyInput` |
+| CSS classes | kebab-case (Tailwind) | `bg-primary/20` |
+| Database columns | snake_case | `depreciation_years` |
+| API routes | kebab-case | `/api/global-assumptions` |
+| Test files | same name + `.test.ts` | `break-even.test.ts` |
+| Tool names | snake_case | `compute_property_metrics` |
+
+### Component Pattern
+
+```typescript
+// Standard component structure
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Card } from "@/components/ui/card";
+import type { Property } from "@shared/schema";
+
+interface Props {
+  property: Property;
+  onSave: (data: Partial<Property>) => void;
+}
+
+export function PropertyCard({ property, onSave }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  return (
+    <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
+      {/* ... */}
+    </Card>
+  );
+}
+```
+
+### API Route Pattern
+
+```typescript
+// Standard route handler structure
+import { Router } from "express";
+import { requireAuth, requireAdmin } from "../auth";
+import { storage } from "../storage";
+import { insertPropertySchema } from "@shared/schema";
+
+const router = Router();
+
+router.get("/api/properties", requireAuth, async (req, res) => {
+  try {
+    const properties = await storage.getProperties();
+    res.json(properties);
+  } catch (err) {
+    console.error("[ERROR] [properties] Failed to fetch", err);
+    res.status(500).json({ error: "Failed to fetch properties" });
+  }
+});
+
+router.post("/api/properties", requireAuth, async (req, res) => {
+  try {
+    const parsed = insertPropertySchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error });
+
+    const property = await storage.createProperty({
+      ...parsed.data,
+      userId: null,  // Always shared
+    });
+    res.status(201).json(property);
+  } catch (err) {
+    console.error("[ERROR] [properties] Failed to create", err);
+    res.status(500).json({ error: "Failed to create property" });
+  }
+});
+
+export function register(app: Express) {
+  app.use(router);
+}
+```
+
+### Mutation + Invalidation Pattern
+
+```typescript
+// Client-side mutation with financial query invalidation
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateAllFinancialQueries } from "@/lib/api";
+
+export function useUpdateProperty() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { id: number; updates: Partial<Property> }) =>
+      apiRequest("PATCH", `/api/properties/${data.id}`, data.updates),
+    onSuccess: () => {
+      invalidateAllFinancialQueries(queryClient);
+      toast({ title: "Property saved" });
+    },
+    onError: (err) => {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    },
+  });
+}
+```
+
+### Logging Format
+
+```typescript
+// Server-side structured logging
+console.info("[INFO] [express] GET /api/properties 200 in 12ms");
+console.error("[ERROR] [research] Claude API timeout", { propertyId, elapsed });
+console.warn("[WARN] [auth] Rate limit approaching for user", userId);
+```
+
+---
+
+## 18. Database Architecture & Operations
+
+### Schema Definition (Drizzle ORM)
+
+**Location:** `shared/schema/` — Tables defined using Drizzle's `pgTable()`:
+
+```typescript
+// shared/schema/config.ts
+import { pgTable, serial, text, real, boolean, integer, jsonb, timestamp } from "drizzle-orm/pg-core";
+
+export const globalAssumptions = pgTable("global_assumptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id"),
+
+  // Company identity
+  companyName: text("company_name").default("Hospitality Business"),
+
+  // Financial parameters
+  inflationRate: real("inflation_rate").default(0.03),
+  projectionYears: integer("projection_years").default(10),
+
+  // NEW columns for this redesign:
+  depreciationYears: real("depreciation_years").default(27.5),
+  daysPerMonth: real("days_per_month").default(30.5),
+
+  // JSONB fields
+  debtAssumptions: jsonb("debt_assumptions"),
+  researchConfig: jsonb("research_config"),
+  assetDefinition: jsonb("asset_definition"),
+
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+```
+
+### Data Integrity Rules (Non-Negotiable)
+
+1. **Shared ownership** — All portfolio data uses `userId = NULL`
+2. **Singleton query pattern** — `ORDER BY id DESC LIMIT 1` on shared tables
+3. **Fill-only sync** — Production seeding never overwrites user values
+4. **Zero and `false` are valid** — `isFieldEmpty()` checks for truly empty, not falsy
+5. **Foreign keys** — Users before properties (seed order)
+6. **No direct `db` import in routes** — All through `IStorage` facade
+
+### Migration System
+
+**Dual approach:** SQL migrations (Drizzle) + TypeScript startup migrations.
+
+**Writing a new migration:**
+
+```typescript
+// server/migrations/my-feature-001.ts
+import { sql } from "drizzle-orm";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+
+export async function migrate(db: NodePgDatabase) {
+  // Idempotent — safe to re-run
+  await db.execute(sql`
+    ALTER TABLE global_assumptions
+    ADD COLUMN IF NOT EXISTS depreciation_years REAL DEFAULT 27.5
+  `);
+
+  await db.execute(sql`
+    ALTER TABLE global_assumptions
+    ADD COLUMN IF NOT EXISTS days_per_month REAL DEFAULT 30.5
+  `);
+
+  console.info("[INFO] [migration] my-feature-001 complete");
+}
+```
+
+**Migration rules:**
+- File naming: `<feature>-<sequence>.ts` (e.g., `model-defaults-001.ts`)
+- Always idempotent (`IF NOT EXISTS`, `IF NOT NULL` checks)
+- Never drop columns in production without a deprecation migration first
+- Run order: parallel batch first, then sequential dependents, then FK indexes last
+- Registered in `server/index.ts` startup sequence
+
+### Storage Layer Pattern
+
+**Interface:** `IStorage` defines all data access methods.
+**Implementation:** `DatabaseStorage` composes 11 sub-storage classes.
+
+```typescript
+// Adding a new storage method:
+
+// 1. Add to IStorage interface (server/storage/index.ts)
+interface IStorage {
+  // ... existing methods ...
+  getModelDefaults(): Promise<ModelDefaults>;
+  updateModelDefaults(data: Partial<ModelDefaults>): Promise<ModelDefaults>;
+}
+
+// 2. Implement in relevant sub-storage (server/storage/financial.ts)
+class FinancialStorage {
+  async getModelDefaults(): Promise<ModelDefaults> {
+    const [row] = await db.select()
+      .from(globalAssumptions)
+      .where(isNull(globalAssumptions.userId))
+      .orderBy(desc(globalAssumptions.id))
+      .limit(1);
+    return row;
+  }
+}
+
+// 3. Delegate from DatabaseStorage
+class DatabaseStorage implements IStorage {
+  private financial = new FinancialStorage();
+
+  getModelDefaults() { return this.financial.getModelDefaults(); }
+  updateModelDefaults(data) { return this.financial.updateModelDefaults(data); }
+}
+```
+
+### Database Connection
+
+```typescript
+// server/db.ts — Pool configuration
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 20,              // Max connections
+  min: 2,               // Min idle connections
+  idleTimeoutMillis: 60_000,
+  connectionTimeoutMillis: 10_000,
+  maxUses: 7500,        // Recycle connections to prevent memory creep
+});
+
+pool.on("error", (err) => {
+  console.error("[db] Unexpected pool error", err.message);
+});
+
+export const db = drizzle(pool, { schema });
+```
+
+### Sync Helpers (Production Seeding)
+
+```typescript
+// server/syncHelpers.ts — Safe field filling
+
+export function isFieldEmpty(value: unknown): boolean {
+  // null, undefined, empty string → empty
+  // 0, false → NOT empty (valid user values)
+  return value === null || value === undefined || value === "";
+}
+
+export function fillMissingFields<T>(existing: T, defaults: Partial<T>): Partial<T> {
+  const updates: Partial<T> = {};
+  for (const [key, defaultValue] of Object.entries(defaults)) {
+    if (isFieldEmpty(existing[key as keyof T])) {
+      updates[key as keyof T] = defaultValue;
+    }
+  }
+  return updates;
+}
+```
+
+---
+
+## 19. SDKs, Libraries & External Tools
+
+### Frontend Dependencies
+
+| Library | Version | Purpose | Import Pattern |
+|---------|---------|---------|---------------|
+| **React** | 18 | UI framework | `import { useState } from "react"` |
+| **TypeScript** | 5.x | Type safety | Strict mode, ESM |
+| **Wouter** | 3.x | Client routing | `import { useRoute, Link } from "wouter"` |
+| **TanStack Query** | 5.x | Server state | `import { useQuery, useMutation } from "@tanstack/react-query"` |
+| **Zustand** | 4.x | Local state (legacy) | `import { create } from "zustand"` |
+| **Tailwind CSS** | 4.x (PostCSS) | Styling | Class-based in JSX |
+| **shadcn/ui** | latest | Base components | `import { Button } from "@/components/ui/button"` |
+| **Recharts** | 2.x | Financial charts | `import { LineChart, BarChart } from "recharts"` |
+| **Framer Motion** | 11.x | Animations | `import { motion, AnimatePresence } from "framer-motion"` |
+| **Three.js** | 0.170+ | 3D graphics | `import * as THREE from "three"` (lazy-loaded) |
+| **Lucide React** | latest | Icons (default set) | `import { Save, Trash2 } from "lucide-react"` |
+| **Phosphor React** | latest | Icons (alt set) | Theme-selectable icon set |
+| **date-fns** | 3.x | Date manipulation | `import { format, differenceInMonths } from "date-fns"` |
+| **Zod** | 3.x | Schema validation | `import { z } from "zod"` |
+| **jsPDF** | 2.x | PDF export | Dynamic import: `const { jsPDF } = await import("jspdf")` |
+| **SheetJS (xlsx)** | latest | Excel export | Dynamic import: `const XLSX = await import("xlsx")` |
+| **pptxgenjs** | 3.x | PowerPoint export | Dynamic import: `const PptxGenJS = await import("pptxgenjs")` |
+| **dom-to-image-more** | 3.x | PNG screenshot | Dynamic import |
+| **clsx + tailwind-merge** | latest | Class composition | `import { cn } from "@/lib/utils"` |
+| **React Hook Form** | 7.x | Form management | `import { useForm } from "react-hook-form"` |
+| **@hookform/resolvers** | latest | Zod form validation | `import { zodResolver } from "@hookform/resolvers/zod"` |
+
+### Backend Dependencies
+
+| Library | Version | Purpose | Import Pattern |
+|---------|---------|---------|---------------|
+| **Express** | 5.x | HTTP server | `import express from "express"` |
+| **Drizzle ORM** | latest | Database ORM | `import { drizzle } from "drizzle-orm/node-postgres"` |
+| **pg** | 8.x | PostgreSQL driver | `import { Pool } from "pg"` |
+| **Zod** | 3.x | Request validation | Shared with client |
+| **bcrypt** | 5.x | Password hashing | `import bcrypt from "bcrypt"` |
+| **cookie** | latest | Session cookies | `import cookie from "cookie"` |
+| **esbuild** | latest | Server bundling | Build script only |
+| **Vite** | 5.x | Dev server + client build | Dev mode HMR |
+
+### AI SDKs
+
+| SDK | Purpose | Env Var | Lazy Init |
+|-----|---------|---------|-----------|
+| **@anthropic-ai/sdk** | Claude (research, verification, exports) | `ANTHROPIC_API_KEY` or `AI_INTEGRATIONS_ANTHROPIC_API_KEY` | Yes — `getAnthropicClient()` |
+| **openai** | GPT (fallback, image gen) | `AI_INTEGRATIONS_OPENAI_API_KEY` | Yes — `getOpenAIClient()` |
+| **@google/generative-ai** | Gemini (primary research, Rebecca chatbot) | `AI_INTEGRATIONS_GEMINI_API_KEY` | Yes — `getGeminiClient()` |
+
+**Lazy singleton pattern:**
+```typescript
+// server/ai/clients.ts
+let anthropicClient: Anthropic | null = null;
+
+export function getAnthropicClient(): Anthropic {
+  if (!anthropicClient) {
+    const apiKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+    if (!apiKey) throw new Error("Anthropic API key not configured");
+    anthropicClient = new Anthropic({ apiKey });
+  }
+  return anthropicClient;
+}
+```
+
+### External Service Integrations
+
+| Service | SDK/Method | Purpose | Files |
+|---------|-----------|---------|-------|
+| **ElevenLabs** | REST API + WebSocket | Voice synthesis, Convai agent | `server/integrations/elevenlabs.ts` |
+| **Twilio** | Replit Connector | SMS, voice calls, webhooks | `server/integrations/twilio.ts` |
+| **Resend** | REST API | Transactional email | `server/integrations/resend.ts` |
+| **Replicate** | Replit Connector | Image generation | `server/integrations/replicate.ts` |
+| **Google Maps** | REST API | Geocoding, autocomplete | `server/integrations/geospatial.ts` |
+| **Google Document AI** | gRPC | OCR extraction from PDFs | `server/integrations/document-ai.ts` |
+| **FRED** | REST API | Federal Reserve economic data | `server/services/FREDService.ts` |
+| **Sentry** | `@sentry/node` + `@sentry/react` | Error tracking | `server/sentry.ts`, `client/src/lib/sentry.ts` |
+| **Upstash Redis** | `@upstash/redis` | Caching (market intelligence) | `server/cache.ts` |
+
+### Replit Platform Integrations
+
+| Integration | Directory | Purpose |
+|-------------|-----------|---------|
+| **Object Storage** | `server/replit_integrations/object_storage/` | File upload/download |
+| **Chat** | `server/replit_integrations/chat/` | Streaming AI responses |
+| **Image** | `server/replit_integrations/image/` | Architecture renders |
+| **Audio** | `server/replit_integrations/audio/` | Voice synthesis + STT |
+
+---
+
+## 20. Deterministic Tool System
+
+### Architecture
+
+36 pure-function financial calculators, registered in `calc/dispatch.ts`, validated with Zod schemas, tested with golden values, and verified by the proof suite.
+
+### Tool Registry (`calc/dispatch.ts`)
+
+```typescript
+const TOOL_DISPATCH: Record<string, ToolHandler> = {
+  // Research (10)
+  compute_property_metrics:      withRounding(computePropertyMetrics),
+  compute_depreciation_basis:    withRounding(computeDepreciationBasis),
+  compute_debt_capacity:         withRounding(computeDebtCapacity),
+  compute_occupancy_ramp:        wrap(computeOccupancyRamp),
+  compute_adr_projection:        withRounding(computeADRProjection),
+  compute_cap_rate_valuation:    withRounding(computeCapRateValuation),
+  compute_cost_benchmarks:       withRounding(computeCostBenchmarks),
+  compute_service_fee:           withRounding(computeServiceFee),
+  compute_markup_waterfall:      withRounding(computeMarkupWaterfall),
+  compute_make_vs_buy:           withRounding(computeMakeVsBuy),
+
+  // Returns (6)
+  calculate_dcf_npv:             withRounding(computeDCF),
+  build_irr_cashflow_vector:     wrap(buildIRRVector),
+  compute_equity_multiple:       withRounding(computeEquityMultiple),
+  exit_valuation:                withRounding(exitValuation),
+  compute_wacc:                  withRounding(computeWACC),
+  compute_portfolio_wacc:        withRounding(computePortfolioWACC),
+
+  // Validation (5)
+  validate_financial_identities: wrap(validateFinancialIdentities),
+  funding_gate_checks:           wrap(fundingGateChecks),
+  schedule_reconcile:            wrap(scheduleReconcile),
+  assumption_consistency_check:  wrap(assumptionConsistencyCheck),
+  export_verification:           wrap(exportVerification),
+
+  // Analysis (8)
+  consolidate_statements:        withRounding(consolidateStatements),
+  scenario_compare:              wrap(scenarioCompare),
+  break_even_analysis:           withRounding(computeBreakEven),
+  compute_waterfall:             withRounding(computeWaterfall),
+  hold_vs_sell:                  withRounding(holdVsSell),
+  stress_test:                   wrap(stressTest),
+  capex_reserve:                 withRounding(capexReserve),
+  revpar_index:                  withRounding(revparIndex),
+
+  // Financing (5)
+  calculate_debt_yield:          withRounding(calculateDebtYield),
+  calculate_dscr:                withRounding(calculateDSCR),
+  calculate_prepayment:          withRounding(calculatePrepayment),
+  calculate_sensitivity:         wrap(calculateSensitivity),
+  compare_loans:                 withRounding(compareLoans),
+
+  // Services (2)
+  centralized_service_margin:    withRounding(centralizedServiceMargin),
+  cost_of_services_aggregator:   withRounding(costOfServicesAggregator),
+};
+```
+
+### Adding a New Tool (Checklist)
+
+1. **Implement** in `calc/<category>/<tool-name>.ts` — pure function, no I/O
+2. **Add Zod schema** in `calc/shared/schemas.ts`
+3. **Register** in `calc/dispatch.ts` with `withRounding()` or `wrap()`
+4. **Create JSON schema** in `.claude/tools/<category>/<tool-name>.json`
+5. **Write tests** in `tests/calc/<category>/<tool-name>.test.ts`
+6. **Update counts** in `.claude/rules/deterministic-tools.md`
+7. **Run verification:** `npm run test:file -- tests/calc/ && npm run verify:summary`
+
+### Tool Implementation Template
+
+```typescript
+// calc/<category>/<tool-name>.ts
+import { roundCents } from "../shared/utils.js";
+
+export interface MyToolInput {
+  required_field: number;
+  optional_field?: number;
+}
+
+export interface MyToolOutput {
+  result: number;
+  breakdown: { component_a: number; component_b: number };
+}
+
+export function computeMyTool(input: MyToolInput): MyToolOutput {
+  const { required_field, optional_field = 0.05 } = input;
+
+  const component_a = roundCents(required_field * optional_field);
+  const component_b = roundCents(required_field * (1 - optional_field));
+
+  return {
+    result: roundCents(component_a + component_b),
+    breakdown: { component_a, component_b },
+  };
+}
+```
+
+### Rounding Utilities
+
+```typescript
+// calc/shared/utils.ts
+export const DEFAULT_ROUNDING = { precision: 2, bankers_rounding: false };
+export const RATIO_ROUNDING = { precision: 4, bankers_rounding: false };
+export const RATE_ROUNDING = { precision: 6, bankers_rounding: false };
+
+export function roundCents(v: number): number {
+  return Math.round(v * 100) / 100;
+}
+
+export function rounder(policy = DEFAULT_ROUNDING) {
+  return (v: number) => roundTo(v, policy);
+}
+
+export function withinTolerance(a: number, b: number, tol = 0.01): boolean {
+  return Math.abs(a - b) <= tol;
+}
+```
+
+---
+
+## 21. Scripts & CLI Commands
+
+### Package.json Scripts
+
+| Command | Purpose | When to Run |
+|---------|---------|-------------|
+| `npm run dev` | Start dev server (Vite HMR + Express) | Development |
+| `npm run build` | Production build (esbuild + Vite) | Before deployment |
+| `npm start` | Start production server | Deployment |
+| `npm run test:summary` | Run all 3,022 tests | Before any merge |
+| `npm run test:file -- <path>` | Run single test file | During development |
+| `npm run verify:summary` | Run 7-phase proof suite | After financial changes |
+| `npm run health` | Health check (doc harmony, metrics) | After documentation changes |
+| `npm run seed` | Reset dev database with seed data | Dev environment reset |
+| `npm run lint` | TypeScript type checking | Before commit |
+
+### Build Pipeline (`script/build.ts`)
+
+```
+1. Vite build → client/dist/ (React SPA, code-split, tree-shaken)
+2. esbuild → dist/index.cjs (Express server, bundled, minified)
+   - Platform: node
+   - Format: CommonJS (required for pg driver)
+   - 30 bundled deps, rest external
+   - Minified, sourcemaps off in production
+3. Copy static assets
+```
+
+### Health Check (`script/health.ts`)
+
+Validates:
+- Doc harmony: test counts in `.claude/claude.md` and `replit.md` match actual
+- Rule counts: documented rule count matches `ls .claude/rules/*.md | wc -l`
+- Stale metrics detection
+
+---
+
+## 22. Testing Infrastructure
+
+### Test Framework
+
+- **Vitest** — ESM-native, TypeScript-first, fast HMR
+- **3,022 tests across 135 files**
+- **500 golden reference tests** with hand-calculated expected values
+
+### Test Categories
+
+| Category | Directory | Purpose | Count |
+|----------|-----------|---------|-------|
+| **Proof** | `tests/proof/` | Invariant enforcement | ~50 |
+| **Engine** | `tests/engine/` | Financial calculation correctness | ~200 |
+| **Calc** | `tests/calc/` | Deterministic tool I/O | ~150 |
+| **Integration** | `tests/integration/` | API route behavior | ~50 |
+| **Golden** | Spread across above | Hand-calculated reference values | ~500 |
+
+### Proof Test Suite (7 Phases)
+
+```
+Phase 1: Golden Scenarios (5 scenarios)
+  → Full GAAP identity validation on each
+
+Phase 2: Hardcoded Detection
+  → Magic number scanner across all finance files
+
+Phase 3: Golden Values (269+ tests)
+  → Hand-calculated precision verification
+
+Phase 4: Reconciliation
+  → Bridge checks (Sources & Uses, NOI → FCF, BS balance)
+
+Phase 5: Data Integrity
+  → Shared ownership, singleton uniqueness
+
+Phase 6: Portfolio Dynamics
+  → Dynamic property count, fee zero-sum
+
+Phase 7: Artifact Summary
+  → Final audit opinion: UNQUALIFIED | QUALIFIED | ADVERSE
+```
+
+### Test Patterns
+
+**Golden test:**
+```typescript
+const GOLDEN = {
+  year1Revenue: 1_825_000,
+  year1NOI: 730_000,
+  exitValue: 12_166_667,
+};
+
+it("matches golden revenue", () => {
+  expect(result.year1Revenue).toBeCloseTo(GOLDEN.year1Revenue, 0);
+});
+```
+
+**Factory pattern:**
+```typescript
+function makeInput(overrides: Partial<ToolInput> = {}): ToolInput {
+  return {
+    room_count: 20,
+    adr: 300,
+    occupancy: 0.70,
+    ...overrides,
+  };
+}
+```
+
+**Invariant test:**
+```typescript
+it("GOP = Revenue - Department Expenses", () => {
+  const gop = result.revenueTotal - result.expenseTotal;
+  expect(result.gop).toBeCloseTo(gop, 2);
+});
+```
+
+### Adding Tests for This Redesign
+
+New tests needed:
+
+```
+tests/proof/model-defaults.test.ts
+  - Verify: depreciationYears column exists in globalAssumptions
+  - Verify: daysPerMonth column exists in globalAssumptions
+  - Verify: property creation reads defaults from globalAssumptions
+  - Verify: changing default doesn't affect existing properties
+  - Verify: all DEFAULT_* constants have matching DB columns
+
+tests/engine/governed-fields.test.ts
+  - Verify: property engine reads depreciationYears from property entity
+  - Verify: company engine reads daysPerMonth from globalAssumptions
+  - Verify: engine produces same results with DB values as with old constants
+
+tests/proof/settings-elimination.test.ts
+  - Verify: /settings route redirects correctly
+  - Verify: no component imports from settings/ directory
+  - Verify: all settings fields accessible via admin routes
+```
+
+---
+
+## 23. Financial Engine Interface
+
+### Property Engine (`client/src/lib/financial/property-engine.ts`)
+
+```typescript
+export function generatePropertyProForma(
+  property: PropertyInput,
+  global: GlobalInput,
+  months?: number
+): MonthlyFinancials[]
+```
+
+**8-step monthly pipeline:**
+1. Temporal gates (pre-acquisition silence, pre-ops gap)
+2. Occupancy ramp (step function → stabilization)
+3. Revenue calculation (rooms, events, F&B + catering, other)
+4. Departmental expenses (11 USALI cost rates)
+5. Undistributed expenses (management fees, FF&E reserve)
+6. Debt service (PMT amortization, refinance path)
+7. Income statement (NOI → interest → depreciation → tax → net income)
+8. Cash flow & balance sheet (indirect OCF, investing CF, financing CF, ending cash)
+
+**Critical constants that become database-driven:**
+```typescript
+// BEFORE (hardcoded)
+const annualDepreciation = depreciableBasis / DEPRECIATION_YEARS;
+
+// AFTER (from property entity — set from defaults at creation)
+const annualDepreciation = depreciableBasis / property.depreciationYears;
+```
+
+### Company Engine (`client/src/lib/financial/company-engine.ts`)
+
+```typescript
+export function generateCompanyProForma(
+  properties: PropertyInput[],
+  global: GlobalInput,
+  months?: number,
+  serviceTemplates?: ServiceTemplate[]
+): CompanyMonthlyFinancials[]
+```
+
+**Reads from global (direct — singleton):**
+- Management fee rates, staffing tiers, partner comp, overhead, variable costs, tax rate
+- Funding structure (SAFE tranches, interest)
+- **NEW: daysPerMonth** (from globalAssumptions instead of constant)
+
+### Portfolio Aggregation Hook
+
+```typescript
+// client/src/components/dashboard/usePortfolioFinancials.ts
+export function usePortfolioFinancials(
+  properties: Property[] | undefined,
+  global: GlobalResponse | undefined
+): DashboardFinancials | null
+```
+
+Per-property memoization via `useRef<Map>` keyed on `updatedAt` timestamp. Consolidated data recomputed from all property results.
+
+---
+
+## 24. API Endpoints Affected by This Redesign
+
+### Existing Endpoints (Modified)
+
+| Endpoint | Change |
+|----------|--------|
+| `GET /api/global-assumptions` | Returns new `depreciationYears`, `daysPerMonth` columns |
+| `PATCH /api/global-assumptions` | Accepts new columns in request body |
+| `POST /api/properties` | Pre-fills from globalAssumptions defaults |
+
+### New Endpoints
+
+| Endpoint | Auth | Purpose |
+|----------|------|---------|
+| `GET /api/admin/model-defaults` | Admin | Fetch all defaults (structured by tab) |
+| `PATCH /api/admin/model-defaults` | Admin | Update defaults (partial update) |
+
+**Note:** These may be simple wrappers around the existing `global-assumptions` endpoint with admin-only auth and structured response shaping. The data lives in the same `globalAssumptions` table.
+
+### Endpoints for Read-Only Company Summary
+
+| Endpoint | Auth | Purpose |
+|----------|------|---------|
+| `GET /api/company/model-inputs` | Management | Read-only summary of company inputs for the Model Inputs panel |
+
+---
+
+## 25. Environment Variables Reference
+
+### Required for Core App
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `ADMIN_PASSWORD` | Admin user password (seeded on startup) |
+| `CHECKER_PASSWORD` | Checker user password |
+| `REYNALDO_PASSWORD` | Additional team member password |
+| `SESSION_SECRET` | Cookie session encryption key |
+
+### Required for AI Features
+
+| Variable | Purpose |
+|----------|---------|
+| `ANTHROPIC_API_KEY` or `AI_INTEGRATIONS_ANTHROPIC_API_KEY` | Claude API |
+| `AI_INTEGRATIONS_OPENAI_API_KEY` | OpenAI API |
+| `AI_INTEGRATIONS_GEMINI_API_KEY` | Gemini API |
+
+### Required for Integrations
+
+| Variable | Purpose |
+|----------|---------|
+| `ELEVENLABS_API_KEY` | ElevenLabs voice |
+| `ELEVENLABS_AGENT_ID` | Marcela agent ID |
+| `RESEND_API_KEY` | Transactional email |
+| `GOOGLE_MAPS_API_KEY` | Geocoding |
+| `SENTRY_DSN` | Error tracking |
+| `UPSTASH_REDIS_REST_URL` | Redis cache |
+| `UPSTASH_REDIS_REST_TOKEN` | Redis auth |
+
+---
+
+## 26. Verification Checklist for This Redesign
+
+After completing all implementation phases, the following must pass:
+
+```bash
+# 1. All tests pass
+npm run test:summary
+# Expected: 3,022+ tests, 0 failures
+
+# 2. Proof suite shows UNQUALIFIED
+npm run verify:summary
+# Expected: UNQUALIFIED opinion
+
+# 3. Health check passes
+npm run health
+# Expected: Doc Harmony PASS
+
+# 4. Specific test files for this redesign
+npm run test:file -- tests/proof/model-defaults.test.ts
+npm run test:file -- tests/engine/governed-fields.test.ts
+npm run test:file -- tests/engine/operating-reserve-cash.test.ts
+
+# 5. No hardcoded constants remain in engine
+# (Proof Phase 2 — hardcoded detection — covers this)
+
+# 6. Build succeeds
+npm run build
+# Expected: Clean build, no TypeScript errors
+```
+
+---
+
+*End of plan. This document is the complete specification for the UX redesign and its engineering implementation. A software engineer and designer with no prior knowledge of the app can build the correct implementation from this document alone.*

@@ -48,6 +48,7 @@ export interface YearlyDetail {
   expenseAdmin: number;
   expenseIT: number;
   expenseOtherCosts: number;
+  expenseInsurance: number;
   expenseFFE: number;
   feeBase: number;
   feeIncentive: number;

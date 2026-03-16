@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { db } from "../../server/db.js";
-import { globalAssumptions, properties } from "../../shared/schema.js";
+import { globalAssumptions, properties } from "../../shared/schema/index.js";
 import { isNull, isNotNull, sql } from "drizzle-orm";
 
 describe("Data Integrity — Shared Row Uniqueness", () => {

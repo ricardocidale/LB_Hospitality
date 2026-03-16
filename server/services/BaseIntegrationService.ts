@@ -1,3 +1,5 @@
+import { logger } from "../logger";
+
 interface CircuitBreakerState {
   failures: number;
   lastFailure: number;
@@ -56,7 +58,7 @@ export abstract class BaseIntegrationService {
     this.circuitBreaker.lastFailure = Date.now();
     if (this.circuitBreaker.failures >= this.maxFailures) {
       this.circuitBreaker.isOpen = true;
-      console.warn(`${this.serviceName}: Circuit breaker opened after ${this.maxFailures} failures`);
+      logger.warn(`${this.serviceName}: Circuit breaker opened after ${this.maxFailures} failures`, this.serviceName);
     }
   }
 
@@ -67,10 +69,10 @@ export abstract class BaseIntegrationService {
   }
 
   protected log(message: string): void {
-    console.log(`[${this.serviceName}] ${message}`);
+    logger.info(message, this.serviceName);
   }
 
   protected warn(message: string, error?: unknown): void {
-    console.warn(`[${this.serviceName}] ${message}`, error ?? "");
+    logger.warn(`${message} ${error ?? ""}`, this.serviceName);
   }
 }

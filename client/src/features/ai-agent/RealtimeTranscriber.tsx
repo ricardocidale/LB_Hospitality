@@ -306,7 +306,7 @@ export default function RealtimeTranscriber01() {
 
     // Ignore errors if we're not supposed to be connected
     if (connectionStateRef.current !== "connected") {
-      console.log("[Scribe] Ignoring error - not connected")
+      if (import.meta.env.DEV) console.debug("[Scribe] Ignoring error - not connected")
       return
     }
 
@@ -377,7 +377,7 @@ export default function RealtimeTranscriber01() {
 
     // DISCONNECT
     if (connectionState === "connected" || connectionState === "connecting") {
-      console.log("[Scribe] Disconnecting...")
+      if (import.meta.env.DEV) console.debug("[Scribe] Disconnecting...")
 
       // 1. Update UI state immediately
       updateConnectionState("idle")
@@ -405,18 +405,18 @@ export default function RealtimeTranscriber01() {
 
     // Debounce rapid clicks for CONNECT
     if (timeSinceLastOp < 200) {
-      console.log("[Scribe] Ignoring rapid click")
+      if (import.meta.env.DEV) console.debug("[Scribe] Ignoring rapid click")
       return
     }
     lastOperationTimeRef.current = now
 
     // CONNECT
     if (connectionState !== "idle") {
-      console.log("[Scribe] Not in idle state, ignoring")
+      if (import.meta.env.DEV) console.debug("[Scribe] Not in idle state, ignoring")
       return
     }
 
-    console.log("[Scribe] Connecting...")
+    if (import.meta.env.DEV) console.debug("[Scribe] Connecting...")
     updateConnectionState("connecting")
     setLocalTranscript("")
     setRecording({ error: "", latenciesMs: [] })
@@ -428,7 +428,7 @@ export default function RealtimeTranscriber01() {
 
       // Check if user cancelled using ref (gets current value)
       if (connectionStateRef.current === "idle") {
-        console.log("[Scribe] Cancelled during token fetch")
+        if (import.meta.env.DEV) console.debug("[Scribe] Cancelled during token fetch")
         return
       }
 
@@ -448,7 +448,7 @@ export default function RealtimeTranscriber01() {
 
       // Check again after connect completes
       if (connectionStateRef.current !== "connecting") {
-        console.log("[Scribe] Cancelled after connection")
+        if (import.meta.env.DEV) console.debug("[Scribe] Cancelled after connection")
         try {
           scribe.disconnect()
         } catch {
@@ -457,7 +457,7 @@ export default function RealtimeTranscriber01() {
         return
       }
 
-      console.log("[Scribe] Connected")
+      if (import.meta.env.DEV) console.debug("[Scribe] Connected")
       updateConnectionState("connected")
 
       // Play start sound

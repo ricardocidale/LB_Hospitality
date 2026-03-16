@@ -4,6 +4,7 @@ import { requireAuth } from "../auth";
 import { z } from "zod";
 import { generateWithAgentSkills, buildAgentSkillsPrompt } from "../ai/agentSkillsExport";
 import { AI_GENERATION_TIMEOUT_MS } from "../constants";
+import { logger } from "../logger";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -997,7 +998,7 @@ async function generateViaAgentSkills(
   const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("Anthropic API key not configured");
 
-  console.log(`[premium-export] [agent-skills] Building prompt for ${data.format}...`);
+  logger.info(`[agent-skills] Building prompt for ${data.format}...`, "premium-export");
   const financialContext = buildFinancialDataContext(data);
   const prompt = buildAgentSkillsPrompt(
     data.format,
@@ -1009,7 +1010,7 @@ async function generateViaAgentSkills(
     data.version || "short"
   );
 
-  console.log(`[premium-export] [agent-skills] Calling Anthropic Agent Skills API...`);
+  logger.info(`[agent-skills] Calling Anthropic Agent Skills API...`, "premium-export");
   const result = await generateWithAgentSkills({
     format: data.format as "pdf" | "pptx" | "docx",
     prompt,
@@ -1017,14 +1018,14 @@ async function generateViaAgentSkills(
     baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
   });
 
-  console.log(`[premium-export] [agent-skills] Got buffer: ${result.buffer.length} bytes`);
+  logger.info(`[agent-skills] Got buffer: ${result.buffer.length} bytes`, "premium-export");
   return result.buffer;
 }
 
 async function generateViaTemplatePipeline(
   data: PremiumExportRequest
 ): Promise<Buffer> {
-  console.log(`[premium-export] [template] Building ${data.format} prompt...`);
+  logger.info(`[template] Building ${data.format} prompt...`, "premium-export");
   let prompt: string;
   switch (data.format) {
     case "xlsx": prompt = getExcelPrompt(data); break;
@@ -1034,9 +1035,9 @@ async function generateViaTemplatePipeline(
     default: throw new Error(`Unsupported format: ${data.format}`);
   }
 
-  console.log(`[premium-export] [template] Calling Anthropic for JSON structure...`);
+  logger.info(`[template] Calling Anthropic for JSON structure...`, "premium-export");
   const aiResult = await generateWithAnthropic(prompt, data.format);
-  console.log(`[premium-export] [template] AI returned valid JSON, generating ${data.format} buffer...`);
+  logger.info(`[template] AI returned valid JSON, generating ${data.format} buffer...`, "premium-export");
 
   switch (data.format) {
     case "xlsx": return generateExcelBuffer(aiResult, data);
@@ -1070,24 +1071,24 @@ export function register(app: Express) {
       let buffer: Buffer;
 
       if (useAgentSkills) {
-        console.log(`[premium-export] Generating ${data.format} via Agent Skills for "${data.entityName}"...`);
+        logger.info(`Generating ${data.format} via Agent Skills for "${data.entityName}"...`, "premium-export");
         try {
           buffer = await generateViaAgentSkills(data);
-          console.log(`[premium-export] Agent Skills ${data.format} generated (${buffer.length} bytes)`);
+          logger.info(`Agent Skills ${data.format} generated (${buffer.length} bytes)`, "premium-export");
         } catch (skillsError: any) {
-          console.warn(`[premium-export] Agent Skills failed for ${data.format}, falling back to template pipeline. Error: ${skillsError?.message || String(skillsError)}`);
+          logger.warn(`Agent Skills failed for ${data.format}, falling back to template pipeline. Error: ${skillsError?.message || String(skillsError)}`, "premium-export");
           try {
             buffer = await generateViaTemplatePipeline(data);
-            console.log(`[premium-export] Template fallback ${data.format} generated (${buffer.length} bytes)`);
+            logger.info(`Template fallback ${data.format} generated (${buffer.length} bytes)`, "premium-export");
           } catch (fallbackError: any) {
-            console.error(`[premium-export] Template fallback also failed for ${data.format}. Error: ${fallbackError?.message || String(fallbackError)}`);
+            logger.error(`Template fallback also failed for ${data.format}. Error: ${fallbackError?.message || String(fallbackError)}`, "premium-export");
             throw new Error(`Export failed: Agent Skills error — ${skillsError?.message || "unknown"}. Fallback error — ${fallbackError?.message || "unknown"}`);
           }
         }
       } else {
-        console.log(`[premium-export] Generating ${data.format} via template pipeline for "${data.entityName}"...`);
+        logger.info(`Generating ${data.format} via template pipeline for "${data.entityName}"...`, "premium-export");
         buffer = await generateViaTemplatePipeline(data);
-        console.log(`[premium-export] Template ${data.format} generated (${buffer.length} bytes)`);
+        logger.info(`Template ${data.format} generated (${buffer.length} bytes)`, "premium-export");
       }
 
       res.setHeader("Content-Type", contentType);
@@ -1096,7 +1097,7 @@ export function register(app: Express) {
       res.send(buffer);
     } catch (error: any) {
       const errorMsg = error?.message || String(error) || "Unknown error";
-      console.error("[premium-export] Error:", errorMsg, error?.stack || "");
+      logger.error(`Error: ${errorMsg} ${error?.stack || ""}`, "premium-export");
       if (errorMsg.includes("API key not configured")) {
         return res.status(503).json({ error: "AI service is not available for premium exports" });
       }

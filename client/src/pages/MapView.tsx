@@ -547,6 +547,7 @@ export default function MapView() {
             },
           });
         } catch (e) {
+          // Hillshade layer may already exist or source may be unavailable — safe to ignore
         }
       }
 
@@ -622,6 +623,7 @@ export default function MapView() {
             });
           }
         } catch (e) {
+          // Hillshade layer may already exist or source may be unavailable — safe to ignore
         }
       }
 

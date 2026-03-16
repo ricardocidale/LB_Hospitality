@@ -1,0 +1,72 @@
+import { sql } from "drizzle-orm";
+import { pgTable, text, varchar, real, integer, timestamp, jsonb, boolean, index, serial, unique, check, primaryKey } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
+import { companies, userGroups, designThemes } from "./core";
+
+// --- USERS TABLE ---
+// Every person who can log in. Roles control what they can see and do:
+//   - "admin": full access — manage users, properties, assumptions, run verifications
+//   - "partner": management team — can edit properties and assumptions
+//   - "checker": independent auditor — read-only access plus verification tools
+//   - "investor": limited view — sees dashboard and reports but cannot edit
+// Each user optionally belongs to a company (SPV) and a user group (branding).
+export const users = pgTable("users", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash"),
+  role: text("role").notNull().default("partner"), // "admin", "partner", "checker", "investor"
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  company: text("company"),
+  companyId: integer("company_id").references(() => companies.id, { onDelete: "set null" }),
+  title: text("title"),
+  userGroupId: integer("user_group_id").references(() => userGroups.id, { onDelete: "set null" }),
+  selectedThemeId: integer("selected_theme_id").references(() => designThemes.id, { onDelete: "set null" }),
+  phoneNumber: text("phone_number"),
+  googleId: text("google_id"),
+  hideTourPrompt: boolean("hide_tour_prompt").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [
+  index("users_company_id_idx").on(table.companyId),
+  index("users_user_group_id_idx").on(table.userGroupId),
+]);
+
+export const VALID_USER_ROLES = ["admin", "partner", "checker", "investor"] as const;
+export type UserRole = typeof VALID_USER_ROLES[number];
+
+export const insertUserSchema = z.object({
+  email: z.string(),
+  passwordHash: z.string().nullable().optional(),
+  role: z.enum(VALID_USER_ROLES).optional().default("partner"),
+  firstName: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  company: z.string().nullable().optional(),
+  companyId: z.number().nullable().optional(),
+  title: z.string().nullable().optional(),
+  phoneNumber: z.string().nullable().optional(),
+  googleId: z.string().nullable().optional(),
+  userGroupId: z.number().nullable().optional(),
+});
+
+export const selectUserSchema = createSelectSchema(users);
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+
+// --- SESSIONS TABLE ---
+// Cookie-based sessions for authentication. Each session has an expiration date;
+// expired sessions are cleaned up hourly by the server. Deleting a session = logout.
+export const sessions = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("sessions_user_id_idx").on(table.userId),
+]);
+
+export type Session = typeof sessions.$inferSelect;
+

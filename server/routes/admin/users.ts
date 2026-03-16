@@ -4,7 +4,7 @@ import { requireAdmin, validatePassword } from "../../auth";
 import { userResponse, createUserSchema, logAndSendError, logActivity, parseParamId } from "../helpers";
 import { fromZodError } from "zod-validation-error";
 import { hashPassword } from "../../auth";
-import { VALID_USER_ROLES } from "../../../shared/schema.js";
+import { VALID_USER_ROLES } from "../../../shared/schema/index.js";
 import { z } from "zod";
 
 const roleSchema = z.enum(VALID_USER_ROLES);

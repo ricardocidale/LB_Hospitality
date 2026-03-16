@@ -6,7 +6,7 @@
  * No inline arithmetic.
  */
 import { executeComputationTool } from "../../calc/dispatch.js";
-import type { Property } from "../../shared/schema.js";
+import type { Property } from "../../shared/schema/index.js";
 
 export function buildPropertyContext(properties: Property[]): string {
   return properties.map((p) => {

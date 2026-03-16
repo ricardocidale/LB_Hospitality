@@ -17,6 +17,7 @@ import NavigationTab from "@/components/admin/NavigationTab";
 import AIAgentsTab from "@/components/admin/AIAgentsTab";
 import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
+import ModelDefaultsTab from "@/components/admin/ModelDefaultsTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary, SelfHealingBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
@@ -28,6 +29,7 @@ import type { AdminSaveState } from "@/components/admin/types/save-state";
 export type { AdminSaveState };
 
 const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
+  "model-defaults": { title: "Model Defaults",      subtitle: "Financial defaults and seed values for new entities" },
   users:            { title: "Users",                subtitle: "Manage user accounts and assignments" },
   activity:         { title: "Activity",             subtitle: "Login logs, audit trail, and session monitoring" },
   icp:              { title: "Ideal Customer Profile", subtitle: "Define the target property type for AI research" },
@@ -46,6 +48,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
 
 function SectionContent({ section, onNavigate, onSaveStateChange }: { section: AdminSection; onNavigate: (s: AdminSection) => void; onSaveStateChange: (state: AdminSaveState | null) => void }) {
   switch (section) {
+    case "model-defaults":   return <ModelDefaultsTab onSaveStateChange={onSaveStateChange} />;
     case "users":            return <PeopleTab />;
     case "activity":         return <ActivityTab />;
     case "icp":              return (

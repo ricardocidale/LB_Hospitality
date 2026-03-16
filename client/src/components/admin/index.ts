@@ -22,4 +22,5 @@ export { default as DatabaseTab } from "./DatabaseTab";
 export { default as MarcelaTab } from "./MarcelaTab";
 export { default as AIAgentsTab } from "./AIAgentsTab";
 export { default as ResearchCenterTab } from "./ResearchCenterTab";
+export { default as ModelDefaultsTab } from "./ModelDefaultsTab";
 export { default as DesignTab } from "./DesignTab";

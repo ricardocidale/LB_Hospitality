@@ -5,12 +5,13 @@ import { X } from "@/components/icons/themed-icons";
 import {
   IconMenu, IconHelpCircle, IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconTrending, IconTarget,
-  IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear,
+  IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear, IconSliders,
   IconBriefcase, IconResearch, IconBookOpen, IconPhone, IconMessageCircle,
 } from "@/components/icons";
 import { Link } from "wouter";
 
 export type AdminSection =
+  | "model-defaults"
   | "users" | "activity"
   | "icp"
   | "companies" | "groups"
@@ -40,6 +41,7 @@ const navGroups: NavGroup[] = [
     icon: IconBriefcase,
     description: "Users, companies & groups",
     sections: [
+      { value: "model-defaults", label: "Model Defaults", icon: IconSliders },
       { value: "users", label: "Users", icon: IconPeople },
       { value: "companies", label: "Companies", icon: IconProperties },
       { value: "groups", label: "Groups", icon: IconUserCog },

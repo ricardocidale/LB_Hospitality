@@ -67,7 +67,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
 | Codebase Arch | `.claude/skills/codebase-architecture/SKILL.md` | Client folder structure, UI component catalog (80+), ElevenLabs architecture |
 | Admin Components | `.claude/skills/admin-components/SKILL.md` | Admin panel hooks, styles, tooltip patterns |
-| Admin (15 sections) | `.claude/skills/admin/SKILL.md` | 15-section shell pattern, extraction guide, API routes |
+| Admin (16 sections) | `.claude/skills/admin/SKILL.md` | 16-section shell pattern, extraction guide, API routes |
 | Marcela AI | `.claude/skills/marcela-ai/SKILL.md` | Multi-channel assistant, audio pipeline, ElevenLabs |
 | Twilio | `.claude/skills/twilio-telephony/SKILL.md` | Voice webhooks, SMS, Media Streams |
 | Finance (22 skills) | `.claude/skills/finance/` | Income statement, cash flow, balance sheet, IRR, DCF, fee categories, funding interest, diagnostic decision tree, etc. |
@@ -318,6 +318,8 @@ npm run stats          # Codebase metrics
 
 ## Recent Changes (March 16, 2026)
 
+- **Model Defaults Admin Section** — New "Model Defaults" tab in Admin > Business group. Two sub-tabs: Market & Macro (inflation, cost of equity, days per month, fiscal calendar) and Property Underwriting (expense rates, acquisition/refi financing, depreciation, exit/disposition, default acquisition package). Consolidates all financial seed/default values into one place. Uses GovernedFieldWrapper for IRS/industry-standard values.
+- **Verification Bug Fixes** — Fixed DSCR check (was failing for pre-operational Year 1 properties), fixed Net Income/Cash Flow identity checks (were using naive tax formula ignoring NOL carryforward). Added `incomeTax` to checker engine output.
 - **Role Rename: Partner → User** (Task #163) — Renamed `partner` role to `user` across entire codebase: schema, seeds, auth, UI, AI prompts, diagrams, tests. Data migration updates existing rows.
 - **Property Engine Split** (Task #162) — Split `property-engine.ts` into `resolve-assumptions.ts`, `refinance-pass.ts`, and slimmed core engine.
 - **Insurance Display** (Task #160) — Insurance cost rate display and sensitivity/comparison support.

@@ -2549,4 +2549,561 @@ npm run build
 
 ---
 
-*End of plan. This document is the complete specification for the UX redesign and its engineering implementation. A software engineer and designer with no prior knowledge of the app can build the correct implementation from this document alone.*
+---
+
+## 27. Replit Development Environment
+
+This project is built and deployed entirely within Replit. All implementation will happen inside the Replit workspace. This section ensures anyone working on the project understands the platform constraints, workflows, and best practices.
+
+### 27.1 Workspace Configuration (`.replit`)
+
+The `.replit` file is the project's platform configuration. It controls everything Replit does with the project:
+
+```toml
+modules = ["nodejs-20", "web", "javascript", "postgresql-16"]
+run = "npm run dev"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+
+[nix]
+channel = "stable-24_05"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[env]
+PORT = "5000"
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
+run = ["node", "./dist/index.cjs"]
+```
+
+**Key points:**
+- **Single port:** Express serves both API and client SPA on port 5000 (mapped to external port 80)
+- **Autoscale deployment:** Scales to zero when idle, scales up under traffic. Cold starts possible.
+- **Node.js 20 + PostgreSQL 16:** Provided via Nix modules — no manual install needed
+- **Hidden directories:** `node_modules`, `dist`, `.git`, `.config` are hidden from the filetree to improve IDE performance
+
+### 27.2 Development Workflow in Replit
+
+**Starting the dev server:**
+- Click the "Run" button or use the "Project" workflow — runs `npm run dev`
+- Vite HMR serves the React frontend with hot reload
+- Express backend restarts on server file changes
+- Preview pane shows the app at the mapped external URL
+
+**Using the Shell (Terminal):**
+- All `npm run` commands are available in the Shell tab
+- Key commands for this project:
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `npm run dev` | Start dev server | Development |
+| `npm run test:summary` | Run all 3,035 tests | Before committing |
+| `npm run verify:summary` | 7-phase GAAP proof | After financial changes |
+| `npm run health` | Full health check | After any changes |
+| `npm run build` | Production build | Before deployment |
+
+**Named Workflows (accessible from Replit UI):**
+The `.replit` file defines 9 workflows accessible from the Workflows panel:
+- **Project** — Start application
+- **Health Check** — `npm run health`
+- **Run Tests** — `npm run test:summary`
+- **Verify Financials** — `npm run verify:summary`
+- **Lint Check** — `npm run lint:summary`
+- **Diff Summary** — `npm run diff:summary`
+- **Codebase Stats** — `npm run stats`
+- **Quick Audit** — `npm run audit:quick`
+- **Exports Check** — `npm run exports:check`
+
+### 27.3 Replit Agent Integration
+
+The project is configured for Replit Agent with 15 integrations:
+
+```toml
+[agent]
+mockupState = "FULLSTACK"
+integrations = [
+  "javascript_database:1.0.0",
+  "javascript_object_storage:2.0.0",
+  "github:1.0.0",
+  "javascript_openai_ai_integrations:2.0.0",
+  "javascript_anthropic_ai_integrations:2.0.0",
+  "javascript_gemini_ai_integrations:2.0.0",
+  "google-sheet:1.0.0", "google-mail:1.0.0",
+  "stripe:2.0.0",
+  "javascript_log_in_with_replit:2.0.0",
+  "google-drive:1.0.0", "google-docs:1.0.0", "google-calendar:1.0.0",
+  "twilio:1.0.0", "elevenlabs:1.0.0"
+]
+```
+
+**Working with Replit Agent (best practices for this project):**
+
+1. **Break work into small, focused prompts** — Don't ask Agent to implement an entire phase at once. Ask for one component, one migration, one test file at a time.
+2. **Reference the plan explicitly** — Tell Agent: "Read `.claude/plans/UX-REDESIGN-PLAN.md` Section 6 and implement the Market & Macro tab of ModelDefaultsTab."
+3. **Use checkpoints** — Agent creates git commits at milestones. Review before accepting.
+4. **Verify after each change** — After Agent makes financial changes, run `npm run verify:summary` in Shell before proceeding.
+5. **Don't let Agent guess architecture** — This project has strict rules in `.claude/rules/`. Agent should read them first.
+
+**Prompting pattern for this redesign:**
+
+```
+Phase 2 example prompt:
+"Read .claude/plans/UX-REDESIGN-PLAN.md Section 6 (Model Defaults).
+Read .claude/rules/architecture.md and .claude/rules/ui-patterns.md.
+Create client/src/components/admin/ModelDefaultsTab.tsx with 3 sub-tabs:
+Market & Macro, Company Operations, Property Underwriting.
+Follow the existing admin tab pattern from PeopleTab.tsx.
+Use GlassButton, PageHeader, and CurrentThemeTab components.
+Register in Admin.tsx sidebar under Business group, first item."
+```
+
+### 27.4 Secrets & Environment Variables
+
+**All secrets are managed in Replit's Secrets panel (padlock icon in the sidebar).**
+
+| Secret | Purpose | Used By |
+|--------|---------|---------|
+| `DATABASE_URL` | PostgreSQL connection | `server/db.ts` |
+| `ADMIN_PASSWORD` | Admin user seed | `server/auth.ts` |
+| `CHECKER_PASSWORD` | Checker user seed | `server/auth.ts` |
+| `REYNALDO_PASSWORD` | Team member seed | `server/auth.ts` |
+| `ANTHROPIC_API_KEY` | Claude AI | `server/ai/clients.ts` |
+| `AI_INTEGRATIONS_OPENAI_API_KEY` | OpenAI | `server/ai/clients.ts` |
+| `AI_INTEGRATIONS_GEMINI_API_KEY` | Gemini | `server/ai/clients.ts` |
+| `ELEVENLABS_API_KEY` | Voice agent | `server/integrations/elevenlabs.ts` |
+| `RESEND_API_KEY` | Email | `server/integrations/resend.ts` |
+| `GOOGLE_MAPS_API_KEY` | Geocoding | `server/integrations/geospatial.ts` |
+| `SENTRY_DSN` | Error tracking | `server/sentry.ts` |
+
+**Rules:**
+- **Never use `.env` files** — Replit Secrets are encrypted (AES-256 at rest), `.env` files are not
+- **Never hardcode secrets** in source code
+- **Secrets auto-deploy** — Available in both dev and autoscale deployment environments
+- Non-secret env vars go in `.replit` `[env]` section (e.g., `PORT = "5000"`)
+
+### 27.5 Database (PostgreSQL on Neon)
+
+**Connection:** Via `DATABASE_URL` secret → `server/db.ts` → Drizzle ORM
+
+**Key Replit + Neon considerations:**
+- **Serverless compute:** Neon suspends after 5 minutes of inactivity. The pool configuration in `server/db.ts` handles reconnection.
+- **Connection pooling:** Max 20 connections, min 2 idle, 60s idle timeout. Critical for autoscale deployment where instances spin up/down.
+- **No direct SQL** in the Shell — use Drizzle or the app's API endpoints for data operations
+- **Migrations run on startup** — no separate migration command needed. Server executes all 18 migrations in `server/migrations/` during Phase 2 of startup.
+- **Dev vs Prod databases** — separate `DATABASE_URL` values. Never mix them.
+
+**For this redesign (new columns):**
+```sql
+-- Migration: server/migrations/model-defaults-001.ts
+ALTER TABLE global_assumptions ADD COLUMN IF NOT EXISTS depreciation_years REAL DEFAULT 27.5;
+ALTER TABLE global_assumptions ADD COLUMN IF NOT EXISTS days_per_month REAL DEFAULT 30.5;
+```
+This migration runs automatically on next server start. No manual database command needed.
+
+### 27.6 File Storage & Object Storage
+
+**Replit Object Storage** (for user uploads — photos, documents):
+- SDK: `@replit/object-storage` (already integrated)
+- Location: `server/replit_integrations/object_storage/`
+- Files persist across deployments
+- Direct GCS URLs require authentication — use the SDK for access
+
+**File system persistence:**
+- All files in the workspace persist across restarts
+- `node_modules` and `dist` are transient (rebuilt from `package.json` and source)
+- `.claude/` documentation persists — it's committed to git
+
+### 27.7 Deployment Process
+
+**To deploy changes:**
+1. Verify locally: `npm run health` (tests + verify + doc harmony)
+2. Click "Deploy" in Replit UI, or use the Deployments tab
+3. Replit runs `npm run build` (esbuild + Vite production build)
+4. Replit starts `node ./dist/index.cjs` on the autoscale platform
+5. Migrations run automatically on first request (server startup Phase 2)
+
+**Autoscale behavior:**
+- Scales to zero when no traffic (saves cost)
+- Cold start: ~5-10 seconds for first request after idle
+- Single external port (80) — Express serves both API and static SPA
+- The app must bind to `0.0.0.0` (not `localhost`) — already configured
+
+### 27.8 Replit-Specific Gotchas for This Project
+
+| Gotcha | Impact | Mitigation |
+|--------|--------|------------|
+| **HMR WebSocket drops** | Frontend changes may not hot-reload | Full page refresh (F5) |
+| **Filetree lag on large projects** | Slow navigation with 790+ files | `node_modules`, `dist`, `.git` already hidden in `.replit` |
+| **Storage quota** | `node_modules` counts against 50 GiB | Monitor with `du -sh node_modules/` |
+| **5-min Neon sleep** | First DB query after idle may be slow | Pool reconnection handles this |
+| **Autoscale cold starts** | First request after idle takes 5-10s | Acceptable for this internal tool |
+| **Credit consumption** | Agent interactions + dev sessions draw credits | Break Agent prompts into focused tasks |
+| **Post-merge hook timeout** | 60 second limit for `script/post-merge.sh` | Keep post-merge script fast |
+| **Single port** | Only port 5000 (→80) available externally | Express already serves everything on one port |
+
+### 27.9 Git Workflow in Replit
+
+- **Version Control pane** — Visual git interface in the sidebar
+- **Shell** — Full `git` CLI available
+- **Agent checkpoints** — Automatic commits at milestones (reviewable)
+- **Post-merge hook** — `script/post-merge.sh` runs after merges (60s timeout)
+
+**Recommended workflow for this redesign:**
+1. Create a feature branch: `git checkout -b feature/model-defaults`
+2. Implement one phase at a time
+3. After each phase, run `npm run health` in Shell
+4. Commit with descriptive message
+5. When phase is complete, merge to `main`
+6. Deploy via Replit Deployments tab
+
+### 27.10 Replit Workflows for This Redesign
+
+Add these new workflows to `.replit` after implementation:
+
+```toml
+[[workflows.workflow]]
+name = "Test Model Defaults"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run test:file -- tests/proof/model-defaults.test.ts"
+
+[[workflows.workflow]]
+name = "Test Governed Fields"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run test:file -- tests/engine/governed-fields.test.ts"
+```
+
+---
+
+## 28. Best Practices & Code Governance
+
+This section consolidates all code quality standards, governance rules, review processes, and compliance requirements. These are non-negotiable — enforced by 19 rule files, 3,035 automated tests, and a 7-phase verification pipeline.
+
+### 28.1 Governance Architecture
+
+**19 binding rule files** in `.claude/rules/`:
+
+| Rule | Scope | Enforcement |
+|------|-------|-------------|
+| `architecture.md` | Tech stack, two-entity model, file org | Manual review |
+| `audit-persona.md` | 7 audit dimensions, financial statement standards | `verify:summary` |
+| `database-seeding.md` | Seeding mechanisms, shared ownership invariants | `data-integrity.test.ts` |
+| `design-standards.md` | Premium UI, animations, edge cases | Manual review |
+| `deterministic-tools.md` | 36 pure calc tools, schema parity, tests | `tool-registry.test.ts` |
+| `documentation.md` | Doc hierarchy, harmony checks | `npm run health` |
+| `domain-boundaries.md` | 6 independent domains, prohibited crossings | `domain-boundaries.test.ts` |
+| `error-handling.md` | Structured logging, no empty catches, boundaries | Manual review |
+| `exports.md` | 6 export formats, placement, naming | Manual review |
+| `financial-engine.md` | Two-engine model, 6 hardened GAAP rules | `verify:summary` |
+| `mandatory-financial-tests.md` | 13 critical tests, stop-the-line | `operating-reserve-cash.test.ts` |
+| `no-hardcoded-values.md` | Named constants, DB fallback pattern | `hardcoded-detection.test.ts` |
+| `portfolio-dynamics.md` | Shared ownership, dynamic count, fee zero-sum | `portfolio-dynamics.test.ts` |
+| `recalculate-on-save.md` | `invalidateAllFinancialQueries` mandatory | `recalculation-enforcement.test.ts` |
+| `research-precision.md` | Deterministic tools, admin config, validation | `tool-registry.test.ts` |
+| `security.md` | Auth/authz, Zod validation, secrets, SQL injection | Manual review |
+| `session-startup.md` | Context loading, rule loading per task type | Manual review |
+| `testing-strategy.md` | Test categories, golden patterns, fixture factory | Manual review |
+| `ui-patterns.md` | Button labels, accordions, entity cards, test IDs | Manual review |
+
+### 28.2 The Three Gates (Must Pass Before Shipping)
+
+```
+Gate 1: npm run test:summary     → 3,035 tests, 0 failures
+Gate 2: npm run verify:summary   → UNQUALIFIED audit opinion
+Gate 3: npm run health           → All checks pass (tsc + tests + verify + doc harmony)
+```
+
+**No exceptions.** If any gate fails, fix the issue before proceeding.
+
+### 28.3 Financial Code Change Protocol
+
+Any change touching financial calculations follows this strict workflow:
+
+```
+1. STATE the active skill
+   → Which .claude/skills/finance/ sub-skill covers this change?
+
+2. CONFIRM authoritative references
+   → Which rules and constants apply?
+
+3. IDENTIFY invariants affected
+   → What GAAP identities must hold? (A=L+E, OCF reconciliation, etc.)
+
+4. IMPLEMENT the smallest safe change
+   → Don't over-generalize. Fix one thing.
+
+5. RUN mandatory tests
+   → npm run test:file -- tests/engine/operating-reserve-cash.test.ts
+   → npm run test:file -- tests/engine/<relevant-test>.test.ts
+
+6. VERIFY UNQUALIFIED
+   → npm run verify:summary
+
+7. UPDATE documentation
+   → .claude/session-memory.md
+   → .claude/skills/ if behavior changed
+   → .claude/claude.md if architecture changed
+```
+
+### 28.4 No Hardcoded Values (Enforced by Tests)
+
+Every financial, operational, or admin-configurable value must come from the database with a named-constant fallback:
+
+```typescript
+// CORRECT — database value → named constant fallback
+const taxRate = globalAssumptions.companyTaxRate ?? DEFAULT_COMPANY_TAX_RATE;
+
+// WRONG — hardcoded literal
+const taxRate = 0.30;
+
+// WRONG — unnamed magic number as fallback
+const taxRate = globalAssumptions.companyTaxRate ?? 0.30;
+```
+
+**After this redesign:** Even `DEPRECIATION_YEARS` and `DAYS_PER_MONTH` become database values. The only remaining "safe" literals in calculation code are: `0`, `1`, `-1`, `2`, `12`, `100`.
+
+**Enforcement:** `tests/proof/hardcoded-detection.test.ts` scans 8 finance modules and fails the verify pipeline on unexplained magic numbers.
+
+### 28.5 Domain Boundary Rules
+
+Six independent domains. Cross-domain access is strictly controlled:
+
+```
+Financial Engine  ←→  NEVER imports from AI, Photos, Notifications
+AI Agents         →   May READ financial context (never WRITE)
+Photos/Media      →   May SYNC hero image to properties (documented denormalization)
+Research          →   calc/ tools are PURE (no server imports)
+Documents         ←→  NEVER imports from AI or Research
+Notifications     ←→  NEVER imports from Financial Engine
+```
+
+**Enforcement:** `tests/proof/domain-boundaries.test.ts` performs static analysis on all imports.
+
+### 28.6 Mutation Safety (Recalculation)
+
+Every financial mutation must call `invalidateAllFinancialQueries(queryClient)` in its `onSuccess` callback:
+
+```typescript
+// CORRECT
+onSuccess: () => { invalidateAllFinancialQueries(queryClient); }
+
+// WRONG — hand-picking keys (misses dependent queries)
+onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["globalAssumptions"] }); }
+```
+
+**Exempt mutations** (no recalculation needed): theme changes, logo uploads, profile updates, property finder favorites, research config saves.
+
+**Enforcement:** `tests/proof/recalculation-enforcement.test.ts` scans every mutation.
+
+### 28.7 Database Integrity Rules
+
+1. **All portfolio data uses `userId = NULL`** — shared across all users
+2. **Singleton queries use `ORDER BY id DESC LIMIT 1`** — guarantees newest row
+3. **Scenario load restores as shared** — `userId: null`, never the logged-in user's ID
+4. **Fill-only sync** — `isFieldEmpty()` + `fillMissingFields()`, never overwrite user data
+5. **No direct `db` imports in routes** — all through `IStorage` facade
+6. **Zod validation on all request bodies** — never trust client input
+
+**Enforcement:** `tests/proof/data-integrity.test.ts`
+
+### 28.8 Security Baseline
+
+| Requirement | Rule | Enforcement |
+|-------------|------|-------------|
+| Authentication | All `/api/` routes require `requireAuth` (except login/register) | Manual review |
+| Authorization | Admin routes require `requireAdmin` middleware | Manual review |
+| Input validation | All request bodies validated with Zod schemas | Manual review |
+| Secrets | All API keys from `process.env` (Replit Secrets), never hardcoded | `security.md` rule |
+| SQL injection | All DB access through Drizzle ORM (parameterized), no string concatenation | `domain-boundaries.test.ts` |
+| Rate limiting | AI endpoints rate-limited, login attempts throttled | `server/middleware/rate-limit.ts` |
+| Error exposure | Never expose stack traces or DB connection strings to clients | `error-handling.md` rule |
+
+### 28.9 Testing Standards
+
+**When tests are required:**
+- Any change to `calc/` → tests in `tests/calc/`
+- Any change to financial engines → run `tests/engine/`
+- Any new proof invariant → add to `tests/proof/`
+- Any new API mutation route → add integration test
+
+**When tests are NOT required:**
+- CSS/styling changes
+- Documentation updates
+- Admin UI layout changes (unless affecting data flow)
+- Theme/branding changes
+
+**Test quality standards:**
+- Deterministic — no random data, no timing dependencies
+- Financial tests use `toBeCloseTo` for floating-point comparison
+- Test names describe the business rule: "NOI equals GOP minus fees and taxes"
+- Golden tests use 0% growth/inflation for traceability
+- Factory pattern: `makeProperty()` / `makeGlobal()` with override-only pattern
+
+### 28.10 Error Handling Standards
+
+**Server-side:**
+```typescript
+// Every route has try/catch with structured logging
+try {
+  const result = await storage.getProperty(id);
+  if (!result) return res.status(404).json({ error: "Property not found" });
+  res.json(result);
+} catch (err) {
+  console.error("[ERROR] [properties] Failed to fetch property", err);
+  res.status(500).json({ error: "Failed to fetch property" });
+}
+```
+
+**Client-side:**
+- React error boundaries around major page sections
+- Styled error cards with retry actions (never raw error strings)
+- Financial calculation errors use `FinancialCalculationError` with input fingerprinting
+- Side effects (logging, analytics) use `.catch()` to prevent cascading
+
+**Prohibited:**
+- `catch (e) {}` — empty catch blocks
+- `console.log(err)` without domain tag
+- Exposing stack traces in API responses
+- Unhandled promise rejections in route handlers
+
+### 28.11 UI/UX Standards
+
+**Premium design requirement** — every page must look like a $50K+ financial platform:
+- Animated numbers (NumberTicker, never static)
+- Glassmorphism cards with backdrop blur
+- Staggered reveals for lists/grids
+- Skeleton loading states (never spinner-only)
+- Custom chart styling (gradients, custom tooltips, glow effects)
+- Smooth page transitions (Framer Motion)
+
+**Component compliance:**
+- All buttons → `GlassButton`
+- All page headers → `PageHeader`
+- All export menus → `ExportMenu` (all 6 formats)
+- All tabs → `CurrentThemeTab`
+- Button labels: "Save" (never "Update"), "Add [Entity]", "Delete"
+
+**Edge case handling:**
+- Empty states → illustrated placeholders with CTAs
+- `NaN`/`Infinity` → show "—" with tooltip
+- `$0` → display as "$0" (never blank)
+- Negative values → red color with parentheses
+- `prefers-reduced-motion` → respected
+
+### 28.12 Documentation Governance
+
+**After every codebase change:**
+1. Update `.claude/session-memory.md` with what was done
+2. Update `.claude/claude.md` if architecture/features/inventory changed
+3. Harmonize `replit.md` to match (≤150 lines, references `.claude/`)
+4. Update relevant `.claude/skills/` if behavior changed
+
+**After bug fixes (additionally):**
+5. Run `npm run test:summary` — all tests pass
+6. Run `npm run verify:summary` — UNQUALIFIED
+7. Update `mandatory-financial-tests.md` if financial bug fixed
+8. Verify doc harmony — counts match actual state
+
+**Automated enforcement:** `npm run health` checks doc harmony (test counts, rule counts match documented values).
+
+### 28.13 Code Review Checklist
+
+Before any commit or merge:
+
+**Functional:**
+- [ ] Feature works as specified in the plan
+- [ ] No regressions in existing functionality
+- [ ] Edge cases handled (empty state, loading, error, NaN, $0, negative)
+
+**Financial integrity:**
+- [ ] No hardcoded financial values (use `DEFAULT_*` constants)
+- [ ] `safeNum()` guard at division/exponentiation points
+- [ ] GAAP identities preserved (A=L+E, OCF reconciliation)
+- [ ] Income statement shows interest only, never principal
+- [ ] Management fee zero-sum between property and company
+
+**Quality:**
+- [ ] TypeScript strict mode — no `any` without justification
+- [ ] `data-testid` on all interactive elements
+- [ ] Error handling — no empty catches, structured logging
+- [ ] Component compliance — uses GlassButton, PageHeader, etc.
+- [ ] Theme tokens used — no raw hex colors
+
+**Testing:**
+- [ ] `npm run test:summary` passes (3,035+ tests, 0 failures)
+- [ ] `npm run verify:summary` shows UNQUALIFIED
+- [ ] `npm run health` passes (doc harmony, tsc)
+- [ ] New financial logic has golden tests with hand-calculated values
+- [ ] Fixture factory used (`makeProperty` / `makeGlobal`)
+
+**Security:**
+- [ ] Authentication middleware on new routes
+- [ ] Zod validation on request bodies
+- [ ] No secrets in source code
+- [ ] No direct `db` imports in routes
+
+**Documentation:**
+- [ ] `.claude/session-memory.md` updated
+- [ ] Relevant skills updated if behavior changed
+- [ ] `replit.md` harmonized if counts changed
+
+### 28.14 Constants & Defaults Governance (Post-Redesign)
+
+After this redesign, the governance model for configurable values is:
+
+```
+SEED VALUES (shared/constants.ts)
+  └── Used ONLY to initialize the database on first deployment
+  └── Export: SEED_DEFAULTS = { depreciationYears: 27.5, daysPerMonth: 30.5, ... }
+
+DATABASE (globalAssumptions table)
+  └── Source of truth for all defaults
+  └── Admin edits via Model Defaults section
+  └── Read by engine at calculation time
+
+ENTITY VALUES (properties table, company model)
+  └── Copied from defaults at entity creation time
+  └── Owned by the entity after creation
+  └── User edits and saves independently
+  └── Changing a default does NOT affect existing entities
+```
+
+**The test for any new value:**
+1. Can someone change this in the UI? → Must be in the database
+2. Does it need a fallback? → Use named constant from `shared/constants.ts`
+3. Is it backed by regulation? → Mark as governed field (shield icon + authority citation)
+4. Can NO ONE change it in the UI? → It shouldn't be a stored value (dead code)
+
+### 28.15 Automated Enforcement Summary
+
+| What's Enforced | How | Fails As |
+|-----------------|-----|----------|
+| No magic numbers in finance code | `hardcoded-detection.test.ts` | ADVERSE |
+| Shared ownership (userId=NULL) | `data-integrity.test.ts` | ADVERSE |
+| No prohibited cross-domain imports | `domain-boundaries.test.ts` | ADVERSE |
+| All mutations invalidate queries | `recalculation-enforcement.test.ts` | ADVERSE |
+| Doc harmony (counts match) | `npm run health` | FAIL |
+| Tools have schemas + tests | `tool-registry.test.ts` | ADVERSE |
+| No root-level shadow docs | `rule-compliance.test.ts` | ADVERSE |
+| GAAP identities (5 golden scenarios) | `scenarios.test.ts` | QUALIFIED |
+| Bridge checks (S&U, NOI→FCF) | `reconciliation-report.test.ts` | QUALIFIED |
+| Dynamic property count, fee zero-sum | `portfolio-dynamics.test.ts` | QUALIFIED |
+| Hand-calculated golden values | Golden tests (269+) | ADVERSE |
+| Operating reserve + per-property debt | `operating-reserve-cash.test.ts` | STOP |
+
+**ADVERSE = verification fails, cannot ship**
+**QUALIFIED = minor issues, review required**
+**STOP = stop all work, fix immediately**
+
+---
+
+*End of plan. This document is the complete specification for the UX redesign and its engineering implementation. It covers UX design, page specifications, field migrations, code organization, database operations, SDKs and tools, Replit development environment, and code governance. A software engineer and designer working in Replit with no prior knowledge of the app can build the correct implementation from this document alone.*

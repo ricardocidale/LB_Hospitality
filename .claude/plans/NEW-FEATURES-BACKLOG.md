@@ -287,8 +287,23 @@ This document exists so good ideas don't get lost. The owner will decide what ma
 | 21 | Default alert rules | Small | Notifications |
 | 22 | Undo/revert on Property Edit | Small | UX |
 | 23 | Context-sensitive help links | Small | UX |
+| 24 | Premium PDF via HTML-to-PDF | Medium | Exports |
 
 **Small** = < 1 day. **Medium** = 1-3 days. **Large** = 3+ days.
+
+---
+
+### 24. Premium PDF Export via HTML-to-PDF
+**What:** Replace jsPDF + autotable PDF generation with HTML-to-PDF rendering (Puppeteer, Playwright, or @react-pdf/renderer). PDFs would look like the app — branded, styled, with real charts.
+
+**Why it doesn't exist:** Current PDFs use jsPDF which produces functional but plain table-based output. The "premium" path tries Anthropic Agent Skills (beta) but falls back to the same jsPDF renderer. Charts are drawn with primitive line commands.
+
+**Options:**
+- **Puppeteer/Playwright** — render styled HTML to PDF via headless Chromium. Pixel-perfect. Needs Chromium binary (~300MB).
+- **@react-pdf/renderer** — React components render directly to PDF. Lightweight. Custom styling but not identical to app.
+- **Improve existing jsPDF** — better templates, chart PNGs embedded. Lowest effort, limited ceiling.
+
+**What it needs:** New PDF template components (HTML or React-PDF), chart rendering pipeline, branded header/footer, company logo embedding. Remove dependency on Anthropic Agent Skills beta for PDF generation.
 
 ---
 

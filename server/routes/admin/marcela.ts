@@ -180,8 +180,8 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/health", requireAdmin, async (_req, res) => {
-    // MARCELA ISOLATED — return isolated health status
-    if (MARCELA_ISOLATED) return res.json({ healthy: false, reason: "isolated", apiKeySet: false, agentId: "", signedUrlTest: "skipped — isolated", showAiAssistant: false, marcelaEnabled: false });
+    // MARCELA ISOLATED — return 503
+    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
     try {
       const ga = await storage.getGlobalAssumptions();
       const agentId = ga?.marcelaAgentId || "";
@@ -228,8 +228,7 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/conversations", requireAdmin, async (_req, res) => {
-    // MARCELA ISOLATED — return 503
-    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
+    // Read-only: conversation list does not call ElevenLabs write APIs
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga?.marcelaAgentId) {
@@ -243,8 +242,7 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/conversations/:id", requireAdmin, async (req, res) => {
-    // MARCELA ISOLATED — return 503
-    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
+    // Read-only: conversation detail does not call ElevenLabs write APIs
     try {
       const id = String(req.params.id);
       const conversation = await getConvaiConversation(id);
@@ -634,8 +632,7 @@ export function registerMarcelaRoutes(app: Express) {
   });
 
   app.get("/api/admin/convai/conversations/:id/audio", requireAdmin, async (req, res) => {
-    // MARCELA ISOLATED — return 503
-    if (MARCELA_ISOLATED) return res.status(503).json({ error: MARCELA_DISABLED_MSG, isolated: true });
+    // Read-only: conversation audio does not call ElevenLabs write APIs
     try {
       const id = String(req.params.id);
       const { buffer, contentType } = await getConversationAudio(id);

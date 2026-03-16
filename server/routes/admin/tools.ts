@@ -217,7 +217,7 @@ export function registerToolRoutes(app: Express) {
 
       // Also write to test-results-golden.json for caching
       const { writeFile } = await import("fs/promises");
-      await writeFile(resolve(projectRoot, "test-results-golden.json"), JSON.stringify(raw), "utf-8").catch(() => {});
+      await writeFile(resolve(projectRoot, "test-results-golden.json"), JSON.stringify(raw), "utf-8").catch(() => { /* ignore: cache write is best-effort */ });
 
       res.json(parseGoldenResults(raw));
     } catch (error) {

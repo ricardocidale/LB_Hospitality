@@ -309,7 +309,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
         doc.setFontSize(12);
         doc.text("Sensitivity Heat Map \u2014 ADR \u00d7 Occupancy", 14, 14);
         drawCanvasAsImage(doc, canvas, 14, 22, pageWidth - 28, 180);
-      } catch {}
+      } catch { /* ignore: chart may not be rendered yet */ }
     }
     if (advancedChartView === "tornado-d3" && tornadoD3Ref.current) {
       try {
@@ -319,7 +319,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
         doc.setFontSize(12);
         doc.text("Tornado Diagram \u2014 Assumption Impact", 14, 14);
         drawCanvasAsImage(doc, canvas, 14, 22, pageWidth - 28, 180);
-      } catch {}
+      } catch { /* ignore: chart may not be rendered yet */ }
     }
 
     doc.save("sensitivity-analysis.pdf");
@@ -443,7 +443,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
         let w = maxW; let h = maxW / ar;
         if (h > maxH) { h = maxH; w = maxH * ar; }
         slide.addImage({ data: dataUrl, x: (13.33 - w) / 2, y: 0.8, w, h });
-      } catch {}
+      } catch { /* ignore: chart may not be rendered yet */ }
     }
     if (advancedChartView === "tornado-d3" && tornadoD3Ref.current) {
       try {
@@ -456,7 +456,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
         let w = maxW; let h = maxW / ar;
         if (h > maxH) { h = maxH; w = maxH * ar; }
         slide.addImage({ data: dataUrl, x: (13.33 - w) / 2, y: 0.8, w, h });
-      } catch {}
+      } catch { /* ignore: chart may not be rendered yet */ }
     }
 
     pres.writeFile({ fileName: "sensitivity-analysis.pptx" });

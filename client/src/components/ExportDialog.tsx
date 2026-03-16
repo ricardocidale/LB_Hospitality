@@ -18,7 +18,7 @@ function getStoredOrientation(): "landscape" | "portrait" {
   try {
     const v = localStorage.getItem(ORIENTATION_KEY);
     if (v === "portrait") return "portrait";
-  } catch {}
+  } catch { /* ignore: localStorage unavailable in private browsing */ }
   return "landscape";
 }
 
@@ -26,14 +26,14 @@ function getStoredVersion(): ExportVersion {
   try {
     const v = localStorage.getItem(VERSION_KEY);
     if (v === "short" || v === "extended") return v;
-  } catch {}
+  } catch { /* ignore: localStorage unavailable in private browsing */ }
   return "short";
 }
 
 function getStoredPremium(): boolean {
   try {
     return localStorage.getItem(PREMIUM_KEY) === "true";
-  } catch {}
+  } catch { /* ignore: localStorage unavailable in private browsing */ }
   return false;
 }
 
@@ -144,18 +144,18 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
   const handleOrientationChange = (v: string) => {
     const val = v as "landscape" | "portrait";
     setOrientation(val);
-    try { localStorage.setItem(ORIENTATION_KEY, val); } catch {}
+    try { localStorage.setItem(ORIENTATION_KEY, val); } catch { /* ignore: localStorage unavailable */ }
   };
 
   const handleVersionChange = (v: string) => {
     const val = v as ExportVersion;
     setVersion(val);
-    try { localStorage.setItem(VERSION_KEY, val); } catch {}
+    try { localStorage.setItem(VERSION_KEY, val); } catch { /* ignore: localStorage unavailable */ }
   };
 
   const handlePremiumToggle = (checked: boolean) => {
     setIsPremium(checked);
-    try { localStorage.setItem(PREMIUM_KEY, String(checked)); } catch {}
+    try { localStorage.setItem(PREMIUM_KEY, String(checked)); } catch { /* ignore: localStorage unavailable */ }
   };
 
   const handleExport = async () => {

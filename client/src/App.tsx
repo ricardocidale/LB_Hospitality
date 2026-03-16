@@ -227,7 +227,7 @@ function Router() {
             }
           }
         })
-        .catch(() => {});
+        .catch(() => { /* ignore: best-effort prefetch */ });
     }
     prevUserRef[0] = user;
   }, [user]);
@@ -240,7 +240,7 @@ function Router() {
       fetch("/api/research/mark-full-refresh", {
         method: "POST",
         credentials: "include",
-      }).catch(() => {});
+      }).catch(() => { /* ignore: best-effort fire-and-forget */ });
     }
     queryClient.invalidateQueries({ queryKey: ["research"] });
   }, []);

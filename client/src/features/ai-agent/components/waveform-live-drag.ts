@@ -53,7 +53,7 @@ export function useLiveDragInteraction(config: LiveDragConfig) {
       if (scrubSourceRef.current) {
         try {
           scrubSourceRef.current.stop()
-        } catch {}
+        } catch { /* ignore: stop() throws if already stopped */ }
       }
 
       const source = audioContextRef.current.createBufferSource()
@@ -97,7 +97,7 @@ export function useLiveDragInteraction(config: LiveDragConfig) {
       if (sourceNodeRef.current) {
         try {
           sourceNodeRef.current.stop()
-        } catch {}
+        } catch { /* ignore: stop() throws if already stopped */ }
       }
 
       const source = audioContextRef.current.createBufferSource()
@@ -264,7 +264,7 @@ export function useLiveDragInteraction(config: LiveDragConfig) {
       if (scrubSourceRef.current) {
         try {
           scrubSourceRef.current.stop()
-        } catch {}
+        } catch { /* ignore: stop() throws if already stopped */ }
       }
     }
 

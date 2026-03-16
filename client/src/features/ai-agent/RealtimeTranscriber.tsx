@@ -324,7 +324,7 @@ export default function RealtimeTranscriber01() {
         ...prev,
         error: errorMessage,
       }))
-      errorSoundRef.current?.play().catch(() => {})
+      errorSoundRef.current?.play().catch(() => { /* ignore: autoplay may be blocked */ })
     }, 500)
   }, [])
 
@@ -396,7 +396,7 @@ export default function RealtimeTranscriber01() {
       // 3. Play sound
       if (endSoundRef.current) {
         endSoundRef.current.currentTime = 0
-        endSoundRef.current.play().catch(() => {})
+        endSoundRef.current.play().catch(() => { /* ignore: autoplay may be blocked */ })
       }
 
       lastOperationTimeRef.current = now
@@ -463,7 +463,7 @@ export default function RealtimeTranscriber01() {
       // Play start sound
       if (startSoundRef.current) {
         startSoundRef.current.currentTime = 0
-        startSoundRef.current.play().catch(() => {})
+        startSoundRef.current.play().catch(() => { /* ignore: autoplay may be blocked */ })
       }
     } catch (error) {
       console.error("[Scribe] Connection error:", error)

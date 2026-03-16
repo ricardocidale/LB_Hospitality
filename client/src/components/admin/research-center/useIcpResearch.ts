@@ -291,7 +291,7 @@ export function useIcpResearch() {
               if (event.markdown) setResearchMarkdown(event.markdown);
               await refetch();
             } else if (event.type === "error") { throw new Error(event.message); }
-          } catch {}
+          } catch { /* ignore: malformed SSE chunk — skip and continue stream */ }
         }
       }
       toast({ title: "Research Complete", description: "ICP Management Co market research report has been generated and saved." });

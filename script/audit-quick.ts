@@ -57,15 +57,14 @@ findings.push({
   samples: anySamples.slice(0, 3),
 });
 
-// 2. TODO/FIXME/HACK in source code
-const todoCount = countMatches("TODO|FIXME|HACK|XXX", "client/src/", "*.{ts,tsx}") +
-  countMatches("TODO|FIXME|HACK|XXX", "server/", "*.ts") +
-  countMatches("TODO|FIXME|HACK|XXX", "calc/", "*.ts");
-const todoSamples = [
+// 2. TODO/FIXME/HACK in source code (exclude false positives: XX-X placeholders, $X,XXX currency formats)
+const todoRaw = [
   ...grep("TODO|FIXME|HACK|XXX", "client/src/", "*.{ts,tsx}"),
   ...grep("TODO|FIXME|HACK|XXX", "server/", "*.ts"),
   ...grep("TODO|FIXME|HACK|XXX", "calc/", "*.ts"),
-].slice(0, 3);
+].filter(line => !/XX-X|\\$X[,.X]|X,XXX|X\.XM/.test(line));
+const todoCount = todoRaw.length;
+const todoSamples = todoRaw.slice(0, 3);
 findings.push({
   label: "TODO/FIXME/HACK comments",
   count: todoCount,
@@ -73,13 +72,13 @@ findings.push({
   samples: todoSamples,
 });
 
-// 3. console.log in production code (not test files)
-const consoleCount = countMatches("console\\.log\\(", "client/src/", "*.{ts,tsx}") +
-  countMatches("console\\.log\\(", "server/", "*.ts");
-const consoleSamples = [
+// 3. console.log in production code (not test files, exclude logger.ts which IS the logger)
+const consoleRaw = [
   ...grep("console\\.log\\(", "client/src/", "*.{ts,tsx}"),
   ...grep("console\\.log\\(", "server/", "*.ts"),
-].slice(0, 3);
+].filter(line => !line.includes("server/logger.ts"));
+const consoleCount = consoleRaw.length;
+const consoleSamples = consoleRaw.slice(0, 3);
 findings.push({
   label: "console.log in production code",
   count: consoleCount,
@@ -87,9 +86,12 @@ findings.push({
   samples: consoleSamples,
 });
 
-// 4. Empty catch blocks
-const emptyCatch = grep("catch.*\\{\\s*\\}", "client/src/", "*.{ts,tsx}").length +
-  grep("catch.*\\{\\s*\\}", "server/", "*.ts").length;
+// 4. Empty catch blocks (exclude .catch(() => ({})) json fallback pattern and /* ignore */ annotated catches)
+const emptyCatchRaw = [
+  ...grep("catch.*\\{\\s*\\}", "client/src/", "*.{ts,tsx}"),
+  ...grep("catch.*\\{\\s*\\}", "server/", "*.ts"),
+].filter(line => !line.includes("=> ({") && !line.includes("/* ignore"));
+const emptyCatch = emptyCatchRaw.length;
 findings.push({
   label: "Empty catch blocks",
   count: emptyCatch,

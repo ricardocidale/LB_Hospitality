@@ -569,7 +569,7 @@ function SpeakerControls({
       try {
         source.disconnect()
         if (analyserRef.current) analyserRef.current.disconnect()
-      } catch (e) {}
+      } catch { /* ignore: disconnect may throw if already disconnected */ }
 
       source.connect(dryGain)
       dryGain.connect(masterGain)
@@ -895,7 +895,7 @@ function SpeakerControls({
     if (scratchBufferRef.current) {
       try {
         scratchBufferRef.current.stop()
-      } catch {}
+      } catch { /* ignore: AudioBufferSourceNode.stop() throws if already stopped */ }
       scratchBufferRef.current = null
     }
   }

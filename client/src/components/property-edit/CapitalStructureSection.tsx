@@ -124,7 +124,27 @@ export default function CapitalStructureSection({ draft, onChange, onNumberChang
           helperText={GOVERNED_FIELDS.depreciationYears.helperText}
           referenceUrl={GOVERNED_FIELDS.depreciationYears.referenceUrl}
           data-testid="governed-field-depreciationYears"
-        />
+        >
+          <div className="space-y-1.5 mt-2">
+            <Label className="label-text text-foreground flex items-center gap-1.5 text-xs">
+              Property Override
+              <InfoTooltip text="Override the global depreciation period for this property. Leave blank to use the global or IRS default (27.5 years)." />
+            </Label>
+            <Input
+              type="number"
+              step={0.5}
+              min={1}
+              placeholder="Use global default"
+              value={draft.depreciationYears ?? ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                onChange("depreciationYears", val === "" ? null : parseFloat(val));
+              }}
+              className="w-40 input-field"
+              data-testid="input-depreciation-years-override"
+            />
+          </div>
+        </GovernedFieldWrapper>
 
         <div className="space-y-3 pt-2">
           <Label className="label-text text-foreground flex items-center gap-1.5">Type of Funding<InfoTooltip text="How the acquisition is financed. Full Equity means 100% cash investment. Financed means a portion is covered by a mortgage loan." /></Label>

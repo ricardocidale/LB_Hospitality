@@ -49,6 +49,7 @@ interface PropertyMetricsInput {
   catering_boost_pct?: number;
   base_management_fee_rate?: number;
   incentive_management_fee_rate?: number;
+  days_per_month?: number;
 }
 
 interface PropertyMetricsOutput {
@@ -92,11 +93,13 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
     incentive_management_fee_rate = RESEARCH_INCENTIVE_MGMT_FEE_RATE,
   } = input;
 
+  const days = input.days_per_month ?? DAYS_PER_MONTH;
+
   // RevPAR
   const revpar = roundCents(adr * occupancy);
 
   // Monthly room revenue
-  const monthlyRoomRevenue = roundCents(room_count * adr * occupancy * DAYS_PER_MONTH);
+  const monthlyRoomRevenue = roundCents(room_count * adr * occupancy * days);
   const annualRoomRevenue = roundCents(monthlyRoomRevenue * 12);
 
   // Revenue streams (all based on room revenue)

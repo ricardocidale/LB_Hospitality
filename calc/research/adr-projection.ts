@@ -14,6 +14,7 @@ interface ADRProjectionInput {
   projection_years: number;
   occupancy?: number;         // optional: compute RevPAR
   room_count?: number;        // optional: compute annual room revenue
+  days_per_month?: number;
 }
 
 interface YearProjection {
@@ -42,6 +43,7 @@ export function computeADRProjection(input: ADRProjectionInput): ADRProjectionOu
     room_count,
   } = input;
 
+  const days = input.days_per_month ?? DAYS_PER_MONTH;
   const effectiveRate = growth_rate + inflation_rate;
   const projections: YearProjection[] = [];
 
@@ -59,7 +61,7 @@ export function computeADRProjection(input: ADRProjectionInput): ADRProjectionOu
       proj.revpar = roundCents(adr * occupancy);
     }
     if (occupancy !== undefined && room_count !== undefined) {
-      proj.annual_room_revenue = roundCents(room_count * adr * occupancy * DAYS_PER_MONTH * 12);
+      proj.annual_room_revenue = roundCents(room_count * adr * occupancy * days * 12);
     }
 
     projections.push(proj);

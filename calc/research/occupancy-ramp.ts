@@ -15,6 +15,7 @@ interface OccupancyRampInput {
   stabilization_months: number;  // total months to model
   adr?: number;               // optional: compute RevPAR at each stage
   room_count?: number;        // optional: compute room revenue at each stage
+  days_per_month?: number;
 }
 
 interface OccupancyStage {
@@ -44,6 +45,7 @@ export function computeOccupancyRamp(input: OccupancyRampInput): OccupancyRampOu
     room_count,
   } = input;
 
+  const days = input.days_per_month ?? DAYS_PER_MONTH;
   const stages: OccupancyStage[] = [];
   let currentOcc = start_occupancy;
   let monthsSinceLastStep = 0;
@@ -67,7 +69,7 @@ export function computeOccupancyRamp(input: OccupancyRampInput): OccupancyRampOu
       stage.revpar = roundCents(adr * currentOcc);
     }
     if (adr !== undefined && room_count !== undefined) {
-      stage.monthly_room_revenue = roundCents(room_count * adr * currentOcc * DAYS_PER_MONTH);
+      stage.monthly_room_revenue = roundCents(room_count * adr * currentOcc * days);
     }
 
     stages.push(stage);

@@ -35,7 +35,7 @@ const customSourceSchema = z.object({
 const aiModelEntrySchema = z.object({
   id: z.string(),
   label: z.string(),
-  provider: z.enum(["openai", "anthropic", "google", "xai"]),
+  provider: z.enum(["openai", "anthropic", "google", "xai", "tesla", "microsoft"]),
 });
 
 const llmVendorEnum = z.enum(["openai", "anthropic", "google", "xai", "tesla", "microsoft"]);
@@ -236,9 +236,9 @@ export function registerResearchConfigRoutes(app: Express) {
         customSources: incoming.customSources ?? current.customSources,
         cachedModels: incoming.cachedModels ?? current.cachedModels,
         cachedModelsAt: incoming.cachedModelsAt ?? current.cachedModelsAt,
-        companyLlm: incoming.companyLlm ?? current.companyLlm,
-        propertyLlm: incoming.propertyLlm ?? current.propertyLlm,
-        marketLlm: incoming.marketLlm ?? current.marketLlm,
+        companyLlm: incoming.companyLlm ? { ...current.companyLlm, ...incoming.companyLlm } : current.companyLlm,
+        propertyLlm: incoming.propertyLlm ? { ...current.propertyLlm, ...incoming.propertyLlm } : current.propertyLlm,
+        marketLlm: incoming.marketLlm ? { ...current.marketLlm, ...incoming.marketLlm } : current.marketLlm,
         companySources: incoming.companySources ?? current.companySources,
       };
 

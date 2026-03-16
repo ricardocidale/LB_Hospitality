@@ -103,8 +103,8 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const depreciableBasis = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
   const landValue = property.purchasePrice * landPct;
-  const effectiveDepYears = (property as any).depreciationYears ?? (global as any).depreciationYears ?? DEPRECIATION_YEARS;
-  const effectiveDaysPerMonth = (global as any).daysPerMonth ?? DAYS_PER_MONTH;
+  const effectiveDepYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
+  const effectiveDaysPerMonth = global.daysPerMonth ?? DAYS_PER_MONTH;
   const monthlyDepreciation = depreciableBasis / effectiveDepYears / 12;
 
   const costSegEnabled = (property as any).costSegEnabled ?? false;

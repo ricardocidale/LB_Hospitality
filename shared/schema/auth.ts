@@ -7,7 +7,7 @@ import { companies, userGroups, designThemes } from "./core";
 // --- USERS TABLE ---
 // Every person who can log in. Roles control what they can see and do:
 //   - "admin": full access — manage users, properties, assumptions, run verifications
-//   - "partner": management team — can edit properties and assumptions
+//   - "user": general access — can edit properties and assumptions
 //   - "checker": independent auditor — read-only access plus verification tools
 //   - "investor": limited view — sees dashboard and reports but cannot edit
 // Each user optionally belongs to a company (SPV) and a user group (branding).
@@ -15,7 +15,7 @@ export const users = pgTable("users", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash"),
-  role: text("role").notNull().default("partner"), // "admin", "partner", "checker", "investor"
+  role: text("role").notNull().default("user"), // "admin", "user", "checker", "investor"
   firstName: text("first_name"),
   lastName: text("last_name"),
   company: text("company"),
@@ -33,13 +33,13 @@ export const users = pgTable("users", {
   index("users_user_group_id_idx").on(table.userGroupId),
 ]);
 
-export const VALID_USER_ROLES = ["admin", "partner", "checker", "investor"] as const;
+export const VALID_USER_ROLES = ["admin", "user", "checker", "investor"] as const;
 export type UserRole = typeof VALID_USER_ROLES[number];
 
 export const insertUserSchema = z.object({
   email: z.string(),
   passwordHash: z.string().nullable().optional(),
-  role: z.enum(VALID_USER_ROLES).optional().default("partner"),
+  role: z.enum(VALID_USER_ROLES).optional().default("user"),
   firstName: z.string().nullable().optional(),
   lastName: z.string().nullable().optional(),
   company: z.string().nullable().optional(),

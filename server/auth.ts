@@ -407,7 +407,7 @@ export async function seedAdminUser() {
   const userSeeds: Array<{
     email: string;
     envVar: string;
-    role: "admin" | "partner" | "checker";
+    role: "admin" | "user" | "checker";
     firstName: string;
     lastName?: string;
     company: string;
@@ -416,12 +416,12 @@ export async function seedAdminUser() {
   }> = [
     { email: "ricardo.cidale@norfolkgroup.io", envVar: "PASSWORD_ADMIN", role: "admin", firstName: "Ricardo", lastName: "Cidale", company: "The Norfolk AI Group", title: "Partner", userGroupId: 2 },
     { email: "checker@norfolkgroup.io", envVar: "PASSWORD_CHECKER", role: "checker", firstName: "Checker", company: "Norfolk AI", title: "Checker", userGroupId: 2 },
-    { email: "reynaldo.fagundes@norfolk.ai", envVar: "PASSWORD_REYNALDO", role: "partner", firstName: "Reynaldo", lastName: "Fagundes", company: "Norfolk AI", title: "CTO", userGroupId: 2 },
-    { email: "kit@kitcapital.com", envVar: "PASSWORD_KIT", role: "partner", firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal", userGroupId: 1 },
-    { email: "rosario@kitcapital.com", envVar: "PASSWORD_ROSARIO", role: "partner", firstName: "Rosario", lastName: "David", company: "KIT Capital", title: "COO", userGroupId: 1 },
-    { email: "lemazniku@icloud.com", envVar: "PASSWORD_LEA", role: "partner", firstName: "Lea", lastName: "Mazniku", company: "KIT Capital", title: "Partner", userGroupId: 1 },
-    { email: "leslie@cidale.com", envVar: "PASSWORD_LESLIE", role: "partner", firstName: "Leslie", lastName: "Cidale", company: "Numeratti Endeavors", title: "Senior Partner", userGroupId: 3 },
-    { email: "wlaruffa@gmail.com", envVar: "PASSWORD_WILLIAM", role: "partner", firstName: "William", lastName: "Laruffa", company: "Independent", title: "Partner", userGroupId: 3 },
+    { email: "reynaldo.fagundes@norfolk.ai", envVar: "PASSWORD_REYNALDO", role: "user", firstName: "Reynaldo", lastName: "Fagundes", company: "Norfolk AI", title: "CTO", userGroupId: 2 },
+    { email: "kit@kitcapital.com", envVar: "PASSWORD_KIT", role: "user", firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal", userGroupId: 1 },
+    { email: "rosario@kitcapital.com", envVar: "PASSWORD_ROSARIO", role: "user", firstName: "Rosario", lastName: "David", company: "KIT Capital", title: "COO", userGroupId: 1 },
+    { email: "lemazniku@icloud.com", envVar: "PASSWORD_LEA", role: "user", firstName: "Lea", lastName: "Mazniku", company: "KIT Capital", title: "Partner", userGroupId: 1 },
+    { email: "leslie@cidale.com", envVar: "PASSWORD_LESLIE", role: "user", firstName: "Leslie", lastName: "Cidale", company: "Numeratti Endeavors", title: "Senior Partner", userGroupId: 3 },
+    { email: "wlaruffa@gmail.com", envVar: "PASSWORD_WILLIAM", role: "user", firstName: "William", lastName: "Laruffa", company: "Independent", title: "Partner", userGroupId: 3 },
   ];
 
   const RICARDO_EMAIL = "ricardo.cidale@norfolkgroup.io";

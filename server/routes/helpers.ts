@@ -78,7 +78,7 @@ export const createUserSchema = z.object({
   company: z.string().max(100).optional(),
   companyId: z.number().nullable().optional(),
   title: z.string().max(100).optional(),
-  role: z.enum(VALID_USER_ROLES).optional().default("partner"),
+  role: z.enum(VALID_USER_ROLES).optional().default("user"),
   userGroupId: z.number().nullable().optional(),
 });
 

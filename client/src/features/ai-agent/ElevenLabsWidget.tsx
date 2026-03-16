@@ -38,7 +38,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "User";
   const dynamicVars: Record<string, string> = {
     user_name: fullName,
-    user_role: user?.role || "partner",
+    user_role: user?.role || "user",
     current_page: location,
   };
 

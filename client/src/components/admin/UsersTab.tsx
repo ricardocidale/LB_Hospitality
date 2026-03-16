@@ -50,8 +50,8 @@ export default function UsersTab() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: "partner" as string });
-  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: "partner" as string, password: "" });
+  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: "user" as string });
+  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: "user" as string, password: "" });
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
@@ -207,7 +207,7 @@ export default function UsersTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setDialogOpen(false);
-      setNewUser({ email: "", password: "", firstName: "", lastName: "", companyId: null, userGroupId: null, title: "", role: "partner" });
+      setNewUser({ email: "", password: "", firstName: "", lastName: "", companyId: null, userGroupId: null, title: "", role: "user" });
       toast({ title: "User Created", description: "New user has been registered." });
     },
     onError: (error: Error) => {
@@ -452,7 +452,7 @@ export default function UsersTab() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, userGroupId: user.userGroupId ?? null, title: user.title || "", role: user.role || "partner", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
+                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, userGroupId: user.userGroupId ?? null, title: user.title || "", role: user.role || "user", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
                         data-testid={`button-edit-user-${user.id}`}>
                         <IconPencil className="w-4 h-4" />
                       </Button>
@@ -562,7 +562,7 @@ export default function UsersTab() {
             <Select value={newUser.role} onValueChange={(v) => setNewUser({ ...newUser, role: v })} data-testid="select-new-user-role">
               <SelectTrigger data-testid="select-new-user-role"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="partner">Partner</SelectItem>
+                <SelectItem value="user">User</SelectItem>
                 <SelectItem value="investor">Investor</SelectItem>
                 <SelectItem value="checker">Checker</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
@@ -672,7 +672,7 @@ export default function UsersTab() {
             <Select value={editUser.role} onValueChange={(v) => setEditUser({ ...editUser, role: v })} data-testid="select-edit-user-role">
               <SelectTrigger data-testid="select-edit-user-role"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="partner">Partner</SelectItem>
+                <SelectItem value="user">User</SelectItem>
                 <SelectItem value="investor">Investor</SelectItem>
                 <SelectItem value="checker">Checker</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>

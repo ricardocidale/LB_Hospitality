@@ -305,13 +305,13 @@ async function buildContextPrompt(userId?: number): Promise<string> {
 }
 
 async function getUserRole(userId?: number): Promise<string> {
-  if (!userId) return "partner";
+  if (!userId) return "user";
   try {
     const user = await storage.getUserById(userId);
-    return user?.role || "partner";
+    return user?.role || "user";
   } catch (error) {
     console.error("Error getting user role:", error);
-    return "partner";
+    return "user";
   }
 }
 

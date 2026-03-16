@@ -311,6 +311,9 @@ async function runMigrationsAndSeeds() {
   const { fixLegacyOwnership } = await import("./migrations/fix-shared-ownership");
   await fixLegacyOwnership();
 
+  const { migratePartnerToUser } = await import("./migrations/role-partner-to-user-001");
+  await migratePartnerToUser();
+
   await seedAdminUser(); // Must complete before data seeds — users are FK dependencies
 
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos, seedGlobalAssumptions } = await import("./seed");

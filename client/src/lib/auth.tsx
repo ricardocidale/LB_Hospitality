@@ -12,7 +12,7 @@
  * Roles and access levels:
  *   • "admin"    — full platform access, can manage users, companies, and all settings
  *   • "checker"  — can view the Checker Manual and verification tools
- *   • "partner"  — a managing partner with company-level access
+ *   • "user"     — general access with company-level access
  *   • "investor" — read-only portfolio viewer; cannot access company settings,
  *                   scenario management, or property finder
  *   • Any other role defaults to standard management access.
@@ -46,7 +46,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAdmin: boolean;
   isChecker: boolean;
-  isPartner: boolean;
+  isUser: boolean;
   isInvestor: boolean;
   hasManagementAccess: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -59,10 +59,6 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   
-  // Fetch the currently-authenticated user on mount. A 401 returns null (logged out)
-  // rather than throwing, so the rest of the app treats null user = show login page.
-  // retry=false prevents infinite refetch loops when logged out.
-  // staleTime=5 min avoids redundant /me calls on frequent route transitions.
   const { data, isLoading, refetch: refetchQuery } = useQuery({
     queryKey: ["auth", "me"],
     queryFn: async () => {
@@ -119,13 +115,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await logoutMutation.mutateAsync();
   };
 
-  // Derive role convenience flags from the user record.
-  // hasManagementAccess is true for every role EXCEPT "investor" — investors
-  // get read-only dashboards and cannot edit assumptions or properties.
   const user = data ?? null;
   const isAdmin = user?.role === "admin";
   const isChecker = user?.role === "checker";
-  const isPartner = user?.role === "partner";
+  const isUser = user?.role === "user";
   const isInvestor = user?.role === "investor";
   const hasManagementAccess = user?.role !== "investor";
   
@@ -134,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin, isChecker, isPartner, isInvestor, hasManagementAccess, login, logout, refetch }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin, isChecker, isUser, isInvestor, hasManagementAccess, login, logout, refetch }}>
       {children}
     </AuthContext.Provider>
   );

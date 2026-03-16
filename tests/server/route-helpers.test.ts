@@ -112,7 +112,7 @@ describe("userResponse", () => {
     company: "Acme Corp",
     companyId: 7,
     title: "CFO",
-    role: "partner",
+    role: "user",
     passwordHash: "supersecret_hash_should_not_appear",
     hideTourPrompt: true,
   };
@@ -127,7 +127,7 @@ describe("userResponse", () => {
     expect(result.company).toBe("Acme Corp");
     expect(result.companyId).toBe(7);
     expect(result.title).toBe("CFO");
-    expect(result.role).toBe("partner");
+    expect(result.role).toBe("user");
     expect(result.hideTourPrompt).toBe(true);
   });
 
@@ -190,14 +190,14 @@ describe("createUserSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("accepts minimal valid input (email + password) and defaults role to partner", () => {
+  it("accepts minimal valid input (email + password) and defaults role to user", () => {
     const result = createUserSchema.safeParse({
       email: "user@example.com",
       password: "longpassword",
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.role).toBe("partner");
+      expect(result.data.role).toBe("user");
     }
   });
 
@@ -227,7 +227,7 @@ describe("createUserSchema", () => {
   });
 
   it("accepts all valid role values", () => {
-    for (const role of ["admin", "partner", "checker", "investor"]) {
+    for (const role of ["admin", "user", "checker", "investor"]) {
       const result = createUserSchema.safeParse({
         email: "u@e.com",
         password: "longpassword",

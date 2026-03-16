@@ -77,6 +77,10 @@ export const LLM_VENDORS: { value: LlmVendor; label: string }[] = [
   { value: "microsoft", label: "Microsoft" },
 ];
 
+export const RESEARCH_LLM_VENDORS: { value: LlmVendor; label: string }[] = [
+  { value: "anthropic", label: "Anthropic" },
+];
+
 export const PROPERTY_DEFAULT_SOURCES: ResearchSourceEntry[] = [
   { id: "prop-str", url: "https://str.com", label: "STR (CoStar)", category: "Hospitality", addedAt: new Date().toISOString() },
   { id: "prop-cbre", url: "https://www.cbre.com/industries/hotels", label: "CBRE Hotels", category: "Hospitality", addedAt: new Date().toISOString() },

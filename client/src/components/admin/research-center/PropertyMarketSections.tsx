@@ -16,7 +16,7 @@ import { useRefreshAiModels } from "@/lib/api/admin";
 import type { ResearchConfig, ResearchEventConfig, ContextLlmConfig, LlmMode, LlmVendor } from "@shared/schema";
 import {
   DETERMINISTIC_TOOLS, FALLBACK_MODELS, TIME_HORIZONS, MACRO_INDICATORS,
-  PROPERTY_DEFAULT_SOURCES, MARKET_DEFAULT_SOURCES, LLM_VENDORS,
+  PROPERTY_DEFAULT_SOURCES, MARKET_DEFAULT_SOURCES, LLM_VENDORS, RESEARCH_LLM_VENDORS,
   EnableToggle, DataInputsCard, TagInput, CheckboxGroup, SourceLibrary,
 } from "./research-shared";
 
@@ -303,13 +303,14 @@ export function DomainLlmCard({ domain, domainLabel, config, onChange, draft, se
                   <SelectValue placeholder="Select a vendor" />
                 </SelectTrigger>
                 <SelectContent>
-                  {LLM_VENDORS.map((v) => (
+                  {RESEARCH_LLM_VENDORS.map((v) => (
                     <SelectItem key={v.value} value={v.value} data-testid={`select-vendor-${domain}-${v.value}`}>
                       {v.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">Research execution currently supports Anthropic models only.</p>
             </div>
 
             {vendor && (

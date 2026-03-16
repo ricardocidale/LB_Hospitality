@@ -4,8 +4,8 @@ import { ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 
 export interface GovernedFieldWrapperProps {
   authority: string;
-  value: string;
-  helperText: string;
+  label: string;
+  helperText: React.ReactNode;
   referenceUrl?: string;
   defaultExpanded?: boolean;
   "data-testid"?: string;
@@ -14,7 +14,7 @@ export interface GovernedFieldWrapperProps {
 
 export function GovernedFieldWrapper({
   authority,
-  value,
+  label,
   helperText,
   referenceUrl,
   defaultExpanded = false,
@@ -32,7 +32,7 @@ export function GovernedFieldWrapper({
         <div className="flex items-center gap-2 min-w-0">
           <IconShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
-            {value}
+            {label}
           </span>
           <span className="text-xs text-amber-600/80 dark:text-amber-400/70 shrink-0">
             {authority}

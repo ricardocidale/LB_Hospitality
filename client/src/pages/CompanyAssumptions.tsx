@@ -204,7 +204,7 @@ export default function CompanyAssumptions() {
         (k) => dirtyFields.has(k),
       );
 
-      if (touchedPropertyDefaults && properties.length > 0) {
+      if (touchedPropertyDefaults) {
         toast({
           title: "Property defaults saved",
           description: `These will apply to new properties. ${properties.length} existing ${properties.length === 1 ? "property retains its" : "properties retain their"} current values.`,
@@ -341,14 +341,14 @@ export default function CompanyAssumptions() {
               <div className="grid gap-4 lg:grid-cols-2">
                 <GovernedFieldWrapper
                   authority={GOVERNED_FIELDS.depreciationYears.authority}
-                  value={GOVERNED_FIELDS.depreciationYears.value}
+                  label={GOVERNED_FIELDS.depreciationYears.value}
                   helperText={GOVERNED_FIELDS.depreciationYears.helperText}
                   referenceUrl={GOVERNED_FIELDS.depreciationYears.referenceUrl}
                   data-testid="governed-field-depreciationYears"
                 />
                 <GovernedFieldWrapper
                   authority={GOVERNED_FIELDS.daysPerMonth.authority}
-                  value={GOVERNED_FIELDS.daysPerMonth.value}
+                  label={GOVERNED_FIELDS.daysPerMonth.value}
                   helperText={GOVERNED_FIELDS.daysPerMonth.helperText}
                   data-testid="governed-field-daysPerMonth"
                 />

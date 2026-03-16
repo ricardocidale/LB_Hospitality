@@ -15,7 +15,6 @@ import ThemesTab from "@/components/admin/ThemesTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
 import AIAgentsTab from "@/components/admin/AIAgentsTab";
-import DiagramsTab from "@/components/admin/DiagramsTab";
 import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
@@ -40,10 +39,9 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   research:         { title: "Research Center",      subtitle: "Strategic intelligence hub — ICP company research, property benchmarks, market analysis, and AI engine" },
   notifications:    { title: "Notifications",         subtitle: "Email channels, alert rules, and delivery tracking" },
   navigation:       { title: "Navigation",           subtitle: "Control which sidebar pages are visible to users" },
-  diagrams:         { title: "Diagrams",              subtitle: "Application workflow diagrams and architecture" },
   verification:     { title: "Verification",         subtitle: "Independent GAAP financial audit and compliance" },
   database:         { title: "Database",             subtitle: "Entity monitoring, seed data, and canonical sync" },
-  integrations:     { title: "Integrations",         subtitle: "External service health, circuit breakers, and cache management" },
+  "cache-services": { title: "Cache & Services",     subtitle: "Service health, circuit breakers, and cache management" },
 };
 
 function SectionContent({ section, onNavigate, onSaveStateChange }: { section: AdminSection; onNavigate: (s: AdminSection) => void; onSaveStateChange: (state: AdminSaveState | null) => void }) {
@@ -76,10 +74,9 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
         </div>
       }><AIAgentsTab onSaveStateChange={onSaveStateChange} /></ErrorBoundary>
     );
-    case "diagrams":         return <DiagramsTab />;
     case "verification":     return <VerificationTab />;
     case "database":         return <DatabaseTab />;
-    case "integrations":     return <IntegrationHealthTab />;
+    case "cache-services":   return <IntegrationHealthTab />;
     default:                 return null;
   }
 }

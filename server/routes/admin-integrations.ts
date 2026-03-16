@@ -2,8 +2,6 @@ import type { Express, Request, Response } from "express";
 import { requireAdmin } from "../auth";
 import { cache } from "../cache";
 import { type CircuitState } from "../integrations/base";
-import { getTwilioHealthCheck } from "../integrations/twilio";
-import { getElevenLabsHealthCheck } from "../integrations/elevenlabs";
 import { getResendHealthCheck } from "../integrations/resend";
 import { getGeospatialHealthCheck } from "../integrations/geospatial";
 import { getDocumentAIHealthCheck } from "../integrations/document-ai";
@@ -23,8 +21,6 @@ export function register(app: Express) {
   app.get("/api/admin/integrations/health", requireAdmin, async (_req: Request, res: Response) => {
     try {
       const checks = await Promise.allSettled([
-        getTwilioHealthCheck(),
-        getElevenLabsHealthCheck(),
         getResendHealthCheck(),
         getGeospatialHealthCheck(),
         getDocumentAIHealthCheck(),

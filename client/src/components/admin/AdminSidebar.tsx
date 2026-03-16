@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { X, Share2 } from "@/components/icons/themed-icons";
+import { X } from "@/components/icons/themed-icons";
 import {
   IconMenu, IconHelpCircle, IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconTrending, IconTarget,
@@ -17,7 +17,7 @@ export type AdminSection =
   | "logos" | "themes"
   | "ai-agents"
   | "research" | "navigation" | "notifications" | "verification" | "database"
-  | "diagrams" | "integrations";
+  | "cache-services";
 
 interface SectionItem {
   value: AdminSection;
@@ -82,10 +82,9 @@ const navGroups: NavGroup[] = [
     sections: [
       { value: "notifications", label: "Notifications", icon: IconPhone },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
-      { value: "diagrams", label: "Diagrams", icon: Share2 },
       { value: "verification", label: "Verification", icon: IconFileCheck },
       { value: "database", label: "Database", icon: IconDatabase },
-      { value: "integrations", label: "Integrations", icon: IconActivity },
+      { value: "cache-services", label: "Cache & Services", icon: IconActivity },
     ],
   },
 ];

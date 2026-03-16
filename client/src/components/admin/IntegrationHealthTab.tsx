@@ -91,7 +91,7 @@ export default function IntegrationHealthTab() {
   return (
     <div className="space-y-6" data-testid="integration-health-tab">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Integration Health</h3>
+        <h3 className="text-lg font-semibold">Cache & Services</h3>
         <Button
           variant="outline"
           size="sm"
@@ -104,7 +104,7 @@ export default function IntegrationHealthTab() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {(integrations || []).map((integration) => (
+        {(integrations || []).filter((i) => !["Twilio", "ElevenLabs"].includes(i.name)).map((integration) => (
           <Card key={integration.name} data-testid={`card-integration-${integration.name}`}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">

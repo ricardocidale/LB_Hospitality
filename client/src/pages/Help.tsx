@@ -2,16 +2,19 @@ import { useState, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
-import { IconHelp, IconFileCheck, IconShield, IconActivity } from "@/components/icons";import { useAuth } from "@/lib/auth";
+import { IconHelp, IconFileCheck, IconShield, IconActivity } from "@/components/icons";
+import { Share2 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import CheckerManual from "./CheckerManual";
 import UserManual from "./user-manual";
+import DiagramsTab from "@/components/admin/DiagramsTab";
 import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 
-type HelpTab = "user-manual" | "checker-manual" | "guided-tour";
+type HelpTab = "user-manual" | "checker-manual" | "guided-tour" | "architecture";
 
 export default function Help() {
   const { user, isAdmin, isChecker: authIsChecker } = useAuth();
@@ -35,6 +38,7 @@ export default function Help() {
   const tabs = [
     { value: "user-manual" as const, label: "User Manual", icon: IconFileCheck },
     ...(isChecker ? [{ value: "checker-manual" as const, label: "Checker Manual", icon: IconShield }] : []),
+    ...(isChecker ? [{ value: "architecture" as const, label: "Architecture", icon: Share2 }] : []),
     { value: "guided-tour" as const, label: "Guided Tour", icon: IconActivity },
   ];
 
@@ -61,6 +65,11 @@ export default function Help() {
           {isChecker && (
             <TabsContent value="checker-manual" className="space-y-6 mt-6">
               <CheckerManual embedded />
+            </TabsContent>
+          )}
+          {isChecker && (
+            <TabsContent value="architecture" className="space-y-6 mt-6">
+              <DiagramsTab />
             </TabsContent>
           )}
           <TabsContent value="guided-tour" className="space-y-6 mt-6">

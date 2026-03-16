@@ -39,10 +39,11 @@ Total Revenue
 ```
 
 ### Insurance in the Pipeline
-- **Property insurance** = `(totalPropertyValue / 12) × costRateInsurance × fixedCostFactor` (default 1.5%)
+- **Property insurance**: `expenseInsurance = (totalPropertyValue / 12) × costRateInsurance × fixedCostFactor` (default 1.5%)
 - Included in `totalOperatingExpenses` (before GOP), NOT in fixed charges
 - **Company insurance** = `DEFAULT_BUSINESS_INSURANCE_START / 12` = $1,000/mo
 - `businessInsuranceStart` field in GlobalResponse tracks the annual company insurance amount
+- Key fields: `costRateInsurance` (input), `expenseInsurance` (output), `businessInsuranceStart` (company)
 
 ## Revenue Computation
 

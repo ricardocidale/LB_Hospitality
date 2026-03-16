@@ -65,9 +65,10 @@ Total Revenue
 | **ANOI** | NOI minus FF&E Reserve |
 
 ### Insurance
-- **Property insurance** = `(totalPropertyValue / 12) × costRateInsurance × fixedCostFactor` (default 1.5%)
+- **Property insurance**: `expenseInsurance = (totalPropertyValue / 12) × costRateInsurance × fixedCostFactor` (default 1.5%)
 - Included in `totalOperatingExpenses` (before GOP), NOT in fixed charges
-- **Company insurance** = `DEFAULT_BUSINESS_INSURANCE_START / 12` = $1,000/mo
+- **Company insurance** = `DEFAULT_BUSINESS_INSURANCE_START / 12` = $1,000/mo (`businessInsuranceStart` field)
+- Key fields: `costRateInsurance` (input), `expenseInsurance` (output), `businessInsuranceStart` (company)
 
 ### Expense Categories (USALI-Aligned)
 | Category | Type | Default Rate | Base |

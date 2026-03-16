@@ -13,10 +13,10 @@ Verification System
 |
 +-- SERVER-SIDE (runs on server)
 |   +-- calculationChecker.ts   -> Independent recalculation engine
-|       (does NOT import from financialEngine.ts)
+|       (does NOT import from property-engine.ts or company-engine.ts)
 |
 +-- AI-POWERED (optional)
-    +-- LLM methodology review via /api/admin/ai-verification
+    +-- LLM methodology review via /api/verification/ai-review
 ```
 
 **Key Design Principle:** The server-side checker reimplements all financial math from scratch, using only raw property data and global assumptions. If both engines produce the same results, accuracy is confirmed.

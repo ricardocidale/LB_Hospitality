@@ -54,7 +54,7 @@ Cash flow classification (ASC 230), principal as financing (ASC 470), depreciati
 | Revenue | Room revenue = rooms x ADR x occupancy x 30.5 | ASC 606 |
 | Depreciation | Monthly = buildingValue / 27.5 / 12, only after acquisition | ASC 360 |
 | Loan | PMT matches formula, Interest = balance x monthly rate | ASC 470 |
-| Insurance | `expenseInsurance` = (totalPropertyValue / 12) × `costRateInsurance` × fixedCostFactor | USALI |
+| Insurance | `expenseInsurance` = (totalPropertyValue / 12) × `costRateInsurance` × fixedCostFactor; company uses `businessInsuranceStart` / 12 | USALI |
 | Balance Sheet | Assets = Liabilities + Equity (every month) | FASB |
 | Cash Flow | Operating CF = Net Income + Depreciation | ASC 230 |
 | Reasonableness | NOI margin 15-45%, positive revenue growth | Industry |

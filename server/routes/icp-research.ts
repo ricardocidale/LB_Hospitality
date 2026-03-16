@@ -275,7 +275,7 @@ export function register(app: Express) {
       const assetDescription = ga.assetDescription || "";
       const propertyLabel = ga.propertyLabel || "Hotel";
       const researchCfg = (ga.researchConfig as import("@shared/schema").ResearchConfig) ?? {};
-      const model = researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || "claude-3-5-sonnet-20241022";
+      const model = researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || "claude-sonnet-4-20250514";
       const secondaryModel = researchCfg.companyLlm?.llmMode === "dual" ? researchCfg.companyLlm.secondaryLlm : undefined;
 
       const promptBuilder = (req.body?.promptBuilder || icpConfig._promptBuilder || {}) as PromptBuilderConfig;

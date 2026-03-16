@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getOpenAIClient, getAnthropicClient, getGeminiClient as getGeminiSingleton } from "../../ai/clients";
 import { storage } from "../../storage";
 import { requireAdmin, isApiRateLimited } from "../../auth";
-import { type InsertGlobalAssumptions, type ResearchConfig, type AiModelEntry } from "@shared/schema";
+import { type InsertGlobalAssumptions, type ResearchConfig, type ContextLlmConfig, type AiModelEntry } from "@shared/schema";
 import { logAndSendError, logActivity } from "../helpers";
 
 const researchSourceEntrySchema = z.object({
@@ -170,12 +170,34 @@ async function fetchXaiModels(): Promise<AiModelEntry[]> {
   }
 }
 
+function normalizeServerResearchConfig(cfg: ResearchConfig): ResearchConfig {
+  const out = { ...cfg };
+  const globalCtx: ContextLlmConfig = {
+    llmVendor: cfg.llmVendor,
+    llmMode: cfg.llmMode,
+    primaryLlm: cfg.primaryLlm || cfg.preferredLlm,
+    secondaryLlm: cfg.secondaryLlm,
+  };
+  if (!out.companyLlm?.primaryLlm && globalCtx.primaryLlm) {
+    out.companyLlm = { ...globalCtx, ...out.companyLlm };
+  }
+  if (!out.propertyLlm?.primaryLlm && globalCtx.primaryLlm) {
+    out.propertyLlm = { ...globalCtx, ...out.propertyLlm };
+  }
+  if (!out.marketLlm?.primaryLlm && globalCtx.primaryLlm) {
+    out.marketLlm = { ...globalCtx, ...out.marketLlm };
+  }
+  return out;
+}
+
 export function registerResearchConfigRoutes(app: Express) {
   app.get("/api/admin/research-config", requireAdmin, async (_req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
-      res.json((ga.researchConfig as ResearchConfig) ?? {});
+      const raw = (ga.researchConfig as ResearchConfig) ?? {};
+      const normalized = normalizeServerResearchConfig(raw);
+      res.json(normalized);
     } catch (error) {
       logAndSendError(res, "Failed to fetch research config", error);
     }

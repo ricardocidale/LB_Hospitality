@@ -294,17 +294,35 @@ export function runIndependentVerification(
     }
 
     if (property.type === "Financed" && loanAmount > 0) {
-      const year1DebtService = independentCalc.slice(0, 12).reduce((s, m) => s + m.debtPayment, 0);
-      const year1DSCR = year1DebtService > 0 ? serverYear1.noi / year1DebtService : 0;
+      let dscrYearLabel = "Year 1";
+      let dscrNoi = serverYear1.noi;
+      let dscrDebtService = independentCalc.slice(0, 12).reduce((s, m) => s + m.debtPayment, 0);
+
+      if (dscrNoi === 0 && dscrDebtService === 0) {
+        for (let yr = 1; yr < projectionYears; yr++) {
+          const start = yr * 12;
+          const end = Math.min(start + 12, independentCalc.length);
+          const yrMetrics = aggregateYearMetrics(independentCalc.slice(start, end));
+          const yrDebt = independentCalc.slice(start, end).reduce((s, m) => s + m.debtPayment, 0);
+          if (yrMetrics.noi > 0 || yrDebt > 0) {
+            dscrYearLabel = `Year ${yr + 1}`;
+            dscrNoi = yrMetrics.noi;
+            dscrDebtService = yrDebt;
+            break;
+          }
+        }
+      }
+
+      const dscr = dscrDebtService > 0 ? dscrNoi / dscrDebtService : 0;
 
       checks.push(check(
-        "DSCR Reasonableness (Year 1)",
+        `DSCR Reasonableness (${dscrYearLabel})`,
         "Debt",
         "ASC 470 / Banking",
-        `Year 1 NOI $${Math.round(serverYear1.noi).toLocaleString()} / Debt Service $${Math.round(year1DebtService).toLocaleString()} (expect > 1.0x)`,
+        `${dscrYearLabel} NOI $${Math.round(dscrNoi).toLocaleString()} / Debt Service $${Math.round(dscrDebtService).toLocaleString()} (expect > 1.0x)`,
         CHECKER_MIN_DSCR,
-        year1DSCR,
-        year1DSCR < CHECKER_MIN_DSCR ? "critical" : "info"
+        dscr,
+        dscr < CHECKER_MIN_DSCR ? "critical" : "info"
       ));
     }
 

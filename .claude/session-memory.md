@@ -8,6 +8,12 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 16, 2026 — Governance Harmonization (Task #153)
+- `.claude/` established as single source of truth. Created 7 new `.claude/skills/` files: business-model, product-vision, integrations, design-export, settings, ui/consistent-card-widths, ui/save-button-placement.
+- All 13 `.agents/skills/` SKILL.md files converted to slim pointers with frontmatter + summary + canonical reference line.
+- `claude.md` stats updated: 790 source files, ~144K lines, 186 skill files, 3,029 tests across 136 test files. Skill Router expanded with 7 new rows.
+- `.replit` source-of-truth comment skipped (platform restriction prevents editing .replit directly).
+
 ## Session: March 15, 2026 — Skills Hygiene Plan Execution
 - Created 7 new skills: funding-strategy, market-intelligence (+ adding-integrations sub-skill), finance/diagnostic-decision-tree, icp-research, rebecca-chatbot, document-intelligence, map-view, notifications
 - Updated proof-system (4-phase → 7-phase), context-loading (routing + counts), claude.md Skill Router (7 new rows)

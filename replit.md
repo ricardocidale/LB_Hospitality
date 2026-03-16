@@ -95,7 +95,7 @@ Investment Performance (IRR gauge), KPI cards, Revenue & ANOI chart, Portfolio t
 `/company` — 4 tabs: Income Statement, Cash Flows, Balance Sheet, Tools (Capital Strategy with engine-computed capital raise analysis).
 
 ## Export System
-Shared formatting in `client/src/lib/exports/`. Full reference: `.agents/skills/export-system/SKILL.md`
+Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
 - **Premium Export**: `POST /api/exports/premium` — Agent Skills path (PDF/PPTX/DOCX via Anthropic sandbox) with template fallback; XLSX stays template-based. Service: `server/ai/agentSkillsExport.ts`
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers

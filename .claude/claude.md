@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). ~790 source files, ~144K lines, 3,029 tests across 129 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 790 source files, ~144K lines, 3,029 tests across 136 test files. Hosted on Replit.
 
 ---
 
@@ -11,7 +11,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 - Simple, everyday language. Ask clarifying questions before implementing — do not assume.
 - **TOP PRIORITY: Financial accuracy always beats UI enhancements.** The 3,029-test proof system must always pass.
 - Always format money as currency (commas, appropriate precision).
-- Primary skills in `.claude/skills/`; business domain & pattern skills in `.agents/skills/`.
+- All skills live in `.claude/skills/`; `.agents/skills/` contains slim pointers for Replit task agent compatibility.
 - Company name is "Hospitality Business Group" (or "Hospitality Business" for short).
 - Update skills and manuals after every feature change.
 - All UI components must reference a theme via the theme engine.
@@ -34,7 +34,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Context Loading Protocol
 
-With 176 skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
+With 186 skill files, **never load all skills at once**. Use `.claude/skills/context-loading/SKILL.md` to find the minimum required set. Quick rules:
 - **Financial calc** → specific finance skill + `rules/audit-persona.md` + `proof-system/SKILL.md`
 - **UI/visual** → `component-library/SKILL.md` + `ui/theme-engine.md` + specific UI skill
 - **Testing** → `testing/SKILL.md` + relevant sub-skill only
@@ -68,7 +68,7 @@ With 176 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Research (23 skills) | `.claude/skills/research/` | Market, ADR, occupancy, cap rate, auto-refresh, ICP profile, research center, etc. |
 | Chart Library | `.claude/skills/charts/SKILL.md` | 12 Recharts + 3 D3.js chart components |
 | Mobile Responsive | `.claude/skills/mobile-responsive/SKILL.md` | Breakpoints, tablet layouts, responsive helpers |
-| UI (43 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation, Magic UI effects, consistent card widths, save button placement |
+| UI (45 skills) | `.claude/skills/ui/` | Graphics, animation, entity cards, interactions, navigation, Magic UI effects, consistent card widths, save button placement |
 | API Routes | `.claude/skills/architecture/api-routes.md` | All REST endpoints (load when writing API code) |
 | Constants Ref | `.claude/skills/finance/constants-and-config.md` | All named constants and protected fields |
 | Verification | `.claude/skills/proof-system/verification-system.md` | GAAP verification pipeline detail |
@@ -87,12 +87,18 @@ With 176 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Map View | `.claude/skills/map-view/SKILL.md` | MapLibre GL, Supercluster clustering, globe animation |
 | Notifications | `.claude/skills/notifications/SKILL.md` | Alert rules, Resend email, notification logs |
 | Rules (19) | `.claude/rules/` | All behavioral constraints |
-| Settings Architecture | `.agents/skills/settings-architecture/SKILL.md` | Three configuration surfaces (Mgmt Co, General Settings, Admin), property edit overrides, overlap prevention, decision tree for placing new settings |
-| Business Domain & Patterns (13) | `.agents/skills/` | Business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings architecture |
+| Business Model | `.claude/skills/business-model/SKILL.md` | Dual-entity model, revenue streams, USALI waterfall, management fees, SAFE funding, ICP, property lifecycle |
+| Product Vision | `.claude/skills/product-vision/SKILL.md` | Product identity, design tenets, workflow principles, navigation, user roles, white-labeling |
+| Integrations | `.claude/skills/integrations/SKILL.md` | AI providers, voice AI, geospatial, document intelligence, communication, observability |
+| Settings Architecture | `.claude/skills/settings/SKILL.md` | Three configuration surfaces (Mgmt Co, General Settings, Admin), property edit overrides, overlap prevention, decision tree for placing new settings |
+| Design Export | `.claude/skills/design-export/SKILL.md` | Replicate the HBG design system in another project (components, themes, icons, charts) |
+| Card Widths | `.claude/skills/ui/consistent-card-widths.md` | Page layout width categories, grid patterns, PageHeader alignment |
+| Save Buttons | `.claude/skills/ui/save-button-placement.md` | SaveButton component, three placement patterns, dirty-tracking |
+| Business Domain Pointers (13) | `.agents/skills/` | Slim pointers to `.claude/skills/` — business model, financial engine, verification, design philosophy, integrations, Marcela AI, API contract, product vision, export system, design export, card widths, save buttons, settings architecture |
 
 ---
 
-## Testing & Proof System (3,029 Tests, 129 Files)
+## Testing & Proof System (3,029 Tests, 136 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -106,8 +112,9 @@ With 176 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Recent Changes (March 15, 2026)
+## Recent Changes (March 16, 2026)
 
+- **Governance Harmonization** (Task #153) — `.claude/` is now single source of truth for all governance. Created 7 new `.claude/skills/` files (business-model, product-vision, integrations, design-export, settings, ui/consistent-card-widths, ui/save-button-placement). All 13 `.agents/skills/` files converted to slim pointers referencing `.claude/skills/` counterparts. Stats updated: 790 source files, ~144K lines, 186 skill files, 3,029 tests across 136 test files.
 - **Settings Architecture Governance** (Task #148) — Finalized `settings-architecture` skill defining where every setting belongs: Management Company owns entity config + revenue model, General Settings owns property defaults (3 tabs: Property Defaults, Macro, Other), Admin owns system-only config, Property Edit owns per-property overrides. Decision tree and overlap prevention rules formalized.
 - **Property Creation Defaults from Global Assumptions** (Task #147) — `buildPropertyDefaultsFromGlobal()` reads `global_assumptions` for property defaults; hardcoded constants are last-resort fallbacks only.
 - **Settings Consolidation** (Task #146) — ManagementFeesSection is single source for revenue model (service CRUD + incentive + per-property summary). Dead admin tabs removed. General Settings reduced to 3 tabs.

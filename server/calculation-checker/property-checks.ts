@@ -360,6 +360,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       principalPayment,
       debtPayment,
       netIncome,
+      incomeTax,
       cashFlow,
       depreciationExpense,
       propertyValue,

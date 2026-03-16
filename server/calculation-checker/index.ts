@@ -158,7 +158,7 @@ export function runIndependentVerification(
         "P&L",
         "ASC 470 / ASC 360",
         "ANOI - Interest - Depreciation - Income Tax",
-        m.anoi - m.interestExpense - m.depreciationExpense - (Math.max(0, m.anoi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? DEFAULT_TAX_RATE)),
+        m.anoi - m.interestExpense - m.depreciationExpense - m.incomeTax,
         m.netIncome,
         "critical"
       ));
@@ -168,7 +168,7 @@ export function runIndependentVerification(
         "Cash Flow",
         "ASC 230",
         "ANOI - Total Debt Payment (interest + principal) - Income Tax",
-        m.anoi - m.debtPayment - (Math.max(0, m.anoi - m.interestExpense - m.depreciationExpense) * (property.taxRate ?? DEFAULT_TAX_RATE)),
+        m.anoi - m.debtPayment - m.incomeTax,
         m.cashFlow,
         "critical"
       ));

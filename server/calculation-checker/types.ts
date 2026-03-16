@@ -67,6 +67,7 @@ export interface IndependentMonthlyResult {
   principalPayment: number;
   debtPayment: number;
   netIncome: number;
+  incomeTax: number;
   cashFlow: number;
   depreciationExpense: number;
   propertyValue: number;

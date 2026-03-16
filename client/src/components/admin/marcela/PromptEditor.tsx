@@ -14,7 +14,7 @@ import { useAgentConfig, useSaveAgentPrompt } from "@/features/ai-agent/hooks/us
 
 const DYNAMIC_VARS = [
   { name: "{{user_name}}", description: "Full name of the logged-in user" },
-  { name: "{{user_role}}", description: "User's role (admin, partner, investor…)" },
+  { name: "{{user_role}}", description: "User's role (admin, user, investor…)" },
   { name: "{{current_page}}", description: "Current page path the user is on" },
 ];
 

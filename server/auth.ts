@@ -23,7 +23,7 @@
  *       - requireAuth: any logged-in user (rejects 401 if no session)
  *       - requireAdmin: admin role only (rejects 403 for non-admins)
  *       - requireChecker: admin or checker role (for verification tools)
- *       - requireManagementAccess: everyone except investors (admin + partner + checker)
+ *       - requireManagementAccess: everyone except investors (admin + user + checker)
  *
  *   Seed users:
  *     On startup, seedAdminUser() ensures the predefined team members exist in the database
@@ -392,7 +392,7 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
 }
 
 /**
- * Seeds the database with default users (admin, checker, partners) using
+ * Seeds the database with default users (admin, checker, users) using
  * credentials from environment variables. Ricardo (ricardo.cidale@norfolkgroup.io)
  * is a special case: his password is hardcoded to "admin456" and reset on every
  * startup regardless of FORCE_RESEED_PASSWORDS. Other users read passwords from

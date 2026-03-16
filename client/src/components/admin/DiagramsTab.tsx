@@ -19,7 +19,7 @@ const L1_APP_FLOW = `flowchart LR
   User([User]) --> Auth[Authentication]
   Auth --> Role{Role Check}
   Role -->|admin| Admin[Admin Panel]
-  Role -->|partner| Dashboard[Dashboard]
+  Role -->|user| Dashboard[Dashboard]
   Role -->|checker| Dashboard
   Role -->|investor| Dashboard
   Dashboard --> Properties[Properties]
@@ -597,7 +597,7 @@ const L3_DATA_MODEL = `erDiagram
   Users {
     int id PK
     string username
-    string role "admin | partner | checker | investor"
+    string role "admin | user | checker | investor"
     int companyId FK
     int userGroupId FK
   }
@@ -734,7 +734,7 @@ const L3_ROLE_ACCESS = `flowchart TB
   subgraph Roles["User Roles"]
     direction LR
     Admin["🔑 Admin"]
-    Partner["🤝 Partner"]
+    UserRole["🤝 User"]
     Checker["✅ Checker"]
     Investor["📊 Investor"]
   end
@@ -778,13 +778,13 @@ const L3_ROLE_ACCESS = `flowchart TB
 
   Admin --> isAdmin --> AdminPanel
   Admin --> hasMgmt --> FullToolkit
-  Partner --> hasMgmt
+  UserRole --> hasMgmt
   Checker --> reqChecker --> CheckerTools
   Checker --> hasMgmt
   Investor --> InvestorView
 
   Admin -.->|"bypasses"| groupFilter
-  Partner --> groupFilter
+  UserRole --> groupFilter
   Checker --> groupFilter
   Investor --> groupFilter
   groupFilter -->|"sees only mapped properties"| Props`;

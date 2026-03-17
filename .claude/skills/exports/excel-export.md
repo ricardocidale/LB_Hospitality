@@ -8,9 +8,15 @@
 
 Generates formatted Excel workbooks (.xlsx) for financial statements. All numeric cells receive proper number formatting (currency with commas, percentages, decimals). Section headers and total rows are bolded automatically.
 
-## Dashboard Behavior
+## Comprehensive Behavior
 
-Dashboard Excel exports are **comprehensive** — clicking "Excel" on any dashboard tab produces a multi-sheet workbook containing all financial sections, not just the active tab. No cover page. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the unified export design.
+All Excel exports are **comprehensive** — clicking "Excel" on any tab of any financial page produces a multi-sheet workbook containing all sections from that page, not just the active tab. No cover page.
+
+| Page | Sheets | Skill Doc |
+|------|--------|-----------|
+| Dashboard | All financial statements | [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) |
+| Property Detail | Income Statement + Cash Flow | [comprehensive-property-report.md](./comprehensive-property-report.md) |
+| Company | IS + CF + BS + Investment Analysis | [comprehensive-company-report.md](./comprehensive-company-report.md) |
 
 ## Exported Functions
 

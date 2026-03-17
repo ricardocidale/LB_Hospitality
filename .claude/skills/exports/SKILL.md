@@ -167,9 +167,15 @@ Provides `downloadCSV(content, filename)` — a lightweight Blob-based download 
 
 ---
 
-## Dashboard Exports — Comprehensive All-Tabs Behavior
+## Comprehensive All-Tabs Behavior (All Pages)
 
-**Every dashboard export format produces a comprehensive report containing all five financial sections** (Executive Summary, Income Statement, Cash Flow, Balance Sheet, Investment Analysis), regardless of which tab the user is viewing. PDF and PPTX include an enterprise cover page; CSV, Excel, and PNG do not. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the full design spec.
+**Every export from every financial page produces a comprehensive report containing all sections from that page** — not just the active tab. PDF and PPTX include an enterprise cover page; CSV, Excel, and PNG do not.
+
+| Page | Sections Included | Skill Doc |
+|------|-------------------|-----------|
+| **Dashboard** | Executive Summary, Income Statement, Cash Flow, Balance Sheet, Investment Analysis | [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) |
+| **Property Detail** | Income Statement (USALI), Cash Flow (CFO/CFI/CFF/FCF/FCFE), Balance Sheet | [comprehensive-property-report.md](./comprehensive-property-report.md) |
+| **Management Company** | Income Statement, Cash Flow, Balance Sheet | [comprehensive-company-report.md](./comprehensive-company-report.md) |
 
 ## Portfolio Data Generators
 
@@ -200,9 +206,9 @@ Portfolio-level export wrappers:
 
 | Page | PDF | Excel | CSV | PowerPoint | Chart PNG | Table PNG |
 |------|-----|-------|-----|------------|-----------|-----------|
-| Dashboard | ✅ Comprehensive (cover page + all sections) | ✅ Multi-sheet workbook (all sections) | ✅ All-tabs data | ✅ Comprehensive deck (cover slide + all sections) | ✅ Tab capture | ✅ Tab capture |
-| PropertyDetail | ✅ Income + Cash Flow | ✅ Per-statement | ✅ Cash Flow | ✅ Property slides | ✅ Chart capture | ✅ Table capture |
-| Company | ✅ Per-statement | ✅ Per-statement | ✅ Per-statement | ✅ Company slides | ✅ Chart capture | ✅ Table capture |
+| Dashboard | ✅ Comprehensive (cover + all 5 sections) | ✅ Multi-sheet workbook (all sections) | ✅ All-tabs data | ✅ Comprehensive deck (cover + all sections) | ✅ Tab capture | ✅ Tab capture |
+| PropertyDetail | ✅ Comprehensive (cover + IS/CF/BS) | ✅ Multi-sheet workbook (IS + CF) | ✅ All-tabs data | ✅ Comprehensive deck (cover + IS/CF/BS) | ✅ Chart capture | ✅ Table capture |
+| Company | ✅ Comprehensive (cover + IS/CF/BS) | ✅ Multi-sheet workbook (IS/CF/BS/IA) | ✅ All-tabs data | ✅ Comprehensive deck (cover + IS/CF/BS) | ✅ Chart capture | ✅ Table capture |
 | SensitivityAnalysis | ✅ Tornado + table | ✅ Scenario data | ✅ Scenario data | ✅ Scenario slides | — | — |
 
 ---

@@ -8,9 +8,9 @@
 
 Captures DOM elements (tables and charts) as high-resolution PNG images. Supports accordion collapse for clean table captures and includes SVG serialization fallback.
 
-## Dashboard Behavior
+## Comprehensive Behavior
 
-Dashboard PNG exports capture the **full tab content** of the active view. No cover page. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the unified export design.
+PNG exports capture the **full tab content** of the active view via DOM screenshot. No cover page. PNG is the one format that is inherently per-tab (it captures what's visible on screen). All other formats produce comprehensive all-tabs reports.
 
 ## Exported Functions
 

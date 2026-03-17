@@ -8,9 +8,15 @@
 
 Generates branded `.pptx` presentations from financial data. Supports portfolio-level, property-level, and management company reports with enterprise title slides, metric cards, and financial tables.
 
-## Dashboard Behavior
+## Comprehensive Behavior
 
-Dashboard PPTX exports are **comprehensive** — clicking "PowerPoint" on any dashboard tab produces a single deck containing all five financial sections, not just the active tab. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the unified export design.
+All PPTX exports are **comprehensive** — clicking "PowerPoint" on any tab of any financial page produces a single deck containing all sections from that page, not just the active tab. Enterprise cover slide included on every deck.
+
+| Page | Sections | Skill Doc |
+|------|----------|-----------|
+| Dashboard | KPIs + IS + CF + BS + Investment Analysis | [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) |
+| Property Detail | IS + CF + BS | [comprehensive-property-report.md](./comprehensive-property-report.md) |
+| Company | IS + CF + BS | [comprehensive-company-report.md](./comprehensive-company-report.md) |
 
 ## Enterprise Title Slide
 

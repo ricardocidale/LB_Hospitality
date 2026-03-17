@@ -7,9 +7,15 @@
 
 Lightweight browser-side CSV download utility. Accepts a pre-built CSV string and triggers a download via a temporary Blob URL.
 
-## Dashboard Behavior
+## Comprehensive Behavior
 
-Dashboard CSV exports are **comprehensive** — clicking "CSV" on any dashboard tab produces a file containing all financial sections, not just the active tab. No cover page. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the unified export design.
+All CSV exports are **comprehensive** — clicking "CSV" on any tab of any financial page produces a file containing all sections from that page, not just the active tab. No cover page.
+
+| Page | Skill Doc |
+|------|-----------|
+| Dashboard | [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) |
+| Property Detail | [comprehensive-property-report.md](./comprehensive-property-report.md) |
+| Company | [comprehensive-company-report.md](./comprehensive-company-report.md) |
 
 ## Exported Function
 

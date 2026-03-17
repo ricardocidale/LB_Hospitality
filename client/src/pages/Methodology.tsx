@@ -53,6 +53,7 @@ import { MethodologyTOC } from "@/components/methodology/MethodologyTOC";
 import { MethodologySection } from "@/components/methodology/MethodologySection";
 import { AuditSections } from "@/components/methodology/AuditSections";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { useGlobalAssumptions } from "@/lib/api/admin";
 
 /** Format a decimal as a percentage string, e.g. 0.36 → "36%" */
 const pct = (v: number) => `${Math.round(v * 100)}%`;
@@ -62,6 +63,9 @@ const pct1 = (v: number) => `${(v * 100).toFixed(1).replace(/\.0$/, "")}%`;
 export default function Methodology({ embedded }: { embedded?: boolean }) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const { data: globalAssumptions } = useGlobalAssumptions();
+  const resolvedDepreciationYears = globalAssumptions?.depreciationYears ?? DEPRECIATION_YEARS;
+  const resolvedDaysPerMonth = globalAssumptions?.daysPerMonth ?? DAYS_PER_MONTH;
 
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => {
@@ -603,8 +607,8 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
             >
               <div className="bg-muted/50 rounded-lg p-4">
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>&#8226; <strong>Depreciation</strong>: {DEPRECIATION_YEARS} years straight-line</li>
-                  <li>&#8226; <strong>Days per Month</strong>: {DAYS_PER_MONTH}</li>
+                  <li>&#8226; <strong>Depreciation</strong>: {resolvedDepreciationYears} years straight-line</li>
+                  <li>&#8226; <strong>Days per Month</strong>: {resolvedDaysPerMonth}</li>
                 </ul>
               </div>
             </MethodologySection>
@@ -615,6 +619,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               toggleSection={toggleSection} 
               sectionRefs={sectionRefs} 
               icon={IconCalculator}
+              depreciationYears={resolvedDepreciationYears}
             />
 
           </main>

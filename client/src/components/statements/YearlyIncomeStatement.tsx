@@ -104,7 +104,8 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
     const cateringBoostPct = property.cateringBoostPercent ?? DEFAULT_CATERING_BOOST_PCT;
     const cateringBoostMultiplier = 1 + cateringBoostPct;
 
-    const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.startOccupancy;
+    const resolvedDaysPerMonth = global.daysPerMonth ?? DAYS_PER_MONTH;
+    const baseMonthlyRoomRev = property.roomCount * resolvedDaysPerMonth * property.startAdr * property.startOccupancy;
     const baseMonthlyEventsRev = baseMonthlyRoomRev * revShareEvents;
     const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
     const baseMonthlyOtherRev = baseMonthlyRoomRev * revShareOther;

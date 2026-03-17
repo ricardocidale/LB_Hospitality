@@ -6,14 +6,17 @@ interface AuditSectionsProps {
   toggleSection: (id: string) => void;
   sectionRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
   icon: React.ComponentType<{ className?: string }>;
+  depreciationYears?: number;
 }
 
 export function AuditSections({ 
   expandedSections, 
   toggleSection, 
   sectionRefs,
-  icon
+  icon,
+  depreciationYears,
 }: AuditSectionsProps) {
+  const resolvedDepreciationYears = depreciationYears ?? DEPRECIATION_YEARS;
   return (
     <SectionCard
       id="verification"
@@ -35,7 +38,7 @@ export function AuditSections({
         <h4 className="font-semibold mb-2">Audit Sections</h4>
         <ul className="text-sm text-muted-foreground space-y-2">
           <li>&#8226; <strong>Timing Rules (ASC 606)</strong>: Verifies no revenue or expenses before acquisition/operations start dates</li>
-          <li>&#8226; <strong>Depreciation (ASC 360)</strong>: Verifies {DEPRECIATION_YEARS}-year straight-line depreciation starting at acquisition</li>
+          <li>&#8226; <strong>Depreciation (ASC 360)</strong>: Verifies {resolvedDepreciationYears}-year straight-line depreciation starting at acquisition</li>
           <li>&#8226; <strong>Loan Amortization (ASC 470)</strong>: Recalculates PMT formula, verifies interest/principal split each month</li>
           <li>&#8226; <strong>Income Statement</strong>: Verifies Revenue, GOP, NOI, and Net Income calculations</li>
           <li>&#8226; <strong>Balance Sheet (FASB Framework)</strong>: Verifies Assets = Liabilities + Equity for every period</li>

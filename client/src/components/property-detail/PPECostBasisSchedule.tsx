@@ -57,7 +57,9 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   // Depreciable basis = building portion + renovation costs (land excluded)
   const totalDepreciableBasis = buildingValue + buildingImprovements;
   // Straight-line depreciation: spread evenly over the useful life
-  const annualDepreciation = totalDepreciableBasis / DEPRECIATION_YEARS;
+  // Resolution order: property → globalAssumptions → hardcoded constant
+  const resolvedDepreciationYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
+  const annualDepreciation = totalDepreciableBasis / resolvedDepreciationYears;
   const monthlyDepreciation = annualDepreciation / 12;
   // Total project cost includes non-depreciable items (pre-opening, reserves)
   const totalProjectCost = purchasePrice + buildingImprovements + preOpeningCosts + operatingReserve;
@@ -73,7 +75,8 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   const cateringBoostMultiplier = 1 + cateringBoostPct;
 
   // Base monthly room revenue = rooms × days/month × nightly rate × occupancy
-  const baseMonthlyRoomRev = property.roomCount * DAYS_PER_MONTH * property.startAdr * property.startOccupancy;
+  const resolvedDaysPerMonth = global.daysPerMonth ?? DAYS_PER_MONTH;
+  const baseMonthlyRoomRev = property.roomCount * resolvedDaysPerMonth * property.startAdr * property.startOccupancy;
   const baseMonthlyEventsRev = baseMonthlyRoomRev * revShareEvents;
   // F&B includes catering boost (e.g. weddings, banquets add to base F&B)
   const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
@@ -164,10 +167,10 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
                 <DetailRow label="Building Value (from purchase)" value={fmt(buildingValue)} />
                 <DetailRow label="+ Building Improvements" value={fmt(buildingImprovements)} />
                 <DetailRow label="= Total Depreciable Basis" value={fmt(totalDepreciableBasis)} bold />
-                <DetailRow label="Depreciation Period" value={`${DEPRECIATION_YEARS} years`} />
+                <DetailRow label="Depreciation Period" value={`${resolvedDepreciationYears} years`} />
                 <DetailRow label="Annual Depreciation" value={fmt(annualDepreciation)} bold />
                 <DetailRow label="Monthly Depreciation" value={fmt(monthlyDepreciation)} />
-                <DetailRow label="Full Depreciation Date" value={`~${DEPRECIATION_YEARS} years after acquisition`} muted />
+                <DetailRow label="Full Depreciation Date" value={`~${resolvedDepreciationYears} years after acquisition`} muted />
               </>
             )}
 
@@ -180,7 +183,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
             {openSections.fixedCostAnchor && (
               <>
                 <DetailRow label="Room Count" value={`${property.roomCount} rooms`} />
-                <DetailRow label="Days per Month" value={`${DAYS_PER_MONTH}`} />
+                <DetailRow label="Days per Month" value={`${resolvedDaysPerMonth}`} />
                 <DetailRow label="Starting ADR" value={fmt(property.startAdr)} />
                 <DetailRow label="Starting Occupancy" value={pct(property.startOccupancy)} />
                 <DetailRow label="Base Monthly Room Revenue" value={fmt(baseMonthlyRoomRev)} bold />

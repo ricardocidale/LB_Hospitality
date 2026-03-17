@@ -40,11 +40,12 @@ interface SlideContext {
   companyName: string;
 }
 
-function addAllFooters(ctx: SlideContext) {
+function addAllFooters(ctx: SlideContext, skipFirst = true) {
   const slides = ctx.pres.slides as any[];
   if (!slides) return;
   const total = slides.length;
   for (let i = 0; i < total; i++) {
+    if (skipFirst && i === 0) continue;
     const slide = slides[i];
     slide.addShape("rect", {
       x: 0, y: SLIDE_H - 0.35, w: SLIDE_W, h: 0.01,
@@ -66,35 +67,98 @@ function addTitleSlide(ctx: SlideContext, title: string, subtitle: string, sourc
   slide.background = { color: BRAND.NAVY_HEX };
 
   slide.addShape("rect", {
-    x: 0, y: 0, w: SLIDE_W, h: 0.05,
+    x: 0, y: 0, w: SLIDE_W, h: 0.06,
+    fill: { color: BRAND.SAGE_HEX },
+  });
+  slide.addShape("rect", {
+    x: 0, y: SLIDE_H - 0.06, w: SLIDE_W, h: 0.06,
+    fill: { color: BRAND.SAGE_HEX },
+  });
+
+  const gridColor = "2A3A4D";
+  for (let gx = 0; gx < SLIDE_W; gx += 0.5) {
+    slide.addShape("rect", {
+      x: gx, y: 0, w: 0.005, h: SLIDE_H,
+      fill: { color: gridColor },
+    });
+  }
+  for (let gy = 0; gy < SLIDE_H; gy += 0.5) {
+    slide.addShape("rect", {
+      x: 0, y: gy, w: SLIDE_W, h: 0.005,
+      fill: { color: gridColor },
+    });
+  }
+
+  slide.addShape("rect", {
+    x: 0.5, y: 1.4, w: 0.08, h: 2.2,
     fill: { color: BRAND.SAGE_HEX },
   });
 
   slide.addText(ctx.companyName, {
-    x: 0.6, y: 1.5, w: 12, h: 0.6,
-    fontSize: 28, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
+    x: 0.8, y: 1.4, w: 11, h: 0.7,
+    fontSize: 32, fontFace: "Arial", color: BRAND.WHITE_HEX, bold: true,
+  });
+
+  slide.addShape("rect", {
+    x: 0.8, y: 2.15, w: 3, h: 0.02,
+    fill: { color: BRAND.WHITE_HEX },
   });
 
   slide.addText(title, {
-    x: 0.6, y: 2.3, w: 12, h: 0.5,
-    fontSize: 22, fontFace: "Arial", color: BRAND.WHITE_HEX,
+    x: 0.8, y: 2.4, w: 11, h: 0.5,
+    fontSize: 20, fontFace: "Arial", color: BRAND.SAGE_HEX,
   });
 
   slide.addText(subtitle, {
-    x: 0.6, y: 2.9, w: 8, h: 0.4,
-    fontSize: 14, fontFace: "Arial", color: "AAAAAA",
+    x: 0.8, y: 3.0, w: 8, h: 0.4,
+    fontSize: 13, fontFace: "Arial", color: "B4C8B9",
   });
 
+  const cardX = 0.8;
+  const cardY = 4.0;
+  const cardW = 5.5;
+  const cardH = 1.2;
+  slide.addShape("roundRect", {
+    x: cardX, y: cardY, w: cardW, h: cardH,
+    fill: { color: "283241" },
+    line: { color: BRAND.SAGE_HEX, width: 0.75 },
+    rectRadius: 0.08,
+  });
+
+  slide.addText("REPORT", {
+    x: cardX + 0.2, y: cardY + 0.12, w: 2, h: 0.22,
+    fontSize: 7, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
+  });
   slide.addText(sourceTag, {
-    x: SLIDE_W - 5.6, y: 2.9, w: 5, h: 0.4,
-    fontSize: 11, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
-    align: "right",
+    x: cardX + 0.2, y: cardY + 0.32, w: 2.3, h: 0.22,
+    fontSize: 9, fontFace: "Arial", color: "DDDDDD",
   });
 
-  slide.addText(`Generated: ${format(new Date(), "MMMM d, yyyy")}`, {
-    x: 0.6, y: 4.6, w: 12, h: 0.3,
-    fontSize: 10, fontFace: "Arial", color: "888888",
+  slide.addText("DATE", {
+    x: cardX + 0.2, y: cardY + 0.6, w: 2, h: 0.22,
+    fontSize: 7, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
   });
+  slide.addText(format(new Date(), "MMMM d, yyyy"), {
+    x: cardX + 0.2, y: cardY + 0.8, w: 2.3, h: 0.22,
+    fontSize: 9, fontFace: "Arial", color: "DDDDDD",
+  });
+
+  slide.addText("CLASSIFICATION", {
+    x: cardX + 2.8, y: cardY + 0.12, w: 2, h: 0.22,
+    fontSize: 7, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
+  });
+  slide.addText("CONFIDENTIAL", {
+    x: cardX + 2.8, y: cardY + 0.32, w: 2, h: 0.22,
+    fontSize: 9, fontFace: "Arial", color: "DDDDDD",
+  });
+
+  slide.addText(
+    "This document contains proprietary financial projections. Distribution is restricted to authorized recipients.",
+    {
+      x: 0.8, y: SLIDE_H - 0.7, w: 10, h: 0.3,
+      fontSize: 7, fontFace: "Arial", color: "78828C", italic: true,
+    },
+  );
 }
 
 function addMetricsSlide(

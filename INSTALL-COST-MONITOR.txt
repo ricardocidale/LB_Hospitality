@@ -1,0 +1,64 @@
+STEP 1: Open PowerShell as Administrator. Run these one at a time.
+
+   node --version
+
+If you see an error, install Node.js from https://nodejs.org first.
+If you see a version number (v18 or higher), continue.
+
+
+STEP 2: Install tsx.
+
+   npm install -g tsx
+
+If you get a permissions error, close PowerShell and reopen as Administrator.
+
+
+STEP 3: Create the folder.
+
+   New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.costs"
+
+
+STEP 4: Create the script file.
+
+   notepad "$env:USERPROFILE\.costs\cost-monitor.ts"
+
+Notepad opens (it will ask to create the file — click Yes).
+Go to Replit. Open the file: script/cost-monitor.ts
+Select all the code (Ctrl+A). Copy it (Ctrl+C).
+Go back to Notepad. Paste (Ctrl+V).
+Save (Ctrl+S). Close Notepad.
+
+
+STEP 5: Verify the file was saved.
+
+   Get-Content "$env:USERPROFILE\.costs\cost-monitor.ts" | Select-Object -First 3
+
+You should see three lines starting with #!/usr/bin/env tsx
+If you see nothing or an error, repeat Step 4.
+
+
+STEP 6: Run it.
+
+   cd "$env:USERPROFILE\.costs"
+   tsx cost-monitor.ts
+
+You should see a colored dashboard that says "Waiting for activity..."
+Press q to quit.
+
+If you get "tsx is not recognized", close PowerShell, reopen, try again.
+If you still get the error, run: npx tsx cost-monitor.ts
+
+
+STEP 7: Log a test entry. Open a SECOND PowerShell window.
+
+   cd "$env:USERPROFILE\.costs"
+   tsx cost-monitor.ts --add --service anthropic --cost 0.50 --note "test entry"
+
+Go back to the first window. You should see the entry appear.
+If it worked, you are done.
+
+
+TO RUN IN THE FUTURE:
+
+   cd "$env:USERPROFILE\.costs"
+   tsx cost-monitor.ts

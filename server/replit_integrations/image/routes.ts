@@ -5,6 +5,9 @@ import { ObjectStorageService } from "../object_storage";
 import { replicateService, getAvailableStyles, type ReplicateStyleKey } from "../../integrations/replicate";
 import { z } from "zod";
 import { logApiCost, estimateCost, unitCost } from "../../middleware/cost-logger";
+import { storage } from "../../storage";
+import { resolveLlm, getVendorService } from "../../ai/resolve-llm";
+import type { ResearchConfig } from "@shared/schema";
 
 // Singleton — avoid creating a new instance per image generation request
 const sharedObjectStorageService = new ObjectStorageService();
@@ -137,10 +140,13 @@ export function registerImageRoutes(app: Express): void {
         return res.status(400).json({ error: "Prompt is required" });
       }
 
+      const ga = await storage.getGlobalAssumptions(req.user?.id);
+      const rc = (ga?.researchConfig as ResearchConfig) ?? {};
+      const resolved = resolveLlm(rc, "aiUtilityLlm");
       const gemini = getGeminiClient();
       const startTime = Date.now();
       const response = await gemini.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: resolved.model,
         contents: [{
           role: "user",
           parts: [{
@@ -154,9 +160,10 @@ export function registerImageRoutes(app: Express): void {
         throw new Error("No response from AI");
       }
 
+      const svc = getVendorService(resolved.vendor);
       const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
       const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round((enhanced?.length ?? 0) / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: "enhance-logo-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/enhance-logo-prompt" }); } catch {}
+      try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "enhance-logo-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/enhance-logo-prompt" }); } catch {}
 
       res.json({ enhanced });
     } catch (error) {

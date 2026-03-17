@@ -4,6 +4,9 @@ import { requireAuth } from "../auth";
 import { aiRateLimit } from "../middleware/rate-limit";
 import { z } from "zod";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
+import { storage } from "../storage";
+import { resolveLlm, getVendorService } from "../ai/resolve-llm";
+import type { ResearchConfig } from "@shared/schema";
 
 const rewriteSchema = z.object({
   text: z.string().min(1).max(5000),
@@ -34,10 +37,13 @@ ${text}
 
 Rewritten description:`;
 
+      const ga = await storage.getGlobalAssumptions(req.user?.id);
+      const rc = (ga?.researchConfig as ResearchConfig) ?? {};
+      const resolved = resolveLlm(rc, "aiUtilityLlm");
       const gemini = getGeminiClient();
       const startTime = Date.now();
       const response = await gemini.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: resolved.model,
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         config: { maxOutputTokens: 1024 },
       });
@@ -47,9 +53,10 @@ Rewritten description:`;
         return res.status(500).json({ error: "No response from AI" });
       }
 
+      const svc = getVendorService(resolved.vendor);
       const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
       const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round((rewritten?.length ?? 0) / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: "rewrite-description", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/rewrite-description" }); } catch {}
+      try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "rewrite-description", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/rewrite-description" }); } catch {}
 
       res.json({ rewritten });
     } catch (error: any) {
@@ -73,11 +80,14 @@ Rewritten description:`;
       }
       const { prompt } = parsed.data;
 
+      const ga2 = await storage.getGlobalAssumptions(req.user?.id);
+      const rc2 = (ga2?.researchConfig as ResearchConfig) ?? {};
+      const resolved2 = resolveLlm(rc2, "aiUtilityLlm");
       const anthropic = getAnthropicClient();
 
       const startTime = Date.now();
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: resolved2.model,
         max_tokens: 8192,
         messages: [
           {
@@ -107,9 +117,10 @@ ${prompt}`,
         return res.status(500).json({ error: "No response from AI" });
       }
 
+      const svc2 = getVendorService(resolved2.vendor);
       const inTok = response.usage?.input_tokens ?? Math.round(prompt.length / 4);
       const outTok = response.usage?.output_tokens ?? Math.round(optimized.length / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: "anthropic", model: "claude-3-5-sonnet-20241022", operation: "optimize-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("anthropic", "claude-3-5-sonnet-20241022", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/optimize-prompt" }); } catch {}
+      try { logApiCost({ timestamp: new Date().toISOString(), service: svc2, model: resolved2.model, operation: "optimize-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc2, resolved2.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/optimize-prompt" }); } catch {}
 
       res.json({ optimized });
     } catch (error: any) {

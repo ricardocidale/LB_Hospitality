@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { IconBrain, IconRefreshCw, IconTarget, IconProperties, IconTrendingUp, IconFileText, IconMessageCircle } from "@/components/icons";
+import { IconBrain, IconRefreshCw, IconTarget, IconProperties, IconTrendingUp, IconFileText, IconMessageCircle, IconFileDown, IconFileCode } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
 import type { ResearchConfig, ContextLlmConfig, LlmMode, LlmVendor, AiModelEntry } from "@shared/schema";
@@ -158,7 +158,7 @@ function LlmDomainCard({
 
 const DOMAIN_CONFIGS: {
   key: string;
-  configField: "companyLlm" | "propertyLlm" | "marketLlm" | "reportLlm" | "chatbotLlm";
+  configField: "companyLlm" | "propertyLlm" | "marketLlm" | "reportLlm" | "chatbotLlm" | "premiumExportLlm" | "aiUtilityLlm";
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   description: string;
@@ -204,6 +204,24 @@ const DOMAIN_CONFIGS: {
     label: "Chatbot (Rebecca)",
     icon: IconMessageCircle,
     description: "LLM powering Rebecca and other conversational AI assistants.",
+    useAllVendors: true,
+    group: "operations",
+  },
+  {
+    key: "premiumExport",
+    configField: "premiumExportLlm",
+    label: "Premium Exports",
+    icon: IconFileDown,
+    description: "LLM for generating premium export content — XLSX, PPTX, PDF, and DOCX financial documents.",
+    useAllVendors: true,
+    group: "operations",
+  },
+  {
+    key: "aiUtility",
+    configField: "aiUtilityLlm",
+    label: "AI Utilities",
+    icon: IconFileCode,
+    description: "LLM for lightweight AI tasks — description rewriting, prompt optimization, and logo prompt enhancement.",
     useAllVendors: true,
     group: "operations",
   },

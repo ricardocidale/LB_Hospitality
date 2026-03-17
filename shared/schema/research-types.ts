@@ -68,6 +68,8 @@ export interface ResearchConfig {
   marketLlm?: ContextLlmConfig;
   reportLlm?: ContextLlmConfig;
   chatbotLlm?: ContextLlmConfig;
+  premiumExportLlm?: ContextLlmConfig;
+  aiUtilityLlm?: ContextLlmConfig;
   companySources?: ResearchSourceEntry[];
   propertySources?: ResearchSourceEntry[];
   marketSources?: ResearchSourceEntry[];

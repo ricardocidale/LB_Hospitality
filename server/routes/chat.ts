@@ -7,6 +7,8 @@ import { buildPropertyContext } from "../ai/buildPropertyContext.js";
 import { z } from "zod";
 import { DEFAULT_PROJECTION_YEARS, DEFAULT_PROPERTY_INFLATION_RATE } from "@shared/constants";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
+import { resolveLlm, getVendorService } from "../ai/resolve-llm";
+import type { ResearchConfig } from "@shared/schema";
 
 /**
  * CONTRACT: This endpoint provides AI chat about portfolio properties.
@@ -141,6 +143,8 @@ export function register(app: Express) {
 
         res.json({ response: text });
       } else {
+        const rc = (ga?.researchConfig as ResearchConfig) ?? {};
+        const resolved = resolveLlm(rc, "chatbotLlm");
         const gemini = getGeminiClient();
         const chatHistory = history.map((msg) => ({
           role: msg.role === "user" ? "user" : ("model" as const),
@@ -158,7 +162,7 @@ export function register(app: Express) {
 
         const startTime = Date.now();
         const response = await gemini.models.generateContent({
-          model: "gemini-2.5-flash",
+          model: resolved.model,
           contents,
           config: { maxOutputTokens: 1024 },
         });
@@ -166,9 +170,10 @@ export function register(app: Express) {
         const text = response.text
           || "I'm sorry, I couldn't generate a response. Please try again.";
 
+        const svc = getVendorService(resolved.vendor);
         const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(message.length / 4);
         const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
-        try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: "chat", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/chat" }); } catch {}
+        try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "chat", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/chat" }); } catch {}
 
         res.json({ response: text });
       }

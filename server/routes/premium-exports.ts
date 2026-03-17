@@ -6,6 +6,9 @@ import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
 import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdfPrompt, getDocxPrompt } from "./premium-export-prompts";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
+import { storage } from "../storage";
+import { resolveLlm, getVendorService } from "../ai/resolve-llm";
+import type { ResearchConfig } from "@shared/schema";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -161,13 +164,13 @@ function aggressiveParse(raw: string): any {
 }
 
 async function callGemini(
-  client: any, prompt: string, format: string, startTime: number
+  client: any, prompt: string, format: string, startTime: number, modelId: string
 ): Promise<{ text: string; finishReason: string | undefined }> {
   const timeoutPromise = new Promise<never>((_, reject) =>
     setTimeout(() => reject(new Error("AI generation timed out after 120 seconds")), AI_GENERATION_TIMEOUT_MS)
   );
   const generatePromise = client.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: modelId,
     contents: prompt,
     config: {
       maxOutputTokens: 65536,
@@ -180,19 +183,20 @@ async function callGemini(
   const finishReason = response.candidates?.[0]?.finishReason;
   const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
   const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
-  try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: `premium-export-${format}`, inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, route: "/api/exports/premium" }); } catch {}
+  try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: modelId, operation: `premium-export-${format}`, inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", modelId, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/exports/premium" }); } catch {}
   return { text, finishReason };
 }
 
-async function generateWithGemini(prompt: string, format: string): Promise<any> {
+async function generateWithGemini(prompt: string, format: string, modelId?: string): Promise<any> {
   const client = getGeminiClient();
   const startTime = Date.now();
+  const resolvedModel = modelId || "gemini-2.5-flash";
 
   let lastError: Error | null = null;
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      const { text, finishReason } = await callGemini(client, prompt, format, startTime);
-      logger.info(`[attempt ${attempt}] Gemini returned ${text.length} chars, finishReason=${finishReason}`, "premium-export");
+      const { text, finishReason } = await callGemini(client, prompt, format, startTime, resolvedModel);
+      logger.info(`[attempt ${attempt}] ${resolvedModel} returned ${text.length} chars, finishReason=${finishReason}`, "premium-export");
 
       const parsed = aggressiveParse(text);
       if (attempt > 1) logger.warn(`Premium export: succeeded on retry attempt ${attempt}`);
@@ -1022,7 +1026,8 @@ const DEFAULT_REPORT_TYPE: Record<string, string> = {
 };
 
 async function generateViaTemplatePipeline(
-  data: PremiumExportRequest
+  data: PremiumExportRequest,
+  modelId?: string
 ): Promise<Buffer> {
   logger.info(`[template] Building ${data.format} prompt...`, "premium-export");
   let prompt: string;
@@ -1034,8 +1039,8 @@ async function generateViaTemplatePipeline(
     default: throw new Error(`Unsupported format: ${data.format}`);
   }
 
-  logger.info(`[template] Calling Gemini for JSON structure...`, "premium-export");
-  const aiResult = await generateWithGemini(prompt, data.format);
+  logger.info(`[template] Calling AI (${modelId || "default"}) for JSON structure...`, "premium-export");
+  const aiResult = await generateWithGemini(prompt, data.format, modelId);
   logger.info(`[template] AI returned valid JSON, generating ${data.format} buffer...`, "premium-export");
 
   switch (data.format) {
@@ -1066,8 +1071,11 @@ export function register(app: Express) {
       const ext = FORMAT_EXTENSIONS[data.format] || `.${data.format}`;
       const filename = `${safeCompany} - ${reportType}${ext}`;
 
-      logger.info(`Generating premium ${data.format} via Gemini + template pipeline for "${data.entityName}"...`, "premium-export");
-      const buffer = await generateViaTemplatePipeline(data);
+      const ga = await storage.getGlobalAssumptions(req.user?.id);
+      const rc = (ga?.researchConfig as ResearchConfig) ?? {};
+      const resolved = resolveLlm(rc, "premiumExportLlm");
+      logger.info(`Generating premium ${data.format} via ${resolved.model} + template pipeline for "${data.entityName}"...`, "premium-export");
+      const buffer = await generateViaTemplatePipeline(data, resolved.model);
       logger.info(`Premium ${data.format} generated (${buffer.length} bytes)`, "premium-export");
 
       res.setHeader("Content-Type", contentType);

@@ -237,7 +237,7 @@ function MarketMacroTab({ draft, onChange }: { draft: Draft; onChange: (field: s
           min={0.05} max={0.35} step={0.005}
           testId="field-costOfEquity"
         />
-        <div className="pt-2">
+        <div className="pt-2 col-span-full">
           <GovernedFieldWrapper
             authority="Industry Convention (365/12)"
             label="Days Per Month"
@@ -266,7 +266,7 @@ function MarketMacroTab({ draft, onChange }: { draft: Draft; onChange: (field: s
       </Section>
 
       <Section title="Fiscal Calendar" description="Controls the fiscal year alignment for financial reporting.">
-        <div className="flex items-center justify-between" data-testid="field-fiscalYearStartMonth">
+        <div className="flex items-center justify-between col-span-full" data-testid="field-fiscalYearStartMonth">
           <Label className="flex items-center text-foreground label-text">
             Fiscal Year Start Month
             <InfoTooltip text="The month when the fiscal year begins. Affects how annual summaries are grouped." />
@@ -643,7 +643,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
       </Section>
 
       <Section grid title="Depreciation & Tax" description="Tax-related defaults for property underwriting.">
-        <div className="col-span-1 md:col-span-2 xl:col-span-3">
+        <div className="col-span-full">
           <GovernedFieldWrapper
             authority="IRS Publication 946"
             label="Depreciation Years"

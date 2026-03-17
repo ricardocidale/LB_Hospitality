@@ -68,12 +68,12 @@ export function generatePortfolioBalanceSheetData(
       const accDep = relevantMonths.reduce((sum, m) => sum + m.depreciationExpense, 0);
       
       const operatingReserve = property.operatingReserve || 0;
-      const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
+      const cumulativeANOI = relevantMonths.reduce((sum, m) => sum + m.anoi, 0);
       const cumulativeDebtService = relevantMonths.reduce((sum, m) => sum + m.interestExpense + m.principalPayment, 0);
       const cumulativeTax = relevantMonths.reduce((sum, m) => sum + m.incomeTax, 0);
       const cumulativeRefi = relevantMonths.reduce((sum, m) => sum + m.refinancingProceeds, 0);
       
-      const cash = operatingReserve + (cumulativeNOI - cumulativeDebtService - cumulativeTax) + cumulativeRefi;
+      const cash = operatingReserve + (cumulativeANOI - cumulativeDebtService - cumulativeTax) + cumulativeRefi;
       
       let deferredFinancing = 0;
       for (let m = 0; m < relevantMonths.length; m++) {

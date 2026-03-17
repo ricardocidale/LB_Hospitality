@@ -135,10 +135,10 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
     const netIncome = relevantMonths.reduce((sum, m) => sum + m.netIncome, 0);
     totalRetainedEarnings += netIncome;
 
-    const cumulativeNOI = relevantMonths.reduce((sum, m) => sum + m.noi, 0);
+    const cumulativeANOI = relevantMonths.reduce((sum, m) => sum + m.anoi, 0);
     const incomeTax = relevantMonths.reduce((sum, m) => sum + m.incomeTax, 0);
     const cumulativeDebtService = cumulativeInterest + cumulativePrincipal;
-    const operatingCashFlow = cumulativeNOI - cumulativeDebtService - incomeTax;
+    const operatingCashFlow = cumulativeANOI - cumulativeDebtService - incomeTax;
     totalCumulativeCashFlow += operatingCashFlow;
 
     perPropertyData.push({

@@ -7,6 +7,10 @@
 
 Lightweight browser-side CSV download utility. Accepts a pre-built CSV string and triggers a download via a temporary Blob URL.
 
+## Dashboard Behavior
+
+Dashboard CSV exports are **comprehensive** — clicking "CSV" on any dashboard tab produces a file containing all financial sections, not just the active tab. No cover page. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the unified export design.
+
 ## Exported Function
 
 ### `downloadCSV(content: string, filename: string): void`

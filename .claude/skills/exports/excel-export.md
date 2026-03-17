@@ -8,6 +8,10 @@
 
 Generates formatted Excel workbooks (.xlsx) for financial statements. All numeric cells receive proper number formatting (currency with commas, percentages, decimals). Section headers and total rows are bolded automatically.
 
+## Dashboard Behavior
+
+Dashboard Excel exports are **comprehensive** — clicking "Excel" on any dashboard tab produces a multi-sheet workbook containing all financial sections, not just the active tab. No cover page. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the unified export design.
+
 ## Exported Functions
 
 ### Property-Level
@@ -31,7 +35,7 @@ Generates formatted Excel workbooks (.xlsx) for financial statements. All numeri
 
 | Function | File | Description |
 |----------|------|-------------|
-| `exportPortfolioExcel` | `dashboardExports.ts` | Multi-sheet workbook with Income Statement and Cash Flow sheets |
+| `exportPortfolioExcel` | `dashboardExports.ts` | Multi-sheet workbook with all financial statements |
 
 Portfolio-level Excel exports live in `client/src/components/dashboard/dashboardExports.ts` rather than this file, because they consume pre-aggregated `{ years, rows }` data from the shared generators rather than raw monthly pro-formas.
 

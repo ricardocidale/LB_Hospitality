@@ -6,7 +6,7 @@
 
 ## Overview
 
-Renders professional line charts directly into jsPDF documents. Features: centered titles, colored lines with data point dots, dashed grid lines, formatted Y-axis labels, centered legend with color indicators.
+Renders professional line charts directly into jsPDF documents. Features: centered titles, colored lines with data point dots, dashed grid lines, formatted Y-axis labels, centered legend with color indicators. Used by the comprehensive dashboard PDF export for the Performance Charts page. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the unified export design.
 
 ## Exported Function
 

@@ -167,6 +167,10 @@ Provides `downloadCSV(content, filename)` — a lightweight Blob-based download 
 
 ---
 
+## Dashboard Exports — Comprehensive All-Tabs Behavior
+
+**Every dashboard export format produces a comprehensive report containing all five financial sections** (Executive Summary, Income Statement, Cash Flow, Balance Sheet, Investment Analysis), regardless of which tab the user is viewing. PDF and PPTX include an enterprise cover page; CSV, Excel, and PNG do not. See [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) for the full design spec.
+
 ## Portfolio Data Generators
 
 **File**: `client/src/components/dashboard/dashboardExports.ts`
@@ -177,15 +181,18 @@ The Dashboard page uses shared data generator functions that produce the standar
 |----------|---------|-------|
 | `generatePortfolioIncomeData` | Revenue, expenses, GOP, fees, NOI, below-NOI, GAAP Net Income | `yearlyConsolidatedCache`, `projectionYears`, `getFiscalYear` |
 | `generatePortfolioCashFlowData` | CFO, CFI, CFF, Net Change in Cash | `allPropertyYearlyCF`, `projectionYears`, `getFiscalYear` |
+| `generatePortfolioBalanceSheetData` | Assets, Liabilities, Equity with ratios | `allPropertyFinancials`, `projectionYears`, `getFiscalYear`, `modelStartDate` |
 | `generatePortfolioInvestmentData` | Equity, exit value, IRR, multiple, cash-on-cash | `financials`, `properties`, `projectionYears`, `getFiscalYear` |
 
 Portfolio-level export wrappers:
 
 | Function | Description |
 |----------|-------------|
-| `exportPortfolioExcel` | Multi-sheet workbook (Income Statement + Cash Flow) |
-| `exportPortfolioCSV` | Single CSV for the active tab's data |
-| `exportPortfolioPDF` | PDF with table + chart page, orientation-aware |
+| `exportDashboardComprehensivePDF` | Comprehensive PDF with cover page, all sections, and charts |
+| `exportPortfolioPPTX` | Comprehensive PPTX deck with enterprise title slide and all sections |
+| `exportPortfolioExcel` | Multi-sheet workbook with all financial statements |
+| `exportPortfolioCSV` | CSV with all-tabs data |
+| `exportPortfolioPDF` | Per-tab PDF with table + chart page, orientation-aware |
 
 ---
 
@@ -193,7 +200,7 @@ Portfolio-level export wrappers:
 
 | Page | PDF | Excel | CSV | PowerPoint | Chart PNG | Table PNG |
 |------|-----|-------|-----|------------|-----------|-----------|
-| Dashboard | ✅ Per-tab (orientation dialog) | ✅ Multi-sheet workbook | ✅ Per-tab | ✅ Portfolio slides | ✅ Tab capture | ✅ Tab capture |
+| Dashboard | ✅ Comprehensive (cover page + all sections) | ✅ Multi-sheet workbook (all sections) | ✅ All-tabs data | ✅ Comprehensive deck (cover slide + all sections) | ✅ Tab capture | ✅ Tab capture |
 | PropertyDetail | ✅ Income + Cash Flow | ✅ Per-statement | ✅ Cash Flow | ✅ Property slides | ✅ Chart capture | ✅ Table capture |
 | Company | ✅ Per-statement | ✅ Per-statement | ✅ Per-statement | ✅ Company slides | ✅ Chart capture | ✅ Table capture |
 | SensitivityAnalysis | ✅ Tornado + table | ✅ Scenario data | ✅ Scenario data | ✅ Scenario slides | — | — |

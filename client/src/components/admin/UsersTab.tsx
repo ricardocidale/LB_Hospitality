@@ -418,7 +418,7 @@ export default function UsersTab() {
                     <TableCell colSpan={4} className="py-1.5 px-4">
                       <div className="flex items-center gap-2">
                         <div className="h-px flex-1 bg-border/60" />
-                        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">{currentGroup}</span>
+                        <span className="text-[11px] font-medium text-accent uppercase tracking-wider whitespace-nowrap">{currentGroup}</span>
                         <div className="h-px flex-1 bg-border/60" />
                       </div>
                     </TableCell>

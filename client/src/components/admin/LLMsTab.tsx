@@ -294,7 +294,7 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
       <div>
         <h3 className="text-sm font-display font-semibold text-foreground mb-1">Research LLMs</h3>
         <p className="text-xs text-muted-foreground mb-4">Each research process uses a two-level LLM pipeline: a primary reasoning model and an optional secondary workhorse model.</p>
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           {researchDomains.map((domain) => (
             <LlmDomainCard
               key={domain.key}

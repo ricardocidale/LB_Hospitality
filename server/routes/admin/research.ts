@@ -35,10 +35,10 @@ const customSourceSchema = z.object({
 const aiModelEntrySchema = z.object({
   id: z.string(),
   label: z.string(),
-  provider: z.enum(["openai", "anthropic", "google", "xai", "tesla", "microsoft"]),
+  provider: z.enum(["openai", "anthropic", "google", "xai", "tesla", "microsoft", "meta", "deepseek"]),
 });
 
-const llmVendorEnum = z.enum(["openai", "anthropic", "google", "xai", "tesla", "microsoft"]);
+const llmVendorEnum = z.enum(["openai", "anthropic", "google", "xai", "tesla", "microsoft", "meta", "deepseek"]);
 
 const contextLlmConfigSchema = z.object({
   llmVendor: llmVendorEnum.optional(),
@@ -83,10 +83,12 @@ const researchConfigSchema = z.object({
 }).strict();
 
 const CHAT_MODEL_PATTERNS: Record<string, RegExp[]> = {
-  openai: [/^gpt-5/, /^o\d/],
+  openai: [/^gpt-5/, /^gpt-4/, /^o\d/],
   anthropic: [/^claude-/],
   google: [/^gemini-/],
   xai: [/^grok-/],
+  deepseek: [/^deepseek-/],
+  meta: [/^llama-/, /^Llama-/],
 };
 
 const EXCLUDE_PATTERNS = [
@@ -103,12 +105,24 @@ function shouldInclude(id: string, provider: string): boolean {
 }
 
 function formatLabel(id: string, provider: string): string {
-  const prefix = provider === "openai" ? "OpenAI" : provider === "anthropic" ? "Anthropic" : provider === "xai" ? "xAI" : "Google";
+  const prefixMap: Record<string, string> = {
+    openai: "OpenAI",
+    anthropic: "Anthropic",
+    google: "Google",
+    xai: "xAI",
+    deepseek: "DeepSeek",
+    meta: "Meta",
+    tesla: "Tesla",
+    microsoft: "Microsoft",
+  };
+  const prefix = prefixMap[provider] ?? provider;
   const name = id
     .replace(/-/g, " ")
     .replace(/\b\w/g, c => c.toUpperCase())
     .replace(/Gpt/g, "GPT")
-    .replace(/^O(\d)/, "o$1");
+    .replace(/^O(\d)/, "o$1")
+    .replace(/Deepseek/g, "DeepSeek")
+    .replace(/Llama/gi, "Llama");
   return `${prefix} ${name}`;
 }
 
@@ -186,6 +200,50 @@ async function fetchXaiModels(): Promise<AiModelEntry[]> {
   }
 }
 
+async function fetchDeepSeekModels(): Promise<AiModelEntry[]> {
+  try {
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) return [];
+    const res = await fetch("https://api.deepseek.com/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!res.ok) throw new Error(`DeepSeek API returned ${res.status}`);
+    const body = await res.json() as { data: { id: string }[] };
+    const models: AiModelEntry[] = [];
+    for (const m of body.data) {
+      if (shouldInclude(m.id, "deepseek")) {
+        models.push({ id: m.id, label: formatLabel(m.id, "deepseek"), provider: "deepseek" });
+      }
+    }
+    return models.sort((a, b) => a.id.localeCompare(b.id));
+  } catch (e) {
+    console.error("[research] Failed to fetch DeepSeek models:", (e as Error).message);
+    return [];
+  }
+}
+
+async function fetchMetaModels(): Promise<AiModelEntry[]> {
+  try {
+    const apiKey = process.env.META_API_KEY;
+    if (!apiKey) return [];
+    const res = await fetch("https://api.llama.com/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!res.ok) throw new Error(`Meta API returned ${res.status}`);
+    const body = await res.json() as { data: { id: string }[] };
+    const models: AiModelEntry[] = [];
+    for (const m of body.data) {
+      if (shouldInclude(m.id, "meta")) {
+        models.push({ id: m.id, label: formatLabel(m.id, "meta"), provider: "meta" });
+      }
+    }
+    return models.sort((a, b) => a.id.localeCompare(b.id));
+  } catch (e) {
+    console.error("[research] Failed to fetch Meta models:", (e as Error).message);
+    return [];
+  }
+}
+
 function normalizeServerResearchConfig(cfg: ResearchConfig): ResearchConfig {
   const out = { ...cfg };
   const globalCtx: ContextLlmConfig = {
@@ -224,13 +282,15 @@ export function registerResearchConfigRoutes(app: Express) {
       if (isApiRateLimited(req.user!.id, "ai-models-refresh", 1)) {
         return res.status(429).json({ error: "Model refresh rate-limited to 1 per minute" });
       }
-      const [openai, anthropic, google, xai] = await Promise.all([
+      const [openai, anthropic, google, xai, deepseek, meta] = await Promise.all([
         fetchOpenAIModels(),
         fetchAnthropicModels(),
         fetchGeminiModels(),
         fetchXaiModels(),
+        fetchDeepSeekModels(),
+        fetchMetaModels(),
       ]);
-      const models = [...anthropic, ...openai, ...google, ...xai];
+      const models = [...anthropic, ...openai, ...google, ...xai, ...deepseek, ...meta];
 
       const ga = await storage.getGlobalAssumptions();
       if (ga) {

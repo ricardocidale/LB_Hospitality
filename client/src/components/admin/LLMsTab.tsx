@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -219,6 +219,20 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
   const [isDirty, setIsDirty] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
+  // Ref-based save handler to avoid infinite re-render loop (see admin-save-state rule)
+  const saveRef = useRef<() => void>();
+  saveRef.current = () => {
+    saveMutation.mutate(draft, {
+      onSuccess: () => {
+        setIsDirty(false);
+        toast({ title: "LLM configuration saved" });
+      },
+      onError: () => {
+        toast({ title: "Failed to save", variant: "destructive" });
+      },
+    });
+  };
+
   useEffect(() => {
     if (savedConfig && !initialized) {
       setDraft(normalizeResearchConfig(savedConfig));
@@ -235,19 +249,10 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
     onSaveStateChange({
       isDirty: true,
       isPending: saveMutation.isPending,
-      onSave: () => {
-        saveMutation.mutate(draft, {
-          onSuccess: () => {
-            setIsDirty(false);
-            toast({ title: "LLM configuration saved" });
-          },
-          onError: () => {
-            toast({ title: "Failed to save", variant: "destructive" });
-          },
-        });
-      },
+      onSave: () => saveRef.current?.(),
     });
-  }, [isDirty, saveMutation.isPending, draft, onSaveStateChange, saveMutation, toast]);
+    return () => onSaveStateChange(null);
+  }, [isDirty, saveMutation.isPending, onSaveStateChange]);
 
   const models = (draft.cachedModels && draft.cachedModels.length > 0) ? draft.cachedModels : FALLBACK_MODELS;
 

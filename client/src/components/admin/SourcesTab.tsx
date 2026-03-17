@@ -182,8 +182,10 @@ export default function SourcesTab({ onSaveStateChange }: SourcesTabProps) {
     }
   }, [savedConfig, initialized]);
 
-  const save = useCallback((updatedDraft: ResearchConfig) => {
-    saveMutation.mutate(updatedDraft, {
+  // Ref-based save handler to avoid infinite re-render loop (see admin-save-state rule)
+  const saveRef = useRef<() => void>();
+  saveRef.current = () => {
+    saveMutation.mutate(draft, {
       onSuccess: () => {
         setIsDirty(false);
         toast({ title: "Sources saved" });
@@ -192,7 +194,7 @@ export default function SourcesTab({ onSaveStateChange }: SourcesTabProps) {
         toast({ title: "Failed to save", variant: "destructive" });
       },
     });
-  }, [saveMutation, toast]);
+  };
 
   useEffect(() => {
     if (!onSaveStateChange) return;
@@ -203,9 +205,10 @@ export default function SourcesTab({ onSaveStateChange }: SourcesTabProps) {
     onSaveStateChange({
       isDirty: true,
       isPending: saveMutation.isPending,
-      onSave: () => save(draft),
+      onSave: () => saveRef.current?.(),
     });
-  }, [isDirty, saveMutation.isPending, draft, onSaveStateChange, save]);
+    return () => onSaveStateChange(null);
+  }, [isDirty, saveMutation.isPending, onSaveStateChange]);
 
   const sourceFiles = draft.sourceFiles ?? [];
   const getSourcesForCategory = (cat: SourceCategory) => sourceFiles.filter(s => s.category === cat);

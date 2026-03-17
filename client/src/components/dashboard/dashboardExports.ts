@@ -216,6 +216,20 @@ export function generatePortfolioIncomeData(
     });
   }
 
+  rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), isHeader: true });
+  if (!summaryOnly) {
+    rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
+  }
+
+  rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => {
+    const d = c(i); return d ? d.noi + d.feeBase + d.feeIncentive : 0;
+  }), isHeader: true });
+  if (!summaryOnly && hasProps) {
+    propertyNames!.forEach((name, idx) => {
+      rows.push({ category: name, values: years.map((_, i) => { const d = p(idx, i); return d ? d.noi + d.feeBase + d.feeIncentive : 0; }), indent: 1 });
+    });
+  }
+
   rows.push({ category: "Management Fees", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), isHeader: true });
   if (!summaryOnly) {
     rows.push({ category: "Base Fee", values: years.map((_, i) => c(i)?.feeBase ?? 0), indent: 1 });
@@ -225,25 +239,6 @@ export function generatePortfolioIncomeData(
       rows.push({ category: cat, values: years.map((_, i) => c(i)?.serviceFeesByCategory?.[cat] ?? 0), indent: 2 });
     });
     rows.push({ category: "Incentive Fee", values: years.map((_, i) => c(i)?.feeIncentive ?? 0), indent: 1 });
-  }
-
-  rows.push({ category: "Income Before Fixed Charges (IBFC)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true });
-  if (!summaryOnly && hasProps) {
-    propertyNames!.forEach((name, idx) => {
-      rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.agop ?? 0), indent: 1 });
-    });
-  }
-
-  rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), isHeader: true });
-  if (!summaryOnly) {
-    rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
-  }
-
-  rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true });
-  if (!summaryOnly && hasProps) {
-    propertyNames!.forEach((name, idx) => {
-      rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.noi ?? 0), indent: 1 });
-    });
   }
 
   if (!summaryOnly) {
@@ -360,7 +355,9 @@ export function generatePortfolioInvestmentData(
   rows.push({ category: "Equity Multiple", values: years.map(() => financials.equityMultiple), indent: 1, format: "multiplier" });
   rows.push({ category: "Cash-on-Cash Return (%)", values: years.map(() => financials.cashOnCash / 100), indent: 1, format: "percentage" });
 
-  const consolidatedNOI = years.map((_, i) => financials.yearlyConsolidatedCache[i]?.noi ?? 0);
+  const consolidatedNOI = years.map((_, i) => {
+    const d = financials.yearlyConsolidatedCache[i]; return d ? d.noi + d.feeBase + d.feeIncentive : 0;
+  });
   const consolidatedANOI = years.map((_, i) => financials.yearlyConsolidatedCache[i]?.anoi ?? 0);
   const consolidatedNetIncome = years.map((_, i) => financials.yearlyConsolidatedCache[i]?.netIncome ?? 0);
   const consolidatedCashFlow = years.map((_, y) =>
@@ -514,10 +511,10 @@ export async function exportPortfolioPDF(
     label: String(year),
     value: getYearlyConsolidated(i)?.revenueTotal ?? 0,
   }));
-  const noiData = years.map((year, i) => ({
-    label: String(year),
-    value: getYearlyConsolidated(i)?.noi ?? 0,
-  }));
+  const noiData = years.map((year, i) => {
+    const d = getYearlyConsolidated(i);
+    return { label: String(year), value: d ? d.noi + d.feeBase + d.feeIncentive : 0 };
+  });
   const expenseData = years.map((year, i) => ({
     label: String(year),
     value: getYearlyConsolidated(i)?.totalExpenses ?? 0,
@@ -690,10 +687,10 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     label: String(year),
     value: financials.yearlyConsolidatedCache[i]?.revenueTotal ?? 0,
   }));
-  const noiData = years.map((year, i) => ({
-    label: String(year),
-    value: financials.yearlyConsolidatedCache[i]?.noi ?? 0,
-  }));
+  const noiData = years.map((year, i) => {
+    const d = financials.yearlyConsolidatedCache[i];
+    return { label: String(year), value: d ? d.noi + d.feeBase + d.feeIncentive : 0 };
+  });
   const expenseData = years.map((year, i) => ({
     label: String(year),
     value: financials.yearlyConsolidatedCache[i]?.totalExpenses ?? 0,

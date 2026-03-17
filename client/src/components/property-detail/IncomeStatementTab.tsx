@@ -16,10 +16,9 @@
  *   Undistributed Expenses:
  *     A&G + Sales & Marketing + POM + Utilities
  *     = GOP (Gross Operating Profit)
- *   Management Fees (base + incentive)
- *     = IBFC (Income Before Fixed Charges)
  *   Fixed Charges (Property Tax)
  *     = NOI (Net Operating Income)
+ *   Management Fees (base + incentive)
  *   FF&E Reserve
  *     = ANOI (Adjusted Net Operating Income)
  *
@@ -63,20 +62,18 @@ export default function IncomeStatementTab({
       yd.expenseUtilitiesVar + yd.expenseUtilitiesFixed + yd.expenseIT + yd.expenseInsurance + yd.expenseOtherCosts;
     const mgmtFees = yd.feeBase + yd.feeIncentive;
     const fixedCharges = yd.expenseTaxes;
-    const noi = yd.noi;
+    const displayNOI = yd.noi + mgmtFees;
     const ffe = yd.expenseFFE;
 
-    const ibfc = gop - mgmtFees;
     const items: WaterfallItem[] = [
       { label: "Total Revenue", value: totalRev, type: "subtotal" },
       { label: "Dept. Expenses", value: -deptExpenses, type: "negative" },
       { label: "GOP", value: gop, type: "subtotal" },
-      { label: "Mgmt Fees", value: -mgmtFees, type: "negative" },
-      { label: "IBFC", value: ibfc, type: "subtotal" },
       { label: "Fixed Charges", value: -fixedCharges, type: "negative" },
-      { label: "NOI", value: noi, type: "subtotal" },
+      { label: "NOI", value: displayNOI, type: "subtotal" },
+      { label: "Mgmt Fees", value: -mgmtFees, type: "negative" },
       { label: "FF&E Reserve", value: -ffe, type: "negative" },
-      { label: "ANOI", value: noi - ffe, type: "subtotal" },
+      { label: "ANOI", value: displayNOI - mgmtFees - ffe, type: "subtotal" },
     ];
 
     return { items, totalRevenue: totalRev };

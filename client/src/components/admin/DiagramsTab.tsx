@@ -850,7 +850,7 @@ export default function DiagramsTab() {
               <AccordionContent>
                 <DiagramCard
                   title="USALI Income Waterfall"
-                  description="Revenue → Departmental Expenses → GOP → Management Fees → AGOP → Fixed Charges → NOI → FF&E Reserve → ANOI → Debt Service → Depreciation → Pre-Tax Income → Tax → Net Income"
+                  description="Revenue → Departmental Expenses → GOP → Fixed Charges → NOI → Management Fees → FF&E Reserve → ANOI → Debt Service → Depreciation → Pre-Tax Income → Tax → Net Income"
                   chart={L2_FINANCIAL}
                 />
               </AccordionContent>

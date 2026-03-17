@@ -22,7 +22,7 @@
  *   • Subtotals        →  bold, white background
  *   • Line items       →  normal, indent 1–2 levels (2 spaces each)
  *   • Formulas / notes →  italic, indent 2, muted color
- *   • Known abbreviations are preserved: GOP, NOI, AGOP, ANOI, GAAP, etc.
+ *   • Known abbreviations are preserved: GOP, NOI, ANOI, GAAP, etc.
  *
  * ─── Number Formatting ────────────────────────────────────────────────────
  *   Slide / summary format:   $1.2M, $450K, $800, (negative in parens)
@@ -93,7 +93,7 @@ export function formatByType(v: string | number, format: ExportFormat = "currenc
 }
 
 const KNOWN_ABBREVS = new Set([
-  "GOP", "NOI", "AGOP", "IBFC", "ANOI", "GAAP", "FFE", "FF&E",
+  "GOP", "NOI", "ANOI", "GAAP", "FFE", "FF&E",
   "DSCR", "IRR", "CFO", "CFI", "CFF", "IT", "F&B",
   "PP&E", "ADR", "REVPAR", "LTV", "EBITDA", "WACC",
   "FCFE", "FCFF", "FY", "YOY",

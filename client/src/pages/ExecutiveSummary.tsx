@@ -95,15 +95,13 @@ function buildWaterfallData(yearData: {
 
   items.push({ name: "GOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
 
-  items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
-  running -= fees;
-
-  items.push({ name: "IBFC", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
-
   items.push({ name: "Fixed Charges", value: fixedCharges, base: running - fixedCharges, fill: "hsl(var(--chart-5))", isSubtotal: false });
   running -= fixedCharges;
 
   items.push({ name: "NOI", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+
+  items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
+  running -= fees;
 
   items.push({ name: "FF&E Reserve", value: ffe, base: running - ffe, fill: "hsl(var(--chart-2))", isSubtotal: false });
   running -= ffe;

@@ -31,7 +31,7 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
           variant="light"
           headers={["Statement", "What It Shows"]}
           rows={[
-            ["Income Statement", "Revenue, operating expenses, the full USALI waterfall (GOP → IBFC → NOI → ANOI), debt service, and GAAP net income — by month and year"],
+            ["Income Statement", "Revenue, operating expenses, the full USALI waterfall (GOP → NOI → ANOI), debt service, and GAAP net income — by month and year"],
             ["Balance Sheet", "Assets (cash, property, deferred costs), liabilities (mortgage notes), and equity (paid-in capital, retained earnings) for each period"],
             ["Cash Flow Statement", "Operating, investing, and financing activities using the indirect method (GAAP ASC 230), plus FCF, FCFE, DSCR, and cash-on-cash return"],
           ]}
@@ -44,10 +44,9 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
           <div>Total Revenue (Rooms + Events + F&B + Other)</div>
           <div>− Operating Expenses</div>
           <div className="font-semibold">= Gross Operating Profit (GOP)</div>
-          <div>− Management Fees (Base + Incentive)</div>
-          <div className="font-semibold">= Income Before Fixed Charges (IBFC)</div>
           <div>− Fixed Charges (Property Taxes)</div>
           <div className="font-semibold">= Net Operating Income (NOI)</div>
+          <div>− Management Fees (Base + Incentive)</div>
           <div>− FF&E Reserve</div>
           <div className="font-semibold">= Adjusted NOI (ANOI)</div>
           <div>− Interest Expense − Depreciation − Amortization</div>
@@ -81,9 +80,8 @@ export default function Section05PropertyDetails({ expanded, onToggle, sectionRe
             ["Occupancy", "Sold Rooms ÷ Available Rooms — percentage of rooms occupied"],
             ["RevPAR", "Room Revenue ÷ Available Rooms — revenue per available room"],
             ["GOP (Gross Operating Profit)", "Total Revenue minus departmental operating expenses"],
-            ["IBFC (Income Before Fixed Charges)", "GOP minus management fees"],
-            ["NOI (Net Operating Income)", "IBFC minus fixed charges (property taxes)"],
-            ["ANOI (Adjusted NOI)", "NOI minus FF&E reserve"],
+            ["NOI (Net Operating Income)", "GOP minus fixed charges (property taxes)"],
+            ["ANOI (Adjusted NOI)", "NOI minus management fees minus FF&E reserve"],
             ["DSCR (Debt Service Coverage Ratio)", "ANOI ÷ Total Debt Service — measures ability to cover loan payments"],
             ["Cash-on-Cash Return", "Annual after-tax cash flow ÷ total equity invested"],
             ["IRR (Internal Rate of Return)", "Annualized return considering all cash flows including exit"],

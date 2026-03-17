@@ -13,12 +13,11 @@
  *   Departmental Expenses  — costs directly tied to each revenue center
  *   Undistributed Expenses — admin, marketing, utilities, maintenance, IT
  *   Gross Operating Profit (GOP) — revenue minus all operating expenses
- *   Management Fees        — base fee + incentive fee to operator
- *   Income Before Fixed Charges (IBFC) — GOP minus management fees
  *   Fixed Charges           — property tax
- *   Net Operating Income (NOI) — IBFC minus fixed charges
+ *   Net Operating Income (NOI) — GOP minus fixed charges (property taxes)
+ *   Management Fees        — base fee + incentive fee to operator
  *   FF&E Reserve            — furniture, fixtures & equipment set-aside
- *   Adjusted NOI (ANOI)     — NOI minus FF&E reserve
+ *   Adjusted NOI (ANOI)     — NOI minus mgmt fees minus FF&E reserve
  *   Debt Service             — mortgage principal + interest (if financed)
  *   Cash Flow                — ANOI minus debt service minus income tax
  *
@@ -417,46 +416,6 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      {/* ── Management Fees (USALI: deducted from GOP before fixed charges) ── */}
-      <SectionHeader label="Management Fees" colSpan={colSpan} />
-
-      <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Fixed percentage of total revenue paid to the management company for day-to-day hotel operations. This is the guaranteed fee — paid regardless of profitability." formula="Total Revenue × Base Fee Rate" />
-      {(() => {
-        const catSet = new Set<string>();
-        for (const y of yd) for (const k of Object.keys(y.serviceFeesByCategory ?? {})) catSet.add(k);
-        const cats = Array.from(catSet);
-        return cats.length > 0 ? cats.map(cat => (
-          <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
-        )) : null;
-      })()}
-      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance bonus paid to the management company when the property is profitable. Only kicks in when GOP is positive — aligns the operator's incentives with owner returns." formula="max(0, GOP × Incentive Rate)" />
-
-      <SpacerRow colSpan={colSpan} />
-
-      <SubtotalRow label="Income Before Fixed Charges (IBFC)" values={yd.map((y) => y.agop)} positive tooltip="GOP after deducting management fees. Per USALI 11th Edition, this represents the property's operating profit available to the owner before non-operating charges like property taxes and reserves." formula="GOP − Base Fee − Incentive Fee" />
-      {isExpanded("ibfcFormula") ? (
-        <>
-          <FormulaDetailRow
-            label="= GOP − Base Mgmt Fee − Incentive Fee"
-            values={yd.map((y) => `${fmt(y.gop)} − ${fmt(y.feeBase)} − ${fmt(y.feeIncentive)}`)}
-            colCount={years}
-          />
-          <FormulaDetailRow
-            label="= IBFC"
-            values={yd.map((y) => fmt(y.agop))}
-            colCount={years}
-          />
-        </>
-      ) : (
-        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("ibfcFormula")} data-expandable-row="true">
-          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
-          {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
-        </TableRow>
-      )}
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.agop)} baseValues={yd.map((y) => y.revenueTotal)} />
-
-      <SpacerRow colSpan={colSpan} />
-
       {/* ── Fixed Charges ── */}
       <SectionHeader label="Fixed Charges" colSpan={colSpan} />
 
@@ -511,17 +470,17 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="The most widely used metric in commercial real estate valuation. NOI is what the property earns after all operating costs, fees, and property taxes — but before debt service and reserves. Used directly in cap rate valuation (Property Value = NOI ÷ Cap Rate)." formula="IBFC − Property Taxes" />
+      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi + y.feeBase + y.feeIncentive)} positive tooltip="Gross Operating Profit minus fixed charges (property taxes). NOI measures the property's income from operations before management fees, reserves, and debt service. Used directly in cap rate valuation (Property Value = NOI ÷ Cap Rate)." formula="GOP − Property Taxes" />
       {isExpanded("noiFormula") ? (
         <>
           <FormulaDetailRow
-            label="= IBFC − Property Taxes"
-            values={yd.map((y) => `${fmt(y.agop)} − ${fmt(y.expenseTaxes)}`)}
+            label="= GOP − Property Taxes"
+            values={yd.map((y) => `${fmt(y.gop)} − ${fmt(y.expenseTaxes)}`)}
             colCount={years}
           />
           <FormulaDetailRow
             label="= NOI"
-            values={yd.map((y) => fmt(y.noi))}
+            values={yd.map((y) => fmt(y.noi + y.feeBase + y.feeIncentive))}
             colCount={years}
           />
         </>
@@ -531,23 +490,39 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
       )}
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.noi)} baseValues={yd.map((y) => y.revenueTotal)} />
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.noi + y.feeBase + y.feeIncentive)} baseValues={yd.map((y) => y.revenueTotal)} />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Management Fees ── */}
+      <SectionHeader label="Management Fees" colSpan={colSpan} />
+
+      <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Fixed percentage of total revenue paid to the management company for day-to-day hotel operations. This is the guaranteed fee — paid regardless of profitability." formula="Total Revenue × Base Fee Rate" />
+      {(() => {
+        const catSet = new Set<string>();
+        for (const y of yd) for (const k of Object.keys(y.serviceFeesByCategory ?? {})) catSet.add(k);
+        const cats = Array.from(catSet);
+        return cats.length > 0 ? cats.map(cat => (
+          <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
+        )) : null;
+      })()}
+      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance bonus paid to the management company when the property is profitable. Only kicks in when Gross Operating Profit is positive — aligns the operator's incentives with owner returns." formula="max(0, GOP × Incentive Rate)" />
 
       <SpacerRow colSpan={colSpan} />
 
       {/* ── FF&E Reserve ── */}
       <SectionHeader label="Reserves" colSpan={colSpan} />
 
-      <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Annual set-aside for replacing furniture, fixtures, and equipment (carpets, HVAC, case goods, soft goods). Required by most hotel lenders (typically 3–5% of revenue). This is a reserve, not an actual expense — actual replacements are capitalized and depreciated." formula="Total Revenue × FF&E Rate" />
+      <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Annual set-aside for replacing Furniture, Fixtures & Equipment (carpets, HVAC, case goods, soft goods). Required by most hotel lenders (typically 3–5% of revenue). This is a reserve, not an actual expense — actual replacements are capitalized and depreciated." formula="Total Revenue × FF&E Rate" />
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="The owner's true operating cash flow — NOI after setting aside the FF&E reserve. This is what's available to service debt, pay income taxes, and generate investor returns. ANOI is the starting point for cash-on-cash return calculations." formula="NOI − FF&E Reserve" />
+      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="The owner's true operating cash flow — NOI after deducting management fees and the FF&E reserve. This is what's available to service debt, pay income taxes, and generate investor returns. ANOI is the starting point for cash-on-cash return calculations." formula="NOI − Base Fee − Incentive Fee − FF&E Reserve" />
       {isExpanded("anoiFormula") ? (
         <>
           <FormulaDetailRow
-            label="= NOI − FF&E Reserve"
-            values={yd.map((y) => `${fmt(y.noi)} − ${fmt(y.expenseFFE)}`)}
+            label="= NOI − Base Fee − Incentive Fee − FF&E Reserve"
+            values={yd.map((y) => `${fmt(y.noi + y.feeBase + y.feeIncentive)} − ${fmt(y.feeBase)} − ${fmt(y.feeIncentive)} − ${fmt(y.expenseFFE)}`)}
             colCount={years}
           />
           <FormulaDetailRow

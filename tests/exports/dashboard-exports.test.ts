@@ -249,7 +249,7 @@ describe("generatePortfolioInvestmentData", () => {
 
     const noiRow = result.rows.find(r => r.category === "Net Operating Income (NOI)");
     expect(noiRow).toBeDefined();
-    expect(noiRow!.values[0]).toBe(2903400);
+    expect(noiRow!.values[0]).toBe(3149300);
 
     const dscrRow = result.rows.find(r => r.category === "DSCR");
     expect(dscrRow).toBeDefined();

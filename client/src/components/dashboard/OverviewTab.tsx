@@ -51,16 +51,17 @@ interface WaterfallItem {
 function buildWaterfallData(yearData: {
   revenueTotal: number;
   gop: number;
-  agop: number;
   noi: number;
   anoi: number;
   feeBase: number;
   feeIncentive: number;
   expenseFFE: number;
+  expenseTaxes: number;
 }): WaterfallItem[] {
   const deptExpenses = yearData.revenueTotal - yearData.gop;
+  const fixedCharges = yearData.expenseTaxes;
+  const displayNOI = yearData.noi + yearData.feeBase + yearData.feeIncentive;
   const fees = yearData.feeBase + yearData.feeIncentive;
-  const fixedCharges = yearData.agop - yearData.noi;
   const ffe = yearData.expenseFFE;
 
   const items: WaterfallItem[] = [];
@@ -70,12 +71,12 @@ function buildWaterfallData(yearData: {
   items.push({ name: "Dept. Expenses", value: deptExpenses, base: running - deptExpenses, fill: "hsl(var(--chart-2))", isSubtotal: false });
   running -= deptExpenses;
   items.push({ name: "GOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
-  items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
-  running -= fees;
-  items.push({ name: "IBFC", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
   items.push({ name: "Fixed Charges", value: fixedCharges, base: running - fixedCharges, fill: "hsl(var(--chart-5))", isSubtotal: false });
   running -= fixedCharges;
-  items.push({ name: "NOI", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  items.push({ name: "NOI", value: displayNOI, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  running = displayNOI;
+  items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
+  running -= fees;
   items.push({ name: "FF&E Reserve", value: ffe, base: running - ffe, fill: "hsl(var(--chart-2))", isSubtotal: false });
   running -= ffe;
   items.push({ name: "ANOI", value: running, base: 0, fill: "hsl(var(--primary))", isSubtotal: true });
@@ -216,13 +217,13 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
       const summed = yearlyConsolidatedCache.reduce((acc, y) => ({
         revenueTotal: acc.revenueTotal + y.revenueTotal,
         gop: acc.gop + y.gop,
-        agop: acc.agop + y.agop,
         noi: acc.noi + y.noi,
         anoi: acc.anoi + y.anoi,
         feeBase: acc.feeBase + y.feeBase,
         feeIncentive: acc.feeIncentive + y.feeIncentive,
         expenseFFE: acc.expenseFFE + y.expenseFFE,
-      }), { revenueTotal: 0, gop: 0, agop: 0, noi: 0, anoi: 0, feeBase: 0, feeIncentive: 0, expenseFFE: 0 });
+        expenseTaxes: acc.expenseTaxes + y.expenseTaxes,
+      }), { revenueTotal: 0, gop: 0, noi: 0, anoi: 0, feeBase: 0, feeIncentive: 0, expenseFFE: 0, expenseTaxes: 0 });
       return buildWaterfallData(summed);
     }
     const idx = Math.min(Number(waterfallYear), yearlyConsolidatedCache.length - 1);
@@ -543,7 +544,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               </AccordionTrigger>
               <InfoTooltip
                 text="Revenue is total income from all hotel operations. ANOI (Adjusted Net Operating Income) is the bottom operating line after all operating expenses, management fees, fixed charges, and FF&E reserve."
-                formula="ANOI = NOI − FF&E Reserve"
+                formula="ANOI = NOI − Mgmt Fees − FF&E Reserve"
                 light
                 side="right"
               />
@@ -861,7 +862,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                 </AccordionTrigger>
                 <InfoTooltip
                   text="How total revenue flows down to ANOI through each layer of operating expenses, following the USALI 11th Edition framework."
-                  formula="Revenue → GOP → IBFC → NOI → ANOI"
+                  formula="Revenue → GOP → NOI → ANOI"
                   light
                   side="right"
                 />

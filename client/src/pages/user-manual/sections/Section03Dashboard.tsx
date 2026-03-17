@@ -51,12 +51,11 @@ export default function Section03Dashboard({ expanded, onToggle, sectionRef }: S
             ["Total Revenue", "= Rooms + Events + F&B + Other"],
             ["Operating Expenses", "= Sum of departmental + undistributed expenses"],
             ["Gross Operating Profit (GOP)", "= Total Revenue − Operating Expenses"],
-            ["Management Fees", "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)"],
-            ["Income Before Fixed Charges (IBFC)", "= GOP − Management Fees"],
             ["Fixed Charges", "= Property Taxes"],
-            ["Net Operating Income (NOI)", "= IBFC − Fixed Charges"],
+            ["Net Operating Income (NOI)", "= GOP − Fixed Charges"],
+            ["Management Fees", "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)"],
             ["FF&E Reserve", "= Reserve for Furniture, Fixtures & Equipment"],
-            ["Adjusted NOI (ANOI)", "= NOI − FF&E Reserve"],
+            ["Adjusted NOI (ANOI)", "= NOI − Management Fees − FF&E Reserve"],
           ]}
         />
       </div>

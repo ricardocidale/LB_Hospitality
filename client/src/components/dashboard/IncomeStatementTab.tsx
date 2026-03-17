@@ -29,7 +29,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
     totalProjectionCashFlow
   } = financials;
 
-  const IS_ROW_KEYS = useMemo(() => ["metrics", "revenue", "expenses", "gop", "fees", "ibfc", "fixed", "noi", "ffe", "anoi"], []);
+  const IS_ROW_KEYS = useMemo(() => ["metrics", "revenue", "expenses", "gop", "fixed", "noi", "fees", "ffe", "anoi"], []);
   const { expandedRows, expandedFormulas, toggleRow, toggleFormula, toggleAll, allRowsExpanded } = useExpandableRows(IS_ROW_KEYS);
   const tabContentRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -43,8 +43,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
         year: getFiscalYear(i),
         Revenue: c?.revenueTotal ?? 0,
         GOP: c?.gop ?? 0,
-        IBFC: c ? c.agop : 0,
-        NOI: c ? c.noi : 0,
+        NOI: c ? c.noi + c.feeBase + c.feeIncentive : 0,
         ANOI: c?.anoi ?? 0,
       };
     });
@@ -214,6 +213,30 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       });
     }
 
+    rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), isHeader: true, rowId: "fixed" });
+    if (activeExpanded.has("fixed")) {
+      rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
+      pushRow({ category: "= Property Taxes", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), indent: 1, isFormula: true });
+    }
+
+    rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => {
+      const d = c(i); return d ? d.noi + d.feeBase + d.feeIncentive : 0;
+    }), isHeader: true, rowId: "noi" });
+    if (activeExpanded.has("noi")) {
+      pushRow({ category: "= GOP − Property Taxes", values: years.map((_, i) => {
+        const d = c(i); return d ? d.noi + d.feeBase + d.feeIncentive : 0;
+      }), indent: 1, isFormula: true });
+      properties.forEach((prop, idx) => {
+        rows.push({
+          category: prop.name,
+          values: years.map((_, i) => {
+            const d = p(idx, i); return d ? d.noi + d.feeBase + d.feeIncentive : 0;
+          }),
+          indent: 1
+        });
+      });
+    }
+
     rows.push({ category: "Management Fees", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), isHeader: true, rowId: "fees" });
     if (activeExpanded.has("fees")) {
       rows.push({ category: "Base Fee", values: years.map((_, i) => c(i)?.feeBase ?? 0), indent: 1 });
@@ -226,36 +249,6 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       pushRow({ category: "= Base Fee (% of Revenue) + Incentive Fee (% of GOP)", values: years.map((_, i) => (c(i)?.feeBase ?? 0) + (c(i)?.feeIncentive ?? 0)), indent: 1, isFormula: true });
     }
 
-    rows.push({ category: "Income Before Fixed Charges (IBFC)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true, rowId: "ibfc" });
-    if (activeExpanded.has("ibfc")) {
-      pushRow({ category: "= GOP − Management Fees", values: years.map((_, i) => c(i)?.agop ?? 0), indent: 1, isFormula: true });
-      properties.forEach((prop, idx) => {
-        rows.push({
-          category: prop.name,
-          values: years.map((_, i) => p(idx, i)?.agop ?? 0),
-          indent: 1
-        });
-      });
-    }
-
-    rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), isHeader: true, rowId: "fixed" });
-    if (activeExpanded.has("fixed")) {
-      rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
-      pushRow({ category: "= Property Taxes", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), indent: 1, isFormula: true });
-    }
-
-    rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, rowId: "noi" });
-    if (activeExpanded.has("noi")) {
-      pushRow({ category: "= IBFC − Fixed Charges (Taxes)", values: years.map((_, i) => c(i)?.noi ?? 0), indent: 1, isFormula: true });
-      properties.forEach((prop, idx) => {
-        rows.push({
-          category: prop.name,
-          values: years.map((_, i) => p(idx, i)?.noi ?? 0),
-          indent: 1
-        });
-      });
-    }
-
     rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), isHeader: true, rowId: "ffe" });
     if (activeExpanded.has("ffe")) {
       pushRow({ category: "= Reserve for Furniture, Fixtures & Equipment", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1, isFormula: true });
@@ -263,7 +256,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
     rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.anoi ?? 0), isHeader: true, rowId: "anoi" });
     if (activeExpanded.has("anoi")) {
-      pushRow({ category: "= NOI − FF&E Reserve", values: years.map((_, i) => c(i)?.anoi ?? 0), indent: 1, isFormula: true });
+      pushRow({ category: "= NOI − Base Fee − Incentive Fee − FF&E Reserve", values: years.map((_, i) => c(i)?.anoi ?? 0), indent: 1, isFormula: true });
       properties.forEach((prop, idx) => {
         rows.push({
           category: prop.name,
@@ -278,7 +271,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
 
   const { years, rows } = generateIncomeStatementData();
 
-  const allRowKeys = ["metrics", "revenue", "expenses", "gop", "fees", "ibfc", "fixed", "noi", "ffe", "anoi"];
+  const allRowKeys = ["metrics", "revenue", "expenses", "gop", "fixed", "noi", "fees", "ffe", "anoi"];
   const allExpandedSet = new Set(allRowKeys);
   const emptySet = new Set<string>();
 
@@ -361,7 +354,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       />
       <FinancialChart
         data={chartData}
-        series={["revenue", "gop", "ibfc", "noi", "anoi"]}
+        series={["revenue", "gop", "noi", "anoi"]}
         title={`Income Statement Trends (${projectionYears}-Year Projection)`}
         id="dashboard-income-chart"
       />

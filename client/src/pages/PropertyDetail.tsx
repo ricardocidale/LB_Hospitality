@@ -110,8 +110,7 @@ export default function PropertyDetail() {
         year: String(getFiscalYear(y)),
         Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
         GOP: yearData.reduce((a, m) => a + m.gop, 0),
-        IBFC: yearData.reduce((a, m) => a + m.agop, 0),
-        NOI: yearData.reduce((a, m) => a + m.noi, 0),
+        NOI: yearData.reduce((a, m) => a + m.noi + m.feeBase + m.feeIncentive, 0),
         ANOI: yearData.reduce((a, m) => a + m.anoi, 0),
         CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
       });
@@ -308,18 +307,17 @@ export default function PropertyDetail() {
     rows.push({ category: "Total Operating Expenses", values: yearlyDetails.map(y => y.totalExpenses - y.expenseFFE - y.expenseTaxes), isBold: true });
     rows.push({ category: "Gross Operating Profit (GOP)", values: yearlyDetails.map(y => y.gop), isBold: true });
     if (!isShort) {
+      rows.push({ category: "FIXED CHARGES", values: yearlyDetails.map(() => 0), isHeader: true });
+      rows.push({ category: "Property Taxes", values: yearlyDetails.map(y => y.expenseTaxes), indent: 1 });
+    }
+    rows.push({ category: "Total Fixed Charges", values: yearlyDetails.map(y => y.expenseTaxes), isBold: true });
+    rows.push({ category: "Net Operating Income (NOI)", values: yearlyDetails.map(y => y.noi + y.feeBase + y.feeIncentive), isBold: true });
+    if (!isShort) {
       rows.push({ category: "MANAGEMENT FEES", values: yearlyDetails.map(() => 0), isHeader: true });
       rows.push({ category: "Base Fee", values: yearlyDetails.map(y => y.feeBase), indent: 1 });
       rows.push({ category: "Incentive Fee", values: yearlyDetails.map(y => y.feeIncentive), indent: 1 });
     }
     rows.push({ category: "Total Management Fees", values: yearlyDetails.map(y => y.feeBase + y.feeIncentive), isBold: true });
-    rows.push({ category: "Income Before Fixed Charges (IBFC)", values: yearlyDetails.map(y => y.agop), isBold: true });
-    if (!isShort) {
-      rows.push({ category: "FIXED CHARGES", values: yearlyDetails.map(() => 0), isHeader: true });
-      rows.push({ category: "Property Taxes", values: yearlyDetails.map(y => y.expenseTaxes), indent: 1 });
-    }
-    rows.push({ category: "Total Fixed Charges", values: yearlyDetails.map(y => y.expenseTaxes), isBold: true });
-    rows.push({ category: "Net Operating Income (NOI)", values: yearlyDetails.map(y => y.noi), isBold: true });
     if (!isShort) {
       rows.push({ category: "FF&E Reserve", values: yearlyDetails.map(y => y.expenseFFE), indent: 1 });
     }

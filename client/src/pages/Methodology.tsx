@@ -490,7 +490,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
             <MethodologySection
               id="noi-gop"
               title="USALI Income Statement Waterfall"
-              subtitle="GOP → IBFC → NOI → ANOI"
+              subtitle="GOP → NOI → ANOI"
               icon={IconBarChart3}
               expanded={expandedSections.has("noi-gop")}
               onToggle={() => toggleSection("noi-gop")}
@@ -499,9 +499,8 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               <div className="bg-muted/50 rounded-lg p-4">
                 <div className="bg-background rounded p-3 font-mono text-sm space-y-1">
                   <div>GOP = Total Revenue − Total Operating Expenses</div>
-                  <div>IBFC = GOP − Management Fees (base + incentive)</div>
-                  <div>NOI = IBFC − Fixed Charges (Property Taxes)</div>
-                  <div>ANOI = NOI − FF&E Reserve</div>
+                  <div>NOI = GOP − Fixed Charges (Property Taxes)</div>
+                  <div>ANOI = NOI − Management Fees (base + incentive) − FF&E Reserve</div>
                 </div>
               </div>
             </MethodologySection>

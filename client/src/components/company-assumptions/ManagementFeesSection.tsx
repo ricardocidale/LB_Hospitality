@@ -411,7 +411,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
             <strong>Incentive Fee</strong> — a performance bonus charged as a percentage of Gross Operating Profit (GOP), only collected when GOP is positive.
           </p>
           <p className="text-xs italic">
-            Together, these fees are deducted from GOP in the USALI waterfall: Revenue → GOP → Mgmt Fees → IBFC → Fixed Charges → NOI → FF&E → ANOI.
+            Together, these fees are deducted from NOI in the USALI waterfall: Revenue → GOP → Fixed Charges → NOI → Mgmt Fees → FF&E → ANOI.
             Values set here are defaults — each property can override them individually.
           </p>
         </AlertDescription>
@@ -695,7 +695,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
                 <div className="flex items-center gap-2">
                   <IconTrending className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-primary">Total Base Management Fee</span>
-                  <InfoTooltip text="The sum of all active service category rates. This is the effective Base Management Fee charged to each property as a percentage of their Total Revenue. It is deducted from GOP to calculate Income Before Fixed Charges (IBFC) in the USALI waterfall." />
+                  <InfoTooltip text="The sum of all active service category rates. This is the effective Base Management Fee charged to each property as a percentage of their Total Revenue. It is deducted from NOI to calculate ANOI in the USALI waterfall." />
                 </div>
                 <span className="text-lg font-display font-bold text-primary font-mono">{(totalServiceRate * 100).toFixed(1)}%</span>
               </div>
@@ -709,7 +709,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
             <IconDollarSign className="w-4 h-4 text-muted-foreground" />
             Incentive Management Fee
-            <InfoTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from GOP to arrive at Income Before Fixed Charges (IBFC) per the USALI standard." />
+            <InfoTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from NOI to arrive at ANOI per the USALI standard." />
           </CardTitle>
           <CardDescription className="label-text">
             Performance bonus as a percentage of each property's Gross Operating Profit (GOP).

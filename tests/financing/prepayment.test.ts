@@ -167,3 +167,51 @@ describe("computePrepayment — balance resolution", () => {
     expect(result.penalty_amount).toBe(0);
   });
 });
+
+describe("computePrepayment — treasury rate validation", () => {
+  it("clamps negative treasury rate to 0 and warns", () => {
+    const schedule = makeConstantSchedule(1_000_000, 60, 0.07);
+    const result = computePrepayment({
+      schedule,
+      prepayment_month: 12,
+      loan_rate_annual: 0.07,
+      term_months: 60,
+      prepayment_type: "yield_maintenance",
+      treasury_rate_annual: -0.02,
+      rounding_policy: rounding,
+    });
+    expect(result.warnings).toContain("Treasury rate is negative — clamping to 0%");
+    expect(result.penalty_amount).toBeGreaterThanOrEqual(0);
+  });
+
+  it("warns when treasury rate exceeds loan rate", () => {
+    const result = computePrepayment({
+      outstanding_balance: 1_000_000,
+      loan_rate_annual: 0.06,
+      term_months: 60,
+      prepayment_type: "yield_maintenance",
+      treasury_rate_annual: 0.08,
+      rounding_policy: rounding,
+    });
+    expect(result.warnings.some(w => w.includes("exceeds loan rate"))).toBe(true);
+  });
+
+  it("warns when treasury rate is unusually high (>15%)", () => {
+    const result = computePrepayment({
+      outstanding_balance: 1_000_000,
+      loan_rate_annual: 0.20,
+      term_months: 60,
+      prepayment_type: "yield_maintenance",
+      treasury_rate_annual: 0.18,
+      rounding_policy: rounding,
+    });
+    expect(result.warnings.some(w => w.includes("unusually high"))).toBe(true);
+  });
+
+  it("returns empty warnings for normal treasury rate", () => {
+    const result = computePrepayment(makeStepDownInput({
+      treasury_rate_annual: 0.04,
+    }));
+    expect(result.warnings).toEqual([]);
+  });
+});

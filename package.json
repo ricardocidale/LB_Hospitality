@@ -22,7 +22,8 @@
     "exports:check": "tsx script/exports-check.ts",
     "db:push": "drizzle-kit push",
     "verify": "npx tsx tests/proof/verify-runner.ts",
-    "verify:summary": "tsx script/verify-summary.ts"
+    "verify:summary": "tsx script/verify-summary.ts",
+    "cost-monitor": "tsx script/cost-monitor.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

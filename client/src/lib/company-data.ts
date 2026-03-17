@@ -20,7 +20,12 @@ export function generateCompanyIncomeData(
   }), indent: 1 });
   
   if (!summaryOnly) {
-    const categoryNames = Object.keys(financials[0]?.serviceFeeBreakdown?.byCategory ?? {});
+    const categoryNameSet = new Set<string>();
+    for (const month of financials) {
+      const cats = month?.serviceFeeBreakdown?.byCategory;
+      if (cats) for (const key of Object.keys(cats)) categoryNameSet.add(key);
+    }
+    const categoryNames = Array.from(categoryNameSet).sort();
     if (categoryNames.length > 0) {
       categoryNames.forEach(catName => {
         rows.push({ category: catName, values: years.map((_, y) => {
@@ -200,7 +205,12 @@ export function generateCompanyCashFlowData(
   }), indent: 2 });
 
   if (!summaryOnly) {
-    const cfCategoryNames = Object.keys(financials[0]?.serviceFeeBreakdown?.byCategory ?? {});
+    const cfCategoryNameSet = new Set<string>();
+    for (const month of financials) {
+      const cats = month?.serviceFeeBreakdown?.byCategory;
+      if (cats) for (const key of Object.keys(cats)) cfCategoryNameSet.add(key);
+    }
+    const cfCategoryNames = Array.from(cfCategoryNameSet).sort();
     if (cfCategoryNames.length > 0) {
       cfCategoryNames.forEach(catName => {
         rows.push({ category: catName, values: years.map((_, y) => {

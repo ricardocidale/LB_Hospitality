@@ -76,6 +76,8 @@ export interface PrepaymentOutput {
   total_prepayment_cost: number;
   /** Breakdown details */
   details: PrepaymentDetails;
+  /** Input validation warnings (e.g., unusual treasury rates) */
+  warnings: string[];
 }
 
 export interface YieldMaintenanceDetails {
@@ -125,11 +127,24 @@ export type PrepaymentDetails = YieldMaintenanceDetails | StepDownDetails | Defe
 export function computePrepayment(input: PrepaymentInput): PrepaymentOutput {
   const r = (v: number) => roundTo(v, input.rounding_policy);
   const pct = (v: number) => roundTo(v, { precision: 6, bankers_rounding: false });
+  const warnings: string[] = [];
 
   const prepayMonth = input.prepayment_month ?? 0;
   const balance = resolveBalance(input);
   const monthsRemaining = input.term_months - prepayMonth;
   const remainingSchedule = getRemainingSchedule(input, prepayMonth);
+
+  let effectiveTreasuryRate = input.treasury_rate_annual ?? 0;
+  if (effectiveTreasuryRate < 0) {
+    warnings.push("Treasury rate is negative — clamping to 0%");
+    effectiveTreasuryRate = 0;
+  }
+  if (effectiveTreasuryRate > input.loan_rate_annual) {
+    warnings.push(`Treasury rate (${(effectiveTreasuryRate * 100).toFixed(2)}%) exceeds loan rate (${(input.loan_rate_annual * 100).toFixed(2)}%) — yield maintenance penalty will be $0`);
+  }
+  if (effectiveTreasuryRate > 0.15) {
+    warnings.push(`Treasury rate (${(effectiveTreasuryRate * 100).toFixed(2)}%) is unusually high — verify input`);
+  }
 
   let penalty: number;
   let details: PrepaymentDetails;
@@ -141,7 +156,7 @@ export function computePrepayment(input: PrepaymentInput): PrepaymentOutput {
         monthsRemaining,
         remainingSchedule,
         input.loan_rate_annual,
-        input.treasury_rate_annual ?? 0,
+        effectiveTreasuryRate,
         input.rounding_policy,
       );
       penalty = result.penalty;
@@ -165,7 +180,7 @@ export function computePrepayment(input: PrepaymentInput): PrepaymentOutput {
         monthsRemaining,
         remainingSchedule,
         input.loan_rate_annual,
-        input.treasury_rate_annual ?? 0,
+        effectiveTreasuryRate,
         input.defeasance_fee_pct ?? 0.01,
         input.rounding_policy,
       );
@@ -184,6 +199,7 @@ export function computePrepayment(input: PrepaymentInput): PrepaymentOutput {
     penalty_pct: penaltyPct,
     total_prepayment_cost: r(balance + penalty),
     details,
+    warnings,
   };
 }
 

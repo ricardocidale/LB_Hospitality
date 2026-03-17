@@ -147,6 +147,7 @@ export function generateCompanyProForma(
   }
 
   // ── Pre-computed property base fee rates ──
+  // INVARIANT: properties array order must not change between rate mapping and usage
   const propBaseFeeRates = properties.map(p => p.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
   const propIds = properties.map((p, i) => String(p.id ?? i));
 
@@ -191,7 +192,8 @@ export function generateCompanyProForma(
         const hasCategoryData = Object.keys(catFees).length > 0;
         if (hasCategoryData) {
           let propServiceTotal = 0;
-          for (const [catName, catAmount] of Object.entries(catFees)) {
+          for (const [catName, rawCatAmount] of Object.entries(catFees)) {
+            const catAmount = Number.isFinite(rawCatAmount) ? rawCatAmount : 0;
             serviceFeeBreakdown.byCategory[catName] = (serviceFeeBreakdown.byCategory[catName] || 0) + catAmount;
             if (!serviceFeeBreakdown.byCategoryByPropertyId[catName]) {
               serviceFeeBreakdown.byCategoryByPropertyId[catName] = {};

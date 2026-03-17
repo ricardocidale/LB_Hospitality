@@ -1,7 +1,13 @@
 # Audit Fix Plan — Batch 2: MEDIUM-Severity Issues
 
-> Batch 1 (CRITICAL + HIGH issues #2, #3, #5, #6, #7) is being executed by Replit separately.
-> This is Batch 2: the 6 MEDIUM-severity issues from the deterministic calc & rollup audit.
+## Status: RESOLVED (March 17, 2026)
+
+4 of 6 fixes implemented. 2 intentionally skipped:
+- **Fix #9** (Dashboard fee validation) — SKIPPED: `companyFinancials` not in scope in the hook; would require invasive API change for a dev-only guard.
+- **Fix #11** (Aggregator refactor) — SKIPPED per plan recommendation: pure code quality, high risk, parity tests already catch divergence.
+
+Completed: #8 (category discovery), #10 (NaN guard), #12 (treasury rate bounds), #13 (invariant comment).
+3,328 tests pass across 145 files.
 
 ## Context
 

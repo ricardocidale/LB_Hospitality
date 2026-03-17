@@ -344,20 +344,44 @@ export default function Company() {
                   </CardTitle>
                 </CardHeader>
                 {modelInputsOpen && (
-                  <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <CardContent className="space-y-5">
+                    <ModelInputGroup label="Revenue">
+                      <ModelInputItem label="Base Fee" value={`${((global?.baseManagementFee ?? 0) * 100).toFixed(1)}%`} testId="mi-base-fee" />
+                      <ModelInputItem label="Incentive Fee" value={`${((global?.incentiveManagementFee ?? 0) * 100).toFixed(1)}%`} testId="mi-incentive-fee" />
+                    </ModelInputGroup>
+
+                    <ModelInputGroup label="Funding">
                       <ModelInputItem label="Funding Source" value={fundingLabel} testId="mi-funding-source" />
                       <ModelInputItem label="SAFE Tranche 1" value={formatMoney(global?.safeTranche1Amount ?? 0)} testId="mi-safe-t1" />
                       <ModelInputItem label="SAFE Tranche 2" value={formatMoney(global?.safeTranche2Amount ?? 0)} testId="mi-safe-t2" />
-                      <ModelInputItem label="Base Fee" value={`${((global?.baseManagementFee ?? 0) * 100).toFixed(1)}%`} testId="mi-base-fee" />
-                      <ModelInputItem label="Incentive Fee" value={`${((global?.incentiveManagementFee ?? 0) * 100).toFixed(1)}%`} testId="mi-incentive-fee" />
+                    </ModelInputGroup>
+
+                    <ModelInputGroup label="People">
+                      <ModelInputItem label="Partners (Year 1)" value={String(global?.partnerCountYear1 ?? 3)} testId="mi-partner-count" />
                       <ModelInputItem label="Staff Salary" value={formatMoney(global?.staffSalary ?? 0)} testId="mi-staff-salary" />
-                      <ModelInputItem label="Staff Tier 1 FTE" value={String(global?.staffTier1Fte ?? 0)} testId="mi-staff-fte" />
+                      <ModelInputItem label="Tier 1 FTE" value={`${global?.staffTier1Fte ?? 0} (≤${global?.staffTier1MaxProperties ?? 0} properties)`} testId="mi-staff-fte-t1" />
+                      <ModelInputItem label="Tier 2 FTE" value={`${global?.staffTier2Fte ?? 0} (≤${global?.staffTier2MaxProperties ?? 0} properties)`} testId="mi-staff-fte-t2" />
+                      <ModelInputItem label="Tier 3 FTE" value={String(global?.staffTier3Fte ?? 0)} testId="mi-staff-fte-t3" />
+                    </ModelInputGroup>
+
+                    <ModelInputGroup label="Overhead">
                       <ModelInputItem label="Office Lease" value={`${formatMoney(global?.officeLeaseStart ?? 0)}/yr`} testId="mi-office-lease" />
-                      <ModelInputItem label="Inflation Rate" value={`${((global?.inflationRate ?? 0) * 100).toFixed(1)}%`} testId="mi-inflation" />
-                      <ModelInputItem label="Company Tax Rate" value={`${((global?.companyTaxRate ?? 0) * 100).toFixed(0)}%`} testId="mi-tax-rate" />
-                      <ModelInputItem label="Projection Years" value={String(projectionYears)} testId="mi-projection-years" />
                       <ModelInputItem label="Professional Services" value={`${formatMoney(global?.professionalServicesStart ?? 0)}/yr`} testId="mi-prof-services" />
+                      <ModelInputItem label="Tech Infrastructure" value={`${formatMoney(global?.techInfraStart ?? 0)}/yr`} testId="mi-tech-infra" />
+                      <ModelInputItem label="Escalation Rate" value={`${((global?.fixedCostEscalationRate ?? 0) * 100).toFixed(1)}%`} testId="mi-escalation-rate" />
+                    </ModelInputGroup>
+
+                    <ModelInputGroup label="Tax & General">
+                      <ModelInputItem label="Company Tax Rate" value={`${((global?.companyTaxRate ?? 0) * 100).toFixed(0)}%`} testId="mi-tax-rate" />
+                      <ModelInputItem label="Inflation Rate" value={`${((global?.inflationRate ?? 0) * 100).toFixed(1)}%`} testId="mi-inflation" />
+                      <ModelInputItem label="Projection Years" value={String(projectionYears)} testId="mi-projection-years" />
+                    </ModelInputGroup>
+
+                    <div className="pt-2 border-t border-border/60">
+                      <p className="text-xs text-muted-foreground" data-testid="text-edit-assumptions-hint">
+                        These values are configured by an administrator on the{" "}
+                        <span className="font-medium text-foreground">Company Assumptions</span> page.
+                      </p>
                     </div>
                   </CardContent>
                 )}
@@ -395,6 +419,17 @@ export default function Company() {
       </div>
       </AnimatedPage>
     </Layout>
+  );
+}
+
+function ModelInputGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2" data-testid={`mi-group-${label.toLowerCase().replace(/\s+/g, '-')}`}>{label}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {children}
+      </div>
+    </div>
   );
 }
 

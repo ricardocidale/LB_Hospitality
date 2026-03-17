@@ -340,6 +340,14 @@ export const DEFAULT_ALERT_COOLDOWN_MINUTES = 1440;
 export const DEFAULT_STAFF_TIER1_MAX_PROPERTIES = 3;
 export const DEFAULT_STAFF_TIER2_MAX_PROPERTIES = 6;
 
+export const STAFFING_TIERS = [
+  { maxProperties: 3, fte: 2.5 },
+  { maxProperties: 6, fte: 4.5 },
+  { maxProperties: Infinity, fte: 7.0 },
+];
+
+export const DEFAULT_SAFE_TRANCHE = 800_000;
+
 // ──────────────────────────────────────────────────────────
 // RESEARCH CONFIGURATION DEFAULTS
 // Per-event admin configuration for the AI research system.

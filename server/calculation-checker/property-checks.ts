@@ -42,6 +42,7 @@ import {
   COST_SEG_15YR_LIFE_YEARS,
   NOL_UTILIZATION_CAP,
   DEFAULT_DAY_COUNT_CONVENTION,
+  WORKING_CAPITAL_DAYS_PER_MONTH,
 } from "@shared/constants";
 import type { CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, YearMonth } from "./types";
 
@@ -319,9 +320,9 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const netIncome = anoi - interestExpense - depreciationExpense - incomeTax;
     const cashFlow = anoi - debtPayment - incomeTax;
 
-    const currentAR = isOperational ? (revenueTotal / 30) * arDays : 0;
+    const currentAR = isOperational ? (revenueTotal / WORKING_CAPITAL_DAYS_PER_MONTH) * arDays : 0;
     const totalOpCosts = totalOperatingExpenses + feeBase + feeIncentive + expenseTaxes;
-    const currentAP = isOperational ? (totalOpCosts / 30) * apDays : 0;
+    const currentAP = isOperational ? (totalOpCosts / WORKING_CAPITAL_DAYS_PER_MONTH) * apDays : 0;
     const workingCapitalChange = (currentAR - prevAR) - (currentAP - prevAP);
     prevAR = currentAR;
     prevAP = currentAP;

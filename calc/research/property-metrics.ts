@@ -110,22 +110,22 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
   const annualTotal = roundCents(monthlyTotal * 12);
 
   // Department expenses
-  const roomCosts = monthlyRoomRevenue * cost_rate_rooms;
-  const fbCosts = monthlyFB * cost_rate_fb;
-  const eventCosts = monthlyEvents * DEFAULT_EVENT_EXPENSE_RATE;
+  const roomCosts = roundCents(monthlyRoomRevenue * cost_rate_rooms);
+  const fbCosts = roundCents(monthlyFB * cost_rate_fb);
+  const eventCosts = roundCents(monthlyEvents * DEFAULT_EVENT_EXPENSE_RATE);
 
   // GOP = Revenue - Department Costs
-  const departmentCosts = roomCosts + fbCosts + eventCosts;
-  const monthlyGOP = monthlyTotal - departmentCosts;
+  const departmentCosts = roundCents(roomCosts + fbCosts + eventCosts);
+  const monthlyGOP = roundCents(monthlyTotal - departmentCosts);
 
   // Undistributed expenses (% of total revenue)
-  const adminCosts = monthlyTotal * cost_rate_admin;
-  const marketingCosts = monthlyTotal * cost_rate_marketing;
-  const propOpsCosts = monthlyTotal * cost_rate_property_ops;
-  const utilitiesCosts = monthlyTotal * cost_rate_utilities;
-  const ffeCosts = monthlyTotal * cost_rate_ffe;
-  const otherCosts = monthlyTotal * cost_rate_other;
-  const undistributed = adminCosts + marketingCosts + propOpsCosts + utilitiesCosts + ffeCosts + otherCosts;
+  const adminCosts = roundCents(monthlyTotal * cost_rate_admin);
+  const marketingCosts = roundCents(monthlyTotal * cost_rate_marketing);
+  const propOpsCosts = roundCents(monthlyTotal * cost_rate_property_ops);
+  const utilitiesCosts = roundCents(monthlyTotal * cost_rate_utilities);
+  const ffeCosts = roundCents(monthlyTotal * cost_rate_ffe);
+  const otherCosts = roundCents(monthlyTotal * cost_rate_other);
+  const undistributed = roundCents(adminCosts + marketingCosts + propOpsCosts + utilitiesCosts + ffeCosts + otherCosts);
 
   // Management fees
   const baseFee = monthlyTotal * base_management_fee_rate;

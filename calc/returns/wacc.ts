@@ -152,6 +152,7 @@ export interface PortfolioWACCOutput {
 }
 
 export function computePortfolioWACC(input: PortfolioWACCInput): PortfolioWACCOutput {
+  const r = rounder(input.rounding_policy);
   const { properties, tax_rate } = input;
 
   if (properties.length === 0) {
@@ -218,9 +219,9 @@ export function computePortfolioWACC(input: PortfolioWACCInput): PortfolioWACCOu
 
   return {
     portfolio_wacc: roundTo(weightedWaccSum, RATE_ROUNDING),
-    total_equity: Math.round(totalEquity * 100) / 100,
-    total_debt: Math.round(totalDebt * 100) / 100,
-    total_capital: Math.round(totalCapital * 100) / 100,
+    total_equity: r(totalEquity),
+    total_debt: r(totalDebt),
+    total_capital: r(totalCapital),
     portfolio_equity_weight: roundTo(totalEquity / totalCapital, RATE_ROUNDING),
     portfolio_debt_weight: roundTo(totalDebt / totalCapital, RATE_ROUNDING),
     property_details: details,

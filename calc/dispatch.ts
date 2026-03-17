@@ -81,6 +81,7 @@ import { computeServiceFee } from "./research/service-fee.js";
 import { computeMarkupWaterfall } from "./research/markup-waterfall.js";
 import { computeMakeVsBuy } from "./research/make-vs-buy.js";
 import { computeWACC, computePortfolioWACC } from "./returns/wacc.js";
+import { computeMIRR } from "./returns/mirr.js";
 
 type ToolInput = Record<string, unknown>;
 type ToolFn = (input: never) => unknown;
@@ -131,6 +132,7 @@ const TOOL_DISPATCH: Record<string, ToolHandler> = {
   compute_make_vs_buy: withRounding(computeMakeVsBuy as ToolFn),
   compute_wacc: withRounding(computeWACC as ToolFn),
   compute_portfolio_wacc: withRounding(computePortfolioWACC as ToolFn),
+  compute_mirr: withRounding(computeMIRR as ToolFn),
 };
 
 /**

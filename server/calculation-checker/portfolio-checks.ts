@@ -2,6 +2,8 @@ import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_COMPANY_INFLATION_RATE,
+  STAFFING_TIERS,
+  DEFAULT_SAFE_TRANCHE,
 } from "@shared/constants";
 import type { CheckResult, CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, ClientPropertyMonthly } from "./types";
 import { check } from "./gaap-checks";
@@ -124,10 +126,10 @@ export function runCompanyChecks(
 
     let safeFunding = 0;
     if (currentYM.year === tranche1YM.year && currentYM.month === tranche1YM.month) {
-      safeFunding += globalAssumptions.safeTranche1Amount ?? 500_000;
+      safeFunding += globalAssumptions.safeTranche1Amount ?? DEFAULT_SAFE_TRANCHE;
     }
     if (tranche2YM && currentYM.year === tranche2YM.year && currentYM.month === tranche2YM.month) {
-      safeFunding += globalAssumptions.safeTranche2Amount ?? 500_000;
+      safeFunding += globalAssumptions.safeTranche2Amount ?? DEFAULT_SAFE_TRANCHE;
     }
 
     let companyExpenses = 0;
@@ -155,7 +157,15 @@ export function runCompanyChecks(
       const partnerComp = ((partnerCompByYear[yrIdx] ?? 0) / 12);
 
       const staffSalary = globalAssumptions.staffSalary ?? 0;
-      const staffFTE = globalAssumptions.staffTier1Fte ?? 1;
+      const tier1Max = globalAssumptions.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
+      const tier2Max = globalAssumptions.staffTier2MaxProperties ?? STAFFING_TIERS[1].maxProperties;
+      const tier1Fte = globalAssumptions.staffTier1Fte ?? STAFFING_TIERS[0].fte;
+      const tier2Fte = globalAssumptions.staffTier2Fte ?? STAFFING_TIERS[1].fte;
+      const tier3Fte = globalAssumptions.staffTier3Fte ?? STAFFING_TIERS[2].fte;
+      const activePropertyCount = properties.length;
+      const staffFTE = activePropertyCount <= tier1Max ? tier1Fte
+        : activePropertyCount <= tier2Max ? tier2Fte
+        : tier3Fte;
       const staffComp = (staffFTE * staffSalary * fixedFactor) / 12;
 
       const officeLease = ((globalAssumptions.officeLeaseStart ?? 0) * fixedFactor) / 12;

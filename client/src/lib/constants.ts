@@ -56,6 +56,8 @@ export {
   DEFAULT_ROOM_COUNT,
   DEFAULT_START_ADR,
   DEFAULT_MAX_OCCUPANCY,
+  STAFFING_TIERS,
+  DEFAULT_SAFE_TRANCHE,
 } from "@shared/constants";
 
 // Re-export loan defaults from shared (no longer duplicated here)
@@ -77,21 +79,12 @@ export const DEFAULT_TRAVEL_PER_CLIENT = 12000;
 export const DEFAULT_IT_LICENSE_PER_CLIENT = 3000;
 export const DEFAULT_MARKETING_RATE = 0.05;
 export const DEFAULT_MISC_OPS_RATE = 0.03;
-export const DEFAULT_SAFE_TRANCHE = 800000;
-
 // Projection period
 export const PROJECTION_YEARS = 10;
 export const PROJECTION_MONTHS = PROJECTION_YEARS * 12; // 120
 
 // Default model start date fallback
 export const DEFAULT_MODEL_START_DATE = '2026-04-01';
-
-// Staffing model — FTE (full-time equivalent) count scales with portfolio size
-export const STAFFING_TIERS = [
-  { maxProperties: 3, fte: 2.5 },
-  { maxProperties: 6, fte: 4.5 },
-  { maxProperties: Infinity, fte: 7.0 },
-];
 
 // Operating reserve / funding buffer — minimum cash cushions to avoid going negative
 export const OPERATING_RESERVE_BUFFER = 50000;

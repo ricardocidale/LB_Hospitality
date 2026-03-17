@@ -75,6 +75,29 @@ function validateAIOutput(result: any, format: string): void {
   }
 }
 
+function repairTruncatedJson(str: string): string {
+  let s = str.trim();
+  if (s.endsWith(",")) s = s.slice(0, -1);
+  
+  const opens = { "{": 0, "[": 0 };
+  let inString = false;
+  let escape = false;
+  for (const ch of s) {
+    if (escape) { escape = false; continue; }
+    if (ch === "\\") { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === "{") opens["{"]++;
+    else if (ch === "}") opens["{"]--;
+    else if (ch === "[") opens["["]++;
+    else if (ch === "]") opens["["]--;
+  }
+  if (inString) s += '"';
+  while (opens["["] > 0) { s += "]"; opens["["]--; }
+  while (opens["{"] > 0) { s += "}"; opens["{"]--; }
+  return s;
+}
+
 async function generateWithGemini(prompt: string, format: string): Promise<any> {
   const client = getGeminiClient();
 
@@ -87,7 +110,7 @@ async function generateWithGemini(prompt: string, format: string): Promise<any> 
     model: "gemini-2.5-flash",
     contents: prompt,
     config: {
-      maxOutputTokens: 8192,
+      maxOutputTokens: 65536,
       responseMimeType: "application/json",
     },
   });
@@ -98,6 +121,8 @@ async function generateWithGemini(prompt: string, format: string): Promise<any> 
   if (!text) {
     throw new Error("No text response from Gemini");
   }
+
+  const finishReason = response.candidates?.[0]?.finishReason;
 
   const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
   const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
@@ -113,7 +138,16 @@ async function generateWithGemini(prompt: string, format: string): Promise<any> 
   try {
     parsed = JSON.parse(jsonStr);
   } catch {
-    throw new Error("AI returned invalid JSON — could not parse response");
+    if (finishReason === "MAX_TOKENS" || finishReason === "STOP" ) {
+      try {
+        parsed = JSON.parse(repairTruncatedJson(jsonStr));
+        logger.warn("Premium export: repaired truncated JSON from AI (finishReason=%s)", finishReason);
+      } catch {
+        throw new Error("AI returned invalid JSON — could not parse response");
+      }
+    } else {
+      throw new Error("AI returned invalid JSON — could not parse response");
+    }
   }
 
   validateAIOutput(parsed, format);

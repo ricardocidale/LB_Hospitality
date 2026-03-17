@@ -427,7 +427,7 @@ export default function ResearchHub() {
             </p>
 
             <Link
-              href="/global/research"
+              href="/company/research"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               View Research

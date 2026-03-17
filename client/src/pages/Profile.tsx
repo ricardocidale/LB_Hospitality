@@ -215,7 +215,7 @@ export default function Profile() {
                     <p className="text-muted-foreground text-sm">Complete guide for financial verification and QA testing</p>
                   </div>
                 </div>
-                <Link href="/checker-manual">
+                <Link href="/help">
                   <Button variant="default" data-testid="button-checker-manual">
                     <IconClipboardCheck className="w-4 h-4" />
                     Open Manual

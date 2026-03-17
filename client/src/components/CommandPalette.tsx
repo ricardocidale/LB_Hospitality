@@ -19,14 +19,16 @@ import {
 } from "@/components/ui/command";
 import { useStore } from "@/lib/store";
 import { Search } from "@/components/icons/themed-icons";
-import { IconDashboard, IconProperties, IconBriefcase, IconAnalysis, IconCalculator, IconProfile, IconScenarios, IconExport, IconVerify, IconRefresh } from "@/components/icons";const navigationItems = [
+import { IconDashboard, IconProperties, IconBriefcase, IconAnalysis, IconProfile, IconScenarios, IconExport, IconVerify, IconRefresh, IconHelp, IconMapPin, IconPropertyFinder } from "@/components/icons";const navigationItems = [
   { label: "Dashboard", href: "/", icon: IconDashboard },
   { label: "Properties", href: "/portfolio", icon: IconProperties },
   { label: "Management Company", href: "/company", icon: IconBriefcase },
-  { label: "Sensitivity", href: "/sensitivity", icon: IconAnalysis },
-  { label: "Financing", href: "/financing", icon: IconCalculator },
+  { label: "Simulation", href: "/analysis", icon: IconAnalysis },
+  { label: "Property Finder", href: "/property-finder", icon: IconPropertyFinder },
+  { label: "Map View", href: "/map", icon: IconMapPin },
   { label: "Profile", href: "/profile", icon: IconProfile },
   { label: "Scenarios", href: "/scenarios", icon: IconScenarios },
+  { label: "Help", href: "/help", icon: IconHelp },
 ];
 
 const quickActions = [

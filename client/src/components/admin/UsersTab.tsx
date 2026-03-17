@@ -17,13 +17,12 @@
  * User data is fetched via TanStack Query from GET /api/admin/users
  * and mutations go to POST/PATCH/DELETE /api/admin/users.
  */
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -396,101 +395,98 @@ export default function UsersTab() {
             <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("name")} data-testid="sort-user-name"><div className="flex items-center gap-2"><IconPeople className="w-4 h-4" />User <SortIcon field="name" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("role")} data-testid="sort-user-role"><div className="flex items-center gap-2"><IconShield className="w-4 h-4" />Role <SortIcon field="role" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display cursor-pointer select-none" onClick={() => toggleSort("group")} data-testid="sort-user-group"><div className="flex items-center gap-2"><IconUserCog className="w-4 h-4" />Group <SortIcon field="group" /></div></TableHead>
-                <TableHead className="text-muted-foreground font-display text-right"><div className="flex items-center justify-end gap-2"><IconSettingsGear className="w-4 h-4" />Actions</div></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedUsers.map((user, idx, arr) => {
-                const currentGroup = user.userGroupId ? groupNameMap[user.userGroupId] || "Unknown Group" : "No Group";
-                const prevGroup = idx > 0
-                  ? (arr[idx - 1].userGroupId ? groupNameMap[arr[idx - 1].userGroupId!] || "Unknown Group" : "No Group")
-                  : null;
-                const showGroupHeader = sortField === "group" && currentGroup !== prevGroup;
-                return (<>
-                {showGroupHeader && (
-                  <TableRow key={`group-header-${currentGroup}-${idx}`} className="border-border bg-transparent hover:bg-transparent">
-                    <TableCell colSpan={4} className="py-1.5 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-px flex-1 bg-border/60" />
-                        <span className="text-[11px] font-medium text-accent uppercase tracking-wider whitespace-nowrap">{currentGroup}</span>
-                        <div className="h-px flex-1 bg-border/60" />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-                <TableRow key={user.id} className={`border-border hover:bg-muted/50 ${idx % 2 === 1 ? "bg-muted/30" : ""}`} data-testid={`row-user-${user.id}`}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
-                      {user.userGroupId && userLogoMap[user.userGroupId] && (
-                        <img
-                          src={userLogoMap[user.userGroupId]}
-                          alt=""
-                          className="w-7 h-7 rounded-md border border-border bg-card object-contain p-0.5"
-                          onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
-                        />
-                      )}
-                      <div>
-                        <div className="font-display font-medium">{user.name || user.email}</div>
-                        {user.name && <div className="text-xs text-muted-foreground">{user.email}</div>}
-                        {user.title && <div className="text-[11px] text-muted-foreground/70">{user.title}</div>}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-muted text-muted-foreground'}`}>
-                      {user.role}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-sm">{user.userGroupId && groupNameMap[user.userGroupId] ? <span className="text-accent">{groupNameMap[user.userGroupId]}</span> : <span className="text-muted-foreground">—</span>}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                        onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, userGroupId: user.userGroupId ?? null, title: user.title || "", role: user.role || "user", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
-                        data-testid={`button-edit-user-${user.id}`}>
-                        <IconPencil className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                        onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
-                        data-testid={`button-password-user-${user.id}`}>
-                        <IconKey className="w-4 h-4" />
-                      </Button>
-                      {user.role !== 'admin' && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                              data-testid={`button-delete-user-${user.id}`}>
-                              <IconTrash className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete User</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete "{user.email}"? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteMutation.mutate(user.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              </>)})}
-            </TableBody>
-          </Table>
+          <>
+          <div className="flex items-center gap-4 mb-4 px-1">
+            <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("name")} data-testid="sort-user-name">
+              <IconPeople className="w-4 h-4" />User <SortIcon field="name" />
+            </button>
+            <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("role")} data-testid="sort-user-role">
+              <IconShield className="w-4 h-4" />Role <SortIcon field="role" />
+            </button>
+            <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("group")} data-testid="sort-user-group">
+              <IconUserCog className="w-4 h-4" />Group <SortIcon field="group" />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {sortedUsers.map((user, idx, arr) => {
+              const currentGroup = user.userGroupId ? groupNameMap[user.userGroupId] || "Unknown Group" : "No Group";
+              const prevGroup = idx > 0
+                ? (arr[idx - 1].userGroupId ? groupNameMap[arr[idx - 1].userGroupId!] || "Unknown Group" : "No Group")
+                : null;
+              const showGroupHeader = sortField === "group" && currentGroup !== prevGroup;
+              return (<React.Fragment key={user.id}>
+              {showGroupHeader && (
+                <div key={`group-header-${currentGroup}-${idx}`} className="col-span-1 md:col-span-2 py-1.5 px-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-px flex-1 bg-border/60" />
+                    <span className="text-[11px] font-medium text-accent uppercase tracking-wider whitespace-nowrap">{currentGroup}</span>
+                    <div className="h-px flex-1 bg-border/60" />
+                  </div>
+                </div>
+              )}
+              <div className="rounded-lg border border-border bg-card p-4 hover:bg-muted/50 transition-colors" data-testid={`row-user-${user.id}`}>
+                <div className="flex items-start gap-3">
+                  <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
+                  {user.userGroupId && userLogoMap[user.userGroupId] && (
+                    <img
+                      src={userLogoMap[user.userGroupId]}
+                      alt=""
+                      className="w-7 h-7 rounded-md border border-border bg-card object-contain p-0.5"
+                      onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display font-medium truncate">{user.name || user.email}</div>
+                    {user.name && <div className="text-xs text-muted-foreground truncate">{user.email}</div>}
+                    {user.title && <div className="text-[11px] text-muted-foreground/70 truncate">{user.title}</div>}
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted h-8 w-8 p-0"
+                      onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, userGroupId: user.userGroupId ?? null, title: user.title || "", role: user.role || "user", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
+                      data-testid={`button-edit-user-${user.id}`}>
+                      <IconPencil className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted h-8 w-8 p-0"
+                      onClick={() => { setSelectedUser(user); setPasswordDialogOpen(true); }}
+                      data-testid={`button-password-user-${user.id}`}>
+                      <IconKey className="w-4 h-4" />
+                    </Button>
+                    {user.role !== 'admin' && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 w-8 p-0"
+                            data-testid={`button-delete-user-${user.id}`}>
+                            <IconTrash className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete User</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{user.email}"? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => deleteMutation.mutate(user.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-muted text-muted-foreground'}`}>
+                    {user.role}
+                  </span>
+                  {user.userGroupId && groupNameMap[user.userGroupId] ? <span className="text-xs text-accent">{groupNameMap[user.userGroupId]}</span> : <span className="text-xs text-muted-foreground">—</span>}
+                </div>
+              </div>
+            </React.Fragment>)})}
+          </div>
+          </>
         )}
       </CardContent>
     </Card>

@@ -15,7 +15,10 @@ function encodeCell(r: number, c: number): string {
 /** Trigger a browser download of the given Excel workbook. */
 export async function downloadWorkbook(wb: any, filename: string) {
   const XLSX = await import("xlsx");
-  (XLSX as any).writeFile(wb, filename);
+  const { saveFile } = await import("../saveFile");
+  const data = (XLSX as any).write(wb, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  await saveFile(blob, filename);
 }
 
 /** Set Excel column widths (in character units) so labels and numbers aren't truncated. */

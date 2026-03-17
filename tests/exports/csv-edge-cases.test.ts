@@ -43,25 +43,25 @@ afterEach(() => {
 });
 
 describe("downloadCSV (csvExport.ts)", () => {
-  it("creates blob with correct MIME type", () => {
-    downloadCSV("a,b\n1,2", "test.csv");
+  it("creates blob with correct MIME type", async () => {
+    await downloadCSV("a,b\n1,2", "test.csv");
     expect(capturedBlob).toBeInstanceOf(Blob);
     expect(capturedBlob!.type).toBe("text/csv;charset=utf-8;");
   });
 
-  it("sanitizes dangerous filename characters", () => {
-    downloadCSV("data", 'portfolio/export:file*"name".csv');
+  it("sanitizes dangerous filename characters", async () => {
+    await downloadCSV("data", 'portfolio/export:file*"name".csv');
     expect(mockLink.download).toBe("portfolio_export_file__name_.csv");
   });
 
-  it("preserves safe filename characters", () => {
-    downloadCSV("data", "my-report_2025.csv");
+  it("preserves safe filename characters", async () => {
+    await downloadCSV("data", "my-report_2025.csv");
     expect(mockLink.download).toBe("my-report_2025.csv");
   });
 
   it("handles commas in pre-escaped cell values", async () => {
     const content = '"Category","Value"\n"Grand Hotel, NYC","$1,500,000"';
-    downloadCSV(content, "test.csv");
+    await downloadCSV(content, "test.csv");
 
     const text = await capturedBlob!.text();
     expect(text).toContain('"Grand Hotel, NYC"');
@@ -70,7 +70,7 @@ describe("downloadCSV (csvExport.ts)", () => {
 
   it("handles quotes in pre-escaped cell values", async () => {
     const content = '"Name","Description"\n"The ""Grand"" Hotel","A luxury property"';
-    downloadCSV(content, "quotes.csv");
+    await downloadCSV(content, "quotes.csv");
 
     const text = await capturedBlob!.text();
     expect(text).toContain('""Grand""');
@@ -78,7 +78,7 @@ describe("downloadCSV (csvExport.ts)", () => {
 
   it("handles newlines within quoted cells", async () => {
     const content = '"Name","Notes"\n"Hotel A","Line 1\nLine 2"';
-    downloadCSV(content, "multiline.csv");
+    await downloadCSV(content, "multiline.csv");
 
     const text = await capturedBlob!.text();
     expect(text).toContain("Line 1\nLine 2");
@@ -86,19 +86,19 @@ describe("downloadCSV (csvExport.ts)", () => {
 
   it("handles unicode characters in financial data", async () => {
     const content = '"Category","Year 1"\n"Revenue \u2014 Total","$1,234,567"\n"NOI (Net Operating Income)","$500,000"';
-    downloadCSV(content, "unicode.csv");
+    await downloadCSV(content, "unicode.csv");
 
     const text = await capturedBlob!.text();
     expect(text).toContain("Revenue \u2014 Total");
   });
 
-  it("handles empty content", () => {
-    const result = downloadCSV("", "empty.csv");
+  it("handles empty content", async () => {
+    const result = await downloadCSV("", "empty.csv");
     expect(result).toBe(true);
   });
 
-  it("returns true on success", () => {
-    expect(downloadCSV("a,b\n1,2", "test.csv")).toBe(true);
+  it("returns true on success", async () => {
+    expect(await downloadCSV("a,b\n1,2", "test.csv")).toBe(true);
   });
 });
 

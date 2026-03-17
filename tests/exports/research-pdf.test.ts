@@ -27,6 +27,7 @@ vi.mock("jspdf", () => {
     line = vi.fn();
     addPage = mockAddPage.mockImplementation(() => { pageCount++; });
     save = mockSave;
+    output = vi.fn().mockReturnValue(new Blob(["pdf"], { type: "application/pdf" }));
     setPage = mockSetPage;
     splitTextToSize = vi.fn((text: string) => [text]);
     addImage = mockAddImage;
@@ -34,6 +35,11 @@ vi.mock("jspdf", () => {
   }
   return { default: MockJsPDF };
 });
+
+vi.mock("../../client/src/lib/exports/saveFile", () => ({
+  saveFile: vi.fn(),
+  saveDataUrl: vi.fn(),
+}));
 
 vi.mock("jspdf-autotable", () => {
   return {
@@ -65,7 +71,8 @@ describe("researchPdfExport.downloadResearchPDF", () => {
       branding: { userName: "Test User", companyName: "Test Hotels", logoUrl: null },
     });
 
-    expect(mockSave).toHaveBeenCalledWith("Market_Research_Research.pdf");
+    const { saveFile } = await import("../../client/src/lib/exports/saveFile");
+    expect(saveFile).toHaveBeenCalledWith(expect.any(Blob), "Market_Research_Research.pdf");
   });
 
   it("renders branded header with navy background", async () => {

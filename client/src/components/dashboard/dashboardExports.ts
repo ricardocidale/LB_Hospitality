@@ -324,6 +324,23 @@ export function generatePortfolioCashFlowData(
 
   rows.push({ category: "Net Change in Cash", values: netChange, isHeader: true, isBold: true });
 
+  const consolidatedMaintenanceCapex = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.maintenanceCapex ?? 0), 0)
+  );
+  const consolidatedFCF = years.map((_, y) => consolidatedCFO[y] - consolidatedMaintenanceCapex[y]);
+  const consolidatedPrincipal = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.principalPayment ?? 0), 0)
+  );
+  const consolidatedFCFE = years.map((_, y) => consolidatedFCF[y] - consolidatedPrincipal[y]);
+
+  rows.push({ category: "", values: years.map(() => 0) });
+  rows.push({ category: "Free Cash Flow", values: years.map(() => 0), isHeader: true });
+  rows.push({ category: "Net Cash from Operating Activities", values: consolidatedCFO, indent: 1 });
+  rows.push({ category: "Less: Capital Expenditures (FF&E)", values: consolidatedMaintenanceCapex.map(v => -v), indent: 1 });
+  rows.push({ category: "Free Cash Flow (FCF)", values: consolidatedFCF, isBold: true, indent: 1 });
+  rows.push({ category: "Less: Principal Payments", values: consolidatedPrincipal.map(v => -v), indent: 1 });
+  rows.push({ category: "Free Cash Flow to Equity (FCFE)", values: consolidatedFCFE, isBold: true, indent: 1 });
+
   return { years, rows };
 }
 
@@ -426,7 +443,10 @@ export async function exportPortfolioExcel(
   }
 
   const safeName = companyName.replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 60);
-  (XLSX as any).writeFile(wb, customFilename || `${safeName} - Consolidated Financial Statements.xlsx`);
+  const { saveFile: saveXlsx } = await import("./../../lib/exports/saveFile");
+  const xlData = (XLSX as any).write(wb, { bookType: "xlsx", type: "array" });
+  const xlBlob = new Blob([xlData], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  await saveXlsx(xlBlob, customFilename || `${safeName} - Consolidated Financial Statements.xlsx`);
 }
 
 export function exportPortfolioCSV(
@@ -518,7 +538,8 @@ export async function exportPortfolioPDF(
   });
 
   addFooters(doc, companyName, { skipPages: new Set([1]) });
-  doc.save(customFilename || `portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
+  const { saveFile } = await import("./../../lib/exports/saveFile");
+  await saveFile(doc.output("blob"), customFilename || `portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
 
 export interface ComprehensiveDashboardExportParams {
@@ -704,7 +725,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });
   }
 
-  doc.save(customFilename || `${companyName} - Consolidated Portfolio Report.pdf`);
+  const { saveFile: savePdfFile } = await import("./../../lib/exports/saveFile");
+  await savePdfFile(doc.output("blob"), customFilename || `${companyName} - Consolidated Portfolio Report.pdf`);
 }
 
 export const dashboardExports = {

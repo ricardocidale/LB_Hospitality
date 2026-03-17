@@ -324,7 +324,8 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       } catch { /* ignore: chart may not be rendered yet */ }
     }
 
-    doc.save(customFilename || "sensitivity-analysis.pdf");
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    await saveFile(doc.output("blob"), customFilename || "sensitivity-analysis.pdf");
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric, advancedChartView]);
 
   const handleExportExcel = useCallback(async (customFilename?: string) => {
@@ -349,7 +350,10 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     ];
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(tornadoSheet), "Tornado Chart");
 
-    XLSX.writeFile(wb, customFilename || "sensitivity-analysis.xlsx");
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    const xlData = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const xlBlob = new Blob([xlData], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    await saveFile(xlBlob, customFilename || "sensitivity-analysis.xlsx");
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric]);
 
   const handleExportCSV = useCallback((customFilename?: string) => {
@@ -461,7 +465,9 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       } catch { /* ignore: chart may not be rendered yet */ }
     }
 
-    pres.writeFile({ fileName: customFilename || "sensitivity-analysis.pptx" });
+    const pptxBlob = await pres.write({ outputType: "blob" }) as Blob;
+    const { saveFile: savePptx } = await import("@/lib/exports/saveFile");
+    await savePptx(pptxBlob, customFilename || "sensitivity-analysis.pptx");
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric, advancedChartView]);
 
   const handleExportChart = useCallback(async (orientation: "landscape" | "portrait", customFilename?: string) => {
@@ -473,7 +479,8 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     const pageWidth = orientation === "landscape" ? 297 : 210;
     const pageHeight = orientation === "landscape" ? 210 : 297;
     doc.addImage(dataUrl, "PNG", 14, 14, pageWidth - 28, pageHeight - 28);
-    doc.save(customFilename || "sensitivity-tornado-chart.pdf");
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    await saveFile(doc.output("blob"), customFilename || "sensitivity-tornado-chart.pdf");
   }, []);
 
   const handleExportPNG = useCallback((customFilename?: string) => {

@@ -349,7 +349,8 @@ export default function PropertyDetail() {
     }
 
     addFooters(doc, companyName, { skipPages: new Set([1]) });
-    doc.save(customFilename || `${property.name.replace(/\s+/g, '_')}_IncomeStatement.pdf`);
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    await saveFile(doc.output("blob"), customFilename || `${property.name.replace(/\s+/g, '_')}_IncomeStatement.pdf`);
   };
 
   const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended', customFilename?: string) => {
@@ -482,7 +483,8 @@ export default function PropertyDetail() {
     }
 
     addFooters(doc, companyName, { skipPages: new Set([1]) });
-    doc.save(customFilename || `${property.name.replace(/\s+/g, '_')}_CashFlow.pdf`);
+    const { saveFile: savePdf } = await import("@/lib/exports/saveFile");
+    await savePdf(doc.output("blob"), customFilename || `${property.name.replace(/\s+/g, '_')}_CashFlow.pdf`);
   };
 
   const exportChartPNG = async (orientation: 'landscape' | 'portrait' = 'landscape', customFilename?: string) => {
@@ -500,10 +502,8 @@ export default function PropertyDetail() {
         height,
         style: { transform: 'scale(2)', transformOrigin: 'top left' }
       });
-      const link = document.createElement('a');
-      link.download = customFilename || `${property.name.replace(/\s+/g, '_')}_chart_${orientation}.png`;
-      link.href = dataUrl;
-      link.click();
+      const { saveDataUrl } = await import("@/lib/exports/saveFile");
+      await saveDataUrl(dataUrl, customFilename || `${property.name.replace(/\s+/g, '_')}_chart_${orientation}.png`);
     } catch (error) {
       console.error('Error exporting chart:', error);
     }
@@ -522,10 +522,8 @@ export default function PropertyDetail() {
         width: tableContainer.scrollWidth * scale,
         height: tableContainer.scrollHeight * scale,
       });
-      const link = document.createElement('a');
-      link.download = customFilename || `${property.name.replace(/\s+/g, '_')}_${activeTab}_table.png`;
-      link.href = dataUrl;
-      link.click();
+      const { saveDataUrl } = await import("@/lib/exports/saveFile");
+      await saveDataUrl(dataUrl, customFilename || `${property.name.replace(/\s+/g, '_')}_${activeTab}_table.png`);
     } catch (error) {
       console.error('Error exporting table:', error);
     }
@@ -555,7 +553,13 @@ export default function PropertyDetail() {
 
     const cfRows = [
       { category: "Net Cash from Operating Activities", values: yearlyDetails.map((yd, i) => yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability), isBold: true },
-      { category: "FCFE", values: yearlyDetails.map((yd, i) => {
+      { category: "Less: Capital Expenditures (FF&E)", values: yearlyDetails.map(yd => -yd.expenseFFE), indent: 1 },
+      { category: "Free Cash Flow (FCF)", values: yearlyDetails.map((yd, i) => {
+        const cfo = yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
+        return cfo - yd.expenseFFE;
+      }), isBold: true },
+      { category: "Less: Principal Payments", values: cashFlowData.map(cf => -cf.principalPayment), indent: 1 },
+      { category: "Free Cash Flow to Equity (FCFE)", values: yearlyDetails.map((yd, i) => {
         const cfo = yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
         return cfo - yd.expenseFFE - cashFlowData[i].principalPayment;
       }), isBold: true },

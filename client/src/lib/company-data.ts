@@ -379,6 +379,23 @@ export function generateCompanyCashFlowData(
     return cumCash;
   }), isHeader: true });
 
+  const netCashOps = years.map((_, y) => {
+    const yearData = financials.slice(y * 12, (y + 1) * 12);
+    return yearData.reduce((a, m) => a + m.netIncome + m.fundingInterestExpense, 0);
+  });
+  rows.push({ category: "", values: years.map(() => 0) });
+  rows.push({ category: "Free Cash Flow", values: years.map(() => 0), isHeader: true });
+  rows.push({ category: "Net Cash from Operating Activities", values: netCashOps, indent: 1 });
+  rows.push({ category: "Free Cash Flow (FCF)", values: netCashOps, isSubtotal: true, indent: 1 });
+  rows.push({ category: "Less: Funding Interest Payments", values: years.map((_, y) => {
+    const yearData = financials.slice(y * 12, (y + 1) * 12);
+    return -yearData.reduce((a, m) => a + m.fundingInterestPayment, 0);
+  }), indent: 1 });
+  rows.push({ category: "Free Cash Flow to Equity (FCFE)", values: years.map((_, y) => {
+    const yearData = financials.slice(y * 12, (y + 1) * 12);
+    return yearData.reduce((a, m) => a + m.netIncome + m.fundingInterestExpense - m.fundingInterestPayment, 0);
+  }), isSubtotal: true, indent: 1 });
+
   return { years, rows };
 }
 

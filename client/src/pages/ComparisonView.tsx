@@ -117,7 +117,8 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
       ...selectedProperties.map((p) => formatValue((p as any)[m.key], m.format)),
     ]);
     autoTable(doc, { head: [headers], body: rows, startY: 28 });
-    doc.save(customFilename || "property-comparison.pdf");
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    await saveFile(doc.output("blob"), customFilename || "property-comparison.pdf");
   }, [selectedProperties]);
 
   const handleExportExcel = useCallback(async (customFilename?: string) => {
@@ -131,7 +132,10 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Comparison");
-    XLSX.writeFile(wb, customFilename || "property-comparison.xlsx");
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    const xlData = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const xlBlob = new Blob([xlData], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    await saveFile(xlBlob, customFilename || "property-comparison.xlsx");
   }, [selectedProperties]);
 
   const handleExportCSV = useCallback((customFilename?: string) => {
@@ -163,17 +167,17 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
       ]),
     ];
     slide2.addTable(tableRows, { x: 0.5, y: 1.0, w: 9, colW: [2.5, ...selectedProperties.map(() => 6.5 / selectedProperties.length)] });
-    await pptx.writeFile({ fileName: customFilename || "property-comparison.pptx" });
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    const pptxBlob = await pptx.write({ outputType: "blob" }) as Blob;
+    await saveFile(pptxBlob, customFilename || "property-comparison.pptx");
   }, [selectedProperties]);
 
   const handleExportChart = useCallback(async (customFilename?: string) => {
     if (!chartRef.current) return;
     const dataUrl = await captureChartAsImage(chartRef.current);
     if (!dataUrl) return;
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = customFilename || "property-comparison-chart.png";
-    link.click();
+    const { saveDataUrl } = await import("@/lib/exports/saveFile");
+    await saveDataUrl(dataUrl, customFilename || "property-comparison-chart.png");
   }, []);
 
   const handleExportPNG = useCallback((customFilename?: string) => {

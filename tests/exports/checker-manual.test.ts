@@ -19,12 +19,18 @@ vi.mock("jspdf", () => {
     line = vi.fn();
     addPage = vi.fn();
     save = mockSave;
+    output = vi.fn().mockReturnValue(new Blob(["pdf"], { type: "application/pdf" }));
     splitTextToSize = vi.fn((text: string) => [text]);
     addImage = vi.fn();
     roundedRect = vi.fn();
   }
   return { default: MockJsPDF };
 });
+
+vi.mock("../../client/src/lib/exports/saveFile", () => ({
+  saveFile: vi.fn(),
+  saveDataUrl: vi.fn(),
+}));
 
 vi.mock("jspdf-autotable", () => {
   return {
@@ -51,9 +57,10 @@ describe("checkerManualExport.exportManualPDF", () => {
     expect(result.success).toBe(true);
   });
 
-  it("calls doc.save with correct filename", async () => {
+  it("generates PDF blob with correct output call", async () => {
     await exportManualPDF({ email: "test@test.com", role: "admin" });
-    expect(mockSave).toHaveBeenCalledWith("LB_Checker_Manual.pdf");
+    const { saveFile } = await import("../../client/src/lib/exports/saveFile");
+    expect(saveFile).toHaveBeenCalledWith(expect.any(Blob), "LB_Checker_Manual.pdf");
   });
 
   it("renders company name in header", async () => {

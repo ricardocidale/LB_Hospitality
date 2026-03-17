@@ -306,7 +306,8 @@ export default function VerificationTab() {
       doc.text(`Hospitality Business - Verification Report | Page ${p} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 8, { align: "center" });
     }
 
-    doc.save(`verification-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    await saveFile(doc.output("blob"), `verification-report-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   const isRunning = runVerification.isPending || runSuites.isPending;

@@ -3,6 +3,7 @@ import domtoimage from 'dom-to-image-more';
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
+import { saveFile, saveDataUrl } from "@/lib/exports/saveFile";
 import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
 import {
   exportCompanyIncomeStatement,
@@ -67,7 +68,8 @@ export const exportCompanyPDF = async (
   }
 
   addFooters(doc, companyName);
-  doc.save(customFilename || `${companyName} - ${title}.pdf`);
+  const pdfBlob = doc.output("blob");
+  await saveFile(pdfBlob, customFilename || `${companyName} - ${title}.pdf`);
 };
 
 export const exportCompanyCSV = (
@@ -300,6 +302,12 @@ async function exportCompanyFullWorkbook(
     ["Net Increase (Decrease) in Cash", ...yearlyData.map(y => y.cashFlow)],
     ["Opening Cash Balance", ...openingCash],
     ["Closing Cash Balance", ...closingCash],
+    [],
+    ["FREE CASH FLOW"],
+    ["  Net Cash from Operating Activities", ...yearlyData.map(y => y.netIncome + y.fundingInterestExpense)],
+    ["  Free Cash Flow (FCF)", ...yearlyData.map(y => y.netIncome + y.fundingInterestExpense)],
+    ["  Less: Funding Interest Payments", ...yearlyData.map(y => -y.fundingInterestPayment)],
+    ["  Free Cash Flow to Equity (FCFE)", ...yearlyData.map(y => y.netIncome + y.fundingInterestExpense - y.fundingInterestPayment)],
   );
   await addSheet("Cash Flow", cfRows);
 
@@ -376,7 +384,9 @@ async function exportCompanyFullWorkbook(
   await addSheet("Investment Analysis", iaRows);
 
   const safeName = companyName.replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 60);
-  (XLSX as any).writeFile(wb, customFilename || `${safeName} - Management Company Financial Statements.xlsx`);
+  const xlData = (XLSX as any).write(wb, { bookType: "xlsx", type: "array" });
+  const xlBlob = new Blob([xlData], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  await saveFile(xlBlob, customFilename || `${safeName} - Management Company Financial Statements.xlsx`);
 }
 
 export const exportChartPNG = async (
@@ -404,10 +414,7 @@ export const exportChartPNG = async (
     });
 
     const name = companyName || "Management Company";
-    const link = document.createElement('a');
-    link.download = customFilename || `${name} - Performance Chart.png`;
-    link.href = dataUrl;
-    link.click();
+    await saveDataUrl(dataUrl, customFilename || `${name} - Performance Chart.png`);
   } catch (error) {
     console.error('Error exporting chart:', error);
   }
@@ -440,10 +447,7 @@ export const exportTablePNG = async (
     });
     const name = companyName || "Management Company";
     const tabLabel = activeTab === 'income' ? 'Income Statement' : activeTab === 'cashflow' ? 'Cash Flow' : 'Balance Sheet';
-    const link = document.createElement('a');
-    link.download = customFilename || `${name} - ${tabLabel}.png`;
-    link.href = dataUrl;
-    link.click();
+    await saveDataUrl(dataUrl, customFilename || `${name} - ${tabLabel}.png`);
   } catch (error) {
     console.error('Error exporting table:', error);
   } finally {

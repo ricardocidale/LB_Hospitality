@@ -117,12 +117,8 @@ export default function Dashboard() {
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
       const domtoimage = (await import("dom-to-image-more")).default;
       const dataUrl = await domtoimage.toPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" });
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const { saveDataUrl } = await import("@/lib/exports/saveFile");
+      await saveDataUrl(dataUrl, customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.png`);
     } catch (error) {
       console.error("Chart PNG export failed:", error);
     }
@@ -163,28 +159,27 @@ export default function Dashboard() {
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
       const domtoimage = (await import("dom-to-image-more")).default;
       const { default: jsPDF } = await import("jspdf");
-      domtoimage.toPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" }).then((dataUrl: string) => {
-        const img = new Image();
-        img.src = dataUrl;
-        img.onload = () => {
-          const aspectRatio = img.width / img.height;
-          const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
-          const pageW = doc.internal.pageSize.getWidth();
-          const pageH = doc.internal.pageSize.getHeight();
-          const margin = 14;
-          doc.setFontSize(16);
-          doc.text(label, margin, 15);
-          doc.setFontSize(9);
-          doc.text(`Generated: ${format(new Date(), "MMM d, yyyy")}`, margin, 21);
-          const availW = pageW - margin * 2;
-          const availH = pageH - 30;
-          let imgW = availW;
-          let imgH = imgW / aspectRatio;
-          if (imgH > availH) { imgH = availH; imgW = imgH * aspectRatio; }
-          doc.addImage(dataUrl, "PNG", margin, 25, imgW, imgH);
-          doc.save(customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.pdf`);
-        };
-      }).catch((err) => { console.error("Chart PDF export failed:", err); });
+      const dataUrl = await domtoimage.toPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" });
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise<void>((resolve) => { img.onload = () => resolve(); });
+      const aspectRatio = img.width / img.height;
+      const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 14;
+      doc.setFontSize(16);
+      doc.text(label, margin, 15);
+      doc.setFontSize(9);
+      doc.text(`Generated: ${format(new Date(), "MMM d, yyyy")}`, margin, 21);
+      const availW = pageW - margin * 2;
+      const availH = pageH - 30;
+      let imgW = availW;
+      let imgH = imgW / aspectRatio;
+      if (imgH > availH) { imgH = availH; imgW = imgH * aspectRatio; }
+      doc.addImage(dataUrl, "PNG", margin, 25, imgW, imgH);
+      const { saveFile } = await import("@/lib/exports/saveFile");
+      await saveFile(doc.output("blob"), customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.pdf`);
     }
   }, [exportType, activeTab, financials, global, getExportData]);
 

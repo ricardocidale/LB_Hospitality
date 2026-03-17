@@ -210,7 +210,9 @@ export async function exportManualPDF(user: { email?: string; role?: string; com
     ...TESTING_PHASES,
   ]);
 
-  doc.save(customFilename || "LB_Checker_Manual.pdf");
+  const { saveFile } = await import("./saveFile");
+  const pdfBlob = doc.output("blob");
+  await saveFile(pdfBlob, customFilename || "LB_Checker_Manual.pdf");
   return { success: true };
   } catch (err) {
     return { success: false, status: "error", error: err instanceof Error ? err.message : "Manual PDF export failed" };
@@ -521,7 +523,9 @@ export async function exportFullData(user: { email?: string; role?: string; comp
     doc.text("ALL DATA COMPLETE — No warnings detected.", 14, y);
   }
 
-  doc.save(customFilename || "LB_Full_Data_Export.pdf");
+  const { saveFile } = await import("./saveFile");
+  const pdfBlob = doc.output("blob");
+  await saveFile(pdfBlob, customFilename || "LB_Full_Data_Export.pdf");
 
   return {
     success: true,

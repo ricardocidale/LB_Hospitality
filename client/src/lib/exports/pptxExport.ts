@@ -420,7 +420,9 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
   addFinancialTableSlide(ctx, "Portfolio Investment Analysis", entityTag, data.investmentData.years, data.investmentData.rows);
 
   addAllFooters(ctx);
-  pres.writeFile({ fileName: customFilename || "Portfolio-Investment-Report.pptx" });
+  const { saveFile } = await import("./saveFile");
+  const pptxBlob = await pres.write({ outputType: "blob" }) as Blob;
+  await saveFile(pptxBlob, customFilename || "Portfolio-Investment-Report.pptx");
 }
 
 export interface PropertyExportData {
@@ -455,7 +457,9 @@ export async function exportPropertyPPTX(data: PropertyExportData, companyName =
 
   const safeName = data.propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
   addAllFooters(ctx);
-  pres.writeFile({ fileName: customFilename || `${safeName} - Financial Report.pptx` });
+  const { saveFile } = await import("./saveFile");
+  const pptxBlob = await pres.write({ outputType: "blob" }) as Blob;
+  await saveFile(pptxBlob, customFilename || `${safeName} - Financial Report.pptx`);
 }
 
 export interface CompanyExportData {
@@ -489,5 +493,7 @@ export async function exportCompanyPPTX(data: CompanyExportData, companyName = "
   addFinancialTableSlide(ctx, `Balance Sheet`, entityTag, data.balanceSheetData.years, data.balanceSheetData.rows);
 
   addAllFooters(ctx);
-  pres.writeFile({ fileName: customFilename || "Management-Company-Report.pptx" });
+  const { saveFile } = await import("./saveFile");
+  const pptxBlob = await pres.write({ outputType: "blob" }) as Blob;
+  await saveFile(pptxBlob, customFilename || "Management-Company-Report.pptx");
 }

@@ -315,7 +315,9 @@ export default function ExecutiveSummary() {
 
     slide.addText(`Generated ${dateStr}`, { x: 0.5, y: 7.15, w: 12, h: 0.2, fontSize: 7, fontFace: "Arial", color: "9CA3AF", align: "center" });
 
-    pres.writeFile({ fileName: customFilename || "executive-summary.pptx" });
+    const pptxBlob = await pres.write({ outputType: "blob" }) as Blob;
+    const { saveFile } = await import("@/lib/exports/saveFile");
+    await saveFile(pptxBlob, customFilename || "executive-summary.pptx");
   }, [kpisForExport, properties, marketData, statusCounts, dateStr]);
 
   const handleExportPNG = useCallback((customFilename?: string) => {

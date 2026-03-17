@@ -18,6 +18,7 @@
  *     fails (which can happen with certain CSS features).
  */
 import domtoimage from 'dom-to-image-more';
+import { saveDataUrl } from './saveFile';
 
 interface TablePNGOptions {
   element: HTMLElement;
@@ -69,10 +70,7 @@ export async function exportTablePNG(options: TablePNGOptions): Promise<void> {
     });
     element.style.border = '';
 
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = dataUrl;
-    link.click();
+    await saveDataUrl(dataUrl, filename);
   } catch (error) {
     console.error('Error exporting table as PNG:', error);
   } finally {
@@ -117,10 +115,7 @@ export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
 
     const dataUrl = await domtoimage.toPng(element, pngOptions);
 
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = dataUrl;
-    link.click();
+    await saveDataUrl(dataUrl, filename);
   } catch (error) {
     console.error('Error exporting chart as PNG:', error);
   }

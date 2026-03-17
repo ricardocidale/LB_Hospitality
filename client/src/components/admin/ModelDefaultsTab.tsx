@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -291,22 +291,28 @@ export default function ModelDefaultsTab({ onSaveStateChange }: ModelDefaultsTab
 
   const [draft, setDraft] = useState<Draft>({});
   const [isDirty, setIsDirty] = useState(false);
+  const draftRef = useRef<Draft>({});
 
   useEffect(() => {
     if (saved) {
       setDraft({ ...saved });
+      draftRef.current = { ...saved };
       setIsDirty(false);
     }
   }, [saved]);
 
   const handleChange = useCallback((field: string, value: any) => {
-    setDraft((prev) => ({ ...prev, [field]: value }));
+    setDraft((prev) => {
+      const next = { ...prev, [field]: value };
+      draftRef.current = next;
+      return next;
+    });
     setIsDirty(true);
   }, []);
 
   const handleSave = useCallback(() => {
-    saveMutation.mutate(draft);
-  }, [draft, saveMutation]);
+    saveMutation.mutate(draftRef.current);
+  }, [saveMutation]);
 
   useEffect(() => {
     onSaveStateChange?.({

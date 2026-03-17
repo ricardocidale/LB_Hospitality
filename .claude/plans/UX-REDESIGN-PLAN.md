@@ -1,24 +1,25 @@
 # UX Redesign Plan: Defaults Governance & App Simplification
 
-**Version**: 3.0 (scoped to defaults only — no engineering reference, no research restructure)
-**Date**: 2026-03-16
+**Version**: 4.0 (corrected: 2 tabs, not 3 — defaults vs working variables)
+**Date**: 2026-03-17
 **Planned by**: Claude Code Opus 4.6 (Anthropic) in collaboration with the project owner
+**Architecture clarification**: See `CLAUDE-CODE-INSTRUCTIONS-MODEL-DEFAULTS.md` for the definitive defaults vs working variables distinction
 
 ---
 
 ## For Replit Agent
 
-This plan covers ONE thing: **consolidating all financial defaults into a single "Model Defaults" admin section and simplifying what non-admin users see.** That's it.
+This plan covers ONE thing: **consolidating all property creation defaults into a single "Model Defaults" admin section and simplifying what non-admin users see.**
 
-For other initiatives, see the companion documents:
+Key architectural rule: **Model Defaults contains only defaults (templates for new properties) and global economic parameters. Company working variables (partner comp, funding, staffing, overhead) stay on the Company Assumptions page where they are today.**
+
+See companion documents for other initiatives:
+- `CLAUDE-CODE-INSTRUCTIONS-MODEL-DEFAULTS.md` — definitive architecture guide
+- `MODEL-DEFAULTS-COMPLETION.md` — detailed implementation spec with schema changes
 - `MARCELA-ISOLATION.md` / `MARCELA-RESTORATION.md` — voice agent management
 - `ADMIN-SYSTEM-CLEANUP.md` — Diagrams and Integrations tab cleanup
 - `APP-UX-ROADMAP.md` — optimizing existing features (no new code)
 - `NEW-FEATURES-BACKLOG.md` — new feature ideas (not approved)
-
-**Replit Task #166** covers Phases 1 + 2 + 5 of this plan (schema, Model Defaults UI, property creation pre-fill).
-
-Use your judgement. Ask the owner when in doubt. Verify after every change (`npm run test:summary`, `npm run verify:summary`).
 
 ---
 
@@ -26,75 +27,74 @@ Use your judgement. Ask the owner when in doubt. Verify after every change (`npm
 
 1. [The Problem](#1-the-problem)
 2. [Design Principles](#2-design-principles)
-3. [What Changes for Users](#3-what-changes-for-users)
-4. [Model Defaults — The New Admin Section](#4-model-defaults)
-5. [Governed Fields](#5-governed-fields)
-6. [Page Changes](#6-page-changes)
-7. [Field Migration Map](#7-field-migration-map)
-8. [Data Flow](#8-data-flow)
-9. [Implementation Phases](#9-implementation-phases)
+3. [Defaults vs Working Variables](#3-defaults-vs-working-variables)
+4. [What Changes for Users](#4-what-changes-for-users)
+5. [Model Defaults — The New Admin Section](#5-model-defaults)
+6. [Governed Fields](#6-governed-fields)
+7. [Page Changes](#7-page-changes)
+8. [Field Migration Map](#8-field-migration-map)
+9. [Data Flow](#9-data-flow)
+10. [Implementation Phases](#10-implementation-phases)
 
 ---
 
 ## 1. The Problem
 
-Financial defaults are scattered across 4 locations with no clear mental model:
+Property creation defaults are scattered across multiple locations:
 
 | Location | What's There | Who Accesses |
 |----------|-------------|-------------|
 | `/settings` ("General Settings") | Acquisition/refi financing defaults, inflation, fiscal year, display toggles | Management users |
-| `/company/assumptions` | Company identity, funding, fees, compensation, overhead, tax, exit, expense rates | Management users |
-| `/admin` various tabs | Navigation toggles, AI agents, research config | Admin only |
-| Code constants (`shared/constants.ts`) | `DEPRECIATION_YEARS = 27.5`, `DAYS_PER_MONTH = 30.5`, all `DEFAULT_*` values | No one (hardcoded) |
+| `/company/assumptions` | Exit cap rate, expense rates, catering boost (property defaults mixed in with company working variables) | Management users |
+| Code constants (`shared/constants.ts`) | `DEPRECIATION_YEARS = 27.5`, `DAYS_PER_MONTH = 30.5`, `DEFAULT_START_ADR`, all `DEFAULT_*` values | No one (hardcoded) |
 
-A user asking "where do I set the default interest rate?" has to guess. Exit cap rate is under Company Assumptions, but acquisition financing defaults are under Settings. Depreciation years is invisible — buried in code.
+A user asking "where do I set the default interest rate for new properties?" has to guess. Exit cap rate is under Company Assumptions, but acquisition financing defaults are under Settings. ADR and occupancy defaults are invisible — hardcoded in client code.
 
-**The fix:** One place for all defaults (Admin > Model Defaults), three scoped tabs, every value visible and configurable by someone.
+**The fix:** One place for all property creation defaults (Admin > Model Defaults), clearly separated from company working variables.
 
 ---
 
 ## 2. Design Principles
 
-1. **All defaults in one place** — Admin > Model Defaults with 3 tabs: Market & Macro, Company Operations, Property Underwriting
-2. **Every calculated value traces to a configurable default** — No code constants. If it affects a number, someone can see and change it.
-3. **Defaults are starting points, not live bindings** — They pre-fill entities at creation. Changing a default does NOT retroactively change existing properties.
+1. **All property defaults in one place** — Admin > Model Defaults with 2 tabs: Market & Macro, Property Underwriting
+2. **Defaults are templates, not live values** — They pre-fill new properties at creation. Changing a default does NOT retroactively change existing properties.
+3. **Company working variables stay where they are** — Partner comp, funding, staffing, overhead, fees, tax are NOT defaults. They are live values on the Company Assumptions page.
 4. **Non-admin users get a clean operational view** — No settings pages. Every sidebar item is something they use daily.
-5. **Governed values inform, not block** — IRS/GAAP values are editable but carry a shield icon + authority citation + caution text.
-6. **Config switches are not defaults** — Sidebar toggles, AI settings, display preferences stay in their admin tabs, not in Model Defaults.
-7. **If no one can change a value, it shouldn't be stored** — It's dead code.
-
-### Default vs Config Switch
-
-| Type | What It Is | Where It Lives | Example |
-|------|-----------|---------------|---------|
-| **Default** | Starting value that flows into an entity field a user can change | Admin > Model Defaults | Exit cap rate, depreciation years, staff salary |
-| **Config switch** | Platform behavior toggle — no user-facing field it pre-fills | Stays in relevant admin tab | Sidebar visibility, preferred LLM, tour prompt |
+5. **Governed values inform, not block** — IRS/GAAP values are editable but carry a shield icon + authority citation.
+6. **Config switches are not defaults** — Sidebar toggles, AI settings, display preferences stay in their admin tabs.
+7. **Nullable with constant fallback** — New default columns are nullable. NULL = use hardcoded constant. Non-NULL = admin has explicitly set a custom default.
 
 ---
 
-## 3. What Changes for Users
+## 3. Defaults vs Working Variables
+
+This is the key architectural distinction. See `CLAUDE-CODE-INSTRUCTIONS-MODEL-DEFAULTS.md` for the full explanation.
+
+| Category | Where Edited | Purpose | Example |
+|----------|-------------|---------|---------|
+| **Default** | Admin > Model Defaults | Template value copied into new properties at creation | Default ADR ($250), default cost rate rooms (20%), default exit cap rate (8.5%) |
+| **Working Variable** | Company Assumptions page | Live value directly driving the financial engine for the management company | Partner comp, staff salary, funding tranches, overhead costs, company tax rate |
+| **Config Switch** | Various admin tabs | Platform behavior toggle — no entity field it pre-fills | Sidebar visibility, preferred LLM, tour prompt |
+
+**The test:** Does this value get copied into a new property? → It's a default, put it in Model Defaults. Does it directly drive the management company engine? → It's a working variable, it stays on Company Assumptions.
+
+---
+
+## 4. What Changes for Users
 
 ### Non-Admin Users
 
-**Before:** Sidebar has "General Settings" with 15 fields. Company Assumptions page has 63+ fields. User can change values that affect the entire model.
+**Before:** Sidebar has "General Settings" with 15 fields.
 
 **After:**
 - "General Settings" is **gone** from sidebar
-- Company Assumptions page **redirects to `/company`** (read-only Model Inputs panel)
-- Every remaining sidebar item is operational — something they use daily
+- Every remaining sidebar item is operational
 - Property Edit still fully editable (property owns its values after creation)
+- Company Assumptions page **stays** (it has working variables that users may need to adjust)
 
 **Sidebar before → after:**
 ```
 Before:                          After:
-HOME                             HOME
-  Dashboard                        Dashboard
-  Properties                       Properties
-  Mgmt Company                     Mgmt Company
-TOOLS                            TOOLS
-  Simulation                       Simulation
-  Property Finder                  Property Finder
-  Map View                         Map View
 SETTINGS                         ACCOUNT
   My Profile                       My Profile
   My Scenarios                     My Scenarios
@@ -103,23 +103,21 @@ SETTINGS                         ACCOUNT
 
 ### Admin Users
 
-**Before:** Defaults scattered across Settings, Company Assumptions, and code constants. Admin sidebar has no "defaults" section.
+**Before:** Property defaults scattered across Settings page, Company Assumptions page, and code constants.
 
 **After:**
-- New **"Model Defaults"** as first item in Business group of admin sidebar
-- Three tabs: Market & Macro, Company Operations, Property Underwriting
-- All financial defaults in one place
-- Company identity fields (name, logo, contact) also here (since CompaniesTab manages external companies, not the management company)
+- New **"Model Defaults"** in admin sidebar (currently in System group)
+- Two tabs: Market & Macro, Property Underwriting
+- All property creation defaults in one place
+- Company Assumptions page remains for company working variables
 
 ---
 
-## 4. Model Defaults — The New Admin Section
-
-Single source of truth for all financial defaults. Three tabs. Located first in the Business group of the admin sidebar.
+## 5. Model Defaults — The New Admin Section (2 Tabs)
 
 ### Tab 1: Market & Macro
 
-*"These values provide economic context for research and benchmarking across the platform."*
+*"Global economic assumptions that provide context for research, benchmarking, and valuation calculations across all properties."*
 
 #### Economic Environment
 
@@ -137,207 +135,118 @@ Single source of truth for all financial defaults. Three tabs. Located first in 
 
 ---
 
-### Tab 2: Company Operations
+### Tab 2: Property Underwriting
 
-*"These values drive the management company pro-forma. Changes take effect immediately."*
-
-Since there's only one management company, these ARE the values (not templates).
-
-#### Company Identity
-
-| Field | Type | Default |
-|-------|------|---------|
-| Company logo | selector | (from logo pool) |
-| Company name | text | "Hospitality Business" |
-| Email, Phone, Website | text | — |
-| Tax ID / EIN | text | — |
-| Founding year | number | — |
-| Street address | text | — |
-| Country → State → City → Zip | cascading selects | — |
-
-*These move here from Company Assumptions (CompanySetupSection). Admin > Companies tab manages external "Companies of Interest", not the management company.*
-
-#### Company Timeline
-
-| Field | Type | Default |
-|-------|------|---------|
-| Model start date | date | 2026-04-01 |
-| Company operations start date | date | 2026-06-01 |
-| Projection years | number | 10 |
-
-#### Funding Structure
-
-| Field | Type | Default |
-|-------|------|---------|
-| Funding source label | text | "Funding Vehicle" |
-| Tranche 1 amount | $ | 1,000,000 |
-| Tranche 1 date | date | 2026-06-01 |
-| Tranche 2 amount | $ | 1,000,000 |
-| Tranche 2 date | date | 2027-04-01 |
-| Valuation cap | $ | 2,500,000 |
-| Discount rate | % | 20% |
-| Interest rate | % | 8% |
-| Payment frequency | select | Accrues only |
-
-#### Revenue Model
-
-| Field | Type | Default |
-|-------|------|---------|
-| Base management fee | % | 8.5% |
-| Incentive management fee | % | 12.0% |
-
-#### People & Compensation
-
-| Field | Type | Default |
-|-------|------|---------|
-| Staff salary per FTE | $ | 75,000 |
-| Salary escalation rate | % | 3.0% |
-| Payroll burden rate | % | 25% |
-| Staffing tier 1: max properties | number | 3 |
-| Staffing tier 1: FTE count | number | 2.5 |
-| Staffing tier 2: max properties | number | 6 |
-| Staffing tier 2: FTE count | number | 4.5 |
-| Staffing tier 3: FTE count | number | 7.0 |
-
-**Partner compensation table** (Years 1-10): count + annual comp per year.
-
-#### Fixed Overhead
-
-| Field | Type | Default |
-|-------|------|---------|
-| Fixed cost escalation rate | % | 3.0% |
-| Office lease (Year 1) | $ | 36,000 |
-| Professional services (Year 1) | $ | 24,000 |
-| Technology infrastructure (Year 1) | $ | 18,000 |
-| Business insurance (Year 1) | $ | 12,000 |
-
-#### Variable Costs
-
-| Field | Type | Default |
-|-------|------|---------|
-| Travel cost per client | $ | 12,000 |
-| IT license per client | $ | 3,000 |
-| Marketing rate | % | 5.0% |
-| Miscellaneous ops rate | % | 3.0% |
-
-#### Company Tax
-
-| Field | Type | Default |
-|-------|------|---------|
-| Company income tax rate | % | 30% |
-| Company inflation rate | % | 3.0% |
-
----
-
-### Tab 3: Property Underwriting
-
-*"These values will be applied as starting assumptions for the next property added to the portfolio. Existing properties are not affected."*
+*"Default values applied to new properties at creation. Each property can override these individually on its assumptions page."*
 
 **On save, show toast:** *"Property defaults saved. These will apply to new properties. {N} existing properties retain their current values."*
 
 #### Revenue Assumptions
 
-| Field | Type | Default |
-|-------|------|---------|
-| Default starting ADR | $ | 250 |
-| Default ADR growth rate | % | 3.0% |
-| Default starting occupancy | % | 55% |
-| Default stabilized occupancy | % | 85% |
-| Default stabilization months | number | 36 |
-| Default F&B revenue share | % | 18% |
-| Default catering boost | % | 22% |
-| Default event revenue share | % | 30% |
-| Default other revenue share | % | 5% |
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Default room count | number | 10 | `defaultRoomCount` (NEW) |
+| Default starting ADR | $ | 250 | `defaultStartAdr` (NEW) |
+| Default ADR growth rate | % | 3.0% | `defaultAdrGrowthRate` (NEW) |
+| Default starting occupancy | % | 55% | `defaultStartOccupancy` (NEW) |
+| Default stabilized occupancy | % | 85% | `defaultMaxOccupancy` (NEW) |
+| Default stabilization months | number | 6 | `defaultOccupancyRampMonths` (NEW) |
+| Default F&B revenue share | % | 18% | `defaultRevShareFb` (NEW) |
+| Default event revenue share | % | 30% | `defaultRevShareEvents` (NEW) |
+| Default other revenue share | % | 5% | `defaultRevShareOther` (NEW) |
+| Default catering boost | % | 22% | `defaultCateringBoostPct` (NEW) |
 
-#### Operating Cost Rates
+#### USALI Operating Cost Rates
 
-| Field | Type | Default |
-|-------|------|---------|
-| Rooms department | % | 20% |
-| F&B department | % | 9% |
-| Admin & General | % | 8% |
-| Marketing | % | 1% |
-| Property Ops & Maintenance | % | 4% |
-| Utilities | % | 5% |
-| Property Taxes | % | 3% |
-| IT & Telecom | % | 0.5% |
-| FF&E Reserve | % | 4% |
-| Other Operating | % | 5% |
-| Insurance | % | 1.5% |
-| Event expense rate | % | 65% |
-| Other expense rate | % | 60% |
-| Utilities variable split | % | 60% |
+**Departmental Expenses:**
+
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Rooms expense rate | % | 20% | `defaultCostRateRooms` (NEW) |
+| F&B expense rate | % | 9% | `defaultCostRateFb` (NEW) |
+
+**Undistributed Operating Expenses:**
+
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Admin / G&A rate | % | 8% | `defaultCostRateAdmin` (NEW) |
+| Sales & Marketing rate | % | 1% | `defaultCostRateMarketing` (NEW) |
+| Property Ops & Maintenance | % | 4% | `defaultCostRatePropertyOps` (NEW) |
+| Utilities rate | % | 5% | `defaultCostRateUtilities` (NEW) |
+| IT rate | % | 0.5% | `defaultCostRateIt` (NEW) |
+
+**Fixed Charges:**
+
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Property taxes rate | % | 3% | `defaultCostRateTaxes` (NEW) |
+| Insurance rate | % | 1.5% | `defaultCostRateInsurance` (NEW) |
+| FF&E reserve rate | % | 4% | `defaultCostRateFfe` (NEW) |
+
+**Other:**
+
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Other expense rate | % | 5% | `defaultCostRateOther` (NEW) |
+
+**Revenue Stream Expense Rates (existing columns):**
+
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Event expense rate | % | 65% | `eventExpenseRate` (EXISTS) |
+| Other revenue expense rate | % | 60% | `otherExpenseRate` (EXISTS) |
+| Utilities variable split | % | 60% | `utilitiesVariableSplit` (EXISTS) |
 
 #### Acquisition Financing
 
-| Field | Type | Default |
-|-------|------|---------|
-| Default LTV | % | 75% |
-| Default interest rate | % | 9.0% |
-| Default term (years) | number | 25 |
-| Default closing cost rate | % | 2.0% |
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Default LTV | % | 75% | `debtAssumptions.acqLTV` (EXISTS) |
+| Default interest rate | % | 9.0% | `debtAssumptions.interestRate` (EXISTS) |
+| Default term (years) | number | 25 | `debtAssumptions.amortizationYears` (EXISTS) |
+| Default closing cost rate | % | 2.0% | `debtAssumptions.acqClosingCostRate` (EXISTS) |
 
 #### Refinance Terms
 
-| Field | Type | Default |
-|-------|------|---------|
-| Default refi LTV | % | 75% |
-| Default refi interest rate | % | 7.0% |
-| Default refi term (years) | number | 25 |
-| Default refi closing cost rate | % | 3.0% |
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Default refi LTV | % | 75% | `debtAssumptions.refiLTV` (EXISTS) |
+| Default refi interest rate | % | 7.0% | `debtAssumptions.refiInterestRate` (EXISTS) |
+| Default refi term (years) | number | 25 | `debtAssumptions.refiAmortizationYears` (EXISTS) |
+| Default refi closing cost rate | % | 3.0% | `debtAssumptions.refiClosingCostRate` (EXISTS) |
 
 #### Depreciation & Tax
 
-| Field | Type | Default | Governed? |
-|-------|------|---------|-----------|
-| Depreciation years | number | 27.5 | **Yes** — IRS Publication 946 |
-| Default property income tax rate | % | 25% | No |
-| Default property inflation rate | % | 3.0% | No |
+| Field | Type | Default | Governed? | Schema Column |
+|-------|------|---------|-----------|---------------|
+| Depreciation years | number | 27.5 | **Yes** — IRS Pub 946 | `depreciationYears` (EXISTS) |
+| Default property income tax rate | % | 25% | No | `defaultPropertyTaxRate` (NEW) |
+| Default land value percent | % | 25% | No | `defaultLandValuePercent` (NEW) |
+| Default property inflation rate | % | 3.0% | No | (uses `inflationRate` as fallback) |
 
 #### Disposition
 
-| Field | Type | Default |
-|-------|------|---------|
-| Default exit cap rate | % | 8.5% |
-| Default sales commission | % | 5.0% |
-| Default real estate commission | % | 5.0% |
-
-#### Working Capital & Accounting
-
-| Field | Type | Default |
-|-------|------|---------|
-| Accounts receivable days | number | 30 |
-| Accounts payable days | number | 45 |
-| Reinvestment rate | % | 5.0% |
-| Day count convention | select | 30/360 |
-| Escalation method | select | Annual |
-
-#### Cost Segregation (Advanced)
-
-| Field | Type | Default |
-|-------|------|---------|
-| Cost segregation enabled | toggle | Off |
-| 5-year property % | % | 15% |
-| 7-year property % | % | 10% |
-| 15-year property % | % | 5% |
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Default exit cap rate | % | 8.5% | `exitCapRate` (EXISTS) |
+| Default sales commission | % | 5.0% | `salesCommissionRate` (EXISTS) |
+| Default acquisition commission | % | 5.0% | `commissionRate` (EXISTS) |
 
 #### Default Acquisition Package
 
-| Field | Type | Default |
-|-------|------|---------|
-| Default purchase price | $ | 3,800,000 |
-| Default building improvements | $ | 1,200,000 |
-| Default pre-opening costs | $ | 200,000 |
-| Default operating reserve | $ | 250,000 |
-| Default months to operations | number | 6 |
+| Field | Type | Default | Schema Column |
+|-------|------|---------|---------------|
+| Default purchase price | $ | 3,800,000 | `standardAcqPackage.purchasePrice` (EXISTS) |
+| Default building improvements | $ | 1,200,000 | `standardAcqPackage.buildingImprovements` (EXISTS) |
+| Default pre-opening costs | $ | 200,000 | `standardAcqPackage.preOpeningCosts` (EXISTS) |
+| Default operating reserve | $ | 250,000 | `standardAcqPackage.operatingReserve` (EXISTS) |
+| Default months to operations | number | 6 | `standardAcqPackage.monthsToOps` (EXISTS) |
 
 ---
 
-## 5. Governed Fields
+## 6. Governed Fields
 
 A governed field is any value backed by regulation, tax law, or industry standard. Editable but carries authority citation.
-
-### Registry
 
 | Field | Authority | Location(s) |
 |-------|-----------|-------------|
@@ -359,16 +268,13 @@ A governed field is any value backed by regulation, tax law, or industry standar
 └──────────────────────────────────────────────────┘
 ```
 
-- Shield icon (not warning triangle) — conveys authority, not danger
-- Collapsible helper text — expanded on first view, collapsible after
-- Muted amber background — `bg-amber-50 border-amber-200` (light), `bg-amber-900/20` (dark)
-- Same treatment on Property Edit — governance info travels with the field
+Already implemented as `GovernedFieldWrapper` component in `client/src/components/ui/governed-field.tsx`.
 
 ---
 
-## 6. Page Changes
+## 7. Page Changes
 
-### 6.1 Settings Page → ELIMINATED
+### 7.1 Settings Page → ELIMINATED
 
 The `/settings` page is removed. Its 15 fields move to:
 
@@ -386,22 +292,23 @@ The `/settings` page is removed. Its 15 fields move to:
 
 "General Settings" removed from sidebar. `/settings` redirects.
 
-### 6.2 Company Assumptions Page → Admin Only
+### 7.2 Company Assumptions Page → STAYS (working variables)
 
-**Current state:** 12 sections, 63+ fields, accessible to management users.
+**Previous plan** proposed moving all 63+ fields to Model Defaults. **This was wrong.**
 
-**New state:**
-- All financial inputs move to Model Defaults > Company Operations tab
-- Company identity fields (name, logo, contact, address) move to Model Defaults > Company Operations > Identity
-- Exit/expense rate fields move to Model Defaults > Property Underwriting
-- `/company/assumptions` redirects to `/company` for non-admins, `/admin?section=model-defaults` for admins
+**Corrected:** Company Assumptions page stays as-is. It contains working variables (partner comp, funding, staffing, overhead, tax, fees) that directly drive the management company engine. These are NOT defaults.
 
-### 6.3 Company Page (`/company`) — New Model Inputs Panel
+The only fields that **move out** of Company Assumptions are:
+- Exit cap rate, sales commission → Model Defaults > Property Underwriting > Disposition (these are property defaults, not company working variables)
+- Event expense rate, other expense rate, utilities variable split → Model Defaults > Property Underwriting > Operating Cost Rates (same reason)
+- Catering boost % → Model Defaults > Property Underwriting > Revenue Assumptions (same reason)
 
-Add a **read-only expandable accordion** below the tab bar:
+### 7.3 Company Page (`/company`) — Model Inputs Panel
+
+Add a **read-only expandable accordion** showing key company working variables:
 
 ```
-▸ Model Inputs                           Set by administrator
+▸ Model Inputs                           Set on Company Assumptions page
 
 (when expanded:)
 ┌─────────────────────────────────────────────────────┐
@@ -411,38 +318,35 @@ Add a **read-only expandable accordion** below the tab bar:
 │ Overhead: $36K office · $24K prof svc · 3%/yr esc   │
 │ Tax: 30%                                            │
 │                                                     │
-│ [If admin: "Edit in Admin > Model Defaults" link]   │
+│ [Edit on Company Assumptions page →]                │
 └─────────────────────────────────────────────────────┘
 ```
 
-### 6.4 Property Edit — Pre-fill from Defaults
+### 7.4 Property Edit — Pre-fill from Defaults
 
-When a user creates a new property, all fields are pre-filled from Model Defaults > Property Underwriting. The user sees real numbers in every field on day one, edits what they want, saves. The property then owns its values.
+When a user creates a new property, all fields are pre-filled from Model Defaults > Property Underwriting. The `buildPropertyDefaultsFromGlobal()` function in `server/routes/properties.ts` reads defaults from `globalAssumptions` with constant fallbacks:
 
-**Current state (from audit):** The server route `POST /api/properties` already calls `buildPropertyDefaultsFromGlobal()` for cost rates, financing, exit, and fees. But revenue defaults (ADR, occupancy, ramp) are pre-filled on the **client side** from constants. This redesign unifies both into a single server-side flow reading everything from the database.
+```typescript
+startAdr: ga?.defaultStartAdr ?? DEFAULT_START_ADR,
+costRateRooms: ga?.defaultCostRateRooms ?? DEFAULT_COST_RATE_ROOMS,
+exitCapRate: ga?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE,
+```
 
-### 6.5 Admin Panel — Model Defaults Added
+### 7.5 Admin Panel — Model Defaults Added
 
-"Model Defaults" added as first item in Business group. Navigation tab renamed to "Navigation & Display" and gains display toggle + tour toggle fields from eliminated Settings page.
+"Model Defaults" added to admin sidebar. Navigation tab renamed to "Navigation & Display" and gains display toggle + tour toggle fields from eliminated Settings page.
 
 ---
 
-## 7. Field Migration Map
+## 8. Field Migration Map
 
-### From Settings Page (15 fields)
+### From Settings Page (15 fields → Model Defaults + admin tabs)
 
 | Field | Settings Tab | Moves To |
 |-------|-------------|----------|
 | Real estate commission | Property Defaults | Model Defaults > Property Underwriting > Disposition |
-| Acquisition LTV | Property Defaults | Model Defaults > Property Underwriting > Acq Financing |
-| Acquisition interest rate | Property Defaults | Model Defaults > Property Underwriting > Acq Financing |
-| Acquisition term | Property Defaults | Model Defaults > Property Underwriting > Acq Financing |
-| Acquisition closing cost | Property Defaults | Model Defaults > Property Underwriting > Acq Financing |
-| Refi years after acq | Property Defaults | Model Defaults > Property Underwriting > Refi Terms |
-| Refi LTV | Property Defaults | Model Defaults > Property Underwriting > Refi Terms |
-| Refi rate | Property Defaults | Model Defaults > Property Underwriting > Refi Terms |
-| Refi term | Property Defaults | Model Defaults > Property Underwriting > Refi Terms |
-| Refi closing cost | Property Defaults | Model Defaults > Property Underwriting > Refi Terms |
+| Acquisition LTV, rate, term, closing | Property Defaults | Model Defaults > Property Underwriting > Acq Financing |
+| Refi LTV, rate, term, closing, years-after | Property Defaults | Model Defaults > Property Underwriting > Refi Terms |
 | Fiscal year start month | Macro | Model Defaults > Market & Macro |
 | Inflation escalator | Macro | Model Defaults > Market & Macro |
 | Show company calc details | Other | Admin > Navigation & Display |
@@ -450,30 +354,47 @@ When a user creates a new property, all fields are pre-filled from Model Default
 | Auto-refresh research | Other | Admin > Research Center |
 | Show tour prompt | Other | Admin > Navigation & Display |
 
-### From Company Assumptions Page (63+ fields)
+### From Company Assumptions Page (only property defaults move)
 
 | Section | Fields | Moves To |
 |---------|--------|----------|
-| Company Setup (identity) | Logo, name, contact, address, EIN, founding year | Model Defaults > Company Operations > Identity |
-| Company Setup (model) | Ops start date, projection years, company inflation | Model Defaults > Company Operations > Timeline / Tax |
-| Funding | All SAFE fields (13 + toggles) | Model Defaults > Company Operations > Funding |
-| Management Fees | Base %, incentive % | Model Defaults > Company Operations > Revenue |
-| Compensation | Staff salary, tiers, partner comp | Model Defaults > Company Operations > People |
-| Fixed Overhead | Escalation + 4 overhead items | Model Defaults > Company Operations > Fixed Overhead |
-| Variable Costs | 4 items | Model Defaults > Company Operations > Variable Costs |
-| Tax | Company tax rate | Model Defaults > Company Operations > Tax |
-| Exit Assumptions | Cost of equity, exit cap rate, sales commission | Model Defaults > Property Underwriting > Disposition |
-| Property Expense Rates | Event, other, utilities split | Model Defaults > Property Underwriting > Operating Costs |
+| Exit Assumptions | Exit cap rate, sales commission | Model Defaults > Property Underwriting > Disposition |
+| Property Expense Rates | Event expense, other expense, utilities split | Model Defaults > Property Underwriting > Operating Costs |
 | Catering | Catering boost % | Model Defaults > Property Underwriting > Revenue |
 
-### From Code Constants
+**Everything else on Company Assumptions STAYS:** Company identity, timeline, funding, fees, compensation, staffing, overhead, variable costs, tax. These are working variables.
 
-| Constant | Value | Moves To |
-|----------|-------|----------|
-| `DEPRECIATION_YEARS` | 27.5 | Model Defaults > Property Underwriting (governed) |
-| `DAYS_PER_MONTH` | 30.5 | Model Defaults > Market & Macro (governed) |
-| `DEFAULT_*` client-side (ADR, occupancy, ramp) | various | Model Defaults > Property Underwriting > Revenue |
-| All remaining `DEFAULT_*` | various | Corresponding Model Defaults field |
+### From Code Constants (NEW schema columns)
+
+| Constant | Value | New Schema Column |
+|----------|-------|-------------------|
+| `DEPRECIATION_YEARS` | 27.5 | `depreciationYears` (already added) |
+| `DAYS_PER_MONTH` | 30.5 | `daysPerMonth` (already added) |
+| `DEFAULT_START_ADR` | 250 | `defaultStartAdr` (NEW) |
+| `DEFAULT_ADR_GROWTH_RATE` | 0.03 | `defaultAdrGrowthRate` (NEW) |
+| `DEFAULT_START_OCCUPANCY` | 0.55 | `defaultStartOccupancy` (NEW) |
+| `DEFAULT_MAX_OCCUPANCY` | 0.85 | `defaultMaxOccupancy` (NEW) |
+| `DEFAULT_OCCUPANCY_RAMP_MONTHS` | 6 | `defaultOccupancyRampMonths` (NEW) |
+| `DEFAULT_ROOM_COUNT` | 10 | `defaultRoomCount` (NEW) |
+| `DEFAULT_REV_SHARE_FB` | 0.18 | `defaultRevShareFb` (NEW) |
+| `DEFAULT_REV_SHARE_EVENTS` | 0.30 | `defaultRevShareEvents` (NEW) |
+| `DEFAULT_REV_SHARE_OTHER` | 0.05 | `defaultRevShareOther` (NEW) |
+| `DEFAULT_CATERING_BOOST_PCT` | 0.22 | `defaultCateringBoostPct` (NEW) |
+| `DEFAULT_COST_RATE_ROOMS` | 0.20 | `defaultCostRateRooms` (NEW) |
+| `DEFAULT_COST_RATE_FB` | 0.09 | `defaultCostRateFb` (NEW) |
+| `DEFAULT_COST_RATE_ADMIN` | 0.08 | `defaultCostRateAdmin` (NEW) |
+| `DEFAULT_COST_RATE_MARKETING` | 0.01 | `defaultCostRateMarketing` (NEW) |
+| `DEFAULT_COST_RATE_PROPERTY_OPS` | 0.04 | `defaultCostRatePropertyOps` (NEW) |
+| `DEFAULT_COST_RATE_UTILITIES` | 0.05 | `defaultCostRateUtilities` (NEW) |
+| `DEFAULT_COST_RATE_TAXES` | 0.03 | `defaultCostRateTaxes` (NEW) |
+| `DEFAULT_COST_RATE_IT` | 0.005 | `defaultCostRateIt` (NEW) |
+| `DEFAULT_COST_RATE_FFE` | 0.04 | `defaultCostRateFfe` (NEW) |
+| `DEFAULT_COST_RATE_OTHER` | 0.05 | `defaultCostRateOther` (NEW) |
+| `DEFAULT_COST_RATE_INSURANCE` | 0.015 | `defaultCostRateInsurance` (NEW) |
+| (property tax rate) | 0.25 | `defaultPropertyTaxRate` (NEW) |
+| (land value %) | 0.25 | `defaultLandValuePercent` (NEW) |
+
+All new columns are **nullable**. NULL = use hardcoded constant fallback.
 
 ### Config Switches (NOT defaults — stay in current admin tabs)
 
@@ -488,124 +409,100 @@ When a user creates a new property, all fields are pre-filled from Model Default
 
 ---
 
-## 8. Data Flow
+## 9. Data Flow
 
 ```
-┌─────────────────────────────────────────────────────┐
-│              ADMIN > MODEL DEFAULTS                  │
-│  ┌─────────────┐ ┌────────────────┐ ┌────────────┐ │
-│  │ Market &    │ │ Company        │ │ Property   │ │
-│  │ Macro       │ │ Operations     │ │ Underwr.   │ │
-│  └──────┬──────┘ └───────┬────────┘ └─────┬──────┘ │
-└─────────┼────────────────┼────────────────┼─────────┘
-          │                │                │
-          ▼                ▼                ▼
-    Research &        Company page     New property
-    benchmarks        (direct edit —   creation
-                      singleton)           │
-                           │               ▼
-                           ▼          Property Edit
-                      /company        (pre-filled,
-                      (results +       user edits
-                       read-only       and saves)
-                       input panel)        │
-                                           ▼
-                                      Property OWNS
-                                      its values
+┌───────────────────────────────────────────────────┐
+│           ADMIN > MODEL DEFAULTS                   │
+│  ┌─────────────┐  ┌───────────────────────────┐   │
+│  │ Market &    │  │ Property Underwriting      │   │
+│  │ Macro       │  │ (templates for new props)  │   │
+│  └──────┬──────┘  └────────────┬──────────────┘   │
+└─────────┼──────────────────────┼──────────────────┘
+          │                      │
+          ▼                      ▼
+    Research &              New property creation
+    benchmarks              (buildPropertyDefaultsFromGlobal)
+                                 │
+                                 ▼
+                            Property Edit
+                            (pre-filled, user edits and saves)
+                                 │
+                                 ▼
+                            Property OWNS its values
+
+┌───────────────────────────────────────────────────┐
+│      COMPANY ASSUMPTIONS PAGE (unchanged)          │
+│  Partner comp, funding, staffing, overhead,        │
+│  fees, tax — working variables for the engine      │
+│         ↓                                          │
+│    Company Pro-Forma (direct, live)                │
+└───────────────────────────────────────────────────┘
 ```
 
 **When admin changes a Property Underwriting default** → only affects next property created. Existing properties unchanged.
 
-**When admin changes a Company Operations value** → immediately affects company pro-forma (singleton).
-
 **When admin changes a Market & Macro value** → immediately affects research context and calculations reading this global value.
+
+**When user changes Company Assumptions** → immediately affects company pro-forma (these are live working variables, not defaults).
 
 ---
 
-## 9. Implementation Phases
+## 10. Implementation Phases
 
-### Phase 1: Schema & Database
+### Phase 1: Schema — Add 23 nullable columns
 **Effort:** Small | **Risk:** Low | **Depends on:** Nothing
 
-Add missing columns to `globalAssumptions` for fields that don't have DB columns yet (revenue defaults, cost segregation, AR/AP days, cost of equity, payroll burden rate). Write idempotent migration. Runs on next server start.
+Add missing columns to `globalAssumptions` for revenue defaults, USALI cost rate defaults, property tax rate, land value percent. All nullable — NULL = use constant fallback. See `MODEL-DEFAULTS-COMPLETION.md` Phase 1 for exact column list.
 
-### Phase 2: Admin Model Defaults UI
+### Phase 2: Model Defaults UI — Complete & redesign
 **Effort:** Medium | **Risk:** Medium | **Depends on:** Phase 1
 
-Create `ModelDefaultsTab.tsx` with 3 sub-tabs. Follow existing admin tab patterns. Wire to `PATCH /api/global-assumptions`. Add to admin sidebar as first item in Business group.
-
-**Replit Task #166 covers Phases 1 + 2 + 5.**
+Complete `ModelDefaultsTab.tsx`: add Revenue Assumptions section, expand USALI Operating Cost Rates to all 14 fields, add property tax rate and land value percent. Premium design upgrade. See `MODEL-DEFAULTS-COMPLETION.md` Phases 3-7 for full spec.
 
 ### Phase 3: Governed Field Component
 **Effort:** Small | **Risk:** Low | **Depends on:** Nothing
 
-Create `GovernedField.tsx` component with shield icon, authority badge, collapsible helper text. Apply to depreciation years and days per month.
+Already implemented as `GovernedFieldWrapper`. Applied to depreciation years and days per month.
 
-### Phase 4: Company Page Read-Only Panel
-**Effort:** Small | **Risk:** Low | **Depends on:** Nothing
-
-Create `ModelInputsPanel.tsx` — read-only expandable accordion on `/company` page.
-
-### Phase 5: Extend Property Creation Pre-fill
+### Phase 4: Extend Property Creation Pre-fill
 **Effort:** Small | **Risk:** Medium | **Depends on:** Phase 1
 
-**Already exists:** `buildPropertyDefaultsFromGlobal()` fills cost rates, financing, exit, fees. Extend it to include revenue defaults (ADR, occupancy, ramp) from database instead of client constants. Update `AddPropertyDialog` to read from API.
+Update `buildPropertyDefaultsFromGlobal()` in `server/routes/properties.ts` to read new default columns with constant fallbacks. See `MODEL-DEFAULTS-COMPLETION.md` Phase 2.
 
-### Phase 6: Eliminate Settings Page
+### Phase 5: Eliminate Settings Page
 **Effort:** Small | **Risk:** Low | **Depends on:** Phase 2
 
 Remove `/settings` route and sidebar item. Add redirect. Move display toggles to Navigation & Display. Move research auto-refresh to Research Center. Move tour toggle to Navigation & Display.
 
-### Phase 7: Company Assumptions Consolidation
-**Effort:** Medium | **Risk:** Medium | **Depends on:** Phase 2, 4
+### Phase 6: Move Property Defaults from Company Assumptions
+**Effort:** Small | **Risk:** Low | **Depends on:** Phase 2
 
-Move company identity fields to Model Defaults > Company Operations > Identity. Move exit/expense fields to Property Underwriting. Redirect `/company/assumptions` for non-admins.
+Move exit cap rate, sales commission, expense rates, and catering boost from Company Assumptions page to Model Defaults > Property Underwriting. These are the only fields that move — everything else stays.
 
-### Phase 8: Code Constants Migration
-**Effort:** Large | **Risk:** High | **Depends on:** Phase 1, 5
+### Phase 7: Code Constants Migration
+**Effort:** Large | **Risk:** High | **Depends on:** Phase 1, 4
 
-**Scope:** `DEPRECIATION_YEARS` referenced in 42 files. `DAYS_PER_MONTH` in 48 files. 30+ test files import these constants.
+Migrate engine code to read `DEPRECIATION_YEARS` and `DAYS_PER_MONTH` from database instead of constants. 90+ files reference these. Migrate one at a time, full test suite after each.
 
-Migrate one constant at a time. Start with `DEPRECIATION_YEARS`. Then `DAYS_PER_MONTH`. Then remaining `DEFAULT_*`. Full test suite after each.
-
-### Phase 9: Testing & Documentation
+### Phase 8: Testing & Documentation
 **Effort:** Medium | **Risk:** Low | **Depends on:** All phases
 
-New tests: model-defaults proof test, governed-fields engine test, settings-elimination test. Run `npm run verify:summary` → UNQUALIFIED. Run `npm run health`.
+Run `npm run verify:summary` → UNQUALIFIED. Run `npm run health`.
 
 ### Summary
 
-```
-Phase 1: Schema (no deps)
-    ├── Phase 2: Model Defaults UI (depends on 1)
-    ├── Phase 3: Governed Fields (no deps)
-    ├── Phase 4: Company Read-Only Panel (no deps)
-    ├── Phase 5: Property Creation Pre-fill (depends on 1)
-    │
-    ├── Phase 6: Eliminate Settings (depends on 2)
-    ├── Phase 7: Company Assumptions Consolidation (depends on 2, 4)
-    │
-    ├── Phase 8: Code Constants Migration (depends on 1, 5) ← HIGHEST RISK
-    │
-    └── Phase 9: Testing & Documentation (depends on all)
-```
-
 | Phase | Work | Effort | Risk | Depends On |
 |-------|------|--------|------|------------|
-| 1 | Schema & Database | Small | Low | — |
-| 2 | Admin Model Defaults UI | Medium | Medium | 1 |
-| 3 | Governed Field Component | Small | Low | — |
-| 4 | Company Page Read-Only Panel | Small | Low | — |
-| 5 | Extend Property Creation Pre-fill | Small | Medium | 1 |
-| 6 | Eliminate Settings Page | Small | Low | 2 |
-| 7 | Company Assumptions Consolidation | Medium | Medium | 2, 4 |
-| 8 | Code Constants Migration | **Large** | **High** | 1, 5 |
-| 9 | Testing & Documentation | Medium | Low | All |
-
-**Parallelizable:** Phases 3, 4, 5 can run in parallel after Phase 1.
-
-**Phase 8 warning:** Highest-risk phase. 90+ files reference the constants. Migrate one at a time, full test suite after each.
+| 1 | Schema — 23 nullable columns | Small | Low | — |
+| 2 | Model Defaults UI — complete & redesign | Medium | Medium | 1 |
+| 3 | Governed Field Component | Done | — | — |
+| 4 | Extend Property Creation Pre-fill | Small | Medium | 1 |
+| 5 | Eliminate Settings Page | Small | Low | 2 |
+| 6 | Move Property Defaults from Company Assumptions | Small | Low | 2 |
+| 7 | Code Constants Migration | **Large** | **High** | 1, 4 |
+| 8 | Testing & Documentation | Medium | Low | All |
 
 ---
 
-*This document covers only the defaults governance redesign. For other initiatives see the companion documents in `.claude/plans/`.*
+*This document covers only the defaults governance redesign. For implementation details see `MODEL-DEFAULTS-COMPLETION.md`. For other initiatives see companion documents in `.claude/plans/`.*

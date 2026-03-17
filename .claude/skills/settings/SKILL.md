@@ -1,115 +1,200 @@
+---
+name: settings
+description: Where configuration lives — property defaults vs company working variables vs config switches. The three categories of configurable values, where each is edited, and how they flow through the system.
+---
+
 # Settings Architecture — Where Configuration Lives
 
-Where every configurable setting belongs in the HBG Portal. Covers the three configuration surfaces (Management Company, General Settings, Admin Panel), property edit overrides, overlap prevention rules, and the decision tree for placing new settings. Use this skill when adding or moving any configurable setting.
+Every configurable value in the app falls into one of three categories. Knowing which category a value belongs to determines where it should be edited, how it behaves when changed, and who can access it.
 
-**Related skills:** `business-model/` (dual-entity model context), `finance/` (how engines consume settings), `architecture/` (storage interface for global_assumptions and properties), `ui/consistent-card-widths.md` (layout patterns for settings pages), `ui/save-button-placement.md` (save button patterns for settings forms)
+**Related skills:** `finance/` (how engines consume values), `architecture/` (storage interface), `constants-governance/` (fallback constants)
 
 ---
 
-## The Three Configuration Surfaces
+## The Three Categories
 
-### 1. Management Company Page (`/company` + `/company/assumptions`)
-**Owner:** The management entity itself — its identity, revenue model, and operating costs.
+### 1. Property Defaults (Templates for New Properties)
 
-**What belongs here:**
-- Company identity: name, logo, contact info, EIN, address, founding year
-- Company timeline: operations start date, projection years
-- Revenue model: service fee category templates, incentive management fee rate
-- Operating costs: staffing tiers, compensation schedules, fixed overhead, variable costs
-- Funding: SAFE note tranches, amounts, dates, gates
-- Company-specific economics: company tax rate, company inflation rate, cost of equity
+**What they are:** Starting values that get **copied into a new property** when it's created. After creation, the property owns its copy — changing the default has NO effect on existing properties.
 
-**Decision test:** "Does this setting describe *what the management company is* or *how it operates*?" → It belongs here.
+**Where they're edited:** Admin > Model Defaults (2 tabs: Market & Macro, Property Underwriting)
 
-**Sub-page structure:**
-- `/company` — Financial statements (Income, Cash Flow, Balance Sheet) with CompanyHeader KPIs
-- `/company/assumptions` — All assumption inputs organized by section (Setup, Funding, Fees, Compensation, Overhead, Variable Costs, Tax)
+**How they flow:**
+```
+Admin sets default ADR = $250 in Model Defaults
+    ↓
+User creates "Hotel Loch Sheldrake"
+    ↓
+buildPropertyDefaultsFromGlobal() reads defaults from globalAssumptions
+    ↓
+Property created with startAdr = $250 (copied from default)
+    ↓
+User edits property ADR to $300 and saves
+    ↓
+Admin later changes default ADR to $275
+    ↓
+Hotel Loch Sheldrake STILL has $300 (its own value)
+NEXT new property will start at $275
+```
 
-### 2. General Settings (`/settings`)
-**Owner:** System-wide defaults and preferences that affect multiple entities or the platform behavior.
+**Examples:**
+| Value | Default | Stored In |
+|-------|---------|-----------|
+| Starting ADR | $250 | `globalAssumptions.defaultStartAdr` → `properties.startAdr` |
+| Rooms cost rate | 20% | `globalAssumptions.defaultCostRateRooms` → `properties.costRateRooms` |
+| Exit cap rate | 8.5% | `globalAssumptions.exitCapRate` → `properties.exitCapRate` |
+| Depreciation years | 27.5 | `globalAssumptions.depreciationYears` → `properties.depreciationYears` |
+| Acquisition LTV | 75% | `globalAssumptions.debtAssumptions.acqLTV` → `properties.acquisitionLTV` |
 
-**Tabs:**
-- **Property Defaults** — Default values used when creating new properties (cost rates, financing terms, revenue shares, exit cap rate, commissions). These are templates, not per-property overrides.
-- **Macro** — Economic factors (global inflation rate, fiscal year start month)
-- **Other** — UI behavior (calculation transparency toggles, research auto-refresh, guided tour)
+**Technical pattern:** New default columns in `globalAssumptions` are **nullable**. NULL means "use the hardcoded constant from `shared/constants.ts`." The function `buildPropertyDefaultsFromGlobal()` in `server/routes/properties.ts` reads these at property creation time:
 
-**What belongs here:**
-- Default property operating cost rates (rooms, F&B, admin, marketing, etc.)
-- Default financing terms (LTV, interest rate, term, closing costs)
-- Default revenue share percentages (events, F&B, other)
-- Default exit cap rate and disposition commission
-- Global inflation rate (distinct from company-specific inflation)
-- Fiscal year configuration
-- UI preference toggles
+```typescript
+startAdr: ga?.defaultStartAdr ?? DEFAULT_START_ADR,  // DB value or constant fallback
+costRateRooms: ga?.defaultCostRateRooms ?? DEFAULT_COST_RATE_ROOMS,
+```
 
-**Decision test:** "Is this a default that applies to *new properties* or *platform-wide behavior*?" → It belongs here.
+**The test:** Does this value get copied into a new property at creation? → It's a property default.
 
-**Critical rule:** When a new property is created, it MUST read defaults from General Settings (global_assumptions), not from hardcoded constants in shared/constants.ts. The hardcoded constants are only fallbacks if global_assumptions has no value.
+---
 
-### 3. Admin Panel (`/admin`)
-**Owner:** Platform administration — things only a system administrator should configure.
+### 2. Working Variables (Live Company Values)
 
-**What belongs here:**
-- User management (users, groups, companies)
-- ICP / Research Center configuration
-- AI agent configuration (Marcela, Rebecca, LLM models)
-- Design system (logos, themes)
-- Navigation visibility toggles
-- System monitoring (verification, database, integrations, activity logs)
-- Notification rules and channels
-- Architecture diagrams
+**What they are:** Values that **directly drive the financial engine** for the management company right now. They are read every time the engine runs. They are not templates — they ARE the live model.
 
-**What does NOT belong here:**
-- Financial defaults (→ General Settings)
-- Company identity or operating assumptions (→ Management Company)
-- Revenue stream / fee category configuration (→ Management Company)
-- Any setting that a Partner-level user should be able to adjust
+**Where they're edited:** Company Assumptions page (`/company/assumptions`)
 
-**Decision test:** "Would a non-admin user ever need to see or change this?" → If yes, it does NOT belong in Admin.
+**Why they're different from defaults:** The management company is a single entity. There is no "create a new management company" flow. These values don't get copied into anything — they're consumed directly by the company engine.
 
-## Property Edit (`/properties/:id/edit`)
-**Owner:** The individual property SPV — its specific deal terms and assumptions.
+**How they flow:**
+```
+User sets partner compensation Year 1 = $540,000 on Company Assumptions
+    ↓
+Company engine reads this value directly from globalAssumptions
+    ↓
+Company Income Statement shows Partner Comp = $540,000 in Year 1
+    ↓
+User changes to $600,000 and saves
+    ↓
+Company Income Statement IMMEDIATELY updates to $600,000
+```
 
-**What belongs here:**
-- Everything about this specific property: capital structure, revenue assumptions, operating cost rates, management fees, timeline, exit assumptions
-- Property-level fee categories (seeded from company templates but individually overridable)
+**Examples:**
+| Value | What It Drives | Why It's Not a Default |
+|-------|---------------|----------------------|
+| Partner comp ($540K/yr) | Company P&L line item | Not copied to any entity — used directly |
+| Staff salary ($75K) | Company payroll expense | Read live by engine every calculation |
+| SAFE tranche 1 ($1M) | Company financing cash flow | The company has ONE funding structure |
+| Office lease ($36K/yr) | Company G&A expense | Directly consumed, not templated |
+| Base management fee (8.5%) | Company revenue + property expense | Applied live to each property's output |
+| Company tax rate (30%) | Company net income | Only one company, one tax rate |
 
-**Rule:** Property-level values always override system defaults. The engine priority is: property value → global_assumptions default → hardcoded constant.
+**The test:** Does this value directly drive the management company P&L/CF/BS and never get copied into a new entity? → It's a working variable.
 
-## Overlap Prevention Rules
+---
 
-1. **No duplicate controls.** A setting must appear in exactly ONE editable location. Read-only displays are acceptable only if clearly marked.
-2. **No admin-only duplicates.** If Revenue Streams or Other Assumptions are editable on the Management Company page, they must NOT also be editable in Admin.
-3. **Template vs. instance.** Service fee categories on the Management Company page are *templates*. The same categories on a Property Edit page are *instances* (copies that can diverge). Label them differently: "Default Service Categories" vs. "Property Service Fees."
-4. **New properties inherit.** The property creation flow must read from `global_assumptions` for all default values. Hardcoded constants in `shared/constants.ts` are last-resort fallbacks only.
+### 3. Config Switches (Platform Behavior)
 
-## When Adding a New Setting
+**What they are:** Toggles that control **how the app looks and behaves** — what users see, which features are active, which AI model to use. They don't flow into financial calculations and don't pre-fill any entity.
 
-Ask these questions in order:
-1. Is it about the management company entity? → Management Company assumptions
-2. Is it a default for new properties? → General Settings → Property Defaults
-3. Is it a platform-wide economic factor? → General Settings → Macro
-4. Is it a UI/behavior preference? → General Settings → Other
-5. Is it system administration? → Admin Panel
-6. Is it specific to one property? → Property Edit
+**Where they're edited:** Various admin tabs (Navigation & Display, Research Center, AI Agents)
 
-If a setting doesn't clearly fit any category, it likely needs a conversation before implementation.
+**Examples:**
+| Switch | What It Controls | Admin Tab |
+|--------|-----------------|-----------|
+| `sidebarPropertyFinder` | Show Property Finder in sidebar | Navigation & Display |
+| `showCompanyCalculationDetails` | Show formula breakdowns | Navigation & Display |
+| `rebeccaEnabled` | Enable Rebecca chatbot | AI Agents |
+| `preferredLlm` | Which AI model for research | Research Center |
+| `autoResearchRefreshEnabled` | Auto-refresh stale research | Research Center |
 
-## Transitional Exceptions
+**The test:** Does this toggle a UI feature or platform behavior without affecting financial numbers? → It's a config switch.
 
-The architecture above represents the target state. As of March 2026, some legacy patterns may still exist in the codebase:
+---
 
-- **Benchmark/research values** on the Company Assumptions page (e.g., exit cap rate ranges, sales commission ranges) are read-only display from research panels — they are NOT editable duplicate controls and do not violate overlap rules.
-- **Property default cost rates** (rooms, F&B, admin, marketing, etc.) currently fall back to hardcoded constants in `shared/constants.ts` because the General Settings Property Defaults tab does not yet expose all of them as editable fields. As those fields are added to the UI, the hardcoded fallbacks should be progressively removed.
-- If you encounter a setting that appears to be editable in two places, check whether one is truly read-only or a research benchmark before flagging it as an overlap violation.
+## Quick Decision Guide
+
+```
+"Where does this new setting belong?"
+
+Does it get COPIED into a new property?
+  YES → Property Default → Admin > Model Defaults > Property Underwriting
+  NO ↓
+
+Does it directly drive the company financial engine?
+  YES → Working Variable → Company Assumptions page
+  NO ↓
+
+Is it a global economic parameter (inflation, fiscal year)?
+  YES → Market Parameter → Admin > Model Defaults > Market & Macro
+  NO ↓
+
+Does it toggle a UI feature or platform behavior?
+  YES → Config Switch → Relevant admin tab
+  NO → Ask the project owner before implementing
+```
+
+---
+
+## Where Each Category Lives
+
+### Admin > Model Defaults > Market & Macro
+Global economic context — not entity-specific.
+- Macro inflation rate, cost of equity, days per month (governed), fiscal year start month
+
+### Admin > Model Defaults > Property Underwriting
+Templates for new properties — copied at creation, then independent.
+- Revenue defaults (ADR, occupancy, ramp, revenue shares, catering boost)
+- USALI operating cost rates (14 rates across departmental, undistributed, fixed charges)
+- Acquisition financing defaults (LTV, rate, term, closing costs)
+- Refinance defaults
+- Depreciation & tax (depreciation years, property tax rate, land value %)
+- Disposition (exit cap rate, commissions)
+- Default acquisition package (purchase price, improvements, reserves)
+
+### Company Assumptions Page (`/company/assumptions`)
+Live working variables — directly consumed by the company engine.
+- Company identity (name, logo, contact, address)
+- Timeline (model start date, ops start date, projection years)
+- Funding (SAFE tranches, valuation cap, interest)
+- Management fees (base %, incentive %)
+- Compensation (salary, tiers, partner comp)
+- Overhead (office, professional services, tech, insurance)
+- Variable costs (travel, IT, marketing, misc ops)
+- Tax (company tax rate, company inflation)
+
+### Property Edit (`/property/:id/edit`)
+Per-property values — override defaults, owned by the property.
+- Everything from Property Underwriting defaults but specific to this property
+- Plus: property name, location, dates, photos, fee categories
+
+### Various Admin Tabs
+Config switches — platform behavior toggles.
+- Navigation & Display: sidebar toggles, calculation detail toggles, tour prompt
+- Research Center: LLM selection, per-domain research behavior, auto-refresh
+- AI Agents: Rebecca config (Marcela currently isolated)
+
+---
+
+## Key Rules
+
+1. **Never put working variables in Model Defaults.** If it directly drives the company engine and isn't copied into properties, it belongs on Company Assumptions.
+2. **Never put config switches in Model Defaults.** If it toggles behavior without affecting financial numbers, it belongs in its admin tab.
+3. **All new property default columns are nullable.** NULL = use constant fallback. Non-NULL = admin set a custom default.
+4. **Changing a default never affects existing properties.** Only the next property created gets the new value.
+5. **Changing a working variable takes effect immediately.** The company engine reads these live.
+6. **Property values always override defaults.** Engine priority: property value → globalAssumptions default → hardcoded constant.
+
+---
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `client/src/pages/Settings.tsx` | General Settings page (Property Defaults, Macro, Other tabs) |
-| `client/src/pages/CompanyAssumptions.tsx` | Management Company assumptions page |
-| `client/src/pages/PropertyEdit.tsx` | Property-level settings and overrides |
-| `client/src/pages/Admin.tsx` | Admin Panel page |
-| `shared/schema.ts` | `globalAssumptions` and `properties` table definitions |
-| `server/storage.ts` | Storage interface for CRUD operations on settings |
+| File | Role |
+|------|------|
+| `client/src/components/admin/ModelDefaultsTab.tsx` | Model Defaults UI (property defaults + market parameters) |
+| `client/src/pages/CompanyAssumptions.tsx` | Company working variables UI |
+| `client/src/pages/PropertyEdit.tsx` | Per-property value editing |
+| `shared/schema/config.ts` | `globalAssumptions` table (stores all three categories) |
+| `server/routes/properties.ts` | `buildPropertyDefaultsFromGlobal()` — where defaults flow to new properties |
+| `shared/constants.ts` | Hardcoded fallback constants (last resort when DB value is NULL) |
+| `.claude/plans/CLAUDE-CODE-INSTRUCTIONS-MODEL-DEFAULTS.md` | Definitive architecture guide |
+| `.claude/plans/MODEL-DEFAULTS-COMPLETION.md` | Implementation spec with schema changes |

@@ -74,10 +74,6 @@ function useBreadcrumbs(): BreadcrumbEntry[] {
       { label: "Management Company", href: "/company" },
       { label: "Research" },
     ],
-    "/settings": [
-      { label: "Dashboard", href: "/" },
-      { label: "General Configuration" },
-    ],
     "/profile": [
       { label: "Dashboard", href: "/" },
       { label: "My Profile" },

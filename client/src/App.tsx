@@ -178,16 +178,6 @@ function IcpRedirect() {
   return <Redirect to="/admin" />;
 }
 
-function SettingsRedirect() {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return <PageLoader />;
-  if (!user) return <Redirect to="/login" />;
-  if (user.role === "admin") {
-    setAdminSectionFn("navigation");
-    return <Redirect to="/admin" />;
-  }
-  return <Redirect to="/company" />;
-}
 
 /** Router — declares all client-side routes and handles the research refresh overlay. */
 function Router() {
@@ -316,7 +306,7 @@ function Router() {
           </FinancialErrorBoundary>
         </Route>
         <Route path="/settings">
-          <SettingsRedirect />
+          <Redirect to="/admin" />
         </Route>
         <Route path="/help">
           <ProtectedRoute component={Help} />

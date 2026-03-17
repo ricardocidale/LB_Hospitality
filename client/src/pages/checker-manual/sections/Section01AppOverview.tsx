@@ -27,7 +27,7 @@ import { SectionCard } from "@/components/ui/section-card";
             ["Property Finder", "Search and save prospective properties", "/property-finder"],
             ["Sensitivity Analysis", "Variable sensitivity testing", "/sensitivity"],
             ["Financing Analysis", "Debt and equity analysis tools", "/financing"],
-            ["Systemwide Assumptions", "Model-wide configurable parameters", "/settings"],
+            ["Systemwide Assumptions", "Model-wide configurable parameters", "/company/assumptions"],
             ["My Profile", "Account management", "/profile"],
             ["My Scenarios", "Save/load assumption snapshots", "/scenarios"],
             ["Admin Settings", "User management, verification, design checks", "/admin"],

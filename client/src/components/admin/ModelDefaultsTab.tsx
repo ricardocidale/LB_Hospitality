@@ -33,7 +33,7 @@ import {
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
   DEFAULT_COST_RATE_INSURANCE,
-  DEFAULT_PROPERTY_TAX_RATE,
+  DEFAULT_TAX_RATE,
   DEFAULT_LAND_VALUE_PERCENT,
 } from "@shared/constants";
 
@@ -671,14 +671,14 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           </GovernedFieldWrapper>
         </div>
         <PctField
-          label="Property Tax Rate"
-          tooltip="Annual property tax rate as a percentage of assessed value. Varies significantly by jurisdiction."
+          label="Default Property Income Tax Rate"
+          tooltip="Income tax rate applied to gain on property sale and operating income. This is NOT the real estate/ad valorem property tax — that is modeled as a USALI operating expense (costRateTaxes)."
           value={draft.defaultPropertyTaxRate}
-          fallback={DEFAULT_PROPERTY_TAX_RATE}
+          fallback={DEFAULT_TAX_RATE}
           onChange={(_, v) => onChange("defaultPropertyTaxRate", v)}
-          min={0} max={0.05} step={0.001}
+          min={0} max={0.50} step={0.01}
           testId="field-defaultPropertyTaxRate"
-          researchRange="0.5%–2.5%"
+          researchRange="20%–30%"
         />
         <PctField
           label="Land Value Percentage"

@@ -51,7 +51,6 @@ import {
   TaxSection,
   ExitAssumptionsSection,
   PropertyExpenseRatesSection,
-  CateringSection,
   PartnerCompSection,
   SummaryFooter,
 } from "@/components/company-assumptions";
@@ -325,7 +324,6 @@ export default function CompanyAssumptions() {
         <ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">
           <PropertyExpenseRatesSection formData={formData} onChange={handleUpdate} global={global} researchValues={researchValues} />
-          <CateringSection />
         </div>
         </ScrollReveal>
 

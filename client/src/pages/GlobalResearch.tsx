@@ -141,12 +141,12 @@ export default function GlobalResearch() {
           title="Global Industry Research"
           subtitle={`${global?.propertyLabel || "Boutique hotel"} industry data, event hospitality trends, and financial benchmarks`}
           variant="light"
-          backLink="/settings"
+          backLink="/company/assumptions"
           actions={
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
-                onClick={() => setLocation("/settings")}
+                onClick={() => setLocation("/company/assumptions")}
                 data-testid="button-back"
               >
                 <ArrowLeft className="w-4 h-4" />

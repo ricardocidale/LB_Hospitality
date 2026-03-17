@@ -5,7 +5,7 @@ import { X } from "@/components/icons/themed-icons";
 import {
   IconMenu, IconHelpCircle, IconPeople, IconUserCog, IconActivity, IconImage, IconSwatchBook,
   IconUpload, IconPanelLeft, IconProperties, IconTrending, IconTarget,
-  IconBot, IconFileCheck, IconDatabase, IconShield, IconSettingsGear, IconSliders,
+  IconBot, IconBrain, IconFileCheck, IconDatabase, IconShield, IconSettingsGear, IconSliders,
   IconBriefcase, IconResearch, IconBookOpen, IconPhone, IconMessageCircle, IconLayers,
 } from "@/components/icons";
 import { Link } from "wouter";
@@ -16,7 +16,7 @@ export type AdminSection =
   | "icp"
   | "companies" | "groups"
   | "logos" | "icons" | "themes"
-  | "ai-agents"
+  | "ai-agents" | "llms" | "sources"
   | "research" | "navigation" | "notifications" | "verification" | "database"
   | "cache-services";
 
@@ -68,12 +68,14 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    id: "ai-agent",
-    label: "AI Agents",
+    id: "ai",
+    label: "AI",
     icon: IconBot,
-    description: "AI text assistant configuration",
+    description: "AI agents, LLM models, and research sources",
     sections: [
       { value: "ai-agents", label: "AI Agents", icon: IconBot },
+      { value: "llms", label: "LLMs", icon: IconBrain },
+      { value: "sources", label: "Sources", icon: IconBookOpen },
     ],
   },
   {

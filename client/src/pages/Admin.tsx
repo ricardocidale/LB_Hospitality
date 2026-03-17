@@ -16,6 +16,8 @@ import IconSetsTab from "@/components/admin/IconSetsTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
 import AIAgentsTab from "@/components/admin/AIAgentsTab";
+import LLMsTab from "@/components/admin/LLMsTab";
+import SourcesTab from "@/components/admin/SourcesTab";
 import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
 import ModelDefaultsTab from "@/components/admin/ModelDefaultsTab";
@@ -40,6 +42,8 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   icons:            { title: "Icon Sets",             subtitle: "Browse and select icon libraries" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
   "ai-agents":     { title: "AI Agents",             subtitle: "Configure and manage your AI text assistant" },
+  llms:             { title: "LLMs",                  subtitle: "Configure AI model vendors and selections for research, reports, and chatbots" },
+  sources:          { title: "Sources",               subtitle: "Manage research sources — URLs and uploaded files organized by domain" },
   research:         { title: "Research Center",      subtitle: "Strategic intelligence hub — ICP company research, property benchmarks, market analysis, and AI engine" },
   notifications:    { title: "Notifications",         subtitle: "Email channels, alert rules, and delivery tracking" },
   navigation:       { title: "Navigation",           subtitle: "Control which sidebar pages are visible to users" },
@@ -80,6 +84,8 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
         </div>
       }><AIAgentsTab onSaveStateChange={onSaveStateChange} /></ErrorBoundary>
     );
+    case "llms":             return <LLMsTab onSaveStateChange={onSaveStateChange} />;
+    case "sources":          return <SourcesTab onSaveStateChange={onSaveStateChange} />;
     case "verification":     return <VerificationTab />;
     case "database":         return <DatabaseTab />;
     case "cache-services":   return <IntegrationHealthTab />;

@@ -37,6 +37,19 @@ export interface ContextLlmConfig {
 
 export type ResearchDomain = "company" | "property" | "market";
 
+export interface ResearchSourceFile {
+  id: string;
+  name: string;
+  type: "url" | "file";
+  url?: string;
+  filePath?: string;
+  fileSize?: number;
+  origin?: "local" | "google-drive";
+  googleDriveId?: string;
+  category: "management-company" | "properties" | "general-marketing";
+  addedAt: string;
+}
+
 export interface ResearchConfig {
   property?: Partial<ResearchEventConfig>;
   company?:  Partial<ResearchEventConfig>;
@@ -53,5 +66,10 @@ export interface ResearchConfig {
   companyLlm?: ContextLlmConfig;
   propertyLlm?: ContextLlmConfig;
   marketLlm?: ContextLlmConfig;
+  reportLlm?: ContextLlmConfig;
+  chatbotLlm?: ContextLlmConfig;
   companySources?: ResearchSourceEntry[];
+  propertySources?: ResearchSourceEntry[];
+  marketSources?: ResearchSourceEntry[];
+  sourceFiles?: ResearchSourceFile[];
 }

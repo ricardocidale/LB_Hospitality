@@ -86,7 +86,7 @@ import {
 
 
 import type { ResearchConfig } from "./research-types";
-export type { ResearchSourceEntry, ResearchEventConfig, AiModelEntry, LlmMode, LlmVendor, ResearchConfig } from "./research-types";
+export type { ResearchSourceEntry, ResearchSourceFile, ResearchEventConfig, AiModelEntry, LlmMode, LlmVendor, ResearchConfig } from "./research-types";
 
 export const globalAssumptions = pgTable("global_assumptions", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),

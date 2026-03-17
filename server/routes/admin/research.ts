@@ -63,7 +63,23 @@ const researchConfigSchema = z.object({
   companyLlm: contextLlmConfigSchema.optional(),
   propertyLlm: contextLlmConfigSchema.optional(),
   marketLlm: contextLlmConfigSchema.optional(),
+  reportLlm: contextLlmConfigSchema.optional(),
+  chatbotLlm: contextLlmConfigSchema.optional(),
   companySources: z.array(researchSourceEntrySchema).optional(),
+  propertySources: z.array(researchSourceEntrySchema).optional(),
+  marketSources: z.array(researchSourceEntrySchema).optional(),
+  sourceFiles: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    type: z.enum(["url", "file"]),
+    url: z.string().optional(),
+    filePath: z.string().optional(),
+    fileSize: z.number().optional(),
+    origin: z.enum(["local", "google-drive"]).optional(),
+    googleDriveId: z.string().optional(),
+    category: z.enum(["management-company", "properties", "general-marketing"]),
+    addedAt: z.string(),
+  })).optional(),
 }).strict();
 
 const CHAT_MODEL_PATTERNS: Record<string, RegExp[]> = {
@@ -261,7 +277,12 @@ export function registerResearchConfigRoutes(app: Express) {
         companyLlm: incoming.companyLlm ? { ...current.companyLlm, ...incoming.companyLlm } : current.companyLlm,
         propertyLlm: incoming.propertyLlm ? { ...current.propertyLlm, ...incoming.propertyLlm } : current.propertyLlm,
         marketLlm: incoming.marketLlm ? { ...current.marketLlm, ...incoming.marketLlm } : current.marketLlm,
+        reportLlm: incoming.reportLlm ? { ...current.reportLlm, ...incoming.reportLlm } : current.reportLlm,
+        chatbotLlm: incoming.chatbotLlm ? { ...current.chatbotLlm, ...incoming.chatbotLlm } : current.chatbotLlm,
         companySources: incoming.companySources ?? current.companySources,
+        propertySources: incoming.propertySources ?? current.propertySources,
+        marketSources: incoming.marketSources ?? current.marketSources,
+        sourceFiles: incoming.sourceFiles ?? current.sourceFiles,
       };
 
       await storage.upsertGlobalAssumptions({ researchConfig: merged } as InsertGlobalAssumptions);

@@ -133,6 +133,9 @@ export const properties = pgTable("properties", {
   // Per-property inflation rate (nullable — NULL means use global default)
   inflationRate: real("inflation_rate"),
   
+  // Country risk premium (Damodaran-based, fetched via API; nullable = auto-detect from location)
+  countryRiskPremium: real("country_risk_premium"),
+
   // Disposition (per-property sale commission)
   dispositionCommission: real("disposition_commission").notNull().default(DEFAULT_COMMISSION_RATE),
 
@@ -240,6 +243,7 @@ export const insertPropertySchema = createInsertSchema(properties).pick({
   cateringBoostPercent: true,
   exitCapRate: true,
   taxRate: true,
+  countryRiskPremium: true,
   dispositionCommission: true,
   refinanceYearsAfterAcquisition: true,
   baseManagementFeeRate: true,

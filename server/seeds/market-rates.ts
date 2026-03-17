@@ -121,7 +121,105 @@ const RATE_DEFINITIONS: RateDefinition[] = [
     maxStalenessHours: 2160, // 90 days
     displayValue: "Hotel Cap Rate Range",
   },
+
+  // --- Damodaran (NYU Stern) — Admin-curated, 90-day staleness reminder ---
+  // These are isManual=true (no auto-fetch API). Admin updates via Research Center.
+  {
+    rateKey: "crp_colombia",
+    source: "damodaran",
+    seriesId: "Colombia",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Country Risk Premium — Colombia",
+  },
+  {
+    rateKey: "crp_united_states",
+    source: "damodaran",
+    seriesId: "United States",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Country Risk Premium — United States",
+  },
+  {
+    rateKey: "crp_mexico",
+    source: "damodaran",
+    seriesId: "Mexico",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Country Risk Premium — Mexico",
+  },
+  {
+    rateKey: "crp_brazil",
+    source: "damodaran",
+    seriesId: "Brazil",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Country Risk Premium — Brazil",
+  },
+  {
+    rateKey: "crp_chile",
+    source: "damodaran",
+    seriesId: "Chile",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Country Risk Premium — Chile",
+  },
+  {
+    rateKey: "crp_peru",
+    source: "damodaran",
+    seriesId: "Peru",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Country Risk Premium — Peru",
+  },
+  {
+    rateKey: "crp_costa_rica",
+    source: "damodaran",
+    seriesId: "Costa Rica",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Country Risk Premium — Costa Rica",
+  },
+  {
+    rateKey: "erp_mature_market",
+    source: "damodaran",
+    seriesId: "ERP",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Equity Risk Premium (Mature Market)",
+  },
+  {
+    rateKey: "cost_of_equity_hospitality",
+    source: "damodaran",
+    seriesId: "Re_hospitality",
+    sourceUrl: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/wacc.html",
+    maxStalenessHours: 2160, // 90 days
+    displayValue: "Cost of Equity — Hospitality",
+  },
 ];
+
+const DAMODARAN_SEED_VALUES: Record<string, { value: number; display: string }> = {
+  crp_colombia: { value: 2.85, display: "2.85%" },
+  crp_united_states: { value: 0, display: "0.00%" },
+  crp_mexico: { value: 2.46, display: "2.46%" },
+  crp_brazil: { value: 3.24, display: "3.24%" },
+  crp_chile: { value: 1.10, display: "1.10%" },
+  crp_peru: { value: 2.07, display: "2.07%" },
+  crp_costa_rica: { value: 3.24, display: "3.24%" },
+  erp_mature_market: { value: 4.23, display: "4.23%" },
+  cost_of_equity_hospitality: { value: 18, display: "18.0%" },
+};
+
+function getSeedValue(def: RateDefinition): { value: number | null; displayValue: string } {
+  if (def.source === "admin_manual" && def.rateKey === "hotel_lending_spread") {
+    return { value: 275, displayValue: "275 bps" };
+  }
+  const dam = DAMODARAN_SEED_VALUES[def.rateKey];
+  if (dam) {
+    return { value: dam.value, displayValue: dam.display };
+  }
+  return { value: null, displayValue: def.displayValue };
+}
 
 export async function seedMarketRates(): Promise<void> {
   for (const def of RATE_DEFINITIONS) {
@@ -132,14 +230,15 @@ export async function seedMarketRates(): Promise<void> {
 
     if (existing.length > 0) continue;
 
+    const seedValue = getSeedValue(def);
     await db.insert(marketRates).values({
       rateKey: def.rateKey,
-      value: def.source === "admin_manual" && def.rateKey === "hotel_lending_spread" ? 275 : null,
-      displayValue: def.source === "admin_manual" && def.rateKey === "hotel_lending_spread" ? "275 bps" : def.displayValue,
+      value: seedValue.value,
+      displayValue: seedValue.displayValue,
       source: def.source,
       sourceUrl: def.sourceUrl,
       seriesId: def.seriesId,
-      isManual: def.source === "admin_manual",
+      isManual: def.source === "admin_manual" || def.source === "damodaran",
       maxStalenessHours: def.maxStalenessHours,
     });
   }

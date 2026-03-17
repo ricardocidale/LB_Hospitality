@@ -21,6 +21,7 @@ import { EditableValue } from "@/components/ui/editable-value";
 import { ResearchBadge } from "@/components/ui/research-badge";
 import { GaapBadge } from "@/components/ui/gaap-badge";
 import { MarketRateBenchmark } from "@/components/property-research/MarketRateBenchmark";
+import { useEffect, useState, useCallback } from "react";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_PROPERTY_TAX_RATE,
@@ -30,15 +31,42 @@ import {
 import type { OtherAssumptionsSectionProps } from "./types";
 
 export default function OtherAssumptionsSection({ draft, onChange, researchValues, exitYear }: OtherAssumptionsSectionProps) {
+  const [crpLoading, setCrpLoading] = useState(false);
+  const [crpCountry, setCrpCountry] = useState<string | null>(null);
+
+  const fetchCRP = useCallback(async () => {
+    const location = draft.location;
+    if (!location) return;
+    setCrpLoading(true);
+    try {
+      const res = await fetch(`/api/country-risk-premium/lookup?location=${encodeURIComponent(location)}`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.found) {
+          onChange("countryRiskPremium", data.crp);
+          setCrpCountry(data.country);
+        }
+      }
+    } catch { /* silent */ } finally {
+      setCrpLoading(false);
+    }
+  }, [draft.location, onChange]);
+
+  useEffect(() => {
+    if (draft.countryRiskPremium == null && draft.location) {
+      fetchCRP();
+    }
+  }, []);
+
   return (
     <div className="relative overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="relative p-6">
         <div className="mb-6">
           <h3 className="text-xl font-display text-foreground flex items-center">
             Other Assumptions
-            <InfoTooltip text="Additional assumptions for investment analysis including exit valuation and tax calculations" />
+            <InfoTooltip text="Additional assumptions for investment analysis including exit valuation, tax, and country risk calculations" />
           </h3>
-          <p className="text-muted-foreground text-sm label-text">Exit valuation and tax rate assumptions</p>
+          <p className="text-muted-foreground text-sm label-text">Exit valuation, tax rate, and country risk assumptions</p>
         </div>
         <div className="mb-4">
           <MarketRateBenchmark
@@ -165,6 +193,53 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               max={10}
               step={0.5}
             />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col gap-0.5">
+                <Label className="flex items-center label-text text-foreground gap-1.5">
+                  Country Risk Premium
+                  <InfoTooltip text="Additional equity return premium for country-specific risk (Damodaran, Jan 2026). Added to the base cost of equity when computing WACC for DCF analysis. US = 0%, Colombia = 2.85%." />
+                  <GaapBadge rule="Country risk premium adjusts the discount rate for sovereign risk, affecting DCF valuations per ASC 820 fair value measurements." />
+                </Label>
+                {crpCountry && (
+                  <span className="text-xs text-muted-foreground">
+                    Detected: {crpCountry}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={fetchCRP}
+                  disabled={crpLoading || !draft.location}
+                  className="text-xs px-2 py-1 rounded border border-border hover:bg-muted disabled:opacity-50"
+                  data-testid="button-fetch-crp"
+                >
+                  {crpLoading ? 'Loading...' : 'Auto-detect'}
+                </button>
+                <EditableValue
+                  data-testid="editable-country-risk-premium"
+                  value={(draft.countryRiskPremium ?? 0) * 100}
+                  onChange={(val) => onChange("countryRiskPremium", val / 100)}
+                  format="percent"
+                  min={0}
+                  max={20}
+                  step={0.1}
+                />
+              </div>
+            </div>
+            <Slider
+              data-testid="slider-country-risk-premium"
+              value={[(draft.countryRiskPremium ?? 0) * 100]}
+              onValueChange={(vals: number[]) => onChange("countryRiskPremium", vals[0] / 100)}
+              min={0}
+              max={20}
+              step={0.1}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Source: Damodaran (NYU Stern) · Cost of Equity = Base Re ({((draft.globalAssumptions?.costOfEquity ?? 0.18) * 100).toFixed(0)}%) + CRP ({((draft.countryRiskPremium ?? 0) * 100).toFixed(1)}%)
+            </p>
           </div>
         </div>
       </div>

@@ -51,15 +51,30 @@ export interface ResearchParams {
   marketIntelligence?: MarketIntelligence;
 }
 
+const REQUIRED_SOURCES = [
+  { name: "Damodaran Online (NYU Stern)", category: "Cost of Capital & Country Risk", url: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html" },
+  { name: "Damodaran WACC by Industry", category: "Cost of Equity & WACC", url: "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/wacc.html" },
+  { name: "CBRE Cap Rate Survey", category: "Cap Rates & Valuation", url: "https://www.cbre.com" },
+  { name: "PKF Trends in the Hotel Industry", category: "Operating Benchmarks" },
+  { name: "STR / CoStar", category: "Market Performance (RevPAR, ADR, Occupancy)", url: "https://str.com" },
+  { name: "HVS", category: "Hotel Valuation & Transaction Data", url: "https://hvs.com" },
+];
+
 /** Build the curated source block appended to all prompt types. */
 function buildSourceRegistryBlock(ecSources?: any[], rvSources?: any[]): string {
-  const sources = ecSources?.length ? ecSources : rvSources?.length ? rvSources : [];
-  if (!sources || sources.length === 0) return "";
+  const userSources = ecSources?.length ? ecSources : rvSources?.length ? rvSources : [];
 
-  let suffix = "\n\nCurated Data Sources (prioritize these):\n";
-  sources.forEach((s: any) => {
+  let suffix = "\n\nRequired Data Sources (always reference these):\n";
+  REQUIRED_SOURCES.forEach((s) => {
     suffix += `- ${s.name} (${s.category})${s.url ? `: ${s.url}` : ""}\n`;
   });
+
+  if (userSources.length > 0) {
+    suffix += "\nAdditional Curated Sources (also prioritize):\n";
+    userSources.forEach((s: any) => {
+      suffix += `- ${s.name} (${s.category})${s.url ? `: ${s.url}` : ""}\n`;
+    });
+  }
   return suffix;
 }
 
@@ -199,7 +214,7 @@ Research the following areas for management companies that specialize in this ty
 5. Management company compensation benchmarks
 6. Typical contract terms and duration
 7. **Company Income Tax**: Recommend an effective corporate income tax rate for the management company entity. Include federal/state breakdown, entity structure considerations (C-Corp vs pass-through), and explain how company income tax is calculated: Pre-Tax Income = Total Fee Revenue - Total Vendor Costs - Total Operating Expenses; Company Income Tax = max(0, Pre-Tax Income) × Company Tax Rate. The system default is 30% but the actual rate depends on jurisdiction and entity structure. Include this as a "companyIncomeTax" section in your response with recommendedRate, effectiveRange, entityNotes, calculationMethodology, and rationale.
-8. **Cost of Equity (WACC Input)**: Recommend a cost of equity (required equity return) for private hospitality investments in this asset class. This is used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, CAPM is not used — instead provide a direct hurdle rate based on: asset class risk profile, property type (boutique hotel vs full-service), market tier (primary/secondary/tertiary), current interest rate environment, and illiquidity premium for private real estate. Typical range: 15%–25%. Include this as a "costOfEquity" section in your response with recommendedRate (e.g. "18%–22%"), rationale, riskFactors (array of factors that push rate higher or lower), and comparables (e.g. "Private boutique hotel equity returns average 18–22% in secondary markets").
+8. **Cost of Equity (WACC Input)**: Recommend a cost of equity (required equity return) for private hospitality investments in this asset class. This is used as the Re component in WACC = (E/V × Re) + (D/V × Rd × (1−T)). For private companies, CAPM is not used — instead provide a direct hurdle rate based on: asset class risk profile, property type (boutique hotel vs full-service), market tier (primary/secondary/tertiary), current interest rate environment, and illiquidity premium for private real estate. Typical range: 15%–25%. Reference Damodaran's WACC data (https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/wacc.html) for hospitality sector cost of equity benchmarks and Damodaran's country risk premiums (https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html) for international property adjustments. Include this as a "costOfEquity" section in your response with recommendedRate (e.g. "18%–22%"), rationale, riskFactors (array of factors that push rate higher or lower), countryRiskPremium (for non-US properties, the Damodaran CRP to add to the base rate), and comparables (e.g. "Private boutique hotel equity returns average 18–22% in secondary markets").
 Focus specifically on management companies specializing in ${label.toLowerCase()} properties with unique events like wellness retreats, corporate retreats, and experiential hospitality.
 
 9. **ICP Comparison Against Market Data**: Evaluate the user's Ideal Customer Profile (ICP) against real market data for comparable management companies. Identify what similar operator profiles are succeeding at — markets, property sizes, fee structures, staffing levels, and growth rates that are working — and where the defined target may have gaps, blind spots, or elevated risk. Highlight any mismatches between the ICP assumptions and observed industry benchmarks.
@@ -233,6 +248,7 @@ Focus specifically on management companies specializing in ${label.toLowerCase()
     "Experience & Lifestyle Verticals (wellness retreats, exotic experiential hospitality, consensual adult lifestyle retreats, swinger retreats, adventure lodges, eco-resorts, couples retreats, emerging boutique segments)",
     "Financial Benchmarks (ADR, occupancy, RevPAR)",
     "Cap Rates & Investment Returns",
+    "Country Risk Premiums & Cost of Capital (Damodaran)",
     "Debt Market Conditions",
     "Supply Pipeline & Competitive Landscape",
     "Regulatory Environment & Licensing",

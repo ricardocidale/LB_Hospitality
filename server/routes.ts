@@ -16,6 +16,7 @@ import * as twilioRoutes from "./routes/twilio";
 import { registerTwilioWebSocket } from "./routes/twilio";
 import * as marcelaToolRoutes from "./routes/marcela-tools";
 import * as marketRateRoutes from "./routes/market-rates";
+import * as countryRiskPremiumRoutes from "./routes/country-risk-premium";
 import * as tileRoutes from "./routes/tiles";
 import * as photoRoutes from "./routes/property-photos";
 import * as chatRoutes from "./routes/chat";
@@ -48,6 +49,7 @@ export async function registerRoutes(
   twilioRoutes.register(app);
   marcelaToolRoutes.register(app);
   marketRateRoutes.register(app);
+  countryRiskPremiumRoutes.register(app);
   tileRoutes.register(app);
   photoRoutes.register(app);
   chatRoutes.register(app);

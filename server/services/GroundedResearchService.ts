@@ -50,7 +50,7 @@ export class GroundedResearchService extends BaseIntegrationService {
       },
       {
         query: `${year} hotel market cap rate transaction ${location} hospitality investment`,
-        focusSites: ["costar.com", "hvs.com", "cbre.com", "jll.com"],
+        focusSites: ["costar.com", "hvs.com", "cbre.com", "jll.com", "pages.stern.nyu.edu"],
       },
       {
         query: `${year} new hotel supply pipeline construction ${location}`,

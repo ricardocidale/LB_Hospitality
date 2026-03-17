@@ -260,6 +260,7 @@ async function runMigrationsAndSeeds() {
     { runMigration: runAutoResearchRefresh001 },
     { runFundingInterest001 },
     { runGoogleId001 },
+    { runMigration: runCountryRiskPremium001 },
   ] = await Promise.all([
     import("./migrations/research-config-001"),
     import("./migrations/inflation-per-entity-001"),
@@ -272,6 +273,7 @@ async function runMigrationsAndSeeds() {
     import("./migrations/auto-research-refresh-001"),
     import("./migrations/funding-interest-001"),
     import("./migrations/google-id-001"),
+    import("./migrations/country-risk-premium-001"),
   ]);
   await Promise.all([
     runResearchConfig001(),
@@ -285,6 +287,7 @@ async function runMigrationsAndSeeds() {
     runAutoResearchRefresh001(),
     runFundingInterest001(),
     runGoogleId001(),
+    runCountryRiskPremium001(),
   ]);
 
   // Notification logs schema fix must run before FK indexes

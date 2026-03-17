@@ -18,7 +18,7 @@ const TOOL_PROMPTS: Record<string, ToolPromptBuilder> = {
     `Provide event demand analysis for ${input.location}. ${input.event_locations || 2} event spaces, max capacity ${input.max_event_capacity || 150} guests. Wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}, Privacy: ${input.privacy_level || "high"}, Acreage: ${input.acreage || 5}. Include corporate event demand, wellness retreat potential, wedding/private event demand, estimated event revenue share, and key demand drivers.`,
 
   analyze_cap_rates: (input) =>
-    `Cap rate context: ${input.location} (${input.market_region}), ${input.property_level}, ${input.room_count} rooms${input.purchase_price ? `, $${input.purchase_price.toLocaleString()}` : ""}. Use compute_cap_rate_valuation for implied value and sensitivity table. Provide market range, comparable transactions (3+), and recommended acquisition/exit range.`,
+    `Cap rate context: ${input.location} (${input.market_region}), ${input.property_level}, ${input.room_count} rooms${input.purchase_price ? `, $${input.purchase_price.toLocaleString()}` : ""}. Use compute_cap_rate_valuation for implied value and sensitivity table. Provide market range, comparable transactions (3+), and recommended acquisition/exit range. Reference CBRE Cap Rate Survey and Damodaran country risk premium data for international properties.`,
 
   analyze_competitive_set: (input) =>
     `Provide competitive set analysis for ${input.location}. Subject: ${input.room_count} rooms at $${input.current_adr} ADR, ${input.property_level} positioning. Has events: ${input.has_events ?? true}, wellness: ${input.has_wellness ?? true}, F&B: ${input.has_fb ?? true}. Identify 4-6 comparable properties with room counts, ADRs, and positioning descriptions.`,

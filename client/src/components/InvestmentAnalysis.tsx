@@ -612,96 +612,148 @@ export function InvestmentAnalysis({
       <Card data-testid="dcf-analysis-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-1.5">
-            Discounted Cash Flow (DCF) Analysis
-            <InfoTooltip text="DCF values the portfolio by discounting future cash flows to present value using the Weighted Average Cost of Capital (WACC). WACC blends the cost of equity and after-tax cost of debt, weighted by capital structure." manualSection="investment-returns" />
+            Discounted Cash Flow (DCF) Analysis — Per Property
+            <InfoTooltip text="Per-property DCF valuation using individual WACC for each property. Each property's cost of equity = base Re + country risk premium (Damodaran). WACC = (E/V × Re) + (D/V × Rd × (1−T))." manualSection="investment-returns" />
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Portfolio valuation using WACC-discounted ATCF and terminal value
+            Individual property valuations with country-adjusted discount rates (source: Damodaran Jan 2026)
           </p>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {(() => {
-            // WACC computation: (E/V × Re) + (D/V × Rd × (1-T))
-            const taxRate = global?.companyTaxRate ?? DEFAULT_PROPERTY_TAX_RATE;
-            const costOfEquity = global?.costOfEquity ?? DEFAULT_COST_OF_EQUITY;
+            const baseCostOfEquity = global?.costOfEquity ?? DEFAULT_COST_OF_EQUITY;
 
-            let totalEquity = 0;
-            let totalDebt = 0;
-            let weightedDebtCost = 0;
-
-            for (let pi = 0; pi < properties.length; pi++) {
-              const prop = properties[pi];
-              const equity = propertyEquityInvested(prop);
-              const debt = (prop.purchasePrice ?? 0) * (prop.acquisitionLTV ?? 0);
-              const debtRate = prop.acquisitionInterestRate ?? 0.09;
-              totalEquity += equity;
-              totalDebt += debt;
-              weightedDebtCost += debt * debtRate;
+            interface PropertyDCF {
+              name: string;
+              location: string;
+              country: string;
+              crp: number;
+              costOfEquity: number;
+              equity: number;
+              debt: number;
+              debtRate: number;
+              taxRate: number;
+              wacc: number;
+              equityWeight: number;
+              debtWeight: number;
+              afterTaxDebtCost: number;
+              yearlyATCF: number[];
+              exitValue: number;
+              pvCashFlows: number[];
+              pvTerminal: number;
+              dcfValue: number;
+              npv: number;
+              valueCreation: number;
             }
 
-            const totalCapital = totalEquity + totalDebt;
-            const equityWeight = totalCapital > 0 ? totalEquity / totalCapital : 1;
-            const debtWeight = totalCapital > 0 ? totalDebt / totalCapital : 0;
-            const avgCostOfDebt = totalDebt > 0 ? weightedDebtCost / totalDebt : 0;
-            const afterTaxDebtCost = avgCostOfDebt * (1 - taxRate);
-            const wacc = (equityWeight * costOfEquity) + (debtWeight * afterTaxDebtCost);
+            const propDCFs: PropertyDCF[] = properties.map((prop, pi) => {
+              const crp = prop.countryRiskPremium ?? 0;
+              const location = prop.location ?? '';
+              const costOfEquity = baseCostOfEquity + crp;
 
-            // Use WACC as discount rate (fallback to 10% if WACC is zero/invalid)
-            const discountRate = wacc > 0 ? wacc : 0.10;
+              const equity = propertyEquityInvested(prop);
+              const isFullEquity = prop.type === 'Full Equity';
+              const debt = isFullEquity ? 0 : (prop.purchasePrice ?? 0) * (prop.acquisitionLTV ?? 0);
+              const debtRate = prop.acquisitionInterestRate ?? 0.09;
+              const taxRate = prop.taxRate ?? DEFAULT_PROPERTY_TAX_RATE;
 
-            const yearlyATCF = Array.from({ length: projectionYears }, (_, y) =>
-              allPropertyYearlyCF.reduce((sum, propYearly) => sum + (propYearly[y]?.atcf ?? 0), 0)
-            );
+              const totalCapital = equity + debt;
+              const equityWeight = totalCapital > 0 ? equity / totalCapital : 1;
+              const debtWeight = totalCapital > 0 ? debt / totalCapital : 0;
+              const afterTaxDebtCost = debtRate * (1 - taxRate);
+              const wacc = (equityWeight * costOfEquity) + (debtWeight * afterTaxDebtCost);
+              const discountRate = wacc > 0 ? wacc : 0.10;
 
-            const terminalValue = totalExitValueIA;
+              const yearly = allPropertyYearlyCF[pi];
+              const yearlyATCF = Array.from({ length: projectionYears }, (_, y) =>
+                yearly?.[y]?.atcf ?? 0
+              );
+              const exitValue = yearly?.[projectionYears - 1]?.exitValue ?? 0;
 
-            const pvFactors = Array.from({ length: projectionYears }, (_, y) =>
-              1 / Math.pow(1 + discountRate, y + 1)
-            );
+              const pvFactors = Array.from({ length: projectionYears }, (_, y) =>
+                1 / Math.pow(1 + discountRate, y + 1)
+              );
+              const pvCashFlows = yearlyATCF.map((cf, y) => cf * pvFactors[y]);
+              const pvTerminal = exitValue * pvFactors[projectionYears - 1];
+              const dcfValue = pvCashFlows.reduce((s, pv) => s + pv, 0) + pvTerminal;
+              const npv = dcfValue - equity;
+              const valueCreation = equity > 0 ? (npv / equity) * 100 : 0;
 
-            const pvCashFlows = yearlyATCF.map((cf, y) => cf * pvFactors[y]);
-            const pvTerminal = terminalValue * pvFactors[projectionYears - 1];
-            const totalPVOperating = pvCashFlows.reduce((sum, pv) => sum + pv, 0);
-            const dcfValue = totalPVOperating + pvTerminal;
-            const npv = dcfValue - totalInitialEquityIA;
-            const valueCreation = totalInitialEquityIA > 0 ? (npv / totalInitialEquityIA) * 100 : 0;
+              let country = 'Unknown';
+              const loc = location.toLowerCase();
+              if (/colombia|medell[ií]n|bogot[aá]|cartagena|antioquia/i.test(loc)) country = 'Colombia';
+              else if (/new york|utah|california|texas|florida|catskills|sullivan|ogden/i.test(loc)) country = 'United States';
+
+              return {
+                name: prop.name,
+                location,
+                country,
+                crp,
+                costOfEquity,
+                equity,
+                debt,
+                debtRate,
+                taxRate,
+                wacc: discountRate,
+                equityWeight,
+                debtWeight,
+                afterTaxDebtCost,
+                yearlyATCF,
+                exitValue,
+                pvCashFlows,
+                pvTerminal,
+                dcfValue,
+                npv,
+                valueCreation,
+              };
+            });
+
+            const portfolioEquity = propDCFs.reduce((s, p) => s + p.equity, 0);
+            const portfolioDCF = propDCFs.reduce((s, p) => s + p.dcfValue, 0);
+            const portfolioNPV = propDCFs.reduce((s, p) => s + p.npv, 0);
+            const portfolioValueCreation = portfolioEquity > 0 ? (portfolioNPV / portfolioEquity) * 100 : 0;
+
+            const portfolioTotalCapital = propDCFs.reduce((s, p) => s + p.equity + p.debt, 0);
+            const portfolioWACC = portfolioTotalCapital > 0
+              ? propDCFs.reduce((s, p) => s + p.wacc * ((p.equity + p.debt) / portfolioTotalCapital), 0)
+              : 0;
 
             return (
               <div className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-4">
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
-                    <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
-                      WACC
-                      <InfoTooltip text={`Weighted Average Cost of Capital. Blends cost of equity (${(costOfEquity * 100).toFixed(1)}%) and after-tax cost of debt (${(afterTaxDebtCost * 100).toFixed(1)}%) weighted by capital structure (${(equityWeight * 100).toFixed(0)}% equity / ${(debtWeight * 100).toFixed(0)}% debt).`} manualSection="investment-returns" />
+                    <p className="text-sm font-medium text-foreground/70 flex items-center mb-2" data-testid="text-portfolio-wacc-label">
+                      Portfolio WACC
+                      <InfoTooltip text={`Capital-weighted average WACC across all properties. Base Re: ${(baseCostOfEquity * 100).toFixed(0)}% + per-property country risk premium (Damodaran).`} manualSection="investment-returns" />
                     </p>
-                    <div className="text-2xl font-bold text-foreground font-mono">{(discountRate * 100).toFixed(1)}%</div>
+                    <div className="text-2xl font-bold text-foreground font-mono" data-testid="text-portfolio-wacc">{(portfolioWACC * 100).toFixed(1)}%</div>
                     <p className="text-[10px] text-muted-foreground mt-1">
-                      Re: {(costOfEquity * 100).toFixed(0)}% · Rd(1-T): {(afterTaxDebtCost * 100).toFixed(1)}% · E/V: {(equityWeight * 100).toFixed(0)}%
+                      Base Re: {(baseCostOfEquity * 100).toFixed(0)}% + country risk
                     </p>
                   </div>
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
                       DCF Portfolio Value
-                      <InfoTooltip text="Sum of all discounted operating cash flows plus the discounted terminal (exit) value. Represents the present value of the entire portfolio." />
+                      <InfoTooltip text="Sum of individual property DCF values. Each property discounted at its own WACC." />
                     </p>
-                    <div className="text-2xl font-bold text-foreground font-mono">{formatMoney(dcfValue)}</div>
+                    <div className="text-2xl font-bold text-foreground font-mono" data-testid="text-portfolio-dcf">{formatMoney(portfolioDCF)}</div>
                   </div>
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
                       Net Present Value (NPV)
-                      <InfoTooltip text="DCF Portfolio Value minus Total Equity Invested. A positive NPV indicates the investment creates value above the required return." />
+                      <InfoTooltip text="Sum of individual property NPVs. Positive = portfolio creates value above the required return." />
                     </p>
-                    <div className={`text-2xl font-bold font-mono ${npv >= 0 ? 'text-accent' : 'text-destructive'}`}>
-                      {formatMoney(npv)}
+                    <div className={`text-2xl font-bold font-mono ${portfolioNPV >= 0 ? 'text-accent' : 'text-destructive'}`} data-testid="text-portfolio-npv">
+                      {formatMoney(portfolioNPV)}
                     </div>
                   </div>
                   <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
                     <p className="text-sm font-medium text-foreground/70 flex items-center mb-2">
                       Value Creation
-                      <InfoTooltip text="NPV as a percentage of total equity invested. Shows how much value is created (or destroyed) relative to the investment." />
+                      <InfoTooltip text="Portfolio NPV as % of total equity. Positive = investment exceeds required return." />
                     </p>
-                    <div className={`text-2xl font-bold font-mono ${valueCreation >= 0 ? 'text-accent' : 'text-destructive'}`}>
-                      {valueCreation >= 0 ? '+' : ''}{valueCreation.toFixed(1)}%
+                    <div className={`text-2xl font-bold font-mono ${portfolioValueCreation >= 0 ? 'text-accent' : 'text-destructive'}`} data-testid="text-portfolio-value-creation">
+                      {portfolioValueCreation >= 0 ? '+' : ''}{portfolioValueCreation.toFixed(1)}%
                     </div>
                   </div>
                 </div>
@@ -709,83 +761,157 @@ export function InvestmentAnalysis({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="sticky left-0 bg-card min-w-[200px]">Category</TableHead>
-                      {Array.from({ length: projectionYears }, (_, i) => (
-                        <TableHead key={i} className="text-right min-w-[110px]">{getFiscalYear(i)}</TableHead>
-                      ))}
-                      <TableHead className="text-right min-w-[120px] font-bold">Total</TableHead>
+                      <TableHead className="sticky left-0 bg-card min-w-[220px]">Property</TableHead>
+                      <TableHead className="text-right min-w-[90px]">Country</TableHead>
+                      <TableHead className="text-right min-w-[70px]">
+                        <span className="flex items-center justify-end gap-1">
+                          CRP
+                          <InfoTooltip text="Country Risk Premium (Damodaran). Additional equity return required for country-specific risk." />
+                        </span>
+                      </TableHead>
+                      <TableHead className="text-right min-w-[70px]">
+                        <span className="flex items-center justify-end gap-1">
+                          Re
+                          <InfoTooltip text="Cost of Equity = Base Re + Country Risk Premium" />
+                        </span>
+                      </TableHead>
+                      <TableHead className="text-right min-w-[70px]">E/V</TableHead>
+                      <TableHead className="text-right min-w-[70px]">WACC</TableHead>
+                      <TableHead className="text-right min-w-[100px]">Equity</TableHead>
+                      <TableHead className="text-right min-w-[100px]">DCF Value</TableHead>
+                      <TableHead className="text-right min-w-[100px]">NPV</TableHead>
+                      <TableHead className="text-right min-w-[80px]">Value Δ</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow>
-                      <TableCell className="sticky left-0 bg-card">After-Tax Cash Flow (ATCF)</TableCell>
-                      {yearlyATCF.map((cf, i) => (
-                        <TableCell key={i} className={`text-right font-mono ${cf < 0 ? 'text-destructive' : ''}`}>
-                          {formatMoney(cf)}
+                    {propDCFs.map((d, i) => (
+                      <TableRow key={i} className="cursor-pointer hover:bg-muted/20" onClick={() => toggleRow(`dcf-${i}`)} data-testid={`row-dcf-property-${i}`}>
+                        <TableCell className="sticky left-0 bg-card font-medium">
+                          <div className="flex items-center gap-2">
+                            {expandedRows.has(`dcf-${i}`) ? (
+                              <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                            )}
+                            <span className="truncate">{d.name}</span>
+                          </div>
                         </TableCell>
-                      ))}
-                      <TableCell className="text-right font-mono font-medium">
-                        {formatMoney(yearlyATCF.reduce((a, b) => a + b, 0))}
+                        <TableCell className="text-right text-sm">{d.country}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">
+                          {d.crp > 0 ? `+${(d.crp * 100).toFixed(1)}%` : '0%'}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-sm">{(d.costOfEquity * 100).toFixed(1)}%</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{(d.equityWeight * 100).toFixed(0)}%</TableCell>
+                        <TableCell className="text-right font-mono text-sm font-medium">{(d.wacc * 100).toFixed(1)}%</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatMoney(d.equity)}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">{formatMoney(d.dcfValue)}</TableCell>
+                        <TableCell className={`text-right font-mono text-sm ${d.npv >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                          {formatMoney(d.npv)}
+                        </TableCell>
+                        <TableCell className={`text-right font-mono text-sm font-medium ${d.valueCreation >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                          {d.valueCreation >= 0 ? '+' : ''}{d.valueCreation.toFixed(1)}%
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {propDCFs.map((d, i) => expandedRows.has(`dcf-${i}`) && (
+                      <TableRow key={`detail-${i}`} className="bg-muted/10">
+                        <TableCell colSpan={10} className="p-4">
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="min-w-[160px]">{d.name}</TableHead>
+                                  {Array.from({ length: projectionYears }, (_, y) => (
+                                    <TableHead key={y} className="text-right min-w-[100px]">{getFiscalYear(y)}</TableHead>
+                                  ))}
+                                  <TableHead className="text-right min-w-[110px] font-bold">Total</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell>ATCF</TableCell>
+                                  {d.yearlyATCF.map((cf, y) => (
+                                    <TableCell key={y} className={`text-right font-mono ${cf < 0 ? 'text-destructive' : ''}`}>
+                                      {formatMoney(cf)}
+                                    </TableCell>
+                                  ))}
+                                  <TableCell className="text-right font-mono font-medium">
+                                    {formatMoney(d.yearlyATCF.reduce((a, b) => a + b, 0))}
+                                  </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell>Terminal Value</TableCell>
+                                  {Array.from({ length: projectionYears }, (_, y) => (
+                                    <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                                      {y === projectionYears - 1 ? formatMoney(d.exitValue) : '-'}
+                                    </TableCell>
+                                  ))}
+                                  <TableCell className="text-right font-mono font-medium">{formatMoney(d.exitValue)}</TableCell>
+                                </TableRow>
+                                <TableRow className="bg-muted/20">
+                                  <TableCell className="font-medium">
+                                    Discount Factor <span className="text-xs text-muted-foreground">@ {(d.wacc * 100).toFixed(1)}%</span>
+                                  </TableCell>
+                                  {Array.from({ length: projectionYears }, (_, y) => (
+                                    <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                                      {(1 / Math.pow(1 + d.wacc, y + 1)).toFixed(4)}
+                                    </TableCell>
+                                  ))}
+                                  <TableCell className="text-right text-muted-foreground">-</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell>PV of Cash Flows</TableCell>
+                                  {d.pvCashFlows.map((pv, y) => (
+                                    <TableCell key={y} className={`text-right font-mono ${pv < 0 ? 'text-destructive' : ''}`}>
+                                      {formatMoney(pv)}
+                                    </TableCell>
+                                  ))}
+                                  <TableCell className="text-right font-mono font-medium">
+                                    {formatMoney(d.pvCashFlows.reduce((a, b) => a + b, 0))}
+                                  </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell>PV of Terminal</TableCell>
+                                  {Array.from({ length: projectionYears }, (_, y) => (
+                                    <TableCell key={y} className="text-right font-mono text-muted-foreground">
+                                      {y === projectionYears - 1 ? formatMoney(d.pvTerminal) : '-'}
+                                    </TableCell>
+                                  ))}
+                                  <TableCell className="text-right font-mono font-medium">{formatMoney(d.pvTerminal)}</TableCell>
+                                </TableRow>
+                                <TableRow className="bg-primary/10 font-bold">
+                                  <TableCell>DCF Value</TableCell>
+                                  {Array.from({ length: projectionYears }, (_, y) => {
+                                    let cumPV = 0;
+                                    for (let j = 0; j <= y; j++) cumPV += d.pvCashFlows[j];
+                                    if (y === projectionYears - 1) cumPV += d.pvTerminal;
+                                    return (
+                                      <TableCell key={y} className="text-right font-mono">{formatMoney(cumPV)}</TableCell>
+                                    );
+                                  })}
+                                  <TableCell className="text-right font-mono">{formatMoney(d.dcfValue)}</TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-primary/10 font-bold border-t-2" data-testid="row-dcf-portfolio-total">
+                      <TableCell className="sticky left-0 bg-primary/10">Portfolio Total</TableCell>
+                      <TableCell className="text-right">-</TableCell>
+                      <TableCell className="text-right">-</TableCell>
+                      <TableCell className="text-right">-</TableCell>
+                      <TableCell className="text-right">-</TableCell>
+                      <TableCell className="text-right font-mono">{(portfolioWACC * 100).toFixed(1)}%</TableCell>
+                      <TableCell className="text-right font-mono">{formatMoney(portfolioEquity)}</TableCell>
+                      <TableCell className="text-right font-mono">{formatMoney(portfolioDCF)}</TableCell>
+                      <TableCell className={`text-right font-mono ${portfolioNPV >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                        {formatMoney(portfolioNPV)}
                       </TableCell>
-                    </TableRow>
-
-                    <TableRow>
-                      <TableCell className="sticky left-0 bg-card">
-                        Terminal Value
-                        <span className="text-xs text-muted-foreground ml-1">(exit proceeds)</span>
+                      <TableCell className={`text-right font-mono ${portfolioValueCreation >= 0 ? 'text-accent' : 'text-destructive'}`}>
+                        {portfolioValueCreation >= 0 ? '+' : ''}{portfolioValueCreation.toFixed(1)}%
                       </TableCell>
-                      {Array.from({ length: projectionYears }, (_, i) => (
-                        <TableCell key={i} className="text-right font-mono text-muted-foreground">
-                          {i === projectionYears - 1 ? formatMoney(terminalValue) : '-'}
-                        </TableCell>
-                      ))}
-                      <TableCell className="text-right font-mono font-medium">{formatMoney(terminalValue)}</TableCell>
-                    </TableRow>
-
-                    <TableRow className="bg-muted/20">
-                      <TableCell className="sticky left-0 bg-muted/20 font-medium">
-                        Discount Factor
-                        <span className="text-xs text-muted-foreground ml-1">@ {(discountRate * 100).toFixed(1)}%</span>
-                      </TableCell>
-                      {pvFactors.map((pv, i) => (
-                        <TableCell key={i} className="text-right font-mono text-muted-foreground">
-                          {pv.toFixed(4)}
-                        </TableCell>
-                      ))}
-                      <TableCell className="text-right text-muted-foreground">-</TableCell>
-                    </TableRow>
-
-                    <TableRow>
-                      <TableCell className="sticky left-0 bg-card">PV of Cash Flows</TableCell>
-                      {pvCashFlows.map((pv, i) => (
-                        <TableCell key={i} className={`text-right font-mono ${pv < 0 ? 'text-destructive' : ''}`}>
-                          {formatMoney(pv)}
-                        </TableCell>
-                      ))}
-                      <TableCell className="text-right font-mono font-medium">{formatMoney(totalPVOperating)}</TableCell>
-                    </TableRow>
-
-                    <TableRow>
-                      <TableCell className="sticky left-0 bg-card">PV of Terminal Value</TableCell>
-                      {Array.from({ length: projectionYears }, (_, i) => (
-                        <TableCell key={i} className="text-right font-mono text-muted-foreground">
-                          {i === projectionYears - 1 ? formatMoney(pvTerminal) : '-'}
-                        </TableCell>
-                      ))}
-                      <TableCell className="text-right font-mono font-medium">{formatMoney(pvTerminal)}</TableCell>
-                    </TableRow>
-
-                    <TableRow className="bg-primary/10 font-bold">
-                      <TableCell className="sticky left-0 bg-primary/10">DCF Portfolio Value</TableCell>
-                      {Array.from({ length: projectionYears }, (_, i) => {
-                        let cumPV = 0;
-                        for (let j = 0; j <= i; j++) cumPV += pvCashFlows[j];
-                        if (i === projectionYears - 1) cumPV += pvTerminal;
-                        return (
-                          <TableCell key={i} className="text-right font-mono">{formatMoney(cumPV)}</TableCell>
-                        );
-                      })}
-                      <TableCell className="text-right font-mono">{formatMoney(dcfValue)}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>

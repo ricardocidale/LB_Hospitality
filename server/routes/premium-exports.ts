@@ -77,35 +77,95 @@ function validateAIOutput(result: any, format: string): void {
 
 function repairTruncatedJson(str: string): string {
   let s = str.trim();
+
   if (s.endsWith(",")) s = s.slice(0, -1);
-  
-  const opens = { "{": 0, "[": 0 };
+
   let inString = false;
   let escape = false;
-  for (const ch of s) {
+  let lastValidPos = s.length;
+  const stack: string[] = [];
+
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
     if (escape) { escape = false; continue; }
     if (ch === "\\") { escape = true; continue; }
     if (ch === '"') { inString = !inString; continue; }
     if (inString) continue;
-    if (ch === "{") opens["{"]++;
-    else if (ch === "}") opens["{"]--;
-    else if (ch === "[") opens["["]++;
-    else if (ch === "]") opens["["]--;
+    if (ch === "{" || ch === "[") stack.push(ch);
+    else if (ch === "}") { if (stack.length && stack[stack.length - 1] === "{") stack.pop(); }
+    else if (ch === "]") { if (stack.length && stack[stack.length - 1] === "[") stack.pop(); }
+    lastValidPos = i + 1;
   }
-  if (inString) s += '"';
-  while (opens["["] > 0) { s += "]"; opens["["]--; }
-  while (opens["{"] > 0) { s += "}"; opens["{"]--; }
+
+  if (inString) {
+    const lastQuote = s.lastIndexOf('"');
+    if (lastQuote > 0) {
+      s = s.substring(0, lastQuote + 1);
+    } else {
+      s += '"';
+    }
+  }
+
+  s = s.replace(/,\s*$/, "");
+  s = s.replace(/,\s*([\]}])/g, "$1");
+  s = s.replace(/"[^"]*":\s*$/m, "");
+  s = s.replace(/,\s*$/, "");
+
+  inString = false;
+  escape = false;
+  const stack2: string[] = [];
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (escape) { escape = false; continue; }
+    if (ch === "\\") { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === "{" || ch === "[") stack2.push(ch);
+    else if (ch === "}") { if (stack2.length && stack2[stack2.length - 1] === "{") stack2.pop(); }
+    else if (ch === "]") { if (stack2.length && stack2[stack2.length - 1] === "[") stack2.pop(); }
+  }
+
+  while (stack2.length) {
+    const open = stack2.pop();
+    s += open === "{" ? "}" : "]";
+  }
+
   return s;
 }
 
-async function generateWithGemini(prompt: string, format: string): Promise<any> {
-  const client = getGeminiClient();
+function extractJsonFromText(text: string): string {
+  let s = text.trim();
+  const fenced = s.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenced) return fenced[1].trim();
+  const firstBrace = s.indexOf("{");
+  const firstBracket = s.indexOf("[");
+  if (firstBrace === -1 && firstBracket === -1) return s;
+  const start = firstBrace === -1 ? firstBracket : firstBracket === -1 ? firstBrace : Math.min(firstBrace, firstBracket);
+  return s.substring(start);
+}
 
+function aggressiveParse(raw: string): any {
+  const jsonStr = extractJsonFromText(raw);
+
+  try { return JSON.parse(jsonStr); } catch {}
+
+  try { return JSON.parse(repairTruncatedJson(jsonStr)); } catch {}
+
+  const lines = jsonStr.split("\n");
+  for (let drop = 1; drop <= Math.min(20, lines.length - 1); drop++) {
+    const trimmed = lines.slice(0, lines.length - drop).join("\n");
+    try { return JSON.parse(repairTruncatedJson(trimmed)); } catch {}
+  }
+
+  throw new Error("Could not parse AI response as JSON after all repair strategies");
+}
+
+async function callGemini(
+  client: any, prompt: string, format: string, startTime: number
+): Promise<{ text: string; finishReason: string | undefined }> {
   const timeoutPromise = new Promise<never>((_, reject) =>
     setTimeout(() => reject(new Error("AI generation timed out after 120 seconds")), AI_GENERATION_TIMEOUT_MS)
   );
-
-  const startTime = Date.now();
   const generatePromise = client.models.generateContent({
     model: "gemini-2.5-flash",
     contents: prompt,
@@ -114,44 +174,40 @@ async function generateWithGemini(prompt: string, format: string): Promise<any> 
       responseMimeType: "application/json",
     },
   });
-
   const response = await Promise.race([generatePromise, timeoutPromise]);
-
   const text = response.text;
-  if (!text) {
-    throw new Error("No text response from Gemini");
-  }
-
+  if (!text) throw new Error("No text response from Gemini");
   const finishReason = response.candidates?.[0]?.finishReason;
-
   const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
   const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
   try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: `premium-export-${format}`, inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, route: "/api/exports/premium" }); } catch {}
+  return { text, finishReason };
+}
 
-  let jsonStr = text.trim();
-  const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonMatch) {
-    jsonStr = jsonMatch[1].trim();
-  }
+async function generateWithGemini(prompt: string, format: string): Promise<any> {
+  const client = getGeminiClient();
+  const startTime = Date.now();
 
-  let parsed: any;
-  try {
-    parsed = JSON.parse(jsonStr);
-  } catch {
-    if (finishReason === "MAX_TOKENS" || finishReason === "STOP" ) {
-      try {
-        parsed = JSON.parse(repairTruncatedJson(jsonStr));
-        logger.warn("Premium export: repaired truncated JSON from AI (finishReason=%s)", finishReason);
-      } catch {
-        throw new Error("AI returned invalid JSON — could not parse response");
+  let lastError: Error | null = null;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const { text, finishReason } = await callGemini(client, prompt, format, startTime);
+      logger.info(`[attempt ${attempt}] Gemini returned ${text.length} chars, finishReason=${finishReason}`, "premium-export");
+
+      const parsed = aggressiveParse(text);
+      if (attempt > 1) logger.warn("Premium export: succeeded on retry attempt %d", attempt);
+      validateAIOutput(parsed, format);
+      return parsed;
+    } catch (err: any) {
+      lastError = err;
+      logger.warn(`[attempt ${attempt}] Parse failed: ${err.message} — ${attempt < 2 ? "retrying..." : "giving up"}`, "premium-export");
+      if (attempt < 2) {
+        await new Promise(r => setTimeout(r, 2000));
       }
-    } else {
-      throw new Error("AI returned invalid JSON — could not parse response");
     }
   }
 
-  validateAIOutput(parsed, format);
-  return parsed;
+  throw lastError ?? new Error("AI returned invalid JSON — could not parse response");
 }
 
 async function generateExcelBuffer(aiResult: any, data: PremiumExportRequest): Promise<Buffer> {

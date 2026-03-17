@@ -25,6 +25,7 @@ import { getOpenAIClient } from "../ai/clients";
 import { retrieveRelevantChunks, buildRAGContext } from "../ai/knowledge-base";
 import { logger } from "../logger";
 import twilio from "twilio";
+import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 /**
  * Middleware to validate Twilio webhook request signatures.
@@ -176,6 +177,7 @@ export function register(app: Express) {
       const llmModel = ga?.marcelaLlmModel || "gpt-4.1";
       const maxTokens = ga?.marcelaMaxTokensVoice || 1024;
 
+      const startTime = Date.now();
       const response = await getOpenAIClient().chat.completions.create({
         model: llmModel,
         messages: [
@@ -186,6 +188,10 @@ export function register(app: Express) {
       });
 
       const reply = response.choices[0]?.message?.content || "I'm sorry, I couldn't process that request.";
+
+      const inTok = response.usage?.prompt_tokens ?? Math.round(body.length / 4);
+      const outTok = response.usage?.completion_tokens ?? Math.round(reply.length / 4);
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: llmModel, operation: "sms-reply", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("openai", llmModel, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/twilio/sms/incoming" }); } catch {}
 
       await chatStorage.createMessage(conversation.id, "assistant", reply);
 

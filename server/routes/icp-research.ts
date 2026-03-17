@@ -391,6 +391,10 @@ export function register(app: Express) {
       const updatedIcpConfig = { ...icpConfig, _research: report, _researchMarkdown: markdown };
       await storage.patchGlobalAssumptions(ga.id, { icpConfig: updatedIcpConfig });
 
+      const inTok = Math.round(prompt.length / 4);
+      const outTok = Math.round(fullContent.length / 4);
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "anthropic", model, operation: "icp-research", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("anthropic", model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/research/icp/generate" }); } catch {}
+
       res.write(`data: ${JSON.stringify({ type: "done", report, markdown })}\n\n`);
       res.end();
     } catch (error: any) {

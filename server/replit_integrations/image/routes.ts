@@ -4,6 +4,7 @@ import { requireAuth, isApiRateLimited } from "../../auth";
 import { ObjectStorageService } from "../object_storage";
 import { replicateService, getAvailableStyles, type ReplicateStyleKey } from "../../integrations/replicate";
 import { z } from "zod";
+import { logApiCost, estimateCost, unitCost } from "../../middleware/cost-logger";
 
 // Singleton — avoid creating a new instance per image generation request
 const sharedObjectStorageService = new ObjectStorageService();
@@ -27,12 +28,15 @@ export function registerImageRoutes(app: Express): void {
         return res.status(400).json({ error: "Prompt is required" });
       }
 
+      const startTime = Date.now();
       const response = await openai.images.generate({
         model: "gpt-image-1",
         prompt,
         n: 1,
         size: size as "1024x1024" | "512x512" | "256x256",
       });
+
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: "gpt-image-1", operation: "image-gen", estimatedCostUsd: unitCost("gpt-image-1"), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/generate-image" }); } catch {}
 
       const imageData = response.data?.[0];
       res.json({
@@ -71,6 +75,7 @@ export function registerImageRoutes(app: Express): void {
       let imageBuffer: Buffer;
       let usedFallback = false;
 
+      const startTime = Date.now();
       if (isReplicateStyle) {
         try {
           imageBuffer = await replicateService.generateImage(
@@ -78,6 +83,7 @@ export function registerImageRoutes(app: Express): void {
             prompt,
             beforeImageUrl
           );
+          try { logApiCost({ timestamp: new Date().toISOString(), service: "replicate", model: style, operation: "image-gen", estimatedCostUsd: unitCost("replicate-image"), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/generate-property-image" }); } catch {}
         } catch (replicateError) {
           console.warn(
             "Replicate generation failed, falling back to standard:",
@@ -85,9 +91,11 @@ export function registerImageRoutes(app: Express): void {
           );
           imageBuffer = await generateImageBuffer(prompt, "1024x1024");
           usedFallback = true;
+          try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: "gpt-image-1", operation: "image-gen-fallback", estimatedCostUsd: unitCost("gpt-image-1"), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/generate-property-image" }); } catch {}
         }
       } else {
         imageBuffer = await generateImageBuffer(prompt, "1024x1024");
+        try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: "gpt-image-1", operation: "image-gen", estimatedCostUsd: unitCost("gpt-image-1"), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/generate-property-image" }); } catch {}
       }
 
       const objectStorageService = sharedObjectStorageService;
@@ -130,6 +138,7 @@ export function registerImageRoutes(app: Express): void {
       }
 
       const gemini = getGeminiClient();
+      const startTime = Date.now();
       const response = await gemini.models.generateContent({
         model: "gemini-2.5-flash",
         contents: [{
@@ -144,6 +153,10 @@ export function registerImageRoutes(app: Express): void {
       if (!enhanced) {
         throw new Error("No response from AI");
       }
+
+      const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
+      const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round((enhanced?.length ?? 0) / 4);
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: "enhance-logo-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/enhance-logo-prompt" }); } catch {}
 
       res.json({ enhanced });
     } catch (error) {

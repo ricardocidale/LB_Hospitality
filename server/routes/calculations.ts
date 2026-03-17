@@ -19,6 +19,7 @@ import { computeBreakEven } from "../../calc/analysis/break-even";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 import { getOpenAIClient } from "../ai/clients";
+import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -122,6 +123,7 @@ export function register(app: Express) {
         "Connection": "keep-alive",
       });
 
+      const startTime = Date.now();
       const stream = await openai.chat.completions.create({
         model: llmModel,
         stream: true,
@@ -138,12 +140,18 @@ export function register(app: Express) {
         ],
       });
 
+      let fullReviewContent = "";
       for await (const chunk of stream) {
         const content = chunk.choices?.[0]?.delta?.content;
         if (content) {
+          fullReviewContent += content;
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
         }
       }
+
+      const inTok = Math.round(summaryText.length / 4);
+      const outTok = Math.round(fullReviewContent.length / 4);
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: llmModel, operation: "ai-verification-review", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("openai", llmModel, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/verification/ai-review" }); } catch {}
 
       res.write("data: [DONE]\n\n");
       res.end();

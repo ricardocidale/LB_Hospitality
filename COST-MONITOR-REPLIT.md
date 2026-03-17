@@ -1,5 +1,10 @@
 # Cost Monitor — Replit Instrumentation Plan
 
+## Status: COMPLETE (March 17, 2026)
+
+All 10 files instrumented. Verified with live chat call — log entry written to `logs/api-costs.jsonl`.
+View with: `npm run cost-monitor -- --log logs/api-costs.jsonl`
+
 ## Context
 
 Claude Code has already built two files:

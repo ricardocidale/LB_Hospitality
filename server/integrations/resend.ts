@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { BaseIntegrationService, type IntegrationHealth } from "./base";
+import { logApiCost } from "../middleware/cost-logger";
 
 interface EmailAttachment {
   content: string;
@@ -77,10 +78,12 @@ class ResendIntegration extends BaseIntegrationService {
         }));
       }
 
+      const startTime = Date.now();
       const { error } = await resend.emails.send(emailPayload);
       if (error) {
         throw new Error(`Resend API error: ${error.message}`);
       }
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "resend", operation: "email", estimatedCostUsd: 0.001, durationMs: Date.now() - startTime, route: "resend-integration" }); } catch {}
     });
   }
 

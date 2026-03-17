@@ -5,6 +5,7 @@ import { z } from "zod";
 import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
 import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdfPrompt, getDocxPrompt } from "./premium-export-prompts";
+import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -81,6 +82,7 @@ async function generateWithGemini(prompt: string, format: string): Promise<any> 
     setTimeout(() => reject(new Error("AI generation timed out after 120 seconds")), AI_GENERATION_TIMEOUT_MS)
   );
 
+  const startTime = Date.now();
   const generatePromise = client.models.generateContent({
     model: "gemini-2.5-flash",
     contents: prompt,
@@ -96,6 +98,10 @@ async function generateWithGemini(prompt: string, format: string): Promise<any> 
   if (!text) {
     throw new Error("No text response from Gemini");
   }
+
+  const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
+  const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
+  try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: `premium-export-${format}`, inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, route: "/api/exports/premium" }); } catch {}
 
   let jsonStr = text.trim();
   const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);

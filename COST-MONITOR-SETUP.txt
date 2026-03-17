@@ -1,0 +1,124 @@
+========================================================
+  API COST MONITOR — Setup Instructions (Windows)
+========================================================
+
+WHAT IT IS
+----------
+A standalone terminal dashboard that tracks your spending
+across all AI services (Claude Code, Replit, OpenAI, etc.).
+Runs on Windows PowerShell. No project dependency.
+Single file, zero npm packages beyond tsx.
+
+
+ONE-TIME SETUP (PowerShell)
+---------------------------
+1. Install tsx globally (if you don't have it):
+
+   npm install -g tsx
+
+2. Create the shared cost log folder:
+
+   mkdir $env:USERPROFILE\.costs
+
+3. Copy the script to a permanent location:
+
+   copy cost-monitor.ts $env:USERPROFILE\.costs\cost-monitor.ts
+
+   (The file is at: script/cost-monitor.ts in the repo)
+
+
+RUN THE DASHBOARD
+-----------------
+   cd $env:USERPROFILE\.costs
+   tsx cost-monitor.ts
+
+   Options:
+   tsx cost-monitor.ts --budget 50       Set daily budget to $50
+   tsx cost-monitor.ts --since 1h        Show last hour only
+   tsx cost-monitor.ts --since 7d        Show last 7 days
+   tsx cost-monitor.ts --help            Full help
+
+   Keyboard while running:
+   q = quit
+   h = cycle view (today / 1h / 7d / all)
+   b = cycle budget ($10 / $20 / $50 / $100 / off)
+   r = reset display
+   a = add entry interactively
+
+
+LOG YOUR COSTS
+--------------
+After each work session, log what you spent:
+
+   # Claude Code session
+   tsx cost-monitor.ts --add --service anthropic --cost 1.20 --project hospitality-portal --note "Audit session"
+
+   # Replit agent work
+   tsx cost-monitor.ts --add --service replit --cost 0.25 --project hospitality-portal --note "Batch 2 fixes"
+
+   # OpenAI usage
+   tsx cost-monitor.ts --add --service openai --model gpt-4o --cost 0.03 --project side-project
+
+   # Cursor IDE
+   tsx cost-monitor.ts --add --service cursor --cost 0.50 --project my-app
+
+   # GitHub Copilot (monthly)
+   tsx cost-monitor.ts --add --service github-copilot --cost 10.00 --note "Monthly subscription"
+
+   # Any other service
+   tsx cost-monitor.ts --add --service vercel --cost 5.00 --project my-saas --note "Hosting"
+
+
+SUPPORTED SERVICES
+------------------
+anthropic       Anthropic (Claude Code, API)
+openai          OpenAI (ChatGPT, API)
+gemini          Google Gemini
+replit          Replit (hosting, agent)
+cursor          Cursor IDE
+github-copilot  GitHub Copilot
+elevenlabs      ElevenLabs (voice)
+replicate       Replicate (image gen)
+resend          Resend (email)
+twilio          Twilio (SMS/voice)
+vercel          Vercel (hosting)
+perplexity      Perplexity
+other           Anything else
+
+
+WHERE DATA LIVES
+----------------
+All entries stored in one file:
+   %USERPROFILE%\.costs\activity.jsonl
+
+It's plain text (JSON Lines). You can open it in any
+text editor, back it up, or parse it with scripts.
+
+Each line looks like:
+   {"timestamp":"2026-03-17T14:00:00Z","service":"anthropic","model":"claude-opus-4-6","estimatedCostUsd":1.20,"project":"hospitality-portal","note":"Audit session"}
+
+
+AUTOMATIC LOGGING (from your app)
+----------------------------------
+The Replit server can also write to the log automatically.
+The middleware at server/middleware/cost-logger.ts handles
+this. Once Replit instruments the route files, every AI API
+call your app makes gets logged with token counts and costs.
+
+To monitor the app's log instead of the global one:
+   tsx cost-monitor.ts --log ./logs/api-costs.jsonl
+
+
+TIPS
+----
+- Check Anthropic console for actual Claude Code costs:
+  https://console.anthropic.com/settings/billing
+
+- Check OpenAI usage:
+  https://platform.openai.com/usage
+
+- Log costs right after each session while the amount
+  is fresh. You can always edit the JSONL file later.
+
+- The dashboard auto-refreshes every 2 seconds. Leave it
+  open in a PowerShell tab while you work.

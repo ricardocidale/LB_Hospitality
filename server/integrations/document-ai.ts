@@ -1,5 +1,6 @@
 import { objectStorageClient, ObjectStorageService } from "../replit_integrations/object_storage";
 import { BaseIntegrationService, type IntegrationHealth } from "./base";
+import { logApiCost } from "../middleware/cost-logger";
 
 export interface DocumentAIResult {
   text: string;
@@ -92,6 +93,7 @@ export class DocumentAIService extends BaseIntegrationService {
 
         const endpoint = `https://${this.location}-documentai.googleapis.com/v1/projects/${this.projectId}/locations/${this.location}/processors/${this.processorId}:process`;
 
+        const startTime = Date.now();
         const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -108,7 +110,10 @@ export class DocumentAIService extends BaseIntegrationService {
         }
 
         const data = await response.json();
-        return this.parseDocumentAIResponse(data);
+        const result = this.parseDocumentAIResponse(data);
+        const pageCount = result.pages?.length ?? 1;
+        try { logApiCost({ timestamp: new Date().toISOString(), service: "document-ai", operation: "document-parse", estimatedCostUsd: 0.01 * pageCount, durationMs: Date.now() - startTime, route: "document-ai-integration" }); } catch {}
+        return result;
       });
     } catch (error) {
       console.error("Document AI processing failed, falling back to simulation:", error);

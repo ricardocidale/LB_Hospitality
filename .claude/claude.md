@@ -155,7 +155,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 ## Export System
 
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
-- **Premium Export**: `POST /api/exports/premium` — Gemini 2.5 Flash (65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
+- **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):

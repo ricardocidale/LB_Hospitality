@@ -152,6 +152,19 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
+## Export System
+
+Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
+- **Premium Export**: `POST /api/exports/premium` — Gemini 2.5 Flash (65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
+- **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
+- **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
+- **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
+  1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.
+  2. **Dual save destination**: Both premium and non-premium offer Local Drive + Google Drive.
+  3. **File naming at save step**: User renames file during folder/location selection — not in the export dialog.
+
+---
+
 ## Key Rules
 
 - **Calculations always highest priority** — never compromise financial accuracy for visuals

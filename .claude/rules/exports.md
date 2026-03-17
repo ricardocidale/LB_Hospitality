@@ -11,7 +11,13 @@ PDF (`pdfAction`), Excel (`excelAction`), CSV (`csvAction`), PowerPoint (`pptxAc
 - **Tabbed pages** → `CurrentThemeTab` `rightContent` slot
 - **Non-tabbed pages** → `PageHeader` `actions` slot
 
-## Constraints
+## Three Cardinal Export Rules
+
+1. **Full-scope export**: Clicking Export from ANY tab exports ALL financial statements and analysis for the entity — never just the current tab. Applies to both premium and non-premium exports equally.
+2. **Dual save destination**: Both premium and non-premium exports offer Local Drive and Google Drive as save targets.
+3. **File naming at save step**: The user renames the file when selecting the save folder/location — not in the export dialog. The export dialog does NOT include a filename input field.
+
+## Additional Constraints
 
 1. CSV: always use `downloadCSV()` from `csvExport.ts` — no inline generation
 2. Filenames must include entity name (e.g. `Hotel Loch Sheldrake - Cash Flow.xlsx`)

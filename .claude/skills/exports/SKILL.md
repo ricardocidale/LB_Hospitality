@@ -169,7 +169,21 @@ Provides `downloadCSV(content, filename)` — a lightweight Blob-based download 
 
 ## Comprehensive All-Tabs Behavior (All Pages)
 
-**Every export from every financial page produces a comprehensive report containing all sections from that page** — not just the active tab. PDF and PPTX include an enterprise cover page; CSV, Excel, and PNG do not.
+**Every export from every financial page produces a comprehensive report containing ALL statements and financial analysis from that entity** — not just the active tab. Regardless of which tab the user is on when they click Export, the output includes all financial statements, analysis, and insights for that entity. This applies to **both** premium and non-premium exports equally.
+
+PDF and PPTX include an enterprise cover page; CSV, Excel, and PNG do not.
+
+## Save Destination (All Exports)
+
+**Both premium and non-premium exports must offer two save destinations:**
+1. **Local drive** — standard browser download
+2. **Google Drive** — save directly to user's connected Google Drive
+
+This applies to every export format (PDF, XLSX, PPTX, DOCX, CSV, PNG).
+
+## File Naming
+
+**File renaming happens at the save-destination step**, not in the export dialog. When the user selects the folder/location to save (whether local or Google Drive), they can change the filename at that point. The export dialog itself does not need a filename input field.
 
 | Page | Sections Included | Skill Doc |
 |------|-------------------|-----------|

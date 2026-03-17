@@ -48,7 +48,7 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+function Section({ title, description, children, grid }: { title: string; description?: string; children: React.ReactNode; grid?: boolean }) {
   return (
     <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
       <div className="relative">
@@ -57,14 +57,29 @@ function Section({ title, description, children }: { title: string; description?
             <h3 className="text-lg font-display text-foreground flex items-center gap-2">{title}</h3>
             {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
           </div>
-          {children}
+          {grid ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-4">
+              {children}
+            </div>
+          ) : (
+            children
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function PctField({ label, tooltip, value, fallback, onChange, min, max, step, sliderMax, testId }: {
+function ResearchRangeLabel({ text }: { text?: string }) {
+  if (!text) return null;
+  return (
+    <span className="text-xs font-medium rounded-md px-1.5 py-0.5 text-yellow-800 bg-yellow-50 border border-yellow-200 whitespace-nowrap">
+      {text}
+    </span>
+  );
+}
+
+function PctField({ label, tooltip, value, fallback, onChange, min, max, step, sliderMax, testId, researchRange }: {
   label: string;
   tooltip: string;
   value: number | null | undefined;
@@ -75,14 +90,16 @@ function PctField({ label, tooltip, value, fallback, onChange, min, max, step, s
   step: number;
   sliderMax?: number;
   testId: string;
+  researchRange?: string;
 }) {
   const current = value ?? fallback;
   return (
     <div className="space-y-3" data-testid={testId}>
       <div className="flex items-center justify-between">
-        <Label className="flex items-center text-foreground label-text">
+        <Label className="flex items-center flex-wrap gap-1 text-foreground label-text min-w-0">
           {label}
           <InfoTooltip text={tooltip} />
+          {researchRange && <ResearchRangeLabel text={researchRange} />}
         </Label>
         <EditableValue
           value={current}
@@ -104,7 +121,7 @@ function PctField({ label, tooltip, value, fallback, onChange, min, max, step, s
   );
 }
 
-function DollarField({ label, tooltip, value, fallback, onChange, min, max, step, testId }: {
+function DollarField({ label, tooltip, value, fallback, onChange, min, max, step, testId, researchRange }: {
   label: string;
   tooltip: string;
   value: number | null | undefined;
@@ -114,14 +131,16 @@ function DollarField({ label, tooltip, value, fallback, onChange, min, max, step
   max: number;
   step: number;
   testId: string;
+  researchRange?: string;
 }) {
   const current = value ?? fallback;
   return (
     <div className="space-y-3" data-testid={testId}>
       <div className="flex items-center justify-between">
-        <Label className="flex items-center text-foreground label-text">
+        <Label className="flex items-center flex-wrap gap-1 text-foreground label-text min-w-0">
           {label}
           <InfoTooltip text={tooltip} />
+          {researchRange && <ResearchRangeLabel text={researchRange} />}
         </Label>
         <EditableValue
           value={current}
@@ -143,7 +162,7 @@ function DollarField({ label, tooltip, value, fallback, onChange, min, max, step
   );
 }
 
-function NumberField({ label, tooltip, value, fallback, onChange, min, max, step, testId }: {
+function NumberField({ label, tooltip, value, fallback, onChange, min, max, step, testId, researchRange }: {
   label: string;
   tooltip: string;
   value: number | null | undefined;
@@ -153,14 +172,16 @@ function NumberField({ label, tooltip, value, fallback, onChange, min, max, step
   max: number;
   step: number;
   testId: string;
+  researchRange?: string;
 }) {
   const current = value ?? fallback;
   return (
     <div className="space-y-3" data-testid={testId}>
       <div className="flex items-center justify-between">
-        <Label className="flex items-center text-foreground label-text">
+        <Label className="flex items-center flex-wrap gap-1 text-foreground label-text min-w-0">
           {label}
           <InfoTooltip text={tooltip} />
+          {researchRange && <ResearchRangeLabel text={researchRange} />}
         </Label>
         <EditableValue
           value={current}
@@ -286,7 +307,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
         Template values applied when creating new properties. Existing properties retain their current values. NULL fields fall back to system constants.
       </TabBanner>
 
-      <Section title="Revenue Assumptions" description="Default revenue parameters pre-filled when adding a new hotel to the portfolio.">
+      <Section grid title="Revenue Assumptions" description="Default revenue parameters pre-filled when adding a new hotel to the portfolio.">
         <DollarField
           label="Starting ADR"
           tooltip="Average Daily Rate at property opening. This is the base rate before any growth adjustments."
@@ -295,6 +316,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultStartAdr", v)}
           min={50} max={1500} step={25}
           testId="field-defaultStartAdr"
+          researchRange="$150–$500"
         />
         <PctField
           label="ADR Growth Rate"
@@ -304,6 +326,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultAdrGrowthRate", v)}
           min={0} max={0.15} step={0.005}
           testId="field-defaultAdrGrowthRate"
+          researchRange="2%–5%"
         />
         <PctField
           label="Starting Occupancy"
@@ -313,6 +336,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultStartOccupancy", v)}
           min={0.1} max={1} step={0.01}
           testId="field-defaultStartOccupancy"
+          researchRange="50%–65%"
         />
         <PctField
           label="Max (Stabilized) Occupancy"
@@ -322,6 +346,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultMaxOccupancy", v)}
           min={0.3} max={1} step={0.01}
           testId="field-defaultMaxOccupancy"
+          researchRange="70%–85%"
         />
         <NumberField
           label="Occupancy Ramp Months"
@@ -331,6 +356,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultOccupancyRampMonths", Math.round(v))}
           min={0} max={24} step={1}
           testId="field-defaultOccupancyRampMonths"
+          researchRange="3–12 mo"
         />
         <NumberField
           label="Default Room Count"
@@ -340,6 +366,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultRoomCount", Math.round(v))}
           min={1} max={500} step={1}
           testId="field-defaultRoomCount"
+          researchRange="10–100 keys"
         />
         <PctField
           label="F&B Revenue Share"
@@ -349,6 +376,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultRevShareFb", v)}
           min={0} max={0.5} step={0.01}
           testId="field-defaultRevShareFb"
+          researchRange="15%–30%"
         />
         <PctField
           label="Events Revenue Share"
@@ -358,6 +386,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultRevShareEvents", v)}
           min={0} max={0.5} step={0.01}
           testId="field-defaultRevShareEvents"
+          researchRange="5%–15%"
         />
         <PctField
           label="Other Revenue Share"
@@ -367,6 +396,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultRevShareOther", v)}
           min={0} max={0.3} step={0.005}
           testId="field-defaultRevShareOther"
+          researchRange="3%–10%"
         />
         <PctField
           label="Catering Boost"
@@ -376,10 +406,11 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCateringBoostPct", v)}
           min={0} max={0.5} step={0.01}
           testId="field-defaultCateringBoostPct"
+          researchRange="5%–20%"
         />
       </Section>
 
-      <Section title="USALI Operating Cost Rates" description="Uniform System of Accounts for the Lodging Industry — expense rates as a percentage of total revenue.">
+      <Section grid title="USALI Operating Cost Rates" description="Uniform System of Accounts for the Lodging Industry — expense rates as a percentage of total revenue.">
         <PctField
           label="Rooms Department"
           tooltip="Housekeeping, front desk, guest supplies, linens. USALI Dept 1."
@@ -388,6 +419,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateRooms", v)}
           min={0} max={0.4} step={0.005}
           testId="field-defaultCostRateRooms"
+          researchRange="18%–25%"
         />
         <PctField
           label="Food & Beverage"
@@ -397,6 +429,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateFb", v)}
           min={0} max={0.4} step={0.005}
           testId="field-defaultCostRateFb"
+          researchRange="5%–12%"
         />
         <PctField
           label="Administrative & General"
@@ -406,6 +439,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateAdmin", v)}
           min={0} max={0.2} step={0.005}
           testId="field-defaultCostRateAdmin"
+          researchRange="7%–10%"
         />
         <PctField
           label="Sales & Marketing"
@@ -415,6 +449,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateMarketing", v)}
           min={0} max={0.15} step={0.005}
           testId="field-defaultCostRateMarketing"
+          researchRange="5%–8%"
         />
         <PctField
           label="Property Operations & Maintenance"
@@ -424,6 +459,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRatePropertyOps", v)}
           min={0} max={0.15} step={0.005}
           testId="field-defaultCostRatePropertyOps"
+          researchRange="4%–7%"
         />
         <PctField
           label="Utilities"
@@ -433,6 +469,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateUtilities", v)}
           min={0} max={0.15} step={0.005}
           testId="field-defaultCostRateUtilities"
+          researchRange="3%–6%"
         />
         <PctField
           label="Property Taxes"
@@ -442,6 +479,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateTaxes", v)}
           min={0} max={0.1} step={0.005}
           testId="field-defaultCostRateTaxes"
+          researchRange="2%–4%"
         />
         <PctField
           label="Information Technology"
@@ -451,6 +489,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateIt", v)}
           min={0} max={0.05} step={0.001}
           testId="field-defaultCostRateIt"
+          researchRange="1%–3%"
         />
         <PctField
           label="FF&E Reserve"
@@ -460,6 +499,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateFfe", v)}
           min={0} max={0.1} step={0.005}
           testId="field-defaultCostRateFfe"
+          researchRange="3%–5%"
         />
         <PctField
           label="Insurance"
@@ -469,6 +509,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateInsurance", v)}
           min={0} max={0.05} step={0.001}
           testId="field-defaultCostRateInsurance"
+          researchRange="1%–2%"
         />
         <PctField
           label="Other Operating Expenses"
@@ -478,10 +519,11 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultCostRateOther", v)}
           min={0} max={0.15} step={0.005}
           testId="field-defaultCostRateOther"
+          researchRange="1%–3%"
         />
       </Section>
 
-      <Section title="Revenue Stream Expense Rates" description="Direct expense rates tied to specific ancillary revenue streams.">
+      <Section grid title="Revenue Stream Expense Rates" description="Direct expense rates tied to specific ancillary revenue streams.">
         <PctField
           label="Event Expense Rate"
           tooltip="Cost ratio for event revenue (catering, staffing, setup)."
@@ -490,6 +532,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={onChange}
           min={0} max={1} step={0.01}
           testId="field-eventExpenseRate"
+          researchRange="40%–60%"
         />
         <PctField
           label="Other Expense Rate"
@@ -499,6 +542,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={onChange}
           min={0} max={1} step={0.01}
           testId="field-otherExpenseRate"
+          researchRange="20%–40%"
         />
         <PctField
           label="Utilities Variable Split"
@@ -508,10 +552,11 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={onChange}
           min={0} max={1} step={0.01}
           testId="field-utilitiesVariableSplit"
+          researchRange="30%–50%"
         />
       </Section>
 
-      <Section title="Acquisition Financing" description="Default loan terms applied when adding a new financed property.">
+      <Section grid title="Acquisition Financing" description="Default loan terms applied when adding a new financed property.">
         <PctField
           label="Default LTV"
           tooltip="Loan-to-value ratio for acquisition debt."
@@ -520,6 +565,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onDebt("acqLTV", v)}
           min={0} max={1} step={0.01}
           testId="field-acqLTV"
+          researchRange="60%–80%"
         />
         <PctField
           label="Interest Rate"
@@ -529,6 +575,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onDebt("interestRate", v)}
           min={0} max={0.2} step={0.0025}
           testId="field-acqInterestRate"
+          researchRange="6%–10%"
         />
         <NumberField
           label="Term (Years)"
@@ -538,6 +585,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onDebt("amortizationYears", Math.round(v))}
           min={1} max={40} step={1}
           testId="field-acqTerm"
+          researchRange="20–30 yrs"
         />
         <PctField
           label="Closing Cost Rate"
@@ -547,10 +595,11 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onDebt("acqClosingCostRate", v)}
           min={0} max={0.1} step={0.0025}
           testId="field-acqClosingCost"
+          researchRange="1%–3%"
         />
       </Section>
 
-      <Section title="Refinance Terms" description="Default terms applied when modeling a property refinance event.">
+      <Section grid title="Refinance Terms" description="Default terms applied when modeling a property refinance event.">
         <PctField
           label="Refi LTV"
           tooltip="Loan-to-value ratio for refinanced debt."
@@ -559,6 +608,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onDebt("refiLTV", v)}
           min={0} max={1} step={0.01}
           testId="field-refiLTV"
+          researchRange="60%–80%"
         />
         <PctField
           label="Refi Interest Rate"
@@ -568,6 +618,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onDebt("refiInterestRate", v)}
           min={0} max={0.2} step={0.0025}
           testId="field-refiInterestRate"
+          researchRange="5%–9%"
         />
         <NumberField
           label="Refi Term (Years)"
@@ -577,6 +628,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onDebt("refiAmortizationYears", Math.round(v))}
           min={1} max={40} step={1}
           testId="field-refiTerm"
+          researchRange="20–30 yrs"
         />
         <PctField
           label="Refi Closing Cost Rate"
@@ -586,11 +638,12 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onDebt("refiClosingCostRate", v)}
           min={0} max={0.1} step={0.0025}
           testId="field-refiClosingCost"
+          researchRange="0.5%–2%"
         />
       </Section>
 
-      <Section title="Depreciation & Tax" description="Tax-related defaults for property underwriting.">
-        <div>
+      <Section grid title="Depreciation & Tax" description="Tax-related defaults for property underwriting.">
+        <div className="col-span-1 md:col-span-2 xl:col-span-3">
           <GovernedFieldWrapper
             authority="IRS Publication 946"
             label="Depreciation Years"
@@ -625,6 +678,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultPropertyTaxRate", v)}
           min={0} max={0.05} step={0.001}
           testId="field-defaultPropertyTaxRate"
+          researchRange="0.5%–2.5%"
         />
         <PctField
           label="Land Value Percentage"
@@ -634,10 +688,11 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onChange("defaultLandValuePercent", v)}
           min={0.05} max={0.5} step={0.01}
           testId="field-defaultLandValuePercent"
+          researchRange="15%–30%"
         />
       </Section>
 
-      <Section title="Exit & Disposition" description="Defaults for property sale/exit modeling.">
+      <Section grid title="Exit & Disposition" description="Defaults for property sale/exit modeling.">
         <PctField
           label="Exit Cap Rate"
           tooltip="Capitalization rate used to estimate property value at disposition."
@@ -646,6 +701,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={onChange}
           min={0.03} max={0.15} step={0.0025}
           testId="field-exitCapRate"
+          researchRange="6%–10%"
         />
         <PctField
           label="Sales Commission"
@@ -655,6 +711,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={onChange}
           min={0} max={0.1} step={0.005}
           testId="field-salesCommissionRate"
+          researchRange="3%–6%"
         />
         <PctField
           label="Acquisition Commission"
@@ -664,10 +721,11 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={onChange}
           min={0} max={0.1} step={0.005}
           testId="field-commissionRate"
+          researchRange="1%–3%"
         />
       </Section>
 
-      <Section title="Default Acquisition Package" description="Standard purchase assumptions pre-filled when adding a new property to the portfolio.">
+      <Section grid title="Default Acquisition Package" description="Standard purchase assumptions pre-filled when adding a new property to the portfolio.">
         <DollarField
           label="Purchase Price"
           tooltip="Default property purchase price."
@@ -676,6 +734,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onAcq("purchasePrice", v)}
           min={100000} max={100000000} step={100000}
           testId="field-purchasePrice"
+          researchRange="$2M–$20M"
         />
         <DollarField
           label="Building Improvements"
@@ -685,6 +744,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onAcq("buildingImprovements", v)}
           min={0} max={50000000} step={50000}
           testId="field-buildingImprovements"
+          researchRange="$250K–$5M"
         />
         <DollarField
           label="Pre-Opening Costs"
@@ -694,6 +754,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onAcq("preOpeningCosts", v)}
           min={0} max={5000000} step={10000}
           testId="field-preOpeningCosts"
+          researchRange="$100K–$500K"
         />
         <DollarField
           label="Operating Reserve"
@@ -703,6 +764,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onAcq("operatingReserve", v)}
           min={0} max={5000000} step={10000}
           testId="field-operatingReserve"
+          researchRange="$50K–$300K"
         />
         <NumberField
           label="Months to Operations"
@@ -712,6 +774,7 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
           onChange={(_, v) => onAcq("monthsToOps", Math.round(v))}
           min={0} max={36} step={1}
           testId="field-monthsToOps"
+          researchRange="3–12 mo"
         />
       </Section>
     </div>

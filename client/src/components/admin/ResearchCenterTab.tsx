@@ -12,16 +12,16 @@ import {
   IconResearch, IconProperties, IconTarget, IconTrendingUp, IconSliders,
 } from "@/components/icons";
 import { useResearchConfig, useSaveResearchConfig } from "@/lib/api/admin";
-import type { ResearchConfig, ContextLlmConfig, ResearchSourceEntry } from "@shared/schema";
+import type { ResearchConfig, ResearchSourceEntry } from "@shared/schema";
 import {
-  FALLBACK_MODELS, mergeConfig, normalizeResearchConfig,
+  mergeConfig, normalizeResearchConfig,
   COMPANY_DEFAULT_SOURCES, CollapsibleSection, SourceLibrary,
 } from "./research-center/research-shared";
 import { IcpResearchSection } from "./research-center/IcpResearchSection";
 import {
-  PropertyResearchSection, MarketResearchSection, DomainLlmCard,
+  PropertyResearchSection, MarketResearchSection,
 } from "./research-center/PropertyMarketSections";
-import { IconBrain, IconLink } from "@/components/icons";
+import { IconLink } from "@/components/icons";
 
 interface ResearchCenterTabProps {
   initialTab?: string;
@@ -86,22 +86,6 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
     setIsDirty(true);
   }
 
-  function updateDomainLlm(domain: "company" | "property" | "market", config: ContextLlmConfig) {
-    const key = `${domain}Llm` as "companyLlm" | "propertyLlm" | "marketLlm";
-    setDraft((prev) => {
-      const next = { ...prev, [key]: config };
-      if (config.primaryLlm) {
-        next.preferredLlm = config.primaryLlm;
-        next.primaryLlm = config.primaryLlm;
-        next.llmMode = config.llmMode;
-        next.llmVendor = config.llmVendor;
-        next.secondaryLlm = config.secondaryLlm;
-      }
-      return next;
-    });
-    setIsDirty(true);
-  }
-
   function updateCompanySources(sources: ResearchSourceEntry[]) {
     setDraft((prev) => ({ ...prev, companySources: sources }));
     setIsDirty(true);
@@ -153,7 +137,7 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
         </div>
         <div>
           <h2 className="text-xl font-display font-bold text-foreground" data-testid="text-research-center-title">Research Center</h2>
-          <p className="text-xs text-muted-foreground">Strategic intelligence hub — company research, property benchmarks, market analysis, and per-domain AI engine configuration</p>
+          <p className="text-xs text-muted-foreground">Strategic intelligence hub — company research, property benchmarks, and market analysis configuration</p>
         </div>
       </div>
 
@@ -219,23 +203,6 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
             />
           </CollapsibleSection>
 
-          <CollapsibleSection
-            title="LLM Configuration"
-            icon={<IconBrain className="w-4 h-4 text-primary" />}
-            description="AI model for company and ICP research"
-            defaultOpen={false}
-          >
-            <DomainLlmCard
-              domain="company"
-              domainLabel="Management Company"
-              config={draft.companyLlm ?? {}}
-              onChange={(c) => updateDomainLlm("company", c)}
-              draft={draft}
-              setDraft={setDraft}
-              setIsDirty={setIsDirty}
-            />
-          </CollapsibleSection>
-
           <div className="flex justify-end pb-8">
             <SaveButton
               onClick={handleSave}
@@ -252,23 +219,6 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
             onChange={(c) => updateConfig("property", c)}
           />
 
-          <CollapsibleSection
-            title="LLM Configuration"
-            icon={<IconBrain className="w-4 h-4 text-primary" />}
-            description="AI model for property-level research"
-            defaultOpen={false}
-          >
-            <DomainLlmCard
-              domain="property"
-              domainLabel="Properties"
-              config={draft.propertyLlm ?? {}}
-              onChange={(c) => updateDomainLlm("property", c)}
-              draft={draft}
-              setDraft={setDraft}
-              setIsDirty={setIsDirty}
-            />
-          </CollapsibleSection>
-
           <div className="flex justify-end pb-8">
             <SaveButton
               onClick={handleSave}
@@ -284,23 +234,6 @@ export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterT
             config={mergeConfig(draft.global)}
             onChange={(c) => updateConfig("global", c)}
           />
-
-          <CollapsibleSection
-            title="LLM Configuration"
-            icon={<IconBrain className="w-4 h-4 text-primary" />}
-            description="AI model for market and industry research"
-            defaultOpen={false}
-          >
-            <DomainLlmCard
-              domain="market"
-              domainLabel="Market & Industry"
-              config={draft.marketLlm ?? {}}
-              onChange={(c) => updateDomainLlm("market", c)}
-              draft={draft}
-              setDraft={setDraft}
-              setIsDirty={setIsDirty}
-            />
-          </CollapsibleSection>
 
           <div className="flex justify-end pb-8">
             <SaveButton

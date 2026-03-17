@@ -183,7 +183,7 @@ export default function SourcesTab({ onSaveStateChange }: SourcesTabProps) {
   }, [savedConfig, initialized]);
 
   // Ref-based save handler to avoid infinite re-render loop (see admin-save-state rule)
-  const saveRef = useRef<() => void>();
+  const saveRef = useRef<(() => void) | undefined>(undefined);
   saveRef.current = () => {
     saveMutation.mutate(draft, {
       onSuccess: () => {

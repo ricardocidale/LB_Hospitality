@@ -220,7 +220,7 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
   const [initialized, setInitialized] = useState(false);
 
   // Ref-based save handler to avoid infinite re-render loop (see admin-save-state rule)
-  const saveRef = useRef<() => void>();
+  const saveRef = useRef<(() => void) | undefined>(undefined);
   saveRef.current = () => {
     saveMutation.mutate(draft, {
       onSuccess: () => {

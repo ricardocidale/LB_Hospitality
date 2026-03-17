@@ -135,7 +135,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 - **Icon standard**: `IconPlay` for "Run Research", `IconEye` for "Criteria", `IconBanknote` for Reconciliation
 - **Resend replaces SendGrid** for all transactional email — `server/services/resend.ts`
 - **ICP = Profile + Research Center** — two separate pages, not one monolithic ICP page
-- **LLM dual-model config** — primary + fallback model with vendor selection (OpenAI, Anthropic, Gemini) in Admin LLM tab
+- **LLM dual-model config** — primary + fallback model with vendor selection (OpenAI, Anthropic, Gemini) in Admin LLM tab. 7 domains: Company Research, Property Research, Market Research, Report Generation, Chatbot (Rebecca), Premium Exports, AI Utilities. All AI model selections defined in admin LLMs page only — no hardcoded models anywhere.
 - **Norfolk AI theme** — additional theme preset alongside Tuscan Olive Grove
 - **Settings placement** — General Settings page eliminated (Task #168). Two surfaces: Company Assumptions (admin-only, entity config), Admin panel (system config). Calc transparency + tour toggles moved to Admin Navigation tab. Auto-research toggle moved to Admin Research Center tab. Non-admins see read-only Model Inputs panel on Company page.
 
@@ -223,7 +223,7 @@ Investment Performance (IRR gauge), KPI cards, Revenue & ANOI chart, Portfolio t
 ## Export System
 
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
-- **Premium Export**: `POST /api/exports/premium` — Gemini 2.5 Flash (65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
+- **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):

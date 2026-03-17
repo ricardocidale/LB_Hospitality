@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ function getStoredOrientation(): "landscape" | "portrait" {
   try {
     const v = localStorage.getItem(ORIENTATION_KEY);
     if (v === "portrait") return "portrait";
-  } catch { /* ignore: localStorage unavailable in private browsing */ }
+  } catch {}
   return "landscape";
 }
 
@@ -28,14 +28,14 @@ function getStoredVersion(): ExportVersion {
   try {
     const v = localStorage.getItem(VERSION_KEY);
     if (v === "short" || v === "extended") return v;
-  } catch { /* ignore: localStorage unavailable in private browsing */ }
+  } catch {}
   return "short";
 }
 
 function getStoredPremium(): boolean {
   try {
     return localStorage.getItem(PREMIUM_KEY) === "true";
-  } catch { /* ignore: localStorage unavailable in private browsing */ }
+  } catch {}
   return false;
 }
 
@@ -80,13 +80,19 @@ export interface PremiumExportPayload {
   projectionYears?: number;
 }
 
-async function downloadPremiumExport(
+const CONTENT_TYPES: Record<string, string> = {
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  pdf: "application/pdf",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+};
+
+async function generatePremiumExport(
   format: PremiumFormat,
   payload: PremiumExportPayload,
   orientation: "landscape" | "portrait",
   version: ExportVersion,
-  customFilename?: string
-): Promise<void> {
+): Promise<{ blob: Blob; serverFilename: string }> {
   const controller = new AbortController();
   const clientTimeout = setTimeout(() => controller.abort(), 200_000);
   let response;
@@ -114,10 +120,33 @@ async function downloadPremiumExport(
 
   const blob = await response.blob();
   const disposition = response.headers.get("Content-Disposition");
-  let filename = customFilename || `export.${format}`;
-  if (!customFilename && disposition) {
+  let serverFilename = `export.${format}`;
+  if (disposition) {
     const match = disposition.match(/filename="?([^"]+)"?/);
-    if (match) filename = match[1];
+    if (match) serverFilename = match[1];
+  }
+
+  return { blob, serverFilename };
+}
+
+async function saveToLocal(blob: Blob, filename: string, mimeType: string): Promise<void> {
+  if ("showSaveFilePicker" in window) {
+    try {
+      const ext = filename.includes(".") ? filename.substring(filename.lastIndexOf(".")) : "";
+      const handle = await (window as any).showSaveFilePicker({
+        suggestedName: filename,
+        types: ext ? [{
+          description: `${ext.toUpperCase().slice(1)} File`,
+          accept: { [mimeType]: [ext] },
+        }] : undefined,
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    } catch (err: any) {
+      if (err?.name === "AbortError") throw err;
+    }
   }
 
   const url = URL.createObjectURL(blob);
@@ -130,12 +159,45 @@ async function downloadPremiumExport(
   URL.revokeObjectURL(url);
 }
 
+async function saveToDrive(blob: Blob, filename: string, mimeType: string): Promise<{ webViewLink: string }> {
+  const reader = new FileReader();
+  const base64Promise = new Promise<string>((resolve, reject) => {
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+  });
+  reader.readAsDataURL(blob);
+  const base64Data = await base64Promise;
+
+  const response = await fetch("/api/exports/drive-upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ filename, mimeType, base64Data }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.error || "Failed to upload to Google Drive");
+  }
+
+  return response.json();
+}
+
+type DialogStep = "options" | "generating" | "save";
+
 export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, premiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
   const [orientation, setOrientation] = useState<"landscape" | "portrait">(getStoredOrientation);
   const [version, setVersion] = useState<ExportVersion>(getStoredVersion);
   const [isPremium, setIsPremium] = useState(getStoredPremium);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [filename, setFilename] = useState(suggestedFilename);
+  const [step, setStep] = useState<DialogStep>("options");
+  const [generatedBlob, setGeneratedBlob] = useState<Blob | null>(null);
+  const [saveFilename, setSaveFilename] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [driveAvailable, setDriveAvailable] = useState(false);
   const filenameRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -144,164 +206,300 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
       setOrientation(getStoredOrientation());
       setVersion(getStoredVersion());
       setIsPremium(getStoredPremium());
-      setIsGenerating(false);
-      setFilename(suggestedFilename);
+      setStep("options");
+      setGeneratedBlob(null);
+      setSaveFilename("");
+      setIsSaving(false);
+
+      fetch("/api/exports/drive-status", { credentials: "include" })
+        .then(r => r.json())
+        .then(d => setDriveAvailable(d.available))
+        .catch(() => setDriveAvailable(false));
     }
-  }, [open, suggestedFilename]);
+  }, [open]);
 
   const handleOrientationChange = (v: string) => {
     const val = v as "landscape" | "portrait";
     setOrientation(val);
-    try { localStorage.setItem(ORIENTATION_KEY, val); } catch { /* ignore: localStorage unavailable */ }
+    try { localStorage.setItem(ORIENTATION_KEY, val); } catch {}
   };
 
   const handleVersionChange = (v: string) => {
     const val = v as ExportVersion;
     setVersion(val);
-    try { localStorage.setItem(VERSION_KEY, val); } catch { /* ignore: localStorage unavailable */ }
+    try { localStorage.setItem(VERSION_KEY, val); } catch {}
   };
 
   const handlePremiumToggle = (checked: boolean) => {
     setIsPremium(checked);
-    try { localStorage.setItem(PREMIUM_KEY, String(checked)); } catch { /* ignore: localStorage unavailable */ }
+    try { localStorage.setItem(PREMIUM_KEY, String(checked)); } catch {}
   };
 
-  const buildFilename = () => {
-    const trimmed = filename.trim();
-    if (!trimmed) return undefined;
+  const getDefaultFilename = (serverName?: string) => {
+    if (serverName) {
+      return serverName.replace(/\.[^.]+$/, "");
+    }
+    const base = suggestedFilename || "Export";
+    return base;
+  };
+
+  const getFullFilename = () => {
+    const trimmed = saveFilename.trim();
+    if (!trimmed) return `export${fileExtension}`;
     const safe = trimmed.replace(/[/\\:*?"<>|]/g, "_");
-    return `${safe}${fileExtension}`;
+    const ext = isPremium ? `.${premiumFormat}` : fileExtension;
+    return `${safe}${ext}`;
+  };
+
+  const getMimeType = () => {
+    const fmt = isPremium ? premiumFormat : fileExtension.replace(".", "");
+    return CONTENT_TYPES[fmt] || "application/octet-stream";
   };
 
   const handleExport = async () => {
-    const finalFilename = buildFilename();
     if (isPremium && premiumExportData) {
-      setIsGenerating(true);
+      setStep("generating");
       try {
-        await downloadPremiumExport(premiumFormat, premiumExportData, orientation, version, finalFilename);
-        toast({ title: "Premium export complete", description: `Your ${premiumFormat.toUpperCase()} file has been downloaded.` });
-        onClose();
+        const { blob, serverFilename } = await generatePremiumExport(premiumFormat, premiumExportData, orientation, version);
+        setGeneratedBlob(blob);
+        setSaveFilename(getDefaultFilename(serverFilename));
+        setStep("save");
+        setTimeout(() => filenameRef.current?.select(), 100);
       } catch (error: any) {
         const errMsg = error?.message || "An unexpected error occurred. Please try again.";
         console.error("[premium-export] Client error:", errMsg, error?.stack || "");
         toast({ title: "Premium export failed", description: errMsg, variant: "destructive" });
-      } finally {
-        setIsGenerating(false);
+        setStep("options");
       }
     } else {
-      onExport(orientation, version, finalFilename);
+      onExport(orientation, version);
       onClose();
     }
   };
 
+  const handleSaveLocal = async () => {
+    if (!generatedBlob) return;
+    setIsSaving(true);
+    try {
+      await saveToLocal(generatedBlob, getFullFilename(), getMimeType());
+      toast({ title: "File saved", description: `${getFullFilename()} saved to your computer.` });
+      onClose();
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        setIsSaving(false);
+        return;
+      }
+      toast({ title: "Save failed", description: err?.message || "Could not save file", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveDrive = async () => {
+    if (!generatedBlob) return;
+    setIsSaving(true);
+    try {
+      const result = await saveToDrive(generatedBlob, getFullFilename(), getMimeType());
+      toast({
+        title: "Saved to Google Drive",
+        description: (
+          <span>
+            {getFullFilename()} uploaded.{" "}
+            {result.webViewLink && (
+              <a href={result.webViewLink} target="_blank" rel="noopener noreferrer" className="underline font-medium">
+                Open in Drive
+              </a>
+            )}
+          </span>
+        ),
+      });
+      onClose();
+    } catch (err: any) {
+      toast({ title: "Google Drive upload failed", description: err?.message || "Could not upload file", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const hasPremiumData = !!premiumExportData;
+  const isGenerating = step === "generating";
 
   return (
-    <Dialog open={open} onOpenChange={isGenerating ? undefined : onClose}>
+    <Dialog open={open} onOpenChange={(isGenerating || isSaving) ? undefined : onClose}>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{step === "save" ? "Save Export" : title}</DialogTitle>
+          {step === "save" && (
+            <DialogDescription>Choose where to save your file.</DialogDescription>
+          )}
         </DialogHeader>
-        <div className="py-4 space-y-5">
-          {suggestedFilename && (
-            <div>
-              <Label htmlFor="export-dialog-filename" className="text-sm font-medium mb-2 block">Filename</Label>
-              <div className="flex items-center gap-0">
-                <Input
-                  ref={filenameRef}
-                  id="export-dialog-filename"
-                  value={filename}
-                  onChange={(e) => setFilename(e.target.value)}
-                  className="rounded-r-none border-r-0 flex-1"
-                  data-testid="input-export-filename"
-                />
-                <div className="flex items-center px-3 h-9 border rounded-r-md bg-muted text-muted-foreground text-sm font-mono select-none" data-testid="text-export-extension">
-                  {fileExtension}
-                </div>
-              </div>
-            </div>
-          )}
 
-          {hasPremiumData && (
-            <div className="flex items-center justify-between p-3 rounded-lg border bg-gradient-to-r from-emerald-50 to-sage-50 border-emerald-200">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-emerald-600" />
-                <div>
-                  <Label htmlFor="premium-toggle" className="text-sm font-medium cursor-pointer">Premium Export</Label>
-                  <p className="text-xs text-muted-foreground">AI-enhanced formatting & insights</p>
+        {step === "options" && (
+          <>
+            <div className="py-4 space-y-5">
+              {hasPremiumData && (
+                <div className="flex items-center justify-between p-3 rounded-lg border bg-gradient-to-r from-emerald-50 to-sage-50 border-emerald-200">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-emerald-600" />
+                    <div>
+                      <Label htmlFor="premium-toggle" className="text-sm font-medium cursor-pointer">Premium Export</Label>
+                      <p className="text-xs text-muted-foreground">AI-enhanced formatting & insights</p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="premium-toggle"
+                    checked={isPremium}
+                    onCheckedChange={handlePremiumToggle}
+                    data-testid="switch-premium-export"
+                  />
                 </div>
-              </div>
-              <Switch
-                id="premium-toggle"
-                checked={isPremium}
-                onCheckedChange={handlePremiumToggle}
-                data-testid="switch-premium-export"
-              />
-            </div>
-          )}
+              )}
 
-          <div>
-            <Label className="text-sm font-medium mb-3 block">Orientation</Label>
-            <RadioGroup value={orientation} onValueChange={handleOrientationChange}>
-              <div className="flex items-center space-x-2 mb-2">
-                <RadioGroupItem value="landscape" id="landscape" />
-                <Label htmlFor="landscape" className="cursor-pointer">Landscape (wider)</Label>
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Orientation</Label>
+                <RadioGroup value={orientation} onValueChange={handleOrientationChange}>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <RadioGroupItem value="landscape" id="landscape" />
+                    <Label htmlFor="landscape" className="cursor-pointer">Landscape (wider)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="portrait" id="portrait" />
+                    <Label htmlFor="portrait" className="cursor-pointer">Portrait (taller)</Label>
+                  </div>
+                </RadioGroup>
               </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="portrait" id="portrait" />
-                <Label htmlFor="portrait" className="cursor-pointer">Portrait (taller)</Label>
-              </div>
-            </RadioGroup>
+
+              {showVersionOption && (
+                <div className="border-t pt-4">
+                  <Label className="text-sm font-medium mb-3 block">Report Version</Label>
+                  <RadioGroup value={version} onValueChange={handleVersionChange}>
+                    <div className="flex items-start space-x-2 mb-3">
+                      <RadioGroupItem value="short" id="version-short" className="mt-0.5" />
+                      <div className="grid gap-1 leading-none">
+                        <Label htmlFor="version-short" className="cursor-pointer text-sm font-medium">Short</Label>
+                        <p className="text-xs text-muted-foreground">Summary view with top-level figures only</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <RadioGroupItem value="extended" id="version-extended" className="mt-0.5" />
+                      <div className="grid gap-1 leading-none">
+                        <Label htmlFor="version-extended" className="cursor-pointer text-sm font-medium">Extended</Label>
+                        <p className="text-xs text-muted-foreground">Expanded sections with line-item breakdowns</p>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={onClose}>Cancel</Button>
+              <Button
+                variant="outline"
+                onClick={handleExport}
+                data-testid="button-export-confirm"
+              >
+                {isPremium && hasPremiumData ? (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Generate Export
+                  </>
+                ) : (
+                  <>
+                    <IconDownload className="mr-2 h-4 w-4" />
+                    Export
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+
+        {step === "generating" && (
+          <div className="py-10 flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <div className="text-center">
+              <p className="font-medium">Generating your export...</p>
+              <p className="text-sm text-muted-foreground mt-1">This may take up to a minute for large reports.</p>
+            </div>
           </div>
+        )}
 
-          {showVersionOption && (
-            <div className="border-t pt-4">
-              <Label className="text-sm font-medium mb-3 block">Report Version</Label>
-              <RadioGroup value={version} onValueChange={handleVersionChange}>
-                <div className="flex items-start space-x-2 mb-3">
-                  <RadioGroupItem value="short" id="version-short" className="mt-0.5" />
-                  <div className="grid gap-1 leading-none">
-                    <Label htmlFor="version-short" className="cursor-pointer text-sm font-medium">Short</Label>
-                    <p className="text-xs text-muted-foreground">Summary view with top-level figures only</p>
+        {step === "save" && (
+          <>
+            <div className="py-4 space-y-4">
+              <div>
+                <Label htmlFor="save-filename" className="text-sm font-medium mb-2 block">Filename</Label>
+                <div className="flex items-center gap-0">
+                  <Input
+                    ref={filenameRef}
+                    id="save-filename"
+                    value={saveFilename}
+                    onChange={(e) => setSaveFilename(e.target.value)}
+                    className="rounded-r-none border-r-0 flex-1"
+                    data-testid="input-save-filename"
+                    disabled={isSaving}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSaveLocal();
+                      }
+                    }}
+                  />
+                  <div className="flex items-center px-3 h-9 border rounded-r-md bg-muted text-muted-foreground text-sm font-mono select-none" data-testid="text-save-extension">
+                    .{premiumFormat}
                   </div>
                 </div>
-                <div className="flex items-start space-x-2">
-                  <RadioGroupItem value="extended" id="version-extended" className="mt-0.5" />
-                  <div className="grid gap-1 leading-none">
-                    <Label htmlFor="version-extended" className="cursor-pointer text-sm font-medium">Extended</Label>
-                    <p className="text-xs text-muted-foreground">Expanded sections with line-item breakdowns</p>
+              </div>
+
+              <div className="space-y-2">
+                <Button
+                  className="w-full justify-start gap-3 h-12"
+                  variant="outline"
+                  onClick={handleSaveLocal}
+                  disabled={isSaving || !saveFilename.trim()}
+                  data-testid="button-save-local"
+                >
+                  {isSaving ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <IconDownload className="h-5 w-5" />
+                  )}
+                  <div className="text-left">
+                    <div className="font-medium text-sm">Save to Computer</div>
+                    <div className="text-xs text-muted-foreground">Choose a folder on your device</div>
                   </div>
-                </div>
-              </RadioGroup>
+                </Button>
+
+                {driveAvailable && (
+                  <Button
+                    className="w-full justify-start gap-3 h-12"
+                    variant="outline"
+                    onClick={handleSaveDrive}
+                    disabled={isSaving || !saveFilename.trim()}
+                    data-testid="button-save-drive"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
+                        <path d="M8.267 14.68l-1.6 2.769h11.666l1.6-2.769H8.267z" fill="#3777E3"/>
+                        <path d="M14.133 4H7.467L1.8 14.68l1.6 2.769L9.067 7.11h6.666L14.133 4z" fill="#FFCF63"/>
+                        <path d="M22.2 14.68L16.533 4h-3.6l5.667 10.68H22.2z" fill="#11A861"/>
+                      </svg>
+                    )}
+                    <div className="text-left">
+                      <div className="font-medium text-sm">Save to Google Drive</div>
+                      <div className="text-xs text-muted-foreground">Upload to your connected Drive</div>
+                    </div>
+                  </Button>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isGenerating}>Cancel</Button>
-          <Button
-            variant="outline"
-            onClick={handleExport}
-            disabled={isGenerating}
-            data-testid="button-export-confirm"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : isPremium && hasPremiumData ? (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Premium Export
-              </>
-            ) : (
-              <>
-                <IconDownload className="mr-2 h-4 w-4" />
-                Download
-              </>
-            )}
-          </Button>
-        </DialogFooter>
+            <DialogFooter>
+              <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancel</Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

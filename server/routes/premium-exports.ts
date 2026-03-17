@@ -195,7 +195,7 @@ async function generateWithGemini(prompt: string, format: string): Promise<any> 
       logger.info(`[attempt ${attempt}] Gemini returned ${text.length} chars, finishReason=${finishReason}`, "premium-export");
 
       const parsed = aggressiveParse(text);
-      if (attempt > 1) logger.warn("Premium export: succeeded on retry attempt %d", attempt);
+      if (attempt > 1) logger.warn(`Premium export: succeeded on retry attempt ${attempt}`);
       validateAIOutput(parsed, format);
       return parsed;
     } catch (err: any) {
@@ -1091,5 +1091,73 @@ export function register(app: Express) {
   app.get("/api/exports/premium/status", requireAuth, async (_req: Request, res: Response) => {
     const hasApiKey = !!(process.env.AI_INTEGRATIONS_GEMINI_API_KEY);
     res.json({ available: hasApiKey, formats: ["xlsx", "pptx", "pdf", "docx"] });
+  });
+
+  const driveUploadSchema = z.object({
+    filename: z.string().min(1).max(200),
+    mimeType: z.string().max(100).default("application/octet-stream"),
+    base64Data: z.string().max(50_000_000),
+  });
+
+  app.post("/api/exports/drive-upload", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const parsed = driveUploadSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid upload request", details: parsed.error.flatten() });
+      }
+      const { filename, mimeType, base64Data } = parsed.data;
+
+      const accessToken = process.env.GOOGLE_DRIVE_ACCESS_TOKEN;
+      if (!accessToken) {
+        return res.status(503).json({ error: "Google Drive is not connected" });
+      }
+
+      const boundary = "----ExportBoundary" + Date.now();
+      const metadata = JSON.stringify({
+        name: filename,
+        mimeType: mimeType || "application/octet-stream",
+      });
+
+      const bodyParts = [
+        `--${boundary}\r\n`,
+        `Content-Type: application/json; charset=UTF-8\r\n\r\n`,
+        metadata,
+        `\r\n--${boundary}\r\n`,
+        `Content-Type: ${mimeType || "application/octet-stream"}\r\n`,
+        `Content-Transfer-Encoding: base64\r\n\r\n`,
+        base64Data,
+        `\r\n--${boundary}--`,
+      ];
+
+      const uploadResponse = await fetch(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": `multipart/related; boundary=${boundary}`,
+          },
+          body: bodyParts.join(""),
+        }
+      );
+
+      if (!uploadResponse.ok) {
+        const errText = await uploadResponse.text();
+        logger.error(`Google Drive upload failed: ${uploadResponse.status} ${errText}`, "premium-export");
+        return res.status(uploadResponse.status).json({ error: "Failed to upload to Google Drive" });
+      }
+
+      const driveFile = await uploadResponse.json() as { id: string; name: string; webViewLink: string };
+      logger.info(`Uploaded to Google Drive: ${driveFile.name} (${driveFile.id})`, "premium-export");
+      res.json({ success: true, fileId: driveFile.id, fileName: driveFile.name, webViewLink: driveFile.webViewLink });
+    } catch (error: any) {
+      logger.error(`Drive upload error: ${error?.message || error}`, "premium-export");
+      res.status(500).json({ error: "Failed to upload to Google Drive" });
+    }
+  });
+
+  app.get("/api/exports/drive-status", requireAuth, async (_req: Request, res: Response) => {
+    const hasToken = !!(process.env.GOOGLE_DRIVE_ACCESS_TOKEN);
+    res.json({ available: hasToken });
   });
 }

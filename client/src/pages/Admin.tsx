@@ -12,6 +12,7 @@ import { IcpContent } from "@/pages/Icp";
 import GroupsTab from "@/components/admin/GroupsTab";
 import LogosTab from "@/components/admin/LogosTab";
 import ThemesTab from "@/components/admin/ThemesTab";
+import IconSetsTab from "@/components/admin/IconSetsTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
 import AIAgentsTab from "@/components/admin/AIAgentsTab";
@@ -36,6 +37,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   companies:        { title: "Companies",            subtitle: "Manage companies of interest" },
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
+  icons:            { title: "Icon Sets",             subtitle: "Browse and select icon libraries" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
   "ai-agents":     { title: "AI Agents",             subtitle: "Configure and manage your AI text assistant" },
   research:         { title: "Research Center",      subtitle: "Strategic intelligence hub — ICP company research, property benchmarks, market analysis, and AI engine" },
@@ -59,6 +61,7 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
     case "companies":        return <CompaniesTab />;
     case "groups":           return <GroupsTab />;
     case "logos":            return <LogosTab />;
+    case "icons":            return <IconSetsTab />;
     case "themes":           return <ThemesTab />;
     case "notifications":    return <NotificationsTab />;
     case "navigation":       return <NavigationTab />;

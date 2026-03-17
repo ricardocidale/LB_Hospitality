@@ -8,9 +8,16 @@ import { Loader2, ChevronUp, ChevronDown } from "@/components/icons/themed-icons
 import { IconPlus, IconTrash, IconPencil, IconPalette, IconActivity, IconSparkles, IconType, IconSave } from "@/components/icons";
 import { ColorPicker } from "@/components/ui/color-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useDesignThemes, useCreateTheme, useUpdateTheme, useDeleteTheme } from "./useDesignThemes";
 import { ThemePreview } from "./ThemePreview";
 import type { DesignTheme, DesignColor, IconSetType } from "./types";
+import {
+  Star as LucideStar, Bell as LucideBell, Search as LucideSearch, Home as LucideHome,
+} from "lucide-react";
+import {
+  Star as PhStar, Bell as PhBell, MagnifyingGlass as PhSearch, House as PhHome,
+} from "@phosphor-icons/react";
 
 export function ThemeManager() {
   const { data: designThemes, isLoading: themesLoading } = useDesignThemes();
@@ -145,9 +152,6 @@ export function ThemeManager() {
                       {theme.isDefault && (
                         <span className="px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-primary text-primary-foreground shrink-0">Default</span>
                       )}
-                      <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-muted text-muted-foreground shrink-0" data-testid={`badge-icon-set-${theme.id}`}>
-                        {theme.iconSet === "phosphor" ? "Phosphor" : "Lucide"}
-                      </span>
                       {theme.description && (
                         <span className="text-xs text-muted-foreground truncate hidden sm:inline">— {theme.description}</span>
                       )}
@@ -166,6 +170,28 @@ export function ThemeManager() {
                         <IconTrash className="w-3.5 h-3.5" />
                       </Button>
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-2" data-testid={`inline-icon-set-selector-${theme.id}`}>
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Icons</span>
+                    <RadioGroup
+                      value={theme.iconSet}
+                      onValueChange={(val: string) => updateThemeMutation.mutate({ id: theme.id, data: { iconSet: val } })}
+                      className="flex items-center gap-2"
+                    >
+                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md border ${theme.iconSet === "lucide" ? "border-primary/40 bg-primary/5" : "border-border/50 bg-muted/40"}`}>
+                        <RadioGroupItem value="lucide" id={`lucide-${theme.id}`} className="h-3 w-3" data-testid={`radio-lucide-${theme.id}`} />
+                        <Label htmlFor={`lucide-${theme.id}`} className="text-[10px] cursor-pointer flex items-center gap-0.5">
+                          <LucideStar className="w-3 h-3" /><LucideBell className="w-3 h-3" /><LucideSearch className="w-3 h-3" /><LucideHome className="w-3 h-3" />
+                        </Label>
+                      </div>
+                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md border ${theme.iconSet === "phosphor" ? "border-primary/40 bg-primary/5" : "border-border/50 bg-muted/40"}`}>
+                        <RadioGroupItem value="phosphor" id={`phosphor-${theme.id}`} className="h-3 w-3" data-testid={`radio-phosphor-${theme.id}`} />
+                        <Label htmlFor={`phosphor-${theme.id}`} className="text-[10px] cursor-pointer flex items-center gap-0.5">
+                          <PhStar className="w-3 h-3" size={12} /><PhBell className="w-3 h-3" size={12} /><PhSearch className="w-3 h-3" size={12} /><PhHome className="w-3 h-3" size={12} />
+                        </Label>
+                      </div>
+                    </RadioGroup>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2">

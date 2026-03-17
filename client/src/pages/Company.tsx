@@ -25,6 +25,7 @@
  */
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { ExportDialog, type PremiumExportPayload } from "@/components/ExportDialog";
+import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -69,6 +70,7 @@ export default function Company() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
   const [modelInputsOpen, setModelInputsOpen] = useState(false);
+  const { requestSave, SaveDialog } = useExportSave();
   const modelInputsRef = useRef<HTMLDivElement>(null);
 
   const handleOpenModelInputs = useCallback(() => {
@@ -194,35 +196,38 @@ export default function Company() {
 
   const companyName = global?.companyName || "Management Company";
 
-  const handleExport = (orientation: 'landscape' | 'portrait', version?: 'short' | 'extended') => {
+  const handleExport = (orientation: 'landscape' | 'portrait', version?: 'short' | 'extended', customFilename?: string) => {
     if (exportType === 'pdf') {
       const summaryOnly = version === 'short';
       const data = getStatementData(activeTab, summaryOnly);
-      exportCompanyPDF(activeTab as any, data, global, projectionYears, yearlyChartData, orientation);
+      exportCompanyPDF(activeTab as any, data, global, projectionYears, yearlyChartData, orientation, customFilename);
     } else if (exportType === 'tablePng') {
-      exportTablePNG(tableRef, activeTab, companyName);
+      exportTablePNG(tableRef, activeTab, companyName, customFilename);
     } else {
-      exportChartPNG(chartRef, orientation, companyName);
+      exportChartPNG(chartRef, orientation, companyName, customFilename);
     }
   };
+
+  const tabLabel = activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow" : "Balance Sheet";
 
   const exportMenuNode = (
     <ExportMenu
       variant="light"
       actions={[
         pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
-        excelAction(() => handleExcelExport(activeTab, financials, projectionYears, global, fiscalYearStartMonth)),
-        csvAction(() => exportCompanyCSV(activeTab as any, getStatementData(activeTab), companyName)),
-        pptxAction(() => handlePPTXExport(
+        excelAction(() => requestSave(`${companyName} Financial Statements`, ".xlsx", (f) => handleExcelExport(activeTab, financials, projectionYears, global, fiscalYearStartMonth, f))),
+        csvAction(() => requestSave(`${companyName} ${tabLabel}`, ".csv", (f) => exportCompanyCSV(activeTab as any, getStatementData(activeTab), companyName, f))),
+        pptxAction(() => requestSave(`${companyName} Report`, ".pptx", (f) => handlePPTXExport(
           global,
           projectionYears,
           (i) => String(getFiscalYear(i)),
           generateCompanyIncomeData(financials, years, properties, propertyFinancials),
           generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel),
-          generateCompanyBalanceData(financials, years, fundingLabel)
-        )),
+          generateCompanyBalanceData(financials, years, fundingLabel),
+          f
+        ))),
         chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
-        pngAction(() => exportTablePNG(tableRef, activeTab, companyName)),
+        pngAction(() => requestSave(`${companyName} ${tabLabel}`, ".png", (f) => exportTablePNG(tableRef, activeTab, companyName, f))),
       ]}
     />
   );
@@ -230,11 +235,16 @@ export default function Company() {
   return (
     <Layout>
       <AnimatedPage>
+      {SaveDialog}
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
         title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
+        suggestedFilename={
+          exportType === 'pdf' ? `${companyName} ${tabLabel}` : `${companyName} Chart`
+        }
+        fileExtension={exportType === 'pdf' ? '.pdf' : '.png'}
         premiumExportData={exportType === 'pdf' ? (() => {
           const incomeData = generateCompanyIncomeData(financials, years, properties, propertyFinancials);
           const cashFlowData = generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel);

@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Sparkles } from "@/components/icons/themed-icons";
+import { IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 
 export type ExportVersion = "short" | "extended";
@@ -40,11 +42,13 @@ function getStoredPremium(): boolean {
 interface ExportDialogProps {
   open: boolean;
   onClose: () => void;
-  onExport: (orientation: "landscape" | "portrait", version: ExportVersion) => void;
+  onExport: (orientation: "landscape" | "portrait", version: ExportVersion, customFilename?: string) => void;
   title: string;
   showVersionOption?: boolean;
   premiumExportData?: PremiumExportPayload | null;
   premiumFormat?: PremiumFormat;
+  suggestedFilename?: string;
+  fileExtension?: string;
 }
 
 export interface PremiumExportPayload {
@@ -80,7 +84,8 @@ async function downloadPremiumExport(
   format: PremiumFormat,
   payload: PremiumExportPayload,
   orientation: "landscape" | "portrait",
-  version: ExportVersion
+  version: ExportVersion,
+  customFilename?: string
 ): Promise<void> {
   const controller = new AbortController();
   const clientTimeout = setTimeout(() => controller.abort(), 200_000);
@@ -109,8 +114,8 @@ async function downloadPremiumExport(
 
   const blob = await response.blob();
   const disposition = response.headers.get("Content-Disposition");
-  let filename = `export.${format}`;
-  if (disposition) {
+  let filename = customFilename || `export.${format}`;
+  if (!customFilename && disposition) {
     const match = disposition.match(/filename="?([^"]+)"?/);
     if (match) filename = match[1];
   }
@@ -125,11 +130,13 @@ async function downloadPremiumExport(
   URL.revokeObjectURL(url);
 }
 
-export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, premiumExportData, premiumFormat = "pdf" }: ExportDialogProps) {
+export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, premiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
   const [orientation, setOrientation] = useState<"landscape" | "portrait">(getStoredOrientation);
   const [version, setVersion] = useState<ExportVersion>(getStoredVersion);
   const [isPremium, setIsPremium] = useState(getStoredPremium);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [filename, setFilename] = useState(suggestedFilename);
+  const filenameRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -138,8 +145,9 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
       setVersion(getStoredVersion());
       setIsPremium(getStoredPremium());
       setIsGenerating(false);
+      setFilename(suggestedFilename);
     }
-  }, [open]);
+  }, [open, suggestedFilename]);
 
   const handleOrientationChange = (v: string) => {
     const val = v as "landscape" | "portrait";
@@ -158,11 +166,19 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
     try { localStorage.setItem(PREMIUM_KEY, String(checked)); } catch { /* ignore: localStorage unavailable */ }
   };
 
+  const buildFilename = () => {
+    const trimmed = filename.trim();
+    if (!trimmed) return undefined;
+    const safe = trimmed.replace(/[/\\:*?"<>|]/g, "_");
+    return `${safe}${fileExtension}`;
+  };
+
   const handleExport = async () => {
+    const finalFilename = buildFilename();
     if (isPremium && premiumExportData) {
       setIsGenerating(true);
       try {
-        await downloadPremiumExport(premiumFormat, premiumExportData, orientation, version);
+        await downloadPremiumExport(premiumFormat, premiumExportData, orientation, version, finalFilename);
         toast({ title: "Premium export complete", description: `Your ${premiumFormat.toUpperCase()} file has been downloaded.` });
         onClose();
       } catch (error: any) {
@@ -173,7 +189,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
         setIsGenerating(false);
       }
     } else {
-      onExport(orientation, version);
+      onExport(orientation, version, finalFilename);
       onClose();
     }
   };
@@ -187,6 +203,25 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-5">
+          {suggestedFilename && (
+            <div>
+              <Label htmlFor="export-dialog-filename" className="text-sm font-medium mb-2 block">Filename</Label>
+              <div className="flex items-center gap-0">
+                <Input
+                  ref={filenameRef}
+                  id="export-dialog-filename"
+                  value={filename}
+                  onChange={(e) => setFilename(e.target.value)}
+                  className="rounded-r-none border-r-0 flex-1"
+                  data-testid="input-export-filename"
+                />
+                <div className="flex items-center px-3 h-9 border rounded-r-md bg-muted text-muted-foreground text-sm font-mono select-none" data-testid="text-export-extension">
+                  {fileExtension}
+                </div>
+              </div>
+            </div>
+          )}
+
           {hasPremiumData && (
             <div className="flex items-center justify-between p-3 rounded-lg border bg-gradient-to-r from-emerald-50 to-sage-50 border-emerald-200">
               <div className="flex items-center gap-2">
@@ -260,7 +295,10 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                 Premium Export
               </>
             ) : (
-              "Export"
+              <>
+                <IconDownload className="mr-2 h-4 w-4" />
+                Download
+              </>
             )}
           </Button>
         </DialogFooter>

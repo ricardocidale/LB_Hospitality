@@ -16,7 +16,8 @@ export const exportCompanyPDF = async (
   global: any,
   projectionYears: number,
   yearlyChartData: any[],
-  orientation: 'landscape' | 'portrait' = 'landscape'
+  orientation: 'landscape' | 'portrait' = 'landscape',
+  customFilename?: string
 ) => {
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
@@ -66,13 +67,14 @@ export const exportCompanyPDF = async (
   }
 
   addFooters(doc, companyName);
-  doc.save(`${companyName} - ${title}.pdf`);
+  doc.save(customFilename || `${companyName} - ${title}.pdf`);
 };
 
 export const exportCompanyCSV = (
   type: 'income' | 'cashflow' | 'balance',
   data: { years: number[]; rows: any[] },
-  companyName?: string
+  companyName?: string,
+  customFilename?: string
 ) => {
   const headers = ['Category', ...data.years.map(String)];
   const csvRows = [
@@ -86,7 +88,7 @@ export const exportCompanyCSV = (
   const csvContent = csvRows.join('\n');
   const name = companyName || "Management Company";
   const typeLabel = type === 'income' ? 'Income Statement' : type === 'cashflow' ? 'Cash Flow' : 'Balance Sheet';
-  downloadCSV(csvContent, `${name} - ${typeLabel}.csv`);
+  downloadCSV(csvContent, customFilename || `${name} - ${typeLabel}.csv`);
 };
 
 export const handleExcelExport = async (
@@ -94,17 +96,19 @@ export const handleExcelExport = async (
   financials: any[],
   projectionYears: number,
   global: any,
-  fiscalYearStartMonth: number
+  fiscalYearStartMonth: number,
+  customFilename?: string
 ) => {
   if (!global) return;
-  await exportCompanyFullWorkbook(financials, projectionYears, global, fiscalYearStartMonth);
+  await exportCompanyFullWorkbook(financials, projectionYears, global, fiscalYearStartMonth, customFilename);
 };
 
 async function exportCompanyFullWorkbook(
   data: any[],
   years: number,
   global: any,
-  fiscalYearStartMonth: number
+  fiscalYearStartMonth: number,
+  customFilename?: string
 ) {
   const { getFiscalYearForModelYear } = await import("@/lib/financialEngine");
   const XLSX = await import("xlsx");
@@ -372,13 +376,14 @@ async function exportCompanyFullWorkbook(
   await addSheet("Investment Analysis", iaRows);
 
   const safeName = companyName.replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 60);
-  (XLSX as any).writeFile(wb, `${safeName} - Management Company Financial Statements.xlsx`);
+  (XLSX as any).writeFile(wb, customFilename || `${safeName} - Management Company Financial Statements.xlsx`);
 }
 
 export const exportChartPNG = async (
   chartRef: React.RefObject<HTMLDivElement | null>,
   orientation: 'landscape' | 'portrait' = 'landscape',
-  companyName?: string
+  companyName?: string,
+  customFilename?: string
 ) => {
   if (!chartRef.current) return;
 
@@ -400,7 +405,7 @@ export const exportChartPNG = async (
 
     const name = companyName || "Management Company";
     const link = document.createElement('a');
-    link.download = `${name} - Performance Chart.png`;
+    link.download = customFilename || `${name} - Performance Chart.png`;
     link.href = dataUrl;
     link.click();
   } catch (error) {
@@ -411,7 +416,8 @@ export const exportChartPNG = async (
 export const exportTablePNG = async (
   tableRef: React.RefObject<HTMLDivElement | null>,
   activeTab: string,
-  companyName?: string
+  companyName?: string,
+  customFilename?: string
 ) => {
   if (!tableRef.current) return;
   const hiddenRows: HTMLElement[] = [];
@@ -435,7 +441,7 @@ export const exportTablePNG = async (
     const name = companyName || "Management Company";
     const tabLabel = activeTab === 'income' ? 'Income Statement' : activeTab === 'cashflow' ? 'Cash Flow' : 'Balance Sheet';
     const link = document.createElement('a');
-    link.download = `${name} - ${tabLabel}.png`;
+    link.download = customFilename || `${name} - ${tabLabel}.png`;
     link.href = dataUrl;
     link.click();
   } catch (error) {
@@ -453,7 +459,8 @@ export const handlePPTXExport = (
   getFiscalYear: (i: number) => string,
   incomeData: any,
   cashFlowData: any,
-  balanceData: any
+  balanceData: any,
+  customFilename?: string
 ) => {
   if (!global) return;
   exportCompanyPPTX({
@@ -462,5 +469,5 @@ export const handlePPTXExport = (
     incomeData: { years: incomeData.years.map(String), rows: incomeData.rows },
     cashFlowData: { years: cashFlowData.years.map(String), rows: cashFlowData.rows },
     balanceSheetData: { years: balanceData.years.map(String), rows: balanceData.rows },
-  });
+  }, undefined, customFilename);
 };

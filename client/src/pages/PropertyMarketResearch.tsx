@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
@@ -664,6 +665,7 @@ export default function PropertyMarketResearch() {
   const [activeTab, setActiveTab] = useState("market");
   const { toast } = useToast();
 
+  const { requestSave, SaveDialog } = useExportSave();
   const { isGenerating, streamedContent, generateResearch } = useResearchStream({
     property,
     propertyId,
@@ -695,6 +697,7 @@ export default function PropertyMarketResearch() {
 
   return (
     <Layout>
+      {SaveDialog}
       <AnimatedPage>
         <div className="space-y-6">
           <PageHeader
@@ -725,7 +728,7 @@ export default function PropertyMarketResearch() {
                       {
                         label: "Download PDF",
                         icon: <IconFileDown className="w-3.5 h-3.5" />,
-                        onClick: () => downloadResearchPDF({
+                        onClick: () => requestSave(`Market Research - ${property.name}`, ".pdf", (f) => downloadResearchPDF({
                           type: "property",
                           title: `Market Research: ${property.name}`,
                           subtitle: `${property.location} · ${property.market} · ${property.roomCount} rooms`,
@@ -733,7 +736,7 @@ export default function PropertyMarketResearch() {
                           updatedAt: research?.updatedAt,
                           llmModel: research?.llmModel || undefined,
                           promptConditions: (research as any)?.promptConditions || undefined,
-                        }),
+                        }, f)),
                         testId: "button-export-research-pdf",
                       },
                     ]}

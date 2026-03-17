@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo, RefObject } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import { ConsolidatedBalanceSheet } from "@/components/statements/ConsolidatedBalanceSheet";
 import { DashboardTabProps } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
   const tabContentRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [pendingExportAction, setPendingExportAction] = useState<string>("");
+  const { requestSave, SaveDialog } = useExportSave();
   const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
   
   const { years, rows } = generatePortfolioBalanceSheetData(
@@ -42,13 +44,14 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
     }
     switch(action) {
       case 'csv': 
-        dashboardExports.exportToCSV(years, rows, "portfolio-balance-sheet.csv"); 
+        requestSave("Balance Sheet", ".csv", (f) => dashboardExports.exportToCSV(years, rows, f || "portfolio-balance-sheet.csv")); 
         break;
       case 'excel':
-        exportPortfolioExcel(
+        requestSave("Portfolio", ".xlsx", (f) => exportPortfolioExcel(
           buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, modelStartDate),
-          global?.companyName || "Portfolio"
-        );
+          global?.companyName || "Portfolio",
+          f
+        ));
         break;
     }
   };
@@ -65,7 +68,7 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
     return versionRows;
   };
 
-  const handleVersionExport = (_orientation: 'landscape' | 'portrait', version: ExportVersion) => {
+  const handleVersionExport = (_orientation: 'landscape' | 'portrait', version: ExportVersion, customFilename?: string) => {
     const versionRows = getVersionRows(version);
     switch(pendingExportAction) {
       case 'pdf': 
@@ -75,7 +78,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
           years, 
           rows: versionRows, 
           getYearlyConsolidated: (i: number) => financials.yearlyConsolidatedCache[i],
-          title: "Portfolio Balance Sheet"
+          title: "Portfolio Balance Sheet",
+          customFilename,
         }); 
         break;
       case 'pptx': {
@@ -96,23 +100,26 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
           cashFlowData: toExportData(generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear)),
           balanceSheetData: toExportData({ years, rows: versionRows }),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
-        });
+        }, undefined, customFilename);
         break;
       }
       case 'png': 
-        dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>, "portfolio-balance-sheet.png"); 
+        dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>, customFilename || "portfolio-balance-sheet.png"); 
         break;
     }
   };
 
   return (
     <div className="space-y-6">
+      {SaveDialog}
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleVersionExport}
         title={pendingExportAction === 'pdf' ? 'Export PDF' : pendingExportAction === 'pptx' ? 'Export PPTX' : 'Export PNG'}
         showVersionOption={true}
+        suggestedFilename="Balance Sheet"
+        fileExtension={pendingExportAction === 'pptx' ? '.pptx' : pendingExportAction === 'png' ? '.png' : '.pdf'}
       />
       <FinancialChart
         data={chartData}

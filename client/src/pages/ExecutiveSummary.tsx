@@ -1,4 +1,5 @@
 import { useRef, useCallback, useMemo, useState } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useStore } from "@/lib/store";
@@ -132,6 +133,7 @@ export default function ExecutiveSummary() {
   const { data: global } = useGlobalAssumptions();
   const financials = usePortfolioFinancials(apiProperties, global);
   const pageRef = useRef<HTMLDivElement>(null);
+  const { requestSave, SaveDialog } = useExportSave();
   const chartRef = useRef<HTMLDivElement>(null);
   const [waterfallYear, setWaterfallYear] = useState<string>("0");
 
@@ -233,16 +235,16 @@ export default function ExecutiveSummary() {
 
   const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-  const handleExportCSV = useCallback(() => {
+  const handleExportCSV = useCallback((customFilename?: string) => {
     const rows = [
       ["Name", "Location", "Market", "Rooms", "ADR", "Occupancy", "Status", "Investment"],
       ...properties.map((p) => [p.name, p.location, p.market, String(p.roomCount), formatMoney(p.startAdr), formatPercent(p.startOccupancy), p.status, formatMoney(p.purchasePrice + p.buildingImprovements)]),
     ];
     const content = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
-    downloadCSV(content, "executive-summary.csv");
+    downloadCSV(content, customFilename || "executive-summary.csv");
   }, [properties]);
 
-  const handleExportPPTX = useCallback(async () => {
+  const handleExportPPTX = useCallback(async (customFilename?: string) => {
     const { default: pptxgen } = await import("pptxgenjs");
     const pres = new pptxgen();
     pres.layout = "LAYOUT_WIDE";
@@ -313,17 +315,18 @@ export default function ExecutiveSummary() {
 
     slide.addText(`Generated ${dateStr}`, { x: 0.5, y: 7.15, w: 12, h: 0.2, fontSize: 7, fontFace: "Arial", color: "9CA3AF", align: "center" });
 
-    pres.writeFile({ fileName: "executive-summary.pptx" });
+    pres.writeFile({ fileName: customFilename || "executive-summary.pptx" });
   }, [kpisForExport, properties, marketData, statusCounts, dateStr]);
 
-  const handleExportPNG = useCallback(() => {
+  const handleExportPNG = useCallback((customFilename?: string) => {
     if (!pageRef.current) return;
-    exportTablePNG({ element: pageRef.current, filename: "executive-summary.png" });
+    exportTablePNG({ element: pageRef.current, filename: customFilename || "executive-summary.png" });
   }, []);
 
   return (
     <Layout>
     <AnimatedPage>
+      {SaveDialog}
       <div ref={pageRef} data-testid="executive-summary" className="space-y-6">
         <style>{printStyles}</style>
 
@@ -335,9 +338,9 @@ export default function ExecutiveSummary() {
               <ExportMenu
                 actions={[
                   pdfAction(() => window.print()),
-                  csvAction(handleExportCSV),
-                  pptxAction(handleExportPPTX),
-                  pngAction(handleExportPNG),
+                  csvAction(() => requestSave("Executive Summary", ".csv", (f) => handleExportCSV(f))),
+                  pptxAction(() => requestSave("Executive Summary", ".pptx", (f) => handleExportPPTX(f))),
+                  pngAction(() => requestSave("Executive Summary", ".png", (f) => handleExportPNG(f))),
                 ]}
               />
             }

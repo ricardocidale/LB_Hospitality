@@ -1,4 +1,5 @@
 import React, { useRef, useState, useMemo } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import { Button } from "@/components/ui/button";
 import { InsightPanel, type Insight } from "@/components/graphics";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Tooltip as RechartsTooltip, AreaChart, Area, LineChart, Line, LabelList, PieChart, Pie, Cell, ReferenceLine } from "recharts";
@@ -155,6 +156,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
 
   const tabContentRef = useRef<HTMLDivElement>(null);
   const chartsRef = useRef<HTMLDivElement>(null);
+  const { requestSave, SaveDialog } = useExportSave();
 
   const totalProperties = properties.length;
   const totalRooms = financials.totalRooms;
@@ -307,7 +309,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
     const incomeData = generatePortfolioIncomeData(yearlyConsolidatedCache, projectionYears, getFiscalYear);
     switch (action) {
       case 'pdf':
-        exportDashboardComprehensivePDF({
+        requestSave("Portfolio Overview", ".pdf", (f) => exportDashboardComprehensivePDF({
           financials,
           properties,
           projectionYears,
@@ -315,19 +317,20 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           companyName: global?.companyName || "Hospitality Business Group",
           incomeRows: incomeData.rows,
           modelStartDate: global?.modelStartDate ? new Date(global.modelStartDate) : undefined,
-        });
+        }, f));
         break;
       case 'csv':
-        exportPortfolioCSV(years, rows, "portfolio-overview.csv");
+        requestSave("Portfolio Overview", ".csv", (f) => exportPortfolioCSV(years, rows, f || "portfolio-overview.csv"));
         break;
       case 'excel':
-        exportPortfolioExcel(
+        requestSave("Portfolio", ".xlsx", (f) => exportPortfolioExcel(
           buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
-          global?.companyName || "Portfolio"
-        );
+          global?.companyName || "Portfolio",
+          f
+        ));
         break;
       case 'pptx':
-        dashboardExports.exportToPPTX({
+        requestSave("Portfolio Overview", ".pptx", (f) => dashboardExports.exportToPPTX({
           projectionYears,
           getFiscalYear,
           totalInitialEquity,
@@ -344,19 +347,20 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
           cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear, new Set(["cfo", "cfi", "cff"]), false, properties.map(p => p.name))),
           balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined)),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
-        });
+        }, undefined, f));
         break;
       case 'chart':
-        dashboardExports.exportToPNG(chartsRef as React.RefObject<HTMLElement>);
+        requestSave("Portfolio Charts", ".png", (f) => dashboardExports.exportToPNG(chartsRef as React.RefObject<HTMLElement>, f));
         break;
       case 'png':
-        dashboardExports.exportToPNG(tabContentRef as React.RefObject<HTMLElement>);
+        requestSave("Portfolio Overview", ".png", (f) => dashboardExports.exportToPNG(tabContentRef as React.RefObject<HTMLElement>, f));
         break;
     }
   };
 
   return (
     <Card className="bg-card border-border shadow-sm relative overflow-hidden">
+      {SaveDialog}
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
         <CardTitle>Portfolio Overview</CardTitle>
         <ExportMenu

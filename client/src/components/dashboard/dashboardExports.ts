@@ -396,7 +396,8 @@ export async function exportPortfolioExcel(
     balanceSheetData: ExportData;
     investmentData: ExportData;
   },
-  companyName = "Portfolio"
+  companyName = "Portfolio",
+  customFilename?: string
 ): Promise<void> {
   const XLSX = await import("xlsx");
   const { applyCurrencyFormat, applyHeaderStyle, setColumnWidths } = await import("@/lib/exports/excel/helpers");
@@ -425,7 +426,7 @@ export async function exportPortfolioExcel(
   }
 
   const safeName = companyName.replace(/[^a-zA-Z0-9 &\-]/g, "").substring(0, 60);
-  (XLSX as any).writeFile(wb, `${safeName} - Consolidated Financial Statements.xlsx`);
+  (XLSX as any).writeFile(wb, customFilename || `${safeName} - Consolidated Financial Statements.xlsx`);
 }
 
 export function exportPortfolioCSV(
@@ -451,7 +452,8 @@ export async function exportPortfolioPDF(
   rows: ExportRow[],
   getYearlyConsolidated: (i: number) => YearlyPropertyFinancials,
   title: string,
-  companyName = "Hospitality Business Group"
+  companyName = "Hospitality Business Group",
+  customFilename?: string
 ): Promise<void> {
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
@@ -516,7 +518,7 @@ export async function exportPortfolioPDF(
   });
 
   addFooters(doc, companyName, { skipPages: new Set([1]) });
-  doc.save(`portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
+  doc.save(customFilename || `portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
 
 export interface ComprehensiveDashboardExportParams {
@@ -532,7 +534,7 @@ export interface ComprehensiveDashboardExportParams {
 const fmtCompact = (v: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(v);
 
-export async function exportDashboardComprehensivePDF(params: ComprehensiveDashboardExportParams): Promise<void> {
+export async function exportDashboardComprehensivePDF(params: ComprehensiveDashboardExportParams, customFilename?: string): Promise<void> {
   const {
     financials, properties, projectionYears, getFiscalYear,
     companyName = "Hospitality Business Group",
@@ -702,7 +704,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });
   }
 
-  doc.save(`${companyName} - Consolidated Portfolio Report.pdf`);
+  doc.save(customFilename || `${companyName} - Consolidated Portfolio Report.pdf`);
 }
 
 export const dashboardExports = {
@@ -714,7 +716,8 @@ export const dashboardExports = {
     years,
     rows,
     getYearlyConsolidated,
-    title = "Portfolio Income Statement"
+    title = "Portfolio Income Statement",
+    customFilename,
   }: {
     propertyName: string;
     projectionYears: number;
@@ -722,8 +725,9 @@ export const dashboardExports = {
     rows: ExportRow[];
     getYearlyConsolidated: (i: number) => any;
     title?: string;
+    customFilename?: string;
   }) => {
-    await exportPortfolioPDF("landscape", projectionYears, years, rows, getYearlyConsolidated, title);
+    await exportPortfolioPDF("landscape", projectionYears, years, rows, getYearlyConsolidated, title, undefined, customFilename);
   },
 
   exportToCSV: (years: number[], rows: ExportRow[], filename = "portfolio-income-statement.csv") => {
@@ -734,8 +738,8 @@ export const dashboardExports = {
     console.warn("dashboardExports.exportToExcel is deprecated. Use exportPortfolioExcel instead.");
   },
 
-  exportToPPTX: async (data: any, companyName?: string) => {
-    await originalExportPortfolioPPTX(data, companyName);
+  exportToPPTX: async (data: any, companyName?: string, customFilename?: string) => {
+    await originalExportPortfolioPPTX(data, companyName, customFilename);
   },
 
   exportToPNG: (ref: React.RefObject<HTMLElement>, filename = "portfolio-income-statement.png") => {

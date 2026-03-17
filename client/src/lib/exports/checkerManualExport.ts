@@ -130,7 +130,7 @@ function brandedHeader(doc: any, pageW: number, height: number) {
  * document listing all formulas, business rules, and testing phases. This
  * allows an auditor to independently verify any number the system produces.
  */
-export async function exportManualPDF(user: { email?: string; role?: string; companyName?: string }): Promise<{ success: boolean; status?: "completed" | "error"; error?: string }> {
+export async function exportManualPDF(user: { email?: string; role?: string; companyName?: string }, customFilename?: string): Promise<{ success: boolean; status?: "completed" | "error"; error?: string }> {
   try {
   const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
     import("jspdf"),
@@ -210,7 +210,7 @@ export async function exportManualPDF(user: { email?: string; role?: string; com
     ...TESTING_PHASES,
   ]);
 
-  doc.save("LB_Checker_Manual.pdf");
+  doc.save(customFilename || "LB_Checker_Manual.pdf");
   return { success: true };
   } catch (err) {
     return { success: false, status: "error", error: err instanceof Error ? err.message : "Manual PDF export failed" };
@@ -259,7 +259,7 @@ function validateData(properties: any[], global: any): string[] {
  * The result object reports success/failure, included statements, property
  * count, and any data quality warnings.
  */
-export async function exportFullData(user: { email?: string; role?: string; companyName?: string }): Promise<{
+export async function exportFullData(user: { email?: string; role?: string; companyName?: string }, customFilename?: string): Promise<{
   success: boolean;
   warnings: string[];
   includedStatements: string[];
@@ -521,7 +521,7 @@ export async function exportFullData(user: { email?: string; role?: string; comp
     doc.text("ALL DATA COMPLETE — No warnings detected.", 14, y);
   }
 
-  doc.save("LB_Full_Data_Export.pdf");
+  doc.save(customFilename || "LB_Full_Data_Export.pdf");
 
   return {
     success: true,

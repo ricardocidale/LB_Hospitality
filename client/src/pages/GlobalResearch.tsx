@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useMarketResearch, useGlobalAssumptions } from "@/lib/api";
@@ -54,6 +55,7 @@ export default function GlobalResearch() {
   const [, setLocation] = useLocation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamedContent, setStreamedContent] = useState("");
+  const { requestSave, SaveDialog } = useExportSave();
   const queryClient = useQueryClient();
   const abortRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
@@ -136,6 +138,7 @@ export default function GlobalResearch() {
 
   return (
     <Layout>
+      {SaveDialog}
       <div className="space-y-6">
         <PageHeader
           title="Global Industry Research"
@@ -178,7 +181,7 @@ export default function GlobalResearch() {
                   {
                     label: "Download PDF",
                     icon: <IconFileDown className="w-3.5 h-3.5" />,
-                    onClick: () => downloadResearchPDF({
+                    onClick: () => requestSave("Global Industry Research", ".pdf", (f) => downloadResearchPDF({
                       type: "global",
                       title: "Global Industry Research",
                       subtitle: `${global?.propertyLabel || "Boutique hotel"} industry data and benchmarks`,
@@ -186,7 +189,7 @@ export default function GlobalResearch() {
                       updatedAt: research?.updatedAt,
                       llmModel: research?.llmModel || undefined,
                       promptConditions: (research as any)?.promptConditions || undefined,
-                    }),
+                    }, f)),
                     testId: "button-export-research-pdf",
                   },
                 ]}

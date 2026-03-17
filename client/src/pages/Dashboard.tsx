@@ -31,6 +31,7 @@
  * available from the tab bar. Data generators live in dashboardExports.ts.
  */
 import React, { useState, useRef, useCallback, useMemo } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -78,6 +79,7 @@ export default function Dashboard() {
   const tabContentRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<"pdf" | "chart">("pdf");
+  const { requestSave, SaveDialog } = useExportSave();
 
   const financials = usePortfolioFinancials(properties, global);
 
@@ -105,11 +107,11 @@ export default function Dashboard() {
   const handleExportPNG = useCallback(() => {
     if (tabContentRef.current) {
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
-      exportTablePNG({ element: tabContentRef.current, filename: `${label.toLowerCase().replace(/\s+/g, "-")}.png` });
+      requestSave(label, ".png", (f) => exportTablePNG({ element: tabContentRef.current!, filename: f || `${label.toLowerCase().replace(/\s+/g, "-")}.png` }));
     }
-  }, [activeTab]);
+  }, [activeTab, requestSave]);
 
-  const handleExportChartPNG = useCallback(async () => {
+  const handleExportChartPNG = useCallback(async (customFilename?: string) => {
     if (!tabContentRef.current) return;
     try {
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
@@ -117,7 +119,7 @@ export default function Dashboard() {
       const dataUrl = await domtoimage.toPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" });
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = `${label.toLowerCase().replace(/\s+/g, "-")}-chart.png`;
+      link.download = customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -136,7 +138,7 @@ export default function Dashboard() {
     setExportDialogOpen(true);
   }, []);
 
-  const handleExportConfirm = useCallback(async (orientation: "landscape" | "portrait", version: ExportVersion) => {
+  const handleExportConfirm = useCallback(async (orientation: "landscape" | "portrait", version: ExportVersion, customFilename?: string) => {
     if (!financials || !global) return;
     const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
     const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
@@ -152,7 +154,9 @@ export default function Dashboard() {
         data.years,
         data.rows,
         (i) => financials.yearlyConsolidatedCache[i],
-        label
+        label,
+        undefined,
+        customFilename
       );
     } else if (exportType === "chart") {
       if (!tabContentRef.current) return;
@@ -178,7 +182,7 @@ export default function Dashboard() {
           let imgH = imgW / aspectRatio;
           if (imgH > availH) { imgH = availH; imgW = imgH * aspectRatio; }
           doc.addImage(dataUrl, "PNG", margin, 25, imgW, imgH);
-          doc.save(`${label.toLowerCase().replace(/\s+/g, "-")}-chart.pdf`);
+          doc.save(customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.pdf`);
         };
       }).catch((err) => { console.error("Chart PDF export failed:", err); });
     }
@@ -191,15 +195,15 @@ export default function Dashboard() {
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
 
     const datasets = buildAllPortfolioStatements(financials, properties || [], projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined);
-    exportPortfolioExcel(datasets, global?.companyName || "Portfolio");
-  }, [financials, global, properties]);
+    requestSave("Portfolio", ".xlsx", (f) => exportPortfolioExcel(datasets, global?.companyName || "Portfolio", f));
+  }, [financials, global, properties, requestSave]);
 
   const handleExportCSV = useCallback(() => {
     const data = getExportData();
     if (!data) return;
     const label = TAB_LABELS[activeTab] || "portfolio";
-    exportPortfolioCSV(data.years, data.rows, `${label.toLowerCase().replace(/\s+/g, "-")}.csv`);
-  }, [activeTab, getExportData]);
+    requestSave(label, ".csv", (f) => exportPortfolioCSV(data.years, data.rows, f || `${label.toLowerCase().replace(/\s+/g, "-")}.csv`));
+  }, [activeTab, getExportData, requestSave]);
 
   const handleExportPPTX = useCallback(() => {
     if (!financials || !properties || !global) return;
@@ -212,7 +216,7 @@ export default function Dashboard() {
     const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
 
     const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
-    exportPortfolioPPTX({
+    requestSave("Portfolio", ".pptx", (f) => exportPortfolioPPTX({
       projectionYears,
       getFiscalYear,
       totalInitialEquity: financials.totalInitialEquity,
@@ -229,8 +233,8 @@ export default function Dashboard() {
       cashFlowData: { years: cashFlowData.years.map(String), rows: cashFlowData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
       balanceSheetData: { years: incomeData.years.map(String), rows: generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined).rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
       investmentData: { years: investmentData.years.map(String), rows: investmentData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-    });
-  }, [financials, properties, global]);
+    }, undefined, f));
+  }, [financials, properties, global, requestSave]);
 
   if (propertiesLoadingState) {
     return (
@@ -293,17 +297,20 @@ export default function Dashboard() {
                   { value: "investment", label: "Investment Analysis", icon: IconInvestment },
                 ]}
                 rightContent={
-                  <ExportMenu
-                    variant="light"
-                    actions={[
-                      pdfAction(handleExportPDF),
-                      excelAction(handleExportExcel),
-                      csvAction(handleExportCSV),
-                      pptxAction(handleExportPPTX),
-                      chartAction(handleExportChart),
-                      pngAction(handleExportPNG, "button-export-dashboard-png"),
-                    ]}
-                  />
+                  <>
+                    <ExportMenu
+                      variant="light"
+                      actions={[
+                        pdfAction(handleExportPDF),
+                        excelAction(handleExportExcel),
+                        csvAction(handleExportCSV),
+                        pptxAction(handleExportPPTX),
+                        chartAction(handleExportChart),
+                        pngAction(handleExportPNG, "button-export-dashboard-png"),
+                      ]}
+                    />
+                    {SaveDialog}
+                  </>
                 }
               />
             </div>
@@ -341,6 +348,8 @@ export default function Dashboard() {
         onExport={handleExportConfirm}
         title={exportType === "pdf" ? "Export PDF" : "Export Chart as Image"}
         showVersionOption={exportType === "pdf"}
+        suggestedFilename={TAB_LABELS[activeTab] || "Portfolio"}
+        fileExtension={exportType === "pdf" ? ".pdf" : ".pdf"}
         premiumExportData={exportType === "pdf" ? (() => {
           if (!financials || !properties || !global) return null;
           const py = global.projectionYears ?? PROJECTION_YEARS;

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, RefObject } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
   const tabContentRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [pendingExportAction, setPendingExportAction] = useState<string>("");
+  const { requestSave, SaveDialog } = useExportSave();
 
   const chartData = useMemo(() => {
     return Array.from({ length: projectionYears }, (_, i) => {
@@ -293,20 +295,21 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       return;
     }
     switch(action) {
-      case 'csv': dashboardExports.exportToCSV(years, rows); break;
+      case 'csv': requestSave("Income Statement", ".csv", (f) => dashboardExports.exportToCSV(years, rows, f)); break;
       case 'excel':
-        exportPortfolioExcel(
+        requestSave("Portfolio", ".xlsx", (f) => exportPortfolioExcel(
           buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
-          global?.companyName || "Portfolio"
-        );
+          global?.companyName || "Portfolio",
+          f
+        ));
         break;
       case 'chart':
-        dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>);
+        requestSave("Income Statement Chart", ".png", (f) => dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>, f));
         break;
     }
   };
 
-  const handleVersionExport = (_orientation: 'landscape' | 'portrait', version: ExportVersion) => {
+  const handleVersionExport = (_orientation: 'landscape' | 'portrait', version: ExportVersion, customFilename?: string) => {
     const versionRows = getVersionRows(version);
     switch(pendingExportAction) {
       case 'pdf':
@@ -315,7 +318,8 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           projectionYears, 
           years, 
           rows: versionRows, 
-          getYearlyConsolidated: (i) => yearlyConsolidatedCache[i] 
+          getYearlyConsolidated: (i) => yearlyConsolidatedCache[i],
+          customFilename,
         }); 
         break;
       case 'pptx': {
@@ -336,21 +340,24 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
           cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear, new Set(["cfo", "cfi", "cff"]), false, properties.map(p => p.name))),
           balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
           investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
-        }, global.companyName || undefined);
+        }, global.companyName || undefined, customFilename);
         break;
       }
-      case 'png': dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>); break;
+      case 'png': dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>, customFilename); break;
     }
   };
 
   return (
     <div className="space-y-6">
+      {SaveDialog}
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleVersionExport}
         title={pendingExportAction === 'pdf' ? 'Export PDF' : pendingExportAction === 'pptx' ? 'Export PPTX' : 'Export PNG'}
         showVersionOption={true}
+        suggestedFilename="Income Statement"
+        fileExtension={pendingExportAction === 'pptx' ? '.pptx' : pendingExportAction === 'png' ? '.png' : '.pdf'}
       />
       <FinancialChart
         data={chartData}

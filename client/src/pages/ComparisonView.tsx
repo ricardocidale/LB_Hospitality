@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import { useStore } from "@/lib/store";
 import { AnimatedPage, ScrollReveal, KPIGrid, InsightPanel, DonutChart, formatCompact, formatPercent } from "@/components/graphics";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer, Tooltip } from "recharts";
@@ -101,7 +102,9 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     return selectedProperties.find(p => p.id === winnerId);
   }, [propertyWins, selectedProperties]);
 
-  const handleExportPDF = useCallback(async () => {
+  const { requestSave, SaveDialog } = useExportSave();
+
+  const handleExportPDF = useCallback(async (customFilename?: string) => {
     if (selectedProperties.length < 2) return;
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
@@ -114,10 +117,10 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
       ...selectedProperties.map((p) => formatValue((p as any)[m.key], m.format)),
     ]);
     autoTable(doc, { head: [headers], body: rows, startY: 28 });
-    doc.save("property-comparison.pdf");
+    doc.save(customFilename || "property-comparison.pdf");
   }, [selectedProperties]);
 
-  const handleExportExcel = useCallback(async () => {
+  const handleExportExcel = useCallback(async (customFilename?: string) => {
     if (selectedProperties.length < 2) return;
     const XLSX = await import("xlsx");
     const headers = ["Metric", ...selectedProperties.map((p) => p.name)];
@@ -128,10 +131,10 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Comparison");
-    XLSX.writeFile(wb, "property-comparison.xlsx");
+    XLSX.writeFile(wb, customFilename || "property-comparison.xlsx");
   }, [selectedProperties]);
 
-  const handleExportCSV = useCallback(() => {
+  const handleExportCSV = useCallback((customFilename?: string) => {
     if (selectedProperties.length < 2) return;
     const headers = ["Metric", ...selectedProperties.map((p) => p.name)];
     const rows = METRICS.map((m) => [
@@ -139,10 +142,10 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
       ...selectedProperties.map((p) => formatValue((p as any)[m.key], m.format)),
     ]);
     const csvContent = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
-    downloadCSV(csvContent, "property-comparison.csv");
+    downloadCSV(csvContent, customFilename || "property-comparison.csv");
   }, [selectedProperties]);
 
-  const handleExportPPTX = useCallback(async () => {
+  const handleExportPPTX = useCallback(async (customFilename?: string) => {
     if (selectedProperties.length < 2) return;
     const { default: pptxgen } = await import("pptxgenjs");
     const pptx = new pptxgen();
@@ -160,26 +163,27 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
       ]),
     ];
     slide2.addTable(tableRows, { x: 0.5, y: 1.0, w: 9, colW: [2.5, ...selectedProperties.map(() => 6.5 / selectedProperties.length)] });
-    await pptx.writeFile({ fileName: "property-comparison.pptx" });
+    await pptx.writeFile({ fileName: customFilename || "property-comparison.pptx" });
   }, [selectedProperties]);
 
-  const handleExportChart = useCallback(async () => {
+  const handleExportChart = useCallback(async (customFilename?: string) => {
     if (!chartRef.current) return;
     const dataUrl = await captureChartAsImage(chartRef.current);
     if (!dataUrl) return;
     const link = document.createElement("a");
     link.href = dataUrl;
-    link.download = "property-comparison-chart.png";
+    link.download = customFilename || "property-comparison-chart.png";
     link.click();
   }, []);
 
-  const handleExportPNG = useCallback(() => {
+  const handleExportPNG = useCallback((customFilename?: string) => {
     if (!tableRef.current) return;
-    exportTablePNG({ element: tableRef.current, filename: "property-comparison-table.png" });
+    exportTablePNG({ element: tableRef.current, filename: customFilename || "property-comparison-table.png" });
   }, []);
 
   const content = (
     <div className={embedded ? "space-y-6" : "min-h-screen bg-background p-6 md:p-8"} data-testid="comparison-view">
+      {SaveDialog}
       <div className={embedded ? "space-y-6" : "max-w-7xl mx-auto space-y-8"}>
         {!embedded && (
         <div className="flex items-start justify-between gap-4">
@@ -194,12 +198,12 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
           {selectedProperties.length >= 2 && (
             <ExportMenu
               actions={[
-                pdfAction(handleExportPDF),
-                excelAction(handleExportExcel),
-                csvAction(handleExportCSV),
-                pptxAction(handleExportPPTX),
-                chartAction(handleExportChart),
-                pngAction(handleExportPNG),
+                pdfAction(() => requestSave("Property Comparison", ".pdf", (f) => handleExportPDF(f))),
+                excelAction(() => requestSave("Property Comparison", ".xlsx", (f) => handleExportExcel(f))),
+                csvAction(() => requestSave("Property Comparison", ".csv", (f) => handleExportCSV(f))),
+                pptxAction(() => requestSave("Property Comparison", ".pptx", (f) => handleExportPPTX(f))),
+                chartAction(() => requestSave("Property Comparison Chart", ".png", (f) => handleExportChart(f))),
+                pngAction(() => requestSave("Property Comparison Table", ".png", (f) => handleExportPNG(f))),
               ]}
             />
           )}

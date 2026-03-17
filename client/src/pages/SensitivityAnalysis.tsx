@@ -14,6 +14,7 @@ import { AnimatedPage, ScrollReveal, InsightPanel, type Insight } from "@/compon
 import { VariableSlidersPanel, TornadoChartPanel, SensitivityComparisonTable, type SensitivityVariable, type ScenarioResult, type TornadoItem } from "@/components/sensitivity";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { ExportDialog } from "@/components/ExportDialog";
+import { useExportSave } from "@/hooks/useExportSave";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportTablePNG, captureChartAsImage } from "@/lib/exports/pngExport";
 import { drawCanvasAsImage } from "@/lib/exports/pdfHelpers";
@@ -35,6 +36,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<"pdf" | "chart">("pdf");
   const [advancedChartView, setAdvancedChartView] = useState<"sliders" | "heatmap" | "tornado-d3">("sliders");
+  const { requestSave, SaveDialog } = useExportSave();
   const [heatMapMetric, setHeatMapMetric] = useState<"irr" | "noi" | "equityMultiple">("irr");
 
   const chartRef = useRef<HTMLDivElement>(null);
@@ -241,7 +243,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     ];
   }, [baseResult, adjustedResult]);
 
-  const handleExportPDF = useCallback(async (orientation: "landscape" | "portrait") => {
+  const handleExportPDF = useCallback(async (orientation: "landscape" | "portrait", customFilename?: string) => {
     if (!baseResult) return;
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
@@ -322,10 +324,10 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       } catch { /* ignore: chart may not be rendered yet */ }
     }
 
-    doc.save("sensitivity-analysis.pdf");
+    doc.save(customFilename || "sensitivity-analysis.pdf");
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric, advancedChartView]);
 
-  const handleExportExcel = useCallback(async () => {
+  const handleExportExcel = useCallback(async (customFilename?: string) => {
     if (!baseResult) return;
     const XLSX = await import("xlsx");
     const wb = XLSX.utils.book_new();
@@ -347,10 +349,10 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     ];
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(tornadoSheet), "Tornado Chart");
 
-    XLSX.writeFile(wb, "sensitivity-analysis.xlsx");
+    XLSX.writeFile(wb, customFilename || "sensitivity-analysis.xlsx");
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric]);
 
-  const handleExportCSV = useCallback(() => {
+  const handleExportCSV = useCallback((customFilename?: string) => {
     if (!baseResult) return;
     const rows = [
       ["Metric", "Base Case", "Adjusted", "Delta", "Delta %"],
@@ -366,10 +368,10 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       ...tornadoData.map((d) => [d.name, d.positive.toFixed(2), d.negative.toFixed(2), d.spread.toFixed(2)]),
     ];
     const content = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
-    downloadCSV(content, "sensitivity-analysis.csv");
+    downloadCSV(content, customFilename || "sensitivity-analysis.csv");
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric]);
 
-  const handleExportPPTX = useCallback(async () => {
+  const handleExportPPTX = useCallback(async (customFilename?: string) => {
     if (!baseResult) return;
     const { default: pptxgen } = await import("pptxgenjs");
     const pres = new pptxgen();
@@ -459,10 +461,10 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       } catch { /* ignore: chart may not be rendered yet */ }
     }
 
-    pres.writeFile({ fileName: "sensitivity-analysis.pptx" });
+    pres.writeFile({ fileName: customFilename || "sensitivity-analysis.pptx" });
   }, [baseResult, comparisonRows, tornadoData, tornadoMetric, advancedChartView]);
 
-  const handleExportChart = useCallback(async (orientation: "landscape" | "portrait") => {
+  const handleExportChart = useCallback(async (orientation: "landscape" | "portrait", customFilename?: string) => {
     if (!chartRef.current) return;
     const dataUrl = await captureChartAsImage(chartRef.current);
     if (!dataUrl) return;
@@ -471,18 +473,18 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     const pageWidth = orientation === "landscape" ? 297 : 210;
     const pageHeight = orientation === "landscape" ? 210 : 297;
     doc.addImage(dataUrl, "PNG", 14, 14, pageWidth - 28, pageHeight - 28);
-    doc.save("sensitivity-tornado-chart.pdf");
+    doc.save(customFilename || "sensitivity-tornado-chart.pdf");
   }, []);
 
-  const handleExportPNG = useCallback(() => {
+  const handleExportPNG = useCallback((customFilename?: string) => {
     const el = tableRef.current ?? chartRef.current;
     if (!el) return;
-    exportTablePNG({ element: el, filename: "sensitivity-analysis.png" });
+    exportTablePNG({ element: el, filename: customFilename || "sensitivity-analysis.png" });
   }, []);
 
-  const handleExport = useCallback((orientation: "landscape" | "portrait") => {
-    if (exportType === "pdf") handleExportPDF(orientation);
-    else handleExportChart(orientation);
+  const handleExport = useCallback((orientation: "landscape" | "portrait", _version?: any, customFilename?: string) => {
+    if (exportType === "pdf") handleExportPDF(orientation, customFilename);
+    else handleExportChart(orientation, customFilename);
   }, [exportType, handleExportPDF, handleExportChart]);
 
   // ── Render ───────────────────────────────────────────────────────────────
@@ -534,11 +536,11 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
       variant="light"
       actions={[
         pdfAction(() => { setExportType("pdf"); setExportDialogOpen(true); }),
-        excelAction(handleExportExcel),
-        csvAction(handleExportCSV),
-        pptxAction(handleExportPPTX),
+        excelAction(() => requestSave("Sensitivity Analysis", ".xlsx", (f) => handleExportExcel(f))),
+        csvAction(() => requestSave("Sensitivity Analysis", ".csv", (f) => handleExportCSV(f))),
+        pptxAction(() => requestSave("Sensitivity Analysis", ".pptx", (f) => handleExportPPTX(f))),
         chartAction(() => { setExportType("chart"); setExportDialogOpen(true); }),
-        pngAction(handleExportPNG),
+        pngAction(() => requestSave("Sensitivity Analysis", ".png", (f) => handleExportPNG(f))),
       ]}
     />
   );
@@ -795,11 +797,14 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
         </div>
       </AnimatedPage>
 
+      {SaveDialog}
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
         title={exportType === "pdf" ? "Export Sensitivity Analysis" : "Export Tornado Chart"}
+        suggestedFilename={exportType === "pdf" ? "Sensitivity Analysis" : "Sensitivity Tornado Chart"}
+        fileExtension=".pdf"
       />
     </Wrapper>
   );

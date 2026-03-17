@@ -20,7 +20,8 @@ export default function CheckerManual({ embedded }: CheckerManualProps) {
     exportingData,
     handleExportPDF,
     handleFullExport,
-    logActivity
+    logActivity,
+    SaveDialog,
   } = useManualExports(SECTIONS);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function CheckerManual({ embedded }: CheckerManualProps) {
 
   return (
     <Wrapper>
+      {SaveDialog}
       <div>
         <div className={embedded ? "space-y-6" : "p-4 md:p-6 space-y-6"}>
           {!embedded && (

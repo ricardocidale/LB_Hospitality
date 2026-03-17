@@ -1,4 +1,5 @@
 import React, { useRef, useMemo, RefObject } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import { InvestmentAnalysis } from "@/components/InvestmentAnalysis";
 import { DashboardTabProps } from "./types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -22,6 +23,7 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
   const INV_ROW_KEYS = React.useMemo(() => ["metrics", "returns", "composition"], []);
   const { expandedRows, toggleRow } = useExpandableRows(INV_ROW_KEYS);
   const tabContentRef = useRef<HTMLDivElement>(null);
+  const { requestSave, SaveDialog } = useExportSave();
 
   const chartData = useMemo(() => {
     return Array.from({ length: projectionYears }, (_, i) => {
@@ -48,26 +50,29 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
 
     switch(action) {
       case 'pdf':
-        exportPortfolioPDF(
+        requestSave("Investment Analysis", ".pdf", (f) => exportPortfolioPDF(
           "landscape",
           projectionYears,
           years,
           rows,
           (i: number) => financials.yearlyConsolidatedCache[i],
-          "Portfolio Investment Analysis"
-        );
+          "Portfolio Investment Analysis",
+          undefined,
+          f
+        ));
         break;
       case 'csv':
-        exportPortfolioCSV(years, rows, "portfolio-investment-analysis.csv");
+        requestSave("Investment Analysis", ".csv", (f) => exportPortfolioCSV(years, rows, f || "portfolio-investment-analysis.csv"));
         break;
       case 'excel':
-        exportPortfolioExcel(
+        requestSave("Portfolio", ".xlsx", (f) => exportPortfolioExcel(
           buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
-          global?.companyName || "Portfolio"
-        );
+          global?.companyName || "Portfolio",
+          f
+        ));
         break;
       case 'pptx':
-        dashboardExports.exportToPPTX({
+        requestSave("Investment Analysis", ".pptx", (f) => dashboardExports.exportToPPTX({
           projectionYears,
           getFiscalYear,
           totalInitialEquity: financials.totalInitialEquity,
@@ -84,16 +89,17 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
           cashFlowData: toExportData(generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear)),
           balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
           investmentData: toExportData({ years, rows })
-        }, global.companyName || undefined);
+        }, global.companyName || undefined, f));
         break;
       case 'png':
-        dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>);
+        requestSave("Investment Analysis", ".png", (f) => dashboardExports.exportToPNG(tabContentRef as RefObject<HTMLElement>, f));
         break;
     }
   };
 
   return (
     <div className="space-y-6">
+      {SaveDialog}
       <FinancialChart
         data={chartData}
         series={[

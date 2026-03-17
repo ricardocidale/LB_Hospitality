@@ -219,7 +219,8 @@ export async function exportFullPropertyWorkbook(
   modelStartDate: string,
   fiscalYearStartMonth: number,
   propertyIndex: number,
-  companyName?: string
+  companyName?: string,
+  customFilename?: string
 ) {
   const XLSX = await import("xlsx");
   const yearly = aggregateByYear(data, years, modelStartDate, fiscalYearStartMonth);
@@ -398,5 +399,5 @@ export async function exportFullPropertyWorkbook(
   applyHeaderStyle(iaWs, iaRows);
   (XLSX as any).utils.book_append_sheet(wb, iaWs, "Investment Analysis");
 
-  await downloadWorkbook(wb, `${safeCompany} - ${safeProp} Financial Statements.xlsx`);
+  await downloadWorkbook(wb, customFilename || `${safeCompany} - ${safeProp} Financial Statements.xlsx`);
 }

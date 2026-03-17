@@ -22,7 +22,7 @@
  * The page respects the fiscal-year-start-month setting, so FY labels align
  * with the company's chosen fiscal calendar (e.g. FY 2027 may start in October).
  */
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { usePropertyPhotos } from "@/lib/api/property-photos";
@@ -53,6 +53,7 @@ import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
 import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
 import { useQueryClient } from "@tanstack/react-query";
 import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
+import { useExportSave } from "@/hooks/useExportSave";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import {
   PPECostBasisSchedule,
@@ -77,6 +78,7 @@ export default function PropertyDetail() {
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
   const [incomeAllExpanded, setIncomeAllExpanded] = useState(false);
+  const { requestSave, SaveDialog } = useExportSave();
   
   const { data: property, isLoading: propertyLoading, isError: propertyError } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
@@ -169,7 +171,7 @@ export default function PropertyDetail() {
 
   const getCashFlowData = () => cashFlowDataMemo;
 
-  const exportCashFlowCSV = () => {
+  const exportCashFlowCSV = (customFilename?: string) => {
 
     const cashFlowData = getCashFlowData();
     const headers = ["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)];
@@ -232,11 +234,11 @@ export default function PropertyDetail() {
 
     downloadCSV(
       [headers, ...rows].map(row => row.join(",")).join("\n"),
-      `${property.name.replace(/\s+/g, '_')}_CashFlow.csv`,
+      customFilename || `${property.name.replace(/\s+/g, '_')}_CashFlow.csv`,
     );
   };
 
-  const handleExcelExport = () => {
+  const handleExcelExport = (customFilename?: string) => {
     exportFullPropertyWorkbook(
       financials,
       property as unknown as LoanParams,
@@ -249,11 +251,12 @@ export default function PropertyDetail() {
       global.modelStartDate,
       fiscalYearStartMonth,
       0,
-      global?.companyName || "Portfolio"
+      global?.companyName || "Portfolio",
+      customFilename
     );
   };
 
-  const exportIncomeStatementPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended') => {
+  const exportIncomeStatementPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended', customFilename?: string) => {
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
@@ -346,10 +349,10 @@ export default function PropertyDetail() {
     }
 
     addFooters(doc, companyName, { skipPages: new Set([1]) });
-    doc.save(`${property.name.replace(/\s+/g, '_')}_IncomeStatement.pdf`);
+    doc.save(customFilename || `${property.name.replace(/\s+/g, '_')}_IncomeStatement.pdf`);
   };
 
-  const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended') => {
+  const exportCashFlowPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended', customFilename?: string) => {
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
     const cashFlowData = getCashFlowData();
@@ -479,10 +482,10 @@ export default function PropertyDetail() {
     }
 
     addFooters(doc, companyName, { skipPages: new Set([1]) });
-    doc.save(`${property.name.replace(/\s+/g, '_')}_CashFlow.pdf`);
+    doc.save(customFilename || `${property.name.replace(/\s+/g, '_')}_CashFlow.pdf`);
   };
 
-  const exportChartPNG = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
+  const exportChartPNG = async (orientation: 'landscape' | 'portrait' = 'landscape', customFilename?: string) => {
     const chartContainer = activeTab === "cashflow" ? cashFlowChartRef.current : incomeChartRef.current;
     if (!chartContainer) return;
     try {
@@ -498,7 +501,7 @@ export default function PropertyDetail() {
         style: { transform: 'scale(2)', transformOrigin: 'top left' }
       });
       const link = document.createElement('a');
-      link.download = `${property.name.replace(/\s+/g, '_')}_chart_${orientation}.png`;
+      link.download = customFilename || `${property.name.replace(/\s+/g, '_')}_chart_${orientation}.png`;
       link.href = dataUrl;
       link.click();
     } catch (error) {
@@ -506,7 +509,7 @@ export default function PropertyDetail() {
     }
   };
 
-  const exportTablePNG = async (orientation: 'landscape' | 'portrait' = 'landscape') => {
+  const exportTablePNG = async (orientation: 'landscape' | 'portrait' = 'landscape', customFilename?: string) => {
     const tableContainer = activeTab === "cashflow" ? cashFlowTableRef.current : incomeTableRef.current;
     if (!tableContainer) return;
     try {
@@ -520,7 +523,7 @@ export default function PropertyDetail() {
         height: tableContainer.scrollHeight * scale,
       });
       const link = document.createElement('a');
-      link.download = `${property.name.replace(/\s+/g, '_')}_${activeTab}_table.png`;
+      link.download = customFilename || `${property.name.replace(/\s+/g, '_')}_${activeTab}_table.png`;
       link.href = dataUrl;
       link.click();
     } catch (error) {
@@ -528,7 +531,7 @@ export default function PropertyDetail() {
     }
   };
 
-  const handlePPTXExport = () => {
+  const handlePPTXExport = (customFilename?: string) => {
 
     const cashFlowData = getCashFlowData();
     const yearLabels = Array.from({ length: years }, (_, i) => `FY ${startYear + i}`);
@@ -569,10 +572,10 @@ export default function PropertyDetail() {
       incomeData: { years: yearLabels, rows: incomeRows },
       cashFlowData: { years: yearLabels, rows: cfRows },
       balanceSheetData: { years: yearLabels, rows: bsRows },
-    });
+    }, undefined, customFilename);
   };
 
-  const handleExport = async (orientation: 'landscape' | 'portrait', version: ExportVersion) => {
+  const handleExport = async (orientation: 'landscape' | 'portrait', version: ExportVersion, customFilename?: string) => {
     const expandIncome = version === "extended" && activeTab === "income";
     const collapseIncome = version === "short" && activeTab === "income";
     if (expandIncome) {
@@ -585,14 +588,14 @@ export default function PropertyDetail() {
     try {
       if (exportType === 'pdf') {
         if (activeTab === "income") {
-          await exportIncomeStatementPDF(orientation, version);
+          await exportIncomeStatementPDF(orientation, version, customFilename);
         } else {
-          await exportCashFlowPDF(orientation, version);
+          await exportCashFlowPDF(orientation, version, customFilename);
         }
       } else if (exportType === 'tablePng') {
-        await exportTablePNG(orientation);
+        await exportTablePNG(orientation, customFilename);
       } else {
-        await exportChartPNG(orientation);
+        await exportChartPNG(orientation, customFilename);
       }
     } finally {
       if (expandIncome) {
@@ -604,11 +607,20 @@ export default function PropertyDetail() {
   return (
     <Layout>
       <AnimatedPage>
+      {SaveDialog}
       <ExportDialog
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
         title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
+        suggestedFilename={
+          exportType === 'pdf' 
+            ? `${property.name} ${activeTab === "income" ? "Income Statement" : "Cash Flow"}`
+            : exportType === 'tablePng'
+            ? `${property.name} ${activeTab} Table`
+            : `${property.name} Chart`
+        }
+        fileExtension={exportType === 'pdf' ? '.pdf' : '.png'}
         showVersionOption={activeTab === "income" || activeTab === "cashflow" || activeTab === "balance"}
         premiumExportData={exportType === 'pdf' && property && yearlyDetails.length > 0 ? (() => {
           const yrLabels = yearlyChartData.map((d: any) => d.year);
@@ -684,9 +696,9 @@ export default function PropertyDetail() {
                   variant="light"
                   actions={[
                     pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
-                    excelAction(() => handleExcelExport()),
-                    csvAction(() => exportCashFlowCSV()),
-                    pptxAction(() => handlePPTXExport()),
+                    excelAction(() => requestSave(`${property.name} Financial Statements`, ".xlsx", (f) => handleExcelExport(f))),
+                    csvAction(() => requestSave(`${property.name} CashFlow`, ".csv", (f) => exportCashFlowCSV(f))),
+                    pptxAction(() => requestSave(`${property.name} Financial Report`, ".pptx", (f) => handlePPTXExport(f))),
                     chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
                     pngAction(() => { setExportType('tablePng'); setExportDialogOpen(true); }),
                   ]}

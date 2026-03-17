@@ -603,9 +603,9 @@ async function buildResearchDoc(options: ResearchExportOptions) {
 }
 
 /** Build and immediately download the research PDF to the user's browser. */
-export async function downloadResearchPDF(options: ResearchExportOptions): Promise<void> {
+export async function downloadResearchPDF(options: ResearchExportOptions, customFilename?: string): Promise<void> {
   const doc = await buildResearchDoc(options);
-  const filename = `${options.title.replace(/[^a-zA-Z0-9]/g, "_")}_Research.pdf`;
+  const filename = customFilename || `${options.title.replace(/[^a-zA-Z0-9]/g, "_")}_Research.pdf`;
   doc.save(filename);
 }
 

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { useGlobalAssumptions, useUpdateAdminConfig, useMarketResearch, useProperties } from "@/lib/api";
@@ -109,6 +110,7 @@ export default function CompanyIcpDefinition() {
   const [defDraft, setDefDraft] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { requestSave, SaveDialog } = useExportSave();
 
   const icpConfig: IcpConfig = useMemo(() => ({
     ...DEFAULT_ICP_CONFIG,
@@ -259,7 +261,7 @@ export default function CompanyIcpDefinition() {
     tokenCount: researchContent?.tokenCount || researchContent?._meta?.tokenCount || null,
   };
 
-  const handleExportPDF = async () => {
+  const handleExportPDF = async (customFilename?: string) => {
     try {
       const response = await fetch("/api/premium-export", {
         method: "POST",
@@ -293,7 +295,7 @@ export default function CompanyIcpDefinition() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${companyName.replace(/\s+/g, "-")}-ICP-Definition.pdf`;
+      a.download = customFilename || `${companyName.replace(/\s+/g, "-")}-ICP-Definition.pdf`;
       a.click();
       URL.revokeObjectURL(url);
       toast({ title: "Exported", description: "PDF downloaded successfully." });
@@ -302,7 +304,7 @@ export default function CompanyIcpDefinition() {
     }
   };
 
-  const handleExportPPTX = async () => {
+  const handleExportPPTX = async (customFilename?: string) => {
     try {
       const response = await fetch("/api/premium-export", {
         method: "POST",
@@ -336,7 +338,7 @@ export default function CompanyIcpDefinition() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${companyName.replace(/\s+/g, "-")}-ICP-Definition.pptx`;
+      a.download = customFilename || `${companyName.replace(/\s+/g, "-")}-ICP-Definition.pptx`;
       a.click();
       URL.revokeObjectURL(url);
       toast({ title: "Exported", description: "PowerPoint downloaded successfully." });
@@ -347,6 +349,7 @@ export default function CompanyIcpDefinition() {
 
   return (
     <Layout>
+      {SaveDialog}
       <AnimatedPage>
         <div className="space-y-6 max-w-5xl" ref={contentRef}>
           <PageHeader
@@ -355,7 +358,7 @@ export default function CompanyIcpDefinition() {
             variant="dark"
             backLink="/company/assumptions"
             actions={
-              <ExportMenu actions={[pdfAction(handleExportPDF), pptxAction(handleExportPPTX)]} />
+              <ExportMenu actions={[pdfAction(() => requestSave(`${companyName} ICP Definition`, ".pdf", (f) => handleExportPDF(f))), pptxAction(() => requestSave(`${companyName} ICP Definition`, ".pptx", (f) => handleExportPPTX(f)))]} />
             }
           />
 

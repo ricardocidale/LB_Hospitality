@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useExportSave } from "@/hooks/useExportSave";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -96,6 +97,7 @@ export default function CompanyResearch() {
   const { data: globalAssumptions } = useGlobalAssumptions();
   const [activeGroup, setActiveGroup] = useState<GroupKey>("operations");
   const { toast } = useToast();
+  const { requestSave, SaveDialog } = useExportSave();
   const { isGenerating, streamedContent, generateResearch } = useCompanyResearchStream();
 
   const companyContent = (companyRes?.content ?? {}) as any;
@@ -128,6 +130,7 @@ export default function CompanyResearch() {
 
   return (
     <Layout>
+      {SaveDialog}
       <AnimatedPage>
         <div className="space-y-5">
           {/* Header */}
@@ -159,12 +162,12 @@ export default function CompanyResearch() {
                       {
                         label: "Download PDF",
                         icon: <IconFileDown className="w-3.5 h-3.5" />,
-                        onClick: () => downloadResearchPDF({
+                        onClick: () => requestSave(`${companyName} Research`, ".pdf", (f) => downloadResearchPDF({
                           type: "company", title: `${companyName} Research`,
                           subtitle: "Operations, marketing, and industry analysis",
                           content: companyContent, updatedAt: companyRes?.updatedAt,
                           llmModel: companyRes?.llmModel || undefined,
-                        }),
+                        }, f)),
                         testId: "button-export-pdf",
                       },
                     ]}

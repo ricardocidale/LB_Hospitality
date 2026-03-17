@@ -377,7 +377,7 @@ export interface PortfolioExportData {
   investmentData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "Hospitality Business Group") {
+export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "Hospitality Business Group", customFilename?: string) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
@@ -420,7 +420,7 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
   addFinancialTableSlide(ctx, "Portfolio Investment Analysis", entityTag, data.investmentData.years, data.investmentData.rows);
 
   addAllFooters(ctx);
-  pres.writeFile({ fileName: "Portfolio-Investment-Report.pptx" });
+  pres.writeFile({ fileName: customFilename || "Portfolio-Investment-Report.pptx" });
 }
 
 export interface PropertyExportData {
@@ -432,7 +432,7 @@ export interface PropertyExportData {
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportPropertyPPTX(data: PropertyExportData, companyName = "Hospitality Business Group") {
+export async function exportPropertyPPTX(data: PropertyExportData, companyName = "Hospitality Business Group", customFilename?: string) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
@@ -455,7 +455,7 @@ export async function exportPropertyPPTX(data: PropertyExportData, companyName =
 
   const safeName = data.propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
   addAllFooters(ctx);
-  pres.writeFile({ fileName: `${safeName} - Financial Report.pptx` });
+  pres.writeFile({ fileName: customFilename || `${safeName} - Financial Report.pptx` });
 }
 
 export interface CompanyExportData {
@@ -466,7 +466,7 @@ export interface CompanyExportData {
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportCompanyPPTX(data: CompanyExportData, companyName = "Hospitality Business Group") {
+export async function exportCompanyPPTX(data: CompanyExportData, companyName = "Hospitality Business Group", customFilename?: string) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
@@ -489,5 +489,5 @@ export async function exportCompanyPPTX(data: CompanyExportData, companyName = "
   addFinancialTableSlide(ctx, `Balance Sheet`, entityTag, data.balanceSheetData.years, data.balanceSheetData.rows);
 
   addAllFooters(ctx);
-  pres.writeFile({ fileName: "Management-Company-Report.pptx" });
+  pres.writeFile({ fileName: customFilename || "Management-Company-Report.pptx" });
 }

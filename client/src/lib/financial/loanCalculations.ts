@@ -39,6 +39,7 @@ export interface LoanParams {
   refinanceClosingCostRate?: number | null;
   exitCapRate?: number | null;
   dispositionCommission?: number | null;
+  depreciationYears?: number | null;
 }
 
 export interface GlobalLoanParams {
@@ -47,6 +48,7 @@ export interface GlobalLoanParams {
   salesCommissionRate?: number;
   exitCapRate?: number;
   companyTaxRate?: number;
+  depreciationYears?: number;
   debtAssumptions?: {
     acqLTV?: number;
     interestRate?: number;
@@ -152,7 +154,8 @@ export function calculateLoanParams(
   // Depreciable basis: land doesn't depreciate (IRS Publication 946 / ASC 360)
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
-  const annualDepreciation = buildingValue / DEPRECIATION_YEARS;
+  const effectiveDepYears = property.depreciationYears ?? global?.depreciationYears ?? DEPRECIATION_YEARS;
+  const annualDepreciation = buildingValue / effectiveDepYears;
   
   const monthlyRate = interestRate / 12;
   const totalPayments = termYears * 12;

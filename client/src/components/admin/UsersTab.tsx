@@ -448,7 +448,7 @@ export default function UsersTab() {
                       {user.role}
                     </span>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{user.userGroupId ? groupNameMap[user.userGroupId] || "—" : "—"}</TableCell>
+                  <TableCell className="text-sm">{user.userGroupId && groupNameMap[user.userGroupId] ? <span className="text-accent">{groupNameMap[user.userGroupId]}</span> : <span className="text-muted-foreground">—</span>}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted"

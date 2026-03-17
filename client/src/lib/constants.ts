@@ -61,9 +61,8 @@ export const DEFAULT_REFI_LTV = 0.65;
 export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
 export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
 
-// Property defaults — starting values for a new boutique hotel property
-export const DEFAULT_ADR_GROWTH_RATE = 0.03;
-export const DEFAULT_START_OCCUPANCY = 0.55;
+// Property defaults — re-exported from shared/constants.ts (canonical source)
+export { DEFAULT_ADR_GROWTH_RATE, DEFAULT_START_OCCUPANCY } from "@shared/constants";
 export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
 
 // Company cost defaults — annual amounts for the management company's overhead

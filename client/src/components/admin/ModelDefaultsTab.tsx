@@ -2,16 +2,40 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { GovernedFieldWrapper } from "@/components/ui/governed-field";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { IconPercent, IconCalendar, IconDollarSign, IconHash } from "@/components/icons";
+import EditableValue from "@/components/company-assumptions/EditableValue";
 import { invalidateAllFinancialQueries } from "@/lib/api";
 import type { AdminSaveState } from "@/components/admin/types/save-state";
+import {
+  DEFAULT_START_ADR,
+  DEFAULT_ADR_GROWTH_RATE,
+  DEFAULT_START_OCCUPANCY,
+  DEFAULT_MAX_OCCUPANCY,
+  DEFAULT_OCCUPANCY_RAMP_MONTHS,
+  DEFAULT_ROOM_COUNT,
+  DEFAULT_REV_SHARE_FB,
+  DEFAULT_REV_SHARE_EVENTS,
+  DEFAULT_REV_SHARE_OTHER,
+  DEFAULT_CATERING_BOOST_PCT,
+  DEFAULT_COST_RATE_ROOMS,
+  DEFAULT_COST_RATE_FB,
+  DEFAULT_COST_RATE_ADMIN,
+  DEFAULT_COST_RATE_MARKETING,
+  DEFAULT_COST_RATE_PROPERTY_OPS,
+  DEFAULT_COST_RATE_UTILITIES,
+  DEFAULT_COST_RATE_TAXES,
+  DEFAULT_COST_RATE_IT,
+  DEFAULT_COST_RATE_FFE,
+  DEFAULT_COST_RATE_OTHER,
+  DEFAULT_COST_RATE_INSURANCE,
+  DEFAULT_PROPERTY_TAX_RATE,
+  DEFAULT_LAND_VALUE_PERCENT,
+} from "@shared/constants";
 
 interface ModelDefaultsTabProps {
   onSaveStateChange?: (state: AdminSaveState | null) => void;
@@ -24,100 +48,175 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-function pctToDisplay(v: number | undefined | null): string {
-  if (v == null) return "";
-  return (v * 100).toFixed(2).replace(/\.?0+$/, "");
+function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+  return (
+    <div className="relative overflow-hidden rounded-lg p-6 bg-card border border-border shadow-sm">
+      <div className="relative">
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-display text-foreground flex items-center gap-2">{title}</h3>
+            {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
+          </div>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-function displayToPct(s: string): number {
-  const n = parseFloat(s);
-  return isNaN(n) ? 0 : n / 100;
-}
-
-function FieldRow({ label, tooltip, children, testId }: {
+function PctField({ label, tooltip, value, fallback, onChange, min, max, step, sliderMax, testId }: {
   label: string;
-  tooltip?: string;
-  children: React.ReactNode;
-  testId?: string;
+  tooltip: string;
+  value: number | null | undefined;
+  fallback: number;
+  onChange: (field: string, v: number) => void;
+  min: number;
+  max: number;
+  step: number;
+  sliderMax?: number;
+  testId: string;
 }) {
+  const current = value ?? fallback;
   return (
-    <div className="flex items-center justify-between gap-4 py-2.5 px-1" data-testid={testId}>
-      <Label className="flex items-center gap-1 text-sm text-foreground label-text shrink-0">
-        {label}
-        {tooltip && <InfoTooltip text={tooltip} />}
-      </Label>
-      <div className="w-40 shrink-0">{children}</div>
-    </div>
-  );
-}
-
-function PctInput({ value, onChange, testId }: { value: number | undefined; onChange: (v: number) => void; testId: string }) {
-  return (
-    <div className="relative">
-      <Input
-        type="number"
-        step="0.1"
-        value={pctToDisplay(value)}
-        onChange={(e) => onChange(displayToPct(e.target.value))}
-        className="pr-7 bg-card border-border text-foreground text-right"
-        data-testid={testId}
-      />
-      <IconPercent className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-    </div>
-  );
-}
-
-function DollarInput({ value, onChange, testId }: { value: number | undefined; onChange: (v: number) => void; testId: string }) {
-  return (
-    <div className="relative">
-      <IconDollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
-      <Input
-        type="number"
-        value={value ?? ""}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="pl-7 bg-card border-border text-foreground text-right"
-        data-testid={testId}
+    <div className="space-y-3" data-testid={testId}>
+      <div className="flex items-center justify-between">
+        <Label className="flex items-center text-foreground label-text">
+          {label}
+          <InfoTooltip text={tooltip} />
+        </Label>
+        <EditableValue
+          value={current}
+          onChange={(v) => onChange(testId.replace("field-", ""), v)}
+          format="percent"
+          min={min}
+          max={max}
+          step={step}
+        />
+      </div>
+      <Slider
+        value={[current * 100]}
+        onValueChange={([v]) => onChange(testId.replace("field-", ""), v / 100)}
+        min={min * 100}
+        max={(sliderMax ?? max) * 100}
+        step={step * 100}
       />
     </div>
   );
 }
 
-function NumInput({ value, onChange, testId, step }: { value: number | undefined; onChange: (v: number) => void; testId: string; step?: string }) {
+function DollarField({ label, tooltip, value, fallback, onChange, min, max, step, testId }: {
+  label: string;
+  tooltip: string;
+  value: number | null | undefined;
+  fallback: number;
+  onChange: (field: string, v: number) => void;
+  min: number;
+  max: number;
+  step: number;
+  testId: string;
+}) {
+  const current = value ?? fallback;
   return (
-    <Input
-      type="number"
-      step={step}
-      value={value ?? ""}
-      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-      className="bg-card border-border text-foreground text-right"
-      data-testid={testId}
-    />
+    <div className="space-y-3" data-testid={testId}>
+      <div className="flex items-center justify-between">
+        <Label className="flex items-center text-foreground label-text">
+          {label}
+          <InfoTooltip text={tooltip} />
+        </Label>
+        <EditableValue
+          value={current}
+          onChange={(v) => onChange(testId.replace("field-", ""), v)}
+          format="dollar"
+          min={min}
+          max={max}
+          step={step}
+        />
+      </div>
+      <Slider
+        value={[current]}
+        onValueChange={([v]) => onChange(testId.replace("field-", ""), v)}
+        min={min}
+        max={max}
+        step={step}
+      />
+    </div>
   );
 }
 
-function SectionCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+function NumberField({ label, tooltip, value, fallback, onChange, min, max, step, testId }: {
+  label: string;
+  tooltip: string;
+  value: number | null | undefined;
+  fallback: number;
+  onChange: (field: string, v: number) => void;
+  min: number;
+  max: number;
+  step: number;
+  testId: string;
+}) {
+  const current = value ?? fallback;
   return (
-    <Card className="bg-card border border-border/80 shadow-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold text-foreground">{title}</CardTitle>
-        {description && <CardDescription className="label-text">{description}</CardDescription>}
-      </CardHeader>
-      <CardContent className="divide-y divide-border/40">{children}</CardContent>
-    </Card>
+    <div className="space-y-3" data-testid={testId}>
+      <div className="flex items-center justify-between">
+        <Label className="flex items-center text-foreground label-text">
+          {label}
+          <InfoTooltip text={tooltip} />
+        </Label>
+        <EditableValue
+          value={current}
+          onChange={(v) => onChange(testId.replace("field-", ""), v)}
+          format="number"
+          min={min}
+          max={max}
+          step={step}
+        />
+      </div>
+      <Slider
+        value={[current]}
+        onValueChange={([v]) => onChange(testId.replace("field-", ""), v)}
+        min={min}
+        max={max}
+        step={step}
+      />
+    </div>
+  );
+}
+
+function TabBanner({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+      {children}
+    </div>
   );
 }
 
 function MarketMacroTab({ draft, onChange }: { draft: Draft; onChange: (field: string, value: any) => void }) {
   return (
-    <div className="space-y-4">
-      <SectionCard title="Economic Environment" description="Global economic assumptions applied across the platform.">
-        <FieldRow label="Macro Inflation Rate" tooltip="Annual inflation rate applied to cost escalations and revenue growth projections." testId="field-inflationRate">
-          <PctInput value={draft.inflationRate} onChange={(v) => onChange("inflationRate", v)} testId="input-inflationRate" />
-        </FieldRow>
-        <FieldRow label="Cost of Equity" tooltip="Required return on equity for DCF and NPV calculations. Default 18% for private hospitality." testId="field-costOfEquity">
-          <PctInput value={draft.costOfEquity} onChange={(v) => onChange("costOfEquity", v)} testId="input-costOfEquity" />
-        </FieldRow>
-        <div className="py-3 px-1">
+    <div className="space-y-5">
+      <TabBanner>
+        Global economic assumptions that affect all projections across the platform. Changes here recalculate every property and the management company model.
+      </TabBanner>
+
+      <Section title="Economic Environment" description="Core macroeconomic rates used in DCF, NPV, and cost escalation calculations.">
+        <PctField
+          label="Macro Inflation Rate"
+          tooltip="Annual inflation rate applied to cost escalations and revenue growth projections across all properties."
+          value={draft.inflationRate}
+          fallback={0.03}
+          onChange={onChange}
+          min={0} max={0.15} step={0.005}
+          testId="field-inflationRate"
+        />
+        <PctField
+          label="Cost of Equity"
+          tooltip="Required return on equity for DCF and NPV calculations. Industry standard is 18% for private hospitality investments."
+          value={draft.costOfEquity}
+          fallback={0.18}
+          onChange={onChange}
+          min={0.05} max={0.35} step={0.005}
+          testId="field-costOfEquity"
+        />
+        <div className="pt-2">
           <GovernedFieldWrapper
             authority="Industry Convention (365/12)"
             label="Days Per Month"
@@ -125,18 +224,37 @@ function MarketMacroTab({ draft, onChange }: { draft: Draft; onChange: (field: s
             defaultExpanded={false}
             data-testid="governed-daysPerMonth"
           >
-            <NumInput value={draft.daysPerMonth} onChange={(v) => onChange("daysPerMonth", v)} testId="input-daysPerMonth" step="0.5" />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-foreground label-text">Convention Value</Label>
+                <EditableValue
+                  value={draft.daysPerMonth ?? 30.5}
+                  onChange={(v) => onChange("daysPerMonth", v)}
+                  format="number"
+                  min={28} max={31} step={0.5}
+                />
+              </div>
+              <Slider
+                value={[draft.daysPerMonth ?? 30.5]}
+                onValueChange={([v]) => onChange("daysPerMonth", v)}
+                min={28} max={31} step={0.5}
+              />
+            </div>
           </GovernedFieldWrapper>
         </div>
-      </SectionCard>
+      </Section>
 
-      <SectionCard title="Fiscal Calendar" description="Controls the fiscal year alignment for financial reporting.">
-        <FieldRow label="Fiscal Year Start Month" tooltip="The month when the fiscal year begins. Affects how annual summaries are grouped." testId="field-fiscalYearStartMonth">
+      <Section title="Fiscal Calendar" description="Controls the fiscal year alignment for financial reporting.">
+        <div className="flex items-center justify-between" data-testid="field-fiscalYearStartMonth">
+          <Label className="flex items-center text-foreground label-text">
+            Fiscal Year Start Month
+            <InfoTooltip text="The month when the fiscal year begins. Affects how annual summaries are grouped." />
+          </Label>
           <Select
             value={String(draft.fiscalYearStartMonth ?? 1)}
             onValueChange={(v) => onChange("fiscalYearStartMonth", parseInt(v))}
           >
-            <SelectTrigger className="bg-card border-border" data-testid="select-fiscalYearStartMonth">
+            <SelectTrigger className="w-40 bg-card border-border" data-testid="select-fiscalYearStartMonth">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -145,8 +263,8 @@ function MarketMacroTab({ draft, onChange }: { draft: Draft; onChange: (field: s
               ))}
             </SelectContent>
           </Select>
-        </FieldRow>
-      </SectionCard>
+        </div>
+      </Section>
     </div>
   );
 }
@@ -163,51 +281,316 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
   };
 
   return (
-    <div className="space-y-4">
-      <SectionCard title="Operating Cost Rates" description="Default expense rates applied to revenue streams. These pre-fill new properties at creation.">
-        <FieldRow label="Event Expense Rate" tooltip="Cost ratio for event revenue (catering, staffing, setup)." testId="field-eventExpenseRate">
-          <PctInput value={draft.eventExpenseRate} onChange={(v) => onChange("eventExpenseRate", v)} testId="input-eventExpenseRate" />
-        </FieldRow>
-        <FieldRow label="Other Expense Rate" tooltip="Cost ratio for miscellaneous other revenue streams." testId="field-otherExpenseRate">
-          <PctInput value={draft.otherExpenseRate} onChange={(v) => onChange("otherExpenseRate", v)} testId="input-otherExpenseRate" />
-        </FieldRow>
-        <FieldRow label="Utilities Variable Split" tooltip="Percentage of utilities that vary with occupancy (vs. fixed base load)." testId="field-utilitiesVariableSplit">
-          <PctInput value={draft.utilitiesVariableSplit} onChange={(v) => onChange("utilitiesVariableSplit", v)} testId="input-utilitiesVariableSplit" />
-        </FieldRow>
-      </SectionCard>
+    <div className="space-y-5">
+      <TabBanner>
+        Template values applied when creating new properties. Existing properties retain their current values. NULL fields fall back to system constants.
+      </TabBanner>
 
-      <SectionCard title="Acquisition Financing" description="Default loan terms applied when adding a new financed property.">
-        <FieldRow label="Default LTV" tooltip="Loan-to-value ratio for acquisition debt." testId="field-acqLTV">
-          <PctInput value={debt.acqLTV} onChange={(v) => onDebt("acqLTV", v)} testId="input-acqLTV" />
-        </FieldRow>
-        <FieldRow label="Interest Rate" tooltip="Annual interest rate for acquisition financing." testId="field-acqInterestRate">
-          <PctInput value={debt.interestRate} onChange={(v) => onDebt("interestRate", v)} testId="input-acqInterestRate" />
-        </FieldRow>
-        <FieldRow label="Term (Years)" tooltip="Loan amortization period in years." testId="field-acqTerm">
-          <NumInput value={debt.amortizationYears} onChange={(v) => onDebt("amortizationYears", v)} testId="input-acqTerm" />
-        </FieldRow>
-        <FieldRow label="Closing Cost Rate" tooltip="Transaction costs as a percentage of purchase price." testId="field-acqClosingCost">
-          <PctInput value={debt.acqClosingCostRate} onChange={(v) => onDebt("acqClosingCostRate", v)} testId="input-acqClosingCost" />
-        </FieldRow>
-      </SectionCard>
+      <Section title="Revenue Assumptions" description="Default revenue parameters pre-filled when adding a new hotel to the portfolio.">
+        <DollarField
+          label="Starting ADR"
+          tooltip="Average Daily Rate at property opening. This is the base rate before any growth adjustments."
+          value={draft.defaultStartAdr}
+          fallback={DEFAULT_START_ADR}
+          onChange={(_, v) => onChange("defaultStartAdr", v)}
+          min={50} max={1500} step={25}
+          testId="field-defaultStartAdr"
+        />
+        <PctField
+          label="ADR Growth Rate"
+          tooltip="Annual rate at which ADR increases year-over-year, typically tracking inflation plus market premiums."
+          value={draft.defaultAdrGrowthRate}
+          fallback={DEFAULT_ADR_GROWTH_RATE}
+          onChange={(_, v) => onChange("defaultAdrGrowthRate", v)}
+          min={0} max={0.15} step={0.005}
+          testId="field-defaultAdrGrowthRate"
+        />
+        <PctField
+          label="Starting Occupancy"
+          tooltip="Occupancy rate at property opening, before ramp-up to stabilization. Typically 50-60% for new boutique hotels."
+          value={draft.defaultStartOccupancy}
+          fallback={DEFAULT_START_OCCUPANCY}
+          onChange={(_, v) => onChange("defaultStartOccupancy", v)}
+          min={0.1} max={1} step={0.01}
+          testId="field-defaultStartOccupancy"
+        />
+        <PctField
+          label="Max (Stabilized) Occupancy"
+          tooltip="Target occupancy after ramp-up period. Luxury boutique hotels typically stabilize at 75-85%."
+          value={draft.defaultMaxOccupancy}
+          fallback={DEFAULT_MAX_OCCUPANCY}
+          onChange={(_, v) => onChange("defaultMaxOccupancy", v)}
+          min={0.3} max={1} step={0.01}
+          testId="field-defaultMaxOccupancy"
+        />
+        <NumberField
+          label="Occupancy Ramp Months"
+          tooltip="Number of months to ramp from starting occupancy to stabilized occupancy. Typically 3-12 months for boutique properties."
+          value={draft.defaultOccupancyRampMonths}
+          fallback={DEFAULT_OCCUPANCY_RAMP_MONTHS}
+          onChange={(_, v) => onChange("defaultOccupancyRampMonths", Math.round(v))}
+          min={0} max={24} step={1}
+          testId="field-defaultOccupancyRampMonths"
+        />
+        <NumberField
+          label="Default Room Count"
+          tooltip="Number of keys (rooms) for a new property. Boutique hotels are typically 10-100 rooms."
+          value={draft.defaultRoomCount}
+          fallback={DEFAULT_ROOM_COUNT}
+          onChange={(_, v) => onChange("defaultRoomCount", Math.round(v))}
+          min={1} max={500} step={1}
+          testId="field-defaultRoomCount"
+        />
+        <PctField
+          label="F&B Revenue Share"
+          tooltip="Food & Beverage revenue as a percentage of total room revenue. Varies by hotel concept and restaurant program."
+          value={draft.defaultRevShareFb}
+          fallback={DEFAULT_REV_SHARE_FB}
+          onChange={(_, v) => onChange("defaultRevShareFb", v)}
+          min={0} max={0.5} step={0.01}
+          testId="field-defaultRevShareFb"
+        />
+        <PctField
+          label="Events Revenue Share"
+          tooltip="Events/banquet revenue as a percentage of total room revenue. Higher for properties with dedicated event spaces."
+          value={draft.defaultRevShareEvents}
+          fallback={DEFAULT_REV_SHARE_EVENTS}
+          onChange={(_, v) => onChange("defaultRevShareEvents", v)}
+          min={0} max={0.5} step={0.01}
+          testId="field-defaultRevShareEvents"
+        />
+        <PctField
+          label="Other Revenue Share"
+          tooltip="Miscellaneous revenue (spa, parking, retail) as a percentage of room revenue."
+          value={draft.defaultRevShareOther}
+          fallback={DEFAULT_REV_SHARE_OTHER}
+          onChange={(_, v) => onChange("defaultRevShareOther", v)}
+          min={0} max={0.3} step={0.005}
+          testId="field-defaultRevShareOther"
+        />
+        <PctField
+          label="Catering Boost"
+          tooltip="Additional catering revenue uplift applied to events revenue. Represents incremental F&B from event catering."
+          value={draft.defaultCateringBoostPct}
+          fallback={DEFAULT_CATERING_BOOST_PCT}
+          onChange={(_, v) => onChange("defaultCateringBoostPct", v)}
+          min={0} max={0.5} step={0.01}
+          testId="field-defaultCateringBoostPct"
+        />
+      </Section>
 
-      <SectionCard title="Refinance Terms" description="Default terms applied when modeling a property refinance event.">
-        <FieldRow label="Refi LTV" tooltip="Loan-to-value ratio for refinanced debt." testId="field-refiLTV">
-          <PctInput value={debt.refiLTV} onChange={(v) => onDebt("refiLTV", v)} testId="input-refiLTV" />
-        </FieldRow>
-        <FieldRow label="Refi Interest Rate" tooltip="Annual interest rate for refinanced loans." testId="field-refiInterestRate">
-          <PctInput value={debt.refiInterestRate} onChange={(v) => onDebt("refiInterestRate", v)} testId="input-refiInterestRate" />
-        </FieldRow>
-        <FieldRow label="Refi Term (Years)" tooltip="Amortization period for refinanced loans." testId="field-refiTerm">
-          <NumInput value={debt.refiAmortizationYears} onChange={(v) => onDebt("refiAmortizationYears", v)} testId="input-refiTerm" />
-        </FieldRow>
-        <FieldRow label="Refi Closing Cost Rate" tooltip="Transaction costs for refinancing as a percentage of new loan amount." testId="field-refiClosingCost">
-          <PctInput value={debt.refiClosingCostRate} onChange={(v) => onDebt("refiClosingCostRate", v)} testId="input-refiClosingCost" />
-        </FieldRow>
-      </SectionCard>
+      <Section title="USALI Operating Cost Rates" description="Uniform System of Accounts for the Lodging Industry — expense rates as a percentage of total revenue.">
+        <PctField
+          label="Rooms Department"
+          tooltip="Housekeeping, front desk, guest supplies, linens. USALI Dept 1."
+          value={draft.defaultCostRateRooms}
+          fallback={DEFAULT_COST_RATE_ROOMS}
+          onChange={(_, v) => onChange("defaultCostRateRooms", v)}
+          min={0} max={0.4} step={0.005}
+          testId="field-defaultCostRateRooms"
+        />
+        <PctField
+          label="Food & Beverage"
+          tooltip="F&B cost of goods sold plus labor. USALI Dept 2."
+          value={draft.defaultCostRateFb}
+          fallback={DEFAULT_COST_RATE_FB}
+          onChange={(_, v) => onChange("defaultCostRateFb", v)}
+          min={0} max={0.4} step={0.005}
+          testId="field-defaultCostRateFb"
+        />
+        <PctField
+          label="Administrative & General"
+          tooltip="General & Administrative expenses — accounting, HR, legal, office supplies. USALI undistributed."
+          value={draft.defaultCostRateAdmin}
+          fallback={DEFAULT_COST_RATE_ADMIN}
+          onChange={(_, v) => onChange("defaultCostRateAdmin", v)}
+          min={0} max={0.2} step={0.005}
+          testId="field-defaultCostRateAdmin"
+        />
+        <PctField
+          label="Sales & Marketing"
+          tooltip="Advertising, OTA commissions, sales team costs, loyalty programs."
+          value={draft.defaultCostRateMarketing}
+          fallback={DEFAULT_COST_RATE_MARKETING}
+          onChange={(_, v) => onChange("defaultCostRateMarketing", v)}
+          min={0} max={0.15} step={0.005}
+          testId="field-defaultCostRateMarketing"
+        />
+        <PctField
+          label="Property Operations & Maintenance"
+          tooltip="Building maintenance, grounds, engineering, repairs. USALI POM."
+          value={draft.defaultCostRatePropertyOps}
+          fallback={DEFAULT_COST_RATE_PROPERTY_OPS}
+          onChange={(_, v) => onChange("defaultCostRatePropertyOps", v)}
+          min={0} max={0.15} step={0.005}
+          testId="field-defaultCostRatePropertyOps"
+        />
+        <PctField
+          label="Utilities"
+          tooltip="Electric, water, gas, internet, telecom. Split between fixed base load and variable occupancy-driven costs."
+          value={draft.defaultCostRateUtilities}
+          fallback={DEFAULT_COST_RATE_UTILITIES}
+          onChange={(_, v) => onChange("defaultCostRateUtilities", v)}
+          min={0} max={0.15} step={0.005}
+          testId="field-defaultCostRateUtilities"
+        />
+        <PctField
+          label="Property Taxes"
+          tooltip="Real estate / property taxes as a rate of total revenue."
+          value={draft.defaultCostRateTaxes}
+          fallback={DEFAULT_COST_RATE_TAXES}
+          onChange={(_, v) => onChange("defaultCostRateTaxes", v)}
+          min={0} max={0.1} step={0.005}
+          testId="field-defaultCostRateTaxes"
+        />
+        <PctField
+          label="Information Technology"
+          tooltip="PMS, POS, WiFi infrastructure, IT support, cybersecurity."
+          value={draft.defaultCostRateIt}
+          fallback={DEFAULT_COST_RATE_IT}
+          onChange={(_, v) => onChange("defaultCostRateIt", v)}
+          min={0} max={0.05} step={0.001}
+          testId="field-defaultCostRateIt"
+        />
+        <PctField
+          label="FF&E Reserve"
+          tooltip="Furniture, Fixtures & Equipment replacement reserve. Industry standard 4% of revenue for ongoing capital replacement."
+          value={draft.defaultCostRateFfe}
+          fallback={DEFAULT_COST_RATE_FFE}
+          onChange={(_, v) => onChange("defaultCostRateFfe", v)}
+          min={0} max={0.1} step={0.005}
+          testId="field-defaultCostRateFfe"
+        />
+        <PctField
+          label="Insurance"
+          tooltip="Property insurance — liability, property, business interruption coverage."
+          value={draft.defaultCostRateInsurance}
+          fallback={DEFAULT_COST_RATE_INSURANCE}
+          onChange={(_, v) => onChange("defaultCostRateInsurance", v)}
+          min={0} max={0.05} step={0.001}
+          testId="field-defaultCostRateInsurance"
+        />
+        <PctField
+          label="Other Operating Expenses"
+          tooltip="Miscellaneous operating costs not captured in other categories."
+          value={draft.defaultCostRateOther}
+          fallback={DEFAULT_COST_RATE_OTHER}
+          onChange={(_, v) => onChange("defaultCostRateOther", v)}
+          min={0} max={0.15} step={0.005}
+          testId="field-defaultCostRateOther"
+        />
+      </Section>
 
-      <SectionCard title="Depreciation & Tax" description="Tax-related defaults for property underwriting.">
-        <div className="py-3 px-1">
+      <Section title="Revenue Stream Expense Rates" description="Direct expense rates tied to specific ancillary revenue streams.">
+        <PctField
+          label="Event Expense Rate"
+          tooltip="Cost ratio for event revenue (catering, staffing, setup)."
+          value={draft.eventExpenseRate}
+          fallback={0.5}
+          onChange={onChange}
+          min={0} max={1} step={0.01}
+          testId="field-eventExpenseRate"
+        />
+        <PctField
+          label="Other Expense Rate"
+          tooltip="Cost ratio for miscellaneous other revenue streams."
+          value={draft.otherExpenseRate}
+          fallback={0.3}
+          onChange={onChange}
+          min={0} max={1} step={0.01}
+          testId="field-otherExpenseRate"
+        />
+        <PctField
+          label="Utilities Variable Split"
+          tooltip="Percentage of utilities that vary with occupancy (vs. fixed base load)."
+          value={draft.utilitiesVariableSplit}
+          fallback={0.4}
+          onChange={onChange}
+          min={0} max={1} step={0.01}
+          testId="field-utilitiesVariableSplit"
+        />
+      </Section>
+
+      <Section title="Acquisition Financing" description="Default loan terms applied when adding a new financed property.">
+        <PctField
+          label="Default LTV"
+          tooltip="Loan-to-value ratio for acquisition debt."
+          value={debt.acqLTV}
+          fallback={0.75}
+          onChange={(_, v) => onDebt("acqLTV", v)}
+          min={0} max={1} step={0.01}
+          testId="field-acqLTV"
+        />
+        <PctField
+          label="Interest Rate"
+          tooltip="Annual interest rate for acquisition financing."
+          value={debt.interestRate}
+          fallback={0.09}
+          onChange={(_, v) => onDebt("interestRate", v)}
+          min={0} max={0.2} step={0.0025}
+          testId="field-acqInterestRate"
+        />
+        <NumberField
+          label="Term (Years)"
+          tooltip="Loan amortization period in years."
+          value={debt.amortizationYears}
+          fallback={25}
+          onChange={(_, v) => onDebt("amortizationYears", Math.round(v))}
+          min={1} max={40} step={1}
+          testId="field-acqTerm"
+        />
+        <PctField
+          label="Closing Cost Rate"
+          tooltip="Transaction costs as a percentage of purchase price."
+          value={debt.acqClosingCostRate}
+          fallback={0.02}
+          onChange={(_, v) => onDebt("acqClosingCostRate", v)}
+          min={0} max={0.1} step={0.0025}
+          testId="field-acqClosingCost"
+        />
+      </Section>
+
+      <Section title="Refinance Terms" description="Default terms applied when modeling a property refinance event.">
+        <PctField
+          label="Refi LTV"
+          tooltip="Loan-to-value ratio for refinanced debt."
+          value={debt.refiLTV}
+          fallback={0.75}
+          onChange={(_, v) => onDebt("refiLTV", v)}
+          min={0} max={1} step={0.01}
+          testId="field-refiLTV"
+        />
+        <PctField
+          label="Refi Interest Rate"
+          tooltip="Annual interest rate for refinanced loans."
+          value={debt.refiInterestRate}
+          fallback={0.09}
+          onChange={(_, v) => onDebt("refiInterestRate", v)}
+          min={0} max={0.2} step={0.0025}
+          testId="field-refiInterestRate"
+        />
+        <NumberField
+          label="Refi Term (Years)"
+          tooltip="Amortization period for refinanced loans."
+          value={debt.refiAmortizationYears}
+          fallback={25}
+          onChange={(_, v) => onDebt("refiAmortizationYears", Math.round(v))}
+          min={1} max={40} step={1}
+          testId="field-refiTerm"
+        />
+        <PctField
+          label="Refi Closing Cost Rate"
+          tooltip="Transaction costs for refinancing as a percentage of new loan amount."
+          value={debt.refiClosingCostRate}
+          fallback={0.02}
+          onChange={(_, v) => onDebt("refiClosingCostRate", v)}
+          min={0} max={0.1} step={0.0025}
+          testId="field-refiClosingCost"
+        />
+      </Section>
+
+      <Section title="Depreciation & Tax" description="Tax-related defaults for property underwriting.">
+        <div>
           <GovernedFieldWrapper
             authority="IRS Publication 946"
             label="Depreciation Years"
@@ -216,40 +599,121 @@ function PropertyUnderwritingTab({ draft, onChange }: { draft: Draft; onChange: 
             defaultExpanded={false}
             data-testid="governed-depreciationYears"
           >
-            <NumInput value={draft.depreciationYears} onChange={(v) => onChange("depreciationYears", v)} testId="input-depreciationYears" step="0.5" />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-foreground label-text">Convention Value</Label>
+                <EditableValue
+                  value={draft.depreciationYears ?? 27.5}
+                  onChange={(v) => onChange("depreciationYears", v)}
+                  format="number"
+                  min={1} max={50} step={0.5}
+                />
+              </div>
+              <Slider
+                value={[draft.depreciationYears ?? 27.5]}
+                onValueChange={([v]) => onChange("depreciationYears", v)}
+                min={1} max={50} step={0.5}
+              />
+            </div>
           </GovernedFieldWrapper>
         </div>
-      </SectionCard>
+        <PctField
+          label="Property Tax Rate"
+          tooltip="Annual property tax rate as a percentage of assessed value. Varies significantly by jurisdiction."
+          value={draft.defaultPropertyTaxRate}
+          fallback={DEFAULT_PROPERTY_TAX_RATE}
+          onChange={(_, v) => onChange("defaultPropertyTaxRate", v)}
+          min={0} max={0.05} step={0.001}
+          testId="field-defaultPropertyTaxRate"
+        />
+        <PctField
+          label="Land Value Percentage"
+          tooltip="Portion of total property value attributed to land (non-depreciable). IRS guidelines suggest 15-30% for commercial real estate."
+          value={draft.defaultLandValuePercent}
+          fallback={DEFAULT_LAND_VALUE_PERCENT}
+          onChange={(_, v) => onChange("defaultLandValuePercent", v)}
+          min={0.05} max={0.5} step={0.01}
+          testId="field-defaultLandValuePercent"
+        />
+      </Section>
 
-      <SectionCard title="Exit & Disposition" description="Defaults for property sale/exit modeling.">
-        <FieldRow label="Exit Cap Rate" tooltip="Capitalization rate used to estimate property value at disposition." testId="field-exitCapRate">
-          <PctInput value={draft.exitCapRate} onChange={(v) => onChange("exitCapRate", v)} testId="input-exitCapRate" />
-        </FieldRow>
-        <FieldRow label="Sales Commission" tooltip="Broker commission rate applied at property sale." testId="field-salesCommissionRate">
-          <PctInput value={draft.salesCommissionRate} onChange={(v) => onChange("salesCommissionRate", v)} testId="input-salesCommissionRate" />
-        </FieldRow>
-        <FieldRow label="Acquisition Commission" tooltip="Broker commission rate applied at property acquisition." testId="field-commissionRate">
-          <PctInput value={draft.commissionRate} onChange={(v) => onChange("commissionRate", v)} testId="input-commissionRate" />
-        </FieldRow>
-      </SectionCard>
+      <Section title="Exit & Disposition" description="Defaults for property sale/exit modeling.">
+        <PctField
+          label="Exit Cap Rate"
+          tooltip="Capitalization rate used to estimate property value at disposition."
+          value={draft.exitCapRate}
+          fallback={0.085}
+          onChange={onChange}
+          min={0.03} max={0.15} step={0.0025}
+          testId="field-exitCapRate"
+        />
+        <PctField
+          label="Sales Commission"
+          tooltip="Broker commission rate applied at property sale."
+          value={draft.salesCommissionRate}
+          fallback={0.05}
+          onChange={onChange}
+          min={0} max={0.1} step={0.005}
+          testId="field-salesCommissionRate"
+        />
+        <PctField
+          label="Acquisition Commission"
+          tooltip="Broker commission rate applied at property acquisition."
+          value={draft.commissionRate}
+          fallback={0.05}
+          onChange={onChange}
+          min={0} max={0.1} step={0.005}
+          testId="field-commissionRate"
+        />
+      </Section>
 
-      <SectionCard title="Default Acquisition Package" description="Standard purchase assumptions pre-filled when adding a new property to the portfolio.">
-        <FieldRow label="Purchase Price" tooltip="Default property purchase price." testId="field-purchasePrice">
-          <DollarInput value={acq.purchasePrice} onChange={(v) => onAcq("purchasePrice", v)} testId="input-purchasePrice" />
-        </FieldRow>
-        <FieldRow label="Building Improvements" tooltip="Default capital for building improvements and renovations." testId="field-buildingImprovements">
-          <DollarInput value={acq.buildingImprovements} onChange={(v) => onAcq("buildingImprovements", v)} testId="input-buildingImprovements" />
-        </FieldRow>
-        <FieldRow label="Pre-Opening Costs" tooltip="Costs incurred before the property begins operations (staffing, marketing, training)." testId="field-preOpeningCosts">
-          <DollarInput value={acq.preOpeningCosts} onChange={(v) => onAcq("preOpeningCosts", v)} testId="input-preOpeningCosts" />
-        </FieldRow>
-        <FieldRow label="Operating Reserve" tooltip="Cash reserve set aside for initial operations before stabilization." testId="field-operatingReserve">
-          <DollarInput value={acq.operatingReserve} onChange={(v) => onAcq("operatingReserve", v)} testId="input-operatingReserve" />
-        </FieldRow>
-        <FieldRow label="Months to Operations" tooltip="Expected months from closing to start of hotel operations." testId="field-monthsToOps">
-          <NumInput value={acq.monthsToOps} onChange={(v) => onAcq("monthsToOps", v)} testId="input-monthsToOps" />
-        </FieldRow>
-      </SectionCard>
+      <Section title="Default Acquisition Package" description="Standard purchase assumptions pre-filled when adding a new property to the portfolio.">
+        <DollarField
+          label="Purchase Price"
+          tooltip="Default property purchase price."
+          value={acq.purchasePrice}
+          fallback={5000000}
+          onChange={(_, v) => onAcq("purchasePrice", v)}
+          min={100000} max={100000000} step={100000}
+          testId="field-purchasePrice"
+        />
+        <DollarField
+          label="Building Improvements"
+          tooltip="Default capital for building improvements and renovations."
+          value={acq.buildingImprovements}
+          fallback={500000}
+          onChange={(_, v) => onAcq("buildingImprovements", v)}
+          min={0} max={50000000} step={50000}
+          testId="field-buildingImprovements"
+        />
+        <DollarField
+          label="Pre-Opening Costs"
+          tooltip="Costs incurred before the property begins operations (staffing, marketing, training)."
+          value={acq.preOpeningCosts}
+          fallback={150000}
+          onChange={(_, v) => onAcq("preOpeningCosts", v)}
+          min={0} max={5000000} step={10000}
+          testId="field-preOpeningCosts"
+        />
+        <DollarField
+          label="Operating Reserve"
+          tooltip="Cash reserve set aside for initial operations before stabilization."
+          value={acq.operatingReserve}
+          fallback={100000}
+          onChange={(_, v) => onAcq("operatingReserve", v)}
+          min={0} max={5000000} step={10000}
+          testId="field-operatingReserve"
+        />
+        <NumberField
+          label="Months to Operations"
+          tooltip="Expected months from closing to start of hotel operations."
+          value={acq.monthsToOps}
+          fallback={6}
+          onChange={(_, v) => onAcq("monthsToOps", Math.round(v))}
+          min={0} max={36} step={1}
+          testId="field-monthsToOps"
+        />
+      </Section>
     </div>
   );
 }
@@ -310,9 +774,7 @@ export default function ModelDefaultsTab({ onSaveStateChange }: ModelDefaultsTab
     setIsDirty(true);
   }, []);
 
-  // Use saveRef pattern (matches AIAgentsTab, ResearchCenterTab, IcpLocationTab)
-  // to avoid infinite loop — saveMutation is recreated every render by useMutation
-  const saveRef = useRef<() => void>();
+  const saveRef = useRef<(() => void) | undefined>(undefined);
   saveRef.current = () => saveMutation.mutate(draftRef.current);
 
   useEffect(() => {

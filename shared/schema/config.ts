@@ -301,6 +301,35 @@ export const globalAssumptions = pgTable("global_assumptions", {
   depreciationYears: real("depreciation_years").notNull().default(27.5),
   daysPerMonth: real("days_per_month").notNull().default(30.5),
 
+  // Property Revenue Defaults (nullable — NULL = use constant fallback from shared/constants.ts)
+  defaultStartAdr: real("default_start_adr"),
+  defaultAdrGrowthRate: real("default_adr_growth_rate"),
+  defaultStartOccupancy: real("default_start_occupancy"),
+  defaultMaxOccupancy: real("default_max_occupancy"),
+  defaultOccupancyRampMonths: integer("default_occupancy_ramp_months"),
+  defaultRoomCount: integer("default_room_count"),
+  defaultRevShareFb: real("default_rev_share_fb"),
+  defaultRevShareEvents: real("default_rev_share_events"),
+  defaultRevShareOther: real("default_rev_share_other"),
+  defaultCateringBoostPct: real("default_catering_boost_pct"),
+
+  // Property USALI Cost Rate Defaults (nullable — NULL = use constant fallback)
+  defaultCostRateRooms: real("default_cost_rate_rooms"),
+  defaultCostRateFb: real("default_cost_rate_fb"),
+  defaultCostRateAdmin: real("default_cost_rate_admin"),
+  defaultCostRateMarketing: real("default_cost_rate_marketing"),
+  defaultCostRatePropertyOps: real("default_cost_rate_property_ops"),
+  defaultCostRateUtilities: real("default_cost_rate_utilities"),
+  defaultCostRateTaxes: real("default_cost_rate_taxes"),
+  defaultCostRateIt: real("default_cost_rate_it"),
+  defaultCostRateFfe: real("default_cost_rate_ffe"),
+  defaultCostRateOther: real("default_cost_rate_other"),
+  defaultCostRateInsurance: real("default_cost_rate_insurance"),
+
+  // Property Tax & Depreciation Defaults (nullable — NULL = use constant fallback)
+  defaultPropertyTaxRate: real("default_property_tax_rate"),
+  defaultLandValuePercent: real("default_land_value_percent"),
+
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
   index("global_assumptions_user_id_idx").on(table.userId),
@@ -486,6 +515,29 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   lastFullResearchRefresh: true,
   depreciationYears: true,
   daysPerMonth: true,
+  defaultStartAdr: true,
+  defaultAdrGrowthRate: true,
+  defaultStartOccupancy: true,
+  defaultMaxOccupancy: true,
+  defaultOccupancyRampMonths: true,
+  defaultRoomCount: true,
+  defaultRevShareFb: true,
+  defaultRevShareEvents: true,
+  defaultRevShareOther: true,
+  defaultCateringBoostPct: true,
+  defaultCostRateRooms: true,
+  defaultCostRateFb: true,
+  defaultCostRateAdmin: true,
+  defaultCostRateMarketing: true,
+  defaultCostRatePropertyOps: true,
+  defaultCostRateUtilities: true,
+  defaultCostRateTaxes: true,
+  defaultCostRateIt: true,
+  defaultCostRateFfe: true,
+  defaultCostRateOther: true,
+  defaultCostRateInsurance: true,
+  defaultPropertyTaxRate: true,
+  defaultLandValuePercent: true,
 });
 
 export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumptions);

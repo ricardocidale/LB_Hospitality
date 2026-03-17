@@ -216,6 +216,9 @@ export const DEFAULT_ROOM_COUNT = 10;
 export const DEFAULT_START_ADR = 250;
 // Default stabilized max occupancy (85%)
 export const DEFAULT_MAX_OCCUPANCY = 0.85;
+export const DEFAULT_ADR_GROWTH_RATE = 0.03;
+export const DEFAULT_START_OCCUPANCY = 0.55;
+export const DEFAULT_PROPERTY_TAX_RATE = 0.012;
 
 // ──────────────────────────────────────────────────────────
 // INFLATION & COST ESCALATION

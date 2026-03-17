@@ -241,7 +241,7 @@ describe("generatePortfolioInvestmentData", () => {
 
     const irrRow = result.rows.find(r => r.category === "Portfolio IRR (%)");
     expect(irrRow).toBeDefined();
-    expect(irrRow!.values[0]).toBe(18);
+    expect(irrRow!.values[0]).toBe(0.18);
 
     const exitRow = result.rows.find(r => r.category === "Total Exit Value");
     expect(exitRow).toBeDefined();

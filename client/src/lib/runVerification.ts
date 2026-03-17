@@ -61,6 +61,7 @@ import {
   DEFAULT_COST_RATE_IT,
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
+  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_EVENT_EXPENSE_RATE,
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
@@ -129,6 +130,7 @@ function convertToAuditInput(property: any): PropertyAuditInput {
     costRateIT: property.costRateIT,
     costRateFFE: property.costRateFFE,
     costRateOther: property.costRateOther,
+    costRateInsurance: property.costRateInsurance,
     revShareEvents: property.revShareEvents,
     revShareFB: property.revShareFB,
     revShareOther: property.revShareOther,
@@ -398,11 +400,14 @@ function computeMonthlyPL(tc: TestCase) {
     totalRev * (tc.property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) +
     totalRev * ((tc.property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * DEFAULT_UTILITIES_VARIABLE_SPLIT);
 
+  const expenseInsurance = (totalPropertyValue / 12) * (tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE);
+
   const fixedExpenses =
     totalRev * (tc.property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) +
     totalRev * (tc.property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS) +
     totalRev * (tc.property.costRateIT ?? DEFAULT_COST_RATE_IT) +
     totalRev * ((tc.property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * (1 - DEFAULT_UTILITIES_VARIABLE_SPLIT)) +
+    expenseInsurance +
     totalRev * (tc.property.costRateOther ?? DEFAULT_COST_RATE_OTHER);
 
   const totalOpEx = varExpenses + fixedExpenses;
@@ -584,6 +589,7 @@ function buildEngineInputs(tc: TestCase): { property: any; global: any } {
       costRateIT: tc.property.costRateIT ?? DEFAULT_COST_RATE_IT,
       costRateFFE: tc.property.costRateFFE ?? DEFAULT_COST_RATE_FFE,
       costRateOther: tc.property.costRateOther ?? DEFAULT_COST_RATE_OTHER,
+      costRateInsurance: tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE,
       revShareEvents: tc.property.revShareEvents ?? DEFAULT_REV_SHARE_EVENTS,
       revShareFB: tc.property.revShareFB ?? DEFAULT_REV_SHARE_FB,
       revShareOther: tc.property.revShareOther ?? DEFAULT_REV_SHARE_OTHER,

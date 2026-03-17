@@ -74,6 +74,7 @@ export interface PropertyAuditInput {
   costRateIT: number;
   costRateFFE: number;
   costRateOther: number;
+  costRateInsurance?: number;
   revShareEvents: number;
   revShareFB: number;
   revShareOther: number;

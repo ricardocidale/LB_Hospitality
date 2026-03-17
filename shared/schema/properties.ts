@@ -22,7 +22,7 @@ import {
   DEFAULT_REV_SHARE_OTHER,
   DEFAULT_CATERING_BOOST_PCT,
   DEFAULT_EXIT_CAP_RATE,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_COMMISSION_RATE,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
@@ -128,7 +128,7 @@ export const properties = pgTable("properties", {
   exitCapRate: real("exit_cap_rate").notNull().default(DEFAULT_EXIT_CAP_RATE),
   
   // Tax Rate (for calculating after-tax free cash flow)
-  taxRate: real("tax_rate").notNull().default(DEFAULT_TAX_RATE),
+  taxRate: real("tax_rate").notNull().default(DEFAULT_PROPERTY_TAX_RATE),
 
   // Per-property inflation rate (nullable — NULL means use global default)
   inflationRate: real("inflation_rate"),

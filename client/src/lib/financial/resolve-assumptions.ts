@@ -33,7 +33,7 @@ import {
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DEFAULT_LAND_VALUE_PERCENT,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_OCCUPANCY_RAMP_MONTHS,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
@@ -188,7 +188,7 @@ export function resolvePropertyAssumptions(
   const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
   const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
   const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
-  const taxRate = property.taxRate ?? DEFAULT_TAX_RATE;
+  const taxRate = property.taxRate ?? DEFAULT_PROPERTY_TAX_RATE;
   const dayCountConvention = property.dayCountConvention ?? '30/360';
   const monthlyRate = loanRate / 12;
   const totalPayments = loanTerm * 12;

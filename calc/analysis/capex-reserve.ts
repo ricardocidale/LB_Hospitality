@@ -44,10 +44,27 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { rounder, RATIO_ROUNDING, sumArray } from "../shared/utils.js";
-import { DEFAULT_COST_RATE_FFE, DEFAULT_INFLATION_RATE } from "../../shared/constants.js";
+import {
+  DEFAULT_COST_RATE_FFE,
+  DEFAULT_PROPERTY_INFLATION_RATE,
+  CAPEX_ELEVATOR_MECHANICAL_COST,
+  CAPEX_ROOF_EXTERIOR_COST,
+  CAPEX_FB_EQUIPMENT_COST,
+  CAPEX_SPA_EQUIPMENT_COST,
+  CAPEX_SOFT_GOODS_PER_KEY,
+  CAPEX_CASE_GOODS_PER_KEY,
+  CAPEX_HVAC_PER_KEY,
+  CAPEX_TECH_PER_KEY,
+  CAPEX_SOFT_GOODS_LIFE_YEARS,
+  CAPEX_CASE_GOODS_LIFE_YEARS,
+  CAPEX_HVAC_LIFE_YEARS,
+  CAPEX_STRUCTURAL_LIFE_YEARS,
+  CAPEX_TECH_LIFE_YEARS,
+  CAPEX_FB_EQUIPMENT_LIFE_YEARS,
+  CAPEX_SPA_EQUIPMENT_LIFE_YEARS,
+  CAPEX_INDUSTRY_BENCHMARK_PER_KEY,
+} from "../../shared/constants.js";
 
-/** Industry benchmark: $5,000 per key per year for full-service hotel FF&E reserves (ISHC standard) */
-const INDUSTRY_BENCHMARK_PER_KEY = 5000;
 /** Funded ratio ≥ 100%: reserve contributions fully cover annualized replacement costs */
 const FUNDING_RATIO_ADEQUATE = 1.0;
 /** Funded ratio 75–99%: reserve is marginally short of full coverage */
@@ -117,8 +134,8 @@ export function computeCapexReserve(input: CapexReserveInput): CapexReserveOutpu
   const ratio = (v: number) => roundTo(v, RATIO_ROUNDING);
 
   const ffeRate = input.ffe_reserve_rate ?? DEFAULT_COST_RATE_FFE;
-  const revenueGrowth = input.revenue_growth_rate ?? DEFAULT_INFLATION_RATE;
-  const inflationRate = input.inflation_rate ?? DEFAULT_INFLATION_RATE;
+  const revenueGrowth = input.revenue_growth_rate ?? DEFAULT_PROPERTY_INFLATION_RATE;
+  const inflationRate = input.inflation_rate ?? DEFAULT_PROPERTY_INFLATION_RATE;
   const initialBalance = input.initial_reserve_balance ?? 0;
 
   const annual_reserve_amount = r(input.annual_revenue * ffeRate);
@@ -194,7 +211,7 @@ export function computeCapexReserve(input: CapexReserveInput): CapexReserveOutpu
     ? ratio(totalAnnualNeeded / input.annual_revenue)
     : ffeRate;
 
-  const industry_benchmark_per_key = INDUSTRY_BENCHMARK_PER_KEY;
+  const industry_benchmark_per_key = CAPEX_INDUSTRY_BENCHMARK_PER_KEY;
 
   let underfunding_risk: "adequate" | "marginal" | "underfunded" | "critical";
   const fundedRatio = totalAnnualNeeded > 0 ? annual_reserve_amount / totalAnnualNeeded : 1;
@@ -218,31 +235,15 @@ export function computeCapexReserve(input: CapexReserveInput): CapexReserveOutpu
   };
 }
 
-const ELEVATOR_MECHANICAL_COST = 150000;
-const ROOF_EXTERIOR_COST = 200000;
-const FB_EQUIPMENT_COST = 100000;
-const SPA_EQUIPMENT_COST = 75000;
-const SOFT_GOODS_LIFE = 5;
-const CASE_GOODS_LIFE = 10;
-const HVAC_LIFE = 15;
-const STRUCTURAL_LIFE = 20;
-const TECH_LIFE = 5;
-const FB_EQUIP_LIFE = 8;
-const SPA_EQUIP_LIFE = 7;
-const SOFT_GOODS_PER_KEY = 8000;
-const CASE_GOODS_PER_KEY = 12000;
-const HVAC_PER_KEY = 5000;
-const TECH_PER_KEY = 2000;
-
 function DEFAULT_CAPEX_CATEGORIES(roomCount: number): CapexCategory[] {
   return [
-    { label: "Soft Goods (bedding, drapes, carpet)", useful_life_years: SOFT_GOODS_LIFE, replacement_cost: roomCount * SOFT_GOODS_PER_KEY, age_years: 2 },
-    { label: "Case Goods (furniture, fixtures)", useful_life_years: CASE_GOODS_LIFE, replacement_cost: roomCount * CASE_GOODS_PER_KEY, age_years: 3 },
-    { label: "HVAC Systems", useful_life_years: HVAC_LIFE, replacement_cost: roomCount * HVAC_PER_KEY, age_years: 5 },
-    { label: "Elevator/Mechanical", useful_life_years: STRUCTURAL_LIFE, replacement_cost: ELEVATOR_MECHANICAL_COST, age_years: 8 },
-    { label: "Roof & Exterior", useful_life_years: STRUCTURAL_LIFE, replacement_cost: ROOF_EXTERIOR_COST, age_years: 7 },
-    { label: "Technology & PMS", useful_life_years: TECH_LIFE, replacement_cost: roomCount * TECH_PER_KEY, age_years: 1 },
-    { label: "F&B Equipment", useful_life_years: FB_EQUIP_LIFE, replacement_cost: FB_EQUIPMENT_COST, age_years: 3 },
-    { label: "Spa/Wellness Equipment", useful_life_years: SPA_EQUIP_LIFE, replacement_cost: SPA_EQUIPMENT_COST, age_years: 2 },
+    { label: "Soft Goods (bedding, drapes, carpet)", useful_life_years: CAPEX_SOFT_GOODS_LIFE_YEARS, replacement_cost: roomCount * CAPEX_SOFT_GOODS_PER_KEY, age_years: 2 },
+    { label: "Case Goods (furniture, fixtures)", useful_life_years: CAPEX_CASE_GOODS_LIFE_YEARS, replacement_cost: roomCount * CAPEX_CASE_GOODS_PER_KEY, age_years: 3 },
+    { label: "HVAC Systems", useful_life_years: CAPEX_HVAC_LIFE_YEARS, replacement_cost: roomCount * CAPEX_HVAC_PER_KEY, age_years: 5 },
+    { label: "Elevator/Mechanical", useful_life_years: CAPEX_STRUCTURAL_LIFE_YEARS, replacement_cost: CAPEX_ELEVATOR_MECHANICAL_COST, age_years: 8 },
+    { label: "Roof & Exterior", useful_life_years: CAPEX_STRUCTURAL_LIFE_YEARS, replacement_cost: CAPEX_ROOF_EXTERIOR_COST, age_years: 7 },
+    { label: "Technology & PMS", useful_life_years: CAPEX_TECH_LIFE_YEARS, replacement_cost: roomCount * CAPEX_TECH_PER_KEY, age_years: 1 },
+    { label: "F&B Equipment", useful_life_years: CAPEX_FB_EQUIPMENT_LIFE_YEARS, replacement_cost: CAPEX_FB_EQUIPMENT_COST, age_years: 3 },
+    { label: "Spa/Wellness Equipment", useful_life_years: CAPEX_SPA_EQUIPMENT_LIFE_YEARS, replacement_cost: CAPEX_SPA_EQUIPMENT_COST, age_years: 2 },
   ];
 }

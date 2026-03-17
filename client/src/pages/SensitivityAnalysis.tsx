@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
-import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAULT_INFLATION_RATE, DEFAULT_COST_RATE_INSURANCE } from "@/lib/constants";
+import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAULT_PROPERTY_INFLATION_RATE, DEFAULT_COST_RATE_INSURANCE } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -96,7 +96,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           inflationRate: Math.max(0, global.inflationRate + (overrides.inflation ?? 0) / 100),
           fixedCostEscalationRate: Math.max(
             0,
-            (global.fixedCostEscalationRate ?? DEFAULT_INFLATION_RATE) + (overrides.expenseGrowth ?? 0) / 100
+            (global.fixedCostEscalationRate ?? DEFAULT_PROPERTY_INFLATION_RATE) + (overrides.expenseGrowth ?? 0) / 100
           ),
         };
 

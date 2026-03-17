@@ -67,7 +67,7 @@ import {
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_MARKETING_RATE,
 } from "./constants";
 
@@ -432,7 +432,7 @@ function computeMonthlyPL(tc: TestCase) {
   }
 
   const taxableIncome = anoi - interest - monthlyDep;
-  const incomeTax = taxableIncome > 0 ? taxableIncome * (tc.property.taxRate ?? DEFAULT_TAX_RATE) : 0;
+  const incomeTax = taxableIncome > 0 ? taxableIncome * (tc.property.taxRate ?? DEFAULT_PROPERTY_TAX_RATE) : 0;
   const netIncome = anoi - interest - monthlyDep - incomeTax;
   const cashFlow = anoi - tc.expectedMonthlyPayment - incomeTax;
 
@@ -577,7 +577,7 @@ function buildEngineInputs(tc: TestCase): { property: any; global: any } {
       acquisitionLTV: tc.property.acquisitionLTV ?? DEFAULT_LTV,
       acquisitionInterestRate: tc.property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE,
       acquisitionTermYears: tc.property.acquisitionTermYears ?? DEFAULT_TERM_YEARS,
-      taxRate: tc.property.taxRate ?? DEFAULT_TAX_RATE,
+      taxRate: tc.property.taxRate ?? DEFAULT_PROPERTY_TAX_RATE,
       inflationRate: 0,
       costRateRooms: tc.property.costRateRooms ?? DEFAULT_COST_RATE_ROOMS,
       costRateFB: tc.property.costRateFB ?? DEFAULT_COST_RATE_FB,

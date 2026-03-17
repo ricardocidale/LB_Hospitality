@@ -23,9 +23,9 @@ import { GaapBadge } from "@/components/ui/gaap-badge";
 import { MarketRateBenchmark } from "@/components/property-research/MarketRateBenchmark";
 import {
   DEFAULT_EXIT_CAP_RATE,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_COMMISSION_RATE,
-  DEFAULT_INFLATION_RATE,
+  DEFAULT_PROPERTY_INFLATION_RATE,
 } from "@/lib/constants";
 import type { OtherAssumptionsSectionProps } from "./types";
 
@@ -93,7 +93,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
                 <ResearchBadge entry={researchValues.incomeTax} onClick={() => researchValues.incomeTax && onChange("taxRate", researchValues.incomeTax.mid / 100)} />
               </div>
               <EditableValue
-                value={(draft.taxRate ?? DEFAULT_TAX_RATE) * 100}
+                value={(draft.taxRate ?? DEFAULT_PROPERTY_TAX_RATE) * 100}
                 onChange={(val) => onChange("taxRate", val / 100)}
                 format="percent"
                 min={0}
@@ -102,7 +102,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               />
             </div>
             <Slider 
-              value={[(draft.taxRate ?? DEFAULT_TAX_RATE) * 100]}
+              value={[(draft.taxRate ?? DEFAULT_PROPERTY_TAX_RATE) * 100]}
               onValueChange={(vals: number[]) => onChange("taxRate", vals[0] / 100)}
               min={0}
               max={50}
@@ -122,7 +122,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
                 <ResearchBadge entry={researchValues.inflationRate} onClick={() => researchValues.inflationRate && onChange("inflationRate", researchValues.inflationRate.mid / 100)} />
               </div>
               <EditableValue
-                value={draft.inflationRate != null ? draft.inflationRate * 100 : DEFAULT_INFLATION_RATE * 100}
+                value={draft.inflationRate != null ? draft.inflationRate * 100 : DEFAULT_PROPERTY_INFLATION_RATE * 100}
                 onChange={(val) => onChange("inflationRate", val / 100)}
                 format="percent"
                 min={0}
@@ -131,7 +131,7 @@ export default function OtherAssumptionsSection({ draft, onChange, researchValue
               />
             </div>
             <Slider 
-              value={[(draft.inflationRate ?? DEFAULT_INFLATION_RATE) * 100]}
+              value={[(draft.inflationRate ?? DEFAULT_PROPERTY_INFLATION_RATE) * 100]}
               onValueChange={(vals: number[]) => onChange("inflationRate", vals[0] / 100)}
               min={0}
               max={20}

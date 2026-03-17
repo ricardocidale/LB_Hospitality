@@ -1,4 +1,4 @@
-import { DEFAULT_INFLATION_RATE } from "../../shared/constants";
+import { DEFAULT_PROPERTY_INFLATION_RATE } from "../../shared/constants";
 
 /**
  * Shared test fixtures — single source of truth for baseProperty and baseGlobal.
@@ -42,8 +42,8 @@ export const baseProperty = {
 export const baseGlobal = {
   modelStartDate: "2026-04-01",
   projectionYears: 2,
-  inflationRate: DEFAULT_INFLATION_RATE,
-  fixedCostEscalationRate: DEFAULT_INFLATION_RATE,
+  inflationRate: DEFAULT_PROPERTY_INFLATION_RATE,
+  fixedCostEscalationRate: DEFAULT_PROPERTY_INFLATION_RATE,
   baseManagementFee: 0.05,
   incentiveManagementFee: 0.15,
   marketingRate: 0.05,

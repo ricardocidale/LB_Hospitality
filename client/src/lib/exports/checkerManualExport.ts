@@ -22,7 +22,7 @@ import { apiRequest } from "@/lib/queryClient";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COMMISSION_RATE,
-  DEFAULT_INFLATION_RATE,
+  DEFAULT_PROPERTY_INFLATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
 } from "@shared/constants";
 
@@ -378,7 +378,7 @@ export async function exportFullData(user: { email?: string; role?: string; comp
     ["Projection Years", String(projYears)],
     ["Company Ops Start", global.companyOpsStartDate || "—"],
     ["Fiscal Year Start Month", String(global.fiscalYearStartMonth ?? 1)],
-    ["Global Inflation Rate", `${((global.inflationRate ?? DEFAULT_INFLATION_RATE) * 100).toFixed(1)}%`],
+    ["Global Inflation Rate", `${((global.inflationRate ?? DEFAULT_PROPERTY_INFLATION_RATE) * 100).toFixed(1)}%`],
     ["Company Inflation Rate", global.companyInflationRate ? `${(global.companyInflationRate * 100).toFixed(1)}%` : "Global Default"],
     ["Fixed Cost Escalation Override", global.fixedCostEscalationRate ? `${(global.fixedCostEscalationRate * 100).toFixed(1)}%` : "Global Default"],
     ["Management Fees", "Per-property (see property details)"],

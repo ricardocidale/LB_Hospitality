@@ -10,7 +10,7 @@ import { processNotificationEvent, evaluateAlertRules } from "../notifications/e
 import { createEvent } from "../notifications/events";
 import {
   DEFAULT_EXIT_CAP_RATE,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_COMMISSION_RATE,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
@@ -55,7 +55,7 @@ export function buildPropertyDefaultsFromGlobal(ga?: GlobalAssumptions): Record<
   const debt = (ga?.debtAssumptions as DebtAssumptions) ?? {};
   return {
     exitCapRate: ga?.exitCapRate ?? DEFAULT_EXIT_CAP_RATE,
-    taxRate: ga?.defaultPropertyTaxRate ?? DEFAULT_TAX_RATE,
+    taxRate: ga?.defaultPropertyTaxRate ?? DEFAULT_PROPERTY_TAX_RATE,
     dispositionCommission: ga?.salesCommissionRate ?? DEFAULT_COMMISSION_RATE,
     baseManagementFeeRate: ga?.baseManagementFee ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE,
     incentiveManagementFeeRate: ga?.incentiveManagementFee ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,

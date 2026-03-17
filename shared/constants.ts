@@ -140,8 +140,12 @@ export const DEFAULT_SERVICE_TEMPLATES = [
 // Cap rate applied to trailing NOI to compute exit (sale) price.
 // Exit price = NOI / Cap Rate. A lower cap rate = higher valuation.
 export const DEFAULT_EXIT_CAP_RATE = 0.085;
-// Income tax rate applied to gain on sale
-export const DEFAULT_TAX_RATE = 0.25;
+// Income tax rate applied to each property SPV's taxable income.
+// This is the per-entity default for property-level income tax.
+// The management company has its own rate: DEFAULT_COMPANY_TAX_RATE.
+export const DEFAULT_PROPERTY_TAX_RATE = 0.25;
+/** @deprecated Use DEFAULT_PROPERTY_TAX_RATE — entity-specific naming */
+export const DEFAULT_TAX_RATE = DEFAULT_PROPERTY_TAX_RATE;
 // Broker commission on property sale (% of sale price)
 export const DEFAULT_COMMISSION_RATE = 0.05;
 
@@ -223,11 +227,17 @@ export const DEFAULT_START_OCCUPANCY = 0.55;
 // INFLATION & COST ESCALATION
 // ──────────────────────────────────────────────────────────
 
-// System-wide default inflation rate (CPI-based).
-// This is the global fallback; individual properties and the management
-// company may override with their own location-specific rates.
-// Cascade order:  property.inflationRate → companyInflationRate → this value
-export const DEFAULT_INFLATION_RATE = 0.03;
+// Default inflation rate for property SPV cost escalation.
+// Each property can override with its own rate on the Property Edit screen.
+// Cascade: property.inflationRate → global.inflationRate → this value
+export const DEFAULT_PROPERTY_INFLATION_RATE = 0.03;
+/** @deprecated Use DEFAULT_PROPERTY_INFLATION_RATE — entity-specific naming */
+export const DEFAULT_INFLATION_RATE = DEFAULT_PROPERTY_INFLATION_RATE;
+
+// Default inflation rate for management company overhead escalation.
+// Set by the user on the Company Assumptions screen.
+// Cascade: global.companyInflationRate → global.inflationRate → this value
+export const DEFAULT_COMPANY_INFLATION_RATE = 0.03;
 
 // Annual escalation rate for fixed operating expenses (office lease,
 // professional services). Applied as compound growth each year.
@@ -398,6 +408,36 @@ export const COST_SEG_15YR_LIFE_MONTHS = 180;
 export const COST_SEG_5YR_LIFE_YEARS = 5;
 export const COST_SEG_7YR_LIFE_YEARS = 7;
 export const COST_SEG_15YR_LIFE_YEARS = 15;
+
+// ── CapEx Reserve Benchmarks (ISHC / HVS Reserve Study Standards) ────────────
+// Default replacement costs for full-service hotel FF&E components.
+// Fixed costs are property-level (independent of room count).
+// Per-key costs scale with room count.
+// Source: ISHC Lodging Maintenance Standards 2024, HVS Reserve Studies
+
+// Fixed replacement costs (full-service hotel average)
+export const CAPEX_ELEVATOR_MECHANICAL_COST = 150_000;     // Elevator/mechanical systems
+export const CAPEX_ROOF_EXTERIOR_COST = 200_000;           // Roof & building exterior
+export const CAPEX_FB_EQUIPMENT_COST = 100_000;            // Restaurant/bar kitchen equipment
+export const CAPEX_SPA_EQUIPMENT_COST = 75_000;            // Spa/wellness facility equipment
+
+// Per-key replacement costs (per occupied room unit)
+export const CAPEX_SOFT_GOODS_PER_KEY = 8_000;             // Bedding, drapes, carpet
+export const CAPEX_CASE_GOODS_PER_KEY = 12_000;            // Furniture, fixtures
+export const CAPEX_HVAC_PER_KEY = 5_000;                   // HVAC systems per room
+export const CAPEX_TECH_PER_KEY = 2_000;                   // Technology/PMS per room
+
+// Useful life in years (replacement cycle)
+export const CAPEX_SOFT_GOODS_LIFE_YEARS = 5;
+export const CAPEX_CASE_GOODS_LIFE_YEARS = 10;
+export const CAPEX_HVAC_LIFE_YEARS = 15;
+export const CAPEX_STRUCTURAL_LIFE_YEARS = 20;             // Elevator, roof, exterior
+export const CAPEX_TECH_LIFE_YEARS = 5;
+export const CAPEX_FB_EQUIPMENT_LIFE_YEARS = 8;
+export const CAPEX_SPA_EQUIPMENT_LIFE_YEARS = 7;
+
+// Industry benchmark: $5,000 per key per year for full-service hotel FF&E reserves
+export const CAPEX_INDUSTRY_BENCHMARK_PER_KEY = 5_000;
 
 // ── Loan / Financing Defaults ──────────────────────────────────────────────
 export const DEFAULT_LTV = 0.75;

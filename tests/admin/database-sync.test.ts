@@ -21,7 +21,7 @@ import {
   DEFAULT_SERVICE_FEE_CATEGORIES,
   DEFAULT_SAFE_VALUATION_CAP,
   DEFAULT_SAFE_DISCOUNT_RATE,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
 } from "../../shared/constants.js";
 
 const SEED_GLOBAL_ASSUMPTIONS = {
@@ -318,7 +318,7 @@ describe("Database Sync — Seed Constants Integrity", () => {
     });
 
     it("company tax rate (30%) exceeds property tax rate (25%)", () => {
-      expect(DEFAULT_COMPANY_TAX_RATE).toBeGreaterThan(DEFAULT_TAX_RATE);
+      expect(DEFAULT_COMPANY_TAX_RATE).toBeGreaterThan(DEFAULT_PROPERTY_TAX_RATE);
     });
 
     it("incentive fee rate exceeds base management fee rate", () => {

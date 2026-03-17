@@ -5,7 +5,7 @@ import { aiRateLimit } from "../middleware/rate-limit";
 import { storage } from "../storage";
 import { buildPropertyContext } from "../ai/buildPropertyContext.js";
 import { z } from "zod";
-import { DEFAULT_PROJECTION_YEARS, DEFAULT_INFLATION_RATE } from "@shared/constants";
+import { DEFAULT_PROJECTION_YEARS, DEFAULT_PROPERTY_INFLATION_RATE } from "@shared/constants";
 
 /**
  * CONTRACT: This endpoint provides AI chat about portfolio properties.
@@ -92,7 +92,7 @@ export function register(app: Express) {
         `Company: ${ga?.companyName ?? "Management Company"}`,
         `Properties in Portfolio: ${properties.length}`,
         `Projection Years: ${ga?.projectionYears ?? DEFAULT_PROJECTION_YEARS}`,
-        `Inflation Rate: ${((ga?.inflationRate ?? DEFAULT_INFLATION_RATE) * 100).toFixed(1)}%`,
+        `Inflation Rate: ${((ga?.inflationRate ?? DEFAULT_PROPERTY_INFLATION_RATE) * 100).toFixed(1)}%`,
         `Base Management Fee: ${(baseFee * 100).toFixed(1)}%`,
         `Incentive Management Fee: ${(incentiveFee * 100).toFixed(1)}%`,
         "",

@@ -3,13 +3,13 @@ import { checkPropertyFormulas, checkMetricFormulas } from "../../client/src/lib
 import { crossValidateFinancingCalculators } from "../../client/src/lib/audits/crossCalculatorValidation";
 import { runIndependentVerification } from "../../server/calculationChecker";
 import { generatePropertyProForma } from "../../client/src/lib/financial/property-engine";
-import { DEFAULT_INFLATION_RATE } from "../../shared/constants";
+import { DEFAULT_PROPERTY_INFLATION_RATE } from "../../shared/constants";
 
 const GLOBAL = {
   modelStartDate: "2026-01-01",
   projectionYears: 3,
-  inflationRate: DEFAULT_INFLATION_RATE,
-  fixedCostEscalationRate: DEFAULT_INFLATION_RATE,
+  inflationRate: DEFAULT_PROPERTY_INFLATION_RATE,
+  fixedCostEscalationRate: DEFAULT_PROPERTY_INFLATION_RATE,
 };
 
 const CASH_PROPERTY = {

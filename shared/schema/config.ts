@@ -27,7 +27,7 @@ import {
   DEFAULT_BUSINESS_INSURANCE_START,
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COST_OF_EQUITY,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_LAND_VALUE_PERCENT,
@@ -50,7 +50,7 @@ import {
   DEFAULT_MARCELA_MAX_DURATION,
   DEFAULT_MARCELA_CASCADE_TIMEOUT,
   DEFAULT_MAX_STALENESS_HOURS,
-  DEFAULT_INFLATION_RATE,
+  DEFAULT_PROPERTY_INFLATION_RATE,
   DEFAULT_AR_DAYS,
   DEFAULT_AP_DAYS,
   DEFAULT_REINVESTMENT_RATE,
@@ -101,7 +101,7 @@ export const globalAssumptions = pgTable("global_assumptions", {
   projectionYears: integer("projection_years").notNull().default(DEFAULT_PROJECTION_YEARS),
   companyOpsStartDate: text("company_ops_start_date").notNull().default("2026-06-01"),
   fiscalYearStartMonth: integer("fiscal_year_start_month").notNull().default(1), // 1 = January, 4 = April, etc.
-  inflationRate: real("inflation_rate").notNull().default(DEFAULT_INFLATION_RATE),
+  inflationRate: real("inflation_rate").notNull().default(DEFAULT_PROPERTY_INFLATION_RATE),
   fixedCostEscalationRate: real("fixed_cost_escalation_rate").notNull().default(DEFAULT_FIXED_COST_ESCALATION_RATE),
 
   // Company-specific inflation rate (nullable — NULL means use global inflationRate)

@@ -1,7 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { computeCapexReserve } from "../../calc/analysis/capex-reserve.js";
 import type { CapexReserveInput } from "../../calc/analysis/capex-reserve.js";
-import { DEFAULT_COST_RATE_FFE } from "../../shared/constants.js";
+import {
+  DEFAULT_COST_RATE_FFE,
+  CAPEX_INDUSTRY_BENCHMARK_PER_KEY,
+  CAPEX_SOFT_GOODS_PER_KEY,
+  CAPEX_CASE_GOODS_PER_KEY,
+  CAPEX_HVAC_PER_KEY,
+  CAPEX_TECH_PER_KEY,
+  CAPEX_ELEVATOR_MECHANICAL_COST,
+  CAPEX_ROOF_EXTERIOR_COST,
+  CAPEX_FB_EQUIPMENT_COST,
+  CAPEX_SPA_EQUIPMENT_COST,
+} from "../../shared/constants.js";
 
 const rounding = { precision: 2, bankers_rounding: false };
 
@@ -89,9 +100,31 @@ describe("CapEx Reserve Calculator", () => {
     expect(result.minimum_recommended_rate).toBeGreaterThan(0);
   });
 
-  it("industry benchmark is $5,000 per key", () => {
+  it("industry benchmark is $5,000 per key (from shared constants)", () => {
     const result = computeCapexReserve(makeInput());
+    expect(result.industry_benchmark_per_key).toBe(CAPEX_INDUSTRY_BENCHMARK_PER_KEY);
     expect(result.industry_benchmark_per_key).toBe(5000);
+  });
+
+  it("default categories use shared constants for costs", () => {
+    const result = computeCapexReserve(makeInput());
+    const roomCount = 30;
+    const softGoods = result.category_status.find(c => c.label.includes("Soft Goods"))!;
+    expect(softGoods.replacement_cost).toBe(roomCount * CAPEX_SOFT_GOODS_PER_KEY);
+    const caseGoods = result.category_status.find(c => c.label.includes("Case Goods"))!;
+    expect(caseGoods.replacement_cost).toBe(roomCount * CAPEX_CASE_GOODS_PER_KEY);
+    const hvac = result.category_status.find(c => c.label.includes("HVAC"))!;
+    expect(hvac.replacement_cost).toBe(roomCount * CAPEX_HVAC_PER_KEY);
+    const tech = result.category_status.find(c => c.label.includes("Technology"))!;
+    expect(tech.replacement_cost).toBe(roomCount * CAPEX_TECH_PER_KEY);
+    const elevator = result.category_status.find(c => c.label.includes("Elevator"))!;
+    expect(elevator.replacement_cost).toBe(CAPEX_ELEVATOR_MECHANICAL_COST);
+    const roof = result.category_status.find(c => c.label.includes("Roof"))!;
+    expect(roof.replacement_cost).toBe(CAPEX_ROOF_EXTERIOR_COST);
+    const fb = result.category_status.find(c => c.label.includes("F&B"))!;
+    expect(fb.replacement_cost).toBe(CAPEX_FB_EQUIPMENT_COST);
+    const spa = result.category_status.find(c => c.label.includes("Spa"))!;
+    expect(spa.replacement_cost).toBe(CAPEX_SPA_EQUIPMENT_COST);
   });
 
   it("supports custom categories", () => {

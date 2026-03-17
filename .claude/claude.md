@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 825 source files, ~145K lines, 3,166 tests across 138 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 841 source files, ~148K lines, 3,306 tests across 143 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 
@@ -54,7 +54,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,166 tests, 583 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,306 tests, 583 golden tests, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
 | Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
@@ -101,7 +101,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (3,166 Tests, 138 Files)
+## Testing & Proof System (3,306 Tests, 143 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -111,7 +111,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 3,166) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 3,306) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
@@ -120,7 +120,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 - **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic (broken Agent Skills stub) to Gemini 2.0 Flash. Removed dead `agentSkillsExport` code path. Completely redesigned PDF rendering with enterprise-quality design: full-bleed navy cover page, branded section headers, decorative page chrome, KPI cards, warm callout blocks, professional footer treatment. Both server-side premium PDF and client-side comprehensive dashboard PDF upgraded.
 - **Model Defaults Admin Section** — New "Model Defaults" tab in Admin > Business group. Two sub-tabs: Market & Macro (inflation, cost of equity, days per month, fiscal calendar) and Property Underwriting (expense rates, acquisition/refi financing, depreciation, exit/disposition, default acquisition package). Consolidates all financial seed/default values into one place. Uses GovernedFieldWrapper for IRS/industry-standard values.
 - **Verification Bug Fixes** — Fixed DSCR check (was failing for pre-operational Year 1 properties), fixed Net Income/Cash Flow identity checks (were using naive tax formula ignoring NOL carryforward). Added `incomeTax` to checker engine output.
-- **Multi-Vendor Research LLMs** — Removed Anthropic-only constraint from research engine. Created vendor-agnostic `ResearchClient` abstraction (`server/ai/research-client.ts`) with adapters for Anthropic, OpenAI, and Gemini. Two-model waterfall works across all three vendors. Admin Research Center vendor selector now offers all three options. Stats: 825 source files, ~145K lines.
+- **Multi-Vendor Research LLMs** — Removed Anthropic-only constraint from research engine. Created vendor-agnostic `ResearchClient` abstraction (`server/ai/research-client.ts`) with adapters for Anthropic, OpenAI, and Gemini. Two-model waterfall works across all three vendors. Admin Research Center vendor selector now offers all three options. Stats: 841 source files, ~148K lines.
 - **Settings Elimination & Access Control** (Task #168) — Eliminated General Settings page. Migrated calc transparency + tour toggles to Admin Navigation tab, auto-research to Research Center tab. Company Assumptions restricted to admin-only. Non-admins get read-only Model Inputs panel on Company page. `/settings` redirects role-appropriately. Deleted 5 settings components (−684 lines).
 - **Governance Harmonization** (Task #153) — Created 7 new `.claude/skills/` files. All 13 `.agents/skills/` files converted to slim pointers.
 - **Configuration Architecture Terminology Refresh** (Tasks #180–182) — Standardized vocabulary: "seed defaults" (templates for new properties), "live assumptions" (engine reads directly), "config switches" (UI toggles). Documented dual-residence principle: most financial parameters exist in both Model Defaults (seed) and Company Assumptions (live). Fixed `defaultPropertyTaxRate` (income tax 25%, not property tax 1.2%). Eliminated `/settings` page. Removed CateringSection placeholder. Updated skills: `settings/SKILL.md`, `constants-governance/SKILL.md`.
@@ -201,7 +201,7 @@ All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify (~4 lines)
-npm run test:summary   # All 3,166 tests, 1-line output
+npm run test:summary   # All 3,306 tests, 1-line output
 npm run verify:summary # 7-phase verification, compact output
 npm run db:push        # Push schema changes
 npm run diff:summary   # Compact git status + diff stat

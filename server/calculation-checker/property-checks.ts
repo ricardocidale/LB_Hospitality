@@ -17,7 +17,7 @@ import {
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
   DEFAULT_COST_RATE_INSURANCE,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
   DEPRECIATION_YEARS,
   DAYS_PER_MONTH,
   DEFAULT_LAND_VALUE_PERCENT,
@@ -312,9 +312,9 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       const maxUtil = preTaxIncome * NOL_UTILIZATION_CAP;
       const nolUsed = Math.min(nolBalance, maxUtil);
       nolBalance -= nolUsed;
-      incomeTax = (preTaxIncome - nolUsed) > 0 ? (preTaxIncome - nolUsed) * (property.taxRate ?? DEFAULT_TAX_RATE) : 0;
+      incomeTax = (preTaxIncome - nolUsed) > 0 ? (preTaxIncome - nolUsed) * (property.taxRate ?? DEFAULT_PROPERTY_TAX_RATE) : 0;
     } else {
-      incomeTax = preTaxIncome > 0 ? preTaxIncome * (property.taxRate ?? DEFAULT_TAX_RATE) : 0;
+      incomeTax = preTaxIncome > 0 ? preTaxIncome * (property.taxRate ?? DEFAULT_PROPERTY_TAX_RATE) : 0;
     }
     const netIncome = anoi - interestExpense - depreciationExpense - incomeTax;
     const cashFlow = anoi - debtPayment - incomeTax;

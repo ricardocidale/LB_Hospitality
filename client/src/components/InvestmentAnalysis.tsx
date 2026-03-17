@@ -26,7 +26,7 @@ import { formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
 import {
   PROJECTION_YEARS,
   DEFAULT_EXIT_CAP_RATE,
-  DEFAULT_TAX_RATE,
+  DEFAULT_PROPERTY_TAX_RATE,
   IRR_HIGHLIGHT_THRESHOLD,
 } from "@/lib/constants";
 import { DEFAULT_COST_OF_EQUITY } from "@shared/constants";
@@ -414,7 +414,7 @@ export function InvestmentAnalysis({
                     <TableRow key={prop.id} className="bg-muted/5" data-testid={`fcf-property-${prop.id}`}>
                       <TableCell className="sticky left-0 bg-muted/5 pl-12 text-sm text-muted-foreground">
                         {prop.name}
-                        <span className="text-xs ml-2">({((prop.taxRate ?? DEFAULT_TAX_RATE) * 100).toFixed(0)}% income tax)</span>
+                        <span className="text-xs ml-2">({((prop.taxRate ?? DEFAULT_PROPERTY_TAX_RATE) * 100).toFixed(0)}% income tax)</span>
                       </TableCell>
                       <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
@@ -583,7 +583,7 @@ export function InvestmentAnalysis({
                   <TableRow key={prop.id}>
                     <TableCell className="font-medium">{prop.name}</TableCell>
                     <TableCell className="text-right font-mono">{formatMoney(equity)}</TableCell>
-                    <TableCell className="text-right">{((prop.taxRate ?? DEFAULT_TAX_RATE) * 100).toFixed(0)}%</TableCell>
+                    <TableCell className="text-right">{((prop.taxRate ?? DEFAULT_PROPERTY_TAX_RATE) * 100).toFixed(0)}%</TableCell>
                     <TableCell className="text-right">{((prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE) * 100).toFixed(1)}%</TableCell>
                     <TableCell className="text-right text-accent">{formatMoney(exitValue)}</TableCell>
                     <TableCell className="text-right font-mono">{formatMoney(totalDistributions)}</TableCell>
@@ -622,7 +622,7 @@ export function InvestmentAnalysis({
         <CardContent className="overflow-x-auto">
           {(() => {
             // WACC computation: (E/V × Re) + (D/V × Rd × (1-T))
-            const taxRate = global?.companyTaxRate ?? DEFAULT_TAX_RATE;
+            const taxRate = global?.companyTaxRate ?? DEFAULT_PROPERTY_TAX_RATE;
             const costOfEquity = global?.costOfEquity ?? DEFAULT_COST_OF_EQUITY;
 
             let totalEquity = 0;

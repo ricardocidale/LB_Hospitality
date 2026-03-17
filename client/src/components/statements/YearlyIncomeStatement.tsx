@@ -52,7 +52,7 @@ import {
   DEFAULT_REV_SHARE_FB,
   DEFAULT_REV_SHARE_OTHER,
   DEFAULT_CATERING_BOOST_PCT,
-  DEFAULT_INFLATION_RATE,
+  DEFAULT_PROPERTY_INFLATION_RATE,
 } from "@shared/constants";
 
 interface Props {
@@ -112,7 +112,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
     baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
 
     totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
-    fixedEscRate = global.fixedCostEscalationRate ?? property.inflationRate ?? global.inflationRate ?? DEFAULT_INFLATION_RATE;
+    fixedEscRate = global.fixedCostEscalationRate ?? property.inflationRate ?? global.inflationRate ?? DEFAULT_PROPERTY_INFLATION_RATE;
     costRates = {
       propertyOps: property.costRatePropertyOps ?? DEFAULT_COST_RATE_PROPERTY_OPS,
       utilities: property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES,

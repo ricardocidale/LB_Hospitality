@@ -29,6 +29,16 @@ const EXPECTED_TOOLS = [
   "compute_property_metrics",
   "compute_depreciation_basis",
   "compute_debt_capacity",
+  "compute_occupancy_ramp",
+  "compute_adr_projection",
+  "compute_cap_rate_valuation",
+  "compute_cost_benchmarks",
+  "compute_service_fee",
+  "compute_markup_waterfall",
+  "compute_make_vs_buy",
+  "compute_wacc",
+  "compute_portfolio_wacc",
+  "compute_mirr",
 ];
 
 describe("isComputationTool", () => {
@@ -61,13 +71,11 @@ describe("executeComputationTool", () => {
   });
 
   it("returns error JSON for invalid inputs instead of throwing", () => {
-    // Pass null where array is expected — should catch error
     const result = executeComputationTool("validate_financial_identities", {
       invalidData: true,
     });
     expect(result).not.toBeNull();
     const parsed = JSON.parse(result!);
-    // Either a valid result or an error object
     expect(typeof parsed).toBe("object");
   });
 
@@ -107,5 +115,18 @@ describe("executeComputationTool", () => {
     });
     const parsed = JSON.parse(result!);
     expect(parsed.debt_yield).toBeCloseTo(0.10, 2);
+  });
+
+  it("MIRR computes modified return rate", () => {
+    const result = executeComputationTool("compute_mirr", {
+      cash_flow_vector: [-1000000, 300000, 400000, 500000, 600000],
+      finance_rate: 0.10,
+      reinvestment_rate: 0.12,
+    });
+    expect(result).not.toBeNull();
+    const parsed = JSON.parse(result!);
+    expect(parsed.is_valid).toBe(true);
+    expect(parsed.mirr).toBeGreaterThan(0);
+    expect(parsed.mirr).toBeLessThan(1);
   });
 });

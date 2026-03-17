@@ -1,8 +1,8 @@
 # Audit Fix Plan: Deterministic Calculations & Rollups
 
-## Instructions for Executing Agent
+## Status: ALL RESOLVED (March 17, 2026)
 
-You are fixing 5 issues identified by an audit of the deterministic calculation tools and server-side checker. **Issue #1 (CapEx constants) and #4 (exit-valuation rounding) are already resolved** — do not touch those.
+All 7 issues plus pre-steps are complete. 3,320 tests pass across 145 files. Issues #1 and #4 were previously resolved. Issues #2, #3, #5, #6, #7 and Pre-Step resolved in this session.
 
 **Read every file mentioned below before editing it.** Follow the execution order exactly. After each fix, run the indicated test. After all fixes, run the full suite.
 

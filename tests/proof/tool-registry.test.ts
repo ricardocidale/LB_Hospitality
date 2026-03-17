@@ -65,7 +65,7 @@ describe("Tool Registry — Dispatch Completeness", () => {
   const schemaNames = listJsonSchemas();
 
   it("dispatch.ts contains registered tools", () => {
-    expect(toolNames.length).toBeGreaterThanOrEqual(33);
+    expect(toolNames.length).toBeGreaterThanOrEqual(37);
   });
 
   it("every dispatched tool has a JSON schema in .claude/tools/", () => {
@@ -76,8 +76,8 @@ describe("Tool Registry — Dispatch Completeness", () => {
     ).toEqual([]);
   });
 
-  it("documented tool count (36) matches actual dispatch count", () => {
-    expect(toolNames.length).toBe(36);
+  it("documented tool count (37) matches actual dispatch count", () => {
+    expect(toolNames.length).toBe(37);
   });
 });
 

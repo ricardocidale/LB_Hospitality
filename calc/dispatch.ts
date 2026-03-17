@@ -14,6 +14,7 @@
  *     - exit_valuation: Property sale value using cap rate method
  *     - compute_wacc: Weighted Average Cost of Capital (single property)
  *     - compute_portfolio_wacc: Capital-weighted WACC across portfolio
+ *     - compute_mirr: Modified Internal Rate of Return
  *
  *   Validation Checks:
  *     - validate_financial_identities: Verify math relationships (Revenue = ADR × Rooms, etc.)

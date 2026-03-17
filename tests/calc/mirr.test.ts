@@ -74,4 +74,14 @@ describe("computeMIRR", () => {
     expect(result.is_valid).toBe(true);
     expect(result.mirr).toBeGreaterThan(0);
   });
+
+  it("golden: hand-calculated 3-period MIRR", () => {
+    const result = computeMIRR({
+      cash_flow_vector: [-1000, 600, 800],
+      finance_rate: 0.08,
+      reinvestment_rate: 0.06,
+    });
+    expect(result.is_valid).toBe(true);
+    expect(result.mirr).toBeCloseTo(0.1983, 3);
+  });
 });

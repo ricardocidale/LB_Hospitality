@@ -48,6 +48,19 @@ describe("compute_make_vs_buy via dispatch", () => {
     expect(result.recommendation).toBe("In-House");
   });
 
+  it("recommends marginal when savings < 10% threshold", () => {
+    const input = {
+      ...BASE_INPUT,
+      inHouseLabor: 150000,
+      vendorContractPrice: 205000,
+      internalOversightHours: 3,
+      managerHourlyRate: 40,
+    };
+    const result = JSON.parse(executeComputationTool("compute_make_vs_buy", input)!);
+    expect(result.recommendation).toBe("Marginal");
+    expect(Math.abs(result.savingsPercent)).toBeLessThan(0.10);
+  });
+
   it("handles zero unit count gracefully", () => {
     const input = { ...BASE_INPUT, unitCount: 0 };
     const result = JSON.parse(executeComputationTool("compute_make_vs_buy", input)!);
@@ -59,5 +72,19 @@ describe("compute_make_vs_buy via dispatch", () => {
     const result = JSON.parse(executeComputationTool("compute_make_vs_buy", BASE_INPUT)!);
     expect(result.costPerUnitInHouse).toBeCloseTo(result.totalInHouseCost / 50, 2);
     expect(result.costPerUnitVendor).toBeCloseTo(result.totalVendorCost / 50, 2);
+  });
+
+  it("golden: hand-calculated fully-loaded in-house cost", () => {
+    const result = JSON.parse(executeComputationTool("compute_make_vs_buy", BASE_INPUT)!);
+    const expectedInHouse = 180000 * (1 + 0.30) + 5000 + 12000 + 8000;
+    expect(result.totalInHouseCost).toBeCloseTo(expectedInHouse, 2);
+  });
+
+  it("golden: hand-calculated vendor cost with oversight", () => {
+    const result = JSON.parse(executeComputationTool("compute_make_vs_buy", BASE_INPUT)!);
+    const oversightCost = 4 * 52 * 45;
+    const expectedVendor = 220000 + oversightCost;
+    expect(result.totalVendorCost).toBeCloseTo(expectedVendor, 2);
+    expect(result.annualSavings).toBeCloseTo(result.totalInHouseCost - result.totalVendorCost, 2);
   });
 });

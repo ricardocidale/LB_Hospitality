@@ -310,18 +310,19 @@ export default function ModelDefaultsTab({ onSaveStateChange }: ModelDefaultsTab
     setIsDirty(true);
   }, []);
 
-  const handleSave = useCallback(() => {
-    saveMutation.mutate(draftRef.current);
-  }, [saveMutation]);
+  // Use saveRef pattern (matches AIAgentsTab, ResearchCenterTab, IcpLocationTab)
+  // to avoid infinite loop — saveMutation is recreated every render by useMutation
+  const saveRef = useRef<() => void>();
+  saveRef.current = () => saveMutation.mutate(draftRef.current);
 
   useEffect(() => {
     onSaveStateChange?.({
       isDirty,
       isPending: saveMutation.isPending,
-      onSave: handleSave,
+      onSave: () => saveRef.current?.(),
     });
     return () => onSaveStateChange?.(null);
-  }, [isDirty, saveMutation.isPending, handleSave, onSaveStateChange]);
+  }, [isDirty, saveMutation.isPending, onSaveStateChange]);
 
   if (isLoading) {
     return (

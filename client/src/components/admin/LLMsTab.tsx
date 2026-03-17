@@ -53,31 +53,31 @@ const DOMAIN_CONFIGS: DomainConfig[] = [
   {
     key: "company",
     configField: "companyLlm",
-    label: "Management Company Research",
+    label: "Management Company",
     icon: IconTarget,
     description: "LLM for researching management companies — ICP analysis, financial comparisons, and company intelligence.",
     tab: "research",
-    stageLabel: { primary: "Stage 1 — Reasoning Model", secondary: "Stage 2 — Workhorse Model" },
+    stageLabel: { primary: "Stage 1 — Reasoning", secondary: "Stage 2 — Workhorse" },
     recommended: RECOMMENDED.company,
   },
   {
     key: "property",
     configField: "propertyLlm",
-    label: "Property Research",
+    label: "Property",
     icon: IconProperties,
     description: "LLM for property-level research — market benchmarks, RevPAR comparisons, and location analysis.",
     tab: "research",
-    stageLabel: { primary: "Stage 1 — Reasoning Model", secondary: "Stage 2 — Workhorse Model" },
+    stageLabel: { primary: "Stage 1 — Reasoning", secondary: "Stage 2 — Workhorse" },
     recommended: RECOMMENDED.property,
   },
   {
     key: "market",
     configField: "marketLlm",
-    label: "Market & Industry Research",
+    label: "Market & Industry",
     icon: IconTrendingUp,
     description: "LLM for broad market intelligence — macro trends, hospitality sector analysis, and competitive landscape.",
     tab: "research",
-    stageLabel: { primary: "Stage 1 — Reasoning Model", secondary: "Stage 2 — Workhorse Model" },
+    stageLabel: { primary: "Stage 1 — Reasoning", secondary: "Stage 2 — Workhorse" },
     recommended: RECOMMENDED.market,
   },
   {
@@ -132,19 +132,19 @@ const TAB_ITEMS: CurrentThemeTabItem[] = [
 const TAB_META: Record<TabKey, { title: string; subtitle: string }> = {
   research: {
     title: "Research LLMs",
-    subtitle: "Each research domain uses a two-stage cascading pipeline. Stage 1 is the frontier reasoning model that performs deep analysis. Stage 2 is a faster workhorse that synthesizes tool results. Select Dual mode to enable both stages.",
+    subtitle: "Two-stage cascading pipeline per domain. Stage 1 is the frontier reasoning model; Stage 2 is a faster workhorse. Select Dual to enable both.",
   },
   operations: {
     title: "Operations LLMs",
-    subtitle: "Models used for report generation, content writing, and general AI utility tasks across the platform.",
+    subtitle: "Models for report generation, content writing, and general AI utility tasks.",
   },
   assistants: {
     title: "AI Assistants",
-    subtitle: "Models powering conversational AI assistants like Rebecca for portfolio analysis and investor Q&A.",
+    subtitle: "Models powering conversational AI assistants like Rebecca.",
   },
   exports: {
     title: "Export LLMs",
-    subtitle: "Models used to generate premium-formatted financial documents. The AI structures raw financial data into professionally formatted XLSX, PPTX, PDF, and DOCX exports.",
+    subtitle: "Models for premium-formatted financial documents — XLSX, PPTX, PDF, and DOCX.",
   },
 };
 
@@ -194,12 +194,14 @@ function LlmDomainCard({
   onChange,
   models,
   vendors,
+  compact,
 }: {
   domain: DomainConfig;
   config: ContextLlmConfig;
   onChange: (c: ContextLlmConfig) => void;
   models: AiModelEntry[];
   vendors: { value: LlmVendor; label: string }[];
+  compact?: boolean;
 }) {
   const DomainIcon = domain.icon;
   const mode: LlmMode | undefined = config.llmMode;
@@ -220,26 +222,29 @@ function LlmDomainCard({
     onChange({ ...config, ...patch });
   };
 
+  const colCount = isDual ? 4 : vendor && mode ? 3 : 2;
+  const gridClass = compact
+    ? `grid gap-4 grid-cols-1 sm:grid-cols-2 ${colCount >= 3 ? "lg:grid-cols-3" : ""} ${colCount >= 4 ? "xl:grid-cols-4" : ""}`
+    : `grid gap-4 grid-cols-1 md:grid-cols-2`;
+
   return (
     <Card className="bg-card border-border shadow-sm">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <CardTitle className="flex items-center gap-2 text-sm font-display" data-testid={`text-llm-title-${domain.key}`}>
-              <DomainIcon className="w-4 h-4 text-primary shrink-0" />
-              {domain.label}
-              <InfoTooltip text={domain.description} />
-            </CardTitle>
-            {primaryModel && (
-              <Badge variant="outline" className="text-[10px] font-normal shrink-0 hidden sm:inline-flex">
-                {primaryModel}
-              </Badge>
-            )}
-          </div>
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <CardTitle className="flex items-center gap-2 text-sm font-display" data-testid={`text-llm-title-${domain.key}`}>
+            <DomainIcon className="w-4 h-4 text-primary shrink-0" />
+            {domain.label}
+            <InfoTooltip text={domain.description} />
+          </CardTitle>
+          {primaryModel && (
+            <Badge variant="outline" className="text-[10px] font-normal shrink-0 hidden sm:inline-flex">
+              {primaryModel}
+            </Badge>
+          )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <CardContent>
+        <div className={gridClass}>
           <div>
             <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
             <Select
@@ -267,45 +272,31 @@ function LlmDomainCard({
               </SelectContent>
             </Select>
           </div>
+
           <div>
             <Label className="text-xs font-medium mb-1.5 block">Mode</Label>
             <RadioGroup
               value={mode || ""}
               onValueChange={(value) => update({ llmMode: value as LlmMode })}
-              className="flex gap-4 pt-1"
+              className="flex gap-3 h-9 items-center"
               data-testid={`radio-llm-mode-${domain.key}`}
             >
-              {isResearch ? (
-                <>
-                  <div className="flex items-center gap-1.5">
-                    <RadioGroupItem value="dual" id={`mode-dual-${domain.key}`} data-testid={`radio-mode-dual-${domain.key}`} />
-                    <Label htmlFor={`mode-dual-${domain.key}`} className="text-xs font-normal cursor-pointer">
-                      Dual (2-stage cascade)
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <RadioGroupItem value="primary-only" id={`mode-primary-${domain.key}`} data-testid={`radio-mode-primary-${domain.key}`} />
-                    <Label htmlFor={`mode-primary-${domain.key}`} className="text-xs font-normal cursor-pointer">Single model</Label>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-1.5">
-                    <RadioGroupItem value="dual" id={`mode-dual-${domain.key}`} data-testid={`radio-mode-dual-${domain.key}`} />
-                    <Label htmlFor={`mode-dual-${domain.key}`} className="text-xs font-normal cursor-pointer">Dual</Label>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <RadioGroupItem value="primary-only" id={`mode-primary-${domain.key}`} data-testid={`radio-mode-primary-${domain.key}`} />
-                    <Label htmlFor={`mode-primary-${domain.key}`} className="text-xs font-normal cursor-pointer">Primary only</Label>
-                  </div>
-                </>
-              )}
+              <div className="flex items-center gap-1.5">
+                <RadioGroupItem value="dual" id={`mode-dual-${domain.key}`} data-testid={`radio-mode-dual-${domain.key}`} />
+                <Label htmlFor={`mode-dual-${domain.key}`} className="text-xs font-normal cursor-pointer">
+                  {isResearch ? "Dual" : "Dual"}
+                </Label>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <RadioGroupItem value="primary-only" id={`mode-primary-${domain.key}`} data-testid={`radio-mode-primary-${domain.key}`} />
+                <Label htmlFor={`mode-primary-${domain.key}`} className="text-xs font-normal cursor-pointer">
+                  {isResearch ? "Single" : "Primary only"}
+                </Label>
+              </div>
             </RadioGroup>
           </div>
-        </div>
 
-        {vendor && mode && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {vendor && mode && (
             <div>
               <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
               <ModelSelectWithRecommendation
@@ -316,20 +307,21 @@ function LlmDomainCard({
                 testId={`select-primary-llm-${domain.key}`}
               />
             </div>
-            {isDual && (
-              <div>
-                <Label className="text-xs font-medium mb-1.5 block">{secondaryLabel}</Label>
-                <ModelSelectWithRecommendation
-                  value={secondaryModel}
-                  onValueChange={(value) => update({ secondaryLlm: value })}
-                  vendorModels={vendorModels}
-                  recommendedId={recSecondary}
-                  testId={`select-secondary-llm-${domain.key}`}
-                />
-              </div>
-            )}
-          </div>
-        )}
+          )}
+
+          {vendor && mode && isDual && (
+            <div>
+              <Label className="text-xs font-medium mb-1.5 block">{secondaryLabel}</Label>
+              <ModelSelectWithRecommendation
+                value={secondaryModel}
+                onValueChange={(value) => update({ secondaryLlm: value })}
+                vendorModels={vendorModels}
+                recommendedId={recSecondary}
+                testId={`select-secondary-llm-${domain.key}`}
+              />
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -404,20 +396,21 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
 
   const tabDomains = DOMAIN_CONFIGS.filter((d) => d.tab === activeTab);
   const meta = TAB_META[activeTab as TabKey];
+  const isSingleDomain = tabDomains.length === 1;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <IconBrain className="w-4 h-4" />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <IconBrain className="w-3.5 h-3.5" />
           {draft.cachedModelsAt ? (
-            <span>Models last refreshed {new Date(draft.cachedModelsAt).toLocaleDateString()}</span>
+            <span>Models refreshed {new Date(draft.cachedModelsAt).toLocaleDateString()}</span>
           ) : (
             <span>Using default model list</span>
           )}
         </div>
         <Button
-          variant="outline" size="sm" className="gap-1.5 shrink-0"
+          variant="outline" size="sm" className="gap-1.5 shrink-0 h-8 text-xs"
           disabled={refreshModels.isPending}
           data-testid="button-refresh-all-models"
           onClick={handleRefreshModels}
@@ -434,14 +427,16 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
       />
 
       <div>
-        <h3 className="text-sm font-display font-semibold text-foreground mb-1" data-testid={`text-tab-title-${activeTab}`}>
-          {meta.title}
-        </h3>
-        <p className="text-xs text-muted-foreground mb-4" data-testid={`text-tab-subtitle-${activeTab}`}>
-          {meta.subtitle}
-        </p>
+        <div className="mb-4">
+          <h3 className="text-sm font-display font-semibold text-foreground" data-testid={`text-tab-title-${activeTab}`}>
+            {meta.title}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5" data-testid={`text-tab-subtitle-${activeTab}`}>
+            {meta.subtitle}
+          </p>
+        </div>
 
-        <div className={`grid gap-4 ${tabDomains.length === 1 ? "grid-cols-1 max-w-2xl" : "grid-cols-1 xl:grid-cols-2"}`}>
+        <div className="space-y-3">
           {tabDomains.map((domain) => (
             <LlmDomainCard
               key={domain.key}
@@ -453,6 +448,7 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
               }}
               models={models}
               vendors={domain.useAllVendors ? LLM_VENDORS : RESEARCH_LLM_VENDORS}
+              compact={isSingleDomain}
             />
           ))}
         </div>

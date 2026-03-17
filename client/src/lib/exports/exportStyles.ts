@@ -57,6 +57,8 @@ export const BRAND = {
   ALT_ROW_RGB: [248, 250, 249] as [number, number, number],
 } as const;
 
+export type ExportFormat = "currency" | "percentage" | "number" | "ratio" | "multiplier";
+
 export interface ExportRowMeta {
   category: string;
   values: (string | number)[];
@@ -64,6 +66,30 @@ export interface ExportRowMeta {
   isBold?: boolean;
   isHeader?: boolean;
   isItalic?: boolean;
+  format?: ExportFormat;
+}
+
+export function formatByType(v: string | number, format: ExportFormat = "currency"): string {
+  if (typeof v === "string") return v;
+  switch (format) {
+    case "percentage":
+      if (v === 0) return "0.0%";
+      return `${(v * 100).toFixed(1)}%`;
+    case "number":
+      if (v === 0) return "\u2014";
+      const neg = v < 0;
+      const s = Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 0 });
+      return neg ? `(${s})` : s;
+    case "ratio":
+      if (v === 0) return "0.00x";
+      return `${v.toFixed(2)}x`;
+    case "multiplier":
+      if (v === 0) return "0.00x";
+      return `${v.toFixed(2)}x`;
+    case "currency":
+    default:
+      return formatFull(v);
+  }
 }
 
 const KNOWN_ABBREVS = new Set([

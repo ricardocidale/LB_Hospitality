@@ -18,6 +18,7 @@ export interface ExportRow {
   isHeader?: boolean;
   indent?: number;
   isBold?: boolean;
+  format?: "currency" | "percentage" | "number" | "ratio" | "multiplier";
 }
 
 export interface ExportData {
@@ -149,24 +150,24 @@ export function generatePortfolioIncomeData(
 
   if (!summaryOnly) {
     rows.push({ category: "Operational Metrics", values: years.map(() => 0), isHeader: true });
-    rows.push({ category: "Total Rooms Available", values: years.map((_, i) => c(i)?.availableRooms ?? 0), indent: 1 });
+    rows.push({ category: "Total Rooms Available", values: years.map((_, i) => c(i)?.availableRooms ?? 0), indent: 1, format: "number" });
     const adrVals = years.map((_, i) => {
       const sold = c(i)?.soldRooms ?? 0;
       return sold > 0 ? (c(i)?.revenueRooms ?? 0) / sold : 0;
     });
-    rows.push({ category: "ADR (Effective)", values: adrVals, indent: 1 });
+    rows.push({ category: "ADR (Effective)", values: adrVals, indent: 1, format: "currency" });
     const occVals = years.map((_, i) => {
       const sold = c(i)?.soldRooms ?? 0;
       const avail = c(i)?.availableRooms ?? 0;
       return avail > 0 ? sold / avail : 0;
     });
-    rows.push({ category: "Occupancy", values: occVals, indent: 1 });
+    rows.push({ category: "Occupancy", values: occVals, indent: 1, format: "percentage" });
     const revparVals = years.map((_, i) => {
       const rev = c(i)?.revenueRooms ?? 0;
       const avail = c(i)?.availableRooms ?? 0;
       return avail > 0 ? rev / avail : 0;
     });
-    rows.push({ category: "RevPAR", values: revparVals, indent: 1 });
+    rows.push({ category: "RevPAR", values: revparVals, indent: 1, format: "currency" });
   }
 
   rows.push({ category: "Total Revenue", values: years.map((_, i) => c(i)?.revenueTotal ?? 0), isHeader: true });
@@ -338,9 +339,9 @@ export function generatePortfolioInvestmentData(
   rows.push({ category: "Portfolio Metrics", values: years.map(() => 0), isHeader: true });
   rows.push({ category: "Total Initial Equity", values: years.map(() => financials.totalInitialEquity), indent: 1 });
   rows.push({ category: "Total Exit Value", values: years.map(() => financials.totalExitValue), indent: 1 });
-  rows.push({ category: "Portfolio IRR (%)", values: years.map(() => financials.portfolioIRR * 100), indent: 1 });
-  rows.push({ category: "Equity Multiple", values: years.map(() => financials.equityMultiple), indent: 1 });
-  rows.push({ category: "Cash-on-Cash Return (%)", values: years.map(() => financials.cashOnCash), indent: 1 });
+  rows.push({ category: "Portfolio IRR (%)", values: years.map(() => financials.portfolioIRR), indent: 1, format: "percentage" });
+  rows.push({ category: "Equity Multiple", values: years.map(() => financials.equityMultiple), indent: 1, format: "multiplier" });
+  rows.push({ category: "Cash-on-Cash Return (%)", values: years.map(() => financials.cashOnCash / 100), indent: 1, format: "percentage" });
 
   const consolidatedNOI = years.map((_, i) => financials.yearlyConsolidatedCache[i]?.noi ?? 0);
   const consolidatedANOI = years.map((_, i) => financials.yearlyConsolidatedCache[i]?.anoi ?? 0);
@@ -360,7 +361,7 @@ export function generatePortfolioInvestmentData(
   rows.push({ category: "Adjusted NOI (ANOI)", values: consolidatedANOI, indent: 1 });
   rows.push({ category: "GAAP Net Income", values: consolidatedNetIncome, indent: 1 });
   rows.push({ category: "Cash Flow", values: consolidatedCashFlow, indent: 1 });
-  rows.push({ category: "DSCR", values: consolidatedDSCR, indent: 1 });
+  rows.push({ category: "DSCR", values: consolidatedDSCR, indent: 1, format: "ratio" });
 
   return { years, rows };
 }

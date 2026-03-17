@@ -12,7 +12,7 @@
  *   addFooters(doc, "My Company");   // call LAST — iterates all pages
  */
 
-import { BRAND, type ExportRowMeta, classifyRow, indentLabel, formatFull, normalizeCaps } from "./exportStyles";
+import { BRAND, type ExportRowMeta, classifyRow, indentLabel, formatFull, formatByType, normalizeCaps } from "./exportStyles";
 
 export function drawBrandedHeader(doc: any, pageW: number, height = 28) {
   doc.setFillColor(...BRAND.NAVY_RGB);
@@ -245,14 +245,20 @@ export function buildFinancialTableConfig(
     colStyles[i] = { halign: "right", cellWidth: dataColW };
   }
 
-  const body = rows.map((row) => [
-    indentLabel(normalizeCaps(row.category), row.indent),
-    ...row.values.map((v) => {
-      if (typeof v === "string" && v.includes("%")) return v;
-      if (typeof v === "number" && row.category.includes("%")) return `${v.toFixed(1)}%`;
-      return formatFull(v);
-    }),
-  ]);
+  const body = rows.map((row) => {
+    const { isSectionHeader } = classifyRow(row);
+    const isSectionPlaceholder = (isSectionHeader || row.isHeader) && row.values.every(val => val === 0 || val === "0");
+    return [
+      indentLabel(normalizeCaps(row.category), row.indent),
+      ...row.values.map((v) => {
+        if (isSectionPlaceholder && (v === 0 || v === "0")) return "";
+        if (typeof v === "string") return v;
+        if (row.format) return formatByType(v, row.format);
+        if (typeof v === "number" && row.category.includes("%")) return `${v.toFixed(1)}%`;
+        return formatByType(v, "currency");
+      }),
+    ];
+  });
 
   const fontSize = numCols <= 6 ? 7.5 : numCols <= 10 ? 7 : 6;
 

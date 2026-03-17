@@ -57,14 +57,20 @@ interface ComprehensiveDashboardExportParams {
 The comprehensive PDF should contain the following pages in order:
 
 ### Page 1: Cover Page
-- Full-bleed navy (`#1A2332`) background
-- Company name in large white text (centered)
-- Subtitle: "Consolidated Portfolio Report"
-- Projection period: "10-Year Financial Projection (2026–2035)"
-- Property count and total room count
-- "CONFIDENTIAL — For Authorized Recipients Only" footer
-- Generation date and timestamp
-- Company logo (if available from `/api/logos/active`)
+- Full-bleed navy (`#1A2332`) background with subtle sage grid overlay
+- Sage vertical accent bar (4mm) beside company name
+- Company name in large white text (32pt, left-aligned at x=28)
+- White horizontal divider rule below company name
+- Report title in sage green (18pt)
+- Projection subtitle in muted sage (12pt)
+- Metadata card (navy-blue rounded rectangle with sage border):
+  - Report type, projection period, classification
+- Date string at bottom (sage text)
+- Confidential disclaimer in italic (muted)
+- Sage green top/bottom border bars (3mm)
+- Generated via `drawCoverPage()` from `pdfHelpers.ts` — reusable across all dashboard PDF exports
+- **All dashboard PDF exports** (comprehensive and individual tab) use this same cover page
+- Company logo (future: if available from `/api/logos/active`)
 
 ### Page 2: Table of Contents
 - Numbered section list with page references
@@ -192,6 +198,7 @@ pdfAction(() => handleComprehensivePDF())
 
 | Utility | File | Purpose |
 |---------|------|---------|
+| `drawCoverPage()` | `pdfHelpers.ts` | Enterprise navy cover page with branded metadata |
 | `drawBrandedHeader()` | `pdfHelpers.ts` | Navy header bar with sage accent |
 | `drawTitle()` | `pdfHelpers.ts` | Section titles |
 | `drawSubtitle()` | `pdfHelpers.ts` | Subtitle text |

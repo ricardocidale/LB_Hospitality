@@ -342,12 +342,103 @@ export function drawCanvasAsImage(
   return y + drawH + 4;
 }
 
-export function addFooters(doc: any, companyName: string) {
+export interface CoverPageOptions {
+  companyName: string;
+  title: string;
+  subtitle?: string;
+  meta?: string[];
+  dateStr?: string;
+}
+
+export function drawCoverPage(doc: any, opts: CoverPageOptions) {
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const { companyName, title, subtitle, meta = [], dateStr } = opts;
+  const date = dateStr || new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+  const NAVY: [number, number, number] = [26, 35, 50];
+  const SAGE: [number, number, number] = [159, 188, 164];
+
+  doc.setFillColor(...NAVY);
+  doc.rect(0, 0, pageW, pageH, "F");
+
+  doc.setFillColor(...SAGE);
+  doc.rect(0, 0, pageW, 3, "F");
+  doc.rect(0, pageH - 3, pageW, 3, "F");
+
+  doc.setDrawColor(159, 188, 164, 60);
+  doc.setLineWidth(0.15);
+  for (let lx = 0; lx < pageW; lx += 12) doc.line(lx, 0, lx, pageH);
+  for (let ly = 0; ly < pageH; ly += 12) doc.line(0, ly, pageW, ly);
+
+  doc.setFillColor(...SAGE);
+  doc.rect(16, pageH * 0.25, 4, 45, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(32);
+  doc.setTextColor(255, 255, 255);
+  doc.text(companyName, 28, pageH * 0.30);
+
+  doc.setFillColor(255, 255, 255);
+  doc.rect(28, pageH * 0.33, 80, 0.5, "F");
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(18);
+  doc.setTextColor(...SAGE);
+  doc.text(title, 28, pageH * 0.40);
+
+  if (subtitle) {
+    doc.setFontSize(12);
+    doc.setTextColor(180, 200, 185);
+    doc.text(subtitle, 28, pageH * 0.46);
+  }
+
+  if (meta.length > 0) {
+    const boxW = Math.min(pageW * 0.45, 140);
+    const boxH = 10 + meta.length * 10;
+    const boxY = pageH * 0.55;
+    doc.setFillColor(40, 50, 65);
+    doc.roundedRect(28, boxY, boxW, boxH, 2, 2, "F");
+    doc.setDrawColor(...SAGE);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(28, boxY, boxW, boxH, 2, 2, "S");
+
+    meta.forEach((line, i) => {
+      const parts = line.split(": ");
+      const labelText = parts[0];
+      const valueText = parts.slice(1).join(": ");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...SAGE);
+      doc.text(labelText.toUpperCase(), 34, boxY + 8 + i * 10);
+      if (valueText) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(220, 220, 220);
+        doc.text(valueText, 34, boxY + 13 + i * 10);
+      }
+    });
+  }
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(180, 200, 185);
+  doc.text(date, 28, pageH * 0.85);
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7);
+  doc.setTextColor(120, 130, 140);
+  doc.text("This document contains proprietary financial projections. Distribution is restricted to authorized recipients.", 28, pageH * 0.90);
+}
+
+export function addFooters(doc: any, companyName: string, opts?: { skipPages?: Set<number> }) {
   const totalPages = doc.internal.getNumberOfPages();
   const pageH = doc.internal.pageSize.getHeight();
   const pageW = doc.internal.pageSize.getWidth();
+  const skipPages = opts?.skipPages;
 
   for (let i = 1; i <= totalPages; i++) {
+    if (skipPages?.has(i)) continue;
     doc.setPage(i);
 
     doc.setDrawColor(...BRAND.SAGE_RGB);

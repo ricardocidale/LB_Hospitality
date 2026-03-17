@@ -3,7 +3,7 @@ import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
-import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage, type DashboardSummaryMetric } from "@/lib/exports/pdfHelpers";
+import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage, drawCoverPage, type DashboardSummaryMetric } from "@/lib/exports/pdfHelpers";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
@@ -458,10 +458,23 @@ export async function exportPortfolioPDF(
 
   const pageWidth = orientation === "landscape" ? 297 : 210;
   const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
+  const projRange = `${years[0]} \u2013 ${years[projectionYears - 1]}`;
 
+  drawCoverPage(doc, {
+    companyName,
+    title,
+    subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
+    meta: [
+      `Report: ${title}`,
+      `Period: FY ${projRange}`,
+      "Classification: Confidential",
+    ],
+  });
+
+  doc.addPage();
   drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15);
   drawSubtitleRow(doc,
-    `${projectionYears}-Year Projection (${years[0]} \u2013 ${years[projectionYears - 1]})`,
+    `${projectionYears}-Year Projection (${projRange})`,
     entityTag, 14, 22, pageWidth);
   drawSubtitle(doc, `Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27);
 
@@ -501,7 +514,7 @@ export async function exportPortfolioPDF(
     ],
   });
 
-  addFooters(doc, companyName);
+  addFooters(doc, companyName, { skipPages: new Set([1]) });
   doc.save(`portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
 
@@ -576,60 +589,17 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     return 38;
   }
 
-  doc.setFillColor(...NAVY);
-  doc.rect(0, 0, pageW, pageH, "F");
-  doc.setFillColor(...SAGE);
-  doc.rect(0, 0, pageW, 3, "F");
-  doc.rect(0, pageH - 3, pageW, 3, "F");
-
-  doc.setDrawColor(159, 188, 164, 60);
-  doc.setLineWidth(0.15);
-  for (let lx = 0; lx < pageW; lx += 12) doc.line(lx, 0, lx, pageH);
-  for (let ly = 0; ly < pageH; ly += 12) doc.line(0, ly, pageW, ly);
-
-  doc.setFillColor(...SAGE);
-  doc.rect(16, pageH * 0.25, 4, 45, "F");
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(32);
-  doc.setTextColor(255, 255, 255);
-  doc.text(companyName, 28, pageH * 0.30);
-
-  doc.setFillColor(255, 255, 255);
-  doc.rect(28, pageH * 0.33, 80, 0.5, "F");
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(18);
-  doc.setTextColor(...SAGE);
-  doc.text("Consolidated Portfolio Report", 28, pageH * 0.40);
-
-  doc.setFontSize(12);
-  doc.setTextColor(180, 200, 185);
-  doc.text(`${projectionYears}-Year Financial Projection (${projRange})`, 28, pageH * 0.46);
-
-  doc.setFillColor(40, 50, 65);
-  doc.roundedRect(28, pageH * 0.55, 120, 30, 2, 2, "F");
-  doc.setDrawColor(...SAGE);
-  doc.setLineWidth(0.3);
-  doc.roundedRect(28, pageH * 0.55, 120, 30, 2, 2, "S");
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-  doc.setTextColor(...SAGE);
-  doc.text("PORTFOLIO", 34, pageH * 0.55 + 8);
-  doc.text("DATE", 34, pageH * 0.55 + 18);
-  doc.text("CLASSIFICATION", 100, pageH * 0.55 + 8);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(220, 220, 220);
-  doc.text(`${properties.length} Properties \u2014 ${financials.totalRooms} Rooms`, 34, pageH * 0.55 + 13);
-  doc.text(dateStr, 34, pageH * 0.55 + 23);
-  doc.text("CONFIDENTIAL", 100, pageH * 0.55 + 13);
-
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(7);
-  doc.setTextColor(120, 130, 140);
-  doc.text("This document contains proprietary financial projections. Distribution is restricted to authorized recipients.", 28, pageH * 0.80);
+  drawCoverPage(doc, {
+    companyName,
+    title: "Consolidated Portfolio Report",
+    subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
+    meta: [
+      `Portfolio: ${properties.length} Properties \u2014 ${financials.totalRooms} Rooms`,
+      `Period: FY ${projRange}`,
+      "Classification: Confidential",
+    ],
+    dateStr,
+  });
 
   doc.addPage();
   const metrics: DashboardSummaryMetric[] = [

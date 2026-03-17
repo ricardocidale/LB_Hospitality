@@ -82,7 +82,7 @@ async function generateWithGemini(prompt: string, format: string): Promise<any> 
   );
 
   const generatePromise = client.models.generateContent({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-flash",
     contents: prompt,
     config: {
       maxOutputTokens: 8192,

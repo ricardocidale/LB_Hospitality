@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { IconCheckCircle2, IconXCircle, IconPlayCircle } from "@/components/icons";
+import { IconCheckCircle2, IconXCircle, IconAlertTriangle, IconPlayCircle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Server, Calculator, Shield, GitCompare, Scale, Sparkles, FlaskConical } from "@/components/icons/themed-icons";
 import type { SuiteId, SuiteDefinition, SuiteRunResult } from "./types";
@@ -125,7 +125,7 @@ export function SuiteSelector({ selected, onToggle, onSelectAll, lastResults, ru
                         ) : lastResult.status === "FAIL" ? (
                           <IconXCircle className="w-3.5 h-3.5 text-red-500" />
                         ) : (
-                          <IconCheckCircle2 className="w-3.5 h-3.5 text-yellow-500" />
+                          <IconAlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
                         )}
                       </span>
                     )}

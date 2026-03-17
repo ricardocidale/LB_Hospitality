@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, Scale } from "@/components/icons/themed-icons";
-import { IconCheckCircle2, IconXCircle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
+import { IconCheckCircle2, IconXCircle, IconAlertTriangle, IconPlayCircle, IconSparkles, IconFileDown, IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 // jspdf and jspdf-autotable are dynamically imported in export handlers
 
@@ -315,7 +315,9 @@ export default function VerificationTab() {
   const suiteResultsArray = Array.from(suiteResults.values());
   const totalSuitePassed = suiteResultsArray.filter(r => r.status === "PASS").length;
   const totalSuiteFailed = suiteResultsArray.filter(r => r.status === "FAIL").length;
+  const totalSuiteWarning = suiteResultsArray.filter(r => r.status === "WARNING").length;
   const hasSuiteResults = suiteResultsArray.length > 0;
+  const overallSuiteStatus = totalSuiteFailed > 0 ? "FAIL" : totalSuiteWarning > 0 ? "WARNING" : "PASS";
 
   return (
     <Card className="relative overflow-hidden bg-card border border-border/80 shadow-sm">
@@ -389,13 +391,25 @@ export default function VerificationTab() {
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Failed</p>
               <p className={`text-xl font-mono font-black ${totalSuiteFailed > 0 ? "text-red-600" : "text-green-600"}`}>{totalSuiteFailed}</p>
             </div>
+            {totalSuiteWarning > 0 && (
+              <div className="space-y-1">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Warnings</p>
+                <p className="text-xl font-mono font-black text-yellow-600">{totalSuiteWarning}</p>
+              </div>
+            )}
             <div className="space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Overall</p>
               <div className="flex items-center gap-2">
-                <span className={`text-xl font-black ${totalSuiteFailed === 0 ? "text-secondary" : "text-red-600"}`}>
-                  {totalSuiteFailed === 0 ? "PASS" : "FAIL"}
+                <span className={`text-xl font-black ${
+                  overallSuiteStatus === "PASS" ? "text-secondary" :
+                  overallSuiteStatus === "WARNING" ? "text-yellow-600" :
+                  "text-red-600"
+                }`}>
+                  {overallSuiteStatus}
                 </span>
-                {totalSuiteFailed === 0 ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
+                {overallSuiteStatus === "PASS" ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> :
+                 overallSuiteStatus === "WARNING" ? <IconAlertTriangle className="w-5 h-5 text-yellow-600" /> :
+                 <IconXCircle className="w-5 h-5 text-red-500" />}
               </div>
             </div>
           </div>
@@ -454,13 +468,17 @@ export default function VerificationTab() {
                         }`}>
                           {verificationResults.summary.auditOpinion}
                         </span>
-                        {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> : <IconXCircle className="w-5 h-5 text-red-500" />}
+                        {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> :
+                         verificationResults.summary.auditOpinion === 'QUALIFIED' ? <IconAlertTriangle className="w-5 h-5 text-yellow-600" /> :
+                         <IconXCircle className="w-5 h-5 text-red-500" />}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Overall Status</p>
                       <p className={`text-xl font-mono font-black ${
-                        verificationResults.summary.overallStatus === 'PASS' ? 'text-secondary' : 'text-red-600'
+                        verificationResults.summary.overallStatus === 'PASS' ? 'text-secondary' :
+                        verificationResults.summary.overallStatus === 'WARNING' ? 'text-yellow-600' :
+                        'text-red-600'
                       }`}>
                         {verificationResults.summary.overallStatus}
                       </p>

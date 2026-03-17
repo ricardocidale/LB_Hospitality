@@ -1,34 +1,38 @@
 ---
 name: constants-governance
-description: Constants governance covering the shared/client barrel pattern, the safeNum guard, the NaN bug root cause, and rules for adding new financial defaults.
+description: Constants governance covering the shared/client barrel pattern, the safeNum guard, the NaN bug root cause, fallback constant rules, and how constants relate to seed defaults and live assumptions.
 ---
 
-Constants governance for the hospitality financial model. Documents the shared/client barrel pattern, the rule that financial defaults live in `shared/constants.ts`, the `safeNum` guard pattern, and the NaN bug root cause. Use this skill when adding new constants, modifying default values, or working with the financial engine.
+Constants governance for the hospitality financial model. Documents the shared/client barrel pattern, how hardcoded constants serve as last-resort fallbacks behind database-driven seed defaults and live assumptions, the `safeNum` guard pattern, and the NaN bug root cause.
+
+**Related skills:** `settings/` (seed defaults vs live assumptions vs config switches), `finance/` (engine consumption)
 
 ## Architecture: Two-File Barrel Pattern
 
 ### `shared/constants.ts` — Single Source of Truth
 
-All financial default values live here. Both server and client import from this file.
+All financial fallback values live here. Both server and client import from this file.
 
 **Two categories:**
 | Category | Examples | Rule |
 |----------|----------|------|
-| **Immutable** (IRS/GAAP) | `DEPRECIATION_YEARS` (27.5), `DAYS_PER_MONTH` (30.5) | Never change |
-| **Configurable** (`DEFAULT_*` prefix) | `DEFAULT_COST_RATE_ROOMS` (0.20), `DEFAULT_EXIT_CAP_RATE` (0.085) | User-overridable; these are fallbacks |
+| **Governed** (IRS/GAAP/industry standard) | `DEPRECIATION_YEARS` (27.5), `DAYS_PER_MONTH` (30.5) | Admin can override in Model Defaults via GovernedFieldWrapper, but constant is the authoritative default |
+| **Configurable** (`DEFAULT_*` prefix) | `DEFAULT_COST_RATE_ROOMS` (0.20), `DEFAULT_EXIT_CAP_RATE` (0.085) | Last-resort fallback when DB value is NULL |
 
-**How constants flow:**
-1. Database schema (`shared/schema.ts`) references them as column defaults
-2. Financial engine uses them as fallbacks when a property hasn't overridden a value
-3. Verification checker compares calculated values against them to detect anomalies
-4. Tests import them to derive expected values (never hardcode)
+**How constants fit in the resolution chain:**
+```
+property.costRateRooms          ← Per-property override (highest priority)
+  ?? global.costRateRooms       ← Live assumption from globalAssumptions DB
+    ?? DEFAULT_COST_RATE_ROOMS  ← Hardcoded constant (last resort)
+```
+
+Constants are the safety net, not the source of truth. The source of truth is the `globalAssumptions` database row (for live assumptions) or the property row (for per-property overrides). Constants only fire when the admin has never set a value.
 
 ### `client/src/lib/constants.ts` — Client Barrel
 
 Re-exports all shared constants plus defines client-only constants:
 
 ```typescript
-// Re-export shared constants (single import path for client code)
 export {
   DEFAULT_COST_RATE_ROOMS,
   DEFAULT_EXIT_CAP_RATE,
@@ -37,7 +41,6 @@ export {
   // ... 30+ shared constants
 } from "@shared/constants";
 
-// Client-only constants (server doesn't need these)
 export const DEFAULT_REFI_LTV = 0.65;
 export const STAFFING_TIERS = [
   { maxProperties: 3, fte: 2.5 },
@@ -49,7 +52,6 @@ export const AUDIT_VARIANCE_TOLERANCE = 0.001;
 
 **Client-only constants include:**
 - Refinance defaults (`DEFAULT_REFI_LTV`, `DEFAULT_REFI_CLOSING_COST_RATE`)
-- Property creation defaults (`DEFAULT_ADR_GROWTH_RATE`, `DEFAULT_START_OCCUPANCY`)
 - Company cost defaults (`DEFAULT_STAFF_SALARY`, `DEFAULT_OFFICE_LEASE`, etc.)
 - Presentation thresholds (`IRR_HIGHLIGHT_THRESHOLD`)
 - Audit tolerances (`AUDIT_VARIANCE_TOLERANCE`, `AUDIT_DOLLAR_TOLERANCE`)
@@ -98,6 +100,32 @@ expect(m0.revenueEvents).toBeCloseTo(H_REV_EVENTS, 2);
 // WRONG
 expect(m0.revenueEvents).toBeCloseTo(25620, 2);
 ```
+
+### 5. Constants Are Fallbacks, Not Truth
+
+When adding a new financial parameter:
+
+1. Add the `DEFAULT_*` constant in `shared/constants.ts` (fallback)
+2. Add a nullable column in `globalAssumptions` (seed default / live assumption)
+3. Wire it through `buildPropertyDefaultsFromGlobal()` if it seeds new properties
+4. Wire it through `resolve-assumptions.ts` if the engine reads it
+5. The constant only fires when the DB column is NULL
+
+```typescript
+// In buildPropertyDefaultsFromGlobal():
+newRate: ga?.defaultNewRate ?? DEFAULT_NEW_RATE,
+
+// In resolve-assumptions.ts:
+const newRate = property.newRate ?? global.newRate ?? DEFAULT_NEW_RATE;
+```
+
+### 6. Removing a Constant
+
+Before removing a constant, verify:
+- No imports remain (check with `grep`)
+- No test files reference it
+- The corresponding DB column exists and is properly seeded
+- The `buildPropertyDefaultsFromGlobal()` function has been updated
 
 ## The `safeNum` Guard Pattern
 
@@ -164,9 +192,11 @@ Never trust that an assumption value will be present. Every financial calculatio
 
 | File | Purpose |
 |------|---------|
-| `shared/constants.ts` | Single source of truth for all financial defaults |
+| `shared/constants.ts` | Single source of truth for all financial fallback constants |
 | `client/src/lib/constants.ts` | Client barrel (re-exports shared + UI-only constants) |
 | `client/src/lib/financial/property-engine.ts` | `safeNum` definition and usage |
+| `client/src/lib/financial/resolve-assumptions.ts` | Resolution chain: property → global → constant |
+| `server/routes/properties.ts` | `buildPropertyDefaultsFromGlobal()` — seed defaults at creation |
 | `calc/shared/pmt.ts` | Zero-guard pattern in loan payment calculation |
 | `tests/proof/hardcoded-detection.test.ts` | Magic number scanner |
 | `tests/calc/validation/assumption-consistency.test.ts` | Assumption validation tests |

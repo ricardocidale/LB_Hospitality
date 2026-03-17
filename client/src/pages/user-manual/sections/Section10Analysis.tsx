@@ -50,7 +50,7 @@ export default function Section10Analysis({ expanded, onToggle, sectionRef }: Se
             headers={["Card", "Description"]}
             rows={[
               ["Base IRR", "Baseline internal rate of return, with delta to the adjusted scenario"],
-              ["Base ANOI", "Baseline Adjusted Net Operating Income (NOI minus FF&E reserve) with percent change under current scenario"],
+              ["Base ANOI", "Baseline Adjusted Net Operating Income (NOI minus management fees minus FF&E reserve) with percent change under current scenario"],
               ["Exit Value", "Baseline exit proceeds with percent change under current scenario"],
               ["Adjusted IRR", "IRR under the current slider settings — green if higher than base, red if lower"],
             ]}

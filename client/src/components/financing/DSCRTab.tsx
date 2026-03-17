@@ -54,7 +54,7 @@ export function DSCRTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InputField label="Annual ANOI" value={noi} onChange={setNoi} prefix="$" helpText="Adjusted Net Operating Income: NOI minus FF&E reserve — the income available to service debt" data-testid="input-dscr-noi" />
+        <InputField label="Annual ANOI" value={noi} onChange={setNoi} prefix="$" helpText="Adjusted Net Operating Income: NOI minus management fees minus FF&E reserve — the income available to service debt" data-testid="input-dscr-noi" />
         <InputField label="Interest Rate" value={rate} onChange={setRate} suffix="%" step="0.25" helpText="Annual interest rate on the loan" data-testid="input-dscr-rate" />
         <InputField label="Loan Term (months)" value={termMonths} onChange={setTermMonths} helpText="Total duration of the loan before maturity or balloon payment" data-testid="input-dscr-term" />
         <InputField label="Amortization (months)" value={amortMonths} onChange={setAmortMonths} helpText="Period over which principal is repaid — longer = lower monthly payments" data-testid="input-dscr-amort" />

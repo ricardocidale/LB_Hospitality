@@ -4,7 +4,7 @@
  * Shows the path from ANOI (Adjusted Net Operating Income) down to net
  * cash flow available to equity investors:
  *
- *   ANOI (NOI minus FF&E reserve)
+ *   ANOI (NOI minus management fees minus FF&E reserve)
  *   − Debt Service (principal + interest payments)
  *   − Income Tax
  *   = Net Cash Flow (before distributions)

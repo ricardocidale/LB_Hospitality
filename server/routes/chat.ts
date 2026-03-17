@@ -6,6 +6,7 @@ import { storage } from "../storage";
 import { buildPropertyContext } from "../ai/buildPropertyContext.js";
 import { z } from "zod";
 import { DEFAULT_PROJECTION_YEARS, DEFAULT_PROPERTY_INFLATION_RATE } from "@shared/constants";
+import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 /**
  * CONTRACT: This endpoint provides AI chat about portfolio properties.
@@ -115,6 +116,7 @@ export function register(app: Express) {
           { role: "user", content: message },
         ];
 
+        const startTime = Date.now();
         const completion = await perplexity.chat.completions.create({
           model: "sonar",
           messages,
@@ -133,6 +135,10 @@ export function register(app: Express) {
           text += "\n\n**Sources:**\n" + citationLines.join("\n");
         }
 
+        const inTok = completion.usage?.prompt_tokens ?? Math.round(message.length / 4);
+        const outTok = completion.usage?.completion_tokens ?? Math.round(text.length / 4);
+        try { logApiCost({ timestamp: new Date().toISOString(), service: "perplexity", model: "sonar", operation: "chat", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("perplexity", "sonar", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/chat" }); } catch {}
+
         res.json({ response: text });
       } else {
         const gemini = getGeminiClient();
@@ -150,6 +156,7 @@ export function register(app: Express) {
           { role: "user" as const, parts: [{ text: message }] },
         ];
 
+        const startTime = Date.now();
         const response = await gemini.models.generateContent({
           model: "gemini-2.5-flash",
           contents,
@@ -158,6 +165,11 @@ export function register(app: Express) {
 
         const text = response.text
           || "I'm sorry, I couldn't generate a response. Please try again.";
+
+        const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(message.length / 4);
+        const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
+        try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: "chat", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/chat" }); } catch {}
+
         res.json({ response: text });
       }
     } catch (error: any) {

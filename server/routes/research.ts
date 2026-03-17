@@ -12,6 +12,7 @@ import { createResearchClient, resolveVendorFromModel } from "../ai/research-cli
 import type { ResearchConfig, ResearchEventConfig, LlmVendor } from "@shared/schema";
 import { DEFAULT_RESEARCH_EVENT_CONFIG, DEFAULT_RESEARCH_REFRESH_INTERVAL_DAYS, DEFAULT_ROOM_COUNT, DEFAULT_START_ADR, DEFAULT_MAX_OCCUPANCY } from "../../shared/constants";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
+import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -184,6 +185,7 @@ export function register(app: Express) {
         marketIntelligence,
       };
 
+      const startTime = Date.now();
       const stream = generateResearchWithToolsStream(params, researchClient, model, secondaryModel);
 
       let fullContent = "";
@@ -241,6 +243,11 @@ export function register(app: Express) {
           });
 
           logActivity(req, "generate", "market_research", propertyId, type);
+
+          const svcName = vendorKey === "google" ? "gemini" : vendorKey === "openai" ? "openai" : "anthropic";
+          const inTok = Math.round(JSON.stringify(params).length / 4);
+          const outTok = Math.round(fullContent.length / 4);
+          try { logApiCost({ timestamp: new Date().toISOString(), service: svcName as any, model, operation: "research", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svcName, model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/research/generate" }); } catch {}
 
           processNotificationEvent(createEvent("RESEARCH_COMPLETE", {
             propertyId,

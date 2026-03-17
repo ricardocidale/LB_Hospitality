@@ -1,43 +1,46 @@
 #!/usr/bin/env tsx
 /**
- * script/cost-monitor.ts — Live terminal dashboard for API cost monitoring.
+ * cost-monitor.ts — Standalone API cost dashboard.
  *
- * Usage:
- *   npm run cost-monitor
- *   npm run cost-monitor -- --since today
- *   npm run cost-monitor -- --since 1h --budget 25
+ * Runs anywhere Node.js runs (Windows, Mac, Linux).
+ * Tracks costs from any source that writes to the JSONL log.
  *
- * Keyboard:
- *   q  Quit
- *   r  Reset aggregation
- *   h  Toggle hourly / daily / all-time view
- *   b  Cycle budget ($10 / $20 / $50 / $100 / off)
+ * Setup (one time):
+ *   npm install -g tsx          # if you don't have it
+ *   mkdir %USERPROFILE%\.costs  # Windows
+ *   mkdir ~/.costs              # Mac/Linux
+ *
+ * Run:
+ *   tsx cost-monitor.ts
+ *   tsx cost-monitor.ts --budget 50
+ *   tsx cost-monitor.ts --since 1h
+ *
+ * Log entries manually (PowerShell):
+ *   tsx cost-monitor.ts --add --service anthropic --model claude-opus-4-6 --cost 0.50 --note "Claude Code session"
+ *
+ * Or pipe from any source:
+ *   echo '{"service":"replit","operation":"agent","estimatedCostUsd":0.10}' >> ~/.costs/activity.jsonl
+ *
+ * Keyboard: q=quit  r=reset  h=cycle view  b=cycle budget  a=add entry
  */
 
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import readline from "node:readline";
+
+// ── Log file location ────────────────────────────────────────────────────────
+// Shared across all projects: ~/.costs/activity.jsonl
+// Override with --log <path>
+
+const DEFAULT_LOG_DIR = path.join(os.homedir(), ".costs");
+const DEFAULT_LOG_FILE = path.join(DEFAULT_LOG_DIR, "activity.jsonl");
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const LOG_FILE = path.resolve(process.cwd(), "logs", "api-costs.jsonl");
 const REFRESH_MS = 2_000;
-const MAX_RECENT = 8;
-const BUDGET_OPTIONS = [10, 20, 50, 100, 0]; // 0 = off
-
-// ── Project identity ─────────────────────────────────────────────────────────
-
-function getProjectName(): string {
-  try {
-    const pkgPath = path.resolve(process.cwd(), "package.json");
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-    return pkg.name ?? path.basename(process.cwd());
-  } catch {
-    return path.basename(process.cwd());
-  }
-}
-
-const PROJECT_NAME = getProjectName();
+const MAX_RECENT = 10;
+const BUDGET_OPTIONS = [10, 20, 50, 100, 200, 0]; // 0 = off
 
 // ── ANSI helpers ─────────────────────────────────────────────────────────────
 
@@ -51,13 +54,14 @@ const RED = `${ESC}[31m`;
 const CYAN = `${ESC}[36m`;
 const MAGENTA = `${ESC}[35m`;
 const WHITE = `${ESC}[37m`;
+const BLUE = `${ESC}[34m`;
 const BG_BLUE = `${ESC}[44m`;
 const CLEAR = `${ESC}[2J${ESC}[H`;
 const HIDE_CURSOR = `${ESC}[?25l`;
 const SHOW_CURSOR = `${ESC}[?25h`;
 
-function color(c: string, text: string): string {
-  return `${c}${text}${RESET}`;
+function c(style: string, text: string): string {
+  return `${style}${text}${RESET}`;
 }
 
 function rpad(s: string, n: number): string {
@@ -69,7 +73,7 @@ function lpad(s: string, n: number): string {
 }
 
 function dollar(n: number): string {
-  return `$${n.toFixed(2)}`;
+  return n >= 100 ? `$${n.toFixed(0)}` : `$${n.toFixed(2)}`;
 }
 
 function kilo(n: number): string {
@@ -84,27 +88,28 @@ interface CostEntry {
   timestamp: string;
   service: string;
   model?: string;
-  operation: string;
+  operation?: string;
+  project?: string;
   inputTokens?: number;
   outputTokens?: number;
   estimatedCostUsd: number;
   durationMs?: number;
+  note?: string;
+  route?: string;
   userId?: number;
-  route: string;
 }
 
 interface Aggregation {
   totalCost: number;
   totalCalls: number;
-  totalInputTokens: number;
-  totalOutputTokens: number;
+  totalTokens: number;
   byService: Map<string, { calls: number; cost: number; tokens: number }>;
-  byModel: Map<string, { calls: number; cost: number; tokens: number }>;
-  byRoute: Map<string, { calls: number; cost: number; avgMs: number; totalMs: number }>;
+  byModel: Map<string, { calls: number; cost: number; tokens: number; service: string }>;
+  byProject: Map<string, { calls: number; cost: number }>;
   recent: CostEntry[];
 }
 
-type ViewMode = "all" | "today" | "1h";
+type ViewMode = "today" | "1h" | "7d" | "all";
 
 // ── State ────────────────────────────────────────────────────────────────────
 
@@ -112,54 +117,126 @@ let entries: CostEntry[] = [];
 let viewMode: ViewMode = "today";
 let budgetIdx = 1; // default $20
 let lastFileSize = 0;
+let logFile = DEFAULT_LOG_FILE;
 
 // ── CLI args ─────────────────────────────────────────────────────────────────
 
 const args = process.argv.slice(2);
+let addMode = false;
+let addService = "";
+let addModel = "";
+let addCost = 0;
+let addNote = "";
+let addProject = "";
+let addOperation = "";
+
 for (let i = 0; i < args.length; i++) {
-  if (args[i] === "--since" && args[i + 1]) {
-    const v = args[i + 1];
+  const a = args[i];
+  if (a === "--log" && args[i + 1]) { logFile = path.resolve(args[++i]); }
+  else if (a === "--since" && args[i + 1]) {
+    const v = args[++i];
     if (v === "today") viewMode = "today";
+    else if (v === "7d" || v === "week") viewMode = "7d";
     else if (v.endsWith("h")) viewMode = "1h";
     else viewMode = "today";
-    i++;
   }
-  if (args[i] === "--budget" && args[i + 1]) {
-    const b = parseInt(args[i + 1], 10);
+  else if (a === "--budget" && args[i + 1]) {
+    const b = parseInt(args[++i], 10);
     const idx = BUDGET_OPTIONS.indexOf(b);
     if (idx >= 0) budgetIdx = idx;
-    i++;
   }
+  else if (a === "--add") { addMode = true; }
+  else if (a === "--service" && args[i + 1]) { addService = args[++i]; }
+  else if (a === "--model" && args[i + 1]) { addModel = args[++i]; }
+  else if (a === "--cost" && args[i + 1]) { addCost = parseFloat(args[++i]); }
+  else if (a === "--note" && args[i + 1]) { addNote = args[++i]; }
+  else if (a === "--project" && args[i + 1]) { addProject = args[++i]; }
+  else if (a === "--operation" && args[i + 1]) { addOperation = args[++i]; }
+  else if (a === "--help" || a === "-h") {
+    console.log(`
+  API Cost Monitor — Track spending across all your AI services.
+
+  Usage:
+    tsx cost-monitor.ts                         Open live dashboard
+    tsx cost-monitor.ts --since today            Filter to today
+    tsx cost-monitor.ts --budget 50              Set daily budget to $50
+    tsx cost-monitor.ts --log ./my-log.jsonl     Use custom log file
+
+  Add entries:
+    tsx cost-monitor.ts --add --service anthropic --cost 0.50 --note "Claude Code"
+    tsx cost-monitor.ts --add --service replit --cost 0.25 --project myapp --operation "agent"
+    tsx cost-monitor.ts --add --service openai --model gpt-4o --cost 0.03
+
+  Services: anthropic, openai, gemini, replit, elevenlabs, replicate,
+            resend, twilio, perplexity, cursor, github-copilot, vercel, other
+
+  Log file: ${DEFAULT_LOG_FILE}
+  Format: one JSON object per line (JSONL)
+
+  Keyboard (dashboard):
+    q  Quit       r  Reset      h  Cycle view
+    b  Cycle budget              a  Add entry interactively
+`);
+    process.exit(0);
+  }
+}
+
+// ── Ensure log dir ───────────────────────────────────────────────────────────
+
+function ensureLogDir(): void {
+  const dir = path.dirname(logFile);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+// ── Add entry mode ───────────────────────────────────────────────────────────
+
+if (addMode) {
+  if (!addService || addCost <= 0) {
+    console.error("Usage: --add --service <name> --cost <amount> [--model ...] [--note ...] [--project ...]");
+    process.exit(1);
+  }
+  ensureLogDir();
+  const entry: CostEntry = {
+    timestamp: new Date().toISOString(),
+    service: addService,
+    estimatedCostUsd: addCost,
+    ...(addModel && { model: addModel }),
+    ...(addNote && { note: addNote }),
+    ...(addProject && { project: addProject }),
+    ...(addOperation && { operation: addOperation }),
+  };
+  fs.appendFileSync(logFile, JSON.stringify(entry) + "\n");
+  console.log(`Logged: ${addService} ${dollar(addCost)}${addNote ? ` — ${addNote}` : ""}`);
+  process.exit(0);
 }
 
 // ── Data loading ─────────────────────────────────────────────────────────────
 
 function loadEntries(): void {
-  if (!fs.existsSync(LOG_FILE)) {
+  if (!fs.existsSync(logFile)) {
     entries = [];
     lastFileSize = 0;
     return;
   }
 
-  const stat = fs.statSync(LOG_FILE);
-  if (stat.size === lastFileSize) return; // no change
+  const stat = fs.statSync(logFile);
+  if (stat.size === lastFileSize) return;
 
   try {
-    const content = fs.readFileSync(LOG_FILE, "utf-8");
+    const content = fs.readFileSync(logFile, "utf-8");
     lastFileSize = stat.size;
     entries = content
       .split("\n")
       .filter(Boolean)
       .map((line) => {
-        try {
-          return JSON.parse(line) as CostEntry;
-        } catch {
-          return null;
-        }
+        try { return JSON.parse(line) as CostEntry; }
+        catch { return null; }
       })
       .filter((e): e is CostEntry => e !== null);
   } catch {
-    // file may be being written to — retry next cycle
+    // retry next cycle
   }
 }
 
@@ -167,59 +244,55 @@ function filterEntries(): CostEntry[] {
   const now = new Date();
   if (viewMode === "all") return entries;
 
+  let cutoff: string;
   if (viewMode === "today") {
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-    return entries.filter((e) => e.timestamp >= startOfDay);
+    cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  } else if (viewMode === "1h") {
+    cutoff = new Date(now.getTime() - 3_600_000).toISOString();
+  } else {
+    cutoff = new Date(now.getTime() - 7 * 86_400_000).toISOString();
   }
-
-  if (viewMode === "1h") {
-    const oneHourAgo = new Date(now.getTime() - 3_600_000).toISOString();
-    return entries.filter((e) => e.timestamp >= oneHourAgo);
-  }
-
-  return entries;
+  return entries.filter((e) => e.timestamp >= cutoff);
 }
 
 function aggregate(filtered: CostEntry[]): Aggregation {
   const agg: Aggregation = {
     totalCost: 0,
     totalCalls: filtered.length,
-    totalInputTokens: 0,
-    totalOutputTokens: 0,
+    totalTokens: 0,
     byService: new Map(),
     byModel: new Map(),
-    byRoute: new Map(),
+    byProject: new Map(),
     recent: filtered.slice(-MAX_RECENT).reverse(),
   };
 
   for (const e of filtered) {
     agg.totalCost += e.estimatedCostUsd;
-    agg.totalInputTokens += e.inputTokens ?? 0;
-    agg.totalOutputTokens += e.outputTokens ?? 0;
+    const tok = (e.inputTokens ?? 0) + (e.outputTokens ?? 0);
+    agg.totalTokens += tok;
 
     // By service
     const svc = agg.byService.get(e.service) ?? { calls: 0, cost: 0, tokens: 0 };
     svc.calls++;
     svc.cost += e.estimatedCostUsd;
-    svc.tokens += (e.inputTokens ?? 0) + (e.outputTokens ?? 0);
+    svc.tokens += tok;
     agg.byService.set(e.service, svc);
 
     // By model
     if (e.model) {
-      const mdl = agg.byModel.get(e.model) ?? { calls: 0, cost: 0, tokens: 0 };
+      const mdl = agg.byModel.get(e.model) ?? { calls: 0, cost: 0, tokens: 0, service: e.service };
       mdl.calls++;
       mdl.cost += e.estimatedCostUsd;
-      mdl.tokens += (e.inputTokens ?? 0) + (e.outputTokens ?? 0);
+      mdl.tokens += tok;
       agg.byModel.set(e.model, mdl);
     }
 
-    // By route
-    const rt = agg.byRoute.get(e.route) ?? { calls: 0, cost: 0, avgMs: 0, totalMs: 0 };
-    rt.calls++;
-    rt.cost += e.estimatedCostUsd;
-    rt.totalMs += e.durationMs ?? 0;
-    rt.avgMs = rt.totalMs / rt.calls;
-    agg.byRoute.set(e.route, rt);
+    // By project
+    const proj = e.project ?? "(untagged)";
+    const p = agg.byProject.get(proj) ?? { calls: 0, cost: 0 };
+    p.calls++;
+    p.cost += e.estimatedCostUsd;
+    agg.byProject.set(proj, p);
   }
 
   return agg;
@@ -231,13 +304,18 @@ const SERVICE_LABELS: Record<string, string> = {
   anthropic: "Anthropic (Claude)",
   openai: "OpenAI",
   gemini: "Google Gemini",
-  elevenlabs: "ElevenLabs (Voice)",
-  replicate: "Replicate (Image)",
-  resend: "Resend (Email)",
-  twilio: "Twilio (SMS)",
+  elevenlabs: "ElevenLabs",
+  replicate: "Replicate",
+  resend: "Resend",
+  twilio: "Twilio",
   "document-ai": "Document AI",
   "google-maps": "Google Maps",
   perplexity: "Perplexity",
+  replit: "Replit",
+  cursor: "Cursor",
+  "github-copilot": "GitHub Copilot",
+  vercel: "Vercel",
+  other: "Other",
 };
 
 const SERVICE_COLORS: Record<string, string> = {
@@ -250,181 +328,194 @@ const SERVICE_COLORS: Record<string, string> = {
   twilio: RED,
   "document-ai": CYAN,
   perplexity: CYAN,
+  replit: BLUE,
+  cursor: GREEN,
+  "github-copilot": WHITE,
+  vercel: WHITE,
+  other: DIM,
 };
 
 function progressBar(ratio: number, width: number): string {
   const clamped = Math.min(1, Math.max(0, ratio));
   const filled = Math.round(clamped * width);
   const empty = width - filled;
-  const c = clamped < 0.5 ? GREEN : clamped < 0.8 ? YELLOW : RED;
-  return `${c}${"▓".repeat(filled)}${DIM}${"░".repeat(empty)}${RESET}`;
-}
-
-function costColor(cost: number, budget: number): string {
-  if (budget <= 0) return WHITE;
-  const ratio = cost / budget;
-  if (ratio < 0.5) return GREEN;
-  if (ratio < 0.8) return YELLOW;
-  return RED;
+  const col = clamped < 0.5 ? GREEN : clamped < 0.8 ? YELLOW : RED;
+  return `${col}${"▓".repeat(filled)}${DIM}${"░".repeat(empty)}${RESET}`;
 }
 
 function render(agg: Aggregation): string {
-  const W = 64;
+  const W = 68;
   const now = new Date();
   const timeStr = now.toLocaleTimeString("en-US", { hour12: false });
+  const dateStr = now.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   const budget = BUDGET_OPTIONS[budgetIdx];
-  const viewLabel = viewMode === "all" ? "All Time" : viewMode === "today" ? "Today" : "Last Hour";
+  const viewLabel = viewMode === "all" ? "All Time" : viewMode === "today" ? "Today" : viewMode === "1h" ? "Last Hour" : "Last 7 Days";
 
   const lines: string[] = [];
 
   // Header
-  lines.push(color(BOLD + BG_BLUE + WHITE, ` ${"API Cost Monitor".padEnd(W - 19)}Live • ${timeStr} `));
-  lines.push(color(DIM, `  Project: ${PROJECT_NAME}    Log: ${path.basename(LOG_FILE)}`));
+  lines.push(c(BOLD + BG_BLUE + WHITE, ` ${"API Cost Monitor".padEnd(W - 24)}${dateStr} • ${timeStr} `));
+  lines.push(c(DIM, `  Log: ${logFile}`));
   lines.push("");
 
   // Summary
-  const cc = budget > 0 ? costColor(agg.totalCost, budget) : GREEN;
-  const totalStr = color(BOLD + cc, dollar(agg.totalCost));
-  const callStr = color(DIM, `${agg.totalCalls} calls`);
-  const tokenStr = color(DIM, `${kilo(agg.totalInputTokens + agg.totalOutputTokens)} tokens`);
-  lines.push(`  ${color(BOLD, viewLabel + " Spend:")} ${totalStr}    ${callStr}    ${tokenStr}`);
+  const cc = budget > 0 ? (agg.totalCost / budget < 0.5 ? GREEN : agg.totalCost / budget < 0.8 ? YELLOW : RED) : GREEN;
+  lines.push(`  ${c(BOLD, viewLabel + " Spend:")} ${c(BOLD + cc, dollar(agg.totalCost))}    ${c(DIM, `${agg.totalCalls} calls`)}    ${c(DIM, `${kilo(agg.totalTokens)} tokens`)}`);
 
   if (budget > 0) {
     const ratio = agg.totalCost / budget;
-    const bar = progressBar(ratio, 30);
-    const pct = `${Math.round(ratio * 100)}%`;
-    lines.push(`  ${bar} ${lpad(pct, 4)} of ${dollar(budget)} budget`);
+    lines.push(`  ${progressBar(ratio, 32)} ${lpad(`${Math.round(ratio * 100)}%`, 4)} of ${dollar(budget)} budget`);
   }
   lines.push("");
 
   // By Service
-  lines.push(color(BOLD, `  ${"SERVICE".padEnd(28)} ${"CALLS".padStart(6)} ${"TOKENS".padStart(9)} ${"COST".padStart(9)}`));
-  lines.push(color(DIM, `  ${"─".repeat(W - 4)}`));
+  lines.push(c(BOLD, `  ${"SERVICE".padEnd(30)} ${"CALLS".padStart(6)} ${"TOKENS".padStart(9)} ${"COST".padStart(10)}`));
+  lines.push(c(DIM, `  ${"─".repeat(W - 4)}`));
 
   const sortedServices = [...agg.byService.entries()].sort((a, b) => b[1].cost - a[1].cost);
+  if (sortedServices.length === 0) {
+    lines.push(c(DIM, `  (no activity recorded)`));
+  }
   for (const [svc, data] of sortedServices) {
     const label = SERVICE_LABELS[svc] ?? svc;
     const sc = SERVICE_COLORS[svc] ?? WHITE;
     lines.push(
-      `  ${color(sc, rpad(label, 28))} ${lpad(String(data.calls), 6)} ${lpad(kilo(data.tokens), 9)} ${lpad(dollar(data.cost), 9)}`
+      `  ${c(sc, rpad(label, 30))} ${lpad(String(data.calls), 6)} ${lpad(data.tokens > 0 ? kilo(data.tokens) : "—", 9)} ${lpad(dollar(data.cost), 10)}`
     );
 
-    // Sub-models
+    // Sub-models for this service
     const models = [...agg.byModel.entries()]
-      .filter(([m]) => {
-        const lower = m.toLowerCase();
-        if (svc === "anthropic") return lower.includes("claude");
-        if (svc === "openai") return lower.includes("gpt");
-        if (svc === "gemini") return lower.includes("gemini");
-        if (svc === "perplexity") return lower.includes("sonar");
-        return false;
-      })
+      .filter(([, md]) => md.service === svc)
       .sort((a, b) => b[1].cost - a[1].cost);
-
     for (const [model, md] of models) {
-      const shortName = model.replace(/^claude-/, "").replace(/^gpt-/, "").replace(/^gemini-/, "");
+      const short = model.replace(/^claude-/, "").replace(/^gpt-/, "").replace(/^gemini-/, "").slice(0, 26);
       lines.push(
-        `  ${color(DIM, `  ${rpad(shortName, 26)}`)} ${lpad(String(md.calls), 6)} ${lpad(kilo(md.tokens), 9)} ${lpad(dollar(md.cost), 9)}`
+        `  ${c(DIM, `  ${rpad(short, 28)}`)} ${lpad(String(md.calls), 6)} ${lpad(md.tokens > 0 ? kilo(md.tokens) : "—", 9)} ${lpad(dollar(md.cost), 10)}`
       );
     }
   }
-
-  if (sortedServices.length === 0) {
-    lines.push(color(DIM, `  (no calls yet)`));
-  }
   lines.push("");
 
-  // By Route
-  lines.push(color(BOLD, `  ${"ROUTE".padEnd(34)} ${"CALLS".padStart(6)} ${"AVG ms".padStart(8)} ${"COST".padStart(9)}`));
-  lines.push(color(DIM, `  ${"─".repeat(W - 4)}`));
-
-  const sortedRoutes = [...agg.byRoute.entries()].sort((a, b) => b[1].cost - a[1].cost).slice(0, 8);
-  for (const [route, data] of sortedRoutes) {
-    const avgStr = data.avgMs > 0 ? `${Math.round(data.avgMs).toLocaleString()}` : "—";
-    lines.push(
-      `  ${rpad(route, 34)} ${lpad(String(data.calls), 6)} ${lpad(avgStr, 8)} ${lpad(dollar(data.cost), 9)}`
-    );
+  // By Project (only show if there are tagged entries)
+  const projects = [...agg.byProject.entries()].sort((a, b) => b[1].cost - a[1].cost);
+  const hasProjects = projects.some(([name]) => name !== "(untagged)");
+  if (hasProjects) {
+    lines.push(c(BOLD, `  ${"PROJECT".padEnd(36)} ${"CALLS".padStart(6)} ${"COST".padStart(10)}`));
+    lines.push(c(DIM, `  ${"─".repeat(W - 4)}`));
+    for (const [proj, data] of projects) {
+      lines.push(`  ${rpad(proj, 36)} ${lpad(String(data.calls), 6)} ${lpad(dollar(data.cost), 10)}`);
+    }
+    lines.push("");
   }
 
-  if (sortedRoutes.length === 0) {
-    lines.push(color(DIM, `  (no calls yet)`));
-  }
-  lines.push("");
-
-  // Recent calls
-  lines.push(color(BOLD, `  RECENT CALLS`));
-  lines.push(color(DIM, `  ${"─".repeat(W - 4)}`));
+  // Recent
+  lines.push(c(BOLD, `  RECENT ACTIVITY`));
+  lines.push(c(DIM, `  ${"─".repeat(W - 4)}`));
 
   if (agg.recent.length === 0) {
-    lines.push(color(DIM, `  Waiting for API calls...`));
-    lines.push(color(DIM, `  Log file: ${LOG_FILE}`));
+    lines.push(c(DIM, `  Waiting for activity...`));
+    lines.push("");
+    lines.push(c(DIM, `  Quick start — log an entry from PowerShell:`));
+    lines.push(c(CYAN, `    tsx cost-monitor.ts --add --service anthropic --cost 0.50 --note "Claude Code"`));
+    lines.push(c(CYAN, `    tsx cost-monitor.ts --add --service replit --cost 0.10 --project myapp`));
   } else {
     for (const e of agg.recent) {
       const t = new Date(e.timestamp);
       const ts = t.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
       const sc = SERVICE_COLORS[e.service] ?? WHITE;
-      const modelStr = e.model ? e.model.replace(/^claude-|^gpt-|^gemini-/g, "").slice(0, 18) : e.operation;
+      const detail = e.note ?? e.model ?? e.operation ?? "";
+      const projTag = e.project ? c(DIM, ` [${e.project}]`) : "";
       lines.push(
-        `  ${color(DIM, ts)}  ${color(sc, rpad(e.service, 12))} ${rpad(modelStr, 20)} ${lpad(dollar(e.estimatedCostUsd), 8)}`
+        `  ${c(DIM, ts)}  ${c(sc, rpad(e.service, 12))} ${rpad(detail.slice(0, 22), 22)} ${lpad(dollar(e.estimatedCostUsd), 8)}${projTag}`
       );
     }
   }
   lines.push("");
 
   // Footer
-  lines.push(color(DIM, `  q quit  r reset  h view (${viewLabel})  b budget (${budget > 0 ? dollar(budget) : "off"})`));
+  lines.push(c(DIM, `  q quit  r reset  h view (${viewLabel})  b budget (${budget > 0 ? dollar(budget) : "off"})  a add entry`));
 
   return lines.join("\n");
 }
 
+// ── Interactive add ──────────────────────────────────────────────────────────
+
+async function interactiveAdd(): Promise<void> {
+  process.stdout.write(SHOW_CURSOR);
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const ask = (q: string): Promise<string> => new Promise((resolve) => rl.question(q, resolve));
+
+  try {
+    console.log("\n  Add cost entry:");
+    const service = await ask("  Service (anthropic/openai/replit/other): ");
+    const cost = parseFloat(await ask("  Cost ($): "));
+    if (isNaN(cost) || cost <= 0) { console.log("  Cancelled."); return; }
+    const model = await ask("  Model (optional): ");
+    const project = await ask("  Project (optional): ");
+    const note = await ask("  Note (optional): ");
+
+    ensureLogDir();
+    const entry: CostEntry = {
+      timestamp: new Date().toISOString(),
+      service: service || "other",
+      estimatedCostUsd: cost,
+      ...(model && { model }),
+      ...(project && { project }),
+      ...(note && { note }),
+    };
+    fs.appendFileSync(logFile, JSON.stringify(entry) + "\n");
+    lastFileSize = 0; // force reload
+    console.log(`  Logged: ${service} ${dollar(cost)}`);
+  } finally {
+    rl.close();
+    process.stdout.write(HIDE_CURSOR);
+    if (process.stdin.isTTY) process.stdin.setRawMode(true);
+  }
+}
+
 // ── Main loop ────────────────────────────────────────────────────────────────
+
+ensureLogDir();
 
 function tick(): void {
   loadEntries();
   const filtered = filterEntries();
   const agg = aggregate(filtered);
-  const screen = render(agg);
-  process.stdout.write(CLEAR + screen);
+  process.stdout.write(CLEAR + render(agg));
 }
 
-// Keyboard input
+// Keyboard
 readline.emitKeypressEvents(process.stdin);
 if (process.stdin.isTTY) {
   process.stdin.setRawMode(true);
 }
 process.stdin.resume();
-process.stdin.on("keypress", (_ch, key) => {
+process.stdin.on("keypress", async (_ch, key) => {
   if (!key) return;
   if (key.name === "q" || (key.ctrl && key.name === "c")) {
     process.stdout.write(SHOW_CURSOR + "\n");
     process.exit(0);
   }
-  if (key.name === "r") {
-    entries = [];
-    lastFileSize = 0;
-    tick();
-  }
+  if (key.name === "r") { entries = []; lastFileSize = 0; tick(); }
   if (key.name === "h") {
-    const modes: ViewMode[] = ["today", "1h", "all"];
-    const idx = modes.indexOf(viewMode);
-    viewMode = modes[(idx + 1) % modes.length];
+    const modes: ViewMode[] = ["today", "1h", "7d", "all"];
+    viewMode = modes[(modes.indexOf(viewMode) + 1) % modes.length];
     tick();
   }
   if (key.name === "b") {
     budgetIdx = (budgetIdx + 1) % BUDGET_OPTIONS.length;
     tick();
   }
+  if (key.name === "a") {
+    await interactiveAdd();
+    tick();
+  }
 });
 
 // Graceful exit
-process.on("SIGINT", () => {
-  process.stdout.write(SHOW_CURSOR + "\n");
-  process.exit(0);
-});
-process.on("SIGTERM", () => {
-  process.stdout.write(SHOW_CURSOR + "\n");
-  process.exit(0);
-});
+for (const sig of ["SIGINT", "SIGTERM"] as const) {
+  process.on(sig, () => { process.stdout.write(SHOW_CURSOR + "\n"); process.exit(0); });
+}
 
 // Start
 process.stdout.write(HIDE_CURSOR);

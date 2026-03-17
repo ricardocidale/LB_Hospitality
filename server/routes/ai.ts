@@ -3,6 +3,7 @@ import { getAnthropicClient, getGeminiClient } from "../ai/clients";
 import { requireAuth } from "../auth";
 import { aiRateLimit } from "../middleware/rate-limit";
 import { z } from "zod";
+import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 const rewriteSchema = z.object({
   text: z.string().min(1).max(5000),
@@ -34,6 +35,7 @@ ${text}
 Rewritten description:`;
 
       const gemini = getGeminiClient();
+      const startTime = Date.now();
       const response = await gemini.models.generateContent({
         model: "gemini-2.5-flash",
         contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -44,6 +46,11 @@ Rewritten description:`;
       if (!rewritten) {
         return res.status(500).json({ error: "No response from AI" });
       }
+
+      const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
+      const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round((rewritten?.length ?? 0) / 4);
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: "gemini-2.5-flash", operation: "rewrite-description", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", "gemini-2.5-flash", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/rewrite-description" }); } catch {}
+
       res.json({ rewritten });
     } catch (error: any) {
       console.error("[ai/rewrite] Error:", error?.message || error);
@@ -68,6 +75,7 @@ Rewritten description:`;
 
       const anthropic = getAnthropicClient();
 
+      const startTime = Date.now();
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
         max_tokens: 8192,
@@ -98,6 +106,11 @@ ${prompt}`,
       if (!optimized) {
         return res.status(500).json({ error: "No response from AI" });
       }
+
+      const inTok = response.usage?.input_tokens ?? Math.round(prompt.length / 4);
+      const outTok = response.usage?.output_tokens ?? Math.round(optimized.length / 4);
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "anthropic", model: "claude-3-5-sonnet-20241022", operation: "optimize-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("anthropic", "claude-3-5-sonnet-20241022", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/optimize-prompt" }); } catch {}
+
       res.json({ optimized });
     } catch (error: any) {
       console.error("[ai/optimize-prompt] Error:", error?.message || error);

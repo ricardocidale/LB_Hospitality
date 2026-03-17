@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, isApiRateLimited } from "../auth";
 import { logAndSendError } from "./helpers";
 import { getAnthropicClient, normalizeModelId } from "../ai/clients";
+import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 interface IcpLocationCity {
   name: string;
@@ -325,6 +326,7 @@ export function register(app: Express) {
 
       let fullContent = "";
 
+      const startTime = Date.now();
       const stream = await anthropic.messages.stream({
         model,
         max_tokens: 12000,

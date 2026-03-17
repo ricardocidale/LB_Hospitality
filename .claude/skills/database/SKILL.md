@@ -1,9 +1,37 @@
 ---
-name: schema-migration
-description: Schema migration system covering the dual migration approach (Drizzle SQL + TypeScript startup), naming conventions, orchestration order, idempotency, and dev workflow.
+name: database
+description: Database environments and schema migration system. Covers dev/prod PostgreSQL, Drizzle ORM, dual migration approach (Drizzle SQL + TypeScript startup), naming conventions, orchestration order, idempotency, and dev workflow.
 ---
 
-Schema migration system for the hospitality financial model. Covers the dual migration approach (Drizzle SQL migrations + TypeScript startup migrations), naming conventions, orchestration order, idempotency requirements, and the dev workflow. Use this skill when adding database columns, creating tables, or modifying the schema.
+Database environments and schema migration system for the hospitality financial model. Covers dev/prod PostgreSQL, Drizzle ORM patterns, the dual migration approach (Drizzle SQL migrations + TypeScript startup migrations), naming conventions, orchestration order, idempotency requirements, and the dev workflow. Use this skill when adding database columns, creating tables, modifying the schema, syncing environments, or debugging database issues.
+
+## Database Environments
+
+- **Development**: Local PostgreSQL via Replit's built-in database (`DATABASE_URL` env var)
+- **Production**: Separate PostgreSQL database with distinct data
+- **ORM**: Drizzle ORM with schema defined in `shared/schema.ts`
+- **Storage**: All database operations go through `server/storage.ts` (`IStorage` interface). Routes call storage methods — never raw SQL.
+- **Env vars**: `DATABASE_URL` (auto-set), `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`
+
+### Key Commands
+```bash
+npm run db:push          # Push schema changes to dev database
+npx drizzle-kit push     # Alternative direct push
+npx drizzle-kit studio   # Open Drizzle Studio for visual DB management
+```
+
+### Schema Conventions
+All Drizzle table definitions live in `shared/schema.ts`. When adding tables:
+1. Define the table with `pgTable()`
+2. Create insert schema with `createInsertSchema` from `drizzle-zod`
+3. Export insert type via `z.infer<typeof insertSchema>`
+4. Export select type via `typeof table.$inferSelect`
+5. Run `npm run db:push` to apply
+
+### Safety Rules
+- Always use Drizzle ORM for migrations (never raw DDL)
+- Never execute destructive SQL (DROP, DELETE, UPDATE) without explicit approval
+- Use transactions for multi-table operations
 
 ## Dual Migration System
 

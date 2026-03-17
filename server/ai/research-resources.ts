@@ -9,7 +9,6 @@ export const PROPERTY_RESEARCH_SKILLS = [
   "adr-analysis",
   "occupancy-analysis",
   "event-demand",
-  "catering-analysis",
   "cap-rate-analysis",
   "competitive-set",
   "land-value",

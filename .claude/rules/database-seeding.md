@@ -1,6 +1,6 @@
 # Database Seeding Rules
 
-> Full reference (schema tables, seeding mechanisms, seed data, migrations): `.claude/skills/database-environments/SKILL.md`
+> Full reference (schema tables, seeding mechanisms, seed data, migrations): `.claude/skills/database/SKILL.md`
 
 ## Seeding Invariants (Non-Negotiable)
 

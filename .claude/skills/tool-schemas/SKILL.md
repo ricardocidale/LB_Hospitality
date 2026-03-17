@@ -26,7 +26,6 @@ research/market-overview/tools/     → analyze_market
 research/adr-analysis/tools/        → analyze_adr
 research/occupancy-analysis/tools/  → analyze_occupancy
 research/event-demand/tools/        → analyze_event_demand
-research/catering-analysis/tools/   → analyze_catering
 research/cap-rate-analysis/tools/   → analyze_cap_rates
 research/competitive-set/tools/     → analyze_competitive_set
 research/land-value/tools/          → analyze_land_value

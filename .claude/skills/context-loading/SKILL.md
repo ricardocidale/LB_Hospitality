@@ -145,7 +145,7 @@ With 176 skill files, loading everything wastes tokens and slows responses. This
 #### Database & Infrastructure
 | Task | Load These Skills | Skip |
 |------|------------------|------|
-| Schema changes / migrations | `database-environments/SKILL.md`, `rules/database-seeding.md` | Finance, UI skills |
+| Schema changes / migrations | `database/SKILL.md`, `rules/database-seeding.md` | Finance, UI skills |
 | API route changes | `rules/api-routes.md`, `architecture/SKILL.md` | UI skills |
 | Seed data changes | `rules/database-seeding.md` | Finance engine skills |
 | Image generation server | `ui/property-image-picker.md`, `architecture/SKILL.md` | Finance, UI skills |

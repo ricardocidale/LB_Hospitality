@@ -57,7 +57,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Proof System | `.claude/skills/proof-system/SKILL.md` | 3,328 tests, 583 golden tests, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
-| Database | `.claude/skills/database-environments/SKILL.md` | Dev/prod databases, migrations, sync |
+| Database | `.claude/skills/database/SKILL.md` | Dev/prod databases, Drizzle ORM, migrations, sync |
 | Multi-Tenancy | `.claude/skills/multi-tenancy/SKILL.md` | Users, groups, logos, themes, branding resolution |
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
 | Source Code | `.claude/skills/source-code/SKILL.md` | Full source code map |
@@ -117,7 +117,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Recent Changes (March 16, 2026)
 
-- **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic (broken Agent Skills stub) to Gemini 2.0 Flash. Removed dead `agentSkillsExport` code path. Completely redesigned PDF rendering with enterprise-quality design: full-bleed navy cover page, branded section headers, decorative page chrome, KPI cards, warm callout blocks, professional footer treatment. Both server-side premium PDF and client-side comprehensive dashboard PDF upgraded.
+- **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic to Gemini 2.5 Flash (65k output tokens). Redesigned PDF rendering with enterprise-quality design: full-bleed navy cover page, branded section headers, KPI metric cards, warm callout blocks. Added JSON repair fallback for truncated AI responses.
 - **Model Defaults Admin Section** — New "Model Defaults" tab in Admin > Business group. Two sub-tabs: Market & Macro (inflation, cost of equity, days per month, fiscal calendar) and Property Underwriting (expense rates, acquisition/refi financing, depreciation, exit/disposition, default acquisition package). Consolidates all financial seed/default values into one place. Uses GovernedFieldWrapper for IRS/industry-standard values.
 - **Verification Bug Fixes** — Fixed DSCR check (was failing for pre-operational Year 1 properties), fixed Net Income/Cash Flow identity checks (were using naive tax formula ignoring NOL carryforward). Added `incomeTax` to checker engine output.
 - **Multi-Vendor Research LLMs** — Removed Anthropic-only constraint from research engine. Created vendor-agnostic `ResearchClient` abstraction (`server/ai/research-client.ts`) with adapters for Anthropic, OpenAI, and Gemini. Two-model waterfall works across all three vendors. Admin Research Center vendor selector now offers all three options. Stats: 841 source files, ~148K lines.

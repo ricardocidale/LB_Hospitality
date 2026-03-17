@@ -24,7 +24,6 @@ gop -> agop -> noi -> anoi
 Total Revenue
   - Departmental Expenses (Rooms, F&B, Events, Other)
   - Undistributed Operating Expenses (Admin, Marketing, Property Ops, Utilities, IT)
-  - Insurance
   = GOP (Gross Operating Profit)
   - Management Fees (Base Fee + Incentive Fee)
   = AGOP (Adjusted Gross Operating Profit)
@@ -37,13 +36,6 @@ Total Revenue
   - Income Tax (NOL carryforward at 80% cap per IRC section 172)
   = Net Income
 ```
-
-### Insurance in the Pipeline
-- **Property insurance**: `expenseInsurance = (totalPropertyValue / 12) × costRateInsurance × fixedCostFactor` (default 1.5%)
-- Included in `totalOperatingExpenses` (before GOP), NOT in fixed charges
-- **Company insurance** = `DEFAULT_BUSINESS_INSURANCE_START / 12` = $1,000/mo
-- `businessInsuranceStart` field in GlobalResponse tracks the annual company insurance amount
-- Key fields: `costRateInsurance` (input), `expenseInsurance` (output), `businessInsuranceStart` (company)
 
 ## Revenue Computation
 

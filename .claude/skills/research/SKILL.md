@@ -171,7 +171,6 @@ Each AI research module has its own skill file with tool schema:
 | ADR Analysis | `research/adr-analysis/` | Average daily rate benchmarking |
 | Occupancy Analysis | `research/occupancy-analysis/` | Occupancy patterns, ramp-up |
 | Cap Rate Analysis | `research/cap-rate-analysis/` | Investment cap rates |
-| Catering Analysis | `research/catering-analysis/` | F&B and event revenue uplift |
 | Competitive Set | `research/competitive-set/` | Comparable property analysis |
 | Event Demand | `research/event-demand/` | Event revenue potential |
 | Land Value | `research/land-value/` | IRS land allocation for depreciation |

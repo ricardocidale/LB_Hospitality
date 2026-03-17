@@ -31,7 +31,7 @@
 | `no-hardcoded-values.md` | `finance/*`, `multi-tenancy/SKILL.md` | No literal financial or admin values |
 | `recalculate-on-save.md` | `architecture/SKILL.md`, `finance/calculation-chain.md` | All saves invalidate financial queries |
 | `financial-engine.md` | `finance/*` | Mandatory business rules + immutable constants |
-| `database-seeding.md` | `database-environments/SKILL.md` | Seeding invariants |
+| `database-seeding.md` | `database/SKILL.md` | Seeding invariants |
 | `architecture.md` | `architecture/SKILL.md`, `source-code/SKILL.md` | Stack constraints |
 | `audit-persona.md` | `proof-system/SKILL.md`, `testing/SKILL.md` | Audit doctrine |
 | `documentation.md` | All skills | Docs-after-edits protocol |

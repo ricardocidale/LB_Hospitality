@@ -25,21 +25,6 @@ function isRealBrowser(): boolean {
   return typeof window !== "undefined" && typeof window.document !== "undefined" && typeof navigator !== "undefined";
 }
 
-function isInIframe(): boolean {
-  if (!isRealBrowser()) return false;
-  try {
-    return window.self !== window.top;
-  } catch {
-    return true;
-  }
-}
-
-function canUseNativeFilePicker(): boolean {
-  if (!isRealBrowser()) return false;
-  if (!("showSaveFilePicker" in window)) return false;
-  return !isInIframe();
-}
-
 function triggerDownload(blob: Blob, suggestedName: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -54,27 +39,10 @@ function triggerDownload(blob: Blob, suggestedName: string): void {
   }, 250);
 }
 
-function openBlobInNewTab(blob: Blob, suggestedName: string): void {
-  const downloadBlob = new Blob([blob], { type: "application/octet-stream" });
-  const url = URL.createObjectURL(downloadBlob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = suggestedName;
-  link.target = "_blank";
-  link.rel = "noopener";
-  link.style.display = "none";
-  document.body.appendChild(link);
-  link.click();
-  setTimeout(() => {
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }, 1000);
-}
-
 export async function saveFile(blob: Blob, suggestedName: string): Promise<void> {
   const ext = getExtension(suggestedName);
 
-  if (canUseNativeFilePicker()) {
+  if (isRealBrowser() && "showSaveFilePicker" in window) {
     try {
       const handle = await (window as any).showSaveFilePicker({
         suggestedName,
@@ -92,19 +60,6 @@ export async function saveFile(blob: Blob, suggestedName: string): Promise<void>
     } catch (err: any) {
       if (err?.name === "AbortError") throw err;
     }
-  }
-
-  if (isInIframe()) {
-    openBlobInNewTab(blob, suggestedName);
-    return;
-  }
-
-  if (isRealBrowser()) {
-    try {
-      const { saveAs } = await import("file-saver");
-      saveAs(blob, suggestedName);
-      return;
-    } catch {}
   }
 
   triggerDownload(blob, suggestedName);

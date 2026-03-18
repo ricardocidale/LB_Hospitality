@@ -137,12 +137,7 @@ async function saveToLocal(blob: Blob, filename: string, _mimeType: string): Pro
 
 function canShowNativeFilePicker(): boolean {
   if (typeof window === "undefined") return false;
-  if (!("showSaveFilePicker" in window)) return false;
-  try {
-    return window.self === window.top;
-  } catch {
-    return false;
-  }
+  return "showSaveFilePicker" in window;
 }
 
 async function saveToDrive(blob: Blob, filename: string, mimeType: string): Promise<{ webViewLink: string }> {
@@ -589,7 +584,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                   <div className="text-left">
                     <div className="font-medium text-sm">Save to Computer</div>
                     <div className="text-xs text-muted-foreground">
-                      {canShowNativeFilePicker() ? "Opens file explorer to choose location" : "Downloads to your default folder"}
+                      {canShowNativeFilePicker() ? "Opens file explorer to choose location" : "Downloads file to your computer"}
                     </div>
                   </div>
                 </Button>

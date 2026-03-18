@@ -1,52 +1,21 @@
-import React, { useState, useMemo, useRef, RefObject } from "react";
-import { useExportSave } from "@/hooks/useExportSave";
+import React, { useMemo, useRef } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { ChevronRight, ChevronDown, ChevronsUpDown } from "@/components/icons/themed-icons";
 import { formatMoney } from "@/lib/financialEngine";
 import { CalcDetailsProvider } from "@/components/financial-table";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
-import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
-import { LoanParams, GlobalLoanParams } from "@/lib/financial/loanCalculations";
-import {
-  dashboardExports,
-  generatePortfolioCashFlowData,
-  generatePortfolioInvestmentData,
-  generatePortfolioIncomeData,
-  generatePortfolioBalanceSheetData,
-  exportPortfolioPDF,
-  exportPortfolioCSV,
-  buildAllPortfolioStatements,
-  exportPortfolioExcel,
-  toExportData,
-  ExportRow
-} from "./dashboardExports";
 import { useExpandableRows } from "./useExpandableRows";
-import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
 
-export function CashFlowTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails, global }: DashboardTabProps) {
-  const { 
-    allPropertyFinancials, 
+export function CashFlowTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
+  const {
     allPropertyYearlyCF,
-    totalInitialEquity,
-    totalExitValue,
-    portfolioIRR,
-    equityMultiple,
-    cashOnCash,
-    totalProjectionRevenue,
-    totalProjectionNOI,
-    totalProjectionCashFlow,
-    yearlyConsolidatedCache
   } = financials;
   const CF_ROW_KEYS = useMemo(() => ["metrics", "cfo", "cfi", "cff"], []);
   const { expandedRows, expandedFormulas, toggleRow, toggleFormula, toggleAll, allRowsExpanded } = useExpandableRows(CF_ROW_KEYS);
   const tableRef = useRef<HTMLDivElement>(null);
-  const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [pendingExportAction, setPendingExportAction] = useState<string>("");
-  const { requestSave, SaveDialog } = useExportSave();
 
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
 
@@ -80,87 +49,8 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     });
   }, [allPropertyYearlyCF, years]);
 
-  const handleExport = (action: string) => {
-    if (action === 'pdf' || action === 'pptx' || action === 'chart' || action === 'table') {
-      setPendingExportAction(action);
-      setExportDialogOpen(true);
-      return;
-    }
-
-    const { years, rows } = generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear);
-
-    switch (action) {
-      case 'csv':
-        requestSave("Cash Flow Statement", ".csv", (f) => exportPortfolioCSV(years, rows, f || "portfolio-cash-flow.csv"));
-        break;
-      case 'excel':
-        requestSave("Portfolio", ".xlsx", (f) => exportPortfolioExcel(
-          buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
-          global?.companyName || "Portfolio",
-          f
-        ));
-        break;
-    }
-  };
-
-  const CF_SECTION_KEYS = ["cfo", "cfi", "cff"];
-  const allCFExpandedSet = new Set(CF_SECTION_KEYS);
-  const emptyCFSet = new Set<string>();
-
-  const getVersionCashFlowData = (version: ExportVersion) => {
-    const override = version === "extended" ? allCFExpandedSet : emptyCFSet;
-    const exclude = version === "short";
-    const names = properties.map(p => p.name);
-    return generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear, override, exclude, names);
-  };
-
-  const handleVersionExport = (_orientation: 'landscape' | 'portrait', version: ExportVersion, customFilename?: string) => {
-    const { years, rows } = getVersionCashFlowData(version);
-
-    switch (pendingExportAction) {
-      case 'pdf':
-        exportPortfolioPDF("landscape", projectionYears, years, rows, (i) => yearlyConsolidatedCache[i], "Portfolio Cash Flow Statement", undefined, customFilename);
-        break;
-      case 'pptx': {
-        dashboardExports.exportToPPTX({
-          projectionYears,
-          getFiscalYear,
-          totalInitialEquity,
-          totalExitValue,
-          equityMultiple,
-          portfolioIRR,
-          cashOnCash,
-          totalProperties: properties.length,
-          totalRooms: financials.totalRooms,
-          totalProjectionRevenue,
-          totalProjectionNOI,
-          totalProjectionCashFlow,
-          incomeData: toExportData(generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear)),
-          cashFlowData: toExportData({ years, rows }),
-          balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear)),
-          investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
-        }, global.companyName || undefined, customFilename);
-        break;
-      }
-      case 'chart':
-      case 'table':
-        dashboardExports.exportToPNG(tableRef as RefObject<HTMLElement>, customFilename);
-        break;
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {SaveDialog}
-      <ExportDialog
-        open={exportDialogOpen}
-        onClose={() => setExportDialogOpen(false)}
-        onExport={handleVersionExport}
-        title={pendingExportAction === 'pdf' ? 'Export PDF' : pendingExportAction === 'pptx' ? 'Export PPTX' : 'Export PNG'}
-        showVersionOption={true}
-        suggestedFilename="Cash Flow Statement"
-        fileExtension={pendingExportAction === 'pptx' ? '.pptx' : pendingExportAction === 'png' ? '.png' : '.pdf'}
-      />
       <FinancialChart
         data={chartData}
         series={["noi", "anoi", "cashFlow", "fcfe"]}
@@ -183,16 +73,6 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
               {allRowsExpanded ? "Collapse All" : "Expand All"}
             </Button>
           </div>
-          <ExportMenu
-            actions={[
-              pdfAction(() => handleExport('pdf')),
-              csvAction(() => handleExport('csv')),
-              excelAction(() => handleExport('excel')),
-              pptxAction(() => handleExport('pptx')),
-              chartAction(() => handleExport('chart')),
-              pngAction(() => handleExport('table')),
-            ]}
-          />
         </CardHeader>
         <CardContent ref={tableRef}>
           <CalcDetailsProvider show={showCalcDetails}>

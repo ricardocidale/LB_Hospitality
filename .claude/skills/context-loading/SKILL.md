@@ -81,7 +81,7 @@ With 176 skill files, loading everything wastes tokens and slows responses. This
 | Task | Load These Skills | Skip |
 |------|------------------|------|
 | Excel export | `exports/excel-export.md` | Other export skills |
-| PDF export | `exports/pdf-chart-export.md` | Other export skills |
+| PDF export | `exports/pdf-rendering.md`, `exports/premium-export-spec.md` | Other export skills |
 | PNG export | `exports/png-export.md` | Other export skills |
 | PowerPoint export | `exports/pptx-export.md` | Other export skills |
 | Any export change | `exports/SKILL.md` (master) | Finance engine skills |

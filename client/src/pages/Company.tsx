@@ -24,7 +24,8 @@
  * page free of inline financial logic.
  */
 import React, { useState, useRef, useMemo, useCallback } from "react";
-import { ExportDialog, type PremiumExportPayload } from "@/components/ExportDialog";
+import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
+import { useQuery } from "@tanstack/react-query";
 import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
@@ -36,7 +37,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import { IconAlertTriangle, IconCheckCircle } from "@/components/icons";
-import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction, docxAction } from "@/components/ui/export-toolbar";
 import { CalcDetailsProvider } from "@/components/financial-table";
 import { Link } from "wouter";
 import { AnimatedPage } from "@/components/graphics";
@@ -59,6 +60,11 @@ import {
 export default function Company() {
   const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
+  const { data: brandingData } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string }> | null }>({
+    queryKey: ["my-branding"],
+    queryFn: async () => { const res = await fetch("/api/my-branding", { credentials: "include" }); return res.json(); },
+    staleTime: 5 * 60_000,
+  });
   const { data: serviceTemplates } = useServiceTemplates();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
@@ -68,7 +74,7 @@ export default function Company() {
   const chartRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
+  const [exportType, setExportType] = useState<"pdf" | "xlsx" | "pptx" | "docx" | "chart">("pdf");
   const [modelInputsOpen, setModelInputsOpen] = useState(false);
   const { requestSave, SaveDialog } = useExportSave();
   const modelInputsRef = useRef<HTMLDivElement>(null);
@@ -201,9 +207,7 @@ export default function Company() {
       const summaryOnly = version === 'short';
       const data = getStatementData(activeTab, summaryOnly);
       exportCompanyPDF(activeTab as any, data, global, projectionYears, yearlyChartData, orientation, customFilename);
-    } else if (exportType === 'tablePng') {
-      exportTablePNG(tableRef, activeTab, companyName, customFilename);
-    } else {
+    } else if (exportType === 'chart') {
       exportChartPNG(chartRef, orientation, companyName, customFilename);
     }
   };
@@ -215,17 +219,10 @@ export default function Company() {
       variant="light"
       actions={[
         pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
-        excelAction(() => requestSave(`${companyName} Financial Statements`, ".xlsx", (f) => handleExcelExport(activeTab, financials, projectionYears, global, fiscalYearStartMonth, f))),
+        excelAction(() => { setExportType('xlsx'); setExportDialogOpen(true); }),
         csvAction(() => requestSave(`${companyName} ${tabLabel}`, ".csv", (f) => exportCompanyCSV(activeTab as any, getStatementData(activeTab), companyName, f))),
-        pptxAction(() => requestSave(`${companyName} Report`, ".pptx", (f) => handlePPTXExport(
-          global,
-          projectionYears,
-          (i) => String(getFiscalYear(i)),
-          generateCompanyIncomeData(financials, years, properties, propertyFinancials),
-          generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel),
-          generateCompanyBalanceData(financials, years, fundingLabel),
-          f
-        ))),
+        pptxAction(() => { setExportType('pptx'); setExportDialogOpen(true); }),
+        docxAction(() => { setExportType('docx'); setExportDialogOpen(true); }),
         chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
         pngAction(() => requestSave(`${companyName} ${tabLabel}`, ".png", (f) => exportTablePNG(tableRef, activeTab, companyName, f))),
       ]}
@@ -240,27 +237,41 @@ export default function Company() {
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
-        title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
+        title={exportType === "chart" ? "Export Chart" : `Export ${exportType.toUpperCase()}`}
+        showVersionOption={exportType !== "chart"}
+        premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={
-          exportType === 'pdf' ? `${companyName} ${tabLabel}` : `${companyName} Chart`
+          exportType === 'chart' ? `${companyName} Chart` : `${companyName} ${tabLabel}`
         }
-        fileExtension={exportType === 'pdf' ? '.pdf' : '.png'}
-        premiumExportData={exportType === 'pdf' ? (() => {
-          const incomeData = generateCompanyIncomeData(financials, years, properties, propertyFinancials);
-          const cashFlowData = generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel);
-          const balanceData = generateCompanyBalanceData(financials, years, fundingLabel);
+        fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
+        showCoverPageOption={false}
+        getPremiumExportData={exportType !== 'chart' ? (version: ExportVersion, includeCoverPage: boolean) => {
+          const summaryOnly = version === "short";
+          const incomeData = generateCompanyIncomeData(financials, years, properties, propertyFinancials, summaryOnly);
+          const cashFlowData = generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel, summaryOnly);
+          const balanceData = generateCompanyBalanceData(financials, years, fundingLabel, summaryOnly);
+          const mapRows = (rows: any[]) => rows.map((r: any) => ({
+            category: r.category,
+            values: r.values,
+            indent: r.indent,
+            isBold: r.isBold ?? r.isHeader,
+            isHeader: r.isHeader,
+            isItalic: r.isItalic,
+          }));
           return {
             entityName: companyName,
             companyName: global?.companyName || "Hospitality Business Group",
             statementType: activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow" : "Balance Sheet",
             statements: [
-              { title: "Management Company Income Statement", years: incomeData.years.map(String), rows: incomeData.rows },
-              { title: "Management Company Cash Flow", years: cashFlowData.years.map(String), rows: cashFlowData.rows },
-              { title: "Management Company Balance Sheet", years: balanceData.years.map(String), rows: balanceData.rows },
+              { title: "Management Company Income Statement", years: incomeData.years.map(String), rows: mapRows(incomeData.rows) },
+              { title: "Management Company Cash Flow", years: cashFlowData.years.map(String), rows: mapRows(cashFlowData.rows) },
+              { title: "Management Company Balance Sheet", years: balanceData.years.map(String), rows: mapRows(balanceData.rows) },
             ],
             projectionYears,
+            includeCoverPage,
+            themeColors: brandingData?.themeColors?.map((c: any) => ({ name: c.name, hexCode: c.hexCode, rank: c.rank })),
           } as PremiumExportPayload;
-        })() : null}
+        } : undefined}
       />
       <div className="space-y-6">
         <CalcDetailsProvider show={global?.showCompanyCalculationDetails ?? true}>

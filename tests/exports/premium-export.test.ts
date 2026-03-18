@@ -11,7 +11,7 @@ const routeSource = fs.readFileSync(
 
 describe("Premium export route structure audit", () => {
   it("validates request with zod schema requiring format enum", () => {
-    expect(routeSource).toContain('z.enum(["xlsx", "pptx", "pdf", "docx"])');
+    expect(routeSource).toContain('z.enum(["xlsx", "pptx", "pdf", "docx", "png"])');
   });
 
   it("defines all four content types", () => {
@@ -94,7 +94,7 @@ describe("Premium export schema validation behavior", () => {
   });
 
   const premiumExportSchema = z.object({
-    format: z.enum(["xlsx", "pptx", "pdf", "docx"]),
+    format: z.enum(["xlsx", "pptx", "pdf", "docx", "png"]),
     orientation: z.enum(["landscape", "portrait"]).optional().default("landscape"),
     version: z.enum(["short", "extended"]).optional().default("short"),
     entityName: z.string(),

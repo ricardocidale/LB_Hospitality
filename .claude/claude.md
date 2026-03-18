@@ -154,16 +154,21 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Export System
 
-Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
-- **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
-- **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
-- **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and browser-rendered PDF exports use these dimensions.
-- **Browser abstraction**: `server/pdf/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
-- **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers. Premium PDF uses navy cover page with grid pattern, gradient metric cards, bordered prose blocks, inline SVG bar charts with gradient fills.
-- **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
-  1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.
-  2. **Dual save destination**: Both premium and non-premium offer Local Drive + Google Drive.
-  3. **File naming at save step**: User renames file during folder/location selection — not in the export dialog.
+Full reference: `.claude/skills/exports/SKILL.md`. SDD: `.claude/skills/exports/premium-export-spec.md`.
+- **Premium Export**: `POST /api/exports/premium` — LLM from admin config (`premiumExportLlm`, defaults to Gemini 2.5 Flash). Schema includes `includeCoverPage`, `themeColors`. Pipeline by format:
+  - **PDF**: Puppeteer HTML→PDF (no AI). **Excel**: Direct data→xlsx (no AI). **PNG**: Puppeteer screenshots→ZIP (no AI).
+  - **PPTX/DOCX**: Gemini AI → JSON → pptxgenjs/docx SDK.
+- **Client-side fallback** (when premium toggle off): jsPDF, pptxgenjs, SheetJS, CSV, dom-to-image-more.
+- **Page dimensions**: Landscape = 16:9 (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm).
+- **Browser rendering**: `server/pdf/browser-renderer.ts` — Puppeteer with system Chromium. Skill: `.claude/skills/exports/pdf-rendering.md`.
+- **Report structure**: Statement→Chart interleaving. Each statement table is followed by a chart page. Optional cover page + overview (Dashboard only).
+- **Export Rules** (see `.claude/rules/exports.md`):
+  1. **Full-scope**: Export from ANY tab exports ALL statements — never just the active tab.
+  2. **Formula filtering**: Rows with `isItalic=true` never exported.
+  3. **Short/Extended**: Short = header/total rows; Extended = all line items. Controlled via `summaryOnly` parameter.
+  4. **Theme colors**: Client sends `themeColors` array; server resolves via `resolveThemeColors()`.
+  5. **File save**: `saveFile()` tries native `showSaveFilePicker` (Chrome/Comet), falls back to download.
+  6. **Single button**: One `ExportMenu` per page in tab bar — no per-tab export buttons.
 
 ---
 

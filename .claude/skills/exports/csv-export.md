@@ -13,9 +13,9 @@ All CSV exports are **comprehensive** — clicking "CSV" on any tab of any finan
 
 | Page | Skill Doc |
 |------|-----------|
-| Dashboard | [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) |
-| Property Detail | [comprehensive-property-report.md](./comprehensive-property-report.md) |
-| Company | [comprehensive-company-report.md](./comprehensive-company-report.md) |
+| Dashboard | [premium-export-spec.md](./premium-export-spec.md) |
+| Property Detail | [premium-export-spec.md](./premium-export-spec.md) |
+| Company | [premium-export-spec.md](./premium-export-spec.md) |
 
 ## Exported Function
 

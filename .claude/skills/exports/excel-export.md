@@ -14,9 +14,9 @@ All Excel exports are **comprehensive** — clicking "Excel" on any tab of any f
 
 | Page | Sheets | Skill Doc |
 |------|--------|-----------|
-| Dashboard | All financial statements | [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) |
-| Property Detail | Income Statement + Cash Flow | [comprehensive-property-report.md](./comprehensive-property-report.md) |
-| Company | IS + CF + BS + Investment Analysis | [comprehensive-company-report.md](./comprehensive-company-report.md) |
+| Dashboard | All financial statements | [premium-export-spec.md](./premium-export-spec.md) |
+| Property Detail | IS + CF + BS + Investment Analysis | [premium-export-spec.md](./premium-export-spec.md) |
+| Company | IS + CF + BS | [premium-export-spec.md](./premium-export-spec.md) |
 
 ## Exported Functions
 

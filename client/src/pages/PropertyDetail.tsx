@@ -32,7 +32,7 @@ import { CalcDetailsProvider } from "@/components/financial-table";
 import { Tabs, TabsContent, CurrentThemeTab } from "@/components/ui/tabs";
 import { Loader2 } from "@/components/icons/themed-icons";
 import { IconAlertTriangle, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconPPE, IconBanknote, IconFileStack } from "@/components/icons";
-import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction, docxAction } from "@/components/ui/export-toolbar";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
 import {
@@ -51,7 +51,7 @@ import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECT
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
 import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
 import { useExportSave } from "@/hooks/useExportSave";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
@@ -76,12 +76,17 @@ export default function PropertyDetail() {
   const incomeTableRef = useRef<HTMLDivElement>(null);
   const cashFlowTableRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [exportType, setExportType] = useState<'pdf' | 'chart' | 'tablePng'>('pdf');
+  const [exportType, setExportType] = useState<"pdf" | "xlsx" | "pptx" | "docx" | "chart">("pdf");
   const [incomeAllExpanded, setIncomeAllExpanded] = useState(false);
   const { requestSave, SaveDialog } = useExportSave();
   
   const { data: property, isLoading: propertyLoading, isError: propertyError } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
+  const { data: brandingData } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string }> | null }>({
+    queryKey: ["my-branding"],
+    queryFn: async () => { const res = await fetch("/api/my-branding", { credentials: "include" }); return res.json(); },
+    staleTime: 5 * 60_000,
+  });
   const { data: photos } = usePropertyPhotos(propertyId);
   const heroCaption = useMemo(() => photos?.find(p => p.isHero)?.caption ?? undefined, [photos]);
   
@@ -602,9 +607,7 @@ export default function PropertyDetail() {
         } else {
           await exportCashFlowPDF(orientation, version, customFilename);
         }
-      } else if (exportType === 'tablePng') {
-        await exportTablePNG(orientation, customFilename);
-      } else {
+      } else if (exportType === 'chart') {
         await exportChartPNG(orientation, customFilename);
       }
     } finally {
@@ -622,37 +625,181 @@ export default function PropertyDetail() {
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExport}
-        title={exportType === 'pdf' ? 'Export PDF' : exportType === 'tablePng' ? 'Export Table as PNG' : 'Export Chart'}
+        title={exportType === "chart" ? "Export Chart" : `Export ${exportType.toUpperCase()}`}
+        showVersionOption={exportType !== "chart"}
+        premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={
-          exportType === 'pdf' 
-            ? `${property.name} ${activeTab === "income" ? "Income Statement" : "Cash Flow"}`
-            : exportType === 'tablePng'
-            ? `${property.name} ${activeTab} Table`
-            : `${property.name} Chart`
+          exportType === 'chart'
+            ? `${property.name} Chart`
+            : `${property.name} ${activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow" : "Balance Sheet"}`
         }
-        fileExtension={exportType === 'pdf' ? '.pdf' : '.png'}
-        showVersionOption={activeTab === "income" || activeTab === "cashflow" || activeTab === "balance"}
-        premiumExportData={exportType === 'pdf' && property && yearlyDetails.length > 0 ? (() => {
+        fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
+        showCoverPageOption={false}
+        getPremiumExportData={exportType !== 'chart' && property && yearlyDetails.length > 0 ? (version: ExportVersion, includeCoverPage: boolean) => {
           const yrLabels = yearlyChartData.map((d: any) => d.year);
-          const buildIncomeRows = () => [
-            { category: "REVENUE", values: yearlyDetails.map(y => y.revenueTotal), isHeader: true },
-            { category: "Room Revenue", values: yearlyDetails.map(y => y.revenueRooms), indent: 1 },
-            { category: "Event Revenue", values: yearlyDetails.map(y => y.revenueEvents), indent: 1 },
-            { category: "F&B Revenue", values: yearlyDetails.map(y => y.revenueFB), indent: 1 },
-            { category: "Other Revenue", values: yearlyDetails.map(y => y.revenueOther), indent: 1 },
-            { category: "Total Revenue", values: yearlyDetails.map(y => y.revenueTotal), isBold: true },
-            { category: "EXPENSES", values: yearlyDetails.map(y => y.totalExpenses), isHeader: true },
-            { category: "Total Expenses", values: yearlyDetails.map(y => y.totalExpenses), isBold: true },
-            { category: "Gross Operating Profit", values: yearlyDetails.map(y => y.gop), isBold: true },
-            { category: "Net Operating Income", values: yearlyDetails.map(y => y.noi), isBold: true },
-          ];
+          const summaryOnly = version === "short";
+          const cashFlowData = getCashFlowData();
+          const pdfLoan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
+          const pdfAcqYear = Math.floor(pdfLoan.acqMonthsFromModelStart / 12);
+          const pdfTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
+
+          // --- Income Statement ---
+          const incomeRows: Array<{ category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean }> = [];
+          if (!summaryOnly) {
+            incomeRows.push({ category: "REVENUE", values: yearlyDetails.map(() => 0), isHeader: true });
+            incomeRows.push({ category: "Room Revenue", values: yearlyDetails.map(y => y.revenueRooms), indent: 1 });
+            incomeRows.push({ category: "Event Revenue", values: yearlyDetails.map(y => y.revenueEvents), indent: 1 });
+            incomeRows.push({ category: "F&B Revenue", values: yearlyDetails.map(y => y.revenueFB), indent: 1 });
+            incomeRows.push({ category: "Other Revenue", values: yearlyDetails.map(y => y.revenueOther), indent: 1 });
+          }
+          incomeRows.push({ category: "Total Revenue", values: yearlyDetails.map(y => y.revenueTotal), isBold: true });
+          if (!summaryOnly) {
+            incomeRows.push({ category: "OPERATING EXPENSES", values: yearlyDetails.map(() => 0), isHeader: true });
+            incomeRows.push({ category: "Room Expense", values: yearlyDetails.map(y => y.expenseRooms), indent: 1 });
+            incomeRows.push({ category: "F&B Expense", values: yearlyDetails.map(y => y.expenseFB), indent: 1 });
+            incomeRows.push({ category: "Event Expense", values: yearlyDetails.map(y => y.expenseEvents), indent: 1 });
+            incomeRows.push({ category: "Marketing", values: yearlyDetails.map(y => y.expenseMarketing), indent: 1 });
+            incomeRows.push({ category: "Property Ops", values: yearlyDetails.map(y => y.expensePropertyOps), indent: 1 });
+            incomeRows.push({ category: "Admin & General", values: yearlyDetails.map(y => y.expenseAdmin), indent: 1 });
+            incomeRows.push({ category: "IT", values: yearlyDetails.map(y => y.expenseIT), indent: 1 });
+            incomeRows.push({ category: "Utilities", values: yearlyDetails.map(y => y.expenseUtilitiesVar + y.expenseUtilitiesFixed), indent: 1 });
+            incomeRows.push({ category: "Other Expenses", values: yearlyDetails.map(y => y.expenseOther + y.expenseOtherCosts), indent: 1 });
+          }
+          incomeRows.push({ category: "Total Operating Expenses", values: yearlyDetails.map(y => y.totalExpenses - y.expenseFFE - y.expenseTaxes), isBold: true });
+          incomeRows.push({ category: "Gross Operating Profit (GOP)", values: yearlyDetails.map(y => y.gop), isBold: true });
+          if (!summaryOnly) {
+            incomeRows.push({ category: "FIXED CHARGES", values: yearlyDetails.map(() => 0), isHeader: true });
+            incomeRows.push({ category: "Property Taxes", values: yearlyDetails.map(y => y.expenseTaxes), indent: 1 });
+          }
+          incomeRows.push({ category: "Total Fixed Charges", values: yearlyDetails.map(y => y.expenseTaxes), isBold: true });
+          incomeRows.push({ category: "Net Operating Income (NOI)", values: yearlyDetails.map(y => y.noi + y.feeBase + y.feeIncentive), isBold: true });
+          if (!summaryOnly) {
+            incomeRows.push({ category: "MANAGEMENT FEES", values: yearlyDetails.map(() => 0), isHeader: true });
+            incomeRows.push({ category: "Base Fee", values: yearlyDetails.map(y => y.feeBase), indent: 1 });
+            incomeRows.push({ category: "Incentive Fee", values: yearlyDetails.map(y => y.feeIncentive), indent: 1 });
+          }
+          incomeRows.push({ category: "Total Management Fees", values: yearlyDetails.map(y => y.feeBase + y.feeIncentive), isBold: true });
+          if (!summaryOnly) {
+            incomeRows.push({ category: "FF&E Reserve", values: yearlyDetails.map(y => y.expenseFFE), indent: 1 });
+          }
+          incomeRows.push({ category: "Adjusted NOI (ANOI)", values: yearlyDetails.map(y => y.anoi), isBold: true });
+
+          // --- Cash Flow Statement ---
+          const pdfCfo = yearlyDetails.map((yd, i) => yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability);
+          const pdfCfi = cashFlowData.map((cf, i) => {
+            const ffe = yearlyDetails[i].expenseFFE;
+            const acqCost = i === pdfAcqYear ? pdfTotalPropertyCost : 0;
+            return -acqCost - ffe + cf.exitValue;
+          });
+          const pdfCff = cashFlowData.map((cf, i) => {
+            const eqContrib = i === pdfAcqYear ? pdfLoan.equityInvested : 0;
+            const loanProceeds = i === pdfAcqYear && pdfLoan.loanAmount > 0 ? pdfLoan.loanAmount : 0;
+            return eqContrib + loanProceeds - cf.principalPayment + cf.refinancingProceeds;
+          });
+          const pdfNetChange = pdfCfo.map((cfo, i) => cfo + pdfCfi[i] + pdfCff[i]);
+          let pdfRunCash = 0;
+          const pdfOpenCash: number[] = [];
+          const pdfCloseCash: number[] = [];
+          for (let i = 0; i < years; i++) {
+            pdfOpenCash.push(pdfRunCash);
+            pdfRunCash += pdfNetChange[i];
+            pdfCloseCash.push(pdfRunCash);
+          }
+
+          const cfRows: Array<{ category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean }> = [];
+          if (!summaryOnly) {
+            cfRows.push({ category: "CASH FLOW FROM OPERATING ACTIVITIES", values: yearlyDetails.map(() => 0), isHeader: true });
+            cfRows.push({ category: "Cash Received from Guests & Clients", values: yearlyDetails.map(y => y.revenueTotal), isBold: true });
+            cfRows.push({ category: "Guest Room Revenue", values: yearlyDetails.map(y => y.revenueRooms), indent: 1 });
+            cfRows.push({ category: "Event & Venue Revenue", values: yearlyDetails.map(y => y.revenueEvents), indent: 1 });
+            cfRows.push({ category: "Food & Beverage Revenue", values: yearlyDetails.map(y => y.revenueFB), indent: 1 });
+            cfRows.push({ category: "Other Revenue (Spa/Experiences)", values: yearlyDetails.map(y => y.revenueOther), indent: 1 });
+            cfRows.push({ category: "Cash Paid for Operating Expenses", values: yearlyDetails.map(y => -(y.totalExpenses - y.expenseFFE)) });
+            cfRows.push({ category: "Less: Interest Paid", values: cashFlowData.map(y => -y.interestExpense) });
+            cfRows.push({ category: "Less: Income Taxes Paid", values: cashFlowData.map(y => -y.taxLiability) });
+          }
+          cfRows.push({ category: "Net Cash from Operating Activities", values: pdfCfo, isBold: true });
+          if (!summaryOnly) {
+            cfRows.push({ category: "CASH FLOW FROM INVESTING ACTIVITIES", values: yearlyDetails.map(() => 0), isHeader: true });
+            cfRows.push({ category: "Property Acquisition", values: cashFlowData.map((_, i) => i === pdfAcqYear ? -pdfTotalPropertyCost : 0) });
+            cfRows.push({ category: "FF&E Reserve / Capital Improvements", values: yearlyDetails.map(y => -y.expenseFFE) });
+            cfRows.push({ category: "Sale Proceeds (Net Exit Value)", values: cashFlowData.map(y => y.exitValue) });
+          }
+          cfRows.push({ category: "Net Cash from Investing Activities", values: pdfCfi, isBold: true });
+          if (!summaryOnly) {
+            cfRows.push({ category: "CASH FLOW FROM FINANCING ACTIVITIES", values: yearlyDetails.map(() => 0), isHeader: true });
+            cfRows.push({ category: "Equity Contribution", values: cashFlowData.map((_, i) => i === pdfAcqYear ? pdfLoan.equityInvested : 0) });
+            cfRows.push({ category: "Loan Proceeds", values: cashFlowData.map((_, i) => i === pdfAcqYear && pdfLoan.loanAmount > 0 ? pdfLoan.loanAmount : 0) });
+            cfRows.push({ category: "Less: Principal Repayments", values: cashFlowData.map(y => -y.principalPayment) });
+            cfRows.push({ category: "Refinancing Proceeds", values: cashFlowData.map(y => y.refinancingProceeds) });
+          }
+          cfRows.push({ category: "Net Cash from Financing Activities", values: pdfCff, isBold: true });
+          cfRows.push({ category: "Net Increase (Decrease) in Cash", values: pdfNetChange, isBold: true });
+          cfRows.push({ category: "Opening Cash Balance", values: pdfOpenCash });
+          cfRows.push({ category: "Closing Cash Balance", values: pdfCloseCash, isBold: true });
+
+          // --- Balance Sheet (summary) ---
+          const bsRows: Array<{ category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean }> = [];
+          bsRows.push({ category: "ASSETS", values: yearlyDetails.map(() => 0), isHeader: true });
+          bsRows.push({ category: "Cash & Equivalents", values: pdfCloseCash, indent: 1 });
+          bsRows.push({ category: "Property (Net of Depreciation)", values: cashFlowData.map(cf => {
+            const grossAsset = pdfTotalPropertyCost;
+            return grossAsset - cf.depreciation;
+          }), indent: 1 });
+          bsRows.push({ category: "Total Assets", values: pdfCloseCash.map((cash, i) => cash + pdfTotalPropertyCost - cashFlowData[i].depreciation), isBold: true });
+          bsRows.push({ category: "LIABILITIES", values: yearlyDetails.map(() => 0), isHeader: true });
+          bsRows.push({ category: "Outstanding Debt", values: cashFlowData.map(cf => {
+            const borrowed = pdfLoan.loanAmount + cf.refinancingProceeds;
+            return borrowed - cf.principalPayment;
+          }), indent: 1 });
+          bsRows.push({ category: "Total Liabilities", values: cashFlowData.map(cf => pdfLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment), isBold: true });
+          bsRows.push({ category: "EQUITY", values: yearlyDetails.map(() => 0), isHeader: true });
+          bsRows.push({ category: "Equity Invested", values: yearlyDetails.map(() => pdfLoan.equityInvested), indent: 1 });
+          bsRows.push({ category: "Retained Earnings", values: cashFlowData.map((cf, i) => {
+            const totalAssets = pdfCloseCash[i] + pdfTotalPropertyCost - cf.depreciation;
+            const totalLiabilities = pdfLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment;
+            return totalAssets - totalLiabilities - pdfLoan.equityInvested;
+          }), indent: 1 });
+          bsRows.push({ category: "Total Equity", values: cashFlowData.map((cf, i) => {
+            const totalAssets = pdfCloseCash[i] + pdfTotalPropertyCost - cf.depreciation;
+            const totalLiabilities = pdfLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment;
+            return totalAssets - totalLiabilities;
+          }), isBold: true });
+
+          // --- Investment Analysis ---
+          const investRows: Array<{ category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean }> = [];
+          investRows.push({ category: "Investment Summary", values: yearlyDetails.map(() => 0), isHeader: true });
+          investRows.push({ category: "Equity Invested", values: yearlyDetails.map(() => pdfLoan.equityInvested), indent: 1 });
+          investRows.push({ category: "Total Property Cost", values: yearlyDetails.map(() => pdfTotalPropertyCost), indent: 1 });
+          investRows.push({ category: "Loan Amount", values: yearlyDetails.map(() => pdfLoan.loanAmount), indent: 1 });
+          if (!summaryOnly) {
+            investRows.push({ category: "Annual Revenue", values: yearlyDetails.map(y => y.revenueTotal), indent: 1 });
+            investRows.push({ category: "Annual NOI", values: yearlyDetails.map(y => y.noi + y.feeBase + y.feeIncentive), indent: 1 });
+            investRows.push({ category: "Annual ANOI", values: yearlyDetails.map(y => y.anoi), indent: 1 });
+            investRows.push({ category: "Annual Cash Flow", values: yearlyChartData.map(d => d.CashFlow), indent: 1 });
+            investRows.push({ category: "Debt Service", values: cashFlowData.map(cf => cf.debtService), indent: 1 });
+          }
+          investRows.push({ category: "Closing Cash Balance", values: pdfCloseCash, isBold: true });
+
+          const mapRows = (rows: Array<{ category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean; isItalic?: boolean }>) => rows.map(r => ({
+            category: r.category,
+            values: r.values,
+            indent: r.indent,
+            isBold: r.isBold,
+            isHeader: r.isHeader,
+            isItalic: r.isItalic,
+          }));
+
           return {
             entityName: property.name,
             companyName: global?.companyName || "Hospitality Business Group",
             statementType: activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow Statement" : "Balance Sheet",
             years: yrLabels,
             statements: [
-              { title: `${property.name} — Income Statement`, years: yrLabels, rows: buildIncomeRows() },
+              { title: `${property.name} — Income Statement`, years: yrLabels, rows: mapRows(incomeRows) },
+              { title: `${property.name} — Cash Flow Statement`, years: yrLabels, rows: mapRows(cfRows) },
+              { title: `${property.name} — Balance Sheet`, years: yrLabels, rows: mapRows(bsRows) },
+              { title: `${property.name} — Investment Analysis`, years: yrLabels, rows: mapRows(investRows) },
             ],
             metrics: [
               { label: "Total Revenue (Year 1)", value: yearlyChartData[0] ? formatMoney(yearlyChartData[0].Revenue) : "—" },
@@ -661,8 +808,10 @@ export default function PropertyDetail() {
               { label: "ANOI (Year 1)", value: yearlyChartData[0] ? formatMoney(yearlyChartData[0].ANOI) : "—" },
             ],
             projectionYears,
+            includeCoverPage,
+            themeColors: brandingData?.themeColors?.map((c: any) => ({ name: c.name, hexCode: c.hexCode, rank: c.rank })),
           } as PremiumExportPayload;
-        })() : null}
+        } : undefined}
       />
       <div className="space-y-6">
         <PropertyHeader
@@ -706,11 +855,12 @@ export default function PropertyDetail() {
                   variant="light"
                   actions={[
                     pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
-                    excelAction(() => requestSave(`${property.name} Financial Statements`, ".xlsx", (f) => handleExcelExport(f))),
+                    excelAction(() => { setExportType('xlsx'); setExportDialogOpen(true); }),
                     csvAction(() => requestSave(`${property.name} CashFlow`, ".csv", (f) => exportCashFlowCSV(f))),
-                    pptxAction(() => requestSave(`${property.name} Financial Report`, ".pptx", (f) => handlePPTXExport(f))),
+                    pptxAction(() => { setExportType('pptx'); setExportDialogOpen(true); }),
+                    docxAction(() => { setExportType('docx'); setExportDialogOpen(true); }),
                     chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),
-                    pngAction(() => { setExportType('tablePng'); setExportDialogOpen(true); }),
+                    pngAction(() => requestSave(`${property.name} ${activeTab} Table`, ".png", (f) => exportTablePNG('landscape', f))),
                   ]}
                 />
               }

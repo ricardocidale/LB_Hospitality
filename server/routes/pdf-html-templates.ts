@@ -1,12 +1,48 @@
 import { BRAND } from "./premium-export-prompts";
 import { logger } from "../logger";
 
+export interface ThemeColorMap {
+  navy: string;      // dark primary (headers, cover bg)
+  sage: string;      // accent (bars, borders)
+  darkGreen: string; // titles, positive values
+  darkText: string;  // body text
+  gray: string;      // secondary text
+  altRow: string;    // zebra striping
+  sectionBg: string; // section header bg
+}
+
+/** Map client theme colors (by rank) to functional roles. Falls back to BRAND defaults. */
+export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: string; rank?: number}>): ThemeColorMap {
+  if (!themeColors?.length) {
+    return {
+      navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
+      darkText: BRAND.DARK_TEXT_HEX, gray: BRAND.GRAY_HEX,
+      altRow: BRAND.ALT_ROW_HEX, sectionBg: BRAND.SECTION_BG_HEX,
+    };
+  }
+  const sorted = [...themeColors].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+  const hex = (i: number, fallback: string) => {
+    const c = sorted[i]?.hexCode;
+    return c ? c.replace(/^#/, "") : fallback;
+  };
+  return {
+    navy: hex(0, BRAND.NAVY_HEX),
+    sage: hex(1, BRAND.SAGE_HEX),
+    darkGreen: hex(2, BRAND.DARK_GREEN_HEX),
+    darkText: hex(3, BRAND.DARK_TEXT_HEX),
+    gray: hex(4, BRAND.GRAY_HEX),
+    altRow: BRAND.ALT_ROW_HEX,
+    sectionBg: BRAND.SECTION_BG_HEX,
+  };
+}
+
 interface PdfTemplateData {
   orientation: "landscape" | "portrait";
   companyName: string;
   entityName: string;
   sections: any[];
   reportTitle?: string;
+  colors?: ThemeColorMap;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -520,12 +556,14 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     }
   }
 
-  const NAVY = `#${BRAND.NAVY_HEX}`;
-  const SAGE = `#${BRAND.SAGE_HEX}`;
-  const DK = `#${BRAND.DARK_GREEN_HEX}`;
-  const TXT = `#${BRAND.DARK_TEXT_HEX}`;
-  const GR = `#${BRAND.GRAY_HEX}`;
-  const ALT = `#${BRAND.ALT_ROW_HEX}`;
+  // Use theme colors if provided, fall back to BRAND defaults
+  const c = data.colors || resolveThemeColors();
+  const NAVY = `#${c.navy}`;
+  const SAGE = `#${c.sage}`;
+  const DK = `#${c.darkGreen}`;
+  const TXT = `#${c.darkText}`;
+  const GR = `#${c.gray}`;
+  const ALT = `#${c.altRow}`;
 
   return `<!DOCTYPE html>
 <html lang="en">

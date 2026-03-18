@@ -344,7 +344,8 @@ export function generatePortfolioInvestmentData(
   financials: DashboardFinancials,
   properties: Property[],
   projectionYears: number,
-  getFiscalYear: (i: number) => number
+  getFiscalYear: (i: number) => number,
+  summaryOnly = false,
 ): ExportData {
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
   const rows: ExportRow[] = [];
@@ -377,79 +378,76 @@ export function generatePortfolioInvestmentData(
   const ffE = years.map((_, i) => yc[i]?.expenseFFE ?? 0);
   const propertyTaxes = years.map((_, i) => yc[i]?.expenseTaxes ?? 0);
 
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Revenue & Profitability", values: years.map(() => 0), isHeader: true });
-  rows.push({ category: "Total Revenue", values: consolidatedRevenue, indent: 1 });
-  rows.push({ category: "Total Operating Expenses", values: totalExpenses, indent: 1 });
-  rows.push({ category: "Gross Operating Profit (GOP)", values: consolidatedGOP, indent: 1 });
-  rows.push({ category: "GOP Margin (%)", values: years.map((_, i) => consolidatedRevenue[i] > 0 ? consolidatedGOP[i] / consolidatedRevenue[i] : 0), indent: 1, format: "percentage" });
-  rows.push({ category: "Property Taxes", values: propertyTaxes, indent: 1 });
-  rows.push({ category: "Net Operating Income (NOI)", values: consolidatedNOI, indent: 1 });
-  rows.push({ category: "NOI Margin (%)", values: years.map((_, i) => consolidatedRevenue[i] > 0 ? consolidatedNOI[i] / consolidatedRevenue[i] : 0), indent: 1, format: "percentage" });
-  rows.push({ category: "Management Fees (Base)", values: feeBase, indent: 1 });
-  rows.push({ category: "Management Fees (Incentive)", values: feeIncentive, indent: 1 });
-  rows.push({ category: "FF&E Reserve", values: ffE, indent: 1 });
-  rows.push({ category: "Adjusted NOI (ANOI)", values: consolidatedANOI, indent: 1 });
+  // Extended detail sections — only included when not in summary mode
+  if (!summaryOnly) {
+    const consolidatedCFO = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.cashFromOperations ?? 0), 0));
+    const consolidatedFCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.freeCashFlow ?? 0), 0));
+    const consolidatedFCFE = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0));
+    const consolidatedDS = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0));
+    const consolidatedPrincipal = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.principalPayment ?? 0), 0));
+    const cumulativeFCFE = years.map((_, y) => {
+      let cum = 0;
+      for (let i = 0; i <= y; i++) cum += cf.reduce((sum, prop) => sum + (prop[i]?.freeCashFlowToEquity ?? 0), 0);
+      return cum;
+    });
 
-  const consolidatedCFO = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.cashFromOperations ?? 0), 0));
-  const consolidatedFCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.freeCashFlow ?? 0), 0));
-  const consolidatedFCFE = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0));
-  const consolidatedDS = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0));
-  const consolidatedPrincipal = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.principalPayment ?? 0), 0));
-  const cumulativeFCFE = years.map((_, y) => {
-    let cum = 0;
-    for (let i = 0; i <= y; i++) cum += cf.reduce((sum, prop) => sum + (prop[i]?.freeCashFlowToEquity ?? 0), 0);
-    return cum;
-  });
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Revenue & Profitability", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Total Revenue", values: consolidatedRevenue, indent: 1 });
+    rows.push({ category: "Total Operating Expenses", values: totalExpenses, indent: 1 });
+    rows.push({ category: "Gross Operating Profit (GOP)", values: consolidatedGOP, indent: 1 });
+    rows.push({ category: "GOP Margin (%)", values: years.map((_, i) => consolidatedRevenue[i] > 0 ? consolidatedGOP[i] / consolidatedRevenue[i] : 0), indent: 1, format: "percentage" });
+    rows.push({ category: "Property Taxes", values: propertyTaxes, indent: 1 });
+    rows.push({ category: "Net Operating Income (NOI)", values: consolidatedNOI, indent: 1 });
+    rows.push({ category: "NOI Margin (%)", values: years.map((_, i) => consolidatedRevenue[i] > 0 ? consolidatedNOI[i] / consolidatedRevenue[i] : 0), indent: 1, format: "percentage" });
+    rows.push({ category: "Management Fees (Base)", values: feeBase, indent: 1 });
+    rows.push({ category: "Management Fees (Incentive)", values: feeIncentive, indent: 1 });
+    rows.push({ category: "FF&E Reserve", values: ffE, indent: 1 });
+    rows.push({ category: "Adjusted NOI (ANOI)", values: consolidatedANOI, indent: 1 });
 
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Cash Flow Analysis", values: years.map(() => 0), isHeader: true });
-  rows.push({ category: "Cash from Operations (CFO)", values: consolidatedCFO, indent: 1 });
-  rows.push({ category: "Free Cash Flow (FCF)", values: consolidatedFCF, indent: 1 });
-  rows.push({ category: "Total Debt Service", values: consolidatedDS, indent: 1 });
-  rows.push({ category: "  Principal Payments", values: consolidatedPrincipal, indent: 2 });
-  rows.push({ category: "  Interest Expense", values: interestExpense, indent: 2 });
-  rows.push({ category: "Free Cash Flow to Equity (FCFE)", values: consolidatedFCFE, indent: 1 });
-  rows.push({ category: "Cumulative FCFE", values: cumulativeFCFE, indent: 1 });
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Cash Flow Analysis", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Cash from Operations (CFO)", values: consolidatedCFO, indent: 1 });
+    rows.push({ category: "Free Cash Flow (FCF)", values: consolidatedFCF, indent: 1 });
+    rows.push({ category: "Total Debt Service", values: consolidatedDS, indent: 1 });
+    rows.push({ category: "  Principal Payments", values: consolidatedPrincipal, indent: 2 });
+    rows.push({ category: "  Interest Expense", values: interestExpense, indent: 2 });
+    rows.push({ category: "Free Cash Flow to Equity (FCFE)", values: consolidatedFCFE, indent: 1 });
+    rows.push({ category: "Cumulative FCFE", values: cumulativeFCFE, indent: 1 });
 
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Below-the-Line Items", values: years.map(() => 0), isHeader: true });
-  rows.push({ category: "Interest Expense", values: interestExpense, indent: 1 });
-  rows.push({ category: "Depreciation & Amortization", values: depreciation, indent: 1 });
-  rows.push({ category: "Income Tax Provision", values: incomeTax, indent: 1 });
-  rows.push({ category: "GAAP Net Income", values: consolidatedNetIncome, indent: 1 });
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Below-the-Line Items", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "Interest Expense", values: interestExpense, indent: 1 });
+    rows.push({ category: "Depreciation & Amortization", values: depreciation, indent: 1 });
+    rows.push({ category: "Income Tax Provision", values: incomeTax, indent: 1 });
+    rows.push({ category: "GAAP Net Income", values: consolidatedNetIncome, indent: 1 });
 
-  const consolidatedDSCR = years.map((_, y) => {
-    return consolidatedDS[y] > 0 ? consolidatedNOI[y] / consolidatedDS[y] : 0;
-  });
-  const debtYield = years.map((_, y) => {
-    const totalDebt = cf.reduce((sum, prop) => {
-      const entry = prop[y];
-      return sum + (entry ? (entry.debtService > 0 ? entry.noi / (entry.debtService > 0 ? entry.debtService / entry.noi * entry.noi : 1) : 0) : 0);
-    }, 0);
-    return totalDebt;
-  });
-  const capRate = years.map((_, i) => {
-    return financials.totalExitValue > 0 ? consolidatedNOI[i] / financials.totalExitValue : 0;
-  });
-  const opratio = years.map((_, i) => consolidatedRevenue[i] > 0 ? totalExpenses[i] / consolidatedRevenue[i] : 0);
+    const consolidatedDSCR = years.map((_, y) => {
+      const ds = cf.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0);
+      return ds > 0 ? consolidatedNOI[y] / ds : 0;
+    });
+    const capRate = years.map((_, i) => {
+      return financials.totalExitValue > 0 ? consolidatedNOI[i] / financials.totalExitValue : 0;
+    });
+    const opratio = years.map((_, i) => consolidatedRevenue[i] > 0 ? totalExpenses[i] / consolidatedRevenue[i] : 0);
 
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Key Ratios & Returns", values: years.map(() => 0), isHeader: true });
-  rows.push({ category: "DSCR", values: consolidatedDSCR, indent: 1, format: "ratio" });
-  rows.push({ category: "Cap Rate (%)", values: capRate, indent: 1, format: "percentage" });
-  rows.push({ category: "Operating Expense Ratio (%)", values: opratio, indent: 1, format: "percentage" });
-  rows.push({ category: "NOI per Room", values: years.map((_, i) => totalRooms > 0 ? consolidatedNOI[i] / totalRooms : 0), indent: 1 });
-  rows.push({ category: "Revenue per Room", values: years.map((_, i) => totalRooms > 0 ? consolidatedRevenue[i] / totalRooms : 0), indent: 1 });
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Key Ratios & Returns", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "DSCR", values: consolidatedDSCR, indent: 1, format: "ratio" });
+    rows.push({ category: "Cap Rate (%)", values: capRate, indent: 1, format: "percentage" });
+    rows.push({ category: "Operating Expense Ratio (%)", values: opratio, indent: 1, format: "percentage" });
+    rows.push({ category: "NOI per Room", values: years.map((_, i) => totalRooms > 0 ? consolidatedNOI[i] / totalRooms : 0), indent: 1 });
+    rows.push({ category: "Revenue per Room", values: years.map((_, i) => totalRooms > 0 ? consolidatedRevenue[i] / totalRooms : 0), indent: 1 });
 
-  const wm = financials.weightedMetricsByYear;
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Operating Metrics", values: years.map(() => 0), isHeader: true });
-  rows.push({ category: "ADR (Weighted Avg)", values: years.map((_, i) => wm[i]?.weightedADR ?? 0), indent: 1 });
-  rows.push({ category: "Occupancy (%)", values: years.map((_, i) => wm[i]?.weightedOcc ?? 0), indent: 1, format: "percentage" });
-  rows.push({ category: "RevPAR", values: years.map((_, i) => wm[i]?.revPAR ?? 0), indent: 1 });
-  rows.push({ category: "Available Room Nights", values: years.map((_, i) => wm[i]?.totalAvailableRoomNights ?? 0), indent: 1 });
-  rows.push({ category: "Sold Room Nights", values: years.map((_, i) => yc[i]?.soldRooms ?? 0), indent: 1 });
+    const wm = financials.weightedMetricsByYear;
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Operating Metrics", values: years.map(() => 0), isHeader: true });
+    rows.push({ category: "ADR (Weighted Avg)", values: years.map((_, i) => wm[i]?.weightedADR ?? 0), indent: 1 });
+    rows.push({ category: "Occupancy (%)", values: years.map((_, i) => wm[i]?.weightedOcc ?? 0), indent: 1, format: "percentage" });
+    rows.push({ category: "RevPAR", values: years.map((_, i) => wm[i]?.revPAR ?? 0), indent: 1 });
+    rows.push({ category: "Available Room Nights", values: years.map((_, i) => wm[i]?.totalAvailableRoomNights ?? 0), indent: 1 });
+    rows.push({ category: "Sold Room Nights", values: years.map((_, i) => yc[i]?.soldRooms ?? 0), indent: 1 });
+  }
 
   return { years, rows };
 }

@@ -226,9 +226,10 @@ describe("generatePortfolioInvestmentData", () => {
       equityMultiple: 3.0,
       cashOnCash: 12.5,
       yearlyConsolidatedCache: [makeYearlyFinancials()],
-      allPropertyYearlyCF: [[{ freeCashFlowToEquity: 500000, debtService: 200000 }]],
+      allPropertyYearlyCF: [[{ freeCashFlowToEquity: 500000, debtService: 200000, cashFromOperations: 300000, freeCashFlow: 400000, principalPayment: 50000, noi: 600000 }]],
       allPropertyFinancials: [],
       allPropertyYearlyIS: [],
+      weightedMetricsByYear: [{ weightedADR: 250, weightedOcc: 0.7, revPAR: 175, totalAvailableRoomNights: 36500 }],
     } as any;
 
     const properties = [{ name: "Hotel A" }] as any[];
@@ -254,6 +255,7 @@ describe("generatePortfolioInvestmentData", () => {
 
     const dscrRow = result.rows.find(r => r.category === "DSCR");
     expect(dscrRow).toBeDefined();
-    expect(dscrRow!.values[0]).toBeCloseTo(2903400 / 200000, 1);
+    // DSCR = consolidatedNOI / debtService = (noi + feeBase + feeIncentive) / debtService
+    expect(dscrRow!.values[0]).toBeCloseTo(3149300 / 200000, 1);
   });
 });

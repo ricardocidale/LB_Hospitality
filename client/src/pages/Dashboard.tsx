@@ -31,6 +31,7 @@
  * available from the tab bar. Data generators live in dashboardExports.ts.
  */
 import React, { useState, useRef, useCallback, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
@@ -40,11 +41,9 @@ import { Loader2 } from "@/components/icons/themed-icons";
 import { IconAlertTriangle, IconDashboard, IconIncomeStatement, IconCashFlow, IconBalanceSheet, IconInvestment } from "@/components/icons";import { PageHeader } from "@/components/ui/page-header";
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
-import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
+import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction, docxAction } from "@/components/ui/export-toolbar";
 import { exportTablePNG } from "@/lib/exports/pngExport";
-import { exportPortfolioPPTX } from "@/lib/exports/pptxExport";
-// dom-to-image-more and jspdf are dynamically imported in export handlers to reduce bundle size
 import { format } from "date-fns";
 import {
   usePortfolioFinancials,
@@ -57,8 +56,6 @@ import {
   generatePortfolioCashFlowData,
   generatePortfolioInvestmentData,
   generatePortfolioBalanceSheetData,
-  buildAllPortfolioStatements,
-  exportPortfolioExcel,
   exportPortfolioCSV,
   exportPortfolioPDF,
 } from "@/components/dashboard";
@@ -78,10 +75,15 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const tabContentRef = useRef<HTMLDivElement>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [exportType, setExportType] = useState<"pdf" | "chart">("pdf");
+  const [exportType, setExportType] = useState<"pdf" | "xlsx" | "pptx" | "docx" | "chart">("pdf");
   const { requestSave, SaveDialog } = useExportSave();
 
   const financials = usePortfolioFinancials(properties, global);
+  const { data: branding } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string }> | null }>({
+    queryKey: ["my-branding"],
+    queryFn: async () => { const res = await fetch("/api/my-branding", { credentials: "include" }); return res.json(); },
+    staleTime: 5 * 60_000,
+  });
 
   const propertiesLoadingState = propertiesLoading || globalLoading;
   const propertiesErrorState = propertiesError || globalError || !properties || !global || !financials;
@@ -188,14 +190,9 @@ export default function Dashboard() {
   }, [exportType, activeTab, financials, global, getExportData]);
 
   const handleExportExcel = useCallback(() => {
-    if (!financials || !global) return;
-    const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
-    const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
-    const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
-
-    const datasets = buildAllPortfolioStatements(financials, properties || [], projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined);
-    requestSave("Portfolio", ".xlsx", (f) => exportPortfolioExcel(datasets, global?.companyName || "Portfolio", f));
-  }, [financials, global, properties, requestSave]);
+    setExportType("xlsx");
+    setExportDialogOpen(true);
+  }, []);
 
   const handleExportCSV = useCallback(() => {
     const data = getExportData();
@@ -205,35 +202,14 @@ export default function Dashboard() {
   }, [activeTab, getExportData, requestSave]);
 
   const handleExportPPTX = useCallback(() => {
-    if (!financials || !properties || !global) return;
-    const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
-    const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
-    const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
+    setExportType("pptx");
+    setExportDialogOpen(true);
+  }, []);
 
-    const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear);
-    const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear);
-    const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
-
-    const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
-    requestSave("Portfolio", ".pptx", (f) => exportPortfolioPPTX({
-      projectionYears,
-      getFiscalYear,
-      totalInitialEquity: financials.totalInitialEquity,
-      totalExitValue: financials.totalExitValue,
-      equityMultiple: financials.equityMultiple,
-      portfolioIRR: financials.portfolioIRR,
-      cashOnCash: financials.cashOnCash,
-      totalProperties: properties.length,
-      totalRooms,
-      totalProjectionRevenue: financials.totalProjectionRevenue,
-      totalProjectionNOI: financials.totalProjectionNOI,
-      totalProjectionCashFlow: financials.totalProjectionCashFlow,
-      incomeData: { years: incomeData.years.map(String), rows: incomeData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-      cashFlowData: { years: cashFlowData.years.map(String), rows: cashFlowData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-      balanceSheetData: { years: incomeData.years.map(String), rows: generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined).rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-      investmentData: { years: investmentData.years.map(String), rows: investmentData.rows.map(r => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })) },
-    }, undefined, f));
-  }, [financials, properties, global, requestSave]);
+  const handleExportDOCX = useCallback(() => {
+    setExportType("docx");
+    setExportDialogOpen(true);
+  }, []);
 
   if (propertiesLoadingState) {
     return (
@@ -304,6 +280,7 @@ export default function Dashboard() {
                         excelAction(handleExportExcel),
                         csvAction(handleExportCSV),
                         pptxAction(handleExportPPTX),
+                        docxAction(handleExportDOCX),
                         chartAction(handleExportChart),
                         pngAction(handleExportPNG, "button-export-dashboard-png"),
                       ]}
@@ -345,23 +322,26 @@ export default function Dashboard() {
         open={exportDialogOpen}
         onClose={() => setExportDialogOpen(false)}
         onExport={handleExportConfirm}
-        title={exportType === "pdf" ? "Export PDF" : "Export Chart as Image"}
-        showVersionOption={exportType === "pdf"}
+        title={exportType === "chart" ? "Export Chart as Image" : `Export ${exportType.toUpperCase()}`}
+        showVersionOption={exportType !== "chart"}
+        premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={TAB_LABELS[activeTab] || "Portfolio"}
-        fileExtension={exportType === "pdf" ? ".pdf" : ".pdf"}
-        premiumExportData={exportType === "pdf" ? (() => {
+        fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
+        showCoverPageOption={exportType !== "chart"}
+        getPremiumExportData={exportType !== "chart" ? (version: ExportVersion, includeCoverPage: boolean) => {
           if (!financials || !properties || !global) return null;
           const py = global.projectionYears ?? PROJECTION_YEARS;
           const fsm = global.fiscalYearStartMonth ?? 1;
           const gfy = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fsm, i);
-          const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy);
-          const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy);
-          const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, py, gfy);
-          const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy);
+          const summaryOnly = version === "short";
+          const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy, summaryOnly);
+          const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy, undefined, summaryOnly);
+          const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, py, gfy, undefined, summaryOnly);
+          const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy, summaryOnly);
           const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
           const mapRows = (d: { years: number[]; rows: any[] }) => ({
             years: d.years.map(String),
-            rows: d.rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader })),
+            rows: d.rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader, isItalic: r.isItalic })),
           });
           return {
             entityName: "Consolidated Portfolio",
@@ -382,8 +362,10 @@ export default function Dashboard() {
               { label: "Total Rooms", value: `${totalRooms}` },
             ],
             projectionYears: py,
+            includeCoverPage,
+            themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank })),
           } as PremiumExportPayload;
-        })() : null}
+        } : undefined}
       />
     </Layout>
   );

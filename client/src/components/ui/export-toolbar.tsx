@@ -119,4 +119,13 @@ function pngAction(onClick: () => void, testId?: string): ExportAction {
   };
 }
 
-export { ExportToolbar, ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction };
+function docxAction(onClick: () => void): ExportAction {
+  return {
+    label: "Word",
+    icon: <IconFileDown className="w-3.5 h-3.5" />,
+    onClick,
+    testId: "button-export-docx",
+  };
+}
+
+export { ExportToolbar, ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction, docxAction };

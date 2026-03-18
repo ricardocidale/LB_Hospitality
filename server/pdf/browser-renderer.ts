@@ -127,6 +127,19 @@ export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<B
   }
 }
 
+export async function renderPng(html: string, opts: { width: number; height: number; scale?: number }): Promise<Buffer> {
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+  try {
+    await page.setViewport({ width: opts.width, height: opts.height, deviceScaleFactor: opts.scale ?? 2 });
+    await page.setContent(html, { waitUntil: "networkidle0", timeout: 30_000 });
+    const pngBuffer = await page.screenshot({ type: "png", fullPage: false });
+    return Buffer.from(pngBuffer);
+  } finally {
+    await page.close();
+  }
+}
+
 export async function closeBrowserRenderer() {
   if (browserInstance) {
     try { await browserInstance.close(); } catch {}

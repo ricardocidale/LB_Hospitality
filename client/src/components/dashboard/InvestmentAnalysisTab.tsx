@@ -3,7 +3,6 @@ import { useExportSave } from "@/hooks/useExportSave";
 import { InvestmentAnalysis } from "@/components/InvestmentAnalysis";
 import { DashboardTabProps } from "./types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { FinancialChart } from "@/components/ui/financial-chart";
 import {
   dashboardExports,
@@ -115,16 +114,6 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Investment Analysis</CardTitle>
-          <ExportMenu
-            actions={[
-              pdfAction(() => handleExport('pdf')),
-              csvAction(() => handleExport('csv')),
-              excelAction(() => handleExport('excel')),
-              pptxAction(() => handleExport('pptx')),
-              chartAction(() => handleExport('png')),
-              pngAction(() => handleExport('png')),
-            ]}
-          />
         </CardHeader>
         <CardContent ref={tabContentRef}>
           <div className="space-y-6">

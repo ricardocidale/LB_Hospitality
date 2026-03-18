@@ -22,7 +22,7 @@ const exportRowSchema = z.object({
 });
 
 const premiumExportSchema = z.object({
-  format: z.enum(["xlsx", "pptx", "pdf", "docx"]),
+  format: z.enum(["xlsx", "pptx", "pdf", "docx", "png"]),
   orientation: z.enum(["landscape", "portrait"]).optional().default("landscape"),
   version: z.enum(["short", "extended"]).optional().default("short"),
   entityName: z.string(),
@@ -40,6 +40,12 @@ const premiumExportSchema = z.object({
     value: z.string(),
   })).optional(),
   projectionYears: z.number().optional(),
+  includeCoverPage: z.boolean().optional().default(false),
+  themeColors: z.array(z.object({
+    name: z.string(),
+    hexCode: z.string(),
+    rank: z.number().optional(),
+  })).optional(),
   memoSections: z.object({
     executiveSummary: z.string().optional(),
     investmentThesis: z.string().optional(),
@@ -456,320 +462,137 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
   return Buffer.from(arrayBuf as ArrayBuffer);
 }
 
-function fmtCompactCurrency(v: number): string {
-  if (v === 0) return "$0";
-  const abs = Math.abs(v);
-  const sign = v < 0 ? "-" : "";
-  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`;
-  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${sign}$${Math.round(abs / 1_000).toLocaleString()}K`;
-  return `${sign}$${abs.toFixed(0)}`;
+/* ═══════════════════════════════════════════════════════════════
+   PDF SECTION BUILDERS — new structure per plan:
+   Cover (optional) → Overview (optional) → [Statement → Chart] × N
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Filter out formula/italic rows — these are NEVER exported */
+function filterFormulaRows(rows: any[]): any[] {
+  return rows.filter(r => !r.isItalic && r.type !== "formula");
 }
 
-function extractRowValue(statements: PremiumExportRequest["statements"], keyword: string, position: "first" | "last"): number | null {
-  for (const stmt of (statements || [])) {
-    for (const row of stmt.rows) {
-      const cat = (row.category || "").toLowerCase();
-      if (cat.includes(keyword)) {
-        const nums = row.values.filter((v): v is number => typeof v === "number" && v !== 0);
-        if (nums.length >= 2) return position === "first" ? nums[0] : nums[nums.length - 1];
-      }
-    }
-  }
-  return null;
-}
-
-function buildExecutiveSummary(data: PremiumExportRequest): any | null {
-  if (!data.metrics?.length && !data.statements?.length) return null;
-
-  const metricsMap = new Map((data.metrics || []).map(m => [m.label.toLowerCase(), m.value]));
-  const irr = metricsMap.get("portfolio irr") || metricsMap.get("irr");
-  const em = metricsMap.get("equity multiple");
-  const coc = metricsMap.get("cash-on-cash return");
-  const props = metricsMap.get("total properties");
-  const rooms = metricsMap.get("total rooms");
-
-  const firstRev = extractRowValue(data.statements, "total revenue", "first");
-  const lastRev = extractRowValue(data.statements, "total revenue", "last");
-  const firstANOI = extractRowValue(data.statements, "adjusted noi", "first");
-  const lastANOI = extractRowValue(data.statements, "adjusted noi", "last");
-  const firstFCFE = extractRowValue(data.statements, "free cash flow to equity", "first");
-  const lastFCFE = extractRowValue(data.statements, "free cash flow to equity", "last");
-
-  let yearRange = "";
-  for (const stmt of (data.statements || [])) {
-    if (stmt.years?.length >= 2) {
-      yearRange = `${stmt.years[0]}\u2013${stmt.years[stmt.years.length - 1]}`;
-      break;
-    }
-  }
-
-  const entity = data.entityName || "The portfolio";
-  const company = data.companyName || "the management company";
-
-  const paras: string[] = [];
-
-  let intro = `This report presents a summary of the ${entity}'s financial performance and position under ${company}.`;
-  if (props && rooms) {
-    intro += ` The portfolio, comprising ${props} properties and ${rooms} rooms, demonstrates robust financial health`;
-    if (irr && em && coc) {
-      intro += ` with a strong Portfolio IRR of ${irr}, an Equity Multiple of ${em}, and a healthy Cash-on-Cash Return of ${coc}.`;
-    } else {
-      intro += `.`;
-    }
-  }
-  intro += ` These metrics underscore the strategic value and operational efficiency of the managed assets.`;
-  paras.push(intro);
-
-  if (yearRange && firstRev && lastRev) {
-    paras.push(`Over the forecast period (${yearRange}), the portfolio shows significant growth in key income statement metrics. Total Revenue is projected to grow substantially from ${fmtCompactCurrency(firstRev)} to over ${fmtCompactCurrency(lastRev)}, driven by increasing ADR and Occupancy. Gross Operating Profit (GOP) and Net Operating Income (NOI) follow this upward trend, reflecting effective cost management and revenue generation strategies.${firstANOI && lastANOI ? ` GAAP Net Income also shows a positive trajectory, moving from initial losses to sustained profitability.` : ""}`);
-  }
-
-  paras.push(`Cash flow generation remains strong, with Free Cash Flow to Equity (FCFE) consistently positive and growing, indicating increasing returns available to equity holders. The balance sheet reflects a growing asset base, particularly in Cash & Cash Equivalents, alongside a managed debt structure. The overall financial outlook for the ${entity} is highly favorable, highlighting sustained profitability and strong investor returns.`);
-
-  const highlights: any[] = [];
-  if (irr) highlights.push({ label: "Portfolio IRR", value: irr, description: "Exceeds typical real estate investment benchmarks, indicating a highly efficient use of capital and strong returns for investors." });
-  if (em) highlights.push({ label: "Equity Multiple", value: em, description: "Demonstrates significant capital appreciation, with investors projected to receive more than double their initial investment." });
-  if (firstRev && lastRev) highlights.push({ label: "Total Revenue Growth", value: `${fmtCompactCurrency(firstRev)} \u2192 ${fmtCompactCurrency(lastRev)}`, description: `Substantial increase over the forecast period highlights sustained market demand.` });
-  if (firstANOI && lastANOI) highlights.push({ label: "Adjusted NOI Growth", value: `${fmtCompactCurrency(firstANOI)} \u2192 ${fmtCompactCurrency(lastANOI)}`, description: "Strong operational performance and increasing core profitability." });
-  if (firstFCFE && lastFCFE) highlights.push({ label: "FCFE Growth", value: `${fmtCompactCurrency(firstFCFE)} \u2192 ${fmtCompactCurrency(lastFCFE)}`, description: "Robust cash generation for equity distributions, reinforcing investor confidence." });
-
-  return {
-    type: "executive_summary",
-    title: "Executive Summary",
-    content: { paragraphs: paras, highlights },
-  };
-}
-
-function buildAnalysisSection(data: PremiumExportRequest): any | null {
-  if (!data.metrics?.length && !data.statements?.length) return null;
-
-  const metricsMap = new Map((data.metrics || []).map(m => [m.label.toLowerCase(), m.value]));
-  const irr = metricsMap.get("portfolio irr") || metricsMap.get("irr");
-  const em = metricsMap.get("equity multiple");
-
-  const firstRev = extractRowValue(data.statements, "total revenue", "first");
-  const lastRev = extractRowValue(data.statements, "total revenue", "last");
-  const firstNOI = extractRowValue(data.statements, "net operating income", "first");
-  const lastNOI = extractRowValue(data.statements, "net operating income", "last");
-  const firstFCFE = extractRowValue(data.statements, "free cash flow to equity", "first");
-  const lastFCFE = extractRowValue(data.statements, "free cash flow to equity", "last");
-
-  const insights: string[] = [];
-
-  if (firstRev && lastRev) {
-    insights.push(`**Strong Revenue Growth:** The portfolio demonstrates consistent and substantial top-line growth, with Total Revenue projected to increase from ${fmtCompactCurrency(firstRev)} to over ${fmtCompactCurrency(lastRev)}, driven by healthy ADR and occupancy trends.`);
-  }
-  if (firstNOI && lastNOI) {
-    insights.push(`**Enhanced Profitability:** Gross Operating Profit (GOP) and Net Operating Income (NOI) show impressive growth, indicating effective operational management and cost controls. NOI is projected to grow from ${fmtCompactCurrency(firstNOI)} to over ${fmtCompactCurrency(lastNOI)}, highlighting increasing asset-level profitability.`);
-  }
-  if (firstFCFE && lastFCFE) {
-    insights.push(`**Positive Cash Flow to Equity:** Free Cash Flow to Equity (FCFE) remains consistently positive and grows significantly over the forecast period, from ${fmtCompactCurrency(firstFCFE)} to over ${fmtCompactCurrency(lastFCFE)}. This signifies increasing cash generation available for distribution to equity holders.`);
-  }
-  insights.push(`**Healthy Balance Sheet:** The balance sheet reflects a strong and growing asset base, particularly in Cash & Cash Equivalents, which accumulate substantially over the period. Paid-In Capital remains stable, while Retained Earnings demonstrate a positive accumulation from initial losses, bolstering overall equity.`);
-  insights.push(`**Key Operational Metrics Improvement:** Average Daily Rate (ADR) and Revenue Per Available Room (RevPAR) show steady increases, indicating strong market positioning and pricing power. Occupancy rates, after an initial ramp-up, stabilize at a high level.`);
-  if (irr && em) {
-    insights.push(`**Robust Investment Returns:** The portfolio exhibits a compelling Portfolio IRR of ${irr} and an Equity Multiple of ${em}, confirming its attractiveness as an investment.`);
-  }
-
-  const highlights: any[] = [];
-  if (irr) highlights.push({ label: "Portfolio IRR", value: irr, description: "Exceeds typical real estate investment benchmarks." });
-  if (em) highlights.push({ label: "Equity Multiple", value: em, description: "Investors projected to more than double their initial investment." });
-  if (firstRev && lastRev) highlights.push({ label: "Revenue Growth", value: `${fmtCompactCurrency(firstRev)} \u2192 ${fmtCompactCurrency(lastRev)}`, description: "Sustained market demand across the portfolio." });
-
-  return {
-    type: "analysis",
-    title: "Financial Analysis & Insights",
-    content: { insights, highlights },
-  };
-}
-
-function buildChartSections(data: PremiumExportRequest): any[] {
-  let statements = data.statements || [];
-  if (!statements.length && (data as any).rows && (data as any).years) {
-    statements = [{ title: (data as any).statementType || "Financial Statement", years: (data as any).years, rows: (data as any).rows }];
-  }
-  if (!statements.length) return [];
-
+/** Build a chart section for a single statement by extracting chartable rows */
+function buildChartsForStatement(stmt: { title: string; years: string[]; rows: any[] }): any | null {
+  const years = stmt.years || [];
   const charts: any[] = [];
+  const title = (stmt.title || "").toLowerCase();
 
-  for (const stmt of statements) {
-    const years = stmt.years || [];
-    for (const row of stmt.rows) {
-      const cat = row.category?.toLowerCase() || "";
-      const numericVals = row.values.filter((v): v is number => typeof v === "number" && v !== 0);
-      if (numericVals.length < 2) continue;
+  for (const row of stmt.rows) {
+    const cat = (row.category || "").toLowerCase();
+    const numericVals = (row.values || []).filter((v: any): v is number => typeof v === "number" && v !== 0);
+    if (numericVals.length < 2) continue;
 
-      if (cat.includes("total revenue") || cat === "total revenue") {
-        charts.push({ label: "Total Revenue", values: row.values, years });
-      } else if (cat.includes("gross operating profit") || cat === "gross operating profit (gop)") {
-        charts.push({ label: "Gross Operating Profit", values: row.values, years });
-      } else if (cat === "net operating income (noi)" || (cat.includes("net operating income") && !cat.includes("adjusted"))) {
-        charts.push({ label: "Net Operating Income (NOI)", values: row.values, years });
-      } else if (cat === "adjusted noi (anoi)" || cat.includes("adjusted noi")) {
-        charts.push({ label: "Adjusted NOI (ANOI)", values: row.values, years });
-      } else if (cat === "gaap net income") {
-        charts.push({ label: "GAAP Net Income", values: row.values, years });
-      } else if (cat.includes("free cash flow to equity") || cat === "free cash flow to equity (fcfe)") {
-        charts.push({ label: "Free Cash Flow to Equity", values: row.values, years });
-      }
+    // Income Statement charts
+    if (cat === "total revenue" || cat.includes("total revenue")) {
+      charts.push({ label: "Total Revenue", values: row.values, years });
+    } else if (cat.includes("gross operating profit") || cat === "gross operating profit (gop)") {
+      charts.push({ label: "Gross Operating Profit", values: row.values, years });
+    } else if ((cat === "net operating income (noi)" || cat.includes("net operating income")) && !cat.includes("adjusted")) {
+      charts.push({ label: "Net Operating Income (NOI)", values: row.values, years });
+    } else if (cat === "adjusted noi (anoi)" || cat.includes("adjusted noi")) {
+      charts.push({ label: "Adjusted NOI (ANOI)", values: row.values, years });
+    }
+    // Cash Flow charts
+    else if (cat.includes("cash from operations") || cat === "cash flow from operations (cfo)") {
+      charts.push({ label: "Cash from Operations", values: row.values, years });
+    } else if (cat.includes("free cash flow to equity") || cat === "free cash flow to equity (fcfe)") {
+      charts.push({ label: "Free Cash Flow to Equity", values: row.values, years });
+    }
+    // Balance Sheet charts
+    else if (cat === "total assets") {
+      charts.push({ label: "Total Assets", values: row.values, years });
+    } else if (cat === "total liabilities & equity" || cat.includes("total liabilities")) {
+      charts.push({ label: "Total Liabilities & Equity", values: row.values, years });
     }
   }
 
-  if (!charts.length) return [];
-
+  // Deduplicate
   const seen = new Set<string>();
-  const dedupedCharts = charts.filter((c: any) => {
+  const deduped = charts.filter(c => {
     if (seen.has(c.label)) return false;
     seen.add(c.label);
     return true;
   });
 
-  // Landscape: 4 charts per page (2x2 grid). Portrait: 2 per page (stacked).
-  const isLandscape = (data.orientation || "landscape") === "landscape";
-  const perPage = isLandscape ? 4 : 2;
-  const pages: any[] = [];
-  for (let i = 0; i < dedupedCharts.length; i += perPage) {
-    pages.push({
-      type: "chart",
-      title: i === 0 ? "Financial Performance Charts" : "Financial Performance Charts (cont.)",
-      content: { charts: dedupedCharts.slice(i, i + perPage) },
-    });
+  if (!deduped.length) return null;
+
+  // For Investment Analysis, produce a line chart instead of bar charts
+  if (title.includes("investment")) {
+    const series = deduped.map(c => ({ label: c.label, values: c.values }));
+    return {
+      type: "line_chart",
+      title: `${stmt.title} — Trends`,
+      content: { series, years },
+    };
   }
-  return pages;
-}
-
-function buildLineChartSection(data: PremiumExportRequest): any | null {
-  const statements = data.statements || [];
-  if (!statements.length) return null;
-
-  const targets = [
-    { keyword: "total revenue", label: "Revenue" },
-    { keyword: "operating expenses", label: "Operating Expenses" },
-    { keyword: "adjusted noi", label: "Adjusted NOI (ANOI)" },
-  ];
-
-  const series: any[] = [];
-  let years: string[] = [];
-
-  for (const t of targets) {
-    for (const stmt of statements) {
-      if (!years.length && stmt.years?.length) years = stmt.years;
-      for (const row of stmt.rows) {
-        const cat = (row.category || "").toLowerCase();
-        if (cat.includes(t.keyword)) {
-          const vals = row.values.map((v: any) => typeof v === "number" ? v : 0);
-          if (vals.filter((v: number) => v !== 0).length >= 2) {
-            series.push({ label: t.label, values: vals });
-          }
-          break;
-        }
-      }
-      if (series.length > series.length - 1) break; // found it, move to next target
-    }
-  }
-
-  if (series.length < 2 || !years.length) return null;
 
   return {
-    type: "line_chart",
-    title: "Performance Trends",
-    content: { series, years },
+    type: "chart",
+    title: `${stmt.title} — Charts`,
+    content: { charts: deduped },
   };
 }
 
 function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
   const sections: any[] = [];
+  const includeCover = !!(data as any).includeCoverPage;
 
-  // 1. Cover page
-  sections.push({
-    type: "cover",
-    title: data.statementType || "Financial Report",
-  });
+  // 1. Optional cover page
+  if (includeCover) {
+    sections.push({ type: "cover", title: data.statementType || "Financial Report" });
 
-  // Collect section titles for TOC (we'll insert TOC after computing all sections)
-  const contentSections: any[] = [];
-
-  // 2. Executive summary (generated from data)
-  const summary = buildExecutiveSummary(data);
-  if (summary) contentSections.push(summary);
-
-  // 3. KPI metrics dashboard
-  if (data.metrics?.length) {
-    contentSections.push({
-      type: "metrics_dashboard",
-      title: "Key Performance Metrics",
-      content: {
-        metrics: data.metrics.map(m => ({
-          label: m.label,
-          value: m.value,
-          description: getMetricDescription(m.label),
-        })),
-      },
-    });
-  }
-
-  // 4. Performance bar charts (2x2 or 2x1 grid)
-  const chartSections = buildChartSections(data);
-  if (chartSections.length) {
-    contentSections.push(...chartSections);
-  }
-
-  // 5. Line chart (Revenue, OpEx, ANOI trend lines)
-  const lineChart = buildLineChartSection(data);
-  if (lineChart) contentSections.push(lineChart);
-
-  // 6. Financial statement tables
-  if (data.statements?.length) {
-    for (const stmt of data.statements) {
-      contentSections.push({
-        type: "financial_table",
-        title: stmt.title,
+    // 2. Optional overview (KPI metrics dashboard)
+    if (data.metrics?.length) {
+      sections.push({
+        type: "metrics_dashboard",
+        title: "Key Performance Metrics",
         content: {
-          years: stmt.years,
-          rows: stmt.rows.map(r => ({
-            category: r.category,
-            values: r.values,
-            type: r.isHeader ? "header" : r.isBold ? "total" : r.isItalic ? "formula" : "data",
-            indent: r.indent || 0,
+          metrics: data.metrics.map(m => ({
+            label: m.label,
+            value: m.value,
+            description: getMetricDescription(m.label),
           })),
         },
       });
     }
-  } else if (data.rows?.length && data.years?.length) {
-    contentSections.push({
-      type: "financial_table",
-      title: data.statementType || "Financial Statement",
-      content: {
-        years: data.years,
-        rows: data.rows.map(r => ({
-          category: r.category,
-          values: r.values,
-          type: r.isHeader ? "header" : r.isBold ? "total" : r.isItalic ? "formula" : "data",
-          indent: r.indent || 0,
-        })),
-      },
-    });
   }
 
-  // 7. Analysis & insights (generated from data)
-  const analysis = buildAnalysisSection(data);
-  if (analysis) contentSections.push(analysis);
+  // 3. Statements interleaved with charts
+  const statements = data.statements || [];
+  if (statements.length) {
+    for (const stmt of statements) {
+      // Financial table (formula rows filtered out)
+      const filteredRows = filterFormulaRows(stmt.rows).map(r => ({
+        category: r.category,
+        values: r.values,
+        type: r.isHeader ? "header" : r.isBold ? "total" : "data",
+        indent: r.indent || 0,
+      }));
 
-  // Build Table of Contents (page 2, content starts page 3)
-  const tocEntries = contentSections.map((s, i) => ({
-    title: s.title || "Section",
-    page: i + 3, // cover=1, TOC=2, first content=3
-  }));
+      sections.push({
+        type: "financial_table",
+        title: stmt.title,
+        content: { years: stmt.years, rows: filteredRows },
+      });
 
-  sections.push({
-    type: "table_of_contents",
-    title: "Table of Contents",
-    content: { entries: tocEntries },
-  });
-
-  // Append all content sections
-  sections.push(...contentSections);
+      // Chart page after each statement
+      const chartSection = buildChartsForStatement(stmt);
+      if (chartSection) sections.push(chartSection);
+    }
+  } else if (data.rows?.length && data.years?.length) {
+    const filteredRows = filterFormulaRows(data.rows).map(r => ({
+      category: r.category,
+      values: r.values,
+      type: r.isHeader ? "header" : r.isBold ? "total" : "data",
+      indent: r.indent || 0,
+    }));
+    sections.push({
+      type: "financial_table",
+      title: data.statementType || "Financial Statement",
+      content: { years: data.years, rows: filteredRows },
+    });
+  }
 
   return sections;
 }
@@ -781,8 +604,6 @@ function getMetricDescription(label: string): string {
   if (l.includes("cash-on-cash")) return "Annual cash income yield";
   if (l.includes("total properties") || l.includes("properties")) return "Number of properties managed";
   if (l.includes("total rooms") || l.includes("rooms")) return "Total hotel rooms count";
-  if (l.includes("revenue")) return "Annual revenue run rate";
-  if (l.includes("noi")) return "Net operating income";
   return "";
 }
 
@@ -795,12 +616,17 @@ async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Pr
     ? `${company} — ${data.statementType}`
     : `${company} — Financial Report`;
 
+  // Resolve theme colors from client payload
+  const { resolveThemeColors } = await import("./pdf-html-templates");
+  const colors = resolveThemeColors((data as any).themeColors);
+
   const html = buildPdfHtml({ sections, report_title: reportTitle }, {
     orientation: data.orientation || "landscape",
     companyName: company,
     entityName: data.entityName,
     sections,
     reportTitle,
+    colors,
   });
 
   const safeCompanyHtml = company.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -993,11 +819,115 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
   return await Packer.toBuffer(docDocument);
 }
 
+/** Direct Excel generation from data — no AI call. One worksheet per statement. */
+async function generateExcelFromData(data: PremiumExportRequest): Promise<Buffer> {
+  const XLSX = await import("xlsx");
+  const wb = XLSX.utils.book_new();
+  const statements = data.statements || [];
+
+  for (const stmt of statements) {
+    const rows = filterFormulaRows(stmt.rows);
+    const wsData: any[][] = [];
+
+    // Header row: blank label column + year columns
+    wsData.push(["", ...stmt.years.map(y => `FY ${y}`)]);
+
+    for (const row of rows) {
+      const indent = row.indent ? "  ".repeat(row.indent) : "";
+      const label = indent + (row.category || "");
+      const values = (row.values || []).map((v: any) => {
+        if (typeof v === "number") return v;
+        if (typeof v === "string" && v === "\u2014") return "";
+        return v;
+      });
+      wsData.push([label, ...values]);
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Column widths
+    ws["!cols"] = [{ wch: 38 }, ...stmt.years.map(() => ({ wch: 16 }))];
+
+    // Bold header row
+    const headerRange = XLSX.utils.decode_range(ws["!ref"] || "A1");
+    for (let c = headerRange.s.c; c <= headerRange.e.c; c++) {
+      const addr = XLSX.utils.encode_cell({ r: 0, c });
+      if (ws[addr]) {
+        ws[addr].s = { font: { bold: true } };
+      }
+    }
+
+    const safeName = (stmt.title || "Sheet").substring(0, 31);
+    XLSX.utils.book_append_sheet(wb, ws, safeName);
+  }
+
+  const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+  return Buffer.from(buf);
+}
+
+/** PNG ZIP: render each PDF section as a separate PNG, bundle in a ZIP. */
+async function generatePngZipBuffer(data: PremiumExportRequest): Promise<Buffer> {
+  const archiver = (await import("archiver")).default;
+  const { buildPdfHtml, resolveThemeColors } = await import("./pdf-html-templates");
+  const { renderPng } = await import("../pdf/browser-renderer");
+
+  const company = data.companyName || "Hospitality Business Group";
+  const isLandscape = (data.orientation || "landscape") === "landscape";
+  const sections = buildPdfSectionsFromData(data);
+  const colors = resolveThemeColors((data as any).themeColors);
+  const reportTitle = data.statementType
+    ? `${company} \u2014 ${data.statementType}`
+    : `${company} \u2014 Financial Report`;
+
+  const pngs: { name: string; buffer: Buffer }[] = [];
+
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+    const html = buildPdfHtml({ sections: [section], report_title: reportTitle }, {
+      orientation: data.orientation || "landscape",
+      companyName: company,
+      entityName: data.entityName,
+      sections: [section],
+      reportTitle,
+      colors,
+    });
+
+    const pngBuffer = await renderPng(html, {
+      width: isLandscape ? 1536 : 816,
+      height: isLandscape ? 864 : 1056,
+      scale: 2,
+    });
+
+    const idx = String(i + 1).padStart(2, "0");
+    const label = (section.title || section.type || "Page").replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "-");
+    pngs.push({ name: `${idx}-${label}.png`, buffer: pngBuffer });
+  }
+
+  // Bundle into ZIP with timeout guard
+  const zipPromise = new Promise<Buffer>((resolve, reject) => {
+    const archive = archiver("zip", { zlib: { level: 6 } });
+    const chunks: Buffer[] = [];
+    archive.on("data", (chunk: Buffer) => chunks.push(chunk));
+    archive.on("end", () => resolve(Buffer.concat(chunks)));
+    archive.on("error", reject);
+
+    for (const png of pngs) {
+      archive.append(png.buffer, { name: png.name });
+    }
+    archive.finalize();
+  });
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("PNG ZIP generation timed out after 30s")), 30_000)
+  );
+  return Promise.race([zipPromise, timeoutPromise]);
+}
+
 const CONTENT_TYPES: Record<string, string> = {
   xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   pdf: "application/pdf",
   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  png: "application/zip",
 };
 
 const FORMAT_EXTENSIONS: Record<string, string> = {
@@ -1005,6 +935,7 @@ const FORMAT_EXTENSIONS: Record<string, string> = {
   pptx: ".pptx",
   pdf: ".pdf",
   docx: ".docx",
+  png: ".zip",
 };
 
 const DEFAULT_REPORT_TYPE: Record<string, string> = {
@@ -1018,15 +949,28 @@ async function generateViaTemplatePipeline(
   data: PremiumExportRequest,
   modelId?: string
 ): Promise<Buffer> {
+  // PDF: direct HTML template → Puppeteer (no AI)
   if (data.format === "pdf") {
     logger.info(`[template] Building PDF directly from data (no AI call)...`, "premium-export");
     return generatePdfBuffer(null, data);
   }
 
+  // Excel: direct data → xlsx (no AI — one worksheet per statement)
+  if (data.format === "xlsx") {
+    logger.info(`[template] Building Excel directly from data (no AI call)...`, "premium-export");
+    return generateExcelFromData(data);
+  }
+
+  // PNG ZIP: render each section as PNG, bundle in ZIP (no AI)
+  if (data.format === "png") {
+    logger.info(`[template] Building PNG ZIP from data (no AI call)...`, "premium-export");
+    return generatePngZipBuffer(data);
+  }
+
+  // PPTX / DOCX: AI-powered generation via Gemini
   logger.info(`[template] Building ${data.format} prompt...`, "premium-export");
   let prompt: string;
   switch (data.format) {
-    case "xlsx": prompt = getExcelPrompt(data); break;
     case "pptx": prompt = getPptxPrompt(data); break;
     case "docx": prompt = getDocxPrompt(data); break;
     default: throw new Error(`Unsupported format: ${data.format}`);
@@ -1037,7 +981,6 @@ async function generateViaTemplatePipeline(
   logger.info(`[template] AI returned valid JSON, generating ${data.format} buffer...`, "premium-export");
 
   switch (data.format) {
-    case "xlsx": return generateExcelBuffer(aiResult, data);
     case "pptx": return generatePptxBuffer(aiResult, data);
     case "docx": return generateDocxBuffer(aiResult, data);
     default: throw new Error(`Unsupported format: ${data.format}`);
@@ -1090,74 +1033,6 @@ export function register(app: Express) {
 
   app.get("/api/exports/premium/status", requireAuth, async (_req: Request, res: Response) => {
     const hasApiKey = !!(process.env.AI_INTEGRATIONS_GEMINI_API_KEY);
-    res.json({ available: hasApiKey, formats: ["xlsx", "pptx", "pdf", "docx"] });
-  });
-
-  const driveUploadSchema = z.object({
-    filename: z.string().min(1).max(200),
-    mimeType: z.string().max(100).default("application/octet-stream"),
-    base64Data: z.string().max(50_000_000),
-  });
-
-  app.post("/api/exports/drive-upload", requireAuth, async (req: Request, res: Response) => {
-    try {
-      const parsed = driveUploadSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: "Invalid upload request", details: parsed.error.flatten() });
-      }
-      const { filename, mimeType, base64Data } = parsed.data;
-
-      const accessToken = process.env.GOOGLE_DRIVE_ACCESS_TOKEN;
-      if (!accessToken) {
-        return res.status(503).json({ error: "Google Drive is not connected" });
-      }
-
-      const boundary = "----ExportBoundary" + Date.now();
-      const metadata = JSON.stringify({
-        name: filename,
-        mimeType: mimeType || "application/octet-stream",
-      });
-
-      const bodyParts = [
-        `--${boundary}\r\n`,
-        `Content-Type: application/json; charset=UTF-8\r\n\r\n`,
-        metadata,
-        `\r\n--${boundary}\r\n`,
-        `Content-Type: ${mimeType || "application/octet-stream"}\r\n`,
-        `Content-Transfer-Encoding: base64\r\n\r\n`,
-        base64Data,
-        `\r\n--${boundary}--`,
-      ];
-
-      const uploadResponse = await fetch(
-        "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": `multipart/related; boundary=${boundary}`,
-          },
-          body: bodyParts.join(""),
-        }
-      );
-
-      if (!uploadResponse.ok) {
-        const errText = await uploadResponse.text();
-        logger.error(`Google Drive upload failed: ${uploadResponse.status} ${errText}`, "premium-export");
-        return res.status(uploadResponse.status).json({ error: "Failed to upload to Google Drive" });
-      }
-
-      const driveFile = await uploadResponse.json() as { id: string; name: string; webViewLink: string };
-      logger.info(`Uploaded to Google Drive: ${driveFile.name} (${driveFile.id})`, "premium-export");
-      res.json({ success: true, fileId: driveFile.id, fileName: driveFile.name, webViewLink: driveFile.webViewLink });
-    } catch (error: any) {
-      logger.error(`Drive upload error: ${error?.message || error}`, "premium-export");
-      res.status(500).json({ error: "Failed to upload to Google Drive" });
-    }
-  });
-
-  app.get("/api/exports/drive-status", requireAuth, async (_req: Request, res: Response) => {
-    const hasToken = !!(process.env.GOOGLE_DRIVE_ACCESS_TOKEN);
-    res.json({ available: hasToken });
+    res.json({ available: hasApiKey, formats: ["xlsx", "pptx", "pdf", "docx", "png"] });
   });
 }

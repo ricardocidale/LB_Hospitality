@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Sparkles } from "@/components/icons/themed-icons";
@@ -11,11 +10,12 @@ import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
 export type ExportVersion = "short" | "extended";
-export type PremiumFormat = "xlsx" | "pptx" | "pdf" | "docx";
+export type PremiumFormat = "xlsx" | "pptx" | "pdf" | "docx" | "png";
 
 const ORIENTATION_KEY = "export-orientation";
 const VERSION_KEY = "export-version";
 const PREMIUM_KEY = "export-premium";
+const COVER_PAGE_KEY = "export-cover";
 
 function getStoredOrientation(): "landscape" | "portrait" {
   try {
@@ -40,13 +40,22 @@ function getStoredPremium(): boolean {
   return false;
 }
 
+function getStoredCoverPage(): boolean {
+  try {
+    return localStorage.getItem(COVER_PAGE_KEY) === "true";
+  } catch {}
+  return false;
+}
+
 interface ExportDialogProps {
   open: boolean;
   onClose: () => void;
   onExport: (orientation: "landscape" | "portrait", version: ExportVersion, customFilename?: string) => void;
   title: string;
   showVersionOption?: boolean;
+  showCoverPageOption?: boolean;
   premiumExportData?: PremiumExportPayload | null;
+  getPremiumExportData?: (version: ExportVersion, includeCoverPage: boolean) => PremiumExportPayload | null;
   premiumFormat?: PremiumFormat;
   suggestedFilename?: string;
   fileExtension?: string;
@@ -79,6 +88,8 @@ export interface PremiumExportPayload {
   }>;
   metrics?: Array<{ label: string; value: string }>;
   projectionYears?: number;
+  themeColors?: Array<{ name: string; hexCode: string; rank: number }>;
+  includeCoverPage?: boolean;
 }
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -130,45 +141,7 @@ async function generatePremiumExport(
   return { blob, serverFilename };
 }
 
-async function saveToLocal(blob: Blob, filename: string, _mimeType: string): Promise<void> {
-  const { saveFile } = await import("@/lib/exports/saveFile");
-  await saveFile(blob, filename);
-}
-
-function canShowNativeFilePicker(): boolean {
-  if (typeof window === "undefined") return false;
-  return "showSaveFilePicker" in window;
-}
-
-async function saveToDrive(blob: Blob, filename: string, mimeType: string): Promise<{ webViewLink: string }> {
-  const reader = new FileReader();
-  const base64Promise = new Promise<string>((resolve, reject) => {
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(",")[1];
-      resolve(base64);
-    };
-    reader.onerror = () => reject(new Error("Failed to read file"));
-  });
-  reader.readAsDataURL(blob);
-  const base64Data = await base64Promise;
-
-  const response = await fetch("/api/exports/drive-upload", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ filename, mimeType, base64Data }),
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => null);
-    throw new Error(err?.error || "Failed to upload to Google Drive");
-  }
-
-  return response.json();
-}
-
-type DialogStep = "options" | "generating" | "save";
+type DialogStep = "options" | "generating";
 
 const GENERATING_PHASES = [
   { label: "Analyzing financial data...", icon: "chart" },
@@ -299,15 +272,13 @@ function GeneratingAnimation() {
   );
 }
 
-export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, premiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
+export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, showCoverPageOption = false, premiumExportData, getPremiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
   const [orientation, setOrientation] = useState<"landscape" | "portrait">(getStoredOrientation);
   const [version, setVersion] = useState<ExportVersion>(getStoredVersion);
   const [isPremium, setIsPremium] = useState(getStoredPremium);
+  const [includeCoverPage, setIncludeCoverPage] = useState(getStoredCoverPage);
   const [step, setStep] = useState<DialogStep>("options");
-  const [generatedBlob, setGeneratedBlob] = useState<Blob | null>(null);
-  const [saveFilename, setSaveFilename] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [driveAvailable, setDriveAvailable] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -315,15 +286,9 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
       setOrientation(getStoredOrientation());
       setVersion(getStoredVersion());
       setIsPremium(getStoredPremium());
+      setIncludeCoverPage(getStoredCoverPage());
       setStep("options");
-      setGeneratedBlob(null);
-      setSaveFilename("");
       setIsSaving(false);
-
-      fetch("/api/exports/drive-status", { credentials: "include" })
-        .then(r => r.json())
-        .then(d => setDriveAvailable(d.available))
-        .catch(() => setDriveAvailable(false));
     }
   }, [open]);
 
@@ -344,61 +309,49 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
     try { localStorage.setItem(PREMIUM_KEY, String(checked)); } catch {}
   };
 
-  const getDefaultFilename = (serverName?: string) => {
-    if (serverName) {
-      return serverName.replace(/\.[^.]+$/, "");
+  const handleCoverPageToggle = (checked: boolean) => {
+    setIncludeCoverPage(checked);
+    try { localStorage.setItem(COVER_PAGE_KEY, String(checked)); } catch {}
+  };
+
+  const resolvePremiumPayload = (): PremiumExportPayload | null => {
+    if (getPremiumExportData) {
+      return getPremiumExportData(version, includeCoverPage);
     }
-    const base = suggestedFilename || "Export";
-    return base;
+    return premiumExportData ?? null;
   };
 
-  const getFullFilename = () => {
-    const trimmed = saveFilename.trim();
-    if (!trimmed) return `export${fileExtension}`;
-    const safe = trimmed.replace(/[/\\:*?"<>|]/g, "_");
-    const ext = isPremium ? `.${premiumFormat}` : fileExtension;
-    return `${safe}${ext}`;
-  };
-
-  const getMimeType = () => {
-    const fmt = isPremium ? premiumFormat : fileExtension.replace(".", "");
-    return CONTENT_TYPES[fmt] || "application/octet-stream";
-  };
-
-  const triggerLocalSave = async (blob: Blob, filename: string, mime: string) => {
-    setIsSaving(true);
-    try {
-      await saveToLocal(blob, filename, mime);
-      toast({ title: "File saved", description: `${filename} saved to your computer.` });
-      onClose();
-    } catch (err: any) {
-      if (err?.name === "AbortError") {
-        setIsSaving(false);
-        return;
-      }
-      toast({ title: "Save failed", description: err?.message || "Could not save file", variant: "destructive" });
-      setIsSaving(false);
-    }
-  };
+  const hasPremiumData = !!(getPremiumExportData || premiumExportData);
+  const isGenerating = step === "generating";
 
   const handleExport = async () => {
-    if (isPremium && premiumExportData) {
+    const payload = resolvePremiumPayload();
+    if (isPremium && payload) {
       setStep("generating");
       try {
-        const { blob, serverFilename } = await generatePremiumExport(premiumFormat, premiumExportData, orientation, version);
-        const filename = getDefaultFilename(serverFilename);
-        const ext = `.${premiumFormat}`;
-        const fullName = `${filename}${ext}`;
-        const mime = CONTENT_TYPES[premiumFormat] || "application/octet-stream";
+        const { blob, serverFilename } = await generatePremiumExport(premiumFormat, payload, orientation, version);
 
-        setGeneratedBlob(blob);
-        setSaveFilename(filename);
-        setStep("save");
+        // Auto-save via native file picker or download
+        setIsSaving(true);
+        try {
+          const { saveFile } = await import("@/lib/exports/saveFile");
+          await saveFile(blob, serverFilename);
+          toast({ title: "File saved", description: `${serverFilename} saved to your computer.` });
+        } catch (err: any) {
+          if (err?.name === "AbortError") {
+            // User cancelled the file picker — close silently
+            onClose();
+            return;
+          }
+          throw err;
+        }
+        onClose();
       } catch (error: any) {
         const errMsg = error?.message || "An unexpected error occurred. Please try again.";
         console.error("[premium-export] Client error:", errMsg, error?.stack || "");
         toast({ title: "Premium export failed", description: errMsg, variant: "destructive" });
         setStep("options");
+        setIsSaving(false);
       }
     } else {
       onExport(orientation, version);
@@ -406,61 +359,11 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
     }
   };
 
-  const handleSaveLocal = async () => {
-    if (!generatedBlob) return;
-    setIsSaving(true);
-    try {
-      await saveToLocal(generatedBlob, getFullFilename(), getMimeType());
-      toast({ title: "File saved", description: `${getFullFilename()} saved to your computer.` });
-      onClose();
-    } catch (err: any) {
-      if (err?.name === "AbortError") {
-        setIsSaving(false);
-        return;
-      }
-      toast({ title: "Save failed", description: err?.message || "Could not save file", variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleSaveDrive = async () => {
-    if (!generatedBlob) return;
-    setIsSaving(true);
-    try {
-      const result = await saveToDrive(generatedBlob, getFullFilename(), getMimeType());
-      toast({
-        title: "Saved to Google Drive",
-        description: (
-          <span>
-            {getFullFilename()} uploaded.{" "}
-            {result.webViewLink && (
-              <a href={result.webViewLink} target="_blank" rel="noopener noreferrer" className="underline font-medium">
-                Open in Drive
-              </a>
-            )}
-          </span>
-        ),
-      });
-      onClose();
-    } catch (err: any) {
-      toast({ title: "Google Drive upload failed", description: err?.message || "Could not upload file", variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const hasPremiumData = !!premiumExportData;
-  const isGenerating = step === "generating";
-
   return (
     <Dialog open={open} onOpenChange={(isGenerating || isSaving) ? undefined : onClose}>
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle>{step === "save" ? "Save Export" : title}</DialogTitle>
-          {step === "save" && (
-            <DialogDescription>Edit the filename and choose where to save.</DialogDescription>
-          )}
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         {step === "options" && (
@@ -519,6 +422,22 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                   </RadioGroup>
                 </div>
               )}
+
+              {showCoverPageOption && (
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="cover-page-toggle" className="text-sm font-medium cursor-pointer">
+                      Include Cover Page & Overview
+                    </Label>
+                    <Switch
+                      id="cover-page-toggle"
+                      checked={includeCoverPage}
+                      onCheckedChange={handleCoverPageToggle}
+                      data-testid="switch-cover-page"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={onClose}>Cancel</Button>
@@ -545,79 +464,6 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
 
         {step === "generating" && (
           <GeneratingAnimation />
-        )}
-
-        {step === "save" && (
-          <>
-            <div className="py-4 space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="export-filename" className="text-sm font-medium">Filename</Label>
-                <div className="flex items-center gap-0">
-                  <Input
-                    id="export-filename"
-                    value={saveFilename}
-                    onChange={(e) => setSaveFilename(e.target.value)}
-                    className="rounded-r-none border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                    data-testid="input-export-filename"
-                    autoFocus
-                    onKeyDown={(e) => { if (e.key === "Enter" && !isSaving) handleSaveLocal(); }}
-                  />
-                  <div className="flex items-center h-9 px-3 bg-muted border border-input rounded-r-md text-sm text-muted-foreground select-none">
-                    .{isPremium ? premiumFormat : fileExtension.replace(".", "")}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Button
-                  className="w-full justify-start gap-3 h-12"
-                  variant="outline"
-                  onClick={handleSaveLocal}
-                  disabled={isSaving || !saveFilename.trim()}
-                  data-testid="button-save-local"
-                >
-                  {isSaving ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <IconDownload className="h-5 w-5" />
-                  )}
-                  <div className="text-left">
-                    <div className="font-medium text-sm">Save to Computer</div>
-                    <div className="text-xs text-muted-foreground">
-                      {canShowNativeFilePicker() ? "Opens file explorer to choose location" : "Downloads file to your computer"}
-                    </div>
-                  </div>
-                </Button>
-
-                <Button
-                  className="w-full justify-start gap-3 h-12"
-                  variant="outline"
-                  onClick={driveAvailable ? handleSaveDrive : undefined}
-                  disabled={isSaving || !driveAvailable || !saveFilename.trim()}
-                  data-testid="button-save-drive"
-                >
-                  {isSaving ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
-                      <path d="M8.267 14.68l-1.6 2.769h11.666l1.6-2.769H8.267z" fill="#3777E3"/>
-                      <path d="M14.133 4H7.467L1.8 14.68l1.6 2.769L9.067 7.11h6.666L14.133 4z" fill="#FFCF63"/>
-                      <path d="M22.2 14.68L16.533 4h-3.6l5.667 10.68H22.2z" fill="#11A861"/>
-                    </svg>
-                  )}
-                  <div className="text-left">
-                    <div className="font-medium text-sm">Save to Google Drive</div>
-                    <div className="text-xs text-muted-foreground">
-                      {driveAvailable ? "Upload to your connected Drive" : "Connect Google Drive in Settings to enable"}
-                    </div>
-                  </div>
-                </Button>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={onClose} disabled={isSaving}>Cancel</Button>
-            </DialogFooter>
-          </>
         )}
       </DialogContent>
     </Dialog>

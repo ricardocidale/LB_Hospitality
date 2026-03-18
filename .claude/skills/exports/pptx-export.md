@@ -14,9 +14,9 @@ All PPTX exports are **comprehensive** — clicking "PowerPoint" on any tab of a
 
 | Page | Sections | Skill Doc |
 |------|----------|-----------|
-| Dashboard | KPIs + IS + CF + BS + Investment Analysis | [comprehensive-pdf-report.md](./comprehensive-pdf-report.md) |
-| Property Detail | IS + CF + BS | [comprehensive-property-report.md](./comprehensive-property-report.md) |
-| Company | IS + CF + BS | [comprehensive-company-report.md](./comprehensive-company-report.md) |
+| Dashboard | KPIs + IS + CF + BS + Investment Analysis | [premium-export-spec.md](./premium-export-spec.md) |
+| Property Detail | IS + CF + BS | [premium-export-spec.md](./premium-export-spec.md) |
+| Company | IS + CF + BS | [premium-export-spec.md](./premium-export-spec.md) |
 
 ## Enterprise Title Slide
 

@@ -13,7 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { CurrentThemeTab } from "@/components/ui/tabs";
-import { ExportMenu, pdfAction, csvAction, excelAction, pptxAction, chartAction, pngAction } from "@/components/ui/export-toolbar";
 import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioIncomeData, generatePortfolioBalanceSheetData, exportPortfolioPDF, exportPortfolioCSV, buildAllPortfolioStatements, exportPortfolioExcel, exportDashboardComprehensivePDF, toExportData } from "./dashboardExports";
 import { Link } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -364,16 +363,6 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
       {SaveDialog}
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
         <CardTitle>Portfolio Overview</CardTitle>
-        <ExportMenu
-          actions={[
-            pdfAction(() => handleExport('pdf')),
-            csvAction(() => handleExport('csv')),
-            excelAction(() => handleExport('excel')),
-            pptxAction(() => handleExport('pptx')),
-            chartAction(() => handleExport('chart')),
-            pngAction(() => handleExport('png')),
-          ]}
-        />
       </CardHeader>
       <CardContent ref={tabContentRef} className="relative z-10">
         <Accordion type="multiple" defaultValue={["performance", "projection", "composition", "insights", "marketStatus", "waterfall"]} className="space-y-4">

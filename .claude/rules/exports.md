@@ -1,38 +1,49 @@
-# Export Parity Rule
+# Export Rules
 
-Every financial data page **must** offer all six export formats via `ExportMenu`. No partial suites.
+Every financial data page **must** offer all six export formats via a single `ExportMenu` in the tab bar.
 
 ## Six Required Formats
 
-PDF (`pdfAction`), Excel (`excelAction`), CSV (`csvAction`), PowerPoint (`pptxAction`), Chart PNG (`chartAction`), Table PNG (`pngAction`)
+PDF, Excel (xlsx), CSV, PowerPoint (pptx), PNG (zipped), DOCX
 
 ## Placement
 
-- **Tabbed pages** → `CurrentThemeTab` `rightContent` slot
-- **Non-tabbed pages** → `PageHeader` `actions` slot
+One Export button per page in the tab bar `rightContent` slot. No per-tab export buttons.
 
-## Three Cardinal Export Rules
+## Cardinal Export Rules
 
-1. **Full-scope export**: Clicking Export from ANY tab exports ALL financial statements and analysis for the entity — never just the current tab. Applies to both premium and non-premium exports equally.
-2. **Dual save destination**: Both premium and non-premium exports offer Local Drive and Google Drive as save targets.
-3. **File naming at save step**: The user renames the file when selecting the save folder/location — not in the export dialog. The export dialog does NOT include a filename input field.
+1. **Full-scope export**: Clicking Export produces ALL financial statements for the entity — never just the current tab. Statements: Income Statement, Cash Flow, Balance Sheet, Investment Analysis (except Company which has no Investment Analysis).
+2. **Statement → Chart interleaving**: Each statement table is followed by a chart page showing that statement's key metrics.
+3. **Short/Extended**: "Short" exports header/total rows only (accordion closed). "Extended" exports all line items (accordion open). Formula rows (isItalic) are NEVER exported.
+4. **Optional cover page**: Dashboard page offers a toggle for cover page + overview. Property and Company pages do not.
+5. **File save**: After generation, `saveFile()` is called directly — tries native `showSaveFilePicker` (Chrome) or falls back to download (webview). No intermediate save dialog.
+6. **Theme colors**: Export colors come from the user's active theme, resolved via `resolveThemeColors()`. Falls back to brand defaults.
 
-## Additional Constraints
+## Format-Specific Rules
 
-1. CSV: always use `downloadCSV()` from `csvExport.ts` — no inline generation
-2. Filenames must include entity name (e.g. `Hotel Loch Sheldrake - Cash Flow.xlsx`)
-3. PPTX: branded title slide (dark navy, sage accent) + metrics cards
-4. PDF/Chart: use `ExportDialog` for orientation selection
-5. Portfolio exports: use generators from `dashboardExports.ts` — never re-derive inline
-6. Excel: apply `#,##0` currency, percentage formatting, bold headers via `excelExport.ts` helpers
+| Format | Content | Notes |
+|--------|---------|-------|
+| **PDF** | Full report (cover, overview, statements, charts) | Landscape or portrait, via Puppeteer HTML→PDF |
+| **PPTX** | Each page = one 16:9 slide | Landscape only. Elements as PPTX objects or images |
+| **Excel** | Each statement = one worksheet tab | No cover, no charts |
+| **CSV** | Statement tables concatenated | No cover, no charts |
+| **PNG** | Each page = separate PNG, bundled in ZIP | Sequenced filenames: `Report-01-IncomeStatement.png` |
+| **DOCX** | Pages in sequence, tables/charts as PNG images | Portrait |
 
 ## ExportData Shape
 
 ```ts
 interface ExportData {
   years: string[] | number[];
-  rows: { category: string; values: (string | number)[]; indent?: number; isBold?: boolean; isHeader?: boolean; }[];
+  rows: { category: string; values: (string | number)[]; indent?: number; isBold?: boolean; isHeader?: boolean; isItalic?: boolean; format?: string; }[];
 }
 ```
+
+## Per-Statement Charts
+
+- **Income Statement**: Total Revenue, GOP, NOI, ANOI (4 bar charts)
+- **Cash Flow**: CFO, FCFE (2 bar charts)
+- **Balance Sheet**: Total Assets, Total L+E (2 bar charts)
+- **Investment Analysis**: Revenue + NOI + ANOI trend line chart
 
 Reference: `.claude/skills/exports/SKILL.md` for full implementation guide.

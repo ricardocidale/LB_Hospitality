@@ -367,14 +367,14 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
     xLabels += `<text x="${x}" y="${svgH - 12}" text-anchor="middle" fill="#666" font-size="8" font-weight="500" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
   });
 
-  // Series lines + dots
+  // Series lines + dots (colors from series data, matching UI's FinancialChart)
   let seriesSvg = "";
   series.forEach((s: any, si: number) => {
-    const color = LINE_COLORS[si % LINE_COLORS.length];
+    const color = s.color || LINE_COLORS[si % LINE_COLORS.length];
     const values: number[] = (s.values || []).map((v: any) => typeof v === "number" ? v : 0);
     if (values.length < 2) return;
 
-    // Build polyline points
+    // Build smooth polyline points
     const points = values.map((v, i) => {
       const x = padL + (i / Math.max(values.length - 1, 1)) * plotW;
       const y = padT + plotH - (v / globalMax) * plotH;
@@ -383,18 +383,18 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
 
     seriesSvg += `<polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
 
-    // Data dots
+    // Data dots (white fill with colored stroke, matching Recharts dot style)
     values.forEach((v, i) => {
       const x = padL + (i / Math.max(values.length - 1, 1)) * plotW;
       const y = padT + plotH - (v / globalMax) * plotH;
-      seriesSvg += `<circle cx="${x}" cy="${y}" r="3" fill="#fff" stroke="${color}" stroke-width="2"/>`;
+      seriesSvg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#fff" stroke="${color}" stroke-width="2"/>`;
     });
   });
 
   // Legend
   const legendY = svgH - 2;
   const legendItems = series.map((s: any, si: number) => {
-    const color = LINE_COLORS[si % LINE_COLORS.length];
+    const color = s.color || LINE_COLORS[si % LINE_COLORS.length];
     const xOff = si * (isL ? 160 : 130);
     return `
       <line x1="${padL + xOff}" y1="${legendY}" x2="${padL + xOff + 16}" y2="${legendY}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>

@@ -472,65 +472,68 @@ function filterFormulaRows(rows: any[]): any[] {
   return rows.filter(r => !r.isItalic && r.type !== "formula");
 }
 
-/** Build a chart section for a single statement by extracting chartable rows */
+// Chart series definitions matching the UI's FinancialChart component colors
+const CHART_SERIES_BY_STATEMENT: Record<string, Array<{ keyword: string; label: string; color: string }>> = {
+  income: [
+    { keyword: "total revenue", label: "Revenue", color: "#18181b" },
+    { keyword: "gross operating profit", label: "GOP", color: "#3B82F6" },
+    { keyword: "net operating income", label: "NOI", color: "#F59E0B" },
+    { keyword: "adjusted noi", label: "ANOI", color: "#6B7280" },
+  ],
+  cashflow: [
+    { keyword: "net operating income", label: "NOI", color: "#F59E0B" },
+    { keyword: "adjusted noi", label: "ANOI", color: "#6B7280" },
+    { keyword: "free cash flow (fcf)", label: "Cash Flow", color: "#8B5CF6" },
+    { keyword: "free cash flow to equity", label: "FCFE", color: "#6B7280" },
+  ],
+  balance: [
+    { keyword: "total assets", label: "Total Assets", color: "#257D41" },
+    { keyword: "total liabilities & equity", label: "Total Liabilities", color: "#F4795B" },
+  ],
+  investment: [
+    { keyword: "net operating income", label: "NOI", color: "#10B981" },
+    { keyword: "adjusted noi", label: "ANOI", color: "#257D41" },
+    { keyword: "free cash flow to equity", label: "FCFE", color: "#8B5CF6" },
+  ],
+};
+
+/** Detect which statement type this is from the title */
+function detectStatementType(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes("income")) return "income";
+  if (t.includes("cash flow")) return "cashflow";
+  if (t.includes("balance")) return "balance";
+  if (t.includes("investment")) return "investment";
+  return "income";
+}
+
+/** Build a LINE CHART section for a statement, matching the UI's chart series and colors */
 function buildChartsForStatement(stmt: { title: string; years: string[]; rows: any[] }): any | null {
   const years = stmt.years || [];
-  const charts: any[] = [];
-  const title = (stmt.title || "").toLowerCase();
+  const stmtType = detectStatementType(stmt.title);
+  const seriesDefs = CHART_SERIES_BY_STATEMENT[stmtType] || CHART_SERIES_BY_STATEMENT.income;
 
-  for (const row of stmt.rows) {
-    const cat = (row.category || "").toLowerCase();
-    const numericVals = (row.values || []).filter((v: any): v is number => typeof v === "number" && v !== 0);
-    if (numericVals.length < 2) continue;
-
-    // Income Statement charts
-    if (cat === "total revenue" || cat.includes("total revenue")) {
-      charts.push({ label: "Total Revenue", values: row.values, years });
-    } else if (cat.includes("gross operating profit") || cat === "gross operating profit (gop)") {
-      charts.push({ label: "Gross Operating Profit", values: row.values, years });
-    } else if ((cat === "net operating income (noi)" || cat.includes("net operating income")) && !cat.includes("adjusted")) {
-      charts.push({ label: "Net Operating Income (NOI)", values: row.values, years });
-    } else if (cat === "adjusted noi (anoi)" || cat.includes("adjusted noi")) {
-      charts.push({ label: "Adjusted NOI (ANOI)", values: row.values, years });
-    }
-    // Cash Flow charts
-    else if (cat.includes("cash from operations") || cat === "cash flow from operations (cfo)") {
-      charts.push({ label: "Cash from Operations", values: row.values, years });
-    } else if (cat.includes("free cash flow to equity") || cat === "free cash flow to equity (fcfe)") {
-      charts.push({ label: "Free Cash Flow to Equity", values: row.values, years });
-    }
-    // Balance Sheet charts
-    else if (cat === "total assets") {
-      charts.push({ label: "Total Assets", values: row.values, years });
-    } else if (cat === "total liabilities & equity" || cat.includes("total liabilities")) {
-      charts.push({ label: "Total Liabilities & Equity", values: row.values, years });
+  const series: any[] = [];
+  for (const def of seriesDefs) {
+    // Find the matching row in the statement data
+    for (const row of stmt.rows) {
+      const cat = (row.category || "").toLowerCase();
+      if (cat.includes(def.keyword)) {
+        const vals = (row.values || []).map((v: any) => typeof v === "number" ? v : 0);
+        if (vals.some((v: number) => v !== 0)) {
+          series.push({ label: def.label, values: vals, color: def.color });
+        }
+        break;
+      }
     }
   }
 
-  // Deduplicate
-  const seen = new Set<string>();
-  const deduped = charts.filter(c => {
-    if (seen.has(c.label)) return false;
-    seen.add(c.label);
-    return true;
-  });
-
-  if (!deduped.length) return null;
-
-  // For Investment Analysis, produce a line chart instead of bar charts
-  if (title.includes("investment")) {
-    const series = deduped.map(c => ({ label: c.label, values: c.values }));
-    return {
-      type: "line_chart",
-      title: `${stmt.title} — Trends`,
-      content: { series, years },
-    };
-  }
+  if (series.length < 1) return null;
 
   return {
-    type: "chart",
-    title: `${stmt.title} — Charts`,
-    content: { charts: deduped },
+    type: "line_chart",
+    title: `${stmt.title} — Trends`,
+    content: { series, years },
   };
 }
 

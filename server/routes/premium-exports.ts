@@ -6,6 +6,7 @@ import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
 import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdfPrompt, getDocxPrompt } from "./premium-export-prompts";
 import { buildPdfHtml } from "./pdf-html-templates";
+import { renderPdf } from "../pdf/browser-renderer";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { storage } from "../storage";
 import { resolveLlm, getVendorService } from "../ai/resolve-llm";
@@ -455,83 +456,85 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
   return Buffer.from(arrayBuf as ArrayBuffer);
 }
 
-let browserInstance: any = null;
-let browserLaunchPromise: Promise<any> | null = null;
+function buildChartSections(data: PremiumExportRequest): any[] {
+  const statements = data.statements || [];
+  if (!statements.length) return [];
 
-async function getBrowser() {
-  if (browserInstance && browserInstance.isConnected()) {
-    return browserInstance;
-  }
-  if (browserLaunchPromise) {
-    return browserLaunchPromise;
-  }
-  browserLaunchPromise = (async () => {
-    try {
-      const puppeteer = await import("puppeteer");
-      browserInstance = await puppeteer.default.launch({
-        headless: true,
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--disable-gpu",
-          "--font-render-hinting=none",
-        ],
-      });
-      return browserInstance;
-    } finally {
-      browserLaunchPromise = null;
+  const charts: any[] = [];
+
+  for (const stmt of statements) {
+    const years = stmt.years || [];
+    for (const row of stmt.rows) {
+      const cat = row.category?.toLowerCase() || "";
+      const numericVals = row.values.filter((v): v is number => typeof v === "number" && v !== 0);
+      if (numericVals.length < 2) continue;
+
+      if (cat.includes("total revenue") || cat === "total revenue") {
+        charts.push({ label: "Total Revenue", values: row.values, years });
+      } else if (cat.includes("gross operating profit") || cat === "gross operating profit (gop)") {
+        charts.push({ label: "Gross Operating Profit", values: row.values, years });
+      } else if (cat === "net operating income (noi)" || (cat.includes("net operating income") && !cat.includes("adjusted"))) {
+        charts.push({ label: "Net Operating Income (NOI)", values: row.values, years });
+      } else if (cat === "adjusted noi (anoi)" || cat.includes("adjusted noi")) {
+        charts.push({ label: "Adjusted NOI (ANOI)", values: row.values, years });
+      } else if (cat === "gaap net income") {
+        charts.push({ label: "GAAP Net Income", values: row.values, years });
+      } else if (cat.includes("free cash flow to equity") || cat === "free cash flow to equity (fcfe)") {
+        charts.push({ label: "Free Cash Flow to Equity", values: row.values, years });
+      }
     }
-  })();
-  return browserLaunchPromise;
-}
-
-async function closeBrowser() {
-  if (browserInstance) {
-    try { await browserInstance.close(); } catch {}
-    browserInstance = null;
   }
-}
 
-process.on("SIGTERM", closeBrowser);
-process.on("SIGINT", closeBrowser);
+  if (!charts.length) return [];
+
+  const perPage = 4;
+  const pages: any[] = [];
+  for (let i = 0; i < charts.length; i += perPage) {
+    pages.push({
+      type: "chart",
+      title: i === 0 ? "Financial Performance Charts" : "Financial Performance Charts (cont.)",
+      content: { charts: charts.slice(i, i + perPage) },
+    });
+  }
+  return pages;
+}
 
 async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Promise<Buffer> {
   const company = data.companyName || "Hospitality Business Group";
   const isLandscape = (data.orientation || "landscape") === "landscape";
 
-  const html = buildPdfHtml(aiResult, {
+  const chartSections = buildChartSections(data);
+  const enrichedSections = [...(aiResult.sections || [])];
+  if (chartSections.length) {
+    const metricsIdx = enrichedSections.findIndex((s: any) => s.type === "metrics_dashboard");
+    const insertAt = metricsIdx >= 0 ? metricsIdx + 1 : Math.min(2, enrichedSections.length);
+    enrichedSections.splice(insertAt, 0, ...chartSections);
+  }
+
+  const html = buildPdfHtml({ ...aiResult, sections: enrichedSections }, {
     orientation: data.orientation || "landscape",
     companyName: company,
     entityName: data.entityName,
-    sections: aiResult.sections || [],
+    sections: enrichedSections,
     reportTitle: aiResult.report_title,
   });
 
-  const browser = await getBrowser();
-  const page = await browser.newPage();
-  try {
-    await page.setContent(html, { waitUntil: "networkidle0", timeout: 15_000 });
+  const safeCompanyHtml = company.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-    const pdfBuffer = await page.pdf({
-      width: isLandscape ? "406.4mm" : "215.9mm",
-      height: isLandscape ? "228.6mm" : "279.4mm",
-      printBackground: true,
-      displayHeaderFooter: true,
-      headerTemplate: "<span></span>",
-      footerTemplate: `
-        <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;display:flex;justify-content:space-between;">
-          <span>${company.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}</span>
-          <span>CONFIDENTIAL</span>
-          <span><span class="pageNumber"></span> / <span class="totalPages"></span></span>
-        </div>`,
-      margin: { top: "0mm", bottom: "8mm", left: "0mm", right: "0mm" },
-    });
-
-    return Buffer.from(pdfBuffer);
-  } finally {
-    await page.close();
-  }
+  return renderPdf(html, {
+    width: isLandscape ? "406.4mm" : "215.9mm",
+    height: isLandscape ? "228.6mm" : "279.4mm",
+    printBackground: true,
+    displayHeaderFooter: true,
+    headerTemplate: "<span></span>",
+    footerTemplate: `
+      <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;display:flex;justify-content:space-between;">
+        <span>${safeCompanyHtml}</span>
+        <span>CONFIDENTIAL</span>
+        <span><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+      </div>`,
+    margin: { top: "0mm", bottom: "8mm", left: "0mm", right: "0mm" },
+  });
 }
 
 async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Promise<Buffer> {

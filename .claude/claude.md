@@ -157,9 +157,9 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
 - **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
-- **Premium PDF rendering**: Puppeteer (headless Chrome) renders HTML/CSS templates → PDF. Templates in `server/routes/pdf-html-templates.ts`. Browser instance is reused across requests and cleaned up on process exit.
-- **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and Puppeteer exports use these dimensions.
-- **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
+- **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and browser-rendered PDF exports use these dimensions.
+- **Browser abstraction**: `server/pdf/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
+- **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers. Premium PDF uses navy cover page with grid pattern, gradient metric cards, bordered prose blocks, inline SVG bar charts with gradient fills.
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.
   2. **Dual save destination**: Both premium and non-premium offer Local Drive + Google Drive.

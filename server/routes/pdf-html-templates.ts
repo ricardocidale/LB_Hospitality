@@ -23,9 +23,19 @@ function formatCurrency(v: any): string {
     if (v === 0) return "\u2014";
     const abs = Math.abs(v);
     const s = abs.toLocaleString("en-US", { maximumFractionDigits: 0 });
-    return v < 0 ? `($${s})` : `$${s}`;
+    return v < 0 ? `(${s})` : s;
   }
   return escapeHtml(String(v ?? ""));
+}
+
+function formatCompactValue(v: number): string {
+  if (v === 0) return "$0";
+  const abs = Math.abs(v);
+  const sign = v < 0 ? "-" : "";
+  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`;
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(0)}K`;
+  return `${sign}$${abs.toFixed(0)}`;
 }
 
 function renderCoverSection(section: any, data: PdfTemplateData): string {
@@ -33,36 +43,39 @@ function renderCoverSection(section: any, data: PdfTemplateData): string {
   const entity = escapeHtml(data.entityName);
   const reportTitle = escapeHtml(data.reportTitle || section.title || "Financial Report");
   const subtitle = section.subtitle ? escapeHtml(section.subtitle) : "";
-  const dateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const dateStr = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
   return `
     <div class="cover-page">
-      <div class="cover-grid"></div>
-      <div class="cover-accent-bar"></div>
-      <div class="cover-company">${company}</div>
-      <div class="cover-divider"></div>
-      <div class="cover-title">${reportTitle}</div>
-      ${subtitle ? `<div class="cover-subtitle">${subtitle}</div>` : ""}
-      <div class="cover-info-box">
-        <div class="cover-info-row">
-          <div class="cover-info-cell">
-            <div class="cover-info-label">PREPARED</div>
-            <div class="cover-info-value">For ${entity}</div>
+      <div class="cover-pattern"></div>
+      <div class="cover-gradient"></div>
+      <div class="cover-top-line"></div>
+      <div class="cover-bottom-line"></div>
+      <div class="cover-corner-accent"></div>
+      <div class="cover-content">
+        <div class="cover-badge">CONFIDENTIAL</div>
+        <div class="cover-company-name">${company}</div>
+        <div class="cover-rule"></div>
+        <div class="cover-report-title">${reportTitle}</div>
+        ${subtitle ? `<div class="cover-subtitle">${subtitle}</div>` : ""}
+        <div class="cover-meta-grid">
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">PREPARED FOR</div>
+            <div class="cover-meta-value">${entity}</div>
           </div>
-          <div class="cover-info-cell">
-            <div class="cover-info-label">CLASSIFICATION</div>
-            <div class="cover-info-value">CONFIDENTIAL</div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">DATE</div>
+            <div class="cover-meta-value">${dateStr}</div>
           </div>
-        </div>
-        <div class="cover-info-row">
-          <div class="cover-info-cell">
-            <div class="cover-info-label">DATE</div>
-            <div class="cover-info-value">${dateStr}</div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">CLASSIFICATION</div>
+            <div class="cover-meta-value">Strictly Confidential</div>
           </div>
         </div>
       </div>
-      <div class="cover-disclaimer">
-        This document contains proprietary financial projections. Distribution is restricted to authorized recipients.
+      <div class="cover-footer">
+        This document contains proprietary financial projections and confidential business information.
+        Distribution is restricted to authorized recipients only.
       </div>
     </div>`;
 }
@@ -80,33 +93,35 @@ function renderExecutiveSummarySection(section: any, data: PdfTemplateData): str
       const text = typeof p === "string"
         ? escapeHtml(p)
         : `<strong>${escapeHtml(p.metric)}:</strong> ${escapeHtml(p.insight)}`;
-      return `<p>${text}</p>`;
+      return `<p class="prose-paragraph">${text}</p>`;
     }).join("");
-    paragraphsHtml = `<div class="content-card">${items}</div>`;
+    paragraphsHtml = `<div class="prose-card">${items}</div>`;
   }
 
   let highlightsHtml = "";
   if (highlights.length > 0) {
     const items = highlights.map((h: any) => `
-      <div class="highlight-row">
-        <span class="highlight-dot"></span>
-        <span class="highlight-metric">${escapeHtml(h.metric)}</span>
-        <span class="highlight-insight">${escapeHtml(h.insight || "")}</span>
+      <div class="kpi-highlight">
+        <div class="kpi-highlight-bar"></div>
+        <div class="kpi-highlight-content">
+          <div class="kpi-highlight-metric">${escapeHtml(h.metric)}</div>
+          <div class="kpi-highlight-insight">${escapeHtml(h.insight || "")}</div>
+        </div>
       </div>
     `).join("");
     highlightsHtml = `
-      <div class="highlights-section">
-        <div class="highlights-title">KEY HIGHLIGHTS</div>
+      <div class="kpi-highlights-section">
+        <div class="kpi-highlights-label">KEY HIGHLIGHTS</div>
         ${items}
       </div>`;
   }
 
   return `
     <div class="content-page">
-      <div class="section-header">
-        <div class="section-title">${title}</div>
-        <div class="section-subtitle">${company} \u2014 ${entity}</div>
-        <div class="section-company">${company}</div>
+      <div class="page-header">
+        <div class="page-header-title">${title}</div>
+        <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
+        <div class="page-header-company">${company}</div>
       </div>
       ${paragraphsHtml}
       ${highlightsHtml}
@@ -114,31 +129,36 @@ function renderExecutiveSummarySection(section: any, data: PdfTemplateData): str
 }
 
 function renderMetricsDashboardSection(section: any, data: PdfTemplateData): string {
-  const title = escapeHtml(section.title || "Key Performance Indicators");
+  const title = escapeHtml(section.title || "Key Investment Metrics");
   const company = escapeHtml(data.companyName);
+  const entity = escapeHtml(data.entityName);
   const metrics = section.content?.metrics || [];
 
-  const cards = metrics.map((m: any) => {
-    const trend = m.trend === "up" ? "trend-up" : m.trend === "down" ? "trend-down" : "";
-    const arrow = m.trend === "up" ? "\u25B2" : m.trend === "down" ? "\u25BC" : "";
+  const cards = metrics.map((m: any, idx: number) => {
+    const trendArrow = m.trend === "up" ? `<span class="kpi-trend kpi-trend-up">\u25B2</span>` :
+      m.trend === "down" ? `<span class="kpi-trend kpi-trend-down">\u25BC</span>` : "";
+    const accentColors = ["#257D41", "#1A2332", "#9FBCA4", "#257D41", "#1A2332", "#9FBCA4"];
+    const accent = accentColors[idx % accentColors.length];
     return `
-      <div class="metric-card">
-        <div class="metric-accent"></div>
-        ${arrow ? `<div class="metric-trend ${trend}">${arrow}</div>` : ""}
-        <div class="metric-value">${escapeHtml(m.value || "")}</div>
-        <div class="metric-label">${escapeHtml(m.label || "")}</div>
-        ${m.description ? `<div class="metric-desc">${escapeHtml(m.description)}</div>` : ""}
+      <div class="kpi-card">
+        <div class="kpi-card-accent" style="background:${accent}"></div>
+        <div class="kpi-card-body">
+          ${trendArrow}
+          <div class="kpi-card-value">${escapeHtml(m.value || "")}</div>
+          <div class="kpi-card-label">${escapeHtml(m.label || "")}</div>
+          ${m.description ? `<div class="kpi-card-desc">${escapeHtml(m.description)}</div>` : ""}
+        </div>
       </div>`;
   }).join("");
 
   return `
     <div class="content-page">
-      <div class="section-header">
-        <div class="section-title">${title}</div>
-        <div class="section-subtitle">${company} \u2014 Investment Overview</div>
-        <div class="section-company">${company}</div>
+      <div class="page-header">
+        <div class="page-header-title">${title}</div>
+        <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
+        <div class="page-header-company">${company}</div>
       </div>
-      <div class="metrics-grid">${cards}</div>
+      <div class="kpi-grid">${cards}</div>
     </div>`;
 }
 
@@ -152,12 +172,12 @@ function renderFinancialTableSection(section: any, data: PdfTemplateData): strin
   if (!years.length || !rows.length) {
     return `
       <div class="content-page">
-        <div class="section-header">
-          <div class="section-title">${title}</div>
-          <div class="section-subtitle">${company} \u2014 ${entity}</div>
-          <div class="section-company">${company}</div>
+        <div class="page-header">
+          <div class="page-header-title">${title}</div>
+          <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
+          <div class="page-header-company">${company}</div>
         </div>
-        <p class="no-data">No financial data available.</p>
+        <p class="empty-state">No financial data available for this section.</p>
       </div>`;
   }
 
@@ -170,29 +190,107 @@ function renderFinancialTableSection(section: any, data: PdfTemplateData): strin
     const indent = r.indent || 0;
 
     let rowClass = "";
-    if (isHeader) rowClass = "row-header";
-    else if (isTotal) rowClass = "row-total";
-    else if (isFormula) rowClass = "row-formula";
-    else if (idx % 2 === 0) rowClass = "row-alt";
+    if (isHeader) rowClass = "tbl-row-header";
+    else if (isTotal) rowClass = "tbl-row-total";
+    else if (isFormula) rowClass = "tbl-row-formula";
+    else if (idx % 2 === 0) rowClass = "tbl-row-stripe";
 
-    const indentPx = indent * 16;
+    const indentPx = indent * 14;
     const label = escapeHtml(r.category || "");
-    const vals = (r.values || []).map((v: any) => `<td class="val-col">${formatCurrency(v)}</td>`).join("");
+    const vals = (r.values || []).map((v: any) => `<td class="tbl-val">${formatCurrency(v)}</td>`).join("");
 
-    return `<tr class="${rowClass}"><td class="label-col" style="padding-left:${8 + indentPx}px">${label}</td>${vals}</tr>`;
+    return `<tr class="${rowClass}"><td class="tbl-label" style="padding-left:${6 + indentPx}px">${label}</td>${vals}</tr>`;
   }).join("");
 
   return `
     <div class="content-page">
-      <div class="section-header">
-        <div class="section-title">${title}</div>
-        <div class="section-subtitle">${company} \u2014 ${entity}</div>
-        <div class="section-company">${company}</div>
+      <div class="page-header">
+        <div class="page-header-title">${title}</div>
+        <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
+        <div class="page-header-company">${company}</div>
       </div>
-      <table class="financial-table">
-        <thead><tr><th class="label-col"></th>${yearHeaders}</tr></thead>
+      <table class="fin-table">
+        <thead><tr><th class="tbl-label-hdr"></th>${yearHeaders}</tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
+    </div>`;
+}
+
+function renderChartSection(section: any, data: PdfTemplateData): string {
+  const title = escapeHtml(section.title || "Financial Performance");
+  const company = escapeHtml(data.companyName);
+  const entity = escapeHtml(data.entityName);
+  const charts = section.content?.charts || [];
+  const isLandscape = data.orientation === "landscape";
+  const chartW = isLandscape ? 170 : 150;
+  const chartH = 115;
+
+  const chartsHtml = charts.map((chart: any, cIdx: number) => {
+    const label = escapeHtml(chart.label || "");
+    const values: number[] = (chart.values || []).map((v: any) => typeof v === "number" ? v : 0);
+    const years: string[] = (chart.years || []).map((y: any) => String(y));
+    if (!values.length) return "";
+
+    const maxVal = Math.max(...values.map(Math.abs), 1);
+    const svgW = chartW;
+    const svgH = chartH;
+    const padL = 42;
+    const padR = 8;
+    const padT = 6;
+    const padB = 20;
+    const plotW = svgW - padL - padR;
+    const plotH = svgH - padT - padB;
+    const barCount = values.length;
+    const gap = plotW / barCount;
+    const barW = Math.min(gap * 0.6, 16);
+    const gradId = `grad-${cIdx}`;
+
+    const gridLines = 4;
+    let gridSvg = "";
+    for (let g = 0; g <= gridLines; g++) {
+      const y = padT + (plotH / gridLines) * g;
+      const gVal = maxVal - (maxVal / gridLines) * g;
+      const lbl = formatCompactValue(gVal);
+      gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#e8eaec" stroke-width="0.4" stroke-dasharray="2,2"/>`;
+      gridSvg += `<text x="${padL - 3}" y="${y + 2.5}" text-anchor="end" fill="#999" font-size="5" font-family="Helvetica,Arial,sans-serif">${lbl}</text>`;
+    }
+
+    let barsSvg = "";
+    values.forEach((v, i) => {
+      const bH = Math.max((Math.abs(v) / maxVal) * plotH, 1);
+      const x = padL + i * gap + (gap - barW) / 2;
+      const y = padT + plotH - bH;
+      barsSvg += `<rect x="${x}" y="${y}" width="${barW}" height="${bH}" fill="url(#${gradId})" rx="1.5"/>`;
+      if (years[i]) {
+        barsSvg += `<text x="${x + barW / 2}" y="${svgH - 5}" text-anchor="middle" fill="#888" font-size="5" font-family="Helvetica,Arial,sans-serif">${years[i]}</text>`;
+      }
+    });
+
+    return `
+      <div class="chart-card">
+        <div class="chart-card-title">${label}</div>
+        <svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" class="chart-svg">
+          <defs>
+            <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#257D41" stop-opacity="0.95"/>
+              <stop offset="100%" stop-color="#9FBCA4" stop-opacity="0.7"/>
+            </linearGradient>
+          </defs>
+          ${gridSvg}
+          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#ccd0d4" stroke-width="0.7"/>
+          ${barsSvg}
+        </svg>
+      </div>`;
+  }).join("");
+
+  return `
+    <div class="content-page">
+      <div class="page-header">
+        <div class="page-header-title">${title}</div>
+        <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
+        <div class="page-header-company">${company}</div>
+      </div>
+      <div class="chart-grid">${chartsHtml}</div>
     </div>`;
 }
 
@@ -218,6 +316,9 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
         break;
       case "financial_table":
         sectionHtmlParts.push(renderFinancialTableSection(section, data));
+        break;
+      case "chart":
+        sectionHtmlParts.push(renderChartSection(section, data));
         break;
       default:
         logger.warn(`Unknown section type "${section.type}" — skipped`, "pdf-template");
@@ -250,9 +351,13 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     color: ${DK_TEXT};
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    font-feature-settings: 'liga' 1, 'kern' 1;
+    text-rendering: optimizeLegibility;
   }
 
-  /* ── Cover Page ──────────────────────────── */
+  /* ═══════════════════════════════════════════
+     COVER PAGE
+     ═══════════════════════════════════════════ */
   .cover-page {
     width: ${pageW};
     height: ${pageH};
@@ -260,135 +365,149 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     position: relative;
     overflow: hidden;
     page-break-after: always;
-    padding: 0;
   }
 
-  .cover-grid {
+  .cover-pattern {
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(${SAGE}15 1px, transparent 1px),
-      linear-gradient(90deg, ${SAGE}15 1px, transparent 1px);
-    background-size: 12mm 12mm;
+      linear-gradient(rgba(159,188,164,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(159,188,164,0.06) 1px, transparent 1px);
+    background-size: 16mm 16mm;
   }
 
-  .cover-page::before,
-  .cover-page::after {
-    content: '';
+  .cover-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(37,125,65,0.08) 70%, rgba(159,188,164,0.12) 100%);
+  }
+
+  .cover-top-line, .cover-bottom-line {
     position: absolute;
     left: 0;
     right: 0;
-    height: 3mm;
-    background: ${SAGE};
+    height: 2.5mm;
+    background: linear-gradient(90deg, ${SAGE}, ${DK_GREEN});
   }
-  .cover-page::before { top: 0; }
-  .cover-page::after { bottom: 0; }
+  .cover-top-line { top: 0; }
+  .cover-bottom-line { bottom: 0; }
 
-  .cover-accent-bar {
+  .cover-corner-accent {
     position: absolute;
-    left: 16mm;
-    top: 28%;
-    width: 4mm;
-    height: 40mm;
-    background: ${SAGE};
-    border-radius: 1mm;
+    right: 0;
+    top: 0;
+    width: 80mm;
+    height: 80mm;
+    background: linear-gradient(225deg, rgba(159,188,164,0.12) 0%, transparent 60%);
   }
 
-  .cover-company {
+  .cover-content {
     position: absolute;
     left: 28mm;
-    top: 28%;
-    font-size: 32pt;
+    top: 24%;
+    right: 28mm;
+  }
+
+  .cover-badge {
+    display: inline-block;
+    font-size: 6.5pt;
     font-weight: 700;
-    color: #fff;
+    letter-spacing: 2.5px;
+    color: ${SAGE};
+    border: 1px solid rgba(159,188,164,0.4);
+    padding: 1.5mm 4mm;
+    border-radius: 1mm;
+    margin-bottom: 6mm;
+  }
+
+  .cover-company-name {
+    font-size: 36pt;
+    font-weight: 700;
+    color: #ffffff;
     letter-spacing: -0.5px;
+    line-height: 1.1;
+    margin-bottom: 5mm;
   }
 
-  .cover-divider {
-    position: absolute;
-    left: 28mm;
-    top: 35%;
-    width: 60mm;
-    height: 0.5mm;
-    background: #fff;
+  .cover-rule {
+    width: 50mm;
+    height: 0.6mm;
+    background: linear-gradient(90deg, ${SAGE}, transparent);
+    margin-bottom: 6mm;
   }
 
-  .cover-title {
-    position: absolute;
-    left: 28mm;
-    top: 42%;
+  .cover-report-title {
     font-size: 18pt;
     color: ${SAGE};
-    font-weight: 400;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+    margin-bottom: 3mm;
   }
 
   .cover-subtitle {
-    position: absolute;
-    left: 28mm;
-    top: 48%;
-    font-size: 12pt;
-    color: #b4c8b9;
+    font-size: 11pt;
+    color: rgba(180,200,185,0.8);
+    font-weight: 300;
+    margin-bottom: 8mm;
   }
 
-  .cover-info-box {
-    position: absolute;
-    left: 28mm;
-    top: 58%;
-    width: 100mm;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid ${SAGE}40;
-    border-radius: 3mm;
-    padding: 5mm 6mm;
-  }
-
-  .cover-info-row {
+  .cover-meta-grid {
     display: flex;
-    gap: 20mm;
-    margin-bottom: 3mm;
+    gap: 16mm;
+    margin-top: 10mm;
+    padding: 5mm 0;
+    border-top: 1px solid rgba(159,188,164,0.2);
   }
-  .cover-info-row:last-child { margin-bottom: 0; }
 
-  .cover-info-label {
-    font-size: 7pt;
+  .cover-meta-item {}
+
+  .cover-meta-label {
+    font-size: 6pt;
     font-weight: 700;
+    letter-spacing: 1.5px;
     color: ${SAGE};
-    letter-spacing: 1px;
-    margin-bottom: 1mm;
+    margin-bottom: 1.5mm;
   }
 
-  .cover-info-value {
+  .cover-meta-value {
     font-size: 9pt;
-    color: #ddd;
+    color: rgba(255,255,255,0.85);
+    font-weight: 400;
   }
 
-  .cover-disclaimer {
+  .cover-footer {
     position: absolute;
     left: 28mm;
-    bottom: 18%;
-    font-size: 7pt;
-    color: #788c8a;
+    right: 28mm;
+    bottom: 8%;
+    font-size: 6.5pt;
+    color: rgba(120,140,138,0.8);
     font-style: italic;
-    max-width: 70%;
+    line-height: 1.5;
+    border-top: 1px solid rgba(159,188,164,0.15);
+    padding-top: 3mm;
   }
 
-  /* ── Content Pages ───────────────────────── */
+  /* ═══════════════════════════════════════════
+     CONTENT PAGES
+     ═══════════════════════════════════════════ */
   .content-page {
     width: ${pageW};
     min-height: ${pageH};
-    padding: 8mm 16mm 20mm;
+    padding: 10mm 16mm 22mm;
     position: relative;
     page-break-after: always;
-    border-top: 1.5mm solid ${NAVY};
+    background: #ffffff;
   }
 
   .content-page::before {
     content: '';
     position: absolute;
-    top: 1.5mm;
+    top: 0;
     left: 0;
     right: 0;
-    height: 0.8mm;
-    background: ${SAGE};
+    height: 2mm;
+    background: linear-gradient(90deg, ${NAVY}, ${NAVY} 70%, ${SAGE});
   }
 
   .content-page::after {
@@ -397,257 +516,330 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 1.5mm;
-    background: ${NAVY};
+    height: 1mm;
+    background: linear-gradient(90deg, ${SAGE}, ${NAVY});
   }
 
-  /* ── Section Header ──────────────────────── */
-  .section-header {
-    background: ${NAVY};
-    border-radius: 2mm;
+  /* ── Page Header ──────────────────────────── */
+  .page-header {
+    background: linear-gradient(135deg, ${NAVY} 0%, #243040 100%);
+    border-radius: 2.5mm;
     padding: 6mm 8mm 5mm;
     margin-bottom: 6mm;
     position: relative;
+    overflow: hidden;
   }
 
-  .section-header::after {
+  .page-header::before {
     content: '';
     position: absolute;
-    bottom: -1.2mm;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30%;
+    background: linear-gradient(90deg, transparent, rgba(159,188,164,0.08));
+  }
+
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
     left: 0;
     right: 0;
-    height: 1.2mm;
-    background: ${SAGE};
-    border-radius: 0 0 1mm 1mm;
+    height: 1mm;
+    background: linear-gradient(90deg, ${SAGE}, ${DK_GREEN}, ${SAGE});
+    border-radius: 0 0 2.5mm 2.5mm;
   }
 
-  .section-title {
-    font-size: 16pt;
+  .page-header-title {
+    font-size: 15pt;
     font-weight: 700;
-    color: #fff;
+    color: #ffffff;
+    letter-spacing: 0.2px;
+    position: relative;
   }
 
-  .section-subtitle {
-    font-size: 8pt;
+  .page-header-subtitle {
+    font-size: 7.5pt;
     color: ${SAGE};
-    margin-top: 2mm;
+    margin-top: 1.5mm;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    position: relative;
   }
 
-  .section-company {
+  .page-header-company {
     position: absolute;
     right: 8mm;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 7pt;
-    color: #c8c8c8;
+    font-size: 6.5pt;
+    color: rgba(200,200,200,0.6);
+    letter-spacing: 0.5px;
+    font-weight: 300;
   }
 
-  /* ── Content Cards ───────────────────────── */
-  .content-card {
-    background: #fff9f5;
-    border: 1px solid ${SAGE};
-    border-left: 3mm solid ${DK_GREEN};
+  /* ── Prose / Executive Summary Cards ───────── */
+  .prose-card {
+    background: linear-gradient(135deg, #fefcfa 0%, #f9faf7 100%);
+    border: 1px solid rgba(159,188,164,0.35);
+    border-left: 2.5mm solid ${DK_GREEN};
     border-radius: 2mm;
     padding: 5mm 6mm;
     margin-bottom: 5mm;
     break-inside: avoid;
   }
 
-  .content-card p {
-    font-size: 9pt;
-    line-height: 1.6;
+  .prose-paragraph {
+    font-size: 8.5pt;
+    line-height: 1.65;
     margin-bottom: 3mm;
     color: ${DK_TEXT};
   }
-  .content-card p:last-child { margin-bottom: 0; }
+  .prose-paragraph:last-child { margin-bottom: 0; }
+  .prose-paragraph strong { color: ${NAVY}; }
 
-  /* ── Highlights ──────────────────────────── */
-  .highlights-section {
+  /* ── Key Highlights ───────────────────────── */
+  .kpi-highlights-section {
     margin-top: 5mm;
   }
 
-  .highlights-title {
-    font-size: 10pt;
+  .kpi-highlights-label {
+    font-size: 8pt;
     font-weight: 700;
     color: ${DK_GREEN};
+    letter-spacing: 1px;
     margin-bottom: 3mm;
     padding-bottom: 2mm;
-    border-bottom: 2px solid ${SAGE};
+    border-bottom: 1.5px solid ${SAGE};
     display: inline-block;
   }
 
-  .highlight-row {
+  .kpi-highlight {
     display: flex;
-    align-items: center;
-    gap: 3mm;
-    padding: 3mm 4mm;
-    background: #f5f9f6;
-    border-radius: 1.5mm;
+    align-items: stretch;
+    border-radius: 2mm;
     margin-bottom: 2mm;
+    overflow: hidden;
+    background: linear-gradient(90deg, #f5f9f6 0%, #ffffff 30%);
+    border: 1px solid rgba(159,188,164,0.25);
     break-inside: avoid;
   }
 
-  .highlight-dot {
+  .kpi-highlight-bar {
     width: 2mm;
-    height: 2mm;
-    border-radius: 50%;
-    background: ${DK_GREEN};
+    background: linear-gradient(180deg, ${DK_GREEN}, ${SAGE});
     flex-shrink: 0;
   }
 
-  .highlight-metric {
-    font-size: 8pt;
+  .kpi-highlight-content {
+    padding: 3mm 4mm;
+    display: flex;
+    align-items: center;
+    gap: 4mm;
+  }
+
+  .kpi-highlight-metric {
+    font-size: 7.5pt;
     font-weight: 700;
     color: ${NAVY};
     min-width: 40mm;
   }
 
-  .highlight-insight {
-    font-size: 8pt;
+  .kpi-highlight-insight {
+    font-size: 7.5pt;
     color: ${DK_TEXT};
+    line-height: 1.4;
   }
 
-  /* ── Metrics Dashboard ───────────────────── */
-  .metrics-grid {
+  /* ── KPI Metrics Dashboard ────────────────── */
+  .kpi-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 5mm;
-    margin-top: 2mm;
-  }
-
-  .metric-card {
-    background: #fff;
-    border: 1px solid ${SAGE};
-    border-radius: 3mm;
-    padding: 5mm;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    break-inside: avoid;
-  }
-
-  .metric-accent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1.5mm;
-    background: ${DK_GREEN};
-  }
-
-  .metric-trend {
-    position: absolute;
-    top: 3mm;
-    right: 3mm;
-    font-size: 8pt;
-    font-weight: 700;
-  }
-  .trend-up { color: ${DK_GREEN}; }
-  .trend-down { color: #cc3333; }
-
-  .metric-value {
-    font-size: 20pt;
-    font-weight: 700;
-    color: ${DK_GREEN};
+    gap: 4mm;
     margin-top: 3mm;
   }
 
-  .metric-label {
-    font-size: 7.5pt;
+  .kpi-card {
+    background: #ffffff;
+    border: 1px solid rgba(159,188,164,0.3);
+    border-radius: 2.5mm;
+    overflow: hidden;
+    text-align: center;
+    break-inside: avoid;
+    position: relative;
+  }
+
+  .kpi-card-accent {
+    height: 1.8mm;
+  }
+
+  .kpi-card-body {
+    padding: 4mm 4mm 5mm;
+    position: relative;
+  }
+
+  .kpi-trend {
+    position: absolute;
+    top: 2mm;
+    right: 3mm;
+    font-size: 7pt;
+    font-weight: 700;
+  }
+  .kpi-trend-up { color: ${DK_GREEN}; }
+  .kpi-trend-down { color: #cc3333; }
+
+  .kpi-card-value {
+    font-size: 22pt;
+    font-weight: 700;
+    color: ${DK_GREEN};
+    letter-spacing: -0.5px;
+    margin-bottom: 1mm;
+  }
+
+  .kpi-card-label {
+    font-size: 7pt;
     color: ${GRAY};
-    margin-top: 2mm;
+    font-weight: 500;
+    letter-spacing: 0.2px;
   }
 
-  .metric-desc {
-    font-size: 6.5pt;
-    color: #999;
+  .kpi-card-desc {
+    font-size: 6pt;
+    color: #aaa;
     margin-top: 1mm;
+    line-height: 1.3;
   }
 
-  /* ── Financial Tables ────────────────────── */
-  .financial-table {
+  /* ═══════════════════════════════════════════
+     FINANCIAL TABLES
+     ═══════════════════════════════════════════ */
+  .fin-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: ${isLandscape ? "7.5pt" : "7pt"};
-    border: 1px solid ${SAGE};
+    font-size: ${isLandscape ? "7pt" : "6.5pt"};
+    border: 1px solid rgba(159,188,164,0.4);
     border-radius: 2mm;
     overflow: hidden;
   }
 
-  .financial-table thead {
+  .fin-table thead {
     display: table-header-group;
   }
 
-  .financial-table tr {
+  .fin-table tr {
     break-inside: avoid;
   }
 
-  .financial-table thead tr {
-    background: ${NAVY};
+  .fin-table thead tr {
+    background: linear-gradient(90deg, ${NAVY} 0%, #243040 100%);
   }
 
-  .financial-table th {
-    color: #fff;
-    font-weight: 700;
-    padding: 2.5mm 3mm;
+  .fin-table th {
+    color: #ffffff;
+    font-weight: 600;
+    padding: 2.5mm 2.5mm;
     text-align: center;
-    font-size: ${isLandscape ? "8pt" : "7pt"};
+    font-size: ${isLandscape ? "7pt" : "6.5pt"};
     border: none;
+    letter-spacing: 0.3px;
   }
 
-  .financial-table th.label-col {
+  .fin-table th.tbl-label-hdr {
     text-align: left;
-    min-width: ${isLandscape ? "50mm" : "40mm"};
+    min-width: ${isLandscape ? "48mm" : "38mm"};
   }
 
-  .financial-table td {
-    padding: 2mm 3mm;
-    border-bottom: 1px solid #d2d7dc;
-    border-left: 1px solid #e8eaec;
-    border-right: 1px solid #e8eaec;
+  .fin-table td {
+    padding: 1.8mm 2.5mm;
+    border-bottom: 1px solid #e2e5e8;
+    border-left: 1px solid #eef0f2;
+    border-right: 1px solid #eef0f2;
   }
 
-  .financial-table tbody tr:last-child td {
+  .fin-table tbody tr:last-child td {
     border-bottom: 2px solid ${SAGE};
   }
 
-  .financial-table .label-col {
+  .fin-table .tbl-label {
     text-align: left;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: ${DK_TEXT};
   }
 
-  .financial-table .val-col {
+  .fin-table .tbl-val {
     text-align: right;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'SF Mono', 'Menlo', 'Courier New', Courier, monospace;
     white-space: nowrap;
+    font-size: ${isLandscape ? "6.5pt" : "6pt"};
+    color: #444;
   }
 
-  .financial-table .row-header td {
+  .fin-table .tbl-row-header td {
     font-weight: 700;
-    background: ${SEC_BG};
-    border-top: 2px solid ${SAGE};
+    background: linear-gradient(90deg, ${SEC_BG} 0%, #f2f6f3 100%);
+    border-top: 1.5px solid ${SAGE};
+    color: ${NAVY};
+    font-size: ${isLandscape ? "7.5pt" : "7pt"};
+    letter-spacing: 0.2px;
   }
 
-  .financial-table .row-total td {
+  .fin-table .tbl-row-total td {
     font-weight: 700;
-    border-top: 2px solid #b4b9be;
+    border-top: 1.5px solid #c8cdd2;
+    color: ${NAVY};
   }
 
-  .financial-table .row-formula td {
+  .fin-table .tbl-row-formula td {
     font-style: italic;
     color: ${GRAY};
     font-size: 0.9em;
   }
 
-  .financial-table .row-alt td {
+  .fin-table .tbl-row-stripe td {
     background: ${ALT_ROW};
   }
 
-  .no-data {
-    font-size: 10pt;
+  .empty-state {
+    font-size: 9pt;
     color: ${GRAY};
     text-align: center;
     padding: 20mm;
+  }
+
+  /* ═══════════════════════════════════════════
+     CHARTS
+     ═══════════════════════════════════════════ */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4mm;
+    margin-top: 4mm;
+  }
+
+  .chart-card {
+    background: #ffffff;
+    border: 1px solid rgba(159,188,164,0.3);
+    border-radius: 2.5mm;
+    padding: 4mm 4mm 3mm;
+    break-inside: avoid;
+    overflow: hidden;
+  }
+
+  .chart-card-title {
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: ${NAVY};
+    margin-bottom: 2mm;
+    padding-bottom: 1.5mm;
+    border-bottom: 1px solid #eef0f2;
+    letter-spacing: 0.2px;
+  }
+
+  .chart-svg {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 </style>
 </head>

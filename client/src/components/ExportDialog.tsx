@@ -385,13 +385,9 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
         const fullName = `${filename}${ext}`;
         const mime = CONTENT_TYPES[premiumFormat] || "application/octet-stream";
 
-        if (driveAvailable) {
-          setGeneratedBlob(blob);
-          setSaveFilename(filename);
-          setStep("save");
-        } else {
-          await triggerLocalSave(blob, fullName, mime);
-        }
+        setGeneratedBlob(blob);
+        setSaveFilename(filename);
+        setStep("save");
       } catch (error: any) {
         const errMsg = error?.message || "An unexpected error occurred. Please try again.";
         console.error("[premium-export] Client error:", errMsg, error?.stack || "");

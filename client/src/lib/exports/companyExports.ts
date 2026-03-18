@@ -5,6 +5,7 @@ import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { saveFile, saveDataUrl } from "@/lib/exports/saveFile";
 import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
+import { PAGE_DIMS } from "@/lib/exports/exportStyles";
 import {
   exportCompanyIncomeStatement,
   exportCompanyCashFlow,
@@ -22,8 +23,11 @@ export const exportCompanyPDF = async (
 ) => {
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
-  const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
-  const pageWidth = orientation === 'landscape' ? 297 : 210;
+  const dims = orientation === "landscape"
+    ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
+    : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
+  const doc = new jsPDF({ orientation, unit: 'mm', format: [dims.w, dims.h] });
+  const pageWidth = dims.w;
   const chartWidth = pageWidth - 28;
   const companyName = global?.companyName || "Management Company";
 

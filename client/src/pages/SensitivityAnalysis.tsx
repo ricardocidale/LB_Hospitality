@@ -247,8 +247,12 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     if (!baseResult) return;
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
-    const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
-    const pageWidth = orientation === "landscape" ? 297 : 210;
+    const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+    const dims = orientation === "landscape"
+      ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
+      : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
+    const doc = new jsPDF({ orientation, unit: "mm", format: [dims.w, dims.h] });
+    const pageWidth = dims.w;
 
     doc.setFontSize(20);
     doc.setTextColor(37, 125, 65);
@@ -475,9 +479,13 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
     const dataUrl = await captureChartAsImage(chartRef.current);
     if (!dataUrl) return;
     const { default: jsPDF } = await import("jspdf");
-    const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
-    const pageWidth = orientation === "landscape" ? 297 : 210;
-    const pageHeight = orientation === "landscape" ? 210 : 297;
+    const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+    const dims = orientation === "landscape"
+      ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
+      : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
+    const doc = new jsPDF({ orientation, unit: "mm", format: [dims.w, dims.h] });
+    const pageWidth = dims.w;
+    const pageHeight = dims.h;
     doc.addImage(dataUrl, "PNG", 14, 14, pageWidth - 28, pageHeight - 28);
     const { saveFile } = await import("@/lib/exports/saveFile");
     await saveFile(doc.output("blob"), customFilename || "sensitivity-tornado-chart.pdf");

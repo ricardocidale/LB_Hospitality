@@ -164,7 +164,11 @@ export default function Dashboard() {
       img.src = dataUrl;
       await new Promise<void>((resolve) => { img.onload = () => resolve(); });
       const aspectRatio = img.width / img.height;
-      const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
+      const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+      const dims = orientation === "landscape"
+        ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
+        : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
+      const doc = new jsPDF({ orientation, unit: "mm", format: [dims.w, dims.h] });
       const pageW = doc.internal.pageSize.getWidth();
       const pageH = doc.internal.pageSize.getHeight();
       const margin = 14;

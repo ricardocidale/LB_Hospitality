@@ -19,6 +19,7 @@
  * Both exports use jsPDF for PDF rendering and jspdf-autotable for tables.
  */
 import { apiRequest } from "@/lib/queryClient";
+import { PAGE_DIMS } from "./exportStyles";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_COMMISSION_RATE,
@@ -136,7 +137,7 @@ export async function exportManualPDF(user: { email?: string; role?: string; com
     import("jspdf-autotable"),
   ]);
 
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [PAGE_DIMS.PORTRAIT_W, PAGE_DIMS.PORTRAIT_H] });
   const pageW = doc.internal.pageSize.getWidth();
 
   brandedHeader(doc, pageW, 60);
@@ -323,7 +324,7 @@ export async function exportFullData(user: { email?: string; role?: string; comp
   const projMonths = projYears * 12;
   base.projectionYears = projYears;
 
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [PAGE_DIMS.LANDSCAPE_W, PAGE_DIMS.LANDSCAPE_H] });
   const pageW = doc.internal.pageSize.getWidth();
 
   brandedHeader(doc, pageW, 40);

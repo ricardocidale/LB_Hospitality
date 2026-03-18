@@ -21,6 +21,8 @@
  * Uses jsPDF for PDF rendering and jspdf-autotable for data tables.
  */
 
+import { PAGE_DIMS } from "./exportStyles";
+
 interface BrandingData {
   userName: string;
   companyName: string;
@@ -510,7 +512,7 @@ async function buildResearchDoc(options: ResearchExportOptions) {
     logoDataUrl = await loadLogoImage(branding.logoUrl);
   }
 
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [PAGE_DIMS.PORTRAIT_W, PAGE_DIMS.PORTRAIT_H] });
   const pageW = doc.internal.pageSize.getWidth();
 
   const headerH = 60;

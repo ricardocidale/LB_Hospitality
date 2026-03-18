@@ -57,6 +57,13 @@ export const BRAND = {
   ALT_ROW_RGB: [248, 250, 249] as [number, number, number],
 } as const;
 
+export const PAGE_DIMS = {
+  LANDSCAPE_W: 406.4,
+  LANDSCAPE_H: 228.6,
+  PORTRAIT_W: 215.9,
+  PORTRAIT_H: 279.4,
+} as const;
+
 export type ExportFormat = "currency" | "percentage" | "number" | "ratio" | "multiplier";
 
 export interface ExportRowMeta {

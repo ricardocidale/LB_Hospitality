@@ -199,8 +199,8 @@ function renderFinancialTableSection(section: any, data: PdfTemplateData): strin
 export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   const sections = aiResult.sections || [];
   const isLandscape = data.orientation === "landscape";
-  const pageW = isLandscape ? "297mm" : "210mm";
-  const pageH = isLandscape ? "210mm" : "297mm";
+  const pageW = isLandscape ? "406.4mm" : "215.9mm";
+  const pageH = isLandscape ? "228.6mm" : "279.4mm";
 
   const sectionHtmlParts: string[] = [];
   for (const section of sections) {
@@ -603,6 +603,12 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   .financial-table td {
     padding: 2mm 3mm;
     border-bottom: 1px solid #d2d7dc;
+    border-left: 1px solid #e8eaec;
+    border-right: 1px solid #e8eaec;
+  }
+
+  .financial-table tbody tr:last-child td {
+    border-bottom: 2px solid ${SAGE};
   }
 
   .financial-table .label-col {

@@ -434,7 +434,8 @@ export function register(app: Express) {
 
       if (format === "pdf") {
         const { default: jsPDF } = await import("jspdf");
-        const doc = new jsPDF({ orientation: isLandscape ? "l" : "p", unit: "mm", format: "a4" });
+        const pageDims = isLandscape ? [406.4, 228.6] : [215.9, 279.4];
+        const doc = new jsPDF({ orientation: isLandscape ? "l" : "p", unit: "mm", format: pageDims as [number, number] });
         const pageW = doc.internal.pageSize.getWidth();
         const pageH = doc.internal.pageSize.getHeight();
         const margin = 20;

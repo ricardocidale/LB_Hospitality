@@ -108,7 +108,8 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
     if (selectedProperties.length < 2) return;
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
-    const doc = new jsPDF({ orientation: "landscape" });
+    const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [PAGE_DIMS.LANDSCAPE_W, PAGE_DIMS.LANDSCAPE_H] });
     doc.setFontSize(16);
     doc.text("Property Comparison", 14, 20);
     const headers = ["Metric", ...selectedProperties.map((p) => p.name)];

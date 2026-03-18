@@ -225,6 +225,7 @@ Investment Performance (IRR gauge), KPI cards, Revenue & ANOI chart, Portfolio t
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
 - **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
+- **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and Puppeteer exports use these dimensions.
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.

@@ -514,8 +514,8 @@ async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Pro
     await page.setContent(html, { waitUntil: "networkidle0", timeout: 15_000 });
 
     const pdfBuffer = await page.pdf({
-      width: isLandscape ? "297mm" : "210mm",
-      height: isLandscape ? "210mm" : "297mm",
+      width: isLandscape ? "406.4mm" : "215.9mm",
+      height: isLandscape ? "228.6mm" : "279.4mm",
       printBackground: true,
       displayHeaderFooter: true,
       headerTemplate: "<span></span>",

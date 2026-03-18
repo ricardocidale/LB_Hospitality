@@ -5,7 +5,7 @@
  * rendering for all PDF exports (financial statements, research reports).
  *
  * ─── Usage ────────────────────────────────────────────────────────────────
- *   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+ *   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [406.4, 228.6] });
  *   drawBrandedHeader(doc, pageW);
  *   drawTitle(doc, "Income Statement", 14, 18);
  *   // … add content …
@@ -236,8 +236,8 @@ export function buildFinancialTableConfig(
 ): Record<string, any> {
   const yearLabels = years.map((y) => typeof y === "number" ? `FY ${y}` : y);
   const numCols = years.length;
-  const labelColW = orientation === "landscape" ? 50 : 40;
-  const availableWidth = orientation === "landscape" ? 230 : 155;
+  const labelColW = orientation === "landscape" ? 55 : 40;
+  const availableWidth = orientation === "landscape" ? 338 : 161;
   const dataColW = availableWidth / numCols;
 
   const colStyles: Record<number, any> = { 0: { cellWidth: labelColW } };

@@ -133,7 +133,8 @@ export default function VerificationTab() {
     if (!verificationResults) return;
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
-    const doc = new jsPDF();
+    const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [PAGE_DIMS.PORTRAIT_W, PAGE_DIMS.PORTRAIT_H] });
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 20;
 

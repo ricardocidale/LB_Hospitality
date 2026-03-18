@@ -4,6 +4,7 @@ import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/export
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage, drawCoverPage, type DashboardSummaryMetric } from "@/lib/exports/pdfHelpers";
+import { PAGE_DIMS } from "@/lib/exports/exportStyles";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
@@ -474,9 +475,12 @@ export async function exportPortfolioPDF(
 ): Promise<void> {
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
-  const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
+  const dims = orientation === "landscape"
+    ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
+    : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
+  const doc = new jsPDF({ orientation, unit: "mm", format: [dims.w, dims.h] });
 
-  const pageWidth = orientation === "landscape" ? 297 : 210;
+  const pageWidth = dims.w;
   const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
   const projRange = `${years[0]} \u2013 ${years[projectionYears - 1]}`;
 
@@ -561,9 +565,9 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
 
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-  const pageW = 297;
-  const pageH = 210;
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [PAGE_DIMS.LANDSCAPE_W, PAGE_DIMS.LANDSCAPE_H] });
+  const pageW = PAGE_DIMS.LANDSCAPE_W;
+  const pageH = PAGE_DIMS.LANDSCAPE_H;
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
   const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
   const dateStr = format(new Date(), "MMMM d, yyyy");

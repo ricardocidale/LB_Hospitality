@@ -258,8 +258,12 @@ export default function PropertyDetail() {
   const exportIncomeStatementPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended', customFilename?: string) => {
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
-    const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
-    const pageWidth = orientation === 'landscape' ? 297 : 210;
+    const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+    const dims = orientation === "landscape"
+      ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
+      : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
+    const doc = new jsPDF({ orientation, unit: "mm", format: [dims.w, dims.h] });
+    const pageWidth = dims.w;
     const chartWidth = pageWidth - 28;
     const companyName = global?.companyName || property.name;
     const yearLabels = Array.from({ length: years }, (_, i) => startYear + i);
@@ -355,8 +359,12 @@ export default function PropertyDetail() {
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
     const cashFlowData = getCashFlowData();
-    const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
-    const pageWidth = orientation === 'landscape' ? 297 : 210;
+    const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+    const dims = orientation === "landscape"
+      ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
+      : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
+    const doc = new jsPDF({ orientation, unit: "mm", format: [dims.w, dims.h] });
+    const pageWidth = dims.w;
     const chartWidth = pageWidth - 28;
     const companyName = global?.companyName || property.name;
     const yearLabels = Array.from({ length: years }, (_, i) => startYear + i);

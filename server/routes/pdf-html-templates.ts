@@ -366,7 +366,12 @@ function renderFinancialTableSection(section: any, d: PdfTemplateData): string {
     const isTotal = r.type === "total" || r.type === "subtotal" || r.isBold;
     const isFormula = r.isItalic || r.type === "formula";
     const indent = r.indent || 0;
-    const category = r.category || "";
+    const category = (r.category || "").trim();
+
+    // Skip empty separator rows (blank label + all zeros/nulls)
+    if (!category && (r.values || []).every((v: any) => v === 0 || v === null || v === "")) {
+      return `<tr class="row-spacer"><td colspan="${years.length + 1}" style="height:3mm;border:none"></td></tr>`;
+    }
 
     let cls = "";
     if (isHeader) cls = "row-header";
@@ -376,8 +381,11 @@ function renderFinancialTableSection(section: any, d: PdfTemplateData): string {
 
     const indentPx = indent * 14;
     const label = esc(category);
+
+    // For header/section rows with all-zero values, render empty value cells (no em-dashes)
+    const allZero = (r.values || []).every((v: any) => v === 0 || v === null || v === "");
     const vals = (r.values || []).map((v: any) =>
-      `<td class="tbl-val">${formatTableValue(v, category)}</td>`
+      `<td class="tbl-val">${allZero && isHeader ? "" : formatTableValue(v, category)}</td>`
     ).join("");
 
     return `<tr class="${cls}"><td class="tbl-label" style="padding-left:${8 + indentPx}px">${label}</td>${vals}</tr>`;
@@ -752,7 +760,7 @@ body {
    ──────────────────────────────────────────── */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(${isL ? 3 : 2}, 1fr);
   gap: 5mm; margin-top: 3mm;
 }
 .kpi-card {
@@ -810,10 +818,13 @@ body {
    ──────────────────────────────────────────── */
 .line-chart-container {
   flex: 1; display: flex; align-items: center; justify-content: center;
+  break-inside: avoid; overflow: visible;
 }
 .line-chart-svg {
   width: 100%;
   max-height: 100%;
+  display: block;
+  break-inside: avoid;
 }
 
 /* ────────────────────────────────────────────
@@ -857,14 +868,12 @@ body {
   text-align: right;
   font-family: 'Courier New', Courier, monospace;
   white-space: nowrap;
-  font-size: ${isL ? "8.5pt" : "8pt"};
   color: #333; letter-spacing: 0.2px;
 }
 .fin-table .row-header td {
   font-weight: 700; background: #eef3ef;
   border-top: 1.5px solid ${SAGE};
   color: ${NAVY};
-  font-size: ${isL ? "9.5pt" : "9pt"};
   letter-spacing: 0.15px;
 }
 .fin-table .row-total td {

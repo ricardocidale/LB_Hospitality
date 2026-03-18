@@ -111,7 +111,13 @@ export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<B
   const browser = await getBrowser();
   const page = await browser.newPage();
   try {
+    // Set viewport to match PDF dimensions for consistent rendering
+    const widthPx = opts.width?.includes("406") ? 1536 : 816;
+    const heightPx = opts.width?.includes("406") ? 864 : 1056;
+    await page.setViewport({ width: widthPx, height: heightPx, deviceScaleFactor: 1 });
     await page.setContent(html, { waitUntil: "networkidle0", timeout: 30_000 });
+    // Wait for fonts to load
+    try { await page.evaluateHandle("document.fonts.ready"); } catch {}
     const pdfBuffer = await page.pdf({
       width: opts.width,
       height: opts.height,

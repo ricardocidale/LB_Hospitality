@@ -675,12 +675,12 @@ async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Pr
     displayHeaderFooter: true,
     headerTemplate: "<span></span>",
     footerTemplate: `
-      <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;display:flex;justify-content:space-between;">
-        <span>${safeCompanyHtml}</span>
-        <span>CONFIDENTIAL</span>
-        <span><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+      <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;">
+        <span style="float:left">${safeCompanyHtml}</span>
+        <span style="float:right"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+        <span style="display:block;text-align:center">CONFIDENTIAL</span>
       </div>`,
-    margin: { top: "0mm", bottom: "8mm", left: "0mm", right: "0mm" },
+    margin: { top: "0mm", bottom: "10mm", left: "0mm", right: "0mm" },
   });
 }
 

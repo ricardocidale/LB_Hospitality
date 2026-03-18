@@ -565,29 +565,29 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                   </div>
                 </Button>
 
-                {driveAvailable && (
-                  <Button
-                    className="w-full justify-start gap-3 h-12"
-                    variant="outline"
-                    onClick={handleSaveDrive}
-                    disabled={isSaving}
-                    data-testid="button-save-drive"
-                  >
-                    {isSaving ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
-                        <path d="M8.267 14.68l-1.6 2.769h11.666l1.6-2.769H8.267z" fill="#3777E3"/>
-                        <path d="M14.133 4H7.467L1.8 14.68l1.6 2.769L9.067 7.11h6.666L14.133 4z" fill="#FFCF63"/>
-                        <path d="M22.2 14.68L16.533 4h-3.6l5.667 10.68H22.2z" fill="#11A861"/>
-                      </svg>
-                    )}
-                    <div className="text-left">
-                      <div className="font-medium text-sm">Save to Google Drive</div>
-                      <div className="text-xs text-muted-foreground">Upload to your connected Drive</div>
+                <Button
+                  className="w-full justify-start gap-3 h-12"
+                  variant="outline"
+                  onClick={driveAvailable ? handleSaveDrive : undefined}
+                  disabled={isSaving || !driveAvailable}
+                  data-testid="button-save-drive"
+                >
+                  {isSaving ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none">
+                      <path d="M8.267 14.68l-1.6 2.769h11.666l1.6-2.769H8.267z" fill="#3777E3"/>
+                      <path d="M14.133 4H7.467L1.8 14.68l1.6 2.769L9.067 7.11h6.666L14.133 4z" fill="#FFCF63"/>
+                      <path d="M22.2 14.68L16.533 4h-3.6l5.667 10.68H22.2z" fill="#11A861"/>
+                    </svg>
+                  )}
+                  <div className="text-left">
+                    <div className="font-medium text-sm">Save to Google Drive</div>
+                    <div className="text-xs text-muted-foreground">
+                      {driveAvailable ? "Upload to your connected Drive" : "Connect Google Drive in Settings to enable"}
                     </div>
-                  </Button>
-                )}
+                  </div>
+                </Button>
               </div>
             </div>
             <DialogFooter>

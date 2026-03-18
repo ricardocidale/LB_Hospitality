@@ -4,6 +4,7 @@ const MIME_TYPES: Record<string, string> = {
   ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ".pdf": "application/pdf",
   ".png": "image/png",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 };
 
 const FILE_TYPE_DESCRIPTIONS: Record<string, string> = {
@@ -12,6 +13,7 @@ const FILE_TYPE_DESCRIPTIONS: Record<string, string> = {
   ".pptx": "PowerPoint Presentation",
   ".pdf": "PDF Document",
   ".png": "PNG Image",
+  ".docx": "Word Document",
 };
 
 function getExtension(filename: string): string {
@@ -19,8 +21,12 @@ function getExtension(filename: string): string {
   return dot >= 0 ? filename.substring(dot).toLowerCase() : "";
 }
 
-function canUseFilePicker(): boolean {
-  if (typeof window === "undefined") return false;
+function isRealBrowser(): boolean {
+  return typeof window !== "undefined" && typeof window.document !== "undefined" && typeof navigator !== "undefined";
+}
+
+function canUseNativeFilePicker(): boolean {
+  if (!isRealBrowser()) return false;
   if (!("showSaveFilePicker" in window)) return false;
   try {
     return window.self === window.top;
@@ -45,7 +51,8 @@ function triggerDownload(blob: Blob, suggestedName: string): void {
 
 export async function saveFile(blob: Blob, suggestedName: string): Promise<void> {
   const ext = getExtension(suggestedName);
-  if (canUseFilePicker()) {
+
+  if (canUseNativeFilePicker()) {
     try {
       const handle = await (window as any).showSaveFilePicker({
         suggestedName,
@@ -61,8 +68,16 @@ export async function saveFile(blob: Blob, suggestedName: string): Promise<void>
       await writable.close();
       return;
     } catch (err: any) {
-      if (err?.name === "AbortError") return;
+      if (err?.name === "AbortError") throw err;
     }
+  }
+
+  if (isRealBrowser()) {
+    try {
+      const { saveAs } = await import("file-saver");
+      saveAs(blob, suggestedName);
+      return;
+    } catch {}
   }
 
   triggerDownload(blob, suggestedName);

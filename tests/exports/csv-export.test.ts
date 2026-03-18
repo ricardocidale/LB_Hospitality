@@ -13,6 +13,7 @@ beforeEach(() => {
     href: "",
     download: "",
     click: vi.fn(),
+    style: { display: "" },
   };
 
   // Mock document globals
@@ -71,16 +72,22 @@ describe("downloadCSV", () => {
   });
 
   it("appends and removes the link from document body", async () => {
+    vi.useFakeTimers();
     const downloadCSV = await getDownloadCSV();
     await downloadCSV("data", "file.csv");
     expect(document.body.appendChild).toHaveBeenCalledWith(mockLink);
+    await vi.advanceTimersByTimeAsync(300);
     expect(document.body.removeChild).toHaveBeenCalledWith(mockLink);
+    vi.useRealTimers();
   });
 
   it("revokes the object URL for cleanup", async () => {
+    vi.useFakeTimers();
     const downloadCSV = await getDownloadCSV();
     await downloadCSV("data", "file.csv");
+    await vi.advanceTimersByTimeAsync(300);
     expect(mockRevokeObjectURL).toHaveBeenCalledOnce();
+    vi.useRealTimers();
   });
 
   it("handles empty content", async () => {

@@ -225,24 +225,34 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
   const chartW = isLandscape ? 170 : 150;
   const chartH = 115;
 
+  const CHART_PALETTES: Array<{ top: string; bottom: string }> = [
+    { top: "#257D41", bottom: "#9FBCA4" },
+    { top: "#1A2332", bottom: "#4A6B8A" },
+    { top: "#0E7C6B", bottom: "#7BCEC0" },
+    { top: "#8B5A2B", bottom: "#D4A574" },
+    { top: "#6B3FA0", bottom: "#B89AD8" },
+    { top: "#C75050", bottom: "#E8A0A0" },
+  ];
+
   const chartsHtml = charts.map((chart: any, cIdx: number) => {
     const label = escapeHtml(chart.label || "");
     const values: number[] = (chart.values || []).map((v: any) => typeof v === "number" ? v : 0);
     const years: string[] = (chart.years || []).map((y: any) => String(y));
     if (!values.length) return "";
 
+    const palette = CHART_PALETTES[cIdx % CHART_PALETTES.length];
     const maxVal = Math.max(...values.map(Math.abs), 1);
     const svgW = chartW;
     const svgH = chartH;
-    const padL = 42;
+    const padL = 44;
     const padR = 8;
-    const padT = 6;
-    const padB = 20;
+    const padT = 14;
+    const padB = 22;
     const plotW = svgW - padL - padR;
     const plotH = svgH - padT - padB;
     const barCount = values.length;
     const gap = plotW / barCount;
-    const barW = Math.min(gap * 0.6, 16);
+    const barW = Math.min(gap * 0.55, 18);
     const gradId = `grad-${cIdx}`;
 
     const gridLines = 4;
@@ -252,7 +262,7 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
       const gVal = maxVal - (maxVal / gridLines) * g;
       const lbl = formatCompactValue(gVal);
       gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#e8eaec" stroke-width="0.4" stroke-dasharray="2,2"/>`;
-      gridSvg += `<text x="${padL - 3}" y="${y + 2.5}" text-anchor="end" fill="#999" font-size="5" font-family="Helvetica,Arial,sans-serif">${lbl}</text>`;
+      gridSvg += `<text x="${padL - 3}" y="${y + 2.5}" text-anchor="end" fill="#999" font-size="5.5" font-family="Helvetica,Arial,sans-serif">${lbl}</text>`;
     }
 
     let barsSvg = "";
@@ -260,9 +270,11 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
       const bH = Math.max((Math.abs(v) / maxVal) * plotH, 1);
       const x = padL + i * gap + (gap - barW) / 2;
       const y = padT + plotH - bH;
-      barsSvg += `<rect x="${x}" y="${y}" width="${barW}" height="${bH}" fill="url(#${gradId})" rx="1.5"/>`;
+      barsSvg += `<rect x="${x}" y="${y}" width="${barW}" height="${bH}" fill="url(#${gradId})" rx="2"/>`;
+      const valLabel = formatCompactValue(v);
+      barsSvg += `<text x="${x + barW / 2}" y="${y - 2}" text-anchor="middle" fill="${palette.top}" font-size="4.5" font-weight="600" font-family="Helvetica,Arial,sans-serif">${valLabel}</text>`;
       if (years[i]) {
-        barsSvg += `<text x="${x + barW / 2}" y="${svgH - 5}" text-anchor="middle" fill="#888" font-size="5" font-family="Helvetica,Arial,sans-serif">${years[i]}</text>`;
+        barsSvg += `<text x="${x + barW / 2}" y="${svgH - 6}" text-anchor="middle" fill="#666" font-size="5.5" font-weight="500" font-family="Helvetica,Arial,sans-serif">${years[i]}</text>`;
       }
     });
 
@@ -272,8 +284,8 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
         <svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" class="chart-svg">
           <defs>
             <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#257D41" stop-opacity="0.95"/>
-              <stop offset="100%" stop-color="#9FBCA4" stop-opacity="0.7"/>
+              <stop offset="0%" stop-color="${palette.top}" stop-opacity="0.92"/>
+              <stop offset="100%" stop-color="${palette.bottom}" stop-opacity="0.65"/>
             </linearGradient>
           </defs>
           ${gridSvg}
@@ -334,10 +346,13 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   const SEC_BG = `#${BRAND.SECTION_BG_HEX}`;
   const ALT_ROW = `#${BRAND.ALT_ROW_HEX}`;
 
+  const reportTitle = escapeHtml(data.reportTitle || `${data.companyName} — Financial Report`);
+
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
+<title>${reportTitle}</title>
 <style>
   @page {
     size: ${pageW} ${pageH};
@@ -552,7 +567,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .page-header-title {
-    font-size: 15pt;
+    font-size: 18pt;
     font-weight: 700;
     color: #ffffff;
     letter-spacing: 0.2px;
@@ -560,7 +575,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .page-header-subtitle {
-    font-size: 7.5pt;
+    font-size: 9pt;
     color: ${SAGE};
     margin-top: 1.5mm;
     font-weight: 400;
@@ -573,7 +588,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     right: 8mm;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 6.5pt;
+    font-size: 8pt;
     color: rgba(200,200,200,0.6);
     letter-spacing: 0.5px;
     font-weight: 300;
@@ -591,9 +606,9 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .prose-paragraph {
-    font-size: 8.5pt;
-    line-height: 1.65;
-    margin-bottom: 3mm;
+    font-size: 11pt;
+    line-height: 1.6;
+    margin-bottom: 3.5mm;
     color: ${DK_TEXT};
   }
   .prose-paragraph:last-child { margin-bottom: 0; }
@@ -605,7 +620,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .kpi-highlights-label {
-    font-size: 8pt;
+    font-size: 10pt;
     font-weight: 700;
     color: ${DK_GREEN};
     letter-spacing: 1px;
@@ -640,14 +655,14 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .kpi-highlight-metric {
-    font-size: 7.5pt;
+    font-size: 9.5pt;
     font-weight: 700;
     color: ${NAVY};
     min-width: 40mm;
   }
 
   .kpi-highlight-insight {
-    font-size: 7.5pt;
+    font-size: 9.5pt;
     color: ${DK_TEXT};
     line-height: 1.4;
   }
@@ -698,14 +713,14 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .kpi-card-label {
-    font-size: 7pt;
+    font-size: 8.5pt;
     color: ${GRAY};
     font-weight: 500;
     letter-spacing: 0.2px;
   }
 
   .kpi-card-desc {
-    font-size: 6pt;
+    font-size: 7pt;
     color: #aaa;
     margin-top: 1mm;
     line-height: 1.3;
@@ -717,7 +732,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   .fin-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: ${isLandscape ? "7pt" : "6.5pt"};
+    font-size: ${isLandscape ? "8.5pt" : "8pt"};
     border: 1px solid rgba(159,188,164,0.4);
     border-radius: 2mm;
     overflow: hidden;
@@ -740,7 +755,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     font-weight: 600;
     padding: 2.5mm 2.5mm;
     text-align: center;
-    font-size: ${isLandscape ? "7pt" : "6.5pt"};
+    font-size: ${isLandscape ? "8.5pt" : "8pt"};
     border: none;
     letter-spacing: 0.3px;
   }
@@ -771,7 +786,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     text-align: right;
     font-family: 'SF Mono', 'Menlo', 'Courier New', Courier, monospace;
     white-space: nowrap;
-    font-size: ${isLandscape ? "6.5pt" : "6pt"};
+    font-size: ${isLandscape ? "8pt" : "7.5pt"};
     color: #444;
   }
 
@@ -780,7 +795,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     background: linear-gradient(90deg, ${SEC_BG} 0%, #f2f6f3 100%);
     border-top: 1.5px solid ${SAGE};
     color: ${NAVY};
-    font-size: ${isLandscape ? "7.5pt" : "7pt"};
+    font-size: ${isLandscape ? "9pt" : "8.5pt"};
     letter-spacing: 0.2px;
   }
 
@@ -801,7 +816,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .empty-state {
-    font-size: 9pt;
+    font-size: 11pt;
     color: ${GRAY};
     text-align: center;
     padding: 20mm;
@@ -827,7 +842,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .chart-card-title {
-    font-size: 7.5pt;
+    font-size: 9.5pt;
     font-weight: 700;
     color: ${NAVY};
     margin-bottom: 2mm;

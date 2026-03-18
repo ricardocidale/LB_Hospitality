@@ -21,6 +21,7 @@ beforeEach(() => {
     href: "",
     download: "",
     click: vi.fn(),
+    style: { display: "" },
   };
 
   (globalThis as any).document = {

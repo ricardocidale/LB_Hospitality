@@ -521,7 +521,7 @@ async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Pro
       headerTemplate: "<span></span>",
       footerTemplate: `
         <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;display:flex;justify-content:space-between;">
-          <span>${company}</span>
+          <span>${company.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}</span>
           <span>CONFIDENTIAL</span>
           <span><span class="pageNumber"></span> / <span class="totalPages"></span></span>
         </div>`,

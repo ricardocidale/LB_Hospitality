@@ -446,6 +446,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     border-radius: 2mm;
     padding: 5mm 6mm;
     margin-bottom: 5mm;
+    break-inside: avoid;
   }
 
   .content-card p {
@@ -479,6 +480,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     background: #f5f9f6;
     border-radius: 1.5mm;
     margin-bottom: 2mm;
+    break-inside: avoid;
   }
 
   .highlight-dot {
@@ -566,6 +568,14 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     border: 1px solid ${SAGE};
     border-radius: 2mm;
     overflow: hidden;
+  }
+
+  .financial-table thead {
+    display: table-header-group;
+  }
+
+  .financial-table tr {
+    break-inside: avoid;
   }
 
   .financial-table thead tr {

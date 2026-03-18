@@ -565,6 +565,40 @@ function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
   const statements = data.statements || [];
   if (statements.length) {
     for (const stmt of statements) {
+      const isInvestment = (stmt.title || "").toLowerCase().includes("investment");
+
+      // For Investment Analysis: extract top info cards as KPI metrics before the table
+      if (isInvestment) {
+        const investmentMetrics: any[] = [];
+        const summaryRows = stmt.rows.filter(r => {
+          const cat = (r.category || "").toLowerCase();
+          return cat.includes("total initial equity") || cat.includes("total exit value")
+            || cat.includes("portfolio irr") || cat.includes("equity multiple")
+            || cat.includes("cash-on-cash");
+        });
+        for (const r of summaryRows) {
+          const val = typeof r.values?.[0] === "number" ? r.values[0] : 0;
+          const cat = (r.category || "");
+          let displayVal = "";
+          if (cat.includes("IRR") || cat.includes("Cash-on-Cash")) {
+            displayVal = `${(Math.abs(val) <= 2 ? val * 100 : val).toFixed(1)}%`;
+          } else if (cat.includes("Equity Multiple")) {
+            displayVal = `${val.toFixed(2)}x`;
+          } else {
+            const abs = Math.abs(val);
+            displayVal = abs >= 1e6 ? `$${(abs / 1e6).toFixed(1)}M` : abs >= 1e3 ? `$${Math.round(abs / 1e3)}K` : `$${abs.toFixed(0)}`;
+          }
+          investmentMetrics.push({ label: cat.trim(), value: displayVal, description: getMetricDescription(cat) });
+        }
+        if (investmentMetrics.length) {
+          sections.push({
+            type: "metrics_dashboard",
+            title: "Investment Summary",
+            content: { metrics: investmentMetrics },
+          });
+        }
+      }
+
       // Financial table (formula rows filtered out)
       const filteredRows = filterFormulaRows(stmt.rows).map(r => ({
         category: r.category,

@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "h4_9p3fJLsy8dBOuBmAOv"
+uri = "file://.local/tasks/migrate-authors-books-library.md"
+type = "text"
+title = "Authors-Books-Library Migration Plan (Manus → Replit)"

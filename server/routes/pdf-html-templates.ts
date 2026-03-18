@@ -218,6 +218,9 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
       case "financial_table":
         sectionHtmlParts.push(renderFinancialTableSection(section, data));
         break;
+      default:
+        console.warn(`[pdf-template] Unknown section type "${section.type}" — skipped`);
+        break;
     }
   }
 

@@ -41,9 +41,9 @@ interface ExportData {
 
 ## Per-Statement Charts
 
-- **Income Statement**: Total Revenue, GOP, NOI, ANOI (4 bar charts)
-- **Cash Flow**: CFO, FCFE (2 bar charts)
-- **Balance Sheet**: Total Assets, Total L+E (2 bar charts)
-- **Investment Analysis**: Revenue + NOI + ANOI trend line chart
+- **Income Statement**: Revenue, GOP, NOI, ANOI (multi-series line chart)
+- **Cash Flow**: NOI, ANOI, Cash Flow, FCFE (multi-series line chart)
+- **Balance Sheet**: Total Assets, Total Liabilities (multi-series line chart)
+- **Investment Analysis**: NOI, ANOI, FCFE (multi-series line chart) + KPI metric cards (Total Equity, Exit Value, EM, CoC, IRR)
 
 Reference: `.claude/skills/exports/SKILL.md` for full implementation guide.

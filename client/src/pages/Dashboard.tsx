@@ -341,7 +341,7 @@ export default function Dashboard() {
           const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
           const mapRows = (d: { years: number[]; rows: any[] }) => ({
             years: d.years.map(String),
-            rows: d.rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isHeader, isItalic: r.isItalic })),
+            rows: d.rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isBold ?? r.isHeader, isHeader: r.isHeader, isItalic: r.isItalic })),
           });
           return {
             entityName: "Consolidated Portfolio",

@@ -39,10 +39,12 @@ Client (data + theme) → POST /api/exports/premium → Server
 
 ## Per-Statement Charts
 
-- **Income**: Total Revenue, GOP, NOI, ANOI (4 bar charts, 2x2 grid)
-- **Cash Flow**: CFO, FCFE (2 bar charts)
-- **Balance Sheet**: Total Assets, Total L+E (2 bar charts)
-- **Investment**: Revenue + NOI + ANOI trend line chart
+- **Income**: Revenue, GOP, NOI, ANOI (multi-series line chart, colors: #18181b, #3B82F6, #F59E0B, #6B7280)
+- **Cash Flow**: NOI, ANOI, Cash Flow, FCFE (multi-series line chart, colors: #F59E0B, #6B7280, #8B5CF6, #6B7280)
+- **Balance Sheet**: Total Assets, Total Liabilities (multi-series line chart, colors: #257D41, #F4795B)
+- **Investment**: NOI, ANOI, FCFE (multi-series line chart, colors: #10B981, #257D41, #8B5CF6)
+
+All charts match the UI's FinancialChart component (Recharts LineChart style) with strokeWidth 2.5, white-fill dots, and matching hex colors.
 
 ## Theme Color Mapping
 

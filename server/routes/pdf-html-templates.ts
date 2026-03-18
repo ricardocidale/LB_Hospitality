@@ -238,88 +238,11 @@ function renderMetricsDashboardSection(section: any, d: PdfTemplateData): string
     </div>`;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   BAR CHARTS (2x2 landscape / stacked portrait)
-   ═══════════════════════════════════════════════════════════════ */
+/* Bar chart renderer removed — all charts now use line_chart type */
 
-const CHART_PALETTES: Array<{ top: string; bottom: string }> = [
-  { top: "#257D41", bottom: "#9FBCA4" },
-  { top: "#2A3A50", bottom: "#5A7A9A" },
-  { top: "#0E7C6B", bottom: "#7BCEC0" },
-  { top: "#6B5B3B", bottom: "#C4A474" },
-  { top: "#6B3FA0", bottom: "#B89AD8" },
-  { top: "#B85040", bottom: "#E8A0A0" },
-];
-
-function renderChartSection(section: any, d: PdfTemplateData): string {
-  const charts: any[] = section.content?.charts || [];
-  if (!charts.length) return "";
-  const isL = d.orientation === "landscape";
-
-  const chartsHtml = charts.map((chart: any, ci: number) => {
-    const label = esc(chart.label || "");
-    const values: number[] = (chart.values || []).map((v: any) => typeof v === "number" ? v : 0);
-    const years: string[] = (chart.years || []).map((y: any) => String(y));
-    if (!values.length) return "";
-
-    const palette = CHART_PALETTES[ci % CHART_PALETTES.length];
-    const maxVal = Math.max(...values.map(Math.abs), 1);
-
-    const svgW = 400;
-    const svgH = isL ? 140 : 200;
-    const padL = 52, padR = 14, padT = 20, padB = 30;
-    const plotW = svgW - padL - padR;
-    const plotH = svgH - padT - padB;
-    const n = values.length;
-    const gap = plotW / n;
-    const barW = Math.min(gap * 0.62, isL ? 22 : 28);
-    const gradId = `cg-${section.title?.replace(/\W/g, "")}-${ci}`;
-
-    const gridN = 4;
-    let gridSvg = "";
-    for (let g = 0; g <= gridN; g++) {
-      const y = padT + (plotH / gridN) * g;
-      const gVal = maxVal - (maxVal / gridN) * g;
-      gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#e2e5e8" stroke-width="0.5" stroke-dasharray="3,2"/>`;
-      gridSvg += `<text x="${padL - 5}" y="${y + 3}" text-anchor="end" fill="#999" font-size="6.5" font-family="Helvetica,Arial,sans-serif">${fmtCompact(gVal)}</text>`;
-    }
-
-    let barsSvg = "";
-    values.forEach((v, i) => {
-      const bH = Math.max((Math.abs(v) / maxVal) * plotH, 1.5);
-      const x = padL + i * gap + (gap - barW) / 2;
-      const y = padT + plotH - bH;
-      barsSvg += `<rect x="${x}" y="${y}" width="${barW}" height="${bH}" fill="url(#${gradId})" rx="2"/>`;
-      const valLabel = fmtCompact(v);
-      barsSvg += `<text x="${x + barW / 2}" y="${y - 4}" text-anchor="middle" fill="${palette.top}" font-size="6" font-weight="700" font-family="Helvetica,Arial,sans-serif">${valLabel}</text>`;
-      if (years[i]) {
-        const yr = years[i].length === 4 ? "'" + years[i].slice(2) : years[i];
-        barsSvg += `<text x="${x + barW / 2}" y="${svgH - 8}" text-anchor="middle" fill="#666" font-size="7" font-weight="500" font-family="Helvetica,Arial,sans-serif">${yr}</text>`;
-      }
-    });
-
-    return `
-      <div class="chart-card">
-        <div class="chart-card-header">${label}</div>
-        <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" class="chart-svg" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="${palette.top}" stop-opacity="0.95"/>
-              <stop offset="100%" stop-color="${palette.bottom}" stop-opacity="0.6"/>
-            </linearGradient>
-          </defs>
-          ${gridSvg}
-          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#bbb" stroke-width="0.8"/>
-          ${barsSvg}
-        </svg>
-      </div>`;
-  }).join("");
-
-  return `
-    <div class="content-page chart-page">
-      ${pageHeader(esc(section.title || "Financial Performance Charts"), d)}
-      <div class="chart-grid">${chartsHtml}</div>
-    </div>`;
+// Bar chart renderer removed — all charts now use renderLineChartSection
+function renderChartSection(_section: any, _d: PdfTemplateData): string {
+  return "";
 }
 
 /* ═══════════════════════════════════════════════════════════════

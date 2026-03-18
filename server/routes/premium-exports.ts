@@ -655,7 +655,7 @@ async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Pr
 
   // Resolve theme colors from client payload
   const { resolveThemeColors } = await import("./pdf-html-templates");
-  const colors = resolveThemeColors((data as any).themeColors);
+  const colors = resolveThemeColors(data.themeColors);
 
   const html = buildPdfHtml({ sections, report_title: reportTitle }, {
     orientation: data.orientation || "landscape",
@@ -911,7 +911,7 @@ async function generatePngZipBuffer(data: PremiumExportRequest): Promise<Buffer>
   const company = data.companyName || "Hospitality Business Group";
   const isLandscape = (data.orientation || "landscape") === "landscape";
   const sections = buildPdfSectionsFromData(data);
-  const colors = resolveThemeColors((data as any).themeColors);
+  const colors = resolveThemeColors(data.themeColors);
   const reportTitle = data.statementType
     ? `${company} \u2014 ${data.statementType}`
     : `${company} \u2014 Financial Report`;

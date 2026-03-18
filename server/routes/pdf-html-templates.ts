@@ -11,28 +11,44 @@ export interface ThemeColorMap {
   sectionBg: string; // section header bg
 }
 
-/** Map client theme colors (by rank) to functional roles. Falls back to BRAND defaults. */
-export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: string; rank?: number}>): ThemeColorMap {
-  if (!themeColors?.length) {
-    return {
-      navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
-      darkText: BRAND.DARK_TEXT_HEX, gray: BRAND.GRAY_HEX,
-      altRow: BRAND.ALT_ROW_HEX, sectionBg: BRAND.SECTION_BG_HEX,
-    };
-  }
-  const sorted = [...themeColors].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
-  const hex = (i: number, fallback: string) => {
-    const c = sorted[i]?.hexCode;
-    return c ? c.replace(/^#/, "") : fallback;
+/** Map client theme colors by name to functional PDF roles. Falls back to BRAND defaults.
+ *  Theme colors come from the designThemes table with names like "Sage Green", "Forest Green", etc.
+ *  We match by description/name keywords, avoiding conflicts by using specific matches first. */
+export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: string; rank?: number; description?: string}>): ThemeColorMap {
+  const defaults: ThemeColorMap = {
+    navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
+    darkText: BRAND.DARK_TEXT_HEX, gray: BRAND.GRAY_HEX,
+    altRow: BRAND.ALT_ROW_HEX, sectionBg: BRAND.SECTION_BG_HEX,
   };
+  if (!themeColors?.length) return defaults;
+
+  const strip = (hex: string) => hex.replace(/^#/, "");
+  const colors = themeColors.map(c => ({ n: c.name.toLowerCase(), h: strip(c.hexCode), d: (c.description || "").toLowerCase() }));
+
+  // Find first color whose name or description includes any of the keywords
+  const find = (...keywords: string[]): string | undefined => {
+    for (const c of colors) {
+      if (keywords.some(k => c.n.includes(k) || c.d.includes(k))) return c.h;
+    }
+    return undefined;
+  };
+
+  // Map roles — most specific keywords first to avoid conflicts
+  // "navy" role = darkest color for headers/cover (navy, midnight, dark blue, charcoal)
+  // "sage" role = primary accent (sage, primary accent)
+  // "darkGreen" role = secondary accent / titles (forest, emerald, green)
+  // "darkText" role = body text color (charcoal, text, dark text)
+  // "gray" role = secondary text (gray, muted, border)
+  // "altRow" role = alternating row background (linen, alt row, stripe)
+  // "sectionBg" role = section header background (cream, section)
   return {
-    navy: hex(0, BRAND.NAVY_HEX),
-    sage: hex(1, BRAND.SAGE_HEX),
-    darkGreen: hex(2, BRAND.DARK_GREEN_HEX),
-    darkText: hex(3, BRAND.DARK_TEXT_HEX),
-    gray: hex(4, BRAND.GRAY_HEX),
-    altRow: BRAND.ALT_ROW_HEX,
-    sectionBg: BRAND.SECTION_BG_HEX,
+    navy: find("navy", "midnight") ?? defaults.navy,
+    sage: find("sage") ?? defaults.sage,
+    darkGreen: find("forest", "emerald") ?? defaults.darkGreen,
+    darkText: find("charcoal", "dark text") ?? defaults.darkText,
+    gray: find("warm border", "border", "gray", "grey") ?? defaults.gray,
+    altRow: find("warm linen", "linen", "alt row", "stripe") ?? defaults.altRow,
+    sectionBg: find("warm cream", "cream", "section bg") ?? defaults.sectionBg,
   };
 }
 

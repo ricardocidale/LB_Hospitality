@@ -76,7 +76,9 @@ function renderExecutiveSummarySection(section: any, data: PdfTemplateData): str
   let paragraphsHtml = "";
   if (paragraphs.length > 0) {
     const items = paragraphs.map((p: any) => {
-      const text = typeof p === "string" ? p : `<strong>${escapeHtml(p.metric)}:</strong> ${escapeHtml(p.insight)}`;
+      const text = typeof p === "string"
+        ? escapeHtml(p)
+        : `<strong>${escapeHtml(p.metric)}:</strong> ${escapeHtml(p.insight)}`;
       return `<p>${text}</p>`;
     }).join("");
     paragraphsHtml = `<div class="content-card">${items}</div>`;

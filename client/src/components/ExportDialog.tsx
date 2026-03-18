@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Sparkles } from "@/components/icons/themed-icons";
@@ -132,6 +133,16 @@ async function generatePremiumExport(
 async function saveToLocal(blob: Blob, filename: string, _mimeType: string): Promise<void> {
   const { saveFile } = await import("@/lib/exports/saveFile");
   await saveFile(blob, filename);
+}
+
+function canShowNativeFilePicker(): boolean {
+  if (typeof window === "undefined") return false;
+  if (!("showSaveFilePicker" in window)) return false;
+  try {
+    return window.self === window.top;
+  } catch {
+    return false;
+  }
 }
 
 async function saveToDrive(blob: Blob, filename: string, mimeType: string): Promise<{ webViewLink: string }> {
@@ -453,7 +464,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
         <DialogHeader>
           <DialogTitle>{step === "save" ? "Save Export" : title}</DialogTitle>
           {step === "save" && (
-            <DialogDescription>Choose where to save your file.</DialogDescription>
+            <DialogDescription>Edit the filename and choose where to save.</DialogDescription>
           )}
         </DialogHeader>
 
@@ -544,14 +555,30 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
         {step === "save" && (
           <>
             <div className="py-4 space-y-4">
-              <p className="text-sm text-muted-foreground">Where would you like to save <span className="font-medium text-foreground">{saveFilename}.{premiumFormat}</span>?</p>
+              <div className="space-y-2">
+                <Label htmlFor="export-filename" className="text-sm font-medium">Filename</Label>
+                <div className="flex items-center gap-0">
+                  <Input
+                    id="export-filename"
+                    value={saveFilename}
+                    onChange={(e) => setSaveFilename(e.target.value)}
+                    className="rounded-r-none border-r-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    data-testid="input-export-filename"
+                    autoFocus
+                    onKeyDown={(e) => { if (e.key === "Enter" && !isSaving) handleSaveLocal(); }}
+                  />
+                  <div className="flex items-center h-9 px-3 bg-muted border border-input rounded-r-md text-sm text-muted-foreground select-none">
+                    .{isPremium ? premiumFormat : fileExtension.replace(".", "")}
+                  </div>
+                </div>
+              </div>
 
               <div className="space-y-2">
                 <Button
                   className="w-full justify-start gap-3 h-12"
                   variant="outline"
                   onClick={handleSaveLocal}
-                  disabled={isSaving}
+                  disabled={isSaving || !saveFilename.trim()}
                   data-testid="button-save-local"
                 >
                   {isSaving ? (
@@ -561,7 +588,9 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                   )}
                   <div className="text-left">
                     <div className="font-medium text-sm">Save to Computer</div>
-                    <div className="text-xs text-muted-foreground">Choose a folder on your device</div>
+                    <div className="text-xs text-muted-foreground">
+                      {canShowNativeFilePicker() ? "Opens file explorer to choose location" : "Downloads to your default folder"}
+                    </div>
                   </div>
                 </Button>
 
@@ -569,7 +598,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                   className="w-full justify-start gap-3 h-12"
                   variant="outline"
                   onClick={driveAvailable ? handleSaveDrive : undefined}
-                  disabled={isSaving || !driveAvailable}
+                  disabled={isSaving || !driveAvailable || !saveFilename.trim()}
                   data-testid="button-save-drive"
                 >
                   {isSaving ? (

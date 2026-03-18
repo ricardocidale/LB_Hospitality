@@ -457,7 +457,10 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
 }
 
 function buildChartSections(data: PremiumExportRequest): any[] {
-  const statements = data.statements || [];
+  let statements = data.statements || [];
+  if (!statements.length && (data as any).rows && (data as any).years) {
+    statements = [{ title: (data as any).statementType || "Financial Statement", years: (data as any).years, rows: (data as any).rows }];
+  }
   if (!statements.length) return [];
 
   const charts: any[] = [];
@@ -487,13 +490,20 @@ function buildChartSections(data: PremiumExportRequest): any[] {
 
   if (!charts.length) return [];
 
-  const perPage = 4;
+  const seen = new Set<string>();
+  const dedupedCharts = charts.filter((c: any) => {
+    if (seen.has(c.label)) return false;
+    seen.add(c.label);
+    return true;
+  });
+
+  const perPage = 2;
   const pages: any[] = [];
-  for (let i = 0; i < charts.length; i += perPage) {
+  for (let i = 0; i < dedupedCharts.length; i += perPage) {
     pages.push({
       type: "chart",
       title: i === 0 ? "Financial Performance Charts" : "Financial Performance Charts (cont.)",
-      content: { charts: charts.slice(i, i + perPage) },
+      content: { charts: dedupedCharts.slice(i, i + perPage) },
     });
   }
   return pages;
@@ -503,8 +513,12 @@ async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Pro
   const company = data.companyName || "Hospitality Business Group";
   const isLandscape = (data.orientation || "landscape") === "landscape";
 
+  const allowedTypes = new Set(["cover", "metrics_dashboard", "financial_table"]);
+  const enrichedSections = [...(aiResult.sections || [])].filter(
+    (s: any) => allowedTypes.has(s.type)
+  );
+
   const chartSections = buildChartSections(data);
-  const enrichedSections = [...(aiResult.sections || [])];
   if (chartSections.length) {
     const metricsIdx = enrichedSections.findIndex((s: any) => s.type === "metrics_dashboard");
     const insertAt = metricsIdx >= 0 ? metricsIdx + 1 : Math.min(2, enrichedSections.length);

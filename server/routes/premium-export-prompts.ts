@@ -150,15 +150,17 @@ Add insight slides with key takeaways and recommendations that enhance beyond si
 }
 
 export function getPdfPrompt(data: ExportDataShape): string {
-  const versionHint = data.version === "extended"
-    ? "Include all line-item breakdowns and detailed sub-categories."
-    : "Show summary-level totals and key aggregates only.";
-  return `You are generating a premium ${data.orientation || "landscape"}-oriented PDF financial report. Detail level: ${data.version || "short"}. ${versionHint}
+  const isShort = data.version !== "extended";
+  const versionHint = isShort
+    ? "SHORT version: include ONLY header rows, bold totals, and key subtotals. Omit individual line-item breakdowns. Keep each financial table compact."
+    : "EXTENDED version: include all line-item breakdowns and detailed sub-categories.";
+  return `You are generating a data-focused ${data.orientation || "landscape"}-oriented PDF financial report. Detail level: ${data.version || "short"}. ${versionHint}
 
-Brand palette:
-- Navy: #${BRAND.NAVY_HEX} (header)
-- Sage Green: #${BRAND.SAGE_HEX} (accents)
-- Dark Green: #${BRAND.DARK_GREEN_HEX} (titles)
+IMPORTANT RULES:
+- This report is DATA ONLY. Do NOT include executive_summary, analysis, or notes sections.
+- Only include: cover, metrics_dashboard, and financial_table sections.
+- No prose paragraphs, no observations, no written commentary.
+- Focus on clean presentation of the financial statements and metrics.
 
 Financial Data:
 ${buildFinancialDataContext(data)}
@@ -167,21 +169,22 @@ Return a JSON object with this structure:
 {
   "sections": [
     {
-      "type": "cover" | "executive_summary" | "metrics_dashboard" | "financial_table" | "analysis" | "notes",
-      "title": "Section Title",
+      "type": "cover",
+      "title": "Report Title"
+    },
+    {
+      "type": "metrics_dashboard",
+      "title": "Key Performance Metrics",
       "content": {
-        // For executive_summary:
-        "paragraphs": ["..."],
-        // For metrics_dashboard:
-        "metrics": [{"label": "...", "value": "...", "description": "..."}],
-        // For financial_table:
+        "metrics": [{"label": "...", "value": "...", "description": "brief 3-5 word description"}]
+      }
+    },
+    {
+      "type": "financial_table",
+      "title": "Statement Title",
+      "content": {
         "years": ["..."],
-        "rows": [{"category": "...", "values": [...], "type": "header|data|subtotal|total", "indent": 0}],
-        // For analysis:
-        "observations": ["..."],
-        "highlights": [{"metric": "...", "insight": "..."}],
-        // For notes:
-        "items": ["..."]
+        "rows": [{"category": "...", "values": [...], "type": "header|data|subtotal|total", "indent": 0}]
       }
     }
   ],
@@ -189,7 +192,7 @@ Return a JSON object with this structure:
   "confidential_notice": "Confidential — For authorized recipients only"
 }
 
-Add executive summary and analysis sections with financial insights. Include observations about trends, performance highlights, and notable items. RESPOND WITH ONLY VALID JSON.`;
+RESPOND WITH ONLY VALID JSON.`;
 }
 
 export function getDocxPrompt(data: ExportDataShape): string {

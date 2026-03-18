@@ -47,11 +47,7 @@ function renderCoverSection(section: any, data: PdfTemplateData): string {
 
   return `
     <div class="cover-page">
-      <div class="cover-pattern"></div>
-      <div class="cover-gradient"></div>
-      <div class="cover-top-line"></div>
-      <div class="cover-bottom-line"></div>
-      <div class="cover-corner-accent"></div>
+      <div class="cover-accent-top"></div>
       <div class="cover-content">
         <div class="cover-badge">CONFIDENTIAL</div>
         <div class="cover-company-name">${company}</div>
@@ -77,59 +73,12 @@ function renderCoverSection(section: any, data: PdfTemplateData): string {
         This document contains proprietary financial projections and confidential business information.
         Distribution is restricted to authorized recipients only.
       </div>
-    </div>`;
-}
-
-function renderExecutiveSummarySection(section: any, data: PdfTemplateData): string {
-  const title = escapeHtml(section.title || "Executive Summary");
-  const company = escapeHtml(data.companyName);
-  const entity = escapeHtml(data.entityName);
-  const paragraphs = section.content?.paragraphs || section.content?.observations || section.content?.items || [];
-  const highlights = section.content?.highlights || [];
-
-  let paragraphsHtml = "";
-  if (paragraphs.length > 0) {
-    const items = paragraphs.map((p: any) => {
-      const text = typeof p === "string"
-        ? escapeHtml(p)
-        : `<strong>${escapeHtml(p.metric)}:</strong> ${escapeHtml(p.insight)}`;
-      return `<p class="prose-paragraph">${text}</p>`;
-    }).join("");
-    paragraphsHtml = `<div class="prose-card">${items}</div>`;
-  }
-
-  let highlightsHtml = "";
-  if (highlights.length > 0) {
-    const items = highlights.map((h: any) => `
-      <div class="kpi-highlight">
-        <div class="kpi-highlight-bar"></div>
-        <div class="kpi-highlight-content">
-          <div class="kpi-highlight-metric">${escapeHtml(h.metric)}</div>
-          <div class="kpi-highlight-insight">${escapeHtml(h.insight || "")}</div>
-        </div>
-      </div>
-    `).join("");
-    highlightsHtml = `
-      <div class="kpi-highlights-section">
-        <div class="kpi-highlights-label">KEY HIGHLIGHTS</div>
-        ${items}
-      </div>`;
-  }
-
-  return `
-    <div class="content-page">
-      <div class="page-header">
-        <div class="page-header-title">${title}</div>
-        <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
-        <div class="page-header-company">${company}</div>
-      </div>
-      ${paragraphsHtml}
-      ${highlightsHtml}
+      <div class="cover-accent-bottom"></div>
     </div>`;
 }
 
 function renderMetricsDashboardSection(section: any, data: PdfTemplateData): string {
-  const title = escapeHtml(section.title || "Key Investment Metrics");
+  const title = escapeHtml(section.title || "Key Performance Metrics");
   const company = escapeHtml(data.companyName);
   const entity = escapeHtml(data.entityName);
   const metrics = section.content?.metrics || [];
@@ -156,7 +105,6 @@ function renderMetricsDashboardSection(section: any, data: PdfTemplateData): str
       <div class="page-header">
         <div class="page-header-title">${title}</div>
         <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
-        <div class="page-header-company">${company}</div>
       </div>
       <div class="kpi-grid">${cards}</div>
     </div>`;
@@ -175,7 +123,6 @@ function renderFinancialTableSection(section: any, data: PdfTemplateData): strin
         <div class="page-header">
           <div class="page-header-title">${title}</div>
           <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
-          <div class="page-header-company">${company}</div>
         </div>
         <p class="empty-state">No financial data available for this section.</p>
       </div>`;
@@ -199,7 +146,7 @@ function renderFinancialTableSection(section: any, data: PdfTemplateData): strin
     const label = escapeHtml(r.category || "");
     const vals = (r.values || []).map((v: any) => `<td class="tbl-val">${formatCurrency(v)}</td>`).join("");
 
-    return `<tr class="${rowClass}"><td class="tbl-label" style="padding-left:${6 + indentPx}px">${label}</td>${vals}</tr>`;
+    return `<tr class="${rowClass}"><td class="tbl-label" style="padding-left:${8 + indentPx}px">${label}</td>${vals}</tr>`;
   }).join("");
 
   return `
@@ -207,7 +154,6 @@ function renderFinancialTableSection(section: any, data: PdfTemplateData): strin
       <div class="page-header">
         <div class="page-header-title">${title}</div>
         <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
-        <div class="page-header-company">${company}</div>
       </div>
       <table class="fin-table">
         <thead><tr><th class="tbl-label-hdr"></th>${yearHeaders}</tr></thead>
@@ -222,8 +168,8 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
   const entity = escapeHtml(data.entityName);
   const charts = section.content?.charts || [];
   const isLandscape = data.orientation === "landscape";
-  const chartW = isLandscape ? 170 : 150;
-  const chartH = 115;
+  const chartW = isLandscape ? 180 : 160;
+  const chartH = isLandscape ? 130 : 120;
 
   const CHART_PALETTES: Array<{ top: string; bottom: string }> = [
     { top: "#257D41", bottom: "#9FBCA4" },
@@ -244,16 +190,18 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
     const maxVal = Math.max(...values.map(Math.abs), 1);
     const svgW = chartW;
     const svgH = chartH;
-    const padL = 44;
-    const padR = 8;
-    const padT = 14;
-    const padB = 22;
+    const padL = 48;
+    const padR = 10;
+    const padT = 16;
+    const padB = 28;
     const plotW = svgW - padL - padR;
     const plotH = svgH - padT - padB;
     const barCount = values.length;
     const gap = plotW / barCount;
-    const barW = Math.min(gap * 0.55, 18);
+    const barW = Math.min(gap * 0.6, 16);
     const gradId = `grad-${cIdx}`;
+    const useRotatedLabels = barCount > 6;
+    const showEveryNthLabel = barCount > 8 ? 2 : 1;
 
     const gridLines = 4;
     let gridSvg = "";
@@ -261,8 +209,8 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
       const y = padT + (plotH / gridLines) * g;
       const gVal = maxVal - (maxVal / gridLines) * g;
       const lbl = formatCompactValue(gVal);
-      gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#e8eaec" stroke-width="0.4" stroke-dasharray="2,2"/>`;
-      gridSvg += `<text x="${padL - 3}" y="${y + 2.5}" text-anchor="end" fill="#999" font-size="5.5" font-family="Helvetica,Arial,sans-serif">${lbl}</text>`;
+      gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#e0e3e6" stroke-width="0.5" stroke-dasharray="3,2"/>`;
+      gridSvg += `<text x="${padL - 4}" y="${y + 2.5}" text-anchor="end" fill="#888" font-size="6" font-family="Helvetica,Arial,sans-serif">${lbl}</text>`;
     }
 
     let barsSvg = "";
@@ -270,11 +218,20 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
       const bH = Math.max((Math.abs(v) / maxVal) * plotH, 1);
       const x = padL + i * gap + (gap - barW) / 2;
       const y = padT + plotH - bH;
-      barsSvg += `<rect x="${x}" y="${y}" width="${barW}" height="${bH}" fill="url(#${gradId})" rx="2"/>`;
-      const valLabel = formatCompactValue(v);
-      barsSvg += `<text x="${x + barW / 2}" y="${y - 2}" text-anchor="middle" fill="${palette.top}" font-size="4.5" font-weight="600" font-family="Helvetica,Arial,sans-serif">${valLabel}</text>`;
+      barsSvg += `<rect x="${x}" y="${y}" width="${barW}" height="${bH}" fill="url(#${gradId})" rx="1.5"/>`;
+
+      if (i % showEveryNthLabel === 0 || i === values.length - 1) {
+        const valLabel = formatCompactValue(v);
+        barsSvg += `<text x="${x + barW / 2}" y="${y - 3}" text-anchor="middle" fill="${palette.top}" font-size="5" font-weight="600" font-family="Helvetica,Arial,sans-serif">${valLabel}</text>`;
+      }
+
       if (years[i]) {
-        barsSvg += `<text x="${x + barW / 2}" y="${svgH - 6}" text-anchor="middle" fill="#666" font-size="5.5" font-weight="500" font-family="Helvetica,Arial,sans-serif">${years[i]}</text>`;
+        const yr = years[i].length === 4 ? "'" + years[i].slice(2) : years[i];
+        if (useRotatedLabels) {
+          barsSvg += `<text x="${x + barW / 2}" y="${padT + plotH + 5}" text-anchor="end" fill="#555" font-size="6" font-weight="500" font-family="Helvetica,Arial,sans-serif" transform="rotate(-45, ${x + barW / 2}, ${padT + plotH + 5})">${yr}</text>`;
+        } else {
+          barsSvg += `<text x="${x + barW / 2}" y="${svgH - 8}" text-anchor="middle" fill="#555" font-size="6.5" font-weight="500" font-family="Helvetica,Arial,sans-serif">${yr}</text>`;
+        }
       }
     });
 
@@ -289,7 +246,7 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
             </linearGradient>
           </defs>
           ${gridSvg}
-          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#ccd0d4" stroke-width="0.7"/>
+          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#bbb" stroke-width="0.7"/>
           ${barsSvg}
         </svg>
       </div>`;
@@ -300,7 +257,6 @@ function renderChartSection(section: any, data: PdfTemplateData): string {
       <div class="page-header">
         <div class="page-header-title">${title}</div>
         <div class="page-header-subtitle">${company} \u2014 ${entity}</div>
-        <div class="page-header-company">${company}</div>
       </div>
       <div class="chart-grid">${chartsHtml}</div>
     </div>`;
@@ -317,11 +273,6 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     switch (section.type) {
       case "cover":
         sectionHtmlParts.push(renderCoverSection(section, data));
-        break;
-      case "executive_summary":
-      case "analysis":
-      case "notes":
-        sectionHtmlParts.push(renderExecutiveSummarySection(section, data));
         break;
       case "metrics_dashboard":
         sectionHtmlParts.push(renderMetricsDashboardSection(section, data));
@@ -343,7 +294,6 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   const DK_GREEN = `#${BRAND.DARK_GREEN_HEX}`;
   const DK_TEXT = `#${BRAND.DARK_TEXT_HEX}`;
   const GRAY = `#${BRAND.GRAY_HEX}`;
-  const SEC_BG = `#${BRAND.SECTION_BG_HEX}`;
   const ALT_ROW = `#${BRAND.ALT_ROW_HEX}`;
 
   const reportTitle = escapeHtml(data.reportTitle || `${data.companyName} — Financial Report`);
@@ -371,74 +321,58 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   /* ═══════════════════════════════════════════
-     COVER PAGE
+     COVER PAGE — light background
      ═══════════════════════════════════════════ */
   .cover-page {
     width: ${pageW};
     height: ${pageH};
-    background: ${NAVY};
+    background: #ffffff;
     position: relative;
     overflow: hidden;
     page-break-after: always;
   }
 
-  .cover-pattern {
+  .cover-accent-top {
     position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(159,188,164,0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(159,188,164,0.06) 1px, transparent 1px);
-    background-size: 16mm 16mm;
-  }
-
-  .cover-gradient {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent 40%, rgba(37,125,65,0.08) 70%, rgba(159,188,164,0.12) 100%);
-  }
-
-  .cover-top-line, .cover-bottom-line {
-    position: absolute;
+    top: 0;
     left: 0;
     right: 0;
-    height: 2.5mm;
-    background: linear-gradient(90deg, ${SAGE}, ${DK_GREEN});
+    height: 3mm;
+    background: linear-gradient(90deg, ${DK_GREEN}, ${SAGE});
   }
-  .cover-top-line { top: 0; }
-  .cover-bottom-line { bottom: 0; }
 
-  .cover-corner-accent {
+  .cover-accent-bottom {
     position: absolute;
+    bottom: 0;
+    left: 0;
     right: 0;
-    top: 0;
-    width: 80mm;
-    height: 80mm;
-    background: linear-gradient(225deg, rgba(159,188,164,0.12) 0%, transparent 60%);
+    height: 3mm;
+    background: linear-gradient(90deg, ${SAGE}, ${DK_GREEN});
   }
 
   .cover-content {
     position: absolute;
-    left: 28mm;
-    top: 24%;
-    right: 28mm;
+    left: 30mm;
+    top: 22%;
+    right: 30mm;
   }
 
   .cover-badge {
     display: inline-block;
-    font-size: 6.5pt;
+    font-size: 7pt;
     font-weight: 700;
     letter-spacing: 2.5px;
-    color: ${SAGE};
-    border: 1px solid rgba(159,188,164,0.4);
+    color: ${DK_GREEN};
+    border: 1.5px solid ${SAGE};
     padding: 1.5mm 4mm;
     border-radius: 1mm;
-    margin-bottom: 6mm;
+    margin-bottom: 8mm;
   }
 
   .cover-company-name {
     font-size: 36pt;
     font-weight: 700;
-    color: #ffffff;
+    color: ${NAVY};
     letter-spacing: -0.5px;
     line-height: 1.1;
     margin-bottom: 5mm;
@@ -446,60 +380,58 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
 
   .cover-rule {
     width: 50mm;
-    height: 0.6mm;
-    background: linear-gradient(90deg, ${SAGE}, transparent);
+    height: 0.8mm;
+    background: linear-gradient(90deg, ${DK_GREEN}, ${SAGE});
     margin-bottom: 6mm;
   }
 
   .cover-report-title {
     font-size: 18pt;
-    color: ${SAGE};
-    font-weight: 300;
+    color: ${GRAY};
+    font-weight: 400;
     letter-spacing: 0.3px;
     margin-bottom: 3mm;
   }
 
   .cover-subtitle {
     font-size: 11pt;
-    color: rgba(180,200,185,0.8);
+    color: ${GRAY};
     font-weight: 300;
     margin-bottom: 8mm;
   }
 
   .cover-meta-grid {
     display: flex;
-    gap: 16mm;
-    margin-top: 10mm;
+    gap: 18mm;
+    margin-top: 12mm;
     padding: 5mm 0;
-    border-top: 1px solid rgba(159,188,164,0.2);
+    border-top: 1.5px solid #e0e3e6;
   }
 
-  .cover-meta-item {}
-
   .cover-meta-label {
-    font-size: 6pt;
+    font-size: 6.5pt;
     font-weight: 700;
     letter-spacing: 1.5px;
-    color: ${SAGE};
+    color: ${DK_GREEN};
     margin-bottom: 1.5mm;
   }
 
   .cover-meta-value {
-    font-size: 9pt;
-    color: rgba(255,255,255,0.85);
-    font-weight: 400;
+    font-size: 10pt;
+    color: ${DK_TEXT};
+    font-weight: 500;
   }
 
   .cover-footer {
     position: absolute;
-    left: 28mm;
-    right: 28mm;
+    left: 30mm;
+    right: 30mm;
     bottom: 8%;
-    font-size: 6.5pt;
-    color: rgba(120,140,138,0.8);
+    font-size: 7pt;
+    color: ${GRAY};
     font-style: italic;
     line-height: 1.5;
-    border-top: 1px solid rgba(159,188,164,0.15);
+    border-top: 1px solid #e0e3e6;
     padding-top: 3mm;
   }
 
@@ -509,7 +441,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   .content-page {
     width: ${pageW};
     min-height: ${pageH};
-    padding: 10mm 16mm 22mm;
+    padding: 14mm 18mm 24mm;
     position: relative;
     page-break-after: always;
     background: #ffffff;
@@ -522,7 +454,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     left: 0;
     right: 0;
     height: 2mm;
-    background: linear-gradient(90deg, ${NAVY}, ${NAVY} 70%, ${SAGE});
+    background: linear-gradient(90deg, ${DK_GREEN}, ${SAGE});
   }
 
   .content-page::after {
@@ -532,152 +464,42 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     left: 0;
     right: 0;
     height: 1mm;
-    background: linear-gradient(90deg, ${SAGE}, ${NAVY});
+    background: linear-gradient(90deg, ${SAGE}, ${DK_GREEN});
   }
 
-  /* ── Page Header ──────────────────────────── */
+  /* ── Page Header — light ─────────────────── */
   .page-header {
-    background: linear-gradient(135deg, ${NAVY} 0%, #243040 100%);
-    border-radius: 2.5mm;
-    padding: 6mm 8mm 5mm;
+    border-bottom: 2px solid ${DK_GREEN};
+    padding: 0 0 4mm;
     margin-bottom: 6mm;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .page-header::before {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 30%;
-    background: linear-gradient(90deg, transparent, rgba(159,188,164,0.08));
-  }
-
-  .page-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1mm;
-    background: linear-gradient(90deg, ${SAGE}, ${DK_GREEN}, ${SAGE});
-    border-radius: 0 0 2.5mm 2.5mm;
   }
 
   .page-header-title {
     font-size: 18pt;
     font-weight: 700;
-    color: #ffffff;
+    color: ${NAVY};
     letter-spacing: 0.2px;
-    position: relative;
   }
 
   .page-header-subtitle {
-    font-size: 9pt;
-    color: ${SAGE};
+    font-size: 9.5pt;
+    color: ${GRAY};
     margin-top: 1.5mm;
     font-weight: 400;
     letter-spacing: 0.3px;
-    position: relative;
-  }
-
-  .page-header-company {
-    position: absolute;
-    right: 8mm;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 8pt;
-    color: rgba(200,200,200,0.6);
-    letter-spacing: 0.5px;
-    font-weight: 300;
-  }
-
-  /* ── Prose / Executive Summary Cards ───────── */
-  .prose-card {
-    background: linear-gradient(135deg, #fefcfa 0%, #f9faf7 100%);
-    border: 1px solid rgba(159,188,164,0.35);
-    border-left: 2.5mm solid ${DK_GREEN};
-    border-radius: 2mm;
-    padding: 5mm 6mm;
-    margin-bottom: 5mm;
-    break-inside: avoid;
-  }
-
-  .prose-paragraph {
-    font-size: 11pt;
-    line-height: 1.6;
-    margin-bottom: 3.5mm;
-    color: ${DK_TEXT};
-  }
-  .prose-paragraph:last-child { margin-bottom: 0; }
-  .prose-paragraph strong { color: ${NAVY}; }
-
-  /* ── Key Highlights ───────────────────────── */
-  .kpi-highlights-section {
-    margin-top: 5mm;
-  }
-
-  .kpi-highlights-label {
-    font-size: 10pt;
-    font-weight: 700;
-    color: ${DK_GREEN};
-    letter-spacing: 1px;
-    margin-bottom: 3mm;
-    padding-bottom: 2mm;
-    border-bottom: 1.5px solid ${SAGE};
-    display: inline-block;
-  }
-
-  .kpi-highlight {
-    display: flex;
-    align-items: stretch;
-    border-radius: 2mm;
-    margin-bottom: 2mm;
-    overflow: hidden;
-    background: linear-gradient(90deg, #f5f9f6 0%, #ffffff 30%);
-    border: 1px solid rgba(159,188,164,0.25);
-    break-inside: avoid;
-  }
-
-  .kpi-highlight-bar {
-    width: 2mm;
-    background: linear-gradient(180deg, ${DK_GREEN}, ${SAGE});
-    flex-shrink: 0;
-  }
-
-  .kpi-highlight-content {
-    padding: 3mm 4mm;
-    display: flex;
-    align-items: center;
-    gap: 4mm;
-  }
-
-  .kpi-highlight-metric {
-    font-size: 9.5pt;
-    font-weight: 700;
-    color: ${NAVY};
-    min-width: 40mm;
-  }
-
-  .kpi-highlight-insight {
-    font-size: 9.5pt;
-    color: ${DK_TEXT};
-    line-height: 1.4;
   }
 
   /* ── KPI Metrics Dashboard ────────────────── */
   .kpi-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 4mm;
-    margin-top: 3mm;
+    gap: 5mm;
+    margin-top: 4mm;
   }
 
   .kpi-card {
-    background: #ffffff;
-    border: 1px solid rgba(159,188,164,0.3);
+    background: #fafbfc;
+    border: 1px solid #e0e3e6;
     border-radius: 2.5mm;
     overflow: hidden;
     text-align: center;
@@ -686,11 +508,11 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .kpi-card-accent {
-    height: 1.8mm;
+    height: 2mm;
   }
 
   .kpi-card-body {
-    padding: 4mm 4mm 5mm;
+    padding: 5mm 5mm 6mm;
     position: relative;
   }
 
@@ -705,24 +527,24 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   .kpi-trend-down { color: #cc3333; }
 
   .kpi-card-value {
-    font-size: 22pt;
+    font-size: 24pt;
     font-weight: 700;
     color: ${DK_GREEN};
     letter-spacing: -0.5px;
-    margin-bottom: 1mm;
+    margin-bottom: 1.5mm;
   }
 
   .kpi-card-label {
-    font-size: 8.5pt;
+    font-size: 9pt;
     color: ${GRAY};
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.2px;
   }
 
   .kpi-card-desc {
-    font-size: 7pt;
+    font-size: 7.5pt;
     color: #aaa;
-    margin-top: 1mm;
+    margin-top: 1.5mm;
     line-height: 1.3;
   }
 
@@ -732,8 +554,8 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   .fin-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: ${isLandscape ? "8.5pt" : "8pt"};
-    border: 1px solid rgba(159,188,164,0.4);
+    font-size: ${isLandscape ? "9.5pt" : "9pt"};
+    border: 1px solid #d0d4d8;
     border-radius: 2mm;
     overflow: hidden;
   }
@@ -747,27 +569,28 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   }
 
   .fin-table thead tr {
-    background: linear-gradient(90deg, ${NAVY} 0%, #243040 100%);
+    background: #f5f7f6;
+    border-bottom: 2px solid ${DK_GREEN};
   }
 
   .fin-table th {
-    color: #ffffff;
-    font-weight: 600;
-    padding: 2.5mm 2.5mm;
+    color: ${NAVY};
+    font-weight: 700;
+    padding: 3mm 3mm;
     text-align: center;
-    font-size: ${isLandscape ? "8.5pt" : "8pt"};
+    font-size: ${isLandscape ? "9.5pt" : "9pt"};
     border: none;
     letter-spacing: 0.3px;
   }
 
   .fin-table th.tbl-label-hdr {
     text-align: left;
-    min-width: ${isLandscape ? "48mm" : "38mm"};
+    min-width: ${isLandscape ? "50mm" : "40mm"};
   }
 
   .fin-table td {
-    padding: 1.8mm 2.5mm;
-    border-bottom: 1px solid #e2e5e8;
+    padding: 2mm 3mm;
+    border-bottom: 1px solid #e8eaec;
     border-left: 1px solid #eef0f2;
     border-right: 1px solid #eef0f2;
   }
@@ -786,22 +609,22 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     text-align: right;
     font-family: 'SF Mono', 'Menlo', 'Courier New', Courier, monospace;
     white-space: nowrap;
-    font-size: ${isLandscape ? "8pt" : "7.5pt"};
-    color: #444;
+    font-size: ${isLandscape ? "9pt" : "8.5pt"};
+    color: #333;
   }
 
   .fin-table .tbl-row-header td {
     font-weight: 700;
-    background: linear-gradient(90deg, ${SEC_BG} 0%, #f2f6f3 100%);
+    background: #f0f4f1;
     border-top: 1.5px solid ${SAGE};
     color: ${NAVY};
-    font-size: ${isLandscape ? "9pt" : "8.5pt"};
+    font-size: ${isLandscape ? "10pt" : "9.5pt"};
     letter-spacing: 0.2px;
   }
 
   .fin-table .tbl-row-total td {
     font-weight: 700;
-    border-top: 1.5px solid #c8cdd2;
+    border-top: 1.5px solid #c0c4c8;
     color: ${NAVY};
   }
 
@@ -826,35 +649,37 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
      CHARTS
      ═══════════════════════════════════════════ */
   .chart-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4mm;
-    margin-top: 4mm;
+    display: flex;
+    flex-direction: column;
+    gap: 6mm;
+    margin-top: 5mm;
   }
 
   .chart-card {
-    background: #ffffff;
-    border: 1px solid rgba(159,188,164,0.3);
+    background: #fafbfc;
+    border: 1px solid #e0e3e6;
     border-radius: 2.5mm;
-    padding: 4mm 4mm 3mm;
+    padding: 5mm 6mm 4mm;
     break-inside: avoid;
     overflow: hidden;
   }
 
   .chart-card-title {
-    font-size: 9.5pt;
+    font-size: 11pt;
     font-weight: 700;
     color: ${NAVY};
-    margin-bottom: 2mm;
-    padding-bottom: 1.5mm;
-    border-bottom: 1px solid #eef0f2;
+    margin-bottom: 3mm;
+    padding-bottom: 2mm;
+    border-bottom: 1.5px solid #e8eaec;
     letter-spacing: 0.2px;
   }
 
   .chart-svg {
     display: block;
     width: 100%;
+    max-width: ${isLandscape ? "360mm" : "180mm"};
     height: auto;
+    margin: 0 auto;
   }
 </style>
 </head>

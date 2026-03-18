@@ -466,19 +466,22 @@ async function getBrowser() {
     return browserLaunchPromise;
   }
   browserLaunchPromise = (async () => {
-    const puppeteer = await import("puppeteer");
-    browserInstance = await puppeteer.default.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--font-render-hinting=none",
-      ],
-    });
-    browserLaunchPromise = null;
-    return browserInstance;
+    try {
+      const puppeteer = await import("puppeteer");
+      browserInstance = await puppeteer.default.launch({
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+          "--font-render-hinting=none",
+        ],
+      });
+      return browserInstance;
+    } finally {
+      browserLaunchPromise = null;
+    }
   })();
   return browserLaunchPromise;
 }

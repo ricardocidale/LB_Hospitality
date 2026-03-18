@@ -5,6 +5,7 @@ import { z } from "zod";
 import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
 import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdfPrompt, getDocxPrompt } from "./premium-export-prompts";
+import { buildPdfHtml } from "./pdf-html-templates";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { storage } from "../storage";
 import { resolveLlm, getVendorService } from "../ai/resolve-llm";
@@ -454,382 +455,80 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
   return Buffer.from(arrayBuf as ArrayBuffer);
 }
 
+let browserInstance: any = null;
+let browserLaunchPromise: Promise<any> | null = null;
+
+async function getBrowser() {
+  if (browserInstance && browserInstance.isConnected()) {
+    return browserInstance;
+  }
+  if (browserLaunchPromise) {
+    return browserLaunchPromise;
+  }
+  browserLaunchPromise = (async () => {
+    const puppeteer = await import("puppeteer");
+    browserInstance = await puppeteer.default.launch({
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--font-render-hinting=none",
+      ],
+    });
+    browserLaunchPromise = null;
+    return browserInstance;
+  })();
+  return browserLaunchPromise;
+}
+
+async function closeBrowser() {
+  if (browserInstance) {
+    try { await browserInstance.close(); } catch {}
+    browserInstance = null;
+  }
+}
+
+process.on("SIGTERM", closeBrowser);
+process.on("SIGINT", closeBrowser);
+
 async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Promise<Buffer> {
-  const { default: jsPDF } = await import("jspdf");
-  const { default: autoTable } = await import("jspdf-autotable");
-
-  const doc = new jsPDF({ orientation: data.orientation || "landscape", unit: "mm", format: "a4" });
-  const pageW = doc.internal.pageSize.getWidth();
-  const pageH = doc.internal.pageSize.getHeight();
-
-  const NAVY: [number, number, number] = [26, 35, 50];
-  const SAGE: [number, number, number] = [159, 188, 164];
-  const DK_GREEN: [number, number, number] = [37, 125, 65];
-  const GRAY: [number, number, number] = [102, 102, 102];
-  const DK_TEXT: [number, number, number] = [61, 61, 61];
-  const SEC_BG: [number, number, number] = [239, 245, 240];
-  const ALT_ROW: [number, number, number] = [248, 250, 249];
-  const WARM_BG: [number, number, number] = [255, 249, 245];
-  const CARD_BG: [number, number, number] = [245, 249, 246];
-
   const company = data.companyName || "Hospitality Business Group";
-  const dateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  const coverPageNumbers = new Set<number>();
+  const isLandscape = (data.orientation || "landscape") === "landscape";
 
-  function drawPageChrome() {
-    doc.setFillColor(...NAVY);
-    doc.rect(0, 0, pageW, 1.5, "F");
-    doc.setFillColor(...SAGE);
-    doc.rect(0, 1.5, pageW, 0.8, "F");
+  const html = buildPdfHtml(aiResult, {
+    orientation: data.orientation || "landscape",
+    companyName: company,
+    entityName: data.entityName,
+    sections: aiResult.sections || [],
+    reportTitle: aiResult.report_title,
+  });
 
-    doc.setFillColor(...NAVY);
-    doc.rect(0, pageH - 1.5, pageW, 1.5, "F");
-    doc.setFillColor(...SAGE);
-    doc.rect(0, pageH - 2.3, pageW, 0.8, "F");
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+  try {
+    await page.setContent(html, { waitUntil: "networkidle0", timeout: 15_000 });
 
-    doc.setDrawColor(...SAGE);
-    doc.setLineWidth(0.3);
-    doc.line(10, 6, 10, pageH - 6);
-    doc.line(pageW - 10, 6, pageW - 10, pageH - 6);
+    const pdfBuffer = await page.pdf({
+      width: isLandscape ? "297mm" : "210mm",
+      height: isLandscape ? "210mm" : "297mm",
+      printBackground: true,
+      displayHeaderFooter: true,
+      headerTemplate: "<span></span>",
+      footerTemplate: `
+        <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;display:flex;justify-content:space-between;">
+          <span>${company}</span>
+          <span>CONFIDENTIAL</span>
+          <span><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+        </div>`,
+      margin: { top: "0mm", bottom: "8mm", left: "0mm", right: "0mm" },
+    });
+
+    return Buffer.from(pdfBuffer);
+  } finally {
+    await page.close();
   }
-
-  function drawSectionHeader(title: string, subtitle?: string): number {
-    drawPageChrome();
-
-    doc.setFillColor(...NAVY);
-    doc.rect(16, 10, pageW - 32, 22, "F");
-    doc.setFillColor(...SAGE);
-    doc.rect(16, 30, pageW - 32, 1.2, "F");
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(255, 255, 255);
-    doc.text(title, 22, 22);
-
-    if (subtitle) {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(...SAGE);
-      doc.text(subtitle, 22, 28);
-    }
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(200, 200, 200);
-    doc.text(company, pageW - 22, 22, { align: "right" });
-
-    return 38;
-  }
-
-  function addNewPage() {
-    doc.addPage();
-  }
-
-  for (let i = 0; i < (aiResult.sections || []).length; i++) {
-    const section = aiResult.sections[i];
-
-    if (i > 0) {
-      addNewPage();
-    }
-
-    if (section.type === "cover") {
-      coverPageNumbers.add((doc.internal as any).getNumberOfPages());
-
-      doc.setFillColor(...NAVY);
-      doc.rect(0, 0, pageW, pageH, "F");
-
-      doc.setFillColor(...SAGE);
-      doc.rect(0, 0, pageW, 3, "F");
-      doc.rect(0, pageH - 3, pageW, 3, "F");
-
-      doc.setDrawColor(159, 188, 164, 60);
-      doc.setLineWidth(0.15);
-      for (let lx = 0; lx < pageW; lx += 12) {
-        doc.line(lx, 0, lx, pageH);
-      }
-      for (let ly = 0; ly < pageH; ly += 12) {
-        doc.line(0, ly, pageW, ly);
-      }
-
-      doc.setFillColor(...SAGE);
-      doc.rect(16, pageH * 0.28, 4, 40, "F");
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(32);
-      doc.setTextColor(255, 255, 255);
-      doc.text(company, 28, pageH * 0.32);
-
-      doc.setFillColor(255, 255, 255);
-      doc.rect(28, pageH * 0.35, 60, 0.5, "F");
-
-      const reportTitle = aiResult.report_title || section.title || "Financial Report";
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(18);
-      doc.setTextColor(...SAGE);
-      doc.text(reportTitle, 28, pageH * 0.42);
-
-      if (section.subtitle) {
-        doc.setFontSize(12);
-        doc.setTextColor(180, 200, 185);
-        doc.text(section.subtitle, 28, pageH * 0.48);
-      }
-
-      doc.setFillColor(40, 50, 65);
-      doc.roundedRect(28, pageH * 0.58, 100, 30, 2, 2, "F");
-      doc.setDrawColor(...SAGE);
-      doc.setLineWidth(0.3);
-      doc.roundedRect(28, pageH * 0.58, 100, 30, 2, 2, "S");
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8);
-      doc.setTextColor(...SAGE);
-      doc.text("PREPARED", 34, pageH * 0.58 + 8);
-      doc.text("DATE", 34, pageH * 0.58 + 18);
-      doc.text("CLASSIFICATION", 80, pageH * 0.58 + 8);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(220, 220, 220);
-      doc.text(`For ${data.entityName}`, 34, pageH * 0.58 + 13);
-      doc.text(dateStr, 34, pageH * 0.58 + 23);
-      doc.text("CONFIDENTIAL", 80, pageH * 0.58 + 13);
-
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(7);
-      doc.setTextColor(120, 130, 140);
-      doc.text("This document contains proprietary financial projections. Distribution is restricted to authorized recipients.", 28, pageH * 0.82);
-
-    } else if (section.type === "executive_summary" || section.type === "analysis" || section.type === "notes") {
-      let y = drawSectionHeader(
-        section.title || "Executive Summary",
-        `${company} \u2014 ${data.entityName}`
-      );
-
-      const paragraphs = section.content?.paragraphs || section.content?.observations || section.content?.items || [];
-      if (paragraphs.length > 0) {
-        doc.setFillColor(...WARM_BG);
-        const blockH = Math.min(paragraphs.length * 16, pageH - y - 30);
-        doc.roundedRect(16, y, pageW - 32, blockH, 2, 2, "F");
-        doc.setDrawColor(...SAGE);
-        doc.setLineWidth(0.3);
-        doc.roundedRect(16, y, pageW - 32, blockH, 2, 2, "S");
-
-        doc.setFillColor(...DK_GREEN);
-        doc.rect(16, y, 2, blockH, "F");
-
-        y += 6;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        doc.setTextColor(...DK_TEXT);
-        for (const p of paragraphs) {
-          const text = typeof p === "string" ? p : `${p.metric}: ${p.insight}`;
-          const lines = doc.splitTextToSize(text, pageW - 48);
-          for (const line of lines) {
-            if (y > pageH - 20) { addNewPage(); drawPageChrome(); y = 15; }
-            doc.text(line, 24, y);
-            y += 4.5;
-          }
-          y += 3;
-        }
-      }
-
-      if (section.content?.highlights) {
-        y += 6;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.setTextColor(...DK_GREEN);
-        doc.text("KEY HIGHLIGHTS", 20, y);
-        doc.setDrawColor(...SAGE);
-        doc.setLineWidth(0.4);
-        doc.line(20, y + 2, 70, y + 2);
-        y += 8;
-
-        for (const h of section.content.highlights) {
-          if (y > pageH - 20) { addNewPage(); drawPageChrome(); y = 15; }
-
-          doc.setFillColor(...CARD_BG);
-          doc.roundedRect(20, y - 3, pageW - 44, 10, 1.5, 1.5, "F");
-
-          doc.setFillColor(...DK_GREEN);
-          doc.circle(24, y + 1.5, 1, "F");
-
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(8);
-          doc.setTextColor(...NAVY);
-          doc.text(`${h.metric}`, 28, y + 2);
-          doc.setFont("helvetica", "normal");
-          doc.setTextColor(...DK_TEXT);
-          doc.text(h.insight || "", 70, y + 2);
-          y += 12;
-        }
-      }
-
-    } else if (section.type === "metrics_dashboard") {
-      let y = drawSectionHeader(
-        section.title || "Key Performance Indicators",
-        `${company} \u2014 Investment Overview`
-      );
-
-      const metrics = section.content?.metrics || [];
-      const cols = Math.min(metrics.length, 3);
-      const gap = 6;
-      const cardW = (pageW - 32 - gap * (cols - 1)) / cols;
-      const cardH = 28;
-
-      metrics.forEach((m: any, mi: number) => {
-        const col = mi % cols;
-        const row = Math.floor(mi / cols);
-        const x = 16 + col * (cardW + gap);
-        const cy = y + row * (cardH + gap);
-
-        if (cy + cardH > pageH - 20) return;
-
-        doc.setFillColor(255, 255, 255);
-        doc.roundedRect(x, cy, cardW, cardH, 3, 3, "F");
-        doc.setDrawColor(...SAGE);
-        doc.setLineWidth(0.4);
-        doc.roundedRect(x, cy, cardW, cardH, 3, 3, "S");
-
-        doc.setFillColor(...DK_GREEN);
-        doc.rect(x, cy, cardW, 1.5, "F");
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(20);
-        doc.setTextColor(...DK_GREEN);
-        const valText = m.value || "";
-        doc.text(valText, x + cardW / 2, cy + 14, { align: "center" });
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(7.5);
-        doc.setTextColor(...GRAY);
-        doc.text(m.label || "", x + cardW / 2, cy + 22, { align: "center" });
-
-        if (m.trend) {
-          const arrow = m.trend === "up" ? "\u25B2" : m.trend === "down" ? "\u25BC" : "";
-          const trendColor: [number, number, number] = m.trend === "up" ? DK_GREEN : [204, 51, 51];
-          doc.setFont("helvetica", "bold");
-          doc.setFontSize(8);
-          doc.setTextColor(...trendColor);
-          doc.text(arrow, x + cardW - 8, cy + 6);
-        }
-      });
-
-    } else if (section.type === "financial_table") {
-      let y = drawSectionHeader(
-        section.title || "Financial Statement",
-        `${company} \u2014 ${data.entityName}`
-      );
-
-      const years = section.content?.years || [];
-      const rows = section.content?.rows || [];
-      if (years.length && rows.length) {
-        const numCols = years.length;
-        const labelColW = data.orientation === "portrait" ? 40 : 50;
-        const availableWidth = pageW - 32;
-        const dataColW = (availableWidth - labelColW) / numCols;
-        const fontSize = numCols <= 6 ? 7.5 : numCols <= 10 ? 7 : 6;
-
-        const body = rows.map((r: any) => {
-          const indent = r.indent ? "  ".repeat(r.indent) : "";
-          const vals = (r.values || []).map((v: any) => {
-            if (typeof v === "number") {
-              if (v === 0) return "\u2014";
-              const abs = Math.abs(v);
-              const s = abs.toLocaleString("en-US", { maximumFractionDigits: 0 });
-              return v < 0 ? `($${s})` : `$${s}`;
-            }
-            return String(v);
-          });
-          return [indent + (r.category || ""), ...vals];
-        });
-
-        const colStyles: Record<number, any> = { 0: { cellWidth: labelColW } };
-        for (let ci = 1; ci <= numCols; ci++) {
-          colStyles[ci] = { halign: "right", cellWidth: dataColW, font: "courier" };
-        }
-
-        autoTable(doc, {
-          startY: y,
-          head: [["", ...years.map((yr: any) => `FY ${yr}`)]],
-          body,
-          margin: { left: 16, right: 16 },
-          styles: {
-            fontSize,
-            cellPadding: { top: 1.8, bottom: 1.8, left: 2, right: 2 },
-            overflow: "linebreak",
-            font: "helvetica",
-            lineColor: [210, 215, 220],
-            lineWidth: 0.2,
-          },
-          headStyles: {
-            fillColor: NAVY,
-            textColor: [255, 255, 255],
-            fontStyle: "bold",
-            halign: "center",
-            lineWidth: 0,
-            fontSize: fontSize + 0.5,
-          },
-          columnStyles: colStyles,
-          tableLineColor: SAGE,
-          tableLineWidth: 0.5,
-          didParseCell: (() => {
-            let dataRowIdx = 0;
-            let lastRowIndex = -1;
-            return (cellData: any) => {
-              if (cellData.section !== "body") return;
-              const idx = cellData.row.index;
-              if (idx >= rows.length) return;
-              const row = rows[idx];
-
-              if (row.type === "header" || row.isHeader) {
-                cellData.cell.styles.fontStyle = "bold";
-                cellData.cell.styles.fillColor = SEC_BG;
-                cellData.cell.styles.lineWidth = { top: 0.5 };
-                cellData.cell.styles.lineColor = { top: SAGE };
-              } else if (row.type === "total" || row.type === "subtotal" || row.isBold) {
-                cellData.cell.styles.fontStyle = "bold";
-                cellData.cell.styles.lineWidth = { top: 0.4 };
-                cellData.cell.styles.lineColor = { top: [180, 185, 190] };
-              } else if (row.isItalic || row.type === "formula") {
-                cellData.cell.styles.fontStyle = "italic";
-                cellData.cell.styles.textColor = GRAY;
-                cellData.cell.styles.fontSize = (cellData.cell.styles.fontSize || fontSize) - 0.5;
-                if (idx !== lastRowIndex) { dataRowIdx++; lastRowIndex = idx; }
-                if (dataRowIdx % 2 === 0) cellData.cell.styles.fillColor = ALT_ROW;
-              } else {
-                if (idx !== lastRowIndex) { dataRowIdx++; lastRowIndex = idx; }
-                if (dataRowIdx % 2 === 0) cellData.cell.styles.fillColor = ALT_ROW;
-              }
-
-              if (cellData.column.index > 0 && !row.isHeader && row.type !== "header") {
-                cellData.cell.styles.font = "courier";
-              }
-            };
-          })(),
-          didDrawPage: () => {
-            drawPageChrome();
-          },
-        });
-      }
-    }
-  }
-
-  const totalPages = (doc.internal as any).getNumberOfPages();
-  for (let pg = 1; pg <= totalPages; pg++) {
-    doc.setPage(pg);
-
-    if (coverPageNumbers.has(pg)) continue;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(153, 153, 153);
-    doc.text(`${company}`, 16, pageH - 5);
-    doc.text("CONFIDENTIAL", pageW / 2, pageH - 5, { align: "center" });
-    doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });
-  }
-
-  const arrayBuf = doc.output("arraybuffer");
-  return Buffer.from(arrayBuf);
 }
 
 async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Promise<Buffer> {

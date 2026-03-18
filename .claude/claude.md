@@ -157,6 +157,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
 - **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
+- **Premium PDF rendering**: Puppeteer (headless Chrome) renders HTML/CSS templates → PDF. Templates in `server/routes/pdf-html-templates.ts`. Browser instance is reused across requests and cleaned up on process exit.
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.

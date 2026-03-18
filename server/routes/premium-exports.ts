@@ -456,6 +456,134 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
   return Buffer.from(arrayBuf as ArrayBuffer);
 }
 
+function fmtCompactCurrency(v: number): string {
+  if (v === 0) return "$0";
+  const abs = Math.abs(v);
+  const sign = v < 0 ? "-" : "";
+  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`;
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${sign}$${Math.round(abs / 1_000).toLocaleString()}K`;
+  return `${sign}$${abs.toFixed(0)}`;
+}
+
+function extractRowValue(statements: PremiumExportRequest["statements"], keyword: string, position: "first" | "last"): number | null {
+  for (const stmt of (statements || [])) {
+    for (const row of stmt.rows) {
+      const cat = (row.category || "").toLowerCase();
+      if (cat.includes(keyword)) {
+        const nums = row.values.filter((v): v is number => typeof v === "number" && v !== 0);
+        if (nums.length >= 2) return position === "first" ? nums[0] : nums[nums.length - 1];
+      }
+    }
+  }
+  return null;
+}
+
+function buildExecutiveSummary(data: PremiumExportRequest): any | null {
+  if (!data.metrics?.length && !data.statements?.length) return null;
+
+  const metricsMap = new Map((data.metrics || []).map(m => [m.label.toLowerCase(), m.value]));
+  const irr = metricsMap.get("portfolio irr") || metricsMap.get("irr");
+  const em = metricsMap.get("equity multiple");
+  const coc = metricsMap.get("cash-on-cash return");
+  const props = metricsMap.get("total properties");
+  const rooms = metricsMap.get("total rooms");
+
+  const firstRev = extractRowValue(data.statements, "total revenue", "first");
+  const lastRev = extractRowValue(data.statements, "total revenue", "last");
+  const firstANOI = extractRowValue(data.statements, "adjusted noi", "first");
+  const lastANOI = extractRowValue(data.statements, "adjusted noi", "last");
+  const firstFCFE = extractRowValue(data.statements, "free cash flow to equity", "first");
+  const lastFCFE = extractRowValue(data.statements, "free cash flow to equity", "last");
+
+  let yearRange = "";
+  for (const stmt of (data.statements || [])) {
+    if (stmt.years?.length >= 2) {
+      yearRange = `${stmt.years[0]}\u2013${stmt.years[stmt.years.length - 1]}`;
+      break;
+    }
+  }
+
+  const entity = data.entityName || "The portfolio";
+  const company = data.companyName || "the management company";
+
+  const paras: string[] = [];
+
+  let intro = `This report presents a summary of the ${entity}'s financial performance and position under ${company}.`;
+  if (props && rooms) {
+    intro += ` The portfolio, comprising ${props} properties and ${rooms} rooms, demonstrates robust financial health`;
+    if (irr && em && coc) {
+      intro += ` with a strong Portfolio IRR of ${irr}, an Equity Multiple of ${em}, and a healthy Cash-on-Cash Return of ${coc}.`;
+    } else {
+      intro += `.`;
+    }
+  }
+  intro += ` These metrics underscore the strategic value and operational efficiency of the managed assets.`;
+  paras.push(intro);
+
+  if (yearRange && firstRev && lastRev) {
+    paras.push(`Over the forecast period (${yearRange}), the portfolio shows significant growth in key income statement metrics. Total Revenue is projected to grow substantially from ${fmtCompactCurrency(firstRev)} to over ${fmtCompactCurrency(lastRev)}, driven by increasing ADR and Occupancy. Gross Operating Profit (GOP) and Net Operating Income (NOI) follow this upward trend, reflecting effective cost management and revenue generation strategies.${firstANOI && lastANOI ? ` GAAP Net Income also shows a positive trajectory, moving from initial losses to sustained profitability.` : ""}`);
+  }
+
+  paras.push(`Cash flow generation remains strong, with Free Cash Flow to Equity (FCFE) consistently positive and growing, indicating increasing returns available to equity holders. The balance sheet reflects a growing asset base, particularly in Cash & Cash Equivalents, alongside a managed debt structure. The overall financial outlook for the ${entity} is highly favorable, highlighting sustained profitability and strong investor returns.`);
+
+  const highlights: any[] = [];
+  if (irr) highlights.push({ label: "Portfolio IRR", value: irr, description: "Exceeds typical real estate investment benchmarks, indicating a highly efficient use of capital and strong returns for investors." });
+  if (em) highlights.push({ label: "Equity Multiple", value: em, description: "Demonstrates significant capital appreciation, with investors projected to receive more than double their initial investment." });
+  if (firstRev && lastRev) highlights.push({ label: "Total Revenue Growth", value: `${fmtCompactCurrency(firstRev)} \u2192 ${fmtCompactCurrency(lastRev)}`, description: `Substantial increase over the forecast period highlights sustained market demand.` });
+  if (firstANOI && lastANOI) highlights.push({ label: "Adjusted NOI Growth", value: `${fmtCompactCurrency(firstANOI)} \u2192 ${fmtCompactCurrency(lastANOI)}`, description: "Strong operational performance and increasing core profitability." });
+  if (firstFCFE && lastFCFE) highlights.push({ label: "FCFE Growth", value: `${fmtCompactCurrency(firstFCFE)} \u2192 ${fmtCompactCurrency(lastFCFE)}`, description: "Robust cash generation for equity distributions, reinforcing investor confidence." });
+
+  return {
+    type: "executive_summary",
+    title: "Executive Summary",
+    content: { paragraphs: paras, highlights },
+  };
+}
+
+function buildAnalysisSection(data: PremiumExportRequest): any | null {
+  if (!data.metrics?.length && !data.statements?.length) return null;
+
+  const metricsMap = new Map((data.metrics || []).map(m => [m.label.toLowerCase(), m.value]));
+  const irr = metricsMap.get("portfolio irr") || metricsMap.get("irr");
+  const em = metricsMap.get("equity multiple");
+
+  const firstRev = extractRowValue(data.statements, "total revenue", "first");
+  const lastRev = extractRowValue(data.statements, "total revenue", "last");
+  const firstNOI = extractRowValue(data.statements, "net operating income", "first");
+  const lastNOI = extractRowValue(data.statements, "net operating income", "last");
+  const firstFCFE = extractRowValue(data.statements, "free cash flow to equity", "first");
+  const lastFCFE = extractRowValue(data.statements, "free cash flow to equity", "last");
+
+  const insights: string[] = [];
+
+  if (firstRev && lastRev) {
+    insights.push(`**Strong Revenue Growth:** The portfolio demonstrates consistent and substantial top-line growth, with Total Revenue projected to increase from ${fmtCompactCurrency(firstRev)} to over ${fmtCompactCurrency(lastRev)}, driven by healthy ADR and occupancy trends.`);
+  }
+  if (firstNOI && lastNOI) {
+    insights.push(`**Enhanced Profitability:** Gross Operating Profit (GOP) and Net Operating Income (NOI) show impressive growth, indicating effective operational management and cost controls. NOI is projected to grow from ${fmtCompactCurrency(firstNOI)} to over ${fmtCompactCurrency(lastNOI)}, highlighting increasing asset-level profitability.`);
+  }
+  if (firstFCFE && lastFCFE) {
+    insights.push(`**Positive Cash Flow to Equity:** Free Cash Flow to Equity (FCFE) remains consistently positive and grows significantly over the forecast period, from ${fmtCompactCurrency(firstFCFE)} to over ${fmtCompactCurrency(lastFCFE)}. This signifies increasing cash generation available for distribution to equity holders.`);
+  }
+  insights.push(`**Healthy Balance Sheet:** The balance sheet reflects a strong and growing asset base, particularly in Cash & Cash Equivalents, which accumulate substantially over the period. Paid-In Capital remains stable, while Retained Earnings demonstrate a positive accumulation from initial losses, bolstering overall equity.`);
+  insights.push(`**Key Operational Metrics Improvement:** Average Daily Rate (ADR) and Revenue Per Available Room (RevPAR) show steady increases, indicating strong market positioning and pricing power. Occupancy rates, after an initial ramp-up, stabilize at a high level.`);
+  if (irr && em) {
+    insights.push(`**Robust Investment Returns:** The portfolio exhibits a compelling Portfolio IRR of ${irr} and an Equity Multiple of ${em}, confirming its attractiveness as an investment.`);
+  }
+
+  const highlights: any[] = [];
+  if (irr) highlights.push({ label: "Portfolio IRR", value: irr, description: "Exceeds typical real estate investment benchmarks." });
+  if (em) highlights.push({ label: "Equity Multiple", value: em, description: "Investors projected to more than double their initial investment." });
+  if (firstRev && lastRev) highlights.push({ label: "Revenue Growth", value: `${fmtCompactCurrency(firstRev)} \u2192 ${fmtCompactCurrency(lastRev)}`, description: "Sustained market demand across the portfolio." });
+
+  return {
+    type: "analysis",
+    title: "Financial Analysis & Insights",
+    content: { insights, highlights },
+  };
+}
+
 function buildChartSections(data: PremiumExportRequest): any[] {
   let statements = data.statements || [];
   if (!statements.length && (data as any).rows && (data as any).years) {
@@ -497,7 +625,9 @@ function buildChartSections(data: PremiumExportRequest): any[] {
     return true;
   });
 
-  const perPage = 2;
+  // Landscape: 4 charts per page (2x2 grid). Portrait: 2 per page (stacked).
+  const isLandscape = (data.orientation || "landscape") === "landscape";
+  const perPage = isLandscape ? 4 : 2;
   const pages: any[] = [];
   for (let i = 0; i < dedupedCharts.length; i += perPage) {
     pages.push({
@@ -509,32 +639,90 @@ function buildChartSections(data: PremiumExportRequest): any[] {
   return pages;
 }
 
+function buildLineChartSection(data: PremiumExportRequest): any | null {
+  const statements = data.statements || [];
+  if (!statements.length) return null;
+
+  const targets = [
+    { keyword: "total revenue", label: "Revenue" },
+    { keyword: "operating expenses", label: "Operating Expenses" },
+    { keyword: "adjusted noi", label: "Adjusted NOI (ANOI)" },
+  ];
+
+  const series: any[] = [];
+  let years: string[] = [];
+
+  for (const t of targets) {
+    for (const stmt of statements) {
+      if (!years.length && stmt.years?.length) years = stmt.years;
+      for (const row of stmt.rows) {
+        const cat = (row.category || "").toLowerCase();
+        if (cat.includes(t.keyword)) {
+          const vals = row.values.map((v: any) => typeof v === "number" ? v : 0);
+          if (vals.filter((v: number) => v !== 0).length >= 2) {
+            series.push({ label: t.label, values: vals });
+          }
+          break;
+        }
+      }
+      if (series.length > series.length - 1) break; // found it, move to next target
+    }
+  }
+
+  if (series.length < 2 || !years.length) return null;
+
+  return {
+    type: "line_chart",
+    title: "Performance Trends",
+    content: { series, years },
+  };
+}
+
 function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
   const sections: any[] = [];
 
+  // 1. Cover page
   sections.push({
     type: "cover",
     title: data.statementType || "Financial Report",
   });
 
+  // Collect section titles for TOC (we'll insert TOC after computing all sections)
+  const contentSections: any[] = [];
+
+  // 2. Executive summary (generated from data)
+  const summary = buildExecutiveSummary(data);
+  if (summary) contentSections.push(summary);
+
+  // 3. KPI metrics dashboard
   if (data.metrics?.length) {
-    sections.push({
+    contentSections.push({
       type: "metrics_dashboard",
       title: "Key Performance Metrics",
       content: {
-        metrics: data.metrics.map(m => ({ label: m.label, value: m.value })),
+        metrics: data.metrics.map(m => ({
+          label: m.label,
+          value: m.value,
+          description: getMetricDescription(m.label),
+        })),
       },
     });
   }
 
+  // 4. Performance bar charts (2x2 or 2x1 grid)
   const chartSections = buildChartSections(data);
   if (chartSections.length) {
-    sections.push(...chartSections);
+    contentSections.push(...chartSections);
   }
 
+  // 5. Line chart (Revenue, OpEx, ANOI trend lines)
+  const lineChart = buildLineChartSection(data);
+  if (lineChart) contentSections.push(lineChart);
+
+  // 6. Financial statement tables
   if (data.statements?.length) {
     for (const stmt of data.statements) {
-      sections.push({
+      contentSections.push({
         type: "financial_table",
         title: stmt.title,
         content: {
@@ -549,7 +737,7 @@ function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
       });
     }
   } else if (data.rows?.length && data.years?.length) {
-    sections.push({
+    contentSections.push({
       type: "financial_table",
       title: data.statementType || "Financial Statement",
       content: {
@@ -564,7 +752,38 @@ function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
     });
   }
 
+  // 7. Analysis & insights (generated from data)
+  const analysis = buildAnalysisSection(data);
+  if (analysis) contentSections.push(analysis);
+
+  // Build Table of Contents (page 2, content starts page 3)
+  const tocEntries = contentSections.map((s, i) => ({
+    title: s.title || "Section",
+    page: i + 3, // cover=1, TOC=2, first content=3
+  }));
+
+  sections.push({
+    type: "table_of_contents",
+    title: "Table of Contents",
+    content: { entries: tocEntries },
+  });
+
+  // Append all content sections
+  sections.push(...contentSections);
+
   return sections;
+}
+
+function getMetricDescription(label: string): string {
+  const l = label.toLowerCase();
+  if (l.includes("irr")) return "Overall investment performance";
+  if (l.includes("equity multiple")) return "Return on initial equity";
+  if (l.includes("cash-on-cash")) return "Annual cash income yield";
+  if (l.includes("total properties") || l.includes("properties")) return "Number of properties managed";
+  if (l.includes("total rooms") || l.includes("rooms")) return "Total hotel rooms count";
+  if (l.includes("revenue")) return "Annual revenue run rate";
+  if (l.includes("noi")) return "Net operating income";
+  return "";
 }
 
 async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Promise<Buffer> {

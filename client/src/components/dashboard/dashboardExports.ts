@@ -459,6 +459,36 @@ export function generatePortfolioInvestmentData(
     rows.push({ category: "Sold Room Nights", values: years.map((_, i) => yc[i]?.soldRooms ?? 0), indent: 1 });
   }
 
+  // Free Cash Flow to Investors — matches InvestmentAnalysis.tsx FCF table
+  const investorCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.netCashFlowToInvestors ?? 0), 0));
+  const consolidatedATCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.atcf ?? 0), 0));
+  const consolidatedBTCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.btcf ?? 0), 0));
+  const consolidatedRefi = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.refinancingProceeds ?? 0), 0));
+  const consolidatedExit = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.exitValue ?? 0), 0));
+  const consolidatedTax = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.taxLiability ?? 0), 0));
+  const consolidatedTaxableIncome = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.taxableIncome ?? 0), 0));
+
+  rows.push({ category: "", values: years.map(() => 0) });
+  rows.push({ category: "Free Cash Flow to Investors", values: years.map(() => 0), isHeader: true });
+  if (!summaryOnly) {
+    rows.push({ category: "After-Tax Cash Flow (ATCF)", values: consolidatedATCF, indent: 1 });
+    rows.push({ category: "Refinancing Proceeds", values: consolidatedRefi, indent: 1 });
+    rows.push({ category: "Exit Proceeds", values: consolidatedExit, indent: 1 });
+    rows.push({ category: "Net Cash Flow to Investors", values: investorCF, indent: 1, isBold: true });
+  }
+
+  // Operating Waterfall — ANOI → Debt Service → BTCF → Tax → ATCF
+  rows.push({ category: "", values: years.map(() => 0) });
+  rows.push({ category: "Operating Cash Flow Waterfall", values: years.map(() => 0), isHeader: true });
+  if (!summaryOnly) {
+    rows.push({ category: "Adjusted NOI (ANOI)", values: consolidatedANOI, indent: 1 });
+    rows.push({ category: "Less: Debt Service", values: consolidatedDS.map(v => -v), indent: 1 });
+    rows.push({ category: "Before-Tax Cash Flow (BTCF)", values: consolidatedBTCF, indent: 1, isBold: true });
+    rows.push({ category: "Taxable Income", values: consolidatedTaxableIncome, indent: 2 });
+    rows.push({ category: "Less: Income Tax", values: consolidatedTax.map(v => -v), indent: 2 });
+    rows.push({ category: "After-Tax Cash Flow (ATCF)", values: consolidatedATCF, indent: 1, isBold: true });
+  }
+
   return { years, rows };
 }
 

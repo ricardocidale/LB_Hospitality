@@ -509,28 +509,79 @@ function buildChartSections(data: PremiumExportRequest): any[] {
   return pages;
 }
 
-async function generatePdfBuffer(aiResult: any, data: PremiumExportRequest): Promise<Buffer> {
-  const company = data.companyName || "Hospitality Business Group";
-  const isLandscape = (data.orientation || "landscape") === "landscape";
+function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
+  const sections: any[] = [];
 
-  const allowedTypes = new Set(["cover", "metrics_dashboard", "financial_table"]);
-  const enrichedSections = [...(aiResult.sections || [])].filter(
-    (s: any) => allowedTypes.has(s.type)
-  );
+  sections.push({
+    type: "cover",
+    title: data.statementType || "Financial Report",
+  });
+
+  if (data.metrics?.length) {
+    sections.push({
+      type: "metrics_dashboard",
+      title: "Key Performance Metrics",
+      content: {
+        metrics: data.metrics.map(m => ({ label: m.label, value: m.value })),
+      },
+    });
+  }
 
   const chartSections = buildChartSections(data);
   if (chartSections.length) {
-    const metricsIdx = enrichedSections.findIndex((s: any) => s.type === "metrics_dashboard");
-    const insertAt = metricsIdx >= 0 ? metricsIdx + 1 : Math.min(2, enrichedSections.length);
-    enrichedSections.splice(insertAt, 0, ...chartSections);
+    sections.push(...chartSections);
   }
 
-  const html = buildPdfHtml({ ...aiResult, sections: enrichedSections }, {
+  if (data.statements?.length) {
+    for (const stmt of data.statements) {
+      sections.push({
+        type: "financial_table",
+        title: stmt.title,
+        content: {
+          years: stmt.years,
+          rows: stmt.rows.map(r => ({
+            category: r.category,
+            values: r.values,
+            type: r.isHeader ? "header" : r.isBold ? "total" : r.isItalic ? "formula" : "data",
+            indent: r.indent || 0,
+          })),
+        },
+      });
+    }
+  } else if (data.rows?.length && data.years?.length) {
+    sections.push({
+      type: "financial_table",
+      title: data.statementType || "Financial Statement",
+      content: {
+        years: data.years,
+        rows: data.rows.map(r => ({
+          category: r.category,
+          values: r.values,
+          type: r.isHeader ? "header" : r.isBold ? "total" : r.isItalic ? "formula" : "data",
+          indent: r.indent || 0,
+        })),
+      },
+    });
+  }
+
+  return sections;
+}
+
+async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Promise<Buffer> {
+  const company = data.companyName || "Hospitality Business Group";
+  const isLandscape = (data.orientation || "landscape") === "landscape";
+
+  const sections = buildPdfSectionsFromData(data);
+  const reportTitle = data.statementType
+    ? `${company} — ${data.statementType}`
+    : `${company} — Financial Report`;
+
+  const html = buildPdfHtml({ sections, report_title: reportTitle }, {
     orientation: data.orientation || "landscape",
     companyName: company,
     entityName: data.entityName,
-    sections: enrichedSections,
-    reportTitle: aiResult.report_title,
+    sections,
+    reportTitle,
   });
 
   const safeCompanyHtml = company.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -748,12 +799,16 @@ async function generateViaTemplatePipeline(
   data: PremiumExportRequest,
   modelId?: string
 ): Promise<Buffer> {
+  if (data.format === "pdf") {
+    logger.info(`[template] Building PDF directly from data (no AI call)...`, "premium-export");
+    return generatePdfBuffer(null, data);
+  }
+
   logger.info(`[template] Building ${data.format} prompt...`, "premium-export");
   let prompt: string;
   switch (data.format) {
     case "xlsx": prompt = getExcelPrompt(data); break;
     case "pptx": prompt = getPptxPrompt(data); break;
-    case "pdf":  prompt = getPdfPrompt(data); break;
     case "docx": prompt = getDocxPrompt(data); break;
     default: throw new Error(`Unsupported format: ${data.format}`);
   }
@@ -765,7 +820,6 @@ async function generateViaTemplatePipeline(
   switch (data.format) {
     case "xlsx": return generateExcelBuffer(aiResult, data);
     case "pptx": return generatePptxBuffer(aiResult, data);
-    case "pdf":  return generatePdfBuffer(aiResult, data);
     case "docx": return generateDocxBuffer(aiResult, data);
     default: throw new Error(`Unsupported format: ${data.format}`);
   }

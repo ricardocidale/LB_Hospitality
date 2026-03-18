@@ -1,4 +1,5 @@
 import { BRAND } from "./premium-export-prompts";
+import { logger } from "../logger";
 
 interface PdfTemplateData {
   orientation: "landscape" | "portrait";
@@ -219,7 +220,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
         sectionHtmlParts.push(renderFinancialTableSection(section, data));
         break;
       default:
-        console.warn(`[pdf-template] Unknown section type "${section.type}" — skipped`);
+        logger.warn(`Unknown section type "${section.type}" — skipped`, "pdf-template");
         break;
     }
   }

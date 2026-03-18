@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Loader2, Sparkles } from "@/components/icons/themed-icons";
 import { IconDownload } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type ExportVersion = "short" | "extended";
 export type PremiumFormat = "xlsx" | "pptx" | "pdf" | "docx";
@@ -188,6 +189,135 @@ async function saveToDrive(blob: Blob, filename: string, mimeType: string): Prom
 }
 
 type DialogStep = "options" | "generating" | "save";
+
+const GENERATING_PHASES = [
+  { label: "Analyzing financial data...", icon: "chart" },
+  { label: "Building report structure...", icon: "layout" },
+  { label: "Rendering premium layout...", icon: "sparkle" },
+  { label: "Finalizing document...", icon: "doc" },
+];
+
+function GeneratingAnimation() {
+  const [phase, setPhase] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhase((p) => (p + 1) % GENERATING_PHASES.length);
+    }, 3200);
+    return () => clearInterval(interval);
+  }, []);
+
+  const current = GENERATING_PHASES[phase];
+
+  return (
+    <div className="py-8 flex flex-col items-center gap-5" data-testid="export-generating-animation">
+      <div className="relative w-24 h-24">
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: "conic-gradient(from 0deg, #257D41, #9FBCA4, #1A2332, #257D41)",
+            opacity: 0.15,
+          }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute inset-1 rounded-full"
+          style={{
+            background: "conic-gradient(from 180deg, transparent 60%, #9FBCA4 90%, transparent 100%)",
+          }}
+          animate={{ rotate: -360 }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="absolute inset-2 rounded-full bg-background" />
+
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative w-10 h-12 flex flex-col items-center justify-center">
+            <motion.div
+              className="w-8 h-10 rounded-sm border-2 border-emerald-600/80 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950/30 dark:to-background relative overflow-hidden"
+              animate={{ scale: [0.95, 1, 0.95] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              {[0, 1, 2, 3, 4].map((i) => (
+                <motion.div
+                  key={i}
+                  className="h-[2px] mx-1 mt-[3px] rounded-full bg-emerald-500/40"
+                  initial={{ scaleX: 0, originX: 0 }}
+                  animate={{ scaleX: [0, 1, 1, 0] }}
+                  transition={{
+                    duration: 2.4,
+                    repeat: Infinity,
+                    delay: i * 0.3,
+                    ease: "easeInOut",
+                  }}
+                />
+              ))}
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-sage-400"
+                animate={{ scaleX: [0, 1] }}
+                transition={{ duration: 12, ease: "linear" }}
+                style={{ originX: 0 }}
+              />
+            </motion.div>
+          </div>
+        </div>
+
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1.5 h-1.5 rounded-full bg-emerald-400"
+            style={{
+              top: "50%",
+              left: "50%",
+            }}
+            animate={{
+              x: [0, Math.cos((i * 120 * Math.PI) / 180) * 44],
+              y: [0, Math.sin((i * 120 * Math.PI) / 180) * 44],
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0.5],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: i * 0.7,
+              ease: "easeOut",
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="text-center min-h-[48px]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={phase}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p className="font-medium text-sm">{current.label}</p>
+          </motion.div>
+        </AnimatePresence>
+        <p className="text-xs text-muted-foreground mt-1.5">This may take up to a minute for large reports.</p>
+      </div>
+
+      <div className="flex gap-1.5">
+        {GENERATING_PHASES.map((_, i) => (
+          <motion.div
+            key={i}
+            className="h-1 rounded-full"
+            style={{ width: i === phase ? 20 : 6 }}
+            animate={{
+              backgroundColor: i === phase ? "#257D41" : i < phase ? "#9FBCA4" : "hsl(var(--muted))",
+              width: i === phase ? 20 : 6,
+            }}
+            transition={{ duration: 0.3 }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, premiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
   const [orientation, setOrientation] = useState<"landscape" | "portrait">(getStoredOrientation);
@@ -415,13 +545,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
         )}
 
         {step === "generating" && (
-          <div className="py-10 flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-            <div className="text-center">
-              <p className="font-medium">Generating your export...</p>
-              <p className="text-sm text-muted-foreground mt-1">This may take up to a minute for large reports.</p>
-            </div>
-          </div>
+          <GeneratingAnimation />
         )}
 
         {step === "save" && (

@@ -19,13 +19,33 @@ function getExtension(filename: string): string {
   return dot >= 0 ? filename.substring(dot).toLowerCase() : "";
 }
 
-function hasFilePicker(): boolean {
-  return typeof window !== "undefined" && "showSaveFilePicker" in window;
+function canUseFilePicker(): boolean {
+  if (typeof window === "undefined") return false;
+  if (!("showSaveFilePicker" in window)) return false;
+  try {
+    return window.self === window.top;
+  } catch {
+    return false;
+  }
+}
+
+function triggerDownload(blob: Blob, suggestedName: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = suggestedName;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(() => {
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, 250);
 }
 
 export async function saveFile(blob: Blob, suggestedName: string): Promise<void> {
   const ext = getExtension(suggestedName);
-  if (hasFilePicker()) {
+  if (canUseFilePicker()) {
     try {
       const handle = await (window as any).showSaveFilePicker({
         suggestedName,
@@ -45,14 +65,7 @@ export async function saveFile(blob: Blob, suggestedName: string): Promise<void>
     }
   }
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = suggestedName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  triggerDownload(blob, suggestedName);
 }
 
 export async function saveDataUrl(dataUrl: string, suggestedName: string): Promise<void> {

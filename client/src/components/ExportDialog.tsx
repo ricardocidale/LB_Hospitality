@@ -129,34 +129,9 @@ async function generatePremiumExport(
   return { blob, serverFilename };
 }
 
-async function saveToLocal(blob: Blob, filename: string, mimeType: string): Promise<void> {
-  if ("showSaveFilePicker" in window) {
-    try {
-      const ext = filename.includes(".") ? filename.substring(filename.lastIndexOf(".")) : "";
-      const handle = await (window as any).showSaveFilePicker({
-        suggestedName: filename,
-        types: ext ? [{
-          description: `${ext.toUpperCase().slice(1)} File`,
-          accept: { [mimeType]: [ext] },
-        }] : undefined,
-      });
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-      return;
-    } catch (err: any) {
-      if (err?.name === "AbortError") throw err;
-    }
-  }
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+async function saveToLocal(blob: Blob, filename: string, _mimeType: string): Promise<void> {
+  const { saveFile } = await import("@/lib/exports/saveFile");
+  await saveFile(blob, filename);
 }
 
 async function saveToDrive(blob: Blob, filename: string, mimeType: string): Promise<{ webViewLink: string }> {

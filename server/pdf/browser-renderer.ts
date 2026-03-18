@@ -1,4 +1,5 @@
 import { logger } from "../logger";
+import { execSync } from "child_process";
 
 export interface PdfRenderOptions {
   width: string;
@@ -10,9 +11,6 @@ export interface PdfRenderOptions {
   margin?: { top?: string; bottom?: string; left?: string; right?: string };
 }
 
-type BrowserEngine = "playwright-chromium" | "puppeteer";
-
-let resolvedEngine: BrowserEngine | null = null;
 let browserInstance: any = null;
 let launchPromise: Promise<any> | null = null;
 
@@ -22,112 +20,98 @@ const LAUNCH_ARGS = [
   "--disable-dev-shm-usage",
   "--disable-gpu",
   "--font-render-hinting=none",
+  "--disable-extensions",
+  "--disable-background-networking",
 ];
 
-async function tryImport(pkg: string): Promise<any> {
+function findSystemChromium(): string | null {
+  const candidates = [
+    "chromium",
+    "chromium-browser",
+    "google-chrome-stable",
+    "google-chrome",
+  ];
+  for (const cmd of candidates) {
+    try {
+      const p = execSync(`which ${cmd} 2>/dev/null`, { encoding: "utf8" }).trim();
+      if (p) return p;
+    } catch {}
+  }
+  return null;
+}
+
+async function launchBrowser(): Promise<any> {
+  const systemChromium = findSystemChromium();
+
+  if (systemChromium) {
+    try {
+      const puppeteerCore = await import("puppeteer-core");
+      logger.info(`[pdf-renderer] Using puppeteer-core with system Chromium: ${systemChromium}`, "pdf");
+      return puppeteerCore.default.launch({
+        headless: true,
+        executablePath: systemChromium,
+        args: LAUNCH_ARGS,
+      });
+    } catch (err: any) {
+      logger.warn(`[pdf-renderer] puppeteer-core + system Chromium failed: ${err.message}`, "pdf");
+    }
+  }
+
   try {
-    return await import(/* @vite-ignore */ pkg);
-  } catch {
-    return null;
-  }
-}
-
-async function detectEngine(): Promise<BrowserEngine> {
-  if (resolvedEngine) return resolvedEngine;
-
-  const pw = await tryImport("playwright");
-  if (pw?.chromium) {
-    resolvedEngine = "playwright-chromium";
-    logger.info("[pdf-renderer] Using Playwright (Chromium)", "pdf");
-    return resolvedEngine;
+    const puppeteer = await import("puppeteer");
+    logger.info("[pdf-renderer] Using full Puppeteer (bundled Chrome)", "pdf");
+    return puppeteer.default.launch({
+      headless: true,
+      args: LAUNCH_ARGS,
+    });
+  } catch (err: any) {
+    logger.warn(`[pdf-renderer] Puppeteer failed: ${err.message}`, "pdf");
   }
 
-  const pup = await tryImport("puppeteer");
-  if (pup) {
-    resolvedEngine = "puppeteer";
-    logger.info("[pdf-renderer] Using Puppeteer (Chrome)", "pdf");
-    return resolvedEngine;
-  }
-
-  throw new Error("No PDF-capable browser engine available — install playwright or puppeteer");
-}
-
-async function launchBrowser(engine: BrowserEngine): Promise<any> {
-  switch (engine) {
-    case "playwright-chromium": {
-      const pw = await tryImport("playwright");
+  try {
+    const pw = await import("playwright");
+    if (pw?.chromium) {
+      logger.info("[pdf-renderer] Using Playwright Chromium", "pdf");
       return pw.chromium.launch({ args: LAUNCH_ARGS });
     }
-    case "puppeteer": {
-      const pup = await tryImport("puppeteer");
-      return pup.default.launch({ headless: true, args: LAUNCH_ARGS });
-    }
-  }
+  } catch {}
+
+  throw new Error(
+    "No PDF-capable browser engine available. " +
+    "Install system chromium, puppeteer, or playwright."
+  );
 }
 
-async function getBrowser(): Promise<{ browser: any; engine: BrowserEngine }> {
-  const engine = await detectEngine();
-
-  if (browserInstance?.isConnected?.()) {
-    return { browser: browserInstance, engine };
+async function getBrowser(): Promise<any> {
+  if (browserInstance) {
+    const connected = typeof browserInstance.isConnected === "function"
+      ? browserInstance.isConnected()
+      : browserInstance.isConnected?.() ?? true;
+    if (connected) return browserInstance;
+    browserInstance = null;
   }
 
   if (launchPromise) {
-    const browser = await launchPromise;
-    return { browser, engine };
+    return launchPromise;
   }
 
   launchPromise = (async () => {
     try {
-      browserInstance = await launchBrowser(engine);
+      browserInstance = await launchBrowser();
       return browserInstance;
-    } catch (err: any) {
-      if (engine === "playwright-chromium") {
-        logger.warn("[pdf-renderer] Playwright Chromium launch failed, trying Puppeteer...", "pdf");
-        const pup = await tryImport("puppeteer");
-        if (pup) {
-          resolvedEngine = "puppeteer";
-          browserInstance = await pup.default.launch({ headless: true, args: LAUNCH_ARGS });
-          return browserInstance;
-        }
-      }
-      throw err;
     } finally {
       launchPromise = null;
     }
   })();
 
-  const browser = await launchPromise;
-  return { browser, engine: resolvedEngine! };
+  return launchPromise;
 }
 
 export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<Buffer> {
-  const { browser, engine } = await getBrowser();
-
-  if (engine === "playwright-chromium") {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    try {
-      await page.setContent(html, { waitUntil: "networkidle", timeout: 15_000 });
-      const pdfBuffer = await page.pdf({
-        width: opts.width,
-        height: opts.height,
-        printBackground: opts.printBackground ?? true,
-        displayHeaderFooter: opts.displayHeaderFooter ?? false,
-        headerTemplate: opts.headerTemplate || "<span></span>",
-        footerTemplate: opts.footerTemplate || "<span></span>",
-        margin: opts.margin || { top: "0mm", bottom: "8mm", left: "0mm", right: "0mm" },
-      });
-      return Buffer.from(pdfBuffer);
-    } finally {
-      await page.close();
-      await context.close();
-    }
-  }
-
+  const browser = await getBrowser();
   const page = await browser.newPage();
   try {
-    await page.setContent(html, { waitUntil: "networkidle0", timeout: 15_000 });
+    await page.setContent(html, { waitUntil: "networkidle0", timeout: 30_000 });
     const pdfBuffer = await page.pdf({
       width: opts.width,
       height: opts.height,

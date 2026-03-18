@@ -122,6 +122,7 @@
     "posthog-js": "^1.360.1",
     "pptxgenjs": "^4.0.1",
     "puppeteer": "^24.39.1",
+    "puppeteer-core": "^24.39.1",
     "react": "^19.2.4",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.4",

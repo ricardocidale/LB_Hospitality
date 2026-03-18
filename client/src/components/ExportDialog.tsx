@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
@@ -328,7 +327,6 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
   const [saveFilename, setSaveFilename] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [driveAvailable, setDriveAvailable] = useState(false);
-  const filenameRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -386,15 +384,39 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
     return CONTENT_TYPES[fmt] || "application/octet-stream";
   };
 
+  const triggerLocalSave = async (blob: Blob, filename: string, mime: string) => {
+    setIsSaving(true);
+    try {
+      await saveToLocal(blob, filename, mime);
+      toast({ title: "File saved", description: `${filename} saved to your computer.` });
+      onClose();
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        setIsSaving(false);
+        return;
+      }
+      toast({ title: "Save failed", description: err?.message || "Could not save file", variant: "destructive" });
+      setIsSaving(false);
+    }
+  };
+
   const handleExport = async () => {
     if (isPremium && premiumExportData) {
       setStep("generating");
       try {
         const { blob, serverFilename } = await generatePremiumExport(premiumFormat, premiumExportData, orientation, version);
-        setGeneratedBlob(blob);
-        setSaveFilename(getDefaultFilename(serverFilename));
-        setStep("save");
-        setTimeout(() => filenameRef.current?.select(), 100);
+        const filename = getDefaultFilename(serverFilename);
+        const ext = `.${premiumFormat}`;
+        const fullName = `${filename}${ext}`;
+        const mime = CONTENT_TYPES[premiumFormat] || "application/octet-stream";
+
+        if (driveAvailable) {
+          setGeneratedBlob(blob);
+          setSaveFilename(filename);
+          setStep("save");
+        } else {
+          await triggerLocalSave(blob, fullName, mime);
+        }
       } catch (error: any) {
         const errMsg = error?.message || "An unexpected error occurred. Please try again.";
         console.error("[premium-export] Client error:", errMsg, error?.stack || "");
@@ -551,36 +573,14 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
         {step === "save" && (
           <>
             <div className="py-4 space-y-4">
-              <div>
-                <Label htmlFor="save-filename" className="text-sm font-medium mb-2 block">Filename</Label>
-                <div className="flex items-center gap-0">
-                  <Input
-                    ref={filenameRef}
-                    id="save-filename"
-                    value={saveFilename}
-                    onChange={(e) => setSaveFilename(e.target.value)}
-                    className="rounded-r-none border-r-0 flex-1"
-                    data-testid="input-save-filename"
-                    disabled={isSaving}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleSaveLocal();
-                      }
-                    }}
-                  />
-                  <div className="flex items-center px-3 h-9 border rounded-r-md bg-muted text-muted-foreground text-sm font-mono select-none" data-testid="text-save-extension">
-                    .{premiumFormat}
-                  </div>
-                </div>
-              </div>
+              <p className="text-sm text-muted-foreground">Where would you like to save <span className="font-medium text-foreground">{saveFilename}.{premiumFormat}</span>?</p>
 
               <div className="space-y-2">
                 <Button
                   className="w-full justify-start gap-3 h-12"
                   variant="outline"
                   onClick={handleSaveLocal}
-                  disabled={isSaving || !saveFilename.trim()}
+                  disabled={isSaving}
                   data-testid="button-save-local"
                 >
                   {isSaving ? (
@@ -599,7 +599,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                     className="w-full justify-start gap-3 h-12"
                     variant="outline"
                     onClick={handleSaveDrive}
-                    disabled={isSaving || !saveFilename.trim()}
+                    disabled={isSaving}
                     data-testid="button-save-drive"
                   >
                     {isSaving ? (

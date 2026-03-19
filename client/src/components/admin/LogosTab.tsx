@@ -143,7 +143,7 @@ export default function LogosTab() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2"><IconImage className="w-4 h-4 text-muted-foreground" /> Logo Management</CardTitle>
-              <CardDescription className="label-text">Upload, create, and manage logos used by companies in the platform</CardDescription>
+              <CardDescription className="label-text">Company logos used across the platform. Users inherit their company's logo. Users without a company use the General logo.</CardDescription>
             </div>
             <Button variant="outline" onClick={() => { resetLogoForm(); setLogoDialogOpen(true); }} className="flex items-center gap-2" data-testid="button-add-logo">
               <IconPlus className="w-4 h-4" /> Add Logo
@@ -158,7 +158,7 @@ export default function LogosTab() {
               <p className="text-sm">Click "Add Logo" to upload or create your first logo.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {[...adminLogos].sort((a, b) => {
                 if (a.isDefault && !b.isDefault) return -1;
                 if (!a.isDefault && b.isDefault) return 1;
@@ -166,29 +166,29 @@ export default function LogosTab() {
               }).map(logo => (
                 <Card key={logo.id} className="bg-transparent border-none shadow-none group" data-testid={`logo-card-${logo.id}`}>
                   <CardContent className="p-0">
-                    <div className="aspect-square overflow-hidden rounded-2xl shadow-sm">
-                      <img src={logo.url} alt={logo.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} data-testid={`logo-image-${logo.id}`} />
+                    <div className="aspect-square overflow-hidden rounded-xl shadow-sm bg-muted/30 border border-border/60">
+                      <img src={logo.url} alt={logo.name} className="w-full h-full object-contain p-3" onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }} data-testid={`logo-image-${logo.id}`} />
                     </div>
-                    <div className="space-y-2 px-4 py-3">
-                      <div className="flex items-start justify-between">
+                    <div className="space-y-1 px-1 py-2">
+                      <div className="flex items-start justify-between gap-1">
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-display font-medium text-foreground truncate flex items-center gap-2">
+                          <h3 className="font-display font-medium text-xs text-foreground truncate flex items-center gap-1">
                             {logo.name}
-                            {logo.isDefault && <IconStar className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                            {logo.isDefault && <IconStar className="w-3 h-3 text-amber-500 fill-amber-500 flex-shrink-0" />}
                           </h3>
-                          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
-                            <IconProperties className="w-3.5 h-3.5" />
+                          <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
+                            <IconProperties className="w-3 h-3 flex-shrink-0" />
                             {logo.companyName}
                           </p>
                         </div>
                         {!logo.isDefault && (
-                          <Button variant="ghost" size="sm" onClick={() => setDeleteLogoConfirmId(logo.id)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10 flex-shrink-0" data-testid={`button-delete-logo-${logo.id}`}>
-                            <IconTrash className="w-4 h-4" />
+                          <Button variant="ghost" size="sm" onClick={() => setDeleteLogoConfirmId(logo.id)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10 flex-shrink-0 h-6 w-6 p-0" data-testid={`button-delete-logo-${logo.id}`}>
+                            <IconTrash className="w-3.5 h-3.5" />
                           </Button>
                         )}
                       </div>
                       {logo.isDefault && (
-                        <span className="inline-block text-xs bg-amber-500/20 text-amber-700 px-2 py-0.5 rounded">Default Logo</span>
+                        <span className="inline-block text-[10px] bg-amber-500/20 text-amber-700 px-1.5 py-0.5 rounded">Default</span>
                       )}
                     </div>
                   </CardContent>

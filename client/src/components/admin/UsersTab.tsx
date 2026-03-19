@@ -30,7 +30,6 @@ import { Loader2, ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons/the
 import { IconEye, IconEyeOff, IconCalendar, IconSave, IconPeople, IconTrash, IconKey, IconPencil, IconUserPlus, IconShield, IconMail, IconUserCog, IconSettingsGear, IconProperties, IconBuilding2, IconImage, IconPalette, IconFileText, IconPlus } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateTime } from "@/lib/formatters";
-import { UserAvatar } from "@/components/ui/user-avatar";
 import { useAdminLogos, useAdminUsers, useAdminUserGroups, useAdminCompanies, useAdminThemes, useAdminAssetDescriptions } from "./hooks";
 import defaultLogo from "@/assets/logo.png";
 import type { User } from "./types";
@@ -94,18 +93,13 @@ export default function UsersTab() {
     return map;
   }, [userGroupsList]);
 
-  const userLogoMap = useMemo(() => {
-    const map: Record<number, string> = {};
-    if (!userGroupsList || !adminLogos) return map;
-    const logoUrlMap: Record<number, string> = {};
-    adminLogos.forEach(l => { logoUrlMap[l.id] = l.url; });
-    userGroupsList.forEach(g => {
-      if (g.logoId && logoUrlMap[g.logoId]) {
-        map[g.id] = logoUrlMap[g.logoId];
-      }
-    });
-    return map;
-  }, [userGroupsList, adminLogos]);
+  const generalLogoUrl = useMemo(() => {
+    if (!companiesList || !adminLogos) return null;
+    const generalCompany = companiesList.find(c => c.name === "General");
+    if (!generalCompany?.logoId) return null;
+    const logo = adminLogos.find(l => l.id === generalCompany.logoId);
+    return logo?.url ?? null;
+  }, [companiesList, adminLogos]);
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -426,15 +420,17 @@ export default function UsersTab() {
               )}
               <div className="rounded-lg border border-border bg-card p-4 hover:bg-muted/50 transition-colors" data-testid={`row-user-${user.id}`}>
                 <div className="flex items-start gap-3">
-                  <UserAvatar firstName={user.firstName} lastName={user.lastName} name={user.name} email={user.email} size="sm" />
-                  {user.userGroupId && userLogoMap[user.userGroupId] && (
-                    <img
-                      src={userLogoMap[user.userGroupId]}
-                      alt=""
-                      className="w-7 h-7 rounded-md border border-border bg-card object-contain p-0.5"
-                      onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
-                    />
-                  )}
+                  <img
+                    src={
+                      (user.companyId && companyLogoMap[user.companyId])
+                        ? companyLogoMap[user.companyId]
+                        : generalLogoUrl ?? defaultLogo
+                    }
+                    alt={user.companyId && companiesList ? (companiesList.find(c => c.id === user.companyId)?.name ?? "Company") : "General"}
+                    className="w-8 h-8 rounded-md border border-border bg-card object-contain p-0.5 flex-shrink-0"
+                    onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
+                    data-testid={`user-company-logo-${user.id}`}
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="font-display font-medium truncate">{user.name || user.email}</div>
                     {user.name && <div className="text-xs text-muted-foreground truncate">{user.email}</div>}

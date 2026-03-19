@@ -79,6 +79,33 @@ Each export produces statements interleaved with charts:
 5. **Theme colors**: Passed via `themeColors` in payload, resolved by `resolveThemeColors()`
 6. **File save**: `saveFile()` tries native `showSaveFilePicker`, falls back to download
 
+## Row-Builder Helpers
+
+**File**: `client/src/lib/exports/row-builders.ts`
+
+Type-safe helpers for constructing export rows — use these instead of raw object literals:
+
+```typescript
+import { headerRow, lineItem, subtotalRow, spacerRow, formulaRow, yearValues, consolidate } from "@/lib/exports";
+
+headerRow("REVENUE", values)                        // Section header (isHeader: true)
+lineItem("Room Revenue", values, { indent: 1 })     // Indented line item
+subtotalRow("Gross Operating Profit", values)        // Bold subtotal (isHeader + isBold)
+spacerRow(yearCount)                                 // Empty separator row
+formulaRow("= Revenue − Expenses", values)           // Italic formula row
+yearValues(years, cache, item => item.revenueTotal)  // Extract values from yearly cache
+consolidate(years, allProps, item => item.cfo)       // Sum across properties per year
+```
+
+## Export Audit
+
+Run `npx tsx script/export-audit.ts` to validate the export system:
+- Checks all core files exist
+- Verifies data generators are present and wired
+- Confirms all pages have all format exports wired
+- Validates brand palette is centralized
+- Detects stray/orphan directories
+
 ## Format Matrix
 
 | Format | AI? | Library | Orientation | Content |

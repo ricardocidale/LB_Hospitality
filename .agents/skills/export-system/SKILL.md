@@ -104,13 +104,38 @@ Portfolio wrappers: `exportPortfolioExcel`, `exportPortfolioCSV`, `exportPortfol
 | Company | Per-statement | Per-statement | Per-statement | Company slides | Chart | Table |
 | Sensitivity | Tornado + table | Scenario data | Scenario data | Scenario slides | — | — |
 
+## Row-Builder Helpers
+
+**File**: `client/src/lib/exports/row-builders.ts` (re-exported from `@/lib/exports`)
+
+Use these type-safe helpers instead of raw `{ category, values, ... }` object literals:
+
+| Helper | Creates |
+|--------|---------|
+| `headerRow(label, values)` | Section header with `isHeader: true` |
+| `lineItem(label, values, { indent, format })` | Indented line item |
+| `subtotalRow(label, values)` | Bold subtotal row |
+| `spacerRow(yearCount)` | Empty separator |
+| `formulaRow(text, values)` | Italic formula/note row |
+| `yearValues(years, cache, accessor)` | Extract values from yearly cache array |
+| `consolidate(years, allProps, accessor)` | Sum across all properties per year |
+| `toExportShape(data)` | Convert `ExportData` to PPTX-compatible shape |
+
 ## Wiring Exports into a New Page
 
-### Step 1 — Generate structured data
+### Step 1 — Generate structured data using row-builder helpers
 ```ts
-interface ExportData {
-  years: string[];
-  rows: { category: string; values: (string | number)[]; indent?: number; isBold?: boolean; isHeader?: boolean; }[];
+import { headerRow, lineItem, subtotalRow, yearValues, type ExportData } from "@/lib/exports";
+
+function generateData(cache, years): ExportData {
+  return {
+    years,
+    rows: [
+      headerRow("REVENUE", yearValues(years, cache, c => c.revenueTotal)),
+      lineItem("Room Revenue", yearValues(years, cache, c => c.revenueRooms), { indent: 1 }),
+      subtotalRow("Total Revenue", yearValues(years, cache, c => c.revenueTotal)),
+    ],
+  };
 }
 ```
 
@@ -119,6 +144,15 @@ interface ExportData {
 ### Step 3 — Wire into ExportMenu via action helpers in `CurrentThemeTab` `rightContent` or `PageHeader` `actions`
 
 ### Step 4 — Add ExportDialog for orientation-dependent formats (PDF, chart)
+
+## Export Audit Script
+
+Run `npx tsx script/export-audit.ts` to validate the full export wiring:
+- All core export files exist
+- All data generators present and referenced
+- All pages × formats are wired
+- Brand palette centralized in `exportStyles.ts`
+- No stray/orphan modules
 
 ## Dependencies
 

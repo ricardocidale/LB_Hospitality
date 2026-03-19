@@ -66,3 +66,16 @@ export type {
   PropertyExportData,
   CompanyExportData,
 } from "./pptxExport";
+
+export {
+  headerRow,
+  lineItem,
+  subtotalRow,
+  spacerRow,
+  formulaRow,
+  perPropertyRows,
+  yearValues,
+  consolidate,
+  toExportShape,
+} from "./row-builders";
+export type { ExportRow, ExportData } from "./row-builders";

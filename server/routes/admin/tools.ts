@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
 import { requireAdmin, requireAuth, isApiRateLimited } from "../../auth";
-import { runFillOnlySync } from "../../syncHelpers";
+import { runFillOnlySync, runSmartSync } from "../../syncHelpers";
 import { logAndSendError, logActivity } from "../helpers";
 import { readFile } from "fs/promises";
 import { resolve } from "path";
@@ -66,6 +66,26 @@ export function registerToolRoutes(app: Express) {
       res.json({ success: true, message: "Missing values populated", ...result });
     } catch (error: any) {
       logAndSendError(res, error.message || "Fill failed", error);
+    }
+  });
+
+  // ── Smart Sync (3-way merge using seed manifest) ──────────────────
+  app.get("/api/admin/smart-sync/preview", requireAdmin, async (_req, res) => {
+    try {
+      const result = await runSmartSync(storage, { dryRun: true });
+      res.json(result);
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Smart sync preview failed", error);
+    }
+  });
+
+  app.post("/api/admin/smart-sync", requireAdmin, async (req, res) => {
+    try {
+      const result = await runSmartSync(storage, { dryRun: false });
+      logActivity(req, "smart-sync", "database", null, null, result as unknown as Record<string, unknown>);
+      res.json({ success: true, ...result });
+    } catch (error: any) {
+      logAndSendError(res, error.message || "Smart sync failed", error);
     }
   });
 

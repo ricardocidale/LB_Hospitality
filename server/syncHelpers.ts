@@ -1,5 +1,10 @@
 import type { IStorage } from "./storage";
 import { seedServiceTemplates } from "./seeds/services";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+import { db } from "./db";
+import { seedDefaults } from "@shared/schema";
+import { eq, and, sql } from "drizzle-orm";
 import {
   DEFAULT_BASE_MANAGEMENT_FEE_RATE,
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
@@ -107,6 +112,14 @@ export const DEFAULT_FEE_CATEGORIES = [
   { name: "Procurement", rate: 0.01, sortOrder: 6 },
 ];
 
+export const SEED_PROPERTIES = [
+  { ...SEED_PROPERTY_DEFAULTS, name: "The Hudson Estate", streetAddress: "142 Old Post Road", city: "Millbrook", stateProvince: "NY", zipPostalCode: "12545", country: "United States", location: "Hudson Valley, New York", market: "North America", imageUrl: "/images/property-ny.png", status: "Pipeline", acquisitionDate: "2026-06-01", operationsStartDate: "2026-12-01", purchasePrice: 3800000, buildingImprovements: 1200000, preOpeningCosts: 200000, operatingReserve: 250000, roomCount: 20, startAdr: 385, adrGrowthRate: 0.025, startOccupancy: 0.55, maxOccupancy: 0.82, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Full Equity", costRateFB: 0.085, costRateIT: 0.005, cateringBoostPercent: 0.22, exitCapRate: 0.08, willRefinance: "Yes", refinanceDate: "2029-12-01", refinanceLtv: 0.75, refinanceInterestRate: 0.09, refinanceTermYears: 25, refinanceClosingCostRate: 0.03, revShareEvents: 0.30 },
+  { ...SEED_PROPERTY_DEFAULTS, name: "Eden Summit Lodge", streetAddress: "3850 Nordic Valley Road", city: "Eden", stateProvince: "UT", zipPostalCode: "84310", location: "Ogden Valley, Utah", market: "North America", imageUrl: "/images/property-utah.png", status: "Pipeline", acquisitionDate: "2027-01-01", operationsStartDate: "2027-07-01", purchasePrice: 4000000, buildingImprovements: 1200000, preOpeningCosts: 200000, operatingReserve: 250000, roomCount: 20, startAdr: 425, adrGrowthRate: 0.025, startOccupancy: 0.50, maxOccupancy: 0.80, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Full Equity", costRateFB: 0.085, costRateIT: 0.005, cateringBoostPercent: 0.25, willRefinance: "Yes", refinanceDate: "2030-07-01", refinanceLtv: 0.75, refinanceInterestRate: 0.09, refinanceTermYears: 25, refinanceClosingCostRate: 0.03, revShareEvents: 0.30 },
+  { ...SEED_PROPERTY_DEFAULTS, name: "Austin Hillside", streetAddress: "4100 Mount Bonnell Drive", city: "Austin", stateProvince: "TX", zipPostalCode: "78731", location: "Hill Country, Texas", market: "North America", imageUrl: "/images/property-austin.png", status: "Pipeline", acquisitionDate: "2027-04-01", operationsStartDate: "2028-01-01", purchasePrice: 3500000, buildingImprovements: 1100000, preOpeningCosts: 200000, operatingReserve: 250000, roomCount: 20, startAdr: 320, adrGrowthRate: 0.025, startOccupancy: 0.55, maxOccupancy: 0.82, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Full Equity", costRateFB: 0.09, costRateIT: 0.005, cateringBoostPercent: 0.20, willRefinance: "Yes", refinanceDate: "2031-01-01", refinanceLtv: 0.75, refinanceInterestRate: 0.09, refinanceTermYears: 25, refinanceClosingCostRate: 0.03, revShareEvents: 0.28 },
+  { ...SEED_PROPERTY_DEFAULTS, name: "Casa Medellín", streetAddress: "Carrera 43A #7-50, El Poblado", city: "Medellín", stateProvince: "Antioquia", zipPostalCode: "050021", location: "El Poblado, Medellín", market: "Latin America", imageUrl: "/images/property-medellin.png", status: "Pipeline", acquisitionDate: "2026-09-01", operationsStartDate: "2028-07-01", purchasePrice: 3800000, buildingImprovements: 1000000, preOpeningCosts: 200000, operatingReserve: 600000, roomCount: 30, startAdr: 210, adrGrowthRate: 0.04, startOccupancy: 0.50, maxOccupancy: 0.78, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Financed", costRateFB: 0.075, costRateIT: 0.005, cateringBoostPercent: 0.18, exitCapRate: 0.095, acquisitionLTV: 0.60, acquisitionInterestRate: 0.095, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02, revShareEvents: 0.25 },
+  { ...SEED_PROPERTY_DEFAULTS, name: "Blue Ridge Manor", streetAddress: "275 Elk Mountain Scenic Highway", city: "Asheville", stateProvince: "NC", zipPostalCode: "28804", location: "Blue Ridge Mountains, North Carolina", market: "North America", imageUrl: "/images/property-asheville.png", status: "Pipeline", acquisitionDate: "2027-07-01", operationsStartDate: "2028-07-01", purchasePrice: 6000000, buildingImprovements: 1500000, preOpeningCosts: 250000, operatingReserve: 500000, roomCount: 30, startAdr: 375, adrGrowthRate: 0.025, startOccupancy: 0.50, maxOccupancy: 0.80, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Financed", costRateFB: 0.10, costRateIT: 0.005, cateringBoostPercent: 0.25, exitCapRate: 0.09, acquisitionLTV: 0.60, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02, revShareEvents: 0.28 },
+];
+
 export function isFieldEmpty(value: unknown): boolean {
   if (value === null || value === undefined) return true;
   if (typeof value === "string" && value.trim() === "") return true;
@@ -151,18 +164,6 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
       results.globalAssumptions.skipped++;
     }
   }
-
-  const seedProps = SEED_PROPERTIES;
-
-  // (Moved to module-scope SEED_PROPERTIES export below)
-  void seedProps; // reference for linting
-
-  for (const propData of SEED_PROPERTIES) { streetAddress: "142 Old Post Road", city: "Millbrook", stateProvince: "NY", zipPostalCode: "12545", country: "United States", location: "Hudson Valley, New York", market: "North America", imageUrl: "/images/property-ny.png", status: "Pipeline", acquisitionDate: "2026-06-01", operationsStartDate: "2026-12-01", purchasePrice: 3800000, buildingImprovements: 1200000, preOpeningCosts: 200000, operatingReserve: 250000, roomCount: 20, startAdr: 385, adrGrowthRate: 0.025, startOccupancy: 0.55, maxOccupancy: 0.82, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Full Equity", costRateFB: 0.085, costRateIT: 0.005, cateringBoostPercent: 0.22, exitCapRate: 0.08, willRefinance: "Yes", refinanceDate: "2029-12-01", refinanceLtv: 0.75, refinanceInterestRate: 0.09, refinanceTermYears: 25, refinanceClosingCostRate: 0.03, revShareEvents: 0.30 },
-    { ...SEED_PROPERTY_DEFAULTS, name: "Eden Summit Lodge", streetAddress: "3850 Nordic Valley Road", city: "Eden", stateProvince: "UT", zipPostalCode: "84310", location: "Ogden Valley, Utah", market: "North America", imageUrl: "/images/property-utah.png", status: "Pipeline", acquisitionDate: "2027-01-01", operationsStartDate: "2027-07-01", purchasePrice: 4000000, buildingImprovements: 1200000, preOpeningCosts: 200000, operatingReserve: 250000, roomCount: 20, startAdr: 425, adrGrowthRate: 0.025, startOccupancy: 0.50, maxOccupancy: 0.80, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Full Equity", costRateFB: 0.085, costRateIT: 0.005, cateringBoostPercent: 0.25, willRefinance: "Yes", refinanceDate: "2030-07-01", refinanceLtv: 0.75, refinanceInterestRate: 0.09, refinanceTermYears: 25, refinanceClosingCostRate: 0.03, revShareEvents: 0.30 },
-    { ...SEED_PROPERTY_DEFAULTS, name: "Austin Hillside", streetAddress: "4100 Mount Bonnell Drive", city: "Austin", stateProvince: "TX", zipPostalCode: "78731", location: "Hill Country, Texas", market: "North America", imageUrl: "/images/property-austin.png", status: "Pipeline", acquisitionDate: "2027-04-01", operationsStartDate: "2028-01-01", purchasePrice: 3500000, buildingImprovements: 1100000, preOpeningCosts: 200000, operatingReserve: 250000, roomCount: 20, startAdr: 320, adrGrowthRate: 0.025, startOccupancy: 0.55, maxOccupancy: 0.82, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Full Equity", costRateFB: 0.09, costRateIT: 0.005, cateringBoostPercent: 0.20, willRefinance: "Yes", refinanceDate: "2031-01-01", refinanceLtv: 0.75, refinanceInterestRate: 0.09, refinanceTermYears: 25, refinanceClosingCostRate: 0.03, revShareEvents: 0.28 },
-    { ...SEED_PROPERTY_DEFAULTS, name: "Casa Medellín", streetAddress: "Carrera 43A #7-50, El Poblado", city: "Medellín", stateProvince: "Antioquia", zipPostalCode: "050021", location: "El Poblado, Medellín", market: "Latin America", imageUrl: "/images/property-medellin.png", status: "Pipeline", acquisitionDate: "2026-09-01", operationsStartDate: "2028-07-01", purchasePrice: 3800000, buildingImprovements: 1000000, preOpeningCosts: 200000, operatingReserve: 600000, roomCount: 30, startAdr: 210, adrGrowthRate: 0.04, startOccupancy: 0.50, maxOccupancy: 0.78, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Financed", costRateFB: 0.075, costRateIT: 0.005, cateringBoostPercent: 0.18, exitCapRate: 0.095, acquisitionLTV: 0.60, acquisitionInterestRate: 0.095, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02, revShareEvents: 0.25 },
-    { ...SEED_PROPERTY_DEFAULTS, name: "Blue Ridge Manor", streetAddress: "275 Elk Mountain Scenic Highway", city: "Asheville", stateProvince: "NC", zipPostalCode: "28804", location: "Blue Ridge Mountains, North Carolina", market: "North America", imageUrl: "/images/property-asheville.png", status: "Pipeline", acquisitionDate: "2027-07-01", operationsStartDate: "2028-07-01", purchasePrice: 6000000, buildingImprovements: 1500000, preOpeningCosts: 250000, operatingReserve: 500000, roomCount: 30, startAdr: 375, adrGrowthRate: 0.025, startOccupancy: 0.50, maxOccupancy: 0.80, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Financed", costRateFB: 0.10, costRateIT: 0.005, cateringBoostPercent: 0.25, exitCapRate: 0.09, acquisitionLTV: 0.60, acquisitionInterestRate: 0.09, acquisitionTermYears: 25, acquisitionClosingCostRate: 0.02, revShareEvents: 0.28 },
-  ];
 
   const existingProperties = await storage.getAllProperties();
   const existingByName = new Map(existingProperties.map(p => [p.name, p]));
@@ -322,6 +323,239 @@ export async function runFillOnlySync(storage: IStorage, generateResearchValues?
     results.serviceTemplates.created = 1; // seedServiceTemplates logs its own count
   } catch {
     results.serviceTemplates.skipped = 1;
+  }
+
+  return results;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// Smart Sync — 3-way merge using seed manifest + shadow defaults
+// ══════════════════════════════════════════════════════════════════════
+
+export interface SmartSyncFieldResult {
+  field: string;
+  action: "updated" | "skipped" | "filled" | "unchanged";
+  oldValue?: unknown;
+  newValue?: unknown;
+}
+
+export interface SmartSyncEntityResult {
+  key: string;
+  created: boolean;
+  fields: SmartSyncFieldResult[];
+}
+
+export interface SmartSyncResults {
+  dryRun: boolean;
+  globalAssumptions: SmartSyncEntityResult;
+  properties: SmartSyncEntityResult[];
+  feeCategories: { created: number; updated: number; skipped: number };
+}
+
+interface SeedManifest {
+  version: number;
+  generatedAt: string;
+  entities: {
+    globalAssumptions: { key: string; fields: Record<string, unknown> };
+    properties: Array<{ key: string; fields: Record<string, unknown> }>;
+    feeCategories: Array<{ key: string; fields: Record<string, unknown> }>;
+  };
+}
+
+const SYNC_EXCLUDE_KEYS = new Set(["id", "createdAt", "updatedAt", "userId", "researchValues"]);
+
+/** Deep-ish equality for seed values: handles numbers (epsilon), objects (JSON), null equivalence. */
+export function valuesEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a == null && b == null) return true;
+  if (a == null || b == null) return false;
+  if (typeof a === "number" && typeof b === "number") return Math.abs(a - b) < 0.0001;
+  if (typeof a === "object" && typeof b === "object") return JSON.stringify(a) === JSON.stringify(b);
+  return String(a) === String(b);
+}
+
+function loadManifest(): SeedManifest {
+  const manifestPath = resolve(process.cwd(), "seed-manifest.json");
+  return JSON.parse(readFileSync(manifestPath, "utf-8"));
+}
+
+/** Load all shadow defaults into a lookup Map keyed by "entityType::entityKey::fieldName". */
+async function loadShadowDefaults(): Promise<Map<string, unknown>> {
+  const rows = await db.select().from(seedDefaults);
+  const map = new Map<string, unknown>();
+  for (const row of rows) {
+    map.set(`${row.entityType}::${row.entityKey}::${row.fieldName}`, row.seedValue);
+  }
+  return map;
+}
+
+/** Bulk upsert shadow defaults after sync. */
+async function writeShadowDefaults(
+  entityType: string,
+  entityKey: string,
+  fields: Record<string, unknown>,
+): Promise<void> {
+  const entries = Object.entries(fields).filter(([k]) => !SYNC_EXCLUDE_KEYS.has(k));
+  if (entries.length === 0) return;
+
+  // Batch in chunks of 50 to avoid query-length limits
+  for (let i = 0; i < entries.length; i += 50) {
+    const chunk = entries.slice(i, i + 50);
+    const values = chunk.map(([fieldName, value]) => ({
+      entityType,
+      entityKey,
+      fieldName,
+      seedValue: value,
+    }));
+    await db.insert(seedDefaults).values(values).onConflictDoUpdate({
+      target: [seedDefaults.entityType, seedDefaults.entityKey, seedDefaults.fieldName],
+      set: { seedValue: sql`EXCLUDED.seed_value`, appliedAt: sql`now()` },
+    });
+  }
+}
+
+/** Merge one entity's fields using the 3-way merge logic. */
+function mergeFields(
+  manifestFields: Record<string, unknown>,
+  currentValues: Record<string, unknown>,
+  shadow: Map<string, unknown>,
+  entityType: string,
+  entityKey: string,
+): { updates: Record<string, unknown>; fieldResults: SmartSyncFieldResult[] } {
+  const updates: Record<string, unknown> = {};
+  const fieldResults: SmartSyncFieldResult[] = [];
+
+  for (const [field, newSeedValue] of Object.entries(manifestFields)) {
+    if (SYNC_EXCLUDE_KEYS.has(field)) continue;
+    const currentValue = currentValues[field];
+    const shadowKey = `${entityType}::${entityKey}::${field}`;
+    const lastSeed = shadow.get(shadowKey);
+
+    if (lastSeed !== undefined) {
+      // Shadow exists: 3-way merge
+      if (valuesEqual(currentValue, lastSeed)) {
+        // User never changed it → safe to update
+        if (!valuesEqual(newSeedValue, lastSeed)) {
+          updates[field] = newSeedValue;
+          fieldResults.push({ field, action: "updated", oldValue: currentValue, newValue: newSeedValue });
+        } else {
+          fieldResults.push({ field, action: "unchanged" });
+        }
+      } else {
+        // User changed it → skip
+        fieldResults.push({ field, action: "skipped", oldValue: currentValue, newValue: newSeedValue });
+      }
+    } else {
+      // First run: no shadow record
+      if (isFieldEmpty(currentValue)) {
+        updates[field] = newSeedValue;
+        fieldResults.push({ field, action: "filled", newValue: newSeedValue });
+      } else if (valuesEqual(currentValue, newSeedValue)) {
+        // Current matches manifest → establish baseline, no update
+        fieldResults.push({ field, action: "unchanged" });
+      } else {
+        // Ambiguous → preserve user value
+        fieldResults.push({ field, action: "skipped", oldValue: currentValue, newValue: newSeedValue });
+      }
+    }
+  }
+
+  return { updates, fieldResults };
+}
+
+export async function runSmartSync(
+  storage: IStorage,
+  options: { dryRun?: boolean } = {},
+): Promise<SmartSyncResults> {
+  const manifest = loadManifest();
+  const shadow = await loadShadowDefaults();
+  const dryRun = options.dryRun ?? false;
+
+  const results: SmartSyncResults = {
+    dryRun,
+    globalAssumptions: { key: "singleton", created: false, fields: [] },
+    properties: [],
+    feeCategories: { created: 0, updated: 0, skipped: 0 },
+  };
+
+  // ── Global Assumptions ──────────────────────────────────────────────
+  const existingGA = await storage.getGlobalAssumptions();
+  if (!existingGA) {
+    if (!dryRun) {
+      await storage.upsertGlobalAssumptions(manifest.entities.globalAssumptions.fields as any);
+      await writeShadowDefaults("globalAssumptions", "singleton", manifest.entities.globalAssumptions.fields);
+    }
+    results.globalAssumptions.created = true;
+  } else {
+    const { updates, fieldResults } = mergeFields(
+      manifest.entities.globalAssumptions.fields,
+      existingGA as unknown as Record<string, unknown>,
+      shadow, "globalAssumptions", "singleton",
+    );
+    results.globalAssumptions.fields = fieldResults.filter(f => f.action !== "unchanged");
+    if (!dryRun && Object.keys(updates).length > 0) {
+      await storage.upsertGlobalAssumptions({ ...existingGA, ...updates } as any);
+    }
+    if (!dryRun) {
+      await writeShadowDefaults("globalAssumptions", "singleton", manifest.entities.globalAssumptions.fields);
+    }
+  }
+
+  // ── Properties ──────────────────────────────────────────────────────
+  const existingProperties = await storage.getAllProperties();
+  const propByName = new Map(existingProperties.map(p => [p.name, p]));
+
+  for (const propManifest of manifest.entities.properties) {
+    const existing = propByName.get(propManifest.key);
+    if (!existing) {
+      if (!dryRun) {
+        await storage.createProperty({ ...propManifest.fields, userId: null } as any);
+        await writeShadowDefaults("property", propManifest.key, propManifest.fields);
+      }
+      results.properties.push({ key: propManifest.key, created: true, fields: [] });
+    } else {
+      const { updates, fieldResults } = mergeFields(
+        propManifest.fields,
+        existing as unknown as Record<string, unknown>,
+        shadow, "property", propManifest.key,
+      );
+      results.properties.push({
+        key: propManifest.key,
+        created: false,
+        fields: fieldResults.filter(f => f.action !== "unchanged"),
+      });
+      if (!dryRun && Object.keys(updates).length > 0) {
+        await storage.updateProperty(existing.id, updates as any);
+      }
+      if (!dryRun) {
+        await writeShadowDefaults("property", propManifest.key, propManifest.fields);
+      }
+    }
+  }
+
+  // ── Fee Categories (per property) ───────────────────────────────────
+  for (const fcManifest of manifest.entities.feeCategories) {
+    // Fee categories are global templates — apply to all seed properties
+    for (const propManifest of manifest.entities.properties) {
+      const prop = propByName.get(propManifest.key);
+      if (!prop) continue;
+      const existingFCs = await storage.getFeeCategoriesByProperty(prop.id);
+      const existingFC = existingFCs.find((fc: any) => fc.name === fcManifest.key);
+      if (!existingFC) {
+        if (!dryRun) {
+          await storage.createFeeCategory({
+            propertyId: prop.id,
+            name: fcManifest.key,
+            rate: (fcManifest.fields.rate as number) ?? 0,
+            sortOrder: (fcManifest.fields.sortOrder as number) ?? 0,
+            isActive: true,
+          });
+        }
+        results.feeCategories.created++;
+      } else {
+        results.feeCategories.skipped++;
+      }
+    }
   }
 
   return results;

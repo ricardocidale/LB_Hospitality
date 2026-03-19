@@ -269,7 +269,7 @@ function LlmDomainCard({
       <CardContent>
         {domain.supportsDual ? (
           <div className="space-y-3">
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+            <div className="grid gap-4 grid-cols-3">
               <div>
                 <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
                 <VendorSelect
@@ -280,9 +280,9 @@ function LlmDomainCard({
                   testId={`select-llm-vendor-${domain.key}`}
                 />
               </div>
-              {vendor && (
-                <div>
-                  <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
+                {vendor ? (
                   <ModelSelectWithRecommendation
                     value={primaryModel}
                     onValueChange={(value) => update({ primaryLlm: value })}
@@ -290,8 +290,10 @@ function LlmDomainCard({
                     recommendedId={recPrimary}
                     testId={`select-primary-llm-${domain.key}`}
                   />
-                </div>
-              )}
+                ) : (
+                  <Select disabled><SelectTrigger className="bg-card h-9 opacity-50"><SelectValue placeholder="Select vendor first" /></SelectTrigger></Select>
+                )}
+              </div>
               <div>
                 <Label className="text-xs font-medium mb-1.5 block">Mode</Label>
                 <RadioGroup
@@ -320,7 +322,7 @@ function LlmDomainCard({
             </div>
 
             {isDual && (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+              <div className="grid gap-4 grid-cols-3">
                 <div>
                   <Label className="text-xs font-medium mb-1.5 block">Stage 2 Vendor</Label>
                   <VendorSelect
@@ -346,7 +348,7 @@ function LlmDomainCard({
             )}
           </div>
         ) : (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+          <div className="grid gap-4 grid-cols-3">
             <div>
               <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
               <VendorSelect
@@ -357,9 +359,9 @@ function LlmDomainCard({
                 testId={`select-llm-vendor-${domain.key}`}
               />
             </div>
-            {vendor && (
-              <div>
-                <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
+            <div>
+              <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
+              {vendor ? (
                 <ModelSelectWithRecommendation
                   value={primaryModel}
                   onValueChange={(value) => update({ primaryLlm: value })}
@@ -367,9 +369,10 @@ function LlmDomainCard({
                   recommendedId={recPrimary}
                   testId={`select-primary-llm-${domain.key}`}
                 />
-              </div>
-            )}
-            {!vendor && <div />}
+              ) : (
+                <Select disabled><SelectTrigger className="bg-card h-9 opacity-50"><SelectValue placeholder="Select vendor first" /></SelectTrigger></Select>
+              )}
+            </div>
             <div />
           </div>
         )}

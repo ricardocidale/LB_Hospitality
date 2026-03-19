@@ -28,6 +28,19 @@ export function register(app: Express) {
   // personalized logo, theme colors, and group branding.
   // ────────────────────────────────────────────────────────────
 
+  // Public — no auth required. Returns the system default theme colors for pre-login pages.
+  app.get("/api/public/theme", async (_req, res) => {
+    try {
+      const theme = await storage.getDefaultDesignTheme();
+      res.json({
+        themeName: theme?.name ?? null,
+        themeColors: (theme?.colors as object[]) ?? [],
+      });
+    } catch {
+      res.json({ themeName: null, themeColors: [] });
+    }
+  });
+
   app.get("/api/branding", requireAuth, async (req, res) => {
     try {
       const u = req.user!;

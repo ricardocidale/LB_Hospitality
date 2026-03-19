@@ -10,6 +10,7 @@ import { IconEye, IconEyeOff } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import bgImage from "@/assets/hotel-party.jpg";
 import SpinningLogo3D from "@/components/SpinningLogo3D";
+import { applyThemeColors, resetThemeColors } from "@/lib/theme";
 
 const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
   no_account: "No account found for this Google email. Contact your administrator for access.",
@@ -50,6 +51,18 @@ export default function Login() {
       window.history.replaceState({}, "", "/login");
     }
   }, [toast]);
+
+  useEffect(() => {
+    fetch("/api/public/theme")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.themeColors?.length) {
+          applyThemeColors(data.themeColors);
+        }
+      })
+      .catch(() => {});
+    return () => { resetThemeColors(); };
+  }, []);
 
   const handleAdminLogin = async () => {
     setIsLoading(true);

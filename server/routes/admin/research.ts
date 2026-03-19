@@ -68,6 +68,7 @@ const researchConfigSchema = z.object({
   chatbotLlm: contextLlmConfigSchema.optional(),
   premiumExportLlm: contextLlmConfigSchema.optional(),
   aiUtilityLlm: contextLlmConfigSchema.optional(),
+  graphicsLlm: contextLlmConfigSchema.optional(),
   tabDefaults: z.record(z.string(), z.object({
     llmVendor: llmVendorEnum.optional(),
     primaryLlm: z.string().optional(),
@@ -348,6 +349,7 @@ export function registerResearchConfigRoutes(app: Express) {
         chatbotLlm: incoming.chatbotLlm ? { ...current.chatbotLlm, ...incoming.chatbotLlm } : current.chatbotLlm,
         premiumExportLlm: incoming.premiumExportLlm ? { ...current.premiumExportLlm, ...incoming.premiumExportLlm } : current.premiumExportLlm,
         aiUtilityLlm: incoming.aiUtilityLlm ? { ...current.aiUtilityLlm, ...incoming.aiUtilityLlm } : current.aiUtilityLlm,
+        graphicsLlm: incoming.graphicsLlm ? { ...current.graphicsLlm, ...incoming.graphicsLlm } : current.graphicsLlm,
         tabDefaults: incoming.tabDefaults ? { ...current.tabDefaults, ...incoming.tabDefaults } : current.tabDefaults,
         companySources: incoming.companySources ?? current.companySources,
         propertySources: incoming.propertySources ?? current.propertySources,

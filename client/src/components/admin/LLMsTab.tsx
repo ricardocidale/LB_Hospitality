@@ -12,7 +12,7 @@ import type { CurrentThemeTabItem } from "@/components/ui/tabs";
 import {
   IconBrain, IconRefreshCw, IconTarget, IconProperties, IconTrendingUp,
   IconFileText, IconMessageCircle, IconFileDown, IconFileCode, IconFlaskConical,
-  IconStar, IconExport, IconSparkles,
+  IconStar, IconExport, IconSparkles, IconPaintbrush,
 } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
@@ -24,7 +24,7 @@ interface LLMsTabProps {
   onSaveStateChange?: (state: AdminSaveState | null) => void;
 }
 
-type LlmConfigField = "companyLlm" | "propertyLlm" | "marketLlm" | "reportLlm" | "chatbotLlm" | "premiumExportLlm" | "aiUtilityLlm";
+type LlmConfigField = "companyLlm" | "propertyLlm" | "marketLlm" | "reportLlm" | "chatbotLlm" | "premiumExportLlm" | "aiUtilityLlm" | "graphicsLlm";
 type TabKey = "research" | "operations" | "assistants" | "exports";
 
 interface DomainConfig {
@@ -46,6 +46,7 @@ const RECOMMENDED: Record<string, { vendor: LlmVendor; primary: string; secondar
   market:        { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
   premiumExport: { vendor: "google", primary: "gemini-2.5-pro" },
   aiUtility:     { vendor: "google", primary: "gemini-2.5-flash" },
+  graphics:      { vendor: "google", primary: "gemini-2.5-flash" },
   chatbot:       { vendor: "google", primary: "gemini-2.5-flash" },
 };
 
@@ -92,6 +93,16 @@ const DOMAIN_CONFIGS: DomainConfig[] = [
     useAllVendors: true,
     tab: "operations",
     recommended: RECOMMENDED.aiUtility,
+  },
+  {
+    key: "graphics",
+    configField: "graphicsLlm",
+    label: "Graphics Generation",
+    icon: IconPaintbrush,
+    description: "LLM for graphics prompt crafting — logo generation, property renders, and image description enhancement.",
+    useAllVendors: true,
+    tab: "operations",
+    recommended: RECOMMENDED.graphics,
   },
   {
     key: "chatbot",

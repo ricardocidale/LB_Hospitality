@@ -115,14 +115,14 @@ export function useDeleteLogo() {
 export function useEnhanceLogoPrompt() {
   const [isEnhancing, setIsEnhancing] = useState(false);
 
-  const enhance = useCallback(async (prompt: string): Promise<string | null> => {
+  const enhance = useCallback(async (prompt: string, style?: string): Promise<string | null> => {
     setIsEnhancing(true);
     try {
       const res = await fetch("/api/enhance-logo-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, style }),
       });
       if (!res.ok) throw new Error("Failed to enhance prompt");
       const data = await res.json();

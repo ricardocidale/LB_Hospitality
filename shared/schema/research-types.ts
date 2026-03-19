@@ -71,6 +71,7 @@ export interface ResearchConfig {
   chatbotLlm?: ContextLlmConfig;
   premiumExportLlm?: ContextLlmConfig;
   aiUtilityLlm?: ContextLlmConfig;
+  graphicsLlm?: ContextLlmConfig;
   tabDefaults?: Record<string, { llmVendor?: LlmVendor; primaryLlm?: string }>;
   companySources?: ResearchSourceEntry[];
   propertySources?: ResearchSourceEntry[];

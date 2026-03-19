@@ -8,7 +8,8 @@ export type LlmDomain =
   | "reportLlm"
   | "chatbotLlm"
   | "premiumExportLlm"
-  | "aiUtilityLlm";
+  | "aiUtilityLlm"
+  | "graphicsLlm";
 
 const DOMAIN_DEFAULTS: Record<LlmDomain, { vendor: LlmVendor; model: string }> = {
   companyLlm:        { vendor: "google",    model: "gemini-2.5-flash" },
@@ -18,6 +19,7 @@ const DOMAIN_DEFAULTS: Record<LlmDomain, { vendor: LlmVendor; model: string }> =
   chatbotLlm:        { vendor: "google",    model: "gemini-2.5-flash" },
   premiumExportLlm:  { vendor: "google",    model: "gemini-2.5-pro" },
   aiUtilityLlm:      { vendor: "google",    model: "gemini-2.5-flash" },
+  graphicsLlm:       { vendor: "google",    model: "gemini-2.5-flash" },
 };
 
 const DOMAIN_TAB: Record<LlmDomain, string> = {
@@ -28,6 +30,7 @@ const DOMAIN_TAB: Record<LlmDomain, string> = {
   chatbotLlm:       "assistants",
   premiumExportLlm: "exports",
   aiUtilityLlm:     "operations",
+  graphicsLlm:      "operations",
 };
 
 export interface ResolvedLlm {

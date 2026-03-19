@@ -135,14 +135,17 @@ export function registerImageRoutes(app: Express): void {
         return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
       }
 
-      const { prompt } = req.body;
+      const { prompt, style } = req.body;
       if (!prompt || typeof prompt !== "string") {
         return res.status(400).json({ error: "Prompt is required" });
       }
 
+      const styleHint = style === "modern" ? " Lean towards modern, clean, minimalist aesthetics." :
+                         style === "traditional" ? " Lean towards traditional, classic, timeless aesthetics." : "";
+
       const ga = await storage.getGlobalAssumptions(req.user?.id);
       const rc = (ga?.researchConfig as ResearchConfig) ?? {};
-      const resolved = resolveLlm(rc, "aiUtilityLlm");
+      const resolved = resolveLlm(rc, "graphicsLlm");
       const gemini = getGeminiClient();
       const startTime = Date.now();
       const response = await gemini.models.generateContent({
@@ -150,7 +153,7 @@ export function registerImageRoutes(app: Express): void {
         contents: [{
           role: "user",
           parts: [{
-            text: `You are a world-class logo design director. Enhance this logo description into a detailed, vivid prompt optimized for AI image generation. Keep it concise (2-3 sentences max). Focus on style, colors, composition, and mood. Output ONLY the enhanced prompt, nothing else.\n\nOriginal: ${prompt}`
+            text: `You are a world-class logo design director. Enhance this logo description into a detailed, vivid prompt optimized for AI image generation. Keep it concise (2-3 sentences max). Focus on style, colors, composition, and mood.${styleHint} Output ONLY the enhanced prompt, nothing else.\n\nOriginal: ${prompt}`
           }]
         }],
       });

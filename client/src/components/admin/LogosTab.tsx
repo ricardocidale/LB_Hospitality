@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, ArrowRight, X, Check } from "@/components/icons/themed-icons";
 import { IconPlus, IconSave, IconStar, IconSparkles, IconHardDrive, IconLink, IconWand2, IconTrash, IconProperties, IconImage, IconTag, IconPencil } from "@/components/icons";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useUpload } from "@/hooks/use-upload";
 import { useToast } from "@/hooks/use-toast";
 import { ImageCropDialog } from "@/components/ui/image-crop-dialog";
@@ -15,6 +16,7 @@ import defaultLogo from "@/assets/logo.png";
 
 type LogoMode = "generate" | "import" | "url";
 type AIStep = "describe" | "enhancing" | "review" | "generating";
+type LogoStyle = "modern" | "neutral" | "traditional";
 
 export default function LogosTab() {
   const { toast } = useToast();
@@ -29,6 +31,7 @@ export default function LogosTab() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiStep, setAiStep] = useState<AIStep>("describe");
   const [enhancedPrompt, setEnhancedPrompt] = useState("");
+  const [logoStyle, setLogoStyle] = useState<LogoStyle>("neutral");
   const [isUploadingFile, setIsUploadingFile] = useState(false);
 
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
@@ -50,6 +53,7 @@ export default function LogosTab() {
     setAiPrompt("");
     setAiStep("describe");
     setEnhancedPrompt("");
+    setLogoStyle("neutral");
     setIsUploadingFile(false);
     setUrlInput("");
     setLogoMode("generate");
@@ -100,10 +104,14 @@ export default function LogosTab() {
     setCropDialogOpen(open);
   };
 
+  const stylePrefix = (style: LogoStyle) =>
+    style === "modern" ? "Modern, clean, minimalist style. " :
+    style === "traditional" ? "Traditional, classic, timeless style. " : "";
+
   const handleEnhancePrompt = async () => {
     if (!aiPrompt.trim()) return;
     setAiStep("enhancing");
-    const result = await enhance(aiPrompt.trim());
+    const result = await enhance(aiPrompt.trim(), logoStyle);
     if (result) {
       setEnhancedPrompt(result);
       setAiStep("review");
@@ -251,19 +259,42 @@ export default function LogosTab() {
                     <Textarea
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
-                      placeholder="e.g., Modern minimalist logo for a boutique hotel management company with elegant green tones..."
+                      placeholder="e.g., Minimalist logo for a boutique hotel management company with elegant green tones..."
                       rows={3}
                       disabled={isBusy}
                       className="resize-none bg-card border-border text-sm"
                       data-testid="input-ai-prompt"
                     />
                   </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-foreground text-sm">Style</Label>
+                    <RadioGroup
+                      value={logoStyle}
+                      onValueChange={(v) => setLogoStyle(v as LogoStyle)}
+                      className="flex gap-4"
+                      disabled={isBusy}
+                      data-testid="radio-logo-style"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <RadioGroupItem value="modern" id="style-modern" data-testid="radio-style-modern" />
+                        <Label htmlFor="style-modern" className="text-sm cursor-pointer">Modern</Label>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <RadioGroupItem value="neutral" id="style-neutral" data-testid="radio-style-neutral" />
+                        <Label htmlFor="style-neutral" className="text-sm cursor-pointer">Neutral</Label>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <RadioGroupItem value="traditional" id="style-traditional" data-testid="radio-style-traditional" />
+                        <Label htmlFor="style-traditional" className="text-sm cursor-pointer">Traditional</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
                   <div className="flex gap-2">
                     <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={handleEnhancePrompt} className="flex-1 bg-gradient-to-b from-amber-50 to-amber-100/80 border-amber-200/60 text-amber-800 hover:from-amber-100 hover:to-amber-200/80 hover:border-amber-300 transition-all" data-testid="btn-enhance-prompt">
                       <IconWand2 className="w-4 h-4 mr-2" />
                       Enhance with AI
                     </Button>
-                    <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={() => handleGenerateLogo(aiPrompt.trim())} className="flex-1 bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-foreground hover:from-primary/20 hover:to-primary/30 transition-all" data-testid="btn-generate-direct">
+                    <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={() => handleGenerateLogo((logoStyle !== "neutral" ? stylePrefix(logoStyle) : "") + aiPrompt.trim())} className="flex-1 bg-gradient-to-b from-primary/10 to-primary/20 border-primary/30 text-foreground hover:from-primary/20 hover:to-primary/30 transition-all" data-testid="btn-generate-direct">
                       <IconSparkles className="w-4 h-4 mr-2" />
                       Generate Logo
                     </Button>

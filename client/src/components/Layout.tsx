@@ -220,7 +220,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
   const sidebarHeader = (
     <div className="flex items-center gap-2.5 px-4 pt-4 pb-2">
       <img src={companyLogo} alt="H+ Analytics" className="w-7 h-7 object-contain" />
-      <h1 className="text-sm font-semibold text-foreground truncate">H+ Analytics</h1>
+      <h1 className="text-sm font-semibold text-foreground truncate"><span style={{ color: "#00A9B8" }}>H+</span> Analytics</h1>
     </div>
   );
 

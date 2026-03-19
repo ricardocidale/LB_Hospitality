@@ -205,7 +205,7 @@ function renderExecutiveSummarySection(section: any, d: PdfTemplateData): string
   const highlightsHtml = highlights.map((h: any, i: number) => {
     const accentColors = d.colors
       ? [`#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`, `#${d.colors.darkGreen}`, `#${d.colors.navy}`]
-      : ["#257D41", "#1A2332", "#9FBCA4", "#0E7C6B", "#8B5A2B"];
+      : [`#${BRAND.DARK_GREEN_HEX}`, `#${BRAND.NAVY_HEX}`, `#${BRAND.SAGE_HEX}`, `#${BRAND.DARK_GREEN_HEX}`, `#${BRAND.NAVY_HEX}`];
     const color = accentColors[i % accentColors.length];
     return `
       <div class="highlight-card">
@@ -240,7 +240,7 @@ function renderMetricsDashboardSection(section: any, d: PdfTemplateData): string
   const metrics: any[] = section.content?.metrics || [];
   const accentColors = d.colors
     ? [`#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`, `#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`]
-    : ["#257D41", "#1A2332", "#9FBCA4", "#257D41", "#1A2332", "#9FBCA4"];
+    : [`#${BRAND.DARK_GREEN_HEX}`, `#${BRAND.NAVY_HEX}`, `#${BRAND.SAGE_HEX}`, `#${BRAND.DARK_GREEN_HEX}`, `#${BRAND.NAVY_HEX}`, `#${BRAND.SAGE_HEX}`];
 
   const cards = metrics.map((m: any, i: number) => {
     const accent = accentColors[i % accentColors.length];

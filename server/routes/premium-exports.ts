@@ -46,6 +46,7 @@ const premiumExportSchema = z.object({
     name: z.string(),
     hexCode: z.string(),
     rank: z.number().optional(),
+    description: z.string().optional(),
   })).optional(),
   memoSections: z.object({
     executiveSummary: z.string().optional(),

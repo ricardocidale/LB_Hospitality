@@ -1,12 +1,12 @@
 export const BRAND = {
-  NAVY_HEX: "1A2332",
-  SAGE_HEX: "9FBCA4",
-  DARK_GREEN_HEX: "257D41",
-  DARK_TEXT_HEX: "3D3D3D",
-  GRAY_HEX: "666666",
+  NAVY_HEX: "18181B",
+  SAGE_HEX: "3F3F46",
+  DARK_GREEN_HEX: "10B981",
+  DARK_TEXT_HEX: "09090B",
+  GRAY_HEX: "E4E4E7",
   WHITE_HEX: "FFFFFF",
-  SECTION_BG_HEX: "EFF5F0",
-  ALT_ROW_HEX: "F8FAF9",
+  SECTION_BG_HEX: "FFFFFF",
+  ALT_ROW_HEX: "F4F4F5",
 };
 
 interface ExportDataShape {
@@ -200,7 +200,7 @@ export function getPdfDesignPrompt(data: ExportDataShape, themeColors?: Array<{n
   const orientation = data.orientation || "landscape";
   const colorPalette = themeColors?.length
     ? themeColors.map(c => `${c.name}: ${c.hexCode}`).join(", ")
-    : `Navy: #${BRAND.NAVY_HEX}, Sage: #${BRAND.SAGE_HEX}, Forest: #${BRAND.DARK_GREEN_HEX}, Charcoal: #${BRAND.DARK_TEXT_HEX}`;
+    : `Carbon: #${BRAND.NAVY_HEX}, Graphite: #${BRAND.SAGE_HEX}, Emerald: #${BRAND.DARK_GREEN_HEX}, Ink: #${BRAND.DARK_TEXT_HEX}`;
 
   return `You are a senior graphic designer at a top-tier investment bank. A client handed you this financial data for their hospitality portfolio. Design a ${orientation} PDF report that tells the investment story visually.
 

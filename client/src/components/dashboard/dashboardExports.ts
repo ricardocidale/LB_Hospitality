@@ -242,9 +242,7 @@ export function generatePortfolioIncomeData(
     rows.push({ category: "Incentive Fee", values: years.map((_, i) => c(i)?.feeIncentive ?? 0), indent: 1 });
   }
 
-  if (!summaryOnly) {
-    rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), indent: 1 });
-  }
+  rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), isHeader: true });
   rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.anoi ?? 0), isHeader: true });
   if (!summaryOnly && hasProps) {
     propertyNames!.forEach((name, idx) => {

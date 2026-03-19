@@ -13,13 +13,14 @@
  *   Departmental Expenses  — costs directly tied to each revenue center
  *   Undistributed Expenses — admin, marketing, utilities, maintenance, IT
  *   Gross Operating Profit (GOP) — revenue minus all operating expenses
- *   Fixed Charges           — property tax
- *   Net Operating Income (NOI) — GOP minus fixed charges (property taxes)
  *   Management Fees        — base fee + incentive fee to operator
+ *   Adjusted GOP (AGOP)    — GOP minus management fees
+ *   Fixed Charges           — property tax
+ *   Net Operating Income (NOI) — AGOP minus fixed charges (property taxes)
  *   FF&E Reserve            — furniture, fixtures & equipment set-aside
- *   Adjusted NOI (ANOI)     — NOI minus mgmt fees minus FF&E reserve
- *   Debt Service             — mortgage principal + interest (if financed)
- *   Cash Flow                — ANOI minus debt service minus income tax
+ *   Adjusted NOI (ANOI)     — NOI minus FF&E reserve
+ *   Debt Service             — mortgage interest + principal (if financed)
+ *   Net Income               — depreciation, tax, cash flow
  *
  * Rows are expandable to show calculation details (e.g. "rooms × ADR × days").
  * Margin percentages are shown inline for key subtotals.
@@ -293,16 +294,23 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      {/* ── Operating Expenses ── */}
-      <SectionHeader label="Operating Expenses" colSpan={colSpan} />
+      {/* ── Departmental Expenses ── */}
+      <SectionHeader label="Departmental Expenses" colSpan={colSpan} />
 
       <LineItem label="Housekeeping"             values={yd.map((y) => y.expenseRooms)} tooltip="USALI Rooms Department — variable cost covering cleaning labor, linens, guest supplies, and amenities. Directly proportional to room revenue: when occupancy rises, so does this cost." formula="Room Revenue × Housekeeping Rate" />
       <LineItem label="Food & Beverage"          values={yd.map((y) => y.expenseFB)} tooltip="USALI F&B Department — variable cost covering kitchen labor, food procurement, and beverage costs. Scales with F&B revenue volume." formula="F&B Revenue × F&B Expense Rate" />
       <LineItem label="Events & Functions"        values={yd.map((y) => y.expenseEvents)} tooltip="Variable cost for event setup, staffing, and AV equipment. Scales with events revenue." formula="Events Revenue × Event Expense Rate" />
       <LineItem label="Other Departments"         values={yd.map((y) => y.expenseOther)} tooltip="Variable costs for ancillary departments (spa, parking, retail). Scales with other revenue." formula="Other Revenue × Other Dept Rate" />
+      <SubtotalRow label="Total Departmental Expenses" values={yd.map((y) => y.expenseRooms + y.expenseFB + y.expenseEvents + y.expenseOther)} tooltip="Direct costs tied to revenue-producing departments: Rooms, F&B, Events, and Other." />
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.expenseRooms + y.expenseFB + y.expenseEvents + y.expenseOther)} baseValues={yd.map((y) => y.revenueTotal)} />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Undistributed Operating Expenses ── */}
+      <SectionHeader label="Undistributed Operating Expenses" colSpan={colSpan} />
+
       <LineItem label="Sales & Marketing"         values={yd.map((y) => y.expenseMarketing)} tooltip="Variable cost for advertising, OTA commissions, loyalty programs, and local promotions. Scales with total revenue." formula="Total Revenue × Marketing Rate" />
 
-      {/* Fixed cost lines — expandable with formula breakdown */}
       {hasContext ? (
         <>
           <ExpandableLineItem
@@ -313,26 +321,6 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
             onToggle={() => toggle("propertyOps")}
           >
             {fixedCostFormulaRows("propertyOps", yd.map((y) => y.expensePropertyOps))}
-          </ExpandableLineItem>
-
-          <ExpandableLineItem
-            label="Utilities"
-            tooltip={`Split into variable (${pct(global.utilitiesVariableSplit ?? 0.60)} of rate, scales with revenue) and fixed (${pct(1 - (global.utilitiesVariableSplit ?? 0.60))} of rate, anchored to Year 1 base revenue). Total rate: ${pct(costRates.utilities)}.`}
-            values={yd.map((y) => y.expenseUtilities)}
-            expanded={isExpanded("utilities")}
-            onToggle={() => toggle("utilities")}
-          >
-            <FormulaDetailRow
-              label="Variable portion (scales with revenue)"
-              values={yd.map((y) => fmt(y.expenseUtilitiesVar))}
-              colCount={years}
-            />
-            <FormulaDetailRow
-              label="Fixed portion (anchored to Year 1 base)"
-              values={yd.map((y) => fmt(y.expenseUtilitiesFixed))}
-              colCount={years}
-            />
-            {fixedCostFormulaRows("utilities", yd.map((y) => y.expenseUtilitiesFixed), true)}
           </ExpandableLineItem>
 
           <ExpandableLineItem
@@ -366,6 +354,26 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           </ExpandableLineItem>
 
           <ExpandableLineItem
+            label="Utilities"
+            tooltip={`Split into variable (${pct(global.utilitiesVariableSplit ?? 0.60)} of rate, scales with revenue) and fixed (${pct(1 - (global.utilitiesVariableSplit ?? 0.60))} of rate, anchored to Year 1 base revenue). Total rate: ${pct(costRates.utilities)}.`}
+            values={yd.map((y) => y.expenseUtilities)}
+            expanded={isExpanded("utilities")}
+            onToggle={() => toggle("utilities")}
+          >
+            <FormulaDetailRow
+              label="Variable portion (scales with revenue)"
+              values={yd.map((y) => fmt(y.expenseUtilitiesVar))}
+              colCount={years}
+            />
+            <FormulaDetailRow
+              label="Fixed portion (anchored to Year 1 base)"
+              values={yd.map((y) => fmt(y.expenseUtilitiesFixed))}
+              colCount={years}
+            />
+            {fixedCostFormulaRows("utilities", yd.map((y) => y.expenseUtilitiesFixed), true)}
+          </ExpandableLineItem>
+
+          <ExpandableLineItem
             label="Other Costs"
             tooltip={`USALI fixed cost: ${pct(costRates.other)} of Year 1 base revenue (${fmt(baseMonthlyTotalRev)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseOtherCosts)}
@@ -378,21 +386,27 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       ) : (
         <>
           <LineItem label="Property Operations"       values={yd.map((y) => y.expensePropertyOps)} tooltip="Fixed cost per USALI: Year 1 base revenue × rate, escalating annually. Not a percentage of current-year revenue." />
-          <LineItem label="Utilities"                 values={yd.map((y) => y.expenseUtilities)} tooltip="Split into variable (scales with revenue) and fixed (anchored to Year 1 base revenue)." />
           <LineItem label="Administrative & General"  values={yd.map((y) => y.expenseAdmin)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
           <LineItem label="IT & Technology"           values={yd.map((y) => y.expenseIT)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
           <LineItem label="Insurance"                 values={yd.map((y) => y.expenseInsurance)} tooltip="Property insurance: based on property value, escalating annually." />
+          <LineItem label="Utilities"                 values={yd.map((y) => y.expenseUtilities)} tooltip="Split into variable (scales with revenue) and fixed (anchored to Year 1 base revenue)." />
           <LineItem label="Other Costs"               values={yd.map((y) => y.expenseOtherCosts)} tooltip="Fixed cost per USALI: anchored to Year 1 base revenue." />
         </>
       )}
 
-      <SubtotalRow label="Total Operating Expenses" values={yd.map((y) => y.revenueTotal - y.gop)} tooltip="All departmental and undistributed operating expenses combined. Includes both variable costs (scale with revenue) and fixed costs (anchored to Year 1 base, escalating with inflation). Does NOT include property taxes, FF&E reserves, or management fees." />
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.revenueTotal - y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
+      <SubtotalRow label="Total Undistributed Expenses" values={yd.map((y) => {
+        const deptExp = y.expenseRooms + y.expenseFB + y.expenseEvents + y.expenseOther;
+        return y.revenueTotal - y.gop - deptExp;
+      })} tooltip="Overhead expenses not directly tied to a specific revenue department: Marketing, Property Operations, Admin, IT, Insurance, Utilities, and Other." />
+      <MarginRow label="% of Total Revenue" values={yd.map((y) => {
+        const deptExp = y.expenseRooms + y.expenseFB + y.expenseEvents + y.expenseOther;
+        return y.revenueTotal - y.gop - deptExp;
+      })} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
       {/* ── Profitability ── */}
-      <SubtotalRow label="Gross Operating Profit (GOP)" values={yd.map((y) => y.gop)} positive tooltip="The property's core operating profitability — revenue after all departmental and overhead costs. This is the key metric for comparing operational efficiency across properties, regardless of ownership structure or financing." formula="Total Revenue − Total Operating Expenses" />
+      <SubtotalRow label="Gross Operating Profit (GOP)" values={yd.map((y) => y.gop)} positive tooltip="The property's core operating profitability — revenue after all departmental and overhead costs. This is the key metric for comparing operational efficiency across properties, regardless of ownership structure or financing." formula="Total Revenue − Dept Expenses − Undistributed Expenses" />
       {isExpanded("gopFormula") ? (
         <>
           <FormulaDetailRow
@@ -412,7 +426,48 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
       )}
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
+      <MarginRow label="GOP Margin" values={yd.map((y) => y.gop)} baseValues={yd.map((y) => y.revenueTotal)} />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Management Fees ── */}
+      <SectionHeader label="Management Fees" colSpan={colSpan} />
+
+      <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Fixed percentage of total revenue paid to the management company for day-to-day hotel operations. This is the guaranteed fee — paid regardless of profitability." formula="Total Revenue × Base Fee Rate" />
+      {(() => {
+        const catSet = new Set<string>();
+        for (const y of yd) for (const k of Object.keys(y.serviceFeesByCategory ?? {})) catSet.add(k);
+        const cats = Array.from(catSet);
+        return cats.length > 0 ? cats.map(cat => (
+          <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
+        )) : null;
+      })()}
+      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance bonus paid to the management company when the property is profitable. Only kicks in when Gross Operating Profit is positive — aligns the operator's incentives with owner returns." formula="max(0, GOP × Incentive Rate)" />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── AGOP ── */}
+      <SubtotalRow label="Adjusted GOP (AGOP)" values={yd.map((y) => y.agop)} positive tooltip="Gross Operating Profit after deducting management fees. AGOP represents the property's operating income available to cover fixed charges, reserves, and debt service." formula="GOP − Base Fee − Incentive Fee" />
+      {isExpanded("agopFormula") ? (
+        <>
+          <FormulaDetailRow
+            label="= GOP − Base Fee − Incentive Fee"
+            values={yd.map((y) => `${fmt(y.gop)} − ${fmt(y.feeBase)} − ${fmt(y.feeIncentive)}`)}
+            colCount={years}
+          />
+          <FormulaDetailRow
+            label="= AGOP"
+            values={yd.map((y) => fmt(y.agop))}
+            colCount={years}
+          />
+        </>
+      ) : (
+        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("agopFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+          {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
+        </TableRow>
+      )}
+      <MarginRow label="AGOP Margin" values={yd.map((y) => y.agop)} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
@@ -470,17 +525,17 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi + y.feeBase + y.feeIncentive)} positive tooltip="Gross Operating Profit minus fixed charges (property taxes). NOI measures the property's income from operations before management fees, reserves, and debt service. Used directly in cap rate valuation (Property Value = NOI ÷ Cap Rate)." formula="GOP − Property Taxes" />
+      <SubtotalRow label="Net Operating Income (NOI)" values={yd.map((y) => y.noi)} positive tooltip="AGOP minus fixed charges (property taxes). NOI measures the property's income from operations before reserves and debt service. Used directly in cap rate valuation (Property Value = NOI / Cap Rate)." formula="AGOP − Property Taxes" />
       {isExpanded("noiFormula") ? (
         <>
           <FormulaDetailRow
-            label="= GOP − Property Taxes"
-            values={yd.map((y) => `${fmt(y.gop)} − ${fmt(y.expenseTaxes)}`)}
+            label="= AGOP − Property Taxes"
+            values={yd.map((y) => `${fmt(y.agop)} − ${fmt(y.expenseTaxes)}`)}
             colCount={years}
           />
           <FormulaDetailRow
             label="= NOI"
-            values={yd.map((y) => fmt(y.noi + y.feeBase + y.feeIncentive))}
+            values={yd.map((y) => fmt(y.noi))}
             colCount={years}
           />
         </>
@@ -490,39 +545,23 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
       )}
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.noi + y.feeBase + y.feeIncentive)} baseValues={yd.map((y) => y.revenueTotal)} />
-
-      <SpacerRow colSpan={colSpan} />
-
-      {/* ── Management Fees ── */}
-      <SectionHeader label="Management Fees" colSpan={colSpan} />
-
-      <LineItem label="Base Management Fee"       values={yd.map((y) => y.feeBase)} tooltip="Fixed percentage of total revenue paid to the management company for day-to-day hotel operations. This is the guaranteed fee — paid regardless of profitability." formula="Total Revenue × Base Fee Rate" />
-      {(() => {
-        const catSet = new Set<string>();
-        for (const y of yd) for (const k of Object.keys(y.serviceFeesByCategory ?? {})) catSet.add(k);
-        const cats = Array.from(catSet);
-        return cats.length > 0 ? cats.map(cat => (
-          <LineItem key={cat} label={`  ${cat}`} values={yd.map((y) => y.serviceFeesByCategory[cat] ?? 0)} indent />
-        )) : null;
-      })()}
-      <LineItem label="Incentive Management Fee"  values={yd.map((y) => y.feeIncentive)} tooltip="Performance bonus paid to the management company when the property is profitable. Only kicks in when Gross Operating Profit is positive — aligns the operator's incentives with owner returns." formula="max(0, GOP × Incentive Rate)" />
+      <MarginRow label="NOI Margin" values={yd.map((y) => y.noi)} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
       {/* ── FF&E Reserve ── */}
-      <SectionHeader label="Reserves" colSpan={colSpan} />
+      <SectionHeader label="FF&E Reserve" colSpan={colSpan} />
 
-      <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Annual set-aside for replacing Furniture, Fixtures & Equipment (carpets, HVAC, case goods, soft goods). Required by most hotel lenders (typically 3–5% of revenue). This is a reserve, not an actual expense — actual replacements are capitalized and depreciated." formula="Total Revenue × FF&E Rate" />
+      <LineItem label="FF&E Reserve"              values={yd.map((y) => y.expenseFFE)} tooltip="Annual set-aside for replacing Furniture, Fixtures & Equipment (carpets, HVAC, case goods, soft goods). Required by most hotel lenders (typically 3-5% of revenue). This is a reserve, not an actual expense — actual replacements are capitalized and depreciated." formula="Total Revenue × FF&E Rate" />
 
       <SpacerRow colSpan={colSpan} />
 
-      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="The owner's true operating cash flow — NOI after deducting management fees and the FF&E reserve. This is what's available to service debt, pay income taxes, and generate investor returns. ANOI is the starting point for cash-on-cash return calculations." formula="NOI − Base Fee − Incentive Fee − FF&E Reserve" />
+      <SubtotalRow label="Adjusted NOI (ANOI)" values={yd.map((y) => y.anoi)} positive tooltip="NOI after deducting the FF&E reserve. This is what's available to service debt, pay income taxes, and generate investor returns. ANOI is the starting point for cash-on-cash return calculations." formula="NOI − FF&E Reserve" />
       {isExpanded("anoiFormula") ? (
         <>
           <FormulaDetailRow
-            label="= NOI − Base Fee − Incentive Fee − FF&E Reserve"
-            values={yd.map((y) => `${fmt(y.noi + y.feeBase + y.feeIncentive)} − ${fmt(y.feeBase)} − ${fmt(y.feeIncentive)} − ${fmt(y.expenseFFE)}`)}
+            label="= NOI − FF&E Reserve"
+            values={yd.map((y) => `${fmt(y.noi)} − ${fmt(y.expenseFFE)}`)}
             colCount={years}
           />
           <FormulaDetailRow
@@ -537,16 +576,33 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
       )}
-      <MarginRow label="% of Total Revenue" values={yd.map((y) => y.anoi)} baseValues={yd.map((y) => y.revenueTotal)} />
+      <MarginRow label="ANOI Margin" values={yd.map((y) => y.anoi)} baseValues={yd.map((y) => y.revenueTotal)} />
 
       <SpacerRow colSpan={colSpan} />
 
-      {/* ── Below ANOI ── */}
-      <SectionHeader label="Below ANOI" colSpan={colSpan} />
+      {/* ── Debt Service ── */}
+      <SectionHeader label="Debt Service" colSpan={colSpan} />
 
       <LineItem label="Interest Expense"  values={yd.map((y) => y.interestExpense)} tooltip="The interest portion of monthly mortgage payments. Only appears for financed properties — cash purchases show $0. Interest expense is tax-deductible, reducing taxable income." formula="Loan Balance × Monthly Rate" />
-      <LineItem label="Depreciation"      values={yd.map((y) => y.depreciationExpense)} tooltip="Non-cash accounting expense that spreads the building's cost over its useful life. Reduces taxable income without reducing actual cash — a major tax advantage of real estate investing. Land is not depreciable." formula="(Building Value + Improvements) ÷ 27.5 years ÷ 12 months" />
+      <LineItem label="Principal Payment"  values={yd.map((y) => y.principalPayment ?? 0)} tooltip="The principal repayment portion of monthly mortgage payments. Reduces outstanding loan balance but is not an expense on the income statement." formula="Monthly Payment − Interest Expense" />
+      <MetricRow
+        label="DSCR"
+        tooltip="Debt Service Coverage Ratio — measures the property's ability to cover its debt obligations from NOI. A DSCR above 1.25 is typically required by lenders."
+        values={yd.map((y) => {
+          const totalDebtService = y.interestExpense + (y.principalPayment ?? 0);
+          if (totalDebtService <= 0) return "N/A";
+          return `${(y.noi / totalDebtService).toFixed(2)}x`;
+        })}
+      />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Net Income ── */}
+      <SectionHeader label="Net Income" colSpan={colSpan} />
+
+      <LineItem label="Depreciation"      values={yd.map((y) => y.depreciationExpense)} tooltip="Non-cash accounting expense that spreads the building's cost over its useful life. Reduces taxable income without reducing actual cash — a major tax advantage of real estate investing. Land is not depreciable." formula="(Building Value + Improvements) / 27.5 years / 12 months" />
       <LineItem label="Income Tax"        values={yd.map((y) => y.incomeTax)} tooltip="Federal/state income tax on the property's taxable income. Only applies when taxable income is positive — operating losses produce $0 tax. Negative taxable income (from depreciation) can shelter other income." formula="max(0, (ANOI − Interest − Depreciation) × Tax Rate)" />
+      <LineItem label="Cash Flow"         values={yd.map((y) => y.anoi - y.interestExpense - (y.principalPayment ?? 0) - y.incomeTax)} tooltip="Actual cash remaining after all obligations: ANOI minus debt service minus income tax. This is the investor's true take-home." formula="ANOI − Debt Service − Income Tax" />
 
       <SpacerRow colSpan={colSpan} />
 

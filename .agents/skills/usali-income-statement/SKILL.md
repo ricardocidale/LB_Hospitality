@@ -65,12 +65,25 @@ Marketing & Sales, Property Operations & Maintenance, Admin & General, IT & Tech
 
 ## Implementation Files
 
-- `client/src/components/dashboard/IncomeStatementTab.tsx` — Main IS view with chevron rows
+### Income Statement Views (all follow USALI order)
+- `client/src/components/dashboard/IncomeStatementTab.tsx` — Consolidated IS (portfolio-level, chevron rows)
+- `client/src/components/statements/YearlyIncomeStatement.tsx` — Property-level IS (multi-year, expandable formulas)
+- `client/src/components/property-detail/IncomeStatementTab.tsx` — Property detail IS wrapper (waterfall + line chart + table)
+- `client/src/components/statements/FinancialStatement.tsx` — Monthly IS (12-month columns)
+
+### NOT a Property IS (different structure)
+- `client/src/components/company/CompanyIncomeTab.tsx` — Management company P&L (Revenue = fees, Expenses = company overhead, EBITDA → Net Income). This is NOT a USALI property IS.
+
+### Support Files
 - `client/src/components/dashboard/dashboardExports.ts` — Export data generation
 - `client/src/components/dashboard/useExpandableRows.ts` — Shared chevron state hook
+- `client/src/components/property-detail/types.ts` — Property detail type definitions (YearlyDetail, YearlyChartDataPoint)
 - `client/src/components/ui/financial-chart.tsx` — Chart presets (includes `agop` series)
 - `client/src/lib/financial/yearlyAggregator.ts` — Yearly consolidation of engine data
 - `client/src/lib/financial/types.ts` — Engine output types
+- `client/src/lib/exports/excel/property-sheets.ts` — Excel export (USALI order)
+- `client/src/lib/exports/checkerManualExport.ts` — Checker manual export (USALI order)
+- `client/src/pages/PropertyDetail.tsx` — Property detail page (chart data + PDF export, USALI order)
 
 ## Row Key Registry
 
@@ -93,6 +106,9 @@ AGOP uses preset color `#10B981` (emerald green).
 
 1. Never combine Departmental and Undistributed expenses into a single "Operating Expenses" section.
 2. AGOP must always appear between Management Fees and Fixed Charges.
-3. Every profitability subtotal (GOP, AGOP, NOI, ANOI) must show a margin % and per-property breakdown when expanded.
+3. Every profitability subtotal (GOP, AGOP, NOI, ANOI) must show a margin % and per-property breakdown when expanded (consolidated) or margin % (property-level).
 4. Formula rows use the blue-tinted expandable pattern (`bg-blue-50/40`).
-5. The waterfall chart in Overview tab must follow the same order: Revenue → Operating Exp → GOP → Fees → AGOP → Fixed → NOI → FF&E → ANOI.
+5. All waterfall charts must follow USALI order: Revenue → Dept Exp → Undist Exp → GOP → Fees → AGOP → Fixed → NOI → FF&E → ANOI.
+6. All line charts showing IS data must include AGOP series with color `#10B981`.
+7. NOI always uses `engine.noi` directly — never `noi + feeBase + feeIncentive`.
+8. The Company IS (`CompanyIncomeTab.tsx`) is a management company P&L, NOT a USALI property IS. Do not apply these rules to it.

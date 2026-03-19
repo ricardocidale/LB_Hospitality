@@ -25,6 +25,7 @@ export interface YearlyChartDataPoint {
   year: string;
   Revenue: number;
   GOP: number;
+  AGOP: number;
   NOI: number;
   ANOI: number;
   CashFlow: number;
@@ -52,8 +53,11 @@ export interface YearlyDetail {
   expenseFFE: number;
   feeBase: number;
   feeIncentive: number;
+  expenseOther: number;
   gop: number;
+  agop: number;
   noi: number;
+  anoi: number;
   cashFlow: number;
 }
 

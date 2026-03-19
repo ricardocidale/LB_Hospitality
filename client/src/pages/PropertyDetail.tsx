@@ -115,7 +115,8 @@ export default function PropertyDetail() {
         year: String(getFiscalYear(y)),
         Revenue: yearData.reduce((a, m) => a + m.revenueTotal, 0),
         GOP: yearData.reduce((a, m) => a + m.gop, 0),
-        NOI: yearData.reduce((a, m) => a + m.noi + m.feeBase + m.feeIncentive, 0),
+        AGOP: yearData.reduce((a, m) => a + m.agop, 0),
+        NOI: yearData.reduce((a, m) => a + m.noi, 0),
         ANOI: yearData.reduce((a, m) => a + m.anoi, 0),
         CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
       });
@@ -316,17 +317,18 @@ export default function PropertyDetail() {
     rows.push({ category: "Total Operating Expenses", values: yearlyDetails.map(y => y.totalExpenses - y.expenseFFE - y.expenseTaxes), isBold: true });
     rows.push({ category: "Gross Operating Profit (GOP)", values: yearlyDetails.map(y => y.gop), isBold: true });
     if (!isShort) {
-      rows.push({ category: "FIXED CHARGES", values: yearlyDetails.map(() => 0), isHeader: true });
-      rows.push({ category: "Property Taxes", values: yearlyDetails.map(y => y.expenseTaxes), indent: 1 });
-    }
-    rows.push({ category: "Total Fixed Charges", values: yearlyDetails.map(y => y.expenseTaxes), isBold: true });
-    rows.push({ category: "Net Operating Income (NOI)", values: yearlyDetails.map(y => y.noi + y.feeBase + y.feeIncentive), isBold: true });
-    if (!isShort) {
       rows.push({ category: "MANAGEMENT FEES", values: yearlyDetails.map(() => 0), isHeader: true });
       rows.push({ category: "Base Fee", values: yearlyDetails.map(y => y.feeBase), indent: 1 });
       rows.push({ category: "Incentive Fee", values: yearlyDetails.map(y => y.feeIncentive), indent: 1 });
     }
     rows.push({ category: "Total Management Fees", values: yearlyDetails.map(y => y.feeBase + y.feeIncentive), isBold: true });
+    rows.push({ category: "Adjusted GOP (AGOP)", values: yearlyDetails.map(y => y.agop), isBold: true });
+    if (!isShort) {
+      rows.push({ category: "FIXED CHARGES", values: yearlyDetails.map(() => 0), isHeader: true });
+      rows.push({ category: "Property Taxes", values: yearlyDetails.map(y => y.expenseTaxes), indent: 1 });
+    }
+    rows.push({ category: "Total Fixed Charges", values: yearlyDetails.map(y => y.expenseTaxes), isBold: true });
+    rows.push({ category: "Net Operating Income (NOI)", values: yearlyDetails.map(y => y.noi), isBold: true });
     if (!isShort) {
       rows.push({ category: "FF&E Reserve", values: yearlyDetails.map(y => y.expenseFFE), indent: 1 });
     }
@@ -338,7 +340,7 @@ export default function PropertyDetail() {
     if (yearlyChartData && yearlyChartData.length > 0) {
       doc.addPage();
       drawTitle(doc, `${property.name} \u2014 Performance Trend`, 14, 15, { fontSize: 16 });
-      drawSubtitleRow(doc, `${projectionYears}-Year Revenue, GOP, NOI, and ANOI Trend`, entityTag, 14, 22, pageWidth);
+      drawSubtitleRow(doc, `${projectionYears}-Year Revenue, GOP, AGOP, NOI, and ANOI Trend`, entityTag, 14, 22, pageWidth);
       drawLineChart({
         doc,
         x: 14,
@@ -349,6 +351,7 @@ export default function PropertyDetail() {
         series: [
           { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#257D41' },
           { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: '#3B82F6' },
+          { name: 'AGOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.AGOP })), color: '#10B981' },
           { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: '#8B5CF6' },
           { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: '#F4795B' },
         ]
@@ -467,7 +470,7 @@ export default function PropertyDetail() {
       doc.addPage();
       const chartSubtitle = activeTab === "cashflow"
         ? `${projectionYears}-Year Revenue, ANOI, and Cash Flow Trend`
-        : `${projectionYears}-Year Revenue, GOP, NOI, and ANOI Trend`;
+        : `${projectionYears}-Year Revenue, GOP, AGOP, NOI, and ANOI Trend`;
       drawTitle(doc, `${property.name} \u2014 Performance Trend`, 14, 15, { fontSize: 16 });
       drawSubtitleRow(doc, chartSubtitle, entityTag, 14, 22, pageWidth);
 
@@ -478,6 +481,7 @@ export default function PropertyDetail() {
       ] : [
         { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#257D41' },
         { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: '#3B82F6' },
+        { name: 'AGOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.AGOP })), color: '#10B981' },
         { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: '#8B5CF6' },
         { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: '#F4795B' },
       ];
@@ -668,17 +672,18 @@ export default function PropertyDetail() {
           incomeRows.push({ category: "Total Operating Expenses", values: yearlyDetails.map(y => y.totalExpenses - y.expenseFFE - y.expenseTaxes), isBold: true });
           incomeRows.push({ category: "Gross Operating Profit (GOP)", values: yearlyDetails.map(y => y.gop), isBold: true });
           if (!summaryOnly) {
-            incomeRows.push({ category: "FIXED CHARGES", values: yearlyDetails.map(() => 0), isHeader: true });
-            incomeRows.push({ category: "Property Taxes", values: yearlyDetails.map(y => y.expenseTaxes), indent: 1 });
-          }
-          incomeRows.push({ category: "Total Fixed Charges", values: yearlyDetails.map(y => y.expenseTaxes), isBold: true });
-          incomeRows.push({ category: "Net Operating Income (NOI)", values: yearlyDetails.map(y => y.noi + y.feeBase + y.feeIncentive), isBold: true });
-          if (!summaryOnly) {
             incomeRows.push({ category: "MANAGEMENT FEES", values: yearlyDetails.map(() => 0), isHeader: true });
             incomeRows.push({ category: "Base Fee", values: yearlyDetails.map(y => y.feeBase), indent: 1 });
             incomeRows.push({ category: "Incentive Fee", values: yearlyDetails.map(y => y.feeIncentive), indent: 1 });
           }
           incomeRows.push({ category: "Total Management Fees", values: yearlyDetails.map(y => y.feeBase + y.feeIncentive), isBold: true });
+          incomeRows.push({ category: "Adjusted GOP (AGOP)", values: yearlyDetails.map(y => y.agop), isBold: true });
+          if (!summaryOnly) {
+            incomeRows.push({ category: "FIXED CHARGES", values: yearlyDetails.map(() => 0), isHeader: true });
+            incomeRows.push({ category: "Property Taxes", values: yearlyDetails.map(y => y.expenseTaxes), indent: 1 });
+          }
+          incomeRows.push({ category: "Total Fixed Charges", values: yearlyDetails.map(y => y.expenseTaxes), isBold: true });
+          incomeRows.push({ category: "Net Operating Income (NOI)", values: yearlyDetails.map(y => y.noi), isBold: true });
           if (!summaryOnly) {
             incomeRows.push({ category: "FF&E Reserve", values: yearlyDetails.map(y => y.expenseFFE), indent: 1 });
           }
@@ -774,7 +779,7 @@ export default function PropertyDetail() {
           investRows.push({ category: "Loan Amount", values: yearlyDetails.map(() => pdfLoan.loanAmount), indent: 1 });
           if (!summaryOnly) {
             investRows.push({ category: "Annual Revenue", values: yearlyDetails.map(y => y.revenueTotal), indent: 1 });
-            investRows.push({ category: "Annual NOI", values: yearlyDetails.map(y => y.noi + y.feeBase + y.feeIncentive), indent: 1 });
+            investRows.push({ category: "Annual NOI", values: yearlyDetails.map(y => y.noi), indent: 1 });
             investRows.push({ category: "Annual ANOI", values: yearlyDetails.map(y => y.anoi), indent: 1 });
             investRows.push({ category: "Annual Cash Flow", values: yearlyChartData.map(d => d.CashFlow), indent: 1 });
             investRows.push({ category: "Debt Service", values: cashFlowData.map(cf => cf.debtService), indent: 1 });

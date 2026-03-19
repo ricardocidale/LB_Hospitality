@@ -57,23 +57,23 @@ export default function IncomeStatementTab({
 
     const totalRev = yd.revenueTotal;
     const deptExpenses = yd.expenseRooms + yd.expenseFB + yd.expenseEvents + (yd as any).expenseOther;
-    const gop = yd.gop;
     const undistributed = yd.expenseAdmin + yd.expenseMarketing + yd.expensePropertyOps +
       yd.expenseUtilitiesVar + yd.expenseUtilitiesFixed + yd.expenseIT + yd.expenseInsurance + yd.expenseOtherCosts;
     const mgmtFees = yd.feeBase + yd.feeIncentive;
     const fixedCharges = yd.expenseTaxes;
-    const displayNOI = yd.noi + mgmtFees;
     const ffe = yd.expenseFFE;
 
     const items: WaterfallItem[] = [
       { label: "Total Revenue", value: totalRev, type: "subtotal" },
       { label: "Dept. Expenses", value: -deptExpenses, type: "negative" },
-      { label: "GOP", value: gop, type: "subtotal" },
-      { label: "Fixed Charges", value: -fixedCharges, type: "negative" },
-      { label: "NOI", value: displayNOI, type: "subtotal" },
+      { label: "Undist. Expenses", value: -undistributed, type: "negative" },
+      { label: "GOP", value: yd.gop, type: "subtotal" },
       { label: "Mgmt Fees", value: -mgmtFees, type: "negative" },
+      { label: "AGOP", value: yd.agop, type: "subtotal" },
+      { label: "Fixed Charges", value: -fixedCharges, type: "negative" },
+      { label: "NOI", value: yd.noi, type: "subtotal" },
       { label: "FF&E Reserve", value: -ffe, type: "negative" },
-      { label: "ANOI", value: displayNOI - mgmtFees - ffe, type: "subtotal" },
+      { label: "ANOI", value: yd.anoi, type: "subtotal" },
     ];
 
     return { items, totalRevenue: totalRev };
@@ -147,7 +147,7 @@ export default function IncomeStatementTab({
                     }}
                     labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
                     formatter={(value: number, name: string) => {
-                      const labels: Record<string, string> = { Revenue: "Revenue — Total Revenue", GOP: "GOP — Gross Operating Profit", NOI: "NOI — Net Operating Income", ANOI: "ANOI — Adjusted Net Operating Income" };
+                      const labels: Record<string, string> = { Revenue: "Revenue — Total Revenue", GOP: "GOP — Gross Operating Profit", AGOP: "AGOP — Adjusted Gross Operating Profit", NOI: "NOI — Net Operating Income", ANOI: "ANOI — Adjusted Net Operating Income" };
                       return [formatMoney(value), labels[name] ?? name];
                     }}
                   />
@@ -155,7 +155,7 @@ export default function IncomeStatementTab({
                     wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }}
                     iconType="circle"
                     formatter={(value: string) => {
-                      const abbr: Record<string, string> = { Revenue: "Revenue", GOP: "GOP", NOI: "NOI", ANOI: "ANOI" };
+                      const abbr: Record<string, string> = { Revenue: "Revenue", GOP: "GOP", AGOP: "AGOP", NOI: "NOI", ANOI: "ANOI" };
                       return abbr[value] ?? value;
                     }}
                   />
@@ -174,6 +174,14 @@ export default function IncomeStatementTab({
                     strokeWidth={3}
                     dot={{ fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2, r: 4 }}
                     activeDot={{ r: 6, fill: 'hsl(var(--line-2))', stroke: '#fff', strokeWidth: 2 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="AGOP" 
+                    stroke="#10B981"
+                    strokeWidth={3}
+                    dot={{ fill: '#10B981', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, fill: '#10B981', stroke: '#fff', strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 

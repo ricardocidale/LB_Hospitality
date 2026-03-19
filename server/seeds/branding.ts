@@ -106,15 +106,16 @@ export async function seedCompanies() {
   }
 
   const allCompanies = await db.select().from(companies);
-  let logosCreated = 0;
-  for (const c of allCompanies) {
-    if (c.logoId) continue;
-    const logoUrl = `/api/letter-logo/${encodeURIComponent(c.name)}`;
-    const [logo] = await db.insert(logos).values({ name: c.name, companyName: c.name, url: logoUrl, isDefault: false }).returning();
-    await db.update(companies).set({ logoId: logo.id }).where(eq(companies.id, c.id));
-    logosCreated++;
-  }
-  if (logosCreated > 0) {
-    logger.info(`Created ${logosCreated} letter logos for companies`, "seed");
+  const [defaultLogo] = await db.select().from(logos).where(eq(logos.isDefault, true));
+  if (defaultLogo) {
+    let assigned = 0;
+    for (const c of allCompanies) {
+      if (c.logoId) continue;
+      await db.update(companies).set({ logoId: defaultLogo.id }).where(eq(companies.id, c.id));
+      assigned++;
+    }
+    if (assigned > 0) {
+      logger.info(`Assigned default logo to ${assigned} companies without logos`, "seed");
+    }
   }
 }

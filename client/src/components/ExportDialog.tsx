@@ -106,7 +106,7 @@ async function generatePremiumExport(
   version: ExportVersion,
 ): Promise<{ blob: Blob; serverFilename: string }> {
   const controller = new AbortController();
-  const clientTimeout = setTimeout(() => controller.abort(), 200_000);
+  const clientTimeout = setTimeout(() => controller.abort(), 300_000);
   let response;
   try {
     response = await fetch("/api/exports/premium", {

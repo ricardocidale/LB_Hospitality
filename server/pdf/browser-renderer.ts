@@ -163,9 +163,13 @@ export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<B
     const widthPx = isLandscape ? 1536 : 816;
     const heightPx = isLandscape ? 864 : 1056;
     await page.setViewport({ width: widthPx, height: heightPx, deviceScaleFactor: 1 });
-    await page.setContent(html, { waitUntil: "networkidle0", timeout: 30_000 });
-    // Wait for fonts to load
+    // Use "load" instead of "networkidle0" — the HTML is fully self-contained (no external
+    // resources), so we only need the load event. networkidle0 requires 0 Chrome-internal
+    // connections for 500 ms which can flakily time out even on static content.
+    await page.setContent(html, { waitUntil: "load", timeout: 45_000 });
+    // Let inline styles/fonts settle before capturing
     try { await page.evaluateHandle("document.fonts.ready"); } catch {}
+    try { await page.evaluate(() => new Promise<void>(r => setTimeout(r, 300))); } catch {}
     const pdfBuffer = await page.pdf({
       width: opts.width,
       height: opts.height,
@@ -182,7 +186,9 @@ export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<B
 export async function renderPng(html: string, opts: { width: number; height: number; scale?: number }): Promise<Buffer> {
   return withPage("renderPng", async (page) => {
     await page.setViewport({ width: opts.width, height: opts.height, deviceScaleFactor: opts.scale ?? 2 });
-    await page.setContent(html, { waitUntil: "networkidle0", timeout: 30_000 });
+    await page.setContent(html, { waitUntil: "load", timeout: 45_000 });
+    try { await page.evaluateHandle("document.fonts.ready"); } catch {}
+    try { await page.evaluate(() => new Promise<void>(r => setTimeout(r, 200))); } catch {}
     const pngBuffer = await page.screenshot({ type: "png", fullPage: false });
     return Buffer.from(pngBuffer);
   });

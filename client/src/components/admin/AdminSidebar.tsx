@@ -84,7 +84,7 @@ const navGroups: NavGroup[] = [
     icon: IconShield,
     description: "Infrastructure & monitoring",
     sections: [
-      { value: "model-defaults", label: "Model Defaults", icon: IconSliders },
+      { value: "model-defaults", label: "App Defaults", icon: IconSliders },
       { value: "notifications", label: "Notifications", icon: IconPhone },
       { value: "navigation", label: "Navigation", icon: IconPanelLeft },
       { value: "verification", label: "Verification", icon: IconFileCheck },

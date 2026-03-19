@@ -575,6 +575,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   const TXT = `#${c.darkText}`;
   const GR = `#${c.gray}`;
   const ALT = `#${c.altRow}`;
+  const SECBG = `#${c.sectionBg}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -921,7 +922,7 @@ body {
 .fin-table thead { display: table-header-group; }
 .fin-table tr { break-inside: avoid; }
 .fin-table thead tr {
-  background: linear-gradient(135deg, #f0f3f1, #e8ece9);
+  background: linear-gradient(135deg, ${SECBG}, ${ALT});
   border-bottom: 2px solid ${DK};
 }
 .fin-table th {
@@ -935,9 +936,9 @@ body {
 }
 .fin-table td {
   padding: 1.8mm 3mm;
-  border-bottom: 1px solid #ebeef0;
-  border-left: 1px solid #f0f2f4;
-  border-right: 1px solid #f0f2f4;
+  border-bottom: 1px solid color-mix(in srgb, ${SAGE} 18%, white);
+  border-left: 1px solid color-mix(in srgb, ${SAGE} 10%, white);
+  border-right: 1px solid color-mix(in srgb, ${SAGE} 10%, white);
 }
 .fin-table tbody tr:last-child td {
   border-bottom: 2px solid ${SAGE};
@@ -950,17 +951,17 @@ body {
   text-align: right;
   font-family: 'Courier New', Courier, monospace;
   white-space: nowrap;
-  color: #333; letter-spacing: 0.2px;
+  color: ${TXT}; letter-spacing: 0.2px;
 }
 .fin-table .row-header td {
-  font-weight: 700; background: #eef3ef;
+  font-weight: 700; background: ${SECBG};
   border-top: 1.5px solid ${SAGE};
   color: ${NAVY};
   letter-spacing: 0.15px;
 }
 .fin-table .row-total td {
   font-weight: 700;
-  border-top: 1.5px solid #c0c4c8;
+  border-top: 1.5px solid ${GR};
   color: ${NAVY};
 }
 .fin-table .row-formula td {

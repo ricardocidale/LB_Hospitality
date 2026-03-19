@@ -1181,6 +1181,14 @@ export function register(app: Express) {
       }
 
       const data = parsed.data;
+
+      if (!data.themeColors?.length) {
+        const defaultTheme = await storage.getDefaultDesignTheme();
+        if (defaultTheme?.colors && Array.isArray(defaultTheme.colors)) {
+          data.themeColors = (defaultTheme.colors as Array<{ name: string; hexCode: string; rank?: number; description?: string }>);
+        }
+      }
+
       const contentType = CONTENT_TYPES[data.format];
       if (!contentType) {
         return res.status(400).json({ error: `Unsupported format: ${data.format}` });

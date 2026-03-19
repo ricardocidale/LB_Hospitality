@@ -53,14 +53,28 @@ export default function Login() {
   }, [toast]);
 
   useEffect(() => {
+    const CACHE_KEY = "h-analytics:public-theme";
+
+    resetThemeColors();
+
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        const { themeColors } = JSON.parse(cached);
+        if (themeColors?.length) applyThemeColors(themeColors);
+      } catch {}
+    }
+
     fetch("/api/public/theme")
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.themeColors?.length) {
           applyThemeColors(data.themeColors);
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
         }
       })
       .catch(() => {});
+
     return () => { resetThemeColors(); };
   }, []);
 
@@ -115,7 +129,7 @@ export default function Login() {
               <form onSubmit={handleSubmit} className="flex items-center justify-center p-6 md:p-10 md:py-12">
                 <div className="flex flex-col gap-6 w-full max-w-sm">
                   <div className="flex flex-col items-center text-center">
-                    <div className="mb-2 drop-shadow-[0_0_12px_rgba(159,188,164,0.4)]">
+                    <div className="mb-2" style={{ filter: "drop-shadow(0 0 12px rgba(var(--primary-rgb),0.4))" }}>
                       <SpinningLogo3D size={72} onClick={handleAdminLogin} />
                     </div>
                     <h1 className="text-2xl font-bold font-display" data-testid="text-welcome">Welcome back</h1>

@@ -256,8 +256,8 @@ export function generatePortfolioIncomeData(
     rows.push({ category: "Interest Expense", values: years.map((_, i) => c(i)?.interestExpense ?? 0), indent: 1 });
     rows.push({ category: "Depreciation", values: years.map((_, i) => c(i)?.depreciationExpense ?? 0), indent: 1 });
     rows.push({ category: "Income Tax", values: years.map((_, i) => c(i)?.incomeTax ?? 0), indent: 1 });
+    rows.push({ category: "GAAP Net Income", values: years.map((_, i) => c(i)?.netIncome ?? 0), isHeader: true });
   }
-  rows.push({ category: "GAAP Net Income", values: years.map((_, i) => c(i)?.netIncome ?? 0), isHeader: true });
 
   return { years, rows };
 }
@@ -397,10 +397,11 @@ export function generatePortfolioInvestmentData(
   const opratio = years.map((_, i) => consolidatedRevenue[i] > 0 ? totalExpenses[i] / consolidatedRevenue[i] : 0);
   const wm = financials.weightedMetricsByYear;
 
-  // Revenue & Profitability — header always visible, children under chevron
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Revenue & Profitability", values: years.map(() => 0), isHeader: true });
+  // All detail sections below — ONLY in extended mode.
+  // In short/default mode, the Investment Analysis UI only shows the summary KPI cards above.
   if (!summaryOnly) {
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Revenue & Profitability", values: years.map(() => 0), isHeader: true });
     rows.push({ category: "Total Revenue", values: consolidatedRevenue, indent: 1 });
     rows.push({ category: "Total Operating Expenses", values: totalExpenses, indent: 1 });
     rows.push({ category: "Gross Operating Profit (GOP)", values: consolidatedGOP, indent: 1 });
@@ -412,12 +413,9 @@ export function generatePortfolioInvestmentData(
     rows.push({ category: "Management Fees (Incentive)", values: feeIncentive, indent: 1 });
     rows.push({ category: "FF&E Reserve", values: ffE, indent: 1 });
     rows.push({ category: "Adjusted NOI (ANOI)", values: consolidatedANOI, indent: 1 });
-  }
 
-  // Cash Flow Analysis — header always visible, children under chevron
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Cash Flow Analysis", values: years.map(() => 0), isHeader: true });
-  if (!summaryOnly) {
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Cash Flow Analysis", values: years.map(() => 0), isHeader: true });
     rows.push({ category: "Cash from Operations (CFO)", values: consolidatedCFO, indent: 1 });
     rows.push({ category: "Free Cash Flow (FCF)", values: consolidatedFCF, indent: 1 });
     rows.push({ category: "Total Debt Service", values: consolidatedDS, indent: 1 });
@@ -425,62 +423,48 @@ export function generatePortfolioInvestmentData(
     rows.push({ category: "  Interest Expense", values: interestExpense, indent: 2 });
     rows.push({ category: "Free Cash Flow to Equity (FCFE)", values: consolidatedFCFE, indent: 1 });
     rows.push({ category: "Cumulative FCFE", values: cumulativeFCFE, indent: 1 });
-  }
 
-  // Below-the-Line Items — header always visible, children under chevron
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Below-the-Line Items", values: years.map(() => 0), isHeader: true });
-  if (!summaryOnly) {
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Below-the-Line Items", values: years.map(() => 0), isHeader: true });
     rows.push({ category: "Interest Expense", values: interestExpense, indent: 1 });
     rows.push({ category: "Depreciation & Amortization", values: depreciation, indent: 1 });
     rows.push({ category: "Income Tax Provision", values: incomeTax, indent: 1 });
     rows.push({ category: "GAAP Net Income", values: consolidatedNetIncome, indent: 1 });
-  }
 
-  // Key Ratios & Returns — header always visible, children under chevron
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Key Ratios & Returns", values: years.map(() => 0), isHeader: true });
-  if (!summaryOnly) {
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Key Ratios & Returns", values: years.map(() => 0), isHeader: true });
     rows.push({ category: "DSCR", values: consolidatedDSCR, indent: 1, format: "ratio" });
     rows.push({ category: "Cap Rate (%)", values: capRate, indent: 1, format: "percentage" });
     rows.push({ category: "Operating Expense Ratio (%)", values: opratio, indent: 1, format: "percentage" });
     rows.push({ category: "NOI per Room", values: years.map((_, i) => totalRooms > 0 ? consolidatedNOI[i] / totalRooms : 0), indent: 1 });
     rows.push({ category: "Revenue per Room", values: years.map((_, i) => totalRooms > 0 ? consolidatedRevenue[i] / totalRooms : 0), indent: 1 });
-  }
 
-  // Operating Metrics — header always visible, children under chevron
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Operating Metrics", values: years.map(() => 0), isHeader: true });
-  if (!summaryOnly) {
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Operating Metrics", values: years.map(() => 0), isHeader: true });
     rows.push({ category: "ADR (Weighted Avg)", values: years.map((_, i) => wm[i]?.weightedADR ?? 0), indent: 1 });
     rows.push({ category: "Occupancy (%)", values: years.map((_, i) => wm[i]?.weightedOcc ?? 0), indent: 1, format: "percentage" });
     rows.push({ category: "RevPAR", values: years.map((_, i) => wm[i]?.revPAR ?? 0), indent: 1 });
     rows.push({ category: "Available Room Nights", values: years.map((_, i) => wm[i]?.totalAvailableRoomNights ?? 0), indent: 1 });
     rows.push({ category: "Sold Room Nights", values: years.map((_, i) => yc[i]?.soldRooms ?? 0), indent: 1 });
-  }
 
-  // Free Cash Flow to Investors — matches InvestmentAnalysis.tsx FCF table
-  const investorCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.netCashFlowToInvestors ?? 0), 0));
-  const consolidatedATCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.atcf ?? 0), 0));
-  const consolidatedBTCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.btcf ?? 0), 0));
-  const consolidatedRefi = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.refinancingProceeds ?? 0), 0));
-  const consolidatedExit = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.exitValue ?? 0), 0));
-  const consolidatedTax = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.taxLiability ?? 0), 0));
-  const consolidatedTaxableIncome = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.taxableIncome ?? 0), 0));
+    // Free Cash Flow to Investors — matches InvestmentAnalysis.tsx FCF table
+    const investorCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.netCashFlowToInvestors ?? 0), 0));
+    const consolidatedATCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.atcf ?? 0), 0));
+    const consolidatedBTCF = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.btcf ?? 0), 0));
+    const consolidatedRefi = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.refinancingProceeds ?? 0), 0));
+    const consolidatedExit = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.exitValue ?? 0), 0));
+    const consolidatedTax = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.taxLiability ?? 0), 0));
+    const consolidatedTaxableIncome = years.map((_, y) => cf.reduce((sum, prop) => sum + (prop[y]?.taxableIncome ?? 0), 0));
 
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Free Cash Flow to Investors", values: years.map(() => 0), isHeader: true });
-  if (!summaryOnly) {
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Free Cash Flow to Investors", values: years.map(() => 0), isHeader: true });
     rows.push({ category: "After-Tax Cash Flow (ATCF)", values: consolidatedATCF, indent: 1 });
     rows.push({ category: "Refinancing Proceeds", values: consolidatedRefi, indent: 1 });
     rows.push({ category: "Exit Proceeds", values: consolidatedExit, indent: 1 });
     rows.push({ category: "Net Cash Flow to Investors", values: investorCF, indent: 1, isBold: true });
-  }
 
-  // Operating Waterfall — ANOI → Debt Service → BTCF → Tax → ATCF
-  rows.push({ category: "", values: years.map(() => 0) });
-  rows.push({ category: "Operating Cash Flow Waterfall", values: years.map(() => 0), isHeader: true });
-  if (!summaryOnly) {
+    rows.push({ category: "", values: years.map(() => 0) });
+    rows.push({ category: "Operating Cash Flow Waterfall", values: years.map(() => 0), isHeader: true });
     rows.push({ category: "Adjusted NOI (ANOI)", values: consolidatedANOI, indent: 1 });
     rows.push({ category: "Less: Debt Service", values: consolidatedDS.map(v => -v), indent: 1 });
     rows.push({ category: "Before-Tax Cash Flow (BTCF)", values: consolidatedBTCF, indent: 1, isBold: true });

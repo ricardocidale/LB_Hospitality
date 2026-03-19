@@ -95,6 +95,7 @@ const PUBLIC_API_PATHS = new Set([
 ]);
 
 const PUBLIC_API_PREFIXES = [
+  "/api/public/",
   "/api/marcela-tools/",
   "/api/letter-logo/",
 ];

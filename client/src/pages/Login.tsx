@@ -2,13 +2,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "@/components/icons/themed-icons";
 import { IconEye, IconEyeOff } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
-import bgImage from "@/assets/hotel-party.jpg";
+import bgImage from "@/assets/hotel-guests.jpg";
 import SpinningLogo3D from "@/components/SpinningLogo3D";
 import { applyThemeColors, resetThemeColors } from "@/lib/theme";
 
@@ -105,7 +104,6 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       await login(email, password);
       setLocation("/");
@@ -121,119 +119,174 @@ export default function Login() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-muted p-6 md:p-10 overflow-auto">
-      <div className="w-full max-w-sm md:max-w-[880px] mx-auto">
-        <div className="flex flex-col gap-6">
-          <Card className="overflow-hidden">
-            <CardContent className="grid p-0 md:grid-cols-[3fr_2fr]">
-              <form onSubmit={handleSubmit} className="flex items-center justify-center p-6 md:p-10 md:py-12">
-                <div className="flex flex-col gap-6 w-full max-w-sm">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="mb-2" style={{ filter: "drop-shadow(0 0 12px rgba(var(--primary-rgb),0.4))" }}>
-                      <SpinningLogo3D size={72} onClick={handleAdminLogin} />
-                    </div>
-                    <h1 className="text-2xl font-bold font-display" data-testid="text-welcome">Welcome back</h1>
-                    <p className="text-balance text-muted-foreground">
-                      Sign in to access the simulation portal
+    <div
+      className="fixed inset-0 flex flex-col items-center justify-center p-5 md:p-10 overflow-auto"
+      style={{ background: "linear-gradient(145deg, hsl(var(--muted)) 0%, hsl(var(--border)) 100%)" }}
+    >
+      <div className="w-full max-w-sm md:max-w-[860px] mx-auto flex flex-col gap-5">
+
+        {/* ── Card ──────────────────────────────────────────────── */}
+        <div
+          className="w-full overflow-hidden rounded-2xl border border-border/60 md:grid md:grid-cols-[1fr_340px]"
+          style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.14), 0 1px 4px rgba(0,0,0,0.06)" }}
+        >
+
+          {/* ── Left: form ───────────────────────────────────── */}
+          <div className="bg-card flex flex-col">
+            {/* Accent bar */}
+            <div className="h-[3px] w-full" style={{ background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)))" }} />
+
+            <form
+              onSubmit={handleSubmit}
+              className="flex items-center justify-center p-8 md:p-12"
+            >
+              <div className="flex flex-col gap-5 w-full max-w-sm">
+
+                {/* Logo + heading */}
+                <div className="flex flex-col items-center text-center gap-2 mb-1">
+                  <div style={{ filter: "drop-shadow(0 0 14px rgba(var(--primary-rgb),0.35))" }}>
+                    <SpinningLogo3D size={68} onClick={handleAdminLogin} />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold font-display tracking-tight" data-testid="text-welcome">
+                      Welcome back
+                    </h1>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Sign in to your H-Analytics portal
                     </p>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email or Username</Label>
+                </div>
+
+                {/* Email */}
+                <div className="grid gap-1.5">
+                  <Label htmlFor="email" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Email or Username
+                  </Label>
+                  <Input
+                    id="email"
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@company.com"
+                    required
+                    className="bg-muted/40 border-border/80 focus:bg-card transition-colors"
+                    data-testid="input-email"
+                  />
+                </div>
+
+                {/* Password */}
+                <div className="grid gap-1.5">
+                  <Label htmlFor="password" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Password
+                  </Label>
+                  <div className="relative">
                     <Input
-                      id="email"
-                      type="text"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="m@example.com"
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
                       required
-                      data-testid="input-email"
+                      className="pr-10 bg-muted/40 border-border/80 focus:bg-card transition-colors"
+                      data-testid="input-password"
                     />
-                  </div>
-                  <div className="grid gap-2">
-                    <div className="flex items-center">
-                      <Label htmlFor="password">Password</Label>
-                    </div>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        required
-                        className="pr-10"
-                        data-testid="input-password"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors h-auto w-auto p-0"
-                        data-testid="button-toggle-password"
-                      >
-                        {showPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full"
-                    data-testid="button-login"
-                  >
-                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                    Login
-                  </Button>
-                  <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                    <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => { window.location.href = "/api/auth/google"; }}
-                    disabled={isLoading}
-                    data-testid="button-google-login"
-                  >
-                    <GoogleIcon className="w-5 h-5 mr-2" />
-                    Sign in with Google
-                  </Button>
-                  <div className="text-center text-sm text-muted-foreground">
-                    Contact your administrator if you need access
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors h-auto w-auto p-0"
+                      data-testid="button-toggle-password"
+                    >
+                      {showPassword ? <IconEyeOff className="w-4 h-4" /> : <IconEye className="w-4 h-4" />}
+                    </Button>
                   </div>
                 </div>
-              </form>
-              <div className="relative hidden bg-muted md:block">
-                <img
-                  src={bgImage}
-                  alt="Boutique hotel event space"
-                  className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-                />
+
+                {/* Submit */}
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-10 font-medium"
+                  data-testid="button-login"
+                >
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Sign In
+                </Button>
+
+                {/* Divider */}
+                <div className="relative text-center text-xs">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border" />
+                  </div>
+                  <span className="relative bg-card px-3 text-muted-foreground">or continue with</span>
+                </div>
+
+                {/* Google */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-10 border-border/80 bg-muted/30 hover:bg-muted/60 transition-colors"
+                  onClick={() => { window.location.href = "/api/auth/google"; }}
+                  disabled={isLoading}
+                  data-testid="button-google-login"
+                >
+                  <GoogleIcon className="w-4 h-4 mr-2 shrink-0" />
+                  Sign in with Google
+                </Button>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  Contact your administrator if you need access
+                </p>
               </div>
-            </CardContent>
-          </Card>
-          <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-            <a href="/privacy">Privacy Policy</a>
-            {" · "}
-            <a href="/terms">Terms of Service</a>
+            </form>
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-medium">
-              Powered by
-            </span>
+
+          {/* ── Right: dark brand panel ───────────────────── */}
+          <div className="relative hidden md:flex flex-col items-center justify-end overflow-hidden"
+               style={{ background: "hsl(var(--foreground))" }}>
+            {/* Hotel image as texture */}
             <img
-              src="/logos/norfolk-ai-blue.png"
-              alt="Norfolk AI"
-              className="w-5 h-5 opacity-60"
+              src={bgImage}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{ opacity: 0.18, mixBlendMode: "luminosity" }}
             />
-            <span className="text-xs font-semibold tracking-wide text-muted-foreground/60">
-              Norfolk AI
-            </span>
+            {/* Gradient veil — darkens top so text at bottom stays legible */}
+            <div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(to top, hsl(var(--foreground)) 0%, transparent 60%)" }}
+            />
+            {/* Brand text */}
+            <div className="relative z-10 text-center px-8 pb-10">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 mb-2 font-medium">
+                Hospitality Intelligence
+              </p>
+              <h2 className="text-2xl font-display font-bold text-white/90 leading-snug">
+                H-Analytics
+              </h2>
+              <p className="text-xs text-white/40 mt-2 leading-relaxed max-w-[220px] mx-auto">
+                Dual-entity GAAP modelling and investment simulation for the modern portfolio.
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* ── Footer ────────────────────────────────────────────── */}
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-[11px] text-muted-foreground/70">
+            <a href="/privacy" className="hover:text-foreground transition-colors underline underline-offset-2">Privacy Policy</a>
+            {" · "}
+            <a href="/terms" className="hover:text-foreground transition-colors underline underline-offset-2">Terms of Service</a>
+          </p>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/50 font-medium">Powered by</span>
+            <img src="/logos/norfolk-ai-blue.png" alt="Norfolk AI" className="w-4 h-4 opacity-50" />
+            <span className="text-[11px] font-semibold tracking-wide text-muted-foreground/50">Norfolk AI</span>
+          </div>
+        </div>
+
       </div>
     </div>
   );

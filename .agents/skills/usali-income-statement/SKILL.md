@@ -110,13 +110,19 @@ Cash Flow Statements follow ASC 230 and use USALI-aligned expense grouping withi
 
 ```
 1.  Cash Flow from Operating Activities (CFO)
-    ├── Cash Received from Guests & Clients [chevron → ADR, Occ, RevPAR, revenue by stream]
+    ├── Cash Received from Guests & Clients [chevron → ADR, Occ, RevPAR, TRevPAR, revenue by stream]
     ├── Cash Paid for Operating Expenses [chevron]
     │   ├── Departmental Expenses [chevron → Rooms, F&B, Events, Other]
     │   ├── Undistributed Operating Expenses [chevron → Marketing, Prop Ops, Utilities, Taxes, Insurance, Admin, IT, Other]
     │   └── Management Fees [chevron → Base Fee, Incentive Fee]
-    ├── Less: Interest Paid
-    └── Less: Income Taxes Paid
+    ├── USALI Profitability Subtotals
+    │   ├── GOP [chevron → Revenue, Dept Exp, Undist Exp, GOP Margin, GOPPAR]
+    │   ├── AGOP [chevron → GOP, Base Fee, Incentive Fee, AGOP Margin]
+    │   ├── NOI [chevron → AGOP, Fixed Charges, NOI Margin, NOIPOR]
+    │   └── ANOI [chevron → NOI, FF&E Reserve, ANOI Margin]
+    ├── Cash Adjustments
+    │   ├── Less: Interest Paid
+    │   └── Less: Income Taxes Paid
     = Net Cash from Operating Activities
 2.  Cash Flow from Investing Activities (CFI)
     ├── Property Acquisition
@@ -131,11 +137,22 @@ Cash Flow Statements follow ASC 230 and use USALI-aligned expense grouping withi
     = Net Cash from Financing Activities
 4.  Net Increase (Decrease) in Cash = CFO + CFI + CFF
 5.  Opening / Closing Cash Balance
-6.  Free Cash Flow
+6.  Free Cash Flow [chevron → CFO, FF&E]
     ├── FCF = CFO − FF&E
-    └── FCFE = FCF − Principal Payments
-7.  Key Metrics [CoC Return, DSCR]
+    └── FCFE = FCF − Principal Payments [chevron → formula]
+7.  Key Metrics [chevron → DSCR, CoC, FCF Margin, FCFE Margin]
 ```
+
+### Dashboard Consolidated CF Structure
+
+The Dashboard CF mirrors the property-level structure but at portfolio level:
+- CFO/CFI/CFF each expand to show consolidated line items + per-property breakdown
+- CFO shows: Revenue, NOI, ANOI, Interest, Taxes, CFO Margin
+- CFI shows: Capital Expenditures (FF&E), Sale Proceeds (Net Exit)
+- CFF shows: Principal Repayments, Refinancing Proceeds
+- FCF section with formula + line item breakdown
+- FCFE row with formula
+- Key Metrics: DSCR, Cash-on-Cash Return, FCF Margin, FCFE Margin
 
 ### Key CF Formulas
 

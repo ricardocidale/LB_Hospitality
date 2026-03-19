@@ -314,6 +314,24 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         <LineItem label="Event & Venue Revenue" values={yearlyDetails.map(y => y.revenueEvents)} indent />
         <LineItem label="Food & Beverage Revenue" values={yearlyDetails.map(y => y.revenueFB)} indent />
         <LineItem label="Other Revenue (Spa/Experiences)" values={yearlyDetails.map(y => y.revenueOther)} indent />
+
+        <ExpandableMetricRow
+          label="TRevPAR"
+          tooltip="Total Revenue Per Available Room — Total Revenue ÷ Available Rooms. The broadest top-line efficiency metric."
+          values={yearlyDetails.map(y =>
+            y.availableRooms > 0 ? `$${(y.revenueTotal / y.availableRooms).toFixed(2)}` : "-"
+          )}
+          expanded={!!expanded.cfTrevpar}
+          onToggle={() => toggleSection('cfTrevpar')}
+        >
+          <FormulaDetailRow
+            label="Total Revenue ÷ Available Rooms"
+            values={yearlyDetails.map(y =>
+              y.availableRooms > 0 ? `${formatMoney(y.revenueTotal)} ÷ ${y.availableRooms.toLocaleString()}` : "-"
+            )}
+            colCount={years}
+          />
+        </ExpandableMetricRow>
       </ExpandableLineItem>
 
       <ExpandableLineItem
@@ -367,6 +385,100 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         </ExpandableLineItem>
       </ExpandableLineItem>
       <MarginRow label="% of Total Revenue" values={yearlyDetails.map(y => y.totalExpenses - y.expenseFFE)} baseValues={yearlyDetails.map(y => y.revenueTotal)} />
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── USALI Profitability Waterfall ── */}
+      <SectionHeader
+        label="USALI Profitability Subtotals"
+        colSpan={colSpan}
+        tooltip="Key profitability milestones from the Income Statement (USALI 12th Ed). These reference values show the operating waterfall before cash adjustments for interest and taxes."
+      />
+
+      <ExpandableLineItem
+        label="Gross Operating Profit (GOP)"
+        values={yearlyDetails.map(y => y.gop)}
+        tooltip="Revenue minus all departmental and undistributed operating expenses. The property's core operating profitability before management fees."
+        expanded={!!expanded.cfGop}
+        onToggle={() => toggleSection('cfGop')}
+      >
+        <LineItem label="Total Revenue" values={yearlyDetails.map(y => y.revenueTotal)} indent />
+        <LineItem label="Less: Departmental Expenses" values={yearlyDetails.map(y => y.expenseRooms + y.expenseFB + y.expenseEvents + y.expenseOther)} indent negate />
+        <LineItem label="Less: Undistributed Expenses" values={yearlyDetails.map(y => y.expenseMarketing + y.expensePropertyOps + y.expenseUtilitiesVar + y.expenseUtilitiesFixed + y.expenseAdmin + y.expenseIT + y.expenseInsurance + y.expenseOtherCosts)} indent negate />
+        <MetricRow
+          label="GOP Margin"
+          values={yearlyDetails.map(y => y.revenueTotal > 0 ? `${((y.gop / y.revenueTotal) * 100).toFixed(1)}%` : "-")}
+          tooltip="GOP as a percentage of Total Revenue."
+        />
+        <MetricRow
+          label="GOPPAR"
+          values={yearlyDetails.map(y => y.availableRooms > 0 ? `$${(y.gop / y.availableRooms).toFixed(2)}` : "-")}
+          tooltip="Gross Operating Profit Per Available Room — GOP ÷ Available Rooms."
+        />
+      </ExpandableLineItem>
+
+      <ExpandableLineItem
+        label="Adjusted GOP (AGOP)"
+        values={yearlyDetails.map(y => y.agop)}
+        tooltip="GOP minus management fees. Shows profitability after the operator takes their share."
+        expanded={!!expanded.cfAgop}
+        onToggle={() => toggleSection('cfAgop')}
+      >
+        <LineItem label="Gross Operating Profit" values={yearlyDetails.map(y => y.gop)} indent />
+        <LineItem label="Less: Base Management Fee" values={yearlyDetails.map(y => y.feeBase)} indent negate />
+        <LineItem label="Less: Incentive Management Fee" values={yearlyDetails.map(y => y.feeIncentive)} indent negate />
+        <MetricRow
+          label="AGOP Margin"
+          values={yearlyDetails.map(y => y.revenueTotal > 0 ? `${((y.agop / y.revenueTotal) * 100).toFixed(1)}%` : "-")}
+          tooltip="AGOP as a percentage of Total Revenue."
+        />
+      </ExpandableLineItem>
+
+      <ExpandableLineItem
+        label="Net Operating Income (NOI)"
+        values={yearlyDetails.map(y => y.noi)}
+        tooltip="AGOP minus fixed charges (property taxes). The property's bottom-line operating income before capital reserves and debt."
+        expanded={!!expanded.cfNoi}
+        onToggle={() => toggleSection('cfNoi')}
+      >
+        <LineItem label="Adjusted GOP" values={yearlyDetails.map(y => y.agop)} indent />
+        <LineItem label="Less: Fixed Charges (Property Taxes)" values={yearlyDetails.map(y => y.expenseTaxes)} indent negate />
+        <MetricRow
+          label="NOI Margin"
+          values={yearlyDetails.map(y => y.revenueTotal > 0 ? `${((y.noi / y.revenueTotal) * 100).toFixed(1)}%` : "-")}
+          tooltip="NOI as a percentage of Total Revenue."
+        />
+        <MetricRow
+          label="NOIPOR"
+          values={yearlyDetails.map(y => y.availableRooms > 0 ? `$${(y.noi / y.availableRooms).toFixed(2)}` : "-")}
+          tooltip="Net Operating Income Per Available Room — NOI ÷ Available Rooms."
+        />
+      </ExpandableLineItem>
+
+      <ExpandableLineItem
+        label="Adjusted NOI (ANOI)"
+        values={yearlyDetails.map(y => y.anoi)}
+        tooltip="NOI minus FF&E reserve. The owner's true operating cash flow before financing — the key metric for debt coverage."
+        expanded={!!expanded.cfAnoi}
+        onToggle={() => toggleSection('cfAnoi')}
+      >
+        <LineItem label="Net Operating Income" values={yearlyDetails.map(y => y.noi)} indent />
+        <LineItem label="Less: FF&E Reserve" values={yearlyDetails.map(y => y.expenseFFE)} indent negate />
+        <MetricRow
+          label="ANOI Margin"
+          values={yearlyDetails.map(y => y.revenueTotal > 0 ? `${((y.anoi / y.revenueTotal) * 100).toFixed(1)}%` : "-")}
+          tooltip="ANOI as a percentage of Total Revenue."
+        />
+      </ExpandableLineItem>
+
+      <SpacerRow colSpan={colSpan} />
+
+      {/* ── Cash Adjustments ── */}
+      <SectionHeader
+        label="Cash Adjustments"
+        colSpan={colSpan}
+        tooltip="Adjustments to convert USALI operating income to cash from operations (ASC 230)."
+      />
 
       <LineItem
         label="Less: Interest Paid"

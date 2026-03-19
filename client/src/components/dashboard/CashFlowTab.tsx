@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,12 +38,10 @@ function MetricItemRow({ label, values }: { label: string; values: string[] }) {
 export function CashFlowTab({ financials, properties, projectionYears, getFiscalYear, showCalcDetails }: DashboardTabProps) {
   const {
     allPropertyYearlyCF,
-    allPropertyYearlyIS,
     yearlyConsolidatedCache,
   } = financials;
   const CF_ROW_KEYS = useMemo(() => ["cfo", "cfi", "cff", "fcf", "metrics"], []);
   const { expandedRows, expandedFormulas, toggleRow, toggleFormula, toggleAll, allRowsExpanded } = useExpandableRows(CF_ROW_KEYS);
-  const tableRef = useRef<HTMLDivElement>(null);
 
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
 
@@ -160,7 +158,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
             </Button>
           </div>
         </CardHeader>
-        <CardContent ref={tableRef}>
+        <CardContent>
           <CalcDetailsProvider show={showCalcDetails}>
             <div className="rounded-md border overflow-hidden overflow-x-auto">
               <Table>

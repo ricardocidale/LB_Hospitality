@@ -357,8 +357,8 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
 
         <ExpandableLineItem
           label="Undistributed Operating Expenses"
-          values={yearlyDetails.map(y => y.expenseMarketing + y.expensePropertyOps + y.expenseUtilitiesVar + y.expenseUtilitiesFixed + y.expenseTaxes + y.expenseAdmin + y.expenseIT + y.expenseInsurance + y.expenseOtherCosts)}
-          tooltip="Shared overhead not allocated to individual departments (USALI Schedule 5–10): marketing, property ops, admin, IT, insurance, utilities."
+          values={yearlyDetails.map(y => y.expenseMarketing + y.expensePropertyOps + y.expenseUtilitiesVar + y.expenseUtilitiesFixed + y.expenseAdmin + y.expenseIT + y.expenseInsurance + y.expenseOtherCosts)}
+          tooltip="Shared overhead not allocated to individual departments (USALI Schedule 5–10): marketing, property ops, admin, IT, insurance, utilities. Excludes Property Taxes (classified as Fixed Charges per USALI)."
           expanded={!!expanded.cfOverhead}
           onToggle={() => toggleSection('cfOverhead')}
         >
@@ -366,12 +366,17 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
           <LineItem label="Property Operations & Maintenance" values={yearlyDetails.map(y => y.expensePropertyOps)} indent />
           <LineItem label="Utilities (Variable)" values={yearlyDetails.map(y => y.expenseUtilitiesVar)} indent />
           <LineItem label="Utilities (Fixed)" values={yearlyDetails.map(y => y.expenseUtilitiesFixed)} indent />
-          <LineItem label="Property Taxes" values={yearlyDetails.map(y => y.expenseTaxes)} indent />
           <LineItem label="Insurance" values={yearlyDetails.map(y => y.expenseInsurance)} indent />
           <LineItem label="Administrative & General" values={yearlyDetails.map(y => y.expenseAdmin)} indent />
           <LineItem label="IT & Technology" values={yearlyDetails.map(y => y.expenseIT)} indent />
           <LineItem label="Other Undistributed" values={yearlyDetails.map(y => y.expenseOtherCosts)} indent />
         </ExpandableLineItem>
+
+        <LineItem
+          label="Fixed Charges (Property Taxes)"
+          values={yearlyDetails.map(y => y.expenseTaxes)}
+          tooltip="Property taxes classified as Fixed Charges per USALI 12th Ed. Deducted after AGOP to arrive at NOI."
+        />
 
         <ExpandableLineItem
           label="Management Fees"

@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 846 source files, ~149K lines, 3,418 tests across 150 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 849 source files, ~151K lines, 3,418 tests across 150 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 

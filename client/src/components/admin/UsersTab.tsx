@@ -36,7 +36,7 @@ import type { User } from "./types";
 
 type Company = { id: number; name: string; logoId: number | null; isActive: boolean };
 
-type SortField = "name" | "role" | "group";
+type SortField = "name" | "role" | "company" | "group";
 type SortDir = "asc" | "desc";
 
 export default function UsersTab() {
@@ -60,7 +60,7 @@ export default function UsersTab() {
   const [inlineGroupOpen, setInlineGroupOpen] = useState(false);
   const [inlineGroupForm, setInlineGroupForm] = useState({ name: "", themeId: null as number | null, assetDescriptionId: null as number | null });
   const [inlineGroupTarget, setInlineGroupTarget] = useState<"new" | "edit">("new");
-  const [sortField, setSortField] = useState<SortField>("group");
+  const [sortField, setSortField] = useState<SortField>("company");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [resetAllPassword, setResetAllPassword] = useState("");
   const [resetAllConfirm, setResetAllConfirm] = useState("");
@@ -92,6 +92,12 @@ export default function UsersTab() {
     userGroupsList?.forEach(g => { map[g.id] = g.name; });
     return map;
   }, [userGroupsList]);
+
+  const companyNameMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    companiesList?.forEach(c => { map[c.id] = c.name; });
+    return map;
+  }, [companiesList]);
 
   const generalLogoUrl = useMemo(() => {
     if (!companiesList || !adminLogos) return null;
@@ -126,6 +132,13 @@ export default function UsersTab() {
         case "role":
           cmp = a.role.localeCompare(b.role);
           break;
+        case "company": {
+          const ca = (a.companyId ? companyNameMap[a.companyId] : "") || "";
+          const cb = (b.companyId ? companyNameMap[b.companyId] : "") || "";
+          cmp = ca.localeCompare(cb);
+          if (cmp === 0) cmp = (a.name || a.email).localeCompare(b.name || b.email);
+          break;
+        }
         case "group": {
           const ga = (a.userGroupId ? groupNameMap[a.userGroupId] : "") || "";
           const gb = (b.userGroupId ? groupNameMap[b.userGroupId] : "") || "";
@@ -136,7 +149,7 @@ export default function UsersTab() {
       }
       return sortDir === "asc" ? cmp : -cmp;
     });
-  }, [users, sortField, sortDir, groupNameMap]);
+  }, [users, sortField, sortDir, companyNameMap, groupNameMap]);
 
   const inlineCreateCompanyMutation = useMutation({
     mutationFn: async (data: { name: string; type: string; description?: string | null; logoId?: number | null; themeId?: number | null }) => {
@@ -397,23 +410,32 @@ export default function UsersTab() {
             <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("role")} data-testid="sort-user-role">
               <IconShield className="w-4 h-4" />Role <SortIcon field="role" />
             </button>
+            <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("company")} data-testid="sort-user-company">
+              <IconBuilding2 className="w-4 h-4" />Company <SortIcon field="company" />
+            </button>
             <button className="flex items-center gap-1.5 text-sm text-muted-foreground font-display cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort("group")} data-testid="sort-user-group">
               <IconUserCog className="w-4 h-4" />Group <SortIcon field="group" />
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {sortedUsers.map((user, idx, arr) => {
+              const currentCompany = user.companyId ? companyNameMap[user.companyId] || "Unknown Company" : "No Company";
+              const prevCompany = idx > 0
+                ? (arr[idx - 1].companyId ? companyNameMap[arr[idx - 1].companyId!] || "Unknown Company" : "No Company")
+                : null;
               const currentGroup = user.userGroupId ? groupNameMap[user.userGroupId] || "Unknown Group" : "No Group";
               const prevGroup = idx > 0
                 ? (arr[idx - 1].userGroupId ? groupNameMap[arr[idx - 1].userGroupId!] || "Unknown Group" : "No Group")
                 : null;
-              const showGroupHeader = sortField === "group" && currentGroup !== prevGroup;
+              const sectionLabel = sortField === "company" ? currentCompany : sortField === "group" ? currentGroup : null;
+              const prevLabel = sortField === "company" ? prevCompany : sortField === "group" ? prevGroup : null;
+              const showHeader = sectionLabel !== null && sectionLabel !== prevLabel;
               return (<React.Fragment key={user.id}>
-              {showGroupHeader && (
-                <div key={`group-header-${currentGroup}-${idx}`} className="col-span-1 md:col-span-2 py-1.5 px-4">
+              {showHeader && (
+                <div key={`section-header-${sectionLabel}-${idx}`} className="col-span-1 md:col-span-2 py-1.5 px-4">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-border/60" />
-                    <span className="text-[11px] font-medium text-accent uppercase tracking-wider whitespace-nowrap">{currentGroup}</span>
+                    <span className="text-[11px] font-medium text-accent uppercase tracking-wider whitespace-nowrap">{sectionLabel}</span>
                     <div className="h-px flex-1 bg-border/60" />
                   </div>
                 </div>

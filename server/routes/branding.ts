@@ -256,10 +256,11 @@ export function register(app: Express) {
       }
       const company = await storage.createCompany(data);
       if (!data.logoId) {
-        const logoUrl = `/api/letter-logo/${encodeURIComponent(company.name)}`;
-        const logo = await storage.createLogo({ name: company.name, companyName: company.name, url: logoUrl });
-        await storage.updateCompany(company.id, { logoId: logo.id });
-        company.logoId = logo.id;
+        const defaultLogo = await storage.getDefaultLogo();
+        if (defaultLogo) {
+          await storage.updateCompany(company.id, { logoId: defaultLogo.id });
+          company.logoId = defaultLogo.id;
+        }
       }
       res.status(201).json(company);
     } catch (error) {

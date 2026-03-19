@@ -78,7 +78,7 @@ export function DonutChart({ data, title, subtitle, centerLabel, centerValue, he
               verticalAlign="bottom"
               iconType="circle"
               iconSize={8}
-              wrapperStyle={{ fontSize: 12, color: "#6B7280" }}
+              wrapperStyle={{ fontSize: 12, color: "hsl(var(--muted-foreground))" }}
             />
           </PieChart>
         </ResponsiveContainer>

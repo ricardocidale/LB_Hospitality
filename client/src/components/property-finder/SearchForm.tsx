@@ -56,7 +56,7 @@ export function SearchForm({
   return (
     <form onSubmit={onSubmit} data-testid="form-search">
       <div className="bg-card rounded-2xl shadow-sm border border-primary/20 overflow-hidden">
-        <div className="h-1 bg-gradient-to-r from-primary via-[#7aaa8a] to-primary" />
+        <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
         <div className="p-5 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-2">

@@ -623,7 +623,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         label="Free Cash Flow (FCF)"
         values={fcfValues}
         positive
-        bgColor="rgba(37, 125, 65, 0.08)"
+        bgColor="rgba(var(--primary-rgb),0.08)"
         tooltip="Cash available after covering operations and capital maintenance. This is the property's discretionary cash — what's left to pay down debt, distribute to investors, or reinvest."
         formula="FCF = Operating Cash Flow − FF&E Reserve"
       />
@@ -640,7 +640,7 @@ export function YearlyCashFlowStatement({ data, property, global, years = 10, st
         label="Free Cash Flow to Equity (FCFE)"
         values={fcfeValues}
         positive
-        bgColor="rgba(37, 125, 65, 0.08)"
+        bgColor="rgba(var(--primary-rgb),0.08)"
         tooltip="The equity investor's bottom line — what's left after the property pays for operations, capital reserves, and debt service. This is the actual cash that can be distributed to investors."
         formula="FCFE = FCF − Principal Payments"
       />

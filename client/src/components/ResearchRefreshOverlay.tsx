@@ -356,7 +356,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
             <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
-                style={{ background: "linear-gradient(90deg, var(--primary), #38BDF8, var(--primary))" }}
+                style={{ background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--primary)))" }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
               />

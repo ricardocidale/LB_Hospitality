@@ -97,7 +97,6 @@ export default function WhatIfPanel({ propertyId, onClose }: WhatIfPanelProps) {
 
       <div
         className="fixed top-0 right-0 h-full w-80 z-50 bg-card shadow-xl flex flex-col"
-        style={{ backgroundColor: "#FFFDF7" }}
         data-testid="what-if-panel"
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">

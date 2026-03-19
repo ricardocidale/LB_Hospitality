@@ -71,13 +71,13 @@ export default function CashFlowTab({
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'white', 
-                    borderColor: '#E5E7EB',
+                    backgroundColor: 'hsl(var(--card))', 
+                    borderColor: 'hsl(var(--border))',
                     borderRadius: '12px',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                    color: '#111827',
+                    color: 'hsl(var(--foreground))',
                   }}
-                  labelStyle={{ color: '#374151', fontWeight: 600 }}
+                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
                   formatter={(value: number, name: string) => {
                     const labels: Record<string, string> = { ANOI: "ANOI — Adjusted Net Operating Income", FCF: "FCF — Free Cash Flow", FCFE: "FCFE — Free Cash Flow to Equity" };
                     return [formatMoney(value), labels[name] ?? name];

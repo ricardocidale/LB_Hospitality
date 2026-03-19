@@ -11,9 +11,10 @@ export interface ThemeColorMap {
   sectionBg: string; // section header bg
 }
 
-/** Map client theme colors by name to functional PDF roles. Falls back to BRAND defaults.
- *  Theme colors come from the designThemes table with names like "Sage Green", "Forest Green", etc.
- *  We match by description/name keywords, avoiding conflicts by using specific matches first. */
+/** Map client theme colors to functional PDF roles using the semantic description labels
+ *  that every theme consistently provides: "PALETTE: Primary", "PALETTE: Secondary",
+ *  "PALETTE: Muted", "PALETTE: Border", "PALETTE: Background", "PALETTE: Foreground",
+ *  and "PALETTE: Accent" / "ACCENT:". Falls back to BRAND defaults when no theme is set. */
 export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: string; rank?: number; description?: string}>): ThemeColorMap {
   const defaults: ThemeColorMap = {
     navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
@@ -23,32 +24,35 @@ export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: s
   if (!themeColors?.length) return defaults;
 
   const strip = (hex: string) => hex.replace(/^#/, "");
-  const colors = themeColors.map(c => ({ n: c.name.toLowerCase(), h: strip(c.hexCode), d: (c.description || "").toLowerCase() }));
+  const entries = themeColors.map(c => ({
+    h: strip(c.hexCode),
+    d: (c.description || "").toLowerCase(),
+  }));
 
-  // Find first color whose name or description includes any of the keywords
-  const find = (...keywords: string[]): string | undefined => {
-    for (const c of colors) {
-      if (keywords.some(k => c.n.includes(k) || c.d.includes(k))) return c.h;
+  // Match by the semantic description prefix that every theme consistently provides.
+  // Order matters — first match wins.
+  const byDesc = (...keywords: string[]): string | undefined => {
+    for (const c of entries) {
+      if (keywords.some(k => c.d.includes(k))) return c.h;
     }
     return undefined;
   };
 
-  // Map roles — most specific keywords first to avoid conflicts
-  // "navy" role = darkest color for headers/cover (navy, midnight, dark blue, charcoal)
-  // "sage" role = primary accent (sage, primary accent)
-  // "darkGreen" role = secondary accent / titles (forest, emerald, green)
-  // "darkText" role = body text color (charcoal, text, dark text)
-  // "gray" role = secondary text (gray, muted, border)
-  // "altRow" role = alternating row background (linen, alt row, stripe)
-  // "sectionBg" role = section header background (cream, section)
   return {
-    navy: find("navy", "midnight") ?? defaults.navy,
-    sage: find("sage") ?? defaults.sage,
-    darkGreen: find("forest", "emerald") ?? defaults.darkGreen,
-    darkText: find("charcoal", "dark text") ?? defaults.darkText,
-    gray: find("warm border", "border", "gray", "grey") ?? defaults.gray,
-    altRow: find("warm linen", "linen", "alt row", "stripe") ?? defaults.altRow,
-    sectionBg: find("warm cream", "cream", "section bg") ?? defaults.sectionBg,
+    // Darkest primary color — table header backgrounds, cover fill
+    navy:      byDesc("palette: primary")                  ?? defaults.navy,
+    // Secondary brand color — accent borders, table dividers
+    sage:      byDesc("palette: secondary")                ?? defaults.sage,
+    // Standalone accent / highlight — KPI callouts, positive values, titles
+    darkGreen: byDesc("palette: accent", "accent:")        ?? defaults.darkGreen,
+    // Body text
+    darkText:  byDesc("palette: foreground")               ?? defaults.darkText,
+    // Border / divider color — cell separators, muted lines
+    gray:      byDesc("palette: border")                   ?? defaults.gray,
+    // Muted surface — alternating row background
+    altRow:    byDesc("palette: muted")                    ?? defaults.altRow,
+    // Card / canvas background — section header fill
+    sectionBg: byDesc("palette: background")               ?? defaults.sectionBg,
   };
 }
 

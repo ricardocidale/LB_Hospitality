@@ -102,13 +102,77 @@ Each key maps to a header row that toggles child rows on click.
 The Income Statement chart shows: Revenue, GOP, AGOP, NOI, ANOI.
 AGOP uses preset color `#10B981` (emerald green).
 
+## Cash Flow Statement Structure (ASC 230 Indirect Method)
+
+Cash Flow Statements follow ASC 230 and use USALI-aligned expense grouping within CFO.
+
+### Canonical Section Order
+
+```
+1.  Cash Flow from Operating Activities (CFO)
+    ├── Cash Received from Guests & Clients [chevron → ADR, Occ, RevPAR, revenue by stream]
+    ├── Cash Paid for Operating Expenses [chevron]
+    │   ├── Departmental Expenses [chevron → Rooms, F&B, Events, Other]
+    │   ├── Undistributed Operating Expenses [chevron → Marketing, Prop Ops, Utilities, Taxes, Insurance, Admin, IT, Other]
+    │   └── Management Fees [chevron → Base Fee, Incentive Fee]
+    ├── Less: Interest Paid
+    └── Less: Income Taxes Paid
+    = Net Cash from Operating Activities
+2.  Cash Flow from Investing Activities (CFI)
+    ├── Property Acquisition
+    ├── FF&E Reserve / Capital Improvements
+    └── Sale Proceeds (Net Exit Value)
+    = Net Cash from Investing Activities
+3.  Cash Flow from Financing Activities (CFF)
+    ├── Equity Contribution
+    ├── Loan Proceeds
+    ├── Less: Principal Repayments
+    └── Refinancing Proceeds
+    = Net Cash from Financing Activities
+4.  Net Increase (Decrease) in Cash = CFO + CFI + CFF
+5.  Opening / Closing Cash Balance
+6.  Free Cash Flow
+    ├── FCF = CFO − FF&E
+    └── FCFE = FCF − Principal Payments
+7.  Key Metrics [CoC Return, DSCR]
+```
+
+### Key CF Formulas
+
+| Line Item | Formula | Source |
+|-----------|---------|-------|
+| CFO | Revenue − OpEx (excl. FF&E) − Interest − Taxes | `cashFlowSections.ts` |
+| CFI | −Acquisition − FF&E + Exit Value | `cashFlowSections.ts` |
+| CFF | Equity + Loan − Principal + Refinancing | `cashFlowSections.ts` |
+| FCF | CFO − FF&E | `cashFlowSections.ts` |
+| FCFE | FCF − Principal | `cashFlowSections.ts` |
+| DSCR | ANOI ÷ Debt Service | derived |
+
+### Cash Flow Implementation Files
+
+- `client/src/components/statements/YearlyCashFlowStatement.tsx` — Property-level CF (multi-year, ASC 230, USALI expense grouping)
+- `client/src/components/dashboard/CashFlowTab.tsx` — Consolidated CF (portfolio-level, chevron rows)
+- `client/src/components/property-detail/CashFlowTab.tsx` — Property detail CF wrapper (line chart + table)
+- `client/src/lib/financial/cashFlowSections.ts` — Single source of truth for CFO/CFI/CFF/FCF/FCFE computation
+- `client/src/lib/financial/cashFlowAggregator.ts` — Yearly CF data aggregation
+
+### NOT a Property CF (different structure)
+- `client/src/components/company/CompanyCashFlowTab.tsx` — Management company CF (Revenue = fees, Expenses = company overhead, SAFE funding). This is NOT a property CF.
+
+### CF Chart Series
+
+The Cash Flow chart shows: ANOI, FCF, FCFE.
+Dashboard consolidated CF chart shows: NOI, ANOI, CashFlow, FCFE.
+
 ## Rules
 
-1. Never combine Departmental and Undistributed expenses into a single "Operating Expenses" section.
+1. Never combine Departmental and Undistributed expenses into a single "Operating Expenses" section — applies to both IS and CF views.
 2. AGOP must always appear between Management Fees and Fixed Charges.
 3. Every profitability subtotal (GOP, AGOP, NOI, ANOI) must show a margin % and per-property breakdown when expanded (consolidated) or margin % (property-level).
 4. Formula rows use the blue-tinted expandable pattern (`bg-blue-50/40`).
 5. All waterfall charts must follow USALI order: Revenue → Dept Exp → Undist Exp → GOP → Fees → AGOP → Fixed → NOI → FF&E → ANOI.
 6. All line charts showing IS data must include AGOP series with color `#10B981`.
 7. NOI always uses `engine.noi` directly — never `noi + feeBase + feeIncentive`.
-8. The Company IS (`CompanyIncomeTab.tsx`) is a management company P&L, NOT a USALI property IS. Do not apply these rules to it.
+8. The Company IS/CF (`CompanyIncomeTab.tsx`, `CompanyCashFlowTab.tsx`) is a management company P&L/CF, NOT a USALI property statement. Do not apply these rules to it.
+9. CF operating expense grouping must mirror IS: Departmental → Undistributed → Management Fees (never "Direct Costs" + "Overhead").
+10. FCF formula: CFO − FF&E (not ANOI − CapEx). Always reference CFO correctly in formula displays.

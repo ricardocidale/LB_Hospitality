@@ -102,6 +102,15 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
                 <TableCell className="text-right bg-accent/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.gop, 0))}</TableCell>
               </TableRow>
 
+              {/* AGOP = GOP − Management Fees */}
+              <TableRow className="bg-emerald-500/10 border-border font-medium">
+                <TableCell className="sticky left-0 bg-emerald-500/20 z-10 border-r border-border text-sm">Adjusted GOP (AGOP)</TableCell>
+                {first12Months.map((m, i) => (
+                  <TableCell key={i} className="text-right font-mono text-sm">{formatMoney(m.agop)}</TableCell>
+                ))}
+                <TableCell className="text-right bg-emerald-500/30 font-mono text-sm">{formatMoney(first12Months.reduce((a, b) => a + b.agop, 0))}</TableCell>
+              </TableRow>
+
               {/* NOI = AGOP − Fixed Charges (Property Taxes) */}
               <TableRow className="bg-primary/5 border-border font-medium">
                 <TableCell className="sticky left-0 bg-primary/10 z-10 border-r border-border text-sm">Net Operating Income (NOI)</TableCell>

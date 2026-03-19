@@ -434,12 +434,14 @@ export async function exportFullData(user: { email?: string; role?: string; comp
       ]);
       includedStatements.push(`${p.name} — Income Statement`);
 
-      addTable(`${p.name} — Cash Flow`, yearHeaders, [
+      addTable(`${p.name} — Cash Flow (ASC 230)`, yearHeaders, [
+        ["ANOI", ...yearly.map(yr => formatMoney(yr.anoi))],
         ["Interest Expense", ...yearly.map(yr => formatMoney(yr.interestExpense))],
         ["Principal Payment", ...yearly.map(yr => formatMoney(yr.principalPayment))],
         ["Total Debt Service", ...yearly.map(yr => formatMoney(yr.debtPayment))],
-        ["Operating Cash Flow", ...yearly.map(yr => formatMoney(yr.operatingCashFlow))],
-        ["Total Cash Flow", ...yearly.map(yr => formatMoney(yr.cashFlow))],
+        ["DSCR", ...yearly.map(yr => yr.debtPayment > 0 ? `${(yr.anoi / yr.debtPayment).toFixed(2)}x` : "N/A")],
+        ["Operating Cash Flow (CFO)", ...yearly.map(yr => formatMoney(yr.operatingCashFlow))],
+        ["Cash Flow", ...yearly.map(yr => formatMoney(yr.cashFlow))],
         ["Ending Cash", ...yearly.map(yr => formatMoney(yr.endingCash))],
       ]);
       includedStatements.push(`${p.name} — Cash Flow`);

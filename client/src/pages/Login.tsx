@@ -242,31 +242,28 @@ export default function Login() {
             </form>
           </div>
 
-          {/* ── Right: dark brand panel ───────────────────── */}
-          <div className="relative hidden md:flex flex-col items-center justify-end overflow-hidden"
-               style={{ background: "hsl(var(--foreground))" }}>
-            {/* Hotel image as texture */}
+          {/* ── Right: photo panel ───────────────────── */}
+          <div className="relative hidden md:flex flex-col items-center justify-end overflow-hidden">
+            {/* Photo */}
             <img
               src={bgImage}
-              alt=""
-              aria-hidden="true"
+              alt="Boutique hotel event space"
               className="absolute inset-0 h-full w-full object-cover"
-              style={{ opacity: 0.18, mixBlendMode: "luminosity" }}
             />
-            {/* Gradient veil — darkens top so text at bottom stays legible */}
+            {/* Dark gradient veil so brand text at bottom stays legible */}
             <div
               className="absolute inset-0"
-              style={{ background: "linear-gradient(to top, hsl(var(--foreground)) 0%, transparent 60%)" }}
+              style={{ background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.15) 55%, transparent 100%)" }}
             />
             {/* Brand text */}
             <div className="relative z-10 text-center px-8 pb-10">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 mb-2 font-medium">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/50 mb-2 font-medium">
                 Hospitality Intelligence
               </p>
               <h2 className="text-2xl font-display font-bold text-white/90 leading-snug">
                 H-Analytics
               </h2>
-              <p className="text-xs text-white/40 mt-2 leading-relaxed max-w-[220px] mx-auto">
+              <p className="text-xs text-white/50 mt-2 leading-relaxed max-w-[220px] mx-auto">
                 Dual-entity GAAP modelling and investment simulation for the modern portfolio.
               </p>
             </div>

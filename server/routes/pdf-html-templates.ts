@@ -316,8 +316,8 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
   const isL = d.orientation === "landscape";
 
   const svgW = isL ? 700 : 440;
-  const svgH = isL ? 320 : 380;
-  const padL = 70, padR = 30, padT = 24, padB = 50;
+  const svgH = isL ? 195 : 240;
+  const padL = 70, padR = 30, padT = 20, padB = 38;
   const plotW = svgW - padL - padR;
   const plotH = svgH - padT - padB;
 
@@ -897,8 +897,10 @@ body {
    LINE CHART
    ──────────────────────────────────────────── */
 .line-chart-container {
-  flex: 1; display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   break-inside: avoid; overflow: visible;
+  max-height: ${isL ? "110mm" : "130mm"};
+  height: ${isL ? "110mm" : "130mm"};
 }
 .line-chart-svg {
   width: 100%;

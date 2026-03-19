@@ -20,6 +20,16 @@ const DOMAIN_DEFAULTS: Record<LlmDomain, { vendor: LlmVendor; model: string }> =
   aiUtilityLlm:      { vendor: "google",    model: "gemini-2.5-flash" },
 };
 
+const DOMAIN_TAB: Record<LlmDomain, string> = {
+  companyLlm:       "research",
+  propertyLlm:      "research",
+  marketLlm:        "research",
+  reportLlm:        "research",
+  chatbotLlm:       "assistants",
+  premiumExportLlm: "exports",
+  aiUtilityLlm:     "operations",
+};
+
 export interface ResolvedLlm {
   vendor: LlmVendor;
   model: string;
@@ -33,10 +43,12 @@ export function resolveLlm(
   domain: LlmDomain
 ): ResolvedLlm {
   const cfg = researchConfig?.[domain] as ContextLlmConfig | undefined;
+  const tabKey = DOMAIN_TAB[domain];
+  const tabDef = researchConfig?.tabDefaults?.[tabKey];
   const defaults = DOMAIN_DEFAULTS[domain];
 
-  const vendor: LlmVendor = cfg?.llmVendor || defaults.vendor;
-  const model = normalizeModelId(cfg?.primaryLlm || defaults.model);
+  const vendor: LlmVendor = cfg?.llmVendor || (tabDef?.llmVendor as LlmVendor | undefined) || defaults.vendor;
+  const model = normalizeModelId(cfg?.primaryLlm || tabDef?.primaryLlm || defaults.model);
   const isDual = cfg?.llmMode === "dual" && !!cfg.secondaryLlm;
   const secondaryVendor = isDual ? (cfg!.secondaryLlmVendor || vendor) : undefined;
   const secondaryModel = isDual ? normalizeModelId(cfg!.secondaryLlm!) : undefined;

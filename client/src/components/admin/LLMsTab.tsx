@@ -217,15 +217,81 @@ function VendorSelect({
   );
 }
 
+interface TabDefault {
+  llmVendor?: LlmVendor;
+  primaryLlm?: string;
+}
+
+function TabDefaultsSection({
+  tabKey,
+  defaults,
+  onChange,
+  models,
+  vendors,
+}: {
+  tabKey: TabKey;
+  defaults: TabDefault;
+  onChange: (d: TabDefault) => void;
+  models: AiModelEntry[];
+  vendors: { value: LlmVendor; label: string }[];
+}) {
+  const vendor = defaults.llmVendor;
+  const vendorModels = vendor ? models.filter((m) => m.provider === vendor) : [];
+  const model = defaults.primaryLlm || "";
+
+  return (
+    <div className="mb-4 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3" data-testid={`section-tab-defaults-${tabKey}`}>
+      <div className="flex items-center gap-2 mb-2">
+        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Tab Default</Label>
+        <InfoTooltip text="Default vendor and model applied to all cards in this tab that don't have their own selection." />
+      </div>
+      <div className="grid gap-4 grid-cols-3">
+        <div>
+          <Label className="text-xs font-medium mb-1.5 block">Default Vendor</Label>
+          <VendorSelect
+            value={vendor || ""}
+            onValueChange={(v) => onChange({ llmVendor: v as LlmVendor, primaryLlm: "" })}
+            vendors={vendors}
+            testId={`select-tab-default-vendor-${tabKey}`}
+          />
+        </div>
+        <div>
+          <Label className="text-xs font-medium mb-1.5 block">Default Model</Label>
+          {vendor ? (
+            <Select value={model} onValueChange={(v) => onChange({ ...defaults, primaryLlm: v })}>
+              <SelectTrigger className="bg-card h-9" data-testid={`select-tab-default-model-${tabKey}`}>
+                <SelectValue placeholder="Select model" />
+              </SelectTrigger>
+              <SelectContent>
+                {model && !vendorModels.some((m) => m.id === model) && (
+                  <SelectItem value={model}>{model} (current)</SelectItem>
+                )}
+                {vendorModels.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Select disabled><SelectTrigger className="bg-card h-9 opacity-50"><SelectValue placeholder="Select vendor first" /></SelectTrigger></Select>
+          )}
+        </div>
+        <div />
+      </div>
+    </div>
+  );
+}
+
 function LlmDomainCard({
   domain,
   config,
+  tabDefault,
   onChange,
   models,
   vendors,
 }: {
   domain: DomainConfig;
   config: ContextLlmConfig;
+  tabDefault?: TabDefault;
   onChange: (c: ContextLlmConfig) => void;
   models: AiModelEntry[];
   vendors: { value: LlmVendor; label: string }[];
@@ -234,8 +300,12 @@ function LlmDomainCard({
   const mode: LlmMode | undefined = config.llmMode;
   const vendor: LlmVendor | undefined = config.llmVendor;
   const isDual = mode === "dual" && domain.supportsDual;
-  const vendorModels = vendor ? models.filter((m) => m.provider === vendor) : [];
+  const effectiveVendor = vendor || tabDefault?.llmVendor;
+  const vendorModels = effectiveVendor ? models.filter((m) => m.provider === effectiveVendor) : [];
   const primaryModel = config.primaryLlm || "";
+  const effectiveModel = primaryModel || (vendor ? "" : tabDefault?.primaryLlm || "");
+  const isInheritingVendor = !vendor && !!tabDefault?.llmVendor;
+  const isInheritingModel = !primaryModel && !vendor && !!tabDefault?.primaryLlm;
   const secondaryModel = config.secondaryLlm || "";
   const secondaryVendor: LlmVendor | undefined = config.secondaryLlmVendor || vendor;
   const secondaryVendorModels = secondaryVendor ? models.filter((m) => m.provider === secondaryVendor) : [];
@@ -243,7 +313,7 @@ function LlmDomainCard({
   const primaryLabel = domain.stageLabel?.primary || "Model";
   const secondaryLabel = domain.stageLabel?.secondary || "Secondary Model";
 
-  const recPrimary = (vendor && domain.recommended?.vendor === vendor) ? domain.recommended.primary : undefined;
+  const recPrimary = (effectiveVendor && domain.recommended?.vendor === effectiveVendor) ? domain.recommended.primary : undefined;
   const recSecondary = (secondaryVendor && domain.recommended?.vendor === secondaryVendor) ? domain.recommended.secondary : undefined;
 
   const update = (patch: Partial<ContextLlmConfig>) => {
@@ -259,9 +329,9 @@ function LlmDomainCard({
             {domain.label}
             <InfoTooltip text={domain.description} />
           </CardTitle>
-          {primaryModel && (
-            <Badge variant="outline" className="text-[10px] font-normal shrink-0 hidden sm:inline-flex">
-              {primaryModel}
+          {(primaryModel || isInheritingModel) && (
+            <Badge variant="outline" className={`text-[10px] font-normal shrink-0 hidden sm:inline-flex ${isInheritingModel ? "border-dashed text-muted-foreground" : ""}`}>
+              {primaryModel || effectiveModel}{isInheritingModel ? " (default)" : ""}
             </Badge>
           )}
         </div>
@@ -281,11 +351,11 @@ function LlmDomainCard({
                 />
               </div>
               <div>
-                <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
-                {vendor ? (
+                <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}{isInheritingVendor ? " (using default)" : ""}</Label>
+                {effectiveVendor ? (
                   <ModelSelectWithRecommendation
                     value={primaryModel}
-                    onValueChange={(value) => update({ primaryLlm: value })}
+                    onValueChange={(value) => update({ primaryLlm: value, llmVendor: effectiveVendor })}
                     vendorModels={vendorModels}
                     recommendedId={recPrimary}
                     testId={`select-primary-llm-${domain.key}`}
@@ -350,7 +420,7 @@ function LlmDomainCard({
         ) : (
           <div className="grid gap-4 grid-cols-3">
             <div>
-              <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
+              <Label className="text-xs font-medium mb-1.5 block">Vendor{isInheritingVendor ? " (using default)" : ""}</Label>
               <VendorSelect
                 value={vendor || ""}
                 onValueChange={(value) => update({ llmVendor: value as LlmVendor, primaryLlm: "", llmMode: "primary-only" })}
@@ -360,11 +430,11 @@ function LlmDomainCard({
               />
             </div>
             <div>
-              <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
-              {vendor ? (
+              <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}{isInheritingModel ? " (using default)" : ""}</Label>
+              {effectiveVendor ? (
                 <ModelSelectWithRecommendation
                   value={primaryModel}
-                  onValueChange={(value) => update({ primaryLlm: value })}
+                  onValueChange={(value) => update({ primaryLlm: value, llmVendor: effectiveVendor, llmMode: "primary-only" })}
                   vendorModels={vendorModels}
                   recommendedId={recPrimary}
                   testId={`select-primary-llm-${domain.key}`}
@@ -488,12 +558,27 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
           </p>
         </div>
 
+        <TabDefaultsSection
+          tabKey={activeTab as TabKey}
+          defaults={draft.tabDefaults?.[activeTab] || {}}
+          onChange={(d) => {
+            setDraft((prev) => ({
+              ...prev,
+              tabDefaults: { ...prev.tabDefaults, [activeTab]: d },
+            }));
+            setIsDirty(true);
+          }}
+          models={models}
+          vendors={tabDomains[0]?.useAllVendors ? LLM_VENDORS : RESEARCH_LLM_VENDORS}
+        />
+
         <div className="space-y-3">
           {tabDomains.map((domain) => (
             <LlmDomainCard
               key={domain.key}
               domain={domain}
               config={draft[domain.configField] || {}}
+              tabDefault={draft.tabDefaults?.[domain.tab]}
               onChange={(c) => {
                 setDraft((prev) => ({ ...prev, [domain.configField]: c }));
                 setIsDirty(true);

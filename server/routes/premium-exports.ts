@@ -519,7 +519,8 @@ function detectStatementType(title: string): string {
 function buildChartsForStatement(stmt: { title: string; years: string[]; rows: any[] }): any | null {
   const years = stmt.years || [];
   const stmtType = detectStatementType(stmt.title);
-  const seriesDefs = CHART_SERIES_BY_STATEMENT[stmtType] || CHART_SERIES_BY_STATEMENT.income;
+  const chartSeries = buildChartSeriesByStatement();
+  const seriesDefs = chartSeries[stmtType] || chartSeries.income;
 
   const series: any[] = [];
   for (const def of seriesDefs) {

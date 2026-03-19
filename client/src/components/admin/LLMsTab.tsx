@@ -222,7 +222,7 @@ function LlmDomainCard({
     onChange({ ...config, ...patch });
   };
 
-  const colCount = isDual ? 4 : vendor && mode ? 3 : 2;
+  const colCount = isDual ? 4 : vendor ? 3 : 2;
   const gridClass = compact
     ? `grid gap-4 grid-cols-1 sm:grid-cols-2 ${colCount >= 3 ? "lg:grid-cols-3" : ""} ${colCount >= 4 ? "xl:grid-cols-4" : ""}`
     : `grid gap-4 grid-cols-1 md:grid-cols-2`;
@@ -273,6 +273,19 @@ function LlmDomainCard({
             </Select>
           </div>
 
+          {vendor && (
+            <div>
+              <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
+              <ModelSelectWithRecommendation
+                value={primaryModel}
+                onValueChange={(value) => update({ primaryLlm: value })}
+                vendorModels={vendorModels}
+                recommendedId={recPrimary}
+                testId={`select-primary-llm-${domain.key}`}
+              />
+            </div>
+          )}
+
           <div>
             <Label className="text-xs font-medium mb-1.5 block">Mode</Label>
             <RadioGroup
@@ -296,20 +309,7 @@ function LlmDomainCard({
             </RadioGroup>
           </div>
 
-          {vendor && mode && (
-            <div>
-              <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
-              <ModelSelectWithRecommendation
-                value={primaryModel}
-                onValueChange={(value) => update({ primaryLlm: value })}
-                vendorModels={vendorModels}
-                recommendedId={recPrimary}
-                testId={`select-primary-llm-${domain.key}`}
-              />
-            </div>
-          )}
-
-          {vendor && mode && isDual && (
+          {vendor && isDual && (
             <div>
               <Label className="text-xs font-medium mb-1.5 block">{secondaryLabel}</Label>
               <ModelSelectWithRecommendation

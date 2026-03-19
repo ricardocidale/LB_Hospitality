@@ -3,7 +3,7 @@ import { ConsolidatedBalanceSheet } from "@/components/statements/ConsolidatedBa
 import { DashboardTabProps } from "./types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FinancialChart } from "@/components/ui/financial-chart";
-import { generatePortfolioBalanceSheetData } from "./dashboardExports";
+import { generatePortfolioBalanceSheetData, BS_TOTAL_ASSETS, BS_MORTGAGE_NOTES, BS_PAID_IN_CAPITAL, BS_RETAINED_EARNINGS } from "./dashboardExports";
 
 export function BalanceSheetTab({ financials, properties, global, projectionYears, getFiscalYear }: DashboardTabProps) {
   const tabContentRef = useRef<HTMLDivElement>(null);
@@ -17,10 +17,10 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
   );
 
   const chartData = useMemo(() => {
-    const totalAssetsRow = rows.find(r => r.category === "TOTAL ASSETS");
-    const debtRow = rows.find(r => r.category === "Mortgage Notes Payable");
-    const equityRow = rows.find(r => r.category === "Paid-In Capital");
-    const retainedRow = rows.find(r => r.category === "Retained Earnings");
+    const totalAssetsRow = rows.find(r => r.category === BS_TOTAL_ASSETS);
+    const debtRow = rows.find(r => r.category === BS_MORTGAGE_NOTES);
+    const equityRow = rows.find(r => r.category === BS_PAID_IN_CAPITAL);
+    const retainedRow = rows.find(r => r.category === BS_RETAINED_EARNINGS);
 
     return years.map((year, i) => ({
       year,

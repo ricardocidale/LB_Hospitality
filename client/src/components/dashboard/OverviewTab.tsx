@@ -13,7 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { CurrentThemeTab } from "@/components/ui/tabs";
-import { dashboardExports, generatePortfolioCashFlowData, generatePortfolioInvestmentData, generatePortfolioIncomeData, generatePortfolioBalanceSheetData, exportPortfolioPDF, exportPortfolioCSV, buildAllPortfolioStatements, exportPortfolioExcel, exportDashboardComprehensivePDF, toExportData } from "./dashboardExports";
 import { Link } from "wouter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RadialGauge } from "@/lib/charts";
@@ -287,79 +286,6 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
     { text: `${investmentHorizon}-year total cash flow`, metric: formatMoney(totalProjectionCashFlow), type: "neutral" as const },
   ];
 
-  const generateOverviewData = () => {
-    const years = [getFiscalYear(0)];
-    const rows: any[] = [
-      { category: "Portfolio IRR", values: [portfolioIRR * 100], isHeader: true },
-      { category: "Equity Multiple", values: [equityMultiple], indent: 1 },
-      { category: "Cash-on-Cash Return", values: [cashOnCash], indent: 1 },
-      { category: "Total Initial Equity", values: [totalInitialEquity], indent: 1 },
-      { category: "Total Exit Value", values: [totalExitValue], indent: 1 },
-      { category: "Total Projected Revenue", values: [totalProjectionRevenue], indent: 1 },
-      { category: "Total Projected NOI", values: [totalProjectionNOI], indent: 1 },
-      { category: "Total Projected ANOI", values: [financials.totalProjectionANOI || 0], indent: 1 },
-      { category: "Total Projected Cash Flow", values: [totalProjectionCashFlow], indent: 1 },
-      { category: "Portfolio Composition", values: [0], isHeader: true },
-      { category: "Properties", values: [totalProperties], indent: 1 },
-      { category: "Total Rooms", values: [totalRooms], indent: 1 },
-      { category: "Markets", values: [Object.keys(marketCounts).length], indent: 1 },
-    ];
-    return { years, rows };
-  };
-
-  const handleExport = (action: string) => {
-    const { years, rows } = generateOverviewData();
-    const incomeData = generatePortfolioIncomeData(yearlyConsolidatedCache, projectionYears, getFiscalYear);
-    switch (action) {
-      case 'pdf':
-        requestSave("Portfolio Overview", ".pdf", (f) => exportDashboardComprehensivePDF({
-          financials,
-          properties,
-          projectionYears,
-          getFiscalYear,
-          companyName: global?.companyName || "Hospitality Business Group",
-          incomeRows: incomeData.rows,
-          modelStartDate: global?.modelStartDate ? new Date(global.modelStartDate) : undefined,
-        }, f));
-        break;
-      case 'csv':
-        requestSave("Portfolio Overview", ".csv", (f) => exportPortfolioCSV(years, rows, f || "portfolio-overview.csv"));
-        break;
-      case 'excel':
-        requestSave("Portfolio", ".xlsx", (f) => exportPortfolioExcel(
-          buildAllPortfolioStatements(financials, properties, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined),
-          global?.companyName || "Portfolio",
-          f
-        ));
-        break;
-      case 'pptx':
-        requestSave("Portfolio Overview", ".pptx", (f) => dashboardExports.exportToPPTX({
-          projectionYears,
-          getFiscalYear,
-          totalInitialEquity,
-          totalExitValue,
-          equityMultiple,
-          portfolioIRR,
-          cashOnCash,
-          totalProperties,
-          totalRooms,
-          totalProjectionRevenue,
-          totalProjectionNOI,
-          totalProjectionCashFlow,
-          incomeData: toExportData(incomeData),
-          cashFlowData: toExportData(generatePortfolioCashFlowData(allPropertyYearlyCF, projectionYears, getFiscalYear, new Set(["cfo", "cfi", "cff"]), false, properties.map(p => p.name))),
-          balanceSheetData: toExportData(generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, global?.modelStartDate ? new Date(global.modelStartDate) : undefined)),
-          investmentData: toExportData(generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear))
-        }, undefined, f));
-        break;
-      case 'chart':
-        requestSave("Portfolio Charts", ".png", (f) => dashboardExports.exportToPNG(chartsRef as React.RefObject<HTMLElement>, f));
-        break;
-      case 'png':
-        requestSave("Portfolio Overview", ".png", (f) => dashboardExports.exportToPNG(tabContentRef as React.RefObject<HTMLElement>, f));
-        break;
-    }
-  };
 
   return (
     <Card className="bg-card border-border shadow-sm relative overflow-hidden">

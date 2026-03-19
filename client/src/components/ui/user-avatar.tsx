@@ -5,6 +5,7 @@ interface UserAvatarProps {
   lastName?: string | null;
   name?: string | null;
   email?: string | null;
+  logoUrl?: string | null;
   size?: "sm" | "md" | "lg";
   className?: string;
 }
@@ -20,10 +21,25 @@ export function UserAvatar({
   lastName,
   name,
   email,
+  logoUrl,
   size = "md",
   className,
 }: UserAvatarProps) {
   const initials = getInitials(firstName, lastName, name, email);
+
+  if (logoUrl) {
+    return (
+      <div
+        className={cn(
+          "rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden",
+          sizeClasses[size],
+          className
+        )}
+      >
+        <img src={logoUrl} alt={name || "Company"} className="w-full h-full object-contain p-0.5" />
+      </div>
+    );
+  }
 
   return (
     <div

@@ -275,6 +275,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
             lastName={user.lastName}
             name={user.name}
             email={user.email}
+            logoUrl={myBranding?.logoUrl}
             size="sm"
           />
           <div className="min-w-0 flex-1">

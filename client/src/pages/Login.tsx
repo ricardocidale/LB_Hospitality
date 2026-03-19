@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "@/components/icons/themed-icons";
 import { IconEye, IconEyeOff } from "@/components/icons";
 import { useToast } from "@/hooks/use-toast";
-import bgImage from "@/assets/hotel-guests.jpg";
+import bgImage from "@/assets/hotel-party.jpg";
 import SpinningLogo3D from "@/components/SpinningLogo3D";
 import { applyThemeColors, resetThemeColors } from "@/lib/theme";
 

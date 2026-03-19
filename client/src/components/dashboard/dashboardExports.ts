@@ -184,50 +184,43 @@ export function generatePortfolioIncomeData(
     }
   }
 
-  const totalOpEx = (i: number) => {
+  const deptExpTotal = (i: number) => {
     const data = c(i);
     if (!data) return 0;
-    return data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther +
-      data.expenseMarketing + data.expensePropertyOps + data.expenseUtilitiesVar +
-      data.expenseAdmin + data.expenseIT + data.expenseInsurance + data.expenseUtilitiesFixed + data.expenseOtherCosts;
+    return data.expenseRooms + data.expenseFB + data.expenseEvents + data.expenseOther;
   };
 
-  rows.push({
-    category: "Operating Expenses",
-    values: years.map((_, i) => totalOpEx(i)),
-    isHeader: true,
-  });
+  const undistExpTotal = (i: number) => {
+    const data = c(i);
+    if (!data) return 0;
+    return data.expenseMarketing + data.expensePropertyOps + data.expenseAdmin +
+      data.expenseIT + data.expenseInsurance +
+      data.expenseUtilitiesVar + data.expenseUtilitiesFixed + data.expenseOtherCosts;
+  };
+
+  rows.push({ category: "Departmental Expenses", values: years.map((_, i) => deptExpTotal(i)), isHeader: true });
   if (!summaryOnly) {
     rows.push({ category: "Room Expense", values: years.map((_, i) => c(i)?.expenseRooms ?? 0), indent: 1 });
     rows.push({ category: "F&B Expense", values: years.map((_, i) => c(i)?.expenseFB ?? 0), indent: 1 });
     rows.push({ category: "Event Expense", values: years.map((_, i) => c(i)?.expenseEvents ?? 0), indent: 1 });
-    rows.push({ category: "Marketing", values: years.map((_, i) => c(i)?.expenseMarketing ?? 0), indent: 1 });
-    rows.push({ category: "Property Ops", values: years.map((_, i) => c(i)?.expensePropertyOps ?? 0), indent: 1 });
+    rows.push({ category: "Other Departmental", values: years.map((_, i) => c(i)?.expenseOther ?? 0), indent: 1 });
+  }
+
+  rows.push({ category: "Undistributed Operating Expenses", values: years.map((_, i) => undistExpTotal(i)), isHeader: true });
+  if (!summaryOnly) {
+    rows.push({ category: "Marketing & Sales", values: years.map((_, i) => c(i)?.expenseMarketing ?? 0), indent: 1 });
+    rows.push({ category: "Property Ops & Maintenance", values: years.map((_, i) => c(i)?.expensePropertyOps ?? 0), indent: 1 });
     rows.push({ category: "Admin & General", values: years.map((_, i) => c(i)?.expenseAdmin ?? 0), indent: 1 });
     rows.push({ category: "IT & Technology", values: years.map((_, i) => c(i)?.expenseIT ?? 0), indent: 1 });
     rows.push({ category: "Insurance", values: years.map((_, i) => c(i)?.expenseInsurance ?? 0), indent: 1 });
     rows.push({ category: "Utilities", values: years.map((_, i) => (c(i)?.expenseUtilitiesVar ?? 0) + (c(i)?.expenseUtilitiesFixed ?? 0)), indent: 1 });
-    rows.push({ category: "Other Expenses", values: years.map((_, i) => (c(i)?.expenseOther ?? 0) + (c(i)?.expenseOtherCosts ?? 0)), indent: 1 });
+    rows.push({ category: "Other Undistributed", values: years.map((_, i) => c(i)?.expenseOtherCosts ?? 0), indent: 1 });
   }
 
-  rows.push({ category: "Gross Operating Profit", values: years.map((_, i) => c(i)?.gop ?? 0), isHeader: true });
+  rows.push({ category: "Gross Operating Profit (GOP)", values: years.map((_, i) => c(i)?.gop ?? 0), isHeader: true, isBold: true });
   if (!summaryOnly && hasProps) {
     propertyNames!.forEach((name, idx) => {
       rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.gop ?? 0), indent: 1 });
-    });
-  }
-
-  rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), isHeader: true });
-  if (!summaryOnly) {
-    rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
-  }
-
-  rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => {
-    const d = c(i); return d ? d.noi + d.feeBase + d.feeIncentive : 0;
-  }), isHeader: true });
-  if (!summaryOnly && hasProps) {
-    propertyNames!.forEach((name, idx) => {
-      rows.push({ category: name, values: years.map((_, i) => { const d = p(idx, i); return d ? d.noi + d.feeBase + d.feeIncentive : 0; }), indent: 1 });
     });
   }
 
@@ -242,19 +235,44 @@ export function generatePortfolioIncomeData(
     rows.push({ category: "Incentive Fee", values: years.map((_, i) => c(i)?.feeIncentive ?? 0), indent: 1 });
   }
 
+  rows.push({ category: "Adjusted Gross Operating Profit (AGOP)", values: years.map((_, i) => c(i)?.agop ?? 0), isHeader: true, isBold: true });
+  if (!summaryOnly && hasProps) {
+    propertyNames!.forEach((name, idx) => {
+      rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.agop ?? 0), indent: 1 });
+    });
+  }
+
+  rows.push({ category: "Fixed Charges", values: years.map((_, i) => (c(i)?.expenseTaxes ?? 0)), isHeader: true });
+  if (!summaryOnly) {
+    rows.push({ category: "Property Taxes", values: years.map((_, i) => c(i)?.expenseTaxes ?? 0), indent: 1 });
+  }
+
+  rows.push({ category: "Net Operating Income (NOI)", values: years.map((_, i) => c(i)?.noi ?? 0), isHeader: true, isBold: true });
+  if (!summaryOnly && hasProps) {
+    propertyNames!.forEach((name, idx) => {
+      rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.noi ?? 0), indent: 1 });
+    });
+  }
+
   rows.push({ category: "FF&E Reserve", values: years.map((_, i) => c(i)?.expenseFFE ?? 0), isHeader: true });
-  rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.anoi ?? 0), isHeader: true });
+  rows.push({ category: "Adjusted NOI (ANOI)", values: years.map((_, i) => c(i)?.anoi ?? 0), isHeader: true, isBold: true });
   if (!summaryOnly && hasProps) {
     propertyNames!.forEach((name, idx) => {
       rows.push({ category: name, values: years.map((_, i) => p(idx, i)?.anoi ?? 0), indent: 1 });
     });
   }
 
+  rows.push({ category: "Debt Service", values: years.map((_, i) => c(i)?.debtPayment ?? 0), isHeader: true });
   if (!summaryOnly) {
     rows.push({ category: "Interest Expense", values: years.map((_, i) => c(i)?.interestExpense ?? 0), indent: 1 });
+    rows.push({ category: "Principal Payment", values: years.map((_, i) => c(i)?.principalPayment ?? 0), indent: 1 });
+  }
+
+  rows.push({ category: "Net Income", values: years.map((_, i) => c(i)?.netIncome ?? 0), isHeader: true, isBold: true });
+  if (!summaryOnly) {
     rows.push({ category: "Depreciation", values: years.map((_, i) => c(i)?.depreciationExpense ?? 0), indent: 1 });
     rows.push({ category: "Income Tax", values: years.map((_, i) => c(i)?.incomeTax ?? 0), indent: 1 });
-    rows.push({ category: "GAAP Net Income", values: years.map((_, i) => c(i)?.netIncome ?? 0), isHeader: true });
+    rows.push({ category: "Cash Flow", values: years.map((_, i) => c(i)?.cashFlow ?? 0), indent: 1, isBold: true });
   }
 
   return { years, rows };
@@ -362,9 +380,7 @@ export function generatePortfolioInvestmentData(
 
   const consolidatedRevenue = years.map((_, i) => yc[i]?.revenueTotal ?? 0);
   const consolidatedGOP = years.map((_, i) => yc[i]?.gop ?? 0);
-  const consolidatedNOI = years.map((_, i) => {
-    const d = yc[i]; return d ? d.noi + d.feeBase + d.feeIncentive : 0;
-  });
+  const consolidatedNOI = years.map((_, i) => yc[i]?.noi ?? 0);
   const consolidatedANOI = years.map((_, i) => yc[i]?.anoi ?? 0);
   const consolidatedNetIncome = years.map((_, i) => yc[i]?.netIncome ?? 0);
   const totalExpenses = years.map((_, i) => yc[i]?.totalExpenses ?? 0);
@@ -610,7 +626,7 @@ export async function exportPortfolioPDF(
   }));
   const noiData = years.map((year, i) => {
     const d = getYearlyConsolidated(i);
-    return { label: String(year), value: d ? d.noi + d.feeBase + d.feeIncentive : 0 };
+    return { label: String(year), value: d?.noi ?? 0 };
   });
   const expenseData = years.map((year, i) => ({
     label: String(year),
@@ -786,7 +802,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   }));
   const noiData = years.map((year, i) => {
     const d = financials.yearlyConsolidatedCache[i];
-    return { label: String(year), value: d ? d.noi + d.feeBase + d.feeIncentive : 0 };
+    return { label: String(year), value: d?.noi ?? 0 };
   });
   const expenseData = years.map((year, i) => ({
     label: String(year),

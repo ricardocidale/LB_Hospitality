@@ -50,6 +50,7 @@ interface WaterfallItem {
 function buildWaterfallData(yearData: {
   revenueTotal: number;
   gop: number;
+  agop: number;
   noi: number;
   anoi: number;
   feeBase: number;
@@ -58,24 +59,25 @@ function buildWaterfallData(yearData: {
   expenseTaxes: number;
 }): WaterfallItem[] {
   const deptExpenses = yearData.revenueTotal - yearData.gop;
-  const fixedCharges = yearData.expenseTaxes;
-  const displayNOI = yearData.noi + yearData.feeBase + yearData.feeIncentive;
   const fees = yearData.feeBase + yearData.feeIncentive;
+  const fixedCharges = yearData.expenseTaxes;
   const ffe = yearData.expenseFFE;
 
   const items: WaterfallItem[] = [];
   let running = yearData.revenueTotal;
 
   items.push({ name: "Total Revenue", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
-  items.push({ name: "Dept. Expenses", value: deptExpenses, base: running - deptExpenses, fill: "hsl(var(--chart-2))", isSubtotal: false });
+  items.push({ name: "Operating Exp.", value: deptExpenses, base: running - deptExpenses, fill: "hsl(var(--chart-2))", isSubtotal: false });
   running -= deptExpenses;
   items.push({ name: "GOP", value: running, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
-  items.push({ name: "Fixed Charges", value: fixedCharges, base: running - fixedCharges, fill: "hsl(var(--chart-5))", isSubtotal: false });
-  running -= fixedCharges;
-  items.push({ name: "NOI", value: displayNOI, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
-  running = displayNOI;
   items.push({ name: "Mgmt Fees", value: fees, base: running - fees, fill: "hsl(var(--chart-4))", isSubtotal: false });
   running -= fees;
+  items.push({ name: "AGOP", value: yearData.agop, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  running = yearData.agop;
+  items.push({ name: "Fixed Charges", value: fixedCharges, base: running - fixedCharges, fill: "hsl(var(--chart-5))", isSubtotal: false });
+  running -= fixedCharges;
+  items.push({ name: "NOI", value: yearData.noi, base: 0, fill: "hsl(var(--chart-1))", isSubtotal: true });
+  running = yearData.noi;
   items.push({ name: "FF&E Reserve", value: ffe, base: running - ffe, fill: "hsl(var(--chart-2))", isSubtotal: false });
   running -= ffe;
   items.push({ name: "ANOI", value: running, base: 0, fill: "hsl(var(--primary))", isSubtotal: true });
@@ -216,13 +218,14 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
       const summed = yearlyConsolidatedCache.reduce((acc, y) => ({
         revenueTotal: acc.revenueTotal + y.revenueTotal,
         gop: acc.gop + y.gop,
+        agop: acc.agop + y.agop,
         noi: acc.noi + y.noi,
         anoi: acc.anoi + y.anoi,
         feeBase: acc.feeBase + y.feeBase,
         feeIncentive: acc.feeIncentive + y.feeIncentive,
         expenseFFE: acc.expenseFFE + y.expenseFFE,
         expenseTaxes: acc.expenseTaxes + y.expenseTaxes,
-      }), { revenueTotal: 0, gop: 0, noi: 0, anoi: 0, feeBase: 0, feeIncentive: 0, expenseFFE: 0, expenseTaxes: 0 });
+      }), { revenueTotal: 0, gop: 0, agop: 0, noi: 0, anoi: 0, feeBase: 0, feeIncentive: 0, expenseFFE: 0, expenseTaxes: 0 });
       return buildWaterfallData(summed);
     }
     const idx = Math.min(Number(waterfallYear), yearlyConsolidatedCache.length - 1);

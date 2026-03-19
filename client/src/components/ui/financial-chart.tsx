@@ -22,6 +22,7 @@ export interface ChartSeries {
 const PRESET_SERIES: Record<string, ChartSeries> = {
   revenue: { dataKey: "Revenue", name: "Revenue — Total Revenue", color: "#18181b" },
   gop: { dataKey: "GOP", name: "GOP — Gross Operating Profit", color: "#3B82F6" },
+  agop: { dataKey: "AGOP", name: "AGOP — Adjusted Gross Operating Profit", color: "#10B981" },
   noi: { dataKey: "NOI", name: "NOI — Net Operating Income", color: "#F59E0B" },
   anoi: { dataKey: "ANOI", name: "ANOI — Adjusted Net Operating Income", color: "#6B7280" },
   expenses: { dataKey: "Expenses", name: "Expenses — Total Expenses", color: "#3B82F6" },

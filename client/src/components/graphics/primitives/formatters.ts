@@ -32,8 +32,8 @@ export function trendDirection(current: number, previous: number): "up" | "down"
 }
 
 export const CHART_COLORS = {
-  primary: "var(--primary)",
-  secondary: "#257D41",
+  primary: "hsl(var(--chart-1))",
+  secondary: "hsl(var(--chart-2))",
   accent: "#F4795B",
   blue: "#3B82F6",
   purple: "#8B5CF6",
@@ -42,12 +42,12 @@ export const CHART_COLORS = {
   teal: "#14B8A6",
   slate: "#64748B",
   gradient: {
-    sage: ["var(--primary)", "#257D41"],
+    sage: ["hsl(var(--chart-1))", "hsl(var(--chart-2))"],
     ocean: ["#3B82F6", "#60A5FA"],
     sunset: ["#F4795B", "#FB923C"],
     purple: ["#8B5CF6", "#A78BFA"],
   },
-  palette: ["var(--primary)", "#257D41", "#3B82F6", "#F4795B", "#8B5CF6", "#F59E0B", "#14B8A6", "#EF4444"],
+  palette: ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "#3B82F6", "#F4795B", "#8B5CF6", "#F59E0B", "#14B8A6", "#EF4444"],
 } as const;
 
 export { formatMoney };

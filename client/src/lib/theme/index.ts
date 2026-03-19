@@ -1,6 +1,6 @@
 export type { ThemeColor, ThemePreset, ColorCategory } from "./types";
 
-export { hexToHslString, contrastHsl } from "./color-utils";
+export { hexToHslString, hexToRgbString, contrastHsl } from "./color-utils";
 
 export { applyThemeColors, resetThemeColors, MANAGED_CSS_VARS } from "./engine";
 

@@ -192,7 +192,7 @@ function createClusterMarker(count: number): HTMLDivElement {
   el.innerHTML = `
     <div style="
       width:${size}px;height:${size}px;border-radius:50%;
-      background:var(--primary, #9FBCA4);
+      background:hsl(var(--primary));
       box-shadow:0 4px 12px rgba(0,0,0,0.3);
       border:3px solid white;
       display:flex;align-items:center;justify-content:center;

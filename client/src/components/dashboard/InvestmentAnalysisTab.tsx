@@ -40,7 +40,7 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
         data={chartData}
         series={[
           { dataKey: "NOI", name: "Net Operating Income (NOI)", color: "#10B981", gradientTo: "#34D399" },
-          { dataKey: "ANOI", name: "Adjusted NOI (ANOI)", color: "#257D41", gradientTo: "#34D399" },
+          { dataKey: "ANOI", name: "Adjusted NOI (ANOI)", color: "hsl(var(--chart-2))", gradientTo: "hsl(var(--chart-2) / 0.5)" },
           { dataKey: "DebtService", name: "Debt Service", color: "#F4795B", gradientTo: "#FB923C" },
           { dataKey: "FCFE", name: "Free Cash Flow to Equity", color: "#8B5CF6", gradientTo: "#A78BFA" },
         ]}

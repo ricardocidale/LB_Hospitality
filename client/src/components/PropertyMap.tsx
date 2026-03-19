@@ -55,7 +55,7 @@ function createPropertyMarker(): HTMLDivElement {
     <div style="position:relative;width:40px;height:52px;">
       <div style="
         width:40px;height:40px;border-radius:50% 50% 50% 0;
-        background:var(--primary, #9FBCA4);transform:rotate(-45deg);
+        background:var(--primary);transform:rotate(-45deg);
         box-shadow:0 4px 12px rgba(0,0,0,0.3);
         border:3px solid white;
         display:flex;align-items:center;justify-content:center;
@@ -241,7 +241,7 @@ export default function PropertyMap({ latitude, longitude, propertyName, propert
             </div>
 
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "var(--primary, #9FBCA4)" }}>
+              <div className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "hsl(var(--primary))" }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                 </svg>

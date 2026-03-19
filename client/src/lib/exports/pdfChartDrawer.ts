@@ -1,18 +1,15 @@
 /**
- * pdfChartDrawer.ts — Draw simple line charts directly into a jsPDF document
+ * pdfChartDrawer.ts — High-fidelity line charts for jsPDF documents
  *
- * Used by the research PDF export to embed visual charts (e.g., revenue trends,
- * NOI projections) inside generated PDF files. Since jsPDF doesn't have a
- * built-in charting engine, this module manually draws axes, grid lines, data
- * points, connecting lines, and a legend using jsPDF's low-level drawing API.
- *
- * Features:
- *   - Multiple data series with different colors
- *   - Auto-scaled Y axis with 5 grid lines
- *   - X axis labels from data points
- *   - Centered legend at the bottom
- *   - Customizable value formatter (defaults to "$X.XM")
+ * Renders charts that closely match the on-screen Recharts appearance:
+ *   - Catmull-Rom smooth bezier curves (not straight segments)
+ *   - Gradient-style area fill under each line (light tint of series colour)
+ *   - Large data-point markers: white outer ring + filled inner circle
+ *   - Plot-area background with alternating band shading
+ *   - Legend rendered as a short line segment + marker + label
+ *   - Card background with drop-shadow simulation and rounded corners
  */
+
 interface ChartData {
   label: string;
   value: number;
@@ -35,127 +32,231 @@ interface DrawChartOptions {
   formatValue?: (value: number) => string;
 }
 
-/**
- * Draw a multi-series line chart at the specified position in a jsPDF document.
- * The chart includes a white background, title, Y-axis labels, X-axis labels,
- * dashed grid lines, colored data lines with dots, and a centered legend.
- */
+interface Point {
+  x: number;
+  y: number;
+}
+
 export function drawLineChart(options: DrawChartOptions): void {
-  const { doc: docAny, x, y, width, height, title, series, formatValue = (v) => `$${(v / 1000000).toFixed(1)}M` } = options;
+  const {
+    doc: docAny,
+    x, y, width, height,
+    title, series,
+    formatValue = (v) => `$${(v / 1_000_000).toFixed(1)}M`,
+  } = options;
   const doc = docAny as any;
 
+  // ── Card: drop-shadow simulation ──────────────────────────────────────────
+  doc.setFillColor(210, 212, 218);
+  doc.roundedRect(x + 0.6, y + 0.6, width, height, 2, 2, "F");
+
+  // ── Card: white background ────────────────────────────────────────────────
   doc.setFillColor(255, 255, 255);
-  doc.rect(x, y, width, height, 'F');
-  doc.setDrawColor(220, 220, 225);
-  doc.setLineWidth(0.2);
-  doc.rect(x, y, width, height, 'S');
+  doc.roundedRect(x, y, width, height, 2, 2, "F");
 
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(45, 74, 94);
-  doc.text(title, x + width / 2, y + 10, { align: 'center' });
+  doc.setDrawColor(218, 220, 228);
+  doc.setLineWidth(0.15);
+  doc.roundedRect(x, y, width, height, 2, 2, "S");
 
-  const legendHeight = 10;
-  const xAxisHeight = 12;
-  const yAxisWidth = 32;
-  const topPadding = 18;
-  const rightPadding = 10;
+  // ── Title ─────────────────────────────────────────────────────────────────
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(24, 24, 27);
+  doc.text(title, x + width / 2, y + 9, { align: "center" });
 
-  const chartX = x + yAxisWidth;
-  const chartY = y + topPadding;
-  const chartWidth = width - yAxisWidth - rightPadding;
-  const chartHeight = height - topPadding - xAxisHeight - legendHeight;
+  // ── Layout constants ──────────────────────────────────────────────────────
+  const legendH   = 14;
+  const xAxisH    = 11;
+  const yAxisW    = 34;
+  const topPad    = 16;
+  const rightPad  = 8;
 
-  let minVal = Infinity;
+  const cX = x + yAxisW;
+  const cY = y + topPad;
+  const cW = width  - yAxisW - rightPad;
+  const cH = height - topPad - xAxisH - legendH;
+
+  // ── Plot-area background ──────────────────────────────────────────────────
+  doc.setFillColor(248, 249, 251);
+  doc.rect(cX, cY, cW, cH, "F");
+
+  // ── Value range ───────────────────────────────────────────────────────────
+  let minVal =  Infinity;
   let maxVal = -Infinity;
-  series.forEach(s => {
-    s.data.forEach(d => {
-      if (d.value < minVal) minVal = d.value;
-      if (d.value > maxVal) maxVal = d.value;
-    });
-  });
-
+  series.forEach(s => s.data.forEach(d => {
+    if (d.value < minVal) minVal = d.value;
+    if (d.value > maxVal) maxVal = d.value;
+  }));
   const range = maxVal - minVal || 1;
   minVal = Math.max(0, minVal - range * 0.05);
   maxVal = maxVal + range * 0.05;
 
-  doc.setDrawColor(230, 230, 235);
-  doc.setLineWidth(0.08);
-  const gridLines = 5;
-  for (let i = 0; i <= gridLines; i++) {
-    const gridY = chartY + chartHeight - (i / gridLines) * chartHeight;
-    doc.setLineDashPattern([1, 1.5], 0);
-    doc.line(chartX, gridY, chartX + chartWidth, gridY);
+  const toY = (val: number) =>
+    cY + cH - ((val - minVal) / (maxVal - minVal)) * cH;
 
-    const val = minVal + (i / gridLines) * (maxVal - minVal);
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(120, 120, 130);
-    doc.text(formatValue(val), chartX - 3, gridY + 1.5, { align: 'right' });
+  const toX = (i: number, total: number) =>
+    cX + (i / Math.max(total - 1, 1)) * cW;
+
+  // ── Grid: alternating bands + lines ──────────────────────────────────────
+  const gridCount = 5;
+  for (let i = 0; i <= gridCount; i++) {
+    const gy   = cY + cH - (i / gridCount) * cH;
+    const band = cH / gridCount;
+
+    if (i < gridCount) {
+      const shade = i % 2 === 0 ? [246, 247, 250] : [251, 251, 253];
+      doc.setFillColor(shade[0], shade[1], shade[2]);
+      doc.rect(cX, gy - band, cW, band, "F");
+    }
+
+    doc.setDrawColor(218, 220, 228);
+    doc.setLineWidth(0.12);
+    doc.setLineDashPattern(i === 0 ? [] : [1.5, 1.5], 0);
+    doc.line(cX, gy, cX + cW, gy);
+
+    const val = minVal + (i / gridCount) * (maxVal - minVal);
+    doc.setFontSize(6.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(145, 145, 158);
+    doc.text(formatValue(val), cX - 2, gy + 1.5, { align: "right" });
   }
   doc.setLineDashPattern([], 0);
 
+  // ── X-axis labels ─────────────────────────────────────────────────────────
   if (series.length > 0 && series[0].data.length > 0) {
-    const dataPoints = series[0].data.length;
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(120, 120, 130);
+    const n = series[0].data.length;
+    doc.setFontSize(6.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(145, 145, 158);
     series[0].data.forEach((d, i) => {
-      const pointX = chartX + (i / Math.max(dataPoints - 1, 1)) * chartWidth;
-      doc.text(d.label, pointX, chartY + chartHeight + 6, { align: 'center' });
+      doc.text(String(d.label), toX(i, n), cY + cH + 6, { align: "center" });
     });
   }
 
-  series.forEach((s) => {
+  // ── Build bezier path for a series (Catmull-Rom → cubic Bezier) ───────────
+  const buildBezierSegments = (pts: Point[]): number[][] => {
+    const segs: number[][] = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[Math.min(pts.length - 1, i + 2)];
+
+      const tension = 0.18;
+      const cp1x = p1.x + (p2.x - p0.x) * tension;
+      const cp1y = p1.y + (p2.y - p0.y) * tension;
+      const cp2x = p2.x - (p3.x - p1.x) * tension;
+      const cp2y = p2.y - (p3.y - p1.y) * tension;
+
+      segs.push([
+        cp1x - p1.x, cp1y - p1.y,
+        cp2x - p1.x, cp2y - p1.y,
+        p2.x  - p1.x, p2.y  - p1.y,
+      ]);
+    }
+    return segs;
+  };
+
+  // ── Area fills (drawn below lines) ───────────────────────────────────────
+  series.forEach(s => {
+    if (s.data.length < 2) return;
     const [r, g, b] = hexToRgb(s.color);
+
+    const n    = s.data.length;
+    const pts  = s.data.map((d, i) => ({ x: toX(i, n), y: toY(d.value) }));
+    const baseY = cY + cH;
+
+    // Light tint: blend 88 % toward white
+    const lr = Math.round(r + (255 - r) * 0.88);
+    const lg = Math.round(g + (255 - g) * 0.88);
+    const lb = Math.round(b + (255 - b) * 0.88);
+    doc.setFillColor(lr, lg, lb);
+    doc.setDrawColor(lr, lg, lb);
+
+    const segments: number[][] = [];
+    // Step 1: rise from baseline to first point
+    segments.push([0, -(baseY - pts[0].y)]);
+    // Step 2: smooth curve through data points
+    segments.push(...buildBezierSegments(pts));
+    // Step 3: drop back to baseline
+    segments.push([0, baseY - pts[n - 1].y]);
+    // Step 4: close along the baseline
+    segments.push([pts[0].x - pts[n - 1].x, 0]);
+
+    doc.lines(segments, pts[0].x, baseY, [1, 1], "F", true);
+  });
+
+  // ── Lines (smooth bezier, drawn over fills) ───────────────────────────────
+  series.forEach(s => {
+    if (s.data.length < 2) return;
+    const [r, g, b] = hexToRgb(s.color);
+
+    const n   = s.data.length;
+    const pts = s.data.map((d, i) => ({ x: toX(i, n), y: toY(d.value) }));
+
     doc.setDrawColor(r, g, b);
-    doc.setLineWidth(0.6);
+    doc.setLineWidth(1.4);
 
-    const dataPoints = s.data.length;
-    let prevX = 0;
-    let prevY = 0;
+    doc.lines(buildBezierSegments(pts), pts[0].x, pts[0].y, [1, 1], "S", false);
 
-    s.data.forEach((d, i) => {
-      const pointX = chartX + (i / Math.max(dataPoints - 1, 1)) * chartWidth;
-      const normalizedValue = (d.value - minVal) / (maxVal - minVal);
-      const pointY = chartY + chartHeight - normalizedValue * chartHeight;
-
-      if (i > 0) {
-        doc.line(prevX, prevY, pointX, pointY);
-      }
+    // ── Data-point markers: white outer ring + filled inner circle ──────────
+    pts.forEach(p => {
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(r, g, b);
+      doc.setLineWidth(0.6);
+      doc.circle(p.x, p.y, 2.4, "FD");
 
       doc.setFillColor(r, g, b);
-      doc.circle(pointX, pointY, 0.9, 'F');
-
-      prevX = pointX;
-      prevY = pointY;
+      doc.circle(p.x, p.y, 1.3, "F");
     });
   });
 
-  const legendY = y + height - legendHeight / 2 - 1;
-  const totalLegendWidth = series.reduce((sum, s) => {
-    return sum + doc.getTextWidth(s.name) * (7 / doc.getFontSize()) + 8;
-  }, 0);
-  let legendX = x + (width - totalLegendWidth) / 2;
+  // ── Plot-area border (on top of fills) ───────────────────────────────────
+  doc.setDrawColor(208, 210, 218);
+  doc.setLineWidth(0.15);
+  doc.rect(cX, cY, cW, cH, "S");
+
+  // ── Legend: line segment + marker + name ─────────────────────────────────
+  const legY = y + height - 5;
 
   doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  series.forEach((s) => {
+  doc.setFont("helvetica", "normal");
+
+  const itemWidths = series.map(s => {
+    const tw = doc.getTextWidth(s.name) * (7 / doc.getFontSize());
+    return tw + 17;
+  });
+  const totalLegW = itemWidths.reduce((a, b) => a + b, 0) - 2;
+  let legX = x + (width - totalLegW) / 2;
+
+  series.forEach((s, idx) => {
     const [r, g, b] = hexToRgb(s.color);
 
-    doc.setFillColor(r, g, b);
-    doc.roundedRect(legendX, legendY - 1.5, 4, 3, 0.5, 0.5, 'F');
+    // Line segment
+    doc.setDrawColor(r, g, b);
+    doc.setLineWidth(1.4);
+    doc.line(legX, legY, legX + 9, legY);
 
-    doc.setTextColor(80, 80, 90);
-    doc.text(s.name, legendX + 5.5, legendY + 0.8);
-    legendX += doc.getTextWidth(s.name) + 10;
+    // Centre marker
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(r, g, b);
+    doc.setLineWidth(0.6);
+    doc.circle(legX + 4.5, legY, 2.0, "FD");
+    doc.setFillColor(r, g, b);
+    doc.circle(legX + 4.5, legY, 1.1, "F");
+
+    // Label
+    doc.setTextColor(55, 55, 65);
+    doc.text(s.name, legX + 11, legY + 0.9);
+
+    legX += itemWidths[idx];
   });
 }
 
-/** Convert a hex color string (e.g. "#9FBCA4") to an [R, G, B] tuple for jsPDF. */
+/** Convert "#RRGGBB" to [R, G, B]. Returns [0, 0, 0] for unrecognised input. */
 function hexToRgb(hex: string): [number, number, number] {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return m
+    ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)]
     : [0, 0, 0];
 }

@@ -349,7 +349,7 @@ export default function PropertyDetail() {
         height: 150,
         title: `${property.name} - Financial Performance (${projectionYears}-Year Projection)`,
         series: [
-          { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#257D41' },
+          { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#F59E0B' },
           { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: '#3B82F6' },
           { name: 'AGOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.AGOP })), color: '#10B981' },
           { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: '#8B5CF6' },
@@ -475,11 +475,11 @@ export default function PropertyDetail() {
       drawSubtitleRow(doc, chartSubtitle, entityTag, 14, 22, pageWidth);
 
       const chartSeries = activeTab === "cashflow" ? [
-        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#257D41' },
+        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#F59E0B' },
         { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: '#3B82F6' },
         { name: 'Cash Flow', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.CashFlow })), color: '#F4795B' },
       ] : [
-        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#257D41' },
+        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#F59E0B' },
         { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: '#3B82F6' },
         { name: 'AGOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.AGOP })), color: '#10B981' },
         { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: '#8B5CF6' },

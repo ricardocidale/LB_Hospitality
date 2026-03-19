@@ -168,7 +168,7 @@ function GeneratingAnimation() {
         <motion.div
           className="absolute inset-0 rounded-full"
           style={{
-            background: "conic-gradient(from 0deg, #257D41, #9FBCA4, #1A2332, #257D41)",
+            background: "conic-gradient(from 0deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--foreground)), hsl(var(--primary)))",
             opacity: 0.15,
           }}
           animate={{ rotate: 360 }}
@@ -177,7 +177,7 @@ function GeneratingAnimation() {
         <motion.div
           className="absolute inset-1 rounded-full"
           style={{
-            background: "conic-gradient(from 180deg, transparent 60%, #9FBCA4 90%, transparent 100%)",
+            background: "conic-gradient(from 180deg, transparent 60%, hsl(var(--secondary)) 90%, transparent 100%)",
           }}
           animate={{ rotate: -360 }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
@@ -261,7 +261,7 @@ function GeneratingAnimation() {
             className="h-1 rounded-full"
             style={{ width: i === phase ? 20 : 6 }}
             animate={{
-              backgroundColor: i === phase ? "#257D41" : i < phase ? "#9FBCA4" : "hsl(var(--muted))",
+              backgroundColor: i === phase ? "hsl(var(--primary))" : i < phase ? "hsl(var(--primary) / 0.45)" : "hsl(var(--muted))",
               width: i === phase ? 20 : 6,
             }}
             transition={{ duration: 0.3 }}

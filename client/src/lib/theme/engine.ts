@@ -1,8 +1,8 @@
 import type { ThemeColor } from "./types";
-import { hexToHslString, contrastHsl } from "./color-utils";
+import { hexToHslString, hexToRgbString, contrastHsl } from "./color-utils";
 
 export const MANAGED_CSS_VARS = [
-  "--primary", "--primary-foreground",
+  "--primary", "--primary-foreground", "--primary-rgb",
   "--secondary", "--secondary-foreground",
   "--background", "--card", "--card-foreground",
   "--popover", "--popover-foreground",
@@ -44,6 +44,7 @@ export function applyThemeColors(
     const fg = contrastHsl(p1.hexCode);
     set("--primary", hsl);
     set("--primary-foreground", fg);
+    set("--primary-rgb", hexToRgbString(p1.hexCode));
     set("--accent", hsl);
     set("--accent-foreground", fg);
     set("--ring", hsl);

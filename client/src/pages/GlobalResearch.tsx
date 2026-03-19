@@ -16,7 +16,7 @@ import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { fireResearchConfetti } from "@/lib/confetti";
 
 const sectionColors = {
-  industry: { accent: "#257D41", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700" },
+  industry: { accent: "hsl(var(--chart-2))", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700" },
   events: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700" },
   financial: { accent: "#3B82F6", bg: "bg-blue-50", border: "border-blue-200", iconBg: "bg-blue-100", iconText: "text-blue-700" },
   debt: { accent: "#0891B2", bg: "bg-cyan-50", border: "border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-700" },

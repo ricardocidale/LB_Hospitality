@@ -1,3 +1,11 @@
+export function hexToRgbString(hex: string): string {
+  const safe = hex.startsWith("#") ? hex : `#${hex}`;
+  const r = parseInt(safe.slice(1, 3), 16);
+  const g = parseInt(safe.slice(3, 5), 16);
+  const b = parseInt(safe.slice(5, 7), 16);
+  return `${r},${g},${b}`;
+}
+
 export function hexToHslString(hex: string): string {
   const safe = hex.startsWith("#") ? hex : `#${hex}`;
   const r = parseInt(safe.slice(1, 3), 16) / 255;

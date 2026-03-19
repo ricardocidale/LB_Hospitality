@@ -328,8 +328,8 @@ export default function ComparisonView({ embedded }: { embedded?: boolean }) {
                         key={p.id} 
                         name={p.name} 
                         dataKey={p.name} 
-                        stroke={["#0F172A", "#257D41", "#3B82F6", "#F4795B"][i]} 
-                        fill={["#0F172A", "#257D41", "#3B82F6", "#F4795B"][i]} 
+                        stroke={["hsl(var(--chart-1))", "hsl(var(--chart-2))", "#3B82F6", "#F4795B"][i]} 
+                        fill={["hsl(var(--chart-1))", "hsl(var(--chart-2))", "#3B82F6", "#F4795B"][i]} 
                         fillOpacity={0.25} 
                         strokeWidth={3} 
                         animationDuration={1500}

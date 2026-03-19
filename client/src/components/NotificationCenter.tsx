@@ -70,7 +70,7 @@ const TYPE_CONFIG: Record<
   { icon: typeof IconInfo; color: string }
 > = {
   info: { icon: IconInfo, color: "var(--primary)" },
-  success: { icon: IconCheckCircle, color: "#257D41" },
+  success: { icon: IconCheckCircle, color: "hsl(var(--accent-pop, 155 41% 30%))" },
   warning: { icon: IconAlertTriangle, color: "#F59E0B" },
   error: { icon: IconXCircle, color: "#EF4444" },
 };

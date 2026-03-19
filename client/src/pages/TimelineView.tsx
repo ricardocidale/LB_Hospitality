@@ -61,7 +61,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
         propertyName: p.name,
         location: p.location,
         detail: `Rooms: ${p.roomCount}, ADR: ${formatCurrency(p.startAdr)}`,
-        color: "#257D41",
+        color: "hsl(var(--chart-2))",
       });
     }
 
@@ -122,7 +122,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
                     <span className="text-xs font-medium">Acquisition</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-[#257D41]" />
+                    <div className="w-3 h-3 rounded-full bg-secondary" />
                     <span className="text-xs font-medium">Operations</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
                             <div 
                               className={`
                                 w-8 h-8 rounded-full border-2 border-background shadow-lg flex items-center justify-center transition-transform group-hover:scale-110
-                                ${isAcq ? "bg-primary" : "bg-[#257D41]"}
+                                ${isAcq ? "bg-primary" : "bg-secondary"}
                               `}
                             >
                               <Icon className="w-4 h-4 text-white" />
@@ -248,7 +248,7 @@ export default function TimelineView({ embedded }: { embedded?: boolean }) {
                       <Badge 
                         variant="secondary" 
                         className="text-[10px] font-bold uppercase"
-                        style={evt.type === "operations" ? { backgroundColor: "rgba(37, 125, 65, 0.1)", color: "#257D41" } : {}}
+                        style={evt.type === "operations" ? { backgroundColor: "hsl(var(--secondary) / 0.1)", color: "hsl(var(--secondary))" } : {}}
                       >
                         {evt.type}
                       </Badge>

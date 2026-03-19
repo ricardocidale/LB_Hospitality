@@ -208,7 +208,7 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
       <FinancialChart
         data={chartData}
         series={[
-          { dataKey: "Assets", name: "Total Assets", color: "#257D41", gradientTo: "#34D399" },
+          { dataKey: "Assets", name: "Total Assets", color: "hsl(var(--chart-2))", gradientTo: "hsl(var(--chart-2) / 0.5)" },
           { dataKey: "Liabilities", name: "Total Liabilities", color: "#F4795B", gradientTo: "#FB923C" },
           { dataKey: "Equity", name: "Total Equity", color: "#3B82F6", gradientTo: "#60A5FA" },
         ]}

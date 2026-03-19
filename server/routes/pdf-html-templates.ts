@@ -267,6 +267,44 @@ function renderChartSection(_section: any, _d: PdfTemplateData): string {
 
 const LINE_COLORS = ["#257D41", "#B85040", "#2A3A50", "#0E7C6B", "#6B3FA0"];
 
+/** Monotone cubic Bézier interpolation (Fritsch–Carlson) — produces smooth curves like Recharts type="monotone" */
+function monotoneCubicPath(pts: Array<{x: number; y: number}>): string {
+  if (pts.length < 2) return "";
+  if (pts.length === 2) return `M${pts[0].x},${pts[0].y}L${pts[1].x},${pts[1].y}`;
+
+  const n = pts.length;
+  const dx: number[] = [];
+  const dy: number[] = [];
+  const m: number[] = [];
+
+  for (let i = 0; i < n - 1; i++) {
+    dx.push(pts[i + 1].x - pts[i].x);
+    dy.push(pts[i + 1].y - pts[i].y);
+    m.push(dy[i] / dx[i]);
+  }
+
+  const alpha: number[] = [m[0]];
+  for (let i = 1; i < n - 1; i++) {
+    if (m[i - 1] * m[i] <= 0) {
+      alpha.push(0);
+    } else {
+      alpha.push(3 * (dx[i - 1] + dx[i]) / ((2 * dx[i] + dx[i - 1]) / m[i - 1] + (dx[i] + 2 * dx[i - 1]) / m[i]));
+    }
+  }
+  alpha.push(m[n - 2]);
+
+  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const t = dx[i] / 3;
+    const cp1x = pts[i].x + t;
+    const cp1y = pts[i].y + alpha[i] * t;
+    const cp2x = pts[i + 1].x - t;
+    const cp2y = pts[i + 1].y - alpha[i + 1] * t;
+    d += `C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${pts[i + 1].x.toFixed(1)},${pts[i + 1].y.toFixed(1)}`;
+  }
+  return d;
+}
+
 function renderLineChartSection(section: any, d: PdfTemplateData): string {
   const series: any[] = section.content?.series || [];
   const years: string[] = section.content?.years || [];
@@ -274,8 +312,8 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
   const isL = d.orientation === "landscape";
 
   const svgW = isL ? 700 : 440;
-  const svgH = isL ? 300 : 360;
-  const padL = 64, padR = 30, padT = 20, padB = 40;
+  const svgH = isL ? 320 : 380;
+  const padL = 70, padR = 30, padT = 24, padB = 50;
   const plotW = svgW - padL - padR;
   const plotH = svgH - padT - padB;
 
@@ -286,15 +324,16 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
       if (typeof v === "number" && Math.abs(v) > globalMax) globalMax = Math.abs(v);
     }
   }
+  globalMax *= 1.08; // 8% headroom for labels
 
-  // Y-axis grid
+  // Y-axis grid — stronger lines, larger labels
   const gridN = 5;
   let gridSvg = "";
   for (let g = 0; g <= gridN; g++) {
     const y = padT + (plotH / gridN) * g;
     const gVal = globalMax - (globalMax / gridN) * g;
-    gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#e2e5e8" stroke-width="0.5" stroke-dasharray="4,3"/>`;
-    gridSvg += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" fill="#999" font-size="7" font-family="Helvetica,Arial,sans-serif">${fmtCompact(gVal)}</text>`;
+    gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#d8dbe0" stroke-width="0.7"/>`;
+    gridSvg += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#777" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${fmtCompact(gVal * (1 / 1.08))}</text>`;
   }
 
   // X-axis labels
@@ -303,42 +342,61 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
   years.forEach((yr, i) => {
     const x = padL + (i / Math.max(n - 1, 1)) * plotW;
     const label = yr.length === 4 ? "'" + yr.slice(2) : yr;
-    xLabels += `<text x="${x}" y="${svgH - 12}" text-anchor="middle" fill="#666" font-size="8" font-weight="500" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
+    xLabels += `<text x="${x}" y="${padT + plotH + 18}" text-anchor="middle" fill="#555" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
   });
 
-  // Series lines + dots (colors from series data, matching UI's FinancialChart)
+  // Gradient defs for area fills
+  let defsSvg = "";
+  series.forEach((s: any, si: number) => {
+    const color = s.color || LINE_COLORS[si % LINE_COLORS.length];
+    const gradId = `area-grad-${si}`;
+    defsSvg += `
+      <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.20"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+      </linearGradient>`;
+  });
+
+  // Series: area fills + smooth curves + dots
   let seriesSvg = "";
   series.forEach((s: any, si: number) => {
     const color = s.color || LINE_COLORS[si % LINE_COLORS.length];
     const values: number[] = (s.values || []).map((v: any) => typeof v === "number" ? v : 0);
     if (values.length < 2) return;
 
-    // Build smooth polyline points
-    const points = values.map((v, i) => {
-      const x = padL + (i / Math.max(values.length - 1, 1)) * plotW;
-      const y = padT + plotH - (v / globalMax) * plotH;
-      return `${x},${y}`;
-    }).join(" ");
+    const pts = values.map((v, i) => ({
+      x: padL + (i / Math.max(values.length - 1, 1)) * plotW,
+      y: padT + plotH - (v / globalMax) * plotH,
+    }));
 
-    seriesSvg += `<polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    // Smooth curve path
+    const curvePath = monotoneCubicPath(pts);
 
-    // Data dots (white fill with colored stroke, matching Recharts dot style)
-    values.forEach((v, i) => {
-      const x = padL + (i / Math.max(values.length - 1, 1)) * plotW;
-      const y = padT + plotH - (v / globalMax) * plotH;
-      seriesSvg += `<circle cx="${x}" cy="${y}" r="3.5" fill="#fff" stroke="${color}" stroke-width="2"/>`;
+    // Area fill (gradient under the curve)
+    const baseY = padT + plotH;
+    const areaPath = `${curvePath}L${pts[pts.length - 1].x.toFixed(1)},${baseY}L${pts[0].x.toFixed(1)},${baseY}Z`;
+    seriesSvg += `<path d="${areaPath}" fill="url(#area-grad-${si})" stroke="none"/>`;
+
+    // Smooth curve line
+    seriesSvg += `<path d="${curvePath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    // Data dots with subtle glow
+    pts.forEach((p) => {
+      seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${color}" fill-opacity="0.15" stroke="none"/>`;
+      seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="#fff" stroke="${color}" stroke-width="2"/>`;
     });
   });
 
-  // Legend
-  const legendY = svgH - 2;
+  // Legend — larger text, better spacing
+  const legendY = svgH - 6;
+  const legendSpacing = isL ? 170 : 135;
   const legendItems = series.map((s: any, si: number) => {
     const color = s.color || LINE_COLORS[si % LINE_COLORS.length];
-    const xOff = si * (isL ? 160 : 130);
+    const xOff = si * legendSpacing;
     return `
-      <line x1="${padL + xOff}" y1="${legendY}" x2="${padL + xOff + 16}" y2="${legendY}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="${padL + xOff + 8}" cy="${legendY}" r="2.5" fill="#fff" stroke="${color}" stroke-width="1.5"/>
-      <text x="${padL + xOff + 22}" y="${legendY + 3}" fill="#555" font-size="8" font-weight="500" font-family="Helvetica,Arial,sans-serif">${esc(s.label || "")}</text>`;
+      <line x1="${padL + xOff}" y1="${legendY}" x2="${padL + xOff + 18}" y2="${legendY}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="${padL + xOff + 9}" cy="${legendY}" r="2.5" fill="#fff" stroke="${color}" stroke-width="1.5"/>
+      <text x="${padL + xOff + 24}" y="${legendY + 3.5}" fill="#444" font-size="9" font-weight="600" font-family="Helvetica,Arial,sans-serif">${esc(s.label || "")}</text>`;
   }).join("");
 
   return `
@@ -346,8 +404,10 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
       ${pageHeader(esc(section.title || "Performance Trends"), d)}
       <div class="line-chart-container">
         <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" class="line-chart-svg" xmlns="http://www.w3.org/2000/svg">
+          <defs>${defsSvg}</defs>
           ${gridSvg}
-          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#bbb" stroke-width="0.8"/>
+          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#aaa" stroke-width="1"/>
+          <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#d8dbe0" stroke-width="0.5"/>
           ${xLabels}
           ${seriesSvg}
           ${legendItems}

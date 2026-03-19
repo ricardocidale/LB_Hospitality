@@ -485,6 +485,26 @@ export function generatePortfolioInvestmentData(
     rows.push({ category: "Taxable Income", values: consolidatedTaxableIncome, indent: 2 });
     rows.push({ category: "Less: Income Tax", values: consolidatedTax.map(v => -v), indent: 2 });
     rows.push({ category: "After-Tax Cash Flow (ATCF)", values: consolidatedATCF, indent: 1, isBold: true });
+
+    // Per-Property Returns — matches InvestmentAnalysis.tsx per-property expandable rows
+    if (properties.length > 0 && cf.length > 0) {
+      rows.push({ category: "", values: years.map(() => 0) });
+      rows.push({ category: "Per-Property Returns", values: years.map(() => 0), isHeader: true });
+      properties.forEach((prop, pi) => {
+        const propCF = cf[pi] || [];
+        const equity = propertyEquityInvested(prop);
+        const exitVal = propCF[projectionYears - 1]?.exitValue ?? 0;
+        const propATCF = years.map((_, y) => propCF[y]?.atcf ?? 0);
+        const avgCF = propATCF.reduce((s, v) => s + v, 0) / projectionYears;
+        const propCoC = equity > 0 ? (avgCF / equity) * 100 : 0;
+
+        rows.push({ category: prop.name || `Property ${pi + 1}`, values: years.map(() => 0), isHeader: true, indent: 1 });
+        rows.push({ category: "Equity Invested", values: years.map(() => equity), indent: 2 });
+        rows.push({ category: "Annual ATCF", values: propATCF, indent: 2 });
+        rows.push({ category: "Exit Value", values: years.map((_, y) => y === projectionYears - 1 ? exitVal : 0), indent: 2 });
+        rows.push({ category: "Cash-on-Cash (%)", values: years.map(() => propCoC / 100), indent: 2, format: "percentage" });
+      });
+    }
   }
 
   return { years, rows };

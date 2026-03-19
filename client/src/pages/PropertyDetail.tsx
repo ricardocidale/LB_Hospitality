@@ -613,6 +613,10 @@ export default function PropertyDetail() {
         }
       } else if (exportType === 'chart') {
         await exportChartPNG(orientation, customFilename);
+      } else if (exportType === 'xlsx') {
+        handleExcelExport(customFilename);
+      } else if (exportType === 'pptx') {
+        handlePPTXExport(customFilename);
       }
     } finally {
       if (expandIncome) {

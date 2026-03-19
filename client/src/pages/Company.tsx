@@ -209,6 +209,13 @@ export default function Company() {
       exportCompanyPDF(activeTab as any, data, global, projectionYears, yearlyChartData, orientation, customFilename);
     } else if (exportType === 'chart') {
       exportChartPNG(chartRef, orientation, companyName, customFilename);
+    } else if (exportType === 'xlsx') {
+      handleExcelExport(activeTab, financials, projectionYears, global, fiscalYearStartMonth, customFilename);
+    } else if (exportType === 'pptx') {
+      const incomeData = getStatementData('income');
+      const cashFlowData = getStatementData('cashflow');
+      const balanceData = getStatementData('balance');
+      handlePPTXExport(global, projectionYears, (i: number) => String(getFiscalYear(i)), incomeData, cashFlowData, balanceData, customFilename);
     }
   };
 

@@ -285,12 +285,13 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
     if (open) {
       setOrientation(getStoredOrientation());
       setVersion(getStoredVersion());
-      setIsPremium(getStoredPremium());
+      // DOCX has no client-side generator — always use premium mode
+      setIsPremium(premiumFormat === "docx" ? true : getStoredPremium());
       setIncludeCoverPage(getStoredCoverPage());
       setStep("options");
       setIsSaving(false);
     }
-  }, [open]);
+  }, [open, premiumFormat]);
 
   const handleOrientationChange = (v: string) => {
     const val = v as "landscape" | "portrait";
@@ -382,6 +383,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                     id="premium-toggle"
                     checked={isPremium}
                     onCheckedChange={handlePremiumToggle}
+                    disabled={premiumFormat === "docx"}
                     data-testid="switch-premium-export"
                   />
                 </div>

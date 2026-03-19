@@ -58,6 +58,9 @@ import {
   generatePortfolioBalanceSheetData,
   exportPortfolioCSV,
   exportPortfolioPDF,
+  buildAllPortfolioStatements,
+  exportPortfolioExcel,
+  toExportData,
 } from "@/components/dashboard";
 
 
@@ -186,8 +189,36 @@ export default function Dashboard() {
       doc.addImage(dataUrl, "PNG", margin, 25, imgW, imgH);
       const { saveFile } = await import("@/lib/exports/saveFile");
       await saveFile(doc.output("blob"), customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.pdf`);
+    } else if (exportType === "xlsx") {
+      const companyName = global?.companyName || "Portfolio";
+      const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
+      const datasets = buildAllPortfolioStatements(financials, properties!, projectionYears, getFiscalYear, modelStartDate);
+      await exportPortfolioExcel(datasets, companyName, customFilename);
+    } else if (exportType === "pptx") {
+      const companyName = global?.companyName || "Portfolio";
+      const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
+      const datasets = buildAllPortfolioStatements(financials, properties!, projectionYears, getFiscalYear, modelStartDate);
+      const { exportPortfolioPPTX } = await import("@/lib/exports/pptxExport");
+      await exportPortfolioPPTX({
+        projectionYears,
+        getFiscalYear,
+        totalInitialEquity: financials.totalInitialEquity,
+        totalExitValue: financials.totalExitValue,
+        equityMultiple: financials.equityMultiple,
+        portfolioIRR: financials.portfolioIRR,
+        cashOnCash: financials.cashOnCash,
+        totalProperties: properties!.length,
+        totalRooms: financials.totalRooms,
+        totalProjectionRevenue: financials.totalProjectionRevenue,
+        totalProjectionNOI: financials.totalProjectionNOI,
+        totalProjectionCashFlow: financials.totalProjectionCashFlow,
+        incomeData: toExportData(datasets.incomeData),
+        cashFlowData: toExportData(datasets.cashFlowData),
+        balanceSheetData: toExportData(datasets.balanceSheetData),
+        investmentData: toExportData(datasets.investmentData),
+      }, companyName, customFilename);
     }
-  }, [exportType, activeTab, financials, global, getExportData]);
+  }, [exportType, activeTab, financials, global, properties, getExportData]);
 
   const handleExportExcel = useCallback(() => {
     setExportType("xlsx");

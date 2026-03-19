@@ -198,7 +198,7 @@ async function callGemini(
 async function generateWithGemini(prompt: string, format: string, modelId?: string): Promise<any> {
   const client = getGeminiClient();
   const startTime = Date.now();
-  const resolvedModel = modelId || "gemini-2.5-flash";
+  const resolvedModel = modelId || "gemini-2.5-pro";
 
   let lastError: Error | null = null;
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -656,7 +656,7 @@ async function generatePdfWithAiDesign(data: PremiumExportRequest, modelId?: str
   // Step 1: Ask LLM to design the report layout
   logger.info(`[pdf-design] Asking LLM to design PDF layout...`, "premium-export");
   const designPrompt = getPdfDesignPrompt(data, data.themeColors);
-  const designJson = await generateWithGemini(designPrompt, "pdf", modelId || "gemini-2.5-pro");
+  const designJson = await generateWithGemini(designPrompt, "pdf", modelId);
   logger.info(`[pdf-design] LLM returned design vision: ${designJson.design_vision || ""}`, "premium-export");
 
   // Step 2: Convert LLM's design vision into section array

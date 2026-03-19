@@ -29,7 +29,7 @@ function CSSFallback({ size, onClick }: { size: number; onClick?: () => void }) 
     >
       <img
         src={logoImg}
-        alt="Hospitality Business Group"
+        alt="H+ Analytics"
         className="w-full h-full object-contain animate-spherical"
       />
     </div>

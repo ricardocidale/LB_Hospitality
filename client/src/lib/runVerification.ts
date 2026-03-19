@@ -217,7 +217,7 @@ export function runFullVerification(
   let auditWorkpaper = "";
   auditWorkpaper += "╔══════════════════════════════════════════════════════════════════════════════╗\n";
   auditWorkpaper += "║               CONSOLIDATED INDEPENDENT AUDITOR'S REPORT                      ║\n";
-  auditWorkpaper += "║                       Hospitality Business Group                                  ║\n";
+  auditWorkpaper += "║                       H+ Analytics                                  ║\n";
   auditWorkpaper += "╚══════════════════════════════════════════════════════════════════════════════╝\n\n";
   
   for (const report of auditReports) {

@@ -802,7 +802,7 @@ export default function PropertyDetail() {
 
           return {
             entityName: property.name,
-            companyName: global?.companyName || "Hospitality Business Group",
+            companyName: global?.companyName || "H+ Analytics",
             statementType: activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow Statement" : "Balance Sheet",
             years: yrLabels,
             statements: [

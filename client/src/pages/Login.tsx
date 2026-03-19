@@ -152,7 +152,7 @@ export default function Login() {
                       Welcome back
                     </h1>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Sign in to your H-Analytics portal
+                      Sign in to your H+ Analytics portal
                     </p>
                   </div>
                 </div>
@@ -261,7 +261,7 @@ export default function Login() {
                 Hospitality Intelligence
               </p>
               <h2 className="text-2xl font-display font-bold text-white/90 leading-snug">
-                H-Analytics
+                H+ Analytics
               </h2>
               <p className="text-xs text-white/50 mt-2 leading-relaxed max-w-[220px] mx-auto">
                 Dual-entity GAAP modelling and investment simulation for the modern portfolio.

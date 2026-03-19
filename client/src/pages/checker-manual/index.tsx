@@ -55,7 +55,7 @@ export default function CheckerManual({ embedded }: CheckerManualProps) {
           {!embedded && (
             <PageHeader
               title="Checker Manual"
-              subtitle="Hospitality Business Group — Verification & Testing Guide"
+              subtitle="H+ Analytics — Verification & Testing Guide"
               actions={
                 <div className="flex gap-2">
                   <Button 

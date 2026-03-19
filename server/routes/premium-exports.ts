@@ -476,30 +476,34 @@ function filterFormulaRows(rows: any[]): any[] {
   return rows.filter(r => !r.isItalic && r.type !== "formula");
 }
 
-// Chart series definitions matching the UI's FinancialChart component colors
-const CHART_SERIES_BY_STATEMENT: Record<string, Array<{ keyword: string; label: string; color: string }>> = {
-  income: [
-    { keyword: "total revenue",            label: "Revenue", color: "#18181b" },
-    { keyword: "gross operating profit",   label: "GOP",     color: "#3B82F6" },
-    { keyword: "net operating income",     label: "NOI",     color: "#F59E0B" },
-    { keyword: "adjusted noi",             label: "ANOI",    color: "#6B7280" },
-  ],
-  cashflow: [
-    { keyword: "free cash flow (fcf)",     label: "Cash Flow", color: "#8B5CF6" },
-    { keyword: "free cash flow to equity", label: "FCFE",      color: "#6B7280" },
-  ],
-  balance: [
-    { keyword: "total assets",      label: "Total Assets",      color: "#257D41" },
-    { keyword: "total liabilities", label: "Total Liabilities",  color: "#F4795B" },
-    { keyword: "total equity",      label: "Total Equity",       color: "#3B82F6" },
-  ],
-  investment: [
-    { keyword: "net operating income",     label: "NOI",          color: "#10B981" },
-    { keyword: "adjusted noi",             label: "ANOI",         color: "#257D41" },
-    { keyword: "debt service",             label: "Debt Service", color: "#F4795B" },
-    { keyword: "free cash flow to equity", label: "FCFE",         color: "#8B5CF6" },
-  ],
-};
+/** Build theme-aware chart series definitions.
+ *  accent = primary theme highlight color (hex without #, e.g. "10B981") */
+function buildChartSeriesByStatement(accentHex?: string): Record<string, Array<{ keyword: string; label: string; color: string }>> {
+  const accent = accentHex ? `#${accentHex}` : "#10B981";
+  return {
+    income: [
+      { keyword: "total revenue",            label: "Revenue", color: accent    },
+      { keyword: "gross operating profit",   label: "GOP",     color: "#3B82F6" },
+      { keyword: "net operating income",     label: "NOI",     color: "#F59E0B" },
+      { keyword: "adjusted noi",             label: "ANOI",    color: "#6B7280" },
+    ],
+    cashflow: [
+      { keyword: "free cash flow (fcf)",     label: "Cash Flow", color: accent    },
+      { keyword: "free cash flow to equity", label: "FCFE",      color: "#8B5CF6" },
+    ],
+    balance: [
+      { keyword: "total assets",      label: "Total Assets",      color: accent    },
+      { keyword: "total liabilities", label: "Total Liabilities",  color: "#F4795B" },
+      { keyword: "total equity",      label: "Total Equity",       color: "#3B82F6" },
+    ],
+    investment: [
+      { keyword: "net operating income",     label: "NOI",          color: accent    },
+      { keyword: "adjusted noi",             label: "ANOI",         color: "#3B82F6" },
+      { keyword: "debt service",             label: "Debt Service", color: "#F4795B" },
+      { keyword: "free cash flow to equity", label: "FCFE",         color: "#8B5CF6" },
+    ],
+  };
+}
 
 /** Detect which statement type this is from the title */
 function detectStatementType(title: string): string {

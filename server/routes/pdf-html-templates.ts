@@ -273,7 +273,15 @@ function renderChartSection(_section: any, _d: PdfTemplateData): string {
    LINE CHART — multi-series trend lines (Revenue, OpEx, ANOI)
    ═══════════════════════════════════════════════════════════════ */
 
-const LINE_COLORS = ["#10B981", "#3B82F6", "#F59E0B", "#8B5CF6", "#F4795B", "#257D41", "#6B7280"];
+/** Build a theme-aware chart palette from the resolved colors object.
+ *  Series are ordered: accent → blue → amber → purple → red → muted  */
+function buildChartPalette(colors?: { darkGreen: string; navy: string; sage: string }): string[] {
+  if (colors?.darkGreen) {
+    const accent = `#${colors.darkGreen}`;
+    return [accent, "#3B82F6", "#F59E0B", "#8B5CF6", "#F4795B", "#6B7280", "#14B8A6"];
+  }
+  return ["#10B981", "#3B82F6", "#F59E0B", "#8B5CF6", "#F4795B", "#6B7280", "#14B8A6"];
+}
 
 /** Monotone cubic Bézier interpolation (Fritsch–Carlson) — produces smooth curves like Recharts type="monotone" */
 function monotoneCubicPath(pts: Array<{x: number; y: number}>): string {
@@ -353,22 +361,24 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
     xLabels += `<text x="${x}" y="${padT + plotH + 18}" text-anchor="middle" fill="#555" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
   });
 
+  const palette = buildChartPalette(d.colors);
+
   // Gradient defs for area fills
   let defsSvg = "";
   series.forEach((s: any, si: number) => {
-    const color = s.color || LINE_COLORS[si % LINE_COLORS.length];
+    const color = s.color || palette[si % palette.length];
     const gradId = `area-grad-${si}`;
     defsSvg += `
       <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="${color}" stop-opacity="0.20"/>
-        <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.14"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0.01"/>
       </linearGradient>`;
   });
 
-  // Series: area fills + smooth curves + dots
+  // Series: area fills + smooth curves + precision dots
   let seriesSvg = "";
   series.forEach((s: any, si: number) => {
-    const color = s.color || LINE_COLORS[si % LINE_COLORS.length];
+    const color = s.color || palette[si % palette.length];
     const values: number[] = (s.values || []).map((v: any) => typeof v === "number" ? v : 0);
     if (values.length < 2) return;
 
@@ -385,26 +395,26 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
     const areaPath = `${curvePath}L${pts[pts.length - 1].x.toFixed(1)},${baseY}L${pts[0].x.toFixed(1)},${baseY}Z`;
     seriesSvg += `<path d="${areaPath}" fill="url(#area-grad-${si})" stroke="none"/>`;
 
-    // Smooth curve line
-    seriesSvg += `<path d="${curvePath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    // Fine-line curve — 1.5px for precision, matching on-screen Recharts appearance
+    seriesSvg += `<path d="${curvePath}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
 
-    // Data dots with subtle glow
+    // Precision data-point markers: white fill + colored stroke, no outer glow
     pts.forEach((p) => {
-      seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${color}" fill-opacity="0.15" stroke="none"/>`;
-      seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="#fff" stroke="${color}" stroke-width="2"/>`;
+      seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="#fff" stroke="${color}" stroke-width="1.5"/>`;
+      seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="1.2" fill="${color}" stroke="none"/>`;
     });
   });
 
-  // Legend — larger text, better spacing
+  // Legend — fine line segment + marker + label
   const legendY = svgH - 6;
   const legendSpacing = isL ? 170 : 135;
   const legendItems = series.map((s: any, si: number) => {
-    const color = s.color || LINE_COLORS[si % LINE_COLORS.length];
+    const color = s.color || palette[si % palette.length];
     const xOff = si * legendSpacing;
     return `
-      <line x1="${padL + xOff}" y1="${legendY}" x2="${padL + xOff + 18}" y2="${legendY}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="${padL + xOff + 9}" cy="${legendY}" r="2.5" fill="#fff" stroke="${color}" stroke-width="1.5"/>
-      <text x="${padL + xOff + 24}" y="${legendY + 3.5}" fill="#444" font-size="9" font-weight="600" font-family="Helvetica,Arial,sans-serif">${esc(s.label || "")}</text>`;
+      <line x1="${padL + xOff}" y1="${legendY}" x2="${padL + xOff + 16}" y2="${legendY}" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="${padL + xOff + 8}" cy="${legendY}" r="2" fill="#fff" stroke="${color}" stroke-width="1.2"/>
+      <text x="${padL + xOff + 22}" y="${legendY + 3.5}" fill="#444" font-size="9" font-weight="600" font-family="Helvetica,Arial,sans-serif">${esc(s.label || "")}</text>`;
   }).join("");
 
   return `
@@ -626,14 +636,14 @@ body {
   top: 15%;
   width: ${isL ? "180mm" : "120mm"};
   height: ${isL ? "180mm" : "120mm"};
-  border: 1.5px solid rgba(159,188,164,0.12);
+  border: 1.5px solid ${SAGE}1f;
   border-radius: 50%;
 }
 .cover-geometric::after {
   content: '';
   position: absolute;
   top: 15%; left: 15%; right: 15%; bottom: 15%;
-  border: 1px solid rgba(159,188,164,0.08);
+  border: 1px solid ${SAGE}14;
   border-radius: 50%;
 }
 /* Vertical sage accent bar beside company name */

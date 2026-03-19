@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 
-const DEFAULT_COMPANY_NAME = "Hospitality Business Group";
+const DEFAULT_COMPANY_NAME = "H+ Analytics";
 
 function TermsContent() {
   const { user } = useAuth();

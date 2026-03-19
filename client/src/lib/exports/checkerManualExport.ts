@@ -144,7 +144,7 @@ export async function exportManualPDF(user: { email?: string; role?: string; com
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
   doc.setTextColor(255, 255, 255);
-  doc.text(user.companyName || "Hospitality Business Group", 14, 25);
+  doc.text(user.companyName || "H+ Analytics", 14, 25);
   doc.setFontSize(14);
   doc.setTextColor(159, 188, 164);
   doc.text("Checker Manual — Verification & Testing Guide", 14, 38);
@@ -331,7 +331,7 @@ export async function exportFullData(user: { email?: string; role?: string; comp
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
   doc.setTextColor(255, 255, 255);
-  doc.text(`${user.companyName || "Hospitality Business Group"} — Full Data Export`, 14, 18);
+  doc.text(`${user.companyName || "H+ Analytics"} — Full Data Export`, 14, 18);
   doc.setFontSize(9);
   doc.setTextColor(159, 188, 164);
   doc.text(`Generated: ${new Date().toLocaleString()} | User: ${user.email || "unknown"} (${user.role || "unknown"}) | Properties: ${properties.length}`, 14, 30);

@@ -377,7 +377,7 @@ export interface PortfolioExportData {
   investmentData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "Hospitality Business Group", customFilename?: string) {
+export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "H+ Analytics", customFilename?: string) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
@@ -434,7 +434,7 @@ export interface PropertyExportData {
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportPropertyPPTX(data: PropertyExportData, companyName = "Hospitality Business Group", customFilename?: string) {
+export async function exportPropertyPPTX(data: PropertyExportData, companyName = "H+ Analytics", customFilename?: string) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
@@ -470,7 +470,7 @@ export interface CompanyExportData {
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportCompanyPPTX(data: CompanyExportData, companyName = "Hospitality Business Group", customFilename?: string) {
+export async function exportCompanyPPTX(data: CompanyExportData, companyName = "H+ Analytics", customFilename?: string) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";

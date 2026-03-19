@@ -376,7 +376,7 @@ export default function Dashboard() {
           });
           return {
             entityName: "Consolidated Portfolio",
-            companyName: global.companyName || "Hospitality Business Group",
+            companyName: global.companyName || "H+ Analytics",
             statementType: TAB_LABELS[activeTab] || "Portfolio",
             years: incomeData.years.map(String),
             statements: [

@@ -78,7 +78,7 @@ export async function exportPortfolioPDF(
   rows: ExportRow[],
   getYearlyConsolidated: (i: number) => YearlyPropertyFinancials,
   title: string,
-  companyName = "Hospitality Business Group",
+  companyName = "H+ Analytics",
   customFilename?: string
 ): Promise<void> {
   const jsPDF = (await import("jspdf")).default;
@@ -167,7 +167,7 @@ const fmtCompact = (v: number) =>
 export async function exportDashboardComprehensivePDF(params: ComprehensiveDashboardExportParams, customFilename?: string): Promise<void> {
   const {
     financials, properties, projectionYears, getFiscalYear,
-    companyName = "Hospitality Business Group",
+    companyName = "H+ Analytics",
     incomeRows, modelStartDate,
   } = params;
 

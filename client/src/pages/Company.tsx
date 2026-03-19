@@ -268,7 +268,7 @@ export default function Company() {
           }));
           return {
             entityName: companyName,
-            companyName: global?.companyName || "Hospitality Business Group",
+            companyName: global?.companyName || "H+ Analytics",
             statementType: activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow" : "Balance Sheet",
             statements: [
               { title: "Management Company Income Statement", years: incomeData.years.map(String), rows: mapRows(incomeData.rows) },

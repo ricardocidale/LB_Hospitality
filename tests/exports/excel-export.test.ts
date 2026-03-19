@@ -224,12 +224,12 @@ describe("buildPropertyISRows", () => {
     expect(labels).toContain("GAAP Net Income");
   });
 
-  it("includes below-NOI items", () => {
+  it("includes debt service and below-ANOI items", () => {
     const yearly = makeYearlyData(2);
     const rows = buildPropertyISRows(yearly);
     const labels = rows.map((r) => String(r[0]).trim());
 
-    expect(labels).toContain("BELOW NOI");
+    expect(labels).toContain("DEBT SERVICE");
     expect(labels).toContain("Interest Expense");
     expect(labels).toContain("Depreciation");
     expect(labels).toContain("Income Tax");

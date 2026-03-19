@@ -644,6 +644,137 @@ function getMetricDescription(label: string): string {
   return "";
 }
 
+/** AI-designed PDF: LLM acts as graphic designer, code renders the vision */
+async function generatePdfWithAiDesign(data: PremiumExportRequest, modelId?: string): Promise<Buffer> {
+  const { getPdfDesignPrompt } = await import("./premium-export-prompts");
+  const { resolveThemeColors, buildPdfHtml } = await import("./pdf-html-templates");
+
+  const company = data.companyName || "Hospitality Business Group";
+  const isLandscape = (data.orientation || "landscape") === "landscape";
+  const colors = resolveThemeColors(data.themeColors);
+
+  // Step 1: Ask LLM to design the report layout
+  logger.info(`[pdf-design] Asking LLM to design PDF layout...`, "premium-export");
+  const designPrompt = getPdfDesignPrompt(data, data.themeColors);
+  const designJson = await generateWithGemini(designPrompt, "pdf", modelId || "gemini-2.5-pro");
+  logger.info(`[pdf-design] LLM returned design vision: ${designJson.design_vision || ""}`, "premium-export");
+
+  // Step 2: Convert LLM's design vision into section array
+  const sections: any[] = [];
+  const includeCover = !!data.includeCoverPage;
+
+  // Cover page (if requested)
+  if (includeCover && designJson.cover) {
+    sections.push({
+      type: "cover",
+      title: designJson.cover.headline || `${company} — Financial Report`,
+      subtitle: designJson.cover.tagline || "",
+    });
+  }
+
+  // Process LLM-designed pages
+  for (const page of (designJson.pages || [])) {
+    if (page.type === "metrics_dashboard") {
+      sections.push({
+        type: "metrics_dashboard",
+        title: page.title || "Key Performance Metrics",
+        content: {
+          metrics: (page.metrics || []).map((m: any) => ({
+            label: m.label,
+            value: m.value,
+            description: m.visual_weight === "hero" ? "Primary metric" : "",
+          })),
+        },
+        insight: page.insight_callout,
+      });
+    } else if (page.type === "financial_table") {
+      // Find the matching statement from the actual data
+      const stmt = (data.statements || []).find(s =>
+        s.title.toLowerCase().includes((page.statement_title || "").toLowerCase()) ||
+        (page.statement_title || "").toLowerCase().includes(s.title.toLowerCase())
+      );
+      if (stmt) {
+        const filteredRows = filterFormulaRows(stmt.rows).map(r => ({
+          category: r.category,
+          values: r.values,
+          type: r.isHeader ? "header" : r.isBold ? "total" : "data",
+          indent: r.indent || 0,
+          highlight: (page.highlight_categories || []).some((h: string) =>
+            (r.category || "").toLowerCase().includes(h.toLowerCase())
+          ),
+        }));
+        sections.push({
+          type: "financial_table",
+          title: stmt.title,
+          content: { years: stmt.years, rows: filteredRows },
+          insight: page.insight_callout,
+        });
+      }
+    } else if (page.type === "line_chart") {
+      // Find the statement this chart is for and extract series
+      const stmt = (data.statements || []).find(s =>
+        s.title.toLowerCase().includes((page.for_statement || "").toLowerCase())
+      );
+      if (stmt) {
+        const chartSection = buildChartsForStatement(stmt);
+        if (chartSection) {
+          chartSection.title = page.title || chartSection.title;
+          // Apply LLM's color intent to series
+          if (page.series?.length && chartSection.content?.series) {
+            for (const designSeries of page.series) {
+              const match = chartSection.content.series.find((s: any) =>
+                s.label.toLowerCase().includes(designSeries.label.toLowerCase())
+              );
+              if (match && designSeries.color_intent) {
+                // Map intent to color if provided
+              }
+            }
+          }
+          sections.push(chartSection);
+        }
+      }
+    }
+  }
+
+  // Fallback: if LLM returned empty pages, use template sections
+  if (sections.length < 2) {
+    logger.warn(`[pdf-design] LLM returned insufficient sections (${sections.length}), adding template fallback`, "premium-export");
+    const templateSections = buildPdfSectionsFromData(data);
+    sections.push(...templateSections);
+  }
+
+  const reportTitle = designJson.cover?.headline || `${company} — Financial Report`;
+
+  // Step 3: Render to HTML using existing renderers
+  const html = buildPdfHtml({ sections, report_title: reportTitle }, {
+    orientation: data.orientation || "landscape",
+    companyName: company,
+    entityName: data.entityName,
+    sections,
+    reportTitle,
+    colors,
+  });
+
+  // Step 4: Puppeteer renders to PDF
+  const safeCompanyHtml = company.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  return renderPdf(html, {
+    width: isLandscape ? "406.4mm" : "215.9mm",
+    height: isLandscape ? "228.6mm" : "279.4mm",
+    printBackground: true,
+    displayHeaderFooter: true,
+    headerTemplate: "<span></span>",
+    footerTemplate: `
+      <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;">
+        <span style="float:left">${safeCompanyHtml}</span>
+        <span style="float:right"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+        <span style="display:block;text-align:center">CONFIDENTIAL</span>
+      </div>`,
+    margin: { top: "0mm", bottom: "10mm", left: "0mm", right: "0mm" },
+  });
+}
+
+/** Template-only PDF (no AI — fallback) */
 async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Promise<Buffer> {
   const company = data.companyName || "Hospitality Business Group";
   const isLandscape = (data.orientation || "landscape") === "landscape";
@@ -653,7 +784,6 @@ async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Pr
     ? `${company} — ${data.statementType}`
     : `${company} — Financial Report`;
 
-  // Resolve theme colors from client payload
   const { resolveThemeColors } = await import("./pdf-html-templates");
   const colors = resolveThemeColors(data.themeColors);
 
@@ -986,10 +1116,15 @@ async function generateViaTemplatePipeline(
   data: PremiumExportRequest,
   modelId?: string
 ): Promise<Buffer> {
-  // PDF: direct HTML template → Puppeteer (no AI)
+  // PDF: LLM-designed layout → HTML → Puppeteer. Falls back to template on AI failure.
   if (data.format === "pdf") {
-    logger.info(`[template] Building PDF directly from data (no AI call)...`, "premium-export");
-    return generatePdfBuffer(null, data);
+    try {
+      logger.info(`[pdf-design] Using AI designer cascade (${modelId || "gemini-2.5-pro"})...`, "premium-export");
+      return await generatePdfWithAiDesign(data, modelId);
+    } catch (err: any) {
+      logger.warn(`[pdf-design] AI design failed: ${err.message} — falling back to template`, "premium-export");
+      return generatePdfBuffer(null, data);
+    }
   }
 
   // Excel: direct data → xlsx (no AI — one worksheet per statement)

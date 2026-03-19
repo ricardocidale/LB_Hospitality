@@ -195,6 +195,81 @@ Return a JSON object with this structure:
 RESPOND WITH ONLY VALID JSON.`;
 }
 
+export function getPdfDesignPrompt(data: ExportDataShape, themeColors?: Array<{name: string; hexCode: string}>): string {
+  const isShort = data.version !== "extended";
+  const orientation = data.orientation || "landscape";
+  const colorPalette = themeColors?.length
+    ? themeColors.map(c => `${c.name}: ${c.hexCode}`).join(", ")
+    : `Navy: #${BRAND.NAVY_HEX}, Sage: #${BRAND.SAGE_HEX}, Forest: #${BRAND.DARK_GREEN_HEX}, Charcoal: #${BRAND.DARK_TEXT_HEX}`;
+
+  return `You are a senior graphic designer at a top-tier investment bank. A client handed you this financial data for their hospitality portfolio. Design a ${orientation} PDF report that tells the investment story visually.
+
+Think like a designer, not an engineer:
+- What is the hero number? What grabs attention first?
+- How does the reader's eye flow through the pages?
+- Where do you create visual breathing room (white space)?
+- What makes this look like a $100K custom report, not a template?
+- Use color psychology: bold accent for wins, subtle neutral for supporting data
+- The report should have a narrative arc: setup (cover) → evidence (statements) → conclusion (analysis)
+
+FINANCIAL DATA:
+${buildFinancialDataContext(data)}
+
+BRAND PALETTE: ${colorPalette}
+
+VERSION: ${isShort ? "Summary — show only the key totals/headers per statement (like chevrons closed). Clean, executive-level." : "Detailed — show all line items with full breakdowns. Comprehensive analyst-level."}
+
+ORIENTATION: ${orientation} (${orientation === "landscape" ? "406.4mm × 228.6mm, wide format" : "215.9mm × 279.4mm, US Letter"})
+
+STATEMENTS TO INCLUDE: ${data.statements?.map(s => s.title).join(", ") || "Income Statement, Cash Flow, Balance Sheet, Investment Analysis"}
+
+Return a JSON object describing your design vision:
+{
+  "recommended_orientation": "landscape" | "portrait",
+  "design_vision": "2-3 sentence description of the overall visual concept",
+  "cover": {
+    "headline": "Bold title for the cover",
+    "tagline": "Compelling subtitle that highlights the strongest data point",
+    "visual_style": "dark_dramatic" | "clean_minimal" | "corporate_elegant"
+  },
+  "pages": [
+    {
+      "type": "metrics_dashboard",
+      "title": "Page title",
+      "design_notes": "How this page should feel visually",
+      "hero_metric": "The single most impressive metric to make largest",
+      "metrics": [
+        { "label": "Metric Name", "value": "Formatted Value", "visual_weight": "hero" | "primary" | "secondary" }
+      ],
+      "insight_callout": "1 sentence key takeaway for this section"
+    },
+    {
+      "type": "financial_table",
+      "statement_title": "Exact title matching one of the statements",
+      "design_notes": "How this table should be styled",
+      "highlight_categories": ["Row names that deserve visual emphasis"],
+      "insight_callout": "1 sentence observation about this statement's data"
+    },
+    {
+      "type": "line_chart",
+      "title": "Chart page title",
+      "for_statement": "Which statement this chart accompanies",
+      "series": [
+        { "label": "Series Name", "color_intent": "primary" | "accent" | "muted" | "warn" }
+      ],
+      "design_notes": "Chart style guidance — area fills, gradient, minimal, bold"
+    }
+  ]
+}
+
+RULES:
+- Every financial statement MUST have a table page followed by a line chart page
+- The chart series must match real data keys from the statements (Revenue, GOP, NOI, ANOI, CFO, FCFE, Total Assets, etc.)
+- Do NOT invent or hallucinate financial numbers — only reference metrics and labels from the data provided
+- Investment Analysis section may use a different visual treatment (KPI cards before the table)
+- RESPOND WITH ONLY VALID JSON`;
+}
+
 export function getDocxPrompt(data: ExportDataShape): string {
   const versionHint = data.version === "extended"
     ? "Include comprehensive detail with full line-item breakdowns in appendix tables."

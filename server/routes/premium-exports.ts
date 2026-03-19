@@ -282,6 +282,9 @@ async function generateExcelBuffer(aiResult: any, data: PremiumExportRequest): P
 
 async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Promise<Buffer> {
   const pptxgen = (await import("pptxgenjs")).default;
+  const { resolveThemeColors } = await import("./pdf-html-templates");
+  const tc = resolveThemeColors(data.themeColors);
+
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = data.companyName;
@@ -294,11 +297,11 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
     const slide = pres.addSlide();
 
     if (slideData.type === "title") {
-      slide.background = { color: BRAND.NAVY_HEX };
-      slide.addShape("rect", { x: 0, y: 0, w: SLIDE_W, h: 0.05, fill: { color: BRAND.SAGE_HEX } });
+      slide.background = { color: tc.navy };
+      slide.addShape("rect", { x: 0, y: 0, w: SLIDE_W, h: 0.05, fill: { color: tc.sage } });
       slide.addText(data.companyName || "", {
         x: 0.6, y: 1.5, w: 12, h: 0.6,
-        fontSize: 28, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
+        fontSize: 28, fontFace: "Arial", color: tc.sage, bold: true,
       });
       slide.addText(slideData.title || "", {
         x: 0.6, y: 2.3, w: 12, h: 0.5,
@@ -311,15 +314,15 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
       if (slideData.source_tag) {
         slide.addText(slideData.source_tag, {
           x: SLIDE_W - 5.6, y: 2.9, w: 5, h: 0.4,
-          fontSize: 11, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true, align: "right",
+          fontSize: 11, fontFace: "Arial", color: tc.sage, bold: true, align: "right",
         });
       }
     } else if (slideData.type === "metrics") {
       slide.addText(slideData.title || "", {
         x: 0.5, y: 0.2, w: 8, h: 0.4,
-        fontSize: 20, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+        fontSize: 20, fontFace: "Arial", color: tc.darkGreen, bold: true,
       });
-      slide.addShape("rect", { x: 0.5, y: 0.65, w: 12, h: 0.02, fill: { color: BRAND.SAGE_HEX } });
+      slide.addShape("rect", { x: 0.5, y: 0.65, w: 12, h: 0.02, fill: { color: tc.sage } });
 
       const metrics = slideData.content?.metrics || [];
       const cols = 3;
@@ -332,30 +335,30 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
         const y = 0.9 + row * (cardH + 0.15);
         slide.addShape("rect", {
           x, y, w: cardW, h: cardH,
-          fill: { color: "F5F9F6" },
-          line: { color: BRAND.SAGE_HEX, width: 1 },
+          fill: { color: tc.sectionBg },
+          line: { color: tc.sage, width: 1 },
           rectRadius: 0.1,
         });
-        const trendColor = m.trend === "up" ? BRAND.DARK_GREEN_HEX :
-          m.trend === "down" ? "CC3333" : BRAND.DARK_GREEN_HEX;
+        const trendColor = m.trend === "up" ? tc.darkGreen :
+          m.trend === "down" ? "CC3333" : tc.darkGreen;
         slide.addText(m.value || "", {
           x: x + 0.15, y: y + 0.15, w: cardW - 0.3, h: 0.5,
           fontSize: 18, fontFace: "Arial", color: trendColor, bold: true,
         });
         slide.addText(m.label || "", {
           x: x + 0.15, y: y + 0.6, w: cardW - 0.3, h: 0.35,
-          fontSize: 9, fontFace: "Arial", color: BRAND.GRAY_HEX,
+          fontSize: 9, fontFace: "Arial", color: tc.gray,
         });
       });
     } else if (slideData.type === "table") {
       slide.addText(slideData.title || "", {
         x: 0.3, y: 0.1, w: 8, h: 0.3,
-        fontSize: 14, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+        fontSize: 14, fontFace: "Arial", color: tc.darkGreen, bold: true,
       });
       if (slideData.source_tag) {
         slide.addText(slideData.source_tag, {
           x: SLIDE_W - 5.3, y: 0.1, w: 5, h: 0.3,
-          fontSize: 9, fontFace: "Arial", color: BRAND.GRAY_HEX, bold: true, align: "right",
+          fontSize: 9, fontFace: "Arial", color: tc.gray, bold: true, align: "right",
         });
       }
 
@@ -364,9 +367,9 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
       const tableRows: any[][] = [];
 
       const headerRow = [
-        { text: "", options: { fill: { color: BRAND.SAGE_HEX }, fontFace: "Arial", fontSize: 8, color: BRAND.WHITE_HEX, bold: true } },
+        { text: "", options: { fill: { color: tc.sage }, fontFace: "Arial", fontSize: 8, color: BRAND.WHITE_HEX, bold: true } },
         ...years.map((y: string) => ({
-          text: y, options: { fill: { color: BRAND.SAGE_HEX }, fontFace: "Arial", fontSize: 8, color: BRAND.WHITE_HEX, bold: true, align: "right" as const },
+          text: y, options: { fill: { color: tc.sage }, fontFace: "Arial", fontSize: 8, color: BRAND.WHITE_HEX, bold: true, align: "right" as const },
         })),
       ];
       tableRows.push(headerRow);
@@ -375,13 +378,13 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
         const isHeader = row.type === "header";
         const isTotal = row.type === "total" || row.type === "subtotal";
         const indent = row.indent ? "  ".repeat(row.indent) : "";
-        const bg = isHeader ? BRAND.SECTION_BG_HEX : ri % 2 === 1 ? BRAND.ALT_ROW_HEX : BRAND.WHITE_HEX;
+        const bg = isHeader ? tc.sectionBg : ri % 2 === 1 ? tc.altRow : BRAND.WHITE_HEX;
 
         const labelCell = {
           text: indent + (row.category || ""),
           options: {
             fontFace: "Arial", fontSize: 8,
-            color: BRAND.DARK_TEXT_HEX,
+            color: tc.darkText,
             bold: isHeader || isTotal,
             fill: { color: bg },
           },
@@ -389,7 +392,7 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
         const valCells = (row.values || []).map((v: any) => ({
           text: typeof v === "number" ? (Math.abs(v) >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : Math.abs(v) >= 1_000 ? `$${(v / 1_000).toFixed(0)}K` : v === 0 ? "—" : `$${v}`) : String(v),
           options: {
-            fontFace: "Arial", fontSize: 8, color: BRAND.DARK_TEXT_HEX,
+            fontFace: "Arial", fontSize: 8, color: tc.darkText,
             bold: isTotal, align: "right" as const, fill: { color: bg },
           },
         }));
@@ -409,9 +412,9 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
     } else if (slideData.type === "summary" || slideData.type === "comparison") {
       slide.addText(slideData.title || "", {
         x: 0.5, y: 0.2, w: 12, h: 0.4,
-        fontSize: 20, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+        fontSize: 20, fontFace: "Arial", color: tc.darkGreen, bold: true,
       });
-      slide.addShape("rect", { x: 0.5, y: 0.65, w: 12, h: 0.02, fill: { color: BRAND.SAGE_HEX } });
+      slide.addShape("rect", { x: 0.5, y: 0.65, w: 12, h: 0.02, fill: { color: tc.sage } });
 
       const takeaways = slideData.content?.key_takeaways || [];
       const recs = slideData.content?.recommendations || [];
@@ -420,13 +423,13 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
       if (takeaways.length) {
         slide.addText("Key Takeaways", {
           x: 0.5, y: yPos, w: 6, h: 0.3,
-          fontSize: 12, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+          fontSize: 12, fontFace: "Arial", color: tc.darkGreen, bold: true,
         });
         yPos += 0.35;
         takeaways.forEach((t: string) => {
           slide.addText(`• ${t}`, {
             x: 0.7, y: yPos, w: 11.5, h: 0.3,
-            fontSize: 10, fontFace: "Arial", color: BRAND.DARK_TEXT_HEX,
+            fontSize: 10, fontFace: "Arial", color: tc.darkText,
           });
           yPos += 0.35;
         });
@@ -436,13 +439,13 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
         yPos += 0.2;
         slide.addText("Recommendations", {
           x: 0.5, y: yPos, w: 6, h: 0.3,
-          fontSize: 12, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+          fontSize: 12, fontFace: "Arial", color: tc.darkGreen, bold: true,
         });
         yPos += 0.35;
         recs.forEach((r: string) => {
           slide.addText(`→ ${r}`, {
             x: 0.7, y: yPos, w: 11.5, h: 0.3,
-            fontSize: 10, fontFace: "Arial", color: BRAND.DARK_TEXT_HEX,
+            fontSize: 10, fontFace: "Arial", color: tc.darkText,
           });
           yPos += 0.35;
         });
@@ -451,7 +454,7 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
 
     slide.addShape("rect", {
       x: 0, y: SLIDE_H - 0.35, w: SLIDE_W, h: 0.01,
-      fill: { color: BRAND.SAGE_HEX },
+      fill: { color: tc.sage },
     });
     slide.addText(`${data.companyName} — Confidential`, {
       x: 0.3, y: SLIDE_H - 0.32, w: 5, h: 0.25,
@@ -476,23 +479,25 @@ function filterFormulaRows(rows: any[]): any[] {
 // Chart series definitions matching the UI's FinancialChart component colors
 const CHART_SERIES_BY_STATEMENT: Record<string, Array<{ keyword: string; label: string; color: string }>> = {
   income: [
-    { keyword: "total revenue", label: "Revenue", color: "#18181b" },
-    { keyword: "gross operating profit", label: "GOP", color: "#6B7280" },
-    { keyword: "net operating income", label: "NOI", color: "#9CA3AF" },
-    { keyword: "adjusted noi", label: "ANOI", color: "#D1D5DB" },
+    { keyword: "total revenue",            label: "Revenue", color: "#18181b" },
+    { keyword: "gross operating profit",   label: "GOP",     color: "#3B82F6" },
+    { keyword: "net operating income",     label: "NOI",     color: "#F59E0B" },
+    { keyword: "adjusted noi",             label: "ANOI",    color: "#6B7280" },
   ],
   cashflow: [
-    { keyword: "free cash flow (fcf)", label: "Cash Flow", color: "#18181b" },
-    { keyword: "free cash flow to equity", label: "FCFE", color: "#9CA3AF" },
+    { keyword: "free cash flow (fcf)",     label: "Cash Flow", color: "#8B5CF6" },
+    { keyword: "free cash flow to equity", label: "FCFE",      color: "#6B7280" },
   ],
   balance: [
-    { keyword: "total assets", label: "Total Assets", color: "#18181b" },
-    { keyword: "total liabilities & equity", label: "Total Liabilities", color: "#9CA3AF" },
+    { keyword: "total assets",      label: "Total Assets",      color: "#257D41" },
+    { keyword: "total liabilities", label: "Total Liabilities",  color: "#F4795B" },
+    { keyword: "total equity",      label: "Total Equity",       color: "#3B82F6" },
   ],
   investment: [
-    { keyword: "net operating income", label: "NOI", color: "#18181b" },
-    { keyword: "adjusted noi", label: "ANOI", color: "#6B7280" },
-    { keyword: "free cash flow to equity", label: "FCFE", color: "#9CA3AF" },
+    { keyword: "net operating income",     label: "NOI",          color: "#10B981" },
+    { keyword: "adjusted noi",             label: "ANOI",         color: "#257D41" },
+    { keyword: "debt service",             label: "Debt Service", color: "#F4795B" },
+    { keyword: "free cash flow to equity", label: "FCFE",         color: "#8B5CF6" },
   ],
 };
 

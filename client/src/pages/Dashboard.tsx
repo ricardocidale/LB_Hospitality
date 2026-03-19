@@ -82,7 +82,7 @@ export default function Dashboard() {
   const { requestSave, SaveDialog } = useExportSave();
 
   const financials = usePortfolioFinancials(properties, global);
-  const { data: branding } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string }> | null }>({
+  const { data: branding } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string; description?: string }> | null }>({
     queryKey: ["my-branding"],
     queryFn: async () => { const res = await fetch("/api/my-branding", { credentials: "include" }); return res.json(); },
     staleTime: 5 * 60_000,
@@ -394,7 +394,7 @@ export default function Dashboard() {
             ],
             projectionYears: py,
             includeCoverPage,
-            themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank })),
+            themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank, description: c.description })),
           } as PremiumExportPayload;
         } : undefined}
       />

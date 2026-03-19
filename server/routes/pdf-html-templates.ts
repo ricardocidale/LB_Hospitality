@@ -199,7 +199,9 @@ function renderExecutiveSummarySection(section: any, d: PdfTemplateData): string
   ).join("");
 
   const highlightsHtml = highlights.map((h: any, i: number) => {
-    const accentColors = ["#257D41", "#1A2332", "#9FBCA4", "#0E7C6B", "#8B5A2B"];
+    const accentColors = d.colors
+      ? [`#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`, `#${d.colors.darkGreen}`, `#${d.colors.navy}`]
+      : ["#257D41", "#1A2332", "#9FBCA4", "#0E7C6B", "#8B5A2B"];
     const color = accentColors[i % accentColors.length];
     return `
       <div class="highlight-card">
@@ -232,7 +234,9 @@ function renderExecutiveSummarySection(section: any, d: PdfTemplateData): string
 
 function renderMetricsDashboardSection(section: any, d: PdfTemplateData): string {
   const metrics: any[] = section.content?.metrics || [];
-  const accentColors = ["#257D41", "#1A2332", "#9FBCA4", "#257D41", "#1A2332", "#9FBCA4"];
+  const accentColors = d.colors
+    ? [`#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`, `#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`]
+    : ["#257D41", "#1A2332", "#9FBCA4", "#257D41", "#1A2332", "#9FBCA4"];
 
   const cards = metrics.map((m: any, i: number) => {
     const accent = accentColors[i % accentColors.length];
@@ -265,7 +269,7 @@ function renderChartSection(_section: any, _d: PdfTemplateData): string {
    LINE CHART — multi-series trend lines (Revenue, OpEx, ANOI)
    ═══════════════════════════════════════════════════════════════ */
 
-const LINE_COLORS = ["#18181b", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7EB"];
+const LINE_COLORS = ["#10B981", "#3B82F6", "#F59E0B", "#8B5CF6", "#F4795B", "#257D41", "#6B7280"];
 
 /** Monotone cubic Bézier interpolation (Fritsch–Carlson) — produces smooth curves like Recharts type="monotone" */
 function monotoneCubicPath(pts: Array<{x: number; y: number}>): string {

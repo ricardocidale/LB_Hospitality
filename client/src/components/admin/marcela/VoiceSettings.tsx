@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -109,37 +109,24 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
     <div className="space-y-6">
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <IconMusic className="w-4 h-4 text-muted-foreground" />
-                TTS Model Family
-              </CardTitle>
-              <CardDescription className="label-text mt-1">
-                Select the ElevenLabs TTS model for Marcela's voice. See{" "}
-                <code className="text-[10px] font-mono bg-muted px-1 py-0.5 rounded">.claude/skills/codebase-architecture/SKILL.md</code>{" "}
-                § ElevenLabs for architecture details.{" "}
-                <a
-                  href="https://elevenlabs.io/docs/overview/capabilities/text-to-speech"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline inline-flex items-center gap-0.5"
-                >
-                  ElevenLabs docs <IconExternalLink className="w-3 h-3" />
-                </a>
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              {ttsDirty && (
-                <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
-                  Unsaved
-                </Badge>
-              )}
-              <Button size="sm" onClick={handleSaveTts} disabled={!ttsDirty || saveAgentVoice.isPending} className="gap-1.5 shadow-sm" data-testid="button-save-tts-model">
-                {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
-                Save
-              </Button>
-            </div>
+          <div>
+            <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <IconMusic className="w-4 h-4 text-muted-foreground" />
+              TTS Model Family
+            </CardTitle>
+            <CardDescription className="label-text mt-1">
+              Select the ElevenLabs TTS model for Marcela's voice. See{" "}
+              <code className="text-[10px] font-mono bg-muted px-1 py-0.5 rounded">.claude/skills/codebase-architecture/SKILL.md</code>{" "}
+              § ElevenLabs for architecture details.{" "}
+              <a
+                href="https://elevenlabs.io/docs/overview/capabilities/text-to-speech"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline inline-flex items-center gap-0.5"
+              >
+                ElevenLabs docs <IconExternalLink className="w-3 h-3" />
+              </a>
+            </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -259,31 +246,29 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             </>
           )}
         </CardContent>
+        <CardFooter className="flex justify-end items-center gap-2 pt-0 pb-4 px-6">
+          {ttsDirty && (
+            <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
+              Unsaved
+            </Badge>
+          )}
+          <Button size="sm" onClick={handleSaveTts} disabled={!ttsDirty || saveAgentVoice.isPending} className="gap-1.5 shadow-sm" data-testid="button-save-tts-model">
+            {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
+            Save Changes
+          </Button>
+        </CardFooter>
       </Card>
 
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <IconVolume2 className="w-4 h-4 text-muted-foreground" />
-                Voice Synthesis
-              </CardTitle>
-              <CardDescription className="label-text mt-1">
-                Core voice settings pushed to ElevenLabs.{isV3 ? " These controls are disabled for V3 models." : ""}
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              {voiceDirty && (
-                <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
-                  Unsaved
-                </Badge>
-              )}
-              <Button size="sm" onClick={handleSaveVoice} disabled={!voiceDirty || saveAgentVoice.isPending || isV3} className="gap-1.5 shadow-sm">
-                {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
-                Save
-              </Button>
-            </div>
+          <div>
+            <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <IconVolume2 className="w-4 h-4 text-muted-foreground" />
+              Voice Synthesis
+            </CardTitle>
+            <CardDescription className="label-text mt-1">
+              Core voice settings pushed to ElevenLabs.{isV3 ? " These controls are disabled for V3 models." : ""}
+            </CardDescription>
           </div>
         </CardHeader>
         <CardContent className={`space-y-5 ${isV3 ? "opacity-50 pointer-events-none" : ""}`}>
@@ -497,6 +482,17 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
             </div>
           </div>
         </CardContent>
+        <CardFooter className="flex justify-end items-center gap-2 pt-0 pb-4 px-6">
+          {voiceDirty && (
+            <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
+              Unsaved
+            </Badge>
+          )}
+          <Button size="sm" onClick={handleSaveVoice} disabled={!voiceDirty || saveAgentVoice.isPending || isV3} className="gap-1.5 shadow-sm">
+            {saveAgentVoice.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
+            Save Changes
+          </Button>
+        </CardFooter>
       </Card>
 
     </div>

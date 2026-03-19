@@ -291,7 +291,7 @@ export default function CompaniesTab() {
             }
           }} disabled={!companyForm.name || createCompanyMutation.isPending || updateCompanyMutation.isPending} data-testid="button-save-company" className="flex items-center gap-2">
             {(createCompanyMutation.isPending || updateCompanyMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-            {editingCompany ? "Save" : "Create"}
+            {editingCompany ? "Save Changes" : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>

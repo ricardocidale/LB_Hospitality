@@ -138,7 +138,7 @@ export default function RebeccaTab() {
           <div className="flex justify-end">
             <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
               {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconSave className="w-4 h-4 mr-2" />}
-              Save
+              Save Changes
             </Button>
           </div>
         </CardContent>

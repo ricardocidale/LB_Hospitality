@@ -592,7 +592,7 @@ export default function UsersTab() {
             createMutation.mutate(payload as typeof newUser);
           }} disabled={createMutation.isPending || !newUser.email} data-testid="button-create-user" className="flex items-center gap-2">
             {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-            Save
+            Save Changes
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -727,7 +727,7 @@ export default function UsersTab() {
             editMutation.mutate({ id: selectedUser.id, data });
           }} disabled={editMutation.isPending} data-testid="button-save-user" className="flex items-center gap-2">
             {editMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-            Save
+            Save Changes
           </Button>
         </DialogFooter>
       </DialogContent>

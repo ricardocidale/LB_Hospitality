@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, X } from "@/components/icons/themed-icons";
 import { IconSave } from "@/components/icons";
+import { Loader2 } from "lucide-react";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { ADMIN_TEXTAREA } from "./styles";
@@ -287,26 +288,15 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-end gap-4">
-            <div className="flex-1 max-w-md space-y-1">
-              <Label className="label-text text-foreground text-xs">ICP Management Co Label</Label>
-              <Input
-                value={propertyLabel}
-                onChange={(e) => { setPropertyLabel(e.target.value); setDirty(true); }}
-                placeholder="e.g., Boutique Hotel"
-                className="bg-card h-8 text-sm"
-                data-testid="input-property-label"
-              />
-            </div>
-            <Button
-              onClick={handleSave}
-              disabled={!dirty || updateMutation.isPending}
-              size="sm"
-              data-testid="button-save-icp"
-            >
-              <IconSave className="w-3.5 h-3.5 mr-1.5" />
-              Save
-            </Button>
+          <div className="max-w-md space-y-1">
+            <Label className="label-text text-foreground text-xs">ICP Management Co Label</Label>
+            <Input
+              value={propertyLabel}
+              onChange={(e) => { setPropertyLabel(e.target.value); setDirty(true); }}
+              placeholder="e.g., Boutique Hotel"
+              className="bg-card h-8 text-sm"
+              data-testid="input-property-label"
+            />
           </div>
 
           <Tabs defaultValue="amenities" className="w-full">
@@ -338,6 +328,17 @@ export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitio
             </TabsContent>
           </Tabs>
         </CardContent>
+        <CardFooter className="flex justify-end pt-0 pb-4 px-6">
+          <Button
+            onClick={handleSave}
+            disabled={!dirty || updateMutation.isPending}
+            size="sm"
+            data-testid="button-save-icp"
+          >
+            {updateMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <IconSave className="w-3.5 h-3.5 mr-1.5" />}
+            Save Changes
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );

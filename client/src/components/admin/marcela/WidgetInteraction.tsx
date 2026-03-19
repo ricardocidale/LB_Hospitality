@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -60,22 +60,16 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
       {/* Input & Output Features */}
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center">
-                <IconToggleLeft className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <CardTitle className="text-sm font-semibold text-foreground">Input &amp; Output</CardTitle>
-                <CardDescription className="label-text mt-0.5">
-                  Control how users interact with the agent — voice, text, transcript, and language.
-                </CardDescription>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center">
+              <IconToggleLeft className="w-5 h-5 text-emerald-600" />
             </div>
-            <Button size="sm" onClick={handleSave} disabled={!dirty || save.isPending} className="gap-1.5 shadow-sm">
-              {save.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
-              Save
-            </Button>
+            <div>
+              <CardTitle className="text-sm font-semibold text-foreground">Input &amp; Output</CardTitle>
+              <CardDescription className="label-text mt-0.5">
+                Control how users interact with the agent — voice, text, transcript, and language.
+              </CardDescription>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -208,6 +202,12 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
             />
           </div>
         </CardContent>
+        <CardFooter className="flex justify-end pt-0 pb-4 px-6">
+          <Button size="sm" onClick={handleSave} disabled={!dirty || save.isPending} className="gap-1.5">
+            {save.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
+            Save Changes
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -53,11 +53,12 @@ export default function TwilioTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-display font-bold text-foreground">Twilio</h2>
-          <p className="text-muted-foreground text-sm">Phone and SMS telephony configuration.</p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-display font-bold text-foreground">Twilio</h2>
+        <p className="text-muted-foreground text-sm">Phone and SMS telephony configuration.</p>
+      </div>
+      <TelephonySettings draft={draft} updateField={updateField} twilioStatus={twilioStatus} companyName={globalAssumptions?.companyName || "the company"} />
+      <div className="flex justify-end pt-2">
         <Button
           onClick={handleSave}
           disabled={!isDirty || saveMutation.isPending}
@@ -65,10 +66,9 @@ export default function TwilioTab() {
           data-testid="button-save-twilio"
         >
           {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-          Save
+          Save Changes
         </Button>
       </div>
-      <TelephonySettings draft={draft} updateField={updateField} twilioStatus={twilioStatus} companyName={globalAssumptions?.companyName || "the company"} />
     </div>
   );
 }

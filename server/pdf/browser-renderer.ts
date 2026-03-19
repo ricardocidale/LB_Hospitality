@@ -97,7 +97,15 @@ async function getBrowser(): Promise<any> {
 
   launchPromise = (async () => {
     try {
-      browserInstance = await launchBrowser();
+      const browser = await launchBrowser();
+      // Clear cached instance immediately if Chromium is killed externally
+      browser.on?.("disconnected", () => {
+        if (browserInstance === browser) {
+          logger.warn("[pdf-renderer] Browser disconnected unexpectedly — will relaunch on next request", "pdf");
+          browserInstance = null;
+        }
+      });
+      browserInstance = browser;
       return browserInstance;
     } finally {
       launchPromise = null;
@@ -107,10 +115,46 @@ async function getBrowser(): Promise<any> {
   return launchPromise;
 }
 
+function isConnectionError(err: any): boolean {
+  const msg: string = err?.message ?? "";
+  return (
+    msg.includes("Target closed") ||
+    msg.includes("Session closed") ||
+    msg.includes("Browser has been closed") ||
+    msg.includes("Protocol error") ||
+    msg.includes("Connection refused") ||
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("pipe") ||
+    msg.includes("disconnected")
+  );
+}
+
+async function withPage<T>(
+  label: string,
+  fn: (page: any) => Promise<T>
+): Promise<T> {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const browser = await getBrowser();
+    let page: any = null;
+    try {
+      page = await browser.newPage();
+      return await fn(page);
+    } catch (err: any) {
+      if (isConnectionError(err) && attempt < 2) {
+        logger.warn(`[pdf-renderer] Connection error on ${label} (attempt ${attempt}), relaunching browser and retrying`, "pdf");
+        browserInstance = null;
+      } else {
+        throw err;
+      }
+    } finally {
+      if (page) await page.close().catch(() => {});
+    }
+  }
+  throw new Error(`${label}: exhausted retries`);
+}
+
 export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<Buffer> {
-  const browser = await getBrowser();
-  const page = await browser.newPage();
-  try {
+  return withPage("renderPdf", async (page) => {
     // Set viewport to match PDF dimensions for consistent rendering
     // Landscape 16:9 = 406.4mm × 228.6mm (16" × 9") → 1536 × 864 px at 96 dpi
     // Portrait       = 215.9mm × 279.4mm (US Letter) → 816 × 1056 px at 96 dpi
@@ -132,22 +176,16 @@ export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<B
       margin: opts.margin || { top: "0mm", bottom: "8mm", left: "0mm", right: "0mm" },
     });
     return Buffer.from(pdfBuffer);
-  } finally {
-    await page.close();
-  }
+  });
 }
 
 export async function renderPng(html: string, opts: { width: number; height: number; scale?: number }): Promise<Buffer> {
-  const browser = await getBrowser();
-  const page = await browser.newPage();
-  try {
+  return withPage("renderPng", async (page) => {
     await page.setViewport({ width: opts.width, height: opts.height, deviceScaleFactor: opts.scale ?? 2 });
     await page.setContent(html, { waitUntil: "networkidle0", timeout: 30_000 });
     const pngBuffer = await page.screenshot({ type: "png", fullPage: false });
     return Buffer.from(pngBuffer);
-  } finally {
-    await page.close();
-  }
+  });
 }
 
 export async function closeBrowserRenderer() {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -488,28 +488,16 @@ export default function ResearchTab() {
     <div className="space-y-5" data-testid="research-config-tab">
       <Card className="bg-white/80 backdrop-blur-xl border-primary/20">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                <IconResearch className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-display" data-testid="text-research-title">Research Configuration</CardTitle>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Control AI research behavior per event type — tools, focus, context, and questions
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <IconResearch className="w-5 h-5 text-primary" />
             </div>
-            <Button
-              data-testid="button-save-research"
-              onClick={handleSave}
-              disabled={!isDirty || saveMutation.isPending}
-              size="sm"
-              className="gap-2"
-            >
-              {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
-              Save
-            </Button>
+            <div>
+              <CardTitle className="text-base font-display" data-testid="text-research-title">Research Configuration</CardTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Control AI research behavior per event type — tools, focus, context, and questions
+              </p>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -692,6 +680,18 @@ export default function ResearchTab() {
           />
         </CardContent>
       </Card>
+
+      <div className="flex justify-end pt-2">
+        <Button
+          data-testid="button-save-research"
+          onClick={handleSave}
+          disabled={!isDirty || saveMutation.isPending}
+          className="gap-2"
+        >
+          {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+          Save Changes
+        </Button>
+      </div>
     </div>
   );
 }

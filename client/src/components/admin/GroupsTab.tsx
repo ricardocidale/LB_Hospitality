@@ -316,7 +316,7 @@ export default function GroupsTab() {
                                   className="flex items-center gap-1"
                                 >
                                   {setGroupPropertiesMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <IconSave className="w-3 h-3" />}
-                                  Save
+                                  Save Changes
                                 </Button>
                                 {pending && (
                                   <Button size="sm" variant="ghost" onClick={() => setPendingVisibility((prev) => { const next = { ...prev }; delete next[group.id]; return next; })}>

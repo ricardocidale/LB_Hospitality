@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -65,22 +65,16 @@ export function WidgetAppearance() {
       {/* Layout */}
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-violet-500/5 flex items-center justify-center">
-                <IconLayoutTemplate className="w-5 h-5 text-violet-600" />
-              </div>
-              <div>
-                <CardTitle className="text-sm font-semibold text-foreground">Widget Size &amp; Position</CardTitle>
-                <CardDescription className="label-text mt-0.5">
-                  Controls the widget's size variant and screen placement.
-                </CardDescription>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-violet-500/5 flex items-center justify-center">
+              <IconLayoutTemplate className="w-5 h-5 text-violet-600" />
             </div>
-            <Button size="sm" onClick={handleSave} disabled={!dirty || save.isPending} className="gap-1.5 shadow-sm">
-              {save.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <IconSave className="w-3.5 h-3.5" />}
-              Save
-            </Button>
+            <div>
+              <CardTitle className="text-sm font-semibold text-foreground">Widget Size &amp; Position</CardTitle>
+              <CardDescription className="label-text mt-0.5">
+                Controls the widget's size variant and screen placement.
+              </CardDescription>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -194,6 +188,13 @@ export function WidgetAppearance() {
           </div>
         </CardContent>
       </Card>
+
+      <div className="flex justify-end pt-2">
+        <Button onClick={handleSave} disabled={!dirty || save.isPending} className="gap-2">
+          {save.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
+          Save Changes
+        </Button>
+      </div>
     </div>
   );
 }

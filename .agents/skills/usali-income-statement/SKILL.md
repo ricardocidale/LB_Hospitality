@@ -181,6 +181,67 @@ The Dashboard CF mirrors the property-level structure but at portfolio level:
 The Cash Flow chart shows: ANOI, FCF, FCFE.
 Dashboard consolidated CF chart shows: NOI, ANOI, CashFlow, FCFE.
 
+## Balance Sheet Structure (ASC 210 / USALI Chapter 12)
+
+### Canonical Section Order (Dashboard Consolidated BS)
+
+```
+1.  TOTAL ASSETS                    [chevron → formula + sub-sections + per-entity breakdown]
+    ├── Formula                     [chevron → = Current Assets + Net Fixed Assets + Other Assets]
+    ├── Current Assets              (sub-header)
+    │   └── Cash & Cash Equivalents [chevron → formula + per-property cash]
+    ├── Total Current Assets        (subtotal)
+    ├── Fixed Assets (ASC 360)      (sub-header)
+    │   ├── PP&E                    [chevron → per-property PPE]
+    │   └── Less: Acc. Depreciation [chevron → ASC 360 note + per-property acc dep]
+    ├── Net Fixed Assets            (subtotal)
+    ├── Other Assets (ASC 835-30)   (sub-header, conditional on deferred financing > 0)
+    │   └── Deferred Financing      [chevron → ASC 835-30 note + per-property]
+    └── Assets by Entity (SPV)      [chevron → per-property total assets]
+2.  TOTAL LIABILITIES               [chevron → sub-sections + per-entity breakdown]
+    ├── Long-Term Liabilities       (sub-header)
+    │   └── Mortgage Notes Payable  [chevron → note + per-property debt]
+    └── Liabilities by Entity (SPV) [chevron → per-property total liabilities]
+3.  TOTAL EQUITY                    [chevron → formula + sub-items + per-entity breakdown]
+    ├── Formula                     [chevron → = Paid-In Capital + Retained Earnings (ASC 720-15)]
+    ├── Paid-In Capital             [chevron → formula + per-property equity]
+    ├── Retained Earnings           [chevron → formula (ASC 720-15) + per-property retained]
+    └── Equity by Entity (SPV)      [chevron → per-property total equity]
+4.  TOTAL LIABILITIES & EQUITY     (grand total)
+    └── Formula                     [chevron → = Total Liabilities + Total Equity]
+5.  Balance Check                   (Assets − L&E variance, ✓ Balanced or red variance)
+6.  Key Ratios                      [chevron → Debt-to-Assets, Equity-to-Assets, Debt-to-Equity, Book Value per Entity]
+```
+
+### Key BS Formulas
+
+| Line Item | Formula | ASC Reference |
+|-----------|---------|---------------|
+| Total Assets | Cash + Net Fixed + Deferred Financing | ASC 210 |
+| Cash | Operating Reserves + Cumulative CF + Refi Proceeds | — |
+| Net Fixed Assets | PP&E − Accumulated Depreciation | ASC 360 |
+| Total Equity | Paid-In Capital + Retained Earnings | ASC 505 |
+| Retained Earnings | Cumulative Net Income − Pre-Opening Costs | ASC 720-15 |
+| Deferred Financing | Refinancing closing costs capitalized | ASC 835-30 |
+
+### Balance Sheet Implementation Files
+
+- `client/src/components/dashboard/BalanceSheetTab.tsx` — Consolidated BS (portfolio-level, multi-year, chevron rows)
+- `client/src/components/statements/ConsolidatedBalanceSheet.tsx` — Property-level BS (single-year, expandable rows)
+- `client/src/components/dashboard/statementBuilders.ts` — BS data generation for exports
+
+### BS Row Key Registry
+
+The `BS_ROW_KEYS` array controls top-level chevron sections:
+```typescript
+["assets", "liabilities", "equity", "metrics"]
+```
+
+Sub-item chevrons use the `expandedFormulas` toggle mechanism with keys:
+`assets-formula`, `cash-detail`, `ppe-detail`, `accdep-detail`, `deferredfc-detail`, `assets-by-entity`,
+`debt-detail`, `liabilities-by-entity`, `equity-formula`, `paidin-detail`, `retained-detail`,
+`equity-by-entity`, `le-formula`
+
 ## Rules
 
 1. Never combine Departmental and Undistributed expenses into a single "Operating Expenses" section — applies to both IS and CF views.

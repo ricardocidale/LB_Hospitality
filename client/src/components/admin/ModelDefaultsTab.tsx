@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { GovernedFieldWrapper } from "@/components/ui/governed-field";
 import { Loader2 } from "@/components/icons/themed-icons";
+import { Button } from "@/components/ui/button";
+import { IconSave } from "@/components/icons";
 import EditableValue from "@/components/company-assumptions/EditableValue";
 import { invalidateAllFinancialQueries } from "@/lib/api";
 import { useResearchConfig, useSaveResearchConfig } from "@/lib/api/admin";
@@ -908,15 +910,15 @@ function LlmDefaultsTab() {
 
       {isDirty && (
         <div className="flex justify-end">
-          <button
+          <Button
             onClick={handleSave}
             disabled={saveMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="gap-2"
             data-testid="button-save-llm-defaults"
           >
-            {saveMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+            {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <IconSave className="w-4 h-4" />}
             Save Changes
-          </button>
+          </Button>
         </div>
       )}
     </div>

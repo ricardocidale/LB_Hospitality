@@ -141,7 +141,7 @@ export function useSaveResearchConfig() {
 export function useRefreshAiModels() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (): Promise<{ models: AiModelEntry[]; fetchedAt: string }> => {
+    mutationFn: async (): Promise<{ models: AiModelEntry[]; fetchedAt: string; liveCount?: number; fromCache?: boolean }> => {
       const res = await fetch("/api/admin/ai-models/refresh", { method: "POST" });
       if (!res.ok) throw new Error("Failed to refresh AI models");
       return res.json();

@@ -171,10 +171,10 @@ async function fetchAnthropicModels(): Promise<AiModelEntry[]> {
 async function fetchGeminiModels(): Promise<AiModelEntry[]> {
   try {
     const client = getGeminiSingleton();
-    const resp = await client.models.list();
+    const pager = await client.models.list();
     const models: AiModelEntry[] = [];
-    for (const m of resp.page) {
-      const id = (m.name ?? "").replace("models/", "");
+    for await (const m of pager) {
+      const id = ((m as any).name ?? "").replace("models/", "");
       if (shouldInclude(id, "google")) {
         models.push({ id, label: formatLabel(id, "google"), provider: "google" });
       }
@@ -301,7 +301,7 @@ export function registerResearchConfigRoutes(app: Express) {
       const models = [...anthropic, ...openai, ...google, ...xai, ...deepseek, ...meta];
 
       const ga = await storage.getGlobalAssumptions();
-      if (ga) {
+      if (ga && models.length > 0) {
         const current: ResearchConfig = (ga.researchConfig as ResearchConfig) ?? {};
         const merged: ResearchConfig = {
           ...current,
@@ -311,7 +311,16 @@ export function registerResearchConfigRoutes(app: Express) {
         await storage.upsertGlobalAssumptions({ researchConfig: merged } as InsertGlobalAssumptions);
       }
 
-      res.json({ models, fetchedAt: new Date().toISOString() });
+      const existing = models.length === 0
+        ? ((ga?.researchConfig as ResearchConfig)?.cachedModels ?? [])
+        : models;
+
+      res.json({
+        models: existing,
+        fetchedAt: new Date().toISOString(),
+        liveCount: models.length,
+        fromCache: models.length === 0,
+      });
     } catch (error) {
       logAndSendError(res, "Failed to refresh AI models", error);
     }

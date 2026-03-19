@@ -17,7 +17,7 @@ const DOMAIN_DEFAULTS: Record<LlmDomain, { vendor: LlmVendor; model: string }> =
   marketLlm:         { vendor: "google",    model: "gemini-2.5-flash" },
   reportLlm:         { vendor: "google",    model: "gemini-2.5-flash" },
   chatbotLlm:        { vendor: "google",    model: "gemini-2.5-flash" },
-  premiumExportLlm:  { vendor: "google",    model: "gemini-2.5-pro" },
+  premiumExportLlm:  { vendor: "google",    model: "gemini-2.5-flash" },
   aiUtilityLlm:      { vendor: "google",    model: "gemini-2.5-flash" },
   graphicsLlm:       { vendor: "google",    model: "gemini-2.5-flash" },
 };

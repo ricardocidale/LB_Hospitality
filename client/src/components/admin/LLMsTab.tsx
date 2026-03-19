@@ -44,7 +44,7 @@ const RECOMMENDED: Record<string, { vendor: LlmVendor; primary: string; secondar
   company:       { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
   property:      { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
   market:        { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
-  premiumExport: { vendor: "google", primary: "gemini-2.5-pro" },
+  premiumExport: { vendor: "google", primary: "gemini-2.5-flash" },
   aiUtility:     { vendor: "google", primary: "gemini-2.5-flash" },
   graphics:      { vendor: "google", primary: "gemini-2.5-flash" },
   chatbot:       { vendor: "google", primary: "gemini-2.5-flash" },
@@ -455,7 +455,11 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
       const result = await refreshModels.mutateAsync();
       setDraft((prev) => ({ ...prev, cachedModels: result.models, cachedModelsAt: result.fetchedAt }));
       setIsDirty(true);
-      toast({ title: `Loaded ${result.models.length} models from providers` });
+      if (result.fromCache) {
+        toast({ title: "Providers unavailable — showing cached models", description: "Live API calls returned 0 models. Cached list preserved.", variant: "destructive" });
+      } else {
+        toast({ title: `Loaded ${result.liveCount ?? result.models.length} models from providers` });
+      }
     } catch {
       toast({ title: "Failed to refresh models", variant: "destructive" });
     }

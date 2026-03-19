@@ -199,7 +199,7 @@ async function callGemini(
 async function generateWithGemini(prompt: string, format: string, modelId?: string): Promise<any> {
   const client = getGeminiClient();
   const startTime = Date.now();
-  const resolvedModel = modelId || "gemini-2.5-pro";
+  const resolvedModel = modelId || "gemini-2.5-flash";
 
   let lastError: Error | null = null;
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -1126,7 +1126,7 @@ async function generateViaTemplatePipeline(
   // PDF: LLM-designed layout → HTML → Puppeteer. Falls back to template on AI failure.
   if (data.format === "pdf") {
     try {
-      logger.info(`[pdf-design] Using AI designer cascade (${modelId || "gemini-2.5-pro"})...`, "premium-export");
+      logger.info(`[pdf-design] Using AI designer cascade (${modelId || "gemini-2.5-flash"})...`, "premium-export");
       return await generatePdfWithAiDesign(data, modelId);
     } catch (err: any) {
       logger.warn(`[pdf-design] AI design failed: ${err.message} — falling back to template`, "premium-export");

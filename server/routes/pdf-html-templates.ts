@@ -81,12 +81,12 @@ function isMultiplierRow(category: string): boolean {
   return c.includes("equity multiple") || c.includes("dscr");
 }
 
-function formatTableValue(v: any, category: string): string {
+function formatTableValue(v: any, category: string, format?: string): string {
   if (typeof v === "string") return esc(v);
   if (typeof v !== "number") return esc(String(v ?? ""));
   if (isNaN(v)) return "\u2014";
 
-  if (isPercentageRow(category)) {
+  if (format === "percentage" || isPercentageRow(category)) {
     if (v === 0) return "\u2014";
     const pct = Math.abs(v) <= 2 ? v * 100 : v;
     if (Math.abs(pct) < 0.05) return "\u2014";
@@ -94,7 +94,7 @@ function formatTableValue(v: any, category: string): string {
     return pct < 0 ? `<span${cls}>(${Math.abs(pct).toFixed(1)}%)</span>` : `${pct.toFixed(1)}%`;
   }
 
-  if (isMultiplierRow(category)) {
+  if (format === "multiplier" || isMultiplierRow(category)) {
     if (v === 0) return "\u2014";
     return v.toFixed(2) + "x";
   }
@@ -265,7 +265,7 @@ function renderChartSection(_section: any, _d: PdfTemplateData): string {
    LINE CHART — multi-series trend lines (Revenue, OpEx, ANOI)
    ═══════════════════════════════════════════════════════════════ */
 
-const LINE_COLORS = ["#257D41", "#B85040", "#2A3A50", "#0E7C6B", "#6B3FA0"];
+const LINE_COLORS = ["#18181b", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7EB"];
 
 /** Monotone cubic Bézier interpolation (Fritsch–Carlson) — produces smooth curves like Recharts type="monotone" */
 function monotoneCubicPath(pts: Array<{x: number; y: number}>): string {
@@ -461,7 +461,7 @@ function renderFinancialTableSection(section: any, d: PdfTemplateData): string {
     // For header/section rows with all-zero values, render empty value cells (no em-dashes)
     const allZero = (r.values || []).every((v: any) => v === 0 || v === null || v === "");
     const vals = (r.values || []).map((v: any) =>
-      `<td class="tbl-val">${allZero && isHeader ? "" : formatTableValue(v, category)}</td>`
+      `<td class="tbl-val">${allZero && isHeader ? "" : formatTableValue(v, category, r.format)}</td>`
     ).join("");
 
     return `<tr class="${cls}"><td class="tbl-label" style="padding-left:${8 + indentPx}px">${label}</td>${vals}</tr>`;

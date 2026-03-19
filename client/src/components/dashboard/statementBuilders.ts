@@ -5,6 +5,9 @@ import type { YearlyCashFlowResult } from "@/lib/financial/loanCalculations";
 import type { MonthlyFinancials } from "@/lib/financialEngine";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import { yearEndSlice, sumMonthlyField, propertyPPE } from "@/lib/financial/portfolio-helpers";
+import { computeIRR } from "@analytics/returns/irr.js";
+import { DEFAULT_EXIT_CAP_RATE, DEFAULT_PROPERTY_TAX_RATE } from "@/lib/constants";
+import { DEFAULT_COST_OF_EQUITY } from "@shared/constants";
 
 export interface ExportRow {
   category: string;
@@ -111,22 +114,39 @@ export function generatePortfolioBalanceSheetData(
 
   const yearlyData = years.map((_, i) => getYearEndData(i));
 
-  rows.push({ category: "ASSETS", values: years.map(() => 0), isHeader: true });
-  if (!summaryOnly) {
-    rows.push({ category: "Cash & Cash Equivalents", values: yearlyData.map(d => d.cash), indent: 1 });
-    rows.push({ category: "Property, Plant & Equipment", values: yearlyData.map(d => d.ppe), indent: 1 });
-    rows.push({ category: "Accumulated Depreciation", values: yearlyData.map(d => -d.accDep), indent: 1 });
-    rows.push({ category: "Deferred Financing Costs", values: yearlyData.map(d => d.deferredFinancing), indent: 1 });
-  }
-  rows.push({ category: BS_TOTAL_ASSETS, values: yearlyData.map(d => d.totalAssets), isHeader: true });
+  const netFixed = yearlyData.map(d => d.ppe - d.accDep);
 
-  rows.push({ category: "LIABILITIES & EQUITY", values: years.map(() => 0), isHeader: true });
-  if (!summaryOnly) {
-    rows.push({ category: BS_MORTGAGE_NOTES, values: yearlyData.map(d => d.debt), indent: 1 });
-    rows.push({ category: BS_PAID_IN_CAPITAL, values: yearlyData.map(d => d.equity), indent: 1 });
-    rows.push({ category: BS_RETAINED_EARNINGS, values: yearlyData.map(d => d.retainedEarnings), indent: 1 });
+  rows.push({ category: "ASSETS", values: years.map(() => 0), isHeader: true });
+
+  rows.push({ category: "Current Assets", values: years.map(() => 0), isHeader: true, indent: 1 });
+  rows.push({ category: "Cash & Cash Equivalents", values: yearlyData.map(d => d.cash), indent: 2 });
+  rows.push({ category: "Total Current Assets", values: yearlyData.map(d => d.cash), isBold: true, indent: 1 });
+
+  rows.push({ category: "Fixed Assets", values: years.map(() => 0), isHeader: true, indent: 1 });
+  rows.push({ category: "Property, Plant & Equipment", values: yearlyData.map(d => d.ppe), indent: 2 });
+  rows.push({ category: "Less: Accumulated Depreciation", values: yearlyData.map(d => -d.accDep), indent: 2 });
+  rows.push({ category: "Net Fixed Assets", values: netFixed, isBold: true, indent: 1 });
+
+  if (yearlyData.some(d => d.deferredFinancing > 0)) {
+    rows.push({ category: "Other Assets", values: years.map(() => 0), isHeader: true, indent: 1 });
+    rows.push({ category: "Deferred Financing Costs", values: yearlyData.map(d => d.deferredFinancing), indent: 2 });
   }
-  rows.push({ category: BS_TOTAL_LIABILITIES_EQUITY, values: yearlyData.map(d => d.totalLiabilitiesEquity), isHeader: true });
+
+  rows.push({ category: BS_TOTAL_ASSETS, values: yearlyData.map(d => d.totalAssets), isHeader: true, isBold: true });
+
+  rows.push({ category: "LIABILITIES", values: years.map(() => 0), isHeader: true });
+  rows.push({ category: "Long-Term Liabilities", values: years.map(() => 0), isHeader: true, indent: 1 });
+  rows.push({ category: BS_MORTGAGE_NOTES, values: yearlyData.map(d => d.debt), indent: 2 });
+  rows.push({ category: "Total Liabilities", values: yearlyData.map(d => d.debt), isBold: true, indent: 1 });
+
+  rows.push({ category: "EQUITY", values: years.map(() => 0), isHeader: true });
+  rows.push({ category: BS_PAID_IN_CAPITAL, values: yearlyData.map(d => d.equity), indent: 1 });
+  rows.push({ category: BS_RETAINED_EARNINGS, values: yearlyData.map(d => d.retainedEarnings), indent: 1 });
+  rows.push({ category: "Total Equity", values: yearlyData.map(d => d.equity + d.retainedEarnings), isBold: true, indent: 1 });
+
+  rows.push({ category: BS_TOTAL_LIABILITIES_EQUITY, values: yearlyData.map(d => d.totalLiabilitiesEquity), isHeader: true, isBold: true });
+
+  rows.push({ category: "Balance Check (Assets − L&E)", values: yearlyData.map(d => d.totalAssets - d.totalLiabilitiesEquity), indent: 1 });
 
   return { years, rows };
 }
@@ -297,36 +317,57 @@ export function generatePortfolioCashFlowData(
   );
   const netChange = years.map((_, y) => consolidatedCFO[y] + consolidatedCFI[y] + consolidatedCFF[y]);
 
+  const consolidatedANOI = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.noi ?? 0), 0)
+  );
+  const consolidatedInterest = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.interestExpense ?? 0), 0)
+  );
+  const consolidatedPrincipalCF = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.principalPayment ?? 0), 0)
+  );
+  const consolidatedTaxCF = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.taxLiability ?? 0), 0)
+  );
+  const consolidatedCapex = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.capitalExpenditures ?? 0), 0)
+  );
+  const consolidatedExitValue = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.exitValue ?? 0), 0)
+  );
+  const consolidatedRefi = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.refinancingProceeds ?? 0), 0)
+  );
+
   rows.push({ category: "Cash Flow from Operations (CFO)", values: consolidatedCFO, isHeader: true });
+  rows.push({ category: "Adjusted NOI (ANOI)", values: consolidatedANOI, indent: 1 });
+  rows.push({ category: "Less: Interest Expense", values: consolidatedInterest.map(v => -v), indent: 1 });
+  rows.push({ category: "Less: Principal Payments", values: consolidatedPrincipalCF.map(v => -v), indent: 1 });
+  rows.push({ category: "Less: Income Tax", values: consolidatedTaxCF.map(v => -v), indent: 1 });
   if (expanded?.has("cfo")) {
-    if (!excludeFormulas) {
-      rows.push({ category: "Formula: = ANOI − Debt Service (Principal + Interest)", values: consolidatedCFO, indent: 2 });
-    }
     allPropertyYearlyCF.forEach((propCF, idx) => {
       const name = propertyNames?.[idx] ?? `Property ${idx + 1}`;
-      rows.push({ category: name, values: years.map((_, y) => propCF[y]?.cashFromOperations ?? 0), indent: 1 });
+      rows.push({ category: name, values: years.map((_, y) => propCF[y]?.cashFromOperations ?? 0), indent: 2 });
     });
   }
 
   rows.push({ category: "Cash Flow from Investing (CFI)", values: consolidatedCFI, isHeader: true });
+  rows.push({ category: "Capital Expenditures (FF&E)", values: consolidatedCapex, indent: 1 });
+  rows.push({ category: "Exit Proceeds (Net Sale Value)", values: consolidatedExitValue, indent: 1 });
   if (expanded?.has("cfi")) {
-    if (!excludeFormulas) {
-      rows.push({ category: "Formula: = Capital Expenditures + Exit Proceeds (if final year)", values: consolidatedCFI, indent: 2 });
-    }
     allPropertyYearlyCF.forEach((propCF, idx) => {
       const name = propertyNames?.[idx] ?? `Property ${idx + 1}`;
-      rows.push({ category: name, values: years.map((_, y) => (propCF[y]?.capitalExpenditures ?? 0) + (propCF[y]?.exitValue ?? 0)), indent: 1 });
+      rows.push({ category: name, values: years.map((_, y) => (propCF[y]?.capitalExpenditures ?? 0) + (propCF[y]?.exitValue ?? 0)), indent: 2 });
     });
   }
 
   rows.push({ category: "Cash Flow from Financing (CFF)", values: consolidatedCFF, isHeader: true });
+  rows.push({ category: "Refinancing Proceeds", values: consolidatedRefi, indent: 1 });
+  rows.push({ category: "Less: Principal Repayments", values: consolidatedPrincipalCF.map(v => -v), indent: 1 });
   if (expanded?.has("cff")) {
-    if (!excludeFormulas) {
-      rows.push({ category: "Formula: = Refinancing Proceeds − Principal Payments", values: consolidatedCFF, indent: 2 });
-    }
     allPropertyYearlyCF.forEach((propCF, idx) => {
       const name = propertyNames?.[idx] ?? `Property ${idx + 1}`;
-      rows.push({ category: name, values: years.map((_, y) => (propCF[y]?.refinancingProceeds ?? 0) - (propCF[y]?.principalPayment ?? 0)), indent: 1 });
+      rows.push({ category: name, values: years.map((_, y) => (propCF[y]?.refinancingProceeds ?? 0) - (propCF[y]?.principalPayment ?? 0)), indent: 2 });
     });
   }
 
@@ -349,6 +390,41 @@ export function generatePortfolioCashFlowData(
   rows.push({ category: "Less: Principal Payments", values: consolidatedPrincipal.map(v => -v), indent: 1 });
   rows.push({ category: "Free Cash Flow to Equity (FCFE)", values: consolidatedFCFE, isBold: true, indent: 1 });
 
+  // Key Metrics
+  const consolidatedDebtService = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0)
+  );
+  const consolidatedRevenue = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.noi ?? 0) + (prop[y]?.debtService ?? 0) + (prop[y]?.taxLiability ?? 0), 0)
+  );
+  const totalEquityForMetrics = allPropertyYearlyCF.reduce((sum, prop) => {
+    const acqYear = prop.findIndex(y => y.capitalExpenditures !== 0);
+    return sum + Math.abs(prop[acqYear]?.capitalExpenditures ?? 0);
+  }, 0);
+
+  rows.push({ category: "", values: years.map(() => 0) });
+  rows.push({ category: "Key Metrics", values: years.map(() => 0), isHeader: true });
+  rows.push({
+    category: "DSCR (Debt Service Coverage)",
+    values: years.map((_, y) => consolidatedDebtService[y] > 0 ? consolidatedANOI[y] / consolidatedDebtService[y] : 0),
+    indent: 1, format: "ratio",
+  });
+  rows.push({
+    category: "Cash-on-Cash Return",
+    values: years.map((_, y) => totalEquityForMetrics > 0 ? consolidatedFCFE[y] / totalEquityForMetrics : 0),
+    indent: 1, format: "percentage",
+  });
+  rows.push({
+    category: "FCF Margin",
+    values: years.map((_, y) => consolidatedRevenue[y] > 0 ? consolidatedFCF[y] / consolidatedRevenue[y] : 0),
+    indent: 1, format: "percentage",
+  });
+  rows.push({
+    category: "FCFE Margin",
+    values: years.map((_, y) => consolidatedRevenue[y] > 0 ? consolidatedFCFE[y] / consolidatedRevenue[y] : 0),
+    indent: 1, format: "percentage",
+  });
+
   return { years, rows };
 }
 
@@ -358,6 +434,7 @@ export function generatePortfolioInvestmentData(
   projectionYears: number,
   getFiscalYear: (i: number) => number,
   summaryOnly = false,
+  costOfEquity?: number,
 ): ExportData {
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
   const rows: ExportRow[] = [];
@@ -468,6 +545,13 @@ export function generatePortfolioInvestmentData(
     rows.push({ category: "Refinancing Proceeds", values: consolidatedRefi, indent: 1 });
     rows.push({ category: "Exit Proceeds", values: consolidatedExit, indent: 1 });
     rows.push({ category: "Net Cash Flow to Investors", values: investorCF, indent: 1, isBold: true });
+    // Cumulative Cash Flow
+    const cumulativeInvestorCF = years.map((_, y) => {
+      let cum = 0;
+      for (let i = 0; i <= y; i++) cum += investorCF[i];
+      return cum;
+    });
+    rows.push({ category: "Cumulative Cash Flow", values: cumulativeInvestorCF, indent: 1, isBold: true });
 
     rows.push({ category: "", values: years.map(() => 0) });
     rows.push({ category: "Operating Cash Flow Waterfall", values: years.map(() => 0), isHeader: true });
@@ -495,6 +579,96 @@ export function generatePortfolioInvestmentData(
         rows.push({ category: "Exit Value", values: years.map((_, y) => y === projectionYears - 1 ? exitVal : 0), indent: 2 });
         rows.push({ category: "Cash-on-Cash (%)", values: years.map(() => propCoC / 100), indent: 2, format: "percentage" });
       });
+
+      rows.push({ category: "", values: years.map(() => 0) });
+      rows.push({ category: "Property-Level IRR Analysis", values: years.map(() => 0), isHeader: true });
+      properties.forEach((prop, pi) => {
+        const propCF = cf[pi] || [];
+        const equity = propertyEquityInvested(prop);
+        const exitVal = propCF[projectionYears - 1]?.exitValue ?? 0;
+        const cashFlows = propCF.map(r => r.netCashFlowToInvestors);
+        const irr = computeIRR(cashFlows, 1).irr_periodic ?? 0;
+        const totalDist = cashFlows.slice(1).reduce((a, b) => a + b, 0);
+        const eqMult = equity > 0 ? totalDist / equity : 0;
+        const taxRate = prop.taxRate ?? DEFAULT_PROPERTY_TAX_RATE;
+        const exitCapRate = prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
+
+        rows.push({ category: prop.name || `Property ${pi + 1}`, values: years.map(() => 0), isHeader: true, indent: 1 });
+        rows.push({ category: "Equity Investment", values: years.map(() => equity), indent: 2 });
+        rows.push({ category: "Income Tax Rate (%)", values: years.map(() => taxRate), indent: 2, format: "percentage" });
+        rows.push({ category: "Exit Cap Rate (%)", values: years.map(() => exitCapRate), indent: 2, format: "percentage" });
+        rows.push({ category: "Exit Value", values: years.map(() => exitVal), indent: 2 });
+        rows.push({ category: "Total Distributions", values: years.map(() => totalDist), indent: 2 });
+        rows.push({ category: "Equity Multiple", values: years.map(() => eqMult), indent: 2, format: "multiplier" });
+        rows.push({ category: "IRR (%)", values: years.map(() => irr), indent: 2, format: "percentage" });
+      });
+      rows.push({ category: "Portfolio Total", values: years.map(() => 0), isHeader: true, indent: 1 });
+      rows.push({ category: "Total Equity", values: years.map(() => financials.totalInitialEquity), indent: 2 });
+      rows.push({ category: "Total Exit Value", values: years.map(() => financials.totalExitValue), indent: 2 });
+      rows.push({ category: "Portfolio IRR (%)", values: years.map(() => financials.portfolioIRR), indent: 2, format: "percentage" });
+      rows.push({ category: "Portfolio Equity Multiple", values: years.map(() => financials.equityMultiple), indent: 2, format: "multiplier" });
+
+      const baseCOE = costOfEquity ?? DEFAULT_COST_OF_EQUITY;
+      rows.push({ category: "", values: years.map(() => 0) });
+      rows.push({ category: "Discounted Cash Flow (DCF) Analysis", values: years.map(() => 0), isHeader: true });
+
+      let portfolioDCFTotal = 0;
+      let portfolioNPVTotal = 0;
+      let portfolioEquityTotal = 0;
+      let portfolioTotalCapital = 0;
+      let portfolioWeightedWACC = 0;
+
+      properties.forEach((prop, pi) => {
+        const propCF = cf[pi] || [];
+        const crp = (prop as any).countryRiskPremium ?? 0;
+        const re = baseCOE + crp;
+        const equity = propertyEquityInvested(prop);
+        const isFullEquity = prop.type === "Full Equity";
+        const debt = isFullEquity ? 0 : (prop.purchasePrice ?? 0) * (prop.acquisitionLTV ?? 0);
+        const debtRate = prop.acquisitionInterestRate ?? 0.09;
+        const taxRate = prop.taxRate ?? DEFAULT_PROPERTY_TAX_RATE;
+        const totalCapital = equity + debt;
+        const ew = totalCapital > 0 ? equity / totalCapital : 1;
+        const dw = totalCapital > 0 ? debt / totalCapital : 0;
+        const wacc = (ew * re) + (dw * debtRate * (1 - taxRate));
+        const discountRate = wacc > 0 ? wacc : 0.10;
+
+        const yearlyATCF = years.map((_, y) => propCF[y]?.atcf ?? 0);
+        const exitValue = propCF[projectionYears - 1]?.exitValue ?? 0;
+        const pvFactors = years.map((_, y) => 1 / Math.pow(1 + discountRate, y + 1));
+        const pvCF = yearlyATCF.map((v, y) => v * pvFactors[y]);
+        const pvTerminal = exitValue * pvFactors[projectionYears - 1];
+        const dcfVal = pvCF.reduce((s, v) => s + v, 0) + pvTerminal;
+        const npv = dcfVal - equity;
+        const valueCr = equity > 0 ? (npv / equity) * 100 : 0;
+
+        portfolioDCFTotal += dcfVal;
+        portfolioNPVTotal += npv;
+        portfolioEquityTotal += equity;
+        portfolioTotalCapital += totalCapital;
+        portfolioWeightedWACC += wacc * totalCapital;
+
+        rows.push({ category: prop.name || `Property ${pi + 1}`, values: years.map(() => 0), isHeader: true, indent: 1 });
+        rows.push({ category: "Country Risk Premium (%)", values: years.map(() => crp), indent: 2, format: "percentage" });
+        rows.push({ category: "Cost of Equity (%)", values: years.map(() => re), indent: 2, format: "percentage" });
+        rows.push({ category: "Equity Weight (E/V)", values: years.map(() => ew), indent: 2, format: "percentage" });
+        rows.push({ category: "WACC (%)", values: years.map(() => wacc), indent: 2, format: "percentage" });
+        rows.push({ category: "Equity Invested", values: years.map(() => equity), indent: 2 });
+        rows.push({ category: "DCF Value", values: years.map(() => dcfVal), indent: 2 });
+        rows.push({ category: "NPV", values: years.map(() => npv), indent: 2 });
+        rows.push({ category: "Value Creation (%)", values: years.map(() => valueCr / 100), indent: 2, format: "percentage" });
+        rows.push({ category: "Yearly ATCF", values: yearlyATCF, indent: 2 });
+        rows.push({ category: "PV of Cash Flows", values: pvCF, indent: 2 });
+        rows.push({ category: "PV of Terminal Value", values: years.map((_, y) => y === projectionYears - 1 ? pvTerminal : 0), indent: 2 });
+      });
+
+      const portWACC = portfolioTotalCapital > 0 ? portfolioWeightedWACC / portfolioTotalCapital : 0;
+      const portValueCreation = portfolioEquityTotal > 0 ? (portfolioNPVTotal / portfolioEquityTotal) * 100 : 0;
+      rows.push({ category: "Portfolio DCF Summary", values: years.map(() => 0), isHeader: true, indent: 1 });
+      rows.push({ category: "Portfolio WACC (%)", values: years.map(() => portWACC), indent: 2, format: "percentage" });
+      rows.push({ category: "DCF Portfolio Value", values: years.map(() => portfolioDCFTotal), indent: 2 });
+      rows.push({ category: "Net Present Value (NPV)", values: years.map(() => portfolioNPVTotal), indent: 2 });
+      rows.push({ category: "Value Creation (%)", values: years.map(() => portValueCreation / 100), indent: 2, format: "percentage" });
     }
   }
 

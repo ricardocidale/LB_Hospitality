@@ -142,7 +142,7 @@ export async function exportPortfolioPDF(
     series: [
       { name: "Revenue", data: chartData, color: "#7C3AED" },
       { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
-      { name: "ANOI", data: noiData, color: "#257D41" },
+      { name: "ANOI", data: noiData, color: "#6B7280" },
     ],
   });
 
@@ -182,18 +182,18 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const projRange = `${years[0]} \u2013 ${years[years.length - 1]}`;
 
   const NAVY: [number, number, number] = [26, 35, 50];
-  const SAGE: [number, number, number] = [159, 188, 164];
+  const ACCENT: [number, number, number] = [176, 180, 186]; // neutral silver-gray
 
   function drawPageChrome() {
     doc.setFillColor(...NAVY);
     doc.rect(0, 0, pageW, 1.5, "F");
-    doc.setFillColor(...SAGE);
+    doc.setFillColor(...ACCENT);
     doc.rect(0, 1.5, pageW, 0.8, "F");
     doc.setFillColor(...NAVY);
     doc.rect(0, pageH - 1.5, pageW, 1.5, "F");
-    doc.setFillColor(...SAGE);
+    doc.setFillColor(...ACCENT);
     doc.rect(0, pageH - 2.3, pageW, 0.8, "F");
-    doc.setDrawColor(...SAGE);
+    doc.setDrawColor(...ACCENT);
     doc.setLineWidth(0.3);
     doc.line(10, 6, 10, pageH - 6);
     doc.line(pageW - 10, 6, pageW - 10, pageH - 6);
@@ -203,7 +203,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     drawPageChrome();
     doc.setFillColor(...NAVY);
     doc.rect(16, 10, pageW - 32, 22, "F");
-    doc.setFillColor(...SAGE);
+    doc.setFillColor(...ACCENT);
     doc.rect(16, 30, pageW - 32, 1.2, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
@@ -212,7 +212,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     if (subtitle) {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
-      doc.setTextColor(...SAGE);
+      doc.setTextColor(...ACCENT);
       doc.text(subtitle, 22, 28);
     }
     doc.setFont("helvetica", "normal");
@@ -318,7 +318,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     series: [
       { name: "Revenue", data: chartData, color: "#7C3AED" },
       { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
-      { name: "ANOI", data: noiData, color: "#257D41" },
+      { name: "ANOI", data: noiData, color: "#6B7280" },
     ],
   });
 

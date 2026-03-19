@@ -476,24 +476,22 @@ function filterFormulaRows(rows: any[]): any[] {
 const CHART_SERIES_BY_STATEMENT: Record<string, Array<{ keyword: string; label: string; color: string }>> = {
   income: [
     { keyword: "total revenue", label: "Revenue", color: "#18181b" },
-    { keyword: "gross operating profit", label: "GOP", color: "#3B82F6" },
-    { keyword: "net operating income", label: "NOI", color: "#F59E0B" },
-    { keyword: "adjusted noi", label: "ANOI", color: "#6B7280" },
+    { keyword: "gross operating profit", label: "GOP", color: "#6B7280" },
+    { keyword: "net operating income", label: "NOI", color: "#9CA3AF" },
+    { keyword: "adjusted noi", label: "ANOI", color: "#D1D5DB" },
   ],
   cashflow: [
-    { keyword: "net operating income", label: "NOI", color: "#F59E0B" },
-    { keyword: "adjusted noi", label: "ANOI", color: "#6B7280" },
-    { keyword: "free cash flow (fcf)", label: "Cash Flow", color: "#8B5CF6" },
-    { keyword: "free cash flow to equity", label: "FCFE", color: "#6B7280" },
+    { keyword: "free cash flow (fcf)", label: "Cash Flow", color: "#18181b" },
+    { keyword: "free cash flow to equity", label: "FCFE", color: "#9CA3AF" },
   ],
   balance: [
-    { keyword: "total assets", label: "Total Assets", color: "#257D41" },
-    { keyword: "total liabilities & equity", label: "Total Liabilities", color: "#F4795B" },
+    { keyword: "total assets", label: "Total Assets", color: "#18181b" },
+    { keyword: "total liabilities & equity", label: "Total Liabilities", color: "#9CA3AF" },
   ],
   investment: [
-    { keyword: "net operating income", label: "NOI", color: "#10B981" },
-    { keyword: "adjusted noi", label: "ANOI", color: "#257D41" },
-    { keyword: "free cash flow to equity", label: "FCFE", color: "#8B5CF6" },
+    { keyword: "net operating income", label: "NOI", color: "#18181b" },
+    { keyword: "adjusted noi", label: "ANOI", color: "#6B7280" },
+    { keyword: "free cash flow to equity", label: "FCFE", color: "#9CA3AF" },
   ],
 };
 
@@ -605,6 +603,7 @@ function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
         values: r.values,
         type: r.isHeader ? "header" : r.isBold ? "total" : "data",
         indent: r.indent || 0,
+        format: r.format,
       }));
 
       sections.push({
@@ -623,6 +622,7 @@ function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
       values: r.values,
       type: r.isHeader ? "header" : r.isBold ? "total" : "data",
       indent: r.indent || 0,
+      format: r.format,
     }));
     sections.push({
       type: "financial_table",

@@ -588,7 +588,9 @@ export function generatePortfolioInvestmentData(
         const exitVal = propCF[projectionYears - 1]?.exitValue ?? 0;
         const cashFlows = propCF.map(r => r.netCashFlowToInvestors);
         const irr = computeIRR(cashFlows, 1).irr_periodic ?? 0;
-        const totalDist = cashFlows.slice(1).reduce((a, b) => a + b, 0);
+        const yearlyATCF = years.map((_, y) => propCF[y]?.atcf ?? 0);
+        const exitVal2 = propCF[projectionYears - 1]?.exitValue ?? 0;
+        const totalDist = yearlyATCF.reduce((a, b) => a + b, 0) + exitVal2;
         const eqMult = equity > 0 ? totalDist / equity : 0;
         const taxRate = prop.taxRate ?? DEFAULT_PROPERTY_TAX_RATE;
         const exitCapRate = prop.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;

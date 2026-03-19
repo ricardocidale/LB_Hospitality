@@ -264,6 +264,7 @@ export default function Company() {
             isBold: r.isBold ?? r.isHeader,
             isHeader: r.isHeader,
             isItalic: r.isItalic,
+            format: r.format,
           }));
           return {
             entityName: companyName,

@@ -19,6 +19,7 @@ const exportRowSchema = z.object({
   isBold: z.boolean().optional(),
   isHeader: z.boolean().optional(),
   isItalic: z.boolean().optional(),
+  format: z.enum(["currency", "percentage", "number", "ratio", "multiplier"]).optional(),
 });
 
 const premiumExportSchema = z.object({
@@ -699,6 +700,7 @@ async function generatePdfWithAiDesign(data: PremiumExportRequest, modelId?: str
           values: r.values,
           type: r.isHeader ? "header" : r.isBold ? "total" : "data",
           indent: r.indent || 0,
+          format: r.format,
           highlight: (page.highlight_categories || []).some((h: string) =>
             (r.category || "").toLowerCase().includes(h.toLowerCase())
           ),

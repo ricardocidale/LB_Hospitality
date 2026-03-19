@@ -790,13 +790,14 @@ export default function PropertyDetail() {
           }
           investRows.push({ category: "Closing Cash Balance", values: pdfCloseCash, isBold: true });
 
-          const mapRows = (rows: Array<{ category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean; isItalic?: boolean }>) => rows.map(r => ({
+          const mapRows = (rows: Array<{ category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean; isItalic?: boolean; format?: string }>) => rows.map(r => ({
             category: r.category,
             values: r.values,
             indent: r.indent,
             isBold: r.isBold,
             isHeader: r.isHeader,
             isItalic: r.isItalic,
+            format: r.format,
           }));
 
           return {

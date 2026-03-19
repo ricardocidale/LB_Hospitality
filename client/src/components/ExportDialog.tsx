@@ -187,14 +187,19 @@ function GeneratingAnimation() {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="relative w-10 h-12 flex flex-col items-center justify-center">
             <motion.div
-              className="w-8 h-10 rounded-sm border-2 border-emerald-600/80 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950/30 dark:to-background relative overflow-hidden"
+              className="w-8 h-10 rounded-sm relative overflow-hidden"
+              style={{
+                border: "2px solid hsl(var(--accent-pop) / 0.8)",
+                background: "linear-gradient(to bottom, hsl(var(--accent-pop) / 0.08), hsl(var(--background)))",
+              }}
               animate={{ scale: [0.95, 1, 0.95] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             >
               {[0, 1, 2, 3, 4].map((i) => (
                 <motion.div
                   key={i}
-                  className="h-[2px] mx-1 mt-[3px] rounded-full bg-emerald-500/40"
+                  className="h-[2px] mx-1 mt-[3px] rounded-full"
+                  style={{ background: "hsl(var(--accent-pop) / 0.4)" }}
                   initial={{ scaleX: 0, originX: 0 }}
                   animate={{ scaleX: [0, 1, 1, 0] }}
                   transition={{
@@ -206,10 +211,10 @@ function GeneratingAnimation() {
                 />
               ))}
               <motion.div
-                className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-sage-400"
+                className="absolute bottom-0 left-0 right-0 h-1"
                 animate={{ scaleX: [0, 1] }}
                 transition={{ duration: 12, ease: "linear" }}
-                style={{ originX: 0 }}
+                style={{ originX: 0, background: "linear-gradient(to right, hsl(var(--accent-pop)), hsl(var(--accent-pop) / 0.5))" }}
               />
             </motion.div>
           </div>
@@ -218,10 +223,11 @@ function GeneratingAnimation() {
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="absolute w-1.5 h-1.5 rounded-full bg-emerald-400"
+            className="absolute w-1.5 h-1.5 rounded-full"
             style={{
               top: "50%",
               left: "50%",
+              background: "hsl(var(--accent-pop))",
             }}
             animate={{
               x: [0, Math.cos((i * 120 * Math.PI) / 180) * 44],

@@ -4,7 +4,8 @@ import {
   getFiscalYearForModelYear
 } from "@/lib/financialEngine";
 import { LoanParams } from "@/lib/financial/loanCalculations";
-import { propertyEquityInvested } from "@/lib/financial/equityCalculations";
+import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
+import { propertyPPE } from "@/lib/financial/portfolio-helpers";
 import {
   applyCurrencyFormat,
   applyHeaderStyle,
@@ -56,19 +57,14 @@ export async function exportPropertyBalanceSheet(
       const proForma = allProFormas[idx]?.data || [];
       const relevantMonths = proForma.slice(0, monthsToInclude);
 
-      const modelStart = new Date(modelStartDate);
-      const acqDate = (prop as any).acquisitionDate
-        ? new Date((prop as any).acquisitionDate)
-        : new Date((prop as any).operationsStartDate);
-      const acqMonthsFromModelStart = Math.max(
-        0,
-        (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
-          (acqDate.getMonth() - modelStart.getMonth())
+      const acqYear = acquisitionYearIndex(
+        (prop as any).acquisitionDate,
+        (prop as any).operationsStartDate,
+        modelStartDate,
       );
-      const acqYear = Math.floor(acqMonthsFromModelStart / 12);
-      if (yearIdx + 1 <= acqYear) return;
+      if (yearIdx < acqYear) return;
 
-      const totalPropValue = (prop as any).purchasePrice + ((prop as any).buildingImprovements ?? 0);
+      const totalPropValue = propertyPPE((prop as any).purchasePrice, (prop as any).buildingImprovements);
       totalPropertyValue += totalPropValue;
 
       const accDep = relevantMonths.reduce((sum, m) => sum + m.depreciationExpense, 0);

@@ -5,50 +5,33 @@
  * Usage: npm run test:summary
  */
 import { execSync } from "child_process";
-import { stripAnsi } from "./lib/test-parser.js";
+import { stripAnsi, parseTestOutput } from "./lib/test-parser.js";
 
+let raw = "";
 try {
-  const raw = execSync("npx vitest run 2>&1", {
+  raw = execSync("npx vitest run 2>&1", {
     encoding: "utf-8",
     timeout: 180_000,
     maxBuffer: 10 * 1024 * 1024,
   });
-
-  const output = stripAnsi(raw);
-
-  const testsLine = output
-    .split("\n")
-    .find((l) => l.includes("Tests") && (l.includes("passed") || l.includes("skipped")));
-  const filesLine = output
-    .split("\n")
-    .find((l) => l.includes("Test Files") && (l.includes("passed") || l.includes("skipped")));
-  const durationLine = output.split("\n").find((l) => l.includes("Duration"));
-
-  const tests = testsLine?.match(/(\d+)\s+passed/);
-  const skipped = testsLine?.match(/(\d+)\s+skipped/);
-  const totalTests = testsLine?.match(/\((\d+)\)/);
-  const files = filesLine?.match(/(\d+)\s+passed/);
-  const skippedFiles = filesLine?.match(/(\d+)\s+skipped/);
-  const duration = durationLine?.match(/Duration\s+([\d.]+s)/);
-
-  const parts: string[] = [];
-  if (tests) parts.push(`${tests[1]} passed`);
-  if (skipped && parseInt(skipped[1]) > 0) parts.push(`${skipped[1]} skipped`);
-  const total = totalTests ? totalTests[1] : tests?.[1] ?? "?";
-  const fileCount = files ? files[1] : "?";
-  const skippedFileCount = skippedFiles && parseInt(skippedFiles[1]) > 0 ? `, ${skippedFiles[1]} skipped` : "";
-
-  console.log(
-    `PASS ${parts.join(", ")} (${total} total, ${fileCount} files${skippedFileCount})${duration ? ` in ${duration[1]}` : ""}`,
-  );
 } catch (err: any) {
-  const raw = (err.stdout ?? "") + (err.stderr ?? "");
-  const output = stripAnsi(raw);
-  const lines = output.split("\n");
+  raw = (err.stdout ?? "") + (err.stderr ?? "");
+}
+
+const result = parseTestOutput(raw);
+
+if (result.passed) {
+  console.log(result.summary);
+} else {
+  const clean = stripAnsi(raw);
+  const lines = clean.split("\n");
 
   const failLines = lines.filter(
     (l: string) =>
-      l.includes("FAIL") || l.includes("\u2717") || l.includes("\u00d7") || l.includes("AssertionError") || l.includes("Error:"),
+      (l.includes("FAIL") && l.includes(".test.")) ||
+      l.includes("AssertionError") ||
+      l.includes("AssertionError") ||
+      (l.includes("Error:") && !l.includes("node_modules") && !l.includes("expected") && !l.includes("CSV download")),
   );
 
   if (failLines.length > 0) {
@@ -56,15 +39,9 @@ try {
     for (const line of failLines.slice(0, 15)) {
       console.log("  " + line.trim());
     }
+    console.log("");
   }
 
-  const failMatch = output.match(/(\d+) failed/);
-  const passMatch = output.match(/(\d+) passed/);
-  const skipMatch = output.match(/(\d+) skipped/);
-  const parts: string[] = [];
-  if (failMatch) parts.push(`${failMatch[1]} failed`);
-  if (passMatch) parts.push(`${passMatch[1]} passed`);
-  if (skipMatch && parseInt(skipMatch[1]) > 0) parts.push(`${skipMatch[1]} skipped`);
-  console.log(`\nFAIL ${parts.join(", ")}`);
+  console.log(result.summary);
   process.exit(1);
 }

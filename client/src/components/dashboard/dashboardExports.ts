@@ -12,6 +12,7 @@ import type { YearlyCashFlowResult } from "@/lib/financial/loanCalculations";
 
 import type { MonthlyFinancials } from "@/lib/financialEngine";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
+import { yearEndSlice, sumMonthlyField, propertyPPE } from "@/lib/financial/portfolio-helpers";
 
 export interface ExportRow {
   category: string;
@@ -58,15 +59,13 @@ export function generatePortfolioBalanceSheetData(
       const acqYear = acquisitionYearIndex(property.acquisitionDate, property.operationsStartDate, modelStartDate ? modelStartDate.toISOString().slice(0, 10) : "");
       if (yearIdx < acqYear) return;
 
-      const monthsToInclude = (yearIdx + 1) * 12;
-      const relevantMonths = financials.slice(0, monthsToInclude);
+      const relevantMonths = yearEndSlice(financials, yearIdx);
       const lastMonth = relevantMonths[relevantMonths.length - 1];
 
       if (!lastMonth) return;
 
-      // Assets
-      const ppe = property.purchasePrice + (property.buildingImprovements || 0);
-      const accDep = relevantMonths.reduce((sum, m) => sum + m.depreciationExpense, 0);
+      const ppe = propertyPPE(property.purchasePrice, property.buildingImprovements);
+      const accDep = sumMonthlyField(relevantMonths, "depreciationExpense");
       
       const operatingReserve = property.operatingReserve || 0;
       const cumulativeANOI = relevantMonths.reduce((sum, m) => sum + m.anoi, 0);

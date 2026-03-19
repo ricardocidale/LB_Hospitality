@@ -154,6 +154,34 @@ Run `npx tsx script/export-audit.ts` to validate the full export wiring:
 - Brand palette centralized in `exportStyles.ts`
 - No stray/orphan modules
 
+## Financial Helpers for Exports
+
+**File**: `client/src/lib/financial/portfolio-helpers.ts`
+
+Shared helpers used by both `dashboardExports.ts` and `portfolio-sheet.ts`:
+
+| Helper | Purpose |
+|--------|---------|
+| `sumMonthlyField(months, field)` | Sum a single field across monthly financials |
+| `yearEndSlice(financials, yearIdx)` | Get months 0..(yearIdx+1)*12 |
+| `lastMonthOfYear(financials, yearIdx)` | Get the last month of a year |
+| `propertyPPE(purchasePrice, improvements)` | Property plant & equipment total |
+
+Always use `acquisitionYearIndex()` from `equityCalculations.ts` instead of inline acquisition year derivation.
+
+## Script Helpers
+
+**File**: `script/lib/runners.ts`
+
+| Helper | Purpose |
+|--------|---------|
+| `shell(cmd, timeout)` | Safe `execSync` wrapper with error capture |
+| `runTsc()` | Run TypeScript check, return `{ passed, errorCount, firstError }` |
+| `countTestsFromFiles()` | Fast test count via `rg` (no vitest needed) |
+| `countFiles(dir, exts)` | Walk directory for file/line counts |
+
+Used by `stats.ts`, `lint-summary.ts`, and available for any new scripts.
+
 ## Dependencies
 
 | Package | Purpose |

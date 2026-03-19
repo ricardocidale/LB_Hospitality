@@ -10,12 +10,27 @@ Eliminates human Excel verification. Code proves itself correct through 3,022 au
 
 ## Commands
 ```bash
-npm test                          # Run all 3,022 tests
-npm run verify                    # Full 7-phase verification (UNQUALIFIED = pass)
-npx vitest run tests/proof/       # Run only proof tests
-npx vitest run tests/golden/      # Run 269 hand-calculated golden tests (~3s)
-npx tsx tests/proof/verify-runner.ts  # 7-phase orchestrator directly
+npm run health             # All-in-one: tsc + tests + verification + doc harmony (~60s)
+npm run test:summary       # All 3,421 tests, 1-line output (~35s)
+npm run verify:summary     # 8-phase financial verification only (~20s)
+npm run lint:summary       # TypeScript check only (<10s)
+npm run stats              # File/line/test counts (<5s, no vitest or tsc)
+npm run audit:quick        # Code quality scan: `any`, TODO, console.log (<3s)
+npm run exports:check      # Unused export detection (<5s)
+npm run diff:summary       # Git status + diff stats (<1s)
+npx tsx script/export-audit.ts  # 41-check export wiring validation (<2s)
 ```
+
+### Workflow Weight Guide
+| Workflow | Runs tsc? | Runs vitest? | Time | Use When |
+|----------|-----------|-------------|------|----------|
+| health | Yes | Yes (full) | ~60s | Pre-commit gate, full validation |
+| test:summary | No | Yes (full) | ~35s | Quick test pass/fail check |
+| verify:summary | No | Yes (8 files) | ~20s | Financial engine changes only |
+| lint:summary | Yes | No | <10s | Type-checking quick spot-check |
+| stats | No | No | <5s | Codebase metrics overview |
+| audit:quick | No | No | <3s | Code smell detection |
+| exports:check | No | No | <5s | Dead code detection |
 
 ## 7-Phase Verification
 1. **Scenarios** — 5 golden scenarios test every financial structure

@@ -23,6 +23,7 @@ const DOMAIN_DEFAULTS: Record<LlmDomain, { vendor: LlmVendor; model: string }> =
 export interface ResolvedLlm {
   vendor: LlmVendor;
   model: string;
+  secondaryVendor?: LlmVendor;
   secondaryModel?: string;
   isDual: boolean;
 }
@@ -37,9 +38,10 @@ export function resolveLlm(
   const vendor: LlmVendor = cfg?.llmVendor || defaults.vendor;
   const model = normalizeModelId(cfg?.primaryLlm || defaults.model);
   const isDual = cfg?.llmMode === "dual" && !!cfg.secondaryLlm;
+  const secondaryVendor = isDual ? (cfg!.secondaryLlmVendor || vendor) : undefined;
   const secondaryModel = isDual ? normalizeModelId(cfg!.secondaryLlm!) : undefined;
 
-  return { vendor, model, secondaryModel, isDual };
+  return { vendor, model, secondaryVendor, secondaryModel, isDual };
 }
 
 export function getVendorService(vendor: LlmVendor): "gemini" | "anthropic" | "openai" {

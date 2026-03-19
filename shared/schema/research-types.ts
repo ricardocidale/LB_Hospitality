@@ -32,6 +32,7 @@ export interface ContextLlmConfig {
   llmVendor?: LlmVendor;
   llmMode?: LlmMode;
   primaryLlm?: string;
+  secondaryLlmVendor?: LlmVendor;
   secondaryLlm?: string;
 }
 

@@ -545,3 +545,18 @@ export const selectGlobalAssumptionsSchema = createSelectSchema(globalAssumption
 export type GlobalAssumptions = typeof globalAssumptions.$inferSelect;
 export type InsertGlobalAssumptions = z.infer<typeof insertGlobalAssumptionsSchema>;
 
+// ── Seed Defaults (shadow ledger for smart sync) ──────────────────────
+export const seedDefaults = pgTable("seed_defaults", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  entityType: text("entity_type").notNull(),
+  entityKey: text("entity_key").notNull(),
+  fieldName: text("field_name").notNull(),
+  seedValue: jsonb("seed_value").notNull(),
+  appliedAt: timestamp("applied_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  unique("uq_seed_defaults_entity_field").on(table.entityType, table.entityKey, table.fieldName),
+  index("idx_seed_defaults_lookup").on(table.entityType, table.entityKey),
+]);
+
+export type SeedDefault = typeof seedDefaults.$inferSelect;
+

@@ -35,6 +35,7 @@ interface DomainConfig {
   description: string;
   useAllVendors?: boolean;
   tab: TabKey;
+  supportsDual?: boolean;
   stageLabel?: { primary: string; secondary: string };
   recommended?: { vendor: LlmVendor; primary: string; secondary?: string };
 }
@@ -43,10 +44,9 @@ const RECOMMENDED: Record<string, { vendor: LlmVendor; primary: string; secondar
   company:       { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
   property:      { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
   market:        { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
-  report:        { vendor: "google", primary: "gemini-2.5-flash" },
-  chatbot:       { vendor: "google", primary: "gemini-2.5-flash" },
-  premiumExport: { vendor: "google", primary: "gemini-2.5-flash" },
+  premiumExport: { vendor: "google", primary: "gemini-2.5-pro" },
   aiUtility:     { vendor: "google", primary: "gemini-2.5-flash" },
+  chatbot:       { vendor: "google", primary: "gemini-2.5-flash" },
 };
 
 const DOMAIN_CONFIGS: DomainConfig[] = [
@@ -57,6 +57,7 @@ const DOMAIN_CONFIGS: DomainConfig[] = [
     icon: IconTarget,
     description: "LLM for researching management companies — ICP analysis, financial comparisons, and company intelligence.",
     tab: "research",
+    supportsDual: true,
     stageLabel: { primary: "Stage 1 — Reasoning", secondary: "Stage 2 — Workhorse" },
     recommended: RECOMMENDED.company,
   },
@@ -67,6 +68,7 @@ const DOMAIN_CONFIGS: DomainConfig[] = [
     icon: IconProperties,
     description: "LLM for property-level research — market benchmarks, RevPAR comparisons, and location analysis.",
     tab: "research",
+    supportsDual: true,
     stageLabel: { primary: "Stage 1 — Reasoning", secondary: "Stage 2 — Workhorse" },
     recommended: RECOMMENDED.property,
   },
@@ -77,18 +79,9 @@ const DOMAIN_CONFIGS: DomainConfig[] = [
     icon: IconTrendingUp,
     description: "LLM for broad market intelligence — macro trends, hospitality sector analysis, and competitive landscape.",
     tab: "research",
+    supportsDual: true,
     stageLabel: { primary: "Stage 1 — Reasoning", secondary: "Stage 2 — Workhorse" },
     recommended: RECOMMENDED.market,
-  },
-  {
-    key: "report",
-    configField: "reportLlm",
-    label: "Report Generation",
-    icon: IconFileText,
-    description: "LLM used for generating PDF reports, executive summaries, and investment memos.",
-    useAllVendors: true,
-    tab: "operations",
-    recommended: RECOMMENDED.report,
   },
   {
     key: "aiUtility",
@@ -103,9 +96,9 @@ const DOMAIN_CONFIGS: DomainConfig[] = [
   {
     key: "chatbot",
     configField: "chatbotLlm",
-    label: "Chatbot (Rebecca)",
+    label: "Rebecca",
     icon: IconMessageCircle,
-    description: "LLM powering Rebecca and other conversational AI assistants.",
+    description: "LLM powering Rebecca — the conversational AI assistant for portfolio intelligence and property insights.",
     useAllVendors: true,
     tab: "assistants",
     recommended: RECOMMENDED.chatbot,
@@ -136,15 +129,15 @@ const TAB_META: Record<TabKey, { title: string; subtitle: string }> = {
   },
   operations: {
     title: "Operations LLMs",
-    subtitle: "Models for report generation, content writing, and general AI utility tasks.",
+    subtitle: "Models for content writing and general AI utility tasks.",
   },
   assistants: {
     title: "AI Assistants",
-    subtitle: "Models powering conversational AI assistants like Rebecca.",
+    subtitle: "One model per assistant. Configure the vendor and model for each conversational AI.",
   },
   exports: {
     title: "Export LLMs",
-    subtitle: "Models for premium-formatted financial documents — XLSX, PPTX, PDF, and DOCX.",
+    subtitle: "Model for premium-formatted financial documents — XLSX, PPTX, PDF, and DOCX.",
   },
 };
 
@@ -188,44 +181,74 @@ function ModelSelectWithRecommendation({
   );
 }
 
+function VendorSelect({
+  value,
+  onValueChange,
+  vendors,
+  recommendedVendor,
+  testId,
+}: {
+  value: string;
+  onValueChange: (v: string) => void;
+  vendors: { value: LlmVendor; label: string }[];
+  recommendedVendor?: LlmVendor;
+  testId: string;
+}) {
+  return (
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger className="bg-card h-9" data-testid={testId}>
+        <SelectValue placeholder="Select vendor" />
+      </SelectTrigger>
+      <SelectContent>
+        {vendors.map((v) => (
+          <SelectItem key={v.value} value={v.value}>
+            <span className="flex items-center gap-2">
+              {v.label}
+              {recommendedVendor === v.value && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                  <IconStar className="w-3 h-3" />
+                </span>
+              )}
+            </span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 function LlmDomainCard({
   domain,
   config,
   onChange,
   models,
   vendors,
-  compact,
 }: {
   domain: DomainConfig;
   config: ContextLlmConfig;
   onChange: (c: ContextLlmConfig) => void;
   models: AiModelEntry[];
   vendors: { value: LlmVendor; label: string }[];
-  compact?: boolean;
 }) {
   const DomainIcon = domain.icon;
   const mode: LlmMode | undefined = config.llmMode;
   const vendor: LlmVendor | undefined = config.llmVendor;
-  const isDual = mode === "dual";
+  const isDual = mode === "dual" && domain.supportsDual;
   const vendorModels = vendor ? models.filter((m) => m.provider === vendor) : [];
   const primaryModel = config.primaryLlm || "";
   const secondaryModel = config.secondaryLlm || "";
+  const secondaryVendor: LlmVendor | undefined = config.secondaryLlmVendor || vendor;
+  const secondaryVendorModels = secondaryVendor ? models.filter((m) => m.provider === secondaryVendor) : [];
 
-  const isResearch = domain.tab === "research";
-  const primaryLabel = domain.stageLabel?.primary || "Primary LLM";
-  const secondaryLabel = domain.stageLabel?.secondary || "Secondary LLM";
+  const primaryLabel = domain.stageLabel?.primary || "Model";
+  const secondaryLabel = domain.stageLabel?.secondary || "Secondary Model";
 
   const recPrimary = (vendor && domain.recommended?.vendor === vendor) ? domain.recommended.primary : undefined;
-  const recSecondary = (vendor && domain.recommended?.vendor === vendor) ? domain.recommended.secondary : undefined;
+  const recSecondary = (secondaryVendor && domain.recommended?.vendor === secondaryVendor) ? domain.recommended.secondary : undefined;
 
   const update = (patch: Partial<ContextLlmConfig>) => {
     onChange({ ...config, ...patch });
   };
-
-  const colCount = isDual ? 4 : vendor ? 3 : 2;
-  const gridClass = compact
-    ? `grid gap-4 grid-cols-1 sm:grid-cols-2 ${colCount >= 3 ? "lg:grid-cols-3" : ""} ${colCount >= 4 ? "xl:grid-cols-4" : ""}`
-    : `grid gap-4 grid-cols-1 md:grid-cols-2`;
 
   return (
     <Card className="bg-card border-border shadow-sm">
@@ -244,84 +267,112 @@ function LlmDomainCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className={gridClass}>
-          <div>
-            <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
-            <Select
-              value={vendor || ""}
-              onValueChange={(value) => {
-                update({ llmVendor: value as LlmVendor, primaryLlm: "", secondaryLlm: "" });
-              }}
-            >
-              <SelectTrigger className="bg-card h-9" data-testid={`select-llm-vendor-${domain.key}`}>
-                <SelectValue placeholder="Select vendor" />
-              </SelectTrigger>
-              <SelectContent>
-                {vendors.map((v) => (
-                  <SelectItem key={v.value} value={v.value}>
-                    <span className="flex items-center gap-2">
-                      {v.label}
-                      {domain.recommended?.vendor === v.value && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
-                          <IconStar className="w-3 h-3" />
-                        </span>
-                      )}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        {domain.supportsDual ? (
+          <div className="space-y-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
+                <VendorSelect
+                  value={vendor || ""}
+                  onValueChange={(value) => update({ llmVendor: value as LlmVendor, primaryLlm: "" })}
+                  vendors={vendors}
+                  recommendedVendor={domain.recommended?.vendor}
+                  testId={`select-llm-vendor-${domain.key}`}
+                />
+              </div>
+              {vendor && (
+                <div>
+                  <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
+                  <ModelSelectWithRecommendation
+                    value={primaryModel}
+                    onValueChange={(value) => update({ primaryLlm: value })}
+                    vendorModels={vendorModels}
+                    recommendedId={recPrimary}
+                    testId={`select-primary-llm-${domain.key}`}
+                  />
+                </div>
+              )}
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">Mode</Label>
+                <RadioGroup
+                  value={mode || ""}
+                  onValueChange={(value) => {
+                    const newMode = value as LlmMode;
+                    if (newMode === "primary-only") {
+                      update({ llmMode: newMode, secondaryLlm: "", secondaryLlmVendor: undefined });
+                    } else {
+                      update({ llmMode: newMode, secondaryLlmVendor: config.secondaryLlmVendor || vendor });
+                    }
+                  }}
+                  className="flex gap-3 h-9 items-center"
+                  data-testid={`radio-llm-mode-${domain.key}`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem value="dual" id={`mode-dual-${domain.key}`} data-testid={`radio-mode-dual-${domain.key}`} />
+                    <Label htmlFor={`mode-dual-${domain.key}`} className="text-xs font-normal cursor-pointer">Dual</Label>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem value="primary-only" id={`mode-primary-${domain.key}`} data-testid={`radio-mode-primary-${domain.key}`} />
+                    <Label htmlFor={`mode-primary-${domain.key}`} className="text-xs font-normal cursor-pointer">Single</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
 
-          {vendor && (
+            {isDual && (
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+                <div>
+                  <Label className="text-xs font-medium mb-1.5 block">Stage 2 Vendor</Label>
+                  <VendorSelect
+                    value={secondaryVendor || ""}
+                    onValueChange={(value) => update({ secondaryLlmVendor: value as LlmVendor, secondaryLlm: "" })}
+                    vendors={vendors}
+                    recommendedVendor={domain.recommended?.vendor}
+                    testId={`select-llm-secondary-vendor-${domain.key}`}
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-medium mb-1.5 block">{secondaryLabel}</Label>
+                  <ModelSelectWithRecommendation
+                    value={secondaryModel}
+                    onValueChange={(value) => update({ secondaryLlm: value })}
+                    vendorModels={secondaryVendorModels}
+                    recommendedId={recSecondary}
+                    testId={`select-secondary-llm-${domain.key}`}
+                  />
+                </div>
+                <div />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
             <div>
-              <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
-              <ModelSelectWithRecommendation
-                value={primaryModel}
-                onValueChange={(value) => update({ primaryLlm: value })}
-                vendorModels={vendorModels}
-                recommendedId={recPrimary}
-                testId={`select-primary-llm-${domain.key}`}
+              <Label className="text-xs font-medium mb-1.5 block">Vendor</Label>
+              <VendorSelect
+                value={vendor || ""}
+                onValueChange={(value) => update({ llmVendor: value as LlmVendor, primaryLlm: "", llmMode: "primary-only" })}
+                vendors={vendors}
+                recommendedVendor={domain.recommended?.vendor}
+                testId={`select-llm-vendor-${domain.key}`}
               />
             </div>
-          )}
-
-          <div>
-            <Label className="text-xs font-medium mb-1.5 block">Mode</Label>
-            <RadioGroup
-              value={mode || ""}
-              onValueChange={(value) => update({ llmMode: value as LlmMode })}
-              className="flex gap-3 h-9 items-center"
-              data-testid={`radio-llm-mode-${domain.key}`}
-            >
-              <div className="flex items-center gap-1.5">
-                <RadioGroupItem value="dual" id={`mode-dual-${domain.key}`} data-testid={`radio-mode-dual-${domain.key}`} />
-                <Label htmlFor={`mode-dual-${domain.key}`} className="text-xs font-normal cursor-pointer">
-                  {isResearch ? "Dual" : "Dual"}
-                </Label>
+            {vendor && (
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">{primaryLabel}</Label>
+                <ModelSelectWithRecommendation
+                  value={primaryModel}
+                  onValueChange={(value) => update({ primaryLlm: value })}
+                  vendorModels={vendorModels}
+                  recommendedId={recPrimary}
+                  testId={`select-primary-llm-${domain.key}`}
+                />
               </div>
-              <div className="flex items-center gap-1.5">
-                <RadioGroupItem value="primary-only" id={`mode-primary-${domain.key}`} data-testid={`radio-mode-primary-${domain.key}`} />
-                <Label htmlFor={`mode-primary-${domain.key}`} className="text-xs font-normal cursor-pointer">
-                  {isResearch ? "Single" : "Primary only"}
-                </Label>
-              </div>
-            </RadioGroup>
+            )}
+            {!vendor && <div />}
+            <div />
           </div>
-
-          {vendor && isDual && (
-            <div>
-              <Label className="text-xs font-medium mb-1.5 block">{secondaryLabel}</Label>
-              <ModelSelectWithRecommendation
-                value={secondaryModel}
-                onValueChange={(value) => update({ secondaryLlm: value })}
-                vendorModels={vendorModels}
-                recommendedId={recSecondary}
-                testId={`select-secondary-llm-${domain.key}`}
-              />
-            </div>
-          )}
-        </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -338,7 +389,6 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
   const [initialized, setInitialized] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("research");
 
-  // Ref-based save handler to avoid infinite re-render loop (see admin-save-state rule)
   const saveRef = useRef<(() => void) | undefined>(undefined);
   saveRef.current = () => {
     saveMutation.mutate(draft, {
@@ -396,7 +446,6 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
 
   const tabDomains = DOMAIN_CONFIGS.filter((d) => d.tab === activeTab);
   const meta = TAB_META[activeTab as TabKey];
-  const isSingleDomain = tabDomains.length === 1;
 
   return (
     <div className="space-y-5">
@@ -448,7 +497,6 @@ export default function LLMsTab({ onSaveStateChange }: LLMsTabProps) {
               }}
               models={models}
               vendors={domain.useAllVendors ? LLM_VENDORS : RESEARCH_LLM_VENDORS}
-              compact={isSingleDomain}
             />
           ))}
         </div>

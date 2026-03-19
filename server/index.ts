@@ -320,6 +320,9 @@ async function runMigrationsAndSeeds() {
   const { migratePartnerToUser } = await import("./migrations/role-partner-to-user-001");
   await migratePartnerToUser();
 
+  const { runSeedDefaults001 } = await import("./migrations/seed-defaults-001");
+  await runSeedDefaults001();
+
   await seedAdminUser(); // Must complete before data seeds — users are FK dependencies
 
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos, seedGlobalAssumptions } = await import("./seed");

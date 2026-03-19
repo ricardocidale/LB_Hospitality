@@ -44,6 +44,7 @@ const contextLlmConfigSchema = z.object({
   llmVendor: llmVendorEnum.optional(),
   llmMode: z.enum(["dual", "primary-only"]).optional(),
   primaryLlm: z.string().optional(),
+  secondaryLlmVendor: llmVendorEnum.optional(),
   secondaryLlm: z.string().optional(),
 }).strict();
 

@@ -78,15 +78,7 @@ const RATE_DEFINITIONS: RateDefinition[] = [
     displayValue: "PPI Construction Materials",
   },
 
-  // --- Frankfurter (Currency Exchange) ---
-  {
-    rateKey: "usd_cop",
-    source: "frankfurter",
-    seriesId: "COP",
-    sourceUrl: "https://frankfurter.dev",
-    maxStalenessHours: 24,
-    displayValue: "USD/COP",
-  },
+  // --- Frankfurter (Currency Exchange — ECB-sourced, major currencies only) ---
   {
     rateKey: "usd_mxn",
     source: "frankfurter",
@@ -94,14 +86,6 @@ const RATE_DEFINITIONS: RateDefinition[] = [
     sourceUrl: "https://frankfurter.dev",
     maxStalenessHours: 24,
     displayValue: "USD/MXN",
-  },
-  {
-    rateKey: "usd_crc",
-    source: "frankfurter",
-    seriesId: "CRC",
-    sourceUrl: "https://frankfurter.dev",
-    maxStalenessHours: 24,
-    displayValue: "USD/CRC",
   },
 
   // --- Admin-Maintained (no auto-fetch) ---
@@ -221,7 +205,13 @@ function getSeedValue(def: RateDefinition): { value: number | null; displayValue
   return { value: null, displayValue: def.displayValue };
 }
 
+const RETIRED_RATE_KEYS = ["usd_cop", "usd_crc"];
+
 export async function seedMarketRates(): Promise<void> {
+  for (const key of RETIRED_RATE_KEYS) {
+    await db.delete(marketRates).where(eq(marketRates.rateKey, key));
+  }
+
   for (const def of RATE_DEFINITIONS) {
     const existing = await db.select()
       .from(marketRates)

@@ -68,6 +68,8 @@ export async function fetchFredRate(seriesId: string): Promise<{ value: number; 
 
 const FRANKFURTER_BASE_URL = "https://api.frankfurter.dev/v1/latest";
 
+const frankfurterWarned = new Set<string>();
+
 /**
  * Fetch exchange rate from EUR base (Frankfurter uses ECB data, EUR base).
  * We convert to USD-based rate via cross-rate.
@@ -80,17 +82,24 @@ export async function fetchFrankfurterRate(targetCurrency: string): Promise<{ va
     );
 
     if (!response.ok) {
-      console.warn(`Frankfurter fetch failed for ${targetCurrency}: ${response.status}`);
+      if (!frankfurterWarned.has(targetCurrency)) {
+        console.warn(`Frankfurter fetch failed for ${targetCurrency}: ${response.status} (suppressing further warnings)`);
+        frankfurterWarned.add(targetCurrency);
+      }
       return null;
     }
 
+    frankfurterWarned.delete(targetCurrency);
     const data = await response.json();
     const rate = data.rates?.[targetCurrency];
     if (rate == null) return null;
 
     return { value: rate, date: data.date };
   } catch (error) {
-    console.warn(`Frankfurter fetch error for ${targetCurrency}:`, error);
+    if (!frankfurterWarned.has(targetCurrency)) {
+      console.warn(`Frankfurter fetch error for ${targetCurrency}:`, error);
+      frankfurterWarned.add(targetCurrency);
+    }
     return null;
   }
 }

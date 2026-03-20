@@ -1,19 +1,7 @@
+// Re-export from the authoritative source to avoid duplicate interfaces
+export type { ExportRow, ExportData } from "@/components/dashboard/statementBuilders";
+import type { ExportRow, ExportData } from "@/components/dashboard/statementBuilders";
 import type { ExportFormat } from "./exportStyles";
-
-export interface ExportRow {
-  category: string;
-  values: number[];
-  isHeader?: boolean;
-  indent?: number;
-  isBold?: boolean;
-  isItalic?: boolean;
-  format?: ExportFormat;
-}
-
-export interface ExportData {
-  years: number[];
-  rows: ExportRow[];
-}
 
 export function headerRow(category: string, values: number[], opts?: { isBold?: boolean }): ExportRow {
   return { category, values, isHeader: true, isBold: opts?.isBold };

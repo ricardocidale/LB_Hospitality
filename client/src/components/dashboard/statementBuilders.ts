@@ -15,6 +15,7 @@ export interface ExportRow {
   isHeader?: boolean;
   indent?: number;
   isBold?: boolean;
+  isItalic?: boolean;
   format?: "currency" | "percentage" | "number" | "ratio" | "multiplier";
 }
 

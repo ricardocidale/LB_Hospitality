@@ -20,6 +20,7 @@ import {
 import type { YearlyCashFlowResult } from "@/lib/financial/loanCalculations";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
+import { consolidateYearlyFinancials, computeWeightedMetrics } from "@/lib/financial/consolidation";
 import { DashboardFinancials } from "./types";
 import type { MonthlyFinancials } from "@/lib/financialEngine";
 
@@ -87,52 +88,15 @@ export function usePortfolioFinancials(
     return { allPropertyYearlyCF: cfResults, allPropertyYearlyIS: isResults };
   }, [allPropertyFinancials, properties, global, projectionYears]);
 
-  const yearlyConsolidatedCache = useMemo(() => {
-    if (!allPropertyYearlyIS.length) return [] as YearlyPropertyFinancials[];
-    const numericKeys = Object.keys(allPropertyYearlyIS[0]?.[0] ?? {}).filter(
-      k => k !== 'year' && k !== 'serviceFeesByCategory'
-    ) as (keyof YearlyPropertyFinancials)[];
-    return Array.from({ length: projectionYears }, (_, y) => {
-      const base: YearlyPropertyFinancials = { ...allPropertyYearlyIS[0][y] };
-      for (const key of numericKeys) (base as any)[key] = 0;
-      base.year = y;
-      base.serviceFeesByCategory = {};
-      for (const propYearly of allPropertyYearlyIS) {
-        const py = propYearly[y];
-        if (!py) continue;
-        for (const key of numericKeys) (base as any)[key] += (py as any)[key];
-        if (py.serviceFeesByCategory) {
-          for (const [cat, val] of Object.entries(py.serviceFeesByCategory)) {
-            base.serviceFeesByCategory[cat] = (base.serviceFeesByCategory[cat] ?? 0) + val;
-          }
-        }
-      }
-      return base;
-    });
-  }, [allPropertyYearlyIS, projectionYears]);
+  const yearlyConsolidatedCache = useMemo(() =>
+    consolidateYearlyFinancials(allPropertyYearlyIS, projectionYears),
+    [allPropertyYearlyIS, projectionYears]
+  );
 
-  const weightedMetricsByYear = useMemo(() => {
-    if (!allPropertyYearlyIS.length) return [];
-    return Array.from({ length: projectionYears }, (_, yearIndex) => {
-      let totalAvailableRoomNights = 0;
-      let totalRoomsSold = 0;
-      let totalRoomRevenue = 0;
-
-      for (const propYearly of allPropertyYearlyIS) {
-        const py = propYearly[yearIndex];
-        if (!py) continue;
-        totalAvailableRoomNights += py.availableRooms;
-        totalRoomsSold += py.soldRooms;
-        totalRoomRevenue += py.revenueRooms;
-      }
-
-      const weightedADR = totalRoomsSold > 0 ? totalRoomRevenue / totalRoomsSold : 0;
-      const weightedOcc = totalAvailableRoomNights > 0 ? totalRoomsSold / totalAvailableRoomNights : 0;
-      const revPAR = totalAvailableRoomNights > 0 ? totalRoomRevenue / totalAvailableRoomNights : 0;
-
-      return { weightedADR, weightedOcc, revPAR, totalAvailableRoomNights };
-    });
-  }, [allPropertyYearlyIS, projectionYears]);
+  const weightedMetricsByYear = useMemo(() =>
+    computeWeightedMetrics(allPropertyYearlyIS, projectionYears),
+    [allPropertyYearlyIS, projectionYears]
+  );
 
   const stats = useMemo(() => {
     if (!yearlyConsolidatedCache.length || !global) return null;

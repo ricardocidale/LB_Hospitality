@@ -161,8 +161,8 @@ export async function exportPortfolioPDF(
     title: `Portfolio Performance (${projectionYears}-Year Projection)`,
     series: [
       { name: "Revenue", data: chartData, color: accentHex },
-      { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
-      { name: "ANOI", data: noiData, color: "#6B7280" },
+      { name: "Operating Expenses", data: expenseData, color: `#${brand.SAGE_HEX}` },
+      { name: "ANOI", data: noiData, color: `#${brand.GRAY_HEX}` },
     ],
   });
 
@@ -371,9 +371,9 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     title: `Investment Returns (${projectionYears}-Year Projection)`,
     series: [
       { name: "Net Operating Income (NOI)", data: noiChartData, color: `#${brand.DARK_GREEN_HEX}` },
-      { name: "Adjusted NOI (ANOI)", data: anoiChartData, color: "#6B7280" },
-      { name: "Debt Service", data: debtServiceData, color: "#F97316" },
-      { name: "Free Cash Flow to Equity", data: fcfeData, color: "#8B5CF6" },
+      { name: "Adjusted NOI (ANOI)", data: anoiChartData, color: `#${brand.GRAY_HEX}` },
+      { name: "Debt Service", data: debtServiceData, color: `#${brand.SAGE_HEX}` },
+      { name: "Free Cash Flow to Equity", data: fcfeData, color: `#${brand.NAVY_HEX}` },
     ],
   });
 
@@ -402,8 +402,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     title: `Portfolio Performance (${projectionYears}-Year Projection)`,
     series: [
       { name: "Revenue", data: chartData, color: `#${brand.DARK_GREEN_HEX}` },
-      { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
-      { name: "ANOI", data: noiData, color: "#6B7280" },
+      { name: "Operating Expenses", data: expenseData, color: `#${brand.SAGE_HEX}` },
+      { name: "ANOI", data: noiData, color: `#${brand.GRAY_HEX}` },
     ],
   });
 

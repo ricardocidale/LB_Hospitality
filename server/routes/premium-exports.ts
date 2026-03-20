@@ -618,11 +618,44 @@ function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
         format: r.format,
       }));
 
-      sections.push({
-        type: "financial_table",
-        title: stmt.title,
-        content: { years: stmt.years, rows: filteredRows },
-      });
+      if (isInvestment && filteredRows.length > 0) {
+        const majorSections = new Set([
+          "Free Cash Flow to Investors",
+          "Per-Property Returns",
+          "Property-Level IRR Analysis",
+          "Discounted Cash Flow (DCF) Analysis",
+        ]);
+
+        let pending: typeof filteredRows = [];
+        let pendingTitle = "Investment Analysis";
+
+        const flushSection = () => {
+          if (!pending.length) return;
+          sections.push({
+            type: "financial_table",
+            title: pendingTitle,
+            content: { years: stmt.years, rows: pending },
+          });
+          pending = [];
+        };
+
+        for (const row of filteredRows) {
+          if (row.type === "header" && !row.indent && majorSections.has(row.category.trim())) {
+            flushSection();
+            pendingTitle = row.category.trim();
+            pending = [row];
+          } else {
+            pending.push(row);
+          }
+        }
+        flushSection();
+      } else {
+        sections.push({
+          type: "financial_table",
+          title: stmt.title,
+          content: { years: stmt.years, rows: filteredRows },
+        });
+      }
 
       // Chart page after each statement
       const chartSection = buildChartsForStatement(stmt);

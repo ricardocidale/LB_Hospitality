@@ -74,6 +74,16 @@ function esc(str: string): string {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+function adjustHex(hex: string, amount: number): string {
+  const h = hex.replace(/^#/, "");
+  const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return [clamp(r + amount), clamp(g + amount), clamp(b + amount)]
+    .map(c => c.toString(16).padStart(2, "0")).join("");
+}
+
 function isPercentageRow(category: string): boolean {
   const c = (category || "").toLowerCase();
   return c.includes("(%)") || c.includes("margin") || c === "occupancy"
@@ -611,14 +621,14 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
-.val-neg { color: #C0392B; }
+.val-neg { color: #${c.negativeRed}; }
 
 /* ────────────────────────────────────────────
    COVER PAGE — dark navy
    ──────────────────────────────────────────── */
 .cover-page {
   width: ${pageW}; height: ${pageH};
-  background: linear-gradient(155deg, #1E2D40 0%, ${NAVY} 35%, #141E2B 100%);
+  background: linear-gradient(155deg, #${adjustHex(c.navy, 12)} 0%, ${NAVY} 35%, #${adjustHex(c.navy, -8)} 100%);
   position: relative; overflow: hidden;
   page-break-after: always;
 }

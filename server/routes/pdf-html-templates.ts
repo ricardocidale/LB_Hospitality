@@ -283,14 +283,21 @@ function renderChartSection(_section: any, _d: PdfTemplateData): string {
    LINE CHART — multi-series trend lines (Revenue, OpEx, ANOI)
    ═══════════════════════════════════════════════════════════════ */
 
-/** Build a theme-aware chart palette from the resolved colors object.
- *  Series are ordered: accent → blue → amber → purple → red → muted  */
-function buildChartPalette(colors?: { darkGreen: string; navy: string; sage: string }): string[] {
-  if (colors?.darkGreen) {
-    const accent = `#${colors.darkGreen}`;
-    return [accent, "#3B82F6", "#F59E0B", "#8B5CF6", "#F4795B", "#6B7280", "#14B8A6"];
-  }
-  return ["#10B981", "#3B82F6", "#F59E0B", "#8B5CF6", "#F4795B", "#6B7280", "#14B8A6"];
+function buildChartPalette(colors?: ThemeColorMap): string[] {
+  const dk = colors?.darkGreen || BRAND.DARK_GREEN_HEX;
+  const sg = colors?.sage || BRAND.SAGE_HEX;
+  const nv = colors?.navy || BRAND.NAVY_HEX;
+  const gr = colors?.gray || BRAND.GRAY_HEX;
+  const lg = colors?.lightGray || BRAND.LIGHT_GRAY_HEX;
+  return [
+    `#${dk}`,
+    `#${sg}`,
+    `#${nv}`,
+    `#${gr}`,
+    `#${lg}`,
+    `#${adjustHex(dk, 40)}`,
+    `#${adjustHex(sg, 40)}`,
+  ];
 }
 
 /** Monotone cubic Bézier interpolation (Fritsch–Carlson) — produces smooth curves like Recharts type="monotone" */
@@ -352,14 +359,18 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
   }
   globalMax *= 1.08; // 8% headroom for labels
 
+  const chartGrid = d.colors?.gray || BRAND.GRAY_HEX;
+  const chartLabel = d.colors?.lightGray || BRAND.LIGHT_GRAY_HEX;
+  const chartText = d.colors?.darkText || BRAND.DARK_TEXT_HEX;
+
   // Y-axis grid — stronger lines, larger labels
   const gridN = 5;
   let gridSvg = "";
   for (let g = 0; g <= gridN; g++) {
     const y = padT + (plotH / gridN) * g;
     const gVal = globalMax - (globalMax / gridN) * g;
-    gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#d8dbe0" stroke-width="0.7"/>`;
-    gridSvg += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#777" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${fmtCompact(gVal * (1 / 1.08))}</text>`;
+    gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#${chartGrid}" stroke-width="0.7"/>`;
+    gridSvg += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#${chartLabel}" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${fmtCompact(gVal * (1 / 1.08))}</text>`;
   }
 
   // X-axis labels
@@ -368,7 +379,7 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
   years.forEach((yr, i) => {
     const x = padL + (i / Math.max(n - 1, 1)) * plotW;
     const label = yr.length === 4 ? "'" + yr.slice(2) : yr;
-    xLabels += `<text x="${x}" y="${padT + plotH + 18}" text-anchor="middle" fill="#555" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
+    xLabels += `<text x="${x}" y="${padT + plotH + 18}" text-anchor="middle" fill="#${chartLabel}" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
   });
 
   const palette = buildChartPalette(d.colors);
@@ -424,7 +435,7 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
     return `
       <line x1="${padL + xOff}" y1="${legendY}" x2="${padL + xOff + 16}" y2="${legendY}" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
       <circle cx="${padL + xOff + 8}" cy="${legendY}" r="2" fill="#fff" stroke="${color}" stroke-width="1.2"/>
-      <text x="${padL + xOff + 22}" y="${legendY + 3.5}" fill="#444" font-size="9" font-weight="600" font-family="Helvetica,Arial,sans-serif">${esc(s.label || "")}</text>`;
+      <text x="${padL + xOff + 22}" y="${legendY + 3.5}" fill="#${chartText}" font-size="9" font-weight="600" font-family="Helvetica,Arial,sans-serif">${esc(s.label || "")}</text>`;
   }).join("");
 
   return `
@@ -434,8 +445,8 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
         <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" class="line-chart-svg" xmlns="http://www.w3.org/2000/svg">
           <defs>${defsSvg}</defs>
           ${gridSvg}
-          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#aaa" stroke-width="1"/>
-          <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#d8dbe0" stroke-width="0.5"/>
+          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#${chartLabel}" stroke-width="1"/>
+          <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#${chartGrid}" stroke-width="0.5"/>
           ${xLabels}
           ${seriesSvg}
           ${legendItems}
@@ -796,7 +807,7 @@ body {
 .toc-row {
   display: flex; align-items: baseline;
   padding: 3.5mm 0;
-  border-bottom: 1px solid #eef0f2;
+  border-bottom: 1px solid ${GR};
 }
 .toc-row:last-child { border-bottom: none; }
 .toc-num {
@@ -809,7 +820,7 @@ body {
 }
 .toc-dots {
   flex: 1; margin: 0 3mm;
-  border-bottom: 1px dotted #ccc;
+  border-bottom: 1px dotted ${GR};
   min-width: 10mm;
   align-self: flex-end;
   margin-bottom: 2px;
@@ -842,7 +853,7 @@ body {
   gap: 4mm;
 }
 .highlight-card {
-  background: #f8faf9; border: 1px solid #e4e8e5;
+  background: ${ALT}; border: 1px solid ${GR};
   border-radius: 2mm; overflow: hidden;
   display: flex;
 }
@@ -857,7 +868,7 @@ body {
   letter-spacing: 0.3px; margin-bottom: 1mm;
 }
 .highlight-desc {
-  font-size: 7pt; color: #999; line-height: 1.4;
+  font-size: 7pt; color: ${GR}; line-height: 1.4;
 }
 
 /* ────────────────────────────────────────────
@@ -869,7 +880,7 @@ body {
   gap: 5mm; margin-top: 3mm;
 }
 .kpi-card {
-  background: #f8faf9; border: 1px solid #e0e3e6;
+  background: ${ALT}; border: 1px solid ${GR};
   border-radius: 2.5mm; overflow: hidden; text-align: center;
 }
 .kpi-accent { height: 2.5mm; }
@@ -883,7 +894,7 @@ body {
   letter-spacing: 0.2px; margin-bottom: 1.5mm;
 }
 .kpi-desc {
-  font-size: 7.5pt; color: #aaa; line-height: 1.35;
+  font-size: 7.5pt; color: ${GR}; line-height: 1.35;
   max-width: 90%; margin: 0 auto;
 }
 
@@ -898,8 +909,8 @@ body {
   min-height: 0;
 }
 .chart-card {
-  background: #fafbfc;
-  border: 1px solid #e2e5e8;
+  background: ${SECBG};
+  border: 1px solid ${GR};
   border-radius: 2.5mm;
   display: flex; flex-direction: column;
   overflow: hidden;
@@ -908,7 +919,7 @@ body {
 .chart-card-header {
   font-size: 10pt; font-weight: 700; color: ${NAVY};
   padding: 3.5mm 5mm 2.5mm;
-  border-bottom: 1px solid #eaedf0;
+  border-bottom: 1px solid ${GR};
   letter-spacing: 0.1px; flex-shrink: 0;
 }
 .chart-svg {
@@ -1002,7 +1013,7 @@ body {
 .analysis-body { flex: 1; }
 .insights-list { margin-bottom: 6mm; }
 .insight-block {
-  background: #f8faf9; border-left: 3px solid ${DK};
+  background: ${ALT}; border-left: 3px solid ${DK};
   border-radius: 0 2mm 2mm 0;
   padding: 4mm 5mm; margin-bottom: 3.5mm;
 }
@@ -1023,8 +1034,8 @@ body {
   gap: 3mm;
 }
 .analysis-highlight {
-  background: linear-gradient(135deg, #f0f4f1, #f8faf9);
-  border: 1px solid #e0e3e6;
+  background: linear-gradient(135deg, ${SECBG}, ${ALT});
+  border: 1px solid ${GR};
   border-radius: 2mm; padding: 4mm 5mm;
 }
 .analysis-highlight-label {
@@ -1036,7 +1047,7 @@ body {
   margin-bottom: 1mm;
 }
 .analysis-highlight-desc {
-  font-size: 7pt; color: #999; line-height: 1.3;
+  font-size: 7pt; color: ${GR}; line-height: 1.3;
 }
 
 .empty-state {

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
 import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdfPrompt, getDocxPrompt } from "./premium-export-prompts";
-import { buildPdfHtml } from "./pdf-html-templates";
+import { buildPdfHtml, resolveThemeColors } from "./pdf-html-templates";
 import { renderPdf } from "../pdf/browser-renderer";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { storage } from "../storage";
@@ -478,30 +478,33 @@ function filterFormulaRows(rows: any[]): any[] {
 }
 
 /** Build theme-aware chart series definitions.
- *  accent = primary theme highlight color (hex without #, e.g. "10B981") */
-function buildChartSeriesByStatement(accentHex?: string): Record<string, Array<{ keyword: string; label: string; color: string }>> {
-  const accent = accentHex ? `#${accentHex}` : "#10B981";
+ *  All colors derived from the resolved theme palette — no hardcoded hex. */
+function buildChartSeriesByStatement(tc?: { darkGreen: string; sage: string; navy: string; gray: string; lightGray: string; darkText: string }): Record<string, Array<{ keyword: string; label: string; color: string }>> {
+  const accent  = `#${tc?.darkGreen || BRAND.DARK_GREEN_HEX}`;
+  const series2 = `#${tc?.navy      || BRAND.NAVY_HEX}`;
+  const series3 = `#${tc?.sage      || BRAND.SAGE_HEX}`;
+  const series4 = `#${tc?.lightGray || BRAND.LIGHT_GRAY_HEX}`;
   return {
     income: [
-      { keyword: "total revenue",            label: "Revenue", color: accent    },
-      { keyword: "gross operating profit",   label: "GOP",     color: "#3B82F6" },
-      { keyword: "net operating income",     label: "NOI",     color: "#F59E0B" },
-      { keyword: "adjusted noi",             label: "ANOI",    color: "#6B7280" },
+      { keyword: "total revenue",            label: "Revenue", color: accent  },
+      { keyword: "gross operating profit",   label: "GOP",     color: series2 },
+      { keyword: "net operating income",     label: "NOI",     color: series3 },
+      { keyword: "adjusted noi",             label: "ANOI",    color: series4 },
     ],
     cashflow: [
-      { keyword: "free cash flow (fcf)",     label: "Cash Flow", color: accent    },
-      { keyword: "free cash flow to equity", label: "FCFE",      color: "#8B5CF6" },
+      { keyword: "free cash flow (fcf)",     label: "Cash Flow", color: accent  },
+      { keyword: "free cash flow to equity", label: "FCFE",      color: series2 },
     ],
     balance: [
-      { keyword: "total assets",      label: "Total Assets",      color: accent    },
-      { keyword: "total liabilities", label: "Total Liabilities",  color: "#F4795B" },
-      { keyword: "total equity",      label: "Total Equity",       color: "#3B82F6" },
+      { keyword: "total assets",      label: "Total Assets",      color: accent  },
+      { keyword: "total liabilities", label: "Total Liabilities",  color: series2 },
+      { keyword: "total equity",      label: "Total Equity",       color: series3 },
     ],
     investment: [
-      { keyword: "net operating income",     label: "NOI",          color: accent    },
-      { keyword: "adjusted noi",             label: "ANOI",         color: "#3B82F6" },
-      { keyword: "debt service",             label: "Debt Service", color: "#F4795B" },
-      { keyword: "free cash flow to equity", label: "FCFE",         color: "#8B5CF6" },
+      { keyword: "net operating income",     label: "NOI",          color: accent  },
+      { keyword: "adjusted noi",             label: "ANOI",         color: series2 },
+      { keyword: "debt service",             label: "Debt Service", color: series3 },
+      { keyword: "free cash flow to equity", label: "FCFE",         color: series4 },
     ],
   };
 }
@@ -517,10 +520,10 @@ function detectStatementType(title: string): string {
 }
 
 /** Build a LINE CHART section for a statement, matching the UI's chart series and colors */
-function buildChartsForStatement(stmt: { title: string; years: string[]; rows: any[] }): any | null {
+function buildChartsForStatement(stmt: { title: string; years: string[]; rows: any[] }, tc?: { darkGreen: string; sage: string; navy: string; gray: string; lightGray: string; darkText: string }): any | null {
   const years = stmt.years || [];
   const stmtType = detectStatementType(stmt.title);
-  const chartSeries = buildChartSeriesByStatement();
+  const chartSeries = buildChartSeriesByStatement(tc);
   const seriesDefs = chartSeries[stmtType] || chartSeries.income;
 
   const series: any[] = [];
@@ -550,6 +553,7 @@ function buildChartsForStatement(stmt: { title: string; years: string[]; rows: a
 function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
   const sections: any[] = [];
   const includeCover = !!(data as any).includeCoverPage;
+  const tc = resolveThemeColors(data.themeColors);
 
   // 1. Optional cover page
   if (includeCover) {
@@ -658,7 +662,7 @@ function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
       }
 
       // Chart page after each statement
-      const chartSection = buildChartsForStatement(stmt);
+      const chartSection = buildChartsForStatement(stmt, tc);
       if (chartSection) sections.push(chartSection);
     }
   } else if (data.rows?.length && data.years?.length) {
@@ -692,7 +696,6 @@ function getMetricDescription(label: string): string {
 /** AI-designed PDF: LLM acts as graphic designer, code renders the vision */
 async function generatePdfWithAiDesign(data: PremiumExportRequest, modelId?: string): Promise<Buffer> {
   const { getPdfDesignPrompt } = await import("./premium-export-prompts");
-  const { resolveThemeColors, buildPdfHtml } = await import("./pdf-html-templates");
 
   const company = data.companyName || "Hospitality Business Group";
   const isLandscape = (data.orientation || "landscape") === "landscape";
@@ -762,7 +765,7 @@ async function generatePdfWithAiDesign(data: PremiumExportRequest, modelId?: str
         s.title.toLowerCase().includes((page.for_statement || "").toLowerCase())
       );
       if (stmt) {
-        const chartSection = buildChartsForStatement(stmt);
+        const chartSection = buildChartsForStatement(stmt, colors);
         if (chartSection) {
           chartSection.title = page.title || chartSection.title;
           // Apply LLM's color intent to series
@@ -803,6 +806,7 @@ async function generatePdfWithAiDesign(data: PremiumExportRequest, modelId?: str
 
   // Step 4: Puppeteer renders to PDF
   const safeCompanyHtml = company.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const footerColor = `#${colors.lightGray}`;
 
   return renderPdf(html, {
     width: isLandscape ? "406.4mm" : "215.9mm",
@@ -811,7 +815,7 @@ async function generatePdfWithAiDesign(data: PremiumExportRequest, modelId?: str
     displayHeaderFooter: true,
     headerTemplate: "<span></span>",
     footerTemplate: `
-      <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;">
+      <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:${footerColor};padding:0 16mm;">
         <span style="float:left">${safeCompanyHtml}</span>
         <span style="float:right"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
         <span style="display:block;text-align:center">CONFIDENTIAL</span>
@@ -830,7 +834,6 @@ async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Pr
     ? `${company} — ${data.statementType}`
     : `${company} — Financial Report`;
 
-  const { resolveThemeColors } = await import("./pdf-html-templates");
   const colors = resolveThemeColors(data.themeColors);
 
   const html = buildPdfHtml({ sections, report_title: reportTitle }, {
@@ -843,6 +846,7 @@ async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Pr
   });
 
   const safeCompanyHtml = company.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const footerColor = `#${colors.lightGray}`;
 
   return renderPdf(html, {
     width: isLandscape ? "406.4mm" : "215.9mm",
@@ -851,7 +855,7 @@ async function generatePdfBuffer(_aiResult: any, data: PremiumExportRequest): Pr
     displayHeaderFooter: true,
     headerTemplate: "<span></span>",
     footerTemplate: `
-      <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:#999;padding:0 16mm;">
+      <div style="width:100%;font-size:7pt;font-family:Helvetica,Arial,sans-serif;color:${footerColor};padding:0 16mm;">
         <span style="float:left">${safeCompanyHtml}</span>
         <span style="float:right"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
         <span style="display:block;text-align:center">CONFIDENTIAL</span>

@@ -21,14 +21,16 @@
  */
 import { format } from "date-fns";
 import {
-  BRAND,
   type ExportRowMeta,
+  type BrandPalette,
+  type ThemeColor,
   classifyRow,
   indentLabel,
   formatShort,
   normalizeCaps,
   pptxFontSize,
   pptxColumnWidths,
+  buildBrandPalette,
 } from "./exportStyles";
 
 const SLIDE_W = 13.33;
@@ -38,9 +40,11 @@ const MARGIN_X = 0.3;
 interface SlideContext {
   pres: any;
   companyName: string;
+  brand: BrandPalette;
 }
 
 function addAllFooters(ctx: SlideContext, skipFirst = true) {
+  const B = ctx.brand;
   const slides = ctx.pres.slides as any[];
   if (!slides) return;
   const total = slides.length;
@@ -49,30 +53,31 @@ function addAllFooters(ctx: SlideContext, skipFirst = true) {
     const slide = slides[i];
     slide.addShape("rect", {
       x: 0, y: SLIDE_H - 0.35, w: SLIDE_W, h: 0.01,
-      fill: { color: BRAND.SAGE_HEX },
+      fill: { color: B.SAGE_HEX },
     });
     slide.addText(ctx.companyName + " \u2014 Confidential", {
       x: MARGIN_X, y: SLIDE_H - 0.32, w: 5, h: 0.25,
-      fontSize: 7, fontFace: "Arial", color: BRAND.LIGHT_GRAY_HEX, italic: true,
+      fontSize: 7, fontFace: "Arial", color: B.LIGHT_GRAY_HEX, italic: true,
     });
     slide.addText(`${i + 1} / ${total}`, {
       x: SLIDE_W - 1.3, y: SLIDE_H - 0.32, w: 1, h: 0.25,
-      fontSize: 7, fontFace: "Arial", color: BRAND.LIGHT_GRAY_HEX, align: "right",
+      fontSize: 7, fontFace: "Arial", color: B.LIGHT_GRAY_HEX, align: "right",
     });
   }
 }
 
 function addTitleSlide(ctx: SlideContext, title: string, subtitle: string, sourceTag: string) {
+  const B = ctx.brand;
   const slide = ctx.pres.addSlide();
-  slide.background = { color: BRAND.NAVY_HEX };
+  slide.background = { color: B.NAVY_HEX };
 
   slide.addShape("rect", {
     x: 0, y: 0, w: SLIDE_W, h: 0.06,
-    fill: { color: BRAND.SAGE_HEX },
+    fill: { color: B.SAGE_HEX },
   });
   slide.addShape("rect", {
     x: 0, y: SLIDE_H - 0.06, w: SLIDE_W, h: 0.06,
-    fill: { color: BRAND.SAGE_HEX },
+    fill: { color: B.SAGE_HEX },
   });
 
   const gridColor = "2A3A4D";
@@ -91,22 +96,22 @@ function addTitleSlide(ctx: SlideContext, title: string, subtitle: string, sourc
 
   slide.addShape("rect", {
     x: 0.5, y: 1.4, w: 0.08, h: 2.2,
-    fill: { color: BRAND.SAGE_HEX },
+    fill: { color: B.SAGE_HEX },
   });
 
   slide.addText(ctx.companyName, {
     x: 0.8, y: 1.4, w: 11, h: 0.7,
-    fontSize: 32, fontFace: "Arial", color: BRAND.WHITE_HEX, bold: true,
+    fontSize: 32, fontFace: "Arial", color: B.WHITE_HEX, bold: true,
   });
 
   slide.addShape("rect", {
     x: 0.8, y: 2.15, w: 3, h: 0.02,
-    fill: { color: BRAND.WHITE_HEX },
+    fill: { color: B.WHITE_HEX },
   });
 
   slide.addText(title, {
     x: 0.8, y: 2.4, w: 11, h: 0.5,
-    fontSize: 20, fontFace: "Arial", color: BRAND.SAGE_HEX,
+    fontSize: 20, fontFace: "Arial", color: B.SAGE_HEX,
   });
 
   slide.addText(subtitle, {
@@ -121,13 +126,13 @@ function addTitleSlide(ctx: SlideContext, title: string, subtitle: string, sourc
   slide.addShape("roundRect", {
     x: cardX, y: cardY, w: cardW, h: cardH,
     fill: { color: "283241" },
-    line: { color: BRAND.SAGE_HEX, width: 0.75 },
+    line: { color: B.SAGE_HEX, width: 0.75 },
     rectRadius: 0.08,
   });
 
   slide.addText("REPORT", {
     x: cardX + 0.2, y: cardY + 0.12, w: 2, h: 0.22,
-    fontSize: 7, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
+    fontSize: 7, fontFace: "Arial", color: B.SAGE_HEX, bold: true,
   });
   slide.addText(sourceTag, {
     x: cardX + 0.2, y: cardY + 0.32, w: 2.3, h: 0.22,
@@ -136,7 +141,7 @@ function addTitleSlide(ctx: SlideContext, title: string, subtitle: string, sourc
 
   slide.addText("DATE", {
     x: cardX + 0.2, y: cardY + 0.6, w: 2, h: 0.22,
-    fontSize: 7, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
+    fontSize: 7, fontFace: "Arial", color: B.SAGE_HEX, bold: true,
   });
   slide.addText(format(new Date(), "MMMM d, yyyy"), {
     x: cardX + 0.2, y: cardY + 0.8, w: 2.3, h: 0.22,
@@ -145,7 +150,7 @@ function addTitleSlide(ctx: SlideContext, title: string, subtitle: string, sourc
 
   slide.addText("CLASSIFICATION", {
     x: cardX + 2.8, y: cardY + 0.12, w: 2, h: 0.22,
-    fontSize: 7, fontFace: "Arial", color: BRAND.SAGE_HEX, bold: true,
+    fontSize: 7, fontFace: "Arial", color: B.SAGE_HEX, bold: true,
   });
   slide.addText("CONFIDENTIAL", {
     x: cardX + 2.8, y: cardY + 0.32, w: 2, h: 0.22,
@@ -168,27 +173,28 @@ function addMetricsSlide(
   sourceTag: string,
   metrics: { label: string; value: string }[],
 ) {
+  const B = ctx.brand;
   const slide = ctx.pres.addSlide();
 
   slide.addText(title, {
     x: 0.5, y: 0.2, w: 8, h: 0.4,
-    fontSize: 20, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+    fontSize: 20, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
   });
 
   slide.addText(subtitle, {
     x: 0.5, y: 0.6, w: 6, h: 0.25,
-    fontSize: 9, fontFace: "Arial", color: BRAND.GRAY_HEX,
+    fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX,
   });
 
   slide.addText(sourceTag, {
     x: SLIDE_W - 5.5, y: 0.6, w: 5, h: 0.25,
-    fontSize: 9, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+    fontSize: 9, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
     align: "right",
   });
 
   slide.addShape("rect", {
     x: 0.5, y: 0.9, w: 12, h: 0.02,
-    fill: { color: BRAND.SAGE_HEX },
+    fill: { color: B.SAGE_HEX },
   });
 
   const cols = 3;
@@ -206,17 +212,17 @@ function addMetricsSlide(
 
     slide.addShape("rect", {
       x, y, w: cardW, h: cardH,
-      fill: { color: BRAND.CARD_BG_HEX },
-      line: { color: BRAND.SAGE_HEX, width: 1 },
+      fill: { color: B.CARD_BG_HEX },
+      line: { color: B.SAGE_HEX, width: 1 },
       rectRadius: 0.1,
     });
     slide.addText(m.value, {
       x: x + 0.15, y: y + 0.15, w: cardW - 0.3, h: 0.5,
-      fontSize: 18, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+      fontSize: 18, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
     });
     slide.addText(m.label, {
       x: x + 0.15, y: y + 0.6, w: cardW - 0.3, h: 0.35,
-      fontSize: 9, fontFace: "Arial", color: BRAND.GRAY_HEX,
+      fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX,
     });
   });
 }
@@ -228,18 +234,19 @@ function addFinancialTableSlide(
   years: string[],
   rows: ExportRowMeta[],
 ) {
+  const B = ctx.brand;
   const slide = ctx.pres.addSlide();
   const fontSize = pptxFontSize(years.length);
   const { labelW, dataW, tableW } = pptxColumnWidths(years.length, SLIDE_W, MARGIN_X);
 
   slide.addText(title, {
     x: MARGIN_X, y: 0.1, w: 8, h: 0.3,
-    fontSize: 14, fontFace: "Arial", color: BRAND.DARK_GREEN_HEX, bold: true,
+    fontSize: 14, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
   });
 
   slide.addText(sourceTag, {
     x: SLIDE_W - 5.3, y: 0.1, w: 5, h: 0.3,
-    fontSize: 9, fontFace: "Arial", color: BRAND.GRAY_HEX, bold: true,
+    fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX, bold: true,
     align: "right",
   });
 
@@ -247,29 +254,29 @@ function addFinancialTableSlide(
     {
       text: "",
       options: {
-        fill: { color: BRAND.SAGE_HEX },
-        fontFace: "Arial", fontSize, color: BRAND.WHITE_HEX, bold: true,
+        fill: { color: B.SAGE_HEX },
+        fontFace: "Arial", fontSize, color: B.WHITE_HEX, bold: true,
         border: [
-          { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX },
-          { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX },
-          { type: "solid", pt: 1, color: BRAND.SAGE_HEX },
-          { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX },
+          { type: "solid", pt: 1.5, color: B.SAGE_HEX },
+          { type: "solid", pt: 1.5, color: B.SAGE_HEX },
+          { type: "solid", pt: 1, color: B.SAGE_HEX },
+          { type: "solid", pt: 1.5, color: B.SAGE_HEX },
         ],
       },
     },
     ...years.map((y, yi) => ({
       text: y,
       options: {
-        fill: { color: BRAND.SAGE_HEX },
-        fontFace: "Arial", fontSize, color: BRAND.WHITE_HEX, bold: true,
+        fill: { color: B.SAGE_HEX },
+        fontFace: "Arial", fontSize, color: B.WHITE_HEX, bold: true,
         align: "right" as const,
         border: [
-          { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX },
+          { type: "solid", pt: 1.5, color: B.SAGE_HEX },
           yi === years.length - 1
-            ? { type: "solid", pt: 1.5, color: BRAND.SAGE_HEX }
-            : { type: "solid", pt: 0.5, color: BRAND.BORDER_LIGHT_HEX },
-          { type: "solid", pt: 1, color: BRAND.SAGE_HEX },
-          { type: "solid", pt: 0.5, color: BRAND.BORDER_LIGHT_HEX },
+            ? { type: "solid", pt: 1.5, color: B.SAGE_HEX }
+            : { type: "solid", pt: 0.5, color: B.BORDER_LIGHT_HEX },
+          { type: "solid", pt: 1, color: B.SAGE_HEX },
+          { type: "solid", pt: 0.5, color: B.BORDER_LIGHT_HEX },
         ],
       },
     })),
@@ -285,33 +292,33 @@ function addFinancialTableSlide(
 
     let bgColor: string;
     if (isSectionHeader) {
-      bgColor = BRAND.SECTION_BG_HEX;
+      bgColor = B.SECTION_BG_HEX;
     } else if (isSubtotal) {
-      bgColor = BRAND.WHITE_HEX;
+      bgColor = B.WHITE_HEX;
     } else {
-      bgColor = dataRowIdx % 2 === 1 ? BRAND.ALT_ROW_HEX : BRAND.WHITE_HEX;
+      bgColor = dataRowIdx % 2 === 1 ? B.ALT_ROW_HEX : B.WHITE_HEX;
       dataRowIdx++;
     }
 
     const isLastRow = ri === filteredRows.length - 1;
 
     const topBorder = isSectionHeader
-      ? { type: "solid" as const, pt: 1.2, color: BRAND.BORDER_SECTION_HEX }
+      ? { type: "solid" as const, pt: 1.2, color: B.BORDER_SECTION_HEX }
       : isSubtotal
-        ? { type: "solid" as const, pt: 0.8, color: BRAND.BORDER_LIGHT_HEX }
+        ? { type: "solid" as const, pt: 0.8, color: B.BORDER_LIGHT_HEX }
         : { type: "solid" as const, pt: 0.3, color: "E8E8E8" };
     const bottomBorder = isLastRow
-      ? { type: "solid" as const, pt: 1.5, color: BRAND.SAGE_HEX }
+      ? { type: "solid" as const, pt: 1.5, color: B.SAGE_HEX }
       : { type: "solid" as const, pt: 0.3, color: "E8E8E8" };
 
     const makeBorder = (colIdx: number) => [
       topBorder,
       colIdx === years.length
-        ? { type: "solid" as const, pt: 1.5, color: BRAND.SAGE_HEX }
+        ? { type: "solid" as const, pt: 1.5, color: B.SAGE_HEX }
         : { type: "solid" as const, pt: 0.3, color: "E8E8E8" },
       bottomBorder,
       colIdx === 0
-        ? { type: "solid" as const, pt: 1.5, color: BRAND.SAGE_HEX }
+        ? { type: "solid" as const, pt: 1.5, color: B.SAGE_HEX }
         : { type: "solid" as const, pt: 0.3, color: "E8E8E8" },
     ];
 
@@ -320,7 +327,7 @@ function addFinancialTableSlide(
       options: {
         fontFace: "Arial",
         fontSize: isSectionHeader || isSubtotal ? fontSize + 0.5 : fontSize,
-        color: isFormula ? BRAND.GRAY_HEX : BRAND.DARK_TEXT_HEX,
+        color: isFormula ? B.GRAY_HEX : B.DARK_TEXT_HEX,
         bold: isSectionHeader || isSubtotal,
         italic: isFormula,
         fill: { color: bgColor },
@@ -333,7 +340,7 @@ function addFinancialTableSlide(
       options: {
         fontFace: "Arial",
         fontSize,
-        color: BRAND.DARK_TEXT_HEX,
+        color: B.DARK_TEXT_HEX,
         bold: isSubtotal,
         italic: isFormula,
         align: "right" as const,
@@ -377,14 +384,14 @@ export interface PortfolioExportData {
   investmentData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "H+ Analytics", customFilename?: string) {
+export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
   pres.title = "Consolidated Portfolio Investment Report";
 
-  const ctx: SlideContext = { pres, companyName };
+  const ctx: SlideContext = { pres, companyName, brand: buildBrandPalette(themeColors) };
   const yearRange = `${data.getFiscalYear(0)}\u2013${data.getFiscalYear(data.projectionYears - 1)}`;
 
   addTitleSlide(
@@ -434,14 +441,14 @@ export interface PropertyExportData {
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportPropertyPPTX(data: PropertyExportData, companyName = "H+ Analytics", customFilename?: string) {
+export async function exportPropertyPPTX(data: PropertyExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
   pres.title = `${data.propertyName} \u2014 Financial Report`;
 
-  const ctx: SlideContext = { pres, companyName };
+  const ctx: SlideContext = { pres, companyName, brand: buildBrandPalette(themeColors) };
   const yearRange = `${data.getFiscalYear(0)}\u2013${data.getFiscalYear(data.projectionYears - 1)}`;
 
   addTitleSlide(
@@ -470,14 +477,14 @@ export interface CompanyExportData {
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
 }
 
-export async function exportCompanyPPTX(data: CompanyExportData, companyName = "H+ Analytics", customFilename?: string) {
+export async function exportCompanyPPTX(data: CompanyExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
   pres.author = companyName;
   pres.title = `${companyName} \u2014 Management Company Financial Report`;
 
-  const ctx: SlideContext = { pres, companyName };
+  const ctx: SlideContext = { pres, companyName, brand: buildBrandPalette(themeColors) };
   const yearRange = `${data.getFiscalYear(0)}\u2013${data.getFiscalYear(data.projectionYears - 1)}`;
 
   addTitleSlide(

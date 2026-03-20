@@ -82,7 +82,7 @@ export default function PropertyDetail() {
   
   const { data: property, isLoading: propertyLoading, isError: propertyError } = useProperty(propertyId);
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
-  const { data: brandingData } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string }> | null }>({
+  const { data: brandingData } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string; description?: string }> | null }>({
     queryKey: ["my-branding"],
     queryFn: async () => { const res = await fetch("/api/my-branding", { credentials: "include" }); return res.json(); },
     staleTime: 5 * 60_000,
@@ -591,7 +591,7 @@ export default function PropertyDetail() {
       incomeData: { years: yearLabels, rows: incomeRows },
       cashFlowData: { years: yearLabels, rows: cfRows },
       balanceSheetData: { years: yearLabels, rows: bsRows },
-    }, undefined, customFilename);
+    }, undefined, customFilename, brandingData?.themeColors ?? undefined);
   };
 
   const handleExport = async (orientation: 'landscape' | 'portrait', version: ExportVersion, customFilename?: string) => {

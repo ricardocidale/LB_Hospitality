@@ -5,7 +5,7 @@ import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { saveFile, saveDataUrl } from "@/lib/exports/saveFile";
 import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
-import { PAGE_DIMS } from "@/lib/exports/exportStyles";
+import { PAGE_DIMS, type ThemeColor, buildBrandPalette } from "@/lib/exports/exportStyles";
 import {
   exportCompanyIncomeStatement,
   exportCompanyCashFlow,
@@ -19,7 +19,8 @@ export const exportCompanyPDF = async (
   projectionYears: number,
   yearlyChartData: any[],
   orientation: 'landscape' | 'portrait' = 'landscape',
-  customFilename?: string
+  customFilename?: string,
+  themeColors?: ThemeColor[]
 ) => {
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
@@ -64,7 +65,7 @@ export const exportCompanyPDF = async (
       height: 150,
       title: `Management Company Performance (${projectionYears}-Year Projection)`,
       series: [
-        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Revenue })), color: '#257D41' },
+        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Revenue })), color: `#${buildBrandPalette(themeColors).DARK_GREEN_HEX}` },
         { name: 'Expenses', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Expenses })), color: '#3B82F6' },
         { name: 'Net Income', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.NetIncome })), color: '#F4795B' },
       ],
@@ -468,7 +469,8 @@ export const handlePPTXExport = (
   incomeData: any,
   cashFlowData: any,
   balanceData: any,
-  customFilename?: string
+  customFilename?: string,
+  themeColors?: ThemeColor[]
 ) => {
   if (!global) return;
   exportCompanyPPTX({
@@ -477,5 +479,5 @@ export const handlePPTXExport = (
     incomeData: { years: incomeData.years.map(String), rows: incomeData.rows },
     cashFlowData: { years: cashFlowData.years.map(String), rows: cashFlowData.rows },
     balanceSheetData: { years: balanceData.years.map(String), rows: balanceData.rows },
-  }, undefined, customFilename);
+  }, undefined, customFilename, themeColors);
 };

@@ -79,7 +79,7 @@ describe("checkerManualExport.exportManualPDF", () => {
   it("uses default company name when not provided", async () => {
     await exportManualPDF({ email: "test@test.com", role: "admin" });
     expect(mockText).toHaveBeenCalledWith(
-      "Hospitality Business Group",
+      "H+ Analytics",
       expect.any(Number),
       expect.any(Number)
     );

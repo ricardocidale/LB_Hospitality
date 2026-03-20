@@ -4,7 +4,7 @@ import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/export
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage, drawCoverPage, type DashboardSummaryMetric } from "@/lib/exports/pdfHelpers";
-import { PAGE_DIMS } from "@/lib/exports/exportStyles";
+import { PAGE_DIMS, type ThemeColor, buildBrandPalette } from "@/lib/exports/exportStyles";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
@@ -79,7 +79,8 @@ export async function exportPortfolioPDF(
   getYearlyConsolidated: (i: number) => YearlyPropertyFinancials,
   title: string,
   companyName = "H+ Analytics",
-  customFilename?: string
+  customFilename?: string,
+  themeColors?: ThemeColor[]
 ): Promise<void> {
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
@@ -87,6 +88,7 @@ export async function exportPortfolioPDF(
     ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
     : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
   const doc = new jsPDF({ orientation, unit: "mm", format: [dims.w, dims.h] });
+  const brand = buildBrandPalette(themeColors);
 
   const pageWidth = dims.w;
   const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
@@ -101,23 +103,23 @@ export async function exportPortfolioPDF(
       `Period: FY ${projRange}`,
       "Classification: Confidential",
     ],
-  });
+  }, brand);
 
   doc.addPage();
-  drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15);
+  drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15, undefined, brand);
   drawSubtitleRow(doc,
     `${projectionYears}-Year Projection (${projRange})`,
-    entityTag, 14, 22, pageWidth);
-  drawSubtitle(doc, `Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27);
+    entityTag, 14, 22, pageWidth, undefined, brand);
+  drawSubtitle(doc, `Generated: ${format(new Date(), "MMM d, yyyy")}`, 14, 27, undefined, brand);
 
-  const tableConfig = buildFinancialTableConfig(years, rows, orientation, 32);
+  const tableConfig = buildFinancialTableConfig(years, rows, orientation, 32, brand);
   autoTable(doc, tableConfig);
 
   doc.addPage();
-  drawTitle(doc, `${companyName} \u2014 ${title} Performance Trend`, 14, 15, { fontSize: 16 });
+  drawTitle(doc, `${companyName} \u2014 ${title} Performance Trend`, 14, 15, { fontSize: 16 }, brand);
   drawSubtitleRow(doc,
     `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`,
-    entityTag, 14, 22, pageWidth);
+    entityTag, 14, 22, pageWidth, undefined, brand);
 
   const chartData = years.map((year, i) => ({
     label: String(year),
@@ -132,6 +134,7 @@ export async function exportPortfolioPDF(
     value: getYearlyConsolidated(i)?.totalExpenses ?? 0,
   }));
 
+  const accentHex = `#${brand.DARK_GREEN_HEX}`;
   drawLineChart({
     doc,
     x: 14,
@@ -140,13 +143,13 @@ export async function exportPortfolioPDF(
     height: orientation === "landscape" ? 150 : 200,
     title: `Portfolio Performance (${projectionYears}-Year Projection)`,
     series: [
-      { name: "Revenue", data: chartData, color: "#7C3AED" },
+      { name: "Revenue", data: chartData, color: accentHex },
       { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
       { name: "ANOI", data: noiData, color: "#6B7280" },
     ],
   });
 
-  addFooters(doc, companyName, { skipPages: new Set([1]) });
+  addFooters(doc, companyName, { skipPages: new Set([1]) }, brand);
   const { saveFile } = await import("./../../lib/exports/saveFile");
   await saveFile(doc.output("blob"), customFilename || `portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
@@ -159,6 +162,7 @@ export interface ComprehensiveDashboardExportParams {
   companyName?: string;
   incomeRows: ExportRow[];
   modelStartDate?: Date;
+  themeColors?: ThemeColor[];
 }
 
 const fmtCompact = (v: number) =>
@@ -168,12 +172,13 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const {
     financials, properties, projectionYears, getFiscalYear,
     companyName = "H+ Analytics",
-    incomeRows, modelStartDate,
+    incomeRows, modelStartDate, themeColors,
   } = params;
 
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [PAGE_DIMS.LANDSCAPE_W, PAGE_DIMS.LANDSCAPE_H] });
+  const brand = buildBrandPalette(themeColors);
   const pageW = PAGE_DIMS.LANDSCAPE_W;
   const pageH = PAGE_DIMS.LANDSCAPE_H;
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
@@ -181,8 +186,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const dateStr = format(new Date(), "MMMM d, yyyy");
   const projRange = `${years[0]} \u2013 ${years[years.length - 1]}`;
 
-  const NAVY: [number, number, number] = [26, 35, 50];
-  const ACCENT: [number, number, number] = [176, 180, 186]; // neutral silver-gray
+  const NAVY: [number, number, number] = brand.NAVY_RGB;
+  const ACCENT: [number, number, number] = brand.SAGE_RGB;
 
   function drawPageChrome() {
     doc.setFillColor(...NAVY);
@@ -207,7 +212,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     doc.rect(16, 30, pageW - 32, 1.2, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.setTextColor(255, 255, 255);
+    doc.setTextColor(...brand.WHITE_RGB);
     doc.text(title, 22, 22);
     if (subtitle) {
       doc.setFont("helvetica", "normal");
@@ -217,7 +222,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     }
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(200, 200, 200);
+    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
     doc.text(companyName, pageW - 22, 22, { align: "right" });
     return 38;
   }
@@ -232,7 +237,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
       "Classification: Confidential",
     ],
     dateStr,
-  });
+  }, brand);
 
   doc.addPage();
   const metrics: DashboardSummaryMetric[] = [
@@ -250,7 +255,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     name: p.name, market: p.market, rooms: p.roomCount, status: p.status,
   }));
   drawPageChrome();
-  drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable);
+  drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable, brand);
 
   function withChrome(config: Record<string, any>): Record<string, any> {
     const origDidDrawPage = config.didDrawPage;
@@ -265,7 +270,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
 
   doc.addPage();
   let startY = drawSectionTitle("Consolidated Income Statement (USALI)", `${projectionYears}-Year Projection (${projRange})`);
-  const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", startY);
+  const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", startY, brand);
   autoTable(doc, withChrome(incomeConfig));
 
   doc.addPage();
@@ -275,7 +280,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     properties.map(p => p.name),
   );
   startY = drawSectionTitle("Consolidated Cash Flow Statement", `${projectionYears}-Year Projection (${projRange})`);
-  const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", startY);
+  const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", startY, brand);
   autoTable(doc, withChrome(cfConfig));
 
   doc.addPage();
@@ -283,13 +288,13 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate,
   );
   startY = drawSectionTitle("Consolidated Balance Sheet", `${projectionYears}-Year Projection (${projRange})`);
-  const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", startY);
+  const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", startY, brand);
   autoTable(doc, withChrome(bsConfig));
 
   doc.addPage();
   const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
   startY = drawSectionTitle("Portfolio Investment Analysis", `${projectionYears}-Year Projection (${projRange})`);
-  const invConfig = buildFinancialTableConfig(investmentData.years, investmentData.rows, "landscape", startY);
+  const invConfig = buildFinancialTableConfig(investmentData.years, investmentData.rows, "landscape", startY, brand);
   autoTable(doc, withChrome(invConfig));
 
   doc.addPage();
@@ -316,7 +321,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     height: 140,
     title: `Portfolio Performance (${projectionYears}-Year Projection)`,
     series: [
-      { name: "Revenue", data: chartData, color: "#7C3AED" },
+      { name: "Revenue", data: chartData, color: `#${brand.DARK_GREEN_HEX}` },
       { name: "Operating Expenses", data: expenseData, color: "#2563EB" },
       { name: "ANOI", data: noiData, color: "#6B7280" },
     ],
@@ -328,7 +333,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     if (pg === 1) continue;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(153, 153, 153);
+    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
     doc.text(companyName, 16, pageH - 5);
     doc.text("CONFIDENTIAL", pageW / 2, pageH - 5, { align: "center" });
     doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });

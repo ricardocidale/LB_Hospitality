@@ -157,7 +157,8 @@ export default function Dashboard() {
         (i) => financials.yearlyConsolidatedCache[i],
         label,
         undefined,
-        customFilename
+        customFilename,
+        branding?.themeColors ?? undefined
       );
     } else if (exportType === "chart") {
       if (!tabContentRef.current) return;
@@ -216,9 +217,9 @@ export default function Dashboard() {
         cashFlowData: toExportData(datasets.cashFlowData),
         balanceSheetData: toExportData(datasets.balanceSheetData),
         investmentData: toExportData(datasets.investmentData),
-      }, companyName, customFilename);
+      }, companyName, customFilename, branding?.themeColors ?? undefined);
     }
-  }, [exportType, activeTab, financials, global, properties, getExportData]);
+  }, [exportType, activeTab, financials, global, properties, getExportData, branding]);
 
   const handleExportExcel = useCallback(() => {
     setExportType("xlsx");

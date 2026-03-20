@@ -60,7 +60,7 @@ import {
 export default function Company() {
   const { data: properties, isLoading: propertiesLoading, isError: propertiesError } = useProperties();
   const { data: global, isLoading: globalLoading, isError: globalError } = useGlobalAssumptions();
-  const { data: brandingData } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string }> | null }>({
+  const { data: brandingData } = useQuery<{ themeColors: Array<{ rank: number; name: string; hexCode: string; description?: string }> | null }>({
     queryKey: ["my-branding"],
     queryFn: async () => { const res = await fetch("/api/my-branding", { credentials: "include" }); return res.json(); },
     staleTime: 5 * 60_000,
@@ -215,7 +215,7 @@ export default function Company() {
       const incomeData = getStatementData('income');
       const cashFlowData = getStatementData('cashflow');
       const balanceData = getStatementData('balance');
-      handlePPTXExport(global, projectionYears, (i: number) => String(getFiscalYear(i)), incomeData, cashFlowData, balanceData, customFilename);
+      handlePPTXExport(global, projectionYears, (i: number) => String(getFiscalYear(i)), incomeData, cashFlowData, balanceData, customFilename, brandingData?.themeColors ?? undefined);
     }
   };
 

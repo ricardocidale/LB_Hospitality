@@ -31,7 +31,96 @@
  *   Zero / empty:              — (em dash)
  */
 
-export const BRAND = {
+export interface ThemeColor {
+  name: string;
+  hexCode: string;
+  rank?: number;
+  description?: string;
+}
+
+export type BrandPalette = {
+  SAGE_HEX: string;
+  DARK_GREEN_HEX: string;
+  NAVY_HEX: string;
+  DARK_TEXT_HEX: string;
+  GRAY_HEX: string;
+  LIGHT_GRAY_HEX: string;
+  WHITE_HEX: string;
+  SECTION_BG_HEX: string;
+  ALT_ROW_HEX: string;
+  WARM_BG_HEX: string;
+  CARD_BG_HEX: string;
+  BORDER_LIGHT_HEX: string;
+  BORDER_SECTION_HEX: string;
+  SAGE_RGB: [number, number, number];
+  DARK_GREEN_RGB: [number, number, number];
+  NAVY_RGB: [number, number, number];
+  DARK_TEXT_RGB: [number, number, number];
+  GRAY_RGB: [number, number, number];
+  LIGHT_GRAY_RGB: [number, number, number];
+  WHITE_RGB: [number, number, number];
+  SECTION_BG_RGB: [number, number, number];
+  ALT_ROW_RGB: [number, number, number];
+};
+
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace(/^#/, "");
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+function lighten(hex: string, factor: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  const l = (c: number) => Math.min(255, Math.round(c + (255 - c) * factor));
+  return [l(r), l(g), l(b)].map(c => c.toString(16).padStart(2, "0")).join("");
+}
+
+export function buildBrandPalette(themeColors?: ThemeColor[]): BrandPalette {
+  if (!themeColors?.length) return BRAND;
+
+  const strip = (hex: string) => hex.replace(/^#/, "");
+  const byDesc = (...keywords: string[]): string | undefined => {
+    const lower = themeColors.map(c => ({ h: strip(c.hexCode), d: (c.description || "").toLowerCase() }));
+    for (const c of lower) {
+      if (keywords.some(k => c.d.includes(k))) return c.h;
+    }
+    return undefined;
+  };
+
+  const navy = byDesc("palette: primary") ?? BRAND.NAVY_HEX;
+  const sage = byDesc("palette: secondary") ?? BRAND.SAGE_HEX;
+  const darkGreen = byDesc("palette: accent", "accent:") ?? BRAND.DARK_GREEN_HEX;
+  const darkText = byDesc("palette: foreground") ?? BRAND.DARK_TEXT_HEX;
+  const gray = byDesc("palette: border") ?? BRAND.GRAY_HEX;
+  const sectionBg = byDesc("palette: background") ?? BRAND.SECTION_BG_HEX;
+  const altRow = byDesc("palette: muted") ?? BRAND.ALT_ROW_HEX;
+
+  return {
+    SAGE_HEX: sage,
+    DARK_GREEN_HEX: darkGreen,
+    NAVY_HEX: navy,
+    DARK_TEXT_HEX: darkText,
+    GRAY_HEX: gray,
+    LIGHT_GRAY_HEX: lighten(gray, 0.3),
+    WHITE_HEX: "FFFFFF",
+    SECTION_BG_HEX: sectionBg,
+    ALT_ROW_HEX: altRow,
+    WARM_BG_HEX: lighten(sectionBg, 0.5),
+    CARD_BG_HEX: lighten(sectionBg, 0.4),
+    BORDER_LIGHT_HEX: lighten(gray, 0.2),
+    BORDER_SECTION_HEX: sage,
+    SAGE_RGB: hexToRgb(sage),
+    DARK_GREEN_RGB: hexToRgb(darkGreen),
+    NAVY_RGB: hexToRgb(navy),
+    DARK_TEXT_RGB: hexToRgb(darkText),
+    GRAY_RGB: hexToRgb(gray),
+    LIGHT_GRAY_RGB: hexToRgb(lighten(gray, 0.3)),
+    WHITE_RGB: [255, 255, 255],
+    SECTION_BG_RGB: hexToRgb(sectionBg),
+    ALT_ROW_RGB: hexToRgb(altRow),
+  };
+}
+
+export const BRAND: BrandPalette = {
   SAGE_HEX: "9FBCA4",
   DARK_GREEN_HEX: "257D41",
   NAVY_HEX: "1A2332",
@@ -45,17 +134,16 @@ export const BRAND = {
   CARD_BG_HEX: "F5F9F6",
   BORDER_LIGHT_HEX: "D5D8DA",
   BORDER_SECTION_HEX: "9FBCA4",
-
-  SAGE_RGB: [159, 188, 164] as [number, number, number],
-  DARK_GREEN_RGB: [37, 125, 65] as [number, number, number],
-  NAVY_RGB: [26, 35, 50] as [number, number, number],
-  DARK_TEXT_RGB: [61, 61, 61] as [number, number, number],
-  GRAY_RGB: [102, 102, 102] as [number, number, number],
-  LIGHT_GRAY_RGB: [153, 153, 153] as [number, number, number],
-  WHITE_RGB: [255, 255, 255] as [number, number, number],
-  SECTION_BG_RGB: [239, 245, 240] as [number, number, number],
-  ALT_ROW_RGB: [248, 250, 249] as [number, number, number],
-} as const;
+  SAGE_RGB: [159, 188, 164],
+  DARK_GREEN_RGB: [37, 125, 65],
+  NAVY_RGB: [26, 35, 50],
+  DARK_TEXT_RGB: [61, 61, 61],
+  GRAY_RGB: [102, 102, 102],
+  LIGHT_GRAY_RGB: [153, 153, 153],
+  WHITE_RGB: [255, 255, 255],
+  SECTION_BG_RGB: [239, 245, 240],
+  ALT_ROW_RGB: [248, 250, 249],
+};
 
 export const PAGE_DIMS = {
   LANDSCAPE_W: 406.4,

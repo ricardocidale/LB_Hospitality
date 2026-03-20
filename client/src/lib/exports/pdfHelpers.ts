@@ -12,19 +12,19 @@
  *   addFooters(doc, "My Company");   // call LAST — iterates all pages
  */
 
-import { BRAND, type ExportRowMeta, classifyRow, indentLabel, formatFull, formatByType, normalizeCaps } from "./exportStyles";
+import { BRAND, type BrandPalette, type ThemeColor, type ExportRowMeta, classifyRow, indentLabel, formatFull, formatByType, normalizeCaps, buildBrandPalette } from "./exportStyles";
 
-export function drawBrandedHeader(doc: any, pageW: number, height = 28) {
-  doc.setFillColor(...BRAND.NAVY_RGB);
+export function drawBrandedHeader(doc: any, pageW: number, height = 28, brand: BrandPalette = BRAND) {
+  doc.setFillColor(...brand.NAVY_RGB);
   doc.rect(0, 0, pageW, height, "F");
-  doc.setFillColor(...BRAND.SAGE_RGB);
+  doc.setFillColor(...brand.SAGE_RGB);
   doc.rect(0, height - 2, pageW, 2, "F");
 }
 
 export function drawTitle(doc: any, text: string, x: number, y: number, opts?: {
   fontSize?: number; color?: [number, number, number]; bold?: boolean;
-}) {
-  const { fontSize = 18, color = BRAND.DARK_TEXT_RGB, bold = true } = opts || {};
+}, brand: BrandPalette = BRAND) {
+  const { fontSize = 18, color = brand.DARK_TEXT_RGB, bold = true } = opts || {};
   doc.setFont("helvetica", bold ? "bold" : "normal");
   doc.setFontSize(fontSize);
   doc.setTextColor(...color);
@@ -33,22 +33,18 @@ export function drawTitle(doc: any, text: string, x: number, y: number, opts?: {
 
 export function drawSubtitle(doc: any, text: string, x: number, y: number, opts?: {
   fontSize?: number; color?: [number, number, number];
-}) {
-  const { fontSize = 10, color = BRAND.GRAY_RGB } = opts || {};
+}, brand: BrandPalette = BRAND) {
+  const { fontSize = 10, color = brand.GRAY_RGB } = opts || {};
   doc.setFont("helvetica", "normal");
   doc.setFontSize(fontSize);
   doc.setTextColor(...color);
   doc.text(text, x, y);
 }
 
-/**
- * Draw a subtitle row with left-aligned text and a right-aligned source tag.
- * The source tag describes the origin of the export (e.g., "Income Statement — Consolidated").
- */
 export function drawSubtitleRow(doc: any, leftText: string, rightText: string, x: number, y: number, pageW: number, opts?: {
   fontSize?: number; color?: [number, number, number]; rightColor?: [number, number, number];
-}) {
-  const { fontSize = 10, color = BRAND.GRAY_RGB, rightColor = BRAND.DARK_GREEN_RGB } = opts || {};
+}, brand: BrandPalette = BRAND) {
+  const { fontSize = 10, color = brand.GRAY_RGB, rightColor = brand.DARK_GREEN_RGB } = opts || {};
   doc.setFont("helvetica", "normal");
   doc.setFontSize(fontSize);
   doc.setTextColor(...color);
@@ -72,10 +68,11 @@ export function drawDashboardSummaryPage(
   companyName: string,
   metrics: DashboardSummaryMetric[],
   propertyTable?: { name: string; market: string; rooms: number; status: string }[],
+  brand: BrandPalette = BRAND,
 ) {
-  drawTitle(doc, `${companyName} \u2014 Portfolio Dashboard`, 14, 15);
-  drawSubtitleRow(doc, `Investment Overview & Key Performance Indicators`, entityTag, 14, 22, pageW);
-  drawSubtitle(doc, `Generated: ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`, 14, 27);
+  drawTitle(doc, `${companyName} \u2014 Portfolio Dashboard`, 14, 15, undefined, brand);
+  drawSubtitleRow(doc, `Investment Overview & Key Performance Indicators`, entityTag, 14, 22, pageW, undefined, brand);
+  drawSubtitle(doc, `Generated: ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`, 14, 27, undefined, brand);
 
   const cardW = (pageW - 28 - 10) / 3;
   const cardH = 18;
@@ -100,9 +97,9 @@ export function drawDashboardSummaryPage(
       checkPageBreak(cardH + 10);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
-      doc.setTextColor(...BRAND.DARK_GREEN_RGB);
+      doc.setTextColor(...brand.DARK_GREEN_RGB);
       doc.text(currentSection, startX, y);
-      doc.setDrawColor(...BRAND.SAGE_RGB);
+      doc.setDrawColor(...brand.SAGE_RGB);
       doc.setLineWidth(0.3);
       doc.line(startX, y + 1.5, pageW - 14, y + 1.5);
       y += 6;
@@ -116,19 +113,19 @@ export function drawDashboardSummaryPage(
 
     const x = startX + col * (cardW + 5);
 
-    doc.setFillColor(245, 249, 246);
-    doc.setDrawColor(...BRAND.SAGE_RGB);
+    doc.setFillColor(...brand.SECTION_BG_RGB);
+    doc.setDrawColor(...brand.SAGE_RGB);
     doc.setLineWidth(0.3);
     doc.roundedRect(x, y, cardW, cardH, 2, 2, "FD");
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.setTextColor(...BRAND.DARK_GREEN_RGB);
+    doc.setTextColor(...brand.DARK_GREEN_RGB);
     doc.text(m.value, x + 4, y + 8);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(...BRAND.GRAY_RGB);
+    doc.setTextColor(...brand.GRAY_RGB);
     doc.text(m.label, x + 4, y + 14);
 
     if (col === 2 || i === metrics.length - 1) {
@@ -141,9 +138,9 @@ export function drawDashboardSummaryPage(
     checkPageBreak(20);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.setTextColor(...BRAND.DARK_GREEN_RGB);
+    doc.setTextColor(...brand.DARK_GREEN_RGB);
     doc.text("Portfolio Composition", startX, y);
-    doc.setDrawColor(...BRAND.SAGE_RGB);
+    doc.setDrawColor(...brand.SAGE_RGB);
     doc.setLineWidth(0.3);
     doc.line(startX, y + 1.5, pageW - 14, y + 1.5);
     y += 5;
@@ -151,11 +148,11 @@ export function drawDashboardSummaryPage(
     const colWidths = [(pageW - 28) * 0.35, (pageW - 28) * 0.30, (pageW - 28) * 0.15, (pageW - 28) * 0.20];
     const headers = ["Property", "Market", "Rooms", "Status"];
 
-    doc.setFillColor(...BRAND.SAGE_RGB);
+    doc.setFillColor(...brand.SAGE_RGB);
     doc.rect(startX, y, pageW - 28, 6, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
-    doc.setTextColor(...BRAND.WHITE_RGB);
+    doc.setTextColor(...brand.WHITE_RGB);
     let hx = startX + 2;
     headers.forEach((h, hi) => {
       doc.text(h, hx, y + 4);
@@ -166,12 +163,12 @@ export function drawDashboardSummaryPage(
     propertyTable.forEach((p, pi) => {
       checkPageBreak(6);
       if (pi % 2 === 1) {
-        doc.setFillColor(...BRAND.ALT_ROW_RGB);
+        doc.setFillColor(...brand.ALT_ROW_RGB);
         doc.rect(startX, y - 3, pageW - 28, 5, "F");
       }
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7);
-      doc.setTextColor(...BRAND.DARK_TEXT_RGB);
+      doc.setTextColor(...brand.DARK_TEXT_RGB);
       let px = startX + 2;
       [p.name, p.market, String(p.rooms), p.status].forEach((val, vi) => {
         doc.text(val, px, y);
@@ -182,7 +179,8 @@ export function drawDashboardSummaryPage(
   }
 }
 
-export function drawSectionHeader(doc: any, title: string, y: number, color = BRAND.DARK_GREEN_RGB): number {
+export function drawSectionHeader(doc: any, title: string, y: number, color?: [number, number, number], brand: BrandPalette = BRAND): number {
+  if (!color) color = brand.DARK_GREEN_RGB;
   if (y > 260) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
@@ -196,12 +194,12 @@ export function drawSectionHeader(doc: any, title: string, y: number, color = BR
 
 export function drawParagraph(doc: any, text: string, y: number, pageW: number, opts?: {
   fontSize?: number; indent?: number; italic?: boolean;
-}): number {
+}, brand: BrandPalette = BRAND): number {
   if (!text) return y;
   const { fontSize = 9, indent = 14, italic = false } = opts || {};
   doc.setFont("helvetica", italic ? "italic" : "normal");
   doc.setFontSize(fontSize);
-  doc.setTextColor(...BRAND.DARK_TEXT_RGB);
+  doc.setTextColor(...brand.DARK_TEXT_RGB);
   const lines = doc.splitTextToSize(text, pageW - indent - 14);
   for (const line of lines) {
     if (y > 275) { doc.addPage(); y = 20; }
@@ -211,14 +209,14 @@ export function drawParagraph(doc: any, text: string, y: number, pageW: number, 
   return y + 2;
 }
 
-export function drawKeyValue(doc: any, label: string, value: string, y: number, x = 18): number {
+export function drawKeyValue(doc: any, label: string, value: string, y: number, x = 18, brand: BrandPalette = BRAND): number {
   if (y > 275) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.setTextColor(...BRAND.GRAY_RGB);
+  doc.setTextColor(...brand.GRAY_RGB);
   doc.text(label + ":", x, y);
   doc.setFont("helvetica", "normal");
-  doc.setTextColor(40, 40, 40);
+  doc.setTextColor(...brand.DARK_TEXT_RGB);
   doc.text(value || "N/A", x + 52, y);
   return y + 5;
 }
@@ -233,6 +231,7 @@ export function buildFinancialTableConfig(
   rows: ExportRowMeta[],
   orientation: "landscape" | "portrait",
   startY = 32,
+  brand: BrandPalette = BRAND,
 ): Record<string, any> {
   const yearLabels = years.map((y) => typeof y === "number" ? `FY ${y}` : y);
   const numCols = years.length;
@@ -275,16 +274,16 @@ export function buildFinancialTableConfig(
       lineWidth: 0.25,
     },
     headStyles: {
-      fillColor: BRAND.SAGE_RGB,
-      textColor: BRAND.WHITE_RGB,
+      fillColor: brand.SAGE_RGB,
+      textColor: brand.WHITE_RGB,
       fontStyle: "bold",
       halign: "center",
       lineWidth: 0.4,
-      lineColor: BRAND.SAGE_RGB,
+      lineColor: brand.SAGE_RGB,
     },
     columnStyles: colStyles,
     tableWidth: "auto",
-    tableLineColor: BRAND.SAGE_RGB,
+    tableLineColor: brand.SAGE_RGB,
     tableLineWidth: 0.6,
     didParseCell: (() => {
       let dataRowIdx = 0;
@@ -298,25 +297,25 @@ export function buildFinancialTableConfig(
 
         if (isSectionHeader) {
           data.cell.styles.fontStyle = "bold";
-          data.cell.styles.fillColor = BRAND.SECTION_BG_RGB;
+          data.cell.styles.fillColor = brand.SECTION_BG_RGB;
           data.cell.styles.lineWidth = { top: 0.6 };
-          data.cell.styles.lineColor = { top: BRAND.SAGE_RGB };
+          data.cell.styles.lineColor = { top: brand.SAGE_RGB };
         } else if (isSubtotal) {
           data.cell.styles.fontStyle = "bold";
           data.cell.styles.lineWidth = { top: 0.5 };
           data.cell.styles.lineColor = { top: [180, 185, 190] };
         } else if (isFormula) {
           data.cell.styles.fontStyle = "italic";
-          data.cell.styles.textColor = BRAND.GRAY_RGB;
+          data.cell.styles.textColor = brand.GRAY_RGB;
           data.cell.styles.fontSize = (data.cell.styles.fontSize || fontSize) - 0.5;
           if (idx !== lastRowIndex) { dataRowIdx++; lastRowIndex = idx; }
           if (dataRowIdx % 2 === 0) {
-            data.cell.styles.fillColor = BRAND.ALT_ROW_RGB;
+            data.cell.styles.fillColor = brand.ALT_ROW_RGB;
           }
         } else {
           if (idx !== lastRowIndex) { dataRowIdx++; lastRowIndex = idx; }
           if (dataRowIdx % 2 === 0) {
-            data.cell.styles.fillColor = BRAND.ALT_ROW_RGB;
+            data.cell.styles.fillColor = brand.ALT_ROW_RGB;
           }
         }
 
@@ -356,14 +355,14 @@ export interface CoverPageOptions {
   dateStr?: string;
 }
 
-export function drawCoverPage(doc: any, opts: CoverPageOptions) {
+export function drawCoverPage(doc: any, opts: CoverPageOptions, brand: BrandPalette = BRAND) {
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
   const { companyName, title, subtitle, meta = [], dateStr } = opts;
   const date = dateStr || new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
-  const NAVY: [number, number, number] = [26, 35, 50];
-  const SAGE: [number, number, number] = [159, 188, 164];
+  const NAVY: [number, number, number] = brand.NAVY_RGB;
+  const SAGE: [number, number, number] = brand.SAGE_RGB;
 
   doc.setFillColor(...NAVY);
   doc.rect(0, 0, pageW, pageH, "F");
@@ -372,7 +371,7 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions) {
   doc.rect(0, 0, pageW, 3, "F");
   doc.rect(0, pageH - 3, pageW, 3, "F");
 
-  doc.setDrawColor(159, 188, 164, 60);
+  doc.setDrawColor(...SAGE, 60);
   doc.setLineWidth(0.15);
   for (let lx = 0; lx < pageW; lx += 12) doc.line(lx, 0, lx, pageH);
   for (let ly = 0; ly < pageH; ly += 12) doc.line(0, ly, pageW, ly);
@@ -382,10 +381,10 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions) {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(32);
-  doc.setTextColor(255, 255, 255);
+  doc.setTextColor(...brand.WHITE_RGB);
   doc.text(companyName, 28, pageH * 0.30);
 
-  doc.setFillColor(255, 255, 255);
+  doc.setFillColor(...brand.WHITE_RGB);
   doc.rect(28, pageH * 0.33, 80, 0.5, "F");
 
   doc.setFont("helvetica", "normal");
@@ -395,7 +394,7 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions) {
 
   if (subtitle) {
     doc.setFontSize(12);
-    doc.setTextColor(180, 200, 185);
+    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
     doc.text(subtitle, 28, pageH * 0.46);
   }
 
@@ -403,7 +402,8 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions) {
     const boxW = Math.min(pageW * 0.45, 140);
     const boxH = 10 + meta.length * 10;
     const boxY = pageH * 0.55;
-    doc.setFillColor(40, 50, 65);
+    const [nr, ng, nb] = NAVY;
+    doc.setFillColor(Math.min(nr + 14, 255), Math.min(ng + 15, 255), Math.min(nb + 15, 255));
     doc.roundedRect(28, boxY, boxW, boxH, 2, 2, "F");
     doc.setDrawColor(...SAGE);
     doc.setLineWidth(0.3);
@@ -420,7 +420,7 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions) {
       if (valueText) {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
-        doc.setTextColor(220, 220, 220);
+        doc.setTextColor(...brand.WHITE_RGB);
         doc.text(valueText, 34, boxY + 13 + i * 10);
       }
     });
@@ -428,16 +428,16 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions) {
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.setTextColor(180, 200, 185);
+  doc.setTextColor(...brand.LIGHT_GRAY_RGB);
   doc.text(date, 28, pageH * 0.85);
 
   doc.setFont("helvetica", "italic");
   doc.setFontSize(7);
-  doc.setTextColor(120, 130, 140);
+  doc.setTextColor(...brand.GRAY_RGB);
   doc.text("This document contains proprietary financial projections. Distribution is restricted to authorized recipients.", 28, pageH * 0.90);
 }
 
-export function addFooters(doc: any, companyName: string, opts?: { skipPages?: Set<number> }) {
+export function addFooters(doc: any, companyName: string, opts?: { skipPages?: Set<number> }, brand: BrandPalette = BRAND) {
   const totalPages = doc.internal.getNumberOfPages();
   const pageH = doc.internal.pageSize.getHeight();
   const pageW = doc.internal.pageSize.getWidth();
@@ -447,18 +447,18 @@ export function addFooters(doc: any, companyName: string, opts?: { skipPages?: S
     if (skipPages?.has(i)) continue;
     doc.setPage(i);
 
-    doc.setDrawColor(...BRAND.SAGE_RGB);
+    doc.setDrawColor(...brand.SAGE_RGB);
     doc.setLineWidth(0.4);
     doc.line(14, pageH - 10, pageW - 14, pageH - 10);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(...BRAND.LIGHT_GRAY_RGB);
+    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
     doc.text(`${companyName} \u2014 Confidential`, 14, pageH - 6);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(...BRAND.LIGHT_GRAY_RGB);
+    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
     doc.text(`Page ${i} of ${totalPages}`, pageW - 14, pageH - 6, { align: "right" });
   }
 }

@@ -75,7 +75,7 @@ export function aggregateCashFlowByYear(
 
     const operatingCashFlow = netIncome + depreciationExpense;
     const cashFromOperations = operatingCashFlow - workingCapitalChange;
-    const freeCashFlow = cashFromOperations;
+    const freeCashFlow = cashFromOperations - expenseFFE;
     const freeCashFlowToEquity = freeCashFlow - principalPayment;
     const btcf = anoi - debtService;
     const taxableIncome = anoi - interestExpense - depreciationExpense;

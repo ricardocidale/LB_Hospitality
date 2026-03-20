@@ -388,9 +388,9 @@ describe("Golden Scenario: Full Financial Statements", () => {
       expect(yearlyCF[0].operatingCashFlow).toBeCloseTo(y1NI + y1Depr, 0);
     });
 
-    it("Year 1 FCFE = OCF - principal payments", () => {
+    it("Year 1 FCFE = CFO - maintenanceCapex - principal payments", () => {
       const y1Principal = H_AMORT.slice(0, 12).reduce((s, m) => s + m.principal, 0);
-      expect(yearlyCF[0].freeCashFlowToEquity).toBeCloseTo(yearlyCF[0].cashFromOperations - y1Principal, 0);
+      expect(yearlyCF[0].freeCashFlowToEquity).toBeCloseTo(yearlyCF[0].cashFromOperations - yearlyCF[0].maintenanceCapex - y1Principal, 0);
     });
 
     it("Year 1 BTCF = ANOI - debt service", () => {

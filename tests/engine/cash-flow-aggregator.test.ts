@@ -191,9 +191,9 @@ describe("Operating Cash Flow (ASC 230 Indirect Method)", () => {
     expect(hasNonZeroWC).toBe(true);
   });
 
-  it("freeCashFlow = cashFromOperations", () => {
+  it("freeCashFlow = cashFromOperations - maintenanceCapex (FF&E)", () => {
     for (const r of results) {
-      expect(r.freeCashFlow).toBeCloseTo(r.cashFromOperations, 2);
+      expect(r.freeCashFlow).toBeCloseTo(r.cashFromOperations - r.maintenanceCapex, 2);
     }
   });
 

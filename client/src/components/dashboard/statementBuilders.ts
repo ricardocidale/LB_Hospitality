@@ -377,11 +377,15 @@ export function generatePortfolioCashFlowData(
   const consolidatedMaintenanceCapex = years.map((_, y) =>
     allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.maintenanceCapex ?? 0), 0)
   );
-  const consolidatedFCF = years.map((_, y) => consolidatedCFO[y] - consolidatedMaintenanceCapex[y]);
+  const consolidatedFCF = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlow ?? 0), 0)
+  );
   const consolidatedPrincipal = years.map((_, y) =>
     allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.principalPayment ?? 0), 0)
   );
-  const consolidatedFCFE = years.map((_, y) => consolidatedFCF[y] - consolidatedPrincipal[y]);
+  const consolidatedFCFE = years.map((_, y) =>
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0)
+  );
 
   rows.push({ category: "", values: years.map(() => 0) });
   rows.push({ category: "Free Cash Flow", values: years.map(() => 0), isHeader: true });

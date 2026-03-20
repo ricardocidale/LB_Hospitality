@@ -406,7 +406,7 @@ export function aggregateUnifiedByYear(
 
     const cfOperatingCashFlow = netIncome + depreciationExpense;
     const cashFromOperations = cfOperatingCashFlow - workingCapitalChange;
-    const freeCashFlow = cashFromOperations;
+    const freeCashFlow = cashFromOperations - expenseFFE;
     const freeCashFlowToEquity = freeCashFlow - principalPayment;
     const btcf = anoi - debtPayment;
     const taxableIncome = anoi - interestExpense - depreciationExpense;

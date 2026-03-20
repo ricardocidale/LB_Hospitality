@@ -104,12 +104,12 @@ export function generatePropertyProForma(
 
     const fixedGate = isOperational ? 1 : 0;
     const fixedCostFactorGated = fixedCostFactor * fixedGate;
-    const expenseAdmin = ctx.baseMonthlyTotalRev * ctx.costRateAdmin * fixedCostFactorGated;
-    const expensePropertyOps = ctx.baseMonthlyTotalRev * ctx.costRatePropertyOps * fixedCostFactorGated;
-    const expenseIT = ctx.baseMonthlyTotalRev * ctx.costRateIT * fixedCostFactorGated;
+    const expenseAdmin = ctx.stabilizedMonthlyTotalRev * ctx.costRateAdmin * fixedCostFactorGated;
+    const expensePropertyOps = ctx.stabilizedMonthlyTotalRev * ctx.costRatePropertyOps * fixedCostFactorGated;
+    const expenseIT = ctx.stabilizedMonthlyTotalRev * ctx.costRateIT * fixedCostFactorGated;
     const expenseTaxes = ctx.totalPropertyValueDiv12 * ctx.costRateTaxes * fixedCostFactorGated;
-    const expenseUtilitiesFixed = ctx.baseMonthlyTotalRev * (ctx.costRateUtilities * ctx.utilitiesFixedSplit) * fixedCostFactorGated;
-    const expenseOtherCosts = ctx.baseMonthlyTotalRev * ctx.costRateOther * fixedCostFactorGated;
+    const expenseUtilitiesFixed = ctx.stabilizedMonthlyTotalRev * (ctx.costRateUtilities * ctx.utilitiesFixedSplit) * fixedCostFactorGated;
+    const expenseOtherCosts = ctx.stabilizedMonthlyTotalRev * ctx.costRateOther * fixedCostFactorGated;
     const expenseInsurance = ctx.totalPropertyValueDiv12 * ctx.costRateInsurance * fixedCostFactorGated;
     
     const serviceFeesByCategory: Record<string, number> = {};

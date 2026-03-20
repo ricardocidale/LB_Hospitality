@@ -158,6 +158,10 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyRoomRev * revShareEvents_base
     + baseMonthlyRoomRev * revShareFB_base * cateringBoostMult_base + baseMonthlyRoomRev * revShareOther_base;
 
+  // Fixed costs sized to stabilized (maxOccupancy) revenue — matches client engine
+  const stabilizedRoomRev = property.roomCount * effectiveDaysPerMonth * property.startAdr * property.maxOccupancy;
+  const stabilizedMonthlyTotalRev = stabilizedRoomRev * (1 + revShareEvents_base + revShareFB_base * cateringBoostMult_base + revShareOther_base);
+
   for (let i = 0; i < months; i++) {
     const currentYM = addMonthsYM(modelStartYM, i);
 
@@ -234,13 +238,13 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const expenseUtilitiesVar = revenueTotal * (costRateUtilities * utilitiesVariableSplit);
     const expenseFFE = revenueTotal * costRateFFE;
     const fixedGate = isOperational ? 1 : 0;
-    const expenseAdmin = baseMonthlyTotalRev * costRateAdmin * fixedCostFactor * fixedGate;
-    const expensePropertyOps = baseMonthlyTotalRev * costRatePropertyOps * fixedCostFactor * fixedGate;
-    const expenseIT = baseMonthlyTotalRev * costRateIT * fixedCostFactor * fixedGate;
-    
+    const expenseAdmin = stabilizedMonthlyTotalRev * costRateAdmin * fixedCostFactor * fixedGate;
+    const expensePropertyOps = stabilizedMonthlyTotalRev * costRatePropertyOps * fixedCostFactor * fixedGate;
+    const expenseIT = stabilizedMonthlyTotalRev * costRateIT * fixedCostFactor * fixedGate;
+
     const expenseTaxes = (totalPropertyValue / 12) * costRateTaxes * fixedCostFactor * fixedGate;
-    const expenseUtilitiesFixed = baseMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
-    const expenseOtherCosts = baseMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
+    const expenseUtilitiesFixed = stabilizedMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
+    const expenseOtherCosts = stabilizedMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
     const expenseInsurance = (totalPropertyValue / 12) * costRateInsurance * fixedCostFactor * fixedGate;
 
     const feeBase = revenueTotal * (property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);

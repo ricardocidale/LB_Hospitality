@@ -255,7 +255,7 @@ describe("generatePortfolioInvestmentData", () => {
 
     const dscrRow = result.rows.find(r => r.category === "DSCR");
     expect(dscrRow).toBeDefined();
-    // DSCR = consolidatedNOI / debtService = raw noi / debtService
-    expect(dscrRow!.values[0]).toBeCloseTo(2903400 / 200000, 1);
+    // DSCR = consolidatedANOI / debtService (ANOI = NOI - FF&E reserve)
+    expect(dscrRow!.values[0]).toBeCloseTo(2782800 / 200000, 1);
   });
 });

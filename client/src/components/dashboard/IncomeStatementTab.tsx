@@ -446,16 +446,16 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
       pushRow({ category: "= Interest + Principal", values: years.map((_, i) => totalDebtService(i)), indent: 1, isFormula: true });
 
       const dscrVals = years.map((_, i) => {
-        const noiVal = c(i)?.noi ?? 0;
+        const anoiVal = c(i)?.anoi ?? 0;
         const ds = totalDebtService(i);
-        return ds > 0 ? noiVal / ds : 0;
+        return ds > 0 ? anoiVal / ds : 0;
       });
       rows.push({
         category: "DSCR",
         values: dscrVals,
         indent: 1,
         displayValues: dscrVals.map(v => v > 0 ? `${v.toFixed(2)}x` : "-"),
-        tooltip: "Debt Service Coverage Ratio = NOI ÷ Total Debt Service."
+        tooltip: "Debt Service Coverage Ratio = ANOI ÷ Total Debt Service."
       });
     }
 

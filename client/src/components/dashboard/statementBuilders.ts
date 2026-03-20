@@ -479,7 +479,7 @@ export function generatePortfolioInvestmentData(
   });
   const consolidatedDSCR = years.map((_, y) => {
     const ds = cf.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0);
-    return ds > 0 ? consolidatedNOI[y] / ds : 0;
+    return ds > 0 ? consolidatedANOI[y] / ds : 0;
   });
   const capRate = years.map((_, i) => financials.totalExitValue > 0 ? consolidatedNOI[i] / financials.totalExitValue : 0);
   const opratio = years.map((_, i) => consolidatedRevenue[i] > 0 ? totalExpenses[i] / consolidatedRevenue[i] : 0);

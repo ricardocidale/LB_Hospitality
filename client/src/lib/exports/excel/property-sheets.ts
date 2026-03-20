@@ -368,7 +368,7 @@ export async function exportFullPropertyWorkbook(
   const cashOnCash = equityInvestedVal > 0 ? (totalCashFlow / equityInvestedVal) * 100 : 0;
   const equityMultiple = equityInvestedVal > 0 ? (totalCashFlow + totalExitValue) / equityInvestedVal : 0;
 
-  const dscr = cfData.map(cf => cf.debtService > 0 ? cf.noi / cf.debtService : 0);
+  const dscr = cfData.map(cf => cf.debtService > 0 ? cf.anoi / cf.debtService : 0);
 
   let propertyIRR = 0;
   try {

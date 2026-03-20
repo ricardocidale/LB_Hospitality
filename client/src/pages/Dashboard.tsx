@@ -368,7 +368,8 @@ export default function Dashboard() {
           const summaryOnly = version === "short";
           const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy, summaryOnly);
           const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy, undefined, summaryOnly, undefined, financials.yearlyConsolidatedCache);
-          const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, py, gfy, undefined, summaryOnly);
+          const msd = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
+          const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, py, gfy, msd, summaryOnly);
           const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy, summaryOnly);
           const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
           const mapRows = (d: { years: number[]; rows: any[] }) => ({

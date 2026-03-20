@@ -100,7 +100,7 @@ Each key maps to a header row that toggles child rows on click.
 ## Chart Series
 
 The Income Statement chart shows: Revenue, GOP, AGOP, NOI, ANOI.
-AGOP uses preset color `#10B981` (emerald green).
+AGOP uses the theme accent color (resolved from PALETTE via `resolveThemeColors`).
 
 ## Cash Flow Statement Structure (ASC 230 Indirect Method)
 
@@ -249,7 +249,7 @@ Sub-item chevrons use the `expandedFormulas` toggle mechanism with keys:
 3. Every profitability subtotal (GOP, AGOP, NOI, ANOI) must show a margin % and per-property breakdown when expanded (consolidated) or margin % (property-level).
 4. Formula rows use the blue-tinted expandable pattern (`bg-blue-50/40`).
 5. All waterfall charts must follow USALI order: Revenue → Dept Exp → Undist Exp → GOP → Fees → AGOP → Fixed → NOI → FF&E → ANOI.
-6. All line charts showing IS data must include AGOP series with color `#10B981`.
+6. All line charts showing IS data must include AGOP series with the theme accent color (not hardcoded).
 7. NOI always uses `engine.noi` directly — never `noi + feeBase + feeIncentive`.
 8. The Company IS/CF (`CompanyIncomeTab.tsx`, `CompanyCashFlowTab.tsx`) is a management company P&L/CF, NOT a USALI property statement. Do not apply these rules to it.
 9. CF operating expense grouping must mirror IS: Departmental → Undistributed → Management Fees (never "Direct Costs" + "Overhead").

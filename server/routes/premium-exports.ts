@@ -478,12 +478,13 @@ function filterFormulaRows(rows: any[]): any[] {
 }
 
 /** Build theme-aware chart series definitions.
- *  All colors derived from the resolved theme palette — no hardcoded hex. */
-function buildChartSeriesByStatement(tc?: { darkGreen: string; sage: string; navy: string; gray: string; lightGray: string; darkText: string }): Record<string, Array<{ keyword: string; label: string; color: string }>> {
-  const accent  = `#${tc?.darkGreen || BRAND.DARK_GREEN_HEX}`;
-  const series2 = `#${tc?.navy      || BRAND.NAVY_HEX}`;
-  const series3 = `#${tc?.sage      || BRAND.SAGE_HEX}`;
-  const series4 = `#${tc?.lightGray || BRAND.LIGHT_GRAY_HEX}`;
+ *  All colors derived from the current theme's LINE series palette. */
+function buildChartSeriesByStatement(tc?: import("./pdf-html-templates").ThemeColorMap): Record<string, Array<{ keyword: string; label: string; color: string }>> {
+  const ln = tc?.line || [];
+  const accent  = `#${ln[0] || tc?.darkGreen || BRAND.DARK_GREEN_HEX}`;
+  const series2 = `#${ln[1] || tc?.navy      || BRAND.NAVY_HEX}`;
+  const series3 = `#${ln[2] || tc?.sage      || BRAND.SAGE_HEX}`;
+  const series4 = `#${ln[3] || tc?.lightGray || BRAND.LIGHT_GRAY_HEX}`;
   return {
     income: [
       { keyword: "total revenue",            label: "Revenue", color: accent  },
@@ -520,7 +521,7 @@ function detectStatementType(title: string): string {
 }
 
 /** Build a LINE CHART section for a statement, matching the UI's chart series and colors */
-function buildChartsForStatement(stmt: { title: string; years: string[]; rows: any[] }, tc?: { darkGreen: string; sage: string; navy: string; gray: string; lightGray: string; darkText: string }): any | null {
+function buildChartsForStatement(stmt: { title: string; years: string[]; rows: any[] }, tc?: import("./pdf-html-templates").ThemeColorMap): any | null {
   const years = stmt.years || [];
   const stmtType = detectStatementType(stmt.title);
   const chartSeries = buildChartSeriesByStatement(tc);
@@ -1193,8 +1194,8 @@ async function generateViaTemplatePipeline(
   logger.info(`[template] Building ${data.format} prompt...`, "premium-export");
   let prompt: string;
   switch (data.format) {
-    case "pptx": prompt = getPptxPrompt(data); break;
-    case "docx": prompt = getDocxPrompt(data); break;
+    case "pptx": prompt = getPptxPrompt(data, data.themeColors); break;
+    case "docx": prompt = getDocxPrompt(data, data.themeColors); break;
     default: throw new Error(`Unsupported format: ${data.format}`);
   }
 

@@ -5,17 +5,10 @@
  * and row-classification used across PDF (jsPDF), PPTX (pptxgenjs), Excel,
  * and CSV exports. A single change here propagates everywhere.
  *
- * ─── Brand Palette (hex for PPTX, RGB tuples for jsPDF) ───────────────────
- *   SAGE_GREEN   #9FBCA4  — accent bars, table headers
- *   DARK_GREEN   #257D41  — titles, positive KPIs
- *   NAVY         #1A2332  — branded header / title bg
- *   DARK_TEXT     #3D3D3D  — table body text
- *   GRAY         #666666  — labels, subtitles
- *   LIGHT_GRAY   #999999  — footer text
- *   WHITE        #FFFFFF  — backgrounds, inverted text
- *   SECTION_BG   #EFF5F0  — section header row fill
- *   ALT_ROW      #F8FAF9  — alternating row tint for readability
- *   WARM_BG      #FFF9F5  — warm neutral background
+ * ─── Brand Palette (last-resort fallback — current theme always takes precedence) ───
+ *   Colors resolve from the active DB theme via buildBrandPalette(themeColors).
+ *   BRAND constant below matches Studio Noir defaults and is ONLY used when
+ *   no theme colors are passed. All shade colors are derived from theme solids.
  *
  * ─── Typography Rules ─────────────────────────────────────────────────────
  *   • Section headers  →  bold, section-bg fill, Title Case (not ALL CAPS)
@@ -52,6 +45,9 @@ export type BrandPalette = {
   CARD_BG_HEX: string;
   BORDER_LIGHT_HEX: string;
   BORDER_SECTION_HEX: string;
+  NEGATIVE_RED_HEX: string;
+  CHART_HEX: string[];
+  LINE_HEX: string[];
   SAGE_RGB: [number, number, number];
   DARK_GREEN_RGB: [number, number, number];
   NAVY_RGB: [number, number, number];
@@ -78,13 +74,15 @@ export function buildBrandPalette(themeColors?: ThemeColor[]): BrandPalette {
   if (!themeColors?.length) return BRAND;
 
   const strip = (hex: string) => hex.replace(/^#/, "");
+  const lower = themeColors.map(c => ({ h: strip(c.hexCode), d: (c.description || "").toLowerCase(), r: c.rank ?? 99 }));
   const byDesc = (...keywords: string[]): string | undefined => {
-    const lower = themeColors.map(c => ({ h: strip(c.hexCode), d: (c.description || "").toLowerCase() }));
     for (const c of lower) {
       if (keywords.some(k => c.d.includes(k))) return c.h;
     }
     return undefined;
   };
+  const collectByPrefix = (prefix: string): string[] =>
+    lower.filter(c => c.d.startsWith(prefix)).sort((a, b) => a.r - b.r).map(c => c.h);
 
   const navy = byDesc("palette: primary") ?? BRAND.NAVY_HEX;
   const sage = byDesc("palette: secondary") ?? BRAND.SAGE_HEX;
@@ -93,6 +91,9 @@ export function buildBrandPalette(themeColors?: ThemeColor[]): BrandPalette {
   const gray = byDesc("palette: border") ?? BRAND.GRAY_HEX;
   const sectionBg = byDesc("palette: background") ?? BRAND.SECTION_BG_HEX;
   const altRow = byDesc("palette: muted") ?? BRAND.ALT_ROW_HEX;
+  const chartArr = collectByPrefix("chart:");
+  const lineArr = collectByPrefix("line:");
+  const negRed = byDesc("line: line 3", "destructive") ?? (lineArr[2] || BRAND.NEGATIVE_RED_HEX);
 
   return {
     SAGE_HEX: sage,
@@ -100,7 +101,7 @@ export function buildBrandPalette(themeColors?: ThemeColor[]): BrandPalette {
     NAVY_HEX: navy,
     DARK_TEXT_HEX: darkText,
     GRAY_HEX: gray,
-    LIGHT_GRAY_HEX: lighten(gray, 0.3),
+    LIGHT_GRAY_HEX: chartArr[3] || lighten(gray, 0.3),
     WHITE_HEX: "FFFFFF",
     SECTION_BG_HEX: sectionBg,
     ALT_ROW_HEX: altRow,
@@ -108,12 +109,15 @@ export function buildBrandPalette(themeColors?: ThemeColor[]): BrandPalette {
     CARD_BG_HEX: lighten(sectionBg, 0.4),
     BORDER_LIGHT_HEX: lighten(gray, 0.2),
     BORDER_SECTION_HEX: sage,
+    NEGATIVE_RED_HEX: negRed,
+    CHART_HEX: chartArr.length ? chartArr : [darkGreen, sage, navy, lighten(gray, 0.3), gray],
+    LINE_HEX: lineArr.length ? [darkGreen, ...lineArr] : [darkGreen, sage, navy, lighten(gray, 0.3)],
     SAGE_RGB: hexToRgb(sage),
     DARK_GREEN_RGB: hexToRgb(darkGreen),
     NAVY_RGB: hexToRgb(navy),
     DARK_TEXT_RGB: hexToRgb(darkText),
     GRAY_RGB: hexToRgb(gray),
-    LIGHT_GRAY_RGB: hexToRgb(lighten(gray, 0.3)),
+    LIGHT_GRAY_RGB: hexToRgb(chartArr[3] || lighten(gray, 0.3)),
     WHITE_RGB: [255, 255, 255],
     SECTION_BG_RGB: hexToRgb(sectionBg),
     ALT_ROW_RGB: hexToRgb(altRow),
@@ -121,28 +125,31 @@ export function buildBrandPalette(themeColors?: ThemeColor[]): BrandPalette {
 }
 
 export const BRAND: BrandPalette = {
-  SAGE_HEX: "9FBCA4",
-  DARK_GREEN_HEX: "257D41",
-  NAVY_HEX: "1A2332",
-  DARK_TEXT_HEX: "3D3D3D",
-  GRAY_HEX: "666666",
-  LIGHT_GRAY_HEX: "999999",
+  SAGE_HEX: "3F3F46",
+  DARK_GREEN_HEX: "10B981",
+  NAVY_HEX: "18181B",
+  DARK_TEXT_HEX: "09090B",
+  GRAY_HEX: "E4E4E7",
+  LIGHT_GRAY_HEX: "A1A1AA",
   WHITE_HEX: "FFFFFF",
-  SECTION_BG_HEX: "EFF5F0",
-  ALT_ROW_HEX: "F8FAF9",
-  WARM_BG_HEX: "FFF9F5",
-  CARD_BG_HEX: "F5F9F6",
-  BORDER_LIGHT_HEX: "D5D8DA",
-  BORDER_SECTION_HEX: "9FBCA4",
-  SAGE_RGB: [159, 188, 164],
-  DARK_GREEN_RGB: [37, 125, 65],
-  NAVY_RGB: [26, 35, 50],
-  DARK_TEXT_RGB: [61, 61, 61],
-  GRAY_RGB: [102, 102, 102],
-  LIGHT_GRAY_RGB: [153, 153, 153],
+  SECTION_BG_HEX: "FFFFFF",
+  ALT_ROW_HEX: "F4F4F5",
+  WARM_BG_HEX: "FAFAFA",
+  CARD_BG_HEX: "F9F9FA",
+  BORDER_LIGHT_HEX: "E4E4E7",
+  BORDER_SECTION_HEX: "3F3F46",
+  NEGATIVE_RED_HEX: "F43F5E",
+  CHART_HEX: ["27272A", "52525B", "71717A", "A1A1AA", "D4D4D8"],
+  LINE_HEX: ["10B981", "F59E0B", "F43F5E", "0EA5E9", "8B5CF6"],
+  SAGE_RGB: [63, 63, 70],
+  DARK_GREEN_RGB: [16, 185, 129],
+  NAVY_RGB: [24, 24, 27],
+  DARK_TEXT_RGB: [9, 9, 11],
+  GRAY_RGB: [228, 228, 231],
+  LIGHT_GRAY_RGB: [161, 161, 170],
   WHITE_RGB: [255, 255, 255],
-  SECTION_BG_RGB: [239, 245, 240],
-  ALT_ROW_RGB: [248, 250, 249],
+  SECTION_BG_RGB: [255, 255, 255],
+  ALT_ROW_RGB: [244, 244, 245],
 };
 
 export const PAGE_DIMS = {

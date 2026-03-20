@@ -8,7 +8,7 @@ export const BRAND = {
   SECTION_BG_HEX: "FFFFFF",
   ALT_ROW_HEX: "F4F4F5",
   LIGHT_GRAY_HEX: "A1A1AA",
-  NEGATIVE_RED_HEX: "EF4444",
+  NEGATIVE_RED_HEX: "F43F5E",
 };
 
 interface ExportDataShape {
@@ -64,18 +64,19 @@ export function buildFinancialDataContext(data: ExportDataShape): string {
   return parts.join("\n");
 }
 
-export function getExcelPrompt(data: ExportDataShape): string {
+function themePaletteBlock(tc?: Array<{name: string; hexCode: string}>): string {
+  if (tc?.length) return tc.map(c => `- ${c.name}: ${c.hexCode}`).join("\n");
+  return `- Primary: #${BRAND.NAVY_HEX}\n- Secondary: #${BRAND.SAGE_HEX}\n- Accent: #${BRAND.DARK_GREEN_HEX}\n- Section Background: #${BRAND.SECTION_BG_HEX}\n- Alternating Row: #${BRAND.ALT_ROW_HEX}`;
+}
+
+export function getExcelPrompt(data: ExportDataShape, themeColors?: Array<{name: string; hexCode: string}>): string {
   const versionHint = data.version === "extended"
     ? "Include all line-item breakdowns and detailed sub-categories in each sheet."
     : "Show summary-level totals and key aggregates only.";
   return `You are generating a premium Excel financial workbook. Detail level: ${data.version || "short"}. ${versionHint} Based on the financial data below, produce a JSON structure for Excel generation with enhanced formatting.
 
 Brand palette:
-- Navy: #${BRAND.NAVY_HEX} (header backgrounds)
-- Sage Green: #${BRAND.SAGE_HEX} (accent, table headers)
-- Dark Green: #${BRAND.DARK_GREEN_HEX} (titles, positive values)
-- Section Background: #${BRAND.SECTION_BG_HEX}
-- Alternating Row: #${BRAND.ALT_ROW_HEX}
+${themePaletteBlock(themeColors)}
 
 Financial Data:
 ${buildFinancialDataContext(data)}
@@ -109,7 +110,7 @@ Return a JSON object with this structure:
 Include enhanced formatting instructions like conditional formatting rules, formula notes, and summary metrics that wouldn't be possible with basic client-side generation. Add a summary dashboard sheet if there are multiple financial statements. RESPOND WITH ONLY VALID JSON.`;
 }
 
-export function getPptxPrompt(data: ExportDataShape): string {
+export function getPptxPrompt(data: ExportDataShape, _themeColors?: Array<{name: string; hexCode: string}>): string {
   const versionHint = data.version === "extended"
     ? "Include detailed financial tables with all line-item breakdowns."
     : "Show summary-level metrics and key aggregates only.";
@@ -203,7 +204,7 @@ export function getPdfDesignPrompt(data: ExportDataShape, themeColors?: Array<{n
   const orientation = data.orientation || "landscape";
   const colorPalette = themeColors?.length
     ? themeColors.map(c => `${c.name}: ${c.hexCode}`).join(", ")
-    : `Carbon: #${BRAND.NAVY_HEX}, Graphite: #${BRAND.SAGE_HEX}, Emerald: #${BRAND.DARK_GREEN_HEX}, Ink: #${BRAND.DARK_TEXT_HEX}`;
+    : `Primary: #${BRAND.NAVY_HEX}, Secondary: #${BRAND.SAGE_HEX}, Accent: #${BRAND.DARK_GREEN_HEX}, Foreground: #${BRAND.DARK_TEXT_HEX}`;
 
   return `You are a senior graphic designer at a top-tier investment bank. A client handed you this financial data for their hospitality portfolio. Design a ${orientation} PDF report that tells the investment story visually.
 
@@ -273,16 +274,14 @@ RULES:
 - RESPOND WITH ONLY VALID JSON`;
 }
 
-export function getDocxPrompt(data: ExportDataShape): string {
+export function getDocxPrompt(data: ExportDataShape, themeColors?: Array<{name: string; hexCode: string}>): string {
   const versionHint = data.version === "extended"
     ? "Include comprehensive detail with full line-item breakdowns in appendix tables."
     : "Keep the memo concise with summary-level figures and key aggregates only.";
   return `You are generating a professional investor memo / due diligence report as a Word document. Detail level: ${data.version || "short"}. ${versionHint} Based on the financial data below, produce a JSON structure for DOCX generation.
 
 Brand palette:
-- Navy: #${BRAND.NAVY_HEX}
-- Sage Green: #${BRAND.SAGE_HEX}
-- Dark Green: #${BRAND.DARK_GREEN_HEX}
+${themePaletteBlock(themeColors)}
 
 Financial Data:
 ${buildFinancialDataContext(data)}

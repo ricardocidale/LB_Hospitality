@@ -102,7 +102,7 @@ export default function Dashboard() {
       return generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, isShort);
     } else if (activeTab === "cashflow") {
       const override = isShort ? new Set<string>() : new Set(["cfo", "cfi", "cff"]);
-      return generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear, override, isShort, properties.map(p => p.name));
+      return generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear, override, isShort, properties.map(p => p.name), financials.yearlyConsolidatedCache);
     } else if (activeTab === "investment") {
       return generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
     }
@@ -367,7 +367,7 @@ export default function Dashboard() {
           const gfy = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fsm, i);
           const summaryOnly = version === "short";
           const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy, summaryOnly);
-          const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy, undefined, summaryOnly);
+          const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy, undefined, summaryOnly, undefined, financials.yearlyConsolidatedCache);
           const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, py, gfy, undefined, summaryOnly);
           const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy, summaryOnly);
           const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);

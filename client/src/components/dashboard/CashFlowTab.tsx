@@ -110,14 +110,19 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
     [consolidatedCFO, consolidatedCFI, consolidatedCFF, years]
   );
 
-  const consolidatedFCF = useMemo(() =>
-    years.map((_, y) => allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlow ?? 0), 0)),
+  const consolidatedMaintenanceCapex = useMemo(() =>
+    years.map((_, y) => allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.maintenanceCapex ?? 0), 0)),
     [allPropertyYearlyCF, years]
   );
 
+  const consolidatedFCF = useMemo(() =>
+    years.map((_, y) => consolidatedCFO[y] - consolidatedMaintenanceCapex[y]),
+    [consolidatedCFO, consolidatedMaintenanceCapex, years]
+  );
+
   const consolidatedFCFE = useMemo(() =>
-    years.map((_, y) => allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0)),
-    [allPropertyYearlyCF, years]
+    years.map((_, y) => consolidatedFCF[y] - consolidatedPrincipal[y]),
+    [consolidatedFCF, consolidatedPrincipal, years]
   );
 
   const consolidatedDebtService = useMemo(() =>

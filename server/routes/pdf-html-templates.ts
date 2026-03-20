@@ -2,39 +2,42 @@ import { BRAND } from "./premium-export-prompts";
 import { logger } from "../logger";
 
 export interface ThemeColorMap {
-  navy: string;      // dark primary (headers, cover bg)
-  sage: string;      // accent (bars, borders)
-  darkGreen: string; // titles, positive values
-  darkText: string;  // body text
-  gray: string;      // secondary text
-  altRow: string;    // zebra striping
-  sectionBg: string; // section header bg
+  navy: string;      // PALETTE: Primary — headers, cover bg
+  sage: string;      // PALETTE: Secondary — contrast badges
+  darkGreen: string; // PALETTE: Accent — titles, positive values
+  darkText: string;  // PALETTE: Foreground — body text
+  gray: string;      // PALETTE: Border — dividers, input outlines
+  altRow: string;    // PALETTE: Muted — zebra striping
+  sectionBg: string; // PALETTE: Background — page canvas
   white: string;     // white / inverted text
-  lightGray: string; // muted footer text
-  negativeRed: string; // negative trend / loss
+  lightGray: string; // derived from border or CHART: Chart 4 — muted footer text
+  negativeRed: string; // LINE: Line 3 or theme destructive — loss/negative
+  chart: string[];   // CHART: Chart 1–5 series (bar/area)
+  line: string[];    // LINE: Line 2–5 series (line trends), index 0 = accent
 }
 
 /** Map client theme colors to functional PDF roles using the semantic description labels
- *  that every theme consistently provides: "PALETTE: Primary", "PALETTE: Secondary",
- *  "PALETTE: Muted", "PALETTE: Border", "PALETTE: Background", "PALETTE: Foreground",
- *  and "PALETTE: Accent" / "ACCENT:". Falls back to BRAND defaults when no theme is set. */
+ *  that every theme consistently provides. Extracts PALETTE, CHART, and LINE categories.
+ *  All colors resolve from the current theme — shades are derived from theme solids. */
 export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: string; rank?: number; description?: string}>): ThemeColorMap {
-  const defaults: ThemeColorMap = {
-    navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
-    darkText: BRAND.DARK_TEXT_HEX, gray: BRAND.GRAY_HEX,
-    altRow: BRAND.ALT_ROW_HEX, sectionBg: BRAND.SECTION_BG_HEX,
-    white: BRAND.WHITE_HEX, lightGray: BRAND.LIGHT_GRAY_HEX, negativeRed: BRAND.NEGATIVE_RED_HEX,
-  };
-  if (!themeColors?.length) return defaults;
-
   const strip = (hex: string) => hex.replace(/^#/, "");
+
+  if (!themeColors?.length) {
+    return {
+      navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
+      darkText: BRAND.DARK_TEXT_HEX, gray: BRAND.GRAY_HEX,
+      altRow: BRAND.ALT_ROW_HEX, sectionBg: BRAND.SECTION_BG_HEX,
+      white: BRAND.WHITE_HEX, lightGray: BRAND.LIGHT_GRAY_HEX, negativeRed: BRAND.NEGATIVE_RED_HEX,
+      chart: [BRAND.DARK_GREEN_HEX, BRAND.SAGE_HEX, BRAND.NAVY_HEX, BRAND.LIGHT_GRAY_HEX, BRAND.GRAY_HEX],
+      line: [BRAND.DARK_GREEN_HEX, BRAND.SAGE_HEX, BRAND.NAVY_HEX, BRAND.LIGHT_GRAY_HEX],
+    };
+  }
+
   const entries = themeColors.map(c => ({
     h: strip(c.hexCode),
     d: (c.description || "").toLowerCase(),
   }));
 
-  // Match by the semantic description prefix that every theme consistently provides.
-  // Order matters — first match wins.
   const byDesc = (...keywords: string[]): string | undefined => {
     for (const c of entries) {
       if (keywords.some(k => c.d.includes(k))) return c.h;
@@ -42,17 +45,36 @@ export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: s
     return undefined;
   };
 
+  const collectByPrefix = (prefix: string): string[] => {
+    return entries
+      .filter(c => c.d.startsWith(prefix))
+      .sort((a, b) => {
+        const ra = themeColors.find(t => strip(t.hexCode) === a.h)?.rank ?? 99;
+        const rb = themeColors.find(t => strip(t.hexCode) === b.h)?.rank ?? 99;
+        return ra - rb;
+      })
+      .map(c => c.h);
+  };
+
+  const accent   = byDesc("palette: accent", "accent:")        ?? BRAND.DARK_GREEN_HEX;
+  const border   = byDesc("palette: border")                   ?? BRAND.GRAY_HEX;
+  const chartArr = collectByPrefix("chart:");
+  const lineArr  = collectByPrefix("line:");
+  const negRed   = byDesc("line: line 3", "destructive")       ?? (lineArr[2] || adjustHex(accent, -60));
+
   return {
-    navy:      byDesc("palette: primary")                  ?? defaults.navy,
-    sage:      byDesc("palette: secondary")                ?? defaults.sage,
-    darkGreen: byDesc("palette: accent", "accent:")        ?? defaults.darkGreen,
-    darkText:  byDesc("palette: foreground")               ?? defaults.darkText,
-    gray:      byDesc("palette: border")                   ?? defaults.gray,
-    altRow:    byDesc("palette: muted")                    ?? defaults.altRow,
-    sectionBg: byDesc("palette: background")               ?? defaults.sectionBg,
-    white:     defaults.white,
-    lightGray: defaults.lightGray,
-    negativeRed: defaults.negativeRed,
+    navy:       byDesc("palette: primary")                  ?? BRAND.NAVY_HEX,
+    sage:       byDesc("palette: secondary")                ?? BRAND.SAGE_HEX,
+    darkGreen:  accent,
+    darkText:   byDesc("palette: foreground")               ?? BRAND.DARK_TEXT_HEX,
+    gray:       border,
+    altRow:     byDesc("palette: muted")                    ?? BRAND.ALT_ROW_HEX,
+    sectionBg:  byDesc("palette: background")               ?? BRAND.SECTION_BG_HEX,
+    white:      byDesc("palette: background")               ?? BRAND.WHITE_HEX,
+    lightGray:  chartArr[3] || adjustHex(border, 30),
+    negativeRed: negRed,
+    chart:      chartArr.length ? chartArr : [accent, byDesc("palette: secondary") ?? BRAND.SAGE_HEX, byDesc("palette: primary") ?? BRAND.NAVY_HEX, adjustHex(border, 30), border],
+    line:       lineArr.length ? [accent, ...lineArr] : [accent, byDesc("palette: secondary") ?? BRAND.SAGE_HEX, byDesc("palette: primary") ?? BRAND.NAVY_HEX, adjustHex(border, 30)],
   };
 }
 
@@ -284,19 +306,18 @@ function renderChartSection(_section: any, _d: PdfTemplateData): string {
    ═══════════════════════════════════════════════════════════════ */
 
 function buildChartPalette(colors?: ThemeColorMap): string[] {
+  if (colors?.chart?.length) {
+    const base = colors.chart.map(c => `#${c}`);
+    while (base.length < 7) base.push(`#${adjustHex(colors.chart[base.length % colors.chart.length], 40)}`);
+    return base;
+  }
   const dk = colors?.darkGreen || BRAND.DARK_GREEN_HEX;
   const sg = colors?.sage || BRAND.SAGE_HEX;
   const nv = colors?.navy || BRAND.NAVY_HEX;
-  const gr = colors?.gray || BRAND.GRAY_HEX;
-  const lg = colors?.lightGray || BRAND.LIGHT_GRAY_HEX;
   return [
-    `#${dk}`,
-    `#${sg}`,
-    `#${nv}`,
-    `#${gr}`,
-    `#${lg}`,
-    `#${adjustHex(dk, 40)}`,
-    `#${adjustHex(sg, 40)}`,
+    `#${dk}`, `#${sg}`, `#${nv}`,
+    `#${adjustHex(dk, 30)}`, `#${adjustHex(sg, 30)}`,
+    `#${adjustHex(dk, 50)}`, `#${adjustHex(nv, 40)}`,
   ];
 }
 

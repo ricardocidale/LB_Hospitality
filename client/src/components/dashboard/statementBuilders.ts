@@ -300,7 +300,8 @@ export function generatePortfolioCashFlowData(
   getFiscalYear: (i: number) => number,
   overrideExpanded?: Set<string>,
   excludeFormulas?: boolean,
-  propertyNames?: string[]
+  propertyNames?: string[],
+  yearlyConsolidatedCache?: YearlyPropertyFinancials[]
 ): ExportData {
   const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
   const rows: ExportRow[] = [];
@@ -318,7 +319,7 @@ export function generatePortfolioCashFlowData(
   const netChange = years.map((_, y) => consolidatedCFO[y] + consolidatedCFI[y] + consolidatedCFF[y]);
 
   const consolidatedANOI = years.map((_, y) =>
-    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.noi ?? 0), 0)
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.anoi ?? 0), 0)
   );
   const consolidatedInterest = years.map((_, y) =>
     allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.interestExpense ?? 0), 0)
@@ -395,7 +396,8 @@ export function generatePortfolioCashFlowData(
     allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0)
   );
   const consolidatedRevenue = years.map((_, y) =>
-    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.noi ?? 0) + (prop[y]?.debtService ?? 0) + (prop[y]?.taxLiability ?? 0), 0)
+    yearlyConsolidatedCache?.[y]?.revenueTotal ??
+    allPropertyYearlyCF.reduce((sum, prop) => sum + (prop[y]?.anoi ?? 0) + (prop[y]?.maintenanceCapex ?? 0) + (prop[y]?.debtService ?? 0) + (prop[y]?.taxLiability ?? 0), 0)
   );
   const totalEquityForMetrics = allPropertyYearlyCF.reduce((sum, prop) => {
     const acqYear = prop.findIndex(y => y.capitalExpenditures !== 0);
@@ -694,7 +696,7 @@ export function buildAllPortfolioStatements(
 
   return {
     incomeData: generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, false, financials.allPropertyYearlyIS, propertyNames),
-    cashFlowData: generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear, allExpandedCF, true, propertyNames),
+    cashFlowData: generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear, allExpandedCF, true, propertyNames, financials.yearlyConsolidatedCache),
     balanceSheetData: generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate),
     investmentData: generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear),
   };

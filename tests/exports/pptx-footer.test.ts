@@ -95,7 +95,7 @@ describe("PPTX footer page numbering logic", () => {
   });
 
   it("footer line color matches BRAND.SAGE_HEX", () => {
-    expect(BRAND.SAGE_HEX).toBe("9FBCA4");
+    expect(BRAND.SAGE_HEX).toBe("3F3F46");
   });
 });
 

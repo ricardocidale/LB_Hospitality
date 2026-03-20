@@ -28,6 +28,7 @@ export const exportCompanyPDF = async (
     ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
     : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
   const doc = new jsPDF({ orientation, unit: 'mm', format: [dims.w, dims.h] });
+  const brand = buildBrandPalette(themeColors);
   const pageWidth = dims.w;
   const chartWidth = pageWidth - 28;
   const companyName = global?.companyName || "Management Company";
@@ -65,9 +66,9 @@ export const exportCompanyPDF = async (
       height: 150,
       title: `Management Company Performance (${projectionYears}-Year Projection)`,
       series: [
-        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Revenue })), color: `#${buildBrandPalette(themeColors).DARK_GREEN_HEX}` },
-        { name: 'Expenses', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Expenses })), color: '#3B82F6' },
-        { name: 'Net Income', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.NetIncome })), color: '#F4795B' },
+        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
+        { name: 'Expenses', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Expenses })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+        { name: 'Net Income', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.NetIncome })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
       ],
     });
   }

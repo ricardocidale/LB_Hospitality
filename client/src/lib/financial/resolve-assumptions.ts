@@ -189,6 +189,7 @@ export function resolvePropertyAssumptions(
   const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
   const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
   const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
+  // Income tax rate (NOT property tax — property taxes use costRateTaxes)
   const taxRate = property.taxRate ?? DEFAULT_PROPERTY_TAX_RATE;
   const dayCountConvention = property.dayCountConvention ?? '30/360';
   const monthlyRate = loanRate / 12;

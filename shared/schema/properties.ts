@@ -127,7 +127,9 @@ export const properties = pgTable("properties", {
   // Exit Cap Rate (for property valuation)
   exitCapRate: real("exit_cap_rate").notNull().default(DEFAULT_EXIT_CAP_RATE),
   
-  // Tax Rate (for calculating after-tax free cash flow)
+  // Income Tax Rate (for calculating after-tax free cash flow)
+  // NOTE: This is the corporate INCOME tax rate, NOT the property/real-estate tax rate.
+  // Property taxes are computed via costRateTaxes (assessed on property value).
   taxRate: real("tax_rate").notNull().default(DEFAULT_PROPERTY_TAX_RATE),
 
   // Per-property inflation rate (nullable — NULL means use global default)

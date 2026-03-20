@@ -7,6 +7,8 @@ export const BRAND = {
   WHITE_HEX: "FFFFFF",
   SECTION_BG_HEX: "FFFFFF",
   ALT_ROW_HEX: "F4F4F5",
+  LIGHT_GRAY_HEX: "A1A1AA",
+  NEGATIVE_RED_HEX: "EF4444",
 };
 
 interface ExportDataShape {

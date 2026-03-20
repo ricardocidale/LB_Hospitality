@@ -12,6 +12,23 @@ import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator"
 import type { ExportRow, ExportData } from "./statementBuilders";
 import { generatePortfolioCashFlowData, generatePortfolioBalanceSheetData, generatePortfolioInvestmentData } from "./statementBuilders";
 
+function splitRowsBySectionHeaders(rows: ExportRow[]): { title: string; rows: ExportRow[] }[] {
+  const sections: { title: string; rows: ExportRow[] }[] = [];
+  let current: { title: string; rows: ExportRow[] } | null = null;
+
+  for (const row of rows) {
+    if (row.isHeader && !row.indent && row.category.trim()) {
+      if (current && current.rows.length > 0) sections.push(current);
+      current = { title: row.category, rows: [row] };
+    } else if (current) {
+      current.rows.push(row);
+    }
+  }
+  if (current && current.rows.length > 0) sections.push(current);
+
+  return sections;
+}
+
 export async function exportPortfolioExcel(
   datasets: {
     incomeData: ExportData;
@@ -291,14 +308,54 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", startY, brand);
   autoTable(doc, withChrome(bsConfig));
 
-  doc.addPage();
   const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
-  startY = drawSectionTitle("Portfolio Investment Analysis", `${projectionYears}-Year Projection (${projRange})`);
-  const invConfig = buildFinancialTableConfig(investmentData.years, investmentData.rows, "landscape", startY, brand);
-  autoTable(doc, withChrome(invConfig));
+  const investmentSections = splitRowsBySectionHeaders(investmentData.rows);
+
+  for (const section of investmentSections) {
+    doc.addPage();
+    startY = drawSectionTitle(section.title, `${projectionYears}-Year Projection (${projRange})`);
+    const sectionConfig = buildFinancialTableConfig(investmentData.years, section.rows, "landscape", startY, brand);
+    autoTable(doc, withChrome(sectionConfig));
+  }
+
+  const cf = financials.allPropertyYearlyCF;
+  doc.addPage();
+  startY = drawSectionTitle("Investment Returns", `${projectionYears}-Year Projection (${projRange})`);
+
+  const noiChartData = years.map((_, i) => ({
+    label: String(years[i]),
+    value: financials.yearlyConsolidatedCache[i]?.noi ?? 0,
+  }));
+  const anoiChartData = years.map((_, i) => ({
+    label: String(years[i]),
+    value: financials.yearlyConsolidatedCache[i]?.anoi ?? 0,
+  }));
+  const debtServiceData = years.map((_, y) => ({
+    label: String(years[y]),
+    value: cf.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0),
+  }));
+  const fcfeData = years.map((_, y) => ({
+    label: String(years[y]),
+    value: cf.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0),
+  }));
+
+  drawLineChart({
+    doc,
+    x: 16,
+    y: startY,
+    width: pageW - 32,
+    height: 140,
+    title: `Investment Returns (${projectionYears}-Year Projection)`,
+    series: [
+      { name: "Net Operating Income (NOI)", data: noiChartData, color: `#${brand.DARK_GREEN_HEX}` },
+      { name: "Adjusted NOI (ANOI)", data: anoiChartData, color: "#6B7280" },
+      { name: "Debt Service", data: debtServiceData, color: "#F97316" },
+      { name: "Free Cash Flow to Equity", data: fcfeData, color: "#8B5CF6" },
+    ],
+  });
 
   doc.addPage();
-  startY = drawSectionTitle(`Performance Trend`, `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI`);
+  startY = drawSectionTitle("Performance Trend", `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI`);
 
   const chartData = years.map((year, i) => ({
     label: String(year),

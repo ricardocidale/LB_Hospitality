@@ -23,7 +23,7 @@ export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: s
     navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
     darkText: BRAND.DARK_TEXT_HEX, gray: BRAND.GRAY_HEX,
     altRow: BRAND.ALT_ROW_HEX, sectionBg: BRAND.SECTION_BG_HEX,
-    white: BRAND.WHITE_HEX, lightGray: "999999", negativeRed: "CC3333",
+    white: BRAND.WHITE_HEX, lightGray: BRAND.LIGHT_GRAY_HEX, negativeRed: BRAND.NEGATIVE_RED_HEX,
   };
   if (!themeColors?.length) return defaults;
 

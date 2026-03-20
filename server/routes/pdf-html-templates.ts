@@ -9,6 +9,9 @@ export interface ThemeColorMap {
   gray: string;      // secondary text
   altRow: string;    // zebra striping
   sectionBg: string; // section header bg
+  white: string;     // white / inverted text
+  lightGray: string; // muted footer text
+  negativeRed: string; // negative trend / loss
 }
 
 /** Map client theme colors to functional PDF roles using the semantic description labels
@@ -20,6 +23,7 @@ export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: s
     navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
     darkText: BRAND.DARK_TEXT_HEX, gray: BRAND.GRAY_HEX,
     altRow: BRAND.ALT_ROW_HEX, sectionBg: BRAND.SECTION_BG_HEX,
+    white: BRAND.WHITE_HEX, lightGray: "999999", negativeRed: "CC3333",
   };
   if (!themeColors?.length) return defaults;
 
@@ -39,20 +43,16 @@ export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: s
   };
 
   return {
-    // Darkest primary color — table header backgrounds, cover fill
     navy:      byDesc("palette: primary")                  ?? defaults.navy,
-    // Secondary brand color — accent borders, table dividers
     sage:      byDesc("palette: secondary")                ?? defaults.sage,
-    // Standalone accent / highlight — KPI callouts, positive values, titles
     darkGreen: byDesc("palette: accent", "accent:")        ?? defaults.darkGreen,
-    // Body text
     darkText:  byDesc("palette: foreground")               ?? defaults.darkText,
-    // Border / divider color — cell separators, muted lines
     gray:      byDesc("palette: border")                   ?? defaults.gray,
-    // Muted surface — alternating row background
     altRow:    byDesc("palette: muted")                    ?? defaults.altRow,
-    // Card / canvas background — section header fill
     sectionBg: byDesc("palette: background")               ?? defaults.sectionBg,
+    white:     defaults.white,
+    lightGray: defaults.lightGray,
+    negativeRed: defaults.negativeRed,
   };
 }
 

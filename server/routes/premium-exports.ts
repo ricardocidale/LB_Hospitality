@@ -306,11 +306,11 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
       });
       slide.addText(slideData.title || "", {
         x: 0.6, y: 2.3, w: 12, h: 0.5,
-        fontSize: 22, fontFace: "Arial", color: BRAND.WHITE_HEX,
+        fontSize: 22, fontFace: "Arial", color: tc.white,
       });
       slide.addText(slideData.subtitle || "", {
         x: 0.6, y: 2.9, w: 8, h: 0.4,
-        fontSize: 14, fontFace: "Arial", color: "AAAAAA",
+        fontSize: 14, fontFace: "Arial", color: tc.lightGray,
       });
       if (slideData.source_tag) {
         slide.addText(slideData.source_tag, {
@@ -341,7 +341,7 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
           rectRadius: 0.1,
         });
         const trendColor = m.trend === "up" ? tc.darkGreen :
-          m.trend === "down" ? "CC3333" : tc.darkGreen;
+          m.trend === "down" ? tc.negativeRed : tc.darkGreen;
         slide.addText(m.value || "", {
           x: x + 0.15, y: y + 0.15, w: cardW - 0.3, h: 0.5,
           fontSize: 18, fontFace: "Arial", color: trendColor, bold: true,
@@ -368,9 +368,9 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
       const tableRows: any[][] = [];
 
       const headerRow = [
-        { text: "", options: { fill: { color: tc.sage }, fontFace: "Arial", fontSize: 8, color: BRAND.WHITE_HEX, bold: true } },
+        { text: "", options: { fill: { color: tc.sage }, fontFace: "Arial", fontSize: 8, color: tc.white, bold: true } },
         ...years.map((y: string) => ({
-          text: y, options: { fill: { color: tc.sage }, fontFace: "Arial", fontSize: 8, color: BRAND.WHITE_HEX, bold: true, align: "right" as const },
+          text: y, options: { fill: { color: tc.sage }, fontFace: "Arial", fontSize: 8, color: tc.white, bold: true, align: "right" as const },
         })),
       ];
       tableRows.push(headerRow);
@@ -379,7 +379,7 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
         const isHeader = row.type === "header";
         const isTotal = row.type === "total" || row.type === "subtotal";
         const indent = row.indent ? "  ".repeat(row.indent) : "";
-        const bg = isHeader ? tc.sectionBg : ri % 2 === 1 ? tc.altRow : BRAND.WHITE_HEX;
+        const bg = isHeader ? tc.sectionBg : ri % 2 === 1 ? tc.altRow : tc.white;
 
         const labelCell = {
           text: indent + (row.category || ""),
@@ -459,7 +459,7 @@ async function generatePptxBuffer(aiResult: any, data: PremiumExportRequest): Pr
     });
     slide.addText(`${data.companyName} — Confidential`, {
       x: 0.3, y: SLIDE_H - 0.32, w: 5, h: 0.25,
-      fontSize: 7, fontFace: "Arial", color: "999999", italic: true,
+      fontSize: 7, fontFace: "Arial", color: tc.lightGray, italic: true,
     });
   }
 

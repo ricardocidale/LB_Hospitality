@@ -113,10 +113,11 @@ export function getPptxPrompt(data: ExportDataShape): string {
     : "Show summary-level metrics and key aggregates only.";
   return `You are generating a premium PowerPoint investor presentation. Detail level: ${data.version || "short"}. ${versionHint} Based on the financial data below, produce a JSON structure for slide generation with enhanced layouts.
 
-Brand palette:
-- Navy: #${BRAND.NAVY_HEX} (title slide backgrounds)
-- Sage Green: #${BRAND.SAGE_HEX} (accent bars, table headers)
-- Dark Green: #${BRAND.DARK_GREEN_HEX} (headings, positive values)
+IMPORTANT STYLING RULES — YOU MUST FOLLOW THESE:
+- Do NOT include any color values, hex codes, or color names in your output.
+- Do NOT suggest gradients, shadows, or visual effects.
+- Colors and styling are applied programmatically by the rendering engine. Your job is ONLY to structure content.
+- Focus exclusively on slide types, titles, data organization, and textual content.
 
 Financial Data:
 ${buildFinancialDataContext(data)}

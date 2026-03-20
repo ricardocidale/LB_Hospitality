@@ -591,7 +591,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         values={yd.map((y) => {
           const totalDebtService = y.interestExpense + (y.principalPayment ?? 0);
           if (totalDebtService <= 0) return "N/A";
-          return `${(y.noi / totalDebtService).toFixed(2)}x`;
+          return `${(y.anoi / totalDebtService).toFixed(2)}x`;
         })}
       />
 

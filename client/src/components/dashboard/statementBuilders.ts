@@ -6,8 +6,8 @@ import type { MonthlyFinancials } from "@/lib/financialEngine";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import { yearEndSlice, sumMonthlyField, propertyPPE } from "@/lib/financial/portfolio-helpers";
 import { computeIRR } from "@analytics/returns/irr.js";
-import { DEFAULT_EXIT_CAP_RATE, DEFAULT_PROPERTY_TAX_RATE } from "@/lib/constants";
-import { DEFAULT_COST_OF_EQUITY } from "@shared/constants";
+import { DEFAULT_EXIT_CAP_RATE, DEFAULT_PROPERTY_TAX_RATE, DEFAULT_INTEREST_RATE } from "@/lib/constants";
+import { DEFAULT_COST_OF_EQUITY, DEFAULT_SAFE_DISCOUNT_RATE } from "@shared/constants";
 
 export interface ExportRow {
   category: string;
@@ -634,13 +634,13 @@ export function generatePortfolioInvestmentData(
         const equity = propertyEquityInvested(prop);
         const isFullEquity = prop.type === "Full Equity";
         const debt = isFullEquity ? 0 : (prop.purchasePrice ?? 0) * (prop.acquisitionLTV ?? 0);
-        const debtRate = prop.acquisitionInterestRate ?? 0.09;
+        const debtRate = prop.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
         const taxRate = prop.taxRate ?? DEFAULT_PROPERTY_TAX_RATE;
         const totalCapital = equity + debt;
         const ew = totalCapital > 0 ? equity / totalCapital : 1;
         const dw = totalCapital > 0 ? debt / totalCapital : 0;
         const wacc = (ew * re) + (dw * debtRate * (1 - taxRate));
-        const discountRate = wacc > 0 ? wacc : 0.10;
+        const discountRate = wacc > 0 ? wacc : DEFAULT_SAFE_DISCOUNT_RATE;
 
         const yearlyATCF = years.map((_, y) => propCF[y]?.atcf ?? 0);
         const exitValue = propCF[projectionYears - 1]?.exitValue ?? 0;

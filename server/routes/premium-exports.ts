@@ -940,7 +940,7 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
         }
       } else if (content.type === "table" && content.headers?.length) {
         const headerCells = content.headers.map((h: string) => new TableCell({
-          children: [new Paragraph({ children: [new TextRun({ text: h, bold: true, size: 18, color: "FFFFFF", font: "Arial" })] })],
+          children: [new Paragraph({ children: [new TextRun({ text: h, bold: true, size: 18, color: BRAND.WHITE_HEX, font: "Arial" })] })],
           shading: { type: ShadingType.SOLID, color: BRAND.SAGE_HEX },
         }));
 
@@ -979,7 +979,7 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
       const years = table.years || [];
       const headerCells = ["", ...years].map((h: string) => new TableCell({
         children: [new Paragraph({
-          children: [new TextRun({ text: h, bold: true, size: 16, color: "FFFFFF", font: "Arial" })],
+          children: [new TextRun({ text: h, bold: true, size: 16, color: BRAND.WHITE_HEX, font: "Arial" })],
           alignment: h ? AlignmentType.RIGHT : AlignmentType.LEFT,
         })],
         shading: { type: ShadingType.SOLID, color: BRAND.SAGE_HEX },

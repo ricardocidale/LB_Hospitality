@@ -372,7 +372,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
     level: z.enum(["budget", "average", "luxury"]).optional().default("luxury"),
     eventLocations: z.number().optional().default(2),
     maxEventCapacity: z.number().optional().default(150),
-    acreage: z.number().optional().default(5),
+    acreage: z.number().optional().default(10),
     privacyLevel: z.enum(["low", "moderate", "high"]).optional().default("high"),
     parkingSpaces: z.number().optional().default(50),
     description: z.string()

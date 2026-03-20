@@ -35,7 +35,7 @@ import {
   DEFAULT_MISC_OPS_RATE,
   DEFAULT_SAFE_TRANCHE,
 } from '../constants';
-import { DEFAULT_COMPANY_TAX_RATE } from '@shared/constants';
+import { DEFAULT_COMPANY_TAX_RATE, MONTHS_PER_YEAR } from '@shared/constants';
 import { computeCostOfServices } from '@calc/services/cost-of-services';
 import type { ServiceTemplate, AggregatedServiceCosts } from '@calc/services/types';
 import { PropertyInput, GlobalInput, CompanyMonthlyFinancials, ServiceFeeBreakdown } from './types';

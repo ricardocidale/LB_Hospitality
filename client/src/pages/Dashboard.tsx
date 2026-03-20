@@ -98,11 +98,14 @@ export default function Dashboard() {
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
     const isShort = version === "short";
 
-    if (activeTab === "income" || activeTab === "overview") {
+    if (activeTab === "income") {
       return generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, isShort);
     } else if (activeTab === "cashflow") {
       const override = isShort ? new Set<string>() : new Set(["cfo", "cfi", "cff"]);
       return generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear, override, isShort, properties.map(p => p.name), financials.yearlyConsolidatedCache);
+    } else if (activeTab === "balance") {
+      const msd = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
+      return generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, msd, isShort);
     } else if (activeTab === "investment") {
       return generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
     }
@@ -146,20 +149,34 @@ export default function Dashboard() {
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
 
     if (exportType === "pdf") {
-      const data = getExportData(version);
-      if (!data) return;
-      const label = TAB_LABELS[activeTab] || "Portfolio";
-      exportPortfolioPDF(
-        orientation,
-        projectionYears,
-        data.years,
-        data.rows,
-        (i) => financials.yearlyConsolidatedCache[i],
-        label,
-        undefined,
-        customFilename,
-        branding?.themeColors ?? undefined
-      );
+      if (activeTab === "overview") {
+        const { exportDashboardComprehensivePDF } = await import("@/components/dashboard/exportRenderers");
+        const isShort = version === "short";
+        const incomeRows = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, isShort).rows;
+        await exportDashboardComprehensivePDF({
+          financials, properties: properties!, projectionYears, getFiscalYear,
+          companyName: global.companyName || "H+ Analytics",
+          incomeRows,
+          modelStartDate: global.modelStartDate ? new Date(global.modelStartDate) : undefined,
+          themeColors: branding?.themeColors ?? undefined,
+          overviewOnly: true,
+        }, customFilename);
+      } else if (activeTab === "investment") {
+        const data = generatePortfolioInvestmentData(financials, properties!, projectionYears, getFiscalYear);
+        exportPortfolioPDF(orientation, projectionYears, data.years, data.rows, (i) => financials.yearlyConsolidatedCache[i], "Investment Analysis", undefined, customFilename, branding?.themeColors ?? undefined);
+      } else {
+        const { exportDashboardComprehensivePDF } = await import("@/components/dashboard/exportRenderers");
+        const isShort = version === "short";
+        const incomeRows = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, isShort).rows;
+        await exportDashboardComprehensivePDF({
+          financials, properties: properties!, projectionYears, getFiscalYear,
+          companyName: global.companyName || "H+ Analytics",
+          incomeRows,
+          modelStartDate: global.modelStartDate ? new Date(global.modelStartDate) : undefined,
+          themeColors: branding?.themeColors ?? undefined,
+          statementsOnly: true,
+        }, customFilename);
+      }
     } else if (exportType === "chart") {
       if (!tabContentRef.current) return;
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
@@ -359,43 +376,60 @@ export default function Dashboard() {
         premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={TAB_LABELS[activeTab] || "Portfolio"}
         fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
-        showCoverPageOption={exportType !== "chart"}
         getPremiumExportData={exportType !== "chart" ? (version: ExportVersion, includeCoverPage: boolean) => {
           if (!financials || !properties || !global) return null;
           const py = global.projectionYears ?? PROJECTION_YEARS;
           const fsm = global.fiscalYearStartMonth ?? 1;
           const gfy = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fsm, i);
           const summaryOnly = version === "short";
-          const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy, summaryOnly);
-          const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy, undefined, summaryOnly, undefined, financials.yearlyConsolidatedCache);
-          const msd = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
-          const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, py, gfy, msd, summaryOnly);
-          const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy, summaryOnly);
           const totalRooms = properties.reduce((sum, p) => sum + p.roomCount, 0);
           const mapRows = (d: { years: number[]; rows: any[] }) => ({
             years: d.years.map(String),
             rows: d.rows.map((r: any) => ({ category: r.category, values: r.values, indent: r.indent, isBold: r.isBold ?? r.isHeader, isHeader: r.isHeader, isItalic: r.isItalic, format: r.format })),
           });
-          return {
-            entityName: "Consolidated Portfolio",
-            companyName: global.companyName || "H+ Analytics",
-            statementType: TAB_LABELS[activeTab] || "Portfolio",
-            years: incomeData.years.map(String),
-            statements: [
+          const baseMetrics = [
+            { label: "Portfolio IRR", value: `${(financials.portfolioIRR * 100).toFixed(1)}%` },
+            { label: "Equity Multiple", value: `${financials.equityMultiple.toFixed(2)}x` },
+            { label: "Cash-on-Cash Return", value: `${financials.cashOnCash.toFixed(1)}%` },
+            { label: "Total Properties", value: `${properties.length}` },
+            { label: "Total Rooms", value: `${totalRooms}` },
+          ];
+
+          const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy, summaryOnly);
+
+          let statements: Array<{ title: string; years: string[]; rows: any[] }>;
+          let statementType: string;
+
+          if (activeTab === "overview") {
+            statementType = "Portfolio Overview";
+            statements = [];
+          } else if (activeTab === "investment") {
+            statementType = "Investment Analysis";
+            const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy, summaryOnly);
+            statements = [
+              { title: "Investment Analysis", ...mapRows(investmentData) },
+            ];
+          } else {
+            statementType = "Financial Statements";
+            const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, py, gfy, undefined, summaryOnly, undefined, financials.yearlyConsolidatedCache);
+            const msd = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
+            const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, py, gfy, msd, summaryOnly);
+            statements = [
               { title: "Consolidated Income Statement", ...mapRows(incomeData) },
               { title: "Consolidated Cash Flow", ...mapRows(cashFlowData) },
               { title: "Consolidated Balance Sheet", ...mapRows(balanceSheetData) },
-              { title: "Investment Analysis", ...mapRows(investmentData) },
-            ],
-            metrics: [
-              { label: "Portfolio IRR", value: `${(financials.portfolioIRR * 100).toFixed(1)}%` },
-              { label: "Equity Multiple", value: `${financials.equityMultiple.toFixed(2)}x` },
-              { label: "Cash-on-Cash Return", value: `${financials.cashOnCash.toFixed(1)}%` },
-              { label: "Total Properties", value: `${properties.length}` },
-              { label: "Total Rooms", value: `${totalRooms}` },
-            ],
+            ];
+          }
+
+          return {
+            entityName: "Consolidated Portfolio",
+            companyName: global.companyName || "H+ Analytics",
+            statementType,
+            years: incomeData.years.map(String),
+            statements,
+            metrics: baseMetrics,
             projectionYears: py,
-            includeCoverPage,
+            includeCoverPage: activeTab === "overview",
             themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank, description: c.description })),
           } as PremiumExportPayload;
         } : undefined}

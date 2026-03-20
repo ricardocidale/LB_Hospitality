@@ -48,6 +48,7 @@ import {
   COST_SEG_5YR_LIFE_YEARS,
   COST_SEG_7YR_LIFE_YEARS,
   COST_SEG_15YR_LIFE_YEARS,
+  MONTHS_PER_YEAR,
 } from '@shared/constants';
 import { PropertyInput, GlobalInput } from './types';
 import { parseLocalDate } from './utils';
@@ -160,7 +161,7 @@ export function resolvePropertyAssumptions(
   const daysPerMonth = global.daysPerMonth ?? DAYS_PER_MONTH;
 
   const costSegEnabled = property.costSegEnabled ?? false;
-  let monthlyDepreciation = safeNum(buildingValue / depreciationYears / 12);
+  let monthlyDepreciation = safeNum(buildingValue / depreciationYears / MONTHS_PER_YEAR);
   let costSeg5yrMonthly = 0;
   let costSeg7yrMonthly = 0;
   let costSeg15yrMonthly = 0;
@@ -178,10 +179,10 @@ export function resolvePropertyAssumptions(
     costSeg7yrBasis = buildingValue * pct7;
     costSeg15yrBasis = buildingValue * pctLong;
     costSegRestBasis = buildingValue * Math.max(0, pctRest);
-    costSeg5yrMonthly = safeNum(costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / 12);
-    costSeg7yrMonthly = safeNum(costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / 12);
-    costSeg15yrMonthly = safeNum(costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / 12);
-    costSegRestMonthly = safeNum(costSegRestBasis / depreciationYears / 12);
+    costSeg5yrMonthly = safeNum(costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / MONTHS_PER_YEAR);
+    costSeg7yrMonthly = safeNum(costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / MONTHS_PER_YEAR);
+    costSeg15yrMonthly = safeNum(costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / MONTHS_PER_YEAR);
+    costSegRestMonthly = safeNum(costSegRestBasis / depreciationYears / MONTHS_PER_YEAR);
   }
 
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
@@ -192,8 +193,8 @@ export function resolvePropertyAssumptions(
   // Income tax rate (NOT property tax — property taxes use costRateTaxes)
   const taxRate = property.taxRate ?? DEFAULT_PROPERTY_TAX_RATE;
   const dayCountConvention = property.dayCountConvention ?? '30/360';
-  const monthlyRate = loanRate / 12;
-  const totalPayments = loanTerm * 12;
+  const monthlyRate = loanRate / MONTHS_PER_YEAR;
+  const totalPayments = loanTerm * MONTHS_PER_YEAR;
   let monthlyPayment = 0;
   if (originalLoanAmount > 0) {
     monthlyPayment = safeNum(pmt(originalLoanAmount, monthlyRate, totalPayments));
@@ -222,16 +223,16 @@ export function resolvePropertyAssumptions(
 
   const startYear = modelStart.getFullYear();
   const startMonth = modelStart.getMonth();
-  const opsStartIdx = (opsStart.getFullYear() - startYear) * 12 + (opsStart.getMonth() - startMonth);
-  const acqMonthIdx = (acquisitionDate.getFullYear() - startYear) * 12 + (acquisitionDate.getMonth() - startMonth);
+  const opsStartIdx = (opsStart.getFullYear() - startYear) * MONTHS_PER_YEAR + (opsStart.getMonth() - startMonth);
+  const acqMonthIdx = (acquisitionDate.getFullYear() - startYear) * MONTHS_PER_YEAR + (acquisitionDate.getMonth() - startMonth);
 
   const needsDaysLookup = dayCountConvention === 'ACT/360' || dayCountConvention === 'ACT/365';
   const daysInMonthLookup: number[] = needsDaysLookup ? new Array(months) : [];
   if (needsDaysLookup) {
     for (let i = 0; i < months; i++) {
       const totalM = startMonth + i;
-      const y = startYear + Math.floor(totalM / 12);
-      const m = totalM % 12;
+      const y = startYear + Math.floor(totalM / MONTHS_PER_YEAR);
+      const m = totalM % MONTHS_PER_YEAR;
       daysInMonthLookup[i] = new Date(y, m + 1, 0).getDate();
     }
   }
@@ -260,19 +261,19 @@ export function resolvePropertyAssumptions(
   const hasActiveFeeCategories = activeFeeCategories != null && activeFeeCategories.length > 0;
   const rampMonths = Math.max(1, property.occupancyRampMonths ?? DEFAULT_OCCUPANCY_RAMP_MONTHS);
   const availableRooms = property.roomCount * daysPerMonth;
-  const totalPropertyValueDiv12 = totalPropertyValue / 12;
+  const totalPropertyValueDiv12 = totalPropertyValue / MONTHS_PER_YEAR;
   const isFinanced = property.type === "Financed";
-  const loanN = loanTerm * 12;
+  const loanN = loanTerm * MONTHS_PER_YEAR;
 
   const maxMonthsSinceOps = opsStartIdx < 0 ? months - 1 + Math.abs(opsStartIdx) : months - 1;
-  const maxOpsYear = Math.floor(maxMonthsSinceOps / 12) + 1;
+  const maxOpsYear = Math.floor(maxMonthsSinceOps / MONTHS_PER_YEAR) + 1;
   const adrFactors = new Array(maxOpsYear);
   const fixedEscFactors = new Array(maxOpsYear);
   for (let y = 0; y < maxOpsYear; y++) {
     adrFactors[y] = safeNum(Math.pow(1 + adrGrowthRate, y));
     fixedEscFactors[y] = safeNum(Math.pow(1 + fixedEscalationRate, y));
   }
-  const monthlyEscRate = escalationMethod === 'monthly' ? Math.pow(1 + fixedEscalationRate, 1 / 12) - 1 : 0;
+  const monthlyEscRate = escalationMethod === 'monthly' ? Math.pow(1 + fixedEscalationRate, 1 / MONTHS_PER_YEAR) - 1 : 0;
 
   return {
     modelStart,

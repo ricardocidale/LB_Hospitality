@@ -58,6 +58,16 @@ export {
   DEFAULT_MAX_OCCUPANCY,
   STAFFING_TIERS,
   DEFAULT_SAFE_TRANCHE,
+  MONTHS_PER_YEAR,
+  DEFAULT_STABILIZATION_MONTHS,
+  DEFAULT_STAFF_SALARY,
+  DEFAULT_OFFICE_LEASE,
+  DEFAULT_PROFESSIONAL_SERVICES,
+  DEFAULT_TECH_INFRA,
+  DEFAULT_BUSINESS_INSURANCE_COMPANY,
+  DEFAULT_TRAVEL_PER_CLIENT,
+  DEFAULT_IT_LICENSE_PER_CLIENT,
+  DEFAULT_PARTNER_COMP,
 } from "@shared/constants";
 
 // Re-export loan defaults from shared (no longer duplicated here)
@@ -69,14 +79,9 @@ export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
 export { DEFAULT_ADR_GROWTH_RATE, DEFAULT_START_OCCUPANCY } from "@shared/constants";
 export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
 
-// Company cost defaults — annual amounts for the management company's overhead
-export const DEFAULT_STAFF_SALARY = 75000;
-export const DEFAULT_OFFICE_LEASE = 36000;
-export const DEFAULT_PROFESSIONAL_SERVICES = 24000;
-export const DEFAULT_TECH_INFRA = 18000;
-export const DEFAULT_BUSINESS_INSURANCE = 12000;
-export const DEFAULT_TRAVEL_PER_CLIENT = 12000;
-export const DEFAULT_IT_LICENSE_PER_CLIENT = 3000;
+// Company cost defaults — re-exported from shared/constants.ts (canonical source)
+// DEFAULT_BUSINESS_INSURANCE kept as alias for backward compat
+export const DEFAULT_BUSINESS_INSURANCE = DEFAULT_BUSINESS_INSURANCE_COMPANY;
 export const DEFAULT_MARKETING_RATE = 0.05;
 export const DEFAULT_MISC_OPS_RATE = 0.03;
 // Projection period
@@ -93,7 +98,6 @@ export const RESERVE_ROUNDING_INCREMENT = 10000;
 
 // Partner defaults
 export const DEFAULT_PARTNER_COUNT = 3;
-export const DEFAULT_PARTNER_COMP = [540000, 540000, 540000, 600000, 600000, 700000, 700000, 800000, 800000, 900000];
 
 // Refinance default period (years after operations start)
 export const DEFAULT_REFI_PERIOD_YEARS = 3;

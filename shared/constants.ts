@@ -167,6 +167,10 @@ export const DEPRECIATION_YEARS = 27.5;
 // TIME CONSTANTS
 // ──────────────────────────────────────────────────────────
 
+// Months per year — used for annual-to-monthly conversion (interest rates,
+// depreciation, salary, etc.). Prefer this over bare `/ 12` for readability.
+export const MONTHS_PER_YEAR = 12;
+
 // Average days per month (365/12 ≈ 30.42, rounded to 30.5). Used to convert
 // monthly ADR × occupancy into available-room-night revenue.
 export const DAYS_PER_MONTH = 30.5;
@@ -222,6 +226,9 @@ export const DEFAULT_START_ADR = 250;
 export const DEFAULT_MAX_OCCUPANCY = 0.85;
 export const DEFAULT_ADR_GROWTH_RATE = 0.03;
 export const DEFAULT_START_OCCUPANCY = 0.55;
+// Default months to reach stabilized occupancy after property opening.
+// Industry standard for boutique hotels in secondary/tertiary markets.
+export const DEFAULT_STABILIZATION_MONTHS = 36;
 
 // ──────────────────────────────────────────────────────────
 // INFLATION & COST ESCALATION
@@ -347,6 +354,21 @@ export const STAFFING_TIERS = [
 ];
 
 export const DEFAULT_SAFE_TRANCHE = 800_000;
+
+// ──────────────────────────────────────────────────────────
+// MANAGEMENT COMPANY OVERHEAD DEFAULTS
+// Annual fixed/variable costs for the management company. These
+// seed the company pro-forma when no user-specified values exist.
+// ──────────────────────────────────────────────────────────
+
+export const DEFAULT_STAFF_SALARY = 75_000;
+export const DEFAULT_OFFICE_LEASE = 36_000;
+export const DEFAULT_PROFESSIONAL_SERVICES = 24_000;
+export const DEFAULT_TECH_INFRA = 18_000;
+export const DEFAULT_BUSINESS_INSURANCE_COMPANY = 12_000;
+export const DEFAULT_TRAVEL_PER_CLIENT = 12_000;
+export const DEFAULT_IT_LICENSE_PER_CLIENT = 3_000;
+export const DEFAULT_PARTNER_COMP = [540_000, 540_000, 540_000, 600_000, 600_000, 700_000, 700_000, 800_000, 800_000, 900_000];
 
 // ──────────────────────────────────────────────────────────
 // RESEARCH CONFIGURATION DEFAULTS

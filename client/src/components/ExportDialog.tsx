@@ -53,7 +53,6 @@ interface ExportDialogProps {
   onExport: (orientation: "landscape" | "portrait", version: ExportVersion, customFilename?: string) => void;
   title: string;
   showVersionOption?: boolean;
-  showCoverPageOption?: boolean;
   premiumExportData?: PremiumExportPayload | null;
   getPremiumExportData?: (version: ExportVersion, includeCoverPage: boolean) => PremiumExportPayload | null;
   premiumFormat?: PremiumFormat;
@@ -278,7 +277,7 @@ function GeneratingAnimation() {
   );
 }
 
-export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, showCoverPageOption = false, premiumExportData, getPremiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
+export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, premiumExportData, getPremiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
   const [orientation, setOrientation] = useState<"landscape" | "portrait">(getStoredOrientation);
   const [version, setVersion] = useState<ExportVersion>(getStoredVersion);
   const [isPremium, setIsPremium] = useState(getStoredPremium);
@@ -431,21 +430,6 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                 </div>
               )}
 
-              {showCoverPageOption && (
-                <div className="border-t pt-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="cover-page-toggle" className="text-sm font-medium cursor-pointer">
-                      Include Cover Page & Overview
-                    </Label>
-                    <Switch
-                      id="cover-page-toggle"
-                      checked={includeCoverPage}
-                      onCheckedChange={handleCoverPageToggle}
-                      data-testid="switch-cover-page"
-                    />
-                  </div>
-                </div>
-              )}
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={onClose}>Cancel</Button>

@@ -32,6 +32,7 @@ import {
   COST_SEG_7YR_LIFE_MONTHS,
   COST_SEG_15YR_LIFE_MONTHS,
   NOL_UTILIZATION_CAP,
+  MONTHS_PER_YEAR,
 } from '@shared/constants';
 import { PropertyInput, GlobalInput, MonthlyFinancials } from './types';
 import { resolvePropertyAssumptions } from './resolve-assumptions';
@@ -67,7 +68,7 @@ export function generatePropertyProForma(
     const isOperational = i >= ctx.opsStartIdx;
     const monthsSinceOps = isOperational ? i - ctx.opsStartIdx : 0;
 
-    const opsYear = Math.floor(monthsSinceOps / 12);
+    const opsYear = Math.floor(monthsSinceOps / MONTHS_PER_YEAR);
     const currentAdr = safeNum(ctx.baseAdr * ctx.adrFactors[opsYear]);
     let fixedCostFactor: number;
     if (ctx.escalationMethod === 'monthly') {

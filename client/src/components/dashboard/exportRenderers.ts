@@ -179,6 +179,8 @@ export interface ComprehensiveDashboardExportParams {
   incomeRows: ExportRow[];
   modelStartDate?: Date;
   themeColors?: ThemeColor[];
+  overviewOnly?: boolean;
+  statementsOnly?: boolean;
 }
 
 const fmtCompact = (v: number) =>
@@ -189,6 +191,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     financials, properties, projectionYears, getFiscalYear,
     companyName = "H+ Analytics",
     incomeRows, modelStartDate, themeColors,
+    overviewOnly = false, statementsOnly = false,
   } = params;
 
   const jsPDF = (await import("jspdf")).default;
@@ -243,36 +246,6 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     return 38;
   }
 
-  drawCoverPage(doc, {
-    companyName,
-    title: "Consolidated Portfolio Report",
-    subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
-    meta: [
-      `Portfolio: ${properties.length} Properties \u2014 ${financials.totalRooms} Rooms`,
-      `Period: FY ${projRange}`,
-      "Classification: Confidential",
-    ],
-    dateStr,
-  }, brand);
-
-  doc.addPage();
-  const metrics: DashboardSummaryMetric[] = [
-    { label: "Portfolio IRR", value: `${(financials.portfolioIRR * 100).toFixed(1)}%`, section: "Return Metrics" },
-    { label: "Equity Multiple", value: `${financials.equityMultiple.toFixed(2)}x`, section: "Return Metrics" },
-    { label: "Cash-on-Cash Return", value: `${financials.cashOnCash.toFixed(1)}%`, section: "Return Metrics" },
-    { label: "Total Equity Invested", value: fmtCompact(financials.totalInitialEquity), section: "Investment Summary" },
-    { label: `Projected Exit Value (Year ${projectionYears})`, value: fmtCompact(financials.totalExitValue), section: "Investment Summary" },
-    { label: "Total Properties / Rooms", value: `${properties.length} / ${financials.totalRooms}`, section: "Investment Summary" },
-    { label: `${projectionYears}-Year Revenue`, value: fmtCompact(financials.totalProjectionRevenue), section: "Projection Totals" },
-    { label: `${projectionYears}-Year NOI`, value: fmtCompact(financials.totalProjectionNOI), section: "Projection Totals" },
-    { label: `${projectionYears}-Year Cash Flow`, value: fmtCompact(financials.totalProjectionCashFlow), section: "Projection Totals" },
-  ];
-  const propertyTable = properties.map(p => ({
-    name: p.name, market: p.market, rooms: p.roomCount, status: p.status,
-  }));
-  drawPageChrome();
-  drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable, brand);
-
   function withChrome(config: Record<string, any>): Record<string, any> {
     const origDidDrawPage = config.didDrawPage;
     return {
@@ -284,128 +257,174 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     };
   }
 
-  doc.addPage();
-  let startY = drawSectionTitle("Consolidated Income Statement (USALI)", `${projectionYears}-Year Projection (${projRange})`);
-  const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", startY, brand);
-  autoTable(doc, withChrome(incomeConfig));
+  let startY: number;
+  let needsNewFirstPage = false;
 
-  doc.addPage();
-  const cashFlowData = generatePortfolioCashFlowData(
-    financials.allPropertyYearlyCF, projectionYears, getFiscalYear,
-    new Set(["cfo", "cfi", "cff"]), false,
-    properties.map(p => p.name),
-    financials.yearlyConsolidatedCache,
-  );
-  startY = drawSectionTitle("Consolidated Cash Flow Statement", `${projectionYears}-Year Projection (${projRange})`);
-  const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", startY, brand);
-  autoTable(doc, withChrome(cfConfig));
+  if (!statementsOnly) {
+    drawCoverPage(doc, {
+      companyName,
+      title: "Consolidated Portfolio Report",
+      subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
+      meta: [
+        `Portfolio: ${properties.length} Properties \u2014 ${financials.totalRooms} Rooms`,
+        `Period: FY ${projRange}`,
+        "Classification: Confidential",
+      ],
+      dateStr,
+    }, brand);
 
-  doc.addPage();
-  const balanceSheetData = generatePortfolioBalanceSheetData(
-    financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate,
-  );
-  startY = drawSectionTitle("Consolidated Balance Sheet", `${projectionYears}-Year Projection (${projRange})`);
-  const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", startY, brand);
-  autoTable(doc, withChrome(bsConfig));
-
-  const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
-  const investmentSections = splitRowsBySectionHeaders(investmentData.rows);
-
-  const majorSectionTitles = new Set([
-    "Free Cash Flow to Investors",
-    "Per-Property Returns",
-    "Property-Level IRR Analysis",
-    "Discounted Cash Flow (DCF) Analysis",
-  ]);
-
-  let pendingRows: ExportRow[] = [];
-  let pendingSectionTitle = "Portfolio Investment Analysis";
-
-  function flushPending() {
-    if (pendingRows.length === 0) return;
     doc.addPage();
-    startY = drawSectionTitle(pendingSectionTitle, `${projectionYears}-Year Projection (${projRange})`);
-    const cfg = buildFinancialTableConfig(investmentData.years, pendingRows, "landscape", startY, brand);
-    autoTable(doc, withChrome(cfg));
-    pendingRows = [];
+    const metrics: DashboardSummaryMetric[] = [
+      { label: "Portfolio IRR", value: `${(financials.portfolioIRR * 100).toFixed(1)}%`, section: "Return Metrics" },
+      { label: "Equity Multiple", value: `${financials.equityMultiple.toFixed(2)}x`, section: "Return Metrics" },
+      { label: "Cash-on-Cash Return", value: `${financials.cashOnCash.toFixed(1)}%`, section: "Return Metrics" },
+      { label: "Total Equity Invested", value: fmtCompact(financials.totalInitialEquity), section: "Investment Summary" },
+      { label: `Projected Exit Value (Year ${projectionYears})`, value: fmtCompact(financials.totalExitValue), section: "Investment Summary" },
+      { label: "Total Properties / Rooms", value: `${properties.length} / ${financials.totalRooms}`, section: "Investment Summary" },
+      { label: `${projectionYears}-Year Revenue`, value: fmtCompact(financials.totalProjectionRevenue), section: "Projection Totals" },
+      { label: `${projectionYears}-Year NOI`, value: fmtCompact(financials.totalProjectionNOI), section: "Projection Totals" },
+      { label: `${projectionYears}-Year Cash Flow`, value: fmtCompact(financials.totalProjectionCashFlow), section: "Projection Totals" },
+    ];
+    const propertyTable = properties.map(p => ({
+      name: p.name, market: p.market, rooms: p.roomCount, status: p.status,
+    }));
+    drawPageChrome();
+    drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable, brand);
+  } else {
+    needsNewFirstPage = true;
   }
 
-  for (const section of investmentSections) {
-    if (majorSectionTitles.has(section.title)) {
-      flushPending();
-      pendingSectionTitle = section.title;
-      pendingRows = section.rows;
+  if (!overviewOnly) {
+    if (needsNewFirstPage) {
+      startY = drawSectionTitle("Consolidated Income Statement (USALI)", `${projectionYears}-Year Projection (${projRange})`);
+      needsNewFirstPage = false;
     } else {
-      pendingRows.push(...section.rows);
+      doc.addPage();
+      startY = drawSectionTitle("Consolidated Income Statement (USALI)", `${projectionYears}-Year Projection (${projRange})`);
     }
+    const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", startY!, brand);
+    autoTable(doc, withChrome(incomeConfig));
+
+    doc.addPage();
+    const cashFlowData = generatePortfolioCashFlowData(
+      financials.allPropertyYearlyCF, projectionYears, getFiscalYear,
+      new Set(["cfo", "cfi", "cff"]), false,
+      properties.map(p => p.name),
+      financials.yearlyConsolidatedCache,
+    );
+    startY = drawSectionTitle("Consolidated Cash Flow Statement", `${projectionYears}-Year Projection (${projRange})`);
+    const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", startY, brand);
+    autoTable(doc, withChrome(cfConfig));
+
+    doc.addPage();
+    const balanceSheetData = generatePortfolioBalanceSheetData(
+      financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate,
+    );
+    startY = drawSectionTitle("Consolidated Balance Sheet", `${projectionYears}-Year Projection (${projRange})`);
+    const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", startY, brand);
+    autoTable(doc, withChrome(bsConfig));
   }
-  flushPending();
 
-  const cf = financials.allPropertyYearlyCF;
-  doc.addPage();
-  startY = drawSectionTitle("Investment Returns", `${projectionYears}-Year Projection (${projRange})`);
+  if (!overviewOnly && !statementsOnly) {
+    const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
+    const investmentSections = splitRowsBySectionHeaders(investmentData.rows);
 
-  const noiChartData = years.map((_, i) => ({
-    label: String(years[i]),
-    value: financials.yearlyConsolidatedCache[i]?.noi ?? 0,
-  }));
-  const anoiChartData = years.map((_, i) => ({
-    label: String(years[i]),
-    value: financials.yearlyConsolidatedCache[i]?.anoi ?? 0,
-  }));
-  const debtServiceData = years.map((_, y) => ({
-    label: String(years[y]),
-    value: cf.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0),
-  }));
-  const fcfeData = years.map((_, y) => ({
-    label: String(years[y]),
-    value: cf.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0),
-  }));
+    const majorSectionTitles = new Set([
+      "Free Cash Flow to Investors",
+      "Per-Property Returns",
+      "Property-Level IRR Analysis",
+      "Discounted Cash Flow (DCF) Analysis",
+    ]);
 
-  drawLineChart({
-    doc,
-    x: 16,
-    y: startY,
-    width: pageW - 32,
-    height: 140,
-    title: `Investment Returns (${projectionYears}-Year Projection)`,
-    series: [
-      { name: "Net Operating Income (NOI)", data: noiChartData, color: `#${brand.LINE_HEX[0]}` },
-      { name: "Adjusted NOI (ANOI)", data: anoiChartData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-      { name: "Debt Service", data: debtServiceData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-      { name: "Free Cash Flow to Equity", data: fcfeData, color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
-    ],
-  });
+    let pendingRows: ExportRow[] = [];
+    let pendingSectionTitle = "Portfolio Investment Analysis";
 
-  doc.addPage();
-  startY = drawSectionTitle("Performance Trend", `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI`);
+    const flushPending = () => {
+      if (pendingRows.length === 0) return;
+      doc.addPage();
+      startY = drawSectionTitle(pendingSectionTitle, `${projectionYears}-Year Projection (${projRange})`);
+      const cfg = buildFinancialTableConfig(investmentData.years, pendingRows, "landscape", startY!, brand);
+      autoTable(doc, withChrome(cfg));
+      pendingRows = [];
+    }
 
-  const chartData = years.map((year, i) => ({
-    label: String(year),
-    value: financials.yearlyConsolidatedCache[i]?.revenueTotal ?? 0,
-  }));
-  const noiData = years.map((year, i) => {
-    const d = financials.yearlyConsolidatedCache[i];
-    return { label: String(year), value: d?.noi ?? 0 };
-  });
-  const expenseData = years.map((year, i) => ({
-    label: String(year),
-    value: financials.yearlyConsolidatedCache[i]?.totalExpenses ?? 0,
-  }));
+    for (const section of investmentSections) {
+      if (majorSectionTitles.has(section.title)) {
+        flushPending();
+        pendingSectionTitle = section.title;
+        pendingRows = section.rows;
+      } else {
+        pendingRows.push(...section.rows);
+      }
+    }
+    flushPending();
 
-  drawLineChart({
-    doc,
-    x: 16,
-    y: startY,
-    width: pageW - 32,
-    height: 140,
-    title: `Portfolio Performance (${projectionYears}-Year Projection)`,
-    series: [
-      { name: "Revenue", data: chartData, color: `#${brand.LINE_HEX[0]}` },
-      { name: "Operating Expenses", data: expenseData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-      { name: "ANOI", data: noiData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-    ],
-  });
+    const cf = financials.allPropertyYearlyCF;
+    doc.addPage();
+    startY = drawSectionTitle("Investment Returns", `${projectionYears}-Year Projection (${projRange})`);
+
+    const noiChartData = years.map((_, i) => ({
+      label: String(years[i]),
+      value: financials.yearlyConsolidatedCache[i]?.noi ?? 0,
+    }));
+    const anoiChartData = years.map((_, i) => ({
+      label: String(years[i]),
+      value: financials.yearlyConsolidatedCache[i]?.anoi ?? 0,
+    }));
+    const debtServiceData = years.map((_, y) => ({
+      label: String(years[y]),
+      value: cf.reduce((sum, prop) => sum + (prop[y]?.debtService ?? 0), 0),
+    }));
+    const fcfeData = years.map((_, y) => ({
+      label: String(years[y]),
+      value: cf.reduce((sum, prop) => sum + (prop[y]?.freeCashFlowToEquity ?? 0), 0),
+    }));
+
+    drawLineChart({
+      doc,
+      x: 16,
+      y: startY!,
+      width: pageW - 32,
+      height: 140,
+      title: `Investment Returns (${projectionYears}-Year Projection)`,
+      series: [
+        { name: "Net Operating Income (NOI)", data: noiChartData, color: `#${brand.LINE_HEX[0]}` },
+        { name: "Adjusted NOI (ANOI)", data: anoiChartData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+        { name: "Debt Service", data: debtServiceData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+        { name: "Free Cash Flow to Equity", data: fcfeData, color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
+      ],
+    });
+
+    doc.addPage();
+    startY = drawSectionTitle("Performance Trend", `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI`);
+
+    const chartData = years.map((year, i) => ({
+      label: String(year),
+      value: financials.yearlyConsolidatedCache[i]?.revenueTotal ?? 0,
+    }));
+    const noiData = years.map((year, i) => {
+      const d = financials.yearlyConsolidatedCache[i];
+      return { label: String(year), value: d?.noi ?? 0 };
+    });
+    const expenseData = years.map((year, i) => ({
+      label: String(year),
+      value: financials.yearlyConsolidatedCache[i]?.totalExpenses ?? 0,
+    }));
+
+    drawLineChart({
+      doc,
+      x: 16,
+      y: startY,
+      width: pageW - 32,
+      height: 140,
+      title: `Portfolio Performance (${projectionYears}-Year Projection)`,
+      series: [
+        { name: "Revenue", data: chartData, color: `#${brand.LINE_HEX[0]}` },
+        { name: "Operating Expenses", data: expenseData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+        { name: "ANOI", data: noiData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+      ],
+    });
+  }
 
   const totalPages = (doc.internal as any).getNumberOfPages();
   for (let pg = 1; pg <= totalPages; pg++) {
@@ -419,8 +438,9 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });
   }
 
+  const suffix = overviewOnly ? "Portfolio Overview" : statementsOnly ? "Financial Statements" : "Consolidated Portfolio Report";
   const { saveFile: savePdfFile } = await import("./../../lib/exports/saveFile");
-  await savePdfFile(doc.output("blob"), customFilename || `${companyName} - Consolidated Portfolio Report.pdf`);
+  await savePdfFile(doc.output("blob"), customFilename || `${companyName} - ${suffix}.pdf`);
 }
 
 export { originalExportPortfolioPPTX as exportPortfolioPPTX };

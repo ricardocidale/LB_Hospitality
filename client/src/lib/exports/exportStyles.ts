@@ -64,7 +64,7 @@ function hexToRgb(hex: string): [number, number, number] {
   return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
 }
 
-function lighten(hex: string, factor: number): string {
+export function lighten(hex: string, factor: number): string {
   const [r, g, b] = hexToRgb(hex);
   const l = (c: number) => Math.min(255, Math.round(c + (255 - c) * factor));
   return [l(r), l(g), l(b)].map(c => c.toString(16).padStart(2, "0")).join("");

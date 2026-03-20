@@ -311,12 +311,35 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
   const investmentSections = splitRowsBySectionHeaders(investmentData.rows);
 
-  for (const section of investmentSections) {
+  const majorSectionTitles = new Set([
+    "Free Cash Flow to Investors",
+    "Per-Property Returns",
+    "Property-Level IRR Analysis",
+    "Discounted Cash Flow (DCF) Analysis",
+  ]);
+
+  let pendingRows: ExportRow[] = [];
+  let pendingSectionTitle = "Portfolio Investment Analysis";
+
+  function flushPending() {
+    if (pendingRows.length === 0) return;
     doc.addPage();
-    startY = drawSectionTitle(section.title, `${projectionYears}-Year Projection (${projRange})`);
-    const sectionConfig = buildFinancialTableConfig(investmentData.years, section.rows, "landscape", startY, brand);
-    autoTable(doc, withChrome(sectionConfig));
+    startY = drawSectionTitle(pendingSectionTitle, `${projectionYears}-Year Projection (${projRange})`);
+    const cfg = buildFinancialTableConfig(investmentData.years, pendingRows, "landscape", startY, brand);
+    autoTable(doc, withChrome(cfg));
+    pendingRows = [];
   }
+
+  for (const section of investmentSections) {
+    if (majorSectionTitles.has(section.title)) {
+      flushPending();
+      pendingSectionTitle = section.title;
+      pendingRows = section.rows;
+    } else {
+      pendingRows.push(...section.rows);
+    }
+  }
+  flushPending();
 
   const cf = financials.allPropertyYearlyCF;
   doc.addPage();

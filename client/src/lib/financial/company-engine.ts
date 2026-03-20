@@ -138,7 +138,7 @@ export function generateCompanyProForma(
 
   // ── Pre-computed escalation factor arrays (Task 6) ──
   const maxMonthsSinceOps = opsStartMonthIdx < 0 ? months - 1 + Math.abs(opsStartMonthIdx) : months - 1;
-  const maxCompanyOpsYear = Math.floor(maxMonthsSinceOps / 12) + 1;
+  const maxCompanyOpsYear = Math.floor(maxMonthsSinceOps / MONTHS_PER_YEAR) + 1;
   const fixedCostFactors = new Array(maxCompanyOpsYear);
   const variableCostFactors = new Array(maxCompanyOpsYear);
   for (let y = 0; y < maxCompanyOpsYear; y++) {
@@ -152,11 +152,11 @@ export function generateCompanyProForma(
   const propIds = properties.map((p, i) => String(p.id ?? i));
 
   for (let m = 0; m < months; m++) {
-    const year = Math.floor(m / 12);
+    const year = Math.floor(m / MONTHS_PER_YEAR);
     const hasStartedOps = m >= opsGateIdx;
 
     const monthsSinceCompanyOps = hasStartedOps ? m - opsStartMonthIdx : 0;
-    const companyOpsYear = Math.floor(monthsSinceCompanyOps / 12);
+    const companyOpsYear = Math.floor(monthsSinceCompanyOps / MONTHS_PER_YEAR);
     const fixedCostFactor = fixedCostFactors[companyOpsYear];
     const variableCostFactor = variableCostFactors[companyOpsYear];
     const activePropertyCount = activePropertyTimeline[m];
@@ -249,15 +249,15 @@ export function generateCompanyProForma(
         : activePropertyCount <= tier2Max ? tier2Fte
         : tier3Fte;
       
-      partnerCompensation = totalPartnerCompForYear / 12;
-      staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / 12;
-      officeLease = (officeLeaseStart * fixedCostFactor) / 12;
-      professionalServices = (professionalServicesStart * fixedCostFactor) / 12;
-      techInfrastructure = (techInfraStart * fixedCostFactor) / 12;
-      businessInsurance = (businessInsuranceStart * fixedCostFactor) / 12;
-      
-      travelCosts = (activePropertyCount * travelCostPerClient * variableCostFactor) / 12;
-      itLicensing = (activePropertyCount * itLicensePerClient * variableCostFactor) / 12;
+      partnerCompensation = totalPartnerCompForYear / MONTHS_PER_YEAR;
+      staffCompensation = (staffFTE * staffSalary * fixedCostFactor) / MONTHS_PER_YEAR;
+      officeLease = (officeLeaseStart * fixedCostFactor) / MONTHS_PER_YEAR;
+      professionalServices = (professionalServicesStart * fixedCostFactor) / MONTHS_PER_YEAR;
+      techInfrastructure = (techInfraStart * fixedCostFactor) / MONTHS_PER_YEAR;
+      businessInsurance = (businessInsuranceStart * fixedCostFactor) / MONTHS_PER_YEAR;
+
+      travelCosts = (activePropertyCount * travelCostPerClient * variableCostFactor) / MONTHS_PER_YEAR;
+      itLicensing = (activePropertyCount * itLicensePerClient * variableCostFactor) / MONTHS_PER_YEAR;
       marketing = totalRevenue * marketingRate;
       miscOps = totalRevenue * miscOpsRate;
     }
@@ -276,7 +276,7 @@ export function generateCompanyProForma(
     const safeFunding = safeFunding1 + safeFunding2;
     cumulativePrincipal += safeFunding;
 
-    const fundingInterestExpense = fundingInterestRate > 0 ? cumulativePrincipal * fundingInterestRate / 12 : 0;
+    const fundingInterestExpense = fundingInterestRate > 0 ? cumulativePrincipal * fundingInterestRate / MONTHS_PER_YEAR : 0;
     cumulativeAccruedInterest += fundingInterestExpense;
 
     let fundingInterestPayment = 0;
@@ -285,7 +285,7 @@ export function generateCompanyProForma(
         monthsOfAccrual++;
       }
       const paymentInterval = fundingInterestPaymentFrequency === 'quarterly' ? 3 :
-                               fundingInterestPaymentFrequency === 'annually' ? 12 : 0;
+                               fundingInterestPaymentFrequency === 'annually' ? MONTHS_PER_YEAR : 0;
       if (paymentInterval > 0 && monthsOfAccrual > 0 && monthsOfAccrual % paymentInterval === 0) {
         fundingInterestPayment = cumulativeAccruedInterest;
         cumulativeAccruedInterest = 0;
@@ -301,8 +301,8 @@ export function generateCompanyProForma(
     cumulativeCompanyCash += cashFlow;
 
     const totalMonths = startParsed.month + m;
-    const currentYear = startParsed.year + Math.floor(totalMonths / 12);
-    const currentMonth = totalMonths % 12;
+    const currentYear = startParsed.year + Math.floor(totalMonths / MONTHS_PER_YEAR);
+    const currentMonth = totalMonths % MONTHS_PER_YEAR;
     const currentDate = new Date(currentYear, currentMonth, 1);
 
     results.push({

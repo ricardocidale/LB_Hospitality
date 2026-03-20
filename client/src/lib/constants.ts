@@ -81,7 +81,8 @@ export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
 
 // Company cost defaults — re-exported from shared/constants.ts (canonical source)
 // DEFAULT_BUSINESS_INSURANCE kept as alias for backward compat
-export const DEFAULT_BUSINESS_INSURANCE = DEFAULT_BUSINESS_INSURANCE_COMPANY;
+import { DEFAULT_BUSINESS_INSURANCE_COMPANY as _BIC } from "@shared/constants";
+export const DEFAULT_BUSINESS_INSURANCE = _BIC;
 export const DEFAULT_MARKETING_RATE = 0.05;
 export const DEFAULT_MISC_OPS_RATE = 0.03;
 // Projection period

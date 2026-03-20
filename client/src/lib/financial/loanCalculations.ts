@@ -110,7 +110,8 @@ import {
   DEFAULT_LAND_VALUE_PERCENT,
   PROJECTION_YEARS,
   PROJECTION_MONTHS,
-  DEFAULT_MODEL_START_DATE
+  DEFAULT_MODEL_START_DATE,
+  MONTHS_PER_YEAR,
 } from '../constants';
 
 // Re-export constants for backwards compatibility
@@ -157,8 +158,8 @@ export function calculateLoanParams(
   const effectiveDepYears = property.depreciationYears ?? global?.depreciationYears ?? DEPRECIATION_YEARS;
   const annualDepreciation = buildingValue / effectiveDepYears;
   
-  const monthlyRate = interestRate / 12;
-  const totalPayments = termYears * 12;
+  const monthlyRate = interestRate / MONTHS_PER_YEAR;
+  const totalPayments = termYears * MONTHS_PER_YEAR;
   
   let monthlyPayment = 0;
   if (loanAmount > 0) {
@@ -238,9 +239,9 @@ export function calculateRefinanceParams(
   
   const modelStart = startOfMonth(parseLocalDate(global.modelStartDate));
   const refiDate = startOfMonth(parseLocalDate(property.refinanceDate));
-  const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 + 
+  const monthsDiff = (refiDate.getFullYear() - modelStart.getFullYear()) * MONTHS_PER_YEAR +
                      (refiDate.getMonth() - modelStart.getMonth());
-  const refiYear = Math.floor(monthsDiff / 12);
+  const refiYear = Math.floor(monthsDiff / MONTHS_PER_YEAR);
   
   if (refiYear < 0 || refiYear >= years) {
     return defaultResult;
@@ -248,8 +249,8 @@ export function calculateRefinanceParams(
   
   const refiInterestRate = property.refinanceInterestRate ?? DEFAULT_INTEREST_RATE;
   const refiTermYears = property.refinanceTermYears ?? DEFAULT_TERM_YEARS;
-  const refiMonthlyRate = refiInterestRate / 12;
-  const refiTotalPayments = refiTermYears * 12;
+  const refiMonthlyRate = refiInterestRate / MONTHS_PER_YEAR;
+  const refiTotalPayments = refiTermYears * MONTHS_PER_YEAR;
   
   const refiLTV = property.refinanceLTV ?? DEFAULT_REFI_LTV;
   const stabilizedNOI = yearlyNOIData[refiYear] || 0;
@@ -395,7 +396,7 @@ export function calculateExitValue(
 
 /** Determine which model year (0-indexed) the property was acquired in. */
 export function getAcquisitionYear(loan: LoanCalculation): number {
-  return Math.floor(loan.acqMonthsFromModelStart / 12);
+  return Math.floor(loan.acqMonthsFromModelStart / MONTHS_PER_YEAR);
 }
 
 export interface YearlyCashFlowResult {

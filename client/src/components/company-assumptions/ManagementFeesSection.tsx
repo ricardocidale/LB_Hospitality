@@ -98,7 +98,7 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <div className="bg-blue-50/50 border border-blue-200/60 rounded-lg p-2.5">
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-2.5">
           <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Fee Range</div>
           <div className="text-sm font-semibold font-mono text-foreground mt-1">
             {(feeBench.lowRate * 100).toFixed(1)}%–{(feeBench.highRate * 100).toFixed(1)}%
@@ -110,10 +110,10 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
 
         <div className={`rounded-lg p-2.5 border ${
           currentRate >= feeBench.lowRate && currentRate <= feeBench.highRate
-            ? "bg-emerald-50/50 border-emerald-200/60"
+            ? "bg-primary/10 border-primary/30"
             : currentRate < feeBench.lowRate
-            ? "bg-amber-50/50 border-amber-200/60"
-            : "bg-blue-50/50 border-blue-200/60"
+            ? "bg-muted/50 border-border/60"
+            : "bg-primary/5 border-primary/20"
         }`}>
           <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Your Rate</div>
           <div className="text-sm font-semibold font-mono text-foreground mt-1">{(currentRate * 100).toFixed(1)}%</div>
@@ -133,9 +133,9 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
                 at {(markup * 100).toFixed(0)}% markup
               </div>
             </div>
-            <div className="bg-emerald-50/50 border border-emerald-200/60 rounded-lg p-2.5">
+            <div className="bg-primary/10 border border-primary/30 rounded-lg p-2.5">
               <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Gross Profit</div>
-              <div className="text-sm font-semibold font-mono text-emerald-700 mt-1">${Math.round(waterfall.grossProfit).toLocaleString()}</div>
+              <div className="text-sm font-semibold font-mono text-primary mt-1">${Math.round(waterfall.grossProfit).toLocaleString()}</div>
               <div className="text-[10px] text-muted-foreground mt-0.5">
                 {(waterfall.effectiveMargin * 100).toFixed(1)}% effective margin
               </div>
@@ -558,7 +558,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
 
                     <div className="px-4 py-3">
                       <div className={`grid gap-3 ${t.serviceModel === "centralized" ? "grid-cols-2" : "grid-cols-1"}`}>
-                        <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-800/40 rounded-lg p-3">
+                        <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 dark:border-primary/30 rounded-lg p-3">
                           <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Fee Rate</div>
                           {isEditingRate ? (
                             <div className="flex items-center gap-1.5">
@@ -580,7 +580,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
                                 />
                                 <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none text-muted-foreground text-xs">%</div>
                               </div>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => saveInlineRate(t.id)} disabled={updateMutation.isPending} data-testid={`button-save-inline-rate-${t.id}`}>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:text-primary hover:bg-primary/10" onClick={() => saveInlineRate(t.id)} disabled={updateMutation.isPending} data-testid={`button-save-inline-rate-${t.id}`}>
                                 <Check className="w-3.5 h-3.5" />
                               </Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setInlineEditingRate(null)} data-testid={`button-cancel-inline-rate-${t.id}`}>
@@ -603,7 +603,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
                         </div>
 
                         {t.serviceModel === "centralized" && (
-                          <div className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-lg p-3">
+                          <div className="bg-primary/10 dark:bg-primary/15 border border-primary/30 dark:border-primary/40 rounded-lg p-3">
                             <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
                               Cost-Plus Markup
                               <InfoTooltip text={`Centralized model: The management company procures this service from vendors and passes the cost through with a ${((t.serviceMarkup ?? 0) * 100).toFixed(0)}% markup. Effective margin: ${(((t.serviceMarkup ?? 0) / (1 + (t.serviceMarkup ?? 0))) * 100).toFixed(1)}% of fee revenue.`} />
@@ -628,7 +628,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
                                   />
                                   <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none text-muted-foreground text-xs">%</div>
                                 </div>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => saveInlineMarkup(t.id)} disabled={updateMutation.isPending} data-testid={`button-save-inline-markup-${t.id}`}>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-primary hover:text-primary hover:bg-primary/10" onClick={() => saveInlineMarkup(t.id)} disabled={updateMutation.isPending} data-testid={`button-save-inline-markup-${t.id}`}>
                                   <Check className="w-3.5 h-3.5" />
                                 </Button>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setInlineEditingMarkup(null)} data-testid={`button-cancel-inline-markup-${t.id}`}>

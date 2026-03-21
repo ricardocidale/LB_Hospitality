@@ -440,7 +440,18 @@ export default function UsersTab() {
                   </div>
                 </div>
               )}
-              <div className="rounded-lg border border-border bg-card p-4 hover:bg-muted/50 transition-colors" data-testid={`row-user-${user.id}`}>
+              <div
+                className={`rounded-lg border shadow-sm p-4 transition-colors overflow-hidden relative
+                  ${user.role === 'admin'
+                    ? 'border-primary/30 bg-primary/5 hover:bg-primary/10'
+                    : user.role === 'checker'
+                    ? 'border-accent/30 bg-accent/5 hover:bg-accent/10'
+                    : 'border-border bg-muted/15 hover:bg-muted/30'}`}
+                data-testid={`row-user-${user.id}`}
+              >
+                {/* Role accent strip */}
+                <div className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-l-lg
+                  ${user.role === 'admin' ? 'bg-primary' : user.role === 'checker' ? 'bg-accent' : 'bg-border'}`} />
                 <div className="flex items-start gap-3">
                   <img
                     src={
@@ -449,7 +460,7 @@ export default function UsersTab() {
                         : generalLogoUrl ?? defaultLogo
                     }
                     alt={user.companyId && companiesList ? (companiesList.find(c => c.id === user.companyId)?.name ?? "Company") : "General"}
-                    className="w-8 h-8 rounded-md border border-border bg-card object-contain p-0.5 flex-shrink-0"
+                    className="w-8 h-8 rounded-md border border-border/60 bg-background object-contain p-0.5 flex-shrink-0"
                     onError={(e) => { (e.target as HTMLImageElement).src = defaultLogo; }}
                     data-testid={`user-company-logo-${user.id}`}
                   />
@@ -495,11 +506,18 @@ export default function UsersTab() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${user.role === 'admin' ? 'bg-secondary/15 text-secondary' : 'bg-muted text-muted-foreground'}`}>
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/40">
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium tracking-wide
+                    ${user.role === 'admin'
+                      ? 'bg-primary/15 text-primary'
+                      : user.role === 'checker'
+                      ? 'bg-accent/15 text-accent'
+                      : 'bg-muted text-muted-foreground'}`}>
                     {user.role}
                   </span>
-                  {user.userGroupId && groupNameMap[user.userGroupId] ? <span className="text-xs text-accent">{groupNameMap[user.userGroupId]}</span> : <span className="text-xs text-muted-foreground">—</span>}
+                  {user.userGroupId && groupNameMap[user.userGroupId]
+                    ? <span className="text-xs text-muted-foreground">{groupNameMap[user.userGroupId]}</span>
+                    : <span className="text-xs text-muted-foreground/40">—</span>}
                 </div>
               </div>
             </React.Fragment>)})}

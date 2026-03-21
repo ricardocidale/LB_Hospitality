@@ -145,8 +145,9 @@ export default function PropertyDetail() {
   // Compute yearly balance sheet chart data: Assets, Liabilities, Equity.
   const balanceChartData = useMemo(() => {
     if (!property || !global || !yearlyChartData.length || !cashFlowDataMemo.length) return [];
-    const loan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
-    const totalCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
+    const loanProps = property as LoanParams;
+    const loan = calculateLoanParams(loanProps, global as GlobalLoanParams);
+    const totalCost = loanProps.purchasePrice + (loanProps.buildingImprovements ?? 0) + (loanProps.preOpeningCosts ?? 0);
     const depPerYear = totalCost > 0 ? totalCost / 39 : 0;
     let runCash = 0;
     let cumPrincipal = 0;
@@ -922,11 +923,12 @@ export default function PropertyDetail() {
     if (yearlyChartData && yearlyChartData.length > 0) {
       doc.addPage();
       drawTitle(doc, `${property.name} \u2014 Cash Flow Trend`, 14, 15, { fontSize: 16 });
-      drawSubtitleRow(doc, `${projectionYears}-Year ANOI, FCF, and FCFE Trend`, entityTag, 14, 22, pageWidth);
+      drawSubtitleRow(doc, `${projectionYears}-Year NOI, ANOI, FCF, and FCFE Trend`, entityTag, 14, 22, pageWidth);
       drawLineChart({
         doc, x: 14, y: 30, width: chartWidth, height: 150,
         title: `${property.name} - Cash Flow (${projectionYears}-Year Projection)`,
         series: [
+          { name: 'NOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.ACCENT_HEX}` },
           { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[0]}` },
           { name: 'FCF', data: cashFlowData.map((cf, i) => ({ label: String(yearLabels[i]), value: cf.freeCashFlow || 0 })), color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
           { name: 'FCFE', data: cashFlowData.map((cf, i) => ({ label: String(yearLabels[i]), value: cf.freeCashFlowToEquity || 0 })), color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },

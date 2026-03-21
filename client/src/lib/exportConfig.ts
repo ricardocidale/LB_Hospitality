@@ -89,9 +89,3 @@ export function saveExportConfig(config: ExportConfig): void {
   } catch {}
 }
 
-export function resetExportConfig(): ExportConfig {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {}
-  return DEFAULT_EXPORT_CONFIG;
-}

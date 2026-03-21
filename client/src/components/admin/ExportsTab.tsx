@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -8,9 +8,27 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import {
-  IconDownload, IconTrending, IconFileCheck, IconSliders,
+  IconDownload, IconTrending, IconFileCheck,
 } from "@/components/icons";
-import { loadExportConfig, saveExportConfig, resetExportConfig, DEFAULT_EXPORT_CONFIG, type ExportConfig } from "@/lib/exportConfig";
+import { saveExportConfig, DEFAULT_EXPORT_CONFIG, type ExportConfig } from "@/lib/exportConfig";
+
+const EXPORT_CONFIG_API = "/api/admin/export-config";
+
+async function fetchExportConfigFromApi(): Promise<ExportConfig> {
+  const res = await fetch(EXPORT_CONFIG_API);
+  if (!res.ok) throw new Error("Failed to load export config");
+  return res.json();
+}
+
+async function putExportConfigToApi(cfg: ExportConfig): Promise<ExportConfig> {
+  const res = await fetch(EXPORT_CONFIG_API, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(cfg),
+  });
+  if (!res.ok) throw new Error("Failed to save export config");
+  return res.json();
+}
 
 function SectionToggle({
   id,
@@ -89,8 +107,22 @@ function GroupHeader({ title, badge }: { title: string; badge?: string }) {
 
 export default function ExportsTab() {
   const { toast } = useToast();
-  const [config, setConfig] = useState<ExportConfig>(loadExportConfig);
+  const [config, setConfig] = useState<ExportConfig>(DEFAULT_EXPORT_CONFIG);
   const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchExportConfigFromApi()
+      .then((cfg) => {
+        setConfig(cfg);
+        saveExportConfig(cfg);
+      })
+      .catch(() => {
+        toast({ title: "Could not load export settings", description: "Showing defaults.", variant: "destructive" });
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const update = useCallback(<K extends keyof ExportConfig>(
     key: K,
@@ -115,18 +147,39 @@ export default function ExportsTab() {
     setDirty(true);
   }, []);
 
-  const handleSave = () => {
-    saveExportConfig(config);
-    setDirty(false);
-    toast({ title: "Export settings saved", description: "Changes will apply to all new exports." });
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const saved = await putExportConfigToApi(config);
+      saveExportConfig(saved);
+      setConfig(saved);
+      setDirty(false);
+      toast({ title: "Export settings saved", description: "Changes will apply to all new exports." });
+    } catch {
+      toast({ title: "Failed to save", description: "Check your connection and try again.", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleReset = () => {
-    const defaults = resetExportConfig();
-    setConfig(defaults);
-    setDirty(false);
-    toast({ title: "Export settings reset", description: "All settings restored to defaults." });
+  const handleReset = async () => {
+    setSaving(true);
+    try {
+      const saved = await putExportConfigToApi(DEFAULT_EXPORT_CONFIG);
+      saveExportConfig(saved);
+      setConfig(saved);
+      setDirty(false);
+      toast({ title: "Export settings reset", description: "All settings restored to defaults." });
+    } catch {
+      toast({ title: "Failed to reset", description: "Check your connection and try again.", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return <div className="py-12 text-center text-sm text-muted-foreground">Loading export settings…</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -141,6 +194,7 @@ export default function ExportsTab() {
             variant="ghost"
             size="sm"
             onClick={handleReset}
+            disabled={saving}
             data-testid="button-export-reset"
           >
             Reset to defaults
@@ -148,10 +202,10 @@ export default function ExportsTab() {
           <Button
             size="sm"
             onClick={handleSave}
-            disabled={!dirty}
+            disabled={!dirty || saving}
             data-testid="button-export-save"
           >
-            Save changes
+            {saving ? "Saving…" : "Save changes"}
           </Button>
         </div>
       </div>
@@ -370,11 +424,11 @@ export default function ExportsTab() {
       </Tabs>
 
       <div className="flex justify-end gap-2 pt-2">
-        <Button variant="ghost" size="sm" onClick={handleReset} data-testid="button-export-reset-bottom">
+        <Button variant="ghost" size="sm" onClick={handleReset} disabled={saving} data-testid="button-export-reset-bottom">
           Reset to defaults
         </Button>
-        <Button size="sm" onClick={handleSave} disabled={!dirty} data-testid="button-export-save-bottom">
-          Save changes
+        <Button size="sm" onClick={handleSave} disabled={!dirty || saving} data-testid="button-export-save-bottom">
+          {saving ? "Saving…" : "Save changes"}
         </Button>
       </div>
     </div>

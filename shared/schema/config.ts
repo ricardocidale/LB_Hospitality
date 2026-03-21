@@ -191,6 +191,9 @@ export const globalAssumptions = pgTable("global_assumptions", {
   // ICP Configuration — structured numeric/toggle parameters for Ideal Customer Profile
   icpConfig: jsonb("icp_config").$type<Record<string, any>>(),
 
+  // Export Configuration — admin-controlled toggles for PDF/Excel/CSV/PPTX content sections
+  exportConfig: jsonb("export_config").$type<Record<string, any>>(),
+
   // Asset Definition
   assetDefinition: jsonb("asset_definition").notNull().default({
     minRooms: 10,
@@ -456,6 +459,7 @@ export const insertGlobalAssumptionsSchema = createInsertSchema(globalAssumption
   otherExpenseRate: true,
   utilitiesVariableSplit: true,
   icpConfig: true,
+  exportConfig: true,
   assetDefinition: true,
   preferredLlm: true,
   sidebarPropertyFinder: true,

@@ -21,7 +21,13 @@ export interface CompanyChartDataPoint {
   year: string;
   Revenue: number;
   Expenses: number;
+  OperatingIncome: number;
   NetIncome: number;
+  CashFlow: number;
+  EndingCash: number;
+  Assets: number;
+  Liabilities: number;
+  Equity: number;
 }
 
 export interface CompanyCashAnalysis {

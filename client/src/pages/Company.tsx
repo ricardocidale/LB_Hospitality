@@ -140,16 +140,29 @@ export default function Company() {
 
   const yearlyChartData = useMemo(() => {
     if (!financials.length || !global) return [];
+    const safeTranche1 = global.safeTranche1Amount || 0;
+    const safeTranche2 = global.safeTranche2Amount || 0;
+    const totalSafeFunding = safeTranche1 + safeTranche2;
     const data = [];
     for (let y = 0; y < projectionYears; y++) {
       const yearData = financials.slice(y * 12, (y + 1) * 12);
       if (yearData.length === 0) continue;
+      const allMonthsToDate = financials.slice(0, (y + 1) * 12);
+      const lastMonth = allMonthsToDate[allMonthsToDate.length - 1];
+      const cumulativeNetIncome = allMonthsToDate.reduce((a, m) => a + m.netIncome, 0);
+      const cashBalance = lastMonth?.endingCash ?? 0;
+      const accruedInterest = lastMonth?.cumulativeAccruedInterest ?? 0;
       data.push({
         year: String(getFiscalYear(y)),
         Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
         Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
-        OperatingIncome: yearData.reduce((a, m) => a + ((m as any).operatingIncome ?? (m.totalRevenue - m.totalExpenses)), 0),
+        OperatingIncome: yearData.reduce((a, m) => a + (m.totalRevenue - m.totalExpenses), 0),
         NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
+        CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
+        EndingCash: cashBalance,
+        Assets: cashBalance,
+        Liabilities: totalSafeFunding + accruedInterest,
+        Equity: cumulativeNetIncome,
       });
     }
     return data;

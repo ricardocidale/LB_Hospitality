@@ -220,6 +220,17 @@ export default function ExportsTab() {
               </div>
             </div>
           </div>
+          <div className="rounded-lg border bg-muted/30">
+            <div className="px-4 pt-3 pb-0.5"><GroupHeader title="Report Length" /></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border border-t border-border">
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="ov-allow-short" label="Allow short reports" description="Users can generate a condensed version of the report with only key metrics and headline figures." checked={config.allowShort} onChange={(v) => update("allowShort", v)} />
+              </div>
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="ov-allow-extended" label="Allow extended reports" description="Users can generate the full-length report with all sections, charts, and detailed line items included." checked={config.allowExtended} onChange={(v) => update("allowExtended", v)} />
+              </div>
+            </div>
+          </div>
           <p className="text-xs text-muted-foreground">
             Controls which sections appear in the <span className="font-medium text-foreground">Portfolio Overview</span> report — the first page users see when exporting from the Dashboard.
           </p>
@@ -291,6 +302,17 @@ export default function ExportsTab() {
               <div className="px-4 divide-y divide-border">
                 <GlobalSwitch id="st-allow-premium" label="Allow premium exports" description="Enables the AI-enhanced export mode (richer formatting, insights, design-quality output)." checked={config.allowPremium} onChange={(v) => update("allowPremium", v)} />
                 <GlobalSwitch id="st-dense-pagination" label="Dense pagination" description="Pack as much content per page as possible. Column headers repeat at the top of each continuation page." checked={config.densePagination} onChange={(v) => update("densePagination", v)} />
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg border bg-muted/30">
+            <div className="px-4 pt-3 pb-0.5"><GroupHeader title="Report Length" /></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border border-t border-border">
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="st-allow-short" label="Allow short reports" description="Users can generate a condensed version of the report with only key metrics and headline figures." checked={config.allowShort} onChange={(v) => update("allowShort", v)} />
+              </div>
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="st-allow-extended" label="Allow extended reports" description="Users can generate the full-length report with all sections, charts, and detailed line items included." checked={config.allowExtended} onChange={(v) => update("allowExtended", v)} />
               </div>
             </div>
           </div>
@@ -375,6 +397,17 @@ export default function ExportsTab() {
               <div className="px-4 divide-y divide-border">
                 <GlobalSwitch id="an-allow-premium" label="Allow premium exports" description="Enables the AI-enhanced export mode (richer formatting, insights, design-quality output)." checked={config.allowPremium} onChange={(v) => update("allowPremium", v)} />
                 <GlobalSwitch id="an-dense-pagination" label="Dense pagination" description="Pack as much content per page as possible. Column headers repeat at the top of each continuation page." checked={config.densePagination} onChange={(v) => update("densePagination", v)} />
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg border bg-muted/30">
+            <div className="px-4 pt-3 pb-0.5"><GroupHeader title="Report Length" /></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border border-t border-border">
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="an-allow-short" label="Allow short reports" description="Users can generate a condensed version of the report with only key metrics and headline figures." checked={config.allowShort} onChange={(v) => update("allowShort", v)} />
+              </div>
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="an-allow-extended" label="Allow extended reports" description="Users can generate the full-length report with all sections, charts, and detailed line items included." checked={config.allowExtended} onChange={(v) => update("allowExtended", v)} />
               </div>
             </div>
           </div>

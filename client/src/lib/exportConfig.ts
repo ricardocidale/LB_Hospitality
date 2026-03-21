@@ -1,6 +1,8 @@
 export interface ExportConfig {
   allowLandscape: boolean;
   allowPortrait: boolean;
+  allowShort: boolean;
+  allowExtended: boolean;
   allowPremium: boolean;
   densePagination: boolean;
 
@@ -33,6 +35,8 @@ export interface ExportConfig {
 export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   allowLandscape: true,
   allowPortrait: true,
+  allowShort: true,
+  allowExtended: true,
   allowPremium: true,
   densePagination: true,
 
@@ -72,6 +76,8 @@ export function loadExportConfig(): ExportConfig {
     return {
       allowLandscape: parsed.allowLandscape ?? DEFAULT_EXPORT_CONFIG.allowLandscape,
       allowPortrait: parsed.allowPortrait ?? DEFAULT_EXPORT_CONFIG.allowPortrait,
+      allowShort: parsed.allowShort ?? DEFAULT_EXPORT_CONFIG.allowShort,
+      allowExtended: parsed.allowExtended ?? DEFAULT_EXPORT_CONFIG.allowExtended,
       allowPremium: parsed.allowPremium ?? DEFAULT_EXPORT_CONFIG.allowPremium,
       densePagination: parsed.densePagination ?? DEFAULT_EXPORT_CONFIG.densePagination,
       overview: { ...DEFAULT_EXPORT_CONFIG.overview, ...(parsed.overview ?? {}) },
@@ -88,4 +94,3 @@ export function saveExportConfig(config: ExportConfig): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
   } catch {}
 }
-

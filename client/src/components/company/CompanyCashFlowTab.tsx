@@ -28,6 +28,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ChevronRight, ChevronDown } from "@/components/icons/themed-icons";
 import { ScrollReveal } from "@/components/graphics";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { FinancialChart } from "@/components/ui/financial-chart";
 import type { CompanyTabProps } from "./types";
 
 export default function CompanyCashFlowTab({
@@ -42,6 +43,7 @@ export default function CompanyCashFlowTab({
   tableRef,
   activeTab,
   propertyFinancials,
+  yearlyChartData,
 }: CompanyTabProps) {
   // Sums a single property's base management fee across 12 months for
   // a given projection year. Used in the drill-down rows to show how much
@@ -85,11 +87,22 @@ export default function CompanyCashFlowTab({
     </>
   );
 
+  const companyName = global?.companyName || "Hospitality Business Co.";
+
   return (
+    <div className="space-y-6">
+    {yearlyChartData && yearlyChartData.length > 0 && (
+      <FinancialChart
+        data={yearlyChartData}
+        series={["netIncome", "cashFlow", "endingCash"]}
+        title={`${companyName} Cash Flow Trends (${projectionYears}-Year Projection)`}
+        id="company-cashflow-chart"
+      />
+    )}
     <ScrollReveal>
     <div ref={activeTab === 'cashflow' ? tableRef : undefined} className="bg-card rounded-2xl p-6 shadow-sm border">
       <div>
-        <h3 className="text-lg font-display text-foreground mb-4">{global?.companyName || "Hospitality Business Co."} Statement of Cash Flows</h3>
+        <h3 className="text-lg font-display text-foreground mb-4">{companyName} Statement of Cash Flows</h3>
         <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -670,5 +683,6 @@ export default function CompanyCashFlowTab({
       </div>
     </div>
     </ScrollReveal>
+    </div>
   );
 }

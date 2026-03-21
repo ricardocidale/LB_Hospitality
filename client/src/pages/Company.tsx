@@ -334,6 +334,7 @@ export default function Company() {
               tableRef={tableRef}
               activeTab={activeTab}
               propertyFinancials={propertyFinancials}
+              yearlyChartData={yearlyChartData}
             />
           </TabsContent>
           
@@ -350,6 +351,7 @@ export default function Company() {
               tableRef={tableRef}
               activeTab={activeTab}
               propertyFinancials={propertyFinancials}
+              yearlyChartData={yearlyChartData}
             />
           </TabsContent>
 
@@ -364,6 +366,7 @@ export default function Company() {
               setBsExpanded={setBsExpanded}
               tableRef={tableRef}
               activeTab={activeTab}
+              yearlyChartData={yearlyChartData}
             />
           </TabsContent>
 

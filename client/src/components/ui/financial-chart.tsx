@@ -29,6 +29,7 @@ const PRESET_SERIES: Record<string, ChartSeries> = {
   operatingIncome: { dataKey: "OperatingIncome", name: "EBITDA — Operating Income", color: "#10B981" },
   netIncome: { dataKey: "NetIncome", name: "Net Income", color: "#6B7280" },
   cashFlow: { dataKey: "CashFlow", name: "Cash Flow — After Debt Service", color: "#8B5CF6" },
+  endingCash: { dataKey: "EndingCash", name: "Ending Cash Position", color: "#F59E0B" },
   fcfe: { dataKey: "FCFE", name: "FCFE — Free Cash Flow to Equity", color: "#6B7280" },
   btcf: { dataKey: "BTCF", name: "BTCF — Before-Tax Cash Flow", color: "#3B82F6" },
   atcf: { dataKey: "ATCF", name: "ATCF — After-Tax Cash Flow", color: "#6B7280" },

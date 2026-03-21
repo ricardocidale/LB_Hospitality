@@ -28,6 +28,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "@/components/icons/themed-icons";
 import { ScrollReveal } from "@/components/graphics";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
+import { FinancialChart } from "@/components/ui/financial-chart";
 import type { CompanyBalanceSheetProps } from "./types";
 
 export default function CompanyBalanceSheet({
@@ -40,12 +41,28 @@ export default function CompanyBalanceSheet({
   setBsExpanded,
   tableRef,
   activeTab,
+  yearlyChartData,
 }: CompanyBalanceSheetProps) {
+  const companyName = global?.companyName || "Hospitality Business Co.";
+
   return (
+    <div className="space-y-6">
+    {yearlyChartData && yearlyChartData.length > 0 && (
+      <FinancialChart
+        data={yearlyChartData}
+        series={[
+          { dataKey: "Assets", name: "Total Assets", color: "hsl(var(--chart-2))", gradientTo: "hsl(var(--chart-2) / 0.5)" },
+          { dataKey: "Liabilities", name: "Total Liabilities", color: "#F4795B", gradientTo: "#FB923C" },
+          { dataKey: "Equity", name: "Total Equity", color: "#3B82F6", gradientTo: "#60A5FA" },
+        ]}
+        title={`${companyName} Balance Sheet Trends (${projectionYears}-Year Projection)`}
+        id="company-balance-chart"
+      />
+    )}
     <ScrollReveal>
     <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-card rounded-2xl p-6 shadow-sm border">
       <div>
-        <h3 className="text-lg font-display text-foreground mb-4">{global?.companyName || "Hospitality Business Co."} Balance Sheet (As of {getFiscalYear(projectionYears - 1)})</h3>
+        <h3 className="text-lg font-display text-foreground mb-4">{companyName} Balance Sheet (As of {getFiscalYear(projectionYears - 1)})</h3>
         {(() => {
           const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
           
@@ -334,5 +351,6 @@ export default function CompanyBalanceSheet({
       </div>
     </div>
     </ScrollReveal>
+    </div>
   );
 }

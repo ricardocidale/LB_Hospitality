@@ -18,6 +18,7 @@
 import type { CompanyMonthlyFinancials } from "@/lib/financialEngine";
 
 export interface CompanyChartDataPoint {
+  [key: string]: string | number;
   year: string;
   Revenue: number;
   Expenses: number;
@@ -51,6 +52,7 @@ export interface CompanyTabProps {
   tableRef?: React.RefObject<HTMLDivElement | null>;
   activeTab?: string;
   propertyFinancials: { property: any; financials: any[] }[];
+  yearlyChartData?: CompanyChartDataPoint[];
 }
 
 export interface CompanyBalanceSheetProps {
@@ -63,6 +65,7 @@ export interface CompanyBalanceSheetProps {
   setBsExpanded: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   tableRef?: React.RefObject<HTMLDivElement | null>;
   activeTab?: string;
+  yearlyChartData?: CompanyChartDataPoint[];
 }
 
 export interface CompanyHeaderProps {

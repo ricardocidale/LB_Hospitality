@@ -16,6 +16,7 @@ export {
 export {
   exportPortfolioExcel,
   exportPortfolioCSV,
+  exportAllPortfolioStatementsCSV,
   exportPortfolioPDF,
   exportDashboardComprehensivePDF,
   exportPortfolioPPTX,

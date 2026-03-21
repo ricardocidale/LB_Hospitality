@@ -20,19 +20,19 @@ export interface ChartSeries {
 }
 
 const PRESET_SERIES: Record<string, ChartSeries> = {
-  revenue: { dataKey: "Revenue", name: "Revenue — Total Revenue", color: "#18181b" },
-  gop: { dataKey: "GOP", name: "GOP — Gross Operating Profit", color: "#3B82F6" },
-  agop: { dataKey: "AGOP", name: "AGOP — Adjusted Gross Operating Profit", color: "#10B981" },
-  noi: { dataKey: "NOI", name: "NOI — Net Operating Income", color: "#F59E0B" },
-  anoi: { dataKey: "ANOI", name: "ANOI — Adjusted Net Operating Income", color: "#6B7280" },
-  expenses: { dataKey: "Expenses", name: "Expenses — Total Expenses", color: "#3B82F6" },
-  operatingIncome: { dataKey: "OperatingIncome", name: "EBITDA — Operating Income", color: "#10B981" },
-  netIncome: { dataKey: "NetIncome", name: "Net Income", color: "#6B7280" },
-  cashFlow: { dataKey: "CashFlow", name: "Cash Flow — After Debt Service", color: "#8B5CF6" },
-  endingCash: { dataKey: "EndingCash", name: "Ending Cash Position", color: "#F59E0B" },
-  fcfe: { dataKey: "FCFE", name: "FCFE — Free Cash Flow to Equity", color: "#6B7280" },
-  btcf: { dataKey: "BTCF", name: "BTCF — Before-Tax Cash Flow", color: "#3B82F6" },
-  atcf: { dataKey: "ATCF", name: "ATCF — After-Tax Cash Flow", color: "#6B7280" },
+  revenue: { dataKey: "Revenue", name: "Revenue — Total Revenue", color: "hsl(var(--line-1))" },
+  gop: { dataKey: "GOP", name: "GOP — Gross Operating Profit", color: "hsl(var(--line-2))" },
+  agop: { dataKey: "AGOP", name: "AGOP — Adjusted Gross Operating Profit", color: "hsl(var(--line-3))" },
+  noi: { dataKey: "NOI", name: "NOI — Net Operating Income", color: "hsl(var(--line-4))" },
+  anoi: { dataKey: "ANOI", name: "ANOI — Adjusted Net Operating Income", color: "hsl(var(--line-5))" },
+  expenses: { dataKey: "Expenses", name: "Expenses — Total Expenses", color: "hsl(var(--line-2))" },
+  operatingIncome: { dataKey: "OperatingIncome", name: "EBITDA — Operating Income", color: "hsl(var(--line-3))" },
+  netIncome: { dataKey: "NetIncome", name: "Net Income", color: "hsl(var(--line-5))" },
+  cashFlow: { dataKey: "CashFlow", name: "Cash Flow — After Debt Service", color: "hsl(var(--line-3))" },
+  endingCash: { dataKey: "EndingCash", name: "Ending Cash Position", color: "hsl(var(--line-4))" },
+  fcfe: { dataKey: "FCFE", name: "FCFE — Free Cash Flow to Equity", color: "hsl(var(--line-5))" },
+  btcf: { dataKey: "BTCF", name: "BTCF — Before-Tax Cash Flow", color: "hsl(var(--line-2))" },
+  atcf: { dataKey: "ATCF", name: "ATCF — After-Tax Cash Flow", color: "hsl(var(--line-5))" },
 };
 
 export interface FinancialChartProps {

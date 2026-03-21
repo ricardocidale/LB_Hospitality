@@ -790,5 +790,32 @@ export function exportOverviewCSV(
   downloadCSV(lines.join("\n"), filename);
 }
 
+export function exportAllPortfolioStatementsCSV(
+  incomeData: { years: (string | number)[]; rows: ExportRow[] },
+  cashFlowData: { years: (string | number)[]; rows: ExportRow[] },
+  balanceSheetData: { years: (string | number)[]; rows: ExportRow[] },
+  investmentData: { years: (string | number)[]; rows: ExportRow[] },
+  filename: string,
+): void {
+  const indent = (row: ExportRow) => (row.indent ? "  ".repeat(row.indent) : "");
+  const section = (label: string, data: { years: (string | number)[]; rows: ExportRow[] }): string[] => {
+    const lines: string[] = [];
+    lines.push(`"${label}",${data.years.map(String).join(",")}`);
+    data.rows.forEach(row => {
+      lines.push(`"${indent(row)}${row.category}",${row.values.map((v: number) => v.toFixed(0)).join(",")}`);
+    });
+    return lines;
+  };
+  const all: string[] = [];
+  all.push(...section("CONSOLIDATED INCOME STATEMENT", incomeData));
+  all.push("");
+  all.push(...section("CONSOLIDATED CASH FLOW STATEMENT", cashFlowData));
+  all.push("");
+  all.push(...section("CONSOLIDATED BALANCE SHEET", balanceSheetData));
+  all.push("");
+  all.push(...section("CONSOLIDATED INVESTMENT ANALYSIS", investmentData));
+  downloadCSV(all.join("\n"), filename);
+}
+
 export { originalExportPortfolioPPTX as exportPortfolioPPTX };
 export { exportTablePNG };

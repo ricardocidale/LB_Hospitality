@@ -210,8 +210,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
         data={chartData}
         series={[
           { dataKey: "Assets", name: "Total Assets", color: "hsl(var(--chart-2))", gradientTo: "hsl(var(--chart-2) / 0.5)" },
-          { dataKey: "Liabilities", name: "Total Liabilities", color: "#F4795B", gradientTo: "#FB923C" },
-          { dataKey: "Equity", name: "Total Equity", color: "#3B82F6", gradientTo: "#60A5FA" },
+          { dataKey: "Liabilities", name: "Total Liabilities", color: "hsl(var(--chart-5))", gradientTo: "hsl(var(--chart-5) / 0.5)" },
+          { dataKey: "Equity", name: "Total Equity", color: "hsl(var(--line-3))", gradientTo: "hsl(var(--line-3) / 0.5)" },
         ]}
         title={`Balance Sheet Trends (${projectionYears}-Year Projection)`}
         id="dashboard-balance-chart"

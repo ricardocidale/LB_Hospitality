@@ -57,6 +57,7 @@ import {
   generatePortfolioInvestmentData,
   generatePortfolioBalanceSheetData,
   exportPortfolioCSV,
+  exportAllPortfolioStatementsCSV,
   exportPortfolioPDF,
   buildAllPortfolioStatements,
   exportPortfolioExcel,
@@ -253,20 +254,32 @@ export default function Dashboard() {
     const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
     const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
-    const label = TAB_LABELS[activeTab] || "portfolio";
+    const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
 
     if (activeTab === "overview") {
       const ovData = buildOverviewExportData(financials, properties, projectionYears, getFiscalYear);
       const incomeResult = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, false);
-      requestSave(label, ".csv", (f) =>
+      requestSave("Portfolio Overview", ".csv", (f) =>
         exportOverviewCSV(ovData, incomeResult.rows, incomeResult.years, f || "Portfolio-Overview.csv")
       );
       return;
     }
-    const data = getExportData();
-    if (!data) return;
-    requestSave(label, ".csv", (f) => exportPortfolioCSV(data.years, data.rows, f || `${label.toLowerCase().replace(/\s+/g, "-")}.csv`));
-  }, [activeTab, financials, global, properties, getExportData, requestSave]);
+
+    const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, false);
+    const cashFlowData = generatePortfolioCashFlowData(financials.allPropertyYearlyCF, projectionYears, getFiscalYear, new Set(["cfo", "cfi", "cff"]), false, properties.map(p => p.name), financials.yearlyConsolidatedCache);
+    const balanceSheetData = generatePortfolioBalanceSheetData(financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate, false);
+    const investmentData = generatePortfolioInvestmentData(financials, properties, projectionYears, getFiscalYear);
+
+    requestSave("Portfolio All Statements", ".csv", (f) =>
+      exportAllPortfolioStatementsCSV(
+        { years: incomeData.years, rows: incomeData.rows },
+        { years: cashFlowData.years, rows: cashFlowData.rows },
+        { years: balanceSheetData.years, rows: balanceSheetData.rows },
+        { years: investmentData.years, rows: investmentData.rows },
+        f || "Portfolio-All-Statements.csv"
+      )
+    );
+  }, [activeTab, financials, global, properties, requestSave]);
 
   const handleExportPPTX = useCallback(() => {
     setExportType("pptx");

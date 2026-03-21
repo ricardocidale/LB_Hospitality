@@ -39,10 +39,10 @@ export function InvestmentAnalysisTab({ financials, properties, projectionYears,
       <FinancialChart
         data={chartData}
         series={[
-          { dataKey: "NOI", name: "Net Operating Income (NOI)", color: "#10B981", gradientTo: "#34D399" },
+          { dataKey: "NOI", name: "Net Operating Income (NOI)", color: "hsl(var(--chart-1))", gradientTo: "hsl(var(--chart-1) / 0.5)" },
           { dataKey: "ANOI", name: "Adjusted NOI (ANOI)", color: "hsl(var(--chart-2))", gradientTo: "hsl(var(--chart-2) / 0.5)" },
-          { dataKey: "DebtService", name: "Debt Service", color: "#F4795B", gradientTo: "#FB923C" },
-          { dataKey: "FCFE", name: "Free Cash Flow to Equity", color: "#8B5CF6", gradientTo: "#A78BFA" },
+          { dataKey: "DebtService", name: "Debt Service", color: "hsl(var(--chart-5))", gradientTo: "hsl(var(--chart-5) / 0.5)" },
+          { dataKey: "FCFE", name: "Free Cash Flow to Equity", color: "hsl(var(--line-3))", gradientTo: "hsl(var(--line-3) / 0.5)" },
         ]}
         title={`Investment Returns (${projectionYears}-Year Projection)`}
         id="dashboard-investment-chart"

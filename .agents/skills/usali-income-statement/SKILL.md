@@ -242,6 +242,109 @@ Sub-item chevrons use the `expandedFormulas` toggle mechanism with keys:
 `debt-detail`, `liabilities-by-entity`, `equity-formula`, `paidin-detail`, `retained-detail`,
 `equity-by-entity`, `le-formula`
 
+## Export Parity Registry
+
+This section is the machine-readable contract between the on-screen tabs and the
+exported PDF statements. Every `category` string listed here **must** appear in the
+corresponding statement builder's output (`statementBuilders.ts`). The
+`script/parity-check.ts` script enforces this contract automatically.
+
+When adding, renaming, or removing a row from either a tab component or the builder,
+update the matching entry here and re-run `npm run parity:check`.
+
+### Overview (KPI rows checked against `DashboardFinancials`)
+
+```
+Portfolio IRR (%)
+Equity Multiple
+Cash-on-Cash Return (%)
+Total Initial Equity
+Total Exit Value
+Total Revenue
+NOI
+ANOI
+```
+
+### Income Statement (`generatePortfolioIncomeData`)
+
+```
+Operational Metrics
+Total Revenue
+Departmental Expenses
+Undistributed Operating Expenses
+Gross Operating Profit (GOP)
+Management Fees
+Adjusted Gross Operating Profit (AGOP)
+Fixed Charges
+Net Operating Income (NOI)
+FF&E Reserve
+Adjusted NOI (ANOI)
+Debt Service
+Net Income
+```
+
+### Cash Flow (`generatePortfolioCashFlowData`)
+
+```
+Cash Flow from Operations (CFO)
+Adjusted NOI (ANOI)
+Less: Interest Expense
+Less: Principal Payments
+Less: Income Tax
+Cash Flow from Investing (CFI)
+Capital Expenditures (FF&E)
+Exit Proceeds (Net Sale Value)
+Cash Flow from Financing (CFF)
+Refinancing Proceeds
+Less: Principal Repayments
+Net Change in Cash
+Free Cash Flow
+Free Cash Flow (FCF)
+Free Cash Flow to Equity (FCFE)
+Key Metrics
+DSCR (Debt Service Coverage)
+Cash-on-Cash Return
+FCF Margin
+FCFE Margin
+```
+
+### Balance Sheet (`generatePortfolioBalanceSheetData`)
+
+```
+ASSETS
+Current Assets
+Cash & Cash Equivalents
+Total Current Assets
+Fixed Assets
+Property, Plant & Equipment
+Less: Accumulated Depreciation
+Net Fixed Assets
+TOTAL ASSETS
+LIABILITIES
+Long-Term Liabilities
+Mortgage Notes Payable
+Total Liabilities
+EQUITY
+Paid-In Capital
+Retained Earnings
+Total Equity
+TOTAL LIABILITIES & EQUITY
+Balance Check (Assets − L&E)
+```
+
+### Investment Analysis (`generatePortfolioInvestmentData`)
+
+```
+Investment Summary
+Total Initial Equity
+Total Exit Value
+Portfolio IRR (%)
+Equity Multiple
+Cash-on-Cash Return (%)
+Total Properties
+Total Rooms
+```
+
 ## Rules
 
 1. Never combine Departmental and Undistributed expenses into a single "Operating Expenses" section — applies to both IS and CF views.

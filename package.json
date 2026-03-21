@@ -24,7 +24,8 @@
     "db:push": "drizzle-kit push",
     "verify": "npx tsx tests/proof/verify-runner.ts",
     "verify:summary": "tsx script/verify-summary.ts",
-    "cost-monitor": "tsx script/cost-monitor.ts"
+    "cost-monitor": "tsx script/cost-monitor.ts",
+    "parity:check": "tsx script/parity-check.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",

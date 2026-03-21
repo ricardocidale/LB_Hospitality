@@ -188,47 +188,6 @@ export default function ExportsTab() {
         </div>
       </div>
 
-      {/* Format — two-column grid of switches */}
-      <div className="rounded-lg border bg-muted/30">
-        <div className="px-4 pt-3 pb-0.5">
-          <GroupHeader title="Format" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border border-t border-border">
-          <div className="px-4 divide-y divide-border">
-            <GlobalSwitch
-              id="allow-landscape"
-              label="Allow landscape orientation"
-              description="Users can choose landscape when exporting — wider pages fit more columns."
-              checked={config.allowLandscape}
-              onChange={(v) => update("allowLandscape", v)}
-            />
-            <GlobalSwitch
-              id="allow-portrait"
-              label="Allow portrait orientation"
-              description="Users can choose portrait when exporting — taller layout, closer to standard paper."
-              checked={config.allowPortrait}
-              onChange={(v) => update("allowPortrait", v)}
-            />
-          </div>
-          <div className="px-4 divide-y divide-border">
-            <GlobalSwitch
-              id="allow-premium"
-              label="Allow premium exports"
-              description="Enables the AI-enhanced export mode (richer formatting, insights, design-quality output)."
-              checked={config.allowPremium}
-              onChange={(v) => update("allowPremium", v)}
-            />
-            <GlobalSwitch
-              id="dense-pagination"
-              label="Dense pagination"
-              description="Pack as much content per page as possible. Column headers repeat at the top of each continuation page."
-              checked={config.densePagination}
-              onChange={(v) => update("densePagination", v)}
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Section tabs */}
       <Tabs defaultValue="overview">
         <TabsList className="w-full">
@@ -247,8 +206,21 @@ export default function ExportsTab() {
         </TabsList>
 
         {/* Overview tab — two columns */}
-        <TabsContent value="overview" className="mt-4">
-          <p className="text-xs text-muted-foreground mb-4">
+        <TabsContent value="overview" className="mt-4 space-y-4">
+          <div className="rounded-lg border bg-muted/30">
+            <div className="px-4 pt-3 pb-0.5"><GroupHeader title="Format" /></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border border-t border-border">
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="ov-allow-landscape" label="Allow landscape orientation" description="Users can choose landscape when exporting — wider pages fit more columns." checked={config.allowLandscape} onChange={(v) => update("allowLandscape", v)} />
+                <GlobalSwitch id="ov-allow-portrait" label="Allow portrait orientation" description="Users can choose portrait when exporting — taller layout, closer to standard paper." checked={config.allowPortrait} onChange={(v) => update("allowPortrait", v)} />
+              </div>
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="ov-allow-premium" label="Allow premium exports" description="Enables the AI-enhanced export mode (richer formatting, insights, design-quality output)." checked={config.allowPremium} onChange={(v) => update("allowPremium", v)} />
+                <GlobalSwitch id="ov-dense-pagination" label="Dense pagination" description="Pack as much content per page as possible. Column headers repeat at the top of each continuation page." checked={config.densePagination} onChange={(v) => update("densePagination", v)} />
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
             Controls which sections appear in the <span className="font-medium text-foreground">Portfolio Overview</span> report — the first page users see when exporting from the Dashboard.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 rounded-lg border bg-card px-4">
@@ -308,8 +280,21 @@ export default function ExportsTab() {
         </TabsContent>
 
         {/* Statements tab — two columns */}
-        <TabsContent value="statements" className="mt-4">
-          <p className="text-xs text-muted-foreground mb-4">
+        <TabsContent value="statements" className="mt-4 space-y-4">
+          <div className="rounded-lg border bg-muted/30">
+            <div className="px-4 pt-3 pb-0.5"><GroupHeader title="Format" /></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border border-t border-border">
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="st-allow-landscape" label="Allow landscape orientation" description="Users can choose landscape when exporting — wider pages fit more columns." checked={config.allowLandscape} onChange={(v) => update("allowLandscape", v)} />
+                <GlobalSwitch id="st-allow-portrait" label="Allow portrait orientation" description="Users can choose portrait when exporting — taller layout, closer to standard paper." checked={config.allowPortrait} onChange={(v) => update("allowPortrait", v)} />
+              </div>
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="st-allow-premium" label="Allow premium exports" description="Enables the AI-enhanced export mode (richer formatting, insights, design-quality output)." checked={config.allowPremium} onChange={(v) => update("allowPremium", v)} />
+                <GlobalSwitch id="st-dense-pagination" label="Dense pagination" description="Pack as much content per page as possible. Column headers repeat at the top of each continuation page." checked={config.densePagination} onChange={(v) => update("densePagination", v)} />
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
             Controls which statements and chart pages appear in <span className="font-medium text-foreground">Income Statement</span>, <span className="font-medium text-foreground">Cash Flow</span>, and <span className="font-medium text-foreground">Balance Sheet</span> exports — for both Dashboard (consolidated) and Property Detail reports.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 rounded-lg border bg-card px-4">
@@ -379,8 +364,21 @@ export default function ExportsTab() {
         </TabsContent>
 
         {/* Analysis tab — two columns */}
-        <TabsContent value="analysis" className="mt-4">
-          <p className="text-xs text-muted-foreground mb-4">
+        <TabsContent value="analysis" className="mt-4 space-y-4">
+          <div className="rounded-lg border bg-muted/30">
+            <div className="px-4 pt-3 pb-0.5"><GroupHeader title="Format" /></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border border-t border-border">
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="an-allow-landscape" label="Allow landscape orientation" description="Users can choose landscape when exporting — wider pages fit more columns." checked={config.allowLandscape} onChange={(v) => update("allowLandscape", v)} />
+                <GlobalSwitch id="an-allow-portrait" label="Allow portrait orientation" description="Users can choose portrait when exporting — taller layout, closer to standard paper." checked={config.allowPortrait} onChange={(v) => update("allowPortrait", v)} />
+              </div>
+              <div className="px-4 divide-y divide-border">
+                <GlobalSwitch id="an-allow-premium" label="Allow premium exports" description="Enables the AI-enhanced export mode (richer formatting, insights, design-quality output)." checked={config.allowPremium} onChange={(v) => update("allowPremium", v)} />
+                <GlobalSwitch id="an-dense-pagination" label="Dense pagination" description="Pack as much content per page as possible. Column headers repeat at the top of each continuation page." checked={config.densePagination} onChange={(v) => update("densePagination", v)} />
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
             Controls which analytical sections appear in exports — available on both the Dashboard and Property Detail reports.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 rounded-lg border bg-card px-4">

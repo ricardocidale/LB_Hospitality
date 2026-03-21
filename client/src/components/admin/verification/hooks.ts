@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { runFullVerification, runKnownValueTestsStructured } from "@/lib/runVerification";
 import { generatePropertyProForma } from "@/lib/financialEngine";
+import { MONTHS_PER_YEAR } from "@/lib/constants";
 import { validateFinancialIdentities } from "@calc/validation/financial-identities";
 import { DEFAULT_ROUNDING } from "@calc/shared/utils";
 import type { VerificationResult, VerificationHistoryEntry, SuiteId, SuiteRunResult } from "./types";
@@ -168,14 +169,14 @@ export function useRunSuites(
       if (suiteArray.includes("financial-identities")) {
         try {
           const projYears = globalAssumptions?.projectionYears ?? 10;
-          const projMonths = projYears * 12;
+          const projMonths = projYears * MONTHS_PER_YEAR;
           let totalChecks = 0, totalPassed = 0;
           const propertyResults: any[] = [];
 
           for (const prop of properties) {
             const financials = generatePropertyProForma(prop, globalAssumptions, projMonths);
             for (let y = 0; y < projYears; y++) {
-              const startIdx = y * 12;
+              const startIdx = y * MONTHS_PER_YEAR;
               const yearMonths = financials.slice(startIdx, Math.min(startIdx + 12, financials.length));
               if (yearMonths.length === 0) continue;
               const yearEnd = yearMonths[yearMonths.length - 1];

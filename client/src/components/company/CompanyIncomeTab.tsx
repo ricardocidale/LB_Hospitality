@@ -25,6 +25,7 @@
  */
 import React, { useState } from "react";
 import { formatMoney } from "@/lib/financialEngine";
+import { MONTHS_PER_YEAR } from "@/lib/constants";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronRight, ChevronDown } from "@/components/icons/themed-icons";
 import { ScrollReveal } from "@/components/graphics";
@@ -48,7 +49,7 @@ export default function CompanyIncomeTab({
   // contribution to the company's service fee revenue line.
   const getPropertyYearlyBaseFee = (propIdx: number, year: number) => {
     const pf = propertyFinancials[propIdx].financials;
-    const yearData = pf.slice(year * 12, (year + 1) * 12);
+    const yearData = pf.slice(year * MONTHS_PER_YEAR, (year + 1) * MONTHS_PER_YEAR);
     return yearData.reduce((a: number, m: any) => a + m.feeBase, 0);
   };
 
@@ -103,7 +104,7 @@ export default function CompanyIncomeTab({
             <TableRow className="bg-muted font-semibold border-border">
               <TableCell className="sticky left-0 bg-muted text-foreground">Revenue</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const total = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                 return <TableCell key={y} className="text-right font-mono">{formatMoney(total)}</TableCell>;
               })}
@@ -112,7 +113,7 @@ export default function CompanyIncomeTab({
               rowKey="formula-totalRevenue"
               label="= Service Fees + Incentive Fees + Other Revenue"
               values={Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const base = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
                 const incentive = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
                 const other = yearData.reduce((a, m) => a + m.totalRevenue, 0) - base - incentive;
@@ -137,7 +138,7 @@ export default function CompanyIncomeTab({
                 Service Fees
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const total = yearData.reduce((a, m) => a + m.baseFeeRevenue, 0);
                 return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
               })}
@@ -191,7 +192,7 @@ export default function CompanyIncomeTab({
                           {catName}
                         </TableCell>
                         {Array.from({ length: projectionYears }, (_, y) => {
-                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                           const total = yearData.reduce((a, m) => (m.serviceFeeBreakdown?.byCategoryByPropertyId?.[catName]?.[propId] ?? 0) + a, 0);
                           return <TableCell key={y} className="text-right text-xs text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                         })}
@@ -216,7 +217,7 @@ export default function CompanyIncomeTab({
                 Incentive Fees
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const total = yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0);
                 return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
               })}
@@ -228,7 +229,7 @@ export default function CompanyIncomeTab({
                   {prop.name}
                 </TableCell>
                 {Array.from({ length: projectionYears }, (_, y) => {
-                  const yearData = financials.slice(y * 12, (y + 1) * 12);
+                  const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                   const total = yearData.reduce((a, m) => (m.incentiveFeeByPropertyId?.[String(prop.id)] ?? 0) + a, 0);
                   return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                 })}
@@ -252,7 +253,7 @@ export default function CompanyIncomeTab({
                     Cost of Centralized Services
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
-                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.totalVendorCost, 0);
                     return <TableCell key={y} className="text-right text-amber-700 font-mono">({formatMoney(total)})</TableCell>;
                   })}
@@ -279,11 +280,11 @@ export default function CompanyIncomeTab({
                       </TableRow>
                       {expandedRows.has(formulaTotalKey) && (() => {
                         const yearlyCentralizedRevenue = Array.from({ length: projectionYears }, (_, y) => {
-                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                           return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.centralizedRevenue ?? 0), 0);
                         });
                         const yearlyTotalVendorCost = Array.from({ length: projectionYears }, (_, y) => {
-                          const yearData = financials.slice(y * 12, (y + 1) * 12);
+                          const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                           return yearData.reduce((a, m) => a + m.totalVendorCost, 0);
                         });
                         const yearlyTotalGrossProfit = yearlyCentralizedRevenue.map((rev, i) => rev - yearlyTotalVendorCost[i]);
@@ -348,7 +349,7 @@ export default function CompanyIncomeTab({
                               {catName}
                             </TableCell>
                             {Array.from({ length: projectionYears }, (_, y) => {
-                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                               const total = yearData.reduce((a, m) => {
                                 const cat = m.costOfCentralizedServices?.byCategory?.[catName];
                                 return a + (cat?.vendorCost ?? 0);
@@ -360,15 +361,15 @@ export default function CompanyIncomeTab({
                             const cat = costData.byCategory[catName];
                             if (!cat) return null;
                             const yearlyRevenue = Array.from({ length: projectionYears }, (_, y) => {
-                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                               return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.byCategory?.[catName]?.revenue ?? 0), 0);
                             });
                             const yearlyVendorCost = Array.from({ length: projectionYears }, (_, y) => {
-                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                               return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.byCategory?.[catName]?.vendorCost ?? 0), 0);
                             });
                             const yearlyGrossProfit = Array.from({ length: projectionYears }, (_, y) => {
-                              const yearData = financials.slice(y * 12, (y + 1) * 12);
+                              const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                               return yearData.reduce((a, m) => a + (m.costOfCentralizedServices?.byCategory?.[catName]?.grossProfit ?? 0), 0);
                             });
                             const markupPct = cat.markup;
@@ -422,7 +423,7 @@ export default function CompanyIncomeTab({
                 <TableRow className="bg-emerald-50/60 font-semibold border-border">
                   <TableCell className="sticky left-0 bg-emerald-50/60 text-emerald-800">Gross Profit</TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
-                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.grossProfit, 0);
                     return <TableCell key={y} className="text-right text-emerald-800 font-mono">{formatMoney(total)}</TableCell>;
                   })}
@@ -443,7 +444,7 @@ export default function CompanyIncomeTab({
                 Operating Expenses
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const total = yearData.reduce((a, m) => a + m.totalExpenses, 0);
                 return <TableCell key={y} className="text-right font-mono">{formatMoney(total)}</TableCell>;
               })}
@@ -452,7 +453,7 @@ export default function CompanyIncomeTab({
               rowKey="formula-totalExpenses"
               label="= Compensation + Fixed Overhead + Variable Costs"
               values={Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const comp = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
                 const fixed = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
                 const variable = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
@@ -474,7 +475,7 @@ export default function CompanyIncomeTab({
                     Compensation
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
-                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.partnerCompensation + m.staffCompensation, 0);
                     return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                   })}
@@ -484,7 +485,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Partner Compensation</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.partnerCompensation, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -492,7 +493,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Staff Compensation</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.staffCompensation, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -512,7 +513,7 @@ export default function CompanyIncomeTab({
                     Fixed Overhead
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
-                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.officeLease + m.professionalServices + m.techInfrastructure + m.businessInsurance, 0);
                     return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                   })}
@@ -522,7 +523,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Office Lease</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.officeLease, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -530,7 +531,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Professional Services</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.professionalServices, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -538,7 +539,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Tech Infrastructure</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.techInfrastructure, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -546,7 +547,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Business Insurance</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.businessInsurance, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -566,7 +567,7 @@ export default function CompanyIncomeTab({
                     Variable Costs
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
-                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.travelCosts + m.itLicensing + m.marketing + m.miscOps, 0);
                     return <TableCell key={y} className="text-right text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                   })}
@@ -576,7 +577,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Travel Costs</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.travelCosts, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -584,7 +585,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">IT Licensing</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.itLicensing, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -592,7 +593,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Marketing</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.marketing, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -601,7 +602,7 @@ export default function CompanyIncomeTab({
                       rowKey="formula-marketing"
                       label={`= ${((global.marketingRate ?? 0) * 100).toFixed(1)}% of Total Revenue`}
                       values={Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const revenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                         const rate = ((global.marketingRate ?? 0) * 100).toFixed(1);
                         return `${rate}% × ${formatMoney(revenue)}`;
@@ -610,7 +611,7 @@ export default function CompanyIncomeTab({
                     <TableRow className="bg-muted/50">
                       <TableCell className="sticky left-0 bg-muted/50 pl-12 text-sm text-muted-foreground">Misc Operations</TableCell>
                       {Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const total = yearData.reduce((a, m) => a + m.miscOps, 0);
                         return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">{formatMoney(total)}</TableCell>;
                       })}
@@ -619,7 +620,7 @@ export default function CompanyIncomeTab({
                       rowKey="formula-miscOps"
                       label={`= ${((global.miscOpsRate ?? 0) * 100).toFixed(1)}% of Total Revenue`}
                       values={Array.from({ length: projectionYears }, (_, y) => {
-                        const yearData = financials.slice(y * 12, (y + 1) * 12);
+                        const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                         const revenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                         const rate = ((global.miscOpsRate ?? 0) * 100).toFixed(1);
                         return `${rate}% × ${formatMoney(revenue)}`;
@@ -637,7 +638,7 @@ export default function CompanyIncomeTab({
                 </span>
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const totalExpenses = yearData.reduce((a, m) => a + m.totalExpenses, 0);
                 const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                 const pct = totalRevenue > 0 ? (totalExpenses / totalRevenue) * 100 : 0;
@@ -656,7 +657,7 @@ export default function CompanyIncomeTab({
                 </span>
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const total = yearData.reduce((a, m) => a + (m.preTaxIncome + m.fundingInterestExpense), 0);
                 return (
                   <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
@@ -669,7 +670,7 @@ export default function CompanyIncomeTab({
               rowKey="formula-ebitda"
               label={financials.some(m => m.totalVendorCost > 0) ? "= Gross Profit − Total Operating Expenses" : "= Total Revenue − Total Operating Expenses"}
               values={Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const hasVendorCosts = yearData.some(m => m.totalVendorCost > 0);
                 const grossProfit = yearData.reduce((a, m) => a + m.grossProfit, 0);
                 const revenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
@@ -689,7 +690,7 @@ export default function CompanyIncomeTab({
                     </span>
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
-                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.fundingInterestExpense, 0);
                     return <TableCell key={y} className="text-right text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
                   })}
@@ -698,7 +699,7 @@ export default function CompanyIncomeTab({
                   rowKey="formula-interest-expense"
                   label={`= Outstanding Principal × ${((global.fundingInterestRate ?? 0) * 100).toFixed(1)}% ÷ 12 (monthly)`}
                   values={Array.from({ length: projectionYears }, (_, y) => {
-                    const yearData = financials.slice(y * 12, (y + 1) * 12);
+                    const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.fundingInterestExpense, 0);
                     return formatMoney(total);
                   })}
@@ -708,7 +709,7 @@ export default function CompanyIncomeTab({
             <TableRow className={financials.some(m => m.fundingInterestExpense > 0) ? "bg-muted/50 font-medium" : "hidden"}>
               <TableCell className="sticky left-0 bg-muted/50 text-foreground">Pre-Tax Income</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const total = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
                 return (
                   <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
@@ -720,7 +721,7 @@ export default function CompanyIncomeTab({
             <TableRow>
               <TableCell className="sticky left-0 bg-card pl-6 text-muted-foreground">Tax</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const total = yearData.reduce((a, m) => a + m.companyIncomeTax, 0);
                 return <TableCell key={y} className="text-right text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
               })}
@@ -729,7 +730,7 @@ export default function CompanyIncomeTab({
               rowKey="formula-tax"
               label={`= ${((global.companyTaxRate ?? 0) * 100).toFixed(0)}% × ${financials.some(m => m.fundingInterestExpense > 0) ? 'Pre-Tax Income' : 'Operating Income'}`}
               values={Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const preTaxIncome = yearData.reduce((a, m) => a + m.preTaxIncome, 0);
                 const rate = ((global.companyTaxRate ?? 0) * 100).toFixed(0);
                 return `${rate}% × ${formatMoney(preTaxIncome)}`;
@@ -738,7 +739,7 @@ export default function CompanyIncomeTab({
             <TableRow className="bg-primary/10 font-bold">
               <TableCell className="sticky left-0 bg-primary/10">Net Income</TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const total = yearData.reduce((a, m) => a + m.netIncome, 0);
                 return (
                   <TableCell key={y} className={`text-right font-mono ${total < 0 ? 'text-destructive' : ''}`}>
@@ -751,7 +752,7 @@ export default function CompanyIncomeTab({
               rowKey="formula-netIncome"
               label={financials.some(m => m.fundingInterestExpense > 0) ? "= Operating Income − Interest Expense − Tax" : "= Operating Income − Tax"}
               values={Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const ebitda = yearData.reduce((a, m) => a + (m.preTaxIncome + m.fundingInterestExpense), 0);
                 const interest = yearData.reduce((a, m) => a + m.fundingInterestExpense, 0);
                 const tax = yearData.reduce((a, m) => a + m.companyIncomeTax, 0);
@@ -768,7 +769,7 @@ export default function CompanyIncomeTab({
                 </span>
               </TableCell>
               {Array.from({ length: projectionYears }, (_, y) => {
-                const yearData = financials.slice(y * 12, (y + 1) * 12);
+                const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                 const netIncome = yearData.reduce((a, m) => a + m.netIncome, 0);
                 const totalRevenue = yearData.reduce((a, m) => a + m.totalRevenue, 0);
                 const margin = totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;

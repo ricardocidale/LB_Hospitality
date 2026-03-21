@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef } from "react";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generatePropertyProForma, formatMoney } from "@/lib/financialEngine";
-import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAULT_PROPERTY_INFLATION_RATE, DEFAULT_COST_RATE_INSURANCE } from "@/lib/constants";
+import { PROJECTION_YEARS, DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, DEFAULT_PROPERTY_INFLATION_RATE, DEFAULT_COST_RATE_INSURANCE, MONTHS_PER_YEAR } from "@/lib/constants";
 import { computeIRR } from "@analytics/returns/irr.js";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
@@ -45,7 +45,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
   const heatmapRef = useRef<SensitivityHeatMapRef>(null);
 
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
-  const projectionMonths = projectionYears * 12;
+  const projectionMonths = projectionYears * MONTHS_PER_YEAR;
 
   const variables: SensitivityVariable[] = useMemo(() => {
     if (!global) return [];
@@ -107,7 +107,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
           totalRevenue += m.revenueTotal;
           totalNOI += m.noi;
           totalCashFlow += m.cashFlow;
-          const yearIdx = Math.floor(i / 12);
+          const yearIdx = Math.floor(i / MONTHS_PER_YEAR);
           if (yearIdx < projectionYears) {
             annualCashFlows[yearIdx] += m.cashFlow;
           }

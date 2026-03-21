@@ -31,6 +31,7 @@ import {
   DEFAULT_COST_RATE_PROPERTY_OPS, DEFAULT_COST_RATE_UTILITIES,
   DEFAULT_COST_RATE_ADMIN, DEFAULT_COST_RATE_TAXES, DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_COST_RATE_IT, DEFAULT_COST_RATE_OTHER,
+  MONTHS_PER_YEAR,
 } from "@shared/constants";
 import {
   TableShell,
@@ -133,7 +134,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
     const modelStart = new Date(global.modelStartDate);
     const factors: number[] = [];
     for (let m = 0; m < 12; m++) {
-      const monthOffset = yearIndex * 12 + m;
+      const monthOffset = yearIndex * MONTHS_PER_YEAR + m;
       const currentDate = new Date(modelStart);
       currentDate.setMonth(currentDate.getMonth() + monthOffset);
       const isOperational = currentDate >= opsStart;
@@ -141,8 +142,8 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         factors.push(0);
         continue;
       }
-      const monthsSinceOps = (currentDate.getFullYear() - opsStart.getFullYear()) * 12 + currentDate.getMonth() - opsStart.getMonth();
-      const opsYear = Math.floor(monthsSinceOps / 12);
+      const monthsSinceOps = (currentDate.getFullYear() - opsStart.getFullYear()) * MONTHS_PER_YEAR + currentDate.getMonth() - opsStart.getMonth();
+      const opsYear = Math.floor(monthsSinceOps / MONTHS_PER_YEAR);
       const safeFactor = Number.isFinite(fixedEscRate) ? Math.pow(1 + fixedEscRate, opsYear) : 1;
       factors.push(safeFactor);
     }
@@ -479,7 +480,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
         <>
           <ExpandableLineItem
             label="Property Taxes"
-            tooltip={`Based on property value: ${pct(costRates.taxes)} of ${fmt(totalPropertyValue)} (${fmt(totalPropertyValue / 12)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
+            tooltip={`Based on property value: ${pct(costRates.taxes)} of ${fmt(totalPropertyValue)} (${fmt(totalPropertyValue / MONTHS_PER_YEAR)}/mo), escalating ${pct(fixedEscRate)}/yr.`}
             values={yd.map((y) => y.expenseTaxes)}
             expanded={isExpanded("taxes")}
             onToggle={() => toggle("taxes")}
@@ -493,7 +494,7 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
                 />
                 <FormulaDetailRow
                   label={`Monthly base: ${fmt(totalPropertyValue)} ÷ 12 × ${pct(costRates.taxes)}`}
-                  values={yd.map(() => `${fmt(totalPropertyValue / 12 * costRates.taxes)}/mo base`)}
+                  values={yd.map(() => `${fmt(totalPropertyValue / MONTHS_PER_YEAR * costRates.taxes)}/mo base`)}
                   colCount={years}
                 />
                 <FormulaDetailRow

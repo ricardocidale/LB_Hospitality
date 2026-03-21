@@ -26,7 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown, ChevronRight } from "@/components/icons/themed-icons";
 import { IconInfo } from "@/components/icons";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
-import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT } from "@shared/constants";
+import { DEPRECIATION_YEARS, DAYS_PER_MONTH, DEFAULT_LAND_VALUE_PERCENT, DEFAULT_REV_SHARE_EVENTS, DEFAULT_REV_SHARE_FB, DEFAULT_REV_SHARE_OTHER, DEFAULT_CATERING_BOOST_PCT, MONTHS_PER_YEAR } from "@shared/constants";
 import { DEFAULT_LTV } from "@/lib/financial/loanCalculations";
 import type { PPECostBasisScheduleProps } from "./types";
 
@@ -60,7 +60,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   // Resolution order: property → globalAssumptions → hardcoded constant
   const resolvedDepreciationYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
   const annualDepreciation = totalDepreciableBasis / resolvedDepreciationYears;
-  const monthlyDepreciation = annualDepreciation / 12;
+  const monthlyDepreciation = annualDepreciation / MONTHS_PER_YEAR;
   // Total project cost includes non-depreciable items (pre-opening, reserves)
   const totalProjectCost = purchasePrice + buildingImprovements + preOpeningCosts + operatingReserve;
   const totalPropertyValue = purchasePrice + buildingImprovements;
@@ -82,7 +82,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
   const baseMonthlyFBRev = baseMonthlyRoomRev * revShareFB * cateringBoostMultiplier;
   const baseMonthlyOtherRev = baseMonthlyRoomRev * revShareOther;
   const baseMonthlyTotalRev = baseMonthlyRoomRev + baseMonthlyEventsRev + baseMonthlyFBRev + baseMonthlyOtherRev;
-  const baseAnnualTotalRev = baseMonthlyTotalRev * 12;
+  const baseAnnualTotalRev = baseMonthlyTotalRev * MONTHS_PER_YEAR;
 
   const fixedCostEscRate = global.fixedCostEscalationRate ?? 0.03;
   const costRatePropertyOps = property.costRatePropertyOps ?? 0.04;
@@ -202,7 +202,7 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
                       <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-blue-700">
                         <span>Property Operations: {pct(costRatePropertyOps)} → {fmt(baseMonthlyTotalRev * costRatePropertyOps)}/mo</span>
                         <span>Admin & General: {pct(costRateAdmin)} → {fmt(baseMonthlyTotalRev * costRateAdmin)}/mo</span>
-                        <span>Property Taxes: {pct(costRateTaxes)} of property value → {fmt(totalPropertyValue / 12 * costRateTaxes)}/mo</span>
+                        <span>Property Taxes: {pct(costRateTaxes)} of property value → {fmt(totalPropertyValue / MONTHS_PER_YEAR * costRateTaxes)}/mo</span>
                         <span>IT & Technology: {pct(costRateIT)} → {fmt(baseMonthlyTotalRev * costRateIT)}/mo</span>
                         <span>Other Costs: {pct(costRateOther)} → {fmt(baseMonthlyTotalRev * costRateOther)}/mo</span>
                       </div>

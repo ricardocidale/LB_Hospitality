@@ -3,6 +3,7 @@ import { differenceInMonths, startOfMonth } from "date-fns";
 import {
   DEFAULT_LAND_VALUE_PERCENT,
   DEPRECIATION_YEARS,
+  MONTHS_PER_YEAR,
 } from '../constants';
 import type { AuditFinding, AuditSection, PropertyAuditInput, GlobalAuditInput } from "./types";
 import { parseLocalDate, withinTolerance, formatVariance, AUDIT_TOLERANCE_DOLLARS, AUDIT_SAMPLE_MONTHS } from "./helpers";
@@ -17,7 +18,7 @@ export function auditDepreciation(
   const landPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const effectiveDepYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
   const depreciableBasis = property.purchasePrice * (1 - landPct) + property.buildingImprovements;
-  const expectedMonthlyDep = depreciableBasis / effectiveDepYears / 12;
+  const expectedMonthlyDep = depreciableBasis / effectiveDepYears / MONTHS_PER_YEAR;
   const expectedAnnualDep = depreciableBasis / effectiveDepYears;
 
   const modelStart = startOfMonth(parseLocalDate(global.modelStartDate));

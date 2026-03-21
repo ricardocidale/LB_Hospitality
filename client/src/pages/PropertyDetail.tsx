@@ -47,6 +47,7 @@ import { Button } from "@/components/ui/button";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { drawCoverPage, addFooters, buildFinancialTableConfig, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
 import type { ExportRowMeta } from "@/lib/exports/exportStyles";
+import { MONTHS_PER_YEAR } from "@/lib/constants";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/financial/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
@@ -96,7 +97,7 @@ export default function PropertyDetail() {
   };
 
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
-  const projectionMonths = projectionYears * 12;
+  const projectionMonths = projectionYears * MONTHS_PER_YEAR;
   const fiscalYearStartMonth = global?.fiscalYearStartMonth ?? 1;
   const getFiscalYear = (yearIndex: number) => global ? getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, yearIndex) : 2026 + yearIndex;
   const financials = useMemo(
@@ -109,7 +110,7 @@ export default function PropertyDetail() {
   const yearlyChartData = useMemo(() => {
     const data = [];
     for (let y = 0; y < projectionYears; y++) {
-      const yearData = financials.slice(y * 12, (y + 1) * 12);
+      const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
       if (yearData.length === 0) continue;
       data.push({
         year: String(getFiscalYear(y)),
@@ -182,7 +183,7 @@ export default function PropertyDetail() {
     const headers = ["Line Item", ...Array.from({length: years}, (_, i) => `FY ${startYear + i}`)];
     
     const csvLoan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
-    const csvAcqYear = Math.floor(csvLoan.acqMonthsFromModelStart / 12);
+    const csvAcqYear = Math.floor(csvLoan.acqMonthsFromModelStart / MONTHS_PER_YEAR);
     const csvTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
 
     const s = computeCashFlowSections(yearlyDetails, cashFlowData, csvLoan, csvAcqYear, csvTotalPropertyCost, years);
@@ -380,7 +381,7 @@ export default function PropertyDetail() {
     const isShort = version === "short";
 
     const pdfLoan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
-    const pdfAcqYear = Math.floor(pdfLoan.acqMonthsFromModelStart / 12);
+    const pdfAcqYear = Math.floor(pdfLoan.acqMonthsFromModelStart / MONTHS_PER_YEAR);
     const pdfTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
 
     const pdfCfo = yearlyDetails.map((yd, i) => {
@@ -648,7 +649,7 @@ export default function PropertyDetail() {
           const summaryOnly = version === "short";
           const cashFlowData = getCashFlowData();
           const pdfLoan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
-          const pdfAcqYear = Math.floor(pdfLoan.acqMonthsFromModelStart / 12);
+          const pdfAcqYear = Math.floor(pdfLoan.acqMonthsFromModelStart / MONTHS_PER_YEAR);
           const pdfTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
 
           // --- Income Statement ---

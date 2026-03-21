@@ -25,6 +25,7 @@ import {
   DEFAULT_COMMISSION_RATE,
   DEFAULT_PROPERTY_INFLATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
+  MONTHS_PER_YEAR,
 } from "@shared/constants";
 
 /** Table of contents for the Checker Manual — each section maps to a chapter of the app. */
@@ -321,7 +322,7 @@ export async function exportFullData(user: { email?: string; role?: string; comp
 
   base.propertyCount = properties.length;
   const projYears = global.projectionYears ?? 10;
-  const projMonths = projYears * 12;
+  const projMonths = projYears * MONTHS_PER_YEAR;
   base.projectionYears = projYears;
 
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [PAGE_DIMS.LANDSCAPE_W, PAGE_DIMS.LANDSCAPE_H] });
@@ -457,7 +458,7 @@ export async function exportFullData(user: { email?: string; role?: string; comp
     const keys = ["totalRevenue", "totalExpenses", "netIncome", "endingCash", "safeFunding"] as const;
     keys.forEach(k => { companyYearly[k] = Array(projYears).fill(0); });
     companyData.forEach((m: any, i: number) => {
-      const yr = Math.floor(i / 12);
+      const yr = Math.floor(i / MONTHS_PER_YEAR);
       if (yr < projYears) {
         keys.forEach(k => {
           if (k === "endingCash") companyYearly[k][yr] = m[k];

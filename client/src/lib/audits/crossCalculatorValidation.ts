@@ -12,6 +12,7 @@ import {
   DEFAULT_INTEREST_RATE,
   DEFAULT_TERM_YEARS,
   DEPRECIATION_YEARS,
+  MONTHS_PER_YEAR,
 } from '../constants';
 
 export interface CrossValidationResult {
@@ -83,8 +84,8 @@ export function crossValidateFinancingCalculators(
   const termYears = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
   const loanAmount = totalPropertyValue * ltv;
-  const monthlyRate = rate / 12;
-  const totalPayments = termYears * 12;
+  const monthlyRate = rate / MONTHS_PER_YEAR;
+  const totalPayments = termYears * MONTHS_PER_YEAR;
 
   const expectedPMT = monthlyRate === 0
     ? loanAmount / totalPayments
@@ -126,9 +127,9 @@ export function crossValidateFinancingCalculators(
   // 3. DSCR Cross-Check
   // For each operating year, independently compute DSCR from raw NOI and debt service
   // Verify DSCR > 0 for operating years and that the ratio is reasonable
-  const projectionYears = Math.ceil(monthlyData.length / 12);
+  const projectionYears = Math.ceil(monthlyData.length / MONTHS_PER_YEAR);
   for (let y = 0; y < Math.min(projectionYears, 5); y++) {
-    const yearSlice = monthlyData.slice(y * 12, (y + 1) * 12);
+    const yearSlice = monthlyData.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
     const yearNOI = yearSlice.reduce((sum, m) => sum + m.noi, 0);
     const yearDS = yearSlice.reduce((sum, m) => sum + m.debtPayment, 0);
     const yearInterest = yearSlice.reduce((sum, m) => sum + m.interestExpense, 0);
@@ -160,7 +161,7 @@ export function crossValidateFinancingCalculators(
       });
 
       // Verify engine DS against independently computed annual DS from loan params
-      const expectedAnnualDS = expectedPMT * 12;
+      const expectedAnnualDS = expectedPMT * MONTHS_PER_YEAR;
       if (y === 0 && expectedAnnualDS > 0) {
         const independentDSCR = yearNOI / expectedAnnualDS;
         const engineDSCR = dscr;
@@ -179,7 +180,7 @@ export function crossValidateFinancingCalculators(
 
   // 4. Debt Yield Cross-Check
   if (loanAmount > 0) {
-    const year1NOI = monthlyData.slice(0, 12).reduce((sum, m) => sum + m.noi, 0);
+    const year1NOI = monthlyData.slice(0, MONTHS_PER_YEAR).reduce((sum, m) => sum + m.noi, 0);
     if (year1NOI > 0) {
       const debtYield = year1NOI / loanAmount;
       results.push({
@@ -334,7 +335,7 @@ export function crossValidateFinancingCalculators(
     const landValue = property.purchasePrice * landPct;
     const buildingValue = property.purchasePrice * (1 - landPct) + (property.buildingImprovements ?? 0);
     const effectiveDepYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
-    const monthlyDep = buildingValue / effectiveDepYears / 12;
+    const monthlyDep = buildingValue / effectiveDepYears / MONTHS_PER_YEAR;
 
     for (let i = 0; i < operatingMonths.length; i++) {
       const m = operatingMonths[i];
@@ -374,7 +375,7 @@ export function crossValidateFinancingCalculators(
     const depLandPct = property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
     const buildingBasis = property.purchasePrice * (1 - depLandPct) + (property.buildingImprovements ?? 0);
     const effectiveDepYears2 = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
-    const expectedMonthlyDep = buildingBasis / effectiveDepYears2 / 12;
+    const expectedMonthlyDep = buildingBasis / effectiveDepYears2 / MONTHS_PER_YEAR;
     let depErrors = 0;
     for (const m of depMonths) {
       if (!withinTolerance(m.depreciationExpense, expectedMonthlyDep, 1.0)) {
@@ -441,7 +442,7 @@ export function crossValidateFinancingCalculators(
   const initialEquity = totalPropertyValue - loanAmount;
   if (initialEquity > 0) {
     for (let y = 0; y < Math.min(projectionYears, 5); y++) {
-      const yearSlice = monthlyData.slice(y * 12, (y + 1) * 12);
+      const yearSlice = monthlyData.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
       const annualCF = yearSlice.reduce((sum, m) => sum + m.cashFlow, 0);
       const annualCoC = annualCF / initialEquity;
 

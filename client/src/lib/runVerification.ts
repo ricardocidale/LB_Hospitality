@@ -69,6 +69,7 @@ import {
   DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
   DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_MARKETING_RATE,
+  MONTHS_PER_YEAR,
 } from "./constants";
 
 export interface VerificationResults {
@@ -164,7 +165,7 @@ export function runFullVerification(
   
   for (const property of properties) {
     try {
-      const projectionMonths = ((globalAssumptions as any).projectionYears ?? PROJECTION_YEARS) * 12;
+      const projectionMonths = ((globalAssumptions as any).projectionYears ?? PROJECTION_YEARS) * MONTHS_PER_YEAR;
       const financials = generatePropertyProForma(property, globalAssumptions, projectionMonths);
       
       const formulaCheck = checkPropertyFormulas(financials);
@@ -308,7 +309,7 @@ function aggregateToYearly(monthlyData: MonthlyFinancials[]): Array<{
   
   for (let i = 0; i < monthlyData.length; i++) {
     const m = monthlyData[i];
-    const year = Math.floor(i / 12) + 1;
+    const year = Math.floor(i / MONTHS_PER_YEAR) + 1;
     
     if (!yearlyMap.has(year)) {
       yearlyMap.set(year, { 
@@ -400,7 +401,7 @@ function computeMonthlyPL(tc: TestCase) {
     totalRev * (tc.property.costRateMarketing ?? DEFAULT_COST_RATE_MARKETING) +
     totalRev * ((tc.property.costRateUtilities ?? DEFAULT_COST_RATE_UTILITIES) * DEFAULT_UTILITIES_VARIABLE_SPLIT);
 
-  const expenseInsurance = (totalPropertyValue / 12) * (tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE);
+  const expenseInsurance = (totalPropertyValue / MONTHS_PER_YEAR) * (tc.property.costRateInsurance ?? DEFAULT_COST_RATE_INSURANCE);
 
   const fixedExpenses =
     totalRev * (tc.property.costRateAdmin ?? DEFAULT_COST_RATE_ADMIN) +
@@ -415,20 +416,20 @@ function computeMonthlyPL(tc: TestCase) {
   const baseFee = totalRev * (tc.property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
   const incentiveFee = Math.max(0, gop * (tc.property.incentiveManagementFeeRate ?? DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE));
   const agop = gop - baseFee - incentiveFee;
-  const expenseTaxes = (totalPropertyValue / 12) * (tc.property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES);
+  const expenseTaxes = (totalPropertyValue / MONTHS_PER_YEAR) * (tc.property.costRateTaxes ?? DEFAULT_COST_RATE_TAXES);
   const noi = agop - expenseTaxes;
   const ffeFee = totalRev * (tc.property.costRateFFE ?? DEFAULT_COST_RATE_FFE);
   const anoi = noi - ffeFee;
 
   const landPct = tc.property.landValuePercent ?? DEFAULT_LAND_VALUE_PERCENT;
   const depBasis = (tc.property.purchasePrice || 0) * (1 - landPct) + (tc.property.buildingImprovements || 0);
-  const monthlyDep = depBasis / DEPRECIATION_YEARS / 12;
+  const monthlyDep = depBasis / DEPRECIATION_YEARS / MONTHS_PER_YEAR;
 
   let interest = 0;
   if (tc.property.type === "Financed") {
     const ltv = tc.property.acquisitionLTV || DEFAULT_LTV;
     const loan = totalPropertyValue * ltv;
-    interest = loan * (DEFAULT_INTEREST_RATE / 12);
+    interest = loan * (DEFAULT_INTEREST_RATE / MONTHS_PER_YEAR);
   }
 
   const taxableIncome = anoi - interest - monthlyDep;
@@ -654,14 +655,14 @@ function buildChecksForTestCase(testCase: TestCase): KnownValueCheck[] {
     const totalInvestment = (testCase.property.purchasePrice || 0) + (testCase.property.buildingImprovements || 0);
     const ltv = testCase.property.acquisitionLTV || DEFAULT_LTV;
     const loanAmount = totalInvestment * ltv;
-    const rate = DEFAULT_INTEREST_RATE / 12;
-    const n = DEFAULT_TERM_YEARS * 12;
+    const rate = DEFAULT_INTEREST_RATE / MONTHS_PER_YEAR;
+    const n = DEFAULT_TERM_YEARS * MONTHS_PER_YEAR;
     const calculatedPayment = loanAmount > 0
       ? (loanAmount * rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1)
       : 0;
     checks.push({
       label: "Loan Payment",
-      formula: `PMT($${loanAmount.toLocaleString()}, ${(DEFAULT_INTEREST_RATE * 100).toFixed(0)}%/12, ${DEFAULT_TERM_YEARS * 12} months)`,
+      formula: `PMT($${loanAmount.toLocaleString()}, ${(DEFAULT_INTEREST_RATE * 100).toFixed(0)}%/${MONTHS_PER_YEAR}, ${DEFAULT_TERM_YEARS * MONTHS_PER_YEAR} months)`,
       expected: testCase.expectedMonthlyPayment,
       calculated: r2(calculatedPayment),
       passed: match(calculatedPayment, testCase.expectedMonthlyPayment),

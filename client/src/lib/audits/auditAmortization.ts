@@ -4,6 +4,7 @@ import {
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
   DEFAULT_TERM_YEARS,
+  MONTHS_PER_YEAR,
 } from '../constants';
 import { pmt } from "@calc/shared/pmt";
 import type { AuditFinding, AuditSection, PropertyAuditInput, GlobalAuditInput } from "./types";
@@ -38,8 +39,8 @@ export function auditLoanAmortization(
   const loanAmount = isOriginallyFinanced ? totalInvestment * ltv : 0;
   const interestRate = property.acquisitionInterestRate ?? property.debtAssumptions?.interestRate ?? DEFAULT_INTEREST_RATE;
   const termYears = property.acquisitionTermYears ?? property.debtAssumptions?.amortizationYears ?? DEFAULT_TERM_YEARS;
-  let currentMonthlyRate = isOriginallyFinanced ? interestRate / 12 : 0;
-  let currentTotalPayments = isOriginallyFinanced ? termYears * 12 : 0;
+  let currentMonthlyRate = isOriginallyFinanced ? interestRate / MONTHS_PER_YEAR : 0;
+  let currentTotalPayments = isOriginallyFinanced ? termYears * MONTHS_PER_YEAR : 0;
 
   let currentMonthlyPayment = pmt(loanAmount, currentMonthlyRate, currentTotalPayments);
 
@@ -78,7 +79,7 @@ export function auditLoanAmortization(
   let refiMonthIndex = -1;
   if (property.willRefinance === "Yes" && property.refinanceDate) {
     const refiDate = startOfMonth(parseLocalDate(property.refinanceDate));
-    refiMonthIndex = (refiDate.getFullYear() - modelStart.getFullYear()) * 12 +
+    refiMonthIndex = (refiDate.getFullYear() - modelStart.getFullYear()) * MONTHS_PER_YEAR +
                      (refiDate.getMonth() - modelStart.getMonth());
   }
 
@@ -116,8 +117,8 @@ export function auditLoanAmortization(
       const refiLoanAmount = monthlyData[refiMonthIndex].debtOutstanding + monthlyData[refiMonthIndex].principalPayment;
       const refiRate = property.refinanceInterestRate ?? DEFAULT_INTEREST_RATE;
       const refiTermYears = property.refinanceTermYears ?? DEFAULT_TERM_YEARS;
-      currentMonthlyRate = refiRate / 12;
-      currentTotalPayments = refiTermYears * 12;
+      currentMonthlyRate = refiRate / MONTHS_PER_YEAR;
+      currentTotalPayments = refiTermYears * MONTHS_PER_YEAR;
       currentMonthlyPayment = pmt(refiLoanAmount, currentMonthlyRate, currentTotalPayments);
       runningBalance = refiLoanAmount;
 

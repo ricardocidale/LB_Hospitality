@@ -10,6 +10,7 @@ import {
   RefreshCw,
 } from "@/components/icons/themed-icons";
 import { generatePropertyProForma } from "@/lib/financialEngine";
+import { MONTHS_PER_YEAR } from "@/lib/constants";
 import { validateFinancialIdentities } from "@calc/validation/financial-identities";
 import { DEFAULT_ROUNDING } from "@calc/shared/utils";
 
@@ -48,14 +49,14 @@ function buildIdentityResults(
   globalAssumptions: any
 ): PropertyYearResult[] {
   const projYears = globalAssumptions?.projectionYears ?? 10;
-  const projMonths = projYears * 12;
+  const projMonths = projYears * MONTHS_PER_YEAR;
 
   return properties.map((prop) => {
     const financials = generatePropertyProForma(prop, globalAssumptions, projMonths);
     const years: PropertyYearResult["years"] = [];
 
     for (let y = 0; y < projYears; y++) {
-      const startIdx = y * 12;
+      const startIdx = y * MONTHS_PER_YEAR;
       const endIdx = Math.min(startIdx + 12, financials.length);
       const yearMonths = financials.slice(startIdx, endIdx);
       if (yearMonths.length === 0) continue;

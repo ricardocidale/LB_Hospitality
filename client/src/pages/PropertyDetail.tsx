@@ -643,7 +643,6 @@ export default function PropertyDetail() {
             : `${property.name} ${activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow" : "Balance Sheet"}`
         }
         fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
-        showCoverPageOption={false}
         getPremiumExportData={exportType !== 'chart' && property && yearlyDetails.length > 0 ? (version: ExportVersion, includeCoverPage: boolean) => {
           const yrLabels = yearlyChartData.map((d: any) => d.year);
           const summaryOnly = version === "short";

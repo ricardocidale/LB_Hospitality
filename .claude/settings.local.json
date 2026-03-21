@@ -42,12 +42,15 @@
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:magicui.design)",
       "Read(//home/runner/workspace/**)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(for f:*)",
+      "Bash(do)",
+      "Bash(done)"
     ],
     "deny": []
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "shadcn"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

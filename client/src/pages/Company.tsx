@@ -251,7 +251,6 @@ export default function Company() {
           exportType === 'chart' ? `${companyName} Chart` : `${companyName} ${tabLabel}`
         }
         fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
-        showCoverPageOption={false}
         getPremiumExportData={exportType !== 'chart' ? (version: ExportVersion, includeCoverPage: boolean) => {
           const summaryOnly = version === "short";
           const incomeData = generateCompanyIncomeData(financials, years, properties, propertyFinancials, summaryOnly);

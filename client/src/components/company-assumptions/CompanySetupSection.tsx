@@ -97,7 +97,7 @@ export default function CompanySetupSection({ formData, onChange, global, isAdmi
         <Card className="bg-card border border-border/80 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
-              <IconPercent className="w-4 h-4 text-muted-foreground" /> Company Inflation
+              <IconPercent className="w-4 h-4 text-muted-foreground" /> Inflation rate used by Company
             </CardTitle>
             <CardDescription className="label-text">Specific inflation rate for management company overhead calculations</CardDescription>
           </CardHeader>

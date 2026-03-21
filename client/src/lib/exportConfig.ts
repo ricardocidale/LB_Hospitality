@@ -1,12 +1,11 @@
 export interface ExportConfig {
-  allowLandscape: boolean;
-  allowPortrait: boolean;
-  allowShort: boolean;
-  allowExtended: boolean;
-  allowPremium: boolean;
-  densePagination: boolean;
-
   overview: {
+    allowLandscape: boolean;
+    allowPortrait: boolean;
+    allowShort: boolean;
+    allowExtended: boolean;
+    allowPremium: boolean;
+    densePagination: boolean;
     kpiMetrics: boolean;
     revenueChart: boolean;
     projectionTable: boolean;
@@ -16,6 +15,12 @@ export interface ExportConfig {
   };
 
   statements: {
+    allowLandscape: boolean;
+    allowPortrait: boolean;
+    allowShort: boolean;
+    allowExtended: boolean;
+    allowPremium: boolean;
+    densePagination: boolean;
     incomeStatement: boolean;
     incomeChart: boolean;
     cashFlow: boolean;
@@ -26,21 +31,30 @@ export interface ExportConfig {
   };
 
   analysis: {
+    allowLandscape: boolean;
+    allowPortrait: boolean;
+    allowShort: boolean;
+    allowExtended: boolean;
+    allowPremium: boolean;
+    densePagination: boolean;
     investmentAnalysis: boolean;
     kpiSummaryCards: boolean;
     debtSchedule: boolean;
   };
 }
 
-export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
+const FORMAT_DEFAULTS = {
   allowLandscape: true,
   allowPortrait: true,
   allowShort: true,
   allowExtended: true,
   allowPremium: true,
   densePagination: true,
+};
 
+export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   overview: {
+    ...FORMAT_DEFAULTS,
     kpiMetrics: true,
     revenueChart: true,
     projectionTable: true,
@@ -50,6 +64,7 @@ export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   },
 
   statements: {
+    ...FORMAT_DEFAULTS,
     incomeStatement: true,
     incomeChart: true,
     cashFlow: true,
@@ -60,6 +75,7 @@ export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
   },
 
   analysis: {
+    ...FORMAT_DEFAULTS,
     investmentAnalysis: true,
     kpiSummaryCards: true,
     debtSchedule: true,
@@ -74,12 +90,6 @@ export function loadExportConfig(): ExportConfig {
     if (!raw) return DEFAULT_EXPORT_CONFIG;
     const parsed = JSON.parse(raw) as Partial<ExportConfig>;
     return {
-      allowLandscape: parsed.allowLandscape ?? DEFAULT_EXPORT_CONFIG.allowLandscape,
-      allowPortrait: parsed.allowPortrait ?? DEFAULT_EXPORT_CONFIG.allowPortrait,
-      allowShort: parsed.allowShort ?? DEFAULT_EXPORT_CONFIG.allowShort,
-      allowExtended: parsed.allowExtended ?? DEFAULT_EXPORT_CONFIG.allowExtended,
-      allowPremium: parsed.allowPremium ?? DEFAULT_EXPORT_CONFIG.allowPremium,
-      densePagination: parsed.densePagination ?? DEFAULT_EXPORT_CONFIG.densePagination,
       overview: { ...DEFAULT_EXPORT_CONFIG.overview, ...(parsed.overview ?? {}) },
       statements: { ...DEFAULT_EXPORT_CONFIG.statements, ...(parsed.statements ?? {}) },
       analysis: { ...DEFAULT_EXPORT_CONFIG.analysis, ...(parsed.analysis ?? {}) },

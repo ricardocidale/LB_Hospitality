@@ -3,6 +3,7 @@ import type { NewLoanTerms } from "../shared/types.js";
 import type { PropertyValuation } from "./types.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
+import { MONTHS_PER_YEAR } from "../../shared/constants.js";
 
 export interface SizingResult {
   property_value: number;
@@ -51,14 +52,14 @@ export function computeSizing(
     noi_for_dscr !== undefined &&
     noi_for_dscr > 0
   ) {
-    const monthlyRate = terms.rate_annual / 12;
+    const monthlyRate = terms.rate_annual / MONTHS_PER_YEAR;
     const amortPayments = terms.amortization_months;
 
     if (monthlyRate === 0) {
-      // Zero rate: annual_ds = 12 * L / amort_months
-      // L <= noi * amort_months / (12 * dscr_min)
+      // Zero rate: annual_ds = MONTHS_PER_YEAR * L / amort_months
+      // L <= noi * amort_months / (MONTHS_PER_YEAR * dscr_min)
       max_loan_dscr = roundTo(
-        (noi_for_dscr * amortPayments) / (12 * dscr_min),
+        (noi_for_dscr * amortPayments) / (MONTHS_PER_YEAR * dscr_min),
         rounding,
       );
     } else {

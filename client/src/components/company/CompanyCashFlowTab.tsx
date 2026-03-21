@@ -89,8 +89,36 @@ export default function CompanyCashFlowTab({
 
   const companyName = global?.companyName || "Hospitality Business Co.";
 
+  const y1 = yearlyChartData?.[0];
+  const y1FundingReceived = y1
+    ? financials.slice(0, MONTHS_PER_YEAR).reduce((a, m) => a + (m.safeFunding ?? 0), 0)
+    : 0;
+  const y1OperatingCF = y1
+    ? financials.slice(0, MONTHS_PER_YEAR).reduce((a, m) => a + m.netIncome + (m.fundingInterestExpense ?? 0), 0)
+    : 0;
+  const y1MonthlyExpenses = y1 && y1.Expenses > 0 ? y1.Expenses / MONTHS_PER_YEAR : 0;
+  const y1Runway = y1 && y1MonthlyExpenses > 0 && y1.EndingCash > 0
+    ? Math.round(y1.EndingCash / y1MonthlyExpenses)
+    : null;
+
   return (
     <div className="space-y-6">
+    {y1 && (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-testid="cashflow-kpi-cards">
+        {([
+          { label: "Year 1 Operating Cash", value: y1OperatingCF, sub: "Net income + non-cash adjustments" },
+          { label: "Year 1 Funding Received", value: y1FundingReceived, sub: "SAFE note capital inflows" },
+          { label: "Year 1 Net Cash Change", value: y1.CashFlow, sub: "Annual net cash increase" },
+          { label: "Year 1 Ending Cash", value: y1.EndingCash, sub: y1Runway ? `${y1Runway} months runway` : "End of year 1 balance" },
+        ] as { label: string; value: number; sub: string }[]).map(card => (
+          <div key={card.label} className="bg-card rounded-xl p-4 border shadow-sm">
+            <p className="text-xs text-muted-foreground mb-1">{card.label}</p>
+            <p className={`text-xl font-semibold font-mono ${card.value < 0 ? "text-negative" : "text-foreground"}`} data-testid={`kpi-${card.label.toLowerCase().replace(/\s+/g, '-')}`}>{formatMoney(card.value)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{card.sub}</p>
+          </div>
+        ))}
+      </div>
+    )}
     {yearlyChartData && yearlyChartData.length > 0 && (
       <FinancialChart
         data={yearlyChartData}

@@ -5,6 +5,7 @@ import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage, type DashboardSummaryMetric } from "@/lib/exports/pdfHelpers";
 import { PAGE_DIMS, type ThemeColor, buildBrandPalette } from "@/lib/exports/exportStyles";
+import { loadExportConfig } from "@/lib/exportConfig";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
@@ -282,10 +283,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const dateStr = format(new Date(), "MMMM d, yyyy");
   const projRange = `${years[0]} \u2013 ${years[years.length - 1]}`;
 
-  const smartNextPage = () => {
-    const finalY = (doc as any).lastAutoTable?.finalY ?? 100;
-    if (finalY > 40) doc.addPage();
-  };
+  const cfg = loadExportConfig();
 
   const NAVY: [number, number, number] = brand.PRIMARY_RGB;
   const ACCENT: [number, number, number] = brand.SECONDARY_RGB;
@@ -357,186 +355,205 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     const propertyTable = properties.map(p => ({
       name: p.name, market: p.market, rooms: p.roomCount, status: p.status,
     }));
-    drawPageChrome();
-    drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable, brand);
+
+    if (cfg.overview.kpiMetrics) {
+      drawPageChrome();
+      drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable, brand);
+    }
 
     if (overviewOnly && overviewData) {
       const fmtUSD = (v: number) =>
         new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
       const fmtPct = (v: number) => `${v.toFixed(1)}%`;
 
-      doc.addPage();
-      startY = drawSectionTitle("Revenue & ANOI Projection", `${projectionYears}-Year Consolidated Projection`);
-      const revData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.revenue }));
-      const anoiData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.anoi }));
-      const noiData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.noi }));
-      const cfData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.cashFlow }));
-      drawLineChart({
-        doc, x: 16, y: startY!, width: pageW - 32, height: 130,
-        title: `Portfolio Revenue & ANOI (${projectionYears}-Year Projection)`,
-        series: [
-          { name: "Revenue", data: revData, color: `#${brand.LINE_HEX[0]}` },
-          { name: "NOI", data: noiData, color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
-          { name: "ANOI", data: anoiData, color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
-          { name: "Cash Flow", data: cfData, color: `#${brand.LINE_HEX[3] || brand.ACCENT_HEX}` },
-        ],
-        brand,
-      });
-      const projTableY = startY! + 140;
-      autoTable(doc, {
-        startY: projTableY,
-        margin: { left: 16, right: 16 },
-        head: [["Year", "Revenue", "NOI", "ANOI", "Cash Flow"]],
-        body: overviewData.revenueNOIData.map((d) => [
-          String(d.year), fmtUSD(d.revenue), fmtUSD(d.noi), fmtUSD(d.anoi), fmtUSD(d.cashFlow),
-        ]),
-        styles: { fontSize: 7, cellPadding: 1.5 },
-        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
-      });
+      let overviewPageStarted = cfg.overview.kpiMetrics;
 
-      smartNextPage();
-      startY = drawSectionTitle("Portfolio & Capital Structure", "Portfolio Composition and Capital Summary");
-      const cs = overviewData.capitalStructure;
-      const compositionRows = [
-        ["Properties", String(cs.totalProperties)],
-        ["Total Rooms", String(cs.totalRooms)],
-        ["Avg Rooms / Property", cs.avgRoomsPerProperty.toFixed(0)],
-        ["Markets", String(cs.totalMarkets)],
-        ["Avg Daily Rate (ADR)", fmtUSD(cs.avgADR)],
-      ];
-      const capitalRows = [
-        ["Total Purchase Price", fmtUSD(cs.totalPurchasePrice)],
-        ["Avg Purchase Price", fmtUSD(cs.avgPurchasePrice)],
-        ["Avg Exit Cap Rate", fmtPct(cs.avgExitCapRate * 100)],
-        ["Hold Period", `${cs.holdPeriod} Years`],
-        ["ANOI Margin", fmtPct(cs.anoiMargin)],
-      ];
-      autoTable(doc, {
-        startY: startY!,
-        margin: { left: 16, right: pageW / 2 + 4 },
-        head: [["Portfolio Composition", "Value"]],
-        body: compositionRows,
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        columnStyles: { 1: { halign: "right", fontStyle: "bold" } },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-      });
-      autoTable(doc, {
-        startY: startY!,
-        margin: { left: pageW / 2 + 4, right: 16 },
-        head: [["Capital Structure", "Value"]],
-        body: capitalRows,
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.PRIMARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        columnStyles: { 1: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-      });
+      if (cfg.overview.revenueChart) {
+        if (overviewPageStarted) doc.addPage();
+        overviewPageStarted = true;
+        startY = drawSectionTitle("Revenue & ANOI Projection", `${projectionYears}-Year Consolidated Projection`);
+        const revData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.revenue }));
+        const anoiData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.anoi }));
+        const noiData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.noi }));
+        const cfData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.cashFlow }));
+        drawLineChart({
+          doc, x: 16, y: startY!, width: pageW - 32, height: 130,
+          title: `Portfolio Revenue & ANOI (${projectionYears}-Year Projection)`,
+          series: [
+            { name: "Revenue", data: revData, color: `#${brand.LINE_HEX[0]}` },
+            { name: "NOI", data: noiData, color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+            { name: "ANOI", data: anoiData, color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
+            { name: "Cash Flow", data: cfData, color: `#${brand.LINE_HEX[3] || brand.ACCENT_HEX}` },
+          ],
+          brand,
+        });
+        if (cfg.overview.projectionTable) {
+          const projTableY = startY! + 140;
+          autoTable(doc, {
+            startY: projTableY,
+            margin: { left: 16, right: 16 },
+            head: [["Year", "Revenue", "NOI", "ANOI", "Cash Flow"]],
+            body: overviewData.revenueNOIData.map((d) => [
+              String(d.year), fmtUSD(d.revenue), fmtUSD(d.noi), fmtUSD(d.anoi), fmtUSD(d.cashFlow),
+            ]),
+            styles: { fontSize: 7, cellPadding: 1.5 },
+            headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
+          });
+        }
+      }
 
-      smartNextPage();
-      startY = drawSectionTitle("Portfolio Composition", "Geographic and Status Distribution");
-      const mktRows = Object.entries(overviewData.marketCounts).map(([market, count]) => [
-        market, String(count), fmtPct((count / overviewData.capitalStructure.totalProperties) * 100),
-      ]);
-      const stsRows = Object.entries(overviewData.statusCounts).map(([status, count]) => [
-        status, String(count), fmtPct((count / overviewData.capitalStructure.totalProperties) * 100),
-      ]);
-      autoTable(doc, {
-        startY: startY!,
-        margin: { left: 16, right: pageW / 2 + 4 },
-        head: [["Market", "Properties", "Share"]],
-        body: mktRows,
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-      });
-      autoTable(doc, {
-        startY: startY!,
-        margin: { left: pageW / 2 + 4, right: 16 },
-        head: [["Status", "Properties", "Share"]],
-        body: stsRows,
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.PRIMARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-      });
+      if (cfg.overview.compositionTables) {
+        if (overviewPageStarted) doc.addPage();
+        overviewPageStarted = true;
+        startY = drawSectionTitle("Portfolio & Capital Structure", "Portfolio Composition and Capital Summary");
+        const cs = overviewData.capitalStructure;
+        const compositionRows = [
+          ["Properties", String(cs.totalProperties)],
+          ["Total Rooms", String(cs.totalRooms)],
+          ["Avg Rooms / Property", cs.avgRoomsPerProperty.toFixed(0)],
+          ["Markets", String(cs.totalMarkets)],
+          ["Avg Daily Rate (ADR)", fmtUSD(cs.avgADR)],
+        ];
+        const capitalRows = [
+          ["Total Purchase Price", fmtUSD(cs.totalPurchasePrice)],
+          ["Avg Purchase Price", fmtUSD(cs.avgPurchasePrice)],
+          ["Avg Exit Cap Rate", fmtPct(cs.avgExitCapRate * 100)],
+          ["Hold Period", `${cs.holdPeriod} Years`],
+          ["ANOI Margin", fmtPct(cs.anoiMargin)],
+        ];
+        autoTable(doc, {
+          startY: startY!,
+          margin: { left: 16, right: pageW / 2 + 4 },
+          head: [["Portfolio Composition", "Value"]],
+          body: compositionRows,
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+          columnStyles: { 1: { halign: "right", fontStyle: "bold" } },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+        });
+        autoTable(doc, {
+          startY: startY!,
+          margin: { left: pageW / 2 + 4, right: 16 },
+          head: [["Capital Structure", "Value"]],
+          body: capitalRows,
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: brand.PRIMARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+          columnStyles: { 1: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+        });
 
-      smartNextPage();
-      startY = drawSectionTitle("USALI Profit Waterfall", `${projectionYears}-Year Consolidated USALI Income Bridge`);
-      const wfHead = ["", ...overviewData.yearLabels.map(String)];
-      const wfBody = overviewData.waterfallRows.map((row) => [
-        row.label,
-        ...row.values.map((v) => (row.isDeduction ? `(${fmtUSD(v)})` : fmtUSD(v))),
-      ]);
-      autoTable(doc, {
-        startY: startY!,
-        margin: { left: 16, right: 16 },
-        head: [wfHead],
-        body: wfBody,
-        styles: { fontSize: 6.5, cellPadding: 1.5 },
-        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 7 },
-        bodyStyles: { textColor: brand.FOREGROUND_RGB },
-        didParseCell: (data: any) => {
-          if (data.section === "body") {
-            const row = overviewData.waterfallRows[data.row.index];
-            if (row?.isSubtotal) {
-              data.cell.styles.fontStyle = "bold";
-              data.cell.styles.fillColor = [240, 247, 244];
+        doc.addPage();
+        startY = drawSectionTitle("Portfolio Composition", "Geographic and Status Distribution");
+        const totalProps = Math.max(overviewData.capitalStructure.totalProperties, 1);
+        const mktRows = Object.entries(overviewData.marketCounts).map(([market, count]) => [
+          market, String(count), fmtPct((count / totalProps) * 100),
+        ]);
+        const stsRows = Object.entries(overviewData.statusCounts).map(([status, count]) => [
+          status, String(count), fmtPct((count / totalProps) * 100),
+        ]);
+        autoTable(doc, {
+          startY: startY!,
+          margin: { left: 16, right: pageW / 2 + 4 },
+          head: [["Market", "Properties", "Share"]],
+          body: mktRows,
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+          columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+        });
+        autoTable(doc, {
+          startY: startY!,
+          margin: { left: pageW / 2 + 4, right: 16 },
+          head: [["Status", "Properties", "Share"]],
+          body: stsRows,
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: brand.PRIMARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+          columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+        });
+      }
+
+      if (cfg.overview.waterfallTable) {
+        if (overviewPageStarted) doc.addPage();
+        overviewPageStarted = true;
+        startY = drawSectionTitle("USALI Profit Waterfall", `${projectionYears}-Year Consolidated USALI Income Bridge`);
+        const wfHead = ["", ...overviewData.yearLabels.map(String)];
+        const wfBody = overviewData.waterfallRows.map((row) => [
+          row.label,
+          ...row.values.map((v) => (row.isDeduction ? `(${fmtUSD(v)})` : fmtUSD(v))),
+        ]);
+        autoTable(doc, {
+          startY: startY!,
+          margin: { left: 16, right: 16 },
+          head: [wfHead],
+          body: wfBody,
+          styles: { fontSize: 6.5, cellPadding: 1.5 },
+          headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 7 },
+          bodyStyles: { textColor: brand.FOREGROUND_RGB },
+          didParseCell: (data: any) => {
+            if (data.section === "body") {
+              const row = overviewData.waterfallRows[data.row.index];
+              if (row?.isSubtotal) {
+                data.cell.styles.fontStyle = "bold";
+                data.cell.styles.fillColor = [240, 247, 244];
+              }
+              if (row?.isDeduction) {
+                data.cell.styles.textColor = [180, 60, 60];
+              }
             }
-            if (row?.isDeduction) {
-              data.cell.styles.textColor = [180, 60, 60];
-            }
-          }
-        },
-        columnStyles: { 0: { fontStyle: "bold", cellWidth: 55 } },
-        alternateRowStyles: {},
-        didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
-      });
+          },
+          columnStyles: { 0: { fontStyle: "bold", cellWidth: 55 } },
+          alternateRowStyles: {},
+          didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
+        });
+      }
 
-      smartNextPage();
-      startY = drawSectionTitle("Portfolio Insights", `${projectionYears}-Year Properties & Key Metrics`);
-      const insightRows = overviewData.propertyItems.map((p, i) => [
-        String(i + 1), p.name, p.market, String(p.rooms), p.status,
-        fmtUSD(p.acquisitionCost), fmtUSD(p.adr), `${p.irr.toFixed(1)}%`,
-      ]);
-      autoTable(doc, {
-        startY: startY!,
-        margin: { left: 16, right: 16 },
-        head: [["#", "Property", "Market", "Rooms", "Status", "Acquisition", "ADR", "IRR"]],
-        body: insightRows,
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        columnStyles: {
-          0: { cellWidth: 8, halign: "center" },
-          3: { halign: "right" },
-          5: { halign: "right" },
-          6: { halign: "right" },
-          7: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB },
-        },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
-      });
-      const afterTableY = (doc as any).lastAutoTable?.finalY ?? (startY! + 60);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8);
-      doc.setTextColor(...brand.ACCENT_RGB);
-      doc.text("Portfolio Insights", 16, afterTableY + 10);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(7.5);
-      doc.setTextColor(...brand.FOREGROUND_RGB);
-      const { kpis } = { kpis: overviewData.portfolioKPIs };
-      const insightLines = [
-        `Markets: ${Object.entries(overviewData.marketCounts).map(([m, c]) => `${m} (${c})`).join(", ")}`,
-        `${projectionYears}-Year Total Revenue: ${fmtUSD(kpis.totalProjectionRevenue)}`,
-        `${projectionYears}-Year Total NOI: ${fmtUSD(kpis.totalProjectionNOI)}`,
-        `${projectionYears}-Year Total ANOI: ${fmtUSD(kpis.totalProjectionANOI)}`,
-        `${projectionYears}-Year Total Cash Flow: ${fmtUSD(kpis.totalProjectionCashFlow)}`,
-      ];
-      insightLines.forEach((line, i) => {
-        doc.text(`\u2022  ${line}`, 18, afterTableY + 18 + i * 6);
-      });
+      if (cfg.overview.propertyInsights) {
+        if (overviewPageStarted) doc.addPage();
+        startY = drawSectionTitle("Portfolio Insights", `${projectionYears}-Year Properties & Key Metrics`);
+        const insightRows = overviewData.propertyItems.map((p, i) => [
+          String(i + 1), p.name, p.market, String(p.rooms), p.status,
+          fmtUSD(p.acquisitionCost), fmtUSD(p.adr), `${p.irr.toFixed(1)}%`,
+        ]);
+        autoTable(doc, {
+          startY: startY!,
+          margin: { left: 16, right: 16 },
+          head: [["#", "Property", "Market", "Rooms", "Status", "Acquisition", "ADR", "IRR"]],
+          body: insightRows,
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+          columnStyles: {
+            0: { cellWidth: 8, halign: "center" },
+            3: { halign: "right" },
+            5: { halign: "right" },
+            6: { halign: "right" },
+            7: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB },
+          },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
+        });
+        const afterTableY = (doc as any).lastAutoTable?.finalY ?? (startY! + 60);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(...brand.ACCENT_RGB);
+        doc.text("Portfolio Insights", 16, afterTableY + 10);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.5);
+        doc.setTextColor(...brand.FOREGROUND_RGB);
+        const { kpis } = { kpis: overviewData.portfolioKPIs };
+        const insightLines = [
+          `Markets: ${Object.entries(overviewData.marketCounts).map(([m, c]) => `${m} (${c})`).join(", ")}`,
+          `${projectionYears}-Year Total Revenue: ${fmtUSD(kpis.totalProjectionRevenue)}`,
+          `${projectionYears}-Year Total NOI: ${fmtUSD(kpis.totalProjectionNOI)}`,
+          `${projectionYears}-Year Total ANOI: ${fmtUSD(kpis.totalProjectionANOI)}`,
+          `${projectionYears}-Year Total Cash Flow: ${fmtUSD(kpis.totalProjectionCashFlow)}`,
+        ];
+        insightLines.forEach((line, i) => {
+          doc.text(`\u2022  ${line}`, 18, afterTableY + 18 + i * 6);
+        });
+      }
     }
   } else {
     needsNewFirstPage = true;
@@ -553,7 +570,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", startY!, brand);
     autoTable(doc, withChrome(incomeConfig));
 
-    smartNextPage();
+    doc.addPage();
     const cashFlowData = generatePortfolioCashFlowData(
       financials.allPropertyYearlyCF, projectionYears, getFiscalYear,
       new Set(["cfo", "cfi", "cff"]), false,
@@ -564,7 +581,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", startY, brand);
     autoTable(doc, withChrome(cfConfig));
 
-    smartNextPage();
+    doc.addPage();
     const balanceSheetData = generatePortfolioBalanceSheetData(
       financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate,
     );

@@ -8,6 +8,7 @@ import { PAGE_DIMS, type ThemeColor, buildBrandPalette } from "@/lib/exports/exp
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
 import type { YearlyPropertyFinancials } from "@/lib/financial/yearlyAggregator";
+import type { OverviewExportData } from "./overviewExportData";
 
 import type { ExportRow, ExportData } from "./statementBuilders";
 import { generatePortfolioCashFlowData, generatePortfolioBalanceSheetData, generatePortfolioInvestmentData } from "./statementBuilders";
@@ -37,11 +38,95 @@ export async function exportPortfolioExcel(
     investmentData: ExportData;
   },
   companyName = "Portfolio",
-  customFilename?: string
+  customFilename?: string,
+  overviewData?: OverviewExportData
 ): Promise<void> {
   const XLSX = await import("xlsx");
   const { applyCurrencyFormat, applyHeaderStyle, setColumnWidths } = await import("@/lib/exports/excel/helpers");
   const wb = (XLSX as any).utils.book_new();
+
+  const fmtUSD = (v: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+  const fmtPct = (v: number) => `${v.toFixed(1)}%`;
+
+  if (overviewData) {
+    const { portfolioKPIs: kpis, capitalStructure: cs } = overviewData;
+
+    const summaryData: (string | number)[][] = [
+      ["Portfolio Summary"],
+      [],
+      ["Return Metrics"],
+      ["Portfolio IRR", fmtPct(kpis.portfolioIRR * 100)],
+      ["Equity Multiple", `${kpis.equityMultiple.toFixed(2)}x`],
+      ["Cash-on-Cash Return", fmtPct(kpis.cashOnCash)],
+      [],
+      ["Investment Summary"],
+      ["Total Equity Invested", fmtUSD(kpis.totalInitialEquity)],
+      ["Projected Exit Value", fmtUSD(kpis.totalExitValue)],
+      ["Properties", cs.totalProperties],
+      ["Total Rooms", cs.totalRooms],
+      [],
+      ["Projection Totals"],
+      [`${cs.holdPeriod}-Year Revenue`, fmtUSD(kpis.totalProjectionRevenue)],
+      [`${cs.holdPeriod}-Year NOI`, fmtUSD(kpis.totalProjectionNOI)],
+      [`${cs.holdPeriod}-Year ANOI`, fmtUSD(kpis.totalProjectionANOI)],
+      [`${cs.holdPeriod}-Year Cash Flow`, fmtUSD(kpis.totalProjectionCashFlow)],
+      [],
+      ["Capital Structure"],
+      ["Total Purchase Price", fmtUSD(cs.totalPurchasePrice)],
+      ["Avg Purchase Price", fmtUSD(cs.avgPurchasePrice)],
+      ["Avg Exit Cap Rate", fmtPct(cs.avgExitCapRate * 100)],
+      ["Hold Period", `${cs.holdPeriod} Years`],
+      ["ANOI Margin", fmtPct(cs.anoiMargin)],
+      ["Avg Rooms / Property", cs.avgRoomsPerProperty.toFixed(0)],
+      ["Avg Daily Rate (ADR)", fmtUSD(cs.avgADR)],
+    ];
+    const wsSummary = (XLSX as any).utils.aoa_to_sheet(summaryData);
+    setColumnWidths(wsSummary, [36, 20]);
+    (XLSX as any).utils.book_append_sheet(wb, wsSummary, "Portfolio Summary");
+
+    const propHeaders = ["#", "Property", "Market", "Rooms", "Status", "Acquisition Cost", "ADR", "IRR"];
+    const propRows = overviewData.propertyItems.map((p, i) => [
+      i + 1, p.name, p.market, p.rooms, p.status, fmtUSD(p.acquisitionCost), fmtUSD(p.adr), fmtPct(p.irr),
+    ]);
+    const wsProps = (XLSX as any).utils.aoa_to_sheet([propHeaders, ...propRows]);
+    setColumnWidths(wsProps, [5, 28, 18, 10, 16, 20, 12, 10]);
+    (XLSX as any).utils.book_append_sheet(wb, wsProps, "Properties & IRR");
+
+    const mktRows: (string | number)[][] = [
+      ["Market", "Properties", "Share (%)"],
+      ...Object.entries(overviewData.marketCounts).map(([m, c]) => [
+        m, c, parseFloat(((c / cs.totalProperties) * 100).toFixed(1)),
+      ]),
+      [],
+      ["Status", "Properties", "Share (%)"],
+      ...Object.entries(overviewData.statusCounts).map(([s, c]) => [
+        s, c, parseFloat(((c / cs.totalProperties) * 100).toFixed(1)),
+      ]),
+    ];
+    const wsMkt = (XLSX as any).utils.aoa_to_sheet(mktRows);
+    setColumnWidths(wsMkt, [24, 14, 14]);
+    (XLSX as any).utils.book_append_sheet(wb, wsMkt, "Market & Status");
+
+    const projHeader = ["Year", "Revenue", "NOI", "ANOI", "Cash Flow"];
+    const projRows = overviewData.revenueNOIData.map((d) => [
+      d.year, fmtUSD(d.revenue), fmtUSD(d.noi), fmtUSD(d.anoi), fmtUSD(d.cashFlow),
+    ]);
+    const wsProj = (XLSX as any).utils.aoa_to_sheet([projHeader, ...projRows]);
+    setColumnWidths(wsProj, [10, 18, 18, 18, 18]);
+    (XLSX as any).utils.book_append_sheet(wb, wsProj, "Revenue Projection");
+
+    const wfHeader = ["", ...overviewData.yearLabels.map(String)];
+    const wfRows = overviewData.waterfallRows.map((row) => [
+      row.label,
+      ...row.values.map((v) => (row.isDeduction ? -v : v)),
+    ]);
+    const wsWf = (XLSX as any).utils.aoa_to_sheet([wfHeader, ...wfRows]);
+    setColumnWidths(wsWf, [40, ...overviewData.yearLabels.map(() => 16)]);
+    applyCurrencyFormat(wsWf, [wfHeader, ...wfRows]);
+    applyHeaderStyle(wsWf, [wfHeader, ...wfRows]);
+    (XLSX as any).utils.book_append_sheet(wb, wsWf, "USALI Waterfall");
+  }
 
   const sheets: { name: string; data: ExportData }[] = [
     { name: "Income Statement", data: datasets.incomeData },
@@ -182,6 +267,7 @@ export interface ComprehensiveDashboardExportParams {
   themeColors?: ThemeColor[];
   overviewOnly?: boolean;
   statementsOnly?: boolean;
+  overviewData?: OverviewExportData;
 }
 
 const fmtCompact = (v: number) =>
@@ -193,6 +279,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     companyName = "H+ Analytics",
     incomeRows, modelStartDate, themeColors,
     overviewOnly = false, statementsOnly = false,
+    overviewData,
   } = params;
 
   const jsPDF = (await import("jspdf")).default;
@@ -291,6 +378,185 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     }));
     drawPageChrome();
     drawDashboardSummaryPage(doc, pageW, entityTag, companyName, metrics, propertyTable, brand);
+
+    if (overviewOnly && overviewData) {
+      const fmtUSD = (v: number) =>
+        new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+      const fmtPct = (v: number) => `${v.toFixed(1)}%`;
+
+      doc.addPage();
+      startY = drawSectionTitle("Revenue & ANOI Projection", `${projectionYears}-Year Consolidated Projection`);
+      const revData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.revenue }));
+      const anoiData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.anoi }));
+      const noiData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.noi }));
+      const cfData = overviewData.revenueNOIData.map((d) => ({ label: String(d.year), value: d.cashFlow }));
+      drawLineChart({
+        doc, x: 16, y: startY!, width: pageW - 32, height: 130,
+        title: `Portfolio Revenue & ANOI (${projectionYears}-Year Projection)`,
+        series: [
+          { name: "Revenue", data: revData, color: `#${brand.LINE_HEX[0]}` },
+          { name: "NOI", data: noiData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+          { name: "ANOI", data: anoiData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+          { name: "Cash Flow", data: cfData, color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
+        ],
+        brand,
+      });
+      const projTableY = startY! + 140;
+      autoTable(doc, {
+        startY: projTableY,
+        margin: { left: 16, right: 16 },
+        head: [["Year", "Revenue", "NOI", "ANOI", "Cash Flow"]],
+        body: overviewData.revenueNOIData.map((d) => [
+          String(d.year), fmtUSD(d.revenue), fmtUSD(d.noi), fmtUSD(d.anoi), fmtUSD(d.cashFlow),
+        ]),
+        styles: { fontSize: 7, cellPadding: 1.5 },
+        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
+      });
+
+      doc.addPage();
+      startY = drawSectionTitle("Portfolio & Capital Structure", "Portfolio Composition and Capital Summary");
+      const cs = overviewData.capitalStructure;
+      const compositionRows = [
+        ["Properties", String(cs.totalProperties)],
+        ["Total Rooms", String(cs.totalRooms)],
+        ["Avg Rooms / Property", cs.avgRoomsPerProperty.toFixed(0)],
+        ["Markets", String(cs.totalMarkets)],
+        ["Avg Daily Rate (ADR)", fmtUSD(cs.avgADR)],
+      ];
+      const capitalRows = [
+        ["Total Purchase Price", fmtUSD(cs.totalPurchasePrice)],
+        ["Avg Purchase Price", fmtUSD(cs.avgPurchasePrice)],
+        ["Avg Exit Cap Rate", fmtPct(cs.avgExitCapRate * 100)],
+        ["Hold Period", `${cs.holdPeriod} Years`],
+        ["ANOI Margin", fmtPct(cs.anoiMargin)],
+      ];
+      autoTable(doc, {
+        startY: startY!,
+        margin: { left: 16, right: pageW / 2 + 4 },
+        head: [["Portfolio Composition", "Value"]],
+        body: compositionRows,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        columnStyles: { 1: { halign: "right", fontStyle: "bold" } },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+      });
+      autoTable(doc, {
+        startY: startY!,
+        margin: { left: pageW / 2 + 4, right: 16 },
+        head: [["Capital Structure", "Value"]],
+        body: capitalRows,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: brand.NAVY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        columnStyles: { 1: { halign: "right", fontStyle: "bold", textColor: brand.DARK_GREEN_RGB } },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+      });
+
+      doc.addPage();
+      startY = drawSectionTitle("Portfolio Composition", "Geographic and Status Distribution");
+      const mktRows = Object.entries(overviewData.marketCounts).map(([market, count]) => [
+        market, String(count), fmtPct((count / overviewData.capitalStructure.totalProperties) * 100),
+      ]);
+      const stsRows = Object.entries(overviewData.statusCounts).map(([status, count]) => [
+        status, String(count), fmtPct((count / overviewData.capitalStructure.totalProperties) * 100),
+      ]);
+      autoTable(doc, {
+        startY: startY!,
+        margin: { left: 16, right: pageW / 2 + 4 },
+        head: [["Market", "Properties", "Share"]],
+        body: mktRows,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.DARK_GREEN_RGB } },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+      });
+      autoTable(doc, {
+        startY: startY!,
+        margin: { left: pageW / 2 + 4, right: 16 },
+        head: [["Status", "Properties", "Share"]],
+        body: stsRows,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: brand.NAVY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.DARK_GREEN_RGB } },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+      });
+
+      doc.addPage();
+      startY = drawSectionTitle("USALI Profit Waterfall", `${projectionYears}-Year Consolidated USALI Income Bridge`);
+      const wfHead = ["", ...overviewData.yearLabels.map(String)];
+      const wfBody = overviewData.waterfallRows.map((row) => [
+        row.label,
+        ...row.values.map((v) => (row.isDeduction ? `(${fmtUSD(v)})` : fmtUSD(v))),
+      ]);
+      autoTable(doc, {
+        startY: startY!,
+        margin: { left: 16, right: 16 },
+        head: [wfHead],
+        body: wfBody,
+        styles: { fontSize: 6.5, cellPadding: 1.5 },
+        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 7 },
+        bodyStyles: { textColor: brand.DARK_TEXT_RGB },
+        didParseCell: (data: any) => {
+          if (data.section === "body") {
+            const row = overviewData.waterfallRows[data.row.index];
+            if (row?.isSubtotal) {
+              data.cell.styles.fontStyle = "bold";
+              data.cell.styles.fillColor = [240, 247, 244];
+            }
+            if (row?.isDeduction) {
+              data.cell.styles.textColor = [180, 60, 60];
+            }
+          }
+        },
+        columnStyles: { 0: { fontStyle: "bold", cellWidth: 55 } },
+        alternateRowStyles: {},
+        didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
+      });
+
+      doc.addPage();
+      startY = drawSectionTitle("Portfolio Insights", `${projectionYears}-Year Properties & Key Metrics`);
+      const insightRows = overviewData.propertyItems.map((p, i) => [
+        String(i + 1), p.name, p.market, String(p.rooms), p.status,
+        fmtUSD(p.acquisitionCost), fmtUSD(p.adr), `${p.irr.toFixed(1)}%`,
+      ]);
+      autoTable(doc, {
+        startY: startY!,
+        margin: { left: 16, right: 16 },
+        head: [["#", "Property", "Market", "Rooms", "Status", "Acquisition", "ADR", "IRR"]],
+        body: insightRows,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        columnStyles: {
+          0: { cellWidth: 8, halign: "center" },
+          3: { halign: "right" },
+          5: { halign: "right" },
+          6: { halign: "right" },
+          7: { halign: "right", fontStyle: "bold", textColor: brand.DARK_GREEN_RGB },
+        },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
+      });
+      const afterTableY = (doc as any).lastAutoTable?.finalY ?? (startY! + 60);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(...brand.DARK_GREEN_RGB);
+      doc.text("Portfolio Insights", 16, afterTableY + 10);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(...brand.DARK_TEXT_RGB);
+      const { kpis } = { kpis: overviewData.portfolioKPIs };
+      const insightLines = [
+        `Markets: ${Object.entries(overviewData.marketCounts).map(([m, c]) => `${m} (${c})`).join(", ")}`,
+        `${projectionYears}-Year Total Revenue: ${fmtUSD(kpis.totalProjectionRevenue)}`,
+        `${projectionYears}-Year Total NOI: ${fmtUSD(kpis.totalProjectionNOI)}`,
+        `${projectionYears}-Year Total ANOI: ${fmtUSD(kpis.totalProjectionANOI)}`,
+        `${projectionYears}-Year Total Cash Flow: ${fmtUSD(kpis.totalProjectionCashFlow)}`,
+      ];
+      insightLines.forEach((line, i) => {
+        doc.text(`\u2022  ${line}`, 18, afterTableY + 18 + i * 6);
+      });
+    }
   } else {
     needsNewFirstPage = true;
   }
@@ -444,6 +710,84 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const suffix = overviewOnly ? "Portfolio Overview" : statementsOnly ? "Financial Statements" : "Consolidated Portfolio Report";
   const { saveFile: savePdfFile } = await import("./../../lib/exports/saveFile");
   await savePdfFile(doc.output("blob"), customFilename || `${companyName} - ${suffix}.pdf`);
+}
+
+export function exportOverviewCSV(
+  overviewData: OverviewExportData,
+  incomeRows: ExportRow[],
+  incomeYears: (string | number)[],
+  filename: string,
+): void {
+  const { portfolioKPIs: kpis, capitalStructure: cs } = overviewData;
+  const fmtPct = (v: number) => `${v.toFixed(1)}%`;
+  const fmtUSD = (v: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+
+  const lines: string[] = [];
+
+  lines.push("PORTFOLIO SUMMARY");
+  lines.push(`Portfolio IRR,${fmtPct(kpis.portfolioIRR * 100)}`);
+  lines.push(`Equity Multiple,${kpis.equityMultiple.toFixed(2)}x`);
+  lines.push(`Cash-on-Cash Return,${fmtPct(kpis.cashOnCash)}`);
+  lines.push(`Total Equity Invested,${fmtUSD(kpis.totalInitialEquity)}`);
+  lines.push(`Projected Exit Value,${fmtUSD(kpis.totalExitValue)}`);
+  lines.push(`Properties,${cs.totalProperties}`);
+  lines.push(`Total Rooms,${cs.totalRooms}`);
+  lines.push(`Avg Daily Rate (ADR),${fmtUSD(cs.avgADR)}`);
+  lines.push(`Total Purchase Price,${fmtUSD(cs.totalPurchasePrice)}`);
+  lines.push(`Avg Exit Cap Rate,${fmtPct(cs.avgExitCapRate * 100)}`);
+  lines.push(`Hold Period,${cs.holdPeriod} Years`);
+  lines.push(`ANOI Margin,${fmtPct(cs.anoiMargin)}`);
+  lines.push(`${cs.holdPeriod}-Year Revenue,${fmtUSD(kpis.totalProjectionRevenue)}`);
+  lines.push(`${cs.holdPeriod}-Year NOI,${fmtUSD(kpis.totalProjectionNOI)}`);
+  lines.push(`${cs.holdPeriod}-Year ANOI,${fmtUSD(kpis.totalProjectionANOI)}`);
+  lines.push(`${cs.holdPeriod}-Year Cash Flow,${fmtUSD(kpis.totalProjectionCashFlow)}`);
+
+  lines.push("");
+  lines.push("PROPERTIES & IRR");
+  lines.push("#,Property,Market,Rooms,Status,Acquisition Cost,ADR,IRR");
+  overviewData.propertyItems.forEach((p, i) => {
+    lines.push(`${i + 1},"${p.name}","${p.market}",${p.rooms},"${p.status}",${fmtUSD(p.acquisitionCost)},${fmtUSD(p.adr)},${fmtPct(p.irr)}`);
+  });
+
+  lines.push("");
+  lines.push("MARKET DISTRIBUTION");
+  lines.push("Market,Properties,Share (%)");
+  Object.entries(overviewData.marketCounts).forEach(([m, c]) => {
+    lines.push(`"${m}",${c},${((c / cs.totalProperties) * 100).toFixed(1)}`);
+  });
+
+  lines.push("");
+  lines.push("STATUS DISTRIBUTION");
+  lines.push("Status,Properties,Share (%)");
+  Object.entries(overviewData.statusCounts).forEach(([s, c]) => {
+    lines.push(`"${s}",${c},${((c / cs.totalProperties) * 100).toFixed(1)}`);
+  });
+
+  lines.push("");
+  lines.push("REVENUE & ANOI PROJECTION");
+  lines.push("Year,Revenue,NOI,ANOI,Cash Flow");
+  overviewData.revenueNOIData.forEach((d) => {
+    lines.push(`${d.year},${fmtUSD(d.revenue)},${fmtUSD(d.noi)},${fmtUSD(d.anoi)},${fmtUSD(d.cashFlow)}`);
+  });
+
+  lines.push("");
+  lines.push("USALI PROFIT WATERFALL");
+  lines.push(`"",${overviewData.yearLabels.map(String).join(",")}`);
+  overviewData.waterfallRows.forEach((row) => {
+    const values = row.values.map((v) => (row.isDeduction ? -v : v));
+    lines.push(`"${row.label}",${values.join(",")}`);
+  });
+
+  lines.push("");
+  lines.push("CONSOLIDATED INCOME STATEMENT");
+  lines.push(`"",${incomeYears.map(String).join(",")}`);
+  incomeRows.forEach((row) => {
+    const label = `"${"  ".repeat(row.indent || 0)}${row.category}"`;
+    lines.push(`${label},${row.values.join(",")}`);
+  });
+
+  downloadCSV(lines.join("\n"), filename);
 }
 
 export { originalExportPortfolioPPTX as exportPortfolioPPTX };

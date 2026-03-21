@@ -33,6 +33,7 @@ import {
   buildBrandPalette,
   lighten,
 } from "./exportStyles";
+import type { OverviewExportData } from "../../components/dashboard/overviewExportData";
 
 const SLIDE_W = 13.33;
 const SLIDE_H = 7.5;
@@ -383,6 +384,197 @@ export interface PortfolioExportData {
   cashFlowData: { years: string[]; rows: ExportRowMeta[] };
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
   investmentData: { years: string[]; rows: ExportRowMeta[] };
+  overviewData?: OverviewExportData;
+}
+
+function addOverviewSlides(ctx: SlideContext, overview: OverviewExportData, projectionYears: number) {
+  const B = ctx.brand;
+  const fmt = (v: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(v);
+  const fmtPct = (v: number) => `${v.toFixed(1)}%`;
+  const fmtUSD = (v: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+
+  const entityTag = `Consolidated Portfolio \u2014 ${overview.capitalStructure.totalProperties} Properties`;
+
+  const propIRRSlide = ctx.pres.addSlide();
+  propIRRSlide.addText("Property IRR Comparison", {
+    x: MARGIN_X, y: 0.15, w: 9, h: 0.35,
+    fontSize: 16, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+  });
+  propIRRSlide.addText(`Per-property internal rate of return over ${projectionYears}-year projection`, {
+    x: MARGIN_X, y: 0.5, w: 8, h: 0.25,
+    fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX,
+  });
+  propIRRSlide.addText(entityTag, {
+    x: SLIDE_W - 5.5, y: 0.5, w: 5, h: 0.25,
+    fontSize: 9, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true, align: "right",
+  });
+  propIRRSlide.addShape("rect", { x: MARGIN_X, y: 0.78, w: SLIDE_W - 2 * MARGIN_X, h: 0.02, fill: { color: B.SAGE_HEX } });
+
+  const pRows: any[][] = [
+    [
+      { text: "#", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8 } },
+      { text: "Property", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8 } },
+      { text: "Market", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8 } },
+      { text: "Rooms", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      { text: "Status", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8 } },
+      { text: "Acquisition", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      { text: "ADR", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      { text: "IRR", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+    ],
+    ...overview.propertyItems.map((p, i) => {
+      const bg = i % 2 === 1 ? B.ALT_ROW_HEX : B.WHITE_HEX;
+      const irrColor = p.irr >= 15 ? B.DARK_GREEN_HEX : p.irr >= 8 ? B.SAGE_HEX : B.DARK_TEXT_HEX;
+      return [
+        { text: String(i + 1), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "center" as const } },
+        { text: p.name, options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, bold: true } },
+        { text: p.market, options: { fill: { color: bg }, color: B.GRAY_HEX, fontFace: "Arial", fontSize: 8 } },
+        { text: String(p.rooms), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+        { text: p.status, options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8 } },
+        { text: fmtUSD(p.acquisitionCost), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+        { text: fmtUSD(p.adr), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+        { text: fmtPct(p.irr), options: { fill: { color: bg }, color: irrColor, fontFace: "Arial", fontSize: 8, bold: true, align: "right" as const } },
+      ];
+    }),
+  ];
+  propIRRSlide.addTable(pRows, {
+    x: MARGIN_X, y: 0.9, w: SLIDE_W - 2 * MARGIN_X,
+    colW: [0.4, 2.8, 1.6, 0.7, 1.2, 1.8, 0.9, 0.8],
+    rowH: 0.28,
+  });
+
+  const revSlide = ctx.pres.addSlide();
+  revSlide.addText("Revenue & ANOI Projection", {
+    x: MARGIN_X, y: 0.15, w: 9, h: 0.35,
+    fontSize: 16, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+  });
+  revSlide.addText(`${projectionYears}-Year consolidated projection — Revenue, NOI, ANOI, and Cash Flow`, {
+    x: MARGIN_X, y: 0.5, w: 10, h: 0.25,
+    fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX,
+  });
+  revSlide.addShape("rect", { x: MARGIN_X, y: 0.78, w: SLIDE_W - 2 * MARGIN_X, h: 0.02, fill: { color: B.SAGE_HEX } });
+  const revRows: any[][] = [
+    [
+      { text: "Year", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8 } },
+      { text: "Revenue", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      { text: "NOI", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      { text: "ANOI", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      { text: "Cash Flow", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+    ],
+    ...overview.revenueNOIData.map((d, i) => {
+      const bg = i % 2 === 1 ? B.ALT_ROW_HEX : B.WHITE_HEX;
+      return [
+        { text: String(d.year), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, bold: true } },
+        { text: fmt(d.revenue), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+        { text: fmt(d.noi), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+        { text: fmt(d.anoi), options: { fill: { color: bg }, color: B.DARK_GREEN_HEX, fontFace: "Arial", fontSize: 8, bold: true, align: "right" as const } },
+        { text: fmt(d.cashFlow), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      ];
+    }),
+  ];
+  revSlide.addTable(revRows, {
+    x: MARGIN_X, y: 0.9, w: SLIDE_W - 2 * MARGIN_X,
+    colW: [1.2, 2.8, 2.8, 2.8, 2.8],
+    rowH: 0.28,
+  });
+
+  const compSlide = ctx.pres.addSlide();
+  compSlide.addText("Portfolio Composition", {
+    x: MARGIN_X, y: 0.15, w: 9, h: 0.35,
+    fontSize: 16, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+  });
+  compSlide.addText("Geographic and operational distribution of properties", {
+    x: MARGIN_X, y: 0.5, w: 8, h: 0.25,
+    fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX,
+  });
+  compSlide.addShape("rect", { x: MARGIN_X, y: 0.78, w: SLIDE_W - 2 * MARGIN_X, h: 0.02, fill: { color: B.SAGE_HEX } });
+
+  const cs = overview.capitalStructure;
+  const capRows: any[][] = [
+    [
+      { text: "Capital Structure", options: { fill: { color: B.NAVY_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8 } },
+      { text: "Value", options: { fill: { color: B.NAVY_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+    ],
+    [{ text: "Total Purchase Price", options: { fontFace: "Arial", fontSize: 8, fill: { color: B.WHITE_HEX }, color: B.DARK_TEXT_HEX } }, { text: fmtUSD(cs.totalPurchasePrice), options: { fontFace: "Arial", fontSize: 8, fill: { color: B.WHITE_HEX }, color: B.DARK_TEXT_HEX, align: "right" as const } }],
+    [{ text: "Avg Purchase Price", options: { fontFace: "Arial", fontSize: 8, fill: { color: B.ALT_ROW_HEX }, color: B.DARK_TEXT_HEX } }, { text: fmtUSD(cs.avgPurchasePrice), options: { fontFace: "Arial", fontSize: 8, fill: { color: B.ALT_ROW_HEX }, color: B.DARK_TEXT_HEX, align: "right" as const } }],
+    [{ text: "Avg Exit Cap Rate", options: { fontFace: "Arial", fontSize: 8, fill: { color: B.WHITE_HEX }, color: B.DARK_TEXT_HEX } }, { text: fmtPct(cs.avgExitCapRate * 100), options: { fontFace: "Arial", fontSize: 8, fill: { color: B.WHITE_HEX }, color: B.DARK_GREEN_HEX, bold: true, align: "right" as const } }],
+    [{ text: "Hold Period", options: { fontFace: "Arial", fontSize: 8, fill: { color: B.ALT_ROW_HEX }, color: B.DARK_TEXT_HEX } }, { text: `${cs.holdPeriod} Years`, options: { fontFace: "Arial", fontSize: 8, fill: { color: B.ALT_ROW_HEX }, color: B.DARK_TEXT_HEX, align: "right" as const } }],
+    [{ text: "ANOI Margin", options: { fontFace: "Arial", fontSize: 8, fill: { color: B.WHITE_HEX }, color: B.DARK_TEXT_HEX } }, { text: fmtPct(cs.anoiMargin), options: { fontFace: "Arial", fontSize: 8, fill: { color: B.WHITE_HEX }, color: B.DARK_GREEN_HEX, bold: true, align: "right" as const } }],
+    [{ text: "Avg Rooms / Property", options: { fontFace: "Arial", fontSize: 8, fill: { color: B.ALT_ROW_HEX }, color: B.DARK_TEXT_HEX } }, { text: cs.avgRoomsPerProperty.toFixed(0), options: { fontFace: "Arial", fontSize: 8, fill: { color: B.ALT_ROW_HEX }, color: B.DARK_TEXT_HEX, align: "right" as const } }],
+    [{ text: "Avg Daily Rate (ADR)", options: { fontFace: "Arial", fontSize: 8, fill: { color: B.WHITE_HEX }, color: B.DARK_TEXT_HEX } }, { text: fmtUSD(cs.avgADR), options: { fontFace: "Arial", fontSize: 8, fill: { color: B.WHITE_HEX }, color: B.DARK_GREEN_HEX, bold: true, align: "right" as const } }],
+  ];
+  compSlide.addTable(capRows, { x: MARGIN_X, y: 0.9, w: 5.5, colW: [3.3, 2.2], rowH: 0.28 });
+
+  const mktRows: any[][] = [
+    [
+      { text: "Market", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8 } },
+      { text: "Count", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      { text: "%", options: { fill: { color: B.SAGE_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+    ],
+    ...Object.entries(overview.marketCounts).map(([m, c], i) => {
+      const bg = i % 2 === 1 ? B.ALT_ROW_HEX : B.WHITE_HEX;
+      return [
+        { text: m, options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8 } },
+        { text: String(c), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+        { text: fmtPct((c / cs.totalProperties) * 100), options: { fill: { color: bg }, color: B.DARK_GREEN_HEX, fontFace: "Arial", fontSize: 8, bold: true, align: "right" as const } },
+      ];
+    }),
+    [
+      { text: "Status", options: { fill: { color: B.NAVY_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8 } },
+      { text: "Count", options: { fill: { color: B.NAVY_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+      { text: "%", options: { fill: { color: B.NAVY_HEX }, color: B.WHITE_HEX, bold: true, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+    ],
+    ...Object.entries(overview.statusCounts).map(([s, c], i) => {
+      const bg = i % 2 === 1 ? B.ALT_ROW_HEX : B.WHITE_HEX;
+      return [
+        { text: s, options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8 } },
+        { text: String(c), options: { fill: { color: bg }, color: B.DARK_TEXT_HEX, fontFace: "Arial", fontSize: 8, align: "right" as const } },
+        { text: fmtPct((c / cs.totalProperties) * 100), options: { fill: { color: bg }, color: B.DARK_GREEN_HEX, fontFace: "Arial", fontSize: 8, bold: true, align: "right" as const } },
+      ];
+    }),
+  ];
+  compSlide.addTable(mktRows, { x: 6.2, y: 0.9, w: 6.83, colW: [4.0, 1.4, 1.43], rowH: 0.28 });
+
+  const wfSlide = ctx.pres.addSlide();
+  wfSlide.addText("USALI Profit Waterfall", {
+    x: MARGIN_X, y: 0.15, w: 9, h: 0.35,
+    fontSize: 16, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+  });
+  wfSlide.addText(`${projectionYears}-Year Consolidated Revenue-to-ANOI Bridge`, {
+    x: MARGIN_X, y: 0.5, w: 10, h: 0.25,
+    fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX,
+  });
+  wfSlide.addShape("rect", { x: MARGIN_X, y: 0.78, w: SLIDE_W - 2 * MARGIN_X, h: 0.02, fill: { color: B.SAGE_HEX } });
+
+  const { yearLabels, waterfallRows } = overview;
+  const wfFontSize = pptxFontSize(yearLabels.length);
+  const { labelW, dataW, tableW } = pptxColumnWidths(yearLabels.length, SLIDE_W, MARGIN_X);
+  const wfTableRows: any[][] = [
+    [
+      { text: "", options: { fill: { color: B.SAGE_HEX }, fontFace: "Arial", fontSize: wfFontSize, color: B.WHITE_HEX, bold: true } },
+      ...yearLabels.map((yr) => ({
+        text: String(yr),
+        options: { fill: { color: B.SAGE_HEX }, fontFace: "Arial", fontSize: wfFontSize, color: B.WHITE_HEX, bold: true, align: "right" as const },
+      })),
+    ],
+    ...waterfallRows.map((row, ri) => {
+      const bgColor = row.isSubtotal ? B.SECTION_BG_HEX : ri % 2 === 1 ? B.ALT_ROW_HEX : B.WHITE_HEX;
+      const textColor = row.isDeduction ? B.GRAY_HEX : B.DARK_TEXT_HEX;
+      return [
+        { text: row.label, options: { fill: { color: bgColor }, fontFace: "Arial", fontSize: wfFontSize, color: textColor, bold: row.isSubtotal } },
+        ...row.values.map((v) => ({
+          text: row.isDeduction ? `(${formatShort(v)})` : formatShort(v),
+          options: { fill: { color: bgColor }, fontFace: "Arial", fontSize: wfFontSize, color: row.isSubtotal ? B.DARK_GREEN_HEX : textColor, bold: row.isSubtotal, align: "right" as const },
+        })),
+      ];
+    }),
+  ];
+  wfSlide.addTable(wfTableRows, {
+    x: MARGIN_X, y: 0.9, w: tableW,
+    colW: [labelW, ...yearLabels.map(() => dataW)],
+    rowH: 0.24,
+  });
 }
 
 export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
@@ -420,6 +612,10 @@ export async function exportPortfolioPPTX(data: PortfolioExportData, companyName
       { label: `Cumulative ${data.projectionYears}-Year Cash Flow`, value: `$${(data.totalProjectionCashFlow / 1_000_000).toFixed(1)}M` },
     ],
   );
+
+  if (data.overviewData) {
+    addOverviewSlides(ctx, data.overviewData, data.projectionYears);
+  }
 
   const entityTag = `Consolidated Portfolio \u2014 ${data.totalProperties} Properties`;
   addFinancialTableSlide(ctx, "Consolidated Income Statement (USALI)", entityTag, data.incomeData.years, data.incomeData.rows);

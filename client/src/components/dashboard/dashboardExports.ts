@@ -20,5 +20,8 @@ export {
   exportDashboardComprehensivePDF,
   exportPortfolioPPTX,
   exportTablePNG,
+  exportOverviewCSV,
 } from "./exportRenderers";
 export type { ComprehensiveDashboardExportParams } from "./exportRenderers";
+export { buildOverviewExportData } from "./overviewExportData";
+export type { OverviewExportData } from "./overviewExportData";

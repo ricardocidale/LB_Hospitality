@@ -61,6 +61,8 @@ import {
   buildAllPortfolioStatements,
   exportPortfolioExcel,
   toExportData,
+  buildOverviewExportData,
+  exportOverviewCSV,
 } from "@/components/dashboard";
 
 
@@ -147,6 +149,7 @@ export default function Dashboard() {
     const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
     const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
     const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
+    const overviewData = buildOverviewExportData(financials, properties!, projectionYears, getFiscalYear);
 
     if (exportType === "pdf") {
       if (activeTab === "overview") {
@@ -160,6 +163,7 @@ export default function Dashboard() {
           modelStartDate: global.modelStartDate ? new Date(global.modelStartDate) : undefined,
           themeColors: branding?.themeColors ?? undefined,
           overviewOnly: true,
+          overviewData,
         }, customFilename);
       } else if (activeTab === "investment") {
         const data = generatePortfolioInvestmentData(financials, properties!, projectionYears, getFiscalYear);
@@ -211,7 +215,7 @@ export default function Dashboard() {
       const companyName = global?.companyName || "Portfolio";
       const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
       const datasets = buildAllPortfolioStatements(financials, properties!, projectionYears, getFiscalYear, modelStartDate);
-      await exportPortfolioExcel(datasets, companyName, customFilename);
+      await exportPortfolioExcel(datasets, companyName, customFilename, overviewData);
     } else if (exportType === "pptx") {
       const companyName = global?.companyName || "Portfolio";
       const modelStartDate = global.modelStartDate ? new Date(global.modelStartDate) : undefined;
@@ -234,6 +238,7 @@ export default function Dashboard() {
         cashFlowData: toExportData(datasets.cashFlowData),
         balanceSheetData: toExportData(datasets.balanceSheetData),
         investmentData: toExportData(datasets.investmentData),
+        overviewData,
       }, companyName, customFilename, branding?.themeColors ?? undefined);
     }
   }, [exportType, activeTab, financials, global, properties, getExportData, branding]);
@@ -244,11 +249,24 @@ export default function Dashboard() {
   }, []);
 
   const handleExportCSV = useCallback(() => {
+    if (!financials || !global || !properties) return;
+    const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
+    const fiscalYearStartMonth = global.fiscalYearStartMonth ?? 1;
+    const getFiscalYear = (i: number) => getFiscalYearForModelYear(global.modelStartDate, fiscalYearStartMonth, i);
+    const label = TAB_LABELS[activeTab] || "portfolio";
+
+    if (activeTab === "overview") {
+      const ovData = buildOverviewExportData(financials, properties, projectionYears, getFiscalYear);
+      const incomeResult = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, false);
+      requestSave(label, ".csv", (f) =>
+        exportOverviewCSV(ovData, incomeResult.rows, incomeResult.years, f || "Portfolio-Overview.csv")
+      );
+      return;
+    }
     const data = getExportData();
     if (!data) return;
-    const label = TAB_LABELS[activeTab] || "portfolio";
     requestSave(label, ".csv", (f) => exportPortfolioCSV(data.years, data.rows, f || `${label.toLowerCase().replace(/\s+/g, "-")}.csv`));
-  }, [activeTab, getExportData, requestSave]);
+  }, [activeTab, financials, global, properties, getExportData, requestSave]);
 
   const handleExportPPTX = useCallback(() => {
     setExportType("pptx");

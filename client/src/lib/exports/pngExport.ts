@@ -19,15 +19,17 @@
  */
 import domtoimage from 'dom-to-image-more';
 import { saveDataUrl } from './saveFile';
+import { BRAND } from './exportStyles';
 
-const EXPORT_BG = '#ffffff';
-const EXPORT_BORDER = '#f0f0f0';
+const DEFAULT_BG = `#${BRAND.BACKGROUND_HEX}`;
+const EXPORT_BORDER = `#${BRAND.BORDER_HEX}`;
 
 interface TablePNGOptions {
   element: HTMLElement;
   filename: string;
   scale?: number;
   collapseAccordions?: boolean;
+  bgColor?: string;
 }
 
 /**
@@ -36,7 +38,7 @@ interface TablePNGOptions {
  * screenshot, then restores everything afterward.
  */
 export async function exportTablePNG(options: TablePNGOptions): Promise<void> {
-  const { element, filename, scale = 2, collapseAccordions = true } = options;
+  const { element, filename, scale = 2, collapseAccordions = true, bgColor = DEFAULT_BG } = options;
 
   const hiddenRows: HTMLElement[] = [];
 
@@ -61,7 +63,7 @@ export async function exportTablePNG(options: TablePNGOptions): Promise<void> {
     });
 
     const dataUrl = await domtoimage.toPng(element, {
-      bgcolor: EXPORT_BG,
+      bgcolor: bgColor,
       quality: 1,
       style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
       width: element.scrollWidth * scale,
@@ -89,6 +91,7 @@ interface ChartPNGOptions {
   width?: number;
   height?: number;
   scale?: number;
+  bgColor?: string;
 }
 
 /**
@@ -96,11 +99,11 @@ interface ChartPNGOptions {
  * Uses a 2x scale by default for retina-quality output.
  */
 export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
-  const { element, filename, width, height, scale = 2 } = options;
+  const { element, filename, width, height, scale = 2, bgColor = DEFAULT_BG } = options;
 
   try {
     const pngOptions: any = {
-      bgcolor: EXPORT_BG,
+      bgcolor: bgColor,
       quality: 1,
       style: {
         transform: `scale(${scale})`,
@@ -130,10 +133,10 @@ export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
  * CORS or unsupported CSS), falls back to manually serializing the SVG element,
  * rendering it on a canvas, and extracting a PNG from the canvas.
  */
-export async function captureChartAsImage(containerRef: HTMLDivElement): Promise<string | null> {
+export async function captureChartAsImage(containerRef: HTMLDivElement, bgColor = DEFAULT_BG): Promise<string | null> {
   try {
     const dataUrl = await domtoimage.toPng(containerRef, {
-      bgcolor: EXPORT_BG,
+      bgcolor: bgColor,
       quality: 1,
       width: containerRef.offsetWidth * 2,
       height: containerRef.offsetHeight * 2,
@@ -171,7 +174,7 @@ export async function captureChartAsImage(containerRef: HTMLDivElement): Promise
           canvas.height = rect.height * 2;
           const ctx = canvas.getContext('2d');
           if (ctx) {
-            ctx.fillStyle = EXPORT_BG;
+            ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.scale(2, 2);
             ctx.drawImage(img, 0, 0);

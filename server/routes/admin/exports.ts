@@ -5,20 +5,27 @@ import { requireAdmin } from "../../auth";
 import { logAndSendError } from "../helpers";
 import type { InsertGlobalAssumptions } from "@shared/schema";
 
+const categoryFormatSchema = {
+  allowLandscape: z.boolean(),
+  allowPortrait: z.boolean(),
+  allowShort: z.boolean(),
+  allowExtended: z.boolean(),
+  allowPremium: z.boolean(),
+  densePagination: z.boolean(),
+};
+
 const exportConfigSchema = z.object({
-  allowLandscape: z.boolean().optional(),
-  allowPortrait: z.boolean().optional(),
-  allowPremium: z.boolean().optional(),
-  densePagination: z.boolean().optional(),
   overview: z.object({
+    ...categoryFormatSchema,
     kpiMetrics: z.boolean(),
     revenueChart: z.boolean(),
     projectionTable: z.boolean(),
     compositionTables: z.boolean(),
     waterfallTable: z.boolean(),
     propertyInsights: z.boolean(),
-  }).optional(),
+  }).partial().optional(),
   statements: z.object({
+    ...categoryFormatSchema,
     incomeStatement: z.boolean(),
     incomeChart: z.boolean(),
     cashFlow: z.boolean(),
@@ -26,20 +33,27 @@ const exportConfigSchema = z.object({
     balanceSheet: z.boolean(),
     balanceSheetChart: z.boolean(),
     detailedLineItems: z.boolean(),
-  }).optional(),
+  }).partial().optional(),
   analysis: z.object({
+    ...categoryFormatSchema,
     investmentAnalysis: z.boolean(),
     kpiSummaryCards: z.boolean(),
     debtSchedule: z.boolean(),
-  }).optional(),
+  }).partial().optional(),
 });
 
-const DEFAULT_EXPORT_CONFIG = {
+const FORMAT_DEFAULTS = {
   allowLandscape: true,
   allowPortrait: true,
+  allowShort: true,
+  allowExtended: true,
   allowPremium: true,
   densePagination: true,
+};
+
+const DEFAULT_EXPORT_CONFIG = {
   overview: {
+    ...FORMAT_DEFAULTS,
     kpiMetrics: true,
     revenueChart: true,
     projectionTable: true,
@@ -48,6 +62,7 @@ const DEFAULT_EXPORT_CONFIG = {
     propertyInsights: true,
   },
   statements: {
+    ...FORMAT_DEFAULTS,
     incomeStatement: true,
     incomeChart: true,
     cashFlow: true,
@@ -57,29 +72,40 @@ const DEFAULT_EXPORT_CONFIG = {
     detailedLineItems: true,
   },
   analysis: {
+    ...FORMAT_DEFAULTS,
     investmentAnalysis: true,
     kpiSummaryCards: true,
     debtSchedule: true,
   },
 };
 
+type StoredConfig = Record<string, unknown>;
+
+function mergeWithDefaults(stored: StoredConfig | null): typeof DEFAULT_EXPORT_CONFIG {
+  if (!stored) return DEFAULT_EXPORT_CONFIG;
+
+  return {
+    overview: {
+      ...DEFAULT_EXPORT_CONFIG.overview,
+      ...((stored.overview as Record<string, unknown>) ?? {}),
+    },
+    statements: {
+      ...DEFAULT_EXPORT_CONFIG.statements,
+      ...((stored.statements as Record<string, unknown>) ?? {}),
+    },
+    analysis: {
+      ...DEFAULT_EXPORT_CONFIG.analysis,
+      ...((stored.analysis as Record<string, unknown>) ?? {}),
+    },
+  };
+}
+
 export function registerExportConfigRoutes(app: Express) {
   app.get("/api/admin/export-config", requireAdmin, async (_req, res) => {
     try {
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
-      const stored = ga.exportConfig as typeof DEFAULT_EXPORT_CONFIG | null;
-      if (!stored) {
-        return res.json(DEFAULT_EXPORT_CONFIG);
-      }
-      const merged = {
-        ...DEFAULT_EXPORT_CONFIG,
-        ...stored,
-        overview: { ...DEFAULT_EXPORT_CONFIG.overview, ...(stored.overview ?? {}) },
-        statements: { ...DEFAULT_EXPORT_CONFIG.statements, ...(stored.statements ?? {}) },
-        analysis: { ...DEFAULT_EXPORT_CONFIG.analysis, ...(stored.analysis ?? {}) },
-      };
-      res.json(merged);
+      res.json(mergeWithDefaults(ga.exportConfig as StoredConfig | null));
     } catch (error) {
       logAndSendError(res, "Failed to fetch export config", error);
     }
@@ -93,11 +119,9 @@ export function registerExportConfigRoutes(app: Express) {
       }
       const ga = await storage.getGlobalAssumptions();
       if (!ga) return res.status(404).json({ error: "No global assumptions found" });
-      const current = (ga.exportConfig as typeof DEFAULT_EXPORT_CONFIG) ?? DEFAULT_EXPORT_CONFIG;
+      const current = mergeWithDefaults(ga.exportConfig as StoredConfig | null);
       const incoming = parsed.data;
       const merged = {
-        ...current,
-        ...incoming,
         overview: { ...current.overview, ...(incoming.overview ?? {}) },
         statements: { ...current.statements, ...(incoming.statements ?? {}) },
         analysis: { ...current.analysis, ...(incoming.analysis ?? {}) },

@@ -177,6 +177,78 @@ export default function PropertyDetail() {
 
   const getCashFlowData = () => cashFlowDataMemo;
 
+  const exportAllStatementsCSV = (customFilename?: string) => {
+    const cashFlowData = getCashFlowData();
+    const csvLoan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
+    const csvAcqYear = Math.floor(csvLoan.acqMonthsFromModelStart / MONTHS_PER_YEAR);
+    const csvTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
+    const headers = ["Line Item", ...Array.from({ length: years }, (_, i) => `FY ${startYear + i}`)];
+    const line = (label: string, vals: number[]) => [`"${label}"`, ...vals.map(v => v.toFixed(0))].join(",");
+
+    const csvCfo = yearlyDetails.map((yd, i) =>
+      yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability
+    );
+    const csvNetChange = csvCfo.map((cfo, i) => {
+      const cfi = -csvTotalPropertyCost * (i === csvAcqYear ? 1 : 0) - yearlyDetails[i].expenseFFE + cashFlowData[i].exitValue;
+      const cff = (i === csvAcqYear ? csvLoan.equityInvested : 0) +
+        (i === csvAcqYear && csvLoan.loanAmount > 0 ? csvLoan.loanAmount : 0) -
+        cashFlowData[i].principalPayment + cashFlowData[i].refinancingProceeds;
+      return cfo + cfi + cff;
+    });
+    const csvCloseCash: number[] = [];
+    let csvRunCash = 0;
+    for (const nc of csvNetChange) { csvRunCash += nc; csvCloseCash.push(csvRunCash); }
+
+    const rows: string[] = [headers.join(","), ""];
+    rows.push('"INCOME STATEMENT"', "");
+    rows.push(line("Total Revenue", yearlyDetails.map(y => y.revenueTotal)));
+    rows.push(line("  Room Revenue", yearlyDetails.map(y => y.revenueRooms)));
+    rows.push(line("  Event Revenue", yearlyDetails.map(y => y.revenueEvents)));
+    rows.push(line("  F&B Revenue", yearlyDetails.map(y => y.revenueFB)));
+    rows.push(line("  Other Revenue", yearlyDetails.map(y => y.revenueOther)));
+    rows.push(line("Total Operating Expenses", yearlyDetails.map(y => y.totalExpenses - y.expenseFFE - y.expenseTaxes)));
+    rows.push(line("Gross Operating Profit (GOP)", yearlyDetails.map(y => y.gop)));
+    rows.push(line("Total Management Fees", yearlyDetails.map(y => y.feeBase + y.feeIncentive)));
+    rows.push(line("Adjusted GOP (AGOP)", yearlyDetails.map(y => y.agop)));
+    rows.push(line("Total Fixed Charges", yearlyDetails.map(y => y.expenseTaxes)));
+    rows.push(line("Net Operating Income (NOI)", yearlyDetails.map(y => y.noi)));
+    rows.push(line("FF&E Reserve", yearlyDetails.map(y => y.expenseFFE)));
+    rows.push(line("Adjusted NOI (ANOI)", yearlyDetails.map(y => y.anoi)));
+    rows.push("");
+
+    rows.push('"CASH FLOW STATEMENT"', "");
+    rows.push(line("Net Cash from Operating Activities", csvCfo));
+    rows.push(line("  FF&E Reserve / Capital Improvements", yearlyDetails.map(yd => -yd.expenseFFE)));
+    rows.push(line("Free Cash Flow (FCF)", yearlyDetails.map((yd, i) => csvCfo[i] - yd.expenseFFE)));
+    rows.push(line("  Less: Principal Payments", cashFlowData.map(cf => -cf.principalPayment)));
+    rows.push(line("Free Cash Flow to Equity (FCFE)", yearlyDetails.map((yd, i) => csvCfo[i] - yd.expenseFFE - cashFlowData[i].principalPayment)));
+    rows.push("");
+
+    rows.push('"BALANCE SHEET"', "");
+    rows.push(line("Cash & Equivalents", csvCloseCash));
+    rows.push(line("Property (Net of Depreciation)", cashFlowData.map(cf => csvTotalPropertyCost - cf.depreciation)));
+    rows.push(line("Total Assets", csvCloseCash.map((cash, i) => cash + csvTotalPropertyCost - cashFlowData[i].depreciation)));
+    rows.push(line("Outstanding Debt", cashFlowData.map(cf => csvLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment)));
+    rows.push(line("Total Liabilities", cashFlowData.map(cf => csvLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment)));
+    rows.push(line("Equity Invested", yearlyDetails.map(() => csvLoan.equityInvested)));
+    rows.push(line("Total Equity", cashFlowData.map((cf, i) => {
+      const ta = csvCloseCash[i] + csvTotalPropertyCost - cf.depreciation;
+      const tl = csvLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment;
+      return ta - tl;
+    })));
+    rows.push("");
+
+    rows.push('"INVESTMENT ANALYSIS"', "");
+    rows.push(line("Equity Invested", yearlyDetails.map(() => csvLoan.equityInvested)));
+    rows.push(line("Total Property Cost", yearlyDetails.map(() => csvTotalPropertyCost)));
+    rows.push(line("Annual Revenue", yearlyDetails.map(y => y.revenueTotal)));
+    rows.push(line("Annual ANOI", yearlyDetails.map(y => y.anoi)));
+    rows.push(line("Debt Service", cashFlowData.map(cf => cf.debtService)));
+    rows.push(line("Closing Cash Balance", csvCloseCash));
+
+    downloadCSV(rows.join("\n"), customFilename || `${property.name.replace(/\s+/g, "_")}_Financial_Statements.csv`);
+  };
+
   const exportCashFlowCSV = (customFilename?: string) => {
 
     const cashFlowData = getCashFlowData();
@@ -550,44 +622,97 @@ export default function PropertyDetail() {
   };
 
   const handlePPTXExport = (customFilename?: string) => {
-
     const cashFlowData = getCashFlowData();
     const yearLabels = Array.from({ length: years }, (_, i) => `FY ${startYear + i}`);
+    const pptxLoan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
+    const pptxAcqYear = Math.floor(pptxLoan.acqMonthsFromModelStart / MONTHS_PER_YEAR);
+    const pptxTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
+
+    const pptxCfo = yearlyDetails.map((yd, i) =>
+      yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability
+    );
+    const pptxNetChange = pptxCfo.map((cfo, i) => {
+      const cfi = -pptxTotalPropertyCost * (i === pptxAcqYear ? 1 : 0) - yearlyDetails[i].expenseFFE + cashFlowData[i].exitValue;
+      const cff = (i === pptxAcqYear ? pptxLoan.equityInvested : 0) +
+        (i === pptxAcqYear && pptxLoan.loanAmount > 0 ? pptxLoan.loanAmount : 0) -
+        cashFlowData[i].principalPayment + cashFlowData[i].refinancingProceeds;
+      return cfo + cfi + cff;
+    });
+    const pptxCloseCash: number[] = [];
+    let pptxRunCash = 0;
+    for (const nc of pptxNetChange) { pptxRunCash += nc; pptxCloseCash.push(pptxRunCash); }
 
     const incomeRows = [
-      { category: "REVENUE", values: yearlyDetails.map(() => 0) },
+      { category: "REVENUE", values: yearlyDetails.map(() => 0), isHeader: true },
       { category: "Room Revenue", values: yearlyDetails.map(y => y.revenueRooms), indent: 1 },
       { category: "Event Revenue", values: yearlyDetails.map(y => y.revenueEvents), indent: 1 },
       { category: "F&B Revenue", values: yearlyDetails.map(y => y.revenueFB), indent: 1 },
       { category: "Other Revenue", values: yearlyDetails.map(y => y.revenueOther), indent: 1 },
       { category: "Total Revenue", values: yearlyDetails.map(y => y.revenueTotal), isBold: true },
-      { category: "OPERATING EXPENSES", values: yearlyDetails.map(() => 0) },
-      { category: "Housekeeping", values: yearlyDetails.map(y => y.expenseRooms), indent: 1 },
-      { category: "F&B", values: yearlyDetails.map(y => y.expenseFB), indent: 1 },
-      { category: "Marketing", values: yearlyDetails.map(y => y.expenseMarketing), indent: 1 },
-      { category: "Property Ops", values: yearlyDetails.map(y => y.expensePropertyOps), indent: 1 },
-      { category: "Admin & General", values: yearlyDetails.map(y => y.expenseAdmin), indent: 1 },
-      { category: "Insurance", values: yearlyDetails.map(y => y.expenseInsurance), indent: 1 },
+      { category: "Total Operating Expenses", values: yearlyDetails.map(y => y.totalExpenses - y.expenseFFE - y.expenseTaxes), isBold: true },
+      { category: "Gross Operating Profit (GOP)", values: yearlyDetails.map(y => y.gop), isBold: true },
+      { category: "Total Management Fees", values: yearlyDetails.map(y => y.feeBase + y.feeIncentive) },
+      { category: "Adjusted GOP (AGOP)", values: yearlyDetails.map(y => y.agop), isBold: true },
+      { category: "Total Fixed Charges", values: yearlyDetails.map(y => y.expenseTaxes) },
+      { category: "Net Operating Income (NOI)", values: yearlyDetails.map(y => y.noi), isBold: true },
+      { category: "FF&E Reserve", values: yearlyDetails.map(y => y.expenseFFE), indent: 1 },
       { category: "Adjusted NOI (ANOI)", values: yearlyDetails.map(y => y.anoi), isBold: true },
     ];
 
     const cfRows = [
-      { category: "Net Cash from Operating Activities", values: yearlyDetails.map((yd, i) => yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability), isBold: true },
-      { category: "Less: Capital Expenditures (FF&E)", values: yearlyDetails.map(yd => -yd.expenseFFE), indent: 1 },
-      { category: "Free Cash Flow (FCF)", values: yearlyDetails.map((yd, i) => {
-        const cfo = yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
-        return cfo - yd.expenseFFE;
-      }), isBold: true },
+      { category: "Net Cash from Operating Activities", values: pptxCfo, isBold: true },
+      { category: "FF&E Reserve / Capital Improvements", values: yearlyDetails.map(yd => -yd.expenseFFE), indent: 1 },
+      { category: "Free Cash Flow (FCF)", values: yearlyDetails.map((yd, i) => pptxCfo[i] - yd.expenseFFE), isBold: true },
       { category: "Less: Principal Payments", values: cashFlowData.map(cf => -cf.principalPayment), indent: 1 },
-      { category: "Free Cash Flow to Equity (FCFE)", values: yearlyDetails.map((yd, i) => {
-        const cfo = yd.revenueTotal - (yd.totalExpenses - yd.expenseFFE) - cashFlowData[i].interestExpense - cashFlowData[i].taxLiability;
-        return cfo - yd.expenseFFE - cashFlowData[i].principalPayment;
-      }), isBold: true },
+      { category: "Free Cash Flow to Equity (FCFE)", values: yearlyDetails.map((yd, i) => pptxCfo[i] - yd.expenseFFE - cashFlowData[i].principalPayment), isBold: true },
     ];
 
     const bsRows = [
-      { category: "Balance Sheet data exported via Excel", values: yearlyDetails.map(() => 0) },
+      { category: "ASSETS", values: yearlyDetails.map(() => 0), isHeader: true },
+      { category: "Cash & Equivalents", values: pptxCloseCash, indent: 1 },
+      { category: "Property (Net of Depreciation)", values: cashFlowData.map(cf => pptxTotalPropertyCost - cf.depreciation), indent: 1 },
+      { category: "Total Assets", values: pptxCloseCash.map((cash, i) => cash + pptxTotalPropertyCost - cashFlowData[i].depreciation), isBold: true },
+      { category: "LIABILITIES", values: yearlyDetails.map(() => 0), isHeader: true },
+      { category: "Outstanding Debt", values: cashFlowData.map(cf => pptxLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment), indent: 1 },
+      { category: "Total Liabilities", values: cashFlowData.map(cf => pptxLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment), isBold: true },
+      { category: "EQUITY", values: yearlyDetails.map(() => 0), isHeader: true },
+      { category: "Equity Invested", values: yearlyDetails.map(() => pptxLoan.equityInvested), indent: 1 },
+      { category: "Retained Earnings", values: cashFlowData.map((cf, i) => {
+        const ta = pptxCloseCash[i] + pptxTotalPropertyCost - cf.depreciation;
+        const tl = pptxLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment;
+        return ta - tl - pptxLoan.equityInvested;
+      }), indent: 1 },
+      { category: "Total Equity", values: cashFlowData.map((cf, i) => {
+        const ta = pptxCloseCash[i] + pptxTotalPropertyCost - cf.depreciation;
+        const tl = pptxLoan.loanAmount + cf.refinancingProceeds - cf.principalPayment;
+        return ta - tl;
+      }), isBold: true },
     ];
+
+    const investRows = [
+      { category: "INVESTMENT SUMMARY", values: yearlyDetails.map(() => 0), isHeader: true },
+      { category: "Equity Invested", values: yearlyDetails.map(() => pptxLoan.equityInvested), indent: 1 },
+      { category: "Total Property Cost", values: yearlyDetails.map(() => pptxTotalPropertyCost), indent: 1 },
+      { category: "Loan Amount", values: yearlyDetails.map(() => pptxLoan.loanAmount), indent: 1 },
+      { category: "Annual Revenue", values: yearlyDetails.map(y => y.revenueTotal), indent: 1 },
+      { category: "Annual ANOI", values: yearlyDetails.map(y => y.anoi), indent: 1 },
+      { category: "Debt Service", values: cashFlowData.map(cf => cf.debtService), indent: 1 },
+      { category: "Closing Cash Balance", values: pptxCloseCash, isBold: true },
+    ];
+
+    const fmt = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(v);
+    const fmtPct = (v: number) => `${(v * 100).toFixed(1)}%`;
+    const firstY = yearlyChartData[0];
+    const kpiMetrics = firstY ? [
+      { label: "Year 1 Total Revenue", value: fmt(firstY.Revenue) },
+      { label: "Year 1 GOP", value: fmt(firstY.GOP) },
+      { label: "Year 1 ANOI", value: fmt(firstY.ANOI) },
+      { label: "Total Equity Invested", value: fmt(pptxLoan.equityInvested) },
+      { label: "Total Property Cost", value: fmt(pptxTotalPropertyCost) },
+      { label: "Loan Amount", value: fmt(pptxLoan.loanAmount) },
+      { label: "LTV", value: fmtPct(pptxLoan.loanAmount / pptxTotalPropertyCost) },
+      { label: "ANOI Margin (Year 1)", value: firstY.Revenue > 0 ? fmtPct(firstY.ANOI / firstY.Revenue) : "—" },
+    ] : [];
 
     exportPropertyPPTX({
       propertyName: property.name,
@@ -596,7 +721,9 @@ export default function PropertyDetail() {
       incomeData: { years: yearLabels, rows: incomeRows },
       cashFlowData: { years: yearLabels, rows: cfRows },
       balanceSheetData: { years: yearLabels, rows: bsRows },
-    }, undefined, customFilename, brandingData?.themeColors ?? undefined);
+      investmentData: { years: yearLabels, rows: investRows },
+      kpiMetrics,
+    }, global?.companyName || "H+ Analytics", customFilename, brandingData?.themeColors ?? undefined);
   };
 
   const exportUnifiedPDF = async (orientation: 'landscape' | 'portrait' = 'landscape', version: ExportVersion = 'extended', customFilename?: string) => {
@@ -1094,7 +1221,7 @@ export default function PropertyDetail() {
                   actions={[
                     pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
                     excelAction(() => { setExportType('xlsx'); setExportDialogOpen(true); }),
-                    csvAction(() => requestSave(`${property.name} CashFlow`, ".csv", (f) => exportCashFlowCSV(f))),
+                    csvAction(() => requestSave(`${property.name} Financial Statements`, ".csv", (f) => exportAllStatementsCSV(f))),
                     pptxAction(() => { setExportType('pptx'); setExportDialogOpen(true); }),
                     docxAction(() => { setExportType('docx'); setExportDialogOpen(true); }),
                     chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),

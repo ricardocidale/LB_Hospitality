@@ -149,6 +149,37 @@ export const exportCompanyCSV = (
   downloadCSV(csvContent, customFilename || `${name} - ${typeLabel}.csv`);
 };
 
+export const exportCompanyAllStatementsCSV = (
+  incomeData: { years: number[]; rows: any[] },
+  cashFlowData: { years: number[]; rows: any[] },
+  balanceData: { years: number[]; rows: any[] },
+  companyName?: string,
+  customFilename?: string
+) => {
+  const name = companyName || "Management Company";
+  const headers = ['Category', ...incomeData.years.map(String)].join(',');
+
+  const buildRows = (data: { years: number[]; rows: any[] }) =>
+    data.rows.map(row =>
+      [`"${(row.indent ? '  '.repeat(row.indent) : '') + row.category}"`, ...row.values.map((v: number) => v.toFixed(2))].join(',')
+    );
+
+  const sections: Array<{ label: string; data: typeof incomeData }> = [
+    { label: 'INCOME STATEMENT', data: incomeData },
+    { label: 'CASH FLOW STATEMENT', data: cashFlowData },
+    { label: 'BALANCE SHEET', data: balanceData },
+  ];
+
+  const lines: string[] = [headers, ''];
+  for (const section of sections) {
+    lines.push(`"${section.label}"`, '');
+    lines.push(...buildRows(section.data));
+    lines.push('');
+  }
+
+  downloadCSV(lines.join('\n'), customFilename || `${name} - Financial Statements.csv`);
+};
+
 export const handleExcelExport = async (
   activeTab: string,
   financials: any[],
@@ -521,14 +552,18 @@ export const handlePPTXExport = (
   cashFlowData: any,
   balanceData: any,
   customFilename?: string,
-  themeColors?: ThemeColor[]
+  themeColors?: ThemeColor[],
+  kpiMetrics?: { label: string; value: string }[]
 ) => {
   if (!global) return;
+  const co = global?.companyName || "Management Company";
   exportCompanyPPTX({
     projectionYears,
     getFiscalYear,
+    companyName: co,
+    kpiMetrics,
     incomeData: { years: incomeData.years.map(String), rows: incomeData.rows },
     cashFlowData: { years: cashFlowData.years.map(String), rows: cashFlowData.rows },
     balanceSheetData: { years: balanceData.years.map(String), rows: balanceData.rows },
-  }, undefined, customFilename, themeColors);
+  }, co, customFilename, themeColors);
 };

@@ -636,6 +636,8 @@ export interface PropertyExportData {
   incomeData: { years: string[]; rows: ExportRowMeta[] };
   cashFlowData: { years: string[]; rows: ExportRowMeta[] };
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
+  investmentData?: { years: string[]; rows: ExportRowMeta[] };
+  kpiMetrics?: { label: string; value: string }[];
 }
 
 export async function exportPropertyPPTX(data: PropertyExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
@@ -655,9 +657,22 @@ export async function exportPropertyPPTX(data: PropertyExportData, companyName =
     data.propertyName,
   );
 
-  addFinancialTableSlide(ctx, `Income Statement (USALI)`, data.propertyName, data.incomeData.years, data.incomeData.rows);
-  addFinancialTableSlide(ctx, `Cash Flow Statement`, data.propertyName, data.cashFlowData.years, data.cashFlowData.rows);
-  addFinancialTableSlide(ctx, `Balance Sheet`, data.propertyName, data.balanceSheetData.years, data.balanceSheetData.rows);
+  if (data.kpiMetrics && data.kpiMetrics.length > 0) {
+    addMetricsSlide(
+      ctx,
+      `${data.propertyName} \u2014 Key Metrics`,
+      `${data.projectionYears}-Year financial highlights`,
+      data.propertyName,
+      data.kpiMetrics,
+    );
+  }
+
+  addFinancialTableSlide(ctx, `${data.propertyName} \u2014 Income Statement (USALI)`, data.propertyName, data.incomeData.years, data.incomeData.rows);
+  addFinancialTableSlide(ctx, `${data.propertyName} \u2014 Cash Flow Statement`, data.propertyName, data.cashFlowData.years, data.cashFlowData.rows);
+  addFinancialTableSlide(ctx, `${data.propertyName} \u2014 Balance Sheet`, data.propertyName, data.balanceSheetData.years, data.balanceSheetData.rows);
+  if (data.investmentData) {
+    addFinancialTableSlide(ctx, `${data.propertyName} \u2014 Investment Analysis`, data.propertyName, data.investmentData.years, data.investmentData.rows);
+  }
 
   const safeName = data.propertyName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 30);
   addAllFooters(ctx);
@@ -672,6 +687,8 @@ export interface CompanyExportData {
   incomeData: { years: string[]; rows: ExportRowMeta[] };
   cashFlowData: { years: string[]; rows: ExportRowMeta[] };
   balanceSheetData: { years: string[]; rows: ExportRowMeta[] };
+  companyName?: string;
+  kpiMetrics?: { label: string; value: string }[];
 }
 
 export async function exportCompanyPPTX(data: CompanyExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
@@ -691,10 +708,20 @@ export async function exportCompanyPPTX(data: CompanyExportData, companyName = "
     companyName,
   );
 
+  if (data.kpiMetrics && data.kpiMetrics.length > 0) {
+    addMetricsSlide(
+      ctx,
+      `${companyName} \u2014 Management Company Key Metrics`,
+      `${data.projectionYears}-Year financial highlights`,
+      `${companyName} \u2014 Management Company`,
+      data.kpiMetrics,
+    );
+  }
+
   const entityTag = `${companyName} \u2014 Management Company`;
-  addFinancialTableSlide(ctx, `Income Statement`, entityTag, data.incomeData.years, data.incomeData.rows);
-  addFinancialTableSlide(ctx, `Cash Flow Statement`, entityTag, data.cashFlowData.years, data.cashFlowData.rows);
-  addFinancialTableSlide(ctx, `Balance Sheet`, entityTag, data.balanceSheetData.years, data.balanceSheetData.rows);
+  addFinancialTableSlide(ctx, `${companyName} \u2014 Income Statement`, entityTag, data.incomeData.years, data.incomeData.rows);
+  addFinancialTableSlide(ctx, `${companyName} \u2014 Cash Flow Statement`, entityTag, data.cashFlowData.years, data.cashFlowData.rows);
+  addFinancialTableSlide(ctx, `${companyName} \u2014 Balance Sheet`, entityTag, data.balanceSheetData.years, data.balanceSheetData.rows);
 
   addAllFooters(ctx);
   const { saveFile } = await import("./saveFile");

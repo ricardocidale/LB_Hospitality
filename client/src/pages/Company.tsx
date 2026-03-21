@@ -51,6 +51,7 @@ import {
 import {
   exportCompanyPDF,
   exportCompanyCSV,
+  exportCompanyAllStatementsCSV,
   handleExcelExport,
   exportChartPNG,
   exportTablePNG,
@@ -235,7 +236,19 @@ export default function Company() {
       const incomeData = getStatementData('income');
       const cashFlowData = getStatementData('cashflow');
       const balanceData = getStatementData('balance');
-      handlePPTXExport(global, projectionYears, (i: number) => String(getFiscalYear(i)), incomeData, cashFlowData, balanceData, customFilename, brandingData?.themeColors ?? undefined);
+      const fmt = (v: number) =>
+        new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(v);
+      const lastY = yearlyChartData[yearlyChartData.length - 1];
+      const firstY = yearlyChartData[0];
+      const kpiMetrics = yearlyChartData.length > 0 ? [
+        { label: "Year 1 Total Revenue", value: firstY ? fmt(firstY.Revenue) : "—" },
+        { label: "Year 1 Net Income", value: firstY ? fmt(firstY.NetIncome) : "—" },
+        { label: "Year 1 Operating Cash Flow", value: firstY ? fmt(firstY.CashFlow) : "—" },
+        { label: `Year ${projectionYears} Ending Cash`, value: lastY ? fmt(lastY.EndingCash) : "—" },
+        { label: `${projectionYears}-Year Cumul. Revenue`, value: fmt(yearlyChartData.reduce((a, d) => a + (d.Revenue ?? 0), 0)) },
+        { label: `${projectionYears}-Year Cumul. Net Income`, value: fmt(yearlyChartData.reduce((a, d) => a + (d.NetIncome ?? 0), 0)) },
+      ] : undefined;
+      handlePPTXExport(global, projectionYears, (i: number) => String(getFiscalYear(i)), incomeData, cashFlowData, balanceData, customFilename, brandingData?.themeColors ?? undefined, kpiMetrics);
     }
   };
 
@@ -247,7 +260,14 @@ export default function Company() {
       actions={[
         pdfAction(() => { setExportType('pdf'); setExportDialogOpen(true); }),
         excelAction(() => { setExportType('xlsx'); setExportDialogOpen(true); }),
-        csvAction(() => requestSave(`${companyName} ${tabLabel}`, ".csv", (f) => exportCompanyCSV(activeTab as any, getStatementData(activeTab), companyName, f))),
+        csvAction(() => requestSave(`${companyName} Financial Statements`, ".csv", (f) =>
+          exportCompanyAllStatementsCSV(
+            getStatementData('income'),
+            getStatementData('cashflow'),
+            getStatementData('balance'),
+            companyName, f
+          )
+        )),
         pptxAction(() => { setExportType('pptx'); setExportDialogOpen(true); }),
         docxAction(() => { setExportType('docx'); setExportDialogOpen(true); }),
         chartAction(() => { setExportType('chart'); setExportDialogOpen(true); }),

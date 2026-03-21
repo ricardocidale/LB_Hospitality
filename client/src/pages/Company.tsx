@@ -148,6 +148,7 @@ export default function Company() {
         year: String(getFiscalYear(y)),
         Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
         Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
+        OperatingIncome: yearData.reduce((a, m) => a + ((m as any).operatingIncome ?? (m.totalRevenue - m.totalExpenses)), 0),
         NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
       });
     }
@@ -205,8 +206,14 @@ export default function Company() {
   const handleExport = (orientation: 'landscape' | 'portrait', version?: 'short' | 'extended', customFilename?: string) => {
     if (exportType === 'pdf') {
       const summaryOnly = version === 'short';
-      const data = getStatementData(activeTab, summaryOnly);
-      exportCompanyPDF(activeTab as any, data, global, projectionYears, yearlyChartData, orientation, customFilename);
+      const incomeData = getStatementData('income', summaryOnly);
+      const cashFlowData = getStatementData('cashflow', summaryOnly);
+      const balanceData = getStatementData('balance', summaryOnly);
+      exportCompanyPDF(activeTab as any, incomeData, global, projectionYears, yearlyChartData, orientation, customFilename, brandingData?.themeColors ?? undefined, {
+        income: incomeData,
+        cashflow: cashFlowData,
+        balance: balanceData,
+      });
     } else if (exportType === 'chart') {
       exportChartPNG(chartRef, orientation, companyName, customFilename);
     } else if (exportType === 'xlsx') {

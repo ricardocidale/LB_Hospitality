@@ -26,6 +26,7 @@ const PRESET_SERIES: Record<string, ChartSeries> = {
   noi: { dataKey: "NOI", name: "NOI — Net Operating Income", color: "#F59E0B" },
   anoi: { dataKey: "ANOI", name: "ANOI — Adjusted Net Operating Income", color: "#6B7280" },
   expenses: { dataKey: "Expenses", name: "Expenses — Total Expenses", color: "#3B82F6" },
+  operatingIncome: { dataKey: "OperatingIncome", name: "EBITDA — Operating Income", color: "#10B981" },
   netIncome: { dataKey: "NetIncome", name: "Net Income", color: "#6B7280" },
   cashFlow: { dataKey: "CashFlow", name: "Cash Flow — After Debt Service", color: "#8B5CF6" },
   fcfe: { dataKey: "FCFE", name: "FCFE — Free Cash Flow to Equity", color: "#6B7280" },

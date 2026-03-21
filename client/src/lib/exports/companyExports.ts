@@ -23,7 +23,12 @@ export const exportCompanyPDF = async (
   yearlyChartData: any[],
   orientation: 'landscape' | 'portrait' = 'landscape',
   customFilename?: string,
-  themeColors?: ThemeColor[]
+  themeColors?: ThemeColor[],
+  allStatements?: {
+    income: { years: number[]; rows: any[] };
+    cashflow: { years: number[]; rows: any[] };
+    balance: { years: number[]; rows: any[] };
+  }
 ) => {
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
@@ -35,51 +40,91 @@ export const exportCompanyPDF = async (
   const pageWidth = dims.w;
   const chartWidth = pageWidth - 28;
   const companyName = global?.companyName || "Management Company";
-
-  let title: string;
-  switch (type) {
-    case 'income': title = 'Income Statement'; break;
-    case 'cashflow': title = 'Cash Flow Statement'; break;
-    case 'balance': title = 'Balance Sheet'; break;
-    default: title = 'Financial Statement';
-  }
   const entityTag = `${companyName} \u2014 Management Company`;
 
-  drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15);
-  drawSubtitleRow(doc,
-    `${projectionYears}-Year Projection (${data.years[0]} \u2013 ${data.years[data.years.length - 1]})`,
-    entityTag, 14, 22, pageWidth);
-  drawSubtitle(doc, `Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
-
-  const tableConfig = buildFinancialTableConfig(data.years, data.rows, orientation, 32);
-  autoTable(doc, tableConfig);
-
-  if (yearlyChartData && yearlyChartData.length > 0) {
-    doc.addPage();
-    drawTitle(doc, `${companyName} \u2014 ${title} Performance Trend`, 14, 15, { fontSize: 16 });
-    drawSubtitleRow(doc,
-      `${projectionYears}-Year Revenue, Expenses, and Net Income Trend`,
-      entityTag, 14, 22, pageWidth);
-
-    drawLineChart({
-      doc,
-      x: 14,
-      y: 30,
-      width: chartWidth,
-      height: 150,
-      title: `Management Company Performance (${projectionYears}-Year Projection)`,
-      series: [
-        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
-        { name: 'Expenses', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Expenses })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-        { name: 'Net Income', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.NetIncome })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+  const statements: { key: 'income' | 'cashflow' | 'balance'; title: string; chartTitle: string; chartSubtitle: string; chartSeries: { name: string; dataKey: string; color: string }[] }[] = [
+    {
+      key: 'income',
+      title: 'Income Statement',
+      chartTitle: `${companyName} \u2014 Income Statement Performance Trend`,
+      chartSubtitle: `${projectionYears}-Year Revenue, Operating Income, and Net Income Trend`,
+      chartSeries: [
+        { name: 'Revenue', dataKey: 'Revenue', color: `#${brand.LINE_HEX[0]}` },
+        { name: 'Expenses', dataKey: 'Expenses', color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+        { name: 'Operating Income', dataKey: 'OperatingIncome', color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+        { name: 'Net Income', dataKey: 'NetIncome', color: `#${brand.LINE_HEX[3] || brand.SAGE_HEX}` },
       ],
-      brand,
-    });
+    },
+    {
+      key: 'cashflow',
+      title: 'Cash Flow Statement',
+      chartTitle: `${companyName} \u2014 Cash Flow Performance Trend`,
+      chartSubtitle: `${projectionYears}-Year Cash Flow Trend`,
+      chartSeries: [
+        { name: 'Revenue', dataKey: 'Revenue', color: `#${brand.LINE_HEX[0]}` },
+        { name: 'Operating Income', dataKey: 'OperatingIncome', color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+        { name: 'Net Income', dataKey: 'NetIncome', color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+      ],
+    },
+    {
+      key: 'balance',
+      title: 'Balance Sheet',
+      chartTitle: `${companyName} \u2014 Balance Sheet Trend`,
+      chartSubtitle: `${projectionYears}-Year Balance Sheet Trend`,
+      chartSeries: [
+        { name: 'Revenue', dataKey: 'Revenue', color: `#${brand.LINE_HEX[0]}` },
+        { name: 'Net Income', dataKey: 'NetIncome', color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+      ],
+    },
+  ];
+
+  const statementsToRender = allStatements
+    ? statements
+    : statements.filter(s => s.key === type);
+
+  let isFirstPage = true;
+  for (const stmt of statementsToRender) {
+    const stmtData = allStatements ? allStatements[stmt.key] : data;
+    if (!isFirstPage) doc.addPage();
+    isFirstPage = false;
+
+    drawTitle(doc, `${companyName} \u2014 ${stmt.title}`, 14, 15);
+    drawSubtitleRow(doc,
+      `${projectionYears}-Year Projection (${stmtData.years[0]} \u2013 ${stmtData.years[stmtData.years.length - 1]})`,
+      entityTag, 14, 22, pageWidth);
+    drawSubtitle(doc, `Generated: ${format(new Date(), 'MMM d, yyyy')}`, 14, 27);
+
+    const tableConfig = buildFinancialTableConfig(stmtData.years, stmtData.rows, orientation, 32);
+    autoTable(doc, tableConfig);
+
+    if (yearlyChartData && yearlyChartData.length > 0) {
+      doc.addPage();
+      drawTitle(doc, stmt.chartTitle, 14, 15, { fontSize: 16 });
+      drawSubtitleRow(doc, stmt.chartSubtitle, entityTag, 14, 22, pageWidth);
+
+      drawLineChart({
+        doc,
+        x: 14,
+        y: 30,
+        width: chartWidth,
+        height: 150,
+        title: `Management Company Performance (${projectionYears}-Year Projection)`,
+        series: stmt.chartSeries.map(s => ({
+          name: s.name,
+          data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d[s.dataKey] ?? 0 })),
+          color: s.color,
+        })),
+        brand,
+      });
+    }
   }
 
   addFooters(doc, companyName);
   const pdfBlob = doc.output("blob");
-  await saveFile(pdfBlob, customFilename || `${companyName} - ${title}.pdf`);
+  const filename = allStatements
+    ? `${companyName} - Financial Statements.pdf`
+    : `${companyName} - ${statements.find(s => s.key === type)?.title || 'Financial Statement'}.pdf`;
+  await saveFile(pdfBlob, customFilename || filename);
 };
 
 export const exportCompanyCSV = (

@@ -83,7 +83,7 @@ export default function CompanyHeader({
 
       <FinancialChart
         data={yearlyChartData as unknown as Record<string, unknown>[]}
-        series={["revenue", "expenses", "netIncome"]}
+        series={["revenue", "expenses", "operatingIncome", "netIncome"]}
         title={`Management Company Performance (${projectionYears}-Year Projection)`}
         chartRef={chartRef}
         id="company"

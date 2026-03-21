@@ -45,7 +45,7 @@ export default function CompanyBalanceSheet({
     <ScrollReveal>
     <div ref={activeTab === 'balance' ? tableRef : undefined} className="bg-card rounded-2xl p-6 shadow-sm border">
       <div>
-        <h3 className="text-lg font-display text-foreground mb-4">Balance Sheet - {global?.companyName || "Hospitality Business Co."} (As of {getFiscalYear(projectionYears - 1)})</h3>
+        <h3 className="text-lg font-display text-foreground mb-4">{global?.companyName || "Hospitality Business Co."} Balance Sheet (As of {getFiscalYear(projectionYears - 1)})</h3>
         {(() => {
           const cumulativeNetIncome = financials.reduce((a, m) => a + m.netIncome, 0);
           

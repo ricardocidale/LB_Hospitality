@@ -186,11 +186,11 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   {expandedRows.has("cfo") && (
                     <>
                       <TableRow
-                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                         data-expandable-row="true"
                         onClick={() => toggleFormula("cfo-formula")}
                       >
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                        <TableCell className="pl-10 sticky left-0 bg-primary/5 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {expandedFormulas.has("cfo-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
@@ -201,8 +201,8 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                         ))}
                       </TableRow>
                       {expandedFormulas.has("cfo-formula") && (
-                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                        <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-primary/[0.03] z-10 py-0.5 text-xs text-muted-foreground italic">
                             = Revenue − Operating Expenses − Interest − Taxes
                           </TableCell>
                           {consolidatedCFO.map((val, i) => (
@@ -246,11 +246,11 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   {expandedRows.has("cfi") && (
                     <>
                       <TableRow
-                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                         data-expandable-row="true"
                         onClick={() => toggleFormula("cfi-formula")}
                       >
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                        <TableCell className="pl-10 sticky left-0 bg-primary/5 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {expandedFormulas.has("cfi-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
@@ -261,8 +261,8 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                         ))}
                       </TableRow>
                       {expandedFormulas.has("cfi-formula") && (
-                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                        <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-primary/[0.03] z-10 py-0.5 text-xs text-muted-foreground italic">
                             = −(Acquisition + FF&E) + Exit Proceeds
                           </TableCell>
                           {consolidatedCFI.map((val, i) => (
@@ -302,11 +302,11 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   {expandedRows.has("cff") && (
                     <>
                       <TableRow
-                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                         data-expandable-row="true"
                         onClick={() => toggleFormula("cff-formula")}
                       >
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                        <TableCell className="pl-10 sticky left-0 bg-primary/5 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {expandedFormulas.has("cff-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
@@ -317,8 +317,8 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                         ))}
                       </TableRow>
                       {expandedFormulas.has("cff-formula") && (
-                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                        <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-primary/[0.03] z-10 py-0.5 text-xs text-muted-foreground italic">
                             = Refinancing Proceeds − Principal Payments
                           </TableCell>
                           {consolidatedCFF.map((val, i) => (
@@ -351,11 +351,11 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                     ))}
                   </TableRow>
                   <TableRow
-                    className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                    className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                     data-expandable-row="true"
                     onClick={() => toggleFormula("netcash-formula")}
                   >
-                    <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                    <TableCell className="pl-10 sticky left-0 bg-primary/5 z-10 py-0.5 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         {expandedFormulas.has("netcash-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                         <span className="italic">Formula</span>
@@ -366,8 +366,8 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                     ))}
                   </TableRow>
                   {expandedFormulas.has("netcash-formula") && (
-                    <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                      <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                    <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                      <TableCell className="pl-14 sticky left-0 bg-primary/[0.03] z-10 py-0.5 text-xs text-muted-foreground italic">
                         = CFO + CFI + CFF
                       </TableCell>
                       {years.map((_, y) => (
@@ -393,11 +393,11 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                   {expandedRows.has("fcf") && (
                     <>
                       <TableRow
-                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                         data-expandable-row="true"
                         onClick={() => toggleFormula("fcf-formula")}
                       >
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                        <TableCell className="pl-10 sticky left-0 bg-primary/5 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {expandedFormulas.has("fcf-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
@@ -408,8 +408,8 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                         ))}
                       </TableRow>
                       {expandedFormulas.has("fcf-formula") && (
-                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                        <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-primary/[0.03] z-10 py-0.5 text-xs text-muted-foreground italic">
                             = CFO − Capital Expenditures (FF&E)
                           </TableCell>
                           {years.map((_, y) => (
@@ -424,18 +424,18 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                     </>
                   )}
 
-                  <TableRow className="font-medium bg-emerald-50/40" data-testid="row-fcfe">
-                    <TableCell className="pl-6 sticky left-0 bg-emerald-50/40 z-10">Free Cash Flow to Equity (FCFE)</TableCell>
+                  <TableRow className="font-medium bg-primary/10" data-testid="row-fcfe">
+                    <TableCell className="pl-6 sticky left-0 bg-primary/10 z-10">Free Cash Flow to Equity (FCFE)</TableCell>
                     {consolidatedFCFE.map((val, i) => (
                       <TableCell key={i} className="text-right font-mono">{formatMoney(val)}</TableCell>
                     ))}
                   </TableRow>
                   <TableRow
-                    className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                    className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                     data-expandable-row="true"
                     onClick={() => toggleFormula("fcfe-formula")}
                   >
-                    <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                    <TableCell className="pl-10 sticky left-0 bg-primary/5 z-10 py-0.5 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         {expandedFormulas.has("fcfe-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                         <span className="italic">Formula</span>
@@ -446,8 +446,8 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
                     ))}
                   </TableRow>
                   {expandedFormulas.has("fcfe-formula") && (
-                    <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                      <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                    <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                      <TableCell className="pl-14 sticky left-0 bg-primary/[0.03] z-10 py-0.5 text-xs text-muted-foreground italic">
                         = FCF − Principal Payments
                       </TableCell>
                       {years.map((_, y) => (

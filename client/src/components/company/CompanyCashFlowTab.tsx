@@ -89,7 +89,7 @@ export default function CompanyCashFlowTab({
     <ScrollReveal>
     <div ref={activeTab === 'cashflow' ? tableRef : undefined} className="bg-card rounded-2xl p-6 shadow-sm border">
       <div>
-        <h3 className="text-lg font-display text-foreground mb-4">Statement of Cash Flows — {global?.companyName || "Hospitality Business Co."}</h3>
+        <h3 className="text-lg font-display text-foreground mb-4">{global?.companyName || "Hospitality Business Co."} Statement of Cash Flows</h3>
         <div className="overflow-x-auto">
         <Table>
           <TableHeader>

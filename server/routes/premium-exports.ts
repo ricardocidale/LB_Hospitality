@@ -76,8 +76,8 @@ function validateAIOutput(result: any, format: string): void {
       }
       break;
     case "pdf":
-      if (!Array.isArray(result.sections) || result.sections.length === 0) {
-        throw new Error("AI output missing required 'sections' array for PDF export");
+      if (!Array.isArray(result.pages) || result.pages.length === 0) {
+        throw new Error("AI output missing required 'pages' array for PDF export");
       }
       break;
     case "docx":
@@ -559,21 +559,21 @@ function buildPdfSectionsFromData(data: PremiumExportRequest): any[] {
   // 1. Optional cover page
   if (includeCover) {
     sections.push({ type: "cover", title: data.statementType || "Financial Report" });
+  }
 
-    // 2. Optional overview (KPI metrics dashboard)
-    if (data.metrics?.length) {
-      sections.push({
-        type: "metrics_dashboard",
-        title: "Key Performance Metrics",
-        content: {
-          metrics: data.metrics.map(m => ({
-            label: m.label,
-            value: m.value,
-            description: getMetricDescription(m.label),
-          })),
-        },
-      });
-    }
+  // 2. KPI metrics dashboard — always include when metrics are provided
+  if (data.metrics?.length) {
+    sections.push({
+      type: "metrics_dashboard",
+      title: "Key Performance Metrics",
+      content: {
+        metrics: data.metrics.map(m => ({
+          label: m.label,
+          value: m.value,
+          description: getMetricDescription(m.label),
+        })),
+      },
+    });
   }
 
   // 3. Statements interleaved with charts

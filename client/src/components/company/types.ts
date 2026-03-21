@@ -21,9 +21,12 @@ export interface CompanyChartDataPoint {
   [key: string]: string | number;
   year: string;
   Revenue: number;
+  BaseFees: number;
+  IncentiveFees: number;
   Expenses: number;
   OperatingIncome: number;
   NetIncome: number;
+  Funding: number;
   CashFlow: number;
   EndingCash: number;
   Assets: number;

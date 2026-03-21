@@ -156,9 +156,12 @@ export default function Company() {
       data.push({
         year: String(getFiscalYear(y)),
         Revenue: yearData.reduce((a, m) => a + m.totalRevenue, 0),
+        BaseFees: yearData.reduce((a, m) => a + m.baseFeeRevenue, 0),
+        IncentiveFees: yearData.reduce((a, m) => a + m.incentiveFeeRevenue, 0),
         Expenses: yearData.reduce((a, m) => a + m.totalExpenses, 0),
         OperatingIncome: yearData.reduce((a, m) => a + (m.totalRevenue - m.totalExpenses), 0),
         NetIncome: yearData.reduce((a, m) => a + m.netIncome, 0),
+        Funding: yearData.reduce((a, m) => a + m.safeFunding, 0),
         CashFlow: yearData.reduce((a, m) => a + m.cashFlow, 0),
         EndingCash: cashBalance,
         Assets: cashBalance,

@@ -79,7 +79,7 @@ export default function CashFlowTab({
                   }}
                   labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
                   formatter={(value: number, name: string) => {
-                    const labels: Record<string, string> = { ANOI: "ANOI — Adjusted Net Operating Income", FCF: "FCF — Free Cash Flow", FCFE: "FCFE — Free Cash Flow to Equity" };
+                    const labels: Record<string, string> = { NOI: "NOI — Net Operating Income", ANOI: "ANOI — Adjusted Net Operating Income", FCF: "FCF — Free Cash Flow", FCFE: "FCFE — Free Cash Flow to Equity" };
                     return [formatMoney(value), labels[name] ?? name];
                   }}
                 />
@@ -87,9 +87,17 @@ export default function CashFlowTab({
                   wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }}
                   iconType="circle"
                   formatter={(value: string) => {
-                    const abbr: Record<string, string> = { ANOI: "ANOI", FCF: "FCF", FCFE: "FCFE" };
+                    const abbr: Record<string, string> = { NOI: "NOI", ANOI: "ANOI", FCF: "FCF", FCFE: "FCFE" };
                     return abbr[value] ?? value;
                   }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="NOI" 
+                  stroke="hsl(var(--line-4))" 
+                  strokeWidth={3}
+                  dot={{ fill: 'hsl(var(--line-4))', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, fill: 'hsl(var(--line-4))', stroke: '#fff', strokeWidth: 2 }}
                 />
                 <Line 
                   type="monotone" 

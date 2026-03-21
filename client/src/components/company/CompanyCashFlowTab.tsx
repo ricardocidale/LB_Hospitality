@@ -122,7 +122,7 @@ export default function CompanyCashFlowTab({
     {yearlyChartData && yearlyChartData.length > 0 && (
       <FinancialChart
         data={yearlyChartData}
-        series={["netIncome", "cashFlow", "endingCash"]}
+        series={["netIncome", "funding", "cashFlow", "endingCash"]}
         title={`${companyName} Cash Flow Trends (${projectionYears}-Year Projection)`}
         id="company-cashflow-chart"
       />

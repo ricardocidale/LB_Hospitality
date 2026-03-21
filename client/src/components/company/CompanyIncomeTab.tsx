@@ -113,7 +113,7 @@ export default function CompanyIncomeTab({
     {yearlyChartData && yearlyChartData.length > 0 && (
       <FinancialChart
         data={yearlyChartData}
-        series={["revenue", "expenses", "operatingIncome", "netIncome"]}
+        series={["revenue", "baseFees", "incentiveFees", "operatingIncome", "netIncome"]}
         title={`${companyName} Income Statement Trends (${projectionYears}-Year Projection)`}
         id="company-income-chart"
       />

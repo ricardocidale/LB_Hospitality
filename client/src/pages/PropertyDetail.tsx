@@ -51,6 +51,7 @@ import { MONTHS_PER_YEAR } from "@/lib/constants";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/financial/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { aggregatePropertyByYear } from "@/lib/financial/yearlyAggregator";
+import { FinancialChart } from "@/components/ui/financial-chart";
 import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
@@ -140,6 +141,30 @@ export default function PropertyDetail() {
     () => aggregatePropertyByYear(financials, years),
     [financials, years]
   );
+
+  // Compute yearly balance sheet chart data: Assets, Liabilities, Equity.
+  const balanceChartData = useMemo(() => {
+    if (!property || !global || !yearlyChartData.length || !cashFlowDataMemo.length) return [];
+    const loan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
+    const totalCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
+    const depPerYear = totalCost > 0 ? totalCost / 39 : 0;
+    let runCash = 0;
+    let cumPrincipal = 0;
+    return yearlyChartData.map((d, i) => {
+      runCash += d.CashFlow;
+      const nbv = Math.max(totalCost - depPerYear * (i + 1), 0);
+      cumPrincipal += cashFlowDataMemo[i]?.principalPayment ?? 0;
+      const loanBalance = Math.max(loan.loanAmount - cumPrincipal + (cashFlowDataMemo[i]?.refinancingProceeds ?? 0), 0);
+      const totalAssets = runCash + nbv;
+      const totalEquity = totalAssets - loanBalance;
+      return {
+        year: d.year,
+        Assets: totalAssets,
+        Liabilities: loanBalance,
+        Equity: totalEquity,
+      };
+    });
+  }, [property, global, yearlyChartData, cashFlowDataMemo]);
 
   if (propertyLoading || globalLoading) {
     return (
@@ -1263,13 +1288,27 @@ export default function PropertyDetail() {
           </TabsContent>
 
           <TabsContent value="balance" className="mt-6">
-            <ConsolidatedBalanceSheet
-              properties={[property]}
-              global={global}
-              allProFormas={[{ property, data: financials }]}
-              year={projectionYears}
-              propertyIndex={0}
-            />
+            <div className="space-y-6">
+              {balanceChartData.length > 0 && (
+                <FinancialChart
+                  data={balanceChartData}
+                  series={[
+                    { dataKey: "Assets", name: "Total Assets", color: "hsl(var(--line-1))" },
+                    { dataKey: "Liabilities", name: "Total Liabilities", color: "hsl(var(--line-2))" },
+                    { dataKey: "Equity", name: "Total Equity", color: "hsl(var(--line-3))" },
+                  ]}
+                  title={`${property.name} Balance Sheet Trends (${projectionYears}-Year Projection)`}
+                  id="property-balance-chart"
+                />
+              )}
+              <ConsolidatedBalanceSheet
+                properties={[property]}
+                global={global}
+                allProFormas={[{ property, data: financials }]}
+                year={projectionYears}
+                propertyIndex={0}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="ppe" className="mt-6">

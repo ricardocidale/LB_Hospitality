@@ -324,7 +324,7 @@ export function register(app: Express) {
   app.get("/api/available-themes", requireAuth, async (req, res) => {
     try {
       const themes = await storage.getAllDesignThemes();
-      res.json(themes.map(t => ({ id: t.id, name: t.name, description: t.description, isDefault: t.isDefault, colors: t.colors, iconSet: t.iconSet })));
+      res.json(themes.map(t => ({ id: t.id, name: t.name, description: t.description, isDefault: t.isDefault, isSystem: t.isSystem, colors: t.colors, iconSet: t.iconSet })));
     } catch (error) {
       logAndSendError(res, "Failed to fetch themes", error);
     }
@@ -367,11 +367,17 @@ export function register(app: Express) {
 
   app.patch("/api/admin/design-themes/:id", requireAdmin, async (req, res) => {
     try {
+      const id = Number(req.params.id);
+      const existing = await storage.getDesignTheme(id);
       const parsed = updateDesignThemeSchema.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json({ error: fromZodError(parsed.error).message });
       }
-      const theme = await storage.updateDesignTheme(Number(req.params.id), parsed.data);
+      const isSettingDefault = parsed.data.isDefault === true;
+      if (existing?.isSystem && !isSettingDefault) {
+        return res.status(403).json({ error: "System themes cannot be edited" });
+      }
+      const theme = await storage.updateDesignTheme(id, parsed.data);
       res.json(theme);
     } catch (error) {
       logAndSendError(res, "Failed to update theme", error);

@@ -46,14 +46,14 @@ describe("PNG export configuration defaults", () => {
 
 describe("PNG brand color consistency", () => {
   it("BRAND colors used in PNG table headers match brand spec", () => {
-    expect(BRAND.SAGE_HEX).toBe("3F3F46");
-    expect(BRAND.NAVY_HEX).toBe("18181B");
-    expect(BRAND.DARK_GREEN_HEX).toBe("10B981");
+    expect(BRAND.SECONDARY_HEX).toBe("3F3F46");
+    expect(BRAND.PRIMARY_HEX).toBe("18181B");
+    expect(BRAND.ACCENT_HEX).toBe("10B981");
   });
 
   it("BRAND RGB tuples match hex values", () => {
-    expect(BRAND.SAGE_RGB).toEqual([0x3F, 0x3F, 0x46]);
-    expect(BRAND.NAVY_RGB).toEqual([0x18, 0x18, 0x1B]);
+    expect(BRAND.SECONDARY_RGB).toEqual([0x3F, 0x3F, 0x46]);
+    expect(BRAND.PRIMARY_RGB).toEqual([0x18, 0x18, 0x1B]);
   });
 });
 

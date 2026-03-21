@@ -88,7 +88,7 @@ for (const page of pages) {
   }
 }
 
-const brandConstants = run(`rg -c 'SAGE_HEX|DARK_GREEN_HEX|NAVY_HEX' ${exportDir}/exportStyles.ts 2>/dev/null`);
+const brandConstants = run(`rg -c 'SECONDARY_HEX|ACCENT_HEX|PRIMARY_HEX' ${exportDir}/exportStyles.ts 2>/dev/null`);
 check("Brand palette centralized", parseInt(brandConstants || "0") >= 3, `${brandConstants} refs in exportStyles`);
 
 const rowBuilderExports = run(`rg -c 'export function' ${exportDir}/row-builders.ts 2>/dev/null`);

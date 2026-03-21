@@ -10,11 +10,24 @@
  *   BRAND constant below matches Studio Noir defaults and is ONLY used when
  *   no theme colors are passed. All shade colors are derived from theme solids.
  *
+ *   All fields use semantic/purpose-based names — never color names — so the
+ *   palette works correctly across any theme (dark, light, colorful, monochrome).
+ *
+ * ─── Theme Color Descriptions (DB → BrandPalette mapping) ─────────────────
+ *   "PALETTE: Primary …"     → PRIMARY_HEX / PRIMARY_RGB
+ *   "PALETTE: Secondary …"   → SECONDARY_HEX / SECONDARY_RGB
+ *   "PALETTE: Accent …"      → ACCENT_HEX / ACCENT_RGB
+ *   "PALETTE: Foreground …"  → FOREGROUND_HEX / FOREGROUND_RGB
+ *   "PALETTE: Muted …"       → SURFACE_HEX / SURFACE_RGB  (alt row background)
+ *   "PALETTE: Border …"      → BORDER_HEX / BORDER_RGB
+ *   "PALETTE: Background …"  → BACKGROUND_HEX / BACKGROUND_RGB
+ *   "EXPORT: Formula Line"   → formula base; FORMULA_HEX = lighten(base, 0.75)
+ *
  * ─── Typography Rules ─────────────────────────────────────────────────────
- *   • Section headers  →  bold, section-bg fill, Title Case (not ALL CAPS)
+ *   • Section headers  →  bold, background fill, Title Case (not ALL CAPS)
  *   • Subtotals        →  bold, white background
  *   • Line items       →  normal, indent 1–2 levels (2 spaces each)
- *   • Formulas / notes →  italic, indent 2, muted color
+ *   • Formulas / notes →  italic, indent 2, FORMULA_HEX color (softened primary)
  *   • Known abbreviations are preserved: GOP, NOI, ANOI, GAAP, etc.
  *
  * ─── Number Formatting ────────────────────────────────────────────────────
@@ -31,32 +44,39 @@ export interface ThemeColor {
   description?: string;
 }
 
+/**
+ * BrandPalette — all fields are semantic (purpose-based), never color-named.
+ * The same palette interface works for any theme: swap Studio Noir for
+ * Starlit Harbor and PRIMARY becomes deep navy instead of near-black, etc.
+ */
 export type BrandPalette = {
-  SAGE_HEX: string;
-  DARK_GREEN_HEX: string;
-  NAVY_HEX: string;
-  DARK_TEXT_HEX: string;
-  GRAY_HEX: string;
-  LIGHT_GRAY_HEX: string;
-  WHITE_HEX: string;
-  SECTION_BG_HEX: string;
-  ALT_ROW_HEX: string;
-  WARM_BG_HEX: string;
-  CARD_BG_HEX: string;
-  BORDER_LIGHT_HEX: string;
-  BORDER_SECTION_HEX: string;
-  NEGATIVE_RED_HEX: string;
-  CHART_HEX: string[];
-  LINE_HEX: string[];
-  SAGE_RGB: [number, number, number];
-  DARK_GREEN_RGB: [number, number, number];
-  NAVY_RGB: [number, number, number];
-  DARK_TEXT_RGB: [number, number, number];
-  GRAY_RGB: [number, number, number];
-  LIGHT_GRAY_RGB: [number, number, number];
+  PRIMARY_HEX: string;        // theme primary (buttons, active nav, headings)
+  SECONDARY_HEX: string;      // theme secondary (badges, contrast elements)
+  ACCENT_HEX: string;         // theme accent (KPI highlights, success)
+  FOREGROUND_HEX: string;     // primary text / headings
+  BORDER_HEX: string;         // input outlines, dividers
+  MUTED_HEX: string;          // muted / secondary text
+  WHITE_HEX: string;          // pure white (universal)
+  BACKGROUND_HEX: string;     // page / card background
+  SURFACE_HEX: string;        // alternate row tint
+  WARM_BG_HEX: string;        // derived: warm background tint
+  CARD_BG_HEX: string;        // derived: card surface
+  BORDER_LIGHT_HEX: string;   // derived: lighter divider
+  BORDER_SECTION_HEX: string; // derived: section separator (= SECONDARY)
+  NEGATIVE_HEX: string;       // negative / error / destructive
+  FORMULA_HEX: string;        // export formula-row text (softened primary)
+  CHART_HEX: string[];        // chart series palette
+  LINE_HEX: string[];         // line-chart series palette
+  PRIMARY_RGB: [number, number, number];
+  SECONDARY_RGB: [number, number, number];
+  ACCENT_RGB: [number, number, number];
+  FOREGROUND_RGB: [number, number, number];
+  BORDER_RGB: [number, number, number];
+  MUTED_RGB: [number, number, number];
   WHITE_RGB: [number, number, number];
-  SECTION_BG_RGB: [number, number, number];
-  ALT_ROW_RGB: [number, number, number];
+  BACKGROUND_RGB: [number, number, number];
+  SURFACE_RGB: [number, number, number];
+  FORMULA_RGB: [number, number, number];
 };
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -84,72 +104,82 @@ export function buildBrandPalette(themeColors?: ThemeColor[]): BrandPalette {
   const collectByPrefix = (prefix: string): string[] =>
     lower.filter(c => c.d.startsWith(prefix)).sort((a, b) => a.r - b.r).map(c => c.h);
 
-  const navy = byDesc("palette: primary") ?? BRAND.NAVY_HEX;
-  const sage = byDesc("palette: secondary") ?? BRAND.SAGE_HEX;
-  const darkGreen = byDesc("palette: accent", "accent:") ?? BRAND.DARK_GREEN_HEX;
-  const darkText = byDesc("palette: foreground") ?? BRAND.DARK_TEXT_HEX;
-  const gray = byDesc("palette: border") ?? BRAND.GRAY_HEX;
-  const sectionBg = byDesc("palette: background") ?? BRAND.SECTION_BG_HEX;
-  const altRow = byDesc("palette: muted") ?? BRAND.ALT_ROW_HEX;
-  const chartArr = collectByPrefix("chart:");
-  const lineArr = collectByPrefix("line:");
-  const negRed = byDesc("line: line 3", "destructive") ?? (lineArr[2] || BRAND.NEGATIVE_RED_HEX);
+  const primary    = byDesc("palette: primary")    ?? BRAND.PRIMARY_HEX;
+  const secondary  = byDesc("palette: secondary")  ?? BRAND.SECONDARY_HEX;
+  const accent     = byDesc("palette: accent", "accent:") ?? BRAND.ACCENT_HEX;
+  const foreground = byDesc("palette: foreground") ?? BRAND.FOREGROUND_HEX;
+  const border     = byDesc("palette: border")     ?? BRAND.BORDER_HEX;
+  const background = byDesc("palette: background") ?? BRAND.BACKGROUND_HEX;
+  const surface    = byDesc("palette: muted")      ?? BRAND.SURFACE_HEX;
+  const chartArr   = collectByPrefix("chart:");
+  const lineArr    = collectByPrefix("line:");
+  const negative   = byDesc("line: line 3", "destructive") ?? (lineArr[2] || BRAND.NEGATIVE_HEX);
+
+  // Formula line: stored base color (description "export: formula line"), then softened.
+  // If no custom formula color is stored, derive from primary.
+  const formulaBase = byDesc("export: formula") ?? primary;
+  const formulaHex  = lighten(formulaBase, 0.75);
 
   return {
-    SAGE_HEX: sage,
-    DARK_GREEN_HEX: darkGreen,
-    NAVY_HEX: navy,
-    DARK_TEXT_HEX: darkText,
-    GRAY_HEX: gray,
-    LIGHT_GRAY_HEX: chartArr[3] || lighten(gray, 0.3),
+    PRIMARY_HEX: primary,
+    SECONDARY_HEX: secondary,
+    ACCENT_HEX: accent,
+    FOREGROUND_HEX: foreground,
+    BORDER_HEX: border,
+    MUTED_HEX: chartArr[3] || lighten(border, 0.3),
     WHITE_HEX: "FFFFFF",
-    SECTION_BG_HEX: sectionBg,
-    ALT_ROW_HEX: altRow,
-    WARM_BG_HEX: lighten(sectionBg, 0.5),
-    CARD_BG_HEX: lighten(sectionBg, 0.4),
-    BORDER_LIGHT_HEX: lighten(gray, 0.2),
-    BORDER_SECTION_HEX: sage,
-    NEGATIVE_RED_HEX: negRed,
-    CHART_HEX: chartArr.length ? chartArr : [darkGreen, sage, navy, lighten(gray, 0.3), gray],
-    LINE_HEX: lineArr.length ? [darkGreen, ...lineArr] : [darkGreen, sage, navy, lighten(gray, 0.3)],
-    SAGE_RGB: hexToRgb(sage),
-    DARK_GREEN_RGB: hexToRgb(darkGreen),
-    NAVY_RGB: hexToRgb(navy),
-    DARK_TEXT_RGB: hexToRgb(darkText),
-    GRAY_RGB: hexToRgb(gray),
-    LIGHT_GRAY_RGB: hexToRgb(chartArr[3] || lighten(gray, 0.3)),
+    BACKGROUND_HEX: background,
+    SURFACE_HEX: surface,
+    WARM_BG_HEX: lighten(background, 0.5),
+    CARD_BG_HEX: lighten(background, 0.4),
+    BORDER_LIGHT_HEX: lighten(border, 0.2),
+    BORDER_SECTION_HEX: secondary,
+    NEGATIVE_HEX: negative,
+    FORMULA_HEX: formulaHex,
+    CHART_HEX: chartArr.length ? chartArr : [accent, secondary, primary, lighten(border, 0.3), border],
+    LINE_HEX: lineArr.length ? [accent, ...lineArr] : [accent, secondary, primary, lighten(border, 0.3)],
+    PRIMARY_RGB: hexToRgb(primary),
+    SECONDARY_RGB: hexToRgb(secondary),
+    ACCENT_RGB: hexToRgb(accent),
+    FOREGROUND_RGB: hexToRgb(foreground),
+    BORDER_RGB: hexToRgb(border),
+    MUTED_RGB: hexToRgb(chartArr[3] || lighten(border, 0.3)),
     WHITE_RGB: [255, 255, 255],
-    SECTION_BG_RGB: hexToRgb(sectionBg),
-    ALT_ROW_RGB: hexToRgb(altRow),
+    BACKGROUND_RGB: hexToRgb(background),
+    SURFACE_RGB: hexToRgb(surface),
+    FORMULA_RGB: hexToRgb(formulaHex),
   };
 }
 
+/** Studio Noir defaults — used only when no theme colors are supplied. */
 export const BRAND: BrandPalette = {
-  SAGE_HEX: "3F3F46",
-  DARK_GREEN_HEX: "10B981",
-  NAVY_HEX: "18181B",
-  DARK_TEXT_HEX: "09090B",
-  GRAY_HEX: "E4E4E7",
-  LIGHT_GRAY_HEX: "A1A1AA",
+  PRIMARY_HEX: "18181B",
+  SECONDARY_HEX: "3F3F46",
+  ACCENT_HEX: "10B981",
+  FOREGROUND_HEX: "09090B",
+  BORDER_HEX: "E4E4E7",
+  MUTED_HEX: "A1A1AA",
   WHITE_HEX: "FFFFFF",
-  SECTION_BG_HEX: "FFFFFF",
-  ALT_ROW_HEX: "F4F4F5",
+  BACKGROUND_HEX: "FFFFFF",
+  SURFACE_HEX: "F4F4F5",
   WARM_BG_HEX: "FAFAFA",
   CARD_BG_HEX: "F9F9FA",
   BORDER_LIGHT_HEX: "E4E4E7",
   BORDER_SECTION_HEX: "3F3F46",
-  NEGATIVE_RED_HEX: "F43F5E",
+  NEGATIVE_HEX: "F43F5E",
+  FORMULA_HEX: "C5C5C6",
   CHART_HEX: ["27272A", "52525B", "71717A", "A1A1AA", "D4D4D8"],
   LINE_HEX: ["10B981", "F59E0B", "F43F5E", "0EA5E9", "8B5CF6"],
-  SAGE_RGB: [63, 63, 70],
-  DARK_GREEN_RGB: [16, 185, 129],
-  NAVY_RGB: [24, 24, 27],
-  DARK_TEXT_RGB: [9, 9, 11],
-  GRAY_RGB: [228, 228, 231],
-  LIGHT_GRAY_RGB: [161, 161, 170],
+  PRIMARY_RGB: [24, 24, 27],
+  SECONDARY_RGB: [63, 63, 70],
+  ACCENT_RGB: [16, 185, 129],
+  FOREGROUND_RGB: [9, 9, 11],
+  BORDER_RGB: [228, 228, 231],
+  MUTED_RGB: [161, 161, 170],
   WHITE_RGB: [255, 255, 255],
-  SECTION_BG_RGB: [255, 255, 255],
-  ALT_ROW_RGB: [244, 244, 245],
+  BACKGROUND_RGB: [255, 255, 255],
+  SURFACE_RGB: [244, 244, 245],
+  FORMULA_RGB: [197, 197, 198],
 };
 
 export const PAGE_DIMS = {
@@ -300,4 +330,3 @@ export function pptxColumnWidths(yearCount: number, slideW = 13.33, marginX = 0.
   const dataW = (tableW - labelW) / yearCount;
   return { labelW, dataW, tableW };
 }
-

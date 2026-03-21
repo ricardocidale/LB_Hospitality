@@ -1,14 +1,14 @@
 export const BRAND = {
-  NAVY_HEX: "18181B",
-  SAGE_HEX: "3F3F46",
-  DARK_GREEN_HEX: "10B981",
-  DARK_TEXT_HEX: "09090B",
-  GRAY_HEX: "E4E4E7",
+  PRIMARY_HEX: "18181B",
+  SECONDARY_HEX: "3F3F46",
+  ACCENT_HEX: "10B981",
+  FOREGROUND_HEX: "09090B",
+  BORDER_HEX: "E4E4E7",
   WHITE_HEX: "FFFFFF",
-  SECTION_BG_HEX: "FFFFFF",
-  ALT_ROW_HEX: "F4F4F5",
-  LIGHT_GRAY_HEX: "A1A1AA",
-  NEGATIVE_RED_HEX: "F43F5E",
+  BACKGROUND_HEX: "FFFFFF",
+  SURFACE_HEX: "F4F4F5",
+  MUTED_HEX: "A1A1AA",
+  NEGATIVE_HEX: "F43F5E",
 };
 
 interface ExportDataShape {
@@ -66,7 +66,7 @@ export function buildFinancialDataContext(data: ExportDataShape): string {
 
 function themePaletteBlock(tc?: Array<{name: string; hexCode: string}>): string {
   if (tc?.length) return tc.map(c => `- ${c.name}: ${c.hexCode}`).join("\n");
-  return `- Primary: #${BRAND.NAVY_HEX}\n- Secondary: #${BRAND.SAGE_HEX}\n- Accent: #${BRAND.DARK_GREEN_HEX}\n- Section Background: #${BRAND.SECTION_BG_HEX}\n- Alternating Row: #${BRAND.ALT_ROW_HEX}`;
+  return `- Primary: #${BRAND.PRIMARY_HEX}\n- Secondary: #${BRAND.SECONDARY_HEX}\n- Accent: #${BRAND.ACCENT_HEX}\n- Section Background: #${BRAND.BACKGROUND_HEX}\n- Alternating Row: #${BRAND.SURFACE_HEX}`;
 }
 
 export function getExcelPrompt(data: ExportDataShape, themeColors?: Array<{name: string; hexCode: string}>): string {
@@ -204,7 +204,7 @@ export function getPdfDesignPrompt(data: ExportDataShape, themeColors?: Array<{n
   const orientation = data.orientation || "landscape";
   const colorPalette = themeColors?.length
     ? themeColors.map(c => `${c.name}: ${c.hexCode}`).join(", ")
-    : `Primary: #${BRAND.NAVY_HEX}, Secondary: #${BRAND.SAGE_HEX}, Accent: #${BRAND.DARK_GREEN_HEX}, Foreground: #${BRAND.DARK_TEXT_HEX}`;
+    : `Primary: #${BRAND.PRIMARY_HEX}, Secondary: #${BRAND.SECONDARY_HEX}, Accent: #${BRAND.ACCENT_HEX}, Foreground: #${BRAND.FOREGROUND_HEX}`;
 
   return `You are a senior graphic designer at a top-tier investment bank. A client handed you this financial data for their hospitality portfolio. Design a ${orientation} PDF report that tells the investment story visually.
 

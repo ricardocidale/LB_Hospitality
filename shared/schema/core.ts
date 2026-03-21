@@ -139,6 +139,7 @@ export const designThemes = pgTable("design_themes", {
   colors: jsonb("colors").notNull().$type<DesignColor[]>(),
   iconSet: text("icon_set").notNull().default("lucide"),
   isDefault: boolean("is_default").notNull().default(false),
+  isSystem: boolean("is_system").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

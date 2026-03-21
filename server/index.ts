@@ -301,6 +301,9 @@ async function runMigrationsAndSeeds() {
   const { runRebeccaChatEngine001 } = await import("./migrations/rebecca-chat-engine-001");
   await runRebeccaChatEngine001();
 
+  const { runThemesSystemFlag001 } = await import("./migrations/themes-system-flag-001");
+  await runThemesSystemFlag001();
+
   // FK indexes must run after all table-creating migrations complete
   const { runFkIndexes001 } = await import("./migrations/fk-indexes-001");
   await runFkIndexes001();

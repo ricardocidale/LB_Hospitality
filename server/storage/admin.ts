@@ -38,8 +38,11 @@ export class AdminStorage {
     return theme;
   }
 
-  /** Update a theme's name, description, or colors. */
-  async updateDesignTheme(id: number, data: Partial<InsertDesignTheme>): Promise<DesignTheme | undefined> {
+  /** Update a theme's name, description, colors, or isDefault status. */
+  async updateDesignTheme(id: number, data: Partial<InsertDesignTheme> & { isDefault?: boolean }): Promise<DesignTheme | undefined> {
+    if (data.isDefault === true) {
+      await db.update(designThemes).set({ isDefault: false }).where(eq(designThemes.isDefault, true));
+    }
     const [theme] = await db
       .update(designThemes)
       .set({ ...stripAutoFields(data as Record<string, unknown>), updatedAt: new Date() })
@@ -48,10 +51,11 @@ export class AdminStorage {
     return theme || undefined;
   }
 
-  /** Delete a theme. The default theme is protected and cannot be deleted. */
+  /** Delete a theme. System themes and the default theme are protected. */
   async deleteDesignTheme(id: number): Promise<void> {
     const [theme] = await db.select().from(designThemes).where(eq(designThemes.id, id));
-    if (theme?.isDefault) throw new Error("Cannot delete the default theme");
+    if (theme?.isSystem) throw new Error("System themes cannot be deleted");
+    if (theme?.isDefault) throw new Error("Cannot delete the default theme — please set another theme as default first");
     await db.delete(designThemes).where(eq(designThemes.id, id));
   }
 

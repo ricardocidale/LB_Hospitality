@@ -14,6 +14,7 @@ export interface DesignTheme {
   colors: DesignColor[];
   iconSet: IconSetType;
   isDefault: boolean;
+  isSystem: boolean;
   createdAt: string;
   updatedAt: string;
 }

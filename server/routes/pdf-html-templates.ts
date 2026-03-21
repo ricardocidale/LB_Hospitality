@@ -24,12 +24,12 @@ export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: s
 
   if (!themeColors?.length) {
     return {
-      navy: BRAND.NAVY_HEX, sage: BRAND.SAGE_HEX, darkGreen: BRAND.DARK_GREEN_HEX,
-      darkText: BRAND.DARK_TEXT_HEX, gray: BRAND.GRAY_HEX,
-      altRow: BRAND.ALT_ROW_HEX, sectionBg: BRAND.SECTION_BG_HEX,
-      white: BRAND.WHITE_HEX, lightGray: BRAND.LIGHT_GRAY_HEX, negativeRed: BRAND.NEGATIVE_RED_HEX,
-      chart: [BRAND.DARK_GREEN_HEX, BRAND.SAGE_HEX, BRAND.NAVY_HEX, BRAND.LIGHT_GRAY_HEX, BRAND.GRAY_HEX],
-      line: [BRAND.DARK_GREEN_HEX, BRAND.SAGE_HEX, BRAND.NAVY_HEX, BRAND.LIGHT_GRAY_HEX],
+      navy: BRAND.PRIMARY_HEX, sage: BRAND.SECONDARY_HEX, darkGreen: BRAND.ACCENT_HEX,
+      darkText: BRAND.FOREGROUND_HEX, gray: BRAND.BORDER_HEX,
+      altRow: BRAND.SURFACE_HEX, sectionBg: BRAND.BACKGROUND_HEX,
+      white: BRAND.WHITE_HEX, lightGray: BRAND.MUTED_HEX, negativeRed: BRAND.NEGATIVE_HEX,
+      chart: [BRAND.ACCENT_HEX, BRAND.SECONDARY_HEX, BRAND.PRIMARY_HEX, BRAND.MUTED_HEX, BRAND.BORDER_HEX],
+      line: [BRAND.ACCENT_HEX, BRAND.SECONDARY_HEX, BRAND.PRIMARY_HEX, BRAND.MUTED_HEX],
     };
   }
 
@@ -56,25 +56,25 @@ export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: s
       .map(c => c.h);
   };
 
-  const accent   = byDesc("palette: accent", "accent:")        ?? BRAND.DARK_GREEN_HEX;
-  const border   = byDesc("palette: border")                   ?? BRAND.GRAY_HEX;
+  const accent   = byDesc("palette: accent", "accent:")        ?? BRAND.ACCENT_HEX;
+  const border   = byDesc("palette: border")                   ?? BRAND.BORDER_HEX;
   const chartArr = collectByPrefix("chart:");
   const lineArr  = collectByPrefix("line:");
   const negRed   = byDesc("line: line 3", "destructive")       ?? (lineArr[2] || adjustHex(accent, -60));
 
   return {
-    navy:       byDesc("palette: primary")                  ?? BRAND.NAVY_HEX,
-    sage:       byDesc("palette: secondary")                ?? BRAND.SAGE_HEX,
+    navy:       byDesc("palette: primary")                  ?? BRAND.PRIMARY_HEX,
+    sage:       byDesc("palette: secondary")                ?? BRAND.SECONDARY_HEX,
     darkGreen:  accent,
-    darkText:   byDesc("palette: foreground")               ?? BRAND.DARK_TEXT_HEX,
+    darkText:   byDesc("palette: foreground")               ?? BRAND.FOREGROUND_HEX,
     gray:       border,
-    altRow:     byDesc("palette: muted")                    ?? BRAND.ALT_ROW_HEX,
-    sectionBg:  byDesc("palette: background")               ?? BRAND.SECTION_BG_HEX,
+    altRow:     byDesc("palette: muted")                    ?? BRAND.SURFACE_HEX,
+    sectionBg:  byDesc("palette: background")               ?? BRAND.BACKGROUND_HEX,
     white:      byDesc("palette: background")               ?? BRAND.WHITE_HEX,
     lightGray:  chartArr[3] || adjustHex(border, 30),
     negativeRed: negRed,
-    chart:      chartArr.length ? chartArr : [accent, byDesc("palette: secondary") ?? BRAND.SAGE_HEX, byDesc("palette: primary") ?? BRAND.NAVY_HEX, adjustHex(border, 30), border],
-    line:       lineArr.length ? [accent, ...lineArr] : [accent, byDesc("palette: secondary") ?? BRAND.SAGE_HEX, byDesc("palette: primary") ?? BRAND.NAVY_HEX, adjustHex(border, 30)],
+    chart:      chartArr.length ? chartArr : [accent, byDesc("palette: secondary") ?? BRAND.SECONDARY_HEX, byDesc("palette: primary") ?? BRAND.PRIMARY_HEX, adjustHex(border, 30), border],
+    line:       lineArr.length ? [accent, ...lineArr] : [accent, byDesc("palette: secondary") ?? BRAND.SECONDARY_HEX, byDesc("palette: primary") ?? BRAND.PRIMARY_HEX, adjustHex(border, 30)],
   };
 }
 
@@ -237,7 +237,7 @@ function renderExecutiveSummarySection(section: any, d: PdfTemplateData): string
   const highlightsHtml = highlights.map((h: any, i: number) => {
     const accentColors = d.colors
       ? [`#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`, `#${d.colors.darkGreen}`, `#${d.colors.navy}`]
-      : [`#${BRAND.DARK_GREEN_HEX}`, `#${BRAND.NAVY_HEX}`, `#${BRAND.SAGE_HEX}`, `#${BRAND.DARK_GREEN_HEX}`, `#${BRAND.NAVY_HEX}`];
+      : [`#${BRAND.ACCENT_HEX}`, `#${BRAND.PRIMARY_HEX}`, `#${BRAND.SECONDARY_HEX}`, `#${BRAND.ACCENT_HEX}`, `#${BRAND.PRIMARY_HEX}`];
     const color = accentColors[i % accentColors.length];
     return `
       <div class="highlight-card">
@@ -272,7 +272,7 @@ function renderMetricsDashboardSection(section: any, d: PdfTemplateData): string
   const metrics: any[] = section.content?.metrics || [];
   const accentColors = d.colors
     ? [`#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`, `#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`]
-    : [`#${BRAND.DARK_GREEN_HEX}`, `#${BRAND.NAVY_HEX}`, `#${BRAND.SAGE_HEX}`, `#${BRAND.DARK_GREEN_HEX}`, `#${BRAND.NAVY_HEX}`, `#${BRAND.SAGE_HEX}`];
+    : [`#${BRAND.ACCENT_HEX}`, `#${BRAND.PRIMARY_HEX}`, `#${BRAND.SECONDARY_HEX}`, `#${BRAND.ACCENT_HEX}`, `#${BRAND.PRIMARY_HEX}`, `#${BRAND.SECONDARY_HEX}`];
 
   const cards = metrics.map((m: any, i: number) => {
     const accent = accentColors[i % accentColors.length];
@@ -311,9 +311,9 @@ function buildChartPalette(colors?: ThemeColorMap): string[] {
     while (base.length < 7) base.push(`#${adjustHex(colors.chart[base.length % colors.chart.length], 40)}`);
     return base;
   }
-  const dk = colors?.darkGreen || BRAND.DARK_GREEN_HEX;
-  const sg = colors?.sage || BRAND.SAGE_HEX;
-  const nv = colors?.navy || BRAND.NAVY_HEX;
+  const dk = colors?.darkGreen || BRAND.ACCENT_HEX;
+  const sg = colors?.sage || BRAND.SECONDARY_HEX;
+  const nv = colors?.navy || BRAND.PRIMARY_HEX;
   return [
     `#${dk}`, `#${sg}`, `#${nv}`,
     `#${adjustHex(dk, 30)}`, `#${adjustHex(sg, 30)}`,
@@ -380,9 +380,9 @@ function renderLineChartSection(section: any, d: PdfTemplateData): string {
   }
   globalMax *= 1.08; // 8% headroom for labels
 
-  const chartGrid = d.colors?.gray || BRAND.GRAY_HEX;
-  const chartLabel = d.colors?.lightGray || BRAND.LIGHT_GRAY_HEX;
-  const chartText = d.colors?.darkText || BRAND.DARK_TEXT_HEX;
+  const chartGrid = d.colors?.gray || BRAND.BORDER_HEX;
+  const chartLabel = d.colors?.lightGray || BRAND.MUTED_HEX;
+  const chartText = d.colors?.darkText || BRAND.FOREGROUND_HEX;
 
   // Y-axis grid — stronger lines, larger labels
   const gridN = 5;

@@ -94,8 +94,8 @@ describe("PPTX footer page numbering logic", () => {
     expect(footerLabel).toBe("Acme Hotels \u2014 Confidential");
   });
 
-  it("footer line color matches BRAND.SAGE_HEX", () => {
-    expect(BRAND.SAGE_HEX).toBe("3F3F46");
+  it("footer line color matches BRAND.SECONDARY_HEX", () => {
+    expect(BRAND.SECONDARY_HEX).toBe("3F3F46");
   });
 });
 

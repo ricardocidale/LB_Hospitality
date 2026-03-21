@@ -424,10 +424,10 @@ export default function PropertyDetail() {
         title: `${property.name} - Financial Performance (${projectionYears}-Year Projection)`,
         series: [
           { name: 'Revenue', data: yearlyChartData.map((d) => ({ label: d.year, value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
-          { name: 'GOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.GOP })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-          { name: 'AGOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.AGOP })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-          { name: 'NOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
-          { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[4] || brand.LIGHT_GRAY_HEX}` },
+          { name: 'GOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.GOP })), color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+          { name: 'AGOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.AGOP })), color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
+          { name: 'NOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.ACCENT_HEX}` },
+          { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[4] || brand.MUTED_HEX}` },
         ],
         brand,
       });
@@ -552,14 +552,14 @@ export default function PropertyDetail() {
 
       const chartSeries = activeTab === "cashflow" ? [
         { name: 'Revenue', data: yearlyChartData.map((d) => ({ label: d.year, value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
-        { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-        { name: 'Cash Flow', data: yearlyChartData.map((d) => ({ label: d.year, value: d.CashFlow })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+        { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+        { name: 'Cash Flow', data: yearlyChartData.map((d) => ({ label: d.year, value: d.CashFlow })), color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
       ] : [
         { name: 'Revenue', data: yearlyChartData.map((d) => ({ label: d.year, value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
-        { name: 'GOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.GOP })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-        { name: 'AGOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.AGOP })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-        { name: 'NOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
-        { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[4] || brand.LIGHT_GRAY_HEX}` },
+        { name: 'GOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.GOP })), color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+        { name: 'AGOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.AGOP })), color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
+        { name: 'NOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.ACCENT_HEX}` },
+        { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[4] || brand.MUTED_HEX}` },
       ];
 
       drawLineChart({
@@ -815,10 +815,10 @@ export default function PropertyDetail() {
         title: `${property.name} - Income Statement (${projectionYears}-Year Projection)`,
         series: [
           { name: 'Revenue', data: yearlyChartData.map((d) => ({ label: d.year, value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
-          { name: 'GOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.GOP })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-          { name: 'AGOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.AGOP })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-          { name: 'NOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
-          { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[4] || brand.LIGHT_GRAY_HEX}` },
+          { name: 'GOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.GOP })), color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+          { name: 'AGOP', data: yearlyChartData.map((d) => ({ label: d.year, value: d.AGOP })), color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
+          { name: 'NOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.ACCENT_HEX}` },
+          { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[4] || brand.MUTED_HEX}` },
         ],
         brand,
       });
@@ -903,8 +903,8 @@ export default function PropertyDetail() {
         title: `${property.name} - Cash Flow (${projectionYears}-Year Projection)`,
         series: [
           { name: 'ANOI', data: yearlyChartData.map((d) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[0]}` },
-          { name: 'FCF', data: cashFlowData.map((cf, i) => ({ label: String(yearLabels[i]), value: cf.freeCashFlow || 0 })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-          { name: 'FCFE', data: cashFlowData.map((cf, i) => ({ label: String(yearLabels[i]), value: cf.freeCashFlowToEquity || 0 })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+          { name: 'FCF', data: cashFlowData.map((cf, i) => ({ label: String(yearLabels[i]), value: cf.freeCashFlow || 0 })), color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+          { name: 'FCFE', data: cashFlowData.map((cf, i) => ({ label: String(yearLabels[i]), value: cf.freeCashFlowToEquity || 0 })), color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
         ],
         brand,
       });
@@ -957,8 +957,8 @@ export default function PropertyDetail() {
         title: `${property.name} - Balance Sheet (${projectionYears}-Year Projection)`,
         series: [
           { name: 'Total Assets', data: totalAssets.map((v, i) => ({ label: String(yearLabels[i]), value: v })), color: `#${brand.LINE_HEX[0]}` },
-          { name: 'Total Liabilities', data: loanBalances.map((v, i) => ({ label: String(yearLabels[i]), value: v })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-          { name: 'Total Equity', data: totalEquity.map((v, i) => ({ label: String(yearLabels[i]), value: v })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+          { name: 'Total Liabilities', data: loanBalances.map((v, i) => ({ label: String(yearLabels[i]), value: v })), color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+          { name: 'Total Equity', data: totalEquity.map((v, i) => ({ label: String(yearLabels[i]), value: v })), color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
         ],
         brand,
       });

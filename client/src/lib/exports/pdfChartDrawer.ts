@@ -53,15 +53,15 @@ function blendRgb(base: RGB, target: RGB, factor: number): RGB {
 }
 
 const FALLBACK_BRAND: Pick<BrandPalette,
-  "DARK_TEXT_RGB" | "GRAY_RGB" | "LIGHT_GRAY_RGB" | "WHITE_RGB" |
-  "SECTION_BG_RGB" | "ALT_ROW_RGB"
+  "FOREGROUND_RGB" | "BORDER_RGB" | "MUTED_RGB" | "WHITE_RGB" |
+  "BACKGROUND_RGB" | "SURFACE_RGB"
 > = {
-  DARK_TEXT_RGB: [24, 24, 27],
-  GRAY_RGB: [228, 228, 231],
-  LIGHT_GRAY_RGB: [161, 161, 170],
+  FOREGROUND_RGB: [24, 24, 27],
+  BORDER_RGB: [228, 228, 231],
+  MUTED_RGB: [161, 161, 170],
   WHITE_RGB: [255, 255, 255],
-  SECTION_BG_RGB: [255, 255, 255],
-  ALT_ROW_RGB: [244, 244, 245],
+  BACKGROUND_RGB: [255, 255, 255],
+  SURFACE_RGB: [244, 244, 245],
 };
 
 export function drawLineChart(options: DrawChartOptions): void {
@@ -74,19 +74,18 @@ export function drawLineChart(options: DrawChartOptions): void {
   } = options;
   const doc = docAny as any;
 
-  const DARK_TEXT: RGB = b?.DARK_TEXT_RGB ?? FALLBACK_BRAND.DARK_TEXT_RGB;
-  const GRAY: RGB = b?.GRAY_RGB ?? FALLBACK_BRAND.GRAY_RGB;
-  const LIGHT_GRAY: RGB = b?.LIGHT_GRAY_RGB ?? FALLBACK_BRAND.LIGHT_GRAY_RGB;
+  const FOREGROUND: RGB = b?.FOREGROUND_RGB ?? FALLBACK_BRAND.FOREGROUND_RGB;
+  const BORDER: RGB = b?.BORDER_RGB ?? FALLBACK_BRAND.BORDER_RGB;
+  const MUTED: RGB = b?.MUTED_RGB ?? FALLBACK_BRAND.MUTED_RGB;
   const WHITE: RGB = b?.WHITE_RGB ?? FALLBACK_BRAND.WHITE_RGB;
-  const SECTION_BG: RGB = b?.SECTION_BG_RGB ?? FALLBACK_BRAND.SECTION_BG_RGB;
-  const ALT_ROW: RGB = b?.ALT_ROW_RGB ?? FALLBACK_BRAND.ALT_ROW_RGB;
+  const BACKGROUND: RGB = b?.BACKGROUND_RGB ?? FALLBACK_BRAND.BACKGROUND_RGB;
+  const SURFACE: RGB = b?.SURFACE_RGB ?? FALLBACK_BRAND.SURFACE_RGB;
 
-  const SHADOW: RGB = blendRgb(GRAY, DARK_TEXT, 0.15);
-  const BORDER: RGB = blendRgb(GRAY, DARK_TEXT, 0.05);
-  const PLOT_BG: RGB = blendRgb(SECTION_BG, ALT_ROW, 0.3);
-  const BAND_EVEN: RGB = blendRgb(SECTION_BG, ALT_ROW, 0.6);
-  const BAND_ODD: RGB = blendRgb(SECTION_BG, ALT_ROW, 0.25);
-  const LEGEND_TEXT: RGB = blendRgb(DARK_TEXT, GRAY, 0.15);
+  const SHADOW: RGB = blendRgb(BORDER, FOREGROUND, 0.15);
+  const PLOT_BG: RGB = blendRgb(BACKGROUND, SURFACE, 0.3);
+  const BAND_EVEN: RGB = blendRgb(BACKGROUND, SURFACE, 0.6);
+  const BAND_ODD: RGB = blendRgb(BACKGROUND, SURFACE, 0.25);
+  const LEGEND_TEXT: RGB = blendRgb(FOREGROUND, BORDER, 0.15);
 
   doc.setFillColor(...SHADOW);
   doc.roundedRect(x + 0.6, y + 0.6, width, height, 2, 2, "F");
@@ -100,7 +99,7 @@ export function drawLineChart(options: DrawChartOptions): void {
 
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(...DARK_TEXT);
+  doc.setTextColor(...FOREGROUND);
   doc.text(title, x + width / 2, y + 9, { align: "center" });
 
   const legendH   = 14;
@@ -152,7 +151,7 @@ export function drawLineChart(options: DrawChartOptions): void {
     const val = minVal + (i / gridCount) * (maxVal - minVal);
     doc.setFontSize(6.5);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(...LIGHT_GRAY);
+    doc.setTextColor(...MUTED);
     doc.text(formatValue(val), cX - 2, gy + 1.5, { align: "right" });
   }
   doc.setLineDashPattern([], 0);
@@ -161,7 +160,7 @@ export function drawLineChart(options: DrawChartOptions): void {
     const n = series[0].data.length;
     doc.setFontSize(6.5);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(...LIGHT_GRAY);
+    doc.setTextColor(...MUTED);
     series[0].data.forEach((d, i) => {
       doc.text(String(d.label), toX(i, n), cY + cH + 6, { align: "center" });
     });

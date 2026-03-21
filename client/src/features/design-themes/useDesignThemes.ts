@@ -43,7 +43,7 @@ export function useUpdateTheme(callbacks?: { onSuccess?: () => void }) {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<{ name: string; description: string; colors: DesignColor[]; iconSet: string }> }) => {
+    mutationFn: async ({ id, data }: { id: number; data: Partial<{ name: string; description: string; colors: DesignColor[]; iconSet: string; isDefault: boolean }> }) => {
       const res = await fetch(`/api/admin/design-themes/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

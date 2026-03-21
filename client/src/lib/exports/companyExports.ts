@@ -50,9 +50,9 @@ export const exportCompanyPDF = async (
       chartSubtitle: `${projectionYears}-Year Revenue, Operating Income, and Net Income Trend`,
       chartSeries: [
         { name: 'Revenue', dataKey: 'Revenue', color: `#${brand.LINE_HEX[0]}` },
-        { name: 'Expenses', dataKey: 'Expenses', color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-        { name: 'Operating Income', dataKey: 'OperatingIncome', color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-        { name: 'Net Income', dataKey: 'NetIncome', color: `#${brand.LINE_HEX[3] || brand.SAGE_HEX}` },
+        { name: 'Expenses', dataKey: 'Expenses', color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+        { name: 'Operating Income', dataKey: 'OperatingIncome', color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
+        { name: 'Net Income', dataKey: 'NetIncome', color: `#${brand.LINE_HEX[3] || brand.SECONDARY_HEX}` },
       ],
     },
     {
@@ -62,8 +62,8 @@ export const exportCompanyPDF = async (
       chartSubtitle: `${projectionYears}-Year Net Income, Cash Flow, and Ending Cash Trend`,
       chartSeries: [
         { name: 'Net Income', dataKey: 'NetIncome', color: `#${brand.LINE_HEX[0]}` },
-        { name: 'Cash Flow', dataKey: 'CashFlow', color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-        { name: 'Ending Cash', dataKey: 'EndingCash', color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+        { name: 'Cash Flow', dataKey: 'CashFlow', color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+        { name: 'Ending Cash', dataKey: 'EndingCash', color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
       ],
     },
     {
@@ -73,8 +73,8 @@ export const exportCompanyPDF = async (
       chartSubtitle: `${projectionYears}-Year Assets, Liabilities, and Equity Trend`,
       chartSeries: [
         { name: 'Total Assets', dataKey: 'Assets', color: `#${brand.LINE_HEX[0]}` },
-        { name: 'Total Liabilities', dataKey: 'Liabilities', color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-        { name: 'Total Equity', dataKey: 'Equity', color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+        { name: 'Total Liabilities', dataKey: 'Liabilities', color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+        { name: 'Total Equity', dataKey: 'Equity', color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
       ],
     },
   ];

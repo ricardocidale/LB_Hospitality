@@ -189,21 +189,21 @@ describe("pptxColumnWidths", () => {
 
 describe("BRAND constants", () => {
   it("has all required hex colors", () => {
-    expect(BRAND.SAGE_HEX).toBe("3F3F46");
-    expect(BRAND.NAVY_HEX).toBe("18181B");
-    expect(BRAND.DARK_GREEN_HEX).toBe("10B981");
+    expect(BRAND.SECONDARY_HEX).toBe("3F3F46");
+    expect(BRAND.PRIMARY_HEX).toBe("18181B");
+    expect(BRAND.ACCENT_HEX).toBe("10B981");
     expect(BRAND.WHITE_HEX).toBe("FFFFFF");
   });
 
   it("has matching RGB tuples", () => {
-    expect(BRAND.SAGE_RGB).toEqual([63, 63, 70]);
-    expect(BRAND.NAVY_RGB).toEqual([24, 24, 27]);
+    expect(BRAND.SECONDARY_RGB).toEqual([63, 63, 70]);
+    expect(BRAND.PRIMARY_RGB).toEqual([24, 24, 27]);
   });
 
   it("has chart and line hex arrays", () => {
     expect(BRAND.CHART_HEX).toHaveLength(5);
     expect(BRAND.LINE_HEX).toHaveLength(5);
-    expect(BRAND.NEGATIVE_RED_HEX).toBe("F43F5E");
+    expect(BRAND.NEGATIVE_HEX).toBe("F43F5E");
   });
 });
 

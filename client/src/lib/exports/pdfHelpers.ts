@@ -15,16 +15,16 @@
 import { BRAND, type BrandPalette, type ThemeColor, type ExportRowMeta, classifyRow, indentLabel, formatFull, formatByType, normalizeCaps, buildBrandPalette } from "./exportStyles";
 
 export function drawBrandedHeader(doc: any, pageW: number, height = 28, brand: BrandPalette = BRAND) {
-  doc.setFillColor(...brand.NAVY_RGB);
+  doc.setFillColor(...brand.PRIMARY_RGB);
   doc.rect(0, 0, pageW, height, "F");
-  doc.setFillColor(...brand.SAGE_RGB);
+  doc.setFillColor(...brand.SECONDARY_RGB);
   doc.rect(0, height - 2, pageW, 2, "F");
 }
 
 export function drawTitle(doc: any, text: string, x: number, y: number, opts?: {
   fontSize?: number; color?: [number, number, number]; bold?: boolean;
 }, brand: BrandPalette = BRAND) {
-  const { fontSize = 18, color = brand.DARK_TEXT_RGB, bold = true } = opts || {};
+  const { fontSize = 18, color = brand.FOREGROUND_RGB, bold = true } = opts || {};
   doc.setFont("helvetica", bold ? "bold" : "normal");
   doc.setFontSize(fontSize);
   doc.setTextColor(...color);
@@ -34,7 +34,7 @@ export function drawTitle(doc: any, text: string, x: number, y: number, opts?: {
 export function drawSubtitle(doc: any, text: string, x: number, y: number, opts?: {
   fontSize?: number; color?: [number, number, number];
 }, brand: BrandPalette = BRAND) {
-  const { fontSize = 10, color = brand.GRAY_RGB } = opts || {};
+  const { fontSize = 10, color = brand.BORDER_RGB } = opts || {};
   doc.setFont("helvetica", "normal");
   doc.setFontSize(fontSize);
   doc.setTextColor(...color);
@@ -44,7 +44,7 @@ export function drawSubtitle(doc: any, text: string, x: number, y: number, opts?
 export function drawSubtitleRow(doc: any, leftText: string, rightText: string, x: number, y: number, pageW: number, opts?: {
   fontSize?: number; color?: [number, number, number]; rightColor?: [number, number, number];
 }, brand: BrandPalette = BRAND) {
-  const { fontSize = 10, color = brand.GRAY_RGB, rightColor = brand.DARK_GREEN_RGB } = opts || {};
+  const { fontSize = 10, color = brand.BORDER_RGB, rightColor = brand.ACCENT_RGB } = opts || {};
   doc.setFont("helvetica", "normal");
   doc.setFontSize(fontSize);
   doc.setTextColor(...color);
@@ -97,9 +97,9 @@ export function drawDashboardSummaryPage(
       checkPageBreak(cardH + 10);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
-      doc.setTextColor(...brand.DARK_GREEN_RGB);
+      doc.setTextColor(...brand.ACCENT_RGB);
       doc.text(currentSection, startX, y);
-      doc.setDrawColor(...brand.SAGE_RGB);
+      doc.setDrawColor(...brand.SECONDARY_RGB);
       doc.setLineWidth(0.3);
       doc.line(startX, y + 1.5, pageW - 14, y + 1.5);
       y += 6;
@@ -113,19 +113,19 @@ export function drawDashboardSummaryPage(
 
     const x = startX + col * (cardW + 5);
 
-    doc.setFillColor(...brand.SECTION_BG_RGB);
-    doc.setDrawColor(...brand.SAGE_RGB);
+    doc.setFillColor(...brand.BACKGROUND_RGB);
+    doc.setDrawColor(...brand.SECONDARY_RGB);
     doc.setLineWidth(0.3);
     doc.roundedRect(x, y, cardW, cardH, 2, 2, "FD");
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.setTextColor(...brand.DARK_GREEN_RGB);
+    doc.setTextColor(...brand.ACCENT_RGB);
     doc.text(m.value, x + 4, y + 8);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(...brand.GRAY_RGB);
+    doc.setTextColor(...brand.BORDER_RGB);
     doc.text(m.label, x + 4, y + 14);
 
     if (col === 2 || i === metrics.length - 1) {
@@ -138,9 +138,9 @@ export function drawDashboardSummaryPage(
     checkPageBreak(20);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.setTextColor(...brand.DARK_GREEN_RGB);
+    doc.setTextColor(...brand.ACCENT_RGB);
     doc.text("Portfolio Composition", startX, y);
-    doc.setDrawColor(...brand.SAGE_RGB);
+    doc.setDrawColor(...brand.SECONDARY_RGB);
     doc.setLineWidth(0.3);
     doc.line(startX, y + 1.5, pageW - 14, y + 1.5);
     y += 5;
@@ -148,7 +148,7 @@ export function drawDashboardSummaryPage(
     const colWidths = [(pageW - 28) * 0.35, (pageW - 28) * 0.30, (pageW - 28) * 0.15, (pageW - 28) * 0.20];
     const headers = ["Property", "Market", "Rooms", "Status"];
 
-    doc.setFillColor(...brand.SAGE_RGB);
+    doc.setFillColor(...brand.SECONDARY_RGB);
     doc.rect(startX, y, pageW - 28, 6, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7);
@@ -163,12 +163,12 @@ export function drawDashboardSummaryPage(
     propertyTable.forEach((p, pi) => {
       checkPageBreak(6);
       if (pi % 2 === 1) {
-        doc.setFillColor(...brand.ALT_ROW_RGB);
+        doc.setFillColor(...brand.SURFACE_RGB);
         doc.rect(startX, y - 3, pageW - 28, 5, "F");
       }
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7);
-      doc.setTextColor(...brand.DARK_TEXT_RGB);
+      doc.setTextColor(...brand.FOREGROUND_RGB);
       let px = startX + 2;
       [p.name, p.market, String(p.rooms), p.status].forEach((val, vi) => {
         doc.text(val, px, y);
@@ -180,7 +180,7 @@ export function drawDashboardSummaryPage(
 }
 
 export function drawSectionHeader(doc: any, title: string, y: number, color?: [number, number, number], brand: BrandPalette = BRAND): number {
-  if (!color) color = brand.DARK_GREEN_RGB;
+  if (!color) color = brand.ACCENT_RGB;
   if (y > 260) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
@@ -199,7 +199,7 @@ export function drawParagraph(doc: any, text: string, y: number, pageW: number, 
   const { fontSize = 9, indent = 14, italic = false } = opts || {};
   doc.setFont("helvetica", italic ? "italic" : "normal");
   doc.setFontSize(fontSize);
-  doc.setTextColor(...brand.DARK_TEXT_RGB);
+  doc.setTextColor(...brand.FOREGROUND_RGB);
   const lines = doc.splitTextToSize(text, pageW - indent - 14);
   for (const line of lines) {
     if (y > 275) { doc.addPage(); y = 20; }
@@ -213,10 +213,10 @@ export function drawKeyValue(doc: any, label: string, value: string, y: number, 
   if (y > 275) { doc.addPage(); y = 20; }
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.setTextColor(...brand.GRAY_RGB);
+  doc.setTextColor(...brand.BORDER_RGB);
   doc.text(label + ":", x, y);
   doc.setFont("helvetica", "normal");
-  doc.setTextColor(...brand.DARK_TEXT_RGB);
+  doc.setTextColor(...brand.FOREGROUND_RGB);
   doc.text(value || "N/A", x + 52, y);
   return y + 5;
 }
@@ -270,20 +270,20 @@ export function buildFinancialTableConfig(
       cellPadding: 1.5,
       overflow: "linebreak",
       font: "helvetica",
-      lineColor: brand.LIGHT_GRAY_RGB,
+      lineColor: brand.MUTED_RGB,
       lineWidth: 0.25,
     },
     headStyles: {
-      fillColor: brand.SAGE_RGB,
+      fillColor: brand.SECONDARY_RGB,
       textColor: brand.WHITE_RGB,
       fontStyle: "bold",
       halign: "center",
       lineWidth: 0.4,
-      lineColor: brand.SAGE_RGB,
+      lineColor: brand.SECONDARY_RGB,
     },
     columnStyles: colStyles,
     tableWidth: "auto",
-    tableLineColor: brand.SAGE_RGB,
+    tableLineColor: brand.SECONDARY_RGB,
     tableLineWidth: 0.6,
     didParseCell: (() => {
       let dataRowIdx = 0;
@@ -297,25 +297,25 @@ export function buildFinancialTableConfig(
 
         if (isSectionHeader) {
           data.cell.styles.fontStyle = "bold";
-          data.cell.styles.fillColor = brand.SECTION_BG_RGB;
+          data.cell.styles.fillColor = brand.BACKGROUND_RGB;
           data.cell.styles.lineWidth = { top: 0.6 };
-          data.cell.styles.lineColor = { top: brand.SAGE_RGB };
+          data.cell.styles.lineColor = { top: brand.SECONDARY_RGB };
         } else if (isSubtotal) {
           data.cell.styles.fontStyle = "bold";
           data.cell.styles.lineWidth = { top: 0.5 };
-          data.cell.styles.lineColor = { top: brand.GRAY_RGB };
+          data.cell.styles.lineColor = { top: brand.BORDER_RGB };
         } else if (isFormula) {
           data.cell.styles.fontStyle = "italic";
-          data.cell.styles.textColor = brand.GRAY_RGB;
+          data.cell.styles.textColor = brand.FORMULA_RGB;
           data.cell.styles.fontSize = (data.cell.styles.fontSize || fontSize) - 0.5;
           if (idx !== lastRowIndex) { dataRowIdx++; lastRowIndex = idx; }
           if (dataRowIdx % 2 === 0) {
-            data.cell.styles.fillColor = brand.ALT_ROW_RGB;
+            data.cell.styles.fillColor = brand.SURFACE_RGB;
           }
         } else {
           if (idx !== lastRowIndex) { dataRowIdx++; lastRowIndex = idx; }
           if (dataRowIdx % 2 === 0) {
-            data.cell.styles.fillColor = brand.ALT_ROW_RGB;
+            data.cell.styles.fillColor = brand.SURFACE_RGB;
           }
         }
 
@@ -361,22 +361,22 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions, brand: BrandPale
   const { companyName, title, subtitle, meta = [], dateStr } = opts;
   const date = dateStr || new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
-  const NAVY: [number, number, number] = brand.NAVY_RGB;
-  const SAGE: [number, number, number] = brand.SAGE_RGB;
+  const PRIMARY: [number, number, number] = brand.PRIMARY_RGB;
+  const SECONDARY: [number, number, number] = brand.SECONDARY_RGB;
 
-  doc.setFillColor(...NAVY);
+  doc.setFillColor(...PRIMARY);
   doc.rect(0, 0, pageW, pageH, "F");
 
-  doc.setFillColor(...SAGE);
+  doc.setFillColor(...SECONDARY);
   doc.rect(0, 0, pageW, 3, "F");
   doc.rect(0, pageH - 3, pageW, 3, "F");
 
-  doc.setDrawColor(...SAGE, 60);
+  doc.setDrawColor(...SECONDARY, 60);
   doc.setLineWidth(0.15);
   for (let lx = 0; lx < pageW; lx += 12) doc.line(lx, 0, lx, pageH);
   for (let ly = 0; ly < pageH; ly += 12) doc.line(0, ly, pageW, ly);
 
-  doc.setFillColor(...SAGE);
+  doc.setFillColor(...SECONDARY);
   doc.rect(16, pageH * 0.25, 4, 45, "F");
 
   doc.setFont("helvetica", "bold");
@@ -389,12 +389,12 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions, brand: BrandPale
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(18);
-  doc.setTextColor(...SAGE);
+  doc.setTextColor(...SECONDARY);
   doc.text(title, 28, pageH * 0.40);
 
   if (subtitle) {
     doc.setFontSize(12);
-    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
+    doc.setTextColor(...brand.MUTED_RGB);
     doc.text(subtitle, 28, pageH * 0.46);
   }
 
@@ -402,10 +402,10 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions, brand: BrandPale
     const boxW = Math.min(pageW * 0.45, 140);
     const boxH = 10 + meta.length * 10;
     const boxY = pageH * 0.55;
-    const [nr, ng, nb] = NAVY;
+    const [nr, ng, nb] = PRIMARY;
     doc.setFillColor(Math.min(nr + 14, 255), Math.min(ng + 15, 255), Math.min(nb + 15, 255));
     doc.roundedRect(28, boxY, boxW, boxH, 2, 2, "F");
-    doc.setDrawColor(...SAGE);
+    doc.setDrawColor(...SECONDARY);
     doc.setLineWidth(0.3);
     doc.roundedRect(28, boxY, boxW, boxH, 2, 2, "S");
 
@@ -415,7 +415,7 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions, brand: BrandPale
       const valueText = parts.slice(1).join(": ");
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8);
-      doc.setTextColor(...SAGE);
+      doc.setTextColor(...SECONDARY);
       doc.text(labelText.toUpperCase(), 34, boxY + 8 + i * 10);
       if (valueText) {
         doc.setFont("helvetica", "normal");
@@ -428,12 +428,12 @@ export function drawCoverPage(doc: any, opts: CoverPageOptions, brand: BrandPale
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.setTextColor(...brand.LIGHT_GRAY_RGB);
+  doc.setTextColor(...brand.MUTED_RGB);
   doc.text(date, 28, pageH * 0.85);
 
   doc.setFont("helvetica", "italic");
   doc.setFontSize(7);
-  doc.setTextColor(...brand.GRAY_RGB);
+  doc.setTextColor(...brand.BORDER_RGB);
   doc.text("This document contains proprietary financial projections. Distribution is restricted to authorized recipients.", 28, pageH * 0.90);
 }
 
@@ -447,18 +447,18 @@ export function addFooters(doc: any, companyName: string, opts?: { skipPages?: S
     if (skipPages?.has(i)) continue;
     doc.setPage(i);
 
-    doc.setDrawColor(...brand.SAGE_RGB);
+    doc.setDrawColor(...brand.SECONDARY_RGB);
     doc.setLineWidth(0.4);
     doc.line(14, pageH - 10, pageW - 14, pageH - 10);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
+    doc.setTextColor(...brand.MUTED_RGB);
     doc.text(`${companyName} \u2014 Confidential`, 14, pageH - 6);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
+    doc.setTextColor(...brand.MUTED_RGB);
     doc.text(`Page ${i} of ${totalPages}`, pageW - 14, pageH - 6, { align: "right" });
   }
 }

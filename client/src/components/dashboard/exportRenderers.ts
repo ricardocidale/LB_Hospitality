@@ -245,8 +245,8 @@ export async function exportPortfolioPDF(
     title: `Portfolio Performance (${projectionYears}-Year Projection)`,
     series: [
       { name: "Revenue", data: chartData, color: `#${brand.LINE_HEX[0]}` },
-      { name: "Operating Expenses", data: expenseData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-      { name: "ANOI", data: noiData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+      { name: "Operating Expenses", data: expenseData, color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+      { name: "ANOI", data: noiData, color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
     ],
     brand,
   });
@@ -293,8 +293,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const dateStr = format(new Date(), "MMMM d, yyyy");
   const projRange = `${years[0]} \u2013 ${years[years.length - 1]}`;
 
-  const NAVY: [number, number, number] = brand.NAVY_RGB;
-  const ACCENT: [number, number, number] = brand.SAGE_RGB;
+  const NAVY: [number, number, number] = brand.PRIMARY_RGB;
+  const ACCENT: [number, number, number] = brand.SECONDARY_RGB;
 
   function drawPageChrome() {
     doc.setFillColor(...NAVY);
@@ -329,7 +329,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     }
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
+    doc.setTextColor(...brand.MUTED_RGB);
     doc.text(companyName, pageW - 22, 22, { align: "right" });
     return 38;
   }
@@ -395,9 +395,9 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         title: `Portfolio Revenue & ANOI (${projectionYears}-Year Projection)`,
         series: [
           { name: "Revenue", data: revData, color: `#${brand.LINE_HEX[0]}` },
-          { name: "NOI", data: noiData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-          { name: "ANOI", data: anoiData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-          { name: "Cash Flow", data: cfData, color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
+          { name: "NOI", data: noiData, color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+          { name: "ANOI", data: anoiData, color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
+          { name: "Cash Flow", data: cfData, color: `#${brand.LINE_HEX[3] || brand.ACCENT_HEX}` },
         ],
         brand,
       });
@@ -410,7 +410,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
           String(d.year), fmtUSD(d.revenue), fmtUSD(d.noi), fmtUSD(d.anoi), fmtUSD(d.cashFlow),
         ]),
         styles: { fontSize: 7, cellPadding: 1.5 },
-        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
         alternateRowStyles: { fillColor: [248, 250, 252] },
         didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
       });
@@ -438,7 +438,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         head: [["Portfolio Composition", "Value"]],
         body: compositionRows,
         styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
         columnStyles: { 1: { halign: "right", fontStyle: "bold" } },
         alternateRowStyles: { fillColor: [248, 250, 252] },
       });
@@ -448,8 +448,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         head: [["Capital Structure", "Value"]],
         body: capitalRows,
         styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.NAVY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        columnStyles: { 1: { halign: "right", fontStyle: "bold", textColor: brand.DARK_GREEN_RGB } },
+        headStyles: { fillColor: brand.PRIMARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        columnStyles: { 1: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
         alternateRowStyles: { fillColor: [248, 250, 252] },
       });
 
@@ -467,8 +467,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         head: [["Market", "Properties", "Share"]],
         body: mktRows,
         styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.DARK_GREEN_RGB } },
+        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
         alternateRowStyles: { fillColor: [248, 250, 252] },
       });
       autoTable(doc, {
@@ -477,8 +477,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         head: [["Status", "Properties", "Share"]],
         body: stsRows,
         styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.NAVY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
-        columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.DARK_GREEN_RGB } },
+        headStyles: { fillColor: brand.PRIMARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        columnStyles: { 1: { halign: "right" }, 2: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
         alternateRowStyles: { fillColor: [248, 250, 252] },
       });
 
@@ -495,8 +495,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         head: [wfHead],
         body: wfBody,
         styles: { fontSize: 6.5, cellPadding: 1.5 },
-        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 7 },
-        bodyStyles: { textColor: brand.DARK_TEXT_RGB },
+        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 7 },
+        bodyStyles: { textColor: brand.FOREGROUND_RGB },
         didParseCell: (data: any) => {
           if (data.section === "body") {
             const row = overviewData.waterfallRows[data.row.index];
@@ -526,13 +526,13 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         head: [["#", "Property", "Market", "Rooms", "Status", "Acquisition", "ADR", "IRR"]],
         body: insightRows,
         styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: brand.SAGE_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
+        headStyles: { fillColor: brand.SECONDARY_RGB, textColor: [255, 255, 255], fontStyle: "bold" },
         columnStyles: {
           0: { cellWidth: 8, halign: "center" },
           3: { halign: "right" },
           5: { halign: "right" },
           6: { halign: "right" },
-          7: { halign: "right", fontStyle: "bold", textColor: brand.DARK_GREEN_RGB },
+          7: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB },
         },
         alternateRowStyles: { fillColor: [248, 250, 252] },
         didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
@@ -540,11 +540,11 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
       const afterTableY = (doc as any).lastAutoTable?.finalY ?? (startY! + 60);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(8);
-      doc.setTextColor(...brand.DARK_GREEN_RGB);
+      doc.setTextColor(...brand.ACCENT_RGB);
       doc.text("Portfolio Insights", 16, afterTableY + 10);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7.5);
-      doc.setTextColor(...brand.DARK_TEXT_RGB);
+      doc.setTextColor(...brand.FOREGROUND_RGB);
       const { kpis } = { kpis: overviewData.portfolioKPIs };
       const insightLines = [
         `Markets: ${Object.entries(overviewData.marketCounts).map(([m, c]) => `${m} (${c})`).join(", ")}`,
@@ -656,9 +656,9 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
       title: `Investment Returns (${projectionYears}-Year Projection)`,
       series: [
         { name: "Net Operating Income (NOI)", data: noiChartData, color: `#${brand.LINE_HEX[0]}` },
-        { name: "Adjusted NOI (ANOI)", data: anoiChartData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-        { name: "Debt Service", data: debtServiceData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-        { name: "Free Cash Flow to Equity", data: fcfeData, color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
+        { name: "Adjusted NOI (ANOI)", data: anoiChartData, color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+        { name: "Debt Service", data: debtServiceData, color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
+        { name: "Free Cash Flow to Equity", data: fcfeData, color: `#${brand.LINE_HEX[3] || brand.ACCENT_HEX}` },
       ],
       brand,
     });
@@ -688,8 +688,8 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
       title: `Portfolio Performance (${projectionYears}-Year Projection)`,
       series: [
         { name: "Revenue", data: chartData, color: `#${brand.LINE_HEX[0]}` },
-        { name: "Operating Expenses", data: expenseData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-        { name: "ANOI", data: noiData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+        { name: "Operating Expenses", data: expenseData, color: `#${brand.LINE_HEX[1] || brand.SECONDARY_HEX}` },
+        { name: "ANOI", data: noiData, color: `#${brand.LINE_HEX[2] || brand.PRIMARY_HEX}` },
       ],
       brand,
     });
@@ -701,7 +701,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     if (pg === 1) continue;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
-    doc.setTextColor(...brand.LIGHT_GRAY_RGB);
+    doc.setTextColor(...brand.MUTED_RGB);
     doc.text(companyName, 16, pageH - 5);
     doc.text("CONFIDENTIAL", pageW / 2, pageH - 5, { align: "center" });
     doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });

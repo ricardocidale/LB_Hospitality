@@ -481,10 +481,10 @@ function filterFormulaRows(rows: any[]): any[] {
  *  All colors derived from the current theme's LINE series palette. */
 function buildChartSeriesByStatement(tc?: import("./pdf-html-templates").ThemeColorMap): Record<string, Array<{ keyword: string; label: string; color: string }>> {
   const ln = tc?.line || [];
-  const accent  = `#${ln[0] || tc?.darkGreen || BRAND.DARK_GREEN_HEX}`;
-  const series2 = `#${ln[1] || tc?.navy      || BRAND.NAVY_HEX}`;
-  const series3 = `#${ln[2] || tc?.sage      || BRAND.SAGE_HEX}`;
-  const series4 = `#${ln[3] || tc?.lightGray || BRAND.LIGHT_GRAY_HEX}`;
+  const accent  = `#${ln[0] || tc?.darkGreen || BRAND.ACCENT_HEX}`;
+  const series2 = `#${ln[1] || tc?.navy      || BRAND.PRIMARY_HEX}`;
+  const series3 = `#${ln[2] || tc?.sage      || BRAND.SECONDARY_HEX}`;
+  const series4 = `#${ln[3] || tc?.lightGray || BRAND.MUTED_HEX}`;
   return {
     income: [
       { keyword: "total revenue",            label: "Revenue", color: accent  },
@@ -872,31 +872,31 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
   const children: any[] = [];
 
   children.push(new Paragraph({
-    children: [new TextRun({ text: data.companyName || "Hospitality Business Group", bold: true, size: 20, color: BRAND.SAGE_HEX, font: "Arial" })],
+    children: [new TextRun({ text: data.companyName || "Hospitality Business Group", bold: true, size: 20, color: BRAND.SECONDARY_HEX, font: "Arial" })],
     spacing: { after: 100 },
   }));
 
   children.push(new Paragraph({
-    children: [new TextRun({ text: aiResult.title || `${data.entityName} — Investor Memo`, bold: true, size: 36, color: BRAND.NAVY_HEX, font: "Arial" })],
+    children: [new TextRun({ text: aiResult.title || `${data.entityName} — Investor Memo`, bold: true, size: 36, color: BRAND.PRIMARY_HEX, font: "Arial" })],
     spacing: { after: 100 },
   }));
 
   if (aiResult.subtitle) {
     children.push(new Paragraph({
-      children: [new TextRun({ text: aiResult.subtitle, size: 22, color: BRAND.GRAY_HEX, font: "Arial" })],
+      children: [new TextRun({ text: aiResult.subtitle, size: 22, color: BRAND.BORDER_HEX, font: "Arial" })],
       spacing: { after: 200 },
     }));
   }
 
   children.push(new Paragraph({
-    children: [new TextRun({ text: `Generated: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`, size: 18, color: BRAND.GRAY_HEX, italics: true, font: "Arial" })],
+    children: [new TextRun({ text: `Generated: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`, size: 18, color: BRAND.BORDER_HEX, italics: true, font: "Arial" })],
     spacing: { after: 100 },
   }));
 
   children.push(new Paragraph({
-    children: [new TextRun({ text: "Confidential — For authorized recipients only", size: 16, color: BRAND.GRAY_HEX, italics: true, font: "Arial" })],
+    children: [new TextRun({ text: "Confidential — For authorized recipients only", size: 16, color: BRAND.BORDER_HEX, italics: true, font: "Arial" })],
     spacing: { after: 400 },
-    border: { bottom: { color: BRAND.SAGE_HEX, space: 4, style: BorderStyle.SINGLE, size: 6 } },
+    border: { bottom: { color: BRAND.SECONDARY_HEX, space: 4, style: BorderStyle.SINGLE, size: 6 } },
   }));
 
   for (const section of (aiResult.sections || [])) {
@@ -932,7 +932,7 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
         for (const pair of (content.pairs || [])) {
           children.push(new Paragraph({
             children: [
-              new TextRun({ text: `${pair.label}: `, bold: true, size: 22, font: "Arial", color: BRAND.GRAY_HEX }),
+              new TextRun({ text: `${pair.label}: `, bold: true, size: 22, font: "Arial", color: BRAND.BORDER_HEX }),
               new TextRun({ text: pair.value || "N/A", size: 22, font: "Arial" }),
             ],
             spacing: { after: 60 },
@@ -941,14 +941,14 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
       } else if (content.type === "table" && content.headers?.length) {
         const headerCells = content.headers.map((h: string) => new TableCell({
           children: [new Paragraph({ children: [new TextRun({ text: h, bold: true, size: 18, color: BRAND.WHITE_HEX, font: "Arial" })] })],
-          shading: { type: ShadingType.SOLID, color: BRAND.SAGE_HEX },
+          shading: { type: ShadingType.SOLID, color: BRAND.SECONDARY_HEX },
         }));
 
         const dataRows = (content.rows || []).map((row: string[], ri: number) =>
           new TableRow({
             children: row.map((cell: string) => new TableCell({
               children: [new Paragraph({ children: [new TextRun({ text: cell || "", size: 18, font: "Arial" })] })],
-              shading: ri % 2 === 1 ? { type: ShadingType.SOLID, color: BRAND.ALT_ROW_HEX } : undefined,
+              shading: ri % 2 === 1 ? { type: ShadingType.SOLID, color: BRAND.SURFACE_HEX } : undefined,
             })),
           })
         );
@@ -982,7 +982,7 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
           children: [new TextRun({ text: h, bold: true, size: 16, color: BRAND.WHITE_HEX, font: "Arial" })],
           alignment: h ? AlignmentType.RIGHT : AlignmentType.LEFT,
         })],
-        shading: { type: ShadingType.SOLID, color: BRAND.SAGE_HEX },
+        shading: { type: ShadingType.SOLID, color: BRAND.SECONDARY_HEX },
       }));
 
       const dataRows = (table.rows || []).map((row: any, ri: number) => {
@@ -1000,8 +1000,8 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
                   size: 16, font: "Arial",
                 })],
               })],
-              shading: isHeaderRow ? { type: ShadingType.SOLID, color: BRAND.SECTION_BG_HEX } :
-                ri % 2 === 1 ? { type: ShadingType.SOLID, color: BRAND.ALT_ROW_HEX } : undefined,
+              shading: isHeaderRow ? { type: ShadingType.SOLID, color: BRAND.BACKGROUND_HEX } :
+                ri % 2 === 1 ? { type: ShadingType.SOLID, color: BRAND.SURFACE_HEX } : undefined,
             }),
             ...(row.values || []).map((v: any) => new TableCell({
               children: [new Paragraph({
@@ -1012,8 +1012,8 @@ async function generateDocxBuffer(aiResult: any, data: PremiumExportRequest): Pr
                 })],
                 alignment: AlignmentType.RIGHT,
               })],
-              shading: isHeaderRow ? { type: ShadingType.SOLID, color: BRAND.SECTION_BG_HEX } :
-                ri % 2 === 1 ? { type: ShadingType.SOLID, color: BRAND.ALT_ROW_HEX } : undefined,
+              shading: isHeaderRow ? { type: ShadingType.SOLID, color: BRAND.BACKGROUND_HEX } :
+                ri % 2 === 1 ? { type: ShadingType.SOLID, color: BRAND.SURFACE_HEX } : undefined,
             })),
           ],
         });

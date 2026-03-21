@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -7,9 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import {
-  IconDownload, IconTrending, IconFileCheck,
-} from "@/components/icons";
 import { saveExportConfig, DEFAULT_EXPORT_CONFIG, type ExportConfig } from "@/lib/exportConfig";
 
 const EXPORT_CONFIG_API = "/api/admin/export-config";
@@ -105,6 +101,19 @@ function GroupHeader({ title, badge }: { title: string; badge?: string }) {
   );
 }
 
+function CardSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border bg-card">
+      <div className="px-4 pt-3 pb-0.5">
+        <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{title}</p>
+      </div>
+      <div className="px-4 pb-1 divide-y divide-border">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function ExportsTab() {
   const { toast } = useToast();
   const [config, setConfig] = useState<ExportConfig>(DEFAULT_EXPORT_CONFIG);
@@ -124,10 +133,7 @@ export default function ExportsTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  const update = useCallback(<K extends keyof ExportConfig>(
-    key: K,
-    value: ExportConfig[K],
-  ) => {
+  const update = useCallback(<K extends keyof ExportConfig>(key: K, value: ExportConfig[K]) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
     setDirty(true);
   }, []);
@@ -135,15 +141,8 @@ export default function ExportsTab() {
   const updateNested = useCallback(<
     G extends "overview" | "statements" | "analysis",
     K extends keyof ExportConfig[G],
-  >(
-    group: G,
-    key: K,
-    value: ExportConfig[G][K],
-  ) => {
-    setConfig((prev) => ({
-      ...prev,
-      [group]: { ...prev[group], [key]: value },
-    }));
+  >(group: G, key: K, value: ExportConfig[G][K]) => {
+    setConfig((prev) => ({ ...prev, [group]: { ...prev[group], [key]: value } }));
     setDirty(true);
   }, []);
 
@@ -182,93 +181,65 @@ export default function ExportsTab() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Choose what appears in each report, and control orientation, quality, and layout behavior.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0 ml-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleReset}
-            disabled={saving}
-            data-testid="button-export-reset"
-          >
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-6">
+        <p className="text-sm text-muted-foreground">
+          Choose what appears in each report, and control orientation, quality, and layout behavior.
+        </p>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button variant="ghost" size="sm" onClick={handleReset} disabled={saving} data-testid="button-export-reset">
             Reset to defaults
           </Button>
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={!dirty || saving}
-            data-testid="button-export-save"
-          >
+          <Button size="sm" onClick={handleSave} disabled={!dirty || saving} data-testid="button-export-save">
             {saving ? "Saving…" : "Save changes"}
           </Button>
         </div>
       </div>
 
-      <div className="rounded-lg border bg-muted/30 divide-y divide-border">
-        <div className="px-4 py-1">
-          <GroupHeader title="Format" />
-          <GlobalSwitch
-            id="allow-landscape"
-            label="Allow landscape orientation"
-            description="Users can choose landscape when exporting — wider pages fit more columns."
-            checked={config.allowLandscape}
-            onChange={(v) => update("allowLandscape", v)}
-          />
-          <Separator />
-          <GlobalSwitch
-            id="allow-portrait"
-            label="Allow portrait orientation"
-            description="Users can choose portrait when exporting — taller layout, closer to standard paper."
-            checked={config.allowPortrait}
-            onChange={(v) => update("allowPortrait", v)}
-          />
-          <Separator />
-          <GlobalSwitch
-            id="allow-premium"
-            label="Allow premium exports"
-            description="Enables the AI-enhanced export mode (richer formatting, insights, design-quality output)."
-            checked={config.allowPremium}
-            onChange={(v) => update("allowPremium", v)}
-          />
-          <Separator />
-          <GlobalSwitch
-            id="dense-pagination"
-            label="Dense pagination"
-            description="Pack as much content per page as possible. When a table must split across pages, column headers repeat at the top of each continuation page."
-            checked={config.densePagination}
-            onChange={(v) => update("densePagination", v)}
-          />
-        </div>
-      </div>
+      {/* Two-column grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
-      <Tabs defaultValue="overview">
-        <TabsList className="w-full">
-          <TabsTrigger value="overview" className="flex-1" data-testid="tab-export-overview">
-            <IconDownload className="h-3.5 w-3.5 mr-1.5" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="statements" className="flex-1" data-testid="tab-export-statements">
-            <IconTrending className="h-3.5 w-3.5 mr-1.5" />
-            Financial Statements
-          </TabsTrigger>
-          <TabsTrigger value="analysis" className="flex-1" data-testid="tab-export-analysis">
-            <IconFileCheck className="h-3.5 w-3.5 mr-1.5" />
-            Financial Analysis
-          </TabsTrigger>
-        </TabsList>
+        {/* Left column */}
+        <div className="space-y-4">
 
-        <TabsContent value="overview" className="mt-4 space-y-2">
-          <p className="text-xs text-muted-foreground mb-4">
-            Controls which sections appear in the <span className="font-medium text-foreground">Portfolio Overview</span> report — the first page users see when exporting from the Dashboard.
-          </p>
+          {/* Format */}
+          <CardSection title="Format">
+            <GlobalSwitch
+              id="allow-landscape"
+              label="Allow landscape orientation"
+              description="Users can choose landscape when exporting — wider pages fit more columns."
+              checked={config.allowLandscape}
+              onChange={(v) => update("allowLandscape", v)}
+            />
+            <Separator />
+            <GlobalSwitch
+              id="allow-portrait"
+              label="Allow portrait orientation"
+              description="Users can choose portrait when exporting — taller layout, closer to standard paper."
+              checked={config.allowPortrait}
+              onChange={(v) => update("allowPortrait", v)}
+            />
+            <Separator />
+            <GlobalSwitch
+              id="allow-premium"
+              label="Allow premium exports"
+              description="Enables the AI-enhanced export mode (richer formatting, insights, design-quality output)."
+              checked={config.allowPremium}
+              onChange={(v) => update("allowPremium", v)}
+            />
+            <Separator />
+            <GlobalSwitch
+              id="dense-pagination"
+              label="Dense pagination"
+              description="Pack as much content per page as possible. Column headers repeat at the top of each continuation page."
+              checked={config.densePagination}
+              onChange={(v) => update("densePagination", v)}
+            />
+          </CardSection>
 
-          <div className="rounded-lg border bg-card divide-y divide-border px-4">
+          {/* Overview */}
+          <CardSection title="Overview report">
             <GroupHeader title="Metrics" />
             <SectionToggle
               id="kpi-metrics"
@@ -277,7 +248,6 @@ export default function ExportsTab() {
               checked={config.overview.kpiMetrics}
               onChange={(v) => updateNested("overview", "kpiMetrics", v)}
             />
-
             <GroupHeader title="Charts & Projections" />
             <SectionToggle
               id="revenue-chart"
@@ -293,7 +263,6 @@ export default function ExportsTab() {
               checked={config.overview.projectionTable}
               onChange={(v) => updateNested("overview", "projectionTable", v)}
             />
-
             <GroupHeader title="Portfolio Composition" />
             <SectionToggle
               id="composition-tables"
@@ -309,7 +278,6 @@ export default function ExportsTab() {
               checked={config.overview.waterfallTable}
               onChange={(v) => updateNested("overview", "waterfallTable", v)}
             />
-
             <GroupHeader title="Property Detail" />
             <SectionToggle
               id="property-insights"
@@ -318,15 +286,15 @@ export default function ExportsTab() {
               checked={config.overview.propertyInsights}
               onChange={(v) => updateNested("overview", "propertyInsights", v)}
             />
-          </div>
-        </TabsContent>
+          </CardSection>
 
-        <TabsContent value="statements" className="mt-4 space-y-2">
-          <p className="text-xs text-muted-foreground mb-4">
-            Controls which statements and chart pages appear in <span className="font-medium text-foreground">Income Statement</span>, <span className="font-medium text-foreground">Cash Flow</span>, and <span className="font-medium text-foreground">Balance Sheet</span> exports — for both Dashboard (consolidated) and Property Detail reports.
-          </p>
+        </div>
 
-          <div className="rounded-lg border bg-card divide-y divide-border px-4">
+        {/* Right column */}
+        <div className="space-y-4">
+
+          {/* Financial Statements */}
+          <CardSection title="Financial statements">
             <GroupHeader title="Income Statement" />
             <SectionToggle
               id="income-statement"
@@ -338,12 +306,11 @@ export default function ExportsTab() {
             <SectionToggle
               id="income-chart"
               label="Income trend chart page"
-              description="Line chart following the Income Statement table — Revenue, GOP, AGOP, NOI, and ANOI across the hold period."
+              description="Line chart following the Income Statement — Revenue, GOP, AGOP, NOI, and ANOI across the hold period."
               checked={config.statements.incomeChart}
               onChange={(v) => updateNested("statements", "incomeChart", v)}
               disabled={!config.statements.incomeStatement}
             />
-
             <GroupHeader title="Cash Flow Statement" />
             <SectionToggle
               id="cash-flow"
@@ -360,7 +327,6 @@ export default function ExportsTab() {
               onChange={(v) => updateNested("statements", "cashFlowChart", v)}
               disabled={!config.statements.cashFlow}
             />
-
             <GroupHeader title="Balance Sheet" />
             <SectionToggle
               id="balance-sheet"
@@ -377,24 +343,18 @@ export default function ExportsTab() {
               onChange={(v) => updateNested("statements", "balanceSheetChart", v)}
               disabled={!config.statements.balanceSheet}
             />
-
             <GroupHeader title="Line Item Detail" />
             <SectionToggle
               id="detailed-line-items"
               label="Detailed line-item breakdowns"
-              description='Show all sub-categories within each statement (e.g. Room Revenue, F&B Revenue, individual expense lines). When off, only section headers and bold totals are included — equivalent to the "Short" report version.'
+              description='Show all sub-categories within each statement (e.g. Room Revenue, F&B Revenue, individual expense lines). When off, only section headers and totals appear.'
               checked={config.statements.detailedLineItems}
               onChange={(v) => updateNested("statements", "detailedLineItems", v)}
             />
-          </div>
-        </TabsContent>
+          </CardSection>
 
-        <TabsContent value="analysis" className="mt-4 space-y-2">
-          <p className="text-xs text-muted-foreground mb-4">
-            Controls which analytical sections appear in exports — available on both the Dashboard and Property Detail reports.
-          </p>
-
-          <div className="rounded-lg border bg-card divide-y divide-border px-4">
+          {/* Financial Analysis */}
+          <CardSection title="Financial analysis">
             <GroupHeader title="Summary Metrics" />
             <SectionToggle
               id="kpi-summary-cards"
@@ -403,7 +363,6 @@ export default function ExportsTab() {
               checked={config.analysis.kpiSummaryCards}
               onChange={(v) => updateNested("analysis", "kpiSummaryCards", v)}
             />
-
             <GroupHeader title="Investment Analysis" />
             <SectionToggle
               id="investment-analysis"
@@ -419,11 +378,13 @@ export default function ExportsTab() {
               checked={config.analysis.debtSchedule}
               onChange={(v) => updateNested("analysis", "debtSchedule", v)}
             />
-          </div>
-        </TabsContent>
-      </Tabs>
+          </CardSection>
 
-      <div className="flex justify-end gap-2 pt-2">
+        </div>
+      </div>
+
+      {/* Bottom actions */}
+      <div className="flex justify-end gap-2 pt-1">
         <Button variant="ghost" size="sm" onClick={handleReset} disabled={saving} data-testid="button-export-reset-bottom">
           Reset to defaults
         </Button>

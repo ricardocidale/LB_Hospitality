@@ -125,9 +125,9 @@ export default function CompanyBenchmarkPanel({ global, yearlyChartData, financi
               data-testid={`benchmark-card-${row.label.toLowerCase().replace(/\s+/g, '-')}`}
               className={cn(
                 "rounded-lg p-2.5 border transition-colors",
-                row.status === "within" && "bg-blue-50/50 border-blue-200/60",
-                row.status === "above" && "bg-emerald-50/50 border-emerald-200/60",
-                row.status === "below" && "bg-amber-50/50 border-amber-200/60",
+                row.status === "within" && "bg-primary/5 border-primary/20",
+                row.status === "above" && "bg-primary/10 border-primary/30",
+                row.status === "below" && "bg-muted/50 border-border/60",
                 row.status === "unknown" && "bg-muted/50 border-border/60",
               )}
             >

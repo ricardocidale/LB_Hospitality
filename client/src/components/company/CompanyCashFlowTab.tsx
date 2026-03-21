@@ -56,11 +56,11 @@ export default function CompanyCashFlowTab({
   const FormulaRow = ({ rowKey, label, values }: { rowKey: string; label: string; values: string[] }) => (
     <>
       <TableRow
-        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+        className="bg-primary/5 cursor-pointer hover:bg-primary/10"
         data-expandable-row="true"
         onClick={() => toggleRow(rowKey)}
       >
-        <TableCell className="sticky left-0 bg-blue-50/40 pl-8 py-0.5 text-xs text-muted-foreground">
+        <TableCell className="sticky left-0 bg-primary/5 pl-8 py-0.5 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             {expandedRows.has(rowKey) ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             <span className="italic">Formula</span>
@@ -71,8 +71,8 @@ export default function CompanyCashFlowTab({
         ))}
       </TableRow>
       {expandedRows.has(rowKey) && (
-        <TableRow className="bg-blue-50/20" data-expandable-row="true">
-          <TableCell className="sticky left-0 bg-blue-50/20 pl-12 py-0.5 text-xs text-muted-foreground italic">
+        <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+          <TableCell className="sticky left-0 bg-primary/[0.03] pl-12 py-0.5 text-xs text-muted-foreground italic">
             {label}
           </TableCell>
           {values.map((v, i) => (

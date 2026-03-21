@@ -26,9 +26,9 @@ interface CompanyBenchmarkPanelProps {
 
 function statusIcon(status: BenchmarkRow["status"]) {
   switch (status) {
-    case "above": return <IconTrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
-    case "below": return <IconTrendingDown className="w-3.5 h-3.5 text-amber-500" />;
-    case "within": return <Minus className="w-3.5 h-3.5 text-blue-500" />;
+    case "above": return <IconTrendingUp className="w-3.5 h-3.5 text-primary" />;
+    case "below": return <IconTrendingDown className="w-3.5 h-3.5 text-muted-foreground" />;
+    case "within": return <Minus className="w-3.5 h-3.5 text-primary" />;
     default: return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
   }
 }

@@ -92,7 +92,7 @@ export default function CompanyBalanceSheet({
                 {bsExpanded.cash && (
                   <>
                     <TableRow
-                      className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                      className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                       data-expandable-row="true"
                       onClick={() => setBsExpanded(prev => ({ ...prev, cashFormula: !prev.cashFormula }))}
                     >
@@ -105,7 +105,7 @@ export default function CompanyBalanceSheet({
                       <TableCell className="py-0.5" />
                     </TableRow>
                     {bsExpanded.cashFormula && (
-                      <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                      <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
                         <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
                           = Cumulative Cash Flow (Net Income + Funding{accruedInterestBalance > 0 ? ' + Non-cash Interest − Interest Payments' : ''})
                         </TableCell>
@@ -114,23 +114,23 @@ export default function CompanyBalanceSheet({
                         </TableCell>
                       </TableRow>
                     )}
-                    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                    <TableRow className="bg-primary/5" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">{fundingLabel} Funding (Total)</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(totalSafeFunding)}</TableCell>
                     </TableRow>
                     {safeTranche1 > 0 && (
-                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                      <TableRow className="bg-primary/5" data-expandable-row="true">
                         <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">Tranche 1</TableCell>
                         <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(safeTranche1)}</TableCell>
                       </TableRow>
                     )}
                     {safeTranche2 > 0 && (
-                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                      <TableRow className="bg-primary/5" data-expandable-row="true">
                         <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">Tranche 2</TableCell>
                         <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(safeTranche2)}</TableCell>
                       </TableRow>
                     )}
-                    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                    <TableRow className="bg-primary/5" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">+ Cumulative Net Income</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(cumulativeNetIncome)}</TableCell>
                     </TableRow>
@@ -171,13 +171,13 @@ export default function CompanyBalanceSheet({
                 {bsExpanded.notes && (
                   <>
                     {safeTranche1 > 0 && (
-                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                      <TableRow className="bg-primary/5" data-expandable-row="true">
                         <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Tranche 1</TableCell>
                         <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(safeTranche1)}</TableCell>
                       </TableRow>
                     )}
                     {safeTranche2 > 0 && (
-                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                      <TableRow className="bg-primary/5" data-expandable-row="true">
                         <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Tranche 2</TableCell>
                         <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(safeTranche2)}</TableCell>
                       </TableRow>
@@ -226,7 +226,7 @@ export default function CompanyBalanceSheet({
                 {bsExpanded.equity && (
                   <>
                     <TableRow
-                      className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                      className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                       data-expandable-row="true"
                       onClick={() => setBsExpanded(prev => ({ ...prev, equityFormula: !prev.equityFormula }))}
                     >
@@ -242,7 +242,7 @@ export default function CompanyBalanceSheet({
                       const cumInterest = financials.reduce((a, m) => a + m.fundingInterestExpense, 0);
                       const hasInt = cumInterest > 0;
                       return (
-                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                        <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
                           <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
                             = Cumulative Revenue − Cumulative Expenses{hasInt ? ' − Interest Expense' : ''} − Tax
                           </TableCell>
@@ -252,25 +252,25 @@ export default function CompanyBalanceSheet({
                         </TableRow>
                       );
                     })()}
-                    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                    <TableRow className="bg-primary/5" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Cumulative Revenue</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(financials.reduce((a, m) => a + m.totalRevenue, 0))}</TableCell>
                     </TableRow>
-                    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                    <TableRow className="bg-primary/5" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Less: Cumulative Expenses</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(-financials.reduce((a, m) => a + m.totalExpenses, 0))}</TableCell>
                     </TableRow>
                     {financials.reduce((a, m) => a + m.fundingInterestExpense, 0) > 0 && (
-                      <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                      <TableRow className="bg-primary/5" data-expandable-row="true">
                         <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Less: Interest Expense</TableCell>
                         <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(-financials.reduce((a, m) => a + m.fundingInterestExpense, 0))}</TableCell>
                       </TableRow>
                     )}
-                    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                    <TableRow className="bg-primary/5" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">Less: Tax</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(-financials.reduce((a, m) => a + m.companyIncomeTax, 0))}</TableCell>
                     </TableRow>
-                    <TableRow className="bg-blue-50/40" data-expandable-row="true">
+                    <TableRow className="bg-primary/5" data-expandable-row="true">
                       <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">= Net Income</TableCell>
                       <TableCell className="text-right py-0.5 font-mono text-xs text-muted-foreground">{formatMoney(cumulativeNetIncome)}</TableCell>
                     </TableRow>
@@ -295,7 +295,7 @@ export default function CompanyBalanceSheet({
                 </TableRow>
 
                 <TableRow
-                  className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                  className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                   data-expandable-row="true"
                   onClick={() => setBsExpanded(prev => ({ ...prev, balanceCheck: !prev.balanceCheck }))}
                 >
@@ -308,7 +308,7 @@ export default function CompanyBalanceSheet({
                   <TableCell className="py-0.5" />
                 </TableRow>
                 {bsExpanded.balanceCheck && (
-                  <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                  <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
                     <TableCell className="pl-12 py-0.5 text-xs text-muted-foreground italic">
                       Assets = Liabilities + Equity → {formatMoney(totalAssets)} = {formatMoney(totalLiabilities)} + {formatMoney(totalEquity)}
                     </TableCell>
@@ -320,8 +320,8 @@ export default function CompanyBalanceSheet({
 
                 {Math.abs(totalAssets - totalLiabilitiesAndEquity) > 1 && (
                   <TableRow>
-                    <TableCell colSpan={2} className="bg-red-50 border-t border-red-200">
-                      <span className="text-red-700 text-xs font-medium">
+                    <TableCell colSpan={2} className="bg-destructive/10 border-t border-destructive/30">
+                      <span className="text-destructive text-xs font-medium">
                         Balance sheet does not balance — Assets {formatMoney(totalAssets)} ≠ L+E {formatMoney(totalLiabilitiesAndEquity)} (variance: {formatMoney(totalAssets - totalLiabilitiesAndEquity)})
                       </span>
                     </TableCell>

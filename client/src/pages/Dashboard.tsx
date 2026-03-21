@@ -460,7 +460,7 @@ export default function Dashboard() {
             statements,
             metrics: baseMetrics,
             projectionYears: py,
-            includeCoverPage: activeTab === "overview",
+            includeCoverPage: false,
             themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank, description: c.description })),
           } as PremiumExportPayload;
         } : undefined}

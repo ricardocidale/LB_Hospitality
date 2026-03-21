@@ -322,7 +322,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
 
   const resolvePremiumPayload = (): PremiumExportPayload | null => {
     if (getPremiumExportData) {
-      return getPremiumExportData(version, includeCoverPage);
+      return getPremiumExportData(version, false);
     }
     return premiumExportData ?? null;
   };

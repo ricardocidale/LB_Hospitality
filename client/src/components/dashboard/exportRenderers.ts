@@ -3,7 +3,7 @@ import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/exports/pptxExport";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
-import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage, drawCoverPage, type DashboardSummaryMetric } from "@/lib/exports/pdfHelpers";
+import { buildFinancialTableConfig, addFooters, drawTitle, drawSubtitle, drawSubtitleRow, drawDashboardSummaryPage, type DashboardSummaryMetric } from "@/lib/exports/pdfHelpers";
 import { PAGE_DIMS, type ThemeColor, buildBrandPalette } from "@/lib/exports/exportStyles";
 import type { DashboardFinancials } from "./types";
 import type { Property } from "@shared/schema";
@@ -196,18 +196,6 @@ export async function exportPortfolioPDF(
   const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
   const projRange = `${years[0]} \u2013 ${years[projectionYears - 1]}`;
 
-  drawCoverPage(doc, {
-    companyName,
-    title,
-    subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
-    meta: [
-      `Report: ${title}`,
-      `Period: FY ${projRange}`,
-      "Classification: Confidential",
-    ],
-  }, brand);
-
-  doc.addPage();
   drawTitle(doc, `${companyName} \u2014 ${title}`, 14, 15, undefined, brand);
   drawSubtitleRow(doc,
     `${projectionYears}-Year Projection (${projRange})`,
@@ -349,19 +337,6 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   let needsNewFirstPage = false;
 
   if (!statementsOnly) {
-    drawCoverPage(doc, {
-      companyName,
-      title: "Consolidated Portfolio Report",
-      subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
-      meta: [
-        `Portfolio: ${properties.length} Properties \u2014 ${financials.totalRooms} Rooms`,
-        `Period: FY ${projRange}`,
-        "Classification: Confidential",
-      ],
-      dateStr,
-    }, brand);
-
-    doc.addPage();
     const metrics: DashboardSummaryMetric[] = [
       { label: "Portfolio IRR", value: `${(financials.portfolioIRR * 100).toFixed(1)}%`, section: "Return Metrics" },
       { label: "Equity Multiple", value: `${financials.equityMultiple.toFixed(2)}x`, section: "Return Metrics" },

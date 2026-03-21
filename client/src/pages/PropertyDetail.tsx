@@ -45,7 +45,7 @@ import {
 import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
-import { drawCoverPage, addFooters, buildFinancialTableConfig, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
+import { addFooters, buildFinancialTableConfig, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
 import { type ExportRowMeta, buildBrandPalette, type ThemeColor } from "@/lib/exports/exportStyles";
 import { MONTHS_PER_YEAR } from "@/lib/constants";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/financial/loanCalculations";
@@ -376,18 +376,6 @@ export default function PropertyDetail() {
     const projRange = `${yearLabels[0]} \u2013 ${yearLabels[yearLabels.length - 1]}`;
     const isShort = version === "short";
 
-    drawCoverPage(doc, {
-      companyName,
-      title: `${property.name} \u2014 Income Statement`,
-      subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
-      meta: [
-        `Property: ${property.name}`,
-        `Period: FY ${projRange}`,
-        "Classification: Confidential",
-      ],
-    });
-
-    doc.addPage();
     const entityTag = `${companyName} \u2014 ${property.name}`;
     drawTitle(doc, `${property.name} \u2014 Income Statement`, 14, 15);
     drawSubtitleRow(doc, `${projectionYears}-Year Projection (${projRange})`, entityTag, 14, 22, pageWidth);
@@ -508,18 +496,6 @@ export default function PropertyDetail() {
       pdfCloseCash.push(pdfRunCash);
     }
 
-    drawCoverPage(doc, {
-      companyName,
-      title: `${property.name} \u2014 Cash Flow Statement`,
-      subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
-      meta: [
-        `Property: ${property.name}`,
-        `Period: FY ${projRange}`,
-        "Classification: Confidential",
-      ],
-    });
-
-    doc.addPage();
     const entityTag = `${companyName} \u2014 ${property.name}`;
     drawTitle(doc, `${property.name} \u2014 Cash Flow Statement`, 14, 15);
     drawSubtitleRow(doc, `${projectionYears}-Year Projection (${projRange})`, entityTag, 14, 22, pageWidth);
@@ -773,18 +749,6 @@ export default function PropertyDetail() {
     const pdfAcqYear = Math.floor(pdfLoan.acqMonthsFromModelStart / MONTHS_PER_YEAR);
     const pdfTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
 
-    drawCoverPage(doc, {
-      companyName,
-      title: `${property.name} \u2014 Financial Statements`,
-      subtitle: `${projectionYears}-Year Financial Projection (${projRange})`,
-      meta: [
-        `Property: ${property.name}`,
-        `Period: FY ${projRange}`,
-        "Classification: Confidential",
-      ],
-    });
-
-    doc.addPage();
     drawTitle(doc, `${property.name} Income Statement`, 14, 15);
     drawSubtitleRow(doc, `${projectionYears}-Year Projection (${projRange})`, entityTag, 14, 22, pageWidth);
     drawSubtitle(doc, `Generated: ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`, 14, 27);

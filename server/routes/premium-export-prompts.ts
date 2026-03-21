@@ -162,7 +162,7 @@ export function getPdfPrompt(data: ExportDataShape): string {
 
 IMPORTANT RULES:
 - This report is DATA ONLY. Do NOT include executive_summary, analysis, or notes sections.
-- Only include: cover, metrics_dashboard, and financial_table sections.
+- Only include: metrics_dashboard and financial_table sections. Do NOT include a cover section.
 - No prose paragraphs, no observations, no written commentary.
 - Focus on clean presentation of the financial statements and metrics.
 
@@ -172,10 +172,6 @@ ${buildFinancialDataContext(data)}
 Return a JSON object with this structure:
 {
   "sections": [
-    {
-      "type": "cover",
-      "title": "Report Title"
-    },
     {
       "type": "metrics_dashboard",
       "title": "Key Performance Metrics",
@@ -214,7 +210,7 @@ Think like a designer, not an engineer:
 - Where do you create visual breathing room (white space)?
 - What makes this look like a $100K custom report, not a template?
 - Use color psychology: bold accent for wins, subtle neutral for supporting data
-- The report should have a narrative arc: setup (cover) → evidence (statements) → conclusion (analysis)
+- The report should have a narrative arc: evidence (statements) → conclusion (metrics and analysis)
 
 FINANCIAL DATA:
 ${buildFinancialDataContext(data)}
@@ -231,11 +227,6 @@ Return a JSON object describing your design vision:
 {
   "recommended_orientation": "landscape" | "portrait",
   "design_vision": "2-3 sentence description of the overall visual concept",
-  "cover": {
-    "headline": "Bold title for the cover",
-    "tagline": "Compelling subtitle that highlights the strongest data point",
-    "visual_style": "dark_dramatic" | "clean_minimal" | "corporate_elegant"
-  },
   "pages": [
     {
       "type": "metrics_dashboard",

@@ -56,11 +56,11 @@ export default function CompanyIncomeTab({
   const FormulaRow = ({ rowKey, label, values }: { rowKey: string; label: string; values: string[] }) => (
     <>
       <TableRow
-        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+        className="bg-primary/5 cursor-pointer hover:bg-primary/10"
         data-expandable-row="true"
         onClick={() => toggleRow(rowKey)}
       >
-        <TableCell className="sticky left-0 bg-blue-50/40 pl-8 py-0.5 text-xs text-muted-foreground">
+        <TableCell className="sticky left-0 bg-primary/5 pl-8 py-0.5 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             {expandedRows.has(rowKey) ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             <span className="italic">Formula</span>
@@ -71,8 +71,8 @@ export default function CompanyIncomeTab({
         ))}
       </TableRow>
       {expandedRows.has(rowKey) && (
-        <TableRow className="bg-blue-50/20" data-expandable-row="true">
-          <TableCell className="sticky left-0 bg-blue-50/20 pl-12 py-0.5 text-xs text-muted-foreground italic">
+        <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+          <TableCell className="sticky left-0 bg-primary/[0.03] pl-12 py-0.5 text-xs text-muted-foreground italic">
             {label}
           </TableCell>
           {values.map((v, i) => (
@@ -244,18 +244,18 @@ export default function CompanyIncomeTab({
                   onClick={() => toggleRow('vendorCosts')}
                   data-testid="row-vendor-costs"
                 >
-                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2 text-amber-700">
+                  <TableCell className="sticky left-0 bg-card pl-6 flex items-center gap-2 text-muted-foreground">
                     {expandedRows.has('vendorCosts') ? (
-                      <ChevronDown className="w-4 h-4 text-amber-500" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-amber-500" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                     Cost of Centralized Services
                   </TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
                     const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.totalVendorCost, 0);
-                    return <TableCell key={y} className="text-right text-amber-700 font-mono">({formatMoney(total)})</TableCell>;
+                    return <TableCell key={y} className="text-right text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
                   })}
                 </TableRow>
                 {expandedRows.has('vendorCosts') && (() => {
@@ -263,12 +263,12 @@ export default function CompanyIncomeTab({
                   return (
                     <>
                       <TableRow
-                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        className="bg-primary/5 cursor-pointer hover:bg-primary/10"
                         data-expandable-row="true"
                         onClick={() => toggleRow(formulaTotalKey)}
                         data-testid="row-vendor-costs-formula-toggle"
                       >
-                        <TableCell className="sticky left-0 bg-blue-50/40 pl-10 py-0.5 text-xs text-muted-foreground">
+                        <TableCell className="sticky left-0 bg-primary/5 pl-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {expandedRows.has(formulaTotalKey) ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Aggregate Markup Formula</span>
@@ -290,8 +290,8 @@ export default function CompanyIncomeTab({
                         const yearlyTotalGrossProfit = yearlyCentralizedRevenue.map((rev, i) => rev - yearlyTotalVendorCost[i]);
                         return (
                           <>
-                            <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                              <TableCell className="sticky left-0 bg-blue-50/20 pl-14 py-0.5 text-xs text-muted-foreground italic">
+                            <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                              <TableCell className="sticky left-0 bg-primary/[0.03] pl-14 py-0.5 text-xs text-muted-foreground italic">
                                 Total Fee Revenue from Centralized Services
                               </TableCell>
                               {yearlyCentralizedRevenue.map((v, i) => (
@@ -300,8 +300,8 @@ export default function CompanyIncomeTab({
                                 </TableCell>
                               ))}
                             </TableRow>
-                            <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                              <TableCell className="sticky left-0 bg-blue-50/20 pl-14 py-0.5 text-xs text-muted-foreground italic">
+                            <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                              <TableCell className="sticky left-0 bg-primary/[0.03] pl-14 py-0.5 text-xs text-muted-foreground italic">
                                 − Total Vendor Cost
                               </TableCell>
                               {yearlyTotalVendorCost.map((v, i) => (
@@ -310,8 +310,8 @@ export default function CompanyIncomeTab({
                                 </TableCell>
                               ))}
                             </TableRow>
-                            <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                              <TableCell className="sticky left-0 bg-blue-50/20 pl-14 py-0.5 text-xs text-muted-foreground italic">
+                            <TableRow className="bg-primary/[0.03]" data-expandable-row="true">
+                              <TableCell className="sticky left-0 bg-primary/[0.03] pl-14 py-0.5 text-xs text-muted-foreground italic">
                                 = Total Gross Profit
                               </TableCell>
                               {yearlyTotalGrossProfit.map((v, i) => (
@@ -336,15 +336,15 @@ export default function CompanyIncomeTab({
                       return (
                         <React.Fragment key={`vendor-${catName}`}>
                           <TableRow
-                            className="bg-amber-50/30 cursor-pointer hover:bg-amber-100/30"
+                            className="bg-muted/30 cursor-pointer hover:bg-muted/50"
                             onClick={() => toggleRow(formulaKey)}
                             data-testid={`row-vendor-${catName}`}
                           >
-                            <TableCell className="sticky left-0 bg-amber-50/30 pl-12 text-sm text-amber-600 flex items-center gap-2">
+                            <TableCell className="sticky left-0 bg-muted/30 pl-12 text-sm text-muted-foreground flex items-center gap-2">
                               {expandedRows.has(formulaKey) ? (
-                                <ChevronDown className="w-3 h-3 text-amber-400" />
+                                <ChevronDown className="w-3 h-3 text-muted-foreground" />
                               ) : (
-                                <ChevronRight className="w-3 h-3 text-amber-400" />
+                                <ChevronRight className="w-3 h-3 text-muted-foreground" />
                               )}
                               {catName}
                             </TableCell>
@@ -354,7 +354,7 @@ export default function CompanyIncomeTab({
                                 const cat = m.costOfCentralizedServices?.byCategory?.[catName];
                                 return a + (cat?.vendorCost ?? 0);
                               }, 0);
-                              return <TableCell key={y} className="text-right text-sm text-amber-600 font-mono">({formatMoney(total)})</TableCell>;
+                              return <TableCell key={y} className="text-right text-sm text-muted-foreground font-mono">({formatMoney(total)})</TableCell>;
                             })}
                           </TableRow>
                           {expandedRows.has(formulaKey) && (() => {
@@ -375,8 +375,8 @@ export default function CompanyIncomeTab({
                             const markupPct = cat.markup;
                             return (
                               <>
-                                <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                                  <TableCell className="sticky left-0 bg-blue-50/40 pl-16 py-0.5 text-xs text-muted-foreground italic">
+                                <TableRow className="bg-primary/5" data-expandable-row="true">
+                                  <TableCell className="sticky left-0 bg-primary/5 pl-16 py-0.5 text-xs text-muted-foreground italic">
                                     Fee Charged to Property
                                   </TableCell>
                                   {yearlyRevenue.map((v, i) => (
@@ -385,16 +385,16 @@ export default function CompanyIncomeTab({
                                     </TableCell>
                                   ))}
                                 </TableRow>
-                                <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                                  <TableCell className="sticky left-0 bg-blue-50/40 pl-16 py-0.5 text-xs text-muted-foreground italic">
+                                <TableRow className="bg-primary/5" data-expandable-row="true">
+                                  <TableCell className="sticky left-0 bg-primary/5 pl-16 py-0.5 text-xs text-muted-foreground italic">
                                     Markup Rate: {(markupPct * 100).toFixed(0)}%
                                   </TableCell>
                                   {Array.from({ length: projectionYears }, (_, i) => (
                                     <TableCell key={i} className="py-0.5" />
                                   ))}
                                 </TableRow>
-                                <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                                  <TableCell className="sticky left-0 bg-blue-50/40 pl-16 py-0.5 text-xs text-muted-foreground italic">
+                                <TableRow className="bg-primary/5" data-expandable-row="true">
+                                  <TableCell className="sticky left-0 bg-primary/5 pl-16 py-0.5 text-xs text-muted-foreground italic">
                                     Vendor Cost = Fee ÷ (1 + {(markupPct * 100).toFixed(0)}%)
                                   </TableCell>
                                   {yearlyVendorCost.map((v, i) => (
@@ -403,8 +403,8 @@ export default function CompanyIncomeTab({
                                     </TableCell>
                                   ))}
                                 </TableRow>
-                                <TableRow className="bg-blue-50/40" data-expandable-row="true">
-                                  <TableCell className="sticky left-0 bg-blue-50/40 pl-16 py-0.5 text-xs text-muted-foreground italic">
+                                <TableRow className="bg-primary/5" data-expandable-row="true">
+                                  <TableCell className="sticky left-0 bg-primary/5 pl-16 py-0.5 text-xs text-muted-foreground italic">
                                     Markup Margin = Fee − Vendor Cost
                                   </TableCell>
                                   {yearlyGrossProfit.map((v, i) => (
@@ -420,12 +420,12 @@ export default function CompanyIncomeTab({
                       );
                     });
                 })()}
-                <TableRow className="bg-emerald-50/60 font-semibold border-border">
-                  <TableCell className="sticky left-0 bg-emerald-50/60 text-emerald-800">Gross Profit</TableCell>
+                <TableRow className="bg-primary/10 font-semibold border-border">
+                  <TableCell className="sticky left-0 bg-primary/10 text-foreground">Gross Profit</TableCell>
                   {Array.from({ length: projectionYears }, (_, y) => {
                     const yearData = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
                     const total = yearData.reduce((a, m) => a + m.grossProfit, 0);
-                    return <TableCell key={y} className="text-right text-emerald-800 font-mono">{formatMoney(total)}</TableCell>;
+                    return <TableCell key={y} className="text-right text-foreground font-mono">{formatMoney(total)}</TableCell>;
                   })}
                 </TableRow>
               </>

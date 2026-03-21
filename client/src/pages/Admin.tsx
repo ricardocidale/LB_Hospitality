@@ -21,6 +21,7 @@ import SourcesTab from "@/components/admin/SourcesTab";
 import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
 import ModelDefaultsTab from "@/components/admin/ModelDefaultsTab";
+import ExportsTab from "@/components/admin/ExportsTab";
 import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
 import { ErrorBoundary, SelfHealingBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
@@ -41,6 +42,7 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
   icons:            { title: "Icon Sets",             subtitle: "Browse and select icon libraries" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
+  exports:          { title: "Exports",               subtitle: "Configure content, orientation, and layout for all report exports" },
   "ai-agents":     { title: "AI Agents",             subtitle: "Configure and manage your AI text assistant" },
   llms:             { title: "LLMs",                  subtitle: "Configure AI model vendors and selections for research, reports, and chatbots" },
   sources:          { title: "Sources",               subtitle: "Manage research sources — URLs and uploaded files organized by domain" },
@@ -67,6 +69,7 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
     case "logos":            return <LogosTab />;
     case "icons":            return <IconSetsTab />;
     case "themes":           return <ThemesTab />;
+    case "exports":          return <ExportsTab />;
     case "notifications":    return <NotificationsTab />;
     case "navigation":       return <NavigationTab />;
     case "research":         return <ResearchCenterTab onSaveStateChange={onSaveStateChange} />;

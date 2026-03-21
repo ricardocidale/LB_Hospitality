@@ -571,6 +571,7 @@ describe("Hardcoded Value Detection", () => {
         "sentry.ts",
         "image-variants.ts",
         "admin-nav.ts",
+        "exportConfig.ts",
       ]);
 
       const allLibFiles = fs.readdirSync(libDir)

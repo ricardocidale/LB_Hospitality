@@ -85,7 +85,7 @@ export default function IncomeStatementTab({
         <div className="relative">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-display text-foreground">
-              {showWaterfall ? "Revenue-to-ANOI Bridge" : `Income Statement Trends (${projectionYears}-Year Projection)`}
+              {showWaterfall ? `${property.name} Revenue-to-ANOI Bridge` : `${property.name} Income Statement Trends (${projectionYears}-Year Projection)`}
             </h3>
             <div className="flex items-center gap-2">
               {showWaterfall && (

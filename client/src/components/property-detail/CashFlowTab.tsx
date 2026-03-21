@@ -41,7 +41,7 @@ export default function CashFlowTab({
     <div className="space-y-6">
       <div ref={cashFlowChartRef} className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-3 sm:p-6 bg-card shadow-lg border border-border">
         <div className="relative">
-          <h3 className="text-lg font-display text-foreground mb-4">Cash Flow Trends ({projectionYears}-Year Projection)</h3>
+          <h3 className="text-lg font-display text-foreground mb-4">{property.name} Cash Flow Trends ({projectionYears}-Year Projection)</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               {/* Merge income-statement chart data (NOI) with cash-flow waterfall

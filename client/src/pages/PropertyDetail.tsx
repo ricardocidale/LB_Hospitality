@@ -770,15 +770,14 @@ export default function PropertyDetail() {
     if (yearlyChartData && yearlyChartData.length > 0) {
       doc.addPage();
       drawTitle(doc, `${property.name} \u2014 Cash Flow Trend`, 14, 15, { fontSize: 16 });
-      drawSubtitleRow(doc, `${projectionYears}-Year NOI, ANOI, Cash Flow, and FCFE Trend`, entityTag, 14, 22, pageWidth);
+      drawSubtitleRow(doc, `${projectionYears}-Year ANOI, FCF, and FCFE Trend`, entityTag, 14, 22, pageWidth);
       drawLineChart({
         doc, x: 14, y: 30, width: chartWidth, height: 150,
         title: `${property.name} - Cash Flow (${projectionYears}-Year Projection)`,
         series: [
-          { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[0]}` },
-          { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
-          { name: 'Cash Flow', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.CashFlow })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
-          { name: 'FCFE', data: pdfCfo.map((cfo, i) => ({ label: String(yearLabels[i]), value: cfo - yearlyDetails[i].expenseFFE - cashFlowData[i].principalPayment })), color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
+          { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[0]}` },
+          { name: 'FCF', data: cashFlowData.map((cf, i) => ({ label: String(yearLabels[i]), value: cf.freeCashFlow || 0 })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+          { name: 'FCFE', data: cashFlowData.map((cf, i) => ({ label: String(yearLabels[i]), value: cf.freeCashFlowToEquity || 0 })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
         ],
         brand,
       });

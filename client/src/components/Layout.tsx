@@ -269,7 +269,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       )}
       <Separator className="my-2" />
       {user && (
-        <div className="flex items-center gap-2.5 px-3 py-2" data-testid="sidebar-user-info">
+        <div className="flex items-center gap-2 px-3 py-1.5" data-testid="sidebar-user-info">
           <UserAvatar
             firstName={user.firstName}
             lastName={user.lastName}
@@ -278,10 +278,9 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
             logoUrl={myBranding?.logoUrl}
             size="sm"
           />
-          <div className="min-w-0 flex-1">
-            <div className="text-[13px] font-medium text-foreground truncate">{user.name || user.email}</div>
-            {user.title && <div className="text-[11px] text-muted-foreground truncate">{user.title}</div>}
-          </div>
+          <span className="text-[12px] text-muted-foreground/80 truncate" data-testid="sidebar-user-firstname">
+            {user.firstName || (user.name ? user.name.trim().split(/\s+/)[0] : "")}
+          </span>
         </div>
       )}
       <Separator className="my-2" />

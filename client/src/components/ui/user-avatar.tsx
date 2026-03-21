@@ -31,7 +31,7 @@ export function UserAvatar({
     return (
       <div
         className={cn(
-          "rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden",
+          "rounded-full bg-primary/10 flex items-center justify-center overflow-hidden",
           sizeClasses[size],
           className
         )}
@@ -44,7 +44,7 @@ export function UserAvatar({
   return (
     <div
       className={cn(
-        "rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold shadow-[0_0_16px_rgba(var(--primary-rgb,159,188,164),0.4)]",
+        "rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold shadow-[0_0_16px_rgba(var(--primary-rgb,159,188,164),0.4)]",
         sizeClasses[size],
         className
       )}

@@ -4,6 +4,7 @@ import { min, max, range } from "d3-array";
 import { scaleLinear, scaleBand } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
+import { CHART_COLORS } from "@/components/graphics/primitives/formatters";
 
 export interface WaterfallItem {
   label: string;
@@ -22,13 +23,13 @@ interface WaterfallChartProps {
 }
 
 const COLORS = {
-  positive: "#22c55e",
-  negative: "#ef4444",
-  subtotal: "#1e3a5f",
-  connector: "#94a3b8",
+  positive: CHART_COLORS.positive,
+  negative: CHART_COLORS.negative,
+  subtotal: CHART_COLORS.subtotal,
+  connector: CHART_COLORS.connector,
   tooltip: {
-    bg: "rgba(0,0,0,0.85)",
-    text: "#fff",
+    bg: CHART_COLORS.tooltipBg,
+    text: CHART_COLORS.tooltipText,
   },
 };
 

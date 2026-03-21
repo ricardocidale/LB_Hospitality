@@ -9,6 +9,7 @@
  */
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { CHART_COLORS } from "../primitives/formatters";
 
 interface GaugeProps {
   value: number;
@@ -31,10 +32,10 @@ const sizeMap = {
 };
 
 function getColor(value: number, thresholds?: { good: number; warn: number }, fallback?: string): string {
-  if (!thresholds) return fallback || "#257D41";
-  if (value >= thresholds.good) return "#257D41";
-  if (value >= thresholds.warn) return "#F59E0B";
-  return "#EF4444";
+  if (!thresholds) return fallback || CHART_COLORS.good;
+  if (value >= thresholds.good) return CHART_COLORS.good;
+  if (value >= thresholds.warn) return CHART_COLORS.warn;
+  return CHART_COLORS.bad;
 }
 
 export function Gauge({ value, min = 0, max = 100, label, format, size = "md", color, thresholds, className, markers, ...props }: GaugeProps) {
@@ -75,7 +76,7 @@ export function Gauge({ value, min = 0, max = 100, label, format, size = "md", c
           <path
             d={`M ${centerX - s.radius} ${centerY} A ${s.radius} ${s.radius} 0 0 1 ${centerX + s.radius} ${centerY}`}
             fill="none"
-            stroke="#E5E7EB"
+            stroke={CHART_COLORS.gridStroke}
             strokeWidth={s.stroke}
             strokeLinecap="round"
           />

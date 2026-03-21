@@ -20,6 +20,9 @@
 import domtoimage from 'dom-to-image-more';
 import { saveDataUrl } from './saveFile';
 
+const EXPORT_BG = '#ffffff';
+const EXPORT_BORDER = '#f0f0f0';
+
 interface TablePNGOptions {
   element: HTMLElement;
   filename: string;
@@ -54,11 +57,11 @@ export async function exportTablePNG(options: TablePNGOptions): Promise<void> {
     cells.forEach(cell => {
       originalStyles.push(cell.style.cssText);
       cell.style.border = 'none';
-      cell.style.borderBottom = '1px solid #f0f0f0';
+      cell.style.borderBottom = `1px solid ${EXPORT_BORDER}`;
     });
 
     const dataUrl = await domtoimage.toPng(element, {
-      bgcolor: '#ffffff',
+      bgcolor: EXPORT_BG,
       quality: 1,
       style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
       width: element.scrollWidth * scale,
@@ -97,7 +100,7 @@ export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
 
   try {
     const pngOptions: any = {
-      bgcolor: '#ffffff',
+      bgcolor: EXPORT_BG,
       quality: 1,
       style: {
         transform: `scale(${scale})`,
@@ -130,7 +133,7 @@ export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
 export async function captureChartAsImage(containerRef: HTMLDivElement): Promise<string | null> {
   try {
     const dataUrl = await domtoimage.toPng(containerRef, {
-      bgcolor: '#ffffff',
+      bgcolor: EXPORT_BG,
       quality: 1,
       width: containerRef.offsetWidth * 2,
       height: containerRef.offsetHeight * 2,
@@ -168,7 +171,7 @@ export async function captureChartAsImage(containerRef: HTMLDivElement): Promise
           canvas.height = rect.height * 2;
           const ctx = canvas.getContext('2d');
           if (ctx) {
-            ctx.fillStyle = '#ffffff';
+            ctx.fillStyle = EXPORT_BG;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.scale(2, 2);
             ctx.drawImage(img, 0, 0);

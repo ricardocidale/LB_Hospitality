@@ -4,6 +4,7 @@ import { min, max, range } from "d3-array";
 import { scaleLinear, scaleBand } from "d3-scale";
 import { axisBottom } from "d3-axis";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
+import { CHART_COLORS } from "@/components/graphics/primitives/formatters";
 
 export interface TornadoVariable {
   name: string;
@@ -26,12 +27,12 @@ interface TornadoDiagramProps {
 }
 
 const COLORS = {
-  upside: "#22c55e",
-  downside: "#ef4444",
-  baseline: "#64748b",
+  upside: CHART_COLORS.positive,
+  downside: CHART_COLORS.negative,
+  baseline: CHART_COLORS.neutral,
   tooltip: {
-    bg: "rgba(0,0,0,0.85)",
-    text: "#fff",
+    bg: CHART_COLORS.tooltipBg,
+    text: CHART_COLORS.tooltipText,
   },
 };
 

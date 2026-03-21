@@ -5,6 +5,7 @@ import { scaleLinear, scaleDiverging } from "d3-scale";
 import { hsl } from "d3-color";
 import { interpolateRgbBasis } from "d3-interpolate";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
+import { CHART_COLORS } from "../graphics/primitives/formatters";
 
 export interface HeatMapCell {
   row: number;
@@ -88,8 +89,8 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
           .style("position", "absolute")
           .style("pointer-events", "none")
           .style("opacity", "0")
-          .style("background", "rgba(0,0,0,0.85)")
-          .style("color", "#fff")
+          .style("background", CHART_COLORS.tooltipBg)
+          .style("color", CHART_COLORS.tooltipText)
           .style("border-radius", "8px")
           .style("padding", "8px 12px")
           .style("font-size", "12px")
@@ -108,7 +109,7 @@ const SensitivityHeatMap = forwardRef<SensitivityHeatMapRef, SensitivityHeatMapP
           .attr("fill", (d) => colorScale(d.value))
           .style("cursor", "pointer")
           .on("mouseenter", function (event, d) {
-            select(this).attr("stroke", "#fff").attr("stroke-width", 2);
+            select(this).attr("stroke", CHART_COLORS.tooltipText).attr("stroke-width", 2);
             tooltip
               .style("opacity", "1")
               .html(

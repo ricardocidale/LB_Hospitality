@@ -74,9 +74,9 @@ export function CashFlowRiver({ data, series, title, subtitle, xAxisKey = "year"
                 );
               })}
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis dataKey={xAxisKey} stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: "#E5E7EB" }} />
-            <YAxis stroke="#6B7280" fontSize={12} tickLine={false} axisLine={{ stroke: "#E5E7EB" }} tickFormatter={fmt} />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.gridStroke} vertical={false} />
+            <XAxis dataKey={xAxisKey} stroke={CHART_COLORS.axisStroke} fontSize={12} tickLine={false} axisLine={{ stroke: CHART_COLORS.gridStroke }} />
+            <YAxis stroke={CHART_COLORS.axisStroke} fontSize={12} tickLine={false} axisLine={{ stroke: CHART_COLORS.gridStroke }} tickFormatter={fmt} />
             <Tooltip content={<CustomTooltip formatValue={fmt} />} />
             <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
             {series.map((s, i) => {

@@ -17,6 +17,7 @@ import {
   Legend,
   Tooltip,
 } from "recharts";
+import { CHART_COLORS } from "../graphics/primitives/formatters";
 
 interface RadarChartProps {
   properties: { name: string; metrics: Record<string, number> }[];
@@ -54,7 +55,7 @@ export default function RadarChart({ properties, dimensions, title }: RadarChart
       {title && <h3 className="text-lg font-semibold mb-4">{title}</h3>}
       <ResponsiveContainer width="100%" height={400}>
         <RechartsRadarChart data={data}>
-          <PolarGrid stroke="#e5e7eb" />
+          <PolarGrid stroke={CHART_COLORS.gridStroke} />
           <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12 }} />
           <PolarRadiusAxis tick={false} />
           <Tooltip />

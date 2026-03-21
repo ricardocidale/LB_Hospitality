@@ -81,13 +81,13 @@ export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
 
 // Company cost defaults — re-exported from shared/constants.ts (canonical source)
 // DEFAULT_BUSINESS_INSURANCE kept as alias for backward compat
-import { DEFAULT_BUSINESS_INSURANCE_COMPANY as _BIC } from "@shared/constants";
+import { DEFAULT_BUSINESS_INSURANCE_COMPANY as _BIC, MONTHS_PER_YEAR as _MPY } from "@shared/constants";
 export const DEFAULT_BUSINESS_INSURANCE = _BIC;
 export const DEFAULT_MARKETING_RATE = 0.05;
 export const DEFAULT_MISC_OPS_RATE = 0.03;
 // Projection period
 export const PROJECTION_YEARS = 10;
-export const PROJECTION_MONTHS = PROJECTION_YEARS * 12; // 120
+export const PROJECTION_MONTHS = PROJECTION_YEARS * _MPY; // 120
 
 // Default model start date fallback
 export const DEFAULT_MODEL_START_DATE = '2026-04-01';

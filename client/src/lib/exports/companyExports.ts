@@ -13,6 +13,9 @@ import {
 } from "@/lib/exports/excelExport";
 import { MONTHS_PER_YEAR } from "@/lib/constants";
 
+const EXPORT_BG = '#ffffff';
+const EXPORT_BORDER = '#f0f0f0';
+
 export const exportCompanyPDF = async (
   type: 'income' | 'cashflow' | 'balance',
   data: { years: number[]; rows: any[] },
@@ -410,7 +413,7 @@ export const exportChartPNG = async (
     const height = orientation === 'landscape' ? 600 : 1000;
 
     const dataUrl = await domtoimage.toPng(chartRef.current, {
-      bgcolor: '#ffffff',
+      bgcolor: EXPORT_BG,
       quality: 1,
       width: width,
       height: height,
@@ -446,7 +449,7 @@ export const exportTablePNG = async (
 
     const scale = 2;
     const dataUrl = await domtoimage.toPng(tableRef.current, {
-      bgcolor: '#ffffff',
+      bgcolor: EXPORT_BG,
       quality: 1,
       style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
       width: tableRef.current.scrollWidth * scale,

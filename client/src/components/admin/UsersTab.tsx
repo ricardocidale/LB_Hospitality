@@ -441,7 +441,7 @@ export default function UsersTab() {
                 </div>
               )}
               <div
-                className="rounded-lg border border-border bg-muted/20 shadow-sm p-4 transition-colors hover:bg-muted/35"
+                className="rounded-lg border border-border bg-muted/50 shadow-sm p-4 transition-colors hover:bg-muted/70"
                 data-testid={`row-user-${user.id}`}
               >
                 <div className="flex items-start gap-3">

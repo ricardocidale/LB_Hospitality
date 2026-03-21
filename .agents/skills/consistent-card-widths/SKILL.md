@@ -56,13 +56,40 @@ Minimal form content, centered narrow column.
 
 Admin shell uses `space-y-5` with no max-width. Individual tab components control their own layout.
 
+## Responsive Multi-Column List Grid Pattern
+
+Admin list/card views (e.g. the Users tab) use a **3-column responsive grid** as the standard:
+
+```tsx
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+  {items.map(item => <Card key={item.id} ... />)}
+</div>
+```
+
+When the list has **section header dividers** (e.g. sorted by Company or Group), the divider row must span all active columns:
+
+```tsx
+<div className="col-span-1 md:col-span-2 lg:col-span-3 py-1.5 px-4">
+  {/* section label with decorative rule lines */}
+</div>
+```
+
+| Breakpoint | Columns |
+|------------|---------|
+| `sm` (default) | 1 |
+| `md` | 2 |
+| `lg+` | 3 |
+
+Use this pattern for any admin tab that renders a flat list of entity cards.
+
 ## Key Rules
 
 1. **PageHeader must sit inside the same width-constraining container as the content cards.** Never place PageHeader outside the `max-w-*` wrapper.
 2. **Use `grid gap-6 lg:grid-cols-2` for side-by-side cards.** Standard two-column grid pattern.
-3. **Do not mix width categories on one page.** Pick one category for the entire page wrapper.
-4. **SectionCard and PageHeader carry no built-in width constraints.** Parent wrapper is solely responsible.
-5. **Admin card styling uses constants from `styles.ts`.** Reference `ADMIN_CARD`, `ADMIN_LINK_CARD` from `client/src/components/admin/styles.ts`.
+3. **Use `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3` for admin list/card views.** Standard three-column responsive grid for entity lists.
+4. **Do not mix width categories on one page.** Pick one category for the entire page wrapper.
+5. **SectionCard and PageHeader carry no built-in width constraints.** Parent wrapper is solely responsible.
+6. **Admin card styling uses constants from `styles.ts`.** Reference `ADMIN_CARD`, `ADMIN_LINK_CARD` from `client/src/components/admin/styles.ts`.
 
 ## Key Files
 

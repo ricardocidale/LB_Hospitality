@@ -417,7 +417,7 @@ export default function UsersTab() {
               <IconUserCog className="w-4 h-4" />Group <SortIcon field="group" />
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {sortedUsers.map((user, idx, arr) => {
               const currentCompany = user.companyId ? companyNameMap[user.companyId] || "Unknown Company" : "No Company";
               const prevCompany = idx > 0
@@ -432,7 +432,7 @@ export default function UsersTab() {
               const showHeader = sectionLabel !== null && sectionLabel !== prevLabel;
               return (<React.Fragment key={user.id}>
               {showHeader && (
-                <div key={`section-header-${sectionLabel}-${idx}`} className="col-span-1 md:col-span-2 py-1.5 px-4">
+                <div key={`section-header-${sectionLabel}-${idx}`} className="col-span-1 md:col-span-2 lg:col-span-3 py-1.5 px-4">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-border/60" />
                     <span className="text-[11px] font-medium text-accent uppercase tracking-wider whitespace-nowrap">{sectionLabel}</span>

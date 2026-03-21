@@ -8,7 +8,11 @@
  *   - Plot-area background with alternating band shading
  *   - Legend rendered as a short line segment + marker + label
  *   - Card background with drop-shadow simulation and rounded corners
+ *
+ * All structural colors derive from the active theme via BrandPalette.
  */
+
+import type { BrandPalette } from "./exportStyles";
 
 interface ChartData {
   label: string;
@@ -30,6 +34,7 @@ interface DrawChartOptions {
   title: string;
   series: ChartSeries[];
   formatValue?: (value: number) => string;
+  brand?: BrandPalette;
 }
 
 interface Point {
@@ -37,34 +42,67 @@ interface Point {
   y: number;
 }
 
+type RGB = [number, number, number];
+
+function blendRgb(base: RGB, target: RGB, factor: number): RGB {
+  return [
+    Math.round(base[0] + (target[0] - base[0]) * factor),
+    Math.round(base[1] + (target[1] - base[1]) * factor),
+    Math.round(base[2] + (target[2] - base[2]) * factor),
+  ];
+}
+
+const FALLBACK_BRAND: Pick<BrandPalette,
+  "DARK_TEXT_RGB" | "GRAY_RGB" | "LIGHT_GRAY_RGB" | "WHITE_RGB" |
+  "SECTION_BG_RGB" | "ALT_ROW_RGB"
+> = {
+  DARK_TEXT_RGB: [24, 24, 27],
+  GRAY_RGB: [228, 228, 231],
+  LIGHT_GRAY_RGB: [161, 161, 170],
+  WHITE_RGB: [255, 255, 255],
+  SECTION_BG_RGB: [255, 255, 255],
+  ALT_ROW_RGB: [244, 244, 245],
+};
+
 export function drawLineChart(options: DrawChartOptions): void {
   const {
     doc: docAny,
     x, y, width, height,
     title, series,
     formatValue = (v) => `$${(v / 1_000_000).toFixed(1)}M`,
+    brand: b,
   } = options;
   const doc = docAny as any;
 
-  // ── Card: drop-shadow simulation ──────────────────────────────────────────
-  doc.setFillColor(210, 212, 218);
+  const DARK_TEXT: RGB = b?.DARK_TEXT_RGB ?? FALLBACK_BRAND.DARK_TEXT_RGB;
+  const GRAY: RGB = b?.GRAY_RGB ?? FALLBACK_BRAND.GRAY_RGB;
+  const LIGHT_GRAY: RGB = b?.LIGHT_GRAY_RGB ?? FALLBACK_BRAND.LIGHT_GRAY_RGB;
+  const WHITE: RGB = b?.WHITE_RGB ?? FALLBACK_BRAND.WHITE_RGB;
+  const SECTION_BG: RGB = b?.SECTION_BG_RGB ?? FALLBACK_BRAND.SECTION_BG_RGB;
+  const ALT_ROW: RGB = b?.ALT_ROW_RGB ?? FALLBACK_BRAND.ALT_ROW_RGB;
+
+  const SHADOW: RGB = blendRgb(GRAY, DARK_TEXT, 0.15);
+  const BORDER: RGB = blendRgb(GRAY, DARK_TEXT, 0.05);
+  const PLOT_BG: RGB = blendRgb(SECTION_BG, ALT_ROW, 0.3);
+  const BAND_EVEN: RGB = blendRgb(SECTION_BG, ALT_ROW, 0.6);
+  const BAND_ODD: RGB = blendRgb(SECTION_BG, ALT_ROW, 0.25);
+  const LEGEND_TEXT: RGB = blendRgb(DARK_TEXT, GRAY, 0.15);
+
+  doc.setFillColor(...SHADOW);
   doc.roundedRect(x + 0.6, y + 0.6, width, height, 2, 2, "F");
 
-  // ── Card: white background ────────────────────────────────────────────────
-  doc.setFillColor(255, 255, 255);
+  doc.setFillColor(...WHITE);
   doc.roundedRect(x, y, width, height, 2, 2, "F");
 
-  doc.setDrawColor(218, 220, 228);
+  doc.setDrawColor(...BORDER);
   doc.setLineWidth(0.15);
   doc.roundedRect(x, y, width, height, 2, 2, "S");
 
-  // ── Title ─────────────────────────────────────────────────────────────────
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(24, 24, 27);
+  doc.setTextColor(...DARK_TEXT);
   doc.text(title, x + width / 2, y + 9, { align: "center" });
 
-  // ── Layout constants ──────────────────────────────────────────────────────
   const legendH   = 14;
   const xAxisH    = 11;
   const yAxisW    = 34;
@@ -76,11 +114,9 @@ export function drawLineChart(options: DrawChartOptions): void {
   const cW = width  - yAxisW - rightPad;
   const cH = height - topPad - xAxisH - legendH;
 
-  // ── Plot-area background ──────────────────────────────────────────────────
-  doc.setFillColor(248, 249, 251);
+  doc.setFillColor(...PLOT_BG);
   doc.rect(cX, cY, cW, cH, "F");
 
-  // ── Value range ───────────────────────────────────────────────────────────
   let minVal =  Infinity;
   let maxVal = -Infinity;
   series.forEach(s => s.data.forEach(d => {
@@ -97,19 +133,18 @@ export function drawLineChart(options: DrawChartOptions): void {
   const toX = (i: number, total: number) =>
     cX + (i / Math.max(total - 1, 1)) * cW;
 
-  // ── Grid: alternating bands + lines ──────────────────────────────────────
   const gridCount = 5;
   for (let i = 0; i <= gridCount; i++) {
     const gy   = cY + cH - (i / gridCount) * cH;
     const band = cH / gridCount;
 
     if (i < gridCount) {
-      const shade = i % 2 === 0 ? [246, 247, 250] : [251, 251, 253];
+      const shade = i % 2 === 0 ? BAND_EVEN : BAND_ODD;
       doc.setFillColor(shade[0], shade[1], shade[2]);
       doc.rect(cX, gy - band, cW, band, "F");
     }
 
-    doc.setDrawColor(218, 220, 228);
+    doc.setDrawColor(...BORDER);
     doc.setLineWidth(0.12);
     doc.setLineDashPattern(i === 0 ? [] : [1.5, 1.5], 0);
     doc.line(cX, gy, cX + cW, gy);
@@ -117,23 +152,21 @@ export function drawLineChart(options: DrawChartOptions): void {
     const val = minVal + (i / gridCount) * (maxVal - minVal);
     doc.setFontSize(6.5);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(145, 145, 158);
+    doc.setTextColor(...LIGHT_GRAY);
     doc.text(formatValue(val), cX - 2, gy + 1.5, { align: "right" });
   }
   doc.setLineDashPattern([], 0);
 
-  // ── X-axis labels ─────────────────────────────────────────────────────────
   if (series.length > 0 && series[0].data.length > 0) {
     const n = series[0].data.length;
     doc.setFontSize(6.5);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(145, 145, 158);
+    doc.setTextColor(...LIGHT_GRAY);
     series[0].data.forEach((d, i) => {
       doc.text(String(d.label), toX(i, n), cY + cH + 6, { align: "center" });
     });
   }
 
-  // ── Build bezier path for a series (Catmull-Rom → cubic Bezier) ───────────
   const buildBezierSegments = (pts: Point[]): number[][] => {
     const segs: number[][] = [];
     for (let i = 0; i < pts.length - 1; i++) {
@@ -157,66 +190,56 @@ export function drawLineChart(options: DrawChartOptions): void {
     return segs;
   };
 
-  // ── Area fills (drawn below lines) ───────────────────────────────────────
   series.forEach(s => {
     if (s.data.length < 2) return;
-    const [r, g, b] = hexToRgb(s.color);
+    const [r, g, b2] = hexToRgb(s.color);
 
     const n    = s.data.length;
     const pts  = s.data.map((d, i) => ({ x: toX(i, n), y: toY(d.value) }));
     const baseY = cY + cH;
 
-    // Light tint: blend 88 % toward white
     const lr = Math.round(r + (255 - r) * 0.88);
     const lg = Math.round(g + (255 - g) * 0.88);
-    const lb = Math.round(b + (255 - b) * 0.88);
+    const lb = Math.round(b2 + (255 - b2) * 0.88);
     doc.setFillColor(lr, lg, lb);
     doc.setDrawColor(lr, lg, lb);
 
     const segments: number[][] = [];
-    // Step 1: rise from baseline to first point
     segments.push([0, -(baseY - pts[0].y)]);
-    // Step 2: smooth curve through data points
     segments.push(...buildBezierSegments(pts));
-    // Step 3: drop back to baseline
     segments.push([0, baseY - pts[n - 1].y]);
-    // Step 4: close along the baseline
     segments.push([pts[0].x - pts[n - 1].x, 0]);
 
     doc.lines(segments, pts[0].x, baseY, [1, 1], "F", true);
   });
 
-  // ── Lines (smooth bezier, drawn over fills) ───────────────────────────────
   series.forEach(s => {
     if (s.data.length < 2) return;
-    const [r, g, b] = hexToRgb(s.color);
+    const [r, g, b2] = hexToRgb(s.color);
 
     const n   = s.data.length;
     const pts = s.data.map((d, i) => ({ x: toX(i, n), y: toY(d.value) }));
 
-    doc.setDrawColor(r, g, b);
+    doc.setDrawColor(r, g, b2);
     doc.setLineWidth(1.4);
 
     doc.lines(buildBezierSegments(pts), pts[0].x, pts[0].y, [1, 1], "S", false);
 
-    // ── Data-point markers: white outer ring + filled inner circle ──────────
     pts.forEach(p => {
-      doc.setFillColor(255, 255, 255);
-      doc.setDrawColor(r, g, b);
+      doc.setFillColor(...WHITE);
+      doc.setDrawColor(r, g, b2);
       doc.setLineWidth(0.6);
       doc.circle(p.x, p.y, 2.4, "FD");
 
-      doc.setFillColor(r, g, b);
+      doc.setFillColor(r, g, b2);
       doc.circle(p.x, p.y, 1.3, "F");
     });
   });
 
-  // ── Plot-area border (on top of fills) ───────────────────────────────────
-  doc.setDrawColor(208, 210, 218);
+  doc.setDrawColor(...BORDER);
   doc.setLineWidth(0.15);
   doc.rect(cX, cY, cW, cH, "S");
 
-  // ── Legend: line segment + marker + name ─────────────────────────────────
   const legY = y + height - 5;
 
   doc.setFontSize(7);
@@ -226,34 +249,30 @@ export function drawLineChart(options: DrawChartOptions): void {
     const tw = doc.getTextWidth(s.name) * (7 / doc.getFontSize());
     return tw + 17;
   });
-  const totalLegW = itemWidths.reduce((a, b) => a + b, 0) - 2;
+  const totalLegW = itemWidths.reduce((a, b2) => a + b2, 0) - 2;
   let legX = x + (width - totalLegW) / 2;
 
   series.forEach((s, idx) => {
-    const [r, g, b] = hexToRgb(s.color);
+    const [r, g, b2] = hexToRgb(s.color);
 
-    // Line segment
-    doc.setDrawColor(r, g, b);
+    doc.setDrawColor(r, g, b2);
     doc.setLineWidth(1.4);
     doc.line(legX, legY, legX + 9, legY);
 
-    // Centre marker
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(r, g, b);
+    doc.setFillColor(...WHITE);
+    doc.setDrawColor(r, g, b2);
     doc.setLineWidth(0.6);
     doc.circle(legX + 4.5, legY, 2.0, "FD");
-    doc.setFillColor(r, g, b);
+    doc.setFillColor(r, g, b2);
     doc.circle(legX + 4.5, legY, 1.1, "F");
 
-    // Label
-    doc.setTextColor(55, 55, 65);
+    doc.setTextColor(...LEGEND_TEXT);
     doc.text(s.name, legX + 11, legY + 0.9);
 
     legX += itemWidths[idx];
   });
 }
 
-/** Convert "#RRGGBB" to [R, G, B]. Returns [0, 0, 0] for unrecognised input. */
 function hexToRgb(hex: string): [number, number, number] {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return m

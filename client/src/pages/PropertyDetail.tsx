@@ -46,7 +46,7 @@ import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { drawCoverPage, addFooters, buildFinancialTableConfig, drawTitle, drawSubtitle, drawSubtitleRow } from "@/lib/exports/pdfHelpers";
-import type { ExportRowMeta } from "@/lib/exports/exportStyles";
+import { type ExportRowMeta, buildBrandPalette, type ThemeColor } from "@/lib/exports/exportStyles";
 import { MONTHS_PER_YEAR } from "@/lib/constants";
 import { calculateLoanParams, LoanParams, GlobalLoanParams, DEFAULT_LTV, PROJECTION_YEARS } from "@/lib/financial/loanCalculations";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
@@ -266,6 +266,7 @@ export default function PropertyDetail() {
     const { default: jsPDF } = await import("jspdf");
     const { default: autoTable } = await import("jspdf-autotable");
     const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+    const brand = buildBrandPalette(brandingData?.themeColors as ThemeColor[] | undefined);
     const dims = orientation === "landscape"
       ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
       : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
@@ -350,12 +351,13 @@ export default function PropertyDetail() {
         height: 150,
         title: `${property.name} - Financial Performance (${projectionYears}-Year Projection)`,
         series: [
-          { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#F59E0B' },
-          { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: '#3B82F6' },
-          { name: 'AGOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.AGOP })), color: '#10B981' },
-          { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: '#8B5CF6' },
-          { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: '#F4795B' },
-        ]
+          { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
+          { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+          { name: 'AGOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.AGOP })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+          { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
+          { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[4] || brand.LIGHT_GRAY_HEX}` },
+        ],
+        brand,
       });
     }
 
@@ -369,6 +371,7 @@ export default function PropertyDetail() {
     const { default: autoTable } = await import("jspdf-autotable");
     const cashFlowData = getCashFlowData();
     const { PAGE_DIMS } = await import("@/lib/exports/exportStyles");
+    const brand = buildBrandPalette(brandingData?.themeColors as ThemeColor[] | undefined);
     const dims = orientation === "landscape"
       ? { w: PAGE_DIMS.LANDSCAPE_W, h: PAGE_DIMS.LANDSCAPE_H }
       : { w: PAGE_DIMS.PORTRAIT_W, h: PAGE_DIMS.PORTRAIT_H };
@@ -476,15 +479,15 @@ export default function PropertyDetail() {
       drawSubtitleRow(doc, chartSubtitle, entityTag, 14, 22, pageWidth);
 
       const chartSeries = activeTab === "cashflow" ? [
-        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#F59E0B' },
-        { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: '#3B82F6' },
-        { name: 'Cash Flow', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.CashFlow })), color: '#F4795B' },
+        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
+        { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+        { name: 'Cash Flow', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.CashFlow })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
       ] : [
-        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: '#F59E0B' },
-        { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: '#3B82F6' },
-        { name: 'AGOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.AGOP })), color: '#10B981' },
-        { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: '#8B5CF6' },
-        { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: '#F4795B' },
+        { name: 'Revenue', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.Revenue })), color: `#${brand.LINE_HEX[0]}` },
+        { name: 'GOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.GOP })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
+        { name: 'AGOP', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.AGOP })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
+        { name: 'NOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.NOI })), color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
+        { name: 'ANOI', data: yearlyChartData.map((d: any) => ({ label: d.year, value: d.ANOI })), color: `#${brand.LINE_HEX[4] || brand.LIGHT_GRAY_HEX}` },
       ];
 
       drawLineChart({
@@ -495,6 +498,7 @@ export default function PropertyDetail() {
         height: 150,
         title: `${property.name} - Financial Performance (${projectionYears}-Year Projection)`,
         series: chartSeries,
+        brand,
       });
     }
 

@@ -270,7 +270,7 @@ export function buildFinancialTableConfig(
       cellPadding: 1.5,
       overflow: "linebreak",
       font: "helvetica",
-      lineColor: [200, 205, 210],
+      lineColor: brand.LIGHT_GRAY_RGB,
       lineWidth: 0.25,
     },
     headStyles: {
@@ -303,7 +303,7 @@ export function buildFinancialTableConfig(
         } else if (isSubtotal) {
           data.cell.styles.fontStyle = "bold";
           data.cell.styles.lineWidth = { top: 0.5 };
-          data.cell.styles.lineColor = { top: [180, 185, 190] };
+          data.cell.styles.lineColor = { top: brand.GRAY_RGB };
         } else if (isFormula) {
           data.cell.styles.fontStyle = "italic";
           data.cell.styles.textColor = brand.GRAY_RGB;

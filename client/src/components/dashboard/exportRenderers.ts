@@ -163,6 +163,7 @@ export async function exportPortfolioPDF(
       { name: "Operating Expenses", data: expenseData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
       { name: "ANOI", data: noiData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
     ],
+    brand,
   });
 
   addFooters(doc, companyName, { skipPages: new Set([1]) }, brand);
@@ -393,6 +394,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         { name: "Debt Service", data: debtServiceData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
         { name: "Free Cash Flow to Equity", data: fcfeData, color: `#${brand.LINE_HEX[3] || brand.DARK_GREEN_HEX}` },
       ],
+      brand,
     });
 
     doc.addPage();
@@ -423,6 +425,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         { name: "Operating Expenses", data: expenseData, color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
         { name: "ANOI", data: noiData, color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
       ],
+      brand,
     });
   }
 

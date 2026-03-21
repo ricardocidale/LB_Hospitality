@@ -14,7 +14,6 @@ import {
 import { MONTHS_PER_YEAR } from "@/lib/constants";
 
 const EXPORT_BG = '#ffffff';
-const EXPORT_BORDER = '#f0f0f0';
 
 export const exportCompanyPDF = async (
   type: 'income' | 'cashflow' | 'balance',
@@ -74,6 +73,7 @@ export const exportCompanyPDF = async (
         { name: 'Expenses', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.Expenses })), color: `#${brand.LINE_HEX[1] || brand.SAGE_HEX}` },
         { name: 'Net Income', data: yearlyChartData.map((d: any) => ({ label: String(d.year), value: d.NetIncome })), color: `#${brand.LINE_HEX[2] || brand.NAVY_HEX}` },
       ],
+      brand,
     });
   }
 

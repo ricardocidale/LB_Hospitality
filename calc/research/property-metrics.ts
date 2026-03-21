@@ -134,8 +134,8 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
 
   // ANOI = GOP - Undistributed - Management Fees - Fixed Charges - FF&E
   const monthlyNOI = monthlyGOP - undistributed - baseFee - incentiveFee;
-  const annualNOI = roundCents(monthlyNOI * 12);
-  const annualGOP = roundCents(monthlyGOP * 12);
+  const annualNOI = roundCents(monthlyNOI * MONTHS_PER_YEAR);
+  const annualGOP = roundCents(monthlyGOP * MONTHS_PER_YEAR);
 
   const gopMargin = annualTotal > 0 ? roundCents((annualGOP / annualTotal) * 100) : 0;
   const noiMargin = annualTotal > 0 ? roundCents((annualNOI / annualTotal) * 100) : 0;
@@ -148,9 +148,9 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
     annual_total_revenue: annualTotal,
     revenue_breakdown: {
       rooms: roundCents(annualRoomRevenue),
-      events: roundCents(monthlyEvents * 12),
-      fb: roundCents(monthlyFB * 12),
-      other: roundCents(monthlyOther * 12),
+      events: roundCents(monthlyEvents * MONTHS_PER_YEAR),
+      fb: roundCents(monthlyFB * MONTHS_PER_YEAR),
+      other: roundCents(monthlyOther * MONTHS_PER_YEAR),
     },
     annual_gop: annualGOP,
     gop_margin_pct: gopMargin,

@@ -15,6 +15,7 @@ import { MonthlyFinancials, getFiscalYearForModelYear, formatMoney } from "@/lib
 import { GlobalResponse } from "@/lib/api";
 import {
   PROJECTION_YEARS,
+  MONTHS_PER_YEAR,
 } from "@/lib/constants";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import {
@@ -78,7 +79,7 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
 
   propertiesToShow.forEach(({ prop, idx }) => {
     const proForma = allProFormas[idx]?.data || [];
-    const monthsToInclude = year * 12;
+    const monthsToInclude = year * MONTHS_PER_YEAR;
     const relevantMonths = proForma.slice(0, monthsToInclude);
 
     const acqYear = acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);

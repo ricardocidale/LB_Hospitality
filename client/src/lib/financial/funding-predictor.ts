@@ -24,6 +24,7 @@ import {
   DEFAULT_MAX_SAFE_DISCOUNT_RATE,
   DEFAULT_RISK_FREE_RATE_SENSITIVITY,
   TRAILING_YEAR_MONTHS_OFFSET,
+  MONTHS_PER_YEAR,
 } from '@shared/constants';
 
 interface FundingGlobalInput extends GlobalInput {
@@ -144,8 +145,8 @@ function buildNarrative(
 
   narrative += `${companyName} requires approximately $${(analysis.totalRaiseNeeded / 1000).toFixed(0)}K in total capital to reach profitability`;
   if (analysis.breakevenMonth !== null) {
-    const years = Math.floor(analysis.breakevenMonth / 12);
-    const months = analysis.breakevenMonth % 12;
+    const years = Math.floor(analysis.breakevenMonth / MONTHS_PER_YEAR);
+    const months = analysis.breakevenMonth % MONTHS_PER_YEAR;
     narrative += `, projected to occur in ${years > 0 ? `${years} year${years > 1 ? 's' : ''}` : ''}${years > 0 && months > 0 ? ' and ' : ''}${months > 0 ? `${months} month${months > 1 ? 's' : ''}` : ''} from model start`;
   } else {
     narrative += `. The company does not reach breakeven within the projection period — additional portfolio growth or expense optimization may be needed`;
@@ -340,7 +341,7 @@ function buildTranches(
       date: financials[operationsStartIdx].date,
       valuationCap: computeTrancheValuationCap(1 - DEFAULT_EARLY_STAGE_CAP_DISCOUNT),
       discountRate: computeTrancheDiscount(DEFAULT_EARLY_STAGE_DISCOUNT_PREMIUM),
-      rationale: `Initial ${fundingLabel} to fund the first ${Math.ceil(periodLength * DEFAULT_TRANCHE1_PERIOD_RATIO / 12)} months of operations while the ${propertyLabel.toLowerCase()} portfolio is assembled. This pre-revenue capital covers partner compensation, staffing, and fixed overhead. Investor risk is highest at this stage — the management company has no fee revenue yet${termsNote}.`,
+      rationale: `Initial ${fundingLabel} to fund the first ${Math.ceil(periodLength * DEFAULT_TRANCHE1_PERIOD_RATIO / MONTHS_PER_YEAR)} months of operations while the ${propertyLabel.toLowerCase()} portfolio is assembled. This pre-revenue capital covers partner compensation, staffing, and fixed overhead. Investor risk is highest at this stage — the management company has no fee revenue yet${termsNote}.`,
     },
     {
       index: 2,

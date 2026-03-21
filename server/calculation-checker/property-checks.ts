@@ -43,6 +43,7 @@ import {
   NOL_UTILIZATION_CAP,
   DEFAULT_DAY_COUNT_CONVENTION,
   WORKING_CAPITAL_DAYS_PER_MONTH,
+  MONTHS_PER_YEAR,
 } from "@shared/constants";
 import type { CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, YearMonth } from "./types";
 
@@ -84,12 +85,12 @@ export function parseYearMonth(isoDate: string): YearMonth {
 }
 
 export function addMonthsYM(ym: YearMonth, n: number): YearMonth {
-  const totalMonths = ym.year * 12 + ym.month + n;
-  return { year: Math.floor(totalMonths / 12), month: totalMonths % 12 };
+  const totalMonths = ym.year * MONTHS_PER_YEAR + ym.month + n;
+  return { year: Math.floor(totalMonths / MONTHS_PER_YEAR), month: totalMonths % MONTHS_PER_YEAR };
 }
 
 export function diffMonthsYM(a: YearMonth, b: YearMonth): number {
-  return (a.year * 12 + a.month) - (b.year * 12 + b.month);
+  return (a.year * MONTHS_PER_YEAR + a.month) - (b.year * MONTHS_PER_YEAR + b.month);
 }
 
 export function ymNotBefore(a: YearMonth, b: YearMonth): boolean {
@@ -106,7 +107,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const landValue = property.purchasePrice * landPct;
   const effectiveDepYears = property.depreciationYears ?? global.depreciationYears ?? DEPRECIATION_YEARS;
   const effectiveDaysPerMonth = global.daysPerMonth ?? DAYS_PER_MONTH;
-  const monthlyDepreciation = depreciableBasis / effectiveDepYears / 12;
+  const monthlyDepreciation = depreciableBasis / effectiveDepYears / MONTHS_PER_YEAR;
 
   const costSegEnabled = (property as any).costSegEnabled ?? false;
   let costSeg5yrMonthly = 0, costSeg7yrMonthly = 0, costSeg15yrMonthly = 0, costSegRestMonthly = 0;
@@ -120,10 +121,10 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     costSeg7yrBasis = depreciableBasis * pct7;
     costSeg15yrBasis = depreciableBasis * pctLong;
     costSegRestBasis = depreciableBasis * pctRest;
-    costSeg5yrMonthly = costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / 12;
-    costSeg7yrMonthly = costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / 12;
-    costSeg15yrMonthly = costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / 12;
-    costSegRestMonthly = costSegRestBasis / effectiveDepYears / 12;
+    costSeg5yrMonthly = costSeg5yrBasis / COST_SEG_5YR_LIFE_YEARS / MONTHS_PER_YEAR;
+    costSeg7yrMonthly = costSeg7yrBasis / COST_SEG_7YR_LIFE_YEARS / MONTHS_PER_YEAR;
+    costSeg15yrMonthly = costSeg15yrBasis / COST_SEG_15YR_LIFE_YEARS / MONTHS_PER_YEAR;
+    costSegRestMonthly = costSegRestBasis / effectiveDepYears / MONTHS_PER_YEAR;
   }
 
   const totalPropertyValue = property.purchasePrice + (property.buildingImprovements ?? 0);
@@ -131,8 +132,8 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const originalLoanAmount = property.type === "Financed" ? totalPropertyValue * ltv : 0;
   const loanRate = property.acquisitionInterestRate ?? DEFAULT_INTEREST_RATE;
   const loanTerm = property.acquisitionTermYears ?? DEFAULT_TERM_YEARS;
-  const monthlyRate = loanRate / 12;
-  const totalPayments = loanTerm * 12;
+  const monthlyRate = loanRate / MONTHS_PER_YEAR;
+  const totalPayments = loanTerm * MONTHS_PER_YEAR;
   const monthlyPayment = calculatePMT(originalLoanAmount, monthlyRate, totalPayments);
 
   const arDays = (property as any).arDays ?? DEFAULT_AR_DAYS;
@@ -141,7 +142,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
   const dayCountConvention = ((property as any).dayCountConvention ?? DEFAULT_DAY_COUNT_CONVENTION) as string;
 
   const projectionYears = global.projectionYears ?? PROJECTION_YEARS;
-  const months = projectionYears * 12;
+  const months = projectionYears * MONTHS_PER_YEAR;
   const results: IndependentMonthlyResult[] = [];
   let currentAdr = property.startAdr;
   let cumulativeCash = 0;
@@ -171,7 +172,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       monthsSinceOps = diffMonthsYM(currentYM, opsStartYM);
     }
 
-    const opsYear = Math.floor(monthsSinceOps / 12);
+    const opsYear = Math.floor(monthsSinceOps / MONTHS_PER_YEAR);
     if (isOperational) {
       currentAdr = property.startAdr * Math.pow(1 + property.adrGrowthRate, opsYear);
     }
@@ -179,7 +180,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const fixedEscalationRate = global.fixedCostEscalationRate ?? effectiveInflation;
     let fixedCostFactor: number;
     if (escalationMethod === 'monthly') {
-      const monthlyEscRate = Math.pow(1 + fixedEscalationRate, 1 / 12) - 1;
+      const monthlyEscRate = Math.pow(1 + fixedEscalationRate, 1 / MONTHS_PER_YEAR) - 1;
       fixedCostFactor = Math.pow(1 + monthlyEscRate, monthsSinceOps);
     } else {
       fixedCostFactor = Math.pow(1 + fixedEscalationRate, opsYear);
@@ -242,10 +243,10 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
     const expensePropertyOps = stabilizedMonthlyTotalRev * costRatePropertyOps * fixedCostFactor * fixedGate;
     const expenseIT = stabilizedMonthlyTotalRev * costRateIT * fixedCostFactor * fixedGate;
 
-    const expenseTaxes = (totalPropertyValue / 12) * costRateTaxes * fixedCostFactor * fixedGate;
+    const expenseTaxes = (totalPropertyValue / MONTHS_PER_YEAR) * costRateTaxes * fixedCostFactor * fixedGate;
     const expenseUtilitiesFixed = stabilizedMonthlyTotalRev * (costRateUtilities * (1 - utilitiesVariableSplit)) * fixedCostFactor * fixedGate;
     const expenseOtherCosts = stabilizedMonthlyTotalRev * costRateOther * fixedCostFactor * fixedGate;
-    const expenseInsurance = (totalPropertyValue / 12) * costRateInsurance * fixedCostFactor * fixedGate;
+    const expenseInsurance = (totalPropertyValue / MONTHS_PER_YEAR) * costRateInsurance * fixedCostFactor * fixedGate;
 
     const feeBase = revenueTotal * (property.baseManagementFeeRate ?? DEFAULT_BASE_MANAGEMENT_FEE_RATE);
     const totalOperatingExpenses =
@@ -295,7 +296,7 @@ export function independentPropertyCalc(property: CheckerProperty, global: Check
       const dep5 = monthsSinceAcquisition < COST_SEG_5YR_LIFE_MONTHS ? costSeg5yrMonthly : 0;
       const dep7 = monthsSinceAcquisition < COST_SEG_7YR_LIFE_MONTHS ? costSeg7yrMonthly : 0;
       const dep15 = monthsSinceAcquisition < COST_SEG_15YR_LIFE_MONTHS ? costSeg15yrMonthly : 0;
-      const depRest = monthsSinceAcquisition < effectiveDepYears * 12 ? costSegRestMonthly : 0;
+      const depRest = monthsSinceAcquisition < effectiveDepYears * MONTHS_PER_YEAR ? costSegRestMonthly : 0;
       depreciationExpense = dep5 + dep7 + dep15 + depRest;
       const accDep5 = Math.min(costSeg5yrMonthly * (monthsSinceAcquisition + 1), costSeg5yrBasis);
       const accDep7 = Math.min(costSeg7yrMonthly * (monthsSinceAcquisition + 1), costSeg7yrBasis);

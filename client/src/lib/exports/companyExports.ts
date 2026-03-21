@@ -11,6 +11,7 @@ import {
   exportCompanyCashFlow,
   exportCompanyBalanceSheet
 } from "@/lib/exports/excelExport";
+import { MONTHS_PER_YEAR } from "@/lib/constants";
 
 export const exportCompanyPDF = async (
   type: 'income' | 'cashflow' | 'balance',
@@ -131,7 +132,7 @@ async function exportCompanyFullWorkbook(
 
   const yearlyData: any[] = [];
   for (let y = 0; y < years; y++) {
-    const yearSlice = data.slice(y * 12, (y + 1) * 12);
+    const yearSlice = data.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
     if (yearSlice.length === 0) continue;
     const vendorCostByCategory: Record<string, number> = {};
     yearSlice.forEach((m: any) => {

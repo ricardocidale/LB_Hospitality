@@ -6,6 +6,7 @@ import {
 import { LoanParams } from "@/lib/financial/loanCalculations";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
 import { propertyPPE } from "@/lib/financial/portfolio-helpers";
+import { MONTHS_PER_YEAR } from "@/lib/constants";
 import {
   applyCurrencyFormat,
   applyHeaderStyle,
@@ -51,7 +52,7 @@ export async function exportPropertyBalanceSheet(
     let totalRetainedEarnings = 0;
     let totalRefiProceeds = 0;
 
-    const monthsToInclude = (yearIdx + 1) * 12;
+    const monthsToInclude = (yearIdx + 1) * MONTHS_PER_YEAR;
 
     propertiesToShow.forEach(({ prop, idx }) => {
       const proForma = allProFormas[idx]?.data || [];
@@ -211,7 +212,7 @@ export async function exportCompanyIncomeStatement(
   }[] = [];
 
   for (let y = 0; y < years; y++) {
-    const yearSlice = data.slice(y * 12, (y + 1) * 12);
+    const yearSlice = data.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
     if (yearSlice.length === 0) continue;
     const fyLabel = String(getFiscalYearForModelYear(modelStartDate, fiscalYearStartMonth, y));
     yearLabels.push(fyLabel);
@@ -362,7 +363,7 @@ export async function exportCompanyCashFlow(
   }[] = [];
 
   for (let y = 0; y < years; y++) {
-    const yearSlice = data.slice(y * 12, (y + 1) * 12);
+    const yearSlice = data.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
     if (yearSlice.length === 0) continue;
     const fyLabel = String(getFiscalYearForModelYear(modelStartDate, fiscalYearStartMonth, y));
     yearLabels.push(fyLabel);

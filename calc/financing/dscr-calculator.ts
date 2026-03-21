@@ -143,7 +143,7 @@ export function computeDSCR(input: DSCRInput): DSCROutput {
   }
 
   const monthlyAmort = r(pmt(maxLoanBinding, monthlyRate, input.amortization_months));
-  const annualAmort = r(monthlyAmort * 12);
+  const annualAmort = r(monthlyAmort * MONTHS_PER_YEAR);
   const actualDSCR = annualAmort > 0
     ? roundTo(input.noi_annual / annualAmort, { precision: 4, bankers_rounding: false })
     : 0;
@@ -154,7 +154,7 @@ export function computeDSCR(input: DSCRInput): DSCROutput {
 
   if (ioMonths > 0) {
     monthlyIO = r(maxLoanBinding * monthlyRate);
-    annualIO = r(monthlyIO * 12);
+    annualIO = r(monthlyIO * MONTHS_PER_YEAR);
     ioDSCR = annualIO > 0
       ? roundTo(input.noi_annual / annualIO, { precision: 4, bankers_rounding: false })
       : null;

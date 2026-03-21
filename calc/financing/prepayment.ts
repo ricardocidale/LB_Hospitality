@@ -330,7 +330,7 @@ function computeDefeasance(
   rounding: RoundingPolicy,
 ): { penalty: number; details: DefeasanceDetails } {
   const r = (v: number) => roundTo(v, rounding);
-  const monthlyTreasury = treasuryRate / 12;
+  const monthlyTreasury = treasuryRate / MONTHS_PER_YEAR;
 
   let securitiesCost = 0;
 
@@ -343,7 +343,7 @@ function computeDefeasance(
     }
     securitiesCost = r(Math.max(0, pvAtTreasury - balance));
   } else if (monthlyTreasury > 0 && treasuryRate < loanRate) {
-    const monthlyLoan = loanRate / 12;
+    const monthlyLoan = loanRate / MONTHS_PER_YEAR;
     const monthlyPayment = balance * monthlyLoan;
     let pvAtTreasury = 0;
     for (let m = 1; m <= monthsRemaining; m++) {

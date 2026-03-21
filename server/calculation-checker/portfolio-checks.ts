@@ -4,6 +4,7 @@ import {
   DEFAULT_COMPANY_INFLATION_RATE,
   STAFFING_TIERS,
   DEFAULT_SAFE_TRANCHE,
+  MONTHS_PER_YEAR,
 } from "@shared/constants";
 import type { CheckResult, CheckerProperty, CheckerGlobalAssumptions, IndependentMonthlyResult, ClientPropertyMonthly } from "./types";
 import { check } from "./gaap-checks";
@@ -135,7 +136,7 @@ export function runCompanyChecks(
     let companyExpenses = 0;
     if (hasStartedOps) {
       const monthsSinceOps = diffMonthsYM(currentYM, opsStartYM);
-      const companyOpsYear = Math.floor(monthsSinceOps / 12);
+      const companyOpsYear = Math.floor(monthsSinceOps / MONTHS_PER_YEAR);
       const companyInflation = globalAssumptions.companyInflationRate ?? globalAssumptions.inflationRate ?? DEFAULT_COMPANY_INFLATION_RATE;
       const fixedEscRate = globalAssumptions.fixedCostEscalationRate ?? companyInflation;
       const fixedFactor = Math.pow(1 + fixedEscRate, companyOpsYear);
@@ -152,9 +153,9 @@ export function runCompanyChecks(
         globalAssumptions.partnerCompYear9,
         globalAssumptions.partnerCompYear10,
       ];
-      const modelYear = Math.floor(cm / 12);
+      const modelYear = Math.floor(cm / MONTHS_PER_YEAR);
       const yrIdx = Math.min(modelYear, 9);
-      const partnerComp = ((partnerCompByYear[yrIdx] ?? 0) / 12);
+      const partnerComp = ((partnerCompByYear[yrIdx] ?? 0) / MONTHS_PER_YEAR);
 
       const staffSalary = globalAssumptions.staffSalary ?? 0;
       const tier1Max = globalAssumptions.staffTier1MaxProperties ?? STAFFING_TIERS[0].maxProperties;
@@ -166,11 +167,11 @@ export function runCompanyChecks(
       const staffFTE = activePropertyCount <= tier1Max ? tier1Fte
         : activePropertyCount <= tier2Max ? tier2Fte
         : tier3Fte;
-      const staffComp = (staffFTE * staffSalary * fixedFactor) / 12;
+      const staffComp = (staffFTE * staffSalary * fixedFactor) / MONTHS_PER_YEAR;
 
-      const officeLease = ((globalAssumptions.officeLeaseStart ?? 0) * fixedFactor) / 12;
-      const profServices = ((globalAssumptions.professionalServicesStart ?? 0) * fixedFactor) / 12;
-      const tech = ((globalAssumptions.techInfraStart ?? 0) * fixedFactor) / 12;
+      const officeLease = ((globalAssumptions.officeLeaseStart ?? 0) * fixedFactor) / MONTHS_PER_YEAR;
+      const profServices = ((globalAssumptions.professionalServicesStart ?? 0) * fixedFactor) / MONTHS_PER_YEAR;
+      const tech = ((globalAssumptions.techInfraStart ?? 0) * fixedFactor) / MONTHS_PER_YEAR;
 
       companyExpenses = partnerComp + staffComp + officeLease + profServices + tech;
     }
@@ -206,13 +207,13 @@ export function runConsolidatedChecks(
   if (properties.length <= 1) return consolidatedChecks;
 
   const actualYear1RoomRevenue = allIndependentCalcs.reduce(
-    (s, calc) => s + calc.slice(0, 12).reduce((s2, m) => s2 + m.revenueRooms, 0), 0
+    (s, calc) => s + calc.slice(0, MONTHS_PER_YEAR).reduce((s2, m) => s2 + m.revenueRooms, 0), 0
   );
 
   let directYear1RoomRevenue = 0;
   for (let pi = 0; pi < properties.length; pi++) {
     const calc = allIndependentCalcs[pi];
-    const opMonths = calc.slice(0, 12).filter((m) => m.revenueRooms > 0);
+    const opMonths = calc.slice(0, MONTHS_PER_YEAR).filter((m) => m.revenueRooms > 0);
     directYear1RoomRevenue += opMonths.reduce((s, m) => s + m.revenueRooms, 0);
   }
 

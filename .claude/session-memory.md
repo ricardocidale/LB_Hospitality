@@ -8,6 +8,13 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 20, 2026 — Codebase-Wide Audit (Magic Numbers, Bugs, Export Parity)
+- Fixed DSCR NOI→ANOI bug in YearlyIncomeStatement, hardcoded 0.09/0.10→constants in statementBuilders, Zod acreage mismatch (5→10)
+- Added MONTHS_PER_YEAR (12), DEFAULT_STABILIZATION_MONTHS (36) to shared/constants. Moved 8 company cost constants from client→shared.
+- Replaced `/ 12` with MONTHS_PER_YEAR across 20+ files (financial engines + 9 calc/ tools). Fixed prepayment.ts double-division bug (loanRate/144→loanRate/12).
+- Fixed Excel property BS using NOI instead of ANOI. Memoized CashFlowTab years array + OverviewTab IRR/revenue data. Created screen-export-parity skill.
+- 3,425 tests pass across 150 files. Also found 68 hardcoded colors across 11 files (not yet fixed).
+
 ## Session: March 16, 2026 — Governance Harmonization (Task #153)
 - `.claude/` established as single source of truth. Created 7 new `.claude/skills/` files: business-model, product-vision, integrations, design-export, settings, ui/consistent-card-widths, ui/save-button-placement.
 - All 13 `.agents/skills/` SKILL.md files converted to slim pointers with frontmatter + summary + canonical reference line.

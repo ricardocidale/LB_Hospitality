@@ -14,6 +14,7 @@ import {
   CHECKER_NOI_MARGIN_MAX_PCT,
   CHECKER_BALANCE_SHEET_TOLERANCE,
   CHECKER_MIN_DSCR,
+  MONTHS_PER_YEAR,
 } from "@shared/constants";
 import type {
   VerificationReport,
@@ -56,7 +57,7 @@ export function runIndependentVerification(
   let materialIssues = 0;
 
   const projectionYears = globalAssumptions.projectionYears ?? PROJECTION_YEARS;
-  const projectionMonths = projectionYears * 12;
+  const projectionMonths = projectionYears * MONTHS_PER_YEAR;
 
   const allIndependentCalcs: IndependentMonthlyResult[][] = [];
   for (const property of properties) {
@@ -201,18 +202,18 @@ export function runIndependentVerification(
       "ASC 360 / IRS Pub 946",
       `$${depBasis.toLocaleString()} depreciable basis ÷ ${property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS} years`,
       depBasis / (property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS),
-      (independentCalc.find((m) => m.depreciationExpense > 0)?.depreciationExpense ?? 0) * 12,
+      (independentCalc.find((m) => m.depreciationExpense > 0)?.depreciationExpense ?? 0) * MONTHS_PER_YEAR,
       "critical"
     ));
 
     if (property.type === "Financed" && loanAmount > 0) {
-      const monthlyPayment = calculatePMT(loanAmount, loanRate / 12, loanTerm * 12);
+      const monthlyPayment = calculatePMT(loanAmount, loanRate / MONTHS_PER_YEAR, loanTerm * MONTHS_PER_YEAR);
 
       checks.push(check(
         "Monthly Debt Service",
         "Debt",
         "ASC 470",
-        `PMT($${loanAmount.toLocaleString()}, ${(loanRate * 100).toFixed(1)}%/12, ${loanTerm * 12} months)`,
+        `PMT($${loanAmount.toLocaleString()}, ${(loanRate * 100).toFixed(1)}%/${MONTHS_PER_YEAR}, ${loanTerm * MONTHS_PER_YEAR} months)`,
         monthlyPayment,
         independentCalc.find((m) => m.debtPayment > 0)?.debtPayment || 0,
         "critical"
@@ -231,21 +232,21 @@ export function runIndependentVerification(
     }
 
     const midYear = Math.floor(projectionYears / 2);
-    const serverYear1    = aggregateYearMetrics(independentCalc.slice(0, 12));
-    const serverMidYear  = aggregateYearMetrics(independentCalc.slice(midYear * 12, (midYear + 1) * 12));
-    const serverLastYear = aggregateYearMetrics(independentCalc.slice((projectionYears - 1) * 12, projectionMonths));
+    const serverYear1    = aggregateYearMetrics(independentCalc.slice(0, MONTHS_PER_YEAR));
+    const serverMidYear  = aggregateYearMetrics(independentCalc.slice(midYear * MONTHS_PER_YEAR, (midYear + 1) * MONTHS_PER_YEAR));
+    const serverLastYear = aggregateYearMetrics(independentCalc.slice((projectionYears - 1) * MONTHS_PER_YEAR, projectionMonths));
 
-    if (clientMonthly && clientMonthly.length >= 12) {
-      const clientYear1 = aggregateYearMetrics(clientMonthly.slice(0, 12));
+    if (clientMonthly && clientMonthly.length >= MONTHS_PER_YEAR) {
+      const clientYear1 = aggregateYearMetrics(clientMonthly.slice(0, MONTHS_PER_YEAR));
       addCrossValidationChecks(checks, "Year 1", serverYear1, clientYear1);
 
-      if (clientMonthly.length >= (midYear + 1) * 12 && serverMidYear.revenue > 0) {
-        const clientMidYear = aggregateYearMetrics(clientMonthly.slice(midYear * 12, (midYear + 1) * 12));
+      if (clientMonthly.length >= (midYear + 1) * MONTHS_PER_YEAR && serverMidYear.revenue > 0) {
+        const clientMidYear = aggregateYearMetrics(clientMonthly.slice(midYear * MONTHS_PER_YEAR, (midYear + 1) * MONTHS_PER_YEAR));
         addCrossValidationChecks(checks, `Year ${midYear + 1} (Mid-Projection)`, serverMidYear, clientMidYear);
       }
 
       if (clientMonthly.length >= projectionMonths && serverLastYear.revenue > 0) {
-        const clientLastYear = aggregateYearMetrics(clientMonthly.slice((projectionYears - 1) * 12, projectionMonths));
+        const clientLastYear = aggregateYearMetrics(clientMonthly.slice((projectionYears - 1) * MONTHS_PER_YEAR, projectionMonths));
         addCrossValidationChecks(checks, `Year ${projectionYears}`, serverLastYear, clientLastYear);
       }
     }
@@ -303,7 +304,7 @@ export function runIndependentVerification(
 
       const firstOpIdx = independentCalc.findIndex(m => m.revenueRooms > 0);
       const stabilizedMonthIdx = firstOpIdx >= 0 ? firstOpIdx + rampUpMonthsTotal : -1;
-      const stabilizedYearIdx = stabilizedMonthIdx >= 0 ? Math.floor(stabilizedMonthIdx / 12) : -1;
+      const stabilizedYearIdx = stabilizedMonthIdx >= 0 ? Math.floor(stabilizedMonthIdx / MONTHS_PER_YEAR) : -1;
 
       let dscrYearLabel: string;
       let dscrNoi: number;
@@ -311,8 +312,8 @@ export function runIndependentVerification(
       let isStabilized = false;
 
       if (stabilizedYearIdx >= 0 && stabilizedYearIdx < projectionYears) {
-        const start = stabilizedYearIdx * 12;
-        const end = Math.min(start + 12, independentCalc.length);
+        const start = stabilizedYearIdx * MONTHS_PER_YEAR;
+        const end = Math.min(start + MONTHS_PER_YEAR, independentCalc.length);
         const yrMetrics = aggregateYearMetrics(independentCalc.slice(start, end));
         const yrDebt = independentCalc.slice(start, end).reduce((s, m) => s + m.debtPayment, 0);
         dscrYearLabel = `Year ${stabilizedYearIdx + 1}`;
@@ -320,8 +321,8 @@ export function runIndependentVerification(
         dscrDebtService = yrDebt;
         isStabilized = true;
       } else {
-        const lastStart = (projectionYears - 1) * 12;
-        const lastEnd = Math.min(lastStart + 12, independentCalc.length);
+        const lastStart = (projectionYears - 1) * MONTHS_PER_YEAR;
+        const lastEnd = Math.min(lastStart + MONTHS_PER_YEAR, independentCalc.length);
         const lastMetrics = aggregateYearMetrics(independentCalc.slice(lastStart, lastEnd));
         const lastDebt = independentCalc.slice(lastStart, lastEnd).reduce((s, m) => s + m.debtPayment, 0);
         dscrYearLabel = `Year ${projectionYears}`;
@@ -468,7 +469,7 @@ export function runIndependentVerification(
 
     if ((property as any).costSegEnabled) {
       const costSegDepMonth1 = independentCalc.find(m => m.depreciationExpense > 0);
-      const standardMonthlyDep = depBasis / (property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS) / 12;
+      const standardMonthlyDep = depBasis / (property.depreciationYears ?? globalAssumptions.depreciationYears ?? DEPRECIATION_YEARS) / MONTHS_PER_YEAR;
       if (costSegDepMonth1) {
         checks.push(check(
           "Cost Segregation Depreciation > Standard SL",

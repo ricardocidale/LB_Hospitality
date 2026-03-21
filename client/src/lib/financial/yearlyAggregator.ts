@@ -30,7 +30,7 @@ import {
   calculateLoanParams,
   getAcquisitionYear,
 } from "./loanCalculations";
-import { DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE } from "../constants";
+import { DEFAULT_EXIT_CAP_RATE, DEFAULT_COMMISSION_RATE, MONTHS_PER_YEAR } from "../constants";
 
 /** Superset of all yearly fields needed by IS, CF, BS, and export consumers. */
 export interface YearlyPropertyFinancials {
@@ -122,8 +122,8 @@ export function aggregatePropertyByYear(
   const results: YearlyPropertyFinancials[] = [];
 
   for (let y = 0; y < years; y++) {
-    const yearStart = y * 12;
-    const yearEnd = Math.min((y + 1) * 12, data.length);
+    const yearStart = y * MONTHS_PER_YEAR;
+    const yearEnd = Math.min((y + 1) * MONTHS_PER_YEAR, data.length);
     if (yearStart >= data.length) continue;
 
     let soldRooms = 0, availableRooms = 0;
@@ -274,8 +274,8 @@ export function aggregateUnifiedByYear(
   let cumulative = 0;
 
   for (let y = 0; y < years; y++) {
-    const yearStart = y * 12;
-    const yearEnd = Math.min((y + 1) * 12, data.length);
+    const yearStart = y * MONTHS_PER_YEAR;
+    const yearEnd = Math.min((y + 1) * MONTHS_PER_YEAR, data.length);
     if (yearStart >= data.length) continue;
 
     let soldRooms = 0, availableRooms = 0;
@@ -413,10 +413,10 @@ export function aggregateUnifiedByYear(
     const atcf = btcf - incomeTax;
 
     const isLastYear = y === years - 1;
-    const annualizedNOI = operationalMonthsInYear >= 12
+    const annualizedNOI = operationalMonthsInYear >= MONTHS_PER_YEAR
       ? noi
       : operationalMonthsInYear > 0
-        ? (noi / operationalMonthsInYear) * 12
+        ? (noi / operationalMonthsInYear) * MONTHS_PER_YEAR
         : 0;
     let exitValue = 0;
     if (isLastYear && exitCapRate > 0) {

@@ -9,6 +9,7 @@ import { FinancialChart } from "@/components/ui/financial-chart";
 import { DashboardTabProps } from "./types";
 import { useExpandableRows } from "./useExpandableRows";
 import { propertyEquityInvested, acquisitionYearIndex } from "@/lib/financial/equityCalculations";
+import { MONTHS_PER_YEAR } from "@/lib/constants";
 
 
 function MetricItemRow({ label, values }: { label: string; values: string[] }) {
@@ -73,7 +74,7 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
         const acqYear = acquisitionYearIndex(prop.acquisitionDate, prop.operationsStartDate, global.modelStartDate);
         if (y < acqYear) return;
 
-        const monthsToInclude = (y + 1) * 12;
+        const monthsToInclude = (y + 1) * MONTHS_PER_YEAR;
         const relevantMonths = proForma.slice(0, monthsToInclude);
 
         const propValue = prop.purchasePrice + prop.buildingImprovements;

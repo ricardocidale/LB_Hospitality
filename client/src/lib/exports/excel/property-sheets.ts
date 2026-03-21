@@ -11,6 +11,7 @@ import {
 } from "@/lib/financial/loanCalculations";
 import {
   PROJECTION_YEARS,
+  MONTHS_PER_YEAR,
 } from "@/lib/constants";
 import { aggregateCashFlowByYear } from "@/lib/financial/cashFlowAggregator";
 import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
@@ -312,7 +313,7 @@ export async function exportFullPropertyWorkbook(
   const equityInvestedVal = propertyEquityInvested(property as any);
 
   const bsYearlyData = Array.from({ length: years }, (_, y) => {
-    const monthsToInclude = (y + 1) * 12;
+    const monthsToInclude = (y + 1) * MONTHS_PER_YEAR;
     const relevantMonths = data.slice(0, monthsToInclude);
     const lastMonth = relevantMonths[relevantMonths.length - 1];
     if (!lastMonth) return { accDep: 0, cash: 0, netPropValue: ppe, totalAssets: ppe, debt: 0, retained: 0 };

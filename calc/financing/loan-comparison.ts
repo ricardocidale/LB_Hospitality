@@ -1,5 +1,6 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
+import { MONTHS_PER_YEAR } from "../../shared/constants.js";
 import { computeFinancing } from "./financing-calculator.js";
 import type { FinancingInput, FinancingOutput } from "./types.js";
 
@@ -99,8 +100,8 @@ export function compareLoanScenarios(scenarios: LoanScenario[]): LoanComparisonO
     const monthlyIO = ioMonths > 0 ? ioEntries[0].payment : null;
     const monthlyAmort = amortEntries.length > 0 ? amortEntries[0].payment : (monthlyIO ?? 0);
 
-    const annualIO = monthlyIO !== null ? r(monthlyIO * 12) : null;
-    const annualAmort = r(monthlyAmort * 12);
+    const annualIO = monthlyIO !== null ? r(monthlyIO * MONTHS_PER_YEAR) : null;
+    const annualAmort = r(monthlyAmort * MONTHS_PER_YEAR);
 
     const dscrAmort = scenario.noi_annual && annualAmort > 0
       ? pctRound(scenario.noi_annual / annualAmort)

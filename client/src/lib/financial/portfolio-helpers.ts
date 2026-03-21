@@ -1,4 +1,5 @@
 import type { MonthlyFinancials } from "@/lib/financialEngine";
+import { MONTHS_PER_YEAR } from "@/lib/constants";
 
 type NumericKeys<T> = {
   [K in keyof T]: T[K] extends number ? K : never;
@@ -15,14 +16,14 @@ export function yearEndSlice(
   financials: MonthlyFinancials[],
   yearIdx: number,
 ): MonthlyFinancials[] {
-  return financials.slice(0, (yearIdx + 1) * 12);
+  return financials.slice(0, (yearIdx + 1) * MONTHS_PER_YEAR);
 }
 
 export function lastMonthOfYear(
   financials: MonthlyFinancials[],
   yearIdx: number,
 ): MonthlyFinancials | undefined {
-  const endMonth = (yearIdx + 1) * 12 - 1;
+  const endMonth = (yearIdx + 1) * MONTHS_PER_YEAR - 1;
   return endMonth < financials.length ? financials[endMonth] : undefined;
 }
 

@@ -5,8 +5,9 @@ import {
   generatePropertyProForma, 
   getFiscalYearForModelYear 
 } from "@/lib/financialEngine";
-import { 
-  PROJECTION_YEARS, 
+import {
+  PROJECTION_YEARS,
+  MONTHS_PER_YEAR,
 } from "@/lib/constants";
 import { 
   LoanParams, 
@@ -40,7 +41,7 @@ export function usePortfolioFinancials(
   global: GlobalResponse | undefined
 ): DashboardFinancials | null {
   const projectionYears = global?.projectionYears ?? PROJECTION_YEARS;
-  const projectionMonths = projectionYears * 12;
+  const projectionMonths = projectionYears * MONTHS_PER_YEAR;
 
   const cacheRef = useRef<Map<number, CachedPropertyResult>>(new Map());
   const prevGlobalRef = useRef<GlobalResponse | undefined>(undefined);

@@ -9,7 +9,7 @@
 
 import { startOfMonth } from "date-fns";
 import { parseLocalDate } from "@shared/dates";
-import { DEFAULT_LTV } from "../constants";
+import { DEFAULT_LTV, MONTHS_PER_YEAR } from "../constants";
 
 /** Minimal property shape accepted by equity helpers. */
 export interface EquityPropertyInput {
@@ -59,7 +59,7 @@ export function acqMonthsFromModelStart(
   const modelStart = startOfMonth(parseLocalDate(modelStartDate));
   const acqDate = startOfMonth(parseLocalDate(acquisitionDate || fallbackDate || modelStartDate));
   return Math.max(0,
-    (acqDate.getFullYear() - modelStart.getFullYear()) * 12 +
+    (acqDate.getFullYear() - modelStart.getFullYear()) * MONTHS_PER_YEAR +
     (acqDate.getMonth() - modelStart.getMonth())
   );
 }
@@ -70,5 +70,5 @@ export function acquisitionYearIndex(
   fallbackDate: string | null | undefined,
   modelStartDate: string,
 ): number {
-  return Math.floor(acqMonthsFromModelStart(acquisitionDate, fallbackDate, modelStartDate) / 12);
+  return Math.floor(acqMonthsFromModelStart(acquisitionDate, fallbackDate, modelStartDate) / MONTHS_PER_YEAR);
 }

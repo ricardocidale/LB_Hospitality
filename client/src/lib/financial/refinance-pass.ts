@@ -20,7 +20,7 @@ import {
   DEFAULT_REFI_CLOSING_COST_RATE,
   DEFAULT_EXIT_CAP_RATE,
 } from '../constants';
-import { NOL_UTILIZATION_CAP } from '@shared/constants';
+import { NOL_UTILIZATION_CAP, MONTHS_PER_YEAR } from '@shared/constants';
 import { PropertyInput, GlobalInput, MonthlyFinancials } from './types';
 import { parseLocalDate } from './utils';
 
@@ -43,19 +43,19 @@ export function applyRefinancePostProcessing(
   }
 
   const refiDate = startOfMonth(parseLocalDate(property.refinanceDate));
-  const refiMonthIndex = (refiDate.getFullYear() - ctx.modelStart.getFullYear()) * 12 +
+  const refiMonthIndex = (refiDate.getFullYear() - ctx.modelStart.getFullYear()) * MONTHS_PER_YEAR +
                          (refiDate.getMonth() - ctx.modelStart.getMonth());
 
   if (refiMonthIndex < 0 || refiMonthIndex >= months) {
     return;
   }
 
-  const refiYear = Math.floor(refiMonthIndex / 12);
-  const projectionYears = Math.ceil(months / 12);
+  const refiYear = Math.floor(refiMonthIndex / MONTHS_PER_YEAR);
+  const projectionYears = Math.ceil(months / MONTHS_PER_YEAR);
   const yearlyNOI: number[] = [];
   const yearlyOperationalMonths: number[] = [];
   for (let y = 0; y < projectionYears; y++) {
-    const yearSlice = financials.slice(y * 12, (y + 1) * 12);
+    const yearSlice = financials.slice(y * MONTHS_PER_YEAR, (y + 1) * MONTHS_PER_YEAR);
     yearlyNOI.push(yearSlice.reduce((sum, m) => sum + m.noi, 0));
     yearlyOperationalMonths.push(yearSlice.filter(m => m.revenueTotal > 0 || m.anoi !== 0).length);
   }
@@ -63,11 +63,11 @@ export function applyRefinancePostProcessing(
   const refiLTV = property.refinanceLTV ?? DEFAULT_REFI_LTV;
   const refiExitCap = property.exitCapRate ?? global.exitCapRate ?? DEFAULT_EXIT_CAP_RATE;
   const rawRefiYearNOI = yearlyNOI[refiYear] || 0;
-  const refiYearOpsMonths = yearlyOperationalMonths[refiYear] || 12;
-  const stabilizedNOI = refiYearOpsMonths >= 12
+  const refiYearOpsMonths = yearlyOperationalMonths[refiYear] || MONTHS_PER_YEAR;
+  const stabilizedNOI = refiYearOpsMonths >= MONTHS_PER_YEAR
     ? rawRefiYearNOI
     : refiYearOpsMonths > 0
-      ? (rawRefiYearNOI / refiYearOpsMonths) * 12
+      ? (rawRefiYearNOI / refiYearOpsMonths) * MONTHS_PER_YEAR
       : 0;
   const refiRate = property.refinanceInterestRate ?? DEFAULT_INTEREST_RATE;
   const refiTermYears = property.refinanceTermYears ?? DEFAULT_TERM_YEARS;
@@ -83,8 +83,8 @@ export function applyRefinancePostProcessing(
     prepayment_penalty: { type: "none", value: 0 },
     new_loan_terms: {
       rate_annual: refiRate,
-      term_months: refiTermYears * 12,
-      amortization_months: refiTermYears * 12,
+      term_months: refiTermYears * MONTHS_PER_YEAR,
+      amortization_months: refiTermYears * MONTHS_PER_YEAR,
       io_months: 0,
     },
     accounting_policy_ref: DEFAULT_ACCOUNTING_POLICY,
@@ -98,7 +98,7 @@ export function applyRefinancePostProcessing(
   const refiProceeds = refiOutput.cash_out_to_equity;
   const schedule = refiOutput.new_debt_service_schedule;
 
-  const acqMonthIdx = (ctx.acquisitionDate.getFullYear() - ctx.modelStart.getFullYear()) * 12 +
+  const acqMonthIdx = (ctx.acquisitionDate.getFullYear() - ctx.modelStart.getFullYear()) * MONTHS_PER_YEAR +
                       (ctx.acquisitionDate.getMonth() - ctx.modelStart.getMonth());
   let cumCash = 0;
   let refiNolBalance = refiMonthIndex > 0 ? financials[refiMonthIndex - 1].nolBalance : 0;

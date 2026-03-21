@@ -417,7 +417,7 @@ export async function seedAdminUser() {
     { email: "ricardo.cidale@norfolkgroup.io", envVar: "PASSWORD_ADMIN", role: "admin", firstName: "Ricardo", lastName: "Cidale", company: "The Norfolk AI Group", title: "Partner", userGroupId: 2 },
     { email: "checker@norfolkgroup.io", envVar: "PASSWORD_CHECKER", role: "checker", firstName: "Checker", company: "Norfolk AI", title: "Checker", userGroupId: 2 },
     { email: "reynaldo.fagundes@norfolk.ai", envVar: "PASSWORD_REYNALDO", role: "user", firstName: "Reynaldo", lastName: "Fagundes", company: "Norfolk AI", title: "CTO", userGroupId: 2 },
-    { email: "kit@kitcapital.com", envVar: "PASSWORD_KIT", role: "user", firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal", userGroupId: 1 },
+    { email: "kit@kitcapital.com", envVar: "PASSWORD_KIT", role: "admin", firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal", userGroupId: 1 },
     { email: "rosario@kitcapital.com", envVar: "PASSWORD_ROSARIO", role: "user", firstName: "Rosario", lastName: "David", company: "KIT Capital", title: "COO", userGroupId: 1 },
     { email: "lemazniku@icloud.com", envVar: "PASSWORD_LEA", role: "user", firstName: "Lea", lastName: "Mazniku", company: "KIT Capital", title: "Partner", userGroupId: 1 },
     { email: "leslie@cidale.com", envVar: "PASSWORD_LESLIE", role: "user", firstName: "Leslie", lastName: "Cidale", company: "Numeratti Endeavors", title: "Senior Partner", userGroupId: 3 },

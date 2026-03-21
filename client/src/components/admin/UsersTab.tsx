@@ -441,17 +441,9 @@ export default function UsersTab() {
                 </div>
               )}
               <div
-                className={`rounded-lg border shadow-sm p-4 transition-colors overflow-hidden relative
-                  ${user.role === 'admin'
-                    ? 'border-primary/30 bg-primary/5 hover:bg-primary/10'
-                    : user.role === 'checker'
-                    ? 'border-accent/30 bg-accent/5 hover:bg-accent/10'
-                    : 'border-border bg-muted/15 hover:bg-muted/30'}`}
+                className="rounded-lg border border-border bg-muted/20 shadow-sm p-4 transition-colors hover:bg-muted/35"
                 data-testid={`row-user-${user.id}`}
               >
-                {/* Role accent strip */}
-                <div className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-l-lg
-                  ${user.role === 'admin' ? 'bg-primary' : user.role === 'checker' ? 'bg-accent' : 'bg-border'}`} />
                 <div className="flex items-start gap-3">
                   <img
                     src={

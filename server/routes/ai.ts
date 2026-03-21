@@ -56,7 +56,7 @@ Rewritten description:`;
       const svc = getVendorService(resolved.vendor);
       const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
       const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round((rewritten?.length ?? 0) / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "rewrite-description", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/rewrite-description" }); } catch {}
+      try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "rewrite-description", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/rewrite-description" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
 
       res.json({ rewritten });
     } catch (error: any) {
@@ -120,7 +120,7 @@ ${prompt}`,
       const svc2 = getVendorService(resolved2.vendor);
       const inTok = response.usage?.input_tokens ?? Math.round(prompt.length / 4);
       const outTok = response.usage?.output_tokens ?? Math.round(optimized.length / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: svc2, model: resolved2.model, operation: "optimize-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc2, resolved2.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/optimize-prompt" }); } catch {}
+      try { logApiCost({ timestamp: new Date().toISOString(), service: svc2, model: resolved2.model, operation: "optimize-prompt", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc2, resolved2.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/ai/optimize-prompt" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
 
       res.json({ optimized });
     } catch (error: any) {

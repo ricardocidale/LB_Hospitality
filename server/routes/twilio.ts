@@ -191,7 +191,7 @@ export function register(app: Express) {
 
       const inTok = response.usage?.prompt_tokens ?? Math.round(body.length / 4);
       const outTok = response.usage?.completion_tokens ?? Math.round(reply.length / 4);
-      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: llmModel, operation: "sms-reply", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("openai", llmModel, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/twilio/sms/incoming" }); } catch {}
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "openai", model: llmModel, operation: "sms-reply", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("openai", llmModel, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/twilio/sms/incoming" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
 
       await chatStorage.createMessage(conversation.id, "assistant", reply);
 

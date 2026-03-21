@@ -247,7 +247,7 @@ export function register(app: Express) {
           const svcName = vendorKey === "google" ? "gemini" : vendorKey === "openai" ? "openai" : "anthropic";
           const inTok = Math.round(JSON.stringify(params).length / 4);
           const outTok = Math.round(fullContent.length / 4);
-          try { logApiCost({ timestamp: new Date().toISOString(), service: svcName as any, model, operation: "research", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svcName, model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/research/generate" }); } catch {}
+          try { logApiCost({ timestamp: new Date().toISOString(), service: svcName as any, model, operation: "research", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svcName, model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/research/generate" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
 
           processNotificationEvent(createEvent("RESEARCH_COMPLETE", {
             propertyId,

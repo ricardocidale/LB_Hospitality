@@ -112,7 +112,7 @@ export class DocumentAIService extends BaseIntegrationService {
         const data = await response.json();
         const result = this.parseDocumentAIResponse(data);
         const pageCount = result.pages?.length ?? 1;
-        try { logApiCost({ timestamp: new Date().toISOString(), service: "document-ai", operation: "document-parse", estimatedCostUsd: 0.01 * pageCount, durationMs: Date.now() - startTime, route: "document-ai-integration" }); } catch {}
+        try { logApiCost({ timestamp: new Date().toISOString(), service: "document-ai", operation: "document-parse", estimatedCostUsd: 0.01 * pageCount, durationMs: Date.now() - startTime, route: "document-ai-integration" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
         return result;
       });
     } catch (error) {

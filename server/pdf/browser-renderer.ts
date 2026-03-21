@@ -35,7 +35,7 @@ function findSystemChromium(): string | null {
     try {
       const p = execSync(`which ${cmd} 2>/dev/null`, { encoding: "utf8" }).trim();
       if (p) return p;
-    } catch {}
+    } catch { /* best-effort cleanup */ }
   }
   return null;
 }
@@ -74,7 +74,7 @@ async function launchBrowser(): Promise<any> {
       logger.info("[pdf-renderer] Using Playwright Chromium", "pdf");
       return pw.chromium.launch({ args: LAUNCH_ARGS });
     }
-  } catch {}
+  } catch { /* best-effort cleanup */ }
 
   throw new Error(
     "No PDF-capable browser engine available. " +
@@ -168,8 +168,8 @@ export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<B
     // connections for 500 ms which can flakily time out even on static content.
     await page.setContent(html, { waitUntil: "load", timeout: 45_000 });
     // Let inline styles/fonts settle before capturing
-    try { await page.evaluateHandle("document.fonts.ready"); } catch {}
-    try { await page.evaluate(() => new Promise<void>(r => setTimeout(r, 300))); } catch {}
+    try { await page.evaluateHandle("document.fonts.ready"); } catch { /* best-effort cleanup */ }
+    try { await page.evaluate(() => new Promise<void>(r => setTimeout(r, 300))); } catch { /* best-effort cleanup */ }
     const pdfBuffer = await page.pdf({
       width: opts.width,
       height: opts.height,
@@ -187,8 +187,8 @@ export async function renderPng(html: string, opts: { width: number; height: num
   return withPage("renderPng", async (page) => {
     await page.setViewport({ width: opts.width, height: opts.height, deviceScaleFactor: opts.scale ?? 2 });
     await page.setContent(html, { waitUntil: "load", timeout: 45_000 });
-    try { await page.evaluateHandle("document.fonts.ready"); } catch {}
-    try { await page.evaluate(() => new Promise<void>(r => setTimeout(r, 200))); } catch {}
+    try { await page.evaluateHandle("document.fonts.ready"); } catch { /* best-effort cleanup */ }
+    try { await page.evaluate(() => new Promise<void>(r => setTimeout(r, 200))); } catch { /* best-effort cleanup */ }
     const pngBuffer = await page.screenshot({ type: "png", fullPage: false });
     return Buffer.from(pngBuffer);
   });
@@ -196,7 +196,7 @@ export async function renderPng(html: string, opts: { width: number; height: num
 
 export async function closeBrowserRenderer() {
   if (browserInstance) {
-    try { await browserInstance.close(); } catch {}
+    try { await browserInstance.close(); } catch { /* best-effort cleanup */ }
     browserInstance = null;
   }
 }

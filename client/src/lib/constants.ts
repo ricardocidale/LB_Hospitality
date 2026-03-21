@@ -49,7 +49,6 @@ export {
   DEFAULT_PROJECTION_YEARS,
   DEFAULT_PROPERTY_INFLATION_RATE,
   DEFAULT_COMPANY_INFLATION_RATE,
-  DEFAULT_INFLATION_RATE,
   DEFAULT_LTV,
   DEFAULT_INTEREST_RATE,
   DEFAULT_TERM_YEARS,
@@ -68,23 +67,26 @@ export {
   DEFAULT_TRAVEL_PER_CLIENT,
   DEFAULT_IT_LICENSE_PER_CLIENT,
   DEFAULT_PARTNER_COMP,
+  DEFAULT_REFI_LTV,
+  DEFAULT_REFI_CLOSING_COST_RATE,
+  DEFAULT_ACQ_CLOSING_COST_RATE,
+  DEFAULT_REFI_PERIOD_YEARS,
+  DEFAULT_MARKETING_RATE,
+  DEFAULT_MISC_OPS_RATE,
+  OPERATING_RESERVE_BUFFER,
+  COMPANY_FUNDING_BUFFER,
+  RESERVE_ROUNDING_INCREMENT,
+  DEFAULT_OCCUPANCY_GROWTH_STEP,
+  DEFAULT_PARTNER_COUNT,
 } from "@shared/constants";
-
-// Re-export loan defaults from shared (no longer duplicated here)
-export const DEFAULT_REFI_LTV = 0.65;
-export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
-export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
 
 // Property defaults — re-exported from shared/constants.ts (canonical source)
 export { DEFAULT_ADR_GROWTH_RATE, DEFAULT_START_OCCUPANCY } from "@shared/constants";
-export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
 
 // Company cost defaults — re-exported from shared/constants.ts (canonical source)
 // DEFAULT_BUSINESS_INSURANCE kept as alias for backward compat
 import { DEFAULT_BUSINESS_INSURANCE_COMPANY as _BIC, MONTHS_PER_YEAR as _MPY } from "@shared/constants";
 export const DEFAULT_BUSINESS_INSURANCE = _BIC;
-export const DEFAULT_MARKETING_RATE = 0.05;
-export const DEFAULT_MISC_OPS_RATE = 0.03;
 // Projection period
 export const PROJECTION_YEARS = 10;
 export const PROJECTION_MONTHS = PROJECTION_YEARS * _MPY; // 120
@@ -92,16 +94,8 @@ export const PROJECTION_MONTHS = PROJECTION_YEARS * _MPY; // 120
 // Default model start date fallback
 export const DEFAULT_MODEL_START_DATE = '2026-04-01';
 
-// Operating reserve / funding buffer — minimum cash cushions to avoid going negative
-export const OPERATING_RESERVE_BUFFER = 50000;
-export const COMPANY_FUNDING_BUFFER = 100000;
-export const RESERVE_ROUNDING_INCREMENT = 10000;
-
-// Partner defaults
-export const DEFAULT_PARTNER_COUNT = 3;
-
-// Refinance default period (years after operations start)
-export const DEFAULT_REFI_PERIOD_YEARS = 3;
+// All operating reserve, funding buffer, partner count, and refinance defaults
+// are now in shared/constants.ts and re-exported above.
 
 // Presentation thresholds — highlight IRRs above this as strong performers
 export const IRR_HIGHLIGHT_THRESHOLD = 0.15;

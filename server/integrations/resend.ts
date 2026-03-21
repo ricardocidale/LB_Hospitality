@@ -83,7 +83,7 @@ class ResendIntegration extends BaseIntegrationService {
       if (error) {
         throw new Error(`Resend API error: ${error.message}`);
       }
-      try { logApiCost({ timestamp: new Date().toISOString(), service: "resend", operation: "email", estimatedCostUsd: 0.001, durationMs: Date.now() - startTime, route: "resend-integration" }); } catch {}
+      try { logApiCost({ timestamp: new Date().toISOString(), service: "resend", operation: "email", estimatedCostUsd: 0.001, durationMs: Date.now() - startTime, route: "resend-integration" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
     });
   }
 

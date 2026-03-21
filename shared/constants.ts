@@ -473,6 +473,25 @@ export const CAPEX_INDUSTRY_BENCHMARK_PER_KEY = 5_000;
 export const DEFAULT_LTV = 0.75;
 export const DEFAULT_INTEREST_RATE = 0.09;
 export const DEFAULT_TERM_YEARS = 25;
+export const DEFAULT_REFI_LTV = 0.65;
+export const DEFAULT_REFI_CLOSING_COST_RATE = 0.03;
+export const DEFAULT_ACQ_CLOSING_COST_RATE = 0.02;
+export const DEFAULT_REFI_PERIOD_YEARS = 3;
+
+// ── Management Company Cost Rates ────────────────────────────────────────
+// Percentage of total fee revenue allocated to marketing and miscellaneous ops
+export const DEFAULT_MARKETING_RATE = 0.05;
+export const DEFAULT_MISC_OPS_RATE = 0.03;
+
+// ── Operating Reserve / Funding Buffers ──────────────────────────────────
+// Minimum cash cushions to prevent negative balances
+export const OPERATING_RESERVE_BUFFER = 50_000;
+export const COMPANY_FUNDING_BUFFER = 100_000;
+export const RESERVE_ROUNDING_INCREMENT = 10_000;
+
+// ── Property Defaults ────────────────────────────────────────────────────
+export const DEFAULT_OCCUPANCY_GROWTH_STEP = 0.05;
+export const DEFAULT_PARTNER_COUNT = 3;
 
 // WACC: default cost of equity for private hospitality (no CAPM; user-provided)
 export const DEFAULT_COST_OF_EQUITY = 0.18;

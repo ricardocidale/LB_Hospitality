@@ -160,14 +160,14 @@ function extractJsonFromText(text: string): string {
 function aggressiveParse(raw: string): any {
   const jsonStr = extractJsonFromText(raw);
 
-  try { return JSON.parse(jsonStr); } catch {}
+  try { return JSON.parse(jsonStr); } catch { /* parse strategy failed, try next */ }
 
-  try { return JSON.parse(repairTruncatedJson(jsonStr)); } catch {}
+  try { return JSON.parse(repairTruncatedJson(jsonStr)); } catch { /* parse strategy failed, try next */ }
 
   const lines = jsonStr.split("\n");
   for (let drop = 1; drop <= Math.min(20, lines.length - 1); drop++) {
     const trimmed = lines.slice(0, lines.length - drop).join("\n");
-    try { return JSON.parse(repairTruncatedJson(trimmed)); } catch {}
+    try { return JSON.parse(repairTruncatedJson(trimmed)); } catch { /* parse strategy failed, try next */ }
   }
 
   throw new Error("Could not parse AI response as JSON after all repair strategies");
@@ -193,7 +193,7 @@ async function callGemini(
   const finishReason = response.candidates?.[0]?.finishReason;
   const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
   const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
-  try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: modelId, operation: `premium-export-${format}`, inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", modelId, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/exports/premium" }); } catch {}
+  try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: modelId, operation: `premium-export-${format}`, inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", modelId, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/exports/premium" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
   return { text, finishReason };
 }
 

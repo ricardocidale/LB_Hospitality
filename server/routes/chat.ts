@@ -139,7 +139,7 @@ export function register(app: Express) {
 
         const inTok = completion.usage?.prompt_tokens ?? Math.round(message.length / 4);
         const outTok = completion.usage?.completion_tokens ?? Math.round(text.length / 4);
-        try { logApiCost({ timestamp: new Date().toISOString(), service: "perplexity", model: "sonar", operation: "chat", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("perplexity", "sonar", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/chat" }); } catch {}
+        try { logApiCost({ timestamp: new Date().toISOString(), service: "perplexity", model: "sonar", operation: "chat", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("perplexity", "sonar", inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/chat" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
 
         res.json({ response: text });
       } else {
@@ -173,7 +173,7 @@ export function register(app: Express) {
         const svc = getVendorService(resolved.vendor);
         const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(message.length / 4);
         const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
-        try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "chat", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/chat" }); } catch {}
+        try { logApiCost({ timestamp: new Date().toISOString(), service: svc, model: resolved.model, operation: "chat", inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost(svc, resolved.model, inTok, outTok), durationMs: Date.now() - startTime, userId: req.user?.id, route: "/api/chat" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
 
         res.json({ response: text });
       }

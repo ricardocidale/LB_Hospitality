@@ -180,7 +180,7 @@ function addMetricsSlide(
 
   slide.addText(title, {
     x: 0.5, y: 0.2, w: 8, h: 0.4,
-    fontSize: 20, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+    fontSize: 20, fontFace: "Arial", color: B.NAVY_HEX, bold: true,
   });
 
   slide.addText(subtitle, {
@@ -190,7 +190,7 @@ function addMetricsSlide(
 
   slide.addText(sourceTag, {
     x: SLIDE_W - 5.5, y: 0.6, w: 5, h: 0.25,
-    fontSize: 9, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+    fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX, bold: true,
     align: "right",
   });
 
@@ -243,7 +243,7 @@ function addFinancialTableSlide(
 
   slide.addText(title, {
     x: MARGIN_X, y: 0.1, w: 8, h: 0.3,
-    fontSize: 14, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+    fontSize: 14, fontFace: "Arial", color: B.NAVY_HEX, bold: true,
   });
 
   slide.addText(sourceTag, {
@@ -400,7 +400,7 @@ function addOverviewSlides(ctx: SlideContext, overview: OverviewExportData, proj
   const propIRRSlide = ctx.pres.addSlide();
   propIRRSlide.addText("Property IRR Comparison", {
     x: MARGIN_X, y: 0.15, w: 9, h: 0.35,
-    fontSize: 16, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+    fontSize: 16, fontFace: "Arial", color: B.NAVY_HEX, bold: true,
   });
   propIRRSlide.addText(`Per-property internal rate of return over ${projectionYears}-year projection`, {
     x: MARGIN_X, y: 0.5, w: 8, h: 0.25,
@@ -408,7 +408,7 @@ function addOverviewSlides(ctx: SlideContext, overview: OverviewExportData, proj
   });
   propIRRSlide.addText(entityTag, {
     x: SLIDE_W - 5.5, y: 0.5, w: 5, h: 0.25,
-    fontSize: 9, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true, align: "right",
+    fontSize: 9, fontFace: "Arial", color: B.GRAY_HEX, bold: true, align: "right",
   });
   propIRRSlide.addShape("rect", { x: MARGIN_X, y: 0.78, w: SLIDE_W - 2 * MARGIN_X, h: 0.02, fill: { color: B.SAGE_HEX } });
 
@@ -447,7 +447,7 @@ function addOverviewSlides(ctx: SlideContext, overview: OverviewExportData, proj
   const revSlide = ctx.pres.addSlide();
   revSlide.addText("Revenue & ANOI Projection", {
     x: MARGIN_X, y: 0.15, w: 9, h: 0.35,
-    fontSize: 16, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+    fontSize: 16, fontFace: "Arial", color: B.NAVY_HEX, bold: true,
   });
   revSlide.addText(`${projectionYears}-Year consolidated projection — Revenue, NOI, ANOI, and Cash Flow`, {
     x: MARGIN_X, y: 0.5, w: 10, h: 0.25,
@@ -482,7 +482,7 @@ function addOverviewSlides(ctx: SlideContext, overview: OverviewExportData, proj
   const compSlide = ctx.pres.addSlide();
   compSlide.addText("Portfolio Composition", {
     x: MARGIN_X, y: 0.15, w: 9, h: 0.35,
-    fontSize: 16, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+    fontSize: 16, fontFace: "Arial", color: B.NAVY_HEX, bold: true,
   });
   compSlide.addText("Geographic and operational distribution of properties", {
     x: MARGIN_X, y: 0.5, w: 8, h: 0.25,
@@ -539,7 +539,7 @@ function addOverviewSlides(ctx: SlideContext, overview: OverviewExportData, proj
   const wfSlide = ctx.pres.addSlide();
   wfSlide.addText("USALI Profit Waterfall", {
     x: MARGIN_X, y: 0.15, w: 9, h: 0.35,
-    fontSize: 16, fontFace: "Arial", color: B.DARK_GREEN_HEX, bold: true,
+    fontSize: 16, fontFace: "Arial", color: B.NAVY_HEX, bold: true,
   });
   wfSlide.addText(`${projectionYears}-Year Consolidated Revenue-to-ANOI Bridge`, {
     x: MARGIN_X, y: 0.5, w: 10, h: 0.25,

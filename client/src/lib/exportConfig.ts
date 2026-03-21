@@ -37,9 +37,12 @@ export interface ExportConfig {
     allowExtended: boolean;
     allowPremium: boolean;
     densePagination: boolean;
-    investmentAnalysis: boolean;
     kpiSummaryCards: boolean;
-    debtSchedule: boolean;
+    returnChart: boolean;
+    freeCashFlowTable: boolean;
+    propertyIrrTable: boolean;
+    dcfAnalysis: boolean;
+    performanceTrend: boolean;
   };
 }
 
@@ -76,9 +79,12 @@ export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
 
   analysis: {
     ...FORMAT_DEFAULTS,
-    investmentAnalysis: true,
     kpiSummaryCards: true,
-    debtSchedule: true,
+    returnChart: true,
+    freeCashFlowTable: true,
+    propertyIrrTable: true,
+    dcfAnalysis: true,
+    performanceTrend: true,
   },
 };
 

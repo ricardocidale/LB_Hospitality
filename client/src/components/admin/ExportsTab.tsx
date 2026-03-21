@@ -319,19 +319,32 @@ export default function ExportsTab() {
 
           <ContentCard>
             <div className="py-1 pr-4">
-              <GroupHeader title="Summary Metrics" />
+              <GroupHeader title="Portfolio KPIs" />
               <SectionToggle id="an-kpi-summary-cards" label="KPI summary cards"
-                description="Highlighted metric cards at the top of a report page — Year 1 Revenue, Operating Income, Net Income with margin."
+                description="Total Equity, Exit Value, Equity Multiple, Avg Cash-on-Cash, and Portfolio IRR — displayed as highlighted metric cards at the top of the report."
                 checked={config.analysis.kpiSummaryCards} onChange={(v) => updateNested("analysis", "kpiSummaryCards", v)} />
+              <GroupHeader title="Investment Returns Chart" />
+              <SectionToggle id="an-return-chart" label="Investment Returns line chart"
+                description="Multi-series chart across the hold period — Net Operating Income (NOI), Adjusted NOI (ANOI), Debt Service, and Free Cash Flow to Equity."
+                checked={config.analysis.returnChart} onChange={(v) => updateNested("analysis", "returnChart", v)} />
+              <GroupHeader title="Cash Flow Analysis" />
+              <SectionToggle id="an-free-cash-flow-table" label="Free Cash Flow Analysis table"
+                description="Investor cash flow waterfall by year — Equity Investment, FCFE, Refinancing Proceeds, Exit Proceeds, Net Cash Flow to Investors, and Cumulative Cash Flow."
+                checked={config.analysis.freeCashFlowTable} onChange={(v) => updateNested("analysis", "freeCashFlowTable", v)} />
             </div>
             <div className="py-1 sm:pl-4">
-              <GroupHeader title="Investment Analysis" />
-              <SectionToggle id="an-investment-analysis" label="Investment Analysis table"
-                description="Equity invested, total property cost, loan amount, annual revenue and NOI, debt service, and closing cash balance — by year."
-                checked={config.analysis.investmentAnalysis} onChange={(v) => updateNested("analysis", "investmentAnalysis", v)} />
-              <SectionToggle id="an-debt-schedule" label="Debt service schedule"
-                description="Year-by-year breakdown of interest expense, principal payments, outstanding loan balance, and DSCR."
-                checked={config.analysis.debtSchedule} onChange={(v) => updateNested("analysis", "debtSchedule", v)} />
+              <GroupHeader title="Property-Level Returns" />
+              <SectionToggle id="an-property-irr-table" label="Property-Level IRR Analysis"
+                description="Per-property table: Equity Investment, Income Tax rate, Exit Cap Rate, Exit Value, Total Distributions, Equity Multiple, and IRR — with Portfolio Total row."
+                checked={config.analysis.propertyIrrTable} onChange={(v) => updateNested("analysis", "propertyIrrTable", v)} />
+              <GroupHeader title="DCF Analysis" />
+              <SectionToggle id="an-dcf-analysis" label="Discounted Cash Flow (DCF) Analysis"
+                description="Portfolio WACC, DCF Value, NPV, and Value Creation summary cards — plus per-property DCF table with Country, CRP, Re, E/V, WACC, Equity, DCF Value, NPV, and Value Δ."
+                checked={config.analysis.dcfAnalysis} onChange={(v) => updateNested("analysis", "dcfAnalysis", v)} />
+              <GroupHeader title="Performance Trend Chart" />
+              <SectionToggle id="an-performance-trend" label="Performance Trend line chart"
+                description="Portfolio-wide Revenue, Operating Expenses, and Adjusted NOI (ANOI) plotted across the full hold period — shows margin trend over time."
+                checked={config.analysis.performanceTrend} onChange={(v) => updateNested("analysis", "performanceTrend", v)} />
             </div>
           </ContentCard>
 

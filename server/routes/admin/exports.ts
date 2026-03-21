@@ -36,9 +36,12 @@ const exportConfigSchema = z.object({
   }).partial().optional(),
   analysis: z.object({
     ...categoryFormatSchema,
-    investmentAnalysis: z.boolean(),
     kpiSummaryCards: z.boolean(),
-    debtSchedule: z.boolean(),
+    returnChart: z.boolean(),
+    freeCashFlowTable: z.boolean(),
+    propertyIrrTable: z.boolean(),
+    dcfAnalysis: z.boolean(),
+    performanceTrend: z.boolean(),
   }).partial().optional(),
 });
 
@@ -73,9 +76,12 @@ const DEFAULT_EXPORT_CONFIG = {
   },
   analysis: {
     ...FORMAT_DEFAULTS,
-    investmentAnalysis: true,
     kpiSummaryCards: true,
-    debtSchedule: true,
+    returnChart: true,
+    freeCashFlowTable: true,
+    propertyIrrTable: true,
+    dcfAnalysis: true,
+    performanceTrend: true,
   },
 };
 

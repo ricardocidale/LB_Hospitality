@@ -265,6 +265,123 @@ RULES:
 - RESPOND WITH ONLY VALID JSON`;
 }
 
+export type AnalysisSectionFlags = {
+  kpiSummaryCards?: boolean;
+  returnChart?: boolean;
+  freeCashFlowTable?: boolean;
+  propertyIrrTable?: boolean;
+  dcfAnalysis?: boolean;
+  performanceTrend?: boolean;
+};
+
+const ANALYSIS_SECTION_PROMPTS: Record<keyof AnalysisSectionFlags, string> = {
+  kpiSummaryCards: `
+SECTION: Portfolio KPI Summary Cards
+LAYOUT: Five metric cards in a single full-width row at the top of the Investment Analysis page.
+METRICS TO INCLUDE (exact values from data, in this order):
+  1. Total Equity — sum of equity invested across all properties (purchase price + improvements + pre-opening + reserves − financing). Label: "Total Equity". Color: neutral.
+  2. Exit Value — sum of projected sale values at final hold year (per-property NOI ÷ exit cap rate − outstanding debt). Label: "Exit Value (Year N)". Color: accent/green.
+  3. Equity Multiple — total cash returned ÷ total equity invested. Format: "2.34x". Label: "Equity Multiple". Color: blue.
+  4. Avg Cash-on-Cash — average annual After-Tax Cash Flow (ATCF) ÷ total equity × 100. Format: "8.2%". Label: "Avg Cash-on-Cash". Color: amber.
+  5. Portfolio IRR — Newton-Raphson IRR on the consolidated investor cash flow series (initial outflow + annual ATCF + exit proceeds). Format: "14.7%". Label: "Portfolio IRR". Color: secondary/teal.
+PAGINATION: Place at the very top of the Investment Analysis page, before any table.`,
+
+  returnChart: `
+SECTION: Investment Returns Line Chart
+LAYOUT: Full-width landscape line chart spanning the complete hold period.
+SERIES (four lines, in this order):
+  1. Net Operating Income (NOI) — revenue minus operating expenses before debt and taxes
+  2. Adjusted NOI (ANOI) — NOI adjusted for FF&E reserves and management fee
+  3. Debt Service — total annual principal + interest payments (shown as a negative drain or separate downward line)
+  4. Free Cash Flow to Equity (FCFE) — After-Tax Cash Flow available to investors after all obligations
+X-AXIS: Fiscal years of the hold period (e.g. FY2025–FY2034).
+Y-AXIS: Dollar amounts; use M/K suffix abbreviations for readability.
+ANNOTATION: Highlight the first year where FCFE turns positive (break-even crossing point).
+DESIGN: Area fills with light transparency; legend placed below the chart axes.
+PAGINATION: Standalone page; chart fills ≥ 55% of page height with adequate margin below for legend.`,
+
+  freeCashFlowTable: `
+SECTION: Free Cash Flow Analysis Table (N-Year)
+SUBTITLE: Investor cash flows including distributions, refinancing proceeds, and exit values.
+LAYOUT: Horizontal table — categories as rows, fiscal years as columns (Year 0 … Year N).
+ROWS (in this exact order):
+  1. Equity Investment — negative outflow at each property's acquisition year; format in red/parentheses. Expandable to show per-property rows.
+  2. Free Cash Flow to Equity (FCFE) — equals After-Tax Cash Flow (ATCF) each year. Expandable sub-rows: ANOI → Less Debt Service → BTCF → Less Interest → Less Depreciation → Taxable Income → Tax Liability → ATCF.
+  3. Refinancing Proceeds — positive cash event in the refi year for properties that refinance; dash if none.
+  4. Exit Proceeds — gross sale price of all properties at final hold year only; dashes in all other years.
+  5. Net Cash Flow to Investors — algebraic sum of rows 1–4 for each year. Bold row, highlighted background.
+  6. Cumulative Cash Flow — running total of Net Cash Flow from Year 0 onward. Negative values in red; show the payback year where cumulative turns positive.
+FORMATTING: Negative values in parentheses, red; totals and subtotals in bold; cumulative payback year cell highlighted.
+PAGINATION: If hold period > 10 years allow the table to span two pages with column headers repeated.`,
+
+  propertyIrrTable: `
+SECTION: Property-Level IRR Analysis Table
+SUBTITLE: Individual property returns based on equity investment, cash flows, and exit value.
+LAYOUT: One row per property, plus a bold "Portfolio Total" summary row at the bottom.
+COLUMNS (in this exact order):
+  Property | Equity Investment | Income Tax (%) | Exit Cap Rate (%) | Exit Value (Year N) | Total Distributions | Equity Multiple | IRR (%)
+FORMULAS:
+  - Equity Investment: purchase price + improvements + pre-opening + reserves − loan proceeds
+  - Exit Value: per-property NOI ÷ exit cap rate − outstanding mortgage at sale
+  - Total Distributions: sum of all annual ATCF + exit proceeds for that property
+  - Equity Multiple: Total Distributions ÷ Equity Investment
+  - IRR: Newton-Raphson solver on [−Equity, yr1 ATCF, …, yrN ATCF + Exit Proceeds]
+COLOR CODING: IRR above portfolio threshold → green/accent; IRR > 0 → primary; IRR ≤ 0 → red/destructive.
+PORTFOLIO TOTAL ROW: Bold; sum equity, sum exit value, sum distributions; capital-weighted equity multiple; blended portfolio IRR.
+PAGINATION: All properties typically fit one page; allow continuation if > 12 properties.`,
+
+  dcfAnalysis: `
+SECTION: Discounted Cash Flow (DCF) Analysis — Per Property
+SUBTITLE: Individual property valuations with country-adjusted discount rates (Damodaran Jan 2026).
+LAYOUT:
+  PART A — Four KPI summary cards:
+    1. Portfolio WACC — capital-weighted average WACC across all properties. Format: "11.3%".
+    2. DCF Portfolio Value — sum of individual property DCF present values. Format: "$X.XM".
+    3. Net Present Value (NPV) — DCF Value minus Equity Invested. Positive = green; Negative = red.
+    4. Value Creation — Portfolio NPV ÷ Total Equity × 100. Format: "+18.4%" or "−3.2%".
+  PART B — Per-property table with columns:
+    Property | Country | CRP (%) | Re (%) | E/V (%) | WACC (%) | Equity | DCF Value | NPV | Value Δ (%)
+FORMULAS:
+  - CRP: Country Risk Premium from Damodaran tables (extra equity return for country-specific risk)
+  - Re: Base Cost of Equity + CRP
+  - E/V: Equity ÷ (Equity + Debt) as percentage
+  - WACC: (E/V × Re) + (D/V × Rd × (1 − Tax Rate))
+  - DCF Value: Σ(ATCF_t ÷ (1 + WACC)^t) + ExitValue ÷ (1 + WACC)^N
+  - NPV: DCF Value − Equity Invested
+  - Value Δ: NPV ÷ Equity × 100
+COLOR CODING: Positive NPV / Value Δ → green/accent; Negative → red/destructive.
+PORTFOLIO TOTAL ROW: Weighted-average WACC, summed equity, summed DCF Value, portfolio NPV, portfolio Value Δ.
+PAGINATION: One page per table; if > 8 properties allow table to continue with repeated column headers.`,
+
+  performanceTrend: `
+SECTION: Portfolio Performance Trend Chart
+SUBTITLE: N-Year Revenue, Operating Expenses, and Adjusted NOI across the full hold period.
+LAYOUT: Full-width landscape line chart spanning the complete hold period.
+SERIES (three lines, in this order):
+  1. Total Revenue — top-line consolidated revenue across all properties each year
+  2. Operating Expenses — total operating costs (excluding debt service and taxes)
+  3. Adjusted NOI (ANOI) — revenue minus all operating expenses and management adjustments; the primary profit metric
+X-AXIS: Fiscal years of the hold period (e.g. FY2025–FY2034).
+Y-AXIS: Dollar amounts; use M/K suffix abbreviations.
+ANNOTATION: Show the ANOI margin (ANOI ÷ Revenue × 100) as a callout or secondary axis for each year.
+DESIGN: Area fills with light transparency; Revenue above Expenses with ANOI as the delta line; legend placed below axes.
+PAGINATION: Standalone page; chart fills ≥ 55% of page height.`,
+};
+
+export function buildAnalysisExportSectionContext(flags: AnalysisSectionFlags): string {
+  const activeSections = (Object.keys(ANALYSIS_SECTION_PROMPTS) as Array<keyof AnalysisSectionFlags>)
+    .filter((key) => flags[key] !== false);
+
+  if (activeSections.length === 0) {
+    return "No Investment Analysis sections are enabled. Do not include any Investment Analysis content.";
+  }
+
+  return [
+    `INVESTMENT ANALYSIS SECTIONS TO INCLUDE (${activeSections.length} of 6 enabled):`,
+    ...activeSections.map((key, i) => `\n--- Section ${i + 1} ---${ANALYSIS_SECTION_PROMPTS[key]}`),
+  ].join("\n");
+}
+
 export function getDocxPrompt(data: ExportDataShape, themeColors?: Array<{name: string; hexCode: string}>): string {
   const versionHint = data.version === "extended"
     ? "Include comprehensive detail with full line-item breakdowns in appendix tables."

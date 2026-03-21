@@ -1029,9 +1029,10 @@ export default function PropertyDetail() {
           const yrLabels = yearlyChartData.map((d) => d.year);
           const summaryOnly = version === "short";
           const cashFlowData = getCashFlowData();
-          const pdfLoan = calculateLoanParams(property as LoanParams, global as GlobalLoanParams);
+          const pdfLoanProps = property as LoanParams;
+          const pdfLoan = calculateLoanParams(pdfLoanProps, global as GlobalLoanParams);
           const pdfAcqYear = Math.floor(pdfLoan.acqMonthsFromModelStart / MONTHS_PER_YEAR);
-          const pdfTotalPropertyCost = (property as any).purchasePrice + ((property as any).buildingImprovements ?? 0) + ((property as any).preOpeningCosts ?? 0);
+          const pdfTotalPropertyCost = pdfLoanProps.purchasePrice + (pdfLoanProps.buildingImprovements ?? 0) + (pdfLoanProps.preOpeningCosts ?? 0);
 
           // --- Income Statement ---
           const incomeRows: Array<{ category: string; values: number[]; indent?: number; isBold?: boolean; isHeader?: boolean }> = [];

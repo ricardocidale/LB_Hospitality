@@ -143,7 +143,8 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
       }
       const monthsSinceOps = (currentDate.getFullYear() - opsStart.getFullYear()) * 12 + currentDate.getMonth() - opsStart.getMonth();
       const opsYear = Math.floor(monthsSinceOps / 12);
-      factors.push(Math.pow(1 + fixedEscRate, opsYear));
+      const safeFactor = Number.isFinite(fixedEscRate) ? Math.pow(1 + fixedEscRate, opsYear) : 1;
+      factors.push(safeFactor);
     }
     return factors;
   };

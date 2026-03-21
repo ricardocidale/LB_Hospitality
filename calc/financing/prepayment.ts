@@ -38,6 +38,7 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import type { ScheduleEntry } from "../shared/types.js";
+import { MONTHS_PER_YEAR } from "../../shared/constants.js";
 
 export type PrepaymentType = "yield_maintenance" | "step_down" | "defeasance";
 
@@ -242,8 +243,8 @@ function computeYieldMaintenance(
 ): { penalty: number; details: YieldMaintenanceDetails } {
   const r = (v: number) => roundTo(v, rounding);
   const rateDiff = Math.max(0, loanRate - treasuryRate);
-  const monthlyTreasury = treasuryRate / 12;
-  const monthlyLoan = loanRate / 12;
+  const monthlyTreasury = treasuryRate / MONTHS_PER_YEAR;
+  const monthlyLoan = loanRate / MONTHS_PER_YEAR;
 
   let pvDiff = 0;
 
@@ -267,7 +268,7 @@ function computeYieldMaintenance(
         ? Math.pow(1 + monthlyTreasury, -m)
         : 1;
       pvDiff += Math.max(0, differential) * discountFactor;
-      runningBalance *= (1 - monthlyLoan / 12);
+      runningBalance *= (1 - monthlyLoan);
     }
   }
 
@@ -291,7 +292,7 @@ function computeStepDown(
   rounding: RoundingPolicy,
 ): { penalty: number; details: StepDownDetails } {
   const r = (v: number) => roundTo(v, rounding);
-  const loanYear = Math.floor(prepaymentMonth / 12) + 1;
+  const loanYear = Math.floor(prepaymentMonth / MONTHS_PER_YEAR) + 1;
 
   const yearIndex = Math.min(loanYear - 1, stepDownSchedule.length - 1);
   const penaltyPct = yearIndex >= 0 && stepDownSchedule.length > 0

@@ -4,7 +4,7 @@
  * Projects ADR forward over N years with annual growth rate and optional
  * inflation overlay. Returns yearly ADR, RevPAR, and room revenue.
  */
-import { DAYS_PER_MONTH } from "../../shared/constants.js";
+import { DAYS_PER_MONTH, MONTHS_PER_YEAR } from "../../shared/constants.js";
 import { roundCents } from "../shared/utils.js";
 
 interface ADRProjectionInput {
@@ -61,7 +61,7 @@ export function computeADRProjection(input: ADRProjectionInput): ADRProjectionOu
       proj.revpar = roundCents(adr * occupancy);
     }
     if (occupancy !== undefined && room_count !== undefined) {
-      proj.annual_room_revenue = roundCents(room_count * adr * occupancy * days * 12);
+      proj.annual_room_revenue = roundCents(room_count * adr * occupancy * days * MONTHS_PER_YEAR);
     }
 
     projections.push(proj);

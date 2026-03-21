@@ -16,6 +16,7 @@ import {
   DEFAULT_COST_RATE_FFE,
   DEFAULT_COST_RATE_OTHER,
   DEFAULT_EVENT_EXPENSE_RATE,
+  MONTHS_PER_YEAR,
 } from "../../shared/constants.js";
 
 // Research-specific defaults that intentionally differ from shared constants.
@@ -100,14 +101,14 @@ export function computePropertyMetrics(input: PropertyMetricsInput): PropertyMet
 
   // Monthly room revenue
   const monthlyRoomRevenue = roundCents(room_count * adr * occupancy * days);
-  const annualRoomRevenue = roundCents(monthlyRoomRevenue * 12);
+  const annualRoomRevenue = roundCents(monthlyRoomRevenue * MONTHS_PER_YEAR);
 
   // Revenue streams (all based on room revenue)
   const monthlyEvents = roundCents(monthlyRoomRevenue * rev_share_events);
   const monthlyFB = roundCents(monthlyRoomRevenue * rev_share_fb * (1 + catering_boost_pct));
   const monthlyOther = roundCents(monthlyRoomRevenue * rev_share_other);
   const monthlyTotal = roundCents(monthlyRoomRevenue + monthlyEvents + monthlyFB + monthlyOther);
-  const annualTotal = roundCents(monthlyTotal * 12);
+  const annualTotal = roundCents(monthlyTotal * MONTHS_PER_YEAR);
 
   // Department expenses
   const roomCosts = roundCents(monthlyRoomRevenue * cost_rate_rooms);

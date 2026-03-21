@@ -6,6 +6,7 @@
  */
 import { roundCents } from "../shared/utils.js";
 import { pmt } from "../shared/pmt.js";
+import { MONTHS_PER_YEAR } from "../../shared/constants.js";
 
 interface DebtCapacityInput {
   annual_noi: number;
@@ -38,11 +39,11 @@ export function computeDebtCapacity(input: DebtCapacityInput): DebtCapacityOutpu
   } = input;
 
   const maxAnnualDS = roundCents(annual_noi / dscr_target);
-  const maxMonthlyPayment = roundCents(maxAnnualDS / 12);
+  const maxMonthlyPayment = roundCents(maxAnnualDS / MONTHS_PER_YEAR);
 
   // Reverse-solve PMT to find max principal
-  const monthlyRate = interest_rate / 12;
-  const totalPayments = term_years * 12;
+  const monthlyRate = interest_rate / MONTHS_PER_YEAR;
+  const totalPayments = term_years * MONTHS_PER_YEAR;
 
   let maxLoan = 0;
   if (monthlyRate === 0) {
@@ -68,7 +69,7 @@ export function computeDebtCapacity(input: DebtCapacityInput): DebtCapacityOutpu
     dscr_target,
     interest_rate_pct: roundCents(interest_rate * 100),
     term_years,
-    monthly_rate: interest_rate / 12,
+    monthly_rate: interest_rate / MONTHS_PER_YEAR,
     total_payments: totalPayments,
   };
 }

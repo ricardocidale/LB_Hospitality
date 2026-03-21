@@ -32,6 +32,7 @@ import { pmt, ioPayment } from "./pmt.js";
 import type { NewLoanTerms, ScheduleEntry } from "./types.js";
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
+import { MONTHS_PER_YEAR } from "../../shared/constants.js";
 
 /**
  * Build a monthly debt service schedule with IO-to-amortization transition.
@@ -50,7 +51,7 @@ export function buildSchedule(
   rounding: RoundingPolicy,
 ): ScheduleEntry[] {
   const schedule: ScheduleEntry[] = [];
-  const monthlyRate = terms.rate_annual / 12;
+  const monthlyRate = terms.rate_annual / MONTHS_PER_YEAR;
   let balance = loanAmount;
 
   // Amortizing payment based on full loan amount over amortization_months

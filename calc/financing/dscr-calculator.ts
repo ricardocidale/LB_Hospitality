@@ -37,6 +37,7 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { pmt } from "../shared/pmt.js";
+import { MONTHS_PER_YEAR } from "../../shared/constants.js";
 
 export interface DSCRInput {
   /** Annual Net Operating Income */
@@ -102,12 +103,12 @@ export interface DSCROutput {
  */
 export function computeDSCR(input: DSCRInput): DSCROutput {
   const r = (v: number) => roundTo(v, input.rounding_policy);
-  const monthlyRate = input.interest_rate_annual / 12;
+  const monthlyRate = input.interest_rate_annual / MONTHS_PER_YEAR;
   const ioMonths = input.io_months ?? 0;
   const isFullIO = ioMonths >= input.term_months;
 
   const maxAnnualDS = r(input.noi_annual / input.min_dscr);
-  const maxMonthlyDS = r(maxAnnualDS / 12);
+  const maxMonthlyDS = r(maxAnnualDS / MONTHS_PER_YEAR);
 
   let maxLoanDSCR: number;
 

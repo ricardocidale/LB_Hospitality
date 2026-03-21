@@ -242,7 +242,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
     return name.length > limit ? name.substring(0, limit - 2) + '\u2026' : name;
   };
 
-  const propertyIRRData = properties.map((prop, idx) => {
+  const propertyIRRData = useMemo(() => properties.map((prop, idx) => {
     const cashFlows = getPropertyCashFlows(idx);
     const irr = calculateIRR(cashFlows);
     return {
@@ -250,18 +250,18 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
       fullName: prop.name,
       irr: parseFloat((irr * 100).toFixed(1)),
     };
-  });
+  }), [properties, allPropertyYearlyCF, projectionYears]);
 
-  const propertyInvestmentData = properties.map((prop) => {
+  const propertyInvestmentData = useMemo(() => properties.map((prop) => {
     const investment = getPropertyInvestment(prop);
     return {
       name: truncName(prop.name),
       fullName: prop.name,
       investment: Math.round(investment),
     };
-  });
+  }), [properties]);
 
-  const revenueNOIData = Array.from({ length: projectionYears }, (_, y) => {
+  const revenueNOIData = useMemo(() => Array.from({ length: projectionYears }, (_, y) => {
     const rev = yearlyConsolidatedCache[y]?.revenueTotal ?? 0;
     const noi = yearlyConsolidatedCache[y]?.noi ?? 0;
     const anoi = yearlyConsolidatedCache[y]?.anoi ?? 0;
@@ -273,7 +273,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
       anoi: Math.round(anoi),
       cashFlow: Math.round(cf),
     };
-  });
+  }), [projectionYears, yearlyConsolidatedCache, allPropertyYearlyCF, getFiscalYear]);
 
   const exitGainPercent = totalInitialEquity > 0 ? ((totalExitValue / totalInitialEquity - 1) * 100).toFixed(0) : "0";
 

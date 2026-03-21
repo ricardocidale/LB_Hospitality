@@ -43,7 +43,7 @@ export function CashFlowTab({ financials, properties, projectionYears, getFiscal
   const CF_ROW_KEYS = useMemo(() => ["cfo", "cfi", "cff", "fcf", "metrics"], []);
   const { expandedRows, expandedFormulas, toggleRow, toggleFormula, toggleAll, allRowsExpanded } = useExpandableRows(CF_ROW_KEYS);
 
-  const years = Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i));
+  const years = useMemo(() => Array.from({ length: projectionYears }, (_, i) => getFiscalYear(i)), [projectionYears, getFiscalYear]);
 
   const consolidatedRevenue = useMemo(() =>
     years.map((_, y) => yearlyConsolidatedCache[y]?.revenueTotal ?? 0),

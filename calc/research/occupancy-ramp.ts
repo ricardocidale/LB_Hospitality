@@ -4,7 +4,7 @@
  * Computes the month-by-month and yearly occupancy schedule from start
  * to stabilization, plus the RevPAR impact at each stage.
  */
-import { DAYS_PER_MONTH } from "../../shared/constants.js";
+import { DAYS_PER_MONTH, MONTHS_PER_YEAR } from "../../shared/constants.js";
 import { roundCents } from "../shared/utils.js";
 
 interface OccupancyRampInput {
@@ -84,7 +84,7 @@ export function computeOccupancyRamp(input: OccupancyRampInput): OccupancyRampOu
   // Yearly averages
   const yearlyMap = new Map<number, number[]>();
   for (const s of stages) {
-    const year = Math.ceil(s.month / 12);
+    const year = Math.ceil(s.month / MONTHS_PER_YEAR);
     if (!yearlyMap.has(year)) yearlyMap.set(year, []);
     const yearArr = yearlyMap.get(year);
     if (yearArr) yearArr.push(s.occupancy);

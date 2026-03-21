@@ -36,6 +36,7 @@
 import type { RoundingPolicy } from "../../domain/types/rounding.js";
 import { roundTo } from "../../domain/types/rounding.js";
 import { pmt, ioPayment } from "../shared/pmt.js";
+import { MONTHS_PER_YEAR, STRESS_TEST_MIN_DSCR } from "../../shared/constants.js";
 
 export interface SensitivityInput {
   /** Base annual Net Operating Income */
@@ -119,7 +120,7 @@ export function computeSensitivity(input: SensitivityInput): SensitivityOutput {
   const dscr_round = (v: number) => roundTo(v, { precision: 4, bankers_rounding: false });
   const ioMonths = input.io_months ?? 0;
   const isFullIO = ioMonths >= input.term_months;
-  const minDSCR = input.min_dscr ?? 1.25;
+  const minDSCR = input.min_dscr ?? STRESS_TEST_MIN_DSCR;
 
   const baseAmortDS = computeAmortizingAnnualDS(
     input.loan_amount,
@@ -203,9 +204,9 @@ function computeAmortizingAnnualDS(
   amortMonths: number,
   rounding: RoundingPolicy,
 ): number {
-  const monthlyRate = annualRate / 12;
+  const monthlyRate = annualRate / MONTHS_PER_YEAR;
   const monthly = pmt(loanAmount, monthlyRate, amortMonths);
-  return roundTo(monthly * 12, rounding);
+  return roundTo(monthly * MONTHS_PER_YEAR, rounding);
 }
 
 function computeIOAnnualDS(
@@ -213,6 +214,6 @@ function computeIOAnnualDS(
   annualRate: number,
   rounding: RoundingPolicy,
 ): number {
-  const monthlyRate = annualRate / 12;
-  return roundTo(ioPayment(loanAmount, monthlyRate) * 12, rounding);
+  const monthlyRate = annualRate / MONTHS_PER_YEAR;
+  return roundTo(ioPayment(loanAmount, monthlyRate) * MONTHS_PER_YEAR, rounding);
 }

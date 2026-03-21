@@ -205,7 +205,8 @@ export async function exportPortfolioPDF(
   const tableConfig = buildFinancialTableConfig(years, rows, orientation, 32, brand);
   autoTable(doc, tableConfig);
 
-  doc.addPage();
+  const portfolioFinalY = (doc as any).lastAutoTable?.finalY ?? 100;
+  if (portfolioFinalY > 40) doc.addPage();
   drawTitle(doc, `${companyName} \u2014 ${title} Performance Trend`, 14, 15, { fontSize: 16 }, brand);
   drawSubtitleRow(doc,
     `${projectionYears}-Year Revenue, Operating Expenses, and Adjusted NOI Trend`,
@@ -239,7 +240,7 @@ export async function exportPortfolioPDF(
     brand,
   });
 
-  addFooters(doc, companyName, { skipPages: new Set([1]) }, brand);
+  addFooters(doc, companyName, {}, brand);
   const { saveFile } = await import("./../../lib/exports/saveFile");
   await saveFile(doc.output("blob"), customFilename || `portfolio-${title.toLowerCase().replace(/\s+/g, "-")}.pdf`);
 }
@@ -280,6 +281,11 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const entityTag = `${companyName} \u2014 Consolidated Portfolio`;
   const dateStr = format(new Date(), "MMMM d, yyyy");
   const projRange = `${years[0]} \u2013 ${years[years.length - 1]}`;
+
+  const smartNextPage = () => {
+    const finalY = (doc as any).lastAutoTable?.finalY ?? 100;
+    if (finalY > 40) doc.addPage();
+  };
 
   const NAVY: [number, number, number] = brand.PRIMARY_RGB;
   const ACCENT: [number, number, number] = brand.SECONDARY_RGB;
@@ -390,7 +396,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
       });
 
-      doc.addPage();
+      smartNextPage();
       startY = drawSectionTitle("Portfolio & Capital Structure", "Portfolio Composition and Capital Summary");
       const cs = overviewData.capitalStructure;
       const compositionRows = [
@@ -428,7 +434,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         alternateRowStyles: { fillColor: [248, 250, 252] },
       });
 
-      doc.addPage();
+      smartNextPage();
       startY = drawSectionTitle("Portfolio Composition", "Geographic and Status Distribution");
       const mktRows = Object.entries(overviewData.marketCounts).map(([market, count]) => [
         market, String(count), fmtPct((count / overviewData.capitalStructure.totalProperties) * 100),
@@ -457,7 +463,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         alternateRowStyles: { fillColor: [248, 250, 252] },
       });
 
-      doc.addPage();
+      smartNextPage();
       startY = drawSectionTitle("USALI Profit Waterfall", `${projectionYears}-Year Consolidated USALI Income Bridge`);
       const wfHead = ["", ...overviewData.yearLabels.map(String)];
       const wfBody = overviewData.waterfallRows.map((row) => [
@@ -489,7 +495,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
       });
 
-      doc.addPage();
+      smartNextPage();
       startY = drawSectionTitle("Portfolio Insights", `${projectionYears}-Year Properties & Key Metrics`);
       const insightRows = overviewData.propertyItems.map((p, i) => [
         String(i + 1), p.name, p.market, String(p.rooms), p.status,
@@ -547,7 +553,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     const incomeConfig = buildFinancialTableConfig(years, incomeRows, "landscape", startY!, brand);
     autoTable(doc, withChrome(incomeConfig));
 
-    doc.addPage();
+    smartNextPage();
     const cashFlowData = generatePortfolioCashFlowData(
       financials.allPropertyYearlyCF, projectionYears, getFiscalYear,
       new Set(["cfo", "cfi", "cff"]), false,
@@ -558,7 +564,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     const cfConfig = buildFinancialTableConfig(cashFlowData.years, cashFlowData.rows, "landscape", startY, brand);
     autoTable(doc, withChrome(cfConfig));
 
-    doc.addPage();
+    smartNextPage();
     const balanceSheetData = generatePortfolioBalanceSheetData(
       financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate,
     );
@@ -673,7 +679,6 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
   const totalPages = (doc.internal as any).getNumberOfPages();
   for (let pg = 1; pg <= totalPages; pg++) {
     doc.setPage(pg);
-    if (pg === 1) continue;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
     doc.setTextColor(...brand.MUTED_RGB);

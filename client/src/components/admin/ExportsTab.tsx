@@ -76,14 +76,6 @@ function GroupHeader({ title }: { title: string }) {
   );
 }
 
-function SubHeader({ title }: { title: string }) {
-  return (
-    <div className="pb-0.5 pt-4 first:pt-0">
-      <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/60">{title}</span>
-    </div>
-  );
-}
-
 function ContentCard({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
@@ -103,7 +95,7 @@ function SettingsCard({ title, children }: { title: string; children: React.Reac
       <div className="bg-muted/40 border-b border-border px-4 py-2.5">
         <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{title}</span>
       </div>
-      <div className="px-4 divide-y divide-border/60">
+      <div className="px-4 py-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6">
         {children}
       </div>
     </div>
@@ -226,14 +218,12 @@ export default function ExportsTab() {
           </ContentCard>
 
           <SettingsCard title="Format">
-            <SubHeader title="Orientation" />
             <SettingSwitch id="ov-landscape" label="Allow landscape orientation"
               description="Users can choose landscape when exporting — wider pages fit more columns."
               checked={config.overview.allowLandscape} onChange={(v) => updateNested("overview", "allowLandscape", v)} />
             <SettingSwitch id="ov-portrait" label="Allow portrait orientation"
               description="Users can choose portrait when exporting — taller layout, closer to standard paper."
               checked={config.overview.allowPortrait} onChange={(v) => updateNested("overview", "allowPortrait", v)} />
-            <SubHeader title="Quality & Layout" />
             <SettingSwitch id="ov-premium" label="Allow premium exports"
               description="Enables the AI-enhanced export mode — richer formatting, data insights, and design-quality output."
               checked={config.overview.allowPremium} onChange={(v) => updateNested("overview", "allowPremium", v)} />
@@ -294,14 +284,12 @@ export default function ExportsTab() {
           </ContentCard>
 
           <SettingsCard title="Format">
-            <SubHeader title="Orientation" />
             <SettingSwitch id="st-landscape" label="Allow landscape orientation"
               description="Users can choose landscape when exporting — wider pages fit more columns."
               checked={config.statements.allowLandscape} onChange={(v) => updateNested("statements", "allowLandscape", v)} />
             <SettingSwitch id="st-portrait" label="Allow portrait orientation"
               description="Users can choose portrait when exporting — taller layout, closer to standard paper."
               checked={config.statements.allowPortrait} onChange={(v) => updateNested("statements", "allowPortrait", v)} />
-            <SubHeader title="Quality & Layout" />
             <SettingSwitch id="st-premium" label="Allow premium exports"
               description="Enables the AI-enhanced export mode — richer formatting, data insights, and design-quality output."
               checked={config.statements.allowPremium} onChange={(v) => updateNested("statements", "allowPremium", v)} />
@@ -358,14 +346,12 @@ export default function ExportsTab() {
           </ContentCard>
 
           <SettingsCard title="Format">
-            <SubHeader title="Orientation" />
             <SettingSwitch id="an-landscape" label="Allow landscape orientation"
               description="Users can choose landscape when exporting — wider pages fit more columns."
               checked={config.analysis.allowLandscape} onChange={(v) => updateNested("analysis", "allowLandscape", v)} />
             <SettingSwitch id="an-portrait" label="Allow portrait orientation"
               description="Users can choose portrait when exporting — taller layout, closer to standard paper."
               checked={config.analysis.allowPortrait} onChange={(v) => updateNested("analysis", "allowPortrait", v)} />
-            <SubHeader title="Quality & Layout" />
             <SettingSwitch id="an-premium" label="Allow premium exports"
               description="Enables the AI-enhanced export mode — richer formatting, data insights, and design-quality output."
               checked={config.analysis.allowPremium} onChange={(v) => updateNested("analysis", "allowPremium", v)} />

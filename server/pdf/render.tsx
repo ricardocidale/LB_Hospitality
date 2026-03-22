@@ -1,9 +1,9 @@
 import React from "react";
-import { Document, Page, View, Text, StyleSheet, Font, renderToBuffer, Svg, Line, Circle, Path, G, Defs, LinearGradient, Stop } from "@react-pdf/renderer";
-import { type PdfTheme, themFromColorMap, defaultPdfTheme } from "./theme";
+import { Document, Page, View, Text, renderToBuffer, Svg, Line, Circle, Path, G } from "@react-pdf/renderer";
+import { type PdfTheme, themFromColorMap } from "./theme";
 import { type ThemeColorMap, resolveThemeColors } from "../theme-resolver";
 import { filterFormulaRows } from "../routes/format-generators/excel-generator";
-import { buildChartSeriesByStatement, buildChartsForStatement, getMetricDescription } from "../routes/premium-pdf-pipeline";
+import { buildChartsForStatement, getMetricDescription } from "../routes/premium-pdf-pipeline";
 import { logger } from "../logger";
 
 const MM_TO_PT = 2.83465;

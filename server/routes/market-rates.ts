@@ -12,9 +12,10 @@ import {
   refreshAllStaleRates,
 } from "../data/marketRates";
 import { getMarketIntelligenceAggregator } from "../services/MarketIntelligenceAggregator";
+import { UserRole } from "@shared/constants";
 
 function requireAdmin(req: Request, res: Response, next: Function) {
-  if (req.user?.role !== "admin") {
+  if (req.user?.role !== UserRole.ADMIN) {
     return sendError(res, 403, "Admin access required");
   }
   next();

@@ -23,6 +23,7 @@ import { MarketRateBenchmark } from "@/components/property-research/MarketRateBe
 import { ProvenanceBadge } from "@/components/property-research/ProvenanceBadge";
 import { SourceCitations } from "@/components/property-research/SourceCitations";
 import { motion } from "framer-motion";
+import { PropertyStatus } from "@shared/constants";
 import {
   ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
   BarChart, Bar, XAxis, YAxis, Tooltip, AreaChart, Area,
@@ -125,7 +126,7 @@ function MarketTab({ content }: { content: any }) {
   })) || [];
 
   const supplyData = mo?.supplyPipeline?.map((s: any, i: number) => ({
-    name: s.name || `Pipeline ${i + 1}`, rooms: s.rooms ?? s.units ?? 0, status: s.status || "Planned",
+    name: s.name || `Pipeline ${i + 1}`, rooms: s.rooms ?? s.units ?? 0, status: s.status || PropertyStatus.PLANNED,
   })) || [];
 
   const drivers = mo?.demandDrivers?.slice(0, 5) || [];

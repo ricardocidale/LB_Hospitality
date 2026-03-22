@@ -15,6 +15,8 @@ import {
 import { loginSchema, userResponse, fullName, logAndSendError } from "./helpers";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { UserRole } from "@shared/constants";
+import seedUsersConfig from "../seed-users.json" with { type: "json" };
 
 export function register(app: Express) {
   // ────────────────────────────────────────────────────────────
@@ -71,8 +73,7 @@ export function register(app: Express) {
 
   app.post("/api/auth/admin-login", async (req, res) => {
     try {
-      const seedConfig = await import("../config/seed-users.json", { with: { type: "json" } });
-      const adminSeed = (seedConfig.default.users as Array<{ email: string; role: string }>).find(u => u.role === "admin");
+      const adminSeed = seedUsersConfig.users.find(u => u.role === UserRole.ADMIN);
       if (!adminSeed) {
         return res.status(401).json({ error: "No admin user configured" });
       }
@@ -92,8 +93,7 @@ export function register(app: Express) {
       if (process.env.NODE_ENV === "production") {
         return res.status(403).json({ error: "Dev login disabled in production" });
       }
-      const seedConfig = await import("../seed-users.json", { with: { type: "json" } });
-      const adminSeed = seedConfig.default.users.find((u: any) => u.role === "admin");
+      const adminSeed = seedUsersConfig.users.find(u => u.role === UserRole.ADMIN);
       if (!adminSeed) {
         return res.status(401).json({ error: "No admin user configured" });
       }
@@ -109,7 +109,7 @@ export function register(app: Express) {
         return res.status(401).json({ error: "Admin password not configured in env" });
       }
       const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-      await handleCredentialLogin(devAdminSeed.email, adminPassword, clientIp, res);
+      await handleCredentialLogin(adminSeed.email, adminPassword, clientIp, res);
     } catch (error) {
       logAndSendError(res, "Dev login failed", error);
     }
@@ -166,7 +166,7 @@ export function register(app: Express) {
       if (validation.data.firstName !== undefined) updates.firstName = validation.data.firstName.trim();
       if (validation.data.lastName !== undefined) updates.lastName = validation.data.lastName.trim();
       if (validation.data.email !== undefined) {
-        const protectedEmails = ["ricardo.cidale@norfolkgroup.io", "checker@norfolkgroup.io"];
+        const protectedEmails = seedUsersConfig.users.map(u => u.email.toLowerCase());
         if (protectedEmails.includes(req.user!.email.toLowerCase())) {
           return res.status(403).json({ error: "System account emails cannot be changed" });
         }

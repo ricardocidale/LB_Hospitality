@@ -8,6 +8,7 @@ import { logActivity, logAndSendError } from "./helpers";
 import { generateLocationAwareResearchValues } from "../data/researchSeeds";
 import { processNotificationEvent, evaluateAlertRules } from "../notifications/engine";
 import { createEvent } from "../notifications/events";
+import { UserRole } from "@shared/constants";
 import {
   DEFAULT_EXIT_CAP_RATE,
   DEFAULT_PROPERTY_TAX_RATE,
@@ -110,7 +111,7 @@ export function register(app: Express) {
     try {
       let props = await storage.getAllProperties(req.user!.id);
       const user = req.user!;
-      if (user.role !== "admin" && user.userGroupId) {
+      if (user.role !== UserRole.ADMIN && user.userGroupId) {
         const allowedIds = await storage.getGroupPropertyIds(user.userGroupId);
         if (allowedIds.length > 0) {
           props = props.filter((p) => allowedIds.includes(p.id));

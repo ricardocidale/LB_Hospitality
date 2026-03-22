@@ -35,6 +35,7 @@ import { Loader2 } from "@/components/icons/themed-icons";
 import NotFound from "@/pages/not-found";
 import { initClientSentry, setClientUser, Sentry } from "@/lib/sentry";
 import { initAnalytics, identifyUser, trackUserLogin } from "@/lib/analytics";
+import { UserRole } from "@shared/constants";
 
 initClientSentry();
 // Defer analytics init to after first paint — not needed for rendering
@@ -159,7 +160,7 @@ function CheckerRoute({
   if (isLoading) return <PageLoader />;
   if (!user) return <Redirect to="/login" />;
 
-  const isChecker = isAdmin || user.role === "checker";
+  const isChecker = isAdmin || user.role === UserRole.CHECKER;
   if (!isChecker) return <Redirect to="/" />;
 
   return (

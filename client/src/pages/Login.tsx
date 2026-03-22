@@ -1,3 +1,4 @@
+import { APP_BRAND_NAME, BRAND_ACCENT_HEX } from "@shared/constants";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
@@ -152,7 +153,7 @@ export default function Login() {
                       Welcome back
                     </h1>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Sign in to your H+ Analytics portal
+                      Sign in to your {APP_BRAND_NAME} portal
                     </p>
                   </div>
                 </div>
@@ -261,7 +262,7 @@ export default function Login() {
                 Hospitality Intelligence
               </p>
               <h2 className="text-2xl font-display font-bold text-white/90 leading-snug">
-                <span style={{ color: "#00A9B8" }}>H+</span> Analytics
+                <span style={{ color: BRAND_ACCENT_HEX }}>H+</span> Analytics
               </h2>
               <p className="text-xs text-white/50 mt-2 leading-relaxed max-w-[220px] mx-auto">
                 Dual-entity GAAP modelling and investment simulation for the modern portfolio.

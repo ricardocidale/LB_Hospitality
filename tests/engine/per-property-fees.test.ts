@@ -277,7 +277,7 @@ describe("Per-Property Fee Constants", () => {
 });
 
 describe("Seed Data Integrity", () => {
-  const seedConfig = require("../../server/config/seed-users.json");
+  const seedConfig = require("../../server/seed-users.json");
   const expectedUsers = seedConfig.users.map((u: { email: string; firstName: string; lastName?: string; company: string; title: string; role: string }) => ({
     email: u.email,
     name: [u.firstName, u.lastName].filter(Boolean).join(" "),

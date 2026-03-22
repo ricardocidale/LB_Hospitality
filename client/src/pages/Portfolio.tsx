@@ -21,6 +21,7 @@
  * invalidation of all financial queries so dashboards update.
  */
 import { useState } from "react";
+import { PropertyStatus } from "@shared/constants";
 import Layout from "@/components/Layout";
 import { useProperties, useDeleteProperty, useCreateProperty, useGlobalAssumptions } from "@/lib/api";
 import { Loader2 } from "@/components/icons/themed-icons";
@@ -57,7 +58,7 @@ const INITIAL_FORM_DATA: AddPropertyFormData = {
   location: "",
   market: "",
   imageUrl: "",
-  status: "Pipeline",
+  status: PropertyStatus.PIPELINE,
   acquisitionDate: "",
   operationsStartDate: "",
   purchasePrice: 0,

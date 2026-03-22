@@ -55,7 +55,7 @@ import {
   SummaryFooter,
 } from "@/components/company-assumptions";
 import { GovernedFieldWrapper } from "@/components/ui/governed-field";
-import { GOVERNED_FIELDS, DEPRECIATION_YEARS, DAYS_PER_MONTH } from "@shared/constants";
+import { UserRole, GOVERNED_FIELDS, DEPRECIATION_YEARS, DAYS_PER_MONTH } from "@shared/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -67,7 +67,7 @@ export default function CompanyAssumptions() {
   const updateMutation = useUpdateGlobalAssumptions();
   const { toast } = useToast();
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const { isGenerating, streamedContent, generateResearch } = useCompanyResearchStream();
 

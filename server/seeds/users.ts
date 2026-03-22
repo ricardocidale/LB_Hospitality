@@ -4,11 +4,12 @@ import { eq, and, isNull, isNotNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { userGroups } from "@shared/schema";
 import { logger } from "../logger";
+import { UserRole } from "@shared/constants";
 import seedUsersConfig from "../seed-users.json" with { type: "json" };
 
 
 export async function seedUsers() {
-  const adminSeed = seedUsersConfig.users.find(u => u.role === "admin");
+  const adminSeed = seedUsersConfig.users.find(u => u.role === UserRole.ADMIN);
   if (!adminSeed) return;
 
   const existingAdmin = await db.select().from(users).where(eq(users.email, adminSeed.email)).limit(1);

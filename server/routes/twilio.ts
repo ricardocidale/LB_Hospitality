@@ -26,6 +26,7 @@ import { retrieveRelevantChunks, buildRAGContext } from "../ai/knowledge-base";
 import { logger } from "../logger";
 import twilio from "twilio";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
+import { UserRole } from "@shared/constants";
 
 /**
  * Middleware to validate Twilio webhook request signatures.
@@ -157,7 +158,7 @@ export function register(app: Express) {
 
       const user = from ? await storage.getUserByPhoneNumber(from) : undefined;
       const userId = user?.id;
-      const isAdmin = user?.role === "admin";
+      const isAdmin = user?.role === UserRole.ADMIN;
 
       const conversation = await chatStorage.createConversation(
         `SMS: ${body.slice(0, 40)}${body.length > 40 ? "..." : ""}`,
@@ -303,7 +304,7 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
                 await chatStorage.createMessage(conversationId, "user", userTranscript.trim());
 
                 const userId = callerUserId;
-                const isAdmin = callerUser?.role === "admin";
+                const isAdmin = callerUser?.role === UserRole.ADMIN;
 
                 const [contextPrompt, allMessages, phoneRagChunks] = await Promise.all([
                   buildContextPrompt(userId),

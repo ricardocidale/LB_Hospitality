@@ -8,6 +8,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import Supercluster from "supercluster";
+import { PropertyStatus } from "@shared/constants";
 
 const KNOWN_COORDS: Record<string, [number, number]> = {
   "medellín, antioquia, colombia": [-75.6266, 6.2553],
@@ -96,12 +97,12 @@ function getPerformanceTier(property: any): { color: string; label: string; tier
 
 const statusColor = (status: string) => {
   switch (status) {
-    case "Operating": return { bg: "#dcfce7", text: "#15803d" };
-    case "Improvements": return { bg: "#fef3c7", text: "#b45309" };
-    case "Acquired": return { bg: "#dbeafe", text: "#1d4ed8" };
-    case "In Negotiation": return { bg: "#f3e8ff", text: "#7c3aed" };
-    case "Pipeline": return { bg: "#f3f4f6", text: "#374151" };
-    case "Planned": return { bg: "#e0f2fe", text: "#0369a1" };
+    case PropertyStatus.OPERATING: return { bg: "#dcfce7", text: "#15803d" };
+    case PropertyStatus.IMPROVEMENTS: return { bg: "#fef3c7", text: "#b45309" };
+    case PropertyStatus.ACQUIRED: return { bg: "#dbeafe", text: "#1d4ed8" };
+    case PropertyStatus.IN_NEGOTIATION: return { bg: "#f3e8ff", text: "#7c3aed" };
+    case PropertyStatus.PIPELINE: return { bg: "#f3f4f6", text: "#374151" };
+    case PropertyStatus.PLANNED: return { bg: "#e0f2fe", text: "#0369a1" };
     default: return { bg: "#f3f4f6", text: "#374151" };
   }
 };

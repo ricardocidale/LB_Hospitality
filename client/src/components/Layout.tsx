@@ -4,6 +4,7 @@
  * Desktop: static sidebar (always visible, not collapsible).
  * Mobile: Sheet-based drawer opened via hamburger in header, plus bottom nav.
  */
+import { APP_BRAND_NAME, BRAND_ACCENT_HEX } from "@shared/constants";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Search } from "@/components/icons/themed-icons";
@@ -219,8 +220,8 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
 
   const sidebarHeader = (
     <div className="flex items-center gap-2.5 px-4 pt-4 pb-2">
-      <img src={companyLogo} alt="H+ Analytics" className="w-7 h-7 object-contain" />
-      <h1 className="text-sm font-semibold text-foreground truncate"><span style={{ color: "#00A9B8" }}>H+</span> Analytics</h1>
+      <img src={companyLogo} alt={APP_BRAND_NAME} className="w-7 h-7 object-contain" />
+      <h1 className="text-sm font-semibold text-foreground truncate"><span style={{ color: BRAND_ACCENT_HEX }}>H+</span> Analytics</h1>
     </div>
   );
 

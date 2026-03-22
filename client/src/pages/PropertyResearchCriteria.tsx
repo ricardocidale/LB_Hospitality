@@ -24,6 +24,7 @@ import {
 import { Loader2 } from "@/components/icons/themed-icons";
 import { useRoute } from "wouter";
 import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
+import { PropertyStatus } from "@shared/constants";
 
 export default function PropertyResearchCriteria() {
   const [, params] = useRoute("/property/:id/criteria");
@@ -63,7 +64,7 @@ export default function PropertyResearchCriteria() {
     { label: "Market", value: property.market || "Not specified" },
     { label: "Room Count", value: String(property.roomCount) },
     { label: "Property Type", value: property.type || "Full Equity" },
-    { label: "Status", value: property.status || "Planned" },
+    { label: "Status", value: property.status || PropertyStatus.PLANNED },
     { label: "City", value: property.city || "—" },
     { label: "State / Province", value: property.stateProvince || "—" },
     { label: "Country", value: property.country || "—" },

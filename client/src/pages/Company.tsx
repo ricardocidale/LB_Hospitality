@@ -27,6 +27,7 @@ import React, { useState, useRef, useMemo, useCallback } from "react";
 import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
 import { useQuery } from "@tanstack/react-query";
 import { useExportSave } from "@/hooks/useExportSave";
+import { UserRole, APP_BRAND_NAME } from "@shared/constants";
 import Layout from "@/components/Layout";
 import { useProperties, useGlobalAssumptions } from "@/lib/api";
 import { generateCompanyProForma, generatePropertyProForma, formatMoney, getFiscalYearForModelYear } from "@/lib/financialEngine";
@@ -68,7 +69,7 @@ export default function Company() {
   });
   const { data: serviceTemplates } = useServiceTemplates();
   const { user } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === UserRole.ADMIN;
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState("income");
   const [bsExpanded, setBsExpanded] = useState<Record<string, boolean>>({});

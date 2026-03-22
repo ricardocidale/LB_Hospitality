@@ -571,3 +571,48 @@ export const SEED_DEBT_ASSUMPTIONS = {
   acqClosingCostRate: 0.02, // Acquisition closing costs as % of loan amount
   refiClosingCostRate: 0.03,// Refinance closing costs as % of new loan amount
 } as const;
+
+// ──────────────────────────────────────────────────────────
+// PROPERTY STATUS ENUM
+// Lifecycle stages a property can be in. Used throughout the UI,
+// seed data, and schema defaults to ensure consistency.
+// ──────────────────────────────────────────────────────────
+
+export const PropertyStatus = {
+  PIPELINE: "Pipeline",
+  OPERATING: "Operating",
+  IMPROVEMENTS: "Improvements",
+  ACQUIRED: "Acquired",
+  IN_NEGOTIATION: "In Negotiation",
+  PLANNED: "Planned",
+} as const;
+
+export type PropertyStatusValue = (typeof PropertyStatus)[keyof typeof PropertyStatus];
+
+export const PROPERTY_STATUS_VALUES = Object.values(PropertyStatus);
+
+// ──────────────────────────────────────────────────────────
+// USER ROLE ENUM
+// Platform-level user roles for access control.
+// NOT to be confused with LLM/OpenAI message roles ("user"/"assistant").
+// ──────────────────────────────────────────────────────────
+
+export const UserRole = {
+  ADMIN: "admin",
+  USER: "user",
+  CHECKER: "checker",
+  INVESTOR: "investor",
+} as const;
+
+export type UserRoleValue = (typeof UserRole)[keyof typeof UserRole];
+
+export const USER_ROLE_VALUES = Object.values(UserRole);
+
+// ──────────────────────────────────────────────────────────
+// BRAND CONSTANTS
+// Application-wide brand identity. Change these to rebrand
+// the entire portal in one place.
+// ──────────────────────────────────────────────────────────
+
+export const APP_BRAND_NAME = "H+ Analytics";
+export const BRAND_ACCENT_HEX = "#00A9B8";

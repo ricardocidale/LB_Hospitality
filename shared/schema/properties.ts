@@ -5,6 +5,7 @@ import { z } from "zod";
 import { companies, userGroups, type ResearchValueEntry } from "./core";
 import { users } from "./auth";
 import {
+  PropertyStatus,
   DEFAULT_LAND_VALUE_PERCENT,
   DEFAULT_COST_RATE_ROOMS,
   DEFAULT_COST_RATE_FB,
@@ -68,7 +69,7 @@ export const properties = pgTable("properties", {
   country: text("country"),
   market: text("market").notNull(),
   imageUrl: text("image_url").notNull(),
-  status: text("status").notNull().default("Pipeline"),
+  status: text("status").notNull().default(PropertyStatus.PIPELINE),
   
   acquisitionDate: text("acquisition_date").notNull(),
   operationsStartDate: text("operations_start_date").notNull(),

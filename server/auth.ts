@@ -38,6 +38,7 @@ import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { logger } from "./logger";
+import { UserRole } from "@shared/constants";
 
 declare global {
   namespace Express {
@@ -286,7 +287,7 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  if (req.user.role !== "admin") {
+  if (req.user.role !== UserRole.ADMIN) {
     return res.status(403).json({ error: "Admin access required" });
   }
   next();
@@ -305,7 +306,7 @@ export function requireChecker(req: Request, res: Response, next: NextFunction) 
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  if (req.user.role !== "admin" && req.user.role !== "checker") {
+  if (req.user.role !== UserRole.ADMIN && req.user.role !== UserRole.CHECKER) {
     return res.status(403).json({ error: "Checker or admin access required" });
   }
   next();
@@ -404,7 +405,7 @@ export async function seedAdminUser() {
   const userSeeds = seedConfig.default.users as Array<{
     email: string;
     envVar: string;
-    role: "admin" | "user" | "checker";
+    role: typeof UserRole[keyof typeof UserRole];
     firstName: string;
     lastName?: string;
     company: string;

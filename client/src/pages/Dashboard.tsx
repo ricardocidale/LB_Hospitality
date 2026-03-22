@@ -30,6 +30,7 @@
  * All six export formats (PDF, Excel, CSV, PPTX, Chart PNG, Table PNG) are
  * available from the tab bar. Data generators live in dashboardExports.ts.
  */
+import { APP_BRAND_NAME } from "@shared/constants";
 import React, { useState, useRef, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useExportSave } from "@/hooks/useExportSave";
@@ -159,7 +160,7 @@ export default function Dashboard() {
         const incomeRows = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, isShort).rows;
         await exportDashboardComprehensivePDF({
           financials, properties: properties!, projectionYears, getFiscalYear,
-          companyName: global.companyName || "H+ Analytics",
+          companyName: global.companyName || APP_BRAND_NAME,
           incomeRows,
           modelStartDate: global.modelStartDate ? new Date(global.modelStartDate) : undefined,
           themeColors: branding?.themeColors ?? undefined,
@@ -175,7 +176,7 @@ export default function Dashboard() {
         const incomeRows = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, projectionYears, getFiscalYear, isShort).rows;
         await exportDashboardComprehensivePDF({
           financials, properties: properties!, projectionYears, getFiscalYear,
-          companyName: global.companyName || "H+ Analytics",
+          companyName: global.companyName || APP_BRAND_NAME,
           incomeRows,
           modelStartDate: global.modelStartDate ? new Date(global.modelStartDate) : undefined,
           themeColors: branding?.themeColors ?? undefined,
@@ -454,7 +455,7 @@ export default function Dashboard() {
 
           return {
             entityName: "Consolidated Portfolio",
-            companyName: global.companyName || "H+ Analytics",
+            companyName: global.companyName || APP_BRAND_NAME,
             statementType,
             years: incomeData.years.map(String),
             statements,

@@ -5,6 +5,7 @@ import { logActivity, logAndSendError } from "./helpers";
 import { randomUUID } from "crypto";
 import { processImage, type CropRegion } from "../image/pipeline";
 import { storage } from "../storage";
+import { UserRole } from "@shared/constants";
 
 // Singleton — avoid creating a new instance per request
 const sharedObjectStorageService = new ObjectStorageService();
@@ -162,7 +163,7 @@ export function register(app: Express) {
   app.post("/api/admin/bulk-process-photos", requireAuth, async (req, res) => {
     try {
       const user = req.user;
-      if (!user || user.role !== "admin") {
+      if (!user || user.role !== UserRole.ADMIN) {
         return res.status(403).json({ error: "Admin access required" });
       }
 

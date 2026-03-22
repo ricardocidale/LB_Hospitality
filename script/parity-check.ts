@@ -16,6 +16,7 @@
  */
 
 import { readFileSync } from "fs";
+import { PropertyStatus } from "@shared/constants";
 import { header, footer } from "./lib/formatter.js";
 
 // ---------------------------------------------------------------------------
@@ -504,7 +505,7 @@ function makeProperty(
     operationsStartDate: "2024-01-01",
     startAdr: adr,
     type: "Traditional",
-    status: "Operating",
+    status: PropertyStatus.OPERATING,
   };
 }
 

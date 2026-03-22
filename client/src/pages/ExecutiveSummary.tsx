@@ -1,3 +1,4 @@
+import { APP_BRAND_NAME } from "@shared/constants";
 import { useRef, useCallback, useMemo, useState } from "react";
 import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
@@ -254,7 +255,7 @@ export default function ExecutiveSummary() {
 
     slide.addText("Executive Summary", { x: 0.5, y: 0.2, w: 8, h: 0.4, fontSize: 20, fontFace: "Arial", color: "2D4A5E", bold: true });
     slide.addText(dateStr, { x: 0.5, y: 0.55, w: 8, h: 0.25, fontSize: 10, fontFace: "Arial", color: "6B7280" });
-    slide.addText("H+ Analytics", { x: 8.5, y: 0.2, w: 4.5, h: 0.4, fontSize: 12, fontFace: "Arial", color: "9FBCA4", align: "right" });
+    slide.addText(APP_BRAND_NAME, { x: 8.5, y: 0.2, w: 4.5, h: 0.4, fontSize: 12, fontFace: "Arial", color: "9FBCA4", align: "right" });
 
     const kpiY = 1.0;
     const kpiW = 2.3;
@@ -353,7 +354,7 @@ export default function ExecutiveSummary() {
               <h1 className="text-xl font-bold text-foreground">Executive Summary</h1>
               <p className="text-xs text-muted-foreground">{dateStr}</p>
             </div>
-            <p className="text-sm font-medium text-primary">H+ Analytics</p>
+            <p className="text-sm font-medium text-primary">{APP_BRAND_NAME}</p>
           </div>
         </div>
 

@@ -33,6 +33,7 @@ import { formatDateTime } from "@/lib/formatters";
 import { useAdminLogos, useAdminUsers, useAdminUserGroups, useAdminCompanies, useAdminThemes, useAdminAssetDescriptions } from "./hooks";
 import defaultLogo from "@/assets/logo.png";
 import type { User } from "./types";
+import { UserRole } from "@shared/constants";
 
 type Company = { id: number; name: string; logoId: number | null; isActive: boolean };
 
@@ -48,8 +49,8 @@ export default function UsersTab() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: "user" as string });
-  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: "user" as string, password: "" });
+  const [newUser, setNewUser] = useState({ email: "", password: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: UserRole.USER as string });
+  const [editUser, setEditUser] = useState({ email: "", firstName: "", lastName: "", companyId: null as number | null, userGroupId: null as number | null, title: "", role: UserRole.USER as string, password: "" });
   const [showEditPassword, setShowEditPassword] = useState(false);
   const [originalEmail, setOriginalEmail] = useState("");
   const [showNewUserPassword, setShowNewUserPassword] = useState(false);
@@ -213,7 +214,7 @@ export default function UsersTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       setDialogOpen(false);
-      setNewUser({ email: "", password: "", firstName: "", lastName: "", companyId: null, userGroupId: null, title: "", role: "user" });
+      setNewUser({ email: "", password: "", firstName: "", lastName: "", companyId: null, userGroupId: null, title: "", role: UserRole.USER });
       toast({ title: "User Created", description: "New user has been registered." });
     },
     onError: (error: Error) => {
@@ -463,7 +464,7 @@ export default function UsersTab() {
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-muted h-8 w-8 p-0"
-                      onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, userGroupId: user.userGroupId ?? null, title: user.title || "", role: user.role || "user", password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
+                      onClick={() => { setSelectedUser(user); setOriginalEmail(user.email); setEditUser({ email: user.email, firstName: user.firstName || "", lastName: user.lastName || "", companyId: user.companyId ?? null, userGroupId: user.userGroupId ?? null, title: user.title || "", role: user.role || UserRole.USER, password: "" }); setShowEditPassword(false); setEditDialogOpen(true); }}
                       data-testid={`button-edit-user-${user.id}`}>
                       <IconPencil className="w-4 h-4" />
                     </Button>
@@ -472,7 +473,7 @@ export default function UsersTab() {
                       data-testid={`button-password-user-${user.id}`}>
                       <IconKey className="w-4 h-4" />
                     </Button>
-                    {user.role !== 'admin' && (
+                    {user.role !== UserRole.ADMIN && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 w-8 p-0"
@@ -500,9 +501,9 @@ export default function UsersTab() {
                 </div>
                 <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/40">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium tracking-wide
-                    ${user.role === 'admin'
+                    ${user.role === UserRole.ADMIN
                       ? 'bg-primary/15 text-primary'
-                      : user.role === 'checker'
+                      : user.role === UserRole.CHECKER
                       ? 'bg-accent/15 text-accent'
                       : 'bg-muted text-muted-foreground'}`}>
                     {user.role}

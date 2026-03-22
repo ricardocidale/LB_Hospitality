@@ -15,8 +15,6 @@ export type PremiumFormat = "xlsx" | "pptx" | "pdf" | "docx" | "png";
 const ORIENTATION_KEY = "export-orientation";
 const VERSION_KEY = "export-version";
 const PREMIUM_KEY = "export-premium";
-const COVER_PAGE_KEY = "export-cover";
-
 function getStoredOrientation(): "landscape" | "portrait" {
   try {
     const v = localStorage.getItem(ORIENTATION_KEY);
@@ -40,13 +38,6 @@ function getStoredPremium(): boolean {
   return false;
 }
 
-function getStoredCoverPage(): boolean {
-  try {
-    return localStorage.getItem(COVER_PAGE_KEY) === "true";
-  } catch { /* ignore */ }
-  return false;
-}
-
 interface ExportDialogProps {
   open: boolean;
   onClose: () => void;
@@ -54,7 +45,7 @@ interface ExportDialogProps {
   title: string;
   showVersionOption?: boolean;
   premiumExportData?: PremiumExportPayload | null;
-  getPremiumExportData?: (version: ExportVersion, includeCoverPage: boolean) => PremiumExportPayload | null;
+  getPremiumExportData?: (version: ExportVersion) => PremiumExportPayload | null;
   premiumFormat?: PremiumFormat;
   suggestedFilename?: string;
   fileExtension?: string;
@@ -88,7 +79,6 @@ export interface PremiumExportPayload {
   metrics?: Array<{ label: string; value: string }>;
   projectionYears?: number;
   themeColors?: Array<{ name: string; hexCode: string; rank: number }>;
-  includeCoverPage?: boolean;
 }
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -281,7 +271,6 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
   const [orientation, setOrientation] = useState<"landscape" | "portrait">(getStoredOrientation);
   const [version, setVersion] = useState<ExportVersion>(getStoredVersion);
   const [isPremium, setIsPremium] = useState(getStoredPremium);
-  const [includeCoverPage, setIncludeCoverPage] = useState(getStoredCoverPage);
   const [step, setStep] = useState<DialogStep>("options");
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -292,7 +281,6 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
       setVersion(getStoredVersion());
       // DOCX has no client-side generator — always use premium mode
       setIsPremium(premiumFormat === "docx" ? true : getStoredPremium());
-      setIncludeCoverPage(getStoredCoverPage());
       setStep("options");
       setIsSaving(false);
     }
@@ -315,14 +303,9 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
     try { localStorage.setItem(PREMIUM_KEY, String(checked)); } catch { /* ignore */ }
   };
 
-  const handleCoverPageToggle = (checked: boolean) => {
-    setIncludeCoverPage(checked);
-    try { localStorage.setItem(COVER_PAGE_KEY, String(checked)); } catch { /* ignore */ }
-  };
-
   const resolvePremiumPayload = (): PremiumExportPayload | null => {
     if (getPremiumExportData) {
-      return getPremiumExportData(version, false);
+      return getPremiumExportData(version);
     }
     return premiumExportData ?? null;
   };

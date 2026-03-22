@@ -253,7 +253,7 @@ export function handleExport(ctx: PropertyExportContext, exportType: string, ori
   }
 }
 
-export function buildPremiumExportPayload(ctx: PropertyExportContext, version: ExportVersion, includeCoverPage: boolean): PremiumExportPayload {
+export function buildPremiumExportPayload(ctx: PropertyExportContext, version: ExportVersion): PremiumExportPayload {
   const { property, global, yearlyDetails, cashFlowData, yearlyChartData, years, projectionYears } = ctx;
   const { loan, acqYear, totalPropertyCost } = getLoanCalcs(ctx);
   const yrLabels = yearlyChartData.map((d) => d.year);

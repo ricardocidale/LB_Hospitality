@@ -43,6 +43,7 @@ import { IconAlertTriangle, IconDashboard, IconIncomeStatement, IconCashFlow, Ic
 import { PROJECTION_YEARS } from "@/lib/constants";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
+import { loadExportConfig } from "@/lib/exportConfig";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction, docxAction } from "@/components/ui/export-toolbar";
 import { exportTablePNG } from "@/lib/exports/pngExport";
 import { format } from "date-fns";
@@ -408,7 +409,7 @@ export default function Dashboard() {
         premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={TAB_LABELS[activeTab] || "Portfolio"}
         fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
-        getPremiumExportData={exportType !== "chart" ? (version: ExportVersion, includeCoverPage: boolean) => {
+        getPremiumExportData={exportType !== "chart" ? (version: ExportVersion) => {
           if (!financials || !properties || !global) return null;
           const py = global.projectionYears ?? PROJECTION_YEARS;
           const fsm = global.fiscalYearStartMonth ?? 1;
@@ -434,7 +435,94 @@ export default function Dashboard() {
 
           if (activeTab === "overview") {
             statementType = "Portfolio Overview";
+            const cfg = loadExportConfig().overview;
+            const ovd = buildOverviewExportData(financials, properties, py, gfy);
+            const yearStrs = ovd.yearLabels.map(String);
             statements = [];
+
+            if (cfg.projectionTable) {
+              statements.push({
+                title: "Revenue & ANOI Projections",
+                years: yearStrs,
+                rows: [
+                  { category: "Revenue", values: ovd.revenueNOIData.map(d => d.revenue), format: "currency" },
+                  { category: "NOI", values: ovd.revenueNOIData.map(d => d.noi), format: "currency" },
+                  { category: "ANOI", values: ovd.revenueNOIData.map(d => d.anoi), isBold: true, format: "currency" },
+                  { category: "Cash Flow", values: ovd.revenueNOIData.map(d => d.cashFlow), format: "currency" },
+                ],
+              });
+            }
+
+            if (cfg.compositionTables) {
+              const cs = ovd.capitalStructure;
+              statements.push({
+                title: "Portfolio & Capital Structure",
+                years: ["Value"],
+                rows: [
+                  { category: "PORTFOLIO COMPOSITION", values: [0], isHeader: true },
+                  { category: "Total Properties", values: [cs.totalProperties], indent: 1 },
+                  { category: "Total Rooms", values: [cs.totalRooms], indent: 1 },
+                  { category: "Avg Rooms / Property", values: [Math.round(cs.avgRoomsPerProperty)], indent: 1 },
+                  { category: "Total Markets", values: [cs.totalMarkets], indent: 1 },
+                  { category: "Avg ADR", values: [Math.round(cs.avgADR)], indent: 1, format: "currency" },
+                  { category: "CAPITAL STRUCTURE", values: [0], isHeader: true },
+                  { category: "Total Purchase Price", values: [cs.totalPurchasePrice], indent: 1, format: "currency" },
+                  { category: "Avg Purchase Price", values: [cs.avgPurchasePrice], indent: 1, format: "currency" },
+                  { category: "Avg Exit Cap Rate", values: [cs.avgExitCapRate * 100], indent: 1, format: "percentage" },
+                  { category: "Hold Period", values: [cs.holdPeriod], indent: 1 },
+                  { category: "ANOI Margin", values: [cs.anoiMargin], indent: 1, format: "percentage" },
+                ],
+              });
+            }
+
+            if (cfg.propertyInsights) {
+              statements.push({
+                title: "Property Insights",
+                years: ["Market", "Rooms", "Status", "Acq. Cost", "ADR", "IRR"],
+                rows: ovd.propertyItems.map(p => ({
+                  category: p.name,
+                  values: [p.market as any, p.rooms, p.status as any, p.acquisitionCost, p.adr, p.irr],
+                })),
+              });
+            }
+
+            if (cfg.compositionTables) {
+              const marketEntries = Object.entries(ovd.marketCounts);
+              const statusEntries = Object.entries(ovd.statusCounts);
+              if (marketEntries.length > 0) {
+                statements.push({
+                  title: "Market Distribution",
+                  years: ["Count"],
+                  rows: marketEntries.map(([mkt, cnt]) => ({ category: mkt, values: [cnt] })),
+                });
+              }
+              if (statusEntries.length > 0) {
+                statements.push({
+                  title: "Status Distribution",
+                  years: ["Count"],
+                  rows: statusEntries.map(([st, cnt]) => ({ category: st, values: [cnt] })),
+                });
+              }
+            }
+
+            if (cfg.waterfallTable) {
+              statements.push({
+                title: "USALI Profit Waterfall",
+                years: yearStrs,
+                rows: ovd.waterfallRows.map(r => ({
+                  category: r.label,
+                  values: r.values,
+                  isBold: r.isSubtotal,
+                  format: "currency" as any,
+                })),
+              });
+            }
+
+            const kpis = ovd.portfolioKPIs;
+            baseMetrics.push(
+              { label: "Total Equity Invested", value: `$${(kpis.totalInitialEquity / 1e6).toFixed(1)}M` },
+              { label: "Projected Exit Value", value: `$${(kpis.totalExitValue / 1e6).toFixed(1)}M` },
+            );
           } else if (activeTab === "investment") {
             statementType = "Investment Analysis";
             const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy, summaryOnly);
@@ -453,15 +541,16 @@ export default function Dashboard() {
             ];
           }
 
+          const shouldIncludeMetrics = activeTab !== "overview" || loadExportConfig().overview.kpiMetrics;
+
           return {
             entityName: "Consolidated Portfolio",
             companyName: global.companyName || APP_BRAND_NAME,
             statementType,
             years: incomeData.years.map(String),
             statements,
-            metrics: baseMetrics,
+            metrics: shouldIncludeMetrics ? baseMetrics : [],
             projectionYears: py,
-            includeCoverPage: false,
             themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank, description: c.description })),
           } as PremiumExportPayload;
         } : undefined}

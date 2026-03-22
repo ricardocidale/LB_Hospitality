@@ -2,7 +2,7 @@ import { resolveThemeColors } from "../../theme-resolver";
 import type { ReportDefinition, KpiMetric, ChartSeries } from "../../report/types";
 
 interface LegacySection {
-  type: "cover" | "metrics_dashboard" | "financial_table" | "line_chart";
+  type: "metrics_dashboard" | "financial_table" | "line_chart";
   title: string;
   content?: {
     metrics?: KpiMetric[];
@@ -15,13 +15,6 @@ interface LegacySection {
 
 function buildLegacySections(report: ReportDefinition): LegacySection[] {
   const sections: LegacySection[] = [];
-
-  if (report.includeCoverPage) {
-    sections.push({
-      type: "cover",
-      title: report.cover.subtitle || "Financial Report",
-    });
-  }
 
   for (const s of report.sections) {
     if (s.kind === "kpi") {

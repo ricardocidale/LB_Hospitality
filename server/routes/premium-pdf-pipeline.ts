@@ -35,7 +35,6 @@ interface PdfExportData {
   rows?: ExportRow[];
   statements?: StatementBlock[];
   metrics?: MetricItem[];
-  includeCoverPage?: boolean;
   themeColors?: Array<{ name: string; hexCode: string; rank?: number; description?: string }>;
 }
 
@@ -120,12 +119,7 @@ export function getMetricDescription(label: string): string {
 
 export function buildPdfSectionsFromData(data: PdfExportData): PdfSection[] {
   const sections: PdfSection[] = [];
-  const includeCover = !!data.includeCoverPage;
   const tc = resolveThemeColors(data.themeColors);
-
-  if (includeCover) {
-    sections.push({ type: "cover", title: data.statementType || "Financial Report" });
-  }
 
   if (data.metrics?.length) {
     sections.push({

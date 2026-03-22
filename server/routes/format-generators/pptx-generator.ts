@@ -19,29 +19,6 @@ export async function generatePptxFromReport(report: ReportDefinition): Promise<
 
   const strip = (hex: string) => hex.replace(/^#/, "");
 
-  if (report.includeCoverPage) {
-    const slide = pres.addSlide();
-    slide.background = { color: strip(t.primary) };
-    slide.addShape("rect", { x: 0, y: 0, w: SLIDE_W, h: 0.05, fill: { color: strip(t.secondary) } });
-    slide.addText(report.cover.companyName, {
-      x: 0.6, y: 1.5, w: 12, h: 0.6,
-      fontSize: 28, fontFace: "Arial", color: strip(t.secondary), bold: true,
-    });
-    slide.addText(report.cover.subtitle || "Financial Report", {
-      x: 0.6, y: 2.3, w: 12, h: 0.5,
-      fontSize: 22, fontFace: "Arial", color: strip(t.white),
-    });
-    slide.addText(report.cover.entityName, {
-      x: 0.6, y: 2.9, w: 8, h: 0.4,
-      fontSize: 14, fontFace: "Arial", color: strip(t.border),
-    });
-    slide.addShape("rect", { x: 0, y: SLIDE_H - 0.35, w: SLIDE_W, h: 0.01, fill: { color: strip(t.secondary) } });
-    slide.addText(`${report.cover.companyName} \u2014 Confidential`, {
-      x: 0.3, y: SLIDE_H - 0.32, w: 5, h: 0.25,
-      fontSize: 7, fontFace: "Arial", color: strip(t.border), italic: true,
-    });
-  }
-
   for (const section of report.sections) {
     const slide = pres.addSlide();
 

@@ -76,6 +76,5 @@ export interface ReportDefinition {
   cover: CoverMeta;
   tokens: DesignTokens;
   orientation: "landscape" | "portrait";
-  includeCoverPage: boolean;
   sections: ReportSection[];
 }

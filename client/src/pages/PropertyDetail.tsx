@@ -185,7 +185,7 @@ export default function PropertyDetail() {
         }
         fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
         getPremiumExportData={exportType !== 'chart' && property && yearlyDetails.length > 0
-          ? (version: ExportVersion, includeCoverPage: boolean) => buildPremiumExportPayload(exportCtx, version, includeCoverPage)
+          ? (version: ExportVersion) => buildPremiumExportPayload(exportCtx, version)
           : undefined}
       />
       <div className="space-y-6">

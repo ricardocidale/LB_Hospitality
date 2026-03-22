@@ -44,7 +44,6 @@ export interface CompileInput {
   rows?: ExportRow[];
   statements?: StatementBlock[];
   metrics?: Array<{ label: string; value: string }>;
-  includeCoverPage?: boolean;
   themeColors?: Array<{
     name: string;
     hexCode: string;
@@ -312,7 +311,6 @@ export function compileReport(input: CompileInput): ReportDefinition {
     cover,
     tokens,
     orientation: isLandscape ? "landscape" : "portrait",
-    includeCoverPage: !!input.includeCoverPage,
     sections,
   };
 }

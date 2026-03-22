@@ -39,7 +39,6 @@ const premiumExportSchema = z.object({
     value: z.string(),
   })).optional(),
   projectionYears: z.number().optional(),
-  includeCoverPage: z.boolean().optional().default(false),
   themeColors: z.array(z.object({
     name: z.string(),
     hexCode: z.string(),

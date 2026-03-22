@@ -295,7 +295,7 @@ export default function Company() {
           exportType === 'chart' ? `${companyName} Chart` : `${companyName} ${tabLabel}`
         }
         fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
-        getPremiumExportData={exportType !== 'chart' ? (version: ExportVersion, includeCoverPage: boolean) => {
+        getPremiumExportData={exportType !== 'chart' ? (version: ExportVersion) => {
           const summaryOnly = version === "short";
           const incomeData = generateCompanyIncomeData(financials, years, properties, propertyFinancials, summaryOnly);
           const cashFlowData = generateCompanyCashFlowData(financials, years, properties, propertyFinancials, fundingLabel, summaryOnly);
@@ -319,7 +319,6 @@ export default function Company() {
               { title: "Management Company Balance Sheet", years: balanceData.years.map(String), rows: mapRows(balanceData.rows) },
             ],
             projectionYears,
-            includeCoverPage,
             themeColors: brandingData?.themeColors?.map((c: any) => ({ name: c.name, hexCode: c.hexCode, rank: c.rank })),
           } as PremiumExportPayload;
         } : undefined}

@@ -87,55 +87,6 @@ function PageFooter({ companyName, theme }: { companyName: string; theme: PdfThe
   );
 }
 
-function CoverPage({ title, subtitle, companyName, entityName, theme, isLandscape }: {
-  title: string; subtitle?: string; companyName: string; entityName: string; theme: PdfTheme; isLandscape: boolean;
-}) {
-  const dateStr = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  const pageSize: [number, number] = isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT;
-
-  return (
-    <Page size={pageSize} style={{ backgroundColor: theme.primary, position: "relative" }}>
-      <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: 10, backgroundColor: theme.accent }} />
-      <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 10, backgroundColor: theme.secondary }} />
-
-      <View style={{ position: "absolute", left: isLandscape ? 120 : 80, top: "25%", right: isLandscape ? "50%" : 80 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 28 }}>
-          <View style={{ width: 5, height: 120, backgroundColor: theme.secondary, borderRadius: 2, marginRight: 16 }} />
-          <View style={{ flex: 1 }}>
-            <View style={{ borderWidth: 1.5, borderColor: theme.secondary, borderRadius: 3, paddingVertical: 5, paddingHorizontal: 14, alignSelf: "flex-start", marginBottom: 20 }}>
-              <Text style={{ fontSize: 6, fontWeight: "bold", fontFamily: "Helvetica-Bold", letterSpacing: 3, color: theme.secondary }}>CONFIDENTIAL</Text>
-            </View>
-            <Text style={{ fontSize: isLandscape ? 36 : 30, fontWeight: "bold", fontFamily: "Helvetica-Bold", color: "#ffffff", lineHeight: 1.1, marginBottom: 16 }}>{companyName}</Text>
-            <View style={{ width: 140, height: 3, backgroundColor: theme.accent, borderRadius: 1, marginBottom: 18 }} />
-            <Text style={{ fontSize: isLandscape ? 16 : 14, color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>{title}</Text>
-            {subtitle ? <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>{subtitle}</Text> : null}
-          </View>
-        </View>
-
-        <View style={{ backgroundColor: "rgba(26,35,50,0.6)", borderWidth: 1, borderColor: "rgba(159,188,164,0.35)", borderRadius: 6, padding: "14 18", marginTop: 30 }}>
-          <View style={{ flexDirection: "row", gap: 50 }}>
-            {[
-              { label: "PREPARED FOR", value: entityName },
-              { label: "DATE", value: dateStr },
-              { label: "CLASSIFICATION", value: "Strictly Confidential" },
-            ].map((item, i) => (
-              <View key={i}>
-                <Text style={{ fontSize: 5.5, fontWeight: "bold", fontFamily: "Helvetica-Bold", letterSpacing: 2, color: theme.secondary, marginBottom: 4 }}>{item.label}</Text>
-                <Text style={{ fontSize: 9, color: "rgba(255,255,255,0.85)" }}>{item.value}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      </View>
-
-      <View style={{ position: "absolute", left: isLandscape ? 120 : 80, right: isLandscape ? 120 : 80, bottom: "7%", borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.1)", paddingTop: 8 }}>
-        <Text style={{ fontSize: 6, color: "rgba(255,255,255,0.35)", fontStyle: "italic", lineHeight: 1.6 }}>
-          This document contains proprietary financial projections and confidential business information. Distribution is restricted to authorized recipients only.
-        </Text>
-      </View>
-    </Page>
-  );
-}
 
 function KpiCards({ title, metrics, companyName, entityName, theme, isLandscape }: {
   title: string; metrics: Array<{ label: string; value: string; description?: string }>; companyName: string; entityName: string; theme: PdfTheme; isLandscape: boolean;
@@ -366,23 +317,13 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
   }
 
   const theme = tokensToTheme(report.tokens);
-  const { cover, orientation, includeCoverPage, sections } = report;
+  const { cover, orientation, sections } = report;
   const isLandscape = orientation === "landscape";
 
-  logger.info(`[react-pdf] Building ${sections.length} sections (cover=${includeCoverPage}, landscape=${isLandscape})`, "premium-export");
+  logger.info(`[react-pdf] Building ${sections.length} sections (landscape=${isLandscape})`, "premium-export");
 
   const doc = (
     <Document title={cover.reportTitle} author={cover.companyName} subject="Financial Report" creator="H+ Analytics">
-      {includeCoverPage && (
-        <CoverPage
-          title={cover.subtitle || "Financial Report"}
-          companyName={cover.companyName}
-          entityName={cover.entityName}
-          theme={theme}
-          isLandscape={isLandscape}
-        />
-      )}
-
       {sections.map((section, i) => {
         switch (section.kind) {
           case "kpi":
@@ -428,7 +369,7 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
         }
       })}
 
-      {sections.length === 0 && !includeCoverPage && (
+      {sections.length === 0 && (
         <Page size={isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT} style={{ paddingTop: 10, paddingHorizontal: 60, paddingBottom: 30, backgroundColor: "#ffffff" }}>
           <PageHeader title="Financial Report" companyName={cover.companyName} entityName={cover.entityName} theme={theme} />
           <Text style={{ fontSize: 10, color: theme.border, textAlign: "center", paddingTop: 80 }}>No financial data available for export.</Text>

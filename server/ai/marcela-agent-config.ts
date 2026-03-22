@@ -1,6 +1,7 @@
 import { updateConvaiAgent } from "../integrations/elevenlabs";
 import { storage } from "../storage";
 import { logger } from "../logger";
+import { DEFAULT_ELEVENLABS_MODEL } from "./resolve-llm";
 
 export function getBaseUrl(): string {
   // Replit deployment domain (most reliable — set in all Replit environments)
@@ -167,7 +168,7 @@ export async function configureMarcelaAgent(): Promise<{ success: boolean; error
         agent: {
           prompt: {
             llm: {
-              model: (ga as any)?.marcelaLlmModel || "gemini-2.0-flash-001",
+              model: (ga as any)?.marcelaLlmModel || DEFAULT_ELEVENLABS_MODEL,
             },
           },
         },

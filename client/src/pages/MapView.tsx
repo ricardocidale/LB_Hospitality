@@ -84,15 +84,23 @@ const formatMoney = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
+const DSCR_TIER_COLORS = {
+  strong: "#22C55E",
+  moderate: "#EAB308",
+  watch: "#EF4444",
+} as const;
+
+const MARKET_COLOR_INTERNATIONAL = "#3B82F6";
+
 function getPerformanceTier(property: any): { color: string; label: string; tier: string } {
   const noi = property.startAdr * property.roomCount * (property.startOccupancy || 0.6) * 365;
   const totalInvestment = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
   const debtService = totalInvestment * 0.065;
   const dscr = totalInvestment > 0 ? noi / debtService : 0;
 
-  if (dscr > 1.5) return { color: "#22C55E", label: "Strong (DSCR > 1.5)", tier: "strong" };
-  if (dscr > 1.2) return { color: "#EAB308", label: "Moderate (DSCR 1.2–1.5)", tier: "moderate" };
-  return { color: "#EF4444", label: "Watch (DSCR < 1.2)", tier: "watch" };
+  if (dscr > 1.5) return { color: DSCR_TIER_COLORS.strong, label: "Strong (DSCR > 1.5)", tier: "strong" };
+  if (dscr > 1.2) return { color: DSCR_TIER_COLORS.moderate, label: "Moderate (DSCR 1.2–1.5)", tier: "moderate" };
+  return { color: DSCR_TIER_COLORS.watch, label: "Watch (DSCR < 1.2)", tier: "watch" };
 }
 
 const statusColor = (status: string) => {
@@ -153,7 +161,7 @@ function createMarkerElement(property: any, isSelected: boolean, colorMode: Colo
   const perf = getPerformanceTier(property);
   const color = colorMode === "performance"
     ? perf.color
-    : property.market === "North America" ? "var(--primary)" : "#3B82F6";
+    : property.market === "North America" ? "var(--primary)" : MARKET_COLOR_INTERNATIONAL;
   const size = isSelected ? 42 : 32;
   const el = document.createElement("div");
   el.className = "map-marker-container";
@@ -941,7 +949,7 @@ export default function MapView() {
             const perf = getPerformanceTier(property);
             const pinColor = colorMode === "performance"
               ? perf.color
-              : property.market === "North America" ? "var(--primary)" : "#3B82F6";
+              : property.market === "North America" ? "var(--primary)" : MARKET_COLOR_INTERNATIONAL;
             const sc = statusColor(property.status);
             return (
               <div

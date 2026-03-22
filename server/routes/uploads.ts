@@ -6,11 +6,9 @@ import { randomUUID } from "crypto";
 import { processImage, type CropRegion } from "../image/pipeline";
 import { storage } from "../storage";
 import { UserRole } from "@shared/constants";
+import { MAX_UPLOAD_BYTES } from "../constants";
 
-// Singleton — avoid creating a new instance per request
 const sharedObjectStorageService = new ObjectStorageService();
-
-const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_CONTENT_TYPES = [
   "image/png", "image/jpeg", "image/jpg", "image/gif",
   "image/webp", "image/svg+xml", "image/bmp", "image/tiff",

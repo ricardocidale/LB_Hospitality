@@ -8,7 +8,7 @@ import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdf
 import { resolveThemeColors } from "./pdf-html-templates";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { storage } from "../storage";
-import { resolveLlm, getVendorService } from "../ai/resolve-llm";
+import { resolveLlm, getVendorService, DEFAULT_GEMINI_MODEL } from "../ai/resolve-llm";
 import type { ResearchConfig } from "@shared/schema";
 import { aggressiveParse } from "./export-json-utils";
 import { generateExcelBuffer, generateExcelFromData } from "./format-generators/excel-generator";
@@ -120,7 +120,7 @@ async function callGemini(
 async function generateWithGemini(prompt: string, format: string, modelId?: string): Promise<Record<string, unknown>> {
   const client = getGeminiClient();
   const startTime = Date.now();
-  const resolvedModel = modelId || "gemini-2.5-flash";
+  const resolvedModel = modelId || DEFAULT_GEMINI_MODEL;
 
   let lastError: Error | null = null;
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -173,7 +173,7 @@ async function generateViaTemplatePipeline(
 ): Promise<Buffer> {
   if (data.format === "pdf") {
     try {
-      logger.info(`[pdf-design] Using AI designer cascade (${modelId || "gemini-2.5-flash"})...`, "premium-export");
+      logger.info(`[pdf-design] Using AI designer cascade (${modelId || DEFAULT_GEMINI_MODEL})...`, "premium-export");
       return await generatePdfWithAiDesign(data, generateWithGemini, modelId);
     } catch (err: unknown) {
       logger.warn(`[pdf-design] AI design failed: ${(err as Error).message} — falling back to template`, "premium-export");

@@ -11,6 +11,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import pricingConfig from "../config/llm-pricing.json";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,38 +38,13 @@ export interface CostEntry {
   route: string;
 }
 
-// ── Pricing (per 1 M tokens unless noted) ────────────────────────────────────
-// Updated 2026-03. Verify quarterly against provider pricing pages.
+// ── Pricing loaded from server/config/llm-pricing.json ───────────────────────
 
-const TOKEN_PRICING: Record<string, { input: number; output: number }> = {
-  // Anthropic (per 1M tokens)
-  "claude-opus-4-6":             { input: 15.00,  output: 75.00 },
-  "claude-sonnet-4-6":           { input: 3.00,   output: 15.00 },
-  "claude-sonnet-4-20250514":    { input: 3.00,   output: 15.00 },
-  "claude-haiku-4-5-20251001":   { input: 0.80,   output: 4.00 },
-  // OpenAI (per 1M tokens)
-  "gpt-4o":                      { input: 2.50,   output: 10.00 },
-  "gpt-4o-mini":                 { input: 0.15,   output: 0.60 },
-  "gpt-image-1":                 { input: 0,      output: 0 },      // image gen — flat fee
-  // Gemini (per 1M tokens)
-  "gemini-2.5-flash":            { input: 0.15,   output: 0.60 },
-  "gemini-2.5-pro":              { input: 1.25,   output: 10.00 },
-  "gemini-2.5-flash-image":      { input: 0.15,   output: 0.60 },
-  // Perplexity (per 1M tokens — approximate)
-  "sonar":                       { input: 1.00,   output: 1.00 },
-  "sonar-pro":                   { input: 3.00,   output: 15.00 },
-};
+const TOKEN_PRICING: Record<string, { input: number; output: number }> =
+  pricingConfig.tokenPricing;
 
-// Flat per-unit costs (non-token-based services)
-const UNIT_PRICING: Record<string, number> = {
-  "elevenlabs-tts":   0.30,   // per 1K characters
-  "replicate-image":  0.01,   // per image
-  "gpt-image-1":      0.04,   // per image (1024×1024)
-  "resend-email":     0.001,  // per email (first 100/day free)
-  "twilio-sms":       0.0079, // per SMS segment
-  "document-ai-page": 0.01,   // per page
-  "google-maps":      0.005,  // per geocode request
-};
+const UNIT_PRICING: Record<string, number> =
+  pricingConfig.unitPricing;
 
 // ── Cost Estimation ──────────────────────────────────────────────────────────
 
@@ -84,13 +60,8 @@ export function estimateCost(
     return (inputTokens * p.input + outputTokens * p.output) / 1_000_000;
   }
 
-  // Fallback: service-level estimate
-  const serviceDefaults: Record<string, { input: number; output: number }> = {
-    anthropic:   { input: 3.00,  output: 15.00 },
-    openai:      { input: 2.50,  output: 10.00 },
-    gemini:      { input: 0.15,  output: 0.60 },
-    perplexity:  { input: 1.00,  output: 1.00 },
-  };
+  const serviceDefaults: Record<string, { input: number; output: number }> =
+    pricingConfig.serviceDefaults;
 
   if (serviceDefaults[service]) {
     const p = serviceDefaults[service];

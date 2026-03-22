@@ -19,6 +19,7 @@ import { computeBreakEven } from "../../calc/analysis/break-even";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 import { getOpenAIClient } from "../ai/clients";
+import { DEFAULT_OPENAI_MODEL } from "../ai/resolve-llm";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 export function register(app: Express) {
@@ -91,7 +92,7 @@ export function register(app: Express) {
       }
 
       const globalAssumptions = await storage.getGlobalAssumptions(req.user!.id);
-      const llmModel = globalAssumptions?.marcelaLlmModel || "gpt-4.1";
+      const llmModel = globalAssumptions?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
 
       const openai = getOpenAIClient();
 

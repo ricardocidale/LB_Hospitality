@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { requireAuth, isApiRateLimited } from "../auth";
 import { logAndSendError } from "./helpers";
 import { getAnthropicClient, normalizeModelId } from "../ai/clients";
+import { DEFAULT_ANTHROPIC_MODEL } from "../ai/resolve-llm";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 
 interface IcpLocationCity {
@@ -276,7 +277,7 @@ export function register(app: Express) {
       const assetDescription = ga.assetDescription || "";
       const propertyLabel = ga.propertyLabel || "Hotel";
       const researchCfg = (ga.researchConfig as import("@shared/schema").ResearchConfig) ?? {};
-      const model = normalizeModelId(researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || "claude-3-5-sonnet-20241022");
+      const model = normalizeModelId(researchCfg.companyLlm?.primaryLlm || researchCfg.preferredLlm || ga.preferredLlm || DEFAULT_ANTHROPIC_MODEL);
       const secondaryModel = researchCfg.companyLlm?.llmMode === "dual" && researchCfg.companyLlm.secondaryLlm ? normalizeModelId(researchCfg.companyLlm.secondaryLlm) : undefined;
 
       const promptBuilder = (req.body?.promptBuilder || icpConfig._promptBuilder || {}) as PromptBuilderConfig;

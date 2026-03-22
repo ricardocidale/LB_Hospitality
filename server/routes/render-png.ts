@@ -1,7 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { requireAuth } from "../auth";
-
-const MAX_HTML_SIZE = 5 * 1024 * 1024;
+import { MAX_HTML_SIZE } from "../constants";
 
 const BLOCKED_TAGS = /(<\s*\/?\s*(script|iframe|frame|frameset|object|embed|applet|form|link|meta|base)\b[^>]*>)/gi;
 

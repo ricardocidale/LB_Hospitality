@@ -16,8 +16,7 @@ import type { ResearchConfig } from "@shared/schema";
  * never inline arithmetic. The LLM interprets pre-computed values only.
  */
 
-const MAX_MESSAGE_LENGTH = 2000;
-const MAX_HISTORY_LENGTH = 20;
+import { MAX_MESSAGE_LENGTH, MAX_HISTORY_LENGTH } from "../constants";
 
 // Cache property context to avoid rebuilding on every message (TTL: 5 min)
 let cachedPropertyContext: { text: string; timestamp: number; count: number } | null = null;

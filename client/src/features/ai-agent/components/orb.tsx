@@ -2,6 +2,9 @@ import { useEffect, useRef, useMemo, useState, useCallback } from "react"
 
 export type AgentState = null | "thinking" | "listening" | "talking"
 
+const ORB_DEFAULT_COLOR_1 = "#CADCFC";
+const ORB_DEFAULT_COLOR_2 = "#A0B9D1";
+
 type OrbProps = {
   colors?: [string, string]
   colorsRef?: React.RefObject<[string, string]>
@@ -101,10 +104,10 @@ function CanvasOrb({
     curOut: 0,
     animSpeed: 0.1,
     opacity: 0,
-    color1: hexToRgb(colors?.[0] ?? "#CADCFC"),
-    color2: hexToRgb(colors?.[1] ?? "#A0B9D1"),
-    targetColor1: hexToRgb(colors?.[0] ?? "#CADCFC"),
-    targetColor2: hexToRgb(colors?.[1] ?? "#A0B9D1"),
+    color1: hexToRgb(colors?.[0] ?? ORB_DEFAULT_COLOR_1),
+    color2: hexToRgb(colors?.[1] ?? ORB_DEFAULT_COLOR_2),
+    targetColor1: hexToRgb(colors?.[0] ?? ORB_DEFAULT_COLOR_1),
+    targetColor2: hexToRgb(colors?.[1] ?? ORB_DEFAULT_COLOR_2),
   })
 
   const random = useMemo(
@@ -308,7 +311,7 @@ function CanvasOrb({
 }
 
 function CSSFallbackOrb({
-  colors = ["#CADCFC", "#A0B9D1"],
+  colors = [ORB_DEFAULT_COLOR_1, ORB_DEFAULT_COLOR_2] as [string, string],
   className,
 }: {
   colors?: [string, string]
@@ -330,7 +333,7 @@ function CSSFallbackOrb({
 }
 
 export function Orb({
-  colors = ["#CADCFC", "#A0B9D1"],
+  colors = [ORB_DEFAULT_COLOR_1, ORB_DEFAULT_COLOR_2] as [string, string],
   colorsRef,
   resizeDebounce = 100,
   seed,

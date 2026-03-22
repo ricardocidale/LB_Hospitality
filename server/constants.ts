@@ -86,3 +86,34 @@ export const KB_WORDS_PER_CHUNK_ESTIMATE = 5;
 
 /** Embedding batch size for OpenAI API calls */
 export const KB_EMBEDDING_BATCH_SIZE = 20;
+
+// ---------------------------------------------------------------------------
+// Route-level limits
+// ---------------------------------------------------------------------------
+
+/** Maximum HTML size for render-png endpoint (bytes) */
+export const MAX_HTML_SIZE = 5 * 1024 * 1024;
+
+/** Maximum document upload size for document extraction (bytes) */
+export const MAX_DOC_SIZE = 20 * 1024 * 1024;
+
+/** Maximum chat message length (chars) */
+export const MAX_MESSAGE_LENGTH = 2000;
+
+/** Maximum chat history messages sent to LLM */
+export const MAX_HISTORY_LENGTH = 20;
+
+/** Maximum scenarios a user may create */
+export const MAX_SCENARIOS_PER_USER = 20;
+
+/** Maximum image upload size (bytes) */
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+/** Maximum SMS body length before segmenting (chars) */
+export const MAX_SMS_LENGTH = 1600;
+
+/** Maximum RAG context chars injected into prompts */
+export const MAX_RAG_CONTEXT_CHARS = 4000;
+
+/** Minimum cosine-similarity score for RAG chunk inclusion */
+export const KB_MIN_CONFIDENCE = 0.50;

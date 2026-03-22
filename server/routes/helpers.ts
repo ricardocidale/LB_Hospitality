@@ -87,7 +87,7 @@ export const createScenarioSchema = z.object({
   description: z.string().max(1000).nullable().optional(),
 });
 
-export const MAX_SCENARIOS_PER_USER = 20;
+export { MAX_SCENARIOS_PER_USER } from "../constants";
 
 export const researchGenerateSchema = z.object({
   type: z.enum(["property", "company", "global"]),

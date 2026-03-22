@@ -611,8 +611,17 @@ export const USER_ROLE_VALUES = Object.values(UserRole);
 
 // ──────────────────────────────────────────────────────────
 // BRAND CONSTANTS
-// Application-wide brand identity. Change these to rebrand
-// the entire portal in one place.
+// ──────────────────────────────────────────────────────────
+// DEFAULT LLM MODELS
+// Fallback model identifiers used when no admin override is set.
+// Server-side resolve-llm.ts re-exports these for domain routing.
+// ──────────────────────────────────────────────────────────
+
+export const DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-5";
+
+// ──────────────────────────────────────────────────────────
+// APPLICATION BRAND IDENTITY
+// Change these to rebrand the entire portal in one place.
 // ──────────────────────────────────────────────────────────
 
 export const APP_BRAND_NAME = "H+ Analytics";

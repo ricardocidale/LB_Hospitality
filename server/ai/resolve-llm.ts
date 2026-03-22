@@ -11,15 +11,21 @@ export type LlmDomain =
   | "aiUtilityLlm"
   | "graphicsLlm";
 
+export { DEFAULT_ANTHROPIC_MODEL } from "@shared/constants";
+
+export const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
+export const DEFAULT_OPENAI_MODEL = "gpt-4.1";
+export const DEFAULT_ELEVENLABS_MODEL = "gemini-2.0-flash-001";
+
 const DOMAIN_DEFAULTS: Record<LlmDomain, { vendor: LlmVendor; model: string }> = {
-  companyLlm:        { vendor: "google",    model: "gemini-2.5-flash" },
-  propertyLlm:       { vendor: "google",    model: "gemini-2.5-flash" },
-  marketLlm:         { vendor: "google",    model: "gemini-2.5-flash" },
-  reportLlm:         { vendor: "google",    model: "gemini-2.5-flash" },
-  chatbotLlm:        { vendor: "google",    model: "gemini-2.5-flash" },
-  premiumExportLlm:  { vendor: "google",    model: "gemini-2.5-flash" },
-  aiUtilityLlm:      { vendor: "google",    model: "gemini-2.5-flash" },
-  graphicsLlm:       { vendor: "google",    model: "gemini-2.5-flash" },
+  companyLlm:        { vendor: "google",    model: DEFAULT_GEMINI_MODEL },
+  propertyLlm:       { vendor: "google",    model: DEFAULT_GEMINI_MODEL },
+  marketLlm:         { vendor: "google",    model: DEFAULT_GEMINI_MODEL },
+  reportLlm:         { vendor: "google",    model: DEFAULT_GEMINI_MODEL },
+  chatbotLlm:        { vendor: "google",    model: DEFAULT_GEMINI_MODEL },
+  premiumExportLlm:  { vendor: "google",    model: DEFAULT_GEMINI_MODEL },
+  aiUtilityLlm:      { vendor: "google",    model: DEFAULT_GEMINI_MODEL },
+  graphicsLlm:       { vendor: "google",    model: DEFAULT_GEMINI_MODEL },
 };
 
 const DOMAIN_TAB: Record<LlmDomain, string> = {

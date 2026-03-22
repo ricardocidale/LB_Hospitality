@@ -9,12 +9,12 @@ import { objectStorageClient, ObjectStorageService } from "../replit_integration
 import { randomUUID } from "crypto";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { MAX_DOC_SIZE } from "../constants";
 
 const documentAIService = new DocumentAIService();
 
 const fieldStatusSchema = z.object({ status: z.enum(["approved", "rejected"]) });
 
-// Singleton — avoid creating a new instance per request
 const sharedObjectStorageService = new ObjectStorageService();
 
 const ALLOWED_DOC_TYPES = [
@@ -25,7 +25,6 @@ const ALLOWED_DOC_TYPES = [
   "image/tiff",
   "image/webp",
 ];
-const MAX_DOC_SIZE = 20 * 1024 * 1024;
 
 export function register(app: Express) {
   app.post("/api/documents/extract", requireManagementAccess, async (req, res) => {

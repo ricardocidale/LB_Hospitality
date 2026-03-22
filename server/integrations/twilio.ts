@@ -1,5 +1,6 @@
 import twilio from 'twilio';
 import { BaseIntegrationService, type IntegrationHealth } from './base';
+import { MAX_SMS_LENGTH } from "../constants";
 
 let connectionSettings: any;
 
@@ -92,7 +93,7 @@ export async function sendSMS(to: string, body: string): Promise<{ success: bool
       const client = await getTwilioClient();
       const fromNumber = await getTwilioFromPhoneNumber();
       
-      const MAX_SMS_LENGTH = 1600;
+      
       const segments = [];
       let remaining = body;
       while (remaining.length > 0) {

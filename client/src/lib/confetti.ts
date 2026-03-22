@@ -1,11 +1,13 @@
 // @ts-ignore - canvas-confetti has no type declarations
 import confetti from "canvas-confetti";
 
+const CONFETTI_COLORS = ["#8A9A7B", "#38BDF8", "#F4795B", "#FFD700", "#A78BFA"];
+
 export function fireResearchConfetti() {
   const duration = 2500;
   const end = Date.now() + duration;
 
-  const colors = ["#8A9A7B", "#38BDF8", "#F4795B", "#FFD700", "#A78BFA"];
+  const colors = CONFETTI_COLORS;
 
   (function frame() {
     confetti({

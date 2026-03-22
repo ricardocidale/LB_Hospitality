@@ -22,6 +22,7 @@ import {
 import { getTwilioFromPhoneNumber, sendSMS } from "../integrations/twilio";
 import type OpenAI from "openai";
 import { getOpenAIClient } from "../ai/clients";
+import { DEFAULT_OPENAI_MODEL } from "../ai/resolve-llm";
 import { retrieveRelevantChunks, buildRAGContext } from "../ai/knowledge-base";
 import { logger } from "../logger";
 import twilio from "twilio";
@@ -175,7 +176,7 @@ export function register(app: Express) {
       const ragContext = buildRAGContext(ragChunks);
       const systemPrompt = buildSystemPrompt("sms", isAdmin);
 
-      const llmModel = ga?.marcelaLlmModel || "gpt-4.1";
+      const llmModel = ga?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
       const maxTokens = ga?.marcelaMaxTokensVoice || 1024;
 
       const startTime = Date.now();
@@ -322,7 +323,7 @@ export function registerTwilioWebSocket(httpServer: import("http").Server) {
                   })),
                 ];
 
-                const llmModel = ga?.marcelaLlmModel || "gpt-4.1";
+                const llmModel = ga?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
                 const maxTokens = ga?.marcelaMaxTokensVoice || 1024;
 
                 const llmStream = await getOpenAIClient().chat.completions.create({

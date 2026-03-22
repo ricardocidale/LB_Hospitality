@@ -29,6 +29,7 @@ import {
 import { Loader2 } from "@/components/icons/themed-icons";
 import { ExportMenu, pdfAction, pptxAction } from "@/components/ui/export-toolbar";
 import type { ResearchConfig, ResearchEventConfig } from "@shared/schema";
+import { DEFAULT_ANTHROPIC_MODEL } from "@shared/constants";
 import {
   type IcpConfig,
   type IcpDescriptive,
@@ -212,7 +213,7 @@ export default function CompanyIcpDefinition() {
   const enabledTools = eventConfig.enabledTools?.length ? eventConfig.enabledTools : [];
   const customSources = researchConfig.customSources?.length ? researchConfig.customSources : [];
   const timeHorizon = eventConfig.timeHorizon || null;
-  const preferredLlm = researchConfig.preferredLlm || (global as any).preferredLlm || "claude-sonnet-4-5";
+  const preferredLlm = researchConfig.preferredLlm || (global as any).preferredLlm || DEFAULT_ANTHROPIC_MODEL;
 
   const companyInputs = [
     { label: "Company Name", value: companyName },

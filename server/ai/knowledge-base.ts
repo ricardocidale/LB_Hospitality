@@ -8,13 +8,14 @@ import {
   KB_EMBEDDING_MAX_LENGTH,
   KB_WORDS_PER_CHUNK_ESTIMATE,
   KB_EMBEDDING_BATCH_SIZE,
+  MAX_RAG_CONTEXT_CHARS,
+  KB_MIN_CONFIDENCE,
 } from "../constants";
 
 const EMBEDDING_MODEL = "text-embedding-3-small";
 const CHUNK_SIZE = 800;
 const CHUNK_OVERLAP = 100;
 const TOP_K = 8;
-const MAX_RAG_CONTEXT_CHARS = 4000;
 
 export function splitIntoChunks(text: string, title: string, source: string, category: string): { title: string; content: string; source: string; category: string }[] {
   const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > KB_MIN_PARAGRAPH_LENGTH);
@@ -704,7 +705,6 @@ export async function retrieveRelevantChunks(query: string, topK: number = TOP_K
   }));
 
   scored.sort((a, b) => b.score - a.score);
-  const KB_MIN_CONFIDENCE = 0.50;
   return scored.slice(0, topK).filter(c => c.score > KB_MIN_CONFIDENCE);
 }
 

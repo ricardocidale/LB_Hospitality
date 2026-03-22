@@ -1,4 +1,4 @@
-import { APP_BRAND_NAME } from "@shared/constants";
+import { APP_BRAND_NAME, BRAND_ACCENT_HEX } from "@shared/constants";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
@@ -262,7 +262,7 @@ export default function Login() {
                 Hospitality Intelligence
               </p>
               <h2 className="text-2xl font-display font-bold text-white/90 leading-snug">
-                {APP_BRAND_NAME}
+                <span style={{ color: BRAND_ACCENT_HEX }}>H+</span> Analytics
               </h2>
               <p className="text-xs text-white/50 mt-2 leading-relaxed max-w-[220px] mx-auto">
                 Dual-entity GAAP modelling and investment simulation for the modern portfolio.

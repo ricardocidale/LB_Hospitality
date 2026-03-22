@@ -1,3 +1,4 @@
+import { UserRole } from "@shared/constants";
 import { useCallback, useState } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -57,7 +58,7 @@ export default function VoiceChatOrb({ className, onSessionChange }: VoiceChatOr
         signedUrl: freshUrl,
         dynamicVariables: {
           user_name: user?.name ?? "Guest",
-          user_role: user?.role ?? "user",
+          user_role: user?.role ?? UserRole.USER,
           current_page: window.location.pathname,
         },
         onStatusChange: (status) => setAgentState(status.status as AgentState),

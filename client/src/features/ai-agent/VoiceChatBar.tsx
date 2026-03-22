@@ -1,3 +1,4 @@
+import { UserRole } from "@shared/constants";
 import { useCallback, useMemo, useState } from "react";
 import { CheckIcon } from "@/components/icons/themed-icons";
 import { IconCopyIcon } from "@/components/icons";
@@ -54,7 +55,7 @@ export default function VoiceChatBar({ className, onSessionChange }: VoiceChatBa
 
   const dynamicVariables = useMemo(() => ({
     user_name: user?.name ?? "Guest",
-    user_role: user?.role ?? "user",
+    user_role: user?.role ?? UserRole.USER,
     current_page: window.location.pathname,
   }), [user]);
 

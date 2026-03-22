@@ -429,7 +429,7 @@ export async function seedAdminUser() {
       user = await storage.createUser({
         email: seed.email,
         passwordHash,
-        role: seed.role,
+        role: seed.role as "admin" | "user" | "checker" | "investor",
         firstName: seed.firstName,
         lastName: seed.lastName,
         company: seed.company,

@@ -1,3 +1,4 @@
+import { UserRole } from "@shared/constants";
 import { useEffect, useRef, useState } from "react";
 import { useGlobalAssumptions } from "@/lib/api/admin";
 import { useAuth } from "@/lib/auth";
@@ -38,7 +39,7 @@ export default function ElevenLabsWidget({ enabled = false }: { enabled?: boolea
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "User";
   const dynamicVars: Record<string, string> = {
     user_name: fullName,
-    user_role: user?.role || "user",
+    user_role: user?.role || UserRole.USER,
     current_page: location,
   };
 

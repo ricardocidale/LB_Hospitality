@@ -1,3 +1,4 @@
+import { UserRole } from "@shared/constants";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ComponentProps } from "react";
 import { useConversation } from "@elevenlabs/react";
@@ -165,7 +166,7 @@ export default function VoiceChatFull({ className, onSessionChange }: VoiceChatF
           signedUrl,
           dynamicVariables: {
             user_name: user?.name ?? "Guest",
-            user_role: user?.role ?? "user",
+            user_role: user?.role ?? UserRole.USER,
             current_page: window.location.pathname,
           },
           overrides: {

@@ -130,9 +130,11 @@ Portfolio aggregation with intercompany elimination per ASC 810:
 - Eliminate management fees (fees paid by SPVs = fees received by ManCo)
 - Validate elimination nets to zero within tolerance
 
-## Deterministic Research Tools (`calc/research/`)
+## Calc Module Taxonomy (`calc/`)
 
-8 pure-function modules registered in `calc/dispatch.ts`:
+76 TypeScript files across 9 subdirectories (`analysis`, `financing`, `funding`, `refinance`, `research`, `returns`, `services`, `shared`, `validation`). Research modules registered in `calc/dispatch.ts`:
+
+### `calc/research/` — Deterministic Research Tools
 
 | Module | Purpose |
 |--------|---------|
@@ -144,6 +146,50 @@ Portfolio aggregation with intercompany elimination per ASC 810:
 | `cap-rate-valuation.ts` | Property valuation from NOI and cap rate |
 | `cost-benchmarks.ts` | Dollar-amount cost benchmarks |
 | `validate-research.ts` | Post-LLM validation against deterministic math |
+
+### `calc/returns/` — Return Metrics
+
+| Module | Purpose |
+|--------|---------|
+| `irr-vector.ts` | Newton-Raphson IRR computation on equity cash flows |
+| `dcf-npv.ts` | DCF analysis, NPV at discount rate |
+| `mirr.ts` | Modified IRR (finance rate + reinvestment rate) |
+| `equity-multiple.ts` | Total distributions / total equity |
+| `exit-valuation.ts` | Terminal value via cap rate or growth models |
+| `wacc.ts` | Weighted average cost of capital |
+
+### `calc/analysis/` — Scenario & Portfolio Analysis
+
+| Module | Purpose |
+|--------|---------|
+| `scenario-compare.ts` | Side-by-side scenario comparison, working capital & day-count |
+| `break-even.ts` | Break-even occupancy/ADR analysis |
+| `stress-test.ts` | Monte Carlo stress testing |
+| `hold-vs-sell.ts` | Hold vs sell decision analysis |
+| `consolidation.ts` | Portfolio-level consolidation |
+| `capex-reserve.ts` | Capital expenditure reserve modeling |
+| `revpar-index.ts` | RevPAR index benchmarking |
+| `waterfall.ts` | Equity waterfall distribution |
+
+### `calc/financing/` — Debt & Financing
+
+| Module | Purpose |
+|--------|---------|
+| `dscr-calculator.ts` | Debt service coverage ratio |
+| `debt-yield.ts` | Debt yield computation, working capital metrics |
+| `sizing.ts` | Loan sizing from DSCR/LTV constraints |
+| `loan-comparison.ts` | Multi-loan comparison |
+| `sensitivity.ts` | Rate sensitivity analysis |
+| `closing-costs.ts` | Closing cost estimation |
+| `prepayment.ts` | Prepayment penalty modeling |
+| `interest-rate-swap.ts` | Swap analysis |
+| `financing-calculator.ts` | Composite financing analysis |
+
+### Engine Features: Cost Segregation & Working Capital
+
+- **Cost segregation:** Enabled via `costSegEnabled` boolean; split percentages `costSeg5yrPct`, `costSeg7yrPct`, `costSeg15yrPct` allocate building value into accelerated depreciation classes (5/7/15/27.5-year). Tracked in `MonthlyFinancials`, aggregated in yearly output.
+- **Working capital:** Modeled in cash flow aggregator. Net working capital changes flow through operating cash flow per ASC 230.
+- **Day-count conventions:** `DAYS_PER_MONTH` (30.5) used for revenue; actual-day methods available in `scenario-compare.ts`.
 
 ## Edge Cases
 
@@ -171,11 +217,11 @@ Portfolio aggregation with intercompany elimination per ASC 810:
 | `client/src/lib/financial/company-engine.ts` | Company calculation engine |
 | `client/src/lib/financial/types.ts` | TypeScript interfaces |
 | `shared/constants.ts` | Named constants and defaults |
-| `calc/` | 60+ files, 13 computation tools, typed dispatch |
+| `calc/` | 76 files, typed dispatch across 8 subdirectories |
 | `client/src/lib/audits/` | 9-module audit system |
 | `server/calculationChecker.ts` | Independent verification engine |
 
-## 17 Sub-Skills (in `.claude/skills/finance/`)
+## 21 Sub-Skills (in `.claude/skills/finance/`)
 
 | File | Coverage |
 |------|----------|
@@ -187,5 +233,16 @@ Portfolio aggregation with intercompany elimination per ASC 810:
 | `fee-linkage.md` | Management/incentive fee calculations |
 | `consolidation.md` | Portfolio aggregation, eliminations |
 | `management-company-statements.md` | ManCo pro forma |
-| `validation-identities.md` | GAAP identity checks |
 | `centralized-services.md` | Cost-plus markup, vendor costs |
+| `calc-module-map.md` | Calc module taxonomy and dispatch |
+| `calculation-chain.md` | Engine pipeline stages |
+| `cash-line-architecture.md` | Cash line item structure |
+| `consolidated-formula-helpers.md` | Consolidated report helpers |
+| `constants-and-config.md` | Constants governance |
+| `cross-statement-reference.md` | Cross-statement field mapping |
+| `diagnostic-decision-tree.md` | Debugging financial issues |
+| `fb-revenue-costs.md` | F&B revenue and cost calculations |
+| `financial-statements-construction.md` | Statement construction patterns |
+| `statement-separation-rules.md` | Statement separation logic |
+| `timing-activation-rules.md` | Temporal activation and timing rules |
+| `validation-identities.md` | GAAP identity checks |

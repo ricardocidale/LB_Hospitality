@@ -70,7 +70,7 @@ Uses `computePropertyMetrics()` from `calc/research/property-metrics.ts` for det
 | File | Purpose |
 |------|---------|
 | `shared/constants.ts` | `DEFAULT_AI_AGENT_NAME`, `DEFAULT_MARCELA_*` constants |
-| `shared/schema.ts` | `global_assumptions` table with `aiAgentName` + all `marcela_*` columns |
+| `shared/schema/config.ts` | `global_assumptions` table with `aiAgentName` + all `marcela_*` columns |
 
 ## Key Facts
 
@@ -83,7 +83,7 @@ Uses `computePropertyMetrics()` from `calc/research/property-metrics.ts` for det
 
 | Task | Files to load |
 |------|--------------|
-| Change voice/audio settings | `server/integrations/elevenlabs.ts`, `shared/schema.ts`, `types.ts` |
+| Change voice/audio settings | `server/integrations/elevenlabs.ts`, `shared/schema/config.ts`, `types.ts` |
 | Add/change agent tools | `server/ai/marcela-agent-config.ts` |
 | Fix waveform/orb/visual | The specific component file only |
 | KB sync issue | `server/ai/knowledge-base.ts` + `marcela-knowledge-base.ts` |

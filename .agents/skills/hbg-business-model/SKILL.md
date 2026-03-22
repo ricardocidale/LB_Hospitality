@@ -154,7 +154,7 @@ Acquisition -> Pre-Opening -> Operations -> Hold Period -> Refinance (optional) 
 | File | Purpose |
 |------|---------|
 | `shared/constants.ts` | All financial default values |
-| `shared/schema.ts` | Database schema — property, globalAssumptions, feeCategory tables |
+| `shared/schema/` | Database schema — property, globalAssumptions, feeCategory tables (split across `properties.ts`, `config.ts`, `services.ts`) |
 | `client/src/lib/financial/types.ts` | TypeScript interfaces: PropertyInput, GlobalInput, MonthlyFinancials |
 | `calc/research/make-vs-buy.ts` | Make-vs-buy analysis calculator |
 | `calc/research/service-fee.ts` | Service fee category calculator |

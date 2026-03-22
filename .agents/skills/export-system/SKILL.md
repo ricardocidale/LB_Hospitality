@@ -73,15 +73,78 @@ Captures table or chart DOM elements at 2x resolution. Auto-collapses accordion 
 
 Lightweight `downloadCSV(content, filename)` Blob-based download.
 
-## Branding Constants
+## Per-Category Export Configuration
+
+Admins configure which sections appear in each report category via Admin → Exports tab. Three categories mirror the three export types: Overview, Financial Statements, and Financial Analysis.
+
+### Architecture
+
+| Layer | File | Purpose |
+|-------|------|---------|
+| TypeScript interface | `client/src/lib/exportConfig.ts` | `ExportConfig` type + `DEFAULT_EXPORT_CONFIG` + localStorage load/save |
+| Server validation | `server/routes/admin/exports.ts` | Zod schema, `GET/PUT /api/admin/export-config`, DB persistence via `global_assumptions.exportConfig` |
+| Admin UI | `client/src/components/admin/ExportsTab.tsx` | Three-tab config panel with `SectionToggle`, `SettingSwitch`, `GroupHeader`, `ContentCard`, `SettingsCard` |
+| Consumer | `client/src/components/dashboard/exportRenderers.ts` | `loadExportConfig()` gates each section at render time |
+
+### ExportConfig Interface
+
+Each category has format settings (orientation, length, quality) plus section-specific boolean toggles:
+
+- **overview** — `kpiMetrics`, `revenueChart`, `projectionTable`, `compositionTables`, `compositionCharts`, `waterfallTable`, `propertyInsights`, `aiInsights`
+- **statements** — `incomeStatement`, `incomeChart`, `cashFlow`, `cashFlowChart`, `balanceSheet`, `balanceSheetChart`, `detailedLineItems`
+- **analysis** — `kpiSummaryCards`, `returnChart`, `freeCashFlowTable`, `propertyIrrTable`, `dcfAnalysis`, `performanceTrend`
+
+Shared format fields per category: `allowLandscape`, `allowPortrait`, `allowShort`, `allowExtended`, `allowPremium`, `densePagination`.
+
+### Adding a New Export Section Toggle
+
+1. **`client/src/lib/exportConfig.ts`** — Add the boolean field to the relevant category in `ExportConfig` and `DEFAULT_EXPORT_CONFIG`
+2. **`server/routes/admin/exports.ts`** — Add the field to the matching Zod schema category and to `DEFAULT_EXPORT_CONFIG`
+3. **`client/src/components/admin/ExportsTab.tsx`** — Add a `SectionToggle` in the relevant tab
+4. **`client/src/components/dashboard/exportRenderers.ts`** — Gate the section render with `cfg.{category}.{field}`
+
+### Admin UI Components
+
+| Component | Purpose |
+|-----------|---------|
+| `SectionToggle` | Checkbox + label + description — for toggling report sections on/off |
+| `SettingSwitch` | Switch + label + description — for format settings (orientation, quality) |
+| `GroupHeader` | Uppercase label with rule line — groups related toggles |
+| `ContentCard` | Two-column split card — houses section toggles |
+| `SettingsCard` | Single-column card — houses format switches |
+| `SubHeader` | Lighter uppercase label — sub-groups within a settings card |
+
+## Premium Export Pipeline (Server-Side)
+
+Server-side LLM-enhanced PDF/PPTX/DOCX/PNG generation. Split into focused modules:
+
+| File | Purpose |
+|------|---------|
+| `server/routes/premium-exports.ts` | Route dispatcher — format selection, theme resolution, SSE streaming |
+| `server/routes/premium-pdf-pipeline.ts` | PDF section builder, LLM design integration, `buildPdfSectionsFromData()`, `generatePdfBuffer()` |
+| `server/routes/premium-export-prompts.ts` | LLM prompt templates, `BRAND` constants |
+| `server/routes/format-generators/excel-generator.ts` | Premium Excel workbook generation |
+| `server/routes/format-generators/pptx-generator.ts` | Premium PowerPoint generation |
+| `server/routes/format-generators/docx-generator.ts` | Premium Word document generation |
+| `server/routes/format-generators/png-generator.ts` | Premium PNG snapshot generation |
+| `server/routes/pdf-html-templates.ts` | HTML template builder for PDF rendering, `PdfSection` interface |
+| `server/pdf/pdf-styles.ts` | CSS stylesheet for PDF rendering |
+| `server/pdf/browser-renderer.ts` | Playwright-based HTML→PDF renderer |
+| `server/pdf/theme-resolver.ts` | Theme color resolution, `PdfTemplateData` interface |
+| `server/pdf/svg-charts.ts` | SVG chart generators for PDF embeds |
+| `server/pdf/table-renderer.ts` | HTML table renderer for PDF |
+
+## Branding & Theming
+
+Brand palette is dynamic — resolved from user group theme colors at export time via `buildBrandPalette(themeColors)` from `exportStyles.ts`. Defaults (when no theme colors are set):
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| Sage Green | `#9FBCA4` | Divider lines, card borders, PPTX header backgrounds |
-| Dark Green | `#257D41` | Metric values, section titles |
-| Dark Text | `#3D3D3D` | Table body text |
-| Warm Off-White | `#FFF9F5` | Title slide text, light backgrounds |
-| Dark Navy | `#1a2a3a` | PPTX title slide background |
+| PRIMARY | `#18181B` (near-black) | Headings, buttons, active nav |
+| SECONDARY | `#3F3F46` (zinc-700) | Badges, contrast elements |
+| ACCENT | `#10B981` (emerald) | KPI highlights, success indicators |
+| FG | `#3D3D3D` | Table body text |
+| BG | `#FFFFFF` | Page backgrounds |
 
 ## Portfolio Data Generators
 

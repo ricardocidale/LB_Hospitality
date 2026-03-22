@@ -3,7 +3,7 @@ Type contract pipeline for the hospitality financial model. Maps the four-layer 
 ## Four-Layer Type Pipeline
 
 ```
-Schema (shared/schema.ts)
+Schema (shared/schema/)
   ↓ Drizzle ORM types, JSONB columns
 API (client/src/lib/api/types.ts)
   ↓ Flattened JSONB, Response suffix
@@ -13,7 +13,7 @@ UI (client/src/components/property-detail/types.ts)
   ↓ YearlyDetail aggregation, component props
 ```
 
-### Layer 1: Schema (`shared/schema.ts`)
+### Layer 1: Schema (`shared/schema/`)
 
 Drizzle ORM table definitions. Source of truth for database structure.
 
@@ -150,14 +150,14 @@ The API layer preserves the nested structure of JSONB but converts snake_case to
 
 When adding a new data field, always flow top-down through the pipeline:
 
-1. **Schema** (`shared/schema.ts`): Add the column to the Drizzle table definition
+1. **Schema** (`shared/schema/`): Add the column to the Drizzle table definition
 2. **API** (`client/src/lib/api/types.ts`): Add to the appropriate `Response` type
 3. **Engine** (`client/src/lib/financial/types.ts`): Add to `PropertyInput` or `GlobalInput` if the engine needs it
 4. **UI** (`client/src/components/property-detail/types.ts`): Add to `YearlyDetail` or component props if displayed
 
 **Example: Adding a new cost rate**
 ```
-shared/schema.ts:     costRateParking column in properties table
+shared/schema/properties.ts: costRateParking column in properties table
 api/types.ts:         costRateParking in PropertyResponse
 financial/types.ts:   costRateParking in PropertyInput
 property-detail/:     parkingExpense in YearlyDetail
@@ -171,13 +171,13 @@ property-detail/:     parkingExpense in YearlyDetail
 - JSONB columns use `.$type<T>()` in the schema for type safety
 - Insert schemas always `.omit()` auto-generated fields
 - Optional engine inputs use `?` or `| null` — the engine applies constants as fallbacks
-- The schema in `shared/schema.ts` is the single source of truth for data shape
+- The schema in `shared/schema/` is the single source of truth for data shape
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `shared/schema.ts` | Drizzle ORM schema — Layer 1 |
+| `shared/schema/` | Drizzle ORM schema — Layer 1 |
 | `client/src/lib/api/types.ts` | API response types — Layer 2 |
 | `client/src/lib/financial/types.ts` | Engine input/output types — Layer 3 |
 | `client/src/components/property-detail/types.ts` | UI aggregation types — Layer 4 |

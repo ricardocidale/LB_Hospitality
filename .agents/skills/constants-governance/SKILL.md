@@ -13,7 +13,7 @@ All financial default values live here. Both server and client import from this 
 | **Configurable** (`DEFAULT_*` prefix) | `DEFAULT_COST_RATE_ROOMS` (0.20), `DEFAULT_EXIT_CAP_RATE` (0.085) | User-overridable; these are fallbacks |
 
 **How constants flow:**
-1. Database schema (`shared/schema.ts`) references them as column defaults
+1. Database schema (`shared/schema/`) references them as column defaults
 2. Financial engine uses them as fallbacks when a property hasn't overridden a value
 3. Verification checker compares calculated values against them to detect anomalies
 4. Tests import them to derive expected values (never hardcode)

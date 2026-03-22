@@ -71,5 +71,5 @@ Each property SPV's specific deal terms. Property-level values always override s
 | `client/src/pages/CompanyAssumptions.tsx` | Management Company assumptions |
 | `client/src/pages/PropertyEdit.tsx` | Property-level settings |
 | `client/src/pages/Admin.tsx` | Admin Panel |
-| `shared/schema.ts` | `globalAssumptions` and `properties` table definitions |
+| `shared/schema/` | `globalAssumptions` and `properties` table definitions (split across `config.ts`, `properties.ts`) |
 | `server/storage.ts` | Storage interface for CRUD operations on settings |

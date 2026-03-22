@@ -134,16 +134,16 @@ Session-based auth with bcrypt password hashing, HTTP-only cookies, 7-day expiry
 | `POST` | `/api/generate-image` | Generate image via gpt-image-1 |
 | `POST` | `/api/generate-property-image` | Generate + upload property photo |
 
-## Database Schema (35 tables)
+## Database Schema (31 tables)
 
-- **Core:** `users`, `sessions`, `user_groups`
-- **Business:** `companies`, `properties`, `global_assumptions`, `property_fee_categories`, `scenarios`
+- **Core:** `users`, `sessions`, `user_groups`, `user_group_properties`
+- **Business:** `companies`, `company_service_templates`, `properties`, `global_assumptions`, `property_fee_categories`, `scenarios`, `seed_defaults`
 - **Branding:** `logos`, `design_themes`, `asset_descriptions`, `property_photos`
 - **Audit:** `login_logs`, `activity_logs`, `verification_runs`
 - **Research:** `market_research`, `market_rates`, `prospective_properties`, `saved_searches`, `research_questions`
 - **AI:** `conversations`, `messages`
 - **Notifications:** `alert_rules`, `notification_logs`, `notification_preferences`, `notification_settings`
-- **Documents:** `document_extractions`, `extraction_fields`, `docusign_envelopes`
+- **Documents:** `document_extractions`, `extraction_fields`
 
 ## Error Responses
 
@@ -165,5 +165,5 @@ Status codes: 400 (validation), 401 (not authenticated), 403 (access denied), 40
 | `server/routes.ts` | Main route registration |
 | `server/storage.ts` | IStorage interface + Drizzle implementation |
 | `server/auth.ts` | Authentication middleware |
-| `shared/schema.ts` | All table definitions + Zod schemas |
+| `shared/schema/` | Modular table definitions + Zod schemas (re-exported from `shared/schema/index.ts`) |
 | `shared/constants.ts` | Named constants |

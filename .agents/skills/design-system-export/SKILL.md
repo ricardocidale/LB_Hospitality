@@ -119,7 +119,7 @@ import { PageHeader } from "@/components/ui/page-header";
 ## What NOT to Copy
 
 - `server/` — backend is project-specific
-- `shared/schema.ts` — data models are project-specific
+- `shared/schema/` — data models are project-specific
 - `client/src/lib/financial/` — financial engine (simulation-specific)
 - `client/src/features/ai-agent/` — ElevenLabs/Marcela integration
 - `client/src/pages/` — page components are project-specific

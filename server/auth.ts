@@ -393,18 +393,15 @@ async function createDefaultScenarioForUser(userId: number, userName: string) {
 
 /**
  * Seeds the database with default users (admin, checker, users) using
- * credentials from environment variables. Ricardo (ricardo.cidale@norfolkgroup.io)
- * is a special case: his password is hardcoded to "admin456" and reset on every
- * startup regardless of FORCE_RESEED_PASSWORDS. Other users read passwords from
- * their respective env vars (e.g. PASSWORD_CHECKER, PASSWORD_REYNALDO) with
- * PASSWORD_DEFAULT as fallback, and only reset when FORCE_RESEED_PASSWORDS=true.
+ * credentials from environment variables. All users read passwords from
+ * their respective env vars (e.g. PASSWORD_ADMIN, PASSWORD_CHECKER, PASSWORD_REYNALDO)
+ * with PASSWORD_DEFAULT as fallback, and only reset when FORCE_RESEED_PASSWORDS=true.
  * A default "Development" scenario is created for each seeded user.
  * @returns A promise that resolves when all seed operations are complete.
  */
 export async function seedAdminUser() {
-  const defaultPassword = process.env.PASSWORD_DEFAULT || process.env.PASSWORD_ADMIN;
-
-  const userSeeds: Array<{
+  const seedConfig = await import("./seed-users.json", { with: { type: "json" } });
+  const userSeeds = seedConfig.default.users as Array<{
     email: string;
     envVar: string;
     role: "admin" | "user" | "checker";
@@ -413,23 +410,12 @@ export async function seedAdminUser() {
     company: string;
     title: string;
     userGroupId?: number;
-  }> = [
-    { email: "ricardo.cidale@norfolkgroup.io", envVar: "PASSWORD_ADMIN", role: "admin", firstName: "Ricardo", lastName: "Cidale", company: "The Norfolk AI Group", title: "Partner", userGroupId: 2 },
-    { email: "checker@norfolkgroup.io", envVar: "PASSWORD_CHECKER", role: "checker", firstName: "Checker", company: "Norfolk AI", title: "Checker", userGroupId: 2 },
-    { email: "reynaldo.fagundes@norfolk.ai", envVar: "PASSWORD_REYNALDO", role: "user", firstName: "Reynaldo", lastName: "Fagundes", company: "Norfolk AI", title: "CTO", userGroupId: 2 },
-    { email: "kit@kitcapital.com", envVar: "PASSWORD_KIT", role: "admin", firstName: "Dov", lastName: "Tuzman", company: "KIT Capital", title: "Principal", userGroupId: 1 },
-    { email: "rosario@kitcapital.com", envVar: "PASSWORD_ROSARIO", role: "user", firstName: "Rosario", lastName: "David", company: "KIT Capital", title: "COO", userGroupId: 1 },
-    { email: "lemazniku@icloud.com", envVar: "PASSWORD_LEA", role: "user", firstName: "Lea", lastName: "Mazniku", company: "KIT Capital", title: "Partner", userGroupId: 1 },
-    { email: "leslie@cidale.com", envVar: "PASSWORD_LESLIE", role: "user", firstName: "Leslie", lastName: "Cidale", company: "Numeratti Endeavors", title: "Senior Partner", userGroupId: 3 },
-    { email: "wlaruffa@gmail.com", envVar: "PASSWORD_WILLIAM", role: "user", firstName: "William", lastName: "Laruffa", company: "Independent", title: "Partner", userGroupId: 3 },
-  ];
+  }>;
 
-  const RICARDO_EMAIL = "ricardo.cidale@norfolkgroup.io";
-  const RICARDO_PASSWORD = "admin456";
+  const defaultPassword = process.env.PASSWORD_DEFAULT || process.env.PASSWORD_ADMIN;
 
   for (const seed of userSeeds) {
-    const isRicardo = seed.email === RICARDO_EMAIL;
-    const password = isRicardo ? RICARDO_PASSWORD : (process.env[seed.envVar] || defaultPassword);
+    const password = process.env[seed.envVar] || defaultPassword;
     if (!password) {
       console.warn(`${seed.envVar} not set and no PASSWORD_DEFAULT. Skipping ${seed.email}.`);
       continue;
@@ -438,48 +424,22 @@ export async function seedAdminUser() {
     let user = await storage.getUserByEmail(seed.email);
 
     if (!user) {
-      if (isRicardo) {
-        const oldAdmin = await storage.getUserByEmail("admin");
-        if (oldAdmin) {
-          const passwordHash = await hashPassword(password);
-          await storage.updateUserProfile(oldAdmin.id, { email: seed.email, firstName: seed.firstName, lastName: seed.lastName, company: seed.company, title: seed.title });
-          await storage.updateUserPassword(oldAdmin.id, passwordHash);
-          await storage.updateUserRole(oldAdmin.id, "admin");
-          user = await storage.getUserById(oldAdmin.id);
-          logger.info(`Migrated old 'admin' user to ${seed.email}`, "auth");
-        }
-      }
-
-      if (seed.email === "checker@norfolkgroup.io") {
-        const oldChecker = await storage.getUserByEmail("checker");
-        if (oldChecker) {
-          const passwordHash = await hashPassword(password);
-          await storage.updateUserProfile(oldChecker.id, { email: seed.email, firstName: seed.firstName, company: seed.company, title: seed.title });
-          await storage.updateUserPassword(oldChecker.id, passwordHash);
-          await storage.updateUserRole(oldChecker.id, "checker");
-          user = await storage.getUserById(oldChecker.id);
-          logger.info(`Migrated old 'checker' user to ${seed.email}`, "auth");
-        }
-      }
-
-      if (!user) {
-        const passwordHash = await hashPassword(password);
-        user = await storage.createUser({
-          email: seed.email,
-          passwordHash,
-          role: seed.role,
-          firstName: seed.firstName,
-          lastName: seed.lastName,
-          company: seed.company,
-          title: seed.title,
-        });
-        logger.info(`User created: ${seed.email}`, "auth");
-      }
+      const passwordHash = await hashPassword(password);
+      user = await storage.createUser({
+        email: seed.email,
+        passwordHash,
+        role: seed.role,
+        firstName: seed.firstName,
+        lastName: seed.lastName,
+        company: seed.company,
+        title: seed.title,
+      });
+      logger.info(`User created: ${seed.email}`, "auth");
     } else {
-      if (isRicardo || process.env.FORCE_RESEED_PASSWORDS === 'true') {
+      if (process.env.FORCE_RESEED_PASSWORDS === 'true') {
         const passwordHash = await hashPassword(password);
         await storage.updateUserPassword(user.id, passwordHash);
-        logger.info(`User password ${isRicardo ? 'reset' : 'force-reset'}: ${seed.email}`, "auth");
+        logger.info(`User password force-reset: ${seed.email}`, "auth");
       } else {
         logger.info(`User exists, password preserved: ${seed.email}`, "auth");
       }

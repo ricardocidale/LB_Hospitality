@@ -25,99 +25,63 @@ export function register(app: Express) {
   // Rate-limiting: IP-based throttle on failed login attempts
   // ────────────────────────────────────────────────────────────
 
+  async function handleCredentialLogin(email: string, password: string, clientIp: string, res: import("express").Response) {
+    if (isRateLimited(clientIp)) {
+      return res.status(429).json({ error: "Too many login attempts. Please try again in 1 minute." });
+    }
+
+    const user = await storage.getUserByEmail(sanitizeEmail(email));
+    if (!user) {
+      recordLoginAttempt(clientIp, false);
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    if (!user.passwordHash) {
+      recordLoginAttempt(clientIp, false);
+      return res.status(401).json({ error: "Please sign in with Google" });
+    }
+
+    const valid = await verifyPassword(password, user.passwordHash);
+    if (!valid) {
+      recordLoginAttempt(clientIp, false);
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    recordLoginAttempt(clientIp, true);
+    const sessionId = generateSessionId();
+    const expiresAt = getSessionExpiryDate();
+    await storage.createSession(user.id, sessionId, expiresAt);
+    await storage.createLoginLog(user.id, sessionId, clientIp);
+    setSessionCookie(res, sessionId);
+    res.json({ user: userResponse(user) });
+  }
+
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-      
-      if (isRateLimited(clientIp)) {
-        return res.status(429).json({ error: "Too many login attempts. Please try again in 1 minute." });
-      }
-      
       const validation = loginSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: "Invalid request" });
       }
-      
-      const email = sanitizeEmail(validation.data.email);
-      const password = validation.data.password;
-      const user = await storage.getUserByEmail(email);
-      
-      if (!user) {
-        recordLoginAttempt(clientIp, false);
-        return res.status(401).json({ error: "Invalid credentials" });
-      }
-      
-      if (!user.passwordHash) {
-        recordLoginAttempt(clientIp, false);
-        return res.status(401).json({ error: "Please sign in with Google" });
-      }
-
-      const valid = await verifyPassword(password, user.passwordHash);
-      if (!valid) {
-        recordLoginAttempt(clientIp, false);
-        return res.status(401).json({ error: "Invalid credentials" });
-      }
-      
-      recordLoginAttempt(clientIp, true);
-      
-      const sessionId = generateSessionId();
-      const expiresAt = getSessionExpiryDate();
-      await storage.createSession(user.id, sessionId, expiresAt);
-      await storage.createLoginLog(user.id, sessionId, clientIp);
-      setSessionCookie(res, sessionId);
-      
-      res.json({ 
-        user: userResponse(user)
-      });
+      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+      await handleCredentialLogin(validation.data.email, validation.data.password, clientIp, res);
     } catch (error) {
       logAndSendError(res, "Login failed", error);
     }
   });
 
-  // Admin auto-login (for development/demo convenience)
   app.post("/api/auth/admin-login", async (req, res) => {
     try {
-      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-
-      if (isRateLimited(clientIp)) {
-        return res.status(429).json({ error: "Too many login attempts. Please try again in 1 minute." });
+      const seedConfig = await import("../config/seed-users.json", { with: { type: "json" } });
+      const adminSeed = (seedConfig.default.users as Array<{ email: string; role: string }>).find(u => u.role === "admin");
+      if (!adminSeed) {
+        return res.status(401).json({ error: "No admin user configured" });
       }
-
-      const user = await storage.getUserByEmail("ricardo.cidale@norfolkgroup.io");
-      if (!user) {
-        recordLoginAttempt(clientIp, false);
-        return res.status(401).json({ error: "Admin user not found" });
-      }
-
-      // Validate password from request body against stored hash
       const { password } = req.body || {};
       if (!password) {
-        recordLoginAttempt(clientIp, false);
         return res.status(401).json({ error: "Password required" });
       }
-
-      if (!user.passwordHash) {
-        recordLoginAttempt(clientIp, false);
-        return res.status(401).json({ error: "Please sign in with Google" });
-      }
-
-      const isValid = await verifyPassword(password, user.passwordHash);
-      if (!isValid) {
-        recordLoginAttempt(clientIp, false);
-        return res.status(401).json({ error: "Invalid admin credentials" });
-      }
-
-      recordLoginAttempt(clientIp, true);
-
-      const sessionId = generateSessionId();
-      const expiresAt = getSessionExpiryDate();
-      await storage.createSession(user.id, sessionId, expiresAt);
-      await storage.createLoginLog(user.id, sessionId, clientIp);
-      setSessionCookie(res, sessionId);
-
-      res.json({
-        user: userResponse(user)
-      });
+      const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+      await handleCredentialLogin(adminSeed.email, password, clientIp, res);
     } catch (error) {
       logAndSendError(res, "Admin login failed", error);
     }
@@ -128,27 +92,24 @@ export function register(app: Express) {
       if (process.env.NODE_ENV === "production") {
         return res.status(403).json({ error: "Dev login disabled in production" });
       }
-      const user = await storage.getUserByEmail("ricardo.cidale@norfolkgroup.io");
+      const seedConfig = await import("../seed-users.json", { with: { type: "json" } });
+      const adminSeed = seedConfig.default.users.find((u: any) => u.role === "admin");
+      if (!adminSeed) {
+        return res.status(401).json({ error: "No admin user configured" });
+      }
+      const user = await storage.getUserByEmail(adminSeed.email);
       if (!user) {
         return res.status(401).json({ error: "Admin user not found" });
       }
       if (!user.passwordHash) {
         return res.status(401).json({ error: "Please sign in with Google" });
       }
-      const isValid = await verifyPassword("admin456", user.passwordHash);
-      if (!isValid) {
-        return res.status(401).json({ error: "Admin password mismatch" });
+      const adminPassword = process.env[adminSeed.envVar] || process.env.PASSWORD_DEFAULT;
+      if (!adminPassword) {
+        return res.status(401).json({ error: "Admin password not configured in env" });
       }
       const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-      recordLoginAttempt(clientIp, true);
-      const sessionId = generateSessionId();
-      const expiresAt = getSessionExpiryDate();
-      await storage.createSession(user.id, sessionId, expiresAt);
-      await storage.createLoginLog(user.id, sessionId, clientIp);
-      setSessionCookie(res, sessionId);
-      res.json({
-        user: userResponse(user)
-      });
+      await handleCredentialLogin(devAdminSeed.email, adminPassword, clientIp, res);
     } catch (error) {
       logAndSendError(res, "Dev login failed", error);
     }

@@ -8,8 +8,8 @@
 import { describe, it, expect, beforeAll } from "vitest";
 
 const BASE = process.env.E2E_BASE_URL || "http://localhost:5000";
-const ADMIN_EMAIL = "admin";
-const ADMIN_PASSWORD = "admin456";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "ricardo.cidale@norfolkgroup.io";
+const ADMIN_PASSWORD = process.env.PASSWORD_ADMIN || process.env.PASSWORD_DEFAULT || "";
 
 /** Login and return the session cookie string. */
 async function login(
@@ -64,7 +64,7 @@ describe.skipIf(!process.env.E2E)("E2E Smoke Tests", () => {
 
     const body = await res.json();
     expect(body.user).toBeDefined();
-    expect(body.user.email).toBe("admin");
+    expect(body.user.email).toBe(ADMIN_EMAIL);
     expect(body.user.role).toBe("admin");
   });
 
@@ -96,7 +96,7 @@ describe.skipIf(!process.env.E2E)("E2E Smoke Tests", () => {
 
     const body = await res.json();
     expect(body.user).toBeDefined();
-    expect(body.user.email).toBe("admin");
+    expect(body.user.email).toBe(ADMIN_EMAIL);
     expect(body.user.role).toBe("admin");
   });
 

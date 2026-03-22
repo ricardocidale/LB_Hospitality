@@ -277,67 +277,64 @@ describe("Per-Property Fee Constants", () => {
 });
 
 describe("Seed Data Integrity", () => {
-  const expectedUsers = [
-    { email: "admin", name: "Ricardo Cidale", company: "Norfolk Group", title: "Partner", role: "admin" },
-    { email: "rosario@kitcapital.com", name: "Rosario David", company: "KIT Capital", title: "COO", role: "user" },
-    { email: "kit@kitcapital.com", name: "Dov Tuzman", company: "KIT Capital", title: "Principal", role: "user" },
-    { email: "lemazniku@icloud.com", name: "Lea Mazniku", company: "KIT Capital", title: "Partner", role: "user" },
-    { email: "checker@norfolkgroup.io", name: "Checker", company: "Norfolk AI", title: "Checker", role: "checker" },
-    { email: "bhuvan@norfolkgroup.io", name: "Bhuvan Agarwal", company: "Norfolk AI", title: "Financial Analyst", role: "user" },
-    { email: "reynaldo.fagundes@norfolk.ai", name: "Reynaldo Fagundes", company: "Norfolk AI", title: "CTO", role: "user" },
-    { email: "leslie@cidale.com", name: "Leslie Cidale", company: "Numeratti Endeavors", title: "Senior Partner", role: "user" },
-  ];
+  const seedConfig = require("../../server/config/seed-users.json");
+  const expectedUsers = seedConfig.users.map((u: { email: string; firstName: string; lastName?: string; company: string; title: string; role: string }) => ({
+    email: u.email,
+    name: [u.firstName, u.lastName].filter(Boolean).join(" "),
+    company: u.company,
+    title: u.title,
+    role: u.role,
+  }));
 
   it("has exactly 8 seeded users", () => {
     expect(expectedUsers).toHaveLength(8);
   });
 
-  it("has exactly 1 admin user", () => {
-    const admins = expectedUsers.filter(u => u.role === "admin");
-    expect(admins).toHaveLength(1);
-    expect(admins[0].email).toBe("admin");
+  it("has at least 1 admin user", () => {
+    const admins = expectedUsers.filter((u: { role: string }) => u.role === "admin");
+    expect(admins.length).toBeGreaterThanOrEqual(1);
   });
 
   it("has exactly 1 checker user", () => {
-    const checkers = expectedUsers.filter(u => u.role === "checker");
+    const checkers = expectedUsers.filter((u: { role: string }) => u.role === "checker");
     expect(checkers).toHaveLength(1);
     expect(checkers[0].email).toBe("checker@norfolkgroup.io");
   });
 
-  it("has 6 regular users", () => {
-    const users = expectedUsers.filter(u => u.role === "user");
-    expect(users).toHaveLength(6);
+  it("has 5 regular users", () => {
+    const users = expectedUsers.filter((u: { role: string }) => u.role === "user");
+    expect(users).toHaveLength(5);
   });
 
   it("all users have non-empty name, company, and title", () => {
     for (const u of expectedUsers) {
-      expect(u.name.length).toBeGreaterThan(0);
-      expect(u.company.length).toBeGreaterThan(0);
-      expect(u.title.length).toBeGreaterThan(0);
+      expect((u as { name: string }).name.length).toBeGreaterThan(0);
+      expect((u as { company: string }).company.length).toBeGreaterThan(0);
+      expect((u as { title: string }).title.length).toBeGreaterThan(0);
     }
   });
 
   it("all emails are unique", () => {
-    const emails = expectedUsers.map(u => u.email);
+    const emails = expectedUsers.map((u: { email: string }) => u.email);
     expect(new Set(emails).size).toBe(emails.length);
   });
 
   it("KIT Capital group has 3 members", () => {
-    const kitMembers = expectedUsers.filter(u => u.company === "KIT Capital");
+    const kitMembers = expectedUsers.filter((u: { company: string }) => u.company === "KIT Capital");
     expect(kitMembers).toHaveLength(3);
   });
 
-  it("Norfolk entities have 4 members", () => {
-    const norfolkMembers = expectedUsers.filter(u =>
-      u.company === "Norfolk Group" || u.company === "Norfolk AI"
+  it("Norfolk entities have 3 members", () => {
+    const norfolkMembers = expectedUsers.filter((u: { company: string }) =>
+      u.company === "The Norfolk AI Group" || u.company === "Norfolk AI"
     );
-    expect(norfolkMembers).toHaveLength(4);
+    expect(norfolkMembers).toHaveLength(3);
   });
 
   it("Leslie Cidale is in Numeratti Endeavors", () => {
-    const leslie = expectedUsers.find(u => u.email === "leslie@cidale.com");
+    const leslie = expectedUsers.find((u: { email: string }) => u.email === "leslie@cidale.com");
     expect(leslie).toBeDefined();
-    expect(leslie!.company).toBe("Numeratti Endeavors");
-    expect(leslie!.title).toBe("Senior Partner");
+    expect((leslie as { company: string }).company).toBe("Numeratti Endeavors");
+    expect((leslie as { title: string }).title).toBe("Senior Partner");
   });
 });

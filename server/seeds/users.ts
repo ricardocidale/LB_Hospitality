@@ -4,20 +4,29 @@ import { eq, and, isNull, isNotNull } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { userGroups } from "@shared/schema";
 import { logger } from "../logger";
+import seedUsersConfig from "../seed-users.json" with { type: "json" };
 
 
 export async function seedUsers() {
-  const existingAdmin = await db.select().from(users).where(eq(users.email, "ricardo.cidale@norfolkgroup.io")).limit(1);
+  const adminSeed = seedUsersConfig.users.find(u => u.role === "admin");
+  if (!adminSeed) return;
+
+  const existingAdmin = await db.select().from(users).where(eq(users.email, adminSeed.email)).limit(1);
   if (existingAdmin.length === 0) {
-    const hashedPassword = await bcrypt.hash("admin456", 10);
+    const password = process.env[adminSeed.envVar] || process.env.PASSWORD_DEFAULT;
+    if (!password) {
+      logger.warn(`${adminSeed.envVar} not set and no PASSWORD_DEFAULT. Skipping admin seed.`, "seed");
+      return;
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
     await db.insert(users).values({
-      email: "ricardo.cidale@norfolkgroup.io",
+      email: adminSeed.email,
       passwordHash: hashedPassword,
-      firstName: "Ricardo",
-      lastName: "Cidale",
-      role: "admin",
+      firstName: adminSeed.firstName,
+      lastName: adminSeed.lastName,
+      role: adminSeed.role,
     });
-    logger.info("Created admin user (email: ricardo.cidale@norfolkgroup.io)", "seed");
+    logger.info(`Created admin user (email: ${adminSeed.email})`, "seed");
   }
 }
 
@@ -37,10 +46,7 @@ export async function seedUserGroups() {
   }
 
   if (existing.length === 0) {
-    const groupsToSeed = [
-      { name: "KIT Capital Group" },
-      { name: "The Norfolk AI Group" },
-    ];
+    const groupsToSeed = seedUsersConfig.seedGroups;
 
     const groupMap: Record<string, number> = {};
     for (const g of groupsToSeed) {
@@ -49,15 +55,7 @@ export async function seedUserGroups() {
     }
 
     const allUsers = await db.select().from(users);
-    const assignments: Record<string, string> = {
-      "rosario@kitcapital.com": "KIT Capital Group",
-      "kit@kitcapital.com": "KIT Capital Group",
-      "lemazniku@icloud.com": "KIT Capital Group",
-      "ricardo.cidale@norfolkgroup.io": "The Norfolk AI Group",
-      "checker@norfolkgroup.io": "The Norfolk AI Group",
-      "wlaruffa@gmail.com": "The Norfolk AI Group",
-      "reynaldo.fagundes@norfolk.ai": "The Norfolk AI Group",
-    };
+    const assignments: Record<string, string> = seedUsersConfig.groupAssignments;
 
     for (const u of allUsers) {
       const groupName = assignments[u.email];
@@ -65,7 +63,7 @@ export async function seedUserGroups() {
         await db.update(users).set({ userGroupId: groupMap[groupName] }).where(eq(users.id, u.id));
       }
     }
-    logger.info("Seeded user groups: KIT Capital Group + The Norfolk AI Group", "seed");
+    logger.info(`Seeded user groups: ${groupsToSeed.map(g => g.name).join(" + ")}`, "seed");
   }
 
   const [defaultGroup] = await db.select().from(userGroups).where(eq(userGroups.isDefault, true));
@@ -80,29 +78,28 @@ export async function seedUserGroups() {
 
 export async function seedUserGroupProperties() {
   const allGroups = await db.select().from(userGroups);
-  const norfolkGroup = allGroups.find(g => g.name === "The Norfolk AI Group");
-  if (!norfolkGroup) {
-    logger.info("Norfolk AI Group not found, skipping user_group_properties seed", "seed");
+  const sharedGroupName = seedUsersConfig.sharedPropertyGroup;
+  const primaryGroup = allGroups.find(g => g.name === sharedGroupName);
+  if (!primaryGroup) {
+    logger.info(`${sharedGroupName} not found, skipping user_group_properties seed`, "seed");
     return;
   }
 
-  // Link all shared portfolio properties (userId IS NULL) to the Norfolk group.
-  // Falls back to name-matching for any edge cases with non-null userId.
-  const norfolkProps = await db.select({ id: properties.id })
+  const sharedProps = await db.select({ id: properties.id })
     .from(properties)
     .where(isNull(properties.userId));
 
-  if (norfolkProps.length === 0) {
-    logger.info("No Norfolk AI properties found, skipping user_group_properties seed", "seed");
+  if (sharedProps.length === 0) {
+    logger.info("No shared properties found, skipping user_group_properties seed", "seed");
     return;
   }
 
   let linked = 0;
-  for (const prop of norfolkProps) {
+  for (const prop of sharedProps) {
     const existing = await db.select().from(userGroupProperties)
       .where(
         and(
-          eq(userGroupProperties.userGroupId, norfolkGroup.id),
+          eq(userGroupProperties.userGroupId, primaryGroup.id),
           eq(userGroupProperties.propertyId, prop.id),
         )
       )
@@ -110,14 +107,14 @@ export async function seedUserGroupProperties() {
 
     if (existing.length === 0) {
       await db.insert(userGroupProperties).values({
-        userGroupId: norfolkGroup.id,
+        userGroupId: primaryGroup.id,
         propertyId: prop.id,
       });
       linked++;
     }
   }
   if (linked > 0) {
-    logger.info(`Linked ${linked} properties to 'The Norfolk AI Group' user group`, "seed");
+    logger.info(`Linked ${linked} properties to '${primaryGroup.name}' user group`, "seed");
   }
 }
 
@@ -127,11 +124,7 @@ export async function seedUserCompanyAssignments() {
     return;
   }
 
-  const companyNameToEmail: Record<string, string[]> = {
-    "The Norfolk AI Group": ["ricardo.cidale@norfolkgroup.io", "checker@norfolkgroup.io", "reynaldo.fagundes@norfolk.ai"],
-    "KIT Capital": ["kit@kitcapital.com", "rosario@kitcapital.com", "lemazniku@icloud.com"],
-    "Numeratti Endeavors": ["leslie@cidale.com"],
-  };
+  const companyNameToEmail: Record<string, string[]> = seedUsersConfig.companyAssignments;
 
   const allCompanies = await db.select().from(companies);
   const companyMap: Record<string, number> = {};

@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 889 source files, ~157K lines, 3,425 tests across 154 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 889 source files, ~157K lines, 3,438 tests across 154 test files. Hosted on Replit.
 
 ---
 
@@ -58,7 +58,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Design System | `.claude/skills/design-system/SKILL.md` | Colors, typography, component catalog, CSS classes |
 | Theme Engine | `.claude/skills/ui/theme-engine.md` | Multi-theme system, token structure |
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
-| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,425 tests, 583 golden tests, verification commands |
+| Proof System | `.claude/skills/proof-system/SKILL.md` | 3,438 tests, 583 golden tests, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
 | Graphics | `.claude/skills/3d-graphics/SKILL.md` | CSS/Canvas animations, framer-motion wrappers |
 | Database | `.claude/skills/database/SKILL.md` | Dev/prod databases, Drizzle ORM, migrations, sync |
@@ -105,7 +105,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (3,425 Tests, 154 Files)
+## Testing & Proof System (3,438 Tests, 154 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -115,7 +115,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 3,425) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 3,438) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
 
 ---
 
@@ -339,7 +339,7 @@ All utility scripts live in `script/` (single canonical directory).
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify + doc harmony (~60s)
-npm run test:summary   # All 3,425 tests, 1-line output (~35s)
+npm run test:summary   # All 3,438 tests, 1-line output (~35s)
 npm run verify:summary # 8-phase financial verification (~20s)
 npm run lint:summary   # TypeScript check only (<10s)
 npm run stats          # File/line/test counts (<5s, no vitest)

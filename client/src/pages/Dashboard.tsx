@@ -430,7 +430,7 @@ export default function Dashboard() {
 
           const incomeData = generatePortfolioIncomeData(financials.yearlyConsolidatedCache, py, gfy, summaryOnly);
 
-          let statements: Array<{ title: string; years: string[]; rows: any[] }>;
+          let statements: Array<{ title: string; years: string[]; rows: any[]; includeTable?: boolean; includeChart?: boolean }>;
           let statementType: string;
 
           if (activeTab === "overview") {
@@ -440,16 +440,18 @@ export default function Dashboard() {
             const yearStrs = ovd.yearLabels.map(String);
             statements = [];
 
-            if (cfg.projectionTable) {
+            if (cfg.projectionTable || cfg.revenueChart) {
               statements.push({
                 title: "Revenue & ANOI Projections",
                 years: yearStrs,
                 rows: [
-                  { category: "Revenue", values: ovd.revenueNOIData.map(d => d.revenue), format: "currency" },
-                  { category: "NOI", values: ovd.revenueNOIData.map(d => d.noi), format: "currency" },
-                  { category: "ANOI", values: ovd.revenueNOIData.map(d => d.anoi), isBold: true, format: "currency" },
+                  { category: "Total Revenue", values: ovd.revenueNOIData.map(d => d.revenue), format: "currency" },
+                  { category: "Net Operating Income", values: ovd.revenueNOIData.map(d => d.noi), format: "currency" },
+                  { category: "Adjusted NOI", values: ovd.revenueNOIData.map(d => d.anoi), isBold: true, format: "currency" },
                   { category: "Cash Flow", values: ovd.revenueNOIData.map(d => d.cashFlow), format: "currency" },
                 ],
+                includeTable: cfg.projectionTable,
+                includeChart: cfg.revenueChart,
               });
             }
 
@@ -481,7 +483,7 @@ export default function Dashboard() {
                 years: ["Market", "Rooms", "Status", "Acq. Cost", "ADR", "IRR"],
                 rows: ovd.propertyItems.map(p => ({
                   category: p.name,
-                  values: [p.market as any, p.rooms, p.status as any, p.acquisitionCost, p.adr, p.irr],
+                  values: [p.market, p.rooms, p.status, p.acquisitionCost, p.adr, p.irr],
                 })),
               });
             }
@@ -513,7 +515,7 @@ export default function Dashboard() {
                   category: r.label,
                   values: r.values,
                   isBold: r.isSubtotal,
-                  format: "currency" as any,
+                  format: "currency",
                 })),
               });
             }

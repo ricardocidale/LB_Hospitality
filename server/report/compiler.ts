@@ -32,6 +32,8 @@ interface StatementBlock {
   title: string;
   years: string[];
   rows: ExportRow[];
+  includeTable?: boolean;
+  includeChart?: boolean;
 }
 
 export interface CompileInput {
@@ -280,22 +282,29 @@ export function compileReport(input: CompileInput): ReportDefinition {
         if (investKpi) sections.push(investKpi);
       }
 
-      const filteredRows = buildTableRows(stmt.rows);
+      const skipTable = stmt.includeTable === false;
+      const skipChart = stmt.includeChart === false;
 
-      if (isInvestment && filteredRows.length > 0) {
-        const subSections = splitInvestmentTables(stmt, filteredRows);
-        sections.push(...subSections);
-      } else {
-        sections.push({
-          kind: "table",
-          title: stmt.title,
-          years: stmt.years,
-          rows: filteredRows,
-        });
+      if (!skipTable) {
+        const filteredRows = buildTableRows(stmt.rows);
+
+        if (isInvestment && filteredRows.length > 0) {
+          const subSections = splitInvestmentTables(stmt, filteredRows);
+          sections.push(...subSections);
+        } else {
+          sections.push({
+            kind: "table",
+            title: stmt.title,
+            years: stmt.years,
+            rows: filteredRows,
+          });
+        }
       }
 
-      const chartSection = buildChartSection(stmt, tc);
-      if (chartSection) sections.push(chartSection);
+      if (!skipChart) {
+        const chartSection = buildChartSection(stmt, tc);
+        if (chartSection) sections.push(chartSection);
+      }
     }
   } else if (input.rows?.length && input.years?.length) {
     const filteredRows = buildTableRows(input.rows);

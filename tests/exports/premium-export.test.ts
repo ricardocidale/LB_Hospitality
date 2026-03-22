@@ -3,6 +3,7 @@ import { z } from "zod";
 import fs from "fs";
 import path from "path";
 import { AI_GENERATION_TIMEOUT_MS } from "../../server/constants";
+import { compileReport } from "../../server/report/compiler";
 
 const routeSource = fs.readFileSync(
   path.resolve(__dirname, "../../server/routes/premium-exports.ts"),
@@ -150,6 +151,102 @@ describe("Premium export schema validation behavior", () => {
   });
 });
 
+describe("Cover page removal", () => {
+  it("route schema does not accept includeCoverPage", () => {
+    expect(routeSource).not.toContain("includeCoverPage");
+  });
+
+  it("ReportDefinition type has no includeCoverPage field", () => {
+    const typesSource = fs.readFileSync(
+      path.resolve(__dirname, "../../server/report/types.ts"),
+      "utf-8"
+    );
+    expect(typesSource).not.toContain("includeCoverPage");
+  });
+
+  it("CompileInput type has no includeCoverPage field", () => {
+    const compilerSource = fs.readFileSync(
+      path.resolve(__dirname, "../../server/report/compiler.ts"),
+      "utf-8"
+    );
+    expect(compilerSource).not.toContain("includeCoverPage");
+  });
+
+  it("PDF renderer has no CoverPage component", () => {
+    const renderSource = fs.readFileSync(
+      path.resolve(__dirname, "../../server/pdf/render.tsx"),
+      "utf-8"
+    );
+    expect(renderSource).not.toContain("CoverPage");
+    expect(renderSource).not.toContain("includeCoverPage");
+  });
+
+  it("PPTX generator has no cover page logic", () => {
+    const pptxSource = fs.readFileSync(
+      path.resolve(__dirname, "../../server/routes/format-generators/pptx-generator.ts"),
+      "utf-8"
+    );
+    expect(pptxSource).not.toContain("includeCoverPage");
+  });
+
+  it("PNG generator has no cover page logic", () => {
+    const pngSource = fs.readFileSync(
+      path.resolve(__dirname, "../../server/routes/format-generators/png-generator.ts"),
+      "utf-8"
+    );
+    expect(pngSource).not.toContain("includeCoverPage");
+    expect(pngSource).not.toContain('"cover"');
+  });
+});
+
+describe("Overview export data adapter", () => {
+  it("buildOverviewExportData is imported in Dashboard", () => {
+    const dashSource = fs.readFileSync(
+      path.resolve(__dirname, "../../client/src/pages/Dashboard.tsx"),
+      "utf-8"
+    );
+    expect(dashSource).toContain("buildOverviewExportData");
+    expect(dashSource).toContain("loadExportConfig");
+  });
+
+  it("Overview tab produces non-empty statements", () => {
+    const dashSource = fs.readFileSync(
+      path.resolve(__dirname, "../../client/src/pages/Dashboard.tsx"),
+      "utf-8"
+    );
+    expect(dashSource).toContain("Revenue & ANOI Projections");
+    expect(dashSource).toContain("Portfolio & Capital Structure");
+    expect(dashSource).toContain("Property Insights");
+    expect(dashSource).toContain("USALI Profit Waterfall");
+    expect(dashSource).toContain("Market Distribution");
+    expect(dashSource).toContain("Status Distribution");
+  });
+
+  it("Overview projection rows use chart-compatible labels", () => {
+    const dashSource = fs.readFileSync(
+      path.resolve(__dirname, "../../client/src/pages/Dashboard.tsx"),
+      "utf-8"
+    );
+    expect(dashSource).toContain('"Total Revenue"');
+    expect(dashSource).toContain('"Net Operating Income"');
+    expect(dashSource).toContain('"Adjusted NOI"');
+  });
+
+  it("Overview respects admin ExportConfig toggles", () => {
+    const dashSource = fs.readFileSync(
+      path.resolve(__dirname, "../../client/src/pages/Dashboard.tsx"),
+      "utf-8"
+    );
+    expect(dashSource).toContain("loadExportConfig().overview");
+    expect(dashSource).toContain("cfg.projectionTable");
+    expect(dashSource).toContain("cfg.revenueChart");
+    expect(dashSource).toContain("cfg.compositionTables");
+    expect(dashSource).toContain("cfg.propertyInsights");
+    expect(dashSource).toContain("cfg.waterfallTable");
+    expect(dashSource).toContain(".kpiMetrics");
+  });
+});
+
 describe("Safe filename generation", () => {
   it("sanitizes company name for filename", () => {
     const companyName = "Acme Hotels & Resorts (NYC)";
@@ -169,5 +266,66 @@ describe("Safe filename generation", () => {
     const longName = "A".repeat(60);
     const safe = longName.replace(/[^a-zA-Z0-9 ]/g, "").substring(0, 40).trim();
     expect(safe.length).toBe(40);
+  });
+});
+
+describe("Compiler includeTable/includeChart flags", () => {
+  it("omits chart when includeChart is false", () => {
+    const result = compileReport({
+      format: "pdf",
+      entityName: "Test",
+      statements: [
+        {
+          title: "Revenue & ANOI Projections",
+          years: ["2025", "2026"],
+          rows: [
+            { category: "Total Revenue", values: [100, 200] },
+          ],
+          includeChart: false,
+        },
+      ],
+    });
+    const kinds = result.sections.map(s => s.kind);
+    expect(kinds).toContain("table");
+    expect(kinds).not.toContain("chart");
+  });
+
+  it("omits table when includeTable is false", () => {
+    const result = compileReport({
+      format: "pdf",
+      entityName: "Test",
+      statements: [
+        {
+          title: "Revenue & ANOI Projections",
+          years: ["2025", "2026"],
+          rows: [
+            { category: "Total Revenue", values: [100, 200] },
+          ],
+          includeTable: false,
+        },
+      ],
+    });
+    const kinds = result.sections.map(s => s.kind);
+    expect(kinds).not.toContain("table");
+    expect(kinds).toContain("chart");
+  });
+
+  it("includes both when flags are undefined (default)", () => {
+    const result = compileReport({
+      format: "pdf",
+      entityName: "Test",
+      statements: [
+        {
+          title: "Revenue & ANOI Projections",
+          years: ["2025", "2026"],
+          rows: [
+            { category: "Total Revenue", values: [100, 200] },
+          ],
+        },
+      ],
+    });
+    const kinds = result.sections.map(s => s.kind);
+    expect(kinds).toContain("table");
+    expect(kinds).toContain("chart");
   });
 });

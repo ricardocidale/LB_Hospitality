@@ -1,22 +1,23 @@
 import { globalAssumptions, scenarios, propertyFeeCategories, propertyPhotos, companyServiceTemplates, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
 import { db } from "../db";
-import { eq, desc, isNull, inArray } from "drizzle-orm";
+import { eq, desc, isNull, inArray, or, sql } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 
 export class FinancialStorage {
-  /**
-   * Fetch the system-wide financial assumptions. If a userId is provided,
-   * returns that user's personal copy; otherwise returns the shared (default) row.
-   */
   async getGlobalAssumptions(userId?: number): Promise<GlobalAssumptions | undefined> {
-    if (userId) {
-      const [userResult] = await db.select().from(globalAssumptions).where(eq(globalAssumptions.userId, userId)).limit(1);
-      if (userResult) return userResult;
-    }
-    const [shared] = await db.select().from(globalAssumptions).where(isNull(globalAssumptions.userId)).orderBy(desc(globalAssumptions.id)).limit(1);
-    if (shared) return shared;
-    const [any] = await db.select().from(globalAssumptions).limit(1);
-    return any || undefined;
+    const condition = userId
+      ? or(eq(globalAssumptions.userId, userId), isNull(globalAssumptions.userId))
+      : isNull(globalAssumptions.userId);
+
+    const [result] = await db.select().from(globalAssumptions)
+      .where(condition)
+      .orderBy(sql`${globalAssumptions.userId} IS NULL ASC`, desc(globalAssumptions.id))
+      .limit(1);
+
+    if (result) return result;
+
+    const [fallback] = await db.select().from(globalAssumptions).limit(1);
+    return fallback || undefined;
   }
 
   /**

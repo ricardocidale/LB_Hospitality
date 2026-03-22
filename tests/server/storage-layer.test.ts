@@ -181,13 +181,13 @@ describe("Storage Layer — PhotoStorage", () => {
   });
 
   it("addPropertyPhoto syncs hero URL to properties.imageUrl", () => {
-    expect(src).toContain("syncHeroToProperty(data.propertyId, photo.imageUrl)");
+    expect(src).toContain("imageUrl: photo.imageUrl");
   });
 
   it("deletePropertyPhoto promotes next photo when hero is deleted", () => {
     expect(src).toContain("if (photo.isHero)");
     expect(src).toContain("set({ isHero: true })");
-    expect(src).toContain("syncHeroToProperty(photo.propertyId, remaining[0].imageUrl)");
+    expect(src).toContain("imageUrl: remaining[0].imageUrl");
   });
 
   it("setHeroPhoto clears all heroes before setting new one", () => {
@@ -206,14 +206,16 @@ describe("Storage Layer — PhotoStorage", () => {
     expect(body).toContain("eq(propertyPhotos.propertyId, propertyId)");
   });
 
-  it("reorderPhotos sets sortOrder based on array index", () => {
-    expect(src).toContain("set({ sortOrder: i })");
-    expect(src).toContain("eq(propertyPhotos.id, orderedIds[i])");
+  it("reorderPhotos sets sortOrder for all photos in single statement", () => {
+    expect(src).toContain("async reorderPhotos(");
+    expect(src).toContain("CASE id");
+    expect(src).toContain("sort_order");
   });
 
-  it("syncHeroToProperty is a module-level function (not on IStorage)", () => {
-    expect(src).toContain("async function syncHeroToProperty(");
-    expect(src).not.toContain("async syncHeroToProperty(");
+  it("hero sync updates properties.imageUrl within transaction", () => {
+    expect(src).toContain("db.transaction");
+    expect(src).toContain("imageUrl");
+    expect(src).toContain("eq(properties.id");
   });
 });
 

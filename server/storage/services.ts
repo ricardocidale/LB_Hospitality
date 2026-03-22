@@ -1,6 +1,6 @@
 import { companyServiceTemplates, propertyFeeCategories, properties, type ServiceTemplate, type InsertServiceTemplate, type UpdateServiceTemplate } from "@shared/schema";
 import { db } from "../db";
-import { eq, isNull } from "drizzle-orm";
+import { eq, isNull, inArray } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 
 export class ServiceStorage {
@@ -48,27 +48,38 @@ export class ServiceStorage {
     let created = 0;
     let skipped = 0;
 
+    const propertyIds = allProperties.map(p => p.id);
+    const allExistingCats = propertyIds.length > 0
+      ? await db.select().from(propertyFeeCategories).where(inArray(propertyFeeCategories.propertyId, propertyIds))
+      : [];
+
+    const existingByProperty = new Map<number, Set<string>>();
+    for (const cat of allExistingCats) {
+      if (!existingByProperty.has(cat.propertyId)) existingByProperty.set(cat.propertyId, new Set());
+      existingByProperty.get(cat.propertyId)!.add(cat.name);
+    }
+
+    const toInsert: Array<{ propertyId: number; name: string; rate: number; isActive: boolean; sortOrder: number }> = [];
     for (const prop of allProperties) {
-      const existingCats = await db.select()
-        .from(propertyFeeCategories)
-        .where(eq(propertyFeeCategories.propertyId, prop.id));
-
-      const existingNames = new Set(existingCats.map(c => c.name));
-
+      const existingNames = existingByProperty.get(prop.id) ?? new Set();
       for (const template of activeTemplates) {
         if (existingNames.has(template.name)) {
           skipped++;
-          continue;
+        } else {
+          toInsert.push({
+            propertyId: prop.id,
+            name: template.name,
+            rate: template.defaultRate,
+            isActive: true,
+            sortOrder: template.sortOrder,
+          });
         }
-        await db.insert(propertyFeeCategories).values({
-          propertyId: prop.id,
-          name: template.name,
-          rate: template.defaultRate,
-          isActive: true,
-          sortOrder: template.sortOrder,
-        });
-        created++;
       }
+    }
+
+    if (toInsert.length > 0) {
+      await db.insert(propertyFeeCategories).values(toInsert);
+      created = toInsert.length;
     }
 
     return { created, skipped };

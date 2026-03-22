@@ -20,12 +20,12 @@ export const AI_GENERATION_TIMEOUT_MS = 120_000;
 // Database connection pool
 // ---------------------------------------------------------------------------
 
-export const DB_POOL_MAX_CONNECTIONS = 20;
-export const DB_POOL_MIN_CONNECTIONS = 2;
-export const DB_IDLE_TIMEOUT_MS = 60_000;
-export const DB_CONNECTION_TIMEOUT_MS = 10_000;
-/** Recycle connections after this many uses to prevent memory creep */
+export const DB_POOL_MAX_CONNECTIONS = 8;
+export const DB_POOL_MIN_CONNECTIONS = 1;
+export const DB_IDLE_TIMEOUT_MS = 30_000;
+export const DB_CONNECTION_TIMEOUT_MS = 15_000;
 export const DB_CONNECTION_MAX_USES = 7500;
+export const DB_POOL_ALLOW_EXIT_ON_IDLE = true;
 
 // ---------------------------------------------------------------------------
 // Background task intervals

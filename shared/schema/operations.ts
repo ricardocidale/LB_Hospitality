@@ -105,6 +105,7 @@ export const marketResearch = pgTable("market_research", {
   index("market_research_user_id_idx").on(table.userId),
   index("market_research_type_idx").on(table.type),
   index("market_research_property_id_idx").on(table.propertyId),
+  index("market_research_updated_at_idx").on(table.updatedAt),
 ]);
 
 export const insertMarketResearchSchema = createInsertSchema(marketResearch).pick({
@@ -233,6 +234,7 @@ export const activityLogs = pgTable("activity_logs", {
 }, (table) => [
   index("activity_logs_user_id_created_at_idx").on(table.userId, table.createdAt),
   index("activity_logs_entity_type_entity_id_idx").on(table.entityType, table.entityId),
+  index("activity_logs_created_at_idx").on(table.createdAt),
 ]);
 
 export const insertActivityLogSchema = z.object({

@@ -7,6 +7,7 @@ import {
   DB_IDLE_TIMEOUT_MS,
   DB_CONNECTION_TIMEOUT_MS,
   DB_CONNECTION_MAX_USES,
+  DB_POOL_ALLOW_EXIT_ON_IDLE,
 } from "./constants";
 
 const { Pool } = pg;
@@ -24,6 +25,7 @@ export const pool = new Pool({
   idleTimeoutMillis: DB_IDLE_TIMEOUT_MS,
   connectionTimeoutMillis: DB_CONNECTION_TIMEOUT_MS,
   maxUses: DB_CONNECTION_MAX_USES,
+  allowExitOnIdle: DB_POOL_ALLOW_EXIT_ON_IDLE,
 });
 
 pool.on("error", (err) => {
@@ -31,3 +33,31 @@ pool.on("error", (err) => {
 });
 
 export const db = drizzle(pool, { schema });
+
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  { retries = 3, baseDelayMs = 500, label = "db-op" } = {},
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err: unknown) {
+      lastError = err;
+      const code = (err as { code?: string }).code;
+      const message = err instanceof Error ? err.message : String(err);
+      const isTransient =
+        code === "ECONNREFUSED" ||
+        code === "ECONNRESET" ||
+        code === "57P01" ||
+        message.includes("timeout") ||
+        message.includes("Connection terminated") ||
+        message.includes("connection will be replaced");
+      if (!isTransient || attempt === retries) break;
+      const delay = baseDelayMs * Math.pow(2, attempt - 1);
+      console.warn(`[${label}] Attempt ${attempt}/${retries} failed (${message}), retrying in ${delay}ms…`);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastError;
+}

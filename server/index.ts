@@ -193,7 +193,7 @@ app.use((req, res, next) => {
 
       // ── Phase 2: Migrations + seeds (runs after port is open) ────────
       runMigrationsAndSeeds().catch(err => {
-        console.error("[ERROR] [startup] Migrations/seeds failed:", err);
+        console.error("[ERROR] [startup] Migrations/seeds failed after retries:", err);
       });
 
       // Refresh stale market rates periodically
@@ -245,98 +245,42 @@ app.use((req, res, next) => {
  * is listening so the deployment port-open check succeeds immediately.
  * Errors are caught and logged but do not crash the server.
  */
-async function runMigrationsAndSeeds() {
-  const startTime = Date.now();
+async function runSchemaMigrations() {
+  const { bootstrapDrizzleMigrationState, runDataFixes, isMigrationApplied, markMigrationApplied } = await import("./migrations/consolidated-schema");
+  await bootstrapDrizzleMigrationState();
 
-  // Independent schema migrations — run in parallel for faster startup
-  const [
-    { runMigration: runResearchConfig001 },
-    { runMigration: runInflationPerEntity001 },
-    { runMigration: runCompaniesTheme001 },
-    { runIcpConfigMigration },
-    { runMarcelaVoice001 },
-    { runPropertyPhotos001 },
-    { runDocuments001 },
-    { runCompositeIndexes001 },
-    { runMigration: runAutoResearchRefresh001 },
-    { runFundingInterest001 },
-    { runGoogleId001 },
-    { runMigration: runCountryRiskPremium001 },
-    { runExportConfig001 },
-  ] = await Promise.all([
-    import("./migrations/research-config-001"),
-    import("./migrations/inflation-per-entity-001"),
-    import("./migrations/companies-theme-001"),
-    import("./migrations/icp-config-001"),
-    import("./migrations/marcela-voice-001"),
-    import("./migrations/property-photos-001"),
-    import("./migrations/documents-001"),
-    import("./migrations/composite-indexes-001"),
-    import("./migrations/auto-research-refresh-001"),
-    import("./migrations/funding-interest-001"),
-    import("./migrations/google-id-001"),
-    import("./migrations/country-risk-premium-001"),
-    import("./migrations/export-config-001"),
-  ]);
-  await Promise.all([
-    runResearchConfig001(),
-    runInflationPerEntity001(),
-    runCompaniesTheme001(),
-    runIcpConfigMigration(),
-    runMarcelaVoice001(),
-    runPropertyPhotos001(),
-    runDocuments001(),
-    runCompositeIndexes001(),
-    runAutoResearchRefresh001(),
-    runFundingInterest001(),
-    runGoogleId001(),
-    runCountryRiskPremium001(),
-    runExportConfig001(),
-  ]);
+  const { migrate } = await import("drizzle-orm/node-postgres/migrator");
+  const { db: drizzleDb } = await import("./db");
+  await migrate(drizzleDb, { migrationsFolder: "./migrations" });
 
-  // Notification logs schema fix must run before FK indexes
-  const { runNotificationLogs001 } = await import("./migrations/notification-logs-001");
-  await runNotificationLogs001();
+  await runDataFixes();
 
-  const { runIconSet001 } = await import("./migrations/icon-set-001");
-  await runIconSet001();
+  if (!(await isMigrationApplied("db_hygiene_001"))) {
+    const { runDbHygiene001 } = await import("./migrations/db-hygiene-001");
+    await runDbHygiene001();
+    await markMigrationApplied("db_hygiene_001");
+  }
 
-  const { runRebeccaChatEngine001 } = await import("./migrations/rebecca-chat-engine-001");
-  await runRebeccaChatEngine001();
+  if (!(await isMigrationApplied("fix_shared_ownership"))) {
+    const { fixLegacyOwnership } = await import("./migrations/fix-shared-ownership");
+    await fixLegacyOwnership();
+    await markMigrationApplied("fix_shared_ownership");
+  }
 
-  const { runThemesSystemFlag001 } = await import("./migrations/themes-system-flag-001");
-  await runThemesSystemFlag001();
+  if (!(await isMigrationApplied("role_partner_to_user_001"))) {
+    const { migratePartnerToUser } = await import("./migrations/role-partner-to-user-001");
+    await migratePartnerToUser();
+    await markMigrationApplied("role_partner_to_user_001");
+  }
+}
 
-  // FK indexes must run after all table-creating migrations complete
-  const { runFkIndexes001 } = await import("./migrations/fk-indexes-001");
-  await runFkIndexes001();
-
-  // Drop removed integration tables
-  const { runDropPlaid001 } = await import("./migrations/drop-plaid-001");
-  await runDropPlaid001();
-
-  // Database hygiene: drop duplicate FKs (safe to run before seeds)
-  const { runDbHygiene001 } = await import("./migrations/db-hygiene-001");
-  await runDbHygiene001();
-
-  // Fix legacy data: convert any non-shared properties and global assumptions to shared (userId=NULL).
-  // Must run before seedAdminUser so that scenario snapshots capture correct shared data.
-  const { fixLegacyOwnership } = await import("./migrations/fix-shared-ownership");
-  await fixLegacyOwnership();
-
-  const { migratePartnerToUser } = await import("./migrations/role-partner-to-user-001");
-  await migratePartnerToUser();
-
-  const { runSeedDefaults001 } = await import("./migrations/seed-defaults-001");
-  await runSeedDefaults001();
-
-  await seedAdminUser(); // Must complete before data seeds — users are FK dependencies
+async function runSeeds() {
+  await seedAdminUser();
 
   const { seedMissingMarketResearch, seedDefaultLogos, seedUserGroups, seedCompanies, seedFeeCategories, seedServiceTemplates, seedPropertyPhotos, seedGlobalAssumptions } = await import("./seed");
   const { seedMarketRates } = await import("./seeds/market-rates");
   const { seedUserCompanyAssignments } = await import("./seeds/users");
 
-  // Independent seeds can run in parallel for faster startup
   await Promise.all([
     seedMissingMarketResearch(),
     seedMarketRates(),
@@ -347,13 +291,29 @@ async function runMigrationsAndSeeds() {
     seedPropertyPhotos(),
     seedGlobalAssumptions(),
   ]);
-  // These depend on groups/companies existing
+
   await seedCompanies();
   await seedUserCompanyAssignments();
 
-  // Clean orphaned logos after all seeds have run
   const { cleanOrphanedLogos } = await import("./migrations/db-hygiene-001");
   await cleanOrphanedLogos();
+}
+
+async function runMigrationsAndSeeds() {
+  const startTime = Date.now();
+
+  const { withRetry } = await import("./db");
+  await withRetry(() => runSchemaMigrations(), {
+    retries: 3,
+    baseDelayMs: 2000,
+    label: "schema-migrations",
+  });
+
+  await withRetry(() => runSeeds(), {
+    retries: 2,
+    baseDelayMs: 1000,
+    label: "seed-data",
+  });
 
   log(`Migrations and seeds completed in ${Date.now() - startTime}ms`);
 }

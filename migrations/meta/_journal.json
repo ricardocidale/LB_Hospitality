@@ -22,6 +22,20 @@
       "when": 1773705600000,
       "tag": "0002_db_integrity_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774300800000,
+      "tag": "0003_add_business_insurance",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774886400000,
+      "tag": "0004_consolidated_schema",
+      "breakpoints": true
     }
   ]
 }

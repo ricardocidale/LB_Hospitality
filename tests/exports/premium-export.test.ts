@@ -245,6 +245,7 @@ describe("Overview export data adapter", () => {
     expect(dashSource).toContain("cfg.propertyInsights");
     expect(dashSource).toContain("cfg.waterfallTable");
     expect(dashSource).toContain("cfg.aiInsights");
+    expect(dashSource).toContain("Portfolio Analysis Insights");
     expect(dashSource).toContain(".kpiMetrics");
   });
 });

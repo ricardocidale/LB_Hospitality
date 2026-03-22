@@ -520,7 +520,24 @@ export default function Dashboard() {
               });
             }
 
-            void cfg.aiInsights;
+            if (cfg.aiInsights) {
+              const ki = ovd.portfolioKPIs;
+              const bestProp = ovd.propertyItems.reduce((a, b) => (a.irr > b.irr ? a : b), ovd.propertyItems[0]);
+              const worstProp = ovd.propertyItems.reduce((a, b) => (a.irr < b.irr ? a : b), ovd.propertyItems[0]);
+              statements.push({
+                title: "Portfolio Analysis Insights",
+                years: ["Value"],
+                rows: [
+                  { category: "Portfolio IRR", values: [ki.portfolioIRR], format: "percentage" },
+                  { category: "Equity Multiple", values: [ki.equityMultiple] },
+                  { category: "Cash-on-Cash Return", values: [ki.cashOnCash], format: "percentage" },
+                  { category: "Total Initial Equity", values: [ki.totalInitialEquity], format: "currency" },
+                  { category: "Total Exit Value", values: [ki.totalExitValue], format: "currency" },
+                  ...(bestProp ? [{ category: "Top Performer", values: [`${bestProp.name} (${bestProp.irr.toFixed(1)}% IRR)`] }] : []),
+                  ...(worstProp ? [{ category: "Lowest Performer", values: [`${worstProp.name} (${worstProp.irr.toFixed(1)}% IRR)`] }] : []),
+                ],
+              });
+            }
 
             const kpis = ovd.portfolioKPIs;
             baseMetrics.push(

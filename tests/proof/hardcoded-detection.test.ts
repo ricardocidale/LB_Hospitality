@@ -572,6 +572,7 @@ describe("Hardcoded Value Detection", () => {
         "image-variants.ts",
         "admin-nav.ts",
         "exportConfig.ts",
+        "map-utils.ts",
       ]);
 
       const allLibFiles = fs.readdirSync(libDir)

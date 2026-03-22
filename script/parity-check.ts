@@ -330,6 +330,9 @@ const TAB_SOURCE_FILES: Record<string, string[]> = {
   "Investment Analysis": [
     "client/src/components/dashboard/InvestmentAnalysisTab.tsx",
     "client/src/components/InvestmentAnalysis.tsx",
+    "client/src/components/investment/FCFAnalysisTable.tsx",
+    "client/src/components/investment/PropertyIRRTable.tsx",
+    "client/src/components/investment/DCFAnalysis.tsx",
   ],
 };
 

@@ -1,252 +1,26 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { useProperties } from "@/lib/api";
-import { Link } from "wouter";
-import { IconBuilding2, IconDollarSign, IconNavigation, IconMountain, IconGlobe, IconMap, IconPlay, IconPause } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { IconBuilding2 } from "@/components/icons";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import Supercluster from "supercluster";
-import { PropertyStatus } from "@shared/constants";
-
-const KNOWN_COORDS: Record<string, [number, number]> = {
-  "medellín, antioquia, colombia": [-75.6266, 6.2553],
-  "medellin, antioquia, colombia": [-75.6266, 6.2553],
-  "loch sheldrake, new york, united states": [-74.6571, 41.7701],
-  "highmount, new york, united states": [-74.5025, 42.1363],
-  "eden, utah, united states": [-111.8013, 41.3027],
-  "huntsville, utah, united states": [-111.8007, 41.2687],
-  "cartagena, bolívar, colombia": [-75.5465, 10.4235],
-  "cartagena, bolivar, colombia": [-75.5465, 10.4235],
-};
-
-const REGION_COORDS: Record<string, [number, number]> = {
-  "colombia": [-74.0, 4.6],
-  "united states": [-98.5, 39.8],
-  "mexico": [-102.5, 23.6],
-  "costa rica": [-84.0, 9.9],
-  "brazil": [-51.9, -14.2],
-  "argentina": [-63.6, -38.4],
-  "peru": [-75.0, -9.2],
-  "chile": [-71.5, -35.7],
-  "panama": [-80.0, 8.5],
-  "dominican republic": [-70.2, 18.7],
-  "jamaica": [-77.3, 18.1],
-  "puerto rico": [-66.1, 18.2],
-  "canada": [-106.3, 56.1],
-  "united kingdom": [-3.4, 55.4],
-  "spain": [-3.7, 40.5],
-  "france": [-2.2, 46.6],
-  "italy": [12.6, 41.9],
-  "germany": [10.5, 51.2],
-  "portugal": [-8.2, 39.4],
-  "greece": [21.8, 39.1],
-  "australia": [133.8, -25.3],
-};
-
-function resolveCoords(property: any): [number, number] | null {
-  if (property.latitude != null && property.longitude != null) {
-    return [property.longitude, property.latitude];
-  }
-
-  const city = (property.city || "").toLowerCase().trim();
-  const state = (property.stateProvince || "").toLowerCase().trim();
-  const country = (property.country || "").toLowerCase().trim();
-
-  if (!country) return null;
-
-  const fullKey = [city, state, country].filter(Boolean).join(", ");
-  if (KNOWN_COORDS[fullKey]) return KNOWN_COORDS[fullKey];
-
-  const cityCountryKey = [city, country].filter(Boolean).join(", ");
-  if (KNOWN_COORDS[cityCountryKey]) return KNOWN_COORDS[cityCountryKey];
-
-  if (REGION_COORDS[country]) {
-    const base = REGION_COORDS[country];
-    const hash = fullKey.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-    const offsetLng = ((hash % 100) - 50) * 0.02;
-    const offsetLat = ((hash % 73) - 36) * 0.02;
-    return [base[0] + offsetLng, base[1] + offsetLat];
-  }
-
-  return null;
-}
-
-function escapeHtml(str: string): string {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
-const formatMoney = (value: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-
-const DSCR_TIER_COLORS = {
-  strong: "#22C55E",
-  moderate: "#EAB308",
-  watch: "#EF4444",
-} as const;
-
-const MARKET_COLOR_INTERNATIONAL = "#3B82F6";
-
-function getPerformanceTier(property: any): { color: string; label: string; tier: string } {
-  const noi = property.startAdr * property.roomCount * (property.startOccupancy || 0.6) * 365;
-  const totalInvestment = (property.purchasePrice || 0) + (property.buildingImprovements || 0);
-  const debtService = totalInvestment * 0.065;
-  const dscr = totalInvestment > 0 ? noi / debtService : 0;
-
-  if (dscr > 1.5) return { color: DSCR_TIER_COLORS.strong, label: "Strong (DSCR > 1.5)", tier: "strong" };
-  if (dscr > 1.2) return { color: DSCR_TIER_COLORS.moderate, label: "Moderate (DSCR 1.2–1.5)", tier: "moderate" };
-  return { color: DSCR_TIER_COLORS.watch, label: "Watch (DSCR < 1.2)", tier: "watch" };
-}
-
-const STATUS_COLOR_MAP: Record<string, { bg: string; text: string }> = {
-  [PropertyStatus.OPERATING]: { bg: "#dcfce7", text: "#15803d" },
-  [PropertyStatus.IMPROVEMENTS]: { bg: "#fef3c7", text: "#b45309" },
-  [PropertyStatus.ACQUIRED]: { bg: "#dbeafe", text: "#1d4ed8" },
-  [PropertyStatus.IN_NEGOTIATION]: { bg: "#f3e8ff", text: "#7c3aed" },
-  [PropertyStatus.PIPELINE]: { bg: "#f3f4f6", text: "#374151" },
-  [PropertyStatus.PLANNED]: { bg: "#e0f2fe", text: "#0369a1" },
-};
-
-const STATUS_COLOR_DEFAULT = { bg: "#f3f4f6", text: "#374151" };
-
-const statusColor = (status: string) =>
-  STATUS_COLOR_MAP[status] ?? STATUS_COLOR_DEFAULT;
-
-function formatLocation(property: any): string {
-  const parts = [property.city];
-  if (property.stateProvince) parts.push(property.stateProvince);
-  parts.push(property.country);
-  return parts.filter(Boolean).join(", ");
-}
-
-type GeoProperty = {
-  property: any;
-  coords: [number, number];
-};
-
-function makeRasterStyle(tileUrl: string, attribution?: string): maplibregl.StyleSpecification {
-  return {
-    version: 8,
-    sources: {
-      "raster-tiles": {
-        type: "raster",
-        tiles: [tileUrl],
-        tileSize: 256,
-        attribution: attribution || '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      },
-    },
-    layers: [
-      {
-        id: "raster-layer",
-        type: "raster",
-        source: "raster-tiles",
-        minzoom: 0,
-        maxzoom: 19,
-      },
-    ],
-  };
-}
-
-const MAP_STYLES = {
-  standard: () => makeRasterStyle("/api/tiles/osm/{z}/{x}/{y}"),
-  satellite: () => makeRasterStyle("/api/tiles/satellite/{z}/{x}/{y}", '&copy; Esri, Maxar, Earthstar Geographics'),
-};
-
-type ColorMode = "performance" | "market";
-
-function createMarkerElement(property: any, isSelected: boolean, colorMode: ColorMode) {
-  const perf = getPerformanceTier(property);
-  const color = colorMode === "performance"
-    ? perf.color
-    : property.market === "North America" ? "var(--primary)" : MARKET_COLOR_INTERNATIONAL;
-  const size = isSelected ? 42 : 32;
-  const el = document.createElement("div");
-  el.className = "map-marker-container";
-  el.style.cursor = "pointer";
-  el.style.transition = "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)";
-  if (isSelected) el.style.transform = "scale(1.15)";
-  el.innerHTML = `
-    <div style="position:relative;width:${size}px;height:${size + 12}px;">
-      <div style="
-        width:${size}px;height:${size}px;border-radius:50% 50% 50% 0;
-        background:${color};transform:rotate(-45deg);
-        box-shadow:0 4px 12px rgba(0,0,0,0.3);
-        border:3px solid white;
-        display:flex;align-items:center;justify-content:center;
-        ${isSelected ? 'animation:marker-pulse 1.5s ease-in-out infinite;' : ''}
-      ">
-        <svg xmlns="http://www.w3.org/2000/svg" width="${size * 0.4}" height="${size * 0.4}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(45deg)">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-      </div>
-      ${isSelected ? `<div style="
-        position:absolute;top:-4px;left:-4px;right:-4px;bottom:8px;
-        border-radius:50% 50% 50% 0;transform:rotate(-45deg);
-        border:2px solid ${color};opacity:0.4;
-        animation:marker-ring 1.5s ease-in-out infinite;
-      "></div>` : ''}
-    </div>
-  `;
-  return el;
-}
-
-function createClusterMarker(count: number): HTMLDivElement {
-  const size = Math.min(24 + count * 3, 50);
-  const el = document.createElement("div");
-  el.style.cursor = "pointer";
-  el.innerHTML = `
-    <div style="
-      width:${size}px;height:${size}px;border-radius:50%;
-      background:hsl(var(--primary));
-      box-shadow:0 4px 12px rgba(0,0,0,0.3);
-      border:3px solid white;
-      display:flex;align-items:center;justify-content:center;
-      font-family:system-ui;font-weight:700;font-size:${Math.max(11, size * 0.3)}px;color:white;
-    ">${count}</div>
-  `;
-  return el;
-}
-
-function createPopupHTML(property: any) {
-  const sc = statusColor(property.status);
-  const perf = getPerformanceTier(property);
-  const safeName = escapeHtml(property.name || "");
-  const safeLocation = escapeHtml(formatLocation(property));
-  const safeMarket = escapeHtml(property.market || "");
-  const safeStatus = escapeHtml(property.status || "");
-  return `
-    <div style="font-family:system-ui,-apple-system,sans-serif;min-width:240px;padding:4px;">
-      <h3 style="font-weight:700;font-size:15px;margin:0 0 4px;color:#1a1a2e;">${safeName}</h3>
-      <p style="color:#64748b;font-size:12px;margin:0 0 10px;">${safeLocation}</p>
-      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
-        <span style="background:${property.market === 'North America' ? '#E8F0E9' : '#DBEAFE'};color:${property.market === 'North America' ? '#5A7D60' : '#1D4ED8'};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${safeMarket}</span>
-        <span style="background:${sc.bg};color:${sc.text};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${safeStatus}</span>
-        <span style="background:${perf.color}22;color:${perf.color};font-size:11px;padding:3px 10px;border-radius:9999px;font-weight:600;">${escapeHtml(perf.label)}</span>
-      </div>
-      <div style="display:flex;gap:16px;font-size:12px;color:#475569;padding-top:8px;border-top:1px solid #f1f5f9;">
-        <div style="display:flex;align-items:center;gap:4px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <strong>${property.roomCount}</strong> rooms
-        </div>
-        <div style="display:flex;align-items:center;gap:4px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          <strong>${formatMoney(property.startAdr)}</strong> ADR
-        </div>
-      </div>
-      <div data-popup-actions style="margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9;display:flex;align-items:center;gap:8px;">
-        <a href="/property/${property.id}" style="color:#3B82F6;font-size:12px;font-weight:600;text-decoration:none;">View Details →</a>
-      </div>
-    </div>
-  `;
-}
-
-const TOUR_PAUSE_MS = 4000;
+import {
+  resolveCoords,
+  formatMoney,
+  formatLocation,
+  getPerformanceTier,
+  statusColor,
+  MARKET_COLOR_INTERNATIONAL,
+  MAP_STYLES,
+  type GeoProperty,
+  type ColorMode,
+} from "@/lib/map-utils";
+import { createMarkerElement, createClusterMarker, createPopupHTML } from "@/components/map/map-elements";
+import { MapPropertySidebar } from "@/components/map/MapPropertySidebar";
+import { MapToolbar, MapLegend, MAP_CSS } from "@/components/map/MapToolbar";
+import { useMapTour } from "@/components/map/useMapTour";
 
 export default function MapView() {
   const { data: properties = [] } = useProperties();
@@ -258,11 +32,6 @@ export default function MapView() {
   const [colorMode, setColorMode] = useState<ColorMode>("performance");
   const [globeMode, setGlobeMode] = useState(false);
   const [satelliteMode, setSatelliteMode] = useState(false);
-  const [tourActive, setTourActive] = useState(false);
-  const [tourPaused, setTourPaused] = useState(false);
-  const [tourIndex, setTourIndex] = useState(0);
-  const tourRef = useRef<{ active: boolean; paused: boolean; index: number; sessionId: number }>({ active: false, paused: false, index: 0, sessionId: 0 });
-  const tourTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const moveEndHandlerRef = useRef<(() => void) | null>(null);
   const flyToHandlerRef = useRef<((id: number) => void) | null>(null);
   const styleTransitionRef = useRef(0);
@@ -278,6 +47,12 @@ export default function MapView() {
   );
 
   const unmappedCount = properties.length - geoProperties.length;
+
+  const {
+    tourActive, tourPaused, tourIndex,
+    startTour, stopTour, toggleTourPause,
+    cinematicFlyTo,
+  } = useMapTour({ geoProperties, mapRef, markersRef, moveEndHandlerRef, setSelectedId });
 
   const clusterIndex = useMemo(() => {
     const index = new Supercluster({
@@ -373,125 +148,6 @@ export default function MapView() {
     });
   }, [clusterIndex, colorMode]);
 
-  const cancelPendingMoveEnd = useCallback(() => {
-    const map = mapRef.current;
-    if (map && moveEndHandlerRef.current) {
-      map.off("moveend", moveEndHandlerRef.current);
-      moveEndHandlerRef.current = null;
-    }
-  }, []);
-
-  const cinematicFlyTo = useCallback((coords: [number, number], sessionId?: number, onComplete?: () => void) => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    cancelPendingMoveEnd();
-
-    const currentZoom = map.getZoom();
-    const currentBearing = map.getBearing();
-    const targetBearing = currentBearing + 30 + Math.random() * 30;
-
-    map.flyTo({
-      center: coords,
-      zoom: 16,
-      pitch: 60,
-      bearing: targetBearing,
-      duration: currentZoom < 5 ? 4000 : 3000,
-      essential: true,
-      curve: 1.42,
-      speed: 0.8,
-    });
-
-    if (onComplete) {
-      const handler = () => {
-        moveEndHandlerRef.current = null;
-        if (sessionId !== undefined && tourRef.current.sessionId !== sessionId) return;
-        onComplete();
-      };
-      moveEndHandlerRef.current = handler;
-      map.once("moveend", handler);
-    }
-  }, [cancelPendingMoveEnd]);
-
-  const stopTour = useCallback(() => {
-    tourRef.current.active = false;
-    tourRef.current.paused = false;
-    tourRef.current.sessionId++;
-    cancelPendingMoveEnd();
-    if (tourTimerRef.current) {
-      clearTimeout(tourTimerRef.current);
-      tourTimerRef.current = null;
-    }
-    setTourActive(false);
-    setTourPaused(false);
-    setTourIndex(0);
-  }, [cancelPendingMoveEnd]);
-
-  const runTourStep = useCallback((index: number) => {
-    if (!tourRef.current.active || index >= geoProperties.length) {
-      stopTour();
-      return;
-    }
-
-    if (tourRef.current.paused) {
-      return;
-    }
-
-    const sid = tourRef.current.sessionId;
-    tourRef.current.index = index;
-    setTourIndex(index);
-
-    const geo = geoProperties[index];
-    setSelectedId(geo.property.id);
-
-    markersRef.current.forEach(m => {
-      if (m.getPopup()?.isOpen()) m.togglePopup();
-    });
-
-    cinematicFlyTo(geo.coords, sid, () => {
-      if (!tourRef.current.active || tourRef.current.sessionId !== sid) return;
-
-      const marker = markersRef.current.get(`prop-${geo.property.id}`);
-      if (marker && !marker.getPopup()?.isOpen()) {
-        marker.togglePopup();
-      }
-
-      tourTimerRef.current = setTimeout(() => {
-        if (tourRef.current.active && !tourRef.current.paused && tourRef.current.sessionId === sid) {
-          runTourStep(index + 1);
-        }
-      }, TOUR_PAUSE_MS);
-    });
-  }, [geoProperties, cinematicFlyTo, stopTour]);
-
-  const startTour = useCallback(() => {
-    if (geoProperties.length === 0) return;
-    stopTour();
-    const newSessionId = tourRef.current.sessionId + 1;
-    tourRef.current = { active: true, paused: false, index: 0, sessionId: newSessionId };
-    setTourActive(true);
-    setTourPaused(false);
-    setTourIndex(0);
-    runTourStep(0);
-  }, [geoProperties, runTourStep, stopTour]);
-
-  const toggleTourPause = useCallback(() => {
-    if (!tourRef.current.active) return;
-    const newPaused = !tourRef.current.paused;
-    tourRef.current.paused = newPaused;
-    setTourPaused(newPaused);
-
-    if (!newPaused) {
-      runTourStep(tourRef.current.index);
-    } else {
-      cancelPendingMoveEnd();
-      if (tourTimerRef.current) {
-        clearTimeout(tourTimerRef.current);
-        tourTimerRef.current = null;
-      }
-    }
-  }, [runTourStep, cancelPendingMoveEnd]);
-
   useEffect(() => {
     if (!mapContainerRef.current || geoProperties.length === 0) return;
 
@@ -558,7 +214,6 @@ export default function MapView() {
             },
           });
         } catch (e) {
-          // Hillshade layer may already exist or source may be unavailable — safe to ignore
         }
       }
 
@@ -634,7 +289,6 @@ export default function MapView() {
             });
           }
         } catch (e) {
-          // Hillshade layer may already exist or source may be unavailable — safe to ignore
         }
       }
 
@@ -772,141 +426,27 @@ export default function MapView() {
   return (
     <AnimatedPage>
     <div data-testid="map-view" className="space-y-4">
-      <style>{`
-        @keyframes marker-pulse {
-          0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-          50% { box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 4px rgba(var(--primary-rgb,159,188,164),0.2); }
-        }
-        @keyframes marker-ring {
-          0%, 100% { opacity: 0.4; transform: rotate(-45deg) scale(1); }
-          50% { opacity: 0.1; transform: rotate(-45deg) scale(1.3); }
-        }
-        .map-popup-custom .maplibregl-popup-content {
-          border-radius: 12px !important;
-          box-shadow: 0 8px 30px rgba(0,0,0,0.15) !important;
-          padding: 14px !important;
-          border: 1px solid rgba(0,0,0,0.06) !important;
-        }
-        .map-popup-custom .maplibregl-popup-tip {
-          border-top-color: white !important;
-        }
-        .maplibregl-ctrl-group { border-radius: 10px !important; box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important; }
-        .tour-progress-bar {
-          transition: width 0.3s ease;
-        }
-      `}</style>
+      <style>{MAP_CSS}</style>
 
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground" data-testid="map-view-title">
-            Portfolio Map
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {geoProperties.length} {geoProperties.length === 1 ? "property" : "properties"} across {countryCount} {countryCount === 1 ? "country" : "countries"}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant={colorMode === "performance" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setColorMode(colorMode === "performance" ? "market" : "performance")}
-            className="flex items-center gap-1.5 text-xs"
-            data-testid="button-color-mode"
-          >
-            {colorMode === "performance" ? "📊 Performance" : "🌍 By Market"}
-          </Button>
-          <Button
-            variant={globeMode ? "default" : "outline"}
-            size="sm"
-            onClick={() => setGlobeMode(!globeMode)}
-            className="flex items-center gap-1.5 text-xs"
-            data-testid="button-globe-toggle"
-          >
-            <IconGlobe className="w-3.5 h-3.5" />
-            {globeMode ? "Globe" : "Flat"}
-          </Button>
-          <Button
-            variant={satelliteMode ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSatelliteMode(!satelliteMode)}
-            className="flex items-center gap-1.5 text-xs"
-            data-testid="button-satellite-toggle"
-          >
-            <IconMap className="w-3.5 h-3.5" />
-            {satelliteMode ? "Satellite" : "Standard"}
-          </Button>
-          <Button
-            variant={terrain3d ? "default" : "outline"}
-            size="sm"
-            onClick={() => setTerrain3d(!terrain3d)}
-            className="flex items-center gap-1.5 text-xs"
-            data-testid="button-3d-terrain"
-          >
-            <IconMountain className="w-3.5 h-3.5" />
-            3D Terrain
-          </Button>
-          <div className="w-px h-6 bg-border" />
-          {!tourActive ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={startTour}
-              disabled={geoProperties.length === 0}
-              className="flex items-center gap-1.5 text-xs"
-              data-testid="button-start-tour"
-            >
-              <IconPlay className="w-3.5 h-3.5" />
-              Tour
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleTourPause}
-                className="flex items-center gap-1.5 text-xs"
-                data-testid="button-pause-tour"
-              >
-                {tourPaused ? <IconPlay className="w-3.5 h-3.5" /> : <IconPause className="w-3.5 h-3.5" />}
-                {tourPaused ? "Resume" : "Pause"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={stopTour}
-                className="flex items-center gap-1.5 text-xs text-destructive hover:text-destructive"
-                data-testid="button-stop-tour"
-              >
-                Stop
-              </Button>
-            </>
-          )}
-          <Button variant="outline" size="sm" onClick={fitAll} className="flex items-center gap-1.5 text-xs" data-testid="button-fit-all">
-            <IconNavigation className="w-3.5 h-3.5" />
-            Fit All
-          </Button>
-        </div>
-      </div>
-
-      {tourActive && (
-        <div className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-2 flex items-center gap-3" data-testid="tour-progress">
-          <span className="text-xs font-semibold text-primary">
-            {tourPaused ? "Tour Paused" : "Touring"}
-          </span>
-          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full tour-progress-bar"
-              style={{ width: `${((tourIndex + 1) / geoProperties.length) * 100}%` }}
-            />
-          </div>
-          <span className="text-xs text-muted-foreground font-medium">
-            {tourIndex + 1} / {geoProperties.length}
-          </span>
-          <span className="text-[10px] text-muted-foreground">
-            ESC to stop · Space to {tourPaused ? "resume" : "pause"}
-          </span>
-        </div>
-      )}
+      <MapToolbar
+        geoProperties={geoProperties}
+        countryCount={countryCount}
+        colorMode={colorMode}
+        setColorMode={setColorMode}
+        globeMode={globeMode}
+        setGlobeMode={setGlobeMode}
+        satelliteMode={satelliteMode}
+        setSatelliteMode={setSatelliteMode}
+        terrain3d={terrain3d}
+        setTerrain3d={setTerrain3d}
+        tourActive={tourActive}
+        tourPaused={tourPaused}
+        tourIndex={tourIndex}
+        startTour={startTour}
+        stopTour={stopTour}
+        toggleTourPause={toggleTourPause}
+        fitAll={fitAll}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3">
@@ -920,120 +460,21 @@ export default function MapView() {
             <div ref={mapContainerRef} className="w-full h-full" />
 
             {colorMode === "performance" && geoProperties.length > 0 && (
-              <div className="absolute bottom-3 left-3 bg-card/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-border" data-testid="performance-legend">
-                <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">Performance Tier</div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ background: "#22C55E" }} />
-                    <span className="text-[11px] text-foreground">Strong DSCR &gt; 1.5 ({perfCounts.strong})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ background: "#EAB308" }} />
-                    <span className="text-[11px] text-foreground">Moderate 1.2–1.5 ({perfCounts.moderate})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ background: "#EF4444" }} />
-                    <span className="text-[11px] text-foreground">Watch &lt; 1.2 ({perfCounts.watch})</span>
-                  </div>
-                </div>
-              </div>
+              <MapLegend perfCounts={perfCounts} />
             )}
           </div>
         </div>
 
-        <div className="lg:col-span-1 space-y-2 max-h-[600px] overflow-y-auto pr-1">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1 mb-1">
-            Properties ({geoProperties.length})
-          </div>
-          {geoProperties.map(({ property }, idx) => {
-            const isSelected = selectedId === property.id;
-            const isTourCurrent = tourActive && tourIndex === idx;
-            const perf = getPerformanceTier(property);
-            const pinColor = colorMode === "performance"
-              ? perf.color
-              : property.market === "North America" ? "var(--primary)" : MARKET_COLOR_INTERNATIONAL;
-            const sc = statusColor(property.status);
-            return (
-              <div
-                key={property.id}
-                className={`rounded-xl border p-3.5 cursor-pointer transition-all duration-300 ${
-                  isTourCurrent
-                    ? "border-primary bg-primary/10 shadow-lg ring-2 ring-primary/30"
-                    : isSelected
-                    ? "border-primary bg-primary/5 shadow-lg ring-1 ring-primary/20"
-                    : "border-border bg-card hover:border-primary/30 hover:shadow-md"
-                }`}
-                onClick={() => setSelectedId(property.id)}
-                data-testid={`card-property-${property.id}`}
-              >
-                <div className="flex items-start gap-2.5 mb-2">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                    style={{ backgroundColor: `${pinColor}20` }}
-                  >
-                    <IconBuilding2 size={14} style={{ color: pinColor }} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-bold text-sm text-foreground truncate" data-testid={`text-name-${property.id}`}>
-                      {property.name}
-                    </h3>
-                    <p className="text-[11px] text-muted-foreground truncate">
-                      {formatLocation(property)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 mb-2 flex-wrap">
-                  <span
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: sc.bg, color: sc.text }}
-                  >
-                    {property.status}
-                  </span>
-                  {colorMode === "performance" && (
-                    <span
-                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                      style={{ backgroundColor: `${perf.color}22`, color: perf.color }}
-                    >
-                      {perf.tier}
-                    </span>
-                  )}
-                  <span className="text-[10px] text-muted-foreground">
-                    {property.market}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-1"><IconBuilding2 size={11} /> {property.roomCount} rooms</span>
-                  <span className="flex items-center gap-1"><IconDollarSign size={11} /> {formatMoney(property.startAdr)}</span>
-                </div>
-                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleFlyTo(property.id);
-                    }}
-                    className="text-[11px] text-primary font-medium hover:underline flex items-center gap-1"
-                    data-testid={`button-flyto-${property.id}`}
-                  >
-                    <IconNavigation size={11} />
-                    Fly To
-                  </button>
-                  {isSelected && (
-                    <Link href={`/property/${property.id}`}>
-                      <span className="text-[11px] text-primary font-medium hover:underline" data-testid={`link-view-${property.id}`}>
-                        View Details →
-                      </span>
-                    </Link>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-          {unmappedCount > 0 && (
-            <div className="text-[11px] text-muted-foreground/70 px-1 pt-2">
-              {unmappedCount} {unmappedCount === 1 ? "property" : "properties"} not shown (missing location data)
-            </div>
-          )}
-        </div>
+        <MapPropertySidebar
+          geoProperties={geoProperties}
+          unmappedCount={unmappedCount}
+          selectedId={selectedId}
+          setSelectedId={setSelectedId}
+          colorMode={colorMode}
+          tourActive={tourActive}
+          tourIndex={tourIndex}
+          onFlyTo={handleFlyTo}
+        />
       </div>
     </div>
     </AnimatedPage>

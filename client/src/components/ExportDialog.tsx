@@ -75,6 +75,8 @@ export interface PremiumExportPayload {
       isHeader?: boolean;
       isItalic?: boolean;
     }>;
+    includeTable?: boolean;
+    includeChart?: boolean;
   }>;
   metrics?: Array<{ label: string; value: string }>;
   projectionYears?: number;

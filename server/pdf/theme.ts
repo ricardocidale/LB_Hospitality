@@ -16,7 +16,7 @@ export interface PdfTheme {
   line: string[];
 }
 
-export function themFromColorMap(tc: ThemeColorMap): PdfTheme {
+export function themeFromColorMap(tc: ThemeColorMap): PdfTheme {
   const h = (hex: string) => hex.startsWith("#") ? hex : `#${hex}`;
   return {
     primary: h(tc.navy),

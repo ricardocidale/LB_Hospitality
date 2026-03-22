@@ -1,6 +1,6 @@
 import React from "react";
 import { Document, Page, View, Text, renderToBuffer, Svg, Line, Circle, Path, G } from "@react-pdf/renderer";
-import { type PdfTheme, themFromColorMap } from "./theme";
+import { type PdfTheme, themeFromColorMap } from "./theme";
 import { type ThemeColorMap, resolveThemeColors } from "../theme-resolver";
 import { filterFormulaRows } from "../routes/format-generators/excel-generator";
 import { buildChartsForStatement, getMetricDescription } from "../routes/premium-pdf-pipeline";
@@ -535,7 +535,7 @@ function buildSections(data: PdfExportData, tc: ThemeColorMap): Array<{ type: st
 
 export async function renderPremiumPdf(data: PdfExportData): Promise<Buffer> {
   const tc = resolveThemeColors(data.themeColors);
-  const theme = themFromColorMap(tc);
+  const theme = themeFromColorMap(tc);
   const company = data.companyName || data.entityName || "Financial Report";
   const isLandscape = (data.orientation || "landscape") === "landscape";
   const includeCover = !!data.includeCoverPage;

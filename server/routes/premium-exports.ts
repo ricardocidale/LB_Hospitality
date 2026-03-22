@@ -5,7 +5,7 @@ import { z } from "zod";
 import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
 import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdfPrompt, getDocxPrompt } from "./premium-export-prompts";
-import { resolveThemeColors } from "./pdf-html-templates";
+import { resolveThemeColors } from "../theme-resolver";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { storage } from "../storage";
 import { resolveLlm, getVendorService, DEFAULT_GEMINI_MODEL } from "../ai/resolve-llm";

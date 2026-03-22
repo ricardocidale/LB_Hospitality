@@ -7,9 +7,11 @@ import seedUsersConfig from "../seed-users.json" with { type: "json" };
 
 const adminUsers = seedUsersConfig.users.filter((u) => u.role === "admin");
 const adminNameList = adminUsers.map((u) => `${u.firstName}${u.lastName ? ` ${u.lastName}` : ""}`).join(" and ");
-const adminReference = adminUsers.length === 1
-  ? `${adminNameList} is the sole admin.`
-  : `The admins are ${adminNameList}.`;
+const adminReference = adminUsers.length === 0
+  ? "No admin users are configured."
+  : adminUsers.length === 1
+    ? `${adminNameList} is the sole admin.`
+    : `The admins are ${adminNameList}.`;
 
 export interface KBSource {
   id: string;

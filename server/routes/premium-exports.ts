@@ -15,7 +15,8 @@ import { generateExcelBuffer, generateExcelFromData } from "./format-generators/
 import { generatePptxBuffer } from "./format-generators/pptx-generator";
 import { generateDocxBuffer } from "./format-generators/docx-generator";
 import { generatePngZipBuffer } from "./format-generators/png-generator";
-import { buildPdfSectionsFromData, generatePdfWithAiDesign, generatePdfBuffer } from "./premium-pdf-pipeline";
+import { buildPdfSectionsFromData } from "./premium-pdf-pipeline";
+import { renderPremiumPdf } from "../pdf/render";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -172,13 +173,8 @@ async function generateViaTemplatePipeline(
   modelId?: string
 ): Promise<Buffer> {
   if (data.format === "pdf") {
-    try {
-      logger.info(`[pdf-design] Using AI designer cascade (${modelId || DEFAULT_GEMINI_MODEL})...`, "premium-export");
-      return await generatePdfWithAiDesign(data, generateWithGemini, modelId);
-    } catch (err: unknown) {
-      logger.warn(`[pdf-design] AI design failed: ${(err as Error).message} — falling back to template`, "premium-export");
-      return generatePdfBuffer(data);
-    }
+    logger.info(`[react-pdf] Generating PDF via @react-pdf/renderer...`, "premium-export");
+    return renderPremiumPdf(data);
   }
 
   if (data.format === "xlsx") {

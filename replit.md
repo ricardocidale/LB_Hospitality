@@ -35,7 +35,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Tech Stack
 
-React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF (client-side standard exports), Puppeteer (server-side premium PDF exports), xlsx, pptxgenjs, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis, `@anthropic-ai/sdk@0.78.0`, `@phosphor-icons/react`
+React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF (client-side standard exports), @react-pdf/renderer (server-side premium PDF exports), Puppeteer (server-side PNG rendering only), xlsx, pptxgenjs, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis, `@anthropic-ai/sdk@0.78.0`, `@phosphor-icons/react`
 
 ---
 
@@ -244,11 +244,12 @@ Investment Performance (IRR gauge), KPI cards, Revenue & ANOI chart, Portfolio t
 ## Export System
 
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
-- **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
+- **Premium Export**: `POST /api/exports/premium` — Formats: PDF (via @react-pdf/renderer, no LLM call), PPTX, DOCX, XLSX (PPTX/DOCX use Gemini 2.5 Flash via `premiumExportLlm`).
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (SVG foreignObject + Canvas capture via `domCapture.ts`)
 - **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and browser-rendered PDF exports use these dimensions.
-- **Browser abstraction**: `server/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
-- **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers. Premium PDF uses navy cover page with grid pattern, gradient metric cards, bordered prose blocks, inline SVG bar charts with gradient fills.
+- **Browser abstraction**: `server/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Used for PNG rendering only (not PDF). Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
+- **Premium PDF renderer**: `server/pdf/render.tsx` + `server/pdf/theme.ts` — pure React PDF components (cover page, KPI cards, financial tables, SVG line charts) using @react-pdf/renderer. Theme-aware via `resolveThemeColors()`. No browser/LLM dependency.
+- **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers.
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.
   2. **Dual save destination**: Both premium and non-premium offer Local Drive + Google Drive.
@@ -350,7 +351,11 @@ npm run test:file -- <path>  # Single test file
 
 ---
 
-## Recent Changes (March 16, 2026)
+## Recent Changes (March 22, 2026)
+
+- **Premium PDF Engine Replacement** — Replaced puppeteer-core + AI-designed HTML pipeline with @react-pdf/renderer for premium PDF exports. New `server/pdf/render.tsx` uses pure React PDF components (cover page, KPI cards, financial tables, SVG line charts). Eliminates browser dependency and LLM call for PDF generation. Fixes missing data in exports and themes not being respected. Puppeteer retained for PNG rendering only.
+
+## Changes (March 16, 2026)
 
 - **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic to Gemini 2.5 Flash (65k output tokens). Redesigned PDF rendering with enterprise-quality design: full-bleed navy cover page, branded section headers, KPI metric cards, warm callout blocks. Added JSON repair fallback for truncated AI responses.
 - **Model Defaults Admin Section** — "Model Defaults" tab in Admin > Business group. Two sub-tabs: Market & Macro (inflation, cost of equity, days per month, fiscal calendar) and Property Underwriting (revenue assumptions with 10 fields, USALI operating cost rates with 11 fields, revenue stream expense rates, acquisition/refi financing, depreciation & tax with property tax rate and land value %, exit/disposition, default acquisition package). 23 nullable columns in `globalAssumptions` (schema: `shared/schema/config.ts`). Nullable design: NULL = use `shared/constants.ts` fallback. `buildPropertyDefaultsFromGlobal()` in `server/routes/properties.ts` reads DB values with constant fallbacks. Premium UI using EditableValue + Slider pattern from company-assumptions sections.

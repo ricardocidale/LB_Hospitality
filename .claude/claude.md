@@ -115,7 +115,11 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Recent Changes (March 16, 2026)
+## Recent Changes (March 22, 2026)
+
+- **Premium PDF Engine Replacement** — Replaced puppeteer-core + AI-designed HTML pipeline with @react-pdf/renderer for premium PDF exports. New `server/pdf/render.tsx` uses pure React PDF components (cover page, KPI cards, financial tables, SVG line charts). Eliminates browser dependency and LLM call for PDF generation. Puppeteer retained for PNG rendering only.
+
+## Changes (March 16, 2026)
 
 - **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic to Gemini 2.5 Flash (65k output tokens). Redesigned PDF rendering with enterprise-quality design: full-bleed navy cover page, branded section headers, KPI metric cards, warm callout blocks. Added JSON repair fallback for truncated AI responses.
 - **Model Defaults Admin Section** — New "Model Defaults" tab in Admin > Business group. Two sub-tabs: Market & Macro (inflation, cost of equity, days per month, fiscal calendar) and Property Underwriting (expense rates, acquisition/refi financing, depreciation, exit/disposition, default acquisition package). Consolidates all financial seed/default values into one place. Uses GovernedFieldWrapper for IRS/industry-standard values.
@@ -157,12 +161,12 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 ## Export System
 
 Full reference: `.claude/skills/exports/SKILL.md`. SDD: `.claude/skills/exports/premium-export-spec.md`.
-- **Premium Export**: `POST /api/exports/premium` — LLM from admin config (`premiumExportLlm`, defaults to Gemini 2.5 Flash). Schema includes `includeCoverPage`, `themeColors`. Pipeline by format:
-  - **PDF**: Puppeteer HTML→PDF (no AI). **Excel**: Direct data→xlsx (no AI). **PNG**: Puppeteer screenshots→ZIP (no AI).
-  - **PPTX/DOCX**: Gemini AI → JSON → pptxgenjs/docx SDK.
+- **Premium Export**: `POST /api/exports/premium` — Schema includes `includeCoverPage`, `themeColors`. Pipeline by format:
+  - **PDF**: @react-pdf/renderer (`server/pdf/render.tsx`) — pure React components, no browser/AI. **Excel**: Direct data→xlsx (no AI). **PNG**: Puppeteer screenshots→ZIP (no AI).
+  - **PPTX/DOCX**: Gemini AI → JSON → pptxgenjs/docx SDK (uses `premiumExportLlm` from admin config).
 - **Client-side fallback** (when premium toggle off): jsPDF, pptxgenjs, SheetJS, CSV, dom-to-image-more.
 - **Page dimensions**: Landscape = 16:9 (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm).
-- **Browser rendering**: `server/browser-renderer.ts` — Puppeteer with system Chromium. Skill: `.claude/skills/exports/pdf-rendering.md`.
+- **Browser rendering**: `server/browser-renderer.ts` — Puppeteer with system Chromium. Used for PNG rendering only. Skill: `.claude/skills/exports/pdf-rendering.md`.
 - **Report structure**: Statement→Chart interleaving. Each statement table is followed by a chart page. Optional cover page + overview (Dashboard only).
 - **Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements — never just the active tab.

@@ -4,19 +4,17 @@ import { requireAuth } from "../auth";
 import { z } from "zod";
 import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
-import { BRAND, buildFinancialDataContext, getExcelPrompt, getPptxPrompt, getPdfPrompt, getDocxPrompt } from "./premium-export-prompts";
-import { resolveThemeColors } from "../theme-resolver";
 import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { storage } from "../storage";
-import { resolveLlm, getVendorService, DEFAULT_GEMINI_MODEL } from "../ai/resolve-llm";
+import { resolveLlm, DEFAULT_GEMINI_MODEL } from "../ai/resolve-llm";
 import type { ResearchConfig } from "@shared/schema";
 import { aggressiveParse } from "./export-json-utils";
-import { generateExcelBuffer, generateExcelFromData } from "./format-generators/excel-generator";
-import { generatePptxBuffer } from "./format-generators/pptx-generator";
-import { generateDocxBuffer } from "./format-generators/docx-generator";
-import { generatePngZipBuffer } from "./format-generators/png-generator";
-import { buildPdfSectionsFromData } from "./premium-pdf-pipeline";
 import { renderPremiumPdf } from "../pdf/render";
+import { compileReport } from "../report/compiler";
+import { generateExcelFromReport } from "./format-generators/excel-generator";
+import { generatePptxFromReport } from "./format-generators/pptx-generator";
+import { generateDocxFromReport } from "./format-generators/docx-generator";
+import { generatePngFromReport } from "./format-generators/png-generator";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -172,40 +170,32 @@ async function generateViaTemplatePipeline(
   data: PremiumExportRequest,
   modelId?: string
 ): Promise<Buffer> {
-  if (data.format === "pdf") {
-    logger.info(`[react-pdf] Generating PDF via @react-pdf/renderer...`, "premium-export");
-    return renderPremiumPdf(data);
-  }
-
-  if (data.format === "xlsx") {
-    logger.info(`[template] Building Excel directly from data (no AI call)...`, "premium-export");
-    return generateExcelFromData(data);
-  }
-
-  if (data.format === "png") {
-    logger.info(`[template] Building PNG ZIP from data (no AI call)...`, "premium-export");
-    return generatePngZipBuffer(data, buildPdfSectionsFromData);
-  }
-
-  logger.info(`[template] Building ${data.format} prompt...`, "premium-export");
-  let prompt: string;
-  switch (data.format) {
-    case "pptx": prompt = getPptxPrompt(data, data.themeColors); break;
-    case "docx": prompt = getDocxPrompt(data, data.themeColors); break;
-    default: throw new Error(`Unsupported format: ${data.format}`);
-  }
-
-  logger.info(`[template] Calling AI (${modelId || "default"}) for JSON structure...`, "premium-export");
-  const aiResult = await generateWithGemini(prompt, data.format, modelId);
-  logger.info(`[template] AI returned valid JSON, generating ${data.format} buffer...`, "premium-export");
+  const report = compileReport(data);
+  logger.info(`[compiler] Compiled report: ${report.sections.length} sections, orientation=${report.orientation}`, "premium-export");
 
   switch (data.format) {
-    case "pptx": {
-      const tc = resolveThemeColors(data.themeColors);
-      return generatePptxBuffer(aiResult, data, tc);
+    case "pdf": {
+      logger.info(`[react-pdf] Generating PDF via @react-pdf/renderer...`, "premium-export");
+      return renderPremiumPdf(report);
     }
-    case "docx": return generateDocxBuffer(aiResult, data);
-    default: throw new Error(`Unsupported format: ${data.format}`);
+    case "xlsx": {
+      logger.info(`[template] Building Excel from compiled report (no AI call)...`, "premium-export");
+      return generateExcelFromReport(report);
+    }
+    case "png": {
+      logger.info(`[template] Building PNG ZIP from compiled report (no AI call)...`, "premium-export");
+      return generatePngFromReport(report);
+    }
+    case "pptx": {
+      logger.info(`[template] Building PPTX from compiled report (no AI call)...`, "premium-export");
+      return generatePptxFromReport(report);
+    }
+    case "docx": {
+      logger.info(`[template] Building DOCX from compiled report (no AI call)...`, "premium-export");
+      return generateDocxFromReport(report);
+    }
+    default:
+      throw new Error(`Unsupported format: ${data.format}`);
   }
 }
 
@@ -239,7 +229,7 @@ export function register(app: Express) {
       const ga = await storage.getGlobalAssumptions(req.user?.id);
       const rc = (ga?.researchConfig as ResearchConfig) ?? {};
       const resolved = resolveLlm(rc, "premiumExportLlm");
-      logger.info(`Generating premium ${data.format} via ${resolved.model} + template pipeline for "${data.entityName}"...`, "premium-export");
+      logger.info(`Generating premium ${data.format} via compiled report + template pipeline for "${data.entityName}"...`, "premium-export");
       const buffer = await generateViaTemplatePipeline(data, resolved.model);
       logger.info(`Premium ${data.format} generated (${buffer.length} bytes)`, "premium-export");
 
@@ -262,7 +252,6 @@ export function register(app: Express) {
   });
 
   app.get("/api/exports/premium/status", requireAuth, async (_req: Request, res: Response) => {
-    const hasApiKey = !!(process.env.AI_INTEGRATIONS_GEMINI_API_KEY);
-    res.json({ available: hasApiKey, formats: ["xlsx", "pptx", "pdf", "docx", "png"] });
+    res.json({ available: true, formats: ["xlsx", "pptx", "pdf", "docx", "png"] });
   });
 }

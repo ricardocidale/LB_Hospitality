@@ -244,11 +244,12 @@ Investment Performance (IRR gauge), KPI cards, Revenue & ANOI chart, Portfolio t
 ## Export System
 
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
-- **Premium Export**: `POST /api/exports/premium` — Formats: PDF (via @react-pdf/renderer, no LLM call), PPTX, DOCX, XLSX (PPTX/DOCX use Gemini 2.5 Flash via `premiumExportLlm`).
+- **Unified Report Compiler**: `server/report/compiler.ts` — single `compileReport()` function produces a `ReportDefinition` IR (types in `server/report/types.ts`) consumed by all 5 format renderers. Consolidates section selection, value formatting, formula-row filtering, chart series extraction, investment section splitting, and theme resolution into one place. SVG chart assets rendered by `server/report/svg-charts.ts`.
+- **Premium Export**: `POST /api/exports/premium` — All 5 formats (PDF, PPTX, DOCX, XLSX, PNG) compile once via `compileReport()` then dispatch to format-specific renderers. No LLM calls for any format.
+- **Format renderers**: PDF (`server/pdf/render.tsx` via @react-pdf/renderer), PPTX (`generatePptxFromReport`), XLSX (`generateExcelFromReport`), DOCX (`generateDocxFromReport`), PNG (`generatePngFromReport` via browser screenshots). Each accepts a `ReportDefinition` with pre-formatted values and design tokens.
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (SVG foreignObject + Canvas capture via `domCapture.ts`)
 - **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and browser-rendered PDF exports use these dimensions.
 - **Browser abstraction**: `server/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Used for PNG rendering only (not PDF). Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
-- **Premium PDF renderer**: `server/pdf/render.tsx` + `server/pdf/theme.ts` — pure React PDF components (cover page, KPI cards, financial tables, SVG line charts) using @react-pdf/renderer. Theme-aware via `resolveThemeColors()`. No browser/LLM dependency.
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers.
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.
@@ -353,6 +354,7 @@ npm run test:file -- <path>  # Single test file
 
 ## Recent Changes (March 22, 2026)
 
+- **Unified Report Compiler** — Built `server/report/compiler.ts` with a single `compileReport()` function that produces a `ReportDefinition` IR consumed by all 5 format renderers (PDF, PPTX, XLSX, DOCX, PNG). Consolidates section selection, value formatting, formula-row filtering, chart series building, investment section splitting, and theme resolution. New files: `server/report/types.ts` (IR schema), `server/report/compiler.ts` (compiler), `server/report/svg-charts.ts` (SVG chart assets). All format generators now accept `ReportDefinition` via `generateXxxFromReport()` functions. PPTX/DOCX no longer require AI calls. Premium exports pipeline: compile once → dispatch to format renderer.
 - **Premium PDF Engine Replacement** — Replaced puppeteer-core + AI-designed HTML pipeline with @react-pdf/renderer for premium PDF exports. New `server/pdf/render.tsx` uses pure React PDF components (cover page, KPI cards, financial tables, SVG line charts). Eliminates browser dependency and LLM call for PDF generation. Fixes missing data in exports and themes not being respected. Puppeteer retained for PNG rendering only.
 
 ## Changes (March 16, 2026)

@@ -1,84 +1,29 @@
 import React from "react";
 import { Document, Page, View, Text, renderToBuffer, Svg, Line, Circle, Path, G } from "@react-pdf/renderer";
 import { type PdfTheme, themeFromColorMap } from "./theme";
-import { type ThemeColorMap, resolveThemeColors } from "../theme-resolver";
-import { filterFormulaRows } from "../routes/format-generators/excel-generator";
-import { buildChartsForStatement, getMetricDescription } from "../routes/premium-pdf-pipeline";
+import type { ReportDefinition, ReportSection, TableRow as IRTableRow, FormattedValue, DesignTokens } from "../report/types";
+import { compileReport } from "../report/compiler";
 import { logger } from "../logger";
 
 const MM_TO_PT = 2.83465;
 const PAGE_LANDSCAPE: [number, number] = [406.4 * MM_TO_PT, 228.6 * MM_TO_PT];
 const PAGE_PORTRAIT: [number, number] = [215.9 * MM_TO_PT, 279.4 * MM_TO_PT];
 
-interface ExportRow {
-  category: string;
-  values: (string | number)[];
-  indent?: number;
-  isBold?: boolean;
-  isHeader?: boolean;
-  isItalic?: boolean;
-  format?: string;
-}
-
-interface StatementBlock {
-  title: string;
-  years: string[];
-  rows: ExportRow[];
-}
-
-interface MetricItem {
-  label: string;
-  value: string;
-}
-
-interface PdfExportData {
-  format: string;
-  orientation?: string;
-  entityName: string;
-  companyName?: string;
-  statementType?: string;
-  years?: string[];
-  rows?: ExportRow[];
-  statements?: StatementBlock[];
-  metrics?: MetricItem[];
-  includeCoverPage?: boolean;
-  themeColors?: Array<{ name: string; hexCode: string; rank?: number; description?: string }>;
-}
-
-function isPercentageRow(category: string): boolean {
-  const c = (category || "").toLowerCase();
-  return c.includes("(%)") || c.includes("margin") || c === "occupancy"
-    || c.includes("cap rate") || c.includes("expense ratio");
-}
-
-function isMultiplierRow(category: string): boolean {
-  const c = (category || "").toLowerCase();
-  return c.includes("equity multiple") || c.includes("dscr");
-}
-
-function formatValue(v: string | number, category: string, format?: string): { text: string; negative: boolean } {
-  if (typeof v === "string") return { text: v, negative: false };
-  if (typeof v !== "number") return { text: String(v ?? ""), negative: false };
-  if (isNaN(v)) return { text: "\u2014", negative: false };
-
-  if (format === "percentage" || isPercentageRow(category)) {
-    if (v === 0) return { text: "\u2014", negative: false };
-    const pct = Math.abs(v) <= 2 ? v * 100 : v;
-    if (Math.abs(pct) < 0.05) return { text: "\u2014", negative: false };
-    return pct < 0
-      ? { text: `(${Math.abs(pct).toFixed(1)}%)`, negative: true }
-      : { text: `${pct.toFixed(1)}%`, negative: false };
-  }
-
-  if (format === "multiplier" || isMultiplierRow(category)) {
-    if (v === 0) return { text: "\u2014", negative: false };
-    return { text: v.toFixed(2) + "x", negative: false };
-  }
-
-  if (v === 0) return { text: "\u2014", negative: false };
-  const abs = Math.abs(v);
-  const s = abs.toLocaleString("en-US", { maximumFractionDigits: 0 });
-  return v < 0 ? { text: `(${s})`, negative: true } : { text: s, negative: false };
+function tokensToTheme(t: DesignTokens): PdfTheme {
+  return {
+    primary: t.primary,
+    secondary: t.secondary,
+    accent: t.accent,
+    foreground: t.foreground,
+    border: t.border,
+    muted: t.muted,
+    surface: t.surface,
+    background: t.background,
+    white: t.white,
+    negativeRed: t.negativeRed,
+    chart: t.chart,
+    line: t.line,
+  };
 }
 
 function fmtCompact(v: number): string {
@@ -232,16 +177,8 @@ function KpiCards({ title, metrics, companyName, entityName, theme, isLandscape 
   );
 }
 
-interface TableRow {
-  category: string;
-  values: (string | number)[];
-  type: string;
-  indent: number;
-  format?: string;
-}
-
 function FinancialTable({ title, years, rows, companyName, entityName, theme, isLandscape }: {
-  title: string; years: string[]; rows: TableRow[]; companyName: string; entityName: string; theme: PdfTheme; isLandscape: boolean;
+  title: string; years: string[]; rows: IRTableRow[]; companyName: string; entityName: string; theme: PdfTheme; isLandscape: boolean;
 }) {
   const pageSize: [number, number] = isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT;
   const colWidth = isLandscape
@@ -278,17 +215,22 @@ function FinancialTable({ title, years, rows, companyName, entityName, theme, is
         {rows.map((row, idx) => {
           const isHeader = row.type === "header";
           const isTotal = row.type === "total" || row.type === "subtotal";
-          const isFormula = row.type === "formula";
           const category = (row.category || "").trim();
 
-          if (!category && (row.values || []).every((v) => v === 0 || v === null || v === "")) {
+          if (!category && row.values.every((fv) => {
+            const r = fv.raw;
+            return r === 0 || r === null || r === "";
+          })) {
             return <View key={idx} style={{ height: 8 }} />;
           }
 
           const bgColor = isHeader ? theme.surface : isTotal ? "#ffffff" : idx % 2 === 0 ? theme.muted : "#ffffff";
           const borderTop = isHeader ? { borderTopWidth: 1.5, borderTopColor: theme.secondary } : isTotal ? { borderTopWidth: 1.5, borderTopColor: theme.border } : {};
 
-          const allZero = (row.values || []).every((v) => v === 0 || v === null || v === "");
+          const allZero = row.values.every((fv) => {
+            const r = fv.raw;
+            return r === 0 || r === null || r === "";
+          });
 
           return (
             <View key={idx} style={{ flexDirection: "row", backgroundColor: bgColor, ...borderTop }}>
@@ -297,20 +239,19 @@ function FinancialTable({ title, years, rows, companyName, entityName, theme, is
                   fontSize,
                   fontWeight: isHeader || isTotal ? "bold" : "normal",
                   fontFamily: isHeader || isTotal ? "Helvetica-Bold" : "Helvetica",
-                  fontStyle: isFormula ? "italic" : "normal",
-                  color: isHeader || isTotal ? theme.primary : isFormula ? theme.border : theme.foreground,
+                  color: isHeader || isTotal ? theme.primary : theme.foreground,
                 }}>{category}</Text>
               </View>
-              {(row.values || []).map((v, vi) => {
-                const formatted = allZero && isHeader ? { text: "", negative: false } : formatValue(v, category, row.format);
+              {row.values.map((fv, vi) => {
+                const displayText = allZero && isHeader ? "" : fv.text;
                 return (
                   <View key={vi} style={{ width: colWidth, padding: "4 4", alignItems: "flex-end" }}>
                     <Text style={{
                       fontSize,
                       fontWeight: isHeader || isTotal ? "bold" : "normal",
                       fontFamily: isHeader || isTotal ? "Helvetica-Bold" : "Courier",
-                      color: formatted.negative ? theme.negativeRed : isFormula ? theme.border : theme.foreground,
-                    }}>{formatted.text}</Text>
+                      color: fv.negative ? theme.negativeRed : theme.foreground,
+                    }}>{displayText}</Text>
                   </View>
                 );
               })}
@@ -416,160 +357,42 @@ function LineChart({ title, series, years, companyName, entityName, theme, isLan
   );
 }
 
-function buildSections(data: PdfExportData, tc: ThemeColorMap): Array<{ type: string; props: Record<string, any> }> {
-  const sections: Array<{ type: string; props: Record<string, any> }> = [];
-
-  if (data.metrics?.length) {
-    sections.push({
-      type: "kpi",
-      props: {
-        title: "Key Performance Metrics",
-        metrics: data.metrics.map(m => ({
-          label: m.label,
-          value: m.value,
-          description: getMetricDescription(m.label),
-        })),
-      },
-    });
+export async function renderPremiumPdf(input: ReportDefinition | Record<string, any>): Promise<Buffer> {
+  let report: ReportDefinition;
+  if ("tokens" in input && "sections" in input && "cover" in input) {
+    report = input as ReportDefinition;
+  } else {
+    report = compileReport(input as any);
   }
 
-  const statements = data.statements || [];
-  if (statements.length) {
-    for (const stmt of statements) {
-      const isInvestment = (stmt.title || "").toLowerCase().includes("investment");
+  const theme = tokensToTheme(report.tokens);
+  const { cover, orientation, includeCoverPage, sections } = report;
+  const isLandscape = orientation === "landscape";
 
-      if (isInvestment) {
-        const investmentMetrics: Array<{ label: string; value: string; description: string }> = [];
-        const summaryRows = stmt.rows.filter(r => {
-          const cat = (r.category || "").toLowerCase();
-          return cat.includes("total initial equity") || cat.includes("total exit value")
-            || cat.includes("portfolio irr") || cat.includes("equity multiple")
-            || cat.includes("cash-on-cash");
-        });
-        for (const r of summaryRows) {
-          const val = typeof r.values?.[0] === "number" ? r.values[0] : 0;
-          const cat = (r.category || "");
-          let displayVal = "";
-          if (cat.includes("IRR") || cat.includes("Cash-on-Cash")) {
-            displayVal = `${(Math.abs(val) <= 2 ? val * 100 : val).toFixed(1)}%`;
-          } else if (cat.includes("Equity Multiple")) {
-            displayVal = `${val.toFixed(2)}x`;
-          } else {
-            const abs = Math.abs(val);
-            displayVal = abs >= 1e6 ? `$${(abs / 1e6).toFixed(1)}M` : abs >= 1e3 ? `$${Math.round(abs / 1e3)}K` : `$${abs.toFixed(0)}`;
-          }
-          investmentMetrics.push({ label: cat.trim(), value: displayVal, description: getMetricDescription(cat) });
-        }
-        if (investmentMetrics.length) {
-          sections.push({ type: "kpi", props: { title: "Investment Summary", metrics: investmentMetrics } });
-        }
-      }
-
-      const filteredRows = filterFormulaRows(stmt.rows).map(r => ({
-        category: r.category,
-        values: r.values,
-        type: r.isHeader ? "header" : r.isBold ? "total" : "data",
-        indent: r.indent || 0,
-        format: r.format,
-      }));
-
-      if (isInvestment && filteredRows.length > 0) {
-        const majorSections = new Set([
-          "Free Cash Flow to Investors",
-          "Per-Property Returns",
-          "Property-Level IRR Analysis",
-          "Discounted Cash Flow (DCF) Analysis",
-        ]);
-
-        let pending: typeof filteredRows = [];
-        let pendingTitle = "Investment Analysis";
-
-        const flushSection = () => {
-          if (!pending.length) return;
-          sections.push({ type: "table", props: { title: pendingTitle, years: stmt.years, rows: pending } });
-          pending = [];
-        };
-
-        for (const row of filteredRows) {
-          if (row.type === "header" && !row.indent && majorSections.has(row.category.trim())) {
-            flushSection();
-            pendingTitle = row.category.trim();
-            pending = [row];
-          } else {
-            pending.push(row);
-          }
-        }
-        flushSection();
-      } else {
-        sections.push({ type: "table", props: { title: stmt.title, years: stmt.years, rows: filteredRows } });
-      }
-
-      const chartSection = buildChartsForStatement(stmt, tc);
-      if (chartSection) {
-        sections.push({
-          type: "chart",
-          props: {
-            title: chartSection.title,
-            series: chartSection.content.series,
-            years: chartSection.content.years,
-          },
-        });
-      }
-    }
-  } else if (data.rows?.length && data.years?.length) {
-    const filteredRows = filterFormulaRows(data.rows).map(r => ({
-      category: r.category,
-      values: r.values,
-      type: r.isHeader ? "header" : r.isBold ? "total" : "data",
-      indent: r.indent || 0,
-      format: r.format,
-    }));
-    sections.push({
-      type: "table",
-      props: { title: data.statementType || "Financial Statement", years: data.years, rows: filteredRows },
-    });
-  }
-
-  return sections;
-}
-
-export async function renderPremiumPdf(data: PdfExportData): Promise<Buffer> {
-  const tc = resolveThemeColors(data.themeColors);
-  const theme = themeFromColorMap(tc);
-  const company = data.companyName || data.entityName || "Financial Report";
-  const isLandscape = (data.orientation || "landscape") === "landscape";
-  const includeCover = !!data.includeCoverPage;
-
-  const reportTitle = data.statementType
-    ? `${company} — ${data.statementType}`
-    : `${company} — Financial Report`;
-
-  const sections = buildSections(data, tc);
-
-  logger.info(`[react-pdf] Building ${sections.length} sections (cover=${includeCover}, landscape=${isLandscape})`, "premium-export");
+  logger.info(`[react-pdf] Building ${sections.length} sections (cover=${includeCoverPage}, landscape=${isLandscape})`, "premium-export");
 
   const doc = (
-    <Document title={reportTitle} author={company} subject="Financial Report" creator="H+ Analytics">
-      {includeCover && (
+    <Document title={cover.reportTitle} author={cover.companyName} subject="Financial Report" creator="H+ Analytics">
+      {includeCoverPage && (
         <CoverPage
-          title={data.statementType || "Financial Report"}
-          companyName={company}
-          entityName={data.entityName}
+          title={cover.subtitle || "Financial Report"}
+          companyName={cover.companyName}
+          entityName={cover.entityName}
           theme={theme}
           isLandscape={isLandscape}
         />
       )}
 
       {sections.map((section, i) => {
-        switch (section.type) {
+        switch (section.kind) {
           case "kpi":
             return (
               <KpiCards
                 key={`kpi-${i}`}
-                title={section.props.title}
-                metrics={section.props.metrics}
-                companyName={company}
-                entityName={data.entityName}
+                title={section.title}
+                metrics={section.metrics}
+                companyName={cover.companyName}
+                entityName={cover.entityName}
                 theme={theme}
                 isLandscape={isLandscape}
               />
@@ -578,11 +401,11 @@ export async function renderPremiumPdf(data: PdfExportData): Promise<Buffer> {
             return (
               <FinancialTable
                 key={`table-${i}`}
-                title={section.props.title}
-                years={section.props.years}
-                rows={section.props.rows}
-                companyName={company}
-                entityName={data.entityName}
+                title={section.title}
+                years={section.years}
+                rows={section.rows}
+                companyName={cover.companyName}
+                entityName={cover.entityName}
                 theme={theme}
                 isLandscape={isLandscape}
               />
@@ -591,11 +414,11 @@ export async function renderPremiumPdf(data: PdfExportData): Promise<Buffer> {
             return (
               <LineChart
                 key={`chart-${i}`}
-                title={section.props.title}
-                series={section.props.series}
-                years={section.props.years}
-                companyName={company}
-                entityName={data.entityName}
+                title={section.title}
+                series={section.series}
+                years={section.years}
+                companyName={cover.companyName}
+                entityName={cover.entityName}
                 theme={theme}
                 isLandscape={isLandscape}
               />
@@ -605,11 +428,11 @@ export async function renderPremiumPdf(data: PdfExportData): Promise<Buffer> {
         }
       })}
 
-      {sections.length === 0 && !includeCover && (
+      {sections.length === 0 && !includeCoverPage && (
         <Page size={isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT} style={{ paddingTop: 10, paddingHorizontal: 60, paddingBottom: 30, backgroundColor: "#ffffff" }}>
-          <PageHeader title="Financial Report" companyName={company} entityName={data.entityName} theme={theme} />
+          <PageHeader title="Financial Report" companyName={cover.companyName} entityName={cover.entityName} theme={theme} />
           <Text style={{ fontSize: 10, color: theme.border, textAlign: "center", paddingTop: 80 }}>No financial data available for export.</Text>
-          <PageFooter companyName={company} theme={theme} />
+          <PageFooter companyName={cover.companyName} theme={theme} />
         </Page>
       )}
     </Document>

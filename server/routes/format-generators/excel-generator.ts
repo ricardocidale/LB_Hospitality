@@ -1,3 +1,45 @@
+import type { ReportDefinition } from "../../report/types";
+
+export async function generateExcelFromReport(report: ReportDefinition): Promise<Buffer> {
+  const XLSX = await import("xlsx");
+  const wb = XLSX.utils.book_new();
+
+  for (const section of report.sections) {
+    if (section.kind !== "table") continue;
+
+    const wsData: any[][] = [];
+    wsData.push(["", ...section.years.map(y => `FY ${y}`)]);
+
+    for (const row of section.rows) {
+      const indent = row.indent ? "  ".repeat(row.indent) : "";
+      const label = indent + (row.category || "");
+      const values = row.rawValues.map((v: any) => {
+        if (typeof v === "number") return v;
+        if (typeof v === "string" && v === "\u2014") return "";
+        return v;
+      });
+      wsData.push([label, ...values]);
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws["!cols"] = [{ wch: 38 }, ...section.years.map(() => ({ wch: 16 }))];
+
+    const headerRange = XLSX.utils.decode_range(ws["!ref"] || "A1");
+    for (let c = headerRange.s.c; c <= headerRange.e.c; c++) {
+      const addr = XLSX.utils.encode_cell({ r: 0, c });
+      if (ws[addr]) {
+        ws[addr].s = { font: { bold: true } };
+      }
+    }
+
+    const safeName = (section.title || "Sheet").substring(0, 31);
+    XLSX.utils.book_append_sheet(wb, ws, safeName);
+  }
+
+  const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+  return Buffer.from(buf);
+}
+
 export async function generateExcelBuffer(aiResult: any, data: { companyName?: string; entityName: string; years?: string[] }): Promise<Buffer> {
   const XLSX = await import("xlsx");
   const wb = XLSX.utils.book_new();

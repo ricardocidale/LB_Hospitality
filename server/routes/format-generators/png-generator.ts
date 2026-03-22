@@ -1,4 +1,110 @@
 import { resolveThemeColors } from "../../theme-resolver";
+import type { ReportDefinition } from "../../report/types";
+
+export async function generatePngFromReport(report: ReportDefinition): Promise<Buffer> {
+  const archiver = (await import("archiver")).default;
+  const { buildPdfHtml } = await import("../pdf-html-templates");
+  const { renderPng } = await import("../../browser-renderer");
+
+  const isLandscape = report.orientation === "landscape";
+
+  const legacySections: any[] = [];
+
+  if (report.includeCoverPage) {
+    legacySections.push({
+      type: "cover",
+      title: report.cover.subtitle || "Financial Report",
+    });
+  }
+
+  for (const s of report.sections) {
+    if (s.kind === "kpi") {
+      legacySections.push({
+        type: "metrics_dashboard",
+        title: s.title,
+        content: { metrics: s.metrics },
+      });
+    } else if (s.kind === "table") {
+      legacySections.push({
+        type: "financial_table",
+        title: s.title,
+        content: {
+          years: s.years,
+          rows: s.rows.map((r) => ({
+            category: r.category,
+            values: r.rawValues,
+            type: r.type,
+            indent: r.indent,
+            format: r.format,
+          })),
+        },
+      });
+    } else if (s.kind === "chart") {
+      legacySections.push({
+        type: "line_chart",
+        title: s.title,
+        content: { series: s.series, years: s.years },
+      });
+    }
+  }
+
+  const strip = (hex: string) => hex.replace(/^#/, "");
+  const colors = {
+    navy: strip(report.tokens.primary),
+    sage: strip(report.tokens.secondary),
+    darkGreen: strip(report.tokens.accent),
+    darkText: strip(report.tokens.foreground),
+    gray: strip(report.tokens.border),
+    altRow: strip(report.tokens.muted),
+    sectionBg: strip(report.tokens.surface),
+    white: strip(report.tokens.background),
+    lightGray: strip(report.tokens.border),
+    negativeRed: strip(report.tokens.negativeRed),
+    chart: report.tokens.chart.map(strip),
+    line: report.tokens.line.map(strip),
+  };
+
+  const pngs: { name: string; buffer: Buffer }[] = [];
+
+  for (let i = 0; i < legacySections.length; i++) {
+    const section = legacySections[i];
+    const html = buildPdfHtml({ sections: [section] }, {
+      orientation: report.orientation,
+      companyName: report.cover.companyName,
+      entityName: report.cover.entityName,
+      sections: [section],
+      reportTitle: report.cover.reportTitle,
+      colors,
+    });
+
+    const pngBuffer = await renderPng(html, {
+      width: isLandscape ? 1536 : 816,
+      height: isLandscape ? 864 : 1056,
+      scale: 2,
+    });
+
+    const idx = String(i + 1).padStart(2, "0");
+    const label = (section.title || section.type || "Page").replace(/[^a-zA-Z0-9 ]/g, "").trim().replace(/\s+/g, "-");
+    pngs.push({ name: `${idx}-${label}.png`, buffer: pngBuffer });
+  }
+
+  const zipPromise = new Promise<Buffer>((resolve, reject) => {
+    const archive = archiver("zip", { zlib: { level: 6 } });
+    const chunks: Buffer[] = [];
+    archive.on("data", (chunk: Buffer) => chunks.push(chunk));
+    archive.on("end", () => resolve(Buffer.concat(chunks)));
+    archive.on("error", reject);
+
+    for (const png of pngs) {
+      archive.append(png.buffer, { name: png.name });
+    }
+    archive.finalize();
+  });
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("PNG ZIP generation timed out after 30s")), 30_000)
+  );
+  return Promise.race([zipPromise, timeoutPromise]);
+}
 
 export async function generatePngZipBuffer(
   data: {

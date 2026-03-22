@@ -117,6 +117,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ## Recent Changes (March 22, 2026)
 
+- **Unified Report Compiler** — Built `server/report/compiler.ts` with a single `compileReport()` function that produces a `ReportDefinition` IR consumed by all 5 format renderers (PDF, PPTX, XLSX, DOCX, PNG). Consolidates section selection, value formatting, formula-row filtering, chart series building, investment section splitting, and theme resolution. New files: `server/report/types.ts` (IR schema), `server/report/compiler.ts` (compiler), `server/report/svg-charts.ts` (SVG chart assets). All format generators now accept `ReportDefinition` via `generateXxxFromReport()` functions. PPTX/DOCX no longer require AI calls. Premium exports pipeline: compile once → dispatch to format renderer.
 - **Premium PDF Engine Replacement** — Replaced puppeteer-core + AI-designed HTML pipeline with @react-pdf/renderer for premium PDF exports. New `server/pdf/render.tsx` uses pure React PDF components (cover page, KPI cards, financial tables, SVG line charts). Eliminates browser dependency and LLM call for PDF generation. Puppeteer retained for PNG rendering only.
 
 ## Changes (March 16, 2026)
@@ -161,9 +162,9 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 ## Export System
 
 Full reference: `.claude/skills/exports/SKILL.md`. SDD: `.claude/skills/exports/premium-export-spec.md`.
-- **Premium Export**: `POST /api/exports/premium` — Schema includes `includeCoverPage`, `themeColors`. Pipeline by format:
-  - **PDF**: @react-pdf/renderer (`server/pdf/render.tsx`) — pure React components, no browser/AI. **Excel**: Direct data→xlsx (no AI). **PNG**: Puppeteer screenshots→ZIP (no AI).
-  - **PPTX/DOCX**: Gemini AI → JSON → pptxgenjs/docx SDK (uses `premiumExportLlm` from admin config).
+- **Unified Report Compiler**: `server/report/compiler.ts` — single `compileReport()` produces a `ReportDefinition` IR (types in `server/report/types.ts`) consumed by all 5 format renderers. Consolidates section selection, value formatting, formula-row filtering, chart series extraction, investment section splitting, and theme resolution. SVG chart assets rendered by `server/report/svg-charts.ts`.
+- **Premium Export**: `POST /api/exports/premium` — All 5 formats (PDF, PPTX, DOCX, XLSX, PNG) compile once via `compileReport()` then dispatch to format-specific renderers. No LLM calls for any format.
+- **Format renderers**: PDF (`server/pdf/render.tsx` via @react-pdf/renderer), PPTX (`generatePptxFromReport`), XLSX (`generateExcelFromReport`), DOCX (`generateDocxFromReport`), PNG (`generatePngFromReport` via browser screenshots). Each accepts a `ReportDefinition` with pre-formatted values and design tokens.
 - **Client-side fallback** (when premium toggle off): jsPDF, pptxgenjs, SheetJS, CSV, dom-to-image-more.
 - **Page dimensions**: Landscape = 16:9 (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm).
 - **Browser rendering**: `server/browser-renderer.ts` — Puppeteer with system Chromium. Used for PNG rendering only. Skill: `.claude/skills/exports/pdf-rendering.md`.

@@ -1,4 +1,125 @@
 import { BRAND } from "../premium-export-prompts";
+import type { ReportDefinition, FormattedValue } from "../../report/types";
+
+export async function generateDocxFromReport(report: ReportDefinition): Promise<Buffer> {
+  const docxLib = await import("docx");
+  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, BorderStyle, ShadingType } = docxLib;
+
+  const t = report.tokens;
+  const strip = (hex: string) => hex.replace(/^#/, "");
+  const children: any[] = [];
+
+  children.push(new Paragraph({
+    children: [new TextRun({ text: report.cover.companyName, bold: true, size: 20, color: strip(t.secondary), font: "Arial" })],
+    spacing: { after: 100 },
+  }));
+
+  children.push(new Paragraph({
+    children: [new TextRun({ text: report.cover.reportTitle, bold: true, size: 36, color: strip(t.primary), font: "Arial" })],
+    spacing: { after: 100 },
+  }));
+
+  if (report.cover.subtitle) {
+    children.push(new Paragraph({
+      children: [new TextRun({ text: report.cover.subtitle, size: 22, color: strip(t.border), font: "Arial" })],
+      spacing: { after: 200 },
+    }));
+  }
+
+  children.push(new Paragraph({
+    children: [new TextRun({ text: `Generated: ${report.cover.date}`, size: 18, color: strip(t.border), italics: true, font: "Arial" })],
+    spacing: { after: 100 },
+  }));
+
+  children.push(new Paragraph({
+    children: [new TextRun({ text: "Confidential \u2014 For authorized recipients only", size: 16, color: strip(t.border), italics: true, font: "Arial" })],
+    spacing: { after: 400 },
+    border: { bottom: { color: strip(t.secondary), space: 4, style: BorderStyle.SINGLE, size: 6 } },
+  }));
+
+  for (const section of report.sections) {
+    if (section.kind === "kpi") {
+      children.push(new Paragraph({
+        text: section.title,
+        heading: docxLib.HeadingLevel.HEADING_1,
+        spacing: { before: 300, after: 150 },
+      }));
+      for (const m of section.metrics) {
+        children.push(new Paragraph({
+          children: [
+            new TextRun({ text: `${m.label}: `, bold: true, size: 22, font: "Arial", color: strip(t.border) }),
+            new TextRun({ text: m.value, size: 22, font: "Arial" }),
+          ],
+          spacing: { after: 60 },
+        }));
+      }
+    } else if (section.kind === "table") {
+      children.push(new Paragraph({
+        text: section.title,
+        heading: docxLib.HeadingLevel.HEADING_2,
+        spacing: { before: 200, after: 100 },
+      }));
+
+      const headerCells = ["", ...section.years].map((h: string) => new TableCell({
+        children: [new Paragraph({
+          children: [new TextRun({ text: h, bold: true, size: 16, color: strip(t.white), font: "Arial" })],
+          alignment: h ? AlignmentType.RIGHT : AlignmentType.LEFT,
+        })],
+        shading: { type: ShadingType.SOLID, color: strip(t.secondary) },
+      }));
+
+      const dataRows = section.rows.map((row, ri) => {
+        const indent = row.indent ? "  ".repeat(row.indent) : "";
+        const isHeaderRow = row.type === "header";
+        const isTotalRow = row.type === "total" || row.type === "subtotal";
+
+        return new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({
+                children: [new TextRun({
+                  text: indent + (row.category || ""),
+                  bold: isHeaderRow || isTotalRow,
+                  size: 16, font: "Arial",
+                })],
+              })],
+              shading: isHeaderRow ? { type: ShadingType.SOLID, color: strip(t.surface) } :
+                ri % 2 === 1 ? { type: ShadingType.SOLID, color: strip(t.muted) } : undefined,
+            }),
+            ...row.values.map((fv: FormattedValue) => new TableCell({
+              children: [new Paragraph({
+                children: [new TextRun({
+                  text: fv.text,
+                  bold: isTotalRow,
+                  size: 16, font: "Arial",
+                  color: fv.negative ? strip(t.negativeRed) : undefined,
+                })],
+                alignment: AlignmentType.RIGHT,
+              })],
+              shading: isHeaderRow ? { type: ShadingType.SOLID, color: strip(t.surface) } :
+                ri % 2 === 1 ? { type: ShadingType.SOLID, color: strip(t.muted) } : undefined,
+            })),
+          ],
+        });
+      });
+
+      children.push(new Table({
+        rows: [new TableRow({ children: headerCells }), ...dataRows],
+        width: { size: 100, type: WidthType.PERCENTAGE },
+      }));
+      children.push(new Paragraph({ spacing: { after: 200 } }));
+    }
+  }
+
+  const docDocument = new Document({
+    sections: [{
+      properties: { page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
+      children,
+    }],
+  });
+
+  return await Packer.toBuffer(docDocument);
+}
 
 export async function generateDocxBuffer(aiResult: any, data: { companyName?: string; entityName: string }): Promise<Buffer> {
   const docxLib = await import("docx");

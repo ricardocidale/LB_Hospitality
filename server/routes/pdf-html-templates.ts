@@ -179,11 +179,12 @@ function renderAnalysisSection(section: { content?: { insights?: string[]; highl
     </div>`;
 }
 
-interface PdfSection {
+export interface PdfSection {
   type: string;
   title?: string;
   subtitle?: string;
   content?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export function buildPdfHtml(aiResult: { sections?: PdfSection[] }, data: PdfTemplateData): string {

@@ -1,7 +1,7 @@
 import { BRAND } from "./premium-export-prompts";
 import { logger } from "../logger";
 import { type ThemeColorMap, resolveThemeColors } from "../pdf/theme-resolver";
-import { buildPdfHtml } from "./pdf-html-templates";
+import { buildPdfHtml, type PdfSection } from "./pdf-html-templates";
 import { renderPdf } from "../pdf/browser-renderer";
 import { filterFormulaRows } from "./format-generators/excel-generator";
 
@@ -119,8 +119,8 @@ export function getMetricDescription(label: string): string {
   return "";
 }
 
-export function buildPdfSectionsFromData(data: PdfExportData): Array<Record<string, unknown>> {
-  const sections: Array<Record<string, unknown>> = [];
+export function buildPdfSectionsFromData(data: PdfExportData): PdfSection[] {
+  const sections: PdfSection[] = [];
   const includeCover = !!data.includeCoverPage;
   const tc = resolveThemeColors(data.themeColors);
 
@@ -264,7 +264,7 @@ export async function generatePdfWithAiDesign(
   const pages = (designJson.pages || []) as Array<Record<string, unknown>>;
   logger.info(`[pdf-design] LLM returned design vision: ${designJson.design_vision || ""}`, "premium-export");
 
-  const sections: Array<Record<string, unknown>> = [];
+  const sections: PdfSection[] = [];
   const includeCover = !!data.includeCoverPage;
 
   if (includeCover && cover) {
@@ -346,11 +346,12 @@ export async function generatePdfWithAiDesign(
 
   const reportTitle = cover?.headline || `${company} — Financial Report`;
 
-  const html = buildPdfHtml({ sections: sections as Parameters<typeof buildPdfHtml>[0]["sections"] }, {
-    orientation: data.orientation || "landscape",
+  const orientation = (data.orientation || "landscape") as "landscape" | "portrait";
+  const html = buildPdfHtml({ sections }, {
+    orientation,
     companyName: company,
     entityName: data.entityName,
-    sections: sections as Parameters<typeof buildPdfHtml>[0]["sections"],
+    sections,
     reportTitle,
     colors,
   });
@@ -384,12 +385,13 @@ export async function generatePdfBuffer(data: PdfExportData): Promise<Buffer> {
     : `${company} — Financial Report`;
 
   const colors = resolveThemeColors(data.themeColors);
+  const orientation = (data.orientation || "landscape") as "landscape" | "portrait";
 
-  const html = buildPdfHtml({ sections: sections as Parameters<typeof buildPdfHtml>[0]["sections"] }, {
-    orientation: data.orientation || "landscape",
+  const html = buildPdfHtml({ sections }, {
+    orientation,
     companyName: company,
     entityName: data.entityName,
-    sections: sections as Parameters<typeof buildPdfHtml>[0]["sections"],
+    sections,
     reportTitle,
     colors,
   });

@@ -26,7 +26,7 @@ export async function generatePngZipBuffer(
 
   for (let i = 0; i < sections.length; i++) {
     const section = sections[i];
-    const html = buildPdfHtml({ sections: [section], report_title: reportTitle }, {
+    const html = buildPdfHtml({ sections: [section] }, {
       orientation: data.orientation || "landscape",
       companyName: company,
       entityName: data.entityName,

@@ -5,7 +5,7 @@ export async function generatePptxBuffer(aiResult: any, data: { companyName?: st
 
   const pres = new PptxGenJS();
   pres.layout = "LAYOUT_WIDE";
-  pres.author = data.companyName;
+  pres.author = data.companyName || "Report";
   pres.title = aiResult.presentation_notes || `${data.entityName} \u2014 Premium Report`;
 
   const SLIDE_W = 13.33;

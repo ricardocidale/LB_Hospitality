@@ -34,7 +34,6 @@ const exportConfigSchema = z.object({
     cashFlowChart: z.boolean(),
     balanceSheet: z.boolean(),
     balanceSheetChart: z.boolean(),
-    detailedLineItems: z.boolean(),
   }).partial().optional(),
   analysis: z.object({
     ...categoryFormatSchema,
@@ -76,7 +75,6 @@ const DEFAULT_EXPORT_CONFIG = {
     cashFlowChart: true,
     balanceSheet: true,
     balanceSheetChart: true,
-    detailedLineItems: true,
   },
   analysis: {
     ...FORMAT_DEFAULTS,

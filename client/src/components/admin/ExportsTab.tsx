@@ -276,10 +276,6 @@ export default function ExportsTab() {
                 description="Line chart following the Balance Sheet — Total Assets, Liabilities, and Equity across the hold period."
                 checked={config.statements.balanceSheetChart} onChange={(v) => updateNested("statements", "balanceSheetChart", v)}
                 disabled={!config.statements.balanceSheet} />
-              <GroupHeader title="Line Item Detail" />
-              <SectionToggle id="st-detailed-line-items" label="Detailed line-item breakdowns"
-                description="Show all sub-categories within each statement (e.g. Room Revenue, F&B Revenue, individual expense lines). When off, only section headers and totals appear."
-                checked={config.statements.detailedLineItems} onChange={(v) => updateNested("statements", "detailedLineItems", v)} />
             </div>
           </ContentCard>
 

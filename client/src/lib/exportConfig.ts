@@ -29,7 +29,6 @@ export interface ExportConfig {
     cashFlowChart: boolean;
     balanceSheet: boolean;
     balanceSheetChart: boolean;
-    detailedLineItems: boolean;
   };
 
   analysis: {
@@ -78,7 +77,6 @@ export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
     cashFlowChart: true,
     balanceSheet: true,
     balanceSheetChart: true,
-    detailedLineItems: true,
   },
 
   analysis: {

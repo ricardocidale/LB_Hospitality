@@ -147,7 +147,7 @@ async function withPage<T>(
         throw err;
       }
     } finally {
-      if (page) await page.close().catch(() => {});
+      if (page) await page.close().catch(() => { /* ignore */ });
     }
   }
   throw new Error(`${label}: exhausted retries`);

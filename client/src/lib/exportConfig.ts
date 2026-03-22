@@ -112,5 +112,5 @@ export function loadExportConfig(): ExportConfig {
 export function saveExportConfig(config: ExportConfig): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-  } catch {}
+  } catch { /* ignore */ }
 }

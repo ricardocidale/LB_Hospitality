@@ -61,7 +61,7 @@ export default function Login() {
       try {
         const { themeColors } = JSON.parse(cached);
         if (themeColors?.length) applyThemeColors(themeColors);
-      } catch {}
+      } catch { /* ignore */ }
     }
 
     fetch("/api/public/theme")
@@ -72,7 +72,7 @@ export default function Login() {
           localStorage.setItem(CACHE_KEY, JSON.stringify(data));
         }
       })
-      .catch(() => {});
+      .catch(() => { /* ignore */ });
 
     return () => { resetThemeColors(); };
   }, []);

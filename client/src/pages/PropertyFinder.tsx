@@ -27,7 +27,7 @@ import {
   SavedSearchBar,
   type SearchFormData,
 } from "@/components/property-finder";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 
 export default function PropertyFinder() {
   const { data: global } = useGlobalAssumptions();

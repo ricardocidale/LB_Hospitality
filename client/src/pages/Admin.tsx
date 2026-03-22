@@ -22,13 +22,13 @@ import IntegrationHealthTab from "@/components/admin/IntegrationHealthTab";
 import NotificationsTab from "@/components/admin/NotificationsTab";
 import ModelDefaultsTab from "@/components/admin/ModelDefaultsTab";
 import ExportsTab from "@/components/admin/ExportsTab";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { ErrorBoundary, SelfHealingBoundary } from "@/components/ErrorBoundary";
 import { IconAlertTriangle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/ui/save-button";
 import { useAdminSection } from "@/lib/admin-nav";
-import type { AdminSaveState } from "@/components/admin/types/save-state";
+import type { AdminSaveState } from "@/components/admin/save-state";
 
 export type { AdminSaveState };
 

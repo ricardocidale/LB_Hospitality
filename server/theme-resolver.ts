@@ -1,4 +1,4 @@
-import { BRAND } from "../routes/premium-export-prompts";
+import { BRAND } from "./routes/premium-export-prompts";
 
 export interface ThemeColorMap {
   navy: string;

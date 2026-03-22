@@ -8,7 +8,7 @@
  * overridden per slice.
  */
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { CHART_COLORS, formatCompact } from "../primitives/formatters";
+import { CHART_COLORS, formatCompact } from "../formatters";
 import { motion } from "framer-motion";
 
 export interface DonutSlice {

@@ -1,4 +1,4 @@
-import type { ThemeColorMap } from "../../pdf/theme-resolver";
+import type { ThemeColorMap } from "../../theme-resolver";
 
 export async function generatePptxBuffer(aiResult: any, data: { companyName?: string; entityName: string; themeColors?: any[] }, tc: ThemeColorMap): Promise<Buffer> {
   const PptxGenJS = (await import("pptxgenjs")).default;

@@ -7,7 +7,7 @@
  * or defaults to the platform palette.
  */
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { CHART_COLORS, formatCompact } from "../primitives/formatters";
+import { CHART_COLORS, formatCompact } from "../formatters";
 import { motion } from "framer-motion";
 
 export interface RiverSeries {

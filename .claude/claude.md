@@ -162,7 +162,7 @@ Full reference: `.claude/skills/exports/SKILL.md`. SDD: `.claude/skills/exports/
   - **PPTX/DOCX**: Gemini AI → JSON → pptxgenjs/docx SDK.
 - **Client-side fallback** (when premium toggle off): jsPDF, pptxgenjs, SheetJS, CSV, dom-to-image-more.
 - **Page dimensions**: Landscape = 16:9 (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm).
-- **Browser rendering**: `server/pdf/browser-renderer.ts` — Puppeteer with system Chromium. Skill: `.claude/skills/exports/pdf-rendering.md`.
+- **Browser rendering**: `server/browser-renderer.ts` — Puppeteer with system Chromium. Skill: `.claude/skills/exports/pdf-rendering.md`.
 - **Report structure**: Statement→Chart interleaving. Each statement table is followed by a chart page. Optional cover page + overview (Dashboard only).
 - **Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements — never just the active tab.

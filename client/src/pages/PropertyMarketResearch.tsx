@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useExportSave } from "@/hooks/useExportSave";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import Layout from "@/components/Layout";
 import { useProperty, useMarketResearch, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";

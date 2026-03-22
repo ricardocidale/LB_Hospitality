@@ -6,7 +6,7 @@ import { Loader2 } from "@/components/icons/themed-icons";
 import { IconClock, IconLogIn } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatDateTime, formatDuration } from "@/lib/formatters";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 
 interface LoginLog {
   id: number;

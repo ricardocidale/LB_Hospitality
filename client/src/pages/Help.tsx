@@ -12,7 +12,7 @@ import DiagramsTab from "@/components/admin/DiagramsTab";
 import { useWalkthroughStore } from "@/components/GuidedWalkthrough";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 
 type HelpTab = "user-manual" | "checker-manual" | "guided-tour" | "architecture";
 

@@ -29,7 +29,7 @@ import {
   ReconciliationTab,
 } from "@/components/property-detail";
 import PropertyMap from "@/components/PropertyMap";
-import DocumentExtractionPanel from "@/components/documents/DocumentExtractionPanel";
+import DocumentExtractionPanel from "@/components/DocumentExtractionPanel";
 import {
   type PropertyExportContext,
   exportAllStatementsCSV,

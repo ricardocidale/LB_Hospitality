@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useStore } from "@/lib/store";
 import { IconBuilding2, IconPlay, IconCalendar, IconMapPin, IconInfo } from "@/components/icons";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 

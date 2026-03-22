@@ -4,7 +4,7 @@ import { IconAlertCircle, IconHome } from "@/components/icons";
 import { Link } from "wouter";
 import { useAuth } from "@/lib/auth";
 import Layout from "@/components/Layout";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 
 function NotFoundContent() {
   return (

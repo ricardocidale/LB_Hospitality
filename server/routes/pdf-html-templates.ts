@@ -1,10 +1,10 @@
 import { BRAND } from "./premium-export-prompts";
 import { logger } from "../logger";
-import { type ThemeColorMap, type PdfTemplateData, resolveThemeColors, esc } from "../pdf/theme-resolver";
-import { renderLineChartSection } from "../pdf/svg-charts";
-import { renderFinancialTableSection } from "../pdf/table-renderer";
-import { pageHeader } from "../pdf/theme-resolver";
-import { buildPdfStylesheet } from "../pdf/pdf-styles";
+import { type ThemeColorMap, type PdfTemplateData, resolveThemeColors, esc } from "../theme-resolver";
+import { renderLineChartSection } from "../svg-charts";
+import { renderFinancialTableSection } from "../table-renderer";
+import { pageHeader } from "../theme-resolver";
+import { buildPdfStylesheet } from "../pdf-styles";
 
 export type { ThemeColorMap, PdfTemplateData };
 export { resolveThemeColors };

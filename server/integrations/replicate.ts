@@ -33,7 +33,7 @@ let modelConfigCache: Record<string, ReplicateModelConfig> | null = null;
 
 function loadModelConfig(): Record<string, ReplicateModelConfig> {
   if (modelConfigCache) return modelConfigCache;
-  const configPath = path.join(process.cwd(), "server/config/replicate-models.json");
+  const configPath = path.join(process.cwd(), "server/replicate-models.json");
   const raw = fs.readFileSync(configPath, "utf-8");
   modelConfigCache = JSON.parse(raw);
   return modelConfigCache!;

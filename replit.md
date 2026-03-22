@@ -227,7 +227,7 @@ Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/
 - **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
 - **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and browser-rendered PDF exports use these dimensions.
-- **Browser abstraction**: `server/pdf/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
+- **Browser abstraction**: `server/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers. Premium PDF uses navy cover page with grid pattern, gradient metric cards, bordered prose blocks, inline SVG bar charts with gradient fills.
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.
@@ -290,7 +290,7 @@ WaterfallChart (revenue-to-NOI bridge), SensitivityHeatMap (ADR × Occupancy gri
 
 ## Document Intelligence Pipeline
 
-Property detail "Documents" tab. Document AI OCR extraction, fuzzy USALI field mapping, confidence-scored review UI. Tables: `document_extractions`, `extraction_fields`. Key files: `server/integrations/document-ai.ts`, `server/document-ai/`, `server/routes/documents.ts`, `server/storage/documents.ts`, `client/src/components/documents/`.
+Property detail "Documents" tab. Document AI OCR extraction, fuzzy USALI field mapping, confidence-scored review UI. Tables: `document_extractions`, `extraction_fields`. Key files: `server/integrations/document-ai.ts`, `server/document-ai/`, `server/routes/documents.ts`, `server/storage/documents.ts`, `client/src/components/DocumentExtractionPanel.tsx`.
 
 ---
 

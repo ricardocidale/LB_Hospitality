@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useResearchConfig, useSaveResearchConfig } from "@/lib/api/admin";
 import type { ResearchConfig, ResearchSourceFile } from "@shared/schema";
 import { normalizeResearchConfig } from "./research-center/research-shared";
-import type { AdminSaveState } from "./types/save-state";
+import type { AdminSaveState } from "./save-state";
 
 type SourceCategory = "management-company" | "properties" | "general-marketing";
 

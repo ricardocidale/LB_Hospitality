@@ -118,7 +118,7 @@ The codebase uses barrel files (`index.ts`) and thin re-export wrappers to provi
 | `components/property-edit/index.ts` | Property edit sub-components |
 | `components/property-research/index.ts` | Research sub-components |
 | `components/property-finder/index.ts` | Property finder sub-components |
-| `components/settings/index.ts` | Settings tab components |
+| `components/IndustryResearchTab.tsx` | Industry research settings tab |
 | `features/ai-agent/index.ts` | ElevenLabsWidget, VoiceChatOrb/Full/Bar, Speaker, Transcriber |
 | `features/ai-agent/components/index.ts` | 16+ AI agent UI components |
 | `features/ai-agent/hooks/index.ts` | All AI agent hooks + AI_AGENT_KEYS |

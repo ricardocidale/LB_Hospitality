@@ -11,7 +11,7 @@ import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export interface CompanyProfileTabProps {
-  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
+  onSaveStateChange?: (state: import("@/components/admin/save-state").AdminSaveState | null) => void;
 }
 
 export default function CompanyProfileTab({ onSaveStateChange }: CompanyProfileTabProps = {}) {

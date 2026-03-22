@@ -6,7 +6,7 @@ import { IconBuilding2, IconDollarSign, IconNavigation, IconMountain, IconGlobe,
 import { Button } from "@/components/ui/button";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import Supercluster from "supercluster";
 
 const KNOWN_COORDS: Record<string, [number, number]> = {

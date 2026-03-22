@@ -17,7 +17,7 @@ import {
   Legend,
   Tooltip,
 } from "recharts";
-import { CHART_COLORS } from "../graphics/primitives/formatters";
+import { CHART_COLORS } from "../graphics/formatters";
 
 interface RadarChartProps {
   properties: { name: string; metrics: Record<string, number> }[];

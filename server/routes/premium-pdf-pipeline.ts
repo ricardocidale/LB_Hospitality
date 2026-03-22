@@ -1,8 +1,8 @@
 import { BRAND } from "./premium-export-prompts";
 import { logger } from "../logger";
-import { type ThemeColorMap, resolveThemeColors } from "../pdf/theme-resolver";
+import { type ThemeColorMap, resolveThemeColors } from "../theme-resolver";
 import { buildPdfHtml, type PdfSection } from "./pdf-html-templates";
-import { renderPdf } from "../pdf/browser-renderer";
+import { renderPdf } from "../browser-renderer";
 import { filterFormulaRows } from "./format-generators/excel-generator";
 
 interface ExportRow {

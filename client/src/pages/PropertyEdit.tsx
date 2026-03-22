@@ -24,7 +24,7 @@
  *   changes.
  */
 import Layout from "@/components/Layout";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { useProperty, useUpdateProperty, useGlobalAssumptions, useMarketResearch, useFeeCategories, useUpdateFeeCategories, type FeeCategoryResponse } from "@/lib/api";
 import { useMarketRates } from "@/lib/api/market-rates";
 import { Button } from "@/components/ui/button";

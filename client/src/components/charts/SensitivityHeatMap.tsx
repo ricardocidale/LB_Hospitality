@@ -5,7 +5,7 @@ import { scaleLinear, scaleDiverging } from "d3-scale";
 import { hsl } from "d3-color";
 import { interpolateRgbBasis } from "d3-interpolate";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
-import { CHART_COLORS } from "../graphics/primitives/formatters";
+import { CHART_COLORS } from "../graphics/formatters";
 
 export interface HeatMapCell {
   row: number;

@@ -152,7 +152,7 @@ Barrel files aggregate exports from a directory into a single import path.
 | `components/property-edit/` | `index.ts` | Edit form sections |
 | `components/property-research/` | `index.ts` | Research sub-components |
 | `components/property-finder/` | `index.ts` | Finder sub-components |
-| `components/settings/` | `index.ts` | Settings tab components |
+| `components/` | `IndustryResearchTab.tsx` | Industry research settings tab |
 | `features/ai-agent/` | `index.ts` | ElevenLabsWidget, VoiceChat*, Speaker, Transcriber |
 | `features/ai-agent/components/` | `index.ts` | 16+ AI agent UI components |
 | `features/ai-agent/hooks/` | `index.ts` | AI agent hooks + query keys |
@@ -374,7 +374,7 @@ Two complementary animation modules exist:
 | Module | Path | Components | Used By |
 |--------|------|------------|---------|
 | Motion primitives | `components/ui/animated.tsx` | FadeIn, FadeInUp, ScaleIn, SlideIn, StaggerContainer, AnimatedCounter, HoverScale, etc. (12 exports) | 4 files (cards, portfolio) |
-| Page transitions | `components/graphics/motion/AnimatedPage.tsx` | AnimatedPage, AnimatedSection, AnimatedGrid, ScrollReveal (5 exports) | 25+ pages |
+| Page transitions | `components/graphics/AnimatedPage.tsx` | AnimatedPage, AnimatedSection, AnimatedGrid, ScrollReveal (5 exports) | 25+ pages |
 
 These are complementary, NOT duplicates. Do not consolidate without checking all consumers.
 

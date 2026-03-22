@@ -10,7 +10,7 @@ Documents the available responsive utility hooks, shared responsive patterns in 
 
 ## Key Files
 - `client/src/hooks/use-mobile.tsx` — Primary mobile detection hook
-- `client/src/components/graphics/cards/KPIGrid.tsx` — Reference responsive component
+- `client/src/components/graphics/KPIGrid.tsx` — Reference responsive component
 - `client/src/components/ui/tabs.tsx` — CurrentThemeTab responsive implementation
 
 ## useIsMobile Hook
@@ -51,7 +51,7 @@ return <div className={isMobile ? "p-2" : "p-6"}>  // Use "p-2 md:p-6" instead
 ## Responsive Component Patterns
 
 ### KPIGrid (Reference Implementation)
-`client/src/components/graphics/cards/KPIGrid.tsx` is the gold standard for responsive cards:
+`client/src/components/graphics/KPIGrid.tsx` is the gold standard for responsive cards:
 
 ```tsx
 // Grid columns adapt by count

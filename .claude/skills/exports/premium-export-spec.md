@@ -137,6 +137,6 @@ GET /api/exports/premium/status
 | `server/routes/premium-exports.ts` | Route handler, section builder, format generators |
 | `server/routes/pdf-html-templates.ts` | HTML/CSS template, theme resolution |
 | `server/routes/premium-export-prompts.ts` | AI prompts for PPTX/DOCX |
-| `server/pdf/browser-renderer.ts` | Puppeteer abstraction (`renderPdf`, `renderPng`) |
+| `server/browser-renderer.ts` | Puppeteer abstraction (`renderPdf`, `renderPng`) |
 | `client/src/components/ExportDialog.tsx` | Export dialog UI |
 | `client/src/components/ui/export-toolbar.tsx` | ExportMenu dropdown |

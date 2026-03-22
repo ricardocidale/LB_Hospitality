@@ -11,7 +11,7 @@ import { IconPlus, IconTrash, IconImage, IconUpload, IconBuilding2, IconSave, Ic
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/ui/page-header";
 import defaultLogo from "@/assets/logo.png";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 
 interface Logo {
   id: number;

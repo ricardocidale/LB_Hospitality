@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";

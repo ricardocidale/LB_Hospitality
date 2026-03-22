@@ -25,7 +25,7 @@ import { IconLink } from "@/components/icons";
 
 interface ResearchCenterTabProps {
   initialTab?: string;
-  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
+  onSaveStateChange?: (state: import("@/components/admin/save-state").AdminSaveState | null) => void;
 }
 
 export default function ResearchCenterTab({ onSaveStateChange }: ResearchCenterTabProps) {

@@ -12,7 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { downloadResearchPDF } from "@/lib/exports/researchPdfExport";
 import { useToast } from "@/hooks/use-toast";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { fireResearchConfetti } from "@/lib/confetti";
 
 const sectionColors = {

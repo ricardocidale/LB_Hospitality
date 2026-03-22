@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { SelfHealingBoundary } from "@/components/ErrorBoundary";
 import { PageHeader } from "@/components/ui/page-header";
-import { AnimatedPage, AnimatedSection } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage, AnimatedSection } from "@/components/graphics/AnimatedPage";
 import { CurrentThemeTab, type CurrentThemeTabItem } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ import CompanyProfileTab from "@/components/company/CompanyProfileTab";
 import IcpLocationTab from "@/components/admin/IcpLocationTab";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import type { AdminSaveState } from "@/components/admin/types/save-state";
+import type { AdminSaveState } from "@/components/admin/save-state";
 import {
   type IcpConfig,
   type IcpDescriptive,

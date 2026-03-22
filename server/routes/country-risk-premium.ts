@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { requireAuth } from "../auth";
-import { lookupCountryRiskPremium, getAllCountryRiskPremiums } from "../../shared/data/countryRiskPremiums";
+import { lookupCountryRiskPremium, getAllCountryRiskPremiums } from "../../shared/countryRiskPremiums";
 
 export function register(app: Express) {
   app.get("/api/country-risk-premiums", requireAuth, (_req: Request, res: Response) => {

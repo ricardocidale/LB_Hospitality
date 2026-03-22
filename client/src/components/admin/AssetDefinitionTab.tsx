@@ -134,7 +134,7 @@ interface CustomAmenity {
 }
 
 export interface AssetDefinitionTabProps {
-  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
+  onSaveStateChange?: (state: import("@/components/admin/save-state").AdminSaveState | null) => void;
 }
 
 export default function AssetDefinitionTab({ onSaveStateChange }: AssetDefinitionTabProps = {}) {

@@ -1,4 +1,4 @@
-import { BRAND } from "../routes/premium-export-prompts";
+import { BRAND } from "./routes/premium-export-prompts";
 import type { ThemeColorMap, PdfTemplateData } from "./theme-resolver";
 import { adjustHex, esc, fmtCompact, pageHeader } from "./theme-resolver";
 

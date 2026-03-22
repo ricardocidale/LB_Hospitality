@@ -86,7 +86,7 @@ Hover effects layer on top of the stagger — items animate in, then become indi
 
 ## Key Files
 
-- `client/src/components/graphics/cards/KPIGrid.tsx` — Full implementation
+- `client/src/components/graphics/KPIGrid.tsx` — Full implementation
 - `client/src/components/graphics/index.ts` — Barrel export
 
 ## Related Skills

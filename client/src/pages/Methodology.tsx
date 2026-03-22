@@ -52,7 +52,7 @@ import { sections } from "@/components/methodology/methodologyData";
 import { MethodologyTOC } from "@/components/methodology/MethodologyTOC";
 import { MethodologySection } from "@/components/methodology/MethodologySection";
 import { AuditSections } from "@/components/methodology/AuditSections";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { useGlobalAssumptions } from "@/lib/api/admin";
 
 /** Format a decimal as a percentage string, e.g. 0.36 → "36%" */

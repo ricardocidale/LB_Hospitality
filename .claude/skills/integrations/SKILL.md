@@ -103,7 +103,7 @@ See the `marcela-ai/` skill for the full Marcela architecture.
 | Aspect | Detail |
 |--------|--------|
 | **Use cases** | Architectural renders — exterior, interior design, renovation concepts |
-| **Configuration** | Model configs in `server/config/replicate-models.json` |
+| **Configuration** | Model configs in `server/replicate-models.json` |
 | **File** | `server/integrations/replicate.ts` |
 | **Pipeline** | `server/image/pipeline.ts` |
 

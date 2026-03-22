@@ -62,6 +62,6 @@ Falls back to `BRAND` defaults if no theme provided.
 
 | File | Purpose |
 |------|---------|
-| `server/pdf/browser-renderer.ts` | Puppeteer abstraction |
+| `server/browser-renderer.ts` | Puppeteer abstraction |
 | `server/routes/pdf-html-templates.ts` | HTML/CSS templates + theme resolution |
 | `server/routes/premium-exports.ts` | Section builder + format generators |

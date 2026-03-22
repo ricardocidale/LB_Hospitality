@@ -18,7 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useResearchConfig, useSaveResearchConfig, useRefreshAiModels } from "@/lib/api/admin";
 import type { ResearchConfig, ContextLlmConfig, LlmMode, LlmVendor, AiModelEntry } from "@shared/schema";
 import { FALLBACK_MODELS, RESEARCH_LLM_VENDORS, LLM_VENDORS, normalizeResearchConfig } from "./research-center/research-shared";
-import type { AdminSaveState } from "./types/save-state";
+import type { AdminSaveState } from "./save-state";
 
 interface LLMsTabProps {
   onSaveStateChange?: (state: AdminSaveState | null) => void;

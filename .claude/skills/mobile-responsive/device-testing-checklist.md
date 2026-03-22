@@ -101,7 +101,7 @@ Step-by-step checklist for verifying responsive design across all target devices
 
 ## Key Files
 - `client/src/pages/Dashboard.tsx` — Most complex responsive page (hero, charts, KPIs, tables)
-- `client/src/components/graphics/cards/KPIGrid.tsx` — Reference responsive component
+- `client/src/components/graphics/KPIGrid.tsx` — Reference responsive component
 - `client/src/components/Layout.tsx` — Sidebar collapse and mobile menu
 - `client/src/hooks/use-mobile.tsx` — Mobile detection hook (768px)
 

@@ -140,7 +140,7 @@ All accept `summaryOnly` parameter for short/extended.
 | `client/src/lib/exports/saveFile.ts` | Native file picker + download fallback |
 | `server/routes/premium-exports.ts` | Server export pipeline, all format generators |
 | `server/routes/pdf-html-templates.ts` | HTML/CSS templates, theme resolution |
-| `server/pdf/browser-renderer.ts` | Puppeteer abstraction |
+| `server/browser-renderer.ts` | Puppeteer abstraction |
 
 ## Sub-Skills
 

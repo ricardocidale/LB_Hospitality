@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
 import { IconPlus, IconTrash, IconMapPin, IconGlobe } from "@/components/icons";
-import type { AdminSaveState } from "@/components/admin/types/save-state";
+import type { AdminSaveState } from "@/components/admin/save-state";
 import { X } from "@/components/icons/themed-icons";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";

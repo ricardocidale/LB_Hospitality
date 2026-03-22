@@ -19,7 +19,7 @@ import { PageSkeleton } from "./ai-agents/agent-shared";
 import { RebeccaConfig } from "./ai-agents/RebeccaConfig";
 
 interface AIAgentsTabProps {
-  onSaveStateChange?: (state: import("@/components/admin/types/save-state").AdminSaveState | null) => void;
+  onSaveStateChange?: (state: import("@/components/admin/save-state").AdminSaveState | null) => void;
 }
 
 export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {

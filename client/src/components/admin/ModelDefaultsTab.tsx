@@ -15,7 +15,7 @@ import { invalidateAllFinancialQueries } from "@/lib/api";
 import { useResearchConfig, useSaveResearchConfig } from "@/lib/api/admin";
 import { FALLBACK_MODELS, LLM_VENDORS } from "./research-center/research-shared";
 import type { LlmVendor, AiModelEntry, ResearchConfig } from "@shared/schema";
-import type { AdminSaveState } from "@/components/admin/types/save-state";
+import type { AdminSaveState } from "@/components/admin/save-state";
 import {
   DEFAULT_START_ADR,
   DEFAULT_ADR_GROWTH_RATE,

@@ -4,7 +4,7 @@ import { min, max, range } from "d3-array";
 import { scaleLinear, scaleBand } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import D3ChartContainer, { type D3ChartContainerRef } from "./D3ChartContainer";
-import { CHART_COLORS } from "@/components/graphics/primitives/formatters";
+import { CHART_COLORS } from "@/components/graphics/formatters";
 
 export interface WaterfallItem {
   label: string;

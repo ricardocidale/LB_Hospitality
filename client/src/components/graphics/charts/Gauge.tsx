@@ -9,7 +9,7 @@
  */
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { CHART_COLORS } from "../primitives/formatters";
+import { CHART_COLORS } from "../formatters";
 
 interface GaugeProps {
   value: number;

@@ -81,7 +81,7 @@ The gradient origin should direct the viewer's eye:
 ## Key Files
 
 - `client/src/pages/Dashboard.tsx` — 8+ overlay instances
-- `client/src/components/graphics/cards/KPIGrid.tsx` — KPI overlay with variant logic
+- `client/src/components/graphics/KPIGrid.tsx` — KPI overlay with variant logic
 
 ## Related Skills
 

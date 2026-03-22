@@ -18,7 +18,7 @@ import {
   IconFlaskConical, IconBuilding2, IconBriefcase, IconGlobe, IconRefreshCw,
   IconClock, IconAlertCircle, IconBookOpen,
 } from "@/components/icons";
-import { IndustryResearchTab } from "@/components/settings/IndustryResearchTab";
+import { IndustryResearchTab } from "@/components/IndustryResearchTab";
 import MarketRatesTab from "@/components/admin/MarketRatesTab";
 import { Link } from "wouter";
 import { format } from "date-fns";

@@ -1,4 +1,4 @@
-import { resolveThemeColors } from "../../pdf/theme-resolver";
+import { resolveThemeColors } from "../../theme-resolver";
 
 export async function generatePngZipBuffer(
   data: {
@@ -12,7 +12,7 @@ export async function generatePngZipBuffer(
 ): Promise<Buffer> {
   const archiver = (await import("archiver")).default;
   const { buildPdfHtml } = await import("../pdf-html-templates");
-  const { renderPng } = await import("../../pdf/browser-renderer");
+  const { renderPng } = await import("../../browser-renderer");
 
   const company = data.companyName || data.entityName;
   const isLandscape = (data.orientation || "landscape") === "landscape";

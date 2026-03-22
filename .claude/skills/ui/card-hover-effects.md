@@ -78,7 +78,7 @@ Elements inside the card respond to the parent `group` hover:
 ## Key Files
 
 - `client/src/pages/Dashboard.tsx` — Primary implementation of all card hover patterns
-- `client/src/components/graphics/cards/KPIGrid.tsx` — KPI grid with framer-motion hover
+- `client/src/components/graphics/KPIGrid.tsx` — KPI grid with framer-motion hover
 
 ## Performance Notes
 

@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
-import { AnimatedPage, AnimatedSection } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage, AnimatedSection } from "@/components/graphics/AnimatedPage";
 import { useGlobalAssumptions, useUpdateAdminConfig } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";

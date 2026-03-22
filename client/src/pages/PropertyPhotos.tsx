@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { useProperty } from "@/lib/api";
 import { PropertyImagePicker, PhotoAlbumGrid } from "@/features/property-images";
 import { Button } from "@/components/ui/button";

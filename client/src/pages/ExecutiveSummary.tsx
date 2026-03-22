@@ -1,7 +1,7 @@
 import { useRef, useCallback, useMemo, useState } from "react";
 import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
-import { AnimatedPage } from "@/components/graphics/motion/AnimatedPage";
+import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { useStore } from "@/lib/store";
 import { KPIGrid } from "@/components/graphics";
 import { PageHeader } from "@/components/ui/page-header";

@@ -10,7 +10,7 @@ Documents all responsive design patterns, Tailwind breakpoint strategy, and prov
 
 ## Key Files
 - `client/src/hooks/use-mobile.tsx` — `useIsMobile()` hook (breakpoint: 768px)
-- `client/src/components/graphics/cards/KPIGrid.tsx` — Responsive KPI card grid (reference implementation)
+- `client/src/components/graphics/KPIGrid.tsx` — Responsive KPI card grid (reference implementation)
 - `client/src/components/Layout.tsx` — Main layout with sidebar collapse
 - `client/src/components/ui/tabs.tsx` — CurrentThemeTab responsive tab bar
 
@@ -204,7 +204,7 @@ The tab bar must be scrollable on mobile with smaller touch targets:
 ```
 
 ## Reference Implementations
-- **KPIGrid** (`client/src/components/graphics/cards/KPIGrid.tsx`) — Best example of responsive card grid with all patterns applied
+- **KPIGrid** (`client/src/components/graphics/KPIGrid.tsx`) — Best example of responsive card grid with all patterns applied
 - **Dashboard** (`client/src/pages/Dashboard.tsx`) — Full responsive page with charts, KPIs, tables, hero section
 - **Layout** (`client/src/components/Layout.tsx`) — Sidebar collapse and mobile menu
 

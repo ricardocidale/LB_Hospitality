@@ -1,17 +1,23 @@
 import { resolveThemeColors } from "../../theme-resolver";
-import type { ReportDefinition } from "../../report/types";
+import type { ReportDefinition, KpiSection, TableSection, ChartSection, KpiMetric, ChartSeries } from "../../report/types";
 
-export async function generatePngFromReport(report: ReportDefinition): Promise<Buffer> {
-  const archiver = (await import("archiver")).default;
-  const { buildPdfHtml } = await import("../pdf-html-templates");
-  const { renderPng } = await import("../../browser-renderer");
+interface LegacySection {
+  type: "cover" | "metrics_dashboard" | "financial_table" | "line_chart" | "svg_chart";
+  title: string;
+  content?: {
+    metrics?: KpiMetric[];
+    years?: string[];
+    rows?: Array<{ category: string; values: (string | number)[]; type: string; indent: number; format?: string }>;
+    series?: ChartSeries[];
+    svg?: string;
+  };
+}
 
-  const isLandscape = report.orientation === "landscape";
-
-  const legacySections: any[] = [];
+function buildLegacySections(report: ReportDefinition): LegacySection[] {
+  const sections: LegacySection[] = [];
 
   if (report.includeCoverPage) {
-    legacySections.push({
+    sections.push({
       type: "cover",
       title: report.cover.subtitle || "Financial Report",
     });
@@ -19,13 +25,13 @@ export async function generatePngFromReport(report: ReportDefinition): Promise<B
 
   for (const s of report.sections) {
     if (s.kind === "kpi") {
-      legacySections.push({
+      sections.push({
         type: "metrics_dashboard",
         title: s.title,
         content: { metrics: s.metrics },
       });
     } else if (s.kind === "table") {
-      legacySections.push({
+      sections.push({
         type: "financial_table",
         title: s.title,
         content: {
@@ -40,13 +46,32 @@ export async function generatePngFromReport(report: ReportDefinition): Promise<B
         },
       });
     } else if (s.kind === "chart") {
-      legacySections.push({
-        type: "line_chart",
-        title: s.title,
-        content: { series: s.series, years: s.years },
-      });
+      if (s.svgAsset) {
+        sections.push({
+          type: "svg_chart",
+          title: s.title,
+          content: { svg: s.svgAsset },
+        });
+      } else {
+        sections.push({
+          type: "line_chart",
+          title: s.title,
+          content: { series: s.series, years: s.years },
+        });
+      }
     }
   }
+
+  return sections;
+}
+
+export async function generatePngFromReport(report: ReportDefinition): Promise<Buffer> {
+  const archiver = (await import("archiver")).default;
+  const { buildPdfHtml } = await import("../pdf-html-templates");
+  const { renderPng } = await import("../../browser-renderer");
+
+  const isLandscape = report.orientation === "landscape";
+  const legacySections = buildLegacySections(report);
 
   const strip = (hex: string) => hex.replace(/^#/, "");
   const colors = {

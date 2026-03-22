@@ -2,7 +2,7 @@ import React from "react";
 import { Document, Page, View, Text, renderToBuffer, Svg, Line, Circle, Path, G } from "@react-pdf/renderer";
 import { type PdfTheme, themeFromColorMap } from "./theme";
 import type { ReportDefinition, ReportSection, TableRow as IRTableRow, FormattedValue, DesignTokens } from "../report/types";
-import { compileReport } from "../report/compiler";
+import { compileReport, type CompileInput } from "../report/compiler";
 import { logger } from "../logger";
 
 const MM_TO_PT = 2.83465;
@@ -357,12 +357,12 @@ function LineChart({ title, series, years, companyName, entityName, theme, isLan
   );
 }
 
-export async function renderPremiumPdf(input: ReportDefinition | Record<string, any>): Promise<Buffer> {
+export async function renderPremiumPdf(input: ReportDefinition | CompileInput): Promise<Buffer> {
   let report: ReportDefinition;
   if ("tokens" in input && "sections" in input && "cover" in input) {
     report = input as ReportDefinition;
   } else {
-    report = compileReport(input as any);
+    report = compileReport(input as CompileInput);
   }
 
   const theme = tokensToTheme(report.tokens);

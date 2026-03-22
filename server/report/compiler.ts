@@ -35,7 +35,7 @@ interface StatementBlock {
   rows: ExportRow[];
 }
 
-interface CompileInput {
+export interface CompileInput {
   format: string;
   orientation?: string;
   entityName: string;

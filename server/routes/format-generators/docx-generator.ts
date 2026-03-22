@@ -7,7 +7,7 @@ export async function generateDocxFromReport(report: ReportDefinition): Promise<
 
   const t = report.tokens;
   const strip = (hex: string) => hex.replace(/^#/, "");
-  const children: any[] = [];
+  const children: (InstanceType<typeof Paragraph> | InstanceType<typeof Table>)[] = [];
 
   children.push(new Paragraph({
     children: [new TextRun({ text: report.cover.companyName, bold: true, size: 20, color: strip(t.secondary), font: "Arial" })],
@@ -105,6 +105,62 @@ export async function generateDocxFromReport(report: ReportDefinition): Promise<
 
       children.push(new Table({
         rows: [new TableRow({ children: headerCells }), ...dataRows],
+        width: { size: 100, type: WidthType.PERCENTAGE },
+      }));
+      children.push(new Paragraph({ spacing: { after: 200 } }));
+    } else if (section.kind === "chart") {
+      children.push(new Paragraph({
+        text: section.title,
+        heading: docxLib.HeadingLevel.HEADING_2,
+        spacing: { before: 200, after: 100 },
+      }));
+
+      const chartHeaderCells = [
+        new TableCell({
+          children: [new Paragraph({
+            children: [new TextRun({ text: "Metric", bold: true, size: 16, color: strip(t.white), font: "Arial" })],
+          })],
+          shading: { type: ShadingType.SOLID, color: strip(t.secondary) },
+        }),
+        ...section.years.map((y: string) => new TableCell({
+          children: [new Paragraph({
+            children: [new TextRun({ text: y, bold: true, size: 16, color: strip(t.white), font: "Arial" })],
+            alignment: AlignmentType.RIGHT,
+          })],
+          shading: { type: ShadingType.SOLID, color: strip(t.secondary) },
+        })),
+      ];
+
+      const chartDataRows = section.series.map((s, si) =>
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({
+                children: [new TextRun({ text: s.label, bold: true, size: 16, font: "Arial" })],
+              })],
+              shading: si % 2 === 1 ? { type: ShadingType.SOLID, color: strip(t.muted) } : undefined,
+            }),
+            ...s.values.map((v: number) => new TableCell({
+              children: [new Paragraph({
+                children: [new TextRun({
+                  text: v === 0 ? "\u2014" : Math.abs(v) >= 1_000_000
+                    ? `$${(v / 1_000_000).toFixed(1)}M`
+                    : Math.abs(v) >= 1_000
+                      ? `$${Math.round(v / 1_000).toLocaleString()}K`
+                      : `$${v.toFixed(0)}`,
+                  size: 16, font: "Arial",
+                  color: v < 0 ? strip(t.negativeRed) : undefined,
+                })],
+                alignment: AlignmentType.RIGHT,
+              })],
+              shading: si % 2 === 1 ? { type: ShadingType.SOLID, color: strip(t.muted) } : undefined,
+            })),
+          ],
+        })
+      );
+
+      children.push(new Table({
+        rows: [new TableRow({ children: chartHeaderCells }), ...chartDataRows],
         width: { size: 100, type: WidthType.PERCENTAGE },
       }));
       children.push(new Paragraph({ spacing: { after: 200 } }));

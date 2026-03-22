@@ -81,7 +81,7 @@ export async function generatePptxFromReport(report: ReportDefinition): Promise<
       });
 
       const years = section.years;
-      const tableRows: any[][] = [];
+      const tableRows: Array<Array<{ text: string; options: Record<string, unknown> }>> = [];
 
       const headerRow = [
         { text: "", options: { fill: { color: strip(t.secondary) }, fontFace: "Arial", fontSize: 8, color: strip(t.white), bold: true } },
@@ -133,23 +133,32 @@ export async function generatePptxFromReport(report: ReportDefinition): Promise<
       });
       slide.addShape("rect", { x: 0.5, y: 0.65, w: 12, h: 0.02, fill: { color: strip(t.secondary) } });
 
-      if (section.svgAsset) {
-        slide.addText("See chart in PDF/PNG export", {
-          x: 0.5, y: 3.0, w: 12, h: 0.5,
-          fontSize: 12, fontFace: "Arial", color: strip(t.border), align: "center",
+      const chartData = section.series.map((s, si) => ({
+        name: s.label,
+        labels: section.years,
+        values: s.values,
+      }));
+
+      if (chartData.length > 0 && section.years.length > 0) {
+        const chartColors = section.series.map((s, si) =>
+          strip(s.color || t.chart[si % t.chart.length])
+        );
+
+        slide.addChart("line" as unknown as Parameters<typeof slide.addChart>[0], chartData, {
+          x: 0.5, y: 0.9, w: 12, h: 5.5,
+          showLegend: true,
+          legendPos: "b",
+          legendFontSize: 9,
+          catAxisLabelFontSize: 9,
+          valAxisLabelFontSize: 9,
+          lineDataSymbol: "circle",
+          lineDataSymbolSize: 6,
+          chartColors,
+          valAxisNumFmt: "$#,##0",
+          showValue: false,
+          catAxisOrientation: "minMax",
         });
       }
-
-      const legendY = 6.8;
-      section.series.forEach((s, si) => {
-        const color = strip(s.color || t.chart[si % t.chart.length]);
-        const x = 0.5 + si * 3.0;
-        slide.addShape("rect", { x, y: legendY, w: 0.25, h: 0.12, fill: { color } });
-        slide.addText(s.label, {
-          x: x + 0.35, y: legendY - 0.04, w: 2.5, h: 0.2,
-          fontSize: 9, fontFace: "Arial", color: strip(t.foreground),
-        });
-      });
     }
 
     slide.addShape("rect", { x: 0, y: SLIDE_H - 0.35, w: SLIDE_W, h: 0.01, fill: { color: strip(t.secondary) } });

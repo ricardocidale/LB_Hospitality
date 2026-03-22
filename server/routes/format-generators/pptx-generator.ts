@@ -1,4 +1,5 @@
 import type { ReportDefinition, FormattedValue } from "../../report/types";
+import type { ThemeColorMap } from "../../theme-resolver";
 
 function fmtPptxValue(fv: FormattedValue): string {
   return fv.text;
@@ -171,7 +172,7 @@ export async function generatePptxFromReport(report: ReportDefinition): Promise<
   return Buffer.from(arrayBuf as ArrayBuffer);
 }
 
-export async function generatePptxBuffer(aiResult: any, data: { companyName?: string; entityName: string; themeColors?: any[] }, tc: any): Promise<Buffer> {
+export async function generatePptxBuffer(aiResult: any, data: { companyName?: string; entityName: string; themeColors?: any[] }, tc: ThemeColorMap): Promise<Buffer> {
   const PptxGenJS = (await import("pptxgenjs")).default;
 
   const pres = new PptxGenJS();

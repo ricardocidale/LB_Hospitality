@@ -562,7 +562,7 @@ export default function Dashboard() {
             ];
           }
 
-          const shouldIncludeMetrics = activeTab !== "overview" || loadExportConfig().overview.kpiMetrics;
+          const shouldIncludeMetrics = activeTab === "overview" && loadExportConfig().overview.kpiMetrics;
 
           return {
             entityName: "Consolidated Portfolio",

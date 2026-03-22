@@ -137,7 +137,7 @@ function renderMetricsDashboardSection(section: { content?: { metrics?: Highligh
     </div>`;
 }
 
-function renderChartSection(_section: Record<string, unknown>, _d: PdfTemplateData): string {
+function renderChartSection(_section: PdfSection, _d: PdfTemplateData): string {
   return "";
 }
 

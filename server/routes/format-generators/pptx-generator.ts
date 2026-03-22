@@ -1,9 +1,9 @@
 import type { ThemeColorMap } from "../../pdf/theme-resolver";
 
 export async function generatePptxBuffer(aiResult: any, data: { companyName?: string; entityName: string; themeColors?: any[] }, tc: ThemeColorMap): Promise<Buffer> {
-  const pptxgen = (await import("pptxgenjs")).default;
+  const PptxGenJS = (await import("pptxgenjs")).default;
 
-  const pres = new (pptxgen as any)();
+  const pres = new PptxGenJS();
   pres.layout = "LAYOUT_WIDE";
   pres.author = data.companyName;
   pres.title = aiResult.presentation_notes || `${data.entityName} \u2014 Premium Report`;

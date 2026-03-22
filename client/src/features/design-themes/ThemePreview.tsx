@@ -268,7 +268,7 @@ export function ThemePreview({ themeName, iconSet = "lucide" }: ThemePreviewProp
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary text-primary-foreground">Default</span>
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-secondary text-secondary-foreground">Secondary</span>
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground">Muted</span>
-            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
+            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">Active</span>
             <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Pending</span>
             <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Declined</span>
           </div>
@@ -291,11 +291,11 @@ export function ThemePreview({ themeName, iconSet = "lucide" }: ThemePreviewProp
                 <X className="w-3.5 h-3.5" />
               </Button>
             </div>
-            <div className="flex items-start gap-3 p-3 rounded-lg border border-green-200 bg-green-50">
-              <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/10">
+              <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-green-800">Export Complete</p>
-                <p className="text-xs text-green-600 mt-0.5">Portfolio summary exported to PDF successfully.</p>
+                <p className="text-sm font-medium text-primary">Export Complete</p>
+                <p className="text-xs text-primary/70 mt-0.5">Portfolio summary exported to PDF successfully.</p>
               </div>
             </div>
           </div>

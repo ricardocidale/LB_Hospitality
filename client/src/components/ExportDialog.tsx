@@ -361,9 +361,9 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
           <>
             <div className="py-4 space-y-5">
               {hasPremiumData && (
-                <div className="flex items-center justify-between p-3 rounded-lg border bg-success/10 border-success/30">
+                <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/10 border-primary/30">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-success" />
+                    <Sparkles className="h-4 w-4 text-primary" />
                     <div>
                       <Label htmlFor="premium-toggle" className="text-sm font-medium cursor-pointer">Premium Export</Label>
                       <p className="text-xs text-muted-foreground">AI-enhanced formatting & insights</p>

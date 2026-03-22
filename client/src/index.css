@@ -164,8 +164,8 @@
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --success: 152 56% 39%;
-  --success-foreground: 0 0% 100%;
+  --success: var(--primary);
+  --success-foreground: var(--primary-foreground);
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 15%;
   --info: 210 92% 45%;
@@ -229,8 +229,8 @@
   --destructive: 0 62% 30%;
   --destructive-foreground: 0 0% 100%;
 
-  --success: 152 56% 46%;
-  --success-foreground: 0 0% 100%;
+  --success: var(--primary);
+  --success-foreground: var(--primary-foreground);
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 15%;
   --info: 213 94% 58%;
@@ -282,8 +282,8 @@
   --destructive: 347 77% 50%;
   --destructive-foreground: 0 0% 100%;
 
-  --success: 160 60% 40%;
-  --success-foreground: 0 0% 100%;
+  --success: var(--primary);
+  --success-foreground: var(--primary-foreground);
   --warning: 43 96% 56%;
   --warning-foreground: 0 0% 15%;
   --info: 217 91% 60%;

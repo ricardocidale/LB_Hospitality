@@ -2,6 +2,7 @@ import { users, sessions, type User, type InsertUser, type Session } from "@shar
 import { db } from "../db";
 import { eq, and, gt, lt } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
+import { encryptToken, decryptToken } from "../lib/token-encryption";
 
 export class UserStorage {
   /** Look up a user by their numeric ID. Returns undefined if not found. */
@@ -89,6 +90,48 @@ export class UserStorage {
     await db.update(users).set({ googleId, updatedAt: new Date() }).where(eq(users.id, id));
   }
 
+  async updateUserGoogleTokens(id: number, data: {
+    googleAccessToken: string;
+    googleRefreshToken?: string;
+    googleTokenExpiry?: Date;
+    googleDriveConnected?: boolean;
+  }): Promise<void> {
+    const updates: Record<string, unknown> = {
+      googleAccessToken: encryptToken(data.googleAccessToken),
+      updatedAt: new Date(),
+    };
+    if (data.googleRefreshToken !== undefined) updates.googleRefreshToken = encryptToken(data.googleRefreshToken);
+    if (data.googleTokenExpiry !== undefined) updates.googleTokenExpiry = data.googleTokenExpiry;
+    if (data.googleDriveConnected !== undefined) updates.googleDriveConnected = data.googleDriveConnected;
+    await db.update(users).set(updates).where(eq(users.id, id));
+  }
+
+  async getDecryptedGoogleTokens(id: number): Promise<{
+    accessToken: string | null;
+    refreshToken: string | null;
+    tokenExpiry: Date | null;
+    driveConnected: boolean;
+  }> {
+    const user = await this.getUserById(id);
+    if (!user) return { accessToken: null, refreshToken: null, tokenExpiry: null, driveConnected: false };
+    return {
+      accessToken: user.googleAccessToken ? decryptToken(user.googleAccessToken) : null,
+      refreshToken: user.googleRefreshToken ? decryptToken(user.googleRefreshToken) : null,
+      tokenExpiry: user.googleTokenExpiry,
+      driveConnected: user.googleDriveConnected,
+    };
+  }
+
+  async clearUserGoogleDriveTokens(id: number): Promise<void> {
+    await db.update(users).set({
+      googleAccessToken: null,
+      googleRefreshToken: null,
+      googleTokenExpiry: null,
+      googleDriveConnected: false,
+      updatedAt: new Date(),
+    }).where(eq(users.id, id));
+  }
+
   // Sessions
   /** Create a new login session (called after successful authentication). */
   async createSession(userId: number, sessionId: string, expiresAt: Date): Promise<Session> {
@@ -126,6 +169,10 @@ export class UserStorage {
           selectedThemeId: users.selectedThemeId,
           phoneNumber: users.phoneNumber,
           googleId: users.googleId,
+          googleAccessToken: users.googleAccessToken,
+          googleRefreshToken: users.googleRefreshToken,
+          googleTokenExpiry: users.googleTokenExpiry,
+          googleDriveConnected: users.googleDriveConnected,
           hideTourPrompt: users.hideTourPrompt,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,

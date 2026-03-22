@@ -55,6 +55,10 @@ declare global {
       userGroupId: number | null;
       selectedThemeId: number | null;
       phoneNumber: string | null;
+      googleAccessToken: string | null;
+      googleRefreshToken: string | null;
+      googleTokenExpiry: Date | null;
+      googleDriveConnected: boolean;
       hideTourPrompt: boolean;
       createdAt: Date;
       updatedAt: Date;

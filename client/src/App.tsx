@@ -83,6 +83,7 @@ const IcpStudio = lazy(() => import("@/pages/IcpStudio"));
 const Icp = lazy(() => import("@/pages/Icp"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
+const GoogleDrive = lazy(() => import("@/pages/GoogleDrive"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -371,6 +372,9 @@ function Router() {
           <FinancialErrorBoundary>
             <ManagementRoute component={MapView} />
           </FinancialErrorBoundary>
+        </Route>
+        <Route path="/drive">
+          <ProtectedRoute component={GoogleDrive} />
         </Route>
         <Route path="/voice">
           <ErrorBoundary fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">Voice Lab failed to load. Please reload the page.</p></div>}>

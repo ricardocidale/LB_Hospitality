@@ -3,6 +3,14 @@ import { storage } from "../storage";
 import { logger } from "../logger";
 import fs from "fs/promises";
 import path from "path";
+import { readFileSync } from "fs";
+
+const seedUsersData = JSON.parse(readFileSync(path.join(process.cwd(), "server/seed-users.json"), "utf-8"));
+const adminUsers = seedUsersData.users.filter((u: { role: string }) => u.role === "admin");
+const adminNameList = adminUsers.map((u: { firstName: string; lastName?: string }) => `${u.firstName}${u.lastName ? ` ${u.lastName}` : ""}`).join(" and ");
+const adminReference = adminUsers.length === 1
+  ? `${adminNameList} is the sole admin.`
+  : `The admins are ${adminNameList}.`;
 
 export interface KBSource {
   id: string;
@@ -44,7 +52,7 @@ function getLiveRolesDocument(): string {
 
 There are four user roles in the portal:
 
-Admin — Full access to everything. Can manage users, configure settings, edit any property, access verification, and manage the AI agent. Ricardo Cidale is the sole admin.
+Admin — Full access to everything. Can manage users, configure settings, edit any property, access verification, and manage the AI agent. ${adminReference}
 
 Partner — Can view the full portfolio, edit property assumptions, run scenarios, and use analysis tools. Partners are the primary users of the financial model.
 

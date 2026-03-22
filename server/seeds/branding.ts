@@ -2,6 +2,7 @@ import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { logos, companies, designThemes } from "@shared/schema";
 import { logger } from "../logger";
+import { SEED_COMPANY_IDENTITY } from "./properties";
 
 export async function seedDefaultLogos() {
   const existingLogos = await db.select().from(logos);
@@ -16,19 +17,19 @@ export async function seedDefaultLogos() {
     },
     {
       name: "Norfolk AI - Blue",
-      companyName: "The Norfolk AI Group",
+      companyName: SEED_COMPANY_IDENTITY.companyName,
       url: "/logos/norfolk-ai-blue.png",
       isDefault: false,
     },
     {
       name: "Norfolk AI - Yellow",
-      companyName: "The Norfolk AI Group",
+      companyName: SEED_COMPANY_IDENTITY.companyName,
       url: "/logos/norfolk-ai-yellow.png",
       isDefault: false,
     },
     {
       name: "Norfolk AI - Wireframe",
-      companyName: "The Norfolk AI Group",
+      companyName: SEED_COMPANY_IDENTITY.companyName,
       url: "/logos/norfolk-ai-wireframe.png",
       isDefault: false,
     },
@@ -54,7 +55,7 @@ export async function seedCompanies() {
     // First-time setup: seed initial companies (informational only, no property relationship)
     const companiesToSeed = [
       { name: "Hospitality Business Group", type: "management" as const, description: "Management company overseeing all hotel SPVs" },
-      { name: "The Norfolk AI Group", type: "management" as const, description: "AI-powered hospitality technology and management group based in Norfolk, VA" },
+      { name: SEED_COMPANY_IDENTITY.companyName, type: "management" as const, description: "AI-powered hospitality technology and management group based in Norfolk, VA" },
       { name: "KIT Capital", type: "management" as const, description: "Investment and capital management firm" },
       { name: "Numeratti Endeavors", type: "management" as const, description: "Strategic investment ventures" },
       { name: "General", type: "spv" as const, description: "Default catch-all company" },

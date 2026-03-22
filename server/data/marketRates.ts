@@ -13,12 +13,7 @@ import { db } from "../db";
 import { marketRates, type MarketRate } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { EXTERNAL_API_TIMEOUT_MS } from "../constants";
-
-// ---------------------------------------------------------------------------
-// FRED API
-// ---------------------------------------------------------------------------
-
-const FRED_BASE_URL = "https://api.stlouisfed.org/fred/series/observations";
+import { FRED_BASE_URL } from "../services/FREDService";
 
 interface FredObservation {
   date: string;

@@ -5,6 +5,7 @@ import { sendNotificationEmail } from "../integrations/resend";
 import { db } from "../db";
 import { alertRules, notificationLogs, notificationSettings } from "@shared/schema";
 import { eq, and, isNull, or } from "drizzle-orm";
+import { APP_BRAND_NAME } from "@shared/constants";
 
 async function getNotificationSetting(key: string): Promise<string | null> {
   const [row] = await db.select().from(notificationSettings).where(eq(notificationSettings.settingKey, key)).limit(1);
@@ -38,7 +39,7 @@ export async function processNotificationEvent(event: NotificationEvent): Promis
     try {
       await sendNotificationEmail({
         to: event.metadata.recipientEmail,
-        subject: `${getEventLabel(event.type)} — HBG Portal`,
+        subject: `${getEventLabel(event.type)} — ${APP_BRAND_NAME}`,
         title: getEventLabel(event.type),
         body: event.message || "A system event has occurred.",
         actionUrl: event.link ? undefined : undefined,

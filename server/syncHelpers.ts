@@ -1,5 +1,6 @@
 import type { IStorage } from "./storage";
 import { seedServiceTemplates } from "./seeds/services";
+import { SEED_PROPERTY_DEFAULTS, DEFAULT_FEE_CATEGORIES } from "./seeds/properties";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { db } from "./db";
@@ -13,27 +14,12 @@ import {
   DEFAULT_COMMISSION_RATE,
   DEFAULT_SAFE_VALUATION_CAP,
   DEFAULT_SAFE_DISCOUNT_RATE,
-  DEFAULT_COST_RATE_ROOMS,
-  DEFAULT_COST_RATE_FB,
-  DEFAULT_COST_RATE_ADMIN,
-  DEFAULT_COST_RATE_MARKETING,
-  DEFAULT_COST_RATE_PROPERTY_OPS,
-  DEFAULT_COST_RATE_UTILITIES,
-  DEFAULT_COST_RATE_TAXES,
-  DEFAULT_COST_RATE_IT,
-  DEFAULT_COST_RATE_FFE,
-  DEFAULT_COST_RATE_OTHER,
-  DEFAULT_REV_SHARE_EVENTS,
-  DEFAULT_REV_SHARE_FB,
-  DEFAULT_REV_SHARE_OTHER,
-  DEFAULT_PROPERTY_TAX_RATE,
   DEFAULT_EVENT_EXPENSE_RATE,
   DEFAULT_OTHER_EXPENSE_RATE,
   DEFAULT_UTILITIES_VARIABLE_SPLIT,
   SEED_DEBT_ASSUMPTIONS,
   DEFAULT_PROPERTY_INFLATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
-  DEFAULT_COST_RATE_INSURANCE,
   DEFAULT_BUSINESS_INSURANCE_START,
 } from "../shared/constants";
 
@@ -90,28 +76,7 @@ export const SEED_GLOBAL_ASSUMPTIONS = {
   partnerCountYear6: 3, partnerCountYear7: 3, partnerCountYear8: 3, partnerCountYear9: 3, partnerCountYear10: 3,
 };
 
-export const SEED_PROPERTY_DEFAULTS = {
-  costRateRooms: DEFAULT_COST_RATE_ROOMS, costRateFB: DEFAULT_COST_RATE_FB, costRateAdmin: DEFAULT_COST_RATE_ADMIN,
-  costRateMarketing: DEFAULT_COST_RATE_MARKETING, costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,
-  costRateUtilities: DEFAULT_COST_RATE_UTILITIES,
-  costRateTaxes: DEFAULT_COST_RATE_TAXES, costRateIT: DEFAULT_COST_RATE_IT, costRateFFE: DEFAULT_COST_RATE_FFE,
-  costRateOther: DEFAULT_COST_RATE_OTHER, costRateInsurance: DEFAULT_COST_RATE_INSURANCE,
-  revShareEvents: DEFAULT_REV_SHARE_EVENTS,
-  revShareFB: DEFAULT_REV_SHARE_FB, revShareOther: DEFAULT_REV_SHARE_OTHER,
-  exitCapRate: DEFAULT_EXIT_CAP_RATE, taxRate: DEFAULT_PROPERTY_TAX_RATE,
-  dispositionCommission: DEFAULT_COMMISSION_RATE,
-  baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
-  incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
-};
-
-export const DEFAULT_FEE_CATEGORIES = [
-  { name: "Marketing", rate: 0.015, sortOrder: 1 },
-  { name: "Technology & Reservations", rate: 0.02, sortOrder: 2 },
-  { name: "Accounting", rate: 0.015, sortOrder: 3 },
-  { name: "Revenue Management", rate: 0.01, sortOrder: 4 },
-  { name: "General Management", rate: 0.015, sortOrder: 5 },
-  { name: "Procurement", rate: 0.01, sortOrder: 6 },
-];
+export { SEED_PROPERTY_DEFAULTS, DEFAULT_FEE_CATEGORIES } from "./seeds/properties";
 
 export const SEED_PROPERTIES = [
   { ...SEED_PROPERTY_DEFAULTS, name: "The Hudson Estate", streetAddress: "142 Old Post Road", city: "Millbrook", stateProvince: "NY", zipPostalCode: "12545", country: "United States", location: "Hudson Valley, New York", market: "North America", imageUrl: "/images/property-ny.png", status: PropertyStatus.PIPELINE, acquisitionDate: "2026-06-01", operationsStartDate: "2026-12-01", purchasePrice: 3800000, buildingImprovements: 1200000, preOpeningCosts: 200000, operatingReserve: 250000, roomCount: 20, startAdr: 385, adrGrowthRate: 0.025, startOccupancy: 0.55, maxOccupancy: 0.82, occupancyRampMonths: 6, occupancyGrowthStep: 0.05, type: "Full Equity", costRateFB: 0.085, costRateIT: 0.005, cateringBoostPercent: 0.22, exitCapRate: 0.08, willRefinance: "Yes", refinanceDate: "2029-12-01", refinanceLtv: 0.75, refinanceInterestRate: 0.09, refinanceTermYears: 25, refinanceClosingCostRate: 0.03, revShareEvents: 0.30 },

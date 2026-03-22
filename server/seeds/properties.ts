@@ -34,7 +34,46 @@ import {
   DEFAULT_PROPERTY_INFLATION_RATE,
   DEFAULT_COMPANY_TAX_RATE,
   DEFAULT_BUSINESS_INSURANCE_START,
+  DEFAULT_COST_RATE_INSURANCE,
 } from "@shared/constants";
+
+export const SEED_COMPANY_IDENTITY = {
+  companyName: "The Norfolk AI Group",
+  companyPhone: "+1 (757) 555-0142",
+  companyEmail: "info@norfolk.ai",
+  companyWebsite: "https://norfolk.ai",
+  companyEin: "92-1847356",
+  companyFoundingYear: 2024,
+  companyStreetAddress: "150 West Main Street, Suite 400",
+  companyCity: "Norfolk",
+  companyStateProvince: "VA",
+  companyCountry: "United States",
+  companyZipPostalCode: "23510",
+  marcelaPhoneGreeting: "Hello, this is Marcela from The Norfolk AI Group. How can I help you today?",
+} as const;
+
+export const SEED_PROPERTY_DEFAULTS = {
+  costRateRooms: DEFAULT_COST_RATE_ROOMS, costRateFB: DEFAULT_COST_RATE_FB, costRateAdmin: DEFAULT_COST_RATE_ADMIN,
+  costRateMarketing: DEFAULT_COST_RATE_MARKETING, costRatePropertyOps: DEFAULT_COST_RATE_PROPERTY_OPS,
+  costRateUtilities: DEFAULT_COST_RATE_UTILITIES,
+  costRateTaxes: DEFAULT_COST_RATE_TAXES, costRateIT: DEFAULT_COST_RATE_IT, costRateFFE: DEFAULT_COST_RATE_FFE,
+  costRateOther: DEFAULT_COST_RATE_OTHER, costRateInsurance: DEFAULT_COST_RATE_INSURANCE,
+  revShareEvents: DEFAULT_REV_SHARE_EVENTS,
+  revShareFB: DEFAULT_REV_SHARE_FB, revShareOther: DEFAULT_REV_SHARE_OTHER,
+  exitCapRate: DEFAULT_EXIT_CAP_RATE, taxRate: DEFAULT_PROPERTY_TAX_RATE,
+  dispositionCommission: DEFAULT_COMMISSION_RATE,
+  baseManagementFeeRate: DEFAULT_BASE_MANAGEMENT_FEE_RATE,
+  incentiveManagementFeeRate: DEFAULT_INCENTIVE_MANAGEMENT_FEE_RATE,
+};
+
+export const DEFAULT_FEE_CATEGORIES = [
+  { name: "Marketing", rate: 0.015, sortOrder: 1 },
+  { name: "Technology & Reservations", rate: 0.02, sortOrder: 2 },
+  { name: "Accounting", rate: 0.015, sortOrder: 3 },
+  { name: "Revenue Management", rate: 0.01, sortOrder: 4 },
+  { name: "General Management", rate: 0.015, sortOrder: 5 },
+  { name: "Procurement", rate: 0.01, sortOrder: 6 },
+];
 
 export async function seedGlobalAssumptions() {
   // Check for a shared (userId IS NULL) row first — that's the canonical singleton
@@ -110,23 +149,12 @@ export async function seedGlobalAssumptions() {
     },
     debtAssumptions: SEED_DEBT_ASSUMPTIONS,
     companyTaxRate: DEFAULT_COMPANY_TAX_RATE,
-    companyName: "The Norfolk AI Group",
+    ...SEED_COMPANY_IDENTITY,
     exitCapRate: DEFAULT_EXIT_CAP_RATE,
     salesCommissionRate: DEFAULT_COMMISSION_RATE,
     eventExpenseRate: DEFAULT_EVENT_EXPENSE_RATE,
     otherExpenseRate: DEFAULT_OTHER_EXPENSE_RATE,
     utilitiesVariableSplit: DEFAULT_UTILITIES_VARIABLE_SPLIT,
-    companyPhone: "+1 (757) 555-0142",
-    companyEmail: "info@norfolk.ai",
-    companyWebsite: "https://norfolk.ai",
-    companyEin: "92-1847356",
-    companyFoundingYear: 2024,
-    companyStreetAddress: "150 West Main Street, Suite 400",
-    companyCity: "Norfolk",
-    companyStateProvince: "VA",
-    companyCountry: "United States",
-    companyZipPostalCode: "23510",
-    marcelaPhoneGreeting: "Hello, this is Marcela from The Norfolk AI Group. How can I help you today?",
     assetDefinition: {
       minRooms: 10,
       maxRooms: 80,

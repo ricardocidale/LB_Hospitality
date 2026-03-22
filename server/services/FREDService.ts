@@ -16,7 +16,7 @@ const FRED_SERIES = {
   cpi: "CPIAUCSL",
 } as const;
 
-const FRED_BASE_URL = "https://api.stlouisfed.org/fred/series/observations";
+export const FRED_BASE_URL = "https://api.stlouisfed.org/fred/series/observations";
 const CACHE_TTL_SECONDS = 24 * 60 * 60;
 
 export type FREDSeriesKey = keyof typeof FRED_SERIES;

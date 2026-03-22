@@ -269,6 +269,13 @@ describe("Safe filename generation", () => {
   });
 });
 
+describe("Route schema preserves statement flags", () => {
+  it("route schema includes includeTable and includeChart on statements", () => {
+    expect(routeSource).toContain("includeTable");
+    expect(routeSource).toContain("includeChart");
+  });
+});
+
 describe("Compiler includeTable/includeChart flags", () => {
   it("omits chart when includeChart is false", () => {
     const result = compileReport({

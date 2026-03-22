@@ -33,6 +33,8 @@ const premiumExportSchema = z.object({
     title: z.string(),
     years: z.array(z.string()),
     rows: z.array(exportRowSchema),
+    includeTable: z.boolean().optional(),
+    includeChart: z.boolean().optional(),
   })).optional(),
   metrics: z.array(z.object({
     label: z.string(),

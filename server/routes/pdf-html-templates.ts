@@ -1,14 +1,15 @@
 import { BRAND } from "./premium-export-prompts";
 import { logger } from "../logger";
-import { type ThemeColorMap, type PdfTemplateData, resolveThemeColors, adjustHex, esc } from "../pdf/theme-resolver";
+import { type ThemeColorMap, type PdfTemplateData, resolveThemeColors, esc } from "../pdf/theme-resolver";
 import { renderLineChartSection } from "../pdf/svg-charts";
 import { renderFinancialTableSection } from "../pdf/table-renderer";
 import { pageHeader } from "../pdf/theme-resolver";
+import { buildPdfStylesheet } from "../pdf/pdf-styles";
 
 export type { ThemeColorMap, PdfTemplateData };
 export { resolveThemeColors };
 
-function renderCoverSection(section: any, d: PdfTemplateData): string {
+function renderCoverSection(section: { title?: string; subtitle?: string }, d: PdfTemplateData): string {
   const company = esc(d.companyName);
   const entity = esc(d.entityName);
   const title = esc(d.reportTitle || section.title || "Financial Report");
@@ -51,10 +52,10 @@ function renderCoverSection(section: any, d: PdfTemplateData): string {
     </div>`;
 }
 
-function renderTableOfContents(section: any, d: PdfTemplateData): string {
+function renderTableOfContents(section: { content?: { entries?: Array<{ title: string; page: number }> } }, d: PdfTemplateData): string {
   const entries: { title: string; page: number }[] = section.content?.entries || [];
 
-  const rows = entries.map((e: any, i: number) => `
+  const rows = entries.map((e, i: number) => `
     <div class="toc-row">
       <span class="toc-num">${String(i + 1).padStart(2, "0")}</span>
       <span class="toc-label">${esc(e.title)}</span>
@@ -70,16 +71,17 @@ function renderTableOfContents(section: any, d: PdfTemplateData): string {
     </div>`;
 }
 
-function renderExecutiveSummarySection(section: any, d: PdfTemplateData): string {
+interface HighlightItem { value?: string; label?: string; description?: string }
+
+function renderExecutiveSummarySection(section: { content?: { paragraphs?: string[]; highlights?: HighlightItem[] } }, d: PdfTemplateData): string {
   const paragraphs: string[] = section.content?.paragraphs || [];
-  const highlights: any[] = section.content?.highlights || [];
-  const isL = d.orientation === "landscape";
+  const highlights: HighlightItem[] = section.content?.highlights || [];
 
   const parasHtml = paragraphs.map((p: string) =>
     `<p class="summary-para">${esc(p)}</p>`
   ).join("");
 
-  const highlightsHtml = highlights.map((h: any, i: number) => {
+  const highlightsHtml = highlights.map((h, i: number) => {
     const accentColors = d.colors
       ? [`#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`, `#${d.colors.darkGreen}`, `#${d.colors.navy}`]
       : [`#${BRAND.ACCENT_HEX}`, `#${BRAND.PRIMARY_HEX}`, `#${BRAND.SECONDARY_HEX}`, `#${BRAND.ACCENT_HEX}`, `#${BRAND.PRIMARY_HEX}`];
@@ -109,13 +111,13 @@ function renderExecutiveSummarySection(section: any, d: PdfTemplateData): string
     </div>`;
 }
 
-function renderMetricsDashboardSection(section: any, d: PdfTemplateData): string {
-  const metrics: any[] = section.content?.metrics || [];
+function renderMetricsDashboardSection(section: { content?: { metrics?: HighlightItem[] } }, d: PdfTemplateData): string {
+  const metrics: HighlightItem[] = section.content?.metrics || [];
   const accentColors = d.colors
     ? [`#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`, `#${d.colors.darkGreen}`, `#${d.colors.navy}`, `#${d.colors.sage}`]
     : [`#${BRAND.ACCENT_HEX}`, `#${BRAND.PRIMARY_HEX}`, `#${BRAND.SECONDARY_HEX}`, `#${BRAND.ACCENT_HEX}`, `#${BRAND.PRIMARY_HEX}`, `#${BRAND.SECONDARY_HEX}`];
 
-  const cards = metrics.map((m: any, i: number) => {
+  const cards = metrics.map((m, i: number) => {
     const accent = accentColors[i % accentColors.length];
     return `
       <div class="kpi-card">
@@ -135,14 +137,13 @@ function renderMetricsDashboardSection(section: any, d: PdfTemplateData): string
     </div>`;
 }
 
-function renderChartSection(_section: any, _d: PdfTemplateData): string {
+function renderChartSection(_section: Record<string, unknown>, _d: PdfTemplateData): string {
   return "";
 }
 
-function renderAnalysisSection(section: any, d: PdfTemplateData): string {
+function renderAnalysisSection(section: { content?: { insights?: string[]; highlights?: HighlightItem[] } }, d: PdfTemplateData): string {
   const insights: string[] = section.content?.insights || [];
-  const highlights: any[] = section.content?.highlights || [];
-  const isL = d.orientation === "landscape";
+  const highlights: HighlightItem[] = section.content?.highlights || [];
 
   const insightsHtml = insights.map((text: string) => {
     const match = text.match(/^\*\*(.+?):\*\*\s*(.+)$/);
@@ -159,7 +160,7 @@ function renderAnalysisSection(section: any, d: PdfTemplateData): string {
   const highlightsHtml = highlights.length ? `
     <h3 class="section-label">KEY HIGHLIGHTS</h3>
     <div class="analysis-highlights-grid">
-      ${highlights.map((h: any) => `
+      ${highlights.map((h) => `
         <div class="analysis-highlight">
           <div class="analysis-highlight-label">${esc(h.label || "")}</div>
           <div class="analysis-highlight-value">${esc(h.value || "")}</div>
@@ -178,7 +179,14 @@ function renderAnalysisSection(section: any, d: PdfTemplateData): string {
     </div>`;
 }
 
-export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
+interface PdfSection {
+  type: string;
+  title?: string;
+  subtitle?: string;
+  content?: Record<string, unknown>;
+}
+
+export function buildPdfHtml(aiResult: { sections?: PdfSection[] }, data: PdfTemplateData): string {
   const sections = aiResult.sections || [];
   const isL = data.orientation === "landscape";
   const pageW = isL ? "406.4mm" : "215.9mm";
@@ -188,25 +196,18 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   for (const section of sections) {
     switch (section.type) {
       case "cover": parts.push(renderCoverSection(section, data)); break;
-      case "table_of_contents": parts.push(renderTableOfContents(section, data)); break;
-      case "executive_summary": parts.push(renderExecutiveSummarySection(section, data)); break;
-      case "metrics_dashboard": parts.push(renderMetricsDashboardSection(section, data)); break;
+      case "table_of_contents": parts.push(renderTableOfContents(section as Parameters<typeof renderTableOfContents>[0], data)); break;
+      case "executive_summary": parts.push(renderExecutiveSummarySection(section as Parameters<typeof renderExecutiveSummarySection>[0], data)); break;
+      case "metrics_dashboard": parts.push(renderMetricsDashboardSection(section as Parameters<typeof renderMetricsDashboardSection>[0], data)); break;
       case "financial_table": parts.push(renderFinancialTableSection(section, data)); break;
       case "chart": parts.push(renderChartSection(section, data)); break;
       case "line_chart": parts.push(renderLineChartSection(section, data)); break;
-      case "analysis": parts.push(renderAnalysisSection(section, data)); break;
+      case "analysis": parts.push(renderAnalysisSection(section as Parameters<typeof renderAnalysisSection>[0], data)); break;
       default: logger.warn(`Unknown PDF section type "${section.type}" — skipped`, "pdf-template"); break;
     }
   }
 
-  const c = data.colors || resolveThemeColors();
-  const NAVY = `#${c.navy}`;
-  const SAGE = `#${c.sage}`;
-  const DK = `#${c.darkGreen}`;
-  const TXT = `#${c.darkText}`;
-  const GR = `#${c.gray}`;
-  const ALT = `#${c.altRow}`;
-  const SECBG = `#${c.sectionBg}`;
+  const stylesheet = buildPdfStylesheet({ orientation: data.orientation, colors: data.colors });
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -214,410 +215,7 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
 <meta charset="utf-8"/>
 <title>${esc(data.reportTitle || data.companyName + " Report")}</title>
 <style>
-@page { size: ${pageW} ${pageH}; margin: 0; }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: ${TXT};
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-  font-feature-settings: 'liga' 1, 'kern' 1;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-.val-neg { color: #${c.negativeRed}; }
-
-.cover-page {
-  width: ${pageW}; height: ${pageH};
-  background: linear-gradient(155deg, #${adjustHex(c.navy, 12)} 0%, ${NAVY} 35%, #${adjustHex(c.navy, -8)} 100%);
-  position: relative; overflow: hidden;
-  page-break-after: always;
-}
-.cover-accent-top {
-  position: absolute; top: 0; left: 0; right: 0; height: 3.5mm;
-  background: linear-gradient(90deg, ${DK}, ${SAGE}, ${DK});
-}
-.cover-accent-bottom {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 3.5mm;
-  background: linear-gradient(90deg, ${SAGE}, ${DK}, ${SAGE});
-}
-.cover-geometric {
-  position: absolute;
-  right: ${isL ? "-30mm" : "-20mm"};
-  top: 15%;
-  width: ${isL ? "180mm" : "120mm"};
-  height: ${isL ? "180mm" : "120mm"};
-  border: 1.5px solid ${SAGE}1f;
-  border-radius: 50%;
-}
-.cover-geometric::after {
-  content: '';
-  position: absolute;
-  top: 15%; left: 15%; right: 15%; bottom: 15%;
-  border: 1px solid ${SAGE}14;
-  border-radius: 50%;
-}
-.cover-sage-bar {
-  position: absolute;
-  left: ${isL ? "35mm" : "23mm"};
-  top: ${isL ? "27%" : "21%"};
-  width: 2mm; height: 42mm;
-  background: linear-gradient(180deg, ${SAGE}, ${DK});
-  border-radius: 1mm;
-}
-.cover-content {
-  position: absolute;
-  left: ${isL ? "42mm" : "30mm"};
-  top: ${isL ? "28%" : "22%"};
-  right: ${isL ? "50%" : "30mm"};
-}
-.cover-badge {
-  display: inline-block;
-  font-size: 7pt; font-weight: 700;
-  letter-spacing: 3px; color: ${SAGE};
-  border: 1.5px solid rgba(159,188,164,0.5);
-  padding: 2mm 5mm; border-radius: 1.2mm;
-  margin-bottom: 10mm;
-}
-.cover-company {
-  font-size: ${isL ? "40pt" : "34pt"};
-  font-weight: 800; color: #fff;
-  letter-spacing: -0.5px; line-height: 1.08;
-  margin-bottom: 6mm;
-}
-.cover-rule {
-  width: 50mm; height: 1mm;
-  background: linear-gradient(90deg, ${DK}, ${SAGE});
-  border-radius: 0.5mm; margin-bottom: 7mm;
-}
-.cover-title {
-  font-size: ${isL ? "18pt" : "16pt"};
-  color: rgba(255,255,255,0.75);
-  font-weight: 400; letter-spacing: 0.3px;
-  line-height: 1.4; margin-bottom: 3mm;
-}
-.cover-subtitle {
-  font-size: 11pt; color: rgba(255,255,255,0.5);
-  font-weight: 300; margin-bottom: 8mm;
-}
-.cover-meta-card {
-  margin-top: 14mm;
-  background: rgba(26,35,50,0.6);
-  border: 1px solid rgba(159,188,164,0.35);
-  border-radius: 2mm;
-  padding: 5mm 6mm;
-}
-.cover-meta-grid {
-  display: flex; gap: 18mm;
-}
-.cover-meta-item { display: flex; flex-direction: column; gap: 2mm; }
-.cover-meta-label {
-  font-size: 6.5pt; font-weight: 700;
-  letter-spacing: 2px; color: ${SAGE};
-}
-.cover-meta-value {
-  font-size: 10pt; color: rgba(255,255,255,0.85); font-weight: 500;
-}
-.cover-footer {
-  position: absolute;
-  left: ${isL ? "42mm" : "30mm"};
-  right: ${isL ? "42mm" : "30mm"};
-  bottom: 7%;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding-top: 3mm;
-}
-.cover-footer p {
-  font-size: 7pt; color: rgba(255,255,255,0.35);
-  font-style: italic; line-height: 1.6;
-}
-
-.content-page {
-  width: ${pageW};
-  height: ${pageH};
-  padding: ${isL ? "4mm 22mm 20mm" : "4mm 18mm 20mm"};
-  position: relative;
-  page-break-after: always;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-}
-.content-page::after {
-  content: ''; position: absolute;
-  bottom: 0; left: 0; right: 0; height: 1.2mm;
-  background: linear-gradient(90deg, ${SAGE}, ${DK});
-}
-
-.page-hdr {
-  flex-shrink: 0;
-  margin: 0 -22mm 5mm;
-  padding: 0 22mm;
-}
-.page-hdr-bar {
-  background: ${NAVY};
-  padding: 4.5mm 7mm 4mm;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 0 0 2mm 2mm;
-}
-.page-hdr-title {
-  font-size: ${isL ? "18pt" : "16pt"};
-  font-weight: 700; color: #fff;
-  letter-spacing: 0.2px;
-}
-.page-hdr-sub {
-  font-size: 8.5pt; color: rgba(255,255,255,0.55);
-  margin-top: 1mm; display: block;
-  letter-spacing: 0.3px;
-}
-.page-hdr-brand {
-  font-size: 8pt; color: ${SAGE}; font-weight: 600;
-  letter-spacing: 0.5px; white-space: nowrap;
-}
-.page-hdr-accent {
-  height: 2mm;
-  background: linear-gradient(90deg, ${DK}, ${SAGE});
-  border-radius: 0 0 1mm 1mm;
-}
-
-.toc-body {
-  flex: 1; display: flex; flex-direction: column;
-  justify-content: center;
-  padding: 0 ${isL ? "40mm" : "10mm"};
-}
-.toc-row {
-  display: flex; align-items: baseline;
-  padding: 3.5mm 0;
-  border-bottom: 1px solid ${GR};
-}
-.toc-row:last-child { border-bottom: none; }
-.toc-num {
-  font-size: 9pt; font-weight: 700; color: ${SAGE};
-  width: 10mm; flex-shrink: 0;
-}
-.toc-label {
-  font-size: 11pt; font-weight: 500; color: ${TXT};
-  flex-shrink: 0;
-}
-.toc-dots {
-  flex: 1; margin: 0 3mm;
-  border-bottom: 1px dotted ${GR};
-  min-width: 10mm;
-  align-self: flex-end;
-  margin-bottom: 2px;
-}
-.toc-page {
-  font-size: 10pt; font-weight: 700; color: ${NAVY};
-  flex-shrink: 0;
-}
-
-.summary-body { flex: 1; display: flex; flex-direction: column; }
-.summary-text-block { margin-bottom: 4mm; }
-.summary-para {
-  font-size: 10.5pt; line-height: 1.75; color: ${TXT};
-  margin-bottom: 4mm; text-align: justify;
-}
-.summary-divider {
-  height: 1px; background: linear-gradient(90deg, ${DK}, ${SAGE}, transparent);
-  margin: 5mm 0;
-}
-.section-label {
-  font-size: 8pt; font-weight: 700; letter-spacing: 2px;
-  color: ${DK}; margin-bottom: 4mm;
-}
-.highlights-grid {
-  display: grid;
-  grid-template-columns: repeat(${isL ? 3 : 2}, 1fr);
-  gap: 4mm;
-}
-.highlight-card {
-  background: ${ALT}; border: 1px solid ${GR};
-  border-radius: 2mm; overflow: hidden;
-  display: flex;
-}
-.highlight-accent { width: 3mm; flex-shrink: 0; }
-.highlight-body { padding: 4mm 5mm; }
-.highlight-value {
-  font-size: 16pt; font-weight: 700;
-  margin-bottom: 1mm; letter-spacing: -0.3px;
-}
-.highlight-label {
-  font-size: 8pt; font-weight: 600; color: ${GR};
-  letter-spacing: 0.3px; margin-bottom: 1mm;
-}
-.highlight-desc {
-  font-size: 7pt; color: ${GR}; line-height: 1.4;
-}
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(${isL ? 3 : 2}, 1fr);
-  gap: 5mm; margin-top: 3mm;
-}
-.kpi-card {
-  background: ${ALT}; border: 1px solid ${GR};
-  border-radius: 2.5mm; overflow: hidden; text-align: center;
-}
-.kpi-accent { height: 2.5mm; }
-.kpi-body { padding: 6mm 5mm 7mm; }
-.kpi-value {
-  font-size: 28pt; font-weight: 800;
-  letter-spacing: -0.5px; margin-bottom: 2mm;
-}
-.kpi-label {
-  font-size: 9.5pt; color: ${GR}; font-weight: 600;
-  letter-spacing: 0.2px; margin-bottom: 1.5mm;
-}
-.kpi-desc {
-  font-size: 7.5pt; color: ${GR}; line-height: 1.35;
-  max-width: 90%; margin: 0 auto;
-}
-
-.chart-page .chart-grid {
-  display: grid;
-  grid-template-columns: ${isL ? "1fr 1fr" : "1fr"};
-  gap: 4mm;
-  flex: 1;
-  min-height: 0;
-}
-.chart-card {
-  background: ${SECBG};
-  border: 1px solid ${GR};
-  border-radius: 2.5mm;
-  display: flex; flex-direction: column;
-  overflow: hidden;
-  min-height: 0;
-}
-.chart-card-header {
-  font-size: 10pt; font-weight: 700; color: ${NAVY};
-  padding: 3.5mm 5mm 2.5mm;
-  border-bottom: 1px solid ${GR};
-  letter-spacing: 0.1px; flex-shrink: 0;
-}
-.chart-svg {
-  flex: 1;
-  width: 100%;
-  min-height: 0;
-  padding: 2mm 3mm 1mm;
-}
-
-.line-chart-container {
-  display: flex; align-items: center; justify-content: center;
-  break-inside: avoid; overflow: visible;
-  max-height: ${isL ? "110mm" : "130mm"};
-  height: ${isL ? "110mm" : "130mm"};
-}
-.line-chart-svg {
-  width: 100%;
-  max-height: 100%;
-  display: block;
-  break-inside: avoid;
-}
-
-.fin-table {
-  width: 100%; border-collapse: collapse;
-  font-size: ${isL ? "9pt" : "8.5pt"};
-  border: 0.6pt solid ${SAGE};
-  border-radius: 2mm; overflow: hidden;
-}
-.fin-table thead { display: table-header-group; }
-.fin-table tr { break-inside: avoid; }
-.fin-table thead tr {
-  background: linear-gradient(135deg, ${SECBG}, ${ALT});
-  border-bottom: 2px solid ${DK};
-}
-.fin-table th {
-  color: ${NAVY}; font-weight: 700;
-  padding: 2.5mm 3mm; text-align: center;
-  font-size: ${isL ? "9pt" : "8.5pt"};
-  letter-spacing: 0.2px; border: none;
-}
-.fin-table th.tbl-label-hdr {
-  text-align: left; min-width: ${isL ? "48mm" : "38mm"};
-}
-.fin-table td {
-  padding: 1.8mm 3mm;
-  border-bottom: 1px solid color-mix(in srgb, ${SAGE} 18%, white);
-  border-left: 1px solid color-mix(in srgb, ${SAGE} 10%, white);
-  border-right: 1px solid color-mix(in srgb, ${SAGE} 10%, white);
-}
-.fin-table tbody tr:last-child td {
-  border-bottom: 2px solid ${SAGE};
-}
-.fin-table .tbl-label {
-  text-align: left; color: ${TXT};
-  white-space: nowrap;
-}
-.fin-table .tbl-val {
-  text-align: right;
-  font-family: 'Courier New', Courier, monospace;
-  white-space: nowrap;
-  color: ${TXT}; letter-spacing: 0.2px;
-}
-.fin-table .row-header td {
-  font-weight: 700; background: ${SECBG};
-  border-top: 1.5px solid ${SAGE};
-  color: ${NAVY};
-  letter-spacing: 0.15px;
-}
-.fin-table .row-total td {
-  font-weight: 700;
-  border-top: 1.5px solid ${GR};
-  color: ${NAVY};
-}
-.fin-table .row-formula td {
-  font-style: italic; color: ${GR};
-  font-size: 0.9em;
-}
-.fin-table .row-stripe td {
-  background: ${ALT};
-}
-
-.analysis-body { flex: 1; }
-.insights-list { margin-bottom: 6mm; }
-.insight-block {
-  background: ${ALT}; border-left: 3px solid ${DK};
-  border-radius: 0 2mm 2mm 0;
-  padding: 4mm 5mm; margin-bottom: 3.5mm;
-}
-.insight-title {
-  font-size: 10pt; font-weight: 700; color: ${NAVY};
-  margin-bottom: 1.5mm;
-}
-.insight-text {
-  font-size: 9.5pt; line-height: 1.6; color: ${TXT};
-}
-.insight-text-plain {
-  font-size: 9.5pt; line-height: 1.6; color: ${TXT};
-  margin-bottom: 3mm;
-}
-.analysis-highlights-grid {
-  display: grid;
-  grid-template-columns: repeat(${isL ? 3 : 2}, 1fr);
-  gap: 3mm;
-}
-.analysis-highlight {
-  background: linear-gradient(135deg, ${SECBG}, ${ALT});
-  border: 1px solid ${GR};
-  border-radius: 2mm; padding: 4mm 5mm;
-}
-.analysis-highlight-label {
-  font-size: 7pt; font-weight: 700; color: ${DK};
-  letter-spacing: 1px; margin-bottom: 1mm;
-}
-.analysis-highlight-value {
-  font-size: 14pt; font-weight: 700; color: ${NAVY};
-  margin-bottom: 1mm;
-}
-.analysis-highlight-desc {
-  font-size: 7pt; color: ${GR}; line-height: 1.3;
-}
-
-.empty-state {
-  font-size: 11pt; color: ${GR};
-  text-align: center; padding: 30mm; flex: 1;
-  display: flex; align-items: center; justify-content: center;
-}
+${stylesheet}
 </style>
 </head>
 <body>

@@ -71,6 +71,7 @@ describe("Admin config literals (no-hardcoded-admin-config)", () => {
     // Export templates use company name as fallback when branding data unavailable
     if (rel.includes("exports/")) return true;
     if (rel.includes("premium-exports")) return true;
+    if (rel.includes("premium-pdf-pipeline")) return true;
     // Verification runner (display-only fallback)
     if (rel.includes("runVerification")) return true;
     return false;

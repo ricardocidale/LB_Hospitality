@@ -36,6 +36,13 @@
       "when": 1774886400000,
       "tag": "0004_consolidated_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774972800000,
+      "tag": "0005_google_drive_tokens",
+      "breakpoints": true
     }
   ]
 }

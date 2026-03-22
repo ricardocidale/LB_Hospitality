@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { chatStorage } from "./storage";
 import { requireAuth } from "../../auth";
 import { storage } from "../../storage";
+import { UserRole } from "@shared/constants";
 import {
   transcribeAudio,
   createElevenLabsStreamingTTS,
@@ -305,13 +306,13 @@ async function buildContextPrompt(userId?: number): Promise<string> {
 }
 
 async function getUserRole(userId?: number): Promise<string> {
-  if (!userId) return "user";
+  if (!userId) return UserRole.USER;
   try {
     const user = await storage.getUserById(userId);
-    return user?.role || "user";
+    return user?.role || UserRole.USER;
   } catch (error) {
     console.error("Error getting user role:", error);
-    return "user";
+    return UserRole.USER;
   }
 }
 
@@ -394,7 +395,7 @@ export function registerChatRoutes(app: Express): void {
         getUserRole(userId),
         retrieveRelevantChunks(content.trim(), 6).catch(() => []),
       ]);
-      const isAdmin = userRole === "admin";
+      const isAdmin = userRole === UserRole.ADMIN;
       const ragContext = buildRAGContext(ragChunks);
       const messages = await chatStorage.getMessagesByConversation(conversationId);
       const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -482,7 +483,7 @@ export function registerChatRoutes(app: Express): void {
         getUserRole(userId),
         retrieveRelevantChunks(userTranscript.trim(), 4).catch(() => []),
       ]);
-      const isAdmin = userRole === "admin";
+      const isAdmin = userRole === UserRole.ADMIN;
       const ragContextVoice = buildRAGContext(ragChunksVoice);
       const messages = await chatStorage.getMessagesByConversation(conversationId);
       const chatMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [

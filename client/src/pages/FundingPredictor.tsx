@@ -1,4 +1,4 @@
-import { useState, useMemo, lazy, Suspense } from "react";
+import { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { ContentPanel } from "@/components/ui/content-panel";
@@ -18,7 +18,7 @@ import { Loader2, ExternalLink, Search } from "@/components/icons/themed-icons";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { useLocation } from "wouter";
 
-const MermaidChart = lazy(() => import("@/lib/charts/MermaidChart"));
+import { NodeBox, Arrow, FlowRow } from "@/components/ui/flow-diagram";
 
 const FUNDING_TABS = [
   { value: "recommended", label: "Capital Strategy", icon: IconTarget },
@@ -219,45 +219,34 @@ function RecommendedTab({ analysis, fundingLabel, chartData, gapType, projection
               <p className="text-xs text-muted-foreground mt-0.5">How {fundingLabel} capital flows through the management company</p>
             </div>
           </div>
-          <Suspense fallback={<div className="flex items-center justify-center p-8 text-muted-foreground text-sm">Loading diagram…</div>}>
-          <MermaidChart
-            chart={(() => {
-              const fmt = (v: number) => `$${(v / 1000).toFixed(0)}K`;
-              const trancheNodes = analysis.tranches.map(t =>
-                `T${t.index}["Tranche ${t.index}\\n${fmt(t.amount)}\\nMonth ${t.month}"]`
-              ).join("\n    ");
-              const trancheLinks = analysis.tranches.map(t =>
-                `INVESTORS -->|"${fmt(t.amount)}"| T${t.index}`
-              ).join("\n    ");
-              const trancheToOps = analysis.tranches.map(t =>
-                `T${t.index} --> OPS`
-              ).join("\n    ");
-              const beNode = analysis.breakevenMonth !== null
-                ? `BREAKEVEN(("Breakeven\\nMonth ${analysis.breakevenMonth}"))`
-                : `BREAKEVEN(("Breakeven\\nNot yet reached"))`;
-              const beStyle = analysis.breakevenMonth !== null
-                ? "style BREAKEVEN fill:#22c55e,stroke:#16a34a,color:#fff"
-                : "style BREAKEVEN fill:#ef4444,stroke:#dc2626,color:#fff";
-              return `graph LR
-    INVESTORS["${fundingLabel}\\nInvestors"]
-    ${trancheNodes}
-    OPS["Operating Expenses\\n${fmt(analysis.monthlyBurnRate)}/mo burn"]
-    REVENUE["Fee Revenue\\nRamp-Up"]
-    ${beNode}
-
-    ${trancheLinks}
-    ${trancheToOps}
-    OPS --> REVENUE
-    REVENUE --> BREAKEVEN
-
-    style INVESTORS fill:#3b82f6,stroke:#2563eb,color:#fff
-    style OPS fill:#f59e0b,stroke:#d97706,color:#fff
-    style REVENUE fill:#8b5cf6,stroke:#7c3aed,color:#fff
-    ${beStyle}`;
-            })()}
-            theme="neutral"
-          />
-          </Suspense>
+          <div className="bg-muted/20 rounded-lg p-4 border border-border/40 overflow-auto" data-testid="capital-structure-flow">
+            <FlowRow>
+              <NodeBox node={{ id: "investors", label: `${fundingLabel} Investors`, color: "blue" }} />
+              <Arrow />
+              <div className="flex flex-col gap-2">
+                {analysis.tranches.map(t => {
+                  const fmt = (v: number) => `$${(v / 1000).toFixed(0)}K`;
+                  return (
+                    <div key={t.index} className="flex items-center gap-1">
+                      <NodeBox node={{ id: `t${t.index}`, label: `Tranche ${t.index}`, sublabel: `${fmt(t.amount)} · Month ${t.month}`, color: "blue" }} />
+                      <Arrow />
+                    </div>
+                  );
+                })}
+              </div>
+              <NodeBox node={{ id: "ops", label: "Operating Expenses", sublabel: `$${(analysis.monthlyBurnRate / 1000).toFixed(0)}K/mo burn`, color: "amber" }} />
+              <Arrow />
+              <NodeBox node={{ id: "revenue", label: "Fee Revenue", sublabel: "Ramp-Up", color: "purple" }} />
+              <Arrow />
+              <NodeBox node={{
+                id: "breakeven",
+                label: analysis.breakevenMonth !== null ? `Breakeven` : "Breakeven",
+                sublabel: analysis.breakevenMonth !== null ? `Month ${analysis.breakevenMonth}` : "Not yet reached",
+                color: analysis.breakevenMonth !== null ? "green" : "red",
+                variant: "rounded",
+              }} />
+            </FlowRow>
+          </div>
         </ContentPanel>
       </ScrollReveal>
 

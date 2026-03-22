@@ -1,807 +1,10 @@
-/**
- * DiagramsTab.tsx — Admin workflow diagrams using Mermaid.
- *
- * Displays application architecture and data flow in 3 levels:
- *   Level 1: System overview (10,000-foot view)
- *   Level 2: Domain flows (financial, auth, AI, research)
- *   Level 3: Detailed sub-flows (property lifecycle, seeding, exports, admin config)
- */
-import { lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { NodeBox, Arrow, FlowRow, FlowCol, FlowSection } from "@/components/ui/flow-diagram";
+import type { FlowNode } from "@/components/ui/flow-diagram";
 
-const MermaidChart = lazy(() => import("@/lib/charts/MermaidChart"));
-
-// ─────────────────────────────────────────────────
-// LEVEL 1 — System Overview
-// ─────────────────────────────────────────────────
-
-const L1_APP_FLOW = `flowchart LR
-  User([User]) --> Auth[Authentication]
-  Auth --> Role{Role Check}
-  Role -->|admin| Admin[Admin Panel]
-  Role -->|user| Dashboard[Dashboard]
-  Role -->|checker| Dashboard
-  Role -->|investor| Dashboard
-  Dashboard --> Properties[Properties]
-  Dashboard --> Company[Management Company]
-  Dashboard --> Analysis[Analysis]
-  Properties --> Engine[Financial Engine]
-  Company --> Engine
-  Engine --> Statements[Financial Statements]
-  Statements --> Exports[Exports]
-  Statements --> Charts[Charts & Reports]`;
-
-const L1_TWO_ENTITY = `flowchart TB
-  subgraph SPV["Property SPVs"]
-    P1[Hotel A]
-    P2[Hotel B]
-    P3[Hotel C]
-    P1 --> BF1["Base Fee\\n% of Total Revenue"]
-    P1 --> IF1["Incentive Fee\\n% of GOP"]
-    P2 --> BF2["Base Fee\\n% of Total Revenue"]
-    P2 --> IF2["Incentive Fee\\n% of GOP"]
-    P3 --> BF3["Base Fee\\n% of Total Revenue"]
-    P3 --> IF3["Incentive Fee\\n% of GOP"]
-  end
-  subgraph MC["Management Company"]
-    FeeRev["Fee Revenue\\n(Base + Incentive)"]
-    SvcFees["Service Fee Revenue\\n(per-category)"]
-    FeeRev --> OpEx[Operating Expenses]
-    SvcFees --> OpEx
-    OpEx --> EBITDA[ManCo EBITDA]
-  end
-  BF1 & BF2 & BF3 --> FeeRev
-  IF1 & IF2 & IF3 --> FeeRev
-  subgraph Consol["Consolidated View"]
-    Elim["Intercompany Elimination\\n(ManCo fees = SPV expenses)"]
-    PortNOI[Portfolio NOI]
-  end
-  SPV -- "SPV NOI\\n(after mgmt fee expense)" --> Elim
-  MC -- "ManCo EBITDA\\n(fee income − costs)" --> Elim
-  Elim -- "Net: fees cancel out" --> PortNOI`;
-
-const L1_INTEGRATIONS = `flowchart TB
-  Platform((HBG Platform))
-
-  subgraph AI["AI & LLM"]
-    Claude[Anthropic Claude\nResearch & exports]
-    OpenAI_[OpenAI\nEmbeddings & chat]
-    Gemini_[Google Gemini\nRebecca advisor]
-  end
-
-  subgraph VoiceAI["Voice AI"]
-    EL[ElevenLabs / Convai\nMarcela voice agent]
-  end
-
-  subgraph Geo["Geospatial"]
-    GMaps[Google Maps / Places\nGeocoding & POI search]
-    MapLibre[MapLibre GL\n3D globe rendering]
-  end
-
-  subgraph DocIntel["Document Intelligence"]
-    DocAI[Google Cloud Doc AI\nOCR & extraction]
-  end
-
-  subgraph Comms["Communication"]
-    Twilio_[Twilio\nSMS notification alerts]
-    Resend[Resend\nTransactional email delivery]
-  end
-
-  subgraph ImgGen["Image Generation"]
-    Replicate[Replicate\nAI architectural renders]
-  end
-
-  subgraph Observe["Observability"]
-    Sentry[Sentry\nReal-time error tracking]
-    PostHog[PostHog\nProduct usage analytics]
-  end
-
-  subgraph Storage["Storage"]
-    ObjStore[Replit Object Storage\nFile & asset storage]
-    Redis[Upstash Redis\nCache & sessions]
-    PG[(PostgreSQL\nPrimary database)]
-  end
-
-  Claude -->|"research results"| Platform
-  Platform -->|"analysis prompts"| Claude
-  Platform -->|"embedding requests"| OpenAI_
-  OpenAI_ -->|"vectors"| Platform
-  Platform -->|"advisor queries"| Gemini_
-  Gemini_ -->|"insights"| Platform
-
-  Platform -->|"voice config"| EL
-  EL -->|"audio stream"| Platform
-
-  Platform -->|"geocode queries"| GMaps
-  GMaps -->|"coordinates & POIs"| Platform
-  MapLibre -.->|"renders map UI"| Platform
-
-  Platform -->|"document scans"| DocAI
-  DocAI -->|"structured data"| Platform
-
-  Platform -->|"SMS alerts"| Twilio_
-  Platform -->|"email sends"| Resend
-
-  Platform -->|"render prompts"| Replicate
-  Replicate -->|"generated images"| Platform
-
-  Platform -->|"error events"| Sentry
-  Platform -->|"analytics events"| PostHog
-
-  Platform <-->|"read/write"| ObjStore
-  Platform <-->|"cache ops"| Redis
-  Platform <-->|"queries"| PG`;
-
-// ─────────────────────────────────────────────────
-// LEVEL 2 — Domain Flows
-// ─────────────────────────────────────────────────
-
-const L2_FINANCIAL = `flowchart TB
-  subgraph Revenue["Revenue"]
-    RR["Room Revenue\\n(ADR × Occ × Rooms × Days)"]
-    FB["F&B Revenue\\n(RevPAR × F&B Capture %)"]
-    EV["Events & Banquet Revenue\\n(Event Pace × Avg Check)"]
-    OTH["Other Income\\n(Parking, Spa, Retail, Misc)"]
-  end
-
-  RR --> TR(["Total Revenue"])
-  FB --> TR
-  EV --> TR
-  OTH --> TR
-
-  subgraph DeptExp["Departmental Expenses"]
-    HK["Housekeeping\\n(CPOR × Occupied Rooms)"]
-    FBC["F&B Cost\\n(F&B Rev × Cost %)"]
-    EVC["Events Cost\\n(Events Rev × Cost %)"]
-    OE["Other Dept Expense\\n(Other Rev × Cost %)"]
-  end
-
-  TR --> |"less"| HK
-  TR --> |"less"| FBC
-  TR --> |"less"| EVC
-  TR --> |"less"| OE
-  HK --> DeptTotal["Total Dept Expenses"]
-  FBC --> DeptTotal
-  EVC --> DeptTotal
-  OE --> DeptTotal
-  TR --> GOP(["GROSS OPERATING PROFIT (GOP)"])
-  DeptTotal --> |"subtracted"| GOP
-
-  subgraph MgmtFees["Management Fees"]
-    BF["Base Fee\\n(% of Total Revenue)"]
-    IF["Incentive Fee\\n(% of GOP)"]
-  end
-
-  GOP --> |"less"| BF
-  GOP --> |"less"| IF
-  BF --> FeeTotal["Total Mgmt Fees"]
-  IF --> FeeTotal
-  GOP --> AGOP(["ADJUSTED GOP (AGOP)"])
-  FeeTotal --> |"subtracted"| AGOP
-
-  subgraph FixedCharges["Fixed Charges"]
-    INS["Insurance\\n(per key / year)"]
-    PT["Property Tax\\n(assessed value × mill rate)"]
-  end
-
-  AGOP --> |"less"| INS
-  AGOP --> |"less"| PT
-  INS --> ChargeTotal["Total Fixed Charges"]
-  PT --> ChargeTotal
-  AGOP --> NOI(["NET OPERATING INCOME (NOI)"])
-  ChargeTotal --> |"subtracted"| NOI
-
-  NOI --> |"less"| FFE["FF&E Reserve\\n(% of Total Revenue)"]
-  FFE --> ANOI(["ADJUSTED NOI (ANOI)"])
-
-  ANOI --> |"less"| INT["Interest Expense\\n(Debt Service)"]
-  INT --> |"less"| DEP["Depreciation\\n(Straight-Line)"]
-  DEP --> PTI(["Pre-Tax Income"])
-  PTI --> |"less"| TAX["Income Tax\\n(NOL carryforward applied)"]
-  TAX --> NI(["NET INCOME"])
-
-  style GOP fill:#2563eb,color:#fff,stroke:#1d4ed8
-  style AGOP fill:#2563eb,color:#fff,stroke:#1d4ed8
-  style NOI fill:#2563eb,color:#fff,stroke:#1d4ed8
-  style ANOI fill:#2563eb,color:#fff,stroke:#1d4ed8
-  style NI fill:#16a34a,color:#fff,stroke:#15803d
-  style TR fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style PTI fill:#7c3aed,color:#fff,stroke:#6d28d9`;
-
-const L2_AUTH = `flowchart TB
-  Login([Login]) --> Session[Session Created]
-  Session --> Role{User Role}
-  Role --> Group[User Group]
-  Group --> Branding[Group Branding]
-  Branding --> Theme[Theme Resolution]
-  Theme --> CSS[CSS Variables Applied]
-
-  subgraph Resolution["Theme Resolution Chain"]
-    UT[user.selectedThemeId]
-    GT[userGroup.themeId]
-    DT[System Default]
-    UT -->|fallback| GT -->|fallback| DT
-  end`;
-
-const L2_AI = `flowchart TB
-  User([Guest / Admin]) --> ConvaiWidget[ElevenLabs Convai Widget]
-  ConvaiWidget --> Marcela{"Marcela\\nVoice Agent"}
-
-  subgraph ClientTools["Client-Side Tools (browser)"]
-    direction TB
-    nav[navigateToPage\\nRoute to any portal page]
-    showProp[showPropertyDetails\\nOpen property detail view]
-    editProp[openPropertyEditor\\nLaunch assumption editor]
-    tour[startGuidedTour\\nBegin interactive walkthrough]
-  end
-
-  subgraph ServerTools["Server-Side Webhooks (API)"]
-    direction TB
-    getProp[getProperties\\nList all portfolio properties]
-    getPropDet[getPropertyDetails\\nSingle property financials]
-    getPort[getPortfolioSummary\\nAggregated portfolio metrics]
-    getGA[getGlobalAssumptions\\nShared assumption values]
-  end
-
-  Marcela -->|"client_tool calls"| ClientTools
-  Marcela -->|"server_tool webhooks"| ServerTools
-
-  subgraph KB["Knowledge Base (RAG)"]
-    direction TB
-    StaticKB["Static KB Markdown\\nProduct docs, USALI glossary,\\nhospitality terminology"]
-    DynamicKB["Dynamic Live-Data Docs\\nProperty snapshots, portfolio\\nmetrics synced to ElevenLabs"]
-    StaticKB --> RAG["RAG Retrieval"]
-    DynamicKB --> RAG
-  end
-
-  RAG -->|"contextual grounding"| Marcela
-
-  subgraph Integrity["Deterministic Integrity Rule"]
-    Rule["Marcela NEVER calculates —\\nshe calls deterministic\\nengine tools for all numbers"]
-  end
-
-  ServerTools -.->|"all numbers from"| Engine[("Financial Engine\\n(Property + Company)")]
-  Integrity -.-> Marcela
-
-  style Marcela fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style Rule fill:#dc2626,color:#fff,stroke:#b91c1c
-  style Engine fill:#2563eb,color:#fff,stroke:#1d4ed8
-  style RAG fill:#16a34a,color:#fff,stroke:#15803d`;
-
-const L2_RESEARCH = `flowchart TB
-  subgraph Trigger["Research Trigger"]
-    direction TB
-    PropTrig([Property-Level\\nSingle asset research])
-    CompTrig([Company-Level\\nICP-driven portfolio research])
-  end
-
-  subgraph Context["Context Assembly"]
-    direction TB
-    ICP["ICP / Asset Definition\\nTarget market, brand tier,\\nservice level positioning"]
-    Location["Location Profile\\nCity, submarket, MSA,\\ndemand generators"]
-    PropProfile["Property Profile\\nRoom count, star class,\\nF&B outlets, meeting space"]
-    FinContext["Financial Context\\nCurrent ADR, occupancy,\\nRevPAR assumptions"]
-  end
-
-  PropTrig -->|"property-specific"| Location
-  PropTrig --> PropProfile
-  PropTrig --> FinContext
-  CompTrig -->|"ICP-driven"| ICP
-  ICP --> Location
-  ICP --> PropProfile
-
-  subgraph PromptBuilder["Prompt Builder"]
-    direction TB
-    LocBlock["Location Intelligence Block"]
-    ProfBlock["Property Profile Block"]
-    FinBlock["Financial Context Block"]
-    LocBlock & ProfBlock & FinBlock --> Prompt["Assembled Research Prompt"]
-  end
-
-  Location --> LocBlock
-  PropProfile --> ProfBlock
-  FinContext --> FinBlock
-
-  subgraph LLM["Tool-Augmented LLM (Claude 3.5 Sonnet)"]
-    direction TB
-    WebSearch["Web Search\\nLive market data,\\nSTR reports, news"]
-    CompADR["compute_adr_projection\\nADR growth modeling"]
-    CompOcc["compute_occupancy_ramp\\nStabilization curve"]
-    WebSearch & CompADR & CompOcc --> Response["Structured LLM Response"]
-  end
-
-  Prompt --> LLM
-
-  subgraph Output["Structured Output"]
-    direction TB
-    CompLand["Competitive Landscape\\nComp set, positioning,\\nrate intelligence"]
-    OpBench["Operating Cost Benchmarks\\nCPOR, labor ratios,\\nF&B cost percentages"]
-    LocalEcon["Local Economics\\nDemand drivers, supply\\npipeline, tourism trends"]
-  end
-
-  Response --> CompLand
-  Response --> OpBench
-  Response --> LocalEcon
-
-  subgraph ValueExtract["Value Extraction"]
-    Extractor["research-value-extractor\\nMaps narrative text to\\ntyped financial assumptions"]
-  end
-
-  CompLand & OpBench & LocalEcon --> Extractor
-
-  subgraph Validation["Post-LLM Validation"]
-    Checks["Consistency Checks\\nRange bounds, cross-field\\nlogic, outlier detection"]
-  end
-
-  Extractor --> Checks
-
-  Checks --> Store[("market_research table\\nPostgreSQL")]
-
-  subgraph UI["UI Display"]
-    direction TB
-    Pills["Benchmark Pills\\nShown next to each\\nassumption input field"]
-    ApplyDialog["Apply Research Dialog\\nReview & selectively adopt\\nresearch values"]
-  end
-
-  Store --> Pills
-  Store --> ApplyDialog
-
-  subgraph Freshness["30-Day Refresh Cycle"]
-    direction LR
-    Fresh["🟢 Fresh\\n< 30 days old"]
-    Stale["🔴 Stale\\n≥ 30 days old"]
-    Fresh -.->|"after 30 days"| Stale
-    Stale -.->|"re-trigger"| PropTrig & CompTrig
-  end
-
-  Store -.-> Fresh
-
-  style PropTrig fill:#2563eb,color:#fff,stroke:#1d4ed8
-  style CompTrig fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style Response fill:#16a34a,color:#fff,stroke:#15803d
-  style Extractor fill:#d97706,color:#fff,stroke:#b45309
-  style Store fill:#2563eb,color:#fff,stroke:#1d4ed8
-  style Fresh fill:#16a34a,color:#fff,stroke:#15803d
-  style Stale fill:#dc2626,color:#fff,stroke:#b91c1c`;
-
-const L2_MANCO = `flowchart TB
-  subgraph Revenue["Revenue"]
-    direction TB
-    BaseFee["Base Management Fees\\n% of each property Total Revenue"]
-    IncentFee["Incentive Fees\\n% of each property GOP"]
-    SvcFee["Service Fee Categories\\nDirect vs Centralized/Pass-Through"]
-  end
-
-  subgraph Expenses["Expenses"]
-    direction TB
-    subgraph Fixed["Fixed Overhead"]
-      Office["Office Lease"]
-      ProfSvc["Professional Services"]
-      Tech["Tech Infrastructure"]
-      Infl(("Escalated by\\nInflation Rate"))
-      Office & ProfSvc & Tech --> Infl
-    end
-    subgraph Variable["Variable Costs"]
-      TravelIT["Travel & IT\\n(per client)"]
-      MktgMisc["Marketing & Misc\\n(% of revenue)"]
-    end
-    subgraph Staff["Staffing Tiers"]
-      T1["Tier 1: ≤3 properties → 2.5 FTE"]
-      T2["Tier 2: ≤6 properties → 4.5 FTE"]
-      T3["Tier 3: 7+ properties → 7.0 FTE"]
-    end
-    PartnerComp["Partner Compensation\\n(10-year schedule)"]
-  end
-
-  subgraph Funding["SAFE Funding"]
-    direction TB
-    S1["SAFE Tranche 1\\n(date + amount)"]
-    S2["SAFE Tranche 2\\n(date + amount)"]
-    Gate{"Operational Gate"}
-    S1 --> Gate
-    S2 --> Gate
-    OpsDate["companyOpsStartDate"] --> Gate
-    SafeDate["safeTranche1Date"] --> Gate
-    Gate -->|"BOTH dates reached"| Go["Operations Begin"]
-  end
-
-  Revenue --> NetRev["Total ManCo Revenue"]
-  Expenses --> TotalExp["Total ManCo Expenses"]
-  NetRev --> EBITDA["EBITDA"]
-  TotalExp --> EBITDA
-  EBITDA --> PreTax["Pre-Tax Income"]
-  PreTax --> Tax["Tax Provision"]
-  Tax --> NetInc["Net Income"]
-  NetInc --> Cash["Cash Position"]
-  Cash --> Check{"Shortfall?"}
-  Check -->|Yes| Flag["⚠ Shortfall Flagged"]
-  Check -->|No| OK["✓ Sufficient Cash"]
-  Funding --> Cash`;
-
-const L2_DUAL_ENGINE = `flowchart TB
-  Assumptions["Property Assumptions\\n(Revenue, Expenses, Debt, CapEx)"]
-
-  Assumptions --> ClientEngine
-  Assumptions --> ServerChecker
-
-  subgraph ClientSide["Client-Side Engine (Real-Time UI)"]
-    ClientEngine["Property Financial Engine\\n(deterministic calc pipeline)"]
-    ClientEngine --> ClientIS["Income Statement"]
-    ClientEngine --> ClientCF["Cash Flow Statement"]
-    ClientEngine --> ClientBS["Balance Sheet"]
-    ClientIS & ClientCF & ClientBS --> ClientResults["Client-Side Results\\n(displayed in UI)"]
-  end
-
-  subgraph ServerSide["Server-Side Checker (Independent Recalculation)"]
-    ServerChecker["Calculation Checker\\n(isolated recalculation)"]
-    ServerChecker --> ServerIS["Income Statement"]
-    ServerChecker --> ServerCF["Cash Flow Statement"]
-    ServerChecker --> ServerBS["Balance Sheet"]
-    ServerIS & ServerCF & ServerBS --> ServerResults["Server-Side Results\\n(never shown to user)"]
-  end
-
-  ClientResults --> Compare{"Cross-Calculator\\nValidation"}
-  ServerResults --> Compare
-
-  Compare -->|"values match\\nwithin tolerance"| Clean["✓ Unqualified Opinion\\n(clean audit)"]
-  Compare -->|"minor deviations\\n< materiality threshold"| Qualified["⚠ Qualified Opinion\\n(minor issues noted)"]
-  Compare -->|"material differences\\nexceed threshold"| Adverse["✗ Adverse Opinion\\n(material failures)"]`;
-
-const L2_VERIFICATION_TIERS = `flowchart TB
-  subgraph Tier1["Tier 1 — Property-Level Checks"]
-    direction TB
-    T1Rev["Revenue Formula Verification\\n(ADR × Occupancy × Rooms × 365)"]
-    T1Debt["Debt Service PMT\\n(ASC 470 — amortization schedules)"]
-    T1Depr["Depreciation Basis\\n(ASC 360 — cost allocation)"]
-    T1CF["Cash Flow Reconciliation\\n(ASC 230 — operating / investing / financing)"]
-    T1Rev --> T1Gate{"All Property\\nChecks Pass?"}
-    T1Debt --> T1Gate
-    T1Depr --> T1Gate
-    T1CF --> T1Gate
-  end
-
-  subgraph Tier2["Tier 2 — Company-Level Checks"]
-    direction TB
-    T2Fees["Management Fee Calculations\\n(ASC 606 — base + incentive recognition)"]
-    T2ManCo["ManCo Cash Flow\\n(fee revenue − operating costs)"]
-    T2SAFE["SAFE Tranche Validation\\n(funding gate dates & amounts)"]
-    T2Fees --> T2Gate{"All Company\\nChecks Pass?"}
-    T2ManCo --> T2Gate
-    T2SAFE --> T2Gate
-  end
-
-  subgraph Tier3["Tier 3 — Consolidated Checks"]
-    direction TB
-    T3Elim["Intercompany Elimination\\n(ASC 810 — ManCo fees = SPV expenses)"]
-    T3Port["Portfolio Totals\\n(sum of all property NOI)"]
-    T3Bal["Balance Sheet Identity\\n(Assets = Liabilities + Equity)"]
-    T3Elim --> T3Gate{"All Consolidated\\nChecks Pass?"}
-    T3Port --> T3Gate
-    T3Bal --> T3Gate
-  end
-
-  T1Gate -->|"pass"| Tier2
-  T2Gate -->|"pass"| Tier3
-
-  subgraph Pipeline["Four-Stage Verification Pipeline"]
-    direction LR
-    Stage1["Stage 1:\\nFormula Checker"]
-    Stage2["Stage 2:\\nGAAP Compliance"]
-    Stage3["Stage 3:\\nFull Auditor"]
-    Stage4["Stage 4:\\nCross-Calculator\\nValidation"]
-    Stage1 --> Stage2 --> Stage3 --> Stage4
-  end
-
-  T3Gate -->|"pass"| Pipeline
-
-  Stage4 --> Opinion{"Audit Opinion"}
-  Opinion -->|"all checks pass"| Unqual["Unqualified\\n(Clean — no exceptions)"]
-  Opinion -->|"non-material issues"| Qual["Qualified\\n(Minor issues noted)"]
-  Opinion -->|"material failures"| Adv["Adverse\\n(Statements unreliable)"]`;
-
-// ─────────────────────────────────────────────────
-// LEVEL 3 — Detailed Sub-flows
-// ─────────────────────────────────────────────────
-
-const L3_PROPERTY = `flowchart TB
-  subgraph Acquisition["Phase 1 — Acquisition (acquisitionDate)"]
-    direction TB
-    PP[Purchase Price] --> BI[+ Building Improvements]
-    BI --> POC[+ Pre-Opening Costs]
-    POC --> TPC[Total Project Cost]
-    TPC --> CS{Capital Structure}
-    CS -->|Equity contribution| Equity[Equity In]
-    CS -->|Loan sized by LTV & DSCR| AcqLoan[Acquisition Loan]
-    TPC --> Depr[Depreciation Basis = Purchase + Improvements − Land Value]
-  end
-
-  subgraph PreOpen["Phase 2 — Pre-Opening Gap"]
-    direction TB
-    DS1[Debt Service Begins\nIO or Amortizing] --> Reserve[Operating Reserve\nCovers Shortfall]
-    DepAccrual[Depreciation Accrues] --> NOLBuild[NOL Builds]
-    NoRev([No Revenue Yet])
-  end
-
-  subgraph Operations["Phase 3 — Operations (operationsStartDate)"]
-    direction TB
-    OccRamp[Occupancy Ramp\nStep-function: Start % → Max %] --> RoomRev[Room Revenue\nADR × Occupancy × Rooms]
-    RoomRev --> Ancillary[Ancillary Revenue\n% of Room Revenue]
-    RoomRev --> TotalRev[Total Revenue]
-    Ancillary --> TotalRev
-    TotalRev --> USALI[USALI Expense Application]
-    USALI --> GOP[Gross Operating Profit]
-    GOP --> MgmtFee[Less Management Fees]
-    MgmtFee --> NOI[Net Operating Income]
-    NOI --> ANOI[Adjusted NOI\nLess FF&E Reserve]
-    ANOI --> DSvc[Less Debt Service]
-    DSvc --> Tax[Less Income Tax\nw/ NOL Carryforward]
-    Tax --> FCFE[Free Cash Flow to Equity]
-  end
-
-  subgraph Refinance["Phase 4 — Refinance (Optional, at refinanceDate)"]
-    direction TB
-    RefiTrigger([Refinance Triggered]) --> NewLoan[New Loan Sized by\nUpdated NOI · LTV · DSCR]
-    NewLoan --> Payoff[Payoff Acquisition Debt]
-    Payoff --> NetProc{Net Proceeds\n+Positive / −Negative}
-    NetProc --> DSRecalc[Debt Service Recalculated]
-  end
-
-  subgraph Exit["Phase 5 — Exit"]
-    direction TB
-    ExitVal[Exit Valuation\nForward-Year NOI ÷ Exit Cap Rate] --> DispComm[Less Disposition Commission]
-    DispComm --> DebtPayoff[Less Outstanding Debt Payoff]
-    DebtPayoff --> NetEquity[Net Equity Proceeds]
-    NetEquity --> Returns[Return Metrics]
-    Returns --> IRR[IRR]
-    Returns --> MOIC[MOIC]
-    Returns --> CoC[Cash-on-Cash]
-  end
-
-  Acquisition --> PreOpen
-  PreOpen -->|operationsStartDate| Operations
-  Operations -->|refinanceDate| Refinance
-  Refinance --> Operations
-  Operations -->|exitDate| Exit`;
-
-const L3_DATA_MODEL = `erDiagram
-  Users ||--o{ Properties : "owns"
-  Users ||--o{ Scenarios : "creates"
-  Users ||--o{ Sessions : "authenticates"
-  Users ||--o{ LoginLogs : "logs"
-  Users ||--o{ ActivityLogs : "generates"
-  Users ||--o{ Conversations : "starts"
-  Users ||--o{ MarketResearch : "requests"
-  Users ||--o{ ProspectiveProperties : "saves"
-  Users ||--o{ VerificationRuns : "runs"
-  Users ||--o{ AlertRules : "configures"
-  Users ||--o{ GlobalAssumptions : "edits"
-  Users }o--o| UserGroups : "belongs to"
-  Users }o--o| Companies : "assigned to"
-
-  UserGroups ||--o{ UserGroupProperties : "filters via"
-  Properties ||--o{ UserGroupProperties : "visible in"
-
-  Properties ||--o{ PropertyPhotos : "has"
-  Properties ||--o{ PropertyFeeCategories : "has"
-  Properties ||--o{ MarketResearch : "subject of"
-
-  Conversations ||--o{ Messages : "contains"
-
-  Companies }o--o| Logos : "branded with"
-  UserGroups }o--o| Logos : "branded with"
-  UserGroups }o--o| DesignThemes : "styled by"
-  Users }o--o| DesignThemes : "overrides with"
-
-  AlertRules ||--o{ NotificationLogs : "triggers"
-
-  Users {
-    int id PK
-    string username
-    string role "admin | user | checker | investor"
-    int companyId FK
-    int userGroupId FK
-  }
-  UserGroups {
-    int id PK
-    string name
-    int logoId FK
-    int themeId FK
-  }
-  Companies {
-    int id PK
-    string name
-    string type "management | spv"
-    int logoId FK
-  }
-  Properties {
-    int id PK
-    string name
-    int userId FK
-    string status
-    jsonb financialData
-  }
-  UserGroupProperties {
-    int userGroupId FK
-    int propertyId FK
-  }
-  Scenarios {
-    int id PK
-    int userId FK
-    string name
-    jsonb snapshot
-  }
-  GlobalAssumptions {
-    int id PK
-    int userId FK
-    jsonb data
-  }
-  VerificationRuns {
-    int id PK
-    int userId FK
-    string auditOpinion
-  }
-  MarketResearch {
-    int id PK
-    int userId FK
-    int propertyId FK
-    string status
-  }
-  ResearchQuestions {
-    int id PK
-    string question
-    int sortOrder
-  }
-  Conversations {
-    int id PK
-    int userId FK
-    string title
-  }
-  Messages {
-    int id PK
-    int conversationId FK
-    string role
-    text content
-  }
-  PropertyPhotos {
-    int id PK
-    int propertyId FK
-    string url
-  }
-  PropertyFeeCategories {
-    int id PK
-    int propertyId FK
-    string category
-  }
-  ProspectiveProperties {
-    int id PK
-    int userId FK
-    string name
-  }
-  ActivityLogs {
-    int id PK
-    int userId FK
-    string action
-    string entityType
-  }
-  AlertRules {
-    int id PK
-    int userId FK
-    string metric
-    string operator
-  }
-  NotificationLogs {
-    int id PK
-    int alertRuleId FK
-    string channel
-  }
-  Sessions {
-    string sid PK
-    int userId FK
-    timestamp expires
-  }
-  LoginLogs {
-    int id PK
-    int userId FK
-    timestamp timestamp
-  }
-  DesignThemes {
-    int id PK
-    string name
-    jsonb colors
-  }
-  Logos {
-    int id PK
-    string url
-  }`;
-
-const L3_EXPORT = `flowchart LR
-  Page([Data Page]) --> ExportMenu[ExportMenu Component]
-  ExportMenu --> PDF[PDF Generator]
-  ExportMenu --> Excel[Excel Generator]
-  ExportMenu --> CSV[CSV Generator]
-  ExportMenu --> PPTX[PowerPoint Generator]
-  ExportMenu --> ChartPNG[Chart PNG]
-  ExportMenu --> TablePNG[Table PNG]
-  PDF --> Orient{Orientation Dialog}
-  ChartPNG --> Orient
-  Orient --> Download([File Download])
-  Excel --> Download
-  CSV --> Download
-  PPTX --> Download
-  TablePNG --> Download`;
-
-const L3_ROLE_ACCESS = `flowchart TB
-  subgraph Roles["User Roles"]
-    direction LR
-    Admin["🔑 Admin"]
-    UserRole["🤝 User"]
-    Checker["✅ Checker"]
-    Investor["📊 Investor"]
-  end
-
-  subgraph Gates["Permission Gates"]
-    isAdmin{"isAdmin"}
-    hasMgmt{"hasManagementAccess\\n(all except Investor)"}
-    reqChecker{"requireChecker"}
-    groupFilter{"Property Group Filter\\n(Admin bypasses)"}
-  end
-
-  subgraph AdminPanel["Admin-Only Panel"]
-    UserMgmt["User Management"]
-    GroupMgmt["Group Management"]
-    ThemeMgmt["Theme Management"]
-    Diagrams["System Diagrams"]
-    AlertConfig["Alert Configuration"]
-  end
-
-  subgraph FullToolkit["Investment Toolkit"]
-    Dash["Dashboard"]
-    Props["Properties"]
-    MgmtCo["Management Company"]
-    Sim["Simulation"]
-    Finder["Property Finder"]
-    MapView["Map View"]
-    Scenarios["Scenarios"]
-    Settings["Settings"]
-  end
-
-  subgraph CheckerTools["Checker Tools"]
-    Verify["Verification Panel"]
-    Manual["Checker Manual"]
-    ReadOnly["Read-Only Financials"]
-  end
-
-  subgraph InvestorView["Investor View"]
-    InvDash["Dashboard"]
-    InvProps["Filtered Properties"]
-  end
-
-  Admin --> isAdmin --> AdminPanel
-  Admin --> hasMgmt --> FullToolkit
-  UserRole --> hasMgmt
-  Checker --> reqChecker --> CheckerTools
-  Checker --> hasMgmt
-  Investor --> InvestorView
-
-  Admin -.->|"bypasses"| groupFilter
-  UserRole --> groupFilter
-  Checker --> groupFilter
-  Investor --> groupFilter
-  groupFilter -->|"sees only mapped properties"| Props`;
-
-// ─────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────
-
-interface DiagramCardProps {
-  title: string;
-  description: string;
-  chart: string;
-}
-
-function DiagramCard({ title, description, chart }: DiagramCardProps) {
+function DiagramCard({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
     <Card className="bg-card border border-border/80 shadow-sm">
       <CardHeader className="pb-2">
@@ -810,12 +13,461 @@ function DiagramCard({ title, description, chart }: DiagramCardProps) {
       </CardHeader>
       <CardContent>
         <div className="bg-muted/20 rounded-lg p-4 border border-border/40 overflow-auto">
-          <Suspense fallback={<div className="flex items-center justify-center p-8 text-muted-foreground text-sm">Loading diagram…</div>}>
-            <MermaidChart chart={chart} theme="neutral" />
-          </Suspense>
+          {children}
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function PipelineStep({ arrow = true, ...node }: FlowNode & { arrow?: boolean }) {
+  return (
+    <>
+      <NodeBox node={node} />
+      {arrow && <Arrow />}
+    </>
+  );
+}
+
+function DownStep({ arrow = true, ...node }: FlowNode & { arrow?: boolean }) {
+  return (
+    <>
+      <NodeBox node={node} />
+      {arrow && <Arrow direction="down" />}
+    </>
+  );
+}
+
+function L1AppFlow() {
+  return (
+    <FlowRow>
+      <PipelineStep id="user" label="User" color="slate" />
+      <PipelineStep id="auth" label="Authentication" color="blue" />
+      <PipelineStep id="role" label="Role Check" color="purple" variant="diamond" />
+      <div className="flex flex-col gap-2">
+        <FlowRow>
+          <NodeBox node={{ id: "admin", label: "Admin Panel", color: "red" }} />
+        </FlowRow>
+        <FlowRow>
+          <NodeBox node={{ id: "dashboard", label: "Dashboard", color: "blue" }} />
+          <Arrow />
+          <NodeBox node={{ id: "engine", label: "Financial Engine", color: "green" }} />
+          <Arrow />
+          <NodeBox node={{ id: "statements", label: "Statements", color: "purple" }} />
+          <Arrow />
+          <NodeBox node={{ id: "exports", label: "Exports", color: "amber" }} />
+        </FlowRow>
+      </div>
+    </FlowRow>
+  );
+}
+
+function L1TwoEntity() {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FlowSection title="Property SPVs">
+          <div className="space-y-2">
+            {["Hotel A", "Hotel B", "Hotel C"].map(h => (
+              <div key={h} className="flex items-center gap-2">
+                <NodeBox node={{ id: h, label: h, color: "blue" }} />
+                <span className="text-[10px] text-muted-foreground">→ Base Fee + Incentive Fee</span>
+              </div>
+            ))}
+          </div>
+        </FlowSection>
+        <FlowSection title="Management Company">
+          <FlowCol>
+            <DownStep id="feerev" label="Fee Revenue" sublabel="Base + Incentive" color="green" />
+            <DownStep id="svcfees" label="Service Fees" sublabel="Per-category" color="green" />
+            <DownStep id="opex" label="Operating Expenses" color="amber" />
+            <NodeBox node={{ id: "ebitda", label: "ManCo EBITDA", color: "purple" }} />
+          </FlowCol>
+        </FlowSection>
+        <FlowSection title="Consolidated View">
+          <FlowCol>
+            <DownStep id="elim" label="Intercompany Elimination" sublabel="ManCo fees = SPV expenses" color="red" />
+            <NodeBox node={{ id: "portnoi", label: "Portfolio NOI", sublabel: "Net: fees cancel out", color: "green" }} />
+          </FlowCol>
+        </FlowSection>
+      </div>
+    </div>
+  );
+}
+
+function L1Integrations() {
+  const categories: { title: string; items: { name: string; desc: string }[] }[] = [
+    { title: "AI & LLM", items: [{ name: "Anthropic Claude", desc: "Research & exports" }, { name: "OpenAI", desc: "Embeddings & chat" }, { name: "Google Gemini", desc: "Rebecca advisor" }] },
+    { title: "Voice AI", items: [{ name: "ElevenLabs / Convai", desc: "Marcela voice agent" }] },
+    { title: "Geospatial", items: [{ name: "Google Maps / Places", desc: "Geocoding & POI" }, { name: "MapLibre GL", desc: "3D globe rendering" }] },
+    { title: "Document Intelligence", items: [{ name: "Google Cloud Doc AI", desc: "OCR & extraction" }] },
+    { title: "Communication", items: [{ name: "Twilio", desc: "SMS alerts" }, { name: "Resend", desc: "Transactional email" }] },
+    { title: "Image Generation", items: [{ name: "Replicate", desc: "AI architectural renders" }] },
+    { title: "Observability", items: [{ name: "Sentry", desc: "Error tracking" }, { name: "PostHog", desc: "Product analytics" }] },
+    { title: "Storage", items: [{ name: "Object Storage", desc: "File & asset storage" }, { name: "Upstash Redis", desc: "Cache & sessions" }, { name: "PostgreSQL", desc: "Primary database" }] },
+  ];
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {categories.map(cat => (
+        <FlowSection key={cat.title} title={cat.title}>
+          <div className="space-y-2">
+            {cat.items.map(item => (
+              <div key={item.name} className="text-xs">
+                <span className="font-semibold text-foreground">{item.name}</span>
+                <span className="text-muted-foreground ml-1">— {item.desc}</span>
+              </div>
+            ))}
+          </div>
+        </FlowSection>
+      ))}
+    </div>
+  );
+}
+
+function L2Financial() {
+  const waterfall: { label: string; sublabel: string; color: FlowNode["color"]; result?: string; resultColor?: FlowNode["color"] }[] = [
+    { label: "Room Revenue", sublabel: "ADR × Occ × Rooms × Days", color: "purple" },
+    { label: "F&B Revenue", sublabel: "RevPAR × F&B Capture %", color: "purple" },
+    { label: "Events Revenue", sublabel: "Event Pace × Avg Check", color: "purple" },
+    { label: "Other Income", sublabel: "Parking, Spa, Retail, Misc", color: "purple" },
+  ];
+  const deductions: { from: string; less: string; sublabel: string; result: string; resultColor: FlowNode["color"] }[] = [
+    { from: "Total Revenue", less: "Departmental Expenses", sublabel: "Housekeeping, F&B, Events, Other", result: "GOP", resultColor: "blue" },
+    { from: "GOP", less: "Management Fees", sublabel: "Base % + Incentive %", result: "AGOP", resultColor: "blue" },
+    { from: "AGOP", less: "Fixed Charges", sublabel: "Insurance + Property Tax", result: "NOI", resultColor: "blue" },
+    { from: "NOI", less: "FF&E Reserve", sublabel: "% of Total Revenue", result: "ANOI", resultColor: "blue" },
+    { from: "ANOI", less: "Interest Expense", sublabel: "Debt Service", result: "Pre-Tax Income", resultColor: "purple" },
+    { from: "Pre-Tax", less: "Income Tax", sublabel: "NOL carryforward applied", result: "Net Income", resultColor: "green" },
+  ];
+  return (
+    <div className="space-y-4">
+      <FlowSection title="Revenue Streams">
+        <div className="flex flex-wrap gap-2">
+          {waterfall.map(w => (
+            <NodeBox key={w.label} node={{ id: w.label, label: w.label, sublabel: w.sublabel, color: w.color }} />
+          ))}
+          <Arrow />
+          <NodeBox node={{ id: "total-rev", label: "Total Revenue", color: "purple" }} />
+        </div>
+      </FlowSection>
+      <FlowSection title="USALI Waterfall">
+        <div className="space-y-2">
+          {deductions.map(d => (
+            <div key={d.result} className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground w-20 text-right shrink-0">{d.from}</span>
+              <span className="text-xs text-red-500 font-medium">−</span>
+              <NodeBox node={{ id: d.less, label: d.less, sublabel: d.sublabel, color: "amber" }} />
+              <Arrow />
+              <NodeBox node={{ id: d.result, label: d.result, color: d.resultColor }} />
+            </div>
+          ))}
+        </div>
+      </FlowSection>
+    </div>
+  );
+}
+
+function L2ManCo() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <FlowSection title="Revenue">
+        <div className="space-y-2">
+          <NodeBox node={{ id: "base", label: "Base Management Fees", sublabel: "% of Total Revenue", color: "green" }} />
+          <NodeBox node={{ id: "incentive", label: "Incentive Fees", sublabel: "% of GOP", color: "green" }} />
+          <NodeBox node={{ id: "svc", label: "Service Fee Categories", sublabel: "Direct vs Centralized", color: "green" }} />
+        </div>
+      </FlowSection>
+      <FlowSection title="Expenses">
+        <div className="space-y-3">
+          <div>
+            <p className="text-[10px] font-medium text-muted-foreground mb-1">Fixed Overhead (escalated by inflation)</p>
+            <div className="flex flex-wrap gap-1">
+              {["Office Lease", "Professional Services", "Tech Infrastructure"].map(e => (
+                <NodeBox key={e} node={{ id: e, label: e, color: "amber" }} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] font-medium text-muted-foreground mb-1">Variable Costs</p>
+            <div className="flex flex-wrap gap-1">
+              <NodeBox node={{ id: "travel", label: "Travel & IT", sublabel: "per client", color: "amber" }} />
+              <NodeBox node={{ id: "mktg", label: "Marketing & Misc", sublabel: "% of revenue", color: "amber" }} />
+            </div>
+          </div>
+          <div>
+            <p className="text-[10px] font-medium text-muted-foreground mb-1">Staffing Tiers</p>
+            <div className="flex flex-wrap gap-1">
+              {["≤3 props → 2.5 FTE", "≤6 props → 4.5 FTE", "7+ props → 7.0 FTE"].map((t, i) => (
+                <NodeBox key={i} node={{ id: `tier${i}`, label: `Tier ${i + 1}`, sublabel: t, color: "blue" }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </FlowSection>
+      <FlowSection title="Bottom Line" className="md:col-span-2">
+        <FlowRow>
+          <PipelineStep id="ebitda" label="EBITDA" color="blue" />
+          <PipelineStep id="pretax" label="Pre-Tax Income" color="purple" />
+          <PipelineStep id="tax" label="Tax Provision" color="amber" />
+          <PipelineStep id="net" label="Net Income" color="green" arrow={false} />
+        </FlowRow>
+      </FlowSection>
+    </div>
+  );
+}
+
+function L2DualEngine() {
+  return (
+    <div className="space-y-4">
+      <div className="text-center">
+        <NodeBox node={{ id: "assumptions", label: "Property Assumptions", sublabel: "Revenue, Expenses, Debt, CapEx", color: "purple" }} />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FlowSection title="Client-Side Engine (Real-Time UI)">
+          <FlowCol>
+            <DownStep id="c-engine" label="Financial Engine" sublabel="Deterministic calc pipeline" color="blue" />
+            <div className="flex gap-2">
+              {["Income Stmt", "Cash Flow", "Balance Sheet"].map(s => (
+                <NodeBox key={s} node={{ id: `c-${s}`, label: s, color: "blue" }} />
+              ))}
+            </div>
+            <Arrow direction="down" />
+            <NodeBox node={{ id: "c-results", label: "Client Results", sublabel: "Displayed in UI", color: "green" }} />
+          </FlowCol>
+        </FlowSection>
+        <FlowSection title="Server-Side Checker (Independent)">
+          <FlowCol>
+            <DownStep id="s-engine" label="Calculation Checker" sublabel="Isolated recalculation" color="blue" />
+            <div className="flex gap-2">
+              {["Income Stmt", "Cash Flow", "Balance Sheet"].map(s => (
+                <NodeBox key={s} node={{ id: `s-${s}`, label: s, color: "blue" }} />
+              ))}
+            </div>
+            <Arrow direction="down" />
+            <NodeBox node={{ id: "s-results", label: "Server Results", sublabel: "Never shown to user", color: "amber" }} />
+          </FlowCol>
+        </FlowSection>
+      </div>
+      <div className="flex justify-center gap-3 flex-wrap">
+        <NodeBox node={{ id: "unqual", label: "✓ Unqualified", sublabel: "Clean audit", color: "green" }} />
+        <NodeBox node={{ id: "qual", label: "⚠ Qualified", sublabel: "Minor issues", color: "amber" }} />
+        <NodeBox node={{ id: "adverse", label: "✗ Adverse", sublabel: "Material failures", color: "red" }} />
+      </div>
+    </div>
+  );
+}
+
+function L2VerificationTiers() {
+  const tiers = [
+    { title: "Tier 1 — Property", checks: ["Revenue Formula (ADR × Occ × Rooms)", "Debt Service PMT (ASC 470)", "Depreciation Basis (ASC 360)", "Cash Flow Reconciliation (ASC 230)"], color: "blue" as const },
+    { title: "Tier 2 — Company", checks: ["Management Fee Calc (ASC 606)", "ManCo Cash Flow", "SAFE Tranche Validation"], color: "purple" as const },
+    { title: "Tier 3 — Consolidated", checks: ["Intercompany Elimination (ASC 810)", "Portfolio Totals", "Balance Sheet Identity (A = L + E)"], color: "green" as const },
+  ];
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {tiers.map(tier => (
+          <FlowSection key={tier.title} title={tier.title}>
+            <div className="space-y-1.5">
+              {tier.checks.map(check => (
+                <NodeBox key={check} node={{ id: check, label: check, color: tier.color }} />
+              ))}
+            </div>
+          </FlowSection>
+        ))}
+      </div>
+      <FlowSection title="Four-Stage Pipeline">
+        <FlowRow>
+          <PipelineStep id="s1" label="Formula Checker" color="blue" />
+          <PipelineStep id="s2" label="GAAP Compliance" color="blue" />
+          <PipelineStep id="s3" label="Full Auditor" color="purple" />
+          <PipelineStep id="s4" label="Cross-Calculator" color="green" arrow={false} />
+        </FlowRow>
+      </FlowSection>
+    </div>
+  );
+}
+
+function L2Auth() {
+  return (
+    <FlowRow>
+      <PipelineStep id="login" label="Login" color="slate" />
+      <PipelineStep id="session" label="Session" color="blue" />
+      <PipelineStep id="role" label="User Role" color="purple" />
+      <PipelineStep id="group" label="User Group" color="blue" />
+      <PipelineStep id="branding" label="Branding" color="green" />
+      <PipelineStep id="theme" label="Theme" sublabel="user → group → default" color="amber" arrow={false} />
+    </FlowRow>
+  );
+}
+
+function L2AI() {
+  return (
+    <div className="space-y-4">
+      <div className="text-center">
+        <NodeBox node={{ id: "marcela", label: "Marcela Voice Agent", sublabel: "ElevenLabs Convai", color: "purple" }} />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FlowSection title="Client-Side Tools (browser)">
+          <div className="space-y-1.5">
+            {["navigateToPage", "showPropertyDetails", "openPropertyEditor", "startGuidedTour"].map(t => (
+              <NodeBox key={t} node={{ id: t, label: t, color: "blue" }} />
+            ))}
+          </div>
+        </FlowSection>
+        <FlowSection title="Server-Side Webhooks (API)">
+          <div className="space-y-1.5">
+            {["getProperties", "getPropertyDetails", "getPortfolioSummary", "getGlobalAssumptions"].map(t => (
+              <NodeBox key={t} node={{ id: t, label: t, color: "green" }} />
+            ))}
+          </div>
+        </FlowSection>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FlowSection title="Knowledge Base (RAG)">
+          <div className="space-y-1.5">
+            <NodeBox node={{ id: "static", label: "Static KB", sublabel: "Product docs, USALI glossary", color: "green" }} />
+            <NodeBox node={{ id: "dynamic", label: "Dynamic Live-Data", sublabel: "Property snapshots synced", color: "green" }} />
+          </div>
+        </FlowSection>
+        <FlowSection title="Integrity Rule">
+          <NodeBox node={{ id: "rule", label: "Marcela NEVER calculates", sublabel: "All numbers from deterministic engine", color: "red" }} />
+        </FlowSection>
+      </div>
+    </div>
+  );
+}
+
+function L2Research() {
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-3 justify-center">
+        <NodeBox node={{ id: "prop-trig", label: "Property-Level", sublabel: "Single asset research", color: "blue" }} />
+        <NodeBox node={{ id: "comp-trig", label: "Company-Level", sublabel: "ICP-driven portfolio", color: "purple" }} />
+      </div>
+      <FlowSection title="Context Assembly">
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: "ICP / Asset Definition", sublabel: "Market, brand tier" },
+            { label: "Location Profile", sublabel: "City, submarket, MSA" },
+            { label: "Property Profile", sublabel: "Room count, F&B, meetings" },
+            { label: "Financial Context", sublabel: "ADR, occupancy, RevPAR" },
+          ].map(c => (
+            <NodeBox key={c.label} node={{ id: c.label, label: c.label, sublabel: c.sublabel, color: "blue" }} />
+          ))}
+        </div>
+      </FlowSection>
+      <FlowSection title="Tool-Augmented LLM">
+        <FlowRow>
+          <PipelineStep id="web" label="Web Search" sublabel="Live market data" color="purple" />
+          <PipelineStep id="adr" label="compute_adr_projection" color="purple" />
+          <PipelineStep id="occ" label="compute_occupancy_ramp" color="purple" arrow={false} />
+        </FlowRow>
+      </FlowSection>
+      <FlowSection title="Output → Validation → Storage">
+        <FlowRow>
+          <PipelineStep id="comp" label="Competitive Landscape" color="green" />
+          <PipelineStep id="bench" label="Operating Benchmarks" color="green" />
+          <PipelineStep id="econ" label="Local Economics" color="green" />
+          <PipelineStep id="extract" label="Value Extractor" color="amber" />
+          <PipelineStep id="validate" label="Consistency Checks" color="amber" />
+          <PipelineStep id="store" label="market_research" sublabel="PostgreSQL" color="blue" arrow={false} />
+        </FlowRow>
+      </FlowSection>
+      <div className="flex gap-3 justify-center">
+        <NodeBox node={{ id: "fresh", label: "🟢 Fresh", sublabel: "< 30 days", color: "green" }} />
+        <NodeBox node={{ id: "stale", label: "🔴 Stale", sublabel: "≥ 30 days → re-trigger", color: "red" }} />
+      </div>
+    </div>
+  );
+}
+
+function L3Property() {
+  const phases: { title: string; items: string[]; color: FlowNode["color"] }[] = [
+    { title: "Phase 1 — Acquisition", items: ["Purchase Price + Improvements + Pre-Opening = Total Project Cost", "Capital Structure: Equity + Acquisition Loan (LTV/DSCR)", "Depreciation Basis = Purchase + Improvements − Land Value"], color: "blue" },
+    { title: "Phase 2 — Pre-Opening", items: ["Debt Service begins (IO or amortizing)", "Operating Reserve covers shortfall", "Depreciation accrues, NOL builds", "No Revenue yet"], color: "amber" },
+    { title: "Phase 3 — Operations", items: ["Occupancy ramp: Start% → Max%", "USALI waterfall: Revenue → GOP → AGOP → NOI → ANOI", "Less: Debt Service → Income Tax (w/ NOL) → FCFE"], color: "green" },
+    { title: "Phase 4 — Refinance", items: ["New loan sized by updated NOI · LTV · DSCR", "Payoff acquisition debt", "Net proceeds ± recalculate debt service"], color: "purple" },
+    { title: "Phase 5 — Exit", items: ["Exit Valuation = Forward-Year NOI ÷ Cap Rate", "Less: Disposition Commission + Outstanding Debt", "Return Metrics: IRR, MOIC, Cash-on-Cash"], color: "green" },
+  ];
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+      {phases.map((p, i) => (
+        <FlowSection key={p.title} title={p.title}>
+          <div className="space-y-1.5">
+            {p.items.map(item => (
+              <p key={item} className="text-[11px] text-foreground leading-tight">{item}</p>
+            ))}
+          </div>
+          {i < phases.length - 1 && <div className="hidden md:block text-center mt-2 text-muted-foreground text-xs">→</div>}
+        </FlowSection>
+      ))}
+    </div>
+  );
+}
+
+function L3DataModel() {
+  const entities: { name: string; fields: string[]; relations: string[] }[] = [
+    { name: "Users", fields: ["id, username, role, companyId, userGroupId"], relations: ["→ Properties, Scenarios, Sessions, LoginLogs, ActivityLogs, Conversations, MarketResearch, ProspectiveProperties, VerificationRuns, AlertRules, GlobalAssumptions"] },
+    { name: "Properties", fields: ["id, name, userId, status, financialData"], relations: ["→ PropertyPhotos, PropertyFeeCategories, MarketResearch, UserGroupProperties"] },
+    { name: "UserGroups", fields: ["id, name, logoId, themeId"], relations: ["→ UserGroupProperties, Logos, DesignThemes"] },
+    { name: "Scenarios", fields: ["id, userId, name, snapshot"], relations: ["← Users"] },
+    { name: "Conversations", fields: ["id, userId, title"], relations: ["→ Messages"] },
+    { name: "AlertRules", fields: ["id, userId, ruleType, enabled"], relations: ["→ NotificationLogs"] },
+  ];
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {entities.map(e => (
+        <FlowSection key={e.name} title={e.name}>
+          <p className="text-[10px] text-muted-foreground font-mono mb-1">{e.fields[0]}</p>
+          <p className="text-[10px] text-foreground">{e.relations[0]}</p>
+        </FlowSection>
+      ))}
+    </div>
+  );
+}
+
+function L3Export() {
+  const formats = [
+    { label: "PDF", sublabel: "jsPDF + Premium Puppeteer", color: "blue" as const },
+    { label: "Excel", sublabel: "xlsx", color: "green" as const },
+    { label: "CSV", sublabel: "csv-stringify", color: "green" as const },
+    { label: "PowerPoint", sublabel: "pptxgenjs", color: "purple" as const },
+    { label: "Chart PNG", sublabel: "dom-to-image", color: "amber" as const },
+    { label: "Table PNG", sublabel: "dom-to-image", color: "amber" as const },
+  ];
+  return (
+    <FlowRow>
+      <NodeBox node={{ id: "data", label: "Financial Data", color: "slate" }} />
+      <Arrow />
+      <div className="flex flex-wrap gap-2">
+        {formats.map(f => (
+          <NodeBox key={f.label} node={{ id: f.label, label: f.label, sublabel: f.sublabel, color: f.color }} />
+        ))}
+      </div>
+    </FlowRow>
+  );
+}
+
+function L3RoleAccess() {
+  const roles: { role: string; color: FlowNode["color"]; access: string[] }[] = [
+    { role: "Admin", color: "red", access: ["Admin Panel", "Company Assumptions", "All Shared Pages", "All Analysis", "Verification"] },
+    { role: "User", color: "blue", access: ["Shared Pages", "Analysis Pages"] },
+    { role: "Checker", color: "purple", access: ["Shared Pages", "Analysis Pages", "Verification"] },
+    { role: "Investor", color: "slate", access: ["Dashboard", "Properties", "Profile", "Help"] },
+  ];
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {roles.map(r => (
+        <FlowSection key={r.role} title={r.role}>
+          <div className="space-y-1">
+            {r.access.map(a => (
+              <NodeBox key={a} node={{ id: `${r.role}-${a}`, label: a, color: r.color }} />
+            ))}
+          </div>
+        </FlowSection>
+      ))}
+    </div>
   );
 }
 
@@ -830,21 +482,15 @@ export default function DiagramsTab() {
         </TabsList>
 
         <TabsContent value="1" className="space-y-6 mt-4">
-          <DiagramCard
-            title="Application Flow"
-            description="High-level user journey from login to exports"
-            chart={L1_APP_FLOW}
-          />
-          <DiagramCard
-            title="Two-Entity Model"
-            description="Property SPVs, Management Company, and Consolidated view with intercompany elimination"
-            chart={L1_TWO_ENTITY}
-          />
-          <DiagramCard
-            title="Integration & Infrastructure Map"
-            description="All external services organized by category with data flow directions"
-            chart={L1_INTEGRATIONS}
-          />
+          <DiagramCard title="Application Flow" description="High-level user journey from login to exports">
+            <L1AppFlow />
+          </DiagramCard>
+          <DiagramCard title="Two-Entity Model" description="Property SPVs, Management Company, and Consolidated view with intercompany elimination">
+            <L1TwoEntity />
+          </DiagramCard>
+          <DiagramCard title="Integration & Infrastructure Map" description="All external services organized by category with data flow directions">
+            <L1Integrations />
+          </DiagramCard>
         </TabsContent>
 
         <TabsContent value="2" className="mt-4">
@@ -852,71 +498,57 @@ export default function DiagramsTab() {
             <AccordionItem value="financial">
               <AccordionTrigger className="text-sm font-semibold">Financial Calculation Pipeline</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="USALI Income Waterfall"
-                  description="Revenue → Departmental Expenses → GOP → Fixed Charges → NOI → Management Fees → FF&E Reserve → ANOI → Debt Service → Depreciation → Pre-Tax Income → Tax → Net Income"
-                  chart={L2_FINANCIAL}
-                />
+                <DiagramCard title="USALI Income Waterfall" description="Revenue → GOP → AGOP → NOI → ANOI → Net Income">
+                  <L2Financial />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="manco">
               <AccordionTrigger className="text-sm font-semibold">Management Company Engine</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="ManCo Financial Model"
-                  description="Revenue (Base + Incentive + Service Fees) → Expenses (Fixed, Variable, Staffing, Partner Comp) → SAFE Funding → Bottom Line"
-                  chart={L2_MANCO}
-                />
+                <DiagramCard title="ManCo Financial Model" description="Revenue (Base + Incentive + Service Fees) → Expenses → SAFE Funding → Bottom Line">
+                  <L2ManCo />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="dual-engine">
               <AccordionTrigger className="text-sm font-semibold">Dual-Engine Verification Architecture</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="Client Engine vs Server Checker"
-                  description="Property assumptions feed both engines in parallel — client-side for real-time UI, server-side for independent verification — then cross-validated for audit opinion"
-                  chart={L2_DUAL_ENGINE}
-                />
+                <DiagramCard title="Client Engine vs Server Checker" description="Both engines run in parallel, then cross-validated for audit opinion">
+                  <L2DualEngine />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="verification">
               <AccordionTrigger className="text-sm font-semibold">Three-Tier Verification Pipeline</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="Verification Tiers & GAAP Compliance"
-                  description="Tier 1 (Property — revenue, debt service, depreciation, cash flow) → Tier 2 (Company — fees, ManCo, SAFE) → Tier 3 (Consolidated — elimination, totals, balance sheet identity) with ASC 230/360/470/606/810 references"
-                  chart={L2_VERIFICATION_TIERS}
-                />
+                <DiagramCard title="Verification Tiers & GAAP Compliance" description="Property → Company → Consolidated with ASC references">
+                  <L2VerificationTiers />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="auth">
               <AccordionTrigger className="text-sm font-semibold">Auth & Theme Resolution</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="Authentication & Branding"
-                  description="Login → Role → Group → Theme cascade"
-                  chart={L2_AUTH}
-                />
+                <DiagramCard title="Authentication & Branding" description="Login → Role → Group → Theme cascade">
+                  <L2Auth />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="ai">
               <AccordionTrigger className="text-sm font-semibold">Marcela Voice Agent Architecture</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="Marcela Dual-Channel Tool System"
-                  description="ElevenLabs Convai → Client-side tools (navigation, property views, guided tours) + Server-side webhooks (portfolio data, financials) → Knowledge Base RAG (static docs + live-synced data) — Marcela never calculates, she calls deterministic engine tools"
-                  chart={L2_AI}
-                />
+                <DiagramCard title="Marcela Dual-Channel Tool System" description="Client tools + server webhooks + RAG knowledge base">
+                  <L2AI />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="research">
               <AccordionTrigger className="text-sm font-semibold">Market Research Pipeline</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="ICP-Driven Research & Value Extraction"
-                  description="Property or Company trigger → ICP/Asset context assembly → Prompt Builder → Tool-augmented Claude (web search + compute tools) → Structured output (comp set, benchmarks, local economics) → Value extraction to financial assumptions → Validation → Storage → Benchmark pills & Apply Research dialog — 30-day compulsory refresh cycle"
-                  chart={L2_RESEARCH}
-                />
+                <DiagramCard title="ICP-Driven Research & Value Extraction" description="Trigger → Context → LLM → Output → Validation → Storage → UI">
+                  <L2Research />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -927,41 +559,33 @@ export default function DiagramsTab() {
             <AccordionItem value="property">
               <AccordionTrigger className="text-sm font-semibold">Property Lifecycle</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="Investment Lifecycle & Cash Flow Engine"
-                  description="Five-phase property lifecycle — Acquisition capital structure, Pre-Opening gap funding, Operations occupancy ramp through USALI waterfall to FCFE, optional Refinance with debt restructuring, and Exit valuation with IRR / MOIC / Cash-on-Cash return metrics"
-                  chart={L3_PROPERTY}
-                />
+                <DiagramCard title="Investment Lifecycle & Cash Flow Engine" description="Acquisition → Pre-Opening → Operations → Refinance → Exit">
+                  <L3Property />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="data-model">
               <AccordionTrigger className="text-sm font-semibold">Data Model ER Diagram</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="Entity Relationship Diagram"
-                  description="Core data entities and their relationships — users, properties, scenarios, research, and support tables"
-                  chart={L3_DATA_MODEL}
-                />
+                <DiagramCard title="Entity Relationships" description="Core data entities and their relationships">
+                  <L3DataModel />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="export">
               <AccordionTrigger className="text-sm font-semibold">Export Pipeline</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="Six-Format Export Suite"
-                  description="PDF, Excel, CSV, PowerPoint, Chart PNG, and Table PNG export paths"
-                  chart={L3_EXPORT}
-                />
+                <DiagramCard title="Six-Format Export Suite" description="PDF, Excel, CSV, PowerPoint, Chart PNG, Table PNG">
+                  <L3Export />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="role-access">
               <AccordionTrigger className="text-sm font-semibold">Role-Based Access Control</AccordionTrigger>
               <AccordionContent>
-                <DiagramCard
-                  title="Role-Based Access Control"
-                  description="Four user roles, sidebar visibility, permission gates, and property group filtering"
-                  chart={L3_ROLE_ACCESS}
-                />
+                <DiagramCard title="Role-Based Access Control" description="Four user roles, sidebar visibility, permission gates">
+                  <L3RoleAccess />
+                </DiagramCard>
               </AccordionContent>
             </AccordionItem>
           </Accordion>

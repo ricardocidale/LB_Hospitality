@@ -185,7 +185,3 @@ export interface BarChartInteractiveProps extends BaseChartProps {
   defaultActiveKey?: string;
 }
 
-export interface MermaidChartProps extends BaseChartProps {
-  chart: string;
-  theme?: "default" | "dark" | "forest" | "neutral";
-}

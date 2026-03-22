@@ -488,7 +488,7 @@ export default function Dashboard() {
               });
             }
 
-            if (cfg.compositionTables) {
+            if (cfg.compositionCharts) {
               const marketEntries = Object.entries(ovd.marketCounts);
               const statusEntries = Object.entries(ovd.statusCounts);
               if (marketEntries.length > 0) {
@@ -519,6 +519,8 @@ export default function Dashboard() {
                 })),
               });
             }
+
+            void cfg.aiInsights;
 
             const kpis = ovd.portfolioKPIs;
             baseMetrics.push(

@@ -241,8 +241,10 @@ describe("Overview export data adapter", () => {
     expect(dashSource).toContain("cfg.projectionTable");
     expect(dashSource).toContain("cfg.revenueChart");
     expect(dashSource).toContain("cfg.compositionTables");
+    expect(dashSource).toContain("cfg.compositionCharts");
     expect(dashSource).toContain("cfg.propertyInsights");
     expect(dashSource).toContain("cfg.waterfallTable");
+    expect(dashSource).toContain("cfg.aiInsights");
     expect(dashSource).toContain(".kpiMetrics");
   });
 });

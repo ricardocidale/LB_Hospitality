@@ -176,6 +176,26 @@ Variants stored in `property_photos.variants` JSONB column. Originals preserved.
 
 ---
 
+## Schema Layout (`shared/schema/`)
+
+| File | Tables | Lines |
+|------|--------|-------|
+| `config.ts` | globalAssumptions, seedDefaults | 404 |
+| `properties.ts` | properties, userGroupProperties | 289 |
+| `notifications.ts` | alertRules, notificationLogs, notificationSettings | 219 |
+| `core.ts` | logos, userGroups, designThemes, extractionFields | 169 |
+| `intelligence.ts` | marketResearch, prospectiveProperties, savedSearches, researchQuestions, marketRates | 164 |
+| `services.ts` | serviceCategories, serviceFees | 146 |
+| `audit.ts` | loginLogs, activityLogs, verificationRuns | 83 |
+| `research-types.ts` | ResearchConfig types | 80 |
+| `auth.ts` | users, sessions, googleDriveTokens | 78 |
+| `scenarios.ts` | scenarios | 43 |
+| `engagement.ts` | conversations, messages | 22 |
+
+Barrel export: `shared/schema/index.ts` re-exports all files. All consumers import from `@shared/schema`.
+
+---
+
 ## Settings Architecture
 
 - **Company Assumptions** (`/company/assumptions`): Admin-only. Single source of truth for company config — identity, contact, inflation, funding, service categories & fees, compensation, overhead, costs, tax, exit, property expense rates, partner comp

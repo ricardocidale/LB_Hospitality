@@ -35,6 +35,7 @@ export const users = pgTable("users", {
 }, (table) => [
   index("users_company_id_idx").on(table.companyId),
   index("users_user_group_id_idx").on(table.userGroupId),
+  index("users_phone_number_idx").on(table.phoneNumber),
 ]);
 
 export const VALID_USER_ROLES = ["admin", "user", "checker", "investor"] as const;
@@ -70,6 +71,7 @@ export const sessions = pgTable("sessions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => [
   index("sessions_user_id_idx").on(table.userId),
+  index("sessions_expires_at_idx").on(table.expiresAt),
 ]);
 
 export type Session = typeof sessions.$inferSelect;

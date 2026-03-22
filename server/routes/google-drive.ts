@@ -4,6 +4,7 @@ import { OAuth2Client } from "google-auth-library";
 import { storage } from "../storage";
 import { requireAuth } from "../auth";
 import { logger } from "../logger";
+import { isEncryptionConfigured } from "../lib/token-encryption";
 import multer from "multer";
 import { Readable } from "stream";
 
@@ -15,6 +16,10 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 
 function checkGoogleConfig(): boolean {
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
     logger.warn("Google Drive routes: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set", "drive");
+    return false;
+  }
+  if (!isEncryptionConfigured()) {
+    logger.warn("Google Drive routes: TOKEN_ENCRYPTION_KEY not set — Drive features disabled", "drive");
     return false;
   }
   return true;

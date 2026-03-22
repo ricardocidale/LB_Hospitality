@@ -10,9 +10,13 @@ function getEncryptionKey(): Buffer | null {
   return crypto.createHash("sha256").update(key).digest();
 }
 
+export function isEncryptionConfigured(): boolean {
+  return getEncryptionKey() !== null;
+}
+
 export function encryptToken(plaintext: string): string {
   const key = getEncryptionKey();
-  if (!key) return plaintext;
+  if (!key) throw new Error("TOKEN_ENCRYPTION_KEY is required to encrypt tokens");
 
   const iv = crypto.randomBytes(IV_LENGTH);
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
@@ -23,9 +27,9 @@ export function encryptToken(plaintext: string): string {
 }
 
 export function decryptToken(ciphertext: string): string {
-  const key = getEncryptionKey();
-  if (!key) return ciphertext;
   if (!ciphertext.startsWith("enc:")) return ciphertext;
+  const key = getEncryptionKey();
+  if (!key) throw new Error("TOKEN_ENCRYPTION_KEY is required to decrypt tokens");
 
   const data = Buffer.from(ciphertext.slice(4), "base64");
   const iv = data.subarray(0, IV_LENGTH);

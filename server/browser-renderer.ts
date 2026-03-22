@@ -43,43 +43,20 @@ function findSystemChromium(): string | null {
 async function launchBrowser(): Promise<any> {
   const systemChromium = findSystemChromium();
 
-  if (systemChromium) {
-    try {
-      const puppeteerCore = await import("puppeteer-core");
-      logger.info(`[pdf-renderer] Using puppeteer-core with system Chromium: ${systemChromium}`, "pdf");
-      return puppeteerCore.default.launch({
-        headless: true,
-        executablePath: systemChromium,
-        args: LAUNCH_ARGS,
-      });
-    } catch (err: any) {
-      logger.warn(`[pdf-renderer] puppeteer-core + system Chromium failed: ${err.message}`, "pdf");
-    }
+  if (!systemChromium) {
+    throw new Error(
+      "No system Chromium found. PDF rendering requires a system-installed Chromium binary. " +
+      "Searched for: chromium, chromium-browser, google-chrome-stable, google-chrome."
+    );
   }
 
-  try {
-    const puppeteer = await import("puppeteer");
-    logger.info("[pdf-renderer] Using full Puppeteer (bundled Chrome)", "pdf");
-    return puppeteer.default.launch({
-      headless: true,
-      args: LAUNCH_ARGS,
-    });
-  } catch (err: any) {
-    logger.warn(`[pdf-renderer] Puppeteer failed: ${err.message}`, "pdf");
-  }
-
-  try {
-    const pw = await import("playwright");
-    if (pw?.chromium) {
-      logger.info("[pdf-renderer] Using Playwright Chromium", "pdf");
-      return pw.chromium.launch({ args: LAUNCH_ARGS });
-    }
-  } catch { /* best-effort cleanup */ }
-
-  throw new Error(
-    "No PDF-capable browser engine available. " +
-    "Install system chromium, puppeteer, or playwright."
-  );
+  const puppeteerCore = await import("puppeteer-core");
+  logger.info(`[pdf-renderer] Using puppeteer-core with system Chromium: ${systemChromium}`, "pdf");
+  return puppeteerCore.default.launch({
+    headless: true,
+    executablePath: systemChromium,
+    args: LAUNCH_ARGS,
+  });
 }
 
 async function getBrowser(): Promise<any> {
@@ -98,7 +75,6 @@ async function getBrowser(): Promise<any> {
   launchPromise = (async () => {
     try {
       const browser = await launchBrowser();
-      // Clear cached instance immediately if Chromium is killed externally
       browser.on?.("disconnected", () => {
         if (browserInstance === browser) {
           logger.warn("[pdf-renderer] Browser disconnected unexpectedly — will relaunch on next request", "pdf");
@@ -155,19 +131,12 @@ async function withPage<T>(
 
 export async function renderPdf(html: string, opts: PdfRenderOptions): Promise<Buffer> {
   return withPage("renderPdf", async (page) => {
-    // Set viewport to match PDF dimensions for consistent rendering
-    // Landscape 16:9 = 406.4mm × 228.6mm (16" × 9") → 1536 × 864 px at 96 dpi
-    // Portrait       = 215.9mm × 279.4mm (US Letter) → 816 × 1056 px at 96 dpi
     const widthMm = parseFloat(opts.width ?? "216");
     const isLandscape = widthMm > 300;
     const widthPx = isLandscape ? 1536 : 816;
     const heightPx = isLandscape ? 864 : 1056;
     await page.setViewport({ width: widthPx, height: heightPx, deviceScaleFactor: 1 });
-    // Use "load" instead of "networkidle0" — the HTML is fully self-contained (no external
-    // resources), so we only need the load event. networkidle0 requires 0 Chrome-internal
-    // connections for 500 ms which can flakily time out even on static content.
     await page.setContent(html, { waitUntil: "load", timeout: 45_000 });
-    // Let inline styles/fonts settle before capturing
     try { await page.evaluateHandle("document.fonts.ready"); } catch { /* best-effort cleanup */ }
     try { await page.evaluate(() => new Promise<void>(r => setTimeout(r, 300))); } catch { /* best-effort cleanup */ }
     const pdfBuffer = await page.pdf({

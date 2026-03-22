@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
 import { ContentPanel } from "@/components/ui/content-panel";
@@ -16,8 +16,9 @@ import { DEFAULT_SAFE_VALUATION_CAP, DEFAULT_SAFE_DISCOUNT_RATE, DEFAULT_TRANCHE
 import { Button } from "@/components/ui/button";
 import { Loader2, ExternalLink, Search } from "@/components/icons/themed-icons";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { MermaidChart } from "@/lib/charts";
 import { useLocation } from "wouter";
+
+const MermaidChart = lazy(() => import("@/lib/charts/MermaidChart"));
 
 const FUNDING_TABS = [
   { value: "recommended", label: "Capital Strategy", icon: IconTarget },
@@ -218,6 +219,7 @@ function RecommendedTab({ analysis, fundingLabel, chartData, gapType, projection
               <p className="text-xs text-muted-foreground mt-0.5">How {fundingLabel} capital flows through the management company</p>
             </div>
           </div>
+          <Suspense fallback={<div className="flex items-center justify-center p-8 text-muted-foreground text-sm">Loading diagram…</div>}>
           <MermaidChart
             chart={(() => {
               const fmt = (v: number) => `$${(v / 1000).toFixed(0)}K`;
@@ -255,6 +257,7 @@ function RecommendedTab({ analysis, fundingLabel, chartData, gapType, projection
             })()}
             theme="neutral"
           />
+          </Suspense>
         </ContentPanel>
       </ScrollReveal>
 

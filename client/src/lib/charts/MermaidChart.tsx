@@ -17,7 +17,7 @@ function initMermaid(theme: "default" | "dark" | "forest" | "neutral") {
 
 let idCounter = 0;
 
-export function MermaidChart({
+export default function MermaidChart({
   chart,
   theme = "neutral",
   className,

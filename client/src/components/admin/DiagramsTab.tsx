@@ -6,10 +6,12 @@
  *   Level 2: Domain flows (financial, auth, AI, research)
  *   Level 3: Detailed sub-flows (property lifecycle, seeding, exports, admin config)
  */
+import { lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { MermaidChart } from "@/lib/charts/MermaidChart";
+
+const MermaidChart = lazy(() => import("@/lib/charts/MermaidChart"));
 
 // ─────────────────────────────────────────────────
 // LEVEL 1 — System Overview
@@ -808,7 +810,9 @@ function DiagramCard({ title, description, chart }: DiagramCardProps) {
       </CardHeader>
       <CardContent>
         <div className="bg-muted/20 rounded-lg p-4 border border-border/40 overflow-auto">
-          <MermaidChart chart={chart} theme="neutral" />
+          <Suspense fallback={<div className="flex items-center justify-center p-8 text-muted-foreground text-sm">Loading diagram…</div>}>
+            <MermaidChart chart={chart} theme="neutral" />
+          </Suspense>
         </div>
       </CardContent>
     </Card>

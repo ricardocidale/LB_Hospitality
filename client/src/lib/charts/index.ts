@@ -38,4 +38,4 @@ export { RadarChartDots } from "./RadarChartDots";
 export { RadialChart } from "./RadialChart";
 export { RadialGauge } from "./RadialGauge";
 export { RadialStacked } from "./RadialStacked";
-export { MermaidChart } from "./MermaidChart";
+export { default as MermaidChart } from "./MermaidChart";

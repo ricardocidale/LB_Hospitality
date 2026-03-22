@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, lazy, Suspense } from "react";
 import Layout from "@/components/Layout";
 import { useProperty, useGlobalAssumptions } from "@/lib/api";
 import { usePropertyPhotos } from "@/lib/api/property-photos";
@@ -28,7 +28,7 @@ import {
   BenchmarkPanel,
   ReconciliationTab,
 } from "@/components/property-detail";
-import PropertyMap from "@/components/PropertyMap";
+const PropertyMap = lazy(() => import("@/components/PropertyMap"));
 import DocumentExtractionPanel from "@/components/DocumentExtractionPanel";
 import {
   type PropertyExportContext,
@@ -197,12 +197,14 @@ export default function PropertyDetail() {
         />
 
         <ScrollReveal>
-          <PropertyMap
-            latitude={property.latitude}
-            longitude={property.longitude}
-            propertyName={property.name}
-            propertyId={propertyId}
-          />
+          <Suspense fallback={<div className="flex items-center justify-center p-8 text-muted-foreground text-sm">Loading map…</div>}>
+            <PropertyMap
+              latitude={property.latitude}
+              longitude={property.longitude}
+              propertyName={property.name}
+              propertyId={propertyId}
+            />
+          </Suspense>
         </ScrollReveal>
 
         <BenchmarkPanel

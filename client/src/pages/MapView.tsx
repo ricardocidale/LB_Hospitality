@@ -103,17 +103,19 @@ function getPerformanceTier(property: any): { color: string; label: string; tier
   return { color: DSCR_TIER_COLORS.watch, label: "Watch (DSCR < 1.2)", tier: "watch" };
 }
 
-const statusColor = (status: string) => {
-  switch (status) {
-    case PropertyStatus.OPERATING: return { bg: "#dcfce7", text: "#15803d" };
-    case PropertyStatus.IMPROVEMENTS: return { bg: "#fef3c7", text: "#b45309" };
-    case PropertyStatus.ACQUIRED: return { bg: "#dbeafe", text: "#1d4ed8" };
-    case PropertyStatus.IN_NEGOTIATION: return { bg: "#f3e8ff", text: "#7c3aed" };
-    case PropertyStatus.PIPELINE: return { bg: "#f3f4f6", text: "#374151" };
-    case PropertyStatus.PLANNED: return { bg: "#e0f2fe", text: "#0369a1" };
-    default: return { bg: "#f3f4f6", text: "#374151" };
-  }
+const STATUS_COLOR_MAP: Record<string, { bg: string; text: string }> = {
+  [PropertyStatus.OPERATING]: { bg: "#dcfce7", text: "#15803d" },
+  [PropertyStatus.IMPROVEMENTS]: { bg: "#fef3c7", text: "#b45309" },
+  [PropertyStatus.ACQUIRED]: { bg: "#dbeafe", text: "#1d4ed8" },
+  [PropertyStatus.IN_NEGOTIATION]: { bg: "#f3e8ff", text: "#7c3aed" },
+  [PropertyStatus.PIPELINE]: { bg: "#f3f4f6", text: "#374151" },
+  [PropertyStatus.PLANNED]: { bg: "#e0f2fe", text: "#0369a1" },
 };
+
+const STATUS_COLOR_DEFAULT = { bg: "#f3f4f6", text: "#374151" };
+
+const statusColor = (status: string) =>
+  STATUS_COLOR_MAP[status] ?? STATUS_COLOR_DEFAULT;
 
 function formatLocation(property: any): string {
   const parts = [property.city];

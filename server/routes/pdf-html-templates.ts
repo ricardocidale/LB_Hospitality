@@ -1,159 +1,12 @@
 import { BRAND } from "./premium-export-prompts";
 import { logger } from "../logger";
+import { type ThemeColorMap, type PdfTemplateData, resolveThemeColors, adjustHex, esc } from "../pdf/theme-resolver";
+import { renderLineChartSection } from "../pdf/svg-charts";
+import { renderFinancialTableSection } from "../pdf/table-renderer";
+import { pageHeader } from "../pdf/theme-resolver";
 
-export interface ThemeColorMap {
-  navy: string;      // PALETTE: Primary — headers, cover bg
-  sage: string;      // PALETTE: Secondary — contrast badges
-  darkGreen: string; // PALETTE: Accent — titles, positive values
-  darkText: string;  // PALETTE: Foreground — body text
-  gray: string;      // PALETTE: Border — dividers, input outlines
-  altRow: string;    // PALETTE: Muted — zebra striping
-  sectionBg: string; // PALETTE: Background — page canvas
-  white: string;     // white / inverted text
-  lightGray: string; // derived from border or CHART: Chart 4 — muted footer text
-  negativeRed: string; // LINE: Line 3 or theme destructive — loss/negative
-  chart: string[];   // CHART: Chart 1–5 series (bar/area)
-  line: string[];    // LINE: Line 2–5 series (line trends), index 0 = accent
-}
-
-/** Map client theme colors to functional PDF roles using the semantic description labels
- *  that every theme consistently provides. Extracts PALETTE, CHART, and LINE categories.
- *  All colors resolve from the current theme — shades are derived from theme solids. */
-export function resolveThemeColors(themeColors?: Array<{name: string; hexCode: string; rank?: number; description?: string}>): ThemeColorMap {
-  const strip = (hex: string) => hex.replace(/^#/, "");
-
-  if (!themeColors?.length) {
-    return {
-      navy: BRAND.PRIMARY_HEX, sage: BRAND.SECONDARY_HEX, darkGreen: BRAND.ACCENT_HEX,
-      darkText: BRAND.FOREGROUND_HEX, gray: BRAND.BORDER_HEX,
-      altRow: BRAND.SURFACE_HEX, sectionBg: BRAND.BACKGROUND_HEX,
-      white: BRAND.WHITE_HEX, lightGray: BRAND.MUTED_HEX, negativeRed: BRAND.NEGATIVE_HEX,
-      chart: [BRAND.ACCENT_HEX, BRAND.SECONDARY_HEX, BRAND.PRIMARY_HEX, BRAND.MUTED_HEX, BRAND.BORDER_HEX],
-      line: [BRAND.ACCENT_HEX, BRAND.SECONDARY_HEX, BRAND.PRIMARY_HEX, BRAND.MUTED_HEX],
-    };
-  }
-
-  const entries = themeColors.map(c => ({
-    h: strip(c.hexCode),
-    d: (c.description || "").toLowerCase(),
-  }));
-
-  const byDesc = (...keywords: string[]): string | undefined => {
-    for (const c of entries) {
-      if (keywords.some(k => c.d.includes(k))) return c.h;
-    }
-    return undefined;
-  };
-
-  const collectByPrefix = (prefix: string): string[] => {
-    return entries
-      .filter(c => c.d.startsWith(prefix))
-      .sort((a, b) => {
-        const ra = themeColors.find(t => strip(t.hexCode) === a.h)?.rank ?? 99;
-        const rb = themeColors.find(t => strip(t.hexCode) === b.h)?.rank ?? 99;
-        return ra - rb;
-      })
-      .map(c => c.h);
-  };
-
-  const accent   = byDesc("palette: accent", "accent:")        ?? BRAND.ACCENT_HEX;
-  const border   = byDesc("palette: border")                   ?? BRAND.BORDER_HEX;
-  const chartArr = collectByPrefix("chart:");
-  const lineArr  = collectByPrefix("line:");
-  const negRed   = byDesc("line: line 3", "destructive")       ?? (lineArr[2] || adjustHex(accent, -60));
-
-  return {
-    navy:       byDesc("palette: primary")                  ?? BRAND.PRIMARY_HEX,
-    sage:       byDesc("palette: secondary")                ?? BRAND.SECONDARY_HEX,
-    darkGreen:  accent,
-    darkText:   byDesc("palette: foreground")               ?? BRAND.FOREGROUND_HEX,
-    gray:       border,
-    altRow:     byDesc("palette: muted")                    ?? BRAND.SURFACE_HEX,
-    sectionBg:  byDesc("palette: background")               ?? BRAND.BACKGROUND_HEX,
-    white:      byDesc("palette: background")               ?? BRAND.WHITE_HEX,
-    lightGray:  chartArr[3] || adjustHex(border, 30),
-    negativeRed: negRed,
-    chart:      chartArr.length ? chartArr : [accent, byDesc("palette: secondary") ?? BRAND.SECONDARY_HEX, byDesc("palette: primary") ?? BRAND.PRIMARY_HEX, adjustHex(border, 30), border],
-    line:       lineArr.length ? [accent, ...lineArr] : [accent, byDesc("palette: secondary") ?? BRAND.SECONDARY_HEX, byDesc("palette: primary") ?? BRAND.PRIMARY_HEX, adjustHex(border, 30)],
-  };
-}
-
-interface PdfTemplateData {
-  orientation: "landscape" | "portrait";
-  companyName: string;
-  entityName: string;
-  sections: any[];
-  reportTitle?: string;
-  colors?: ThemeColorMap;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════════════════════ */
-
-function esc(str: string): string {
-  if (!str) return "";
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
-
-function adjustHex(hex: string, amount: number): string {
-  const h = hex.replace(/^#/, "");
-  const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  return [clamp(r + amount), clamp(g + amount), clamp(b + amount)]
-    .map(c => c.toString(16).padStart(2, "0")).join("");
-}
-
-function isPercentageRow(category: string): boolean {
-  const c = (category || "").toLowerCase();
-  return c.includes("(%)") || c.includes("margin") || c === "occupancy"
-    || c.includes("cap rate") || c.includes("expense ratio");
-}
-
-function isMultiplierRow(category: string): boolean {
-  const c = (category || "").toLowerCase();
-  return c.includes("equity multiple") || c.includes("dscr");
-}
-
-function formatTableValue(v: any, category: string, format?: string): string {
-  if (typeof v === "string") return esc(v);
-  if (typeof v !== "number") return esc(String(v ?? ""));
-  if (isNaN(v)) return "\u2014";
-
-  if (format === "percentage" || isPercentageRow(category)) {
-    if (v === 0) return "\u2014";
-    const pct = Math.abs(v) <= 2 ? v * 100 : v;
-    if (Math.abs(pct) < 0.05) return "\u2014";
-    const cls = pct < 0 ? ' class="val-neg"' : "";
-    return pct < 0 ? `<span${cls}>(${Math.abs(pct).toFixed(1)}%)</span>` : `${pct.toFixed(1)}%`;
-  }
-
-  if (format === "multiplier" || isMultiplierRow(category)) {
-    if (v === 0) return "\u2014";
-    return v.toFixed(2) + "x";
-  }
-
-  if (v === 0) return "\u2014";
-  const abs = Math.abs(v);
-  const s = abs.toLocaleString("en-US", { maximumFractionDigits: 0 });
-  return v < 0 ? `<span class="val-neg">(${s})</span>` : s;
-}
-
-function fmtCompact(v: number): string {
-  if (v === 0) return "$0";
-  const abs = Math.abs(v);
-  const sign = v < 0 ? "-" : "";
-  if (abs >= 1_000_000_000) return `${sign}$${(abs / 1_000_000_000).toFixed(1)}B`;
-  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${sign}$${Math.round(abs / 1_000).toLocaleString()}K`;
-  return `${sign}$${abs.toFixed(0)}`;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   COVER PAGE — dark navy with sage accent bar, metadata card
-   ═══════════════════════════════════════════════════════════════ */
+export type { ThemeColorMap, PdfTemplateData };
+export { resolveThemeColors };
 
 function renderCoverSection(section: any, d: PdfTemplateData): string {
   const company = esc(d.companyName);
@@ -198,10 +51,6 @@ function renderCoverSection(section: any, d: PdfTemplateData): string {
     </div>`;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   TABLE OF CONTENTS
-   ═══════════════════════════════════════════════════════════════ */
-
 function renderTableOfContents(section: any, d: PdfTemplateData): string {
   const entries: { title: string; page: number }[] = section.content?.entries || [];
 
@@ -220,10 +69,6 @@ function renderTableOfContents(section: any, d: PdfTemplateData): string {
       <div class="toc-body">${rows}</div>
     </div>`;
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   EXECUTIVE SUMMARY
-   ═══════════════════════════════════════════════════════════════ */
 
 function renderExecutiveSummarySection(section: any, d: PdfTemplateData): string {
   const paragraphs: string[] = section.content?.paragraphs || [];
@@ -264,10 +109,6 @@ function renderExecutiveSummarySection(section: any, d: PdfTemplateData): string
     </div>`;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   KPI METRICS DASHBOARD
-   ═══════════════════════════════════════════════════════════════ */
-
 function renderMetricsDashboardSection(section: any, d: PdfTemplateData): string {
   const metrics: any[] = section.content?.metrics || [];
   const accentColors = d.colors
@@ -294,252 +135,9 @@ function renderMetricsDashboardSection(section: any, d: PdfTemplateData): string
     </div>`;
 }
 
-/* Bar chart renderer removed — all charts now use line_chart type */
-
-// Bar chart renderer removed — all charts now use renderLineChartSection
 function renderChartSection(_section: any, _d: PdfTemplateData): string {
   return "";
 }
-
-/* ═══════════════════════════════════════════════════════════════
-   LINE CHART — multi-series trend lines (Revenue, OpEx, ANOI)
-   ═══════════════════════════════════════════════════════════════ */
-
-function buildChartPalette(colors?: ThemeColorMap): string[] {
-  if (colors?.chart?.length) {
-    const base = colors.chart.map(c => `#${c}`);
-    while (base.length < 7) base.push(`#${adjustHex(colors.chart[base.length % colors.chart.length], 40)}`);
-    return base;
-  }
-  const dk = colors?.darkGreen || BRAND.ACCENT_HEX;
-  const sg = colors?.sage || BRAND.SECONDARY_HEX;
-  const nv = colors?.navy || BRAND.PRIMARY_HEX;
-  return [
-    `#${dk}`, `#${sg}`, `#${nv}`,
-    `#${adjustHex(dk, 30)}`, `#${adjustHex(sg, 30)}`,
-    `#${adjustHex(dk, 50)}`, `#${adjustHex(nv, 40)}`,
-  ];
-}
-
-/** Monotone cubic Bézier interpolation (Fritsch–Carlson) — produces smooth curves like Recharts type="monotone" */
-function monotoneCubicPath(pts: Array<{x: number; y: number}>): string {
-  if (pts.length < 2) return "";
-  if (pts.length === 2) return `M${pts[0].x},${pts[0].y}L${pts[1].x},${pts[1].y}`;
-
-  const n = pts.length;
-  const dx: number[] = [];
-  const dy: number[] = [];
-  const m: number[] = [];
-
-  for (let i = 0; i < n - 1; i++) {
-    dx.push(pts[i + 1].x - pts[i].x);
-    dy.push(pts[i + 1].y - pts[i].y);
-    m.push(dy[i] / dx[i]);
-  }
-
-  const alpha: number[] = [m[0]];
-  for (let i = 1; i < n - 1; i++) {
-    if (m[i - 1] * m[i] <= 0) {
-      alpha.push(0);
-    } else {
-      alpha.push(3 * (dx[i - 1] + dx[i]) / ((2 * dx[i] + dx[i - 1]) / m[i - 1] + (dx[i] + 2 * dx[i - 1]) / m[i]));
-    }
-  }
-  alpha.push(m[n - 2]);
-
-  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
-  for (let i = 0; i < n - 1; i++) {
-    const t = dx[i] / 3;
-    const cp1x = pts[i].x + t;
-    const cp1y = pts[i].y + alpha[i] * t;
-    const cp2x = pts[i + 1].x - t;
-    const cp2y = pts[i + 1].y - alpha[i + 1] * t;
-    d += `C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${pts[i + 1].x.toFixed(1)},${pts[i + 1].y.toFixed(1)}`;
-  }
-  return d;
-}
-
-function renderLineChartSection(section: any, d: PdfTemplateData): string {
-  const series: any[] = section.content?.series || [];
-  const years: string[] = section.content?.years || [];
-  if (!series.length || !years.length) return "";
-  const isL = d.orientation === "landscape";
-
-  const svgW = isL ? 700 : 440;
-  const svgH = isL ? 195 : 240;
-  const padL = 70, padR = 30, padT = 20, padB = 38;
-  const plotW = svgW - padL - padR;
-  const plotH = svgH - padT - padB;
-
-  // Compute global max across all series
-  let globalMax = 1;
-  for (const s of series) {
-    for (const v of (s.values || [])) {
-      if (typeof v === "number" && Math.abs(v) > globalMax) globalMax = Math.abs(v);
-    }
-  }
-  globalMax *= 1.08; // 8% headroom for labels
-
-  const chartGrid = d.colors?.gray || BRAND.BORDER_HEX;
-  const chartLabel = d.colors?.lightGray || BRAND.MUTED_HEX;
-  const chartText = d.colors?.darkText || BRAND.FOREGROUND_HEX;
-
-  // Y-axis grid — stronger lines, larger labels
-  const gridN = 5;
-  let gridSvg = "";
-  for (let g = 0; g <= gridN; g++) {
-    const y = padT + (plotH / gridN) * g;
-    const gVal = globalMax - (globalMax / gridN) * g;
-    gridSvg += `<line x1="${padL}" y1="${y}" x2="${svgW - padR}" y2="${y}" stroke="#${chartGrid}" stroke-width="0.7"/>`;
-    gridSvg += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#${chartLabel}" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${fmtCompact(gVal * (1 / 1.08))}</text>`;
-  }
-
-  // X-axis labels
-  let xLabels = "";
-  const n = years.length;
-  years.forEach((yr, i) => {
-    const x = padL + (i / Math.max(n - 1, 1)) * plotW;
-    const label = yr.length === 4 ? "'" + yr.slice(2) : yr;
-    xLabels += `<text x="${x}" y="${padT + plotH + 18}" text-anchor="middle" fill="#${chartLabel}" font-size="9" font-weight="500" font-family="Helvetica,Arial,sans-serif">${label}</text>`;
-  });
-
-  const palette = buildChartPalette(d.colors);
-
-  // Gradient defs for area fills
-  let defsSvg = "";
-  series.forEach((s: any, si: number) => {
-    const color = s.color || palette[si % palette.length];
-    const gradId = `area-grad-${si}`;
-    defsSvg += `
-      <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="${color}" stop-opacity="0.14"/>
-        <stop offset="100%" stop-color="${color}" stop-opacity="0.01"/>
-      </linearGradient>`;
-  });
-
-  // Series: area fills + smooth curves + precision dots
-  let seriesSvg = "";
-  series.forEach((s: any, si: number) => {
-    const color = s.color || palette[si % palette.length];
-    const values: number[] = (s.values || []).map((v: any) => typeof v === "number" ? v : 0);
-    if (values.length < 2) return;
-
-    const pts = values.map((v, i) => ({
-      x: padL + (i / Math.max(values.length - 1, 1)) * plotW,
-      y: padT + plotH - (v / globalMax) * plotH,
-    }));
-
-    // Smooth curve path
-    const curvePath = monotoneCubicPath(pts);
-
-    // Area fill (gradient under the curve)
-    const baseY = padT + plotH;
-    const areaPath = `${curvePath}L${pts[pts.length - 1].x.toFixed(1)},${baseY}L${pts[0].x.toFixed(1)},${baseY}Z`;
-    seriesSvg += `<path d="${areaPath}" fill="url(#area-grad-${si})" stroke="none"/>`;
-
-    // Fine-line curve — 1.5px for precision, matching on-screen Recharts appearance
-    seriesSvg += `<path d="${curvePath}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-
-    // Precision data-point markers: white fill + colored stroke, no outer glow
-    pts.forEach((p) => {
-      seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="#fff" stroke="${color}" stroke-width="1.5"/>`;
-      seriesSvg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="1.2" fill="${color}" stroke="none"/>`;
-    });
-  });
-
-  // Legend — fine line segment + marker + label
-  const legendY = svgH - 6;
-  const legendSpacing = isL ? 170 : 135;
-  const legendItems = series.map((s: any, si: number) => {
-    const color = s.color || palette[si % palette.length];
-    const xOff = si * legendSpacing;
-    return `
-      <line x1="${padL + xOff}" y1="${legendY}" x2="${padL + xOff + 16}" y2="${legendY}" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
-      <circle cx="${padL + xOff + 8}" cy="${legendY}" r="2" fill="#fff" stroke="${color}" stroke-width="1.2"/>
-      <text x="${padL + xOff + 22}" y="${legendY + 3.5}" fill="#${chartText}" font-size="9" font-weight="600" font-family="Helvetica,Arial,sans-serif">${esc(s.label || "")}</text>`;
-  }).join("");
-
-  return `
-    <div class="content-page">
-      ${pageHeader(esc(section.title || "Performance Trends"), d)}
-      <div class="line-chart-container">
-        <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" class="line-chart-svg" xmlns="http://www.w3.org/2000/svg">
-          <defs>${defsSvg}</defs>
-          ${gridSvg}
-          <line x1="${padL}" y1="${padT + plotH}" x2="${svgW - padR}" y2="${padT + plotH}" stroke="#${chartLabel}" stroke-width="1"/>
-          <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="#${chartGrid}" stroke-width="0.5"/>
-          ${xLabels}
-          ${seriesSvg}
-          ${legendItems}
-        </svg>
-      </div>
-    </div>`;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   FINANCIAL TABLE
-   ═══════════════════════════════════════════════════════════════ */
-
-function renderFinancialTableSection(section: any, d: PdfTemplateData): string {
-  const title = esc(section.title || "Financial Statement");
-  const years: string[] = section.content?.years || [];
-  const rows: any[] = section.content?.rows || [];
-
-  if (!years.length || !rows.length) {
-    return `
-      <div class="content-page">
-        ${pageHeader(title, d)}
-        <p class="empty-state">No financial data available for this section.</p>
-      </div>`;
-  }
-
-  const yearHeaders = years.map((yr: any) =>
-    `<th class="tbl-year">FY ${esc(String(yr))}</th>`
-  ).join("");
-
-  const bodyRows = rows.map((r: any, idx: number) => {
-    const isHeader = r.type === "header" || r.isHeader;
-    const isTotal = r.type === "total" || r.type === "subtotal" || r.isBold;
-    const isFormula = r.isItalic || r.type === "formula";
-    const indent = r.indent || 0;
-    const category = (r.category || "").trim();
-
-    // Skip empty separator rows (blank label + all zeros/nulls)
-    if (!category && (r.values || []).every((v: any) => v === 0 || v === null || v === "")) {
-      return `<tr class="row-spacer"><td colspan="${years.length + 1}" style="height:3mm;border:none"></td></tr>`;
-    }
-
-    let cls = "";
-    if (isHeader) cls = "row-header";
-    else if (isTotal) cls = "row-total";
-    else if (isFormula) cls = "row-formula";
-    else if (idx % 2 === 0) cls = "row-stripe";
-
-    const indentPx = indent * 14;
-    const label = esc(category);
-
-    // For header/section rows with all-zero values, render empty value cells (no em-dashes)
-    const allZero = (r.values || []).every((v: any) => v === 0 || v === null || v === "");
-    const vals = (r.values || []).map((v: any) =>
-      `<td class="tbl-val">${allZero && isHeader ? "" : formatTableValue(v, category, r.format)}</td>`
-    ).join("");
-
-    return `<tr class="${cls}"><td class="tbl-label" style="padding-left:${8 + indentPx}px">${label}</td>${vals}</tr>`;
-  }).join("");
-
-  return `
-    <div class="content-page">
-      ${pageHeader(title, d)}
-      <table class="fin-table">
-        <thead><tr><th class="tbl-label-hdr"></th>${yearHeaders}</tr></thead>
-        <tbody>${bodyRows}</tbody>
-      </table>
-    </div>`;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   ANALYSIS & INSIGHTS
-   ═══════════════════════════════════════════════════════════════ */
 
 function renderAnalysisSection(section: any, d: PdfTemplateData): string {
   const insights: string[] = section.content?.insights || [];
@@ -580,28 +178,6 @@ function renderAnalysisSection(section: any, d: PdfTemplateData): string {
     </div>`;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   SHARED: branded navy page header (28mm bar + 2mm sage accent)
-   ═══════════════════════════════════════════════════════════════ */
-
-function pageHeader(title: string, d: PdfTemplateData): string {
-  return `
-    <div class="page-hdr">
-      <div class="page-hdr-bar">
-        <div class="page-hdr-left">
-          <h2 class="page-hdr-title">${esc(title)}</h2>
-          <span class="page-hdr-sub">${esc(d.companyName)} \u2014 ${esc(d.entityName)}</span>
-        </div>
-        <span class="page-hdr-brand">${esc(d.companyName)}</span>
-      </div>
-      <div class="page-hdr-accent"></div>
-    </div>`;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   MAIN: assemble HTML document
-   ═══════════════════════════════════════════════════════════════ */
-
 export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
   const sections = aiResult.sections || [];
   const isL = data.orientation === "landscape";
@@ -623,7 +199,6 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
     }
   }
 
-  // Use theme colors if provided, fall back to BRAND defaults
   const c = data.colors || resolveThemeColors();
   const NAVY = `#${c.navy}`;
   const SAGE = `#${c.sage}`;
@@ -639,9 +214,6 @@ export function buildPdfHtml(aiResult: any, data: PdfTemplateData): string {
 <meta charset="utf-8"/>
 <title>${esc(data.reportTitle || data.companyName + " Report")}</title>
 <style>
-/* ────────────────────────────────────────────
-   RESET & BASE
-   ──────────────────────────────────────────── */
 @page { size: ${pageW} ${pageH}; margin: 0; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -655,9 +227,6 @@ body {
 }
 .val-neg { color: #${c.negativeRed}; }
 
-/* ────────────────────────────────────────────
-   COVER PAGE — dark navy
-   ──────────────────────────────────────────── */
 .cover-page {
   width: ${pageW}; height: ${pageH};
   background: linear-gradient(155deg, #${adjustHex(c.navy, 12)} 0%, ${NAVY} 35%, #${adjustHex(c.navy, -8)} 100%);
@@ -688,7 +257,6 @@ body {
   border: 1px solid ${SAGE}14;
   border-radius: 50%;
 }
-/* Vertical sage accent bar beside company name */
 .cover-sage-bar {
   position: absolute;
   left: ${isL ? "35mm" : "23mm"};
@@ -732,7 +300,6 @@ body {
   font-size: 11pt; color: rgba(255,255,255,0.5);
   font-weight: 300; margin-bottom: 8mm;
 }
-/* Metadata card with navy bg + sage border */
 .cover-meta-card {
   margin-top: 14mm;
   background: rgba(26,35,50,0.6);
@@ -764,9 +331,6 @@ body {
   font-style: italic; line-height: 1.6;
 }
 
-/* ────────────────────────────────────────────
-   CONTENT PAGES
-   ──────────────────────────────────────────── */
 .content-page {
   width: ${pageW};
   height: ${pageH};
@@ -783,7 +347,6 @@ body {
   background: linear-gradient(90deg, ${SAGE}, ${DK});
 }
 
-/* ── Branded Page Header: Navy bar (28mm) + Sage accent (2mm) ── */
 .page-hdr {
   flex-shrink: 0;
   margin: 0 -22mm 5mm;
@@ -817,9 +380,6 @@ body {
   border-radius: 0 0 1mm 1mm;
 }
 
-/* ────────────────────────────────────────────
-   TABLE OF CONTENTS
-   ──────────────────────────────────────────── */
 .toc-body {
   flex: 1; display: flex; flex-direction: column;
   justify-content: center;
@@ -851,9 +411,6 @@ body {
   flex-shrink: 0;
 }
 
-/* ────────────────────────────────────────────
-   EXECUTIVE SUMMARY
-   ──────────────────────────────────────────── */
 .summary-body { flex: 1; display: flex; flex-direction: column; }
 .summary-text-block { margin-bottom: 4mm; }
 .summary-para {
@@ -892,9 +449,6 @@ body {
   font-size: 7pt; color: ${GR}; line-height: 1.4;
 }
 
-/* ────────────────────────────────────────────
-   KPI METRICS
-   ──────────────────────────────────────────── */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(${isL ? 3 : 2}, 1fr);
@@ -919,9 +473,6 @@ body {
   max-width: 90%; margin: 0 auto;
 }
 
-/* ────────────────────────────────────────────
-   BAR CHARTS — ${isL ? "2x2 grid" : "stacked"}
-   ──────────────────────────────────────────── */
 .chart-page .chart-grid {
   display: grid;
   grid-template-columns: ${isL ? "1fr 1fr" : "1fr"};
@@ -950,9 +501,6 @@ body {
   padding: 2mm 3mm 1mm;
 }
 
-/* ────────────────────────────────────────────
-   LINE CHART
-   ──────────────────────────────────────────── */
 .line-chart-container {
   display: flex; align-items: center; justify-content: center;
   break-inside: avoid; overflow: visible;
@@ -966,9 +514,6 @@ body {
   break-inside: avoid;
 }
 
-/* ────────────────────────────────────────────
-   FINANCIAL TABLES
-   ──────────────────────────────────────────── */
 .fin-table {
   width: 100%; border-collapse: collapse;
   font-size: ${isL ? "9pt" : "8.5pt"};
@@ -1028,9 +573,6 @@ body {
   background: ${ALT};
 }
 
-/* ────────────────────────────────────────────
-   ANALYSIS & INSIGHTS
-   ──────────────────────────────────────────── */
 .analysis-body { flex: 1; }
 .insights-list { margin-bottom: 6mm; }
 .insight-block {

@@ -37,7 +37,7 @@ export function register(app: Express) {
       const h = typeof height === "number" && height > 0 ? Math.min(height, 4096) : 800;
       const s = typeof scale === "number" && scale > 0 ? Math.min(scale, 4) : 2;
 
-      const { renderPngIsolated } = await import("../pdf/browser-renderer");
+      const { renderPngIsolated } = await import("../browser-renderer");
       const pngBuffer = await renderPngIsolated(sanitized, { width: w, height: h, scale: s });
 
       res.setHeader("Content-Type", "image/png");

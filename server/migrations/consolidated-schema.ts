@@ -20,7 +20,7 @@ export async function bootstrapDrizzleMigrationState(): Promise<void> {
   const result = await db.execute(
     sql`SELECT COUNT(*)::int AS cnt FROM drizzle."__drizzle_migrations"`
   );
-  const count = (result as { rows: Array<{ cnt: number }> }).rows[0]?.cnt ?? 0;
+  const count = (result as unknown as { rows: Array<{ cnt: number }> }).rows[0]?.cnt ?? 0;
   if (count > 0) {
     logger.info(`[${TAG}] Drizzle migration state already bootstrapped (${count} entries)`);
     return;
@@ -32,7 +32,7 @@ export async function bootstrapDrizzleMigrationState(): Promise<void> {
       WHERE table_schema = 'public' AND table_name = 'properties'
     ) AS has_base_tables
   `);
-  const isLegacyDb = (legacyCheck as { rows: Array<{ has_base_tables: boolean }> }).rows[0]?.has_base_tables === true;
+  const isLegacyDb = (legacyCheck as unknown as { rows: Array<{ has_base_tables: boolean }> }).rows[0]?.has_base_tables === true;
 
   if (!isLegacyDb) {
     logger.info(`[${TAG}] Fresh database detected — Drizzle migrate() will run all migrations from scratch`);

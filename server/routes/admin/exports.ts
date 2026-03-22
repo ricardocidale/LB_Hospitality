@@ -136,7 +136,7 @@ export function registerExportConfigRoutes(app: Express) {
         statements: { ...current.statements, ...(incoming.statements ?? {}) },
         analysis: { ...current.analysis, ...(incoming.analysis ?? {}) },
       };
-      await storage.upsertGlobalAssumptions({ exportConfig: merged } as InsertGlobalAssumptions);
+      await storage.upsertGlobalAssumptions({ exportConfig: merged } as unknown as InsertGlobalAssumptions);
       res.json(merged);
     } catch (error) {
       logAndSendError(res, "Failed to save export config", error);

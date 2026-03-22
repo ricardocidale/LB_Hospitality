@@ -8,7 +8,6 @@ import { compileReport } from "../report/compiler";
 import { generateExcelFromReport } from "./format-generators/excel-generator";
 import { generatePptxFromReport } from "./format-generators/pptx-generator";
 import { generateDocxFromReport } from "./format-generators/docx-generator";
-import { generatePngFromReport } from "./format-generators/png-generator";
 
 const exportRowSchema = z.object({
   category: z.string(),
@@ -21,7 +20,7 @@ const exportRowSchema = z.object({
 });
 
 const premiumExportSchema = z.object({
-  format: z.enum(["xlsx", "pptx", "pdf", "docx", "png"]),
+  format: z.enum(["xlsx", "pptx", "pdf", "docx"]),
   orientation: z.enum(["landscape", "portrait"]).optional().default("landscape"),
   version: z.enum(["short", "extended"]).optional().default("short"),
   entityName: z.string(),
@@ -64,7 +63,6 @@ const CONTENT_TYPES: Record<string, string> = {
   pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   pdf: "application/pdf",
   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  png: "application/zip",
 };
 
 const FORMAT_EXTENSIONS: Record<string, string> = {
@@ -72,7 +70,6 @@ const FORMAT_EXTENSIONS: Record<string, string> = {
   pptx: ".pptx",
   pdf: ".pdf",
   docx: ".docx",
-  png: ".zip",
 };
 
 const DEFAULT_REPORT_TYPE: Record<string, string> = {
@@ -96,10 +93,6 @@ async function generateViaTemplatePipeline(
     case "xlsx": {
       logger.info(`[template] Building Excel from compiled report (no AI call)...`, "premium-export");
       return generateExcelFromReport(report);
-    }
-    case "png": {
-      logger.info(`[template] Building PNG ZIP from compiled report (no AI call)...`, "premium-export");
-      return generatePngFromReport(report);
     }
     case "pptx": {
       logger.info(`[template] Building PPTX from compiled report (no AI call)...`, "premium-export");
@@ -161,6 +154,6 @@ export function register(app: Express) {
   });
 
   app.get("/api/exports/premium/status", requireAuth, async (_req: Request, res: Response) => {
-    res.json({ available: true, formats: ["xlsx", "pptx", "pdf", "docx", "png"] });
+    res.json({ available: true, formats: ["xlsx", "pptx", "pdf", "docx"] });
   });
 }

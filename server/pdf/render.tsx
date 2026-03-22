@@ -4,6 +4,7 @@ import { type PdfTheme, themeFromColorMap } from "./theme";
 import type { ReportDefinition, ReportSection, TableRow as IRTableRow, FormattedValue, DesignTokens } from "../report/types";
 import { compileReport, type CompileInput } from "../report/compiler";
 import { logger } from "../logger";
+import { applyDesignPass, DEFAULT_HINTS, type LayoutHints } from "./design-pass";
 
 const MM_TO_PT = 2.83465;
 const PAGE_LANDSCAPE: [number, number] = [406.4 * MM_TO_PT, 228.6 * MM_TO_PT];
@@ -67,8 +68,8 @@ function PageHeader({ title, companyName, entityName, theme }: { title: string; 
     <View style={{ marginBottom: 14 }}>
       <View style={{ backgroundColor: theme.primary, padding: "12 20 10 20", borderBottomLeftRadius: 6, borderBottomRightRadius: 6, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
         <View>
-          <Text style={{ fontSize: 16, fontWeight: "bold", color: "#ffffff", fontFamily: "Helvetica-Bold" }}>{title}</Text>
-          <Text style={{ fontSize: 7.5, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{companyName} — {entityName}</Text>
+          <Text style={{ fontSize: 16, fontWeight: "bold", color: theme.white, fontFamily: "Helvetica-Bold" }}>{title}</Text>
+          <Text style={{ fontSize: 7.5, color: theme.muted, marginTop: 2 }}>{companyName} — {entityName}</Text>
         </View>
         <Text style={{ fontSize: 7, color: theme.secondary, fontWeight: "bold", fontFamily: "Helvetica-Bold" }}>{companyName}</Text>
       </View>
@@ -87,11 +88,21 @@ function PageFooter({ companyName, theme }: { companyName: string; theme: PdfThe
   );
 }
 
+const DENSITY_PADDING: Record<string, string> = {
+  cramped: "3 6",
+  comfortable: "6 10",
+  spacious: "8 12",
+};
 
-function KpiCards({ title, metrics, companyName, entityName, theme, isLandscape }: {
-  title: string; metrics: Array<{ label: string; value: string; description?: string }>; companyName: string; entityName: string; theme: PdfTheme; isLandscape: boolean;
+function KpiCards({ title, metrics, companyName, entityName, theme, isLandscape, hints }: {
+  title: string;
+  metrics: Array<{ label: string; value: string; description?: string }>;
+  companyName: string;
+  entityName: string;
+  theme: PdfTheme;
+  isLandscape: boolean;
+  hints: LayoutHints;
 }) {
-  const accentColors = [theme.accent, theme.primary, theme.secondary, theme.accent, theme.primary, theme.secondary];
   const pageSize: [number, number] = isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT;
   const cols = isLandscape ? 3 : 2;
 
@@ -101,20 +112,21 @@ function KpiCards({ title, metrics, companyName, entityName, theme, isLandscape 
   }
 
   return (
-    <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: "#ffffff" }}>
+    <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: theme.white }}>
       <PageHeader title={title} companyName={companyName} entityName={entityName} theme={theme} />
       <View style={{ flexDirection: "column", gap: 12 }}>
         {rows.map((row, ri) => (
           <View key={ri} style={{ flexDirection: "row", gap: 12 }}>
             {row.map((m, mi) => {
-              const idx = ri * cols + mi;
-              const color = accentColors[idx % accentColors.length];
+              const isEmphasized = hints.emphasizedKpis.includes(m.label);
+              const valueColor = isEmphasized ? theme.accent : theme.primary;
+              const borderWidth = isEmphasized ? 4 : 3;
               return (
-                <View key={mi} style={{ flex: 1, backgroundColor: theme.muted, borderWidth: 1, borderColor: theme.border, borderRadius: 7, overflow: "hidden", alignItems: "center" }}>
-                  <View style={{ height: 7, backgroundColor: color, width: "100%" }} />
-                  <View style={{ padding: "16 14 18 14", alignItems: "center" }}>
-                    <Text style={{ fontSize: 24, fontWeight: "bold", fontFamily: "Helvetica-Bold", color, marginBottom: 5 }}>{m.value}</Text>
-                    <Text style={{ fontSize: 8.5, color: theme.border, fontWeight: "bold", fontFamily: "Helvetica-Bold", textAlign: "center", marginBottom: 4 }}>{m.label}</Text>
+                <View key={mi} style={{ flex: 1, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 7, overflow: "hidden", flexDirection: "row" }}>
+                  <View style={{ width: borderWidth, backgroundColor: theme.accent }} />
+                  <View style={{ flex: 1, padding: "16 14 18 14", alignItems: "center" }}>
+                    <Text style={{ fontSize: Math.round(28 * hints.globalFontSizeScale), fontWeight: "bold", fontFamily: "Helvetica-Bold", color: valueColor, marginBottom: 5 }}>{m.value}</Text>
+                    <Text style={{ fontSize: 8.5, color: theme.foreground, fontWeight: "bold", fontFamily: "Helvetica-Bold", textAlign: "center", marginBottom: 4 }}>{m.label}</Text>
                     {m.description ? <Text style={{ fontSize: 6.5, color: theme.border, textAlign: "center" }}>{m.description}</Text> : null}
                   </View>
                 </View>
@@ -128,19 +140,28 @@ function KpiCards({ title, metrics, companyName, entityName, theme, isLandscape 
   );
 }
 
-function FinancialTable({ title, years, rows, companyName, entityName, theme, isLandscape }: {
-  title: string; years: string[]; rows: IRTableRow[]; companyName: string; entityName: string; theme: PdfTheme; isLandscape: boolean;
+function FinancialTable({ title, years, rows, companyName, entityName, theme, isLandscape, hints }: {
+  title: string;
+  years: string[];
+  rows: IRTableRow[];
+  companyName: string;
+  entityName: string;
+  theme: PdfTheme;
+  isLandscape: boolean;
+  hints: LayoutHints;
 }) {
   const pageSize: [number, number] = isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT;
   const colWidth = isLandscape
     ? (PAGE_LANDSCAPE[0] - 120 - 140) / Math.max(years.length, 1)
     : (PAGE_PORTRAIT[0] - 100 - 110) / Math.max(years.length, 1);
   const labelWidth = isLandscape ? 140 : 110;
-  const fontSize = isLandscape ? 7.5 : 7;
+  const dataFontSize = Math.round(9 * hints.globalFontSizeScale);
+  const headerFontSize = Math.round(10 * hints.globalFontSizeScale);
+  const cellPadding = DENSITY_PADDING[hints.tableDensity] || "6 10";
 
   if (!years.length || !rows.length) {
     return (
-      <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: "#ffffff" }}>
+      <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: theme.white }}>
         <PageHeader title={title} companyName={companyName} entityName={entityName} theme={theme} />
         <Text style={{ fontSize: 10, color: theme.border, textAlign: "center", paddingTop: 80 }}>No financial data available for this section.</Text>
         <PageFooter companyName={companyName} theme={theme} />
@@ -149,16 +170,16 @@ function FinancialTable({ title, years, rows, companyName, entityName, theme, is
   }
 
   return (
-    <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: "#ffffff" }}>
+    <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: theme.white }}>
       <PageHeader title={title} companyName={companyName} entityName={entityName} theme={theme} />
       <View style={{ borderWidth: 0.5, borderColor: theme.secondary, borderRadius: 5, overflow: "hidden" }}>
         <View style={{ flexDirection: "row", backgroundColor: theme.surface, borderBottomWidth: 2, borderBottomColor: theme.accent }}>
           <View style={{ width: labelWidth, padding: "6 8" }}>
-            <Text style={{ fontSize, fontWeight: "bold", fontFamily: "Helvetica-Bold", color: theme.primary }}> </Text>
+            <Text style={{ fontSize: headerFontSize, fontWeight: "bold", fontFamily: "Helvetica-Bold", color: theme.primary }}> </Text>
           </View>
           {years.map((yr, i) => (
             <View key={i} style={{ width: colWidth, padding: "6 4", alignItems: "flex-end" }}>
-              <Text style={{ fontSize, fontWeight: "bold", fontFamily: "Helvetica-Bold", color: theme.primary }}>FY {yr}</Text>
+              <Text style={{ fontSize: headerFontSize, fontWeight: "bold", fontFamily: "Helvetica-Bold", color: theme.primary }}>FY {yr}</Text>
             </View>
           ))}
         </View>
@@ -175,8 +196,20 @@ function FinancialTable({ title, years, rows, companyName, entityName, theme, is
             return <View key={idx} style={{ height: 8 }} />;
           }
 
-          const bgColor = isHeader ? theme.surface : isTotal ? "#ffffff" : idx % 2 === 0 ? theme.muted : "#ffffff";
-          const borderTop = isHeader ? { borderTopWidth: 1.5, borderTopColor: theme.secondary } : isTotal ? { borderTopWidth: 1.5, borderTopColor: theme.border } : {};
+          const bgColor = isHeader
+            ? theme.surface
+            : isTotal
+              ? theme.surface
+              : idx % 2 === 0
+                ? theme.muted
+                : theme.white;
+          const borderTop = isHeader
+            ? { borderTopWidth: 1.5, borderTopColor: theme.secondary }
+            : isTotal
+              ? { borderTopWidth: 1.5, borderTopColor: theme.border }
+              : {};
+
+          const rowFontSize = (isHeader || isTotal) ? headerFontSize : dataFontSize;
 
           const allZero = row.values.every((fv) => {
             const r = fv.raw;
@@ -185,9 +218,9 @@ function FinancialTable({ title, years, rows, companyName, entityName, theme, is
 
           return (
             <View key={idx} style={{ flexDirection: "row", backgroundColor: bgColor, ...borderTop }}>
-              <View style={{ width: labelWidth, padding: "4 8", paddingLeft: 8 + row.indent * 10 }}>
+              <View style={{ width: labelWidth, padding: cellPadding, paddingLeft: 8 + row.indent * 10 }}>
                 <Text style={{
-                  fontSize,
+                  fontSize: rowFontSize,
                   fontWeight: isHeader || isTotal ? "bold" : "normal",
                   fontFamily: isHeader || isTotal ? "Helvetica-Bold" : "Helvetica",
                   color: isHeader || isTotal ? theme.primary : theme.foreground,
@@ -196,9 +229,9 @@ function FinancialTable({ title, years, rows, companyName, entityName, theme, is
               {row.values.map((fv, vi) => {
                 const displayText = allZero && isHeader ? "" : fv.text;
                 return (
-                  <View key={vi} style={{ width: colWidth, padding: "4 4", alignItems: "flex-end" }}>
+                  <View key={vi} style={{ width: colWidth, padding: cellPadding, alignItems: "flex-end" }}>
                     <Text style={{
-                      fontSize,
+                      fontSize: rowFontSize,
                       fontWeight: isHeader || isTotal ? "bold" : "normal",
                       fontFamily: isHeader || isTotal ? "Helvetica-Bold" : "Courier",
                       color: fv.negative ? theme.negativeRed : theme.foreground,
@@ -215,7 +248,7 @@ function FinancialTable({ title, years, rows, companyName, entityName, theme, is
   );
 }
 
-function LineChart({ title, series, years, companyName, entityName, theme, isLandscape }: {
+function LineChart({ title, series, years, companyName, entityName, theme, isLandscape, hints }: {
   title: string;
   series: Array<{ label: string; values: number[]; color: string }>;
   years: string[];
@@ -223,6 +256,7 @@ function LineChart({ title, series, years, companyName, entityName, theme, isLan
   entityName: string;
   theme: PdfTheme;
   isLandscape: boolean;
+  hints: LayoutHints;
 }) {
   const pageSize: [number, number] = isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT;
   if (!series.length || !years.length) return null;
@@ -232,6 +266,7 @@ function LineChart({ title, series, years, companyName, entityName, theme, isLan
   const padL = 70, padR = 30, padT = 20, padB = 50;
   const plotW = svgW - padL - padR;
   const plotH = svgH - padT - padB;
+  const baselineY = padT + plotH;
 
   let globalMax = 1;
   for (const s of series) {
@@ -242,8 +277,10 @@ function LineChart({ title, series, years, companyName, entityName, theme, isLan
   globalMax *= 1.08;
   const gridN = 5;
 
+  const legendItemWidth = isLandscape ? 150 : 110;
+
   return (
-    <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: "#ffffff" }}>
+    <Page size={pageSize} style={{ paddingTop: 10, paddingHorizontal: isLandscape ? 60 : 50, paddingBottom: 30, backgroundColor: theme.white }}>
       <PageHeader title={title} companyName={companyName} entityName={entityName} theme={theme} />
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <Svg viewBox={`0 0 ${svgW} ${svgH}`} style={{ width: "100%", maxHeight: isLandscape ? 320 : 380 }}>
@@ -268,7 +305,8 @@ function LineChart({ title, series, years, companyName, entityName, theme, isLan
           })}
 
           {series.map((s, si) => {
-            const color = s.color || theme.chart[si % theme.chart.length];
+            const seriesColorList = hints.seriesColors.length > 0 ? hints.seriesColors : theme.chart;
+            const color = s.color || seriesColorList[si % seriesColorList.length];
             const values: number[] = (s.values || []).map((v) => typeof v === "number" ? v : 0);
             if (values.length < 2) return null;
             const pts = values.map((v, i) => ({
@@ -276,12 +314,16 @@ function LineChart({ title, series, years, companyName, entityName, theme, isLan
               y: padT + plotH - (v / globalMax) * plotH,
             }));
             const curvePath = monotoneCubicPath(pts);
+            const firstPt = pts[0];
+            const lastPt = pts[pts.length - 1];
+            const fillPath = `${curvePath} L${lastPt.x.toFixed(1)},${baselineY} L${firstPt.x.toFixed(1)},${baselineY} Z`;
             return (
               <G key={`series-${si}`}>
-                <Path d={curvePath} fill="none" stroke={color} strokeWidth={1.5} />
+                <Path d={fillPath} fill={color} fillOpacity={hints.chartAreaOpacity} stroke="none" />
+                <Path d={curvePath} fill="none" stroke={color} strokeWidth={2} />
                 {pts.map((p, pi) => (
                   <G key={`dot-${pi}`}>
-                    <Circle cx={p.x} cy={p.y} r={2.5} fill="#ffffff" stroke={color} strokeWidth={1.5} />
+                    <Circle cx={p.x} cy={p.y} r={2.5} fill={theme.white} stroke={color} strokeWidth={1.5} />
                     <Circle cx={p.x} cy={p.y} r={1.2} fill={color} />
                   </G>
                 ))}
@@ -290,14 +332,15 @@ function LineChart({ title, series, years, companyName, entityName, theme, isLan
           })}
 
           {series.map((s, si) => {
-            const color = s.color || theme.chart[si % theme.chart.length];
-            const xOff = si * (isLandscape ? 160 : 120);
-            const legendY = svgH - 10;
+            const seriesColorList = hints.seriesColors.length > 0 ? hints.seriesColors : theme.chart;
+            const color = s.color || seriesColorList[si % seriesColorList.length];
+            const legendX = svgW - padR - (series.length - si) * legendItemWidth;
+            const legendY = padT + 10;
             return (
               <G key={`legend-${si}`}>
-                <Line x1={padL + xOff} y1={legendY} x2={padL + xOff + 16} y2={legendY} stroke={color} strokeWidth={1.5} />
-                <Circle cx={padL + xOff + 8} cy={legendY} r={2} fill="#ffffff" stroke={color} strokeWidth={1.2} />
-                <Text x={padL + xOff + 22} y={legendY + 3} style={{ fontSize: 8, fontWeight: 600 }} fill={theme.foreground}>{s.label || ""}</Text>
+                <Line x1={legendX} y1={legendY} x2={legendX + 16} y2={legendY} stroke={color} strokeWidth={2} />
+                <Circle cx={legendX + 8} cy={legendY} r={2} fill={theme.white} stroke={color} strokeWidth={1.2} />
+                <Text x={legendX + 22} y={legendY + 3} style={{ fontSize: 8, fontWeight: 600 }} fill={theme.foreground}>{s.label || ""}</Text>
               </G>
             );
           })}
@@ -316,11 +359,13 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
     report = compileReport(input as CompileInput);
   }
 
+  const hints = await applyDesignPass(report).catch(() => DEFAULT_HINTS);
+
   const theme = tokensToTheme(report.tokens);
   const { cover, orientation, sections } = report;
   const isLandscape = orientation === "landscape";
 
-  logger.info(`[react-pdf] Building ${sections.length} sections (landscape=${isLandscape})`, "premium-export");
+  logger.info(`[react-pdf] Building ${sections.length} sections (landscape=${isLandscape}, density=${hints.tableDensity}, fontScale=${hints.globalFontSizeScale})`, "premium-export");
 
   const doc = (
     <Document title={cover.reportTitle} author={cover.companyName} subject="Financial Report" creator="H+ Analytics">
@@ -336,6 +381,7 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
                 entityName={cover.entityName}
                 theme={theme}
                 isLandscape={isLandscape}
+                hints={hints}
               />
             );
           case "table":
@@ -349,6 +395,7 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
                 entityName={cover.entityName}
                 theme={theme}
                 isLandscape={isLandscape}
+                hints={hints}
               />
             );
           case "chart":
@@ -362,6 +409,7 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
                 entityName={cover.entityName}
                 theme={theme}
                 isLandscape={isLandscape}
+                hints={hints}
               />
             );
           default:
@@ -370,7 +418,7 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
       })}
 
       {sections.length === 0 && (
-        <Page size={isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT} style={{ paddingTop: 10, paddingHorizontal: 60, paddingBottom: 30, backgroundColor: "#ffffff" }}>
+        <Page size={isLandscape ? PAGE_LANDSCAPE : PAGE_PORTRAIT} style={{ paddingTop: 10, paddingHorizontal: 60, paddingBottom: 30, backgroundColor: theme.white }}>
           <PageHeader title="Financial Report" companyName={cover.companyName} entityName={cover.entityName} theme={theme} />
           <Text style={{ fontSize: 10, color: theme.border, textAlign: "center", paddingTop: 80 }}>No financial data available for export.</Text>
           <PageFooter companyName={cover.companyName} theme={theme} />

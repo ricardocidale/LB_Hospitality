@@ -12,7 +12,7 @@ const routeSource = fs.readFileSync(
 
 describe("Premium export route structure audit", () => {
   it("validates request with zod schema requiring format enum", () => {
-    expect(routeSource).toContain('z.enum(["xlsx", "pptx", "pdf", "docx", "png"])');
+    expect(routeSource).toContain('z.enum(["xlsx", "pptx", "pdf", "docx"])');
   });
 
   it("defines all four content types", () => {
@@ -189,13 +189,12 @@ describe("Cover page removal", () => {
     expect(pptxSource).not.toContain("includeCoverPage");
   });
 
-  it("PNG generator has no cover page logic", () => {
-    const pngSource = fs.readFileSync(
-      path.resolve(__dirname, "../../server/routes/format-generators/png-generator.ts"),
+  it("PNG format has been removed from premium exports", () => {
+    const premiumExportsSource = fs.readFileSync(
+      path.resolve(__dirname, "../../server/routes/premium-exports.ts"),
       "utf-8"
     );
-    expect(pngSource).not.toContain("includeCoverPage");
-    expect(pngSource).not.toContain('"cover"');
+    expect(premiumExportsSource).not.toContain('"png"');
   });
 });
 

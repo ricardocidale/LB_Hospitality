@@ -91,7 +91,7 @@ export const KB_EMBEDDING_BATCH_SIZE = 20;
 // Route-level limits
 // ---------------------------------------------------------------------------
 
-/** Maximum HTML size for render-png endpoint (bytes) */
+/** Maximum HTML size for HTML-based endpoints (bytes) */
 export const MAX_HTML_SIZE = 5 * 1024 * 1024;
 
 /** Maximum document upload size for document extraction (bytes) */

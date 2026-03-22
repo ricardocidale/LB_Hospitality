@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
 export type ExportVersion = "short" | "extended";
-export type PremiumFormat = "xlsx" | "pptx" | "pdf" | "docx" | "png";
+export type PremiumFormat = "xlsx" | "pptx" | "pdf" | "docx";
 
 const ORIENTATION_KEY = "export-orientation";
 const VERSION_KEY = "export-version";

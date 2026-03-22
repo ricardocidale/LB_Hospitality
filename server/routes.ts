@@ -28,7 +28,6 @@ import * as notificationRoutes from "./routes/notifications";
 import * as documentRoutes from "./routes/documents";
 import * as geoRoutes from "./routes/geo";
 import * as icpResearchRoutes from "./routes/icp-research";
-import * as renderPngRoutes from "./routes/render-png";
 import * as googleDriveRoutes from "./routes/google-drive";
 
 export async function registerRoutes(
@@ -63,7 +62,6 @@ export async function registerRoutes(
   documentRoutes.register(app);
   geoRoutes.register(app);
   icpResearchRoutes.register(app);
-  renderPngRoutes.register(app);
   googleDriveRoutes.register(app);
 
   registerTwilioWebSocket(httpServer);

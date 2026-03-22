@@ -245,11 +245,11 @@ Investment Performance (IRR gauge), KPI cards, Revenue & ANOI chart, Portfolio t
 
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
 - **Unified Report Compiler**: `server/report/compiler.ts` — single `compileReport()` function produces a `ReportDefinition` IR (types in `server/report/types.ts`) consumed by all 5 format renderers. Consolidates section selection, value formatting, formula-row filtering, chart series extraction, investment section splitting, and theme resolution into one place. SVG chart assets rendered by `server/report/svg-charts.ts`.
-- **Premium Export**: `POST /api/exports/premium` — All 5 formats (PDF, PPTX, DOCX, XLSX, PNG) compile once via `compileReport()` then dispatch to format-specific renderers. No LLM calls for any format.
-- **Format renderers**: PDF (`server/pdf/render.tsx` via @react-pdf/renderer), PPTX (`generatePptxFromReport`), XLSX (`generateExcelFromReport`), DOCX (`generateDocxFromReport`), PNG (`generatePngFromReport` via browser screenshots). Each accepts a `ReportDefinition` with pre-formatted values and design tokens.
+- **Premium Export**: `POST /api/exports/premium` — All 4 formats (PDF, PPTX, DOCX, XLSX) compile once via `compileReport()` then dispatch to format-specific renderers. PDF uses an LLM Design Pass for layout intelligence. PNG format has been removed.
+- **LLM Design Pass**: `server/pdf/design-pass.ts` — `applyDesignPass()` makes a fast Claude call (<4s budget) returning `LayoutHints` (font scale, table density, chart area opacity, emphasized KPIs). Falls back to `DEFAULT_HINTS` on failure/timeout. Wide tables (≥10 years) default to 0.88 font scale.
+- **Format renderers**: PDF (`server/pdf/render.tsx` via @react-pdf/renderer with LayoutHints), PPTX (`generatePptxFromReport`), XLSX (`generateExcelFromReport`), DOCX (`generateDocxFromReport`). Each accepts a `ReportDefinition` with pre-formatted values and design tokens.
 - **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (SVG foreignObject + Canvas capture via `domCapture.ts`)
 - **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and browser-rendered PDF exports use these dimensions.
-- **Browser abstraction**: `server/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Used for PNG rendering only (not PDF). Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers.
 - **Three Cardinal Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements/analysis for the entity — never just the current tab. Same for premium and non-premium.

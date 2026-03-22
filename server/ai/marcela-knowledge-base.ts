@@ -3,11 +3,10 @@ import { storage } from "../storage";
 import { logger } from "../logger";
 import fs from "fs/promises";
 import path from "path";
-import { readFileSync } from "fs";
+import seedUsersConfig from "../seed-users.json" with { type: "json" };
 
-const seedUsersData = JSON.parse(readFileSync(path.join(process.cwd(), "server/seed-users.json"), "utf-8"));
-const adminUsers = seedUsersData.users.filter((u: { role: string }) => u.role === "admin");
-const adminNameList = adminUsers.map((u: { firstName: string; lastName?: string }) => `${u.firstName}${u.lastName ? ` ${u.lastName}` : ""}`).join(" and ");
+const adminUsers = seedUsersConfig.users.filter((u) => u.role === "admin");
+const adminNameList = adminUsers.map((u) => `${u.firstName}${u.lastName ? ` ${u.lastName}` : ""}`).join(" and ");
 const adminReference = adminUsers.length === 1
   ? `${adminNameList} is the sole admin.`
   : `The admins are ${adminNameList}.`;

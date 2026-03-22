@@ -699,6 +699,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
         brand,
       });
     }
+  }
 
   const totalPages = (doc.internal as any).getNumberOfPages();
   for (let pg = 1; pg <= totalPages; pg++) {

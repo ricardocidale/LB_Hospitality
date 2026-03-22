@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-vi.mock("dom-to-image-more", () => ({
-  default: { toPng: vi.fn(), toSvg: vi.fn() },
-  toPng: vi.fn(),
-  toSvg: vi.fn(),
+vi.mock("../../client/src/lib/exports/domCapture", () => ({
+  captureToPng: vi.fn().mockResolvedValue("data:image/png;base64,"),
 }));
 
 import { downloadCSV } from "../../client/src/lib/exports/csvExport";

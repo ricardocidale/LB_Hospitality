@@ -194,6 +194,26 @@ export async function renderPng(html: string, opts: { width: number; height: num
   });
 }
 
+export async function renderPngIsolated(html: string, opts: { width: number; height: number; scale?: number }): Promise<Buffer> {
+  return withPage("renderPngIsolated", async (page) => {
+    await page.setRequestInterception(true);
+    page.on("request", (req: any) => {
+      const url: string = req.url();
+      if (url.startsWith("data:") || url === "about:blank") {
+        req.continue();
+      } else {
+        req.abort("blockedbyclient");
+      }
+    });
+    await page.setViewport({ width: opts.width, height: opts.height, deviceScaleFactor: opts.scale ?? 2 });
+    await page.setContent(html, { waitUntil: "load", timeout: 45_000 });
+    try { await page.evaluateHandle("document.fonts.ready"); } catch { /* best-effort cleanup */ }
+    try { await page.evaluate(() => new Promise<void>(r => setTimeout(r, 200))); } catch { /* best-effort cleanup */ }
+    const pngBuffer = await page.screenshot({ type: "png", fullPage: false });
+    return Buffer.from(pngBuffer);
+  });
+}
+
 export async function closeBrowserRenderer() {
   if (browserInstance) {
     try { await browserInstance.close(); } catch { /* best-effort cleanup */ }

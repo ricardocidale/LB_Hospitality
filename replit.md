@@ -35,7 +35,7 @@ Business simulation portal for **Hospitality Business Group**. Models a boutique
 
 ## Tech Stack
 
-React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, Three.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF (client-side standard exports), Puppeteer (server-side premium PDF exports), xlsx, pptxgenjs, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis, `@anthropic-ai/sdk@0.78.0`, `@phosphor-icons/react`
+React 18, TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, framer-motion, Express 5, Drizzle ORM, PostgreSQL, Zod, jsPDF (client-side standard exports), Puppeteer (server-side premium PDF exports), xlsx, pptxgenjs, Sharp, MapLibre GL, Sentry, PostHog, Upstash Redis, `@anthropic-ai/sdk@0.78.0`, `@phosphor-icons/react`
 
 ---
 
@@ -60,7 +60,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Component Library | `.claude/skills/component-library/SKILL.md` | PageHeader, GlassButton, ExportMenu, CurrentThemeTab |
 | Proof System | `.claude/skills/proof-system/SKILL.md` | 3,425 tests, 583 golden tests, verification commands |
 | Testing (8 skills) | `.claude/skills/testing/` | Per-statement/analysis test coverage |
-| 3D Graphics | `.claude/skills/3d-graphics/SKILL.md` | Three.js scenes, framer-motion wrappers |
+| Graphics | `.claude/skills/3d-graphics/SKILL.md` | CSS/Canvas animations, framer-motion wrappers |
 | Database | `.claude/skills/database/SKILL.md` | Dev/prod databases, Drizzle ORM, migrations, sync |
 | Multi-Tenancy | `.claude/skills/multi-tenancy/SKILL.md` | Users, groups, logos, themes, branding resolution |
 | Exports | `.claude/skills/exports/SKILL.md` | PDF, Excel, PPTX, PNG, CSV export system |
@@ -225,7 +225,7 @@ Investment Performance (IRR gauge), KPI cards, Revenue & ANOI chart, Portfolio t
 
 Shared formatting in `client/src/lib/exports/`. Full reference: `.claude/skills/exports/SKILL.md`
 - **Premium Export**: `POST /api/exports/premium` — model from admin LLMs config (`premiumExportLlm`, defaults to Gemini 2.5 Flash, 65k output tokens). Formats: PDF, PPTX, DOCX, XLSX.
-- **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (dom-to-image-more)
+- **Client-side**: PDF (jsPDF), PPTX (pptxgenjs), Excel (SheetJS), CSV, PNG (SVG foreignObject + Canvas capture via `domCapture.ts`)
 - **Page dimensions**: Landscape = 16:9 ratio (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm). Constants in `PAGE_DIMS` (`exportStyles.ts`). All jsPDF and browser-rendered PDF exports use these dimensions.
 - **Browser abstraction**: `server/browser-renderer.ts` — auto-detects Playwright (Chromium→Firefox→WebKit) or Puppeteer. Cross-browser CSS: standard `print-color-adjust`, no `-webkit-` only properties, inline SVG charts (no canvas). Skill: `.claude/skills/exports/pdf-rendering.md`.
 - **Design rules**: `normalizeCaps()`, alternating row tint, sage-green table frames, branded footers. Premium PDF uses navy cover page with grid pattern, gradient metric cards, bordered prose blocks, inline SVG bar charts with gradient fills.

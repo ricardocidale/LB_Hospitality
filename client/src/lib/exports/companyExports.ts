@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import domtoimage from 'dom-to-image-more';
+import { captureToPng } from "@/lib/exports/domCapture";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportCompanyPPTX } from "@/lib/exports/pptxExport";
 import { downloadCSV } from "@/lib/exports/csvExport";
@@ -491,11 +491,12 @@ export const exportChartPNG = async (
     const width = orientation === 'landscape' ? 1200 : 800;
     const height = orientation === 'landscape' ? 600 : 1000;
 
-    const dataUrl = await domtoimage.toPng(chartRef.current, {
+    const dataUrl = await captureToPng(chartRef.current, {
       bgcolor: EXPORT_BG,
       quality: 1,
       width: width,
       height: height,
+      scale,
       style: {
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
@@ -527,10 +528,10 @@ export const exportTablePNG = async (
     });
 
     const scale = 2;
-    const dataUrl = await domtoimage.toPng(tableRef.current, {
+    const dataUrl = await captureToPng(tableRef.current, {
       bgcolor: EXPORT_BG,
       quality: 1,
-      style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
+      scale,
       width: tableRef.current.scrollWidth * scale,
       height: tableRef.current.scrollHeight * scale,
     });

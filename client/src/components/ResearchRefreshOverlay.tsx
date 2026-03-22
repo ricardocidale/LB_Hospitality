@@ -1,190 +1,113 @@
-import { useState, useEffect, useRef, useCallback, type RefObject } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import * as THREE from "three";
 import { fireResearchConfetti } from "@/lib/confetti";
 
-function ThreeBackground({ containerRef }: { containerRef: RefObject<HTMLDivElement | null> }) {
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+function CSSBackground() {
+  return (
+    <>
+      <div className="absolute inset-0 overflow-hidden">
+        {[
+          { color: "hsl(var(--primary))", size: 220, x: "50%", y: "50%", delay: 0, dur: 8 },
+          { color: "#38bdf8", size: 160, x: "30%", y: "40%", delay: 1, dur: 10 },
+          { color: "#f97066", size: 130, x: "70%", y: "60%", delay: 2, dur: 12 },
+        ].map((sphere, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: sphere.size,
+              height: sphere.size,
+              left: sphere.x,
+              top: sphere.y,
+              transform: "translate(-50%, -50%)",
+              background: `radial-gradient(circle at 35% 35%, ${sphere.color}80, ${sphere.color}20, transparent)`,
+              animation: `researchFloat${i} ${sphere.dur}s ease-in-out ${sphere.delay}s infinite`,
+            }}
+          />
+        ))}
 
-    let webgl = false;
-    try {
-      const testCanvas = document.createElement("canvas");
-      webgl = !!(testCanvas.getContext("webgl2") || testCanvas.getContext("webgl"));
-    } catch { /* no webgl */ }
-    if (!webgl) return;
+        {[2, 3, 3.8].map((radius, i) => (
+          <div
+            key={`ring-${i}`}
+            className="absolute rounded-full border"
+            style={{
+              width: radius * 100,
+              height: radius * 100,
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
+              borderColor: i === 0 ? "hsl(var(--primary) / 0.3)" : i === 1 ? "rgba(56,189,248,0.25)" : "rgba(249,112,102,0.2)",
+              animation: `researchRingSpin ${8 + i * 4}s linear infinite${i % 2 ? " reverse" : ""}`,
+            }}
+          />
+        ))}
 
-    const width = container.clientWidth || window.innerWidth;
-    const height = container.clientHeight || window.innerHeight;
+        {Array.from({ length: 12 }).map((_, i) => {
+          const angle = (i / 12) * Math.PI * 2;
+          const r = 35 + Math.sin(i * 1.5) * 8;
+          const colors = ["hsl(var(--primary))", "#38bdf8", "#f97066", "#ffd700"];
+          return (
+            <div
+              key={`particle-${i}`}
+              className="absolute rounded-full"
+              style={{
+                width: 6,
+                height: 6,
+                left: `calc(50% + ${Math.cos(angle) * r}%)`,
+                top: `calc(50% + ${Math.sin(angle) * r * 0.4}%)`,
+                background: colors[i % 4],
+                opacity: 0.7,
+                boxShadow: `0 0 8px ${colors[i % 4]}`,
+                animation: `researchParticle ${3 + (i % 3)}s ease-in-out ${i * 0.2}s infinite`,
+              }}
+            />
+          );
+        })}
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
-    camera.position.z = 6;
-
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
-
-    const ambient = new THREE.AmbientLight(0xffffff, 0.3);
-    scene.add(ambient);
-
-    const cssVar = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim();
-    const primaryColor = cssVar ? new THREE.Color(cssVar) : new THREE.Color("#8A9A7B");
-
-    const pointLight1 = new THREE.PointLight(primaryColor, 1, 20);
-    pointLight1.position.set(5, 5, 5);
-    scene.add(pointLight1);
-    const pointLight2 = new THREE.PointLight(0x38bdf8, 0.5, 20);
-    pointLight2.position.set(-5, -3, 3);
-    scene.add(pointLight2);
-    const pointLight3 = new THREE.PointLight(0xf97066, 0.3, 20);
-    pointLight3.position.set(0, 3, -5);
-    scene.add(pointLight3);
-
-    const sphereGeo = new THREE.IcosahedronGeometry(1, 4);
-    const spheres: THREE.Mesh[] = [];
-    const sphereConfigs = [
-      { pos: [0, 0, 0], color: primaryColor, speed: 1.5, scale: 1 },
-      { pos: [-2.5, 1, -1], color: new THREE.Color(0x38bdf8), speed: 1, scale: 0.7 },
-      { pos: [2.5, -0.5, -1], color: new THREE.Color(0xf97066), speed: 1.2, scale: 0.6 },
-    ];
-    for (const cfg of sphereConfigs) {
-      const mat = new THREE.MeshStandardMaterial({
-        color: cfg.color,
-        transparent: true,
-        opacity: 0.5,
-        roughness: 0.2,
-        metalness: 0.8,
-      });
-      const mesh = new THREE.Mesh(sphereGeo, mat);
-      mesh.position.set(cfg.pos[0], cfg.pos[1], cfg.pos[2]);
-      mesh.scale.setScalar(cfg.scale);
-      mesh.userData = { speed: cfg.speed, baseY: cfg.pos[1] };
-      scene.add(mesh);
-      spheres.push(mesh);
-    }
-
-    const ringGeo = new THREE.TorusGeometry(1, 0.02, 16, 100);
-    const rings: THREE.Mesh[] = [];
-    const ringConfigs = [
-      { radius: 2, color: primaryColor, speed: 1 },
-      { radius: 3, color: new THREE.Color(0x38bdf8), speed: 0.7 },
-      { radius: 3.8, color: new THREE.Color(0xf97066), speed: 0.5 },
-    ];
-    for (const cfg of ringConfigs) {
-      const mat = new THREE.MeshStandardMaterial({
-        color: cfg.color,
-        transparent: true,
-        opacity: 0.4,
-      });
-      const mesh = new THREE.Mesh(ringGeo, mat);
-      mesh.scale.setScalar(cfg.radius);
-      mesh.userData = { speed: cfg.speed };
-      scene.add(mesh);
-      rings.push(mesh);
-    }
-
-    const particleGeo = new THREE.SphereGeometry(0.08, 12, 12);
-    const particles: THREE.Mesh[] = [];
-    for (let i = 0; i < 12; i++) {
-      const angle = (i / 12) * Math.PI * 2;
-      const r = 2.5 + Math.sin(i * 1.5) * 0.5;
-      const colors = [primaryColor, new THREE.Color(0x38bdf8), new THREE.Color(0xf97066), new THREE.Color(0xffd700)];
-      const mat = new THREE.MeshStandardMaterial({
-        color: colors[i % 4],
-        emissive: colors[i % 4],
-        emissiveIntensity: 0.5,
-        transparent: true,
-        opacity: 0.8,
-      });
-      const mesh = new THREE.Mesh(particleGeo, mat);
-      const px = Math.cos(angle) * r;
-      const py = Math.sin(angle) * r * 0.4;
-      const pz = Math.sin(angle) * r * 0.3;
-      mesh.position.set(px, py, pz);
-      mesh.userData = { baseY: py, baseX: px, angle, r };
-      scene.add(mesh);
-      particles.push(mesh);
-    }
-
-    const starsGeo = new THREE.BufferGeometry();
-    const starPositions = new Float32Array(1500 * 3);
-    for (let i = 0; i < 1500; i++) {
-      const r2 = 10 + Math.random() * 40;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      starPositions[i * 3] = r2 * Math.sin(phi) * Math.cos(theta);
-      starPositions[i * 3 + 1] = r2 * Math.sin(phi) * Math.sin(theta);
-      starPositions[i * 3 + 2] = r2 * Math.cos(phi);
-    }
-    starsGeo.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
-    const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.15, transparent: true, opacity: 0.5 });
-    const stars = new THREE.Points(starsGeo, starsMat);
-    scene.add(stars);
-
-    const clock = new THREE.Clock();
-    let animId = 0;
-
-    const animate = () => {
-      animId = requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
-
-      for (const s of spheres) {
-        const sp = s.userData.speed as number;
-        s.rotation.x = t * sp * 0.3;
-        s.rotation.y = t * sp * 0.5;
-        s.position.y = (s.userData.baseY as number) + Math.sin(t * sp) * 0.3;
-      }
-
-      for (const r of rings) {
-        const sp = r.userData.speed as number;
-        r.rotation.x = Math.PI / 2 + Math.sin(t * sp) * 0.2;
-        r.rotation.z = t * sp * 0.3;
-      }
-
-      for (const p of particles) {
-        const baseY = p.userData.baseY as number;
-        const baseX = p.userData.baseX as number;
-        p.position.y = baseY + Math.sin(t * 2 + baseX) * 0.3;
-        p.scale.setScalar(0.8 + Math.sin(t * 3 + (p.userData.angle as number)) * 0.2);
-      }
-
-      stars.rotation.y = t * 0.02;
-
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    const onResize = () => {
-      const w = container.clientWidth || window.innerWidth;
-      const h = container.clientHeight || window.innerHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener("resize", onResize);
-      renderer.dispose();
-      sphereGeo.dispose();
-      ringGeo.dispose();
-      particleGeo.dispose();
-      starsGeo.dispose();
-      starsMat.dispose();
-      for (const s of spheres) (s.material as THREE.Material).dispose();
-      for (const r of rings) (r.material as THREE.Material).dispose();
-      for (const p of particles) (p.material as THREE.Material).dispose();
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
-    };
-  }, [containerRef]);
-
-  return null;
+        {Array.from({ length: 60 }).map((_, i) => (
+          <div
+            key={`star-${i}`}
+            className="absolute rounded-full bg-white"
+            style={{
+              width: 2,
+              height: 2,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              opacity: 0.15 + Math.random() * 0.35,
+              animation: `researchStarTwinkle ${2 + Math.random() * 3}s ease-in-out ${Math.random() * 2}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+      <style>{`
+        @keyframes researchFloat0 {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          33% { transform: translate(-48%, -53%) scale(1.05); }
+          66% { transform: translate(-52%, -47%) scale(0.95); }
+        }
+        @keyframes researchFloat1 {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-45%, -55%) scale(1.08); }
+        }
+        @keyframes researchFloat2 {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-55%, -45%) scale(1.1); }
+        }
+        @keyframes researchRingSpin {
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes researchParticle {
+          0%, 100% { transform: scale(1); opacity: 0.7; }
+          50% { transform: scale(1.4); opacity: 1; }
+        }
+        @keyframes researchStarTwinkle {
+          0%, 100% { opacity: 0.15; }
+          50% { opacity: 0.6; }
+        }
+      `}</style>
+    </>
+  );
 }
 
 interface ResearchRefreshOverlayProps {
@@ -324,7 +247,7 @@ export function ResearchRefreshOverlay({ onComplete }: ResearchRefreshOverlayPro
         style={{ background: "#0a0f1e" }}
       >
         <div ref={bgRef} className="absolute inset-0">
-          <ThreeBackground containerRef={bgRef} />
+          <CSSBackground />
         </div>
 
         <div className="relative z-10 flex flex-col items-center gap-6 max-w-md text-center px-6">

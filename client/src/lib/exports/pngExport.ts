@@ -1,23 +1,4 @@
-/**
- * pngExport.ts — Export DOM elements (tables and charts) as PNG images
- *
- * Uses the dom-to-image-more library to capture HTML elements as high-resolution
- * PNG screenshots that can be downloaded or embedded in other documents. Three
- * functions are provided:
- *
- *   - exportTablePNG: Captures a financial table, optionally collapsing
- *     expanded/accordion rows for a clean screenshot. Temporarily removes
- *     cell borders for a cleaner look.
- *
- *   - exportChartPNG: Captures any chart element (e.g., Recharts SVG graphs)
- *     at a configurable resolution.
- *
- *   - captureChartAsImage: Returns a data URL (base64 PNG) instead of
- *     triggering a download — used when the image needs to be embedded in a
- *     PDF or PowerPoint export. Includes an SVG-based fallback if dom-to-image
- *     fails (which can happen with certain CSS features).
- */
-import domtoimage from 'dom-to-image-more';
+import { captureToPng } from './domCapture';
 import { saveDataUrl } from './saveFile';
 import { BRAND } from './exportStyles';
 
@@ -32,11 +13,6 @@ interface TablePNGOptions {
   bgColor?: string;
 }
 
-/**
- * Capture a financial table DOM element as a PNG and trigger a browser download.
- * Temporarily collapses expandable rows and removes cell borders for a cleaner
- * screenshot, then restores everything afterward.
- */
 export async function exportTablePNG(options: TablePNGOptions): Promise<void> {
   const { element, filename, scale = 2, collapseAccordions = true, bgColor = DEFAULT_BG } = options;
 
@@ -62,10 +38,10 @@ export async function exportTablePNG(options: TablePNGOptions): Promise<void> {
       cell.style.borderBottom = `1px solid ${EXPORT_BORDER}`;
     });
 
-    const dataUrl = await domtoimage.toPng(element, {
+    const dataUrl = await captureToPng(element, {
       bgcolor: bgColor,
       quality: 1,
-      style: { transform: `scale(${scale})`, transformOrigin: 'top left' },
+      scale,
       width: element.scrollWidth * scale,
       height: element.scrollHeight * scale,
     });
@@ -94,32 +70,17 @@ interface ChartPNGOptions {
   bgColor?: string;
 }
 
-/**
- * Capture a chart DOM element as a PNG and trigger a browser download.
- * Uses a 2x scale by default for retina-quality output.
- */
 export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
   const { element, filename, width, height, scale = 2, bgColor = DEFAULT_BG } = options;
 
   try {
-    const pngOptions: any = {
+    const dataUrl = await captureToPng(element, {
       bgcolor: bgColor,
       quality: 1,
-      style: {
-        transform: `scale(${scale})`,
-        transformOrigin: 'top left',
-      },
-    };
-
-    if (width && height) {
-      pngOptions.width = width;
-      pngOptions.height = height;
-    } else {
-      pngOptions.width = element.offsetWidth * scale;
-      pngOptions.height = element.offsetHeight * scale;
-    }
-
-    const dataUrl = await domtoimage.toPng(element, pngOptions);
+      scale,
+      width: width ?? element.offsetWidth * scale,
+      height: height ?? element.offsetHeight * scale,
+    });
 
     await saveDataUrl(dataUrl, filename);
   } catch (error) {
@@ -127,34 +88,21 @@ export async function exportChartPNG(options: ChartPNGOptions): Promise<void> {
   }
 }
 
-/**
- * Capture a chart container as a base64 PNG data URL (for embedding in PDFs
- * or slides, not for direct download). If dom-to-image fails (e.g., due to
- * CORS or unsupported CSS), falls back to manually serializing the SVG element,
- * rendering it on a canvas, and extracting a PNG from the canvas.
- */
 export async function captureChartAsImage(containerRef: HTMLDivElement, bgColor = DEFAULT_BG): Promise<string | null> {
   try {
-    const dataUrl = await domtoimage.toPng(containerRef, {
+    return await captureToPng(containerRef, {
       bgcolor: bgColor,
       quality: 1,
+      scale: 2,
       width: containerRef.offsetWidth * 2,
       height: containerRef.offsetHeight * 2,
-      style: {
-        transform: 'scale(2)',
-        transformOrigin: 'top left',
-      }
     });
-
-    return dataUrl;
   } catch (error) {
-    console.error('Error capturing chart with dom-to-image:', error);
+    console.error('Error capturing chart:', error);
 
     try {
       const svg = containerRef.querySelector('svg');
-      if (!svg) {
-        return null;
-      }
+      if (!svg) return null;
 
       const clonedSvg = svg.cloneNode(true) as SVGElement;
       const rect = svg.getBoundingClientRect();

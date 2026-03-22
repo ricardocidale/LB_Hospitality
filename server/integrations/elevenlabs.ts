@@ -1,4 +1,4 @@
-import { ElevenLabsClient } from 'elevenlabs';
+import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import WebSocket from 'ws';
 import { BaseIntegrationService, type IntegrationHealth } from './base';
 

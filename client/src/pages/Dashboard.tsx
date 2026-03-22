@@ -126,8 +126,8 @@ export default function Dashboard() {
     if (!tabContentRef.current) return;
     try {
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
-      const domtoimage = (await import("dom-to-image-more")).default;
-      const dataUrl = await domtoimage.toPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" });
+      const { captureToPng } = await import("@/lib/exports/domCapture");
+      const dataUrl = await captureToPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" });
       const { saveDataUrl } = await import("@/lib/exports/saveFile");
       await saveDataUrl(dataUrl, customFilename || `${label.toLowerCase().replace(/\s+/g, "-")}-chart.png`);
     } catch (error) {
@@ -185,9 +185,9 @@ export default function Dashboard() {
     } else if (exportType === "chart") {
       if (!tabContentRef.current) return;
       const label = TAB_LABELS[activeTab] || "Portfolio Dashboard";
-      const domtoimage = (await import("dom-to-image-more")).default;
+      const { captureToPng } = await import("@/lib/exports/domCapture");
       const { default: jsPDF } = await import("jspdf");
-      const dataUrl = await domtoimage.toPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" });
+      const dataUrl = await captureToPng(tabContentRef.current, { quality: 1, bgcolor: "#ffffff" });
       const img = new Image();
       img.src = dataUrl;
       await new Promise<void>((resolve) => { img.onload = () => resolve(); });

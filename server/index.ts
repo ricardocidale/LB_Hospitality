@@ -147,6 +147,15 @@ app.use((req, res, next) => {
   // The deployment platform requires the port to open within ~60s.
   // Migrations and seeds run AFTER the port is open.
 
+  const googleEnvVars = ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "TOKEN_ENCRYPTION_KEY"] as const;
+  for (const envVar of googleEnvVars) {
+    if (process.env[envVar]) {
+      serverLog(`${envVar}: set`, "startup", "info");
+    } else {
+      serverLog(`${envVar}: not set`, "startup", "warn");
+    }
+  }
+
   registerImageRoutes(app);
   const { registerGoogleAuthRoutes } = await import("./routes/google-auth");
   registerGoogleAuthRoutes(app);

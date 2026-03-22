@@ -9,8 +9,12 @@ import {
 } from "../auth";
 import { logger } from "../logger";
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "";
+
+function isGoogleAuthConfigured(): boolean {
+  return !!(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET);
+}
 
 const pendingStates = new Map<string, { createdAt: number; userId?: number; purpose?: string }>();
 
@@ -23,8 +27,14 @@ setInterval(() => {
   }
 }, 60 * 1000);
 
+function getBaseUrl(): string {
+  if (process.env.BASE_URL) return process.env.BASE_URL;
+  if (process.env.REPLIT_DEV_DOMAIN) return `https://${process.env.REPLIT_DEV_DOMAIN}`;
+  return 'https://h-analysis.com';
+}
+
 function buildOAuth2Client() {
-  const baseUrl = process.env.BASE_URL || 'https://h-analysis.com';
+  const baseUrl = getBaseUrl();
   return new OAuth2Client(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
@@ -33,7 +43,7 @@ function buildOAuth2Client() {
 }
 
 function buildDriveOAuth2Client() {
-  const baseUrl = process.env.BASE_URL || 'https://h-analysis.com';
+  const baseUrl = getBaseUrl();
   return new OAuth2Client(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
@@ -42,6 +52,10 @@ function buildDriveOAuth2Client() {
 }
 
 export function registerGoogleAuthRoutes(app: Express) {
+  if (!isGoogleAuthConfigured()) {
+    logger.warn("Google OAuth routes disabled: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set", "google-auth");
+    return;
+  }
   app.get("/api/auth/google", async (req, res) => {
     try {
       const state = crypto.randomUUID();

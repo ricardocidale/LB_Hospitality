@@ -11,7 +11,6 @@ import type {
   ChartSeries,
   CoverMeta,
 } from "./types";
-import { renderChartSvg } from "./svg-charts";
 import { type ThemeColorMap, resolveThemeColors } from "../theme-resolver";
 import { filterFormulaRows } from "../routes/format-generators/excel-generator";
 import {
@@ -226,21 +225,14 @@ function splitInvestmentTables(
 function buildChartSection(
   stmt: StatementBlock,
   tc: ThemeColorMap,
-  tokens: DesignTokens,
 ): ChartSection | null {
   const result = buildChartsForStatement(stmt, tc);
   if (!result) return null;
-  const svgAsset = renderChartSvg(
-    result.content.series,
-    result.content.years,
-    tokens,
-  );
   return {
     kind: "chart",
     title: result.title,
     years: result.content.years,
     series: result.content.series,
-    svgAsset: svgAsset || undefined,
   };
 }
 
@@ -303,7 +295,7 @@ export function compileReport(input: CompileInput): ReportDefinition {
         });
       }
 
-      const chartSection = buildChartSection(stmt, tc, tokens);
+      const chartSection = buildChartSection(stmt, tc);
       if (chartSection) sections.push(chartSection);
     }
   } else if (input.rows?.length && input.years?.length) {

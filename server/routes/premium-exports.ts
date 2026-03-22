@@ -1,14 +1,8 @@
 import { type Express, type Request, type Response } from "express";
-import { getGeminiClient } from "../ai/clients";
 import { requireAuth } from "../auth";
 import { z } from "zod";
-import { AI_GENERATION_TIMEOUT_MS } from "../constants";
 import { logger } from "../logger";
-import { logApiCost, estimateCost } from "../middleware/cost-logger";
 import { storage } from "../storage";
-import { resolveLlm, DEFAULT_GEMINI_MODEL } from "../ai/resolve-llm";
-import type { ResearchConfig } from "@shared/schema";
-import { aggressiveParse } from "./export-json-utils";
 import { renderPremiumPdf } from "../pdf/render";
 import { compileReport } from "../report/compiler";
 import { generateExcelFromReport } from "./format-generators/excel-generator";
@@ -64,85 +58,6 @@ const premiumExportSchema = z.object({
 
 type PremiumExportRequest = z.infer<typeof premiumExportSchema>;
 
-function validateAIOutput(result: Record<string, unknown>, format: string): void {
-  if (!result || typeof result !== "object") {
-    throw new Error("AI returned invalid output structure");
-  }
-  switch (format) {
-    case "xlsx":
-      if (!Array.isArray(result.sheets) || result.sheets.length === 0) {
-        throw new Error("AI output missing required 'sheets' array for Excel export");
-      }
-      break;
-    case "pptx":
-      if (!Array.isArray(result.slides) || result.slides.length === 0) {
-        throw new Error("AI output missing required 'slides' array for PowerPoint export");
-      }
-      break;
-    case "pdf":
-      if (!Array.isArray(result.pages) || result.pages.length === 0) {
-        throw new Error("AI output missing required 'pages' array for PDF export");
-      }
-      break;
-    case "docx":
-      if (!Array.isArray(result.sections) || result.sections.length === 0) {
-        throw new Error("AI output missing required 'sections' array for Word export");
-      }
-      break;
-  }
-}
-
-async function callGemini(
-  client: ReturnType<typeof getGeminiClient>, prompt: string, format: string, startTime: number, modelId: string
-): Promise<{ text: string; finishReason: string | undefined }> {
-  const timeoutPromise = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error("AI generation timed out after 120 seconds")), AI_GENERATION_TIMEOUT_MS)
-  );
-  const generatePromise = client.models.generateContent({
-    model: modelId,
-    contents: prompt,
-    config: {
-      maxOutputTokens: 65536,
-      responseMimeType: "application/json",
-    },
-  });
-  const response = await Promise.race([generatePromise, timeoutPromise]);
-  const text = response.text;
-  if (!text) throw new Error("No text response from Gemini");
-  const finishReason = response.candidates?.[0]?.finishReason;
-  const inTok = response.usageMetadata?.promptTokenCount ?? Math.round(prompt.length / 4);
-  const outTok = response.usageMetadata?.candidatesTokenCount ?? Math.round(text.length / 4);
-  try { logApiCost({ timestamp: new Date().toISOString(), service: "gemini", model: modelId, operation: `premium-export-${format}`, inputTokens: inTok, outputTokens: outTok, estimatedCostUsd: estimateCost("gemini", modelId, inTok, outTok), durationMs: Date.now() - startTime, route: "/api/exports/premium" }); } catch (e) { console.warn("[WARN] [cost-logger] Failed to log API cost", (e as Error).message); }
-  return { text, finishReason };
-}
-
-async function generateWithGemini(prompt: string, format: string, modelId?: string): Promise<Record<string, unknown>> {
-  const client = getGeminiClient();
-  const startTime = Date.now();
-  const resolvedModel = modelId || DEFAULT_GEMINI_MODEL;
-
-  let lastError: Error | null = null;
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    try {
-      const { text, finishReason } = await callGemini(client, prompt, format, startTime, resolvedModel);
-      logger.info(`[attempt ${attempt}] ${resolvedModel} returned ${text.length} chars, finishReason=${finishReason}`, "premium-export");
-
-      const parsed = aggressiveParse(text) as Record<string, unknown>;
-      if (attempt > 1) logger.warn(`Premium export: succeeded on retry attempt ${attempt}`);
-      validateAIOutput(parsed, format);
-      return parsed;
-    } catch (err: unknown) {
-      lastError = err as Error;
-      logger.warn(`[attempt ${attempt}] Parse failed: ${(err as Error).message} — ${attempt < 2 ? "retrying..." : "giving up"}`, "premium-export");
-      if (attempt < 2) {
-        await new Promise(r => setTimeout(r, 2000));
-      }
-    }
-  }
-
-  throw lastError ?? new Error("AI returned invalid JSON — could not parse response");
-}
-
 const CONTENT_TYPES: Record<string, string> = {
   xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -168,7 +83,6 @@ const DEFAULT_REPORT_TYPE: Record<string, string> = {
 
 async function generateViaTemplatePipeline(
   data: PremiumExportRequest,
-  modelId?: string
 ): Promise<Buffer> {
   const report = compileReport(data);
   logger.info(`[compiler] Compiled report: ${report.sections.length} sections, orientation=${report.orientation}`, "premium-export");
@@ -226,11 +140,8 @@ export function register(app: Express) {
       const ext = FORMAT_EXTENSIONS[data.format] || `.${data.format}`;
       const filename = `${safeCompany} - ${reportType}${ext}`;
 
-      const ga = await storage.getGlobalAssumptions(req.user?.id);
-      const rc = (ga?.researchConfig as ResearchConfig) ?? {};
-      const resolved = resolveLlm(rc, "premiumExportLlm");
       logger.info(`Generating premium ${data.format} via compiled report + template pipeline for "${data.entityName}"...`, "premium-export");
-      const buffer = await generateViaTemplatePipeline(data, resolved.model);
+      const buffer = await generateViaTemplatePipeline(data);
       logger.info(`Premium ${data.format} generated (${buffer.length} bytes)`, "premium-export");
 
       res.setHeader("Content-Type", contentType);
@@ -241,11 +152,8 @@ export function register(app: Express) {
       const errorMsg = error?.message || String(error) || "Unknown error";
       logger.error(`Error: ${errorMsg} ${error?.stack || ""}`, "premium-export");
       const format = typeof req.body?.format === "string" ? req.body.format : "unknown";
-      if (errorMsg.includes("API key not configured")) {
-        return res.status(503).json({ error: "AI service is not available for premium exports", format });
-      }
-      if (errorMsg.includes("timed out") || errorMsg.includes("aborted")) {
-        return res.status(504).json({ error: `Export timed out — the AI service took too long generating ${format.toUpperCase()}. Please try again.`, format });
+      if (errorMsg.includes("timed out")) {
+        return res.status(504).json({ error: `Export timed out generating ${format.toUpperCase()}. Please try again.`, format });
       }
       res.status(500).json({ error: errorMsg.length > 300 ? errorMsg.substring(0, 300) + "…" : errorMsg, format });
     }

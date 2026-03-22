@@ -32,23 +32,22 @@ describe("Premium export route structure audit", () => {
     expect(routeSource).toContain('typeof req.body?.format === "string" ? req.body.format : "unknown"');
   });
 
-  it("error handler includes format in all error response payloads (503, 504, 500)", () => {
-    expect(routeSource).toContain('res.status(503).json({ error: "AI service is not available for premium exports", format }');
+  it("error handler includes format in error response payloads (504, 500)", () => {
     expect(routeSource).toContain("res.status(504).json({");
     expect(routeSource).toContain("res.status(500).json({");
 
     const catchBlock = routeSource.slice(routeSource.indexOf("} catch (error: any)"));
     const formatOccurrences = (catchBlock.match(/\bformat\b/g) || []).length;
-    expect(formatOccurrences).toBeGreaterThanOrEqual(5);
+    expect(formatOccurrences).toBeGreaterThanOrEqual(4);
   });
 
   it("timeout error message includes format.toUpperCase()", () => {
     expect(routeSource).toContain("format.toUpperCase()");
   });
 
-  it("has API key not configured check returning 503", () => {
-    expect(routeSource).toContain('"API key not configured"');
-    expect(routeSource).toContain("res.status(503)");
+  it("uses compiled report pipeline (no AI key required)", () => {
+    expect(routeSource).toContain("compileReport");
+    expect(routeSource).not.toContain('"API key not configured"');
   });
 
   it("has timeout check returning 504", () => {
@@ -68,19 +67,19 @@ describe("Premium export route structure audit", () => {
 });
 
 describe("Timeout coordination", () => {
-  it("server AI timeout is 120 seconds", () => {
+  it("server export timeout is 120 seconds", () => {
     expect(AI_GENERATION_TIMEOUT_MS).toBe(120_000);
   });
 
-  it("client-side abort timeout (200s) exceeds server AI timeout", () => {
+  it("client-side abort timeout (200s) exceeds server export timeout", () => {
     const CLIENT_TIMEOUT_MS = 200_000;
     expect(CLIENT_TIMEOUT_MS).toBeGreaterThan(AI_GENERATION_TIMEOUT_MS);
     expect(CLIENT_TIMEOUT_MS - AI_GENERATION_TIMEOUT_MS).toBeGreaterThanOrEqual(60_000);
   });
 
-  it("route imports AI_GENERATION_TIMEOUT_MS from server constants", () => {
-    expect(routeSource).toContain("AI_GENERATION_TIMEOUT_MS");
-    expect(routeSource).toContain('import { AI_GENERATION_TIMEOUT_MS } from "../constants"');
+  it("route uses compiled report pipeline", () => {
+    expect(routeSource).toContain("compileReport");
+    expect(routeSource).toContain("generateViaTemplatePipeline");
   });
 });
 

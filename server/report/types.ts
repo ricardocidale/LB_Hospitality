@@ -68,7 +68,6 @@ export interface ChartSection {
   title: string;
   years: string[];
   series: ChartSeries[];
-  svgAsset?: string;
 }
 
 export type ReportSection = KpiSection | TableSection | ChartSection;

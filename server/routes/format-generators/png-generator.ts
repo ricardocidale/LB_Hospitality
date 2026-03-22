@@ -1,16 +1,16 @@
 import { resolveThemeColors } from "../../theme-resolver";
-import type { ReportDefinition, KpiSection, TableSection, ChartSection, KpiMetric, ChartSeries } from "../../report/types";
+import type { ReportDefinition, KpiMetric, ChartSeries } from "../../report/types";
 
 interface LegacySection {
-  type: "cover" | "metrics_dashboard" | "financial_table" | "line_chart" | "svg_chart";
+  type: "cover" | "metrics_dashboard" | "financial_table" | "line_chart";
   title: string;
   content?: {
     metrics?: KpiMetric[];
     years?: string[];
     rows?: Array<{ category: string; values: (string | number)[]; type: string; indent: number; format?: string }>;
     series?: ChartSeries[];
-    svg?: string;
   };
+  [key: string]: unknown;
 }
 
 function buildLegacySections(report: ReportDefinition): LegacySection[] {
@@ -46,19 +46,11 @@ function buildLegacySections(report: ReportDefinition): LegacySection[] {
         },
       });
     } else if (s.kind === "chart") {
-      if (s.svgAsset) {
-        sections.push({
-          type: "svg_chart",
-          title: s.title,
-          content: { svg: s.svgAsset },
-        });
-      } else {
-        sections.push({
-          type: "line_chart",
-          title: s.title,
-          content: { series: s.series, years: s.years },
-        });
-      }
+      sections.push({
+        type: "line_chart",
+        title: s.title,
+        content: { series: s.series, years: s.years },
+      });
     }
   }
 

@@ -1,4 +1,4 @@
-import type { ReportDefinition, ReportSection, FormattedValue } from "../../report/types";
+import type { ReportDefinition, FormattedValue } from "../../report/types";
 
 function fmtPptxValue(fv: FormattedValue): string {
   return fv.text;
@@ -144,7 +144,7 @@ export async function generatePptxFromReport(report: ReportDefinition): Promise<
           strip(s.color || t.chart[si % t.chart.length])
         );
 
-        slide.addChart("line" as unknown as Parameters<typeof slide.addChart>[0], chartData, {
+        slide.addChart("line", chartData, {
           x: 0.5, y: 0.9, w: 12, h: 5.5,
           showLegend: true,
           legendPos: "b",
@@ -154,7 +154,6 @@ export async function generatePptxFromReport(report: ReportDefinition): Promise<
           lineDataSymbol: "circle",
           lineDataSymbolSize: 6,
           chartColors,
-          valAxisNumFmt: "$#,##0",
           showValue: false,
           catAxisOrientation: "minMax",
         });

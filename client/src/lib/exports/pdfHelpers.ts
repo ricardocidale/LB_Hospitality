@@ -12,7 +12,7 @@
  *   addFooters(doc, "My Company");   // call LAST — iterates all pages
  */
 
-import { BRAND, type BrandPalette, type ThemeColor, type ExportRowMeta, classifyRow, indentLabel, formatFull, formatByType, normalizeCaps, buildBrandPalette } from "./exportStyles";
+import { BRAND, PAGE_DIMS, type BrandPalette, type ThemeColor, type ExportRowMeta, classifyRow, indentLabel, formatFull, formatByType, normalizeCaps, buildBrandPalette } from "./exportStyles";
 
 export function drawBrandedHeader(doc: any, pageW: number, height = 28, brand: BrandPalette = BRAND) {
   doc.setFillColor(...brand.PRIMARY_RGB);
@@ -236,7 +236,7 @@ export function buildFinancialTableConfig(
   const yearLabels = years.map((y) => typeof y === "number" ? `FY ${y}` : y);
   const numCols = years.length;
   const labelColW = orientation === "landscape" ? 55 : 40;
-  const availableWidth = orientation === "landscape" ? 338 : 161;
+  const availableWidth = (orientation === "landscape" ? PAGE_DIMS.LANDSCAPE_W : PAGE_DIMS.PORTRAIT_W) - 28 - labelColW;
   const dataColW = availableWidth / numCols;
 
   const colStyles: Record<number, any> = { 0: { cellWidth: labelColW } };
@@ -282,6 +282,7 @@ export function buildFinancialTableConfig(
       lineColor: brand.SECONDARY_RGB,
     },
     columnStyles: colStyles,
+    margin: { left: 14, right: 14 },
     tableWidth: "auto",
     tableLineColor: brand.SECONDARY_RGB,
     tableLineWidth: 0.6,
@@ -298,8 +299,6 @@ export function buildFinancialTableConfig(
         if (isSectionHeader) {
           data.cell.styles.fontStyle = "bold";
           data.cell.styles.fillColor = brand.BACKGROUND_RGB;
-          data.cell.styles.lineWidth = { top: 0.6 };
-          data.cell.styles.lineColor = { top: brand.SECONDARY_RGB };
         } else if (isSubtotal) {
           data.cell.styles.fontStyle = "bold";
           data.cell.styles.lineWidth = { top: 0.5 };

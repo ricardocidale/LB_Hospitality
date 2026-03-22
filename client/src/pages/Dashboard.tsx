@@ -167,6 +167,7 @@ export default function Dashboard() {
           themeColors: branding?.themeColors ?? undefined,
           overviewOnly: true,
           overviewData,
+          version,
         }, customFilename);
       } else if (activeTab === "investment") {
         const data = generatePortfolioInvestmentData(financials, properties!, projectionYears, getFiscalYear);
@@ -182,6 +183,7 @@ export default function Dashboard() {
           modelStartDate: global.modelStartDate ? new Date(global.modelStartDate) : undefined,
           themeColors: branding?.themeColors ?? undefined,
           statementsOnly: true,
+          version,
         }, customFilename);
       }
     } else if (exportType === "chart") {
@@ -406,6 +408,8 @@ export default function Dashboard() {
         onExport={handleExportConfirm}
         title={exportType === "chart" ? "Export Chart as Image" : `Export ${exportType.toUpperCase()}`}
         showVersionOption={exportType !== "chart"}
+        allowShort={(() => { const cfg = loadExportConfig(); return activeTab === "overview" ? cfg.overview.allowShort : activeTab === "investment" ? cfg.analysis.allowShort : cfg.statements.allowShort; })()}
+        allowExtended={(() => { const cfg = loadExportConfig(); return activeTab === "overview" ? cfg.overview.allowExtended : activeTab === "investment" ? cfg.analysis.allowExtended : cfg.statements.allowExtended; })()}
         premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={TAB_LABELS[activeTab] || "Portfolio"}
         fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}

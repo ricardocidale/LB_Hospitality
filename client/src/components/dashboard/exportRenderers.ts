@@ -259,6 +259,7 @@ export interface ComprehensiveDashboardExportParams {
   overviewOnly?: boolean;
   statementsOnly?: boolean;
   overviewData?: OverviewExportData;
+  version?: "short" | "extended";
 }
 
 const fmtCompact = (v: number) =>
@@ -271,7 +272,10 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     incomeRows, modelStartDate, themeColors,
     overviewOnly = false, statementsOnly = false,
     overviewData,
+    version,
   } = params;
+
+  const isShort = version === "short";
 
   const jsPDF = (await import("jspdf")).default;
   const autoTable = (await import("jspdf-autotable")).default;
@@ -602,7 +606,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     doc.addPage();
     const cashFlowData = generatePortfolioCashFlowData(
       financials.allPropertyYearlyCF, projectionYears, getFiscalYear,
-      new Set(["cfo", "cfi", "cff"]), false,
+      isShort ? new Set<string>() : new Set(["cfo", "cfi", "cff"]), isShort,
       properties.map(p => p.name),
       financials.yearlyConsolidatedCache,
     );
@@ -612,7 +616,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
 
     doc.addPage();
     const balanceSheetData = generatePortfolioBalanceSheetData(
-      financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate,
+      financials.allPropertyFinancials, projectionYears, getFiscalYear, modelStartDate, isShort,
     );
     startY = drawSectionTitle("Consolidated Balance Sheet", `${projectionYears}-Year Projection (${projRange})`);
     const bsConfig = buildFinancialTableConfig(balanceSheetData.years, balanceSheetData.rows, "landscape", startY, brand);
@@ -730,16 +734,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
     }
   }
 
-  const totalPages = (doc.internal as any).getNumberOfPages();
-  for (let pg = 1; pg <= totalPages; pg++) {
-    doc.setPage(pg);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    doc.setTextColor(...brand.MUTED_RGB);
-    doc.text(companyName, 16, pageH - 5);
-    doc.text("CONFIDENTIAL", pageW / 2, pageH - 5, { align: "center" });
-    doc.text(`${pg} / ${totalPages}`, pageW - 16, pageH - 5, { align: "right" });
-  }
+  addFooters(doc, companyName, {}, brand);
 
   const suffix = overviewOnly ? "Portfolio Overview" : statementsOnly ? "Financial Statements" : "Consolidated Portfolio Report";
   const { saveFile: savePdfFile } = await import("./../../lib/exports/saveFile");

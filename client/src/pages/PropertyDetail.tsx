@@ -18,6 +18,7 @@ import { Link, useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExportDialog, type ExportVersion } from "@/components/ExportDialog";
+import { loadExportConfig } from "@/lib/exportConfig";
 import { useExportSave } from "@/hooks/useExportSave";
 import { AnimatedPage, ScrollReveal } from "@/components/graphics";
 import {
@@ -177,6 +178,8 @@ export default function PropertyDetail() {
         onExport={(orientation, version, customFilename) => handleExport(exportCtx, exportType, orientation, version, customFilename)}
         title={exportType === "chart" ? "Export Chart" : `Export ${exportType.toUpperCase()}`}
         showVersionOption={exportType !== "chart"}
+        allowShort={loadExportConfig().statements.allowShort}
+        allowExtended={loadExportConfig().statements.allowExtended}
         premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={
           exportType === 'chart'

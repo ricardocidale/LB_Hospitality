@@ -44,6 +44,8 @@ interface ExportDialogProps {
   onExport: (orientation: "landscape" | "portrait", version: ExportVersion, customFilename?: string) => void;
   title: string;
   showVersionOption?: boolean;
+  allowShort?: boolean;
+  allowExtended?: boolean;
   premiumExportData?: PremiumExportPayload | null;
   getPremiumExportData?: (version: ExportVersion) => PremiumExportPayload | null;
   premiumFormat?: PremiumFormat;
@@ -269,7 +271,7 @@ function GeneratingAnimation() {
   );
 }
 
-export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, premiumExportData, getPremiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
+export function ExportDialog({ open, onClose, onExport, title, showVersionOption = true, allowShort = true, allowExtended = true, premiumExportData, getPremiumExportData, premiumFormat = "pdf", suggestedFilename = "", fileExtension = ".pdf" }: ExportDialogProps) {
   const [orientation, setOrientation] = useState<"landscape" | "portrait">(getStoredOrientation);
   const [version, setVersion] = useState<ExportVersion>(getStoredVersion);
   const [isPremium, setIsPremium] = useState(getStoredPremium);
@@ -280,13 +282,19 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
   useEffect(() => {
     if (open) {
       setOrientation(getStoredOrientation());
-      setVersion(getStoredVersion());
+      const storedVer = getStoredVersion();
+      // Auto-correct version when only one option is available
+      const resolvedVer: ExportVersion =
+        !allowShort && allowExtended ? "extended" :
+        allowShort && !allowExtended ? "short" :
+        storedVer;
+      setVersion(resolvedVer);
       // DOCX has no client-side generator — always use premium mode
       setIsPremium(premiumFormat === "docx" ? true : getStoredPremium());
       setStep("options");
       setIsSaving(false);
     }
-  }, [open, premiumFormat]);
+  }, [open, premiumFormat, allowShort, allowExtended]);
 
   const handleOrientationChange = (v: string) => {
     const val = v as "landscape" | "portrait";
@@ -393,24 +401,28 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
                 </RadioGroup>
               </div>
 
-              {showVersionOption && (
+              {showVersionOption && allowShort && allowExtended && (
                 <div className="border-t pt-4">
                   <Label className="text-sm font-medium mb-3 block">Report Version</Label>
                   <RadioGroup value={version} onValueChange={handleVersionChange}>
-                    <div className="flex items-start space-x-2 mb-3">
-                      <RadioGroupItem value="short" id="version-short" className="mt-0.5" />
-                      <div className="grid gap-1 leading-none">
-                        <Label htmlFor="version-short" className="cursor-pointer text-sm font-medium">Short</Label>
-                        <p className="text-xs text-muted-foreground">Summary view with top-level figures only</p>
+                    {allowShort && (
+                      <div className="flex items-start space-x-2 mb-3">
+                        <RadioGroupItem value="short" id="version-short" className="mt-0.5" />
+                        <div className="grid gap-1 leading-none">
+                          <Label htmlFor="version-short" className="cursor-pointer text-sm font-medium">Short</Label>
+                          <p className="text-xs text-muted-foreground">Summary view with top-level figures only</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <RadioGroupItem value="extended" id="version-extended" className="mt-0.5" />
-                      <div className="grid gap-1 leading-none">
-                        <Label htmlFor="version-extended" className="cursor-pointer text-sm font-medium">Extended</Label>
-                        <p className="text-xs text-muted-foreground">Expanded sections with line-item breakdowns</p>
+                    )}
+                    {allowExtended && (
+                      <div className="flex items-start space-x-2">
+                        <RadioGroupItem value="extended" id="version-extended" className="mt-0.5" />
+                        <div className="grid gap-1 leading-none">
+                          <Label htmlFor="version-extended" className="cursor-pointer text-sm font-medium">Extended</Label>
+                          <p className="text-xs text-muted-foreground">Expanded sections with line-item breakdowns</p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </RadioGroup>
                 </div>
               )}

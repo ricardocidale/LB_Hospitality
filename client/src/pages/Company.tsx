@@ -25,6 +25,7 @@
  */
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/components/ExportDialog";
+import { loadExportConfig } from "@/lib/exportConfig";
 import { useQuery } from "@tanstack/react-query";
 import { useExportSave } from "@/hooks/useExportSave";
 import { UserRole, APP_BRAND_NAME } from "@shared/constants";
@@ -290,6 +291,8 @@ export default function Company() {
         onExport={handleExport}
         title={exportType === "chart" ? "Export Chart" : `Export ${exportType.toUpperCase()}`}
         showVersionOption={exportType !== "chart"}
+        allowShort={loadExportConfig().statements.allowShort}
+        allowExtended={loadExportConfig().statements.allowExtended}
         premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={
           exportType === 'chart' ? `${companyName} Chart` : `${companyName} ${tabLabel}`

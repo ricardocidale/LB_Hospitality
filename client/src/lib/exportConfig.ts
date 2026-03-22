@@ -10,8 +10,10 @@ export interface ExportConfig {
     revenueChart: boolean;
     projectionTable: boolean;
     compositionTables: boolean;
+    compositionCharts: boolean;
     waterfallTable: boolean;
     propertyInsights: boolean;
+    aiInsights: boolean;
   };
 
   statements: {
@@ -62,8 +64,10 @@ export const DEFAULT_EXPORT_CONFIG: ExportConfig = {
     revenueChart: true,
     projectionTable: true,
     compositionTables: true,
+    compositionCharts: true,
     waterfallTable: true,
     propertyInsights: true,
+    aiInsights: true,
   },
 
   statements: {

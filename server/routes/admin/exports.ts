@@ -21,8 +21,10 @@ const exportConfigSchema = z.object({
     revenueChart: z.boolean(),
     projectionTable: z.boolean(),
     compositionTables: z.boolean(),
+    compositionCharts: z.boolean(),
     waterfallTable: z.boolean(),
     propertyInsights: z.boolean(),
+    aiInsights: z.boolean(),
   }).partial().optional(),
   statements: z.object({
     ...categoryFormatSchema,
@@ -61,8 +63,10 @@ const DEFAULT_EXPORT_CONFIG = {
     revenueChart: true,
     projectionTable: true,
     compositionTables: true,
+    compositionCharts: true,
     waterfallTable: true,
     propertyInsights: true,
+    aiInsights: true,
   },
   statements: {
     ...FORMAT_DEFAULTS,

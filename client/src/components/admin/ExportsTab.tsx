@@ -189,30 +189,39 @@ export default function ExportsTab() {
 
           <ContentCard>
             <div className="py-1 pr-4">
-              <GroupHeader title="Metrics" />
-              <SectionToggle id="ov-kpi-metrics" label="Key Performance Metrics"
-                description="Portfolio IRR, Equity Multiple, Cash-on-Cash Return, total equity invested, exit value, N-year revenue, NOI, and cash flow."
+              <GroupHeader title="Investment Performance" />
+              <SectionToggle id="ov-kpi-metrics" label="Investment Performance"
+                description="Portfolio IRR gauge, Property IRR Comparison bar chart, Equity by Property bar chart, and four KPI cards — Equity Multiple, Cash-on-Cash, Equity Invested, and Projected Exit value."
                 checked={config.overview.kpiMetrics} onChange={(v) => updateNested("overview", "kpiMetrics", v)} />
-              <GroupHeader title="Charts & Projections" />
-              <SectionToggle id="ov-revenue-chart" label="Revenue & Returns chart"
-                description="Multi-series line chart showing Revenue, NOI, ANOI, and Cash Flow across the full hold period."
+              <GroupHeader title="Revenue & ANOI Projection" />
+              <SectionToggle id="ov-revenue-chart" label="Revenue & ANOI Projection chart"
+                description="Area/line chart showing consolidated Revenue and ANOI across the full hold period."
                 checked={config.overview.revenueChart} onChange={(v) => updateNested("overview", "revenueChart", v)} />
               <SectionToggle id="ov-projection-table" label="Year-by-year projection table"
-                description="Tabular breakdown of Revenue, NOI, ANOI, and Cash Flow for every year in the projection."
-                checked={config.overview.projectionTable} onChange={(v) => updateNested("overview", "projectionTable", v)} />
+                description="Tabular breakdown of Revenue, NOI, ANOI, and Cash Flow for every year — printed below the chart on the same page."
+                checked={config.overview.projectionTable} onChange={(v) => updateNested("overview", "projectionTable", v)}
+                disabled={!config.overview.revenueChart} />
+              <GroupHeader title="Portfolio & Capital Structure" />
+              <SectionToggle id="ov-composition-tables" label="Portfolio & Capital Structure tables"
+                description="Side-by-side Portfolio Composition stats (properties, rooms, markets, ADR) and Capital Structure stats (purchase price, cap rate, hold period, ANOI margin)."
+                checked={config.overview.compositionTables} onChange={(v) => updateNested("overview", "compositionTables", v)} />
             </div>
             <div className="py-1 sm:pl-4">
-              <GroupHeader title="Portfolio Composition" />
-              <SectionToggle id="ov-composition-tables" label="Capital Structure & Composition"
-                description="Portfolio summary (properties, rooms, markets, ADR) alongside capital structure (purchase price, cap rate, hold period, ANOI margin)."
-                checked={config.overview.compositionTables} onChange={(v) => updateNested("overview", "compositionTables", v)} />
-              <SectionToggle id="ov-waterfall-table" label="USALI Profit Waterfall"
-                description="Income bridge table from Total Revenue down through GOP, AGOP, NOI, and ANOI across all projection years."
-                checked={config.overview.waterfallTable} onChange={(v) => updateNested("overview", "waterfallTable", v)} />
-              <GroupHeader title="Property Detail" />
-              <SectionToggle id="ov-property-insights" label="Property Insights roster"
-                description="One row per property: name, market, rooms, status, acquisition cost, ADR, and IRR."
+              <GroupHeader title="Portfolio Insights" />
+              <SectionToggle id="ov-property-insights" label="Portfolio Insights property table"
+                description="One row per property — name, market, rooms, status, acquisition cost, ADR, and IRR."
                 checked={config.overview.propertyInsights} onChange={(v) => updateNested("overview", "propertyInsights", v)} />
+              <SectionToggle id="ov-ai-insights" label="Portfolio Insights summary card"
+                description="Key portfolio totals — markets breakdown, 10-year consolidated Revenue, NOI, ANOI, and Cash Flow."
+                checked={config.overview.aiInsights} onChange={(v) => updateNested("overview", "aiInsights", v)} />
+              <GroupHeader title="Portfolio Composition" />
+              <SectionToggle id="ov-composition-charts" label="Portfolio Composition charts"
+                description="Portfolio by Market pie chart and Properties by Status bar chart showing geographic and status distribution."
+                checked={config.overview.compositionCharts} onChange={(v) => updateNested("overview", "compositionCharts", v)} />
+              <GroupHeader title="USALI Profit Waterfall" />
+              <SectionToggle id="ov-waterfall-table" label="USALI Profit Waterfall"
+                description="Revenue cascade from Total Revenue through Operating Expenses, GOP, Management Fees, AGOP, Fixed Charges, NOI, FF&E Reserve, and ANOI — across all projection years."
+                checked={config.overview.waterfallTable} onChange={(v) => updateNested("overview", "waterfallTable", v)} />
             </div>
           </ContentCard>
 

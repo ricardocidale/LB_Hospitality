@@ -443,8 +443,11 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
           columnStyles: { 1: { halign: "right", fontStyle: "bold", textColor: brand.ACCENT_RGB } },
           alternateRowStyles: { fillColor: [248, 250, 252] },
         });
+      }
 
-        doc.addPage();
+      if (cfg.overview.compositionCharts) {
+        if (overviewPageStarted) doc.addPage();
+        overviewPageStarted = true;
         startY = drawSectionTitle("Portfolio Composition", "Geographic and Status Distribution");
         const totalProps = Math.max(overviewData.capitalStructure.totalProperties, 1);
         const mktRows = Object.entries(overviewData.marketCounts).map(([market, count]) => [
@@ -512,6 +515,7 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
 
       if (cfg.overview.propertyInsights) {
         if (overviewPageStarted) doc.addPage();
+        overviewPageStarted = true;
         startY = drawSectionTitle("Portfolio Insights", `${projectionYears}-Year Properties & Key Metrics`);
         const insightRows = overviewData.propertyItems.map((p, i) => [
           String(i + 1), p.name, p.market, String(p.rooms), p.status,
@@ -534,14 +538,31 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
           alternateRowStyles: { fillColor: [248, 250, 252] },
           didDrawPage: (data: any) => { if (data.pageNumber > 1) drawPageChrome(); },
         });
-        const afterTableY = (doc as any).lastAutoTable?.finalY ?? (startY! + 60);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(8);
-        doc.setTextColor(...brand.ACCENT_RGB);
-        doc.text("Portfolio Insights", 16, afterTableY + 10);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(7.5);
-        doc.setTextColor(...brand.FOREGROUND_RGB);
+        if (cfg.overview.aiInsights) {
+          const afterTableY = (doc as any).lastAutoTable?.finalY ?? (startY! + 60);
+          const { kpis } = { kpis: overviewData.portfolioKPIs };
+          const insightLines = [
+            `Markets: ${Object.entries(overviewData.marketCounts).map(([m, c]) => `${m} (${c})`).join(", ")}`,
+            `${projectionYears}-Year Total Revenue: ${fmtUSD(kpis.totalProjectionRevenue)}`,
+            `${projectionYears}-Year Total NOI: ${fmtUSD(kpis.totalProjectionNOI)}`,
+            `${projectionYears}-Year Total ANOI: ${fmtUSD(kpis.totalProjectionANOI)}`,
+            `${projectionYears}-Year Total Cash Flow: ${fmtUSD(kpis.totalProjectionCashFlow)}`,
+          ];
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          doc.setTextColor(...brand.ACCENT_RGB);
+          doc.text("Portfolio Insights", 16, afterTableY + 10);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7.5);
+          doc.setTextColor(...brand.FOREGROUND_RGB);
+          insightLines.forEach((line, i) => {
+            doc.text(`\u2022  ${line}`, 18, afterTableY + 18 + i * 6);
+          });
+        }
+      } else if (cfg.overview.aiInsights) {
+        if (overviewPageStarted) doc.addPage();
+        overviewPageStarted = true;
+        startY = drawSectionTitle("Portfolio Insights", "Key Portfolio Metrics");
         const { kpis } = { kpis: overviewData.portfolioKPIs };
         const insightLines = [
           `Markets: ${Object.entries(overviewData.marketCounts).map(([m, c]) => `${m} (${c})`).join(", ")}`,
@@ -550,8 +571,15 @@ export async function exportDashboardComprehensivePDF(params: ComprehensiveDashb
           `${projectionYears}-Year Total ANOI: ${fmtUSD(kpis.totalProjectionANOI)}`,
           `${projectionYears}-Year Total Cash Flow: ${fmtUSD(kpis.totalProjectionCashFlow)}`,
         ];
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(...brand.ACCENT_RGB);
+        doc.text("Portfolio Insights", 16, startY! + 10);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.5);
+        doc.setTextColor(...brand.FOREGROUND_RGB);
         insightLines.forEach((line, i) => {
-          doc.text(`\u2022  ${line}`, 18, afterTableY + 18 + i * 6);
+          doc.text(`\u2022  ${line}`, 18, startY! + 18 + i * 6);
         });
       }
     }

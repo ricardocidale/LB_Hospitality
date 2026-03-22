@@ -173,7 +173,7 @@ function ActiveSessions({ activeSessionsList }: { activeSessionsList: ActiveSess
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10"
                     onClick={async () => {
                       try {
                         await fetch(`/api/admin/sessions/${s.id}`, { method: "DELETE", credentials: "include" });

@@ -25,8 +25,8 @@ interface KPIGridProps {
 const defaultFormat = (n: number) => n.toLocaleString();
 
 const trendIcon = (trend?: "up" | "down" | "neutral") => {
-  if (trend === "up") return <IconTrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
-  if (trend === "down") return <IconTrendingDown className="w-3.5 h-3.5 text-red-500" />;
+  if (trend === "up") return <IconTrendingUp className="w-3.5 h-3.5 text-primary" />;
+  if (trend === "down") return <IconTrendingDown className="w-3.5 h-3.5 text-destructive" />;
   return <Minus className="w-3.5 h-3.5 text-primary/40" />;
 };
 
@@ -104,7 +104,7 @@ function KPICard({ item }: { item: KPIItem }) {
           <span className="flex items-center gap-0.5 flex-shrink-0">
             {trendIcon(item.trend)}
             {item.trendLabel && (
-              <span className={`text-xs font-medium ${item.trend === "up" ? "text-emerald-500" : item.trend === "down" ? "text-red-500" : "text-muted-foreground/40"}`}>
+              <span className={`text-xs font-medium ${item.trend === "up" ? "text-primary" : item.trend === "down" ? "text-destructive" : "text-muted-foreground/40"}`}>
                 {item.trendLabel}
               </span>
             )}

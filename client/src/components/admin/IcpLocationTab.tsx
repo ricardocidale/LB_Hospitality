@@ -154,7 +154,7 @@ function LocationCard({
             variant="ghost"
             size="icon"
             onClick={onRemove}
-            className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
+            className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
             data-testid={`button-remove-location-${location.id}`}
           >
             <IconTrash className="w-3.5 h-3.5" />
@@ -164,7 +164,7 @@ function LocationCard({
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label className="text-xs font-medium text-foreground flex items-center">
-            Country <span className="text-red-400 ml-0.5">*</span>
+            Country <span className="text-destructive/80 ml-0.5">*</span>
             <InfoTooltip text="Required. The country where target customers or investment properties are located." side="right" />
           </Label>
           <Select value={location.countryCode} onValueChange={handleCountryChange}>
@@ -214,7 +214,7 @@ function LocationCard({
                     {name}
                     <button
                       onClick={() => handleRemoveState(location.states[i])}
-                      className="ml-0.5 hover:text-red-500"
+                      className="ml-0.5 hover:text-destructive"
                       data-testid={`remove-state-${location.states[i]}`}
                     >
                       <X className="w-3 h-3" />
@@ -309,7 +309,7 @@ function LocationCard({
                       <span className="text-[10px] text-muted-foreground">mi</span>
                       <button
                         onClick={() => handleRemoveCity(city.name)}
-                        className="text-muted-foreground hover:text-red-500 transition-colors"
+                        className="text-muted-foreground hover:text-destructive transition-colors"
                         data-testid={`remove-city-${city.name}`}
                       >
                         <X className="w-3.5 h-3.5" />

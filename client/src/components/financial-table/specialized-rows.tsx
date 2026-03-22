@@ -95,7 +95,7 @@ export function FormulaDetailRow({ label, values, positive }: FormulaDetailRowPr
   return (
     <>
       <TableRow
-        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+        className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
         data-expandable-row="true"
         onClick={() => setOpen(v => !v)}
       >
@@ -110,7 +110,7 @@ export function FormulaDetailRow({ label, values, positive }: FormulaDetailRowPr
         ))}
       </TableRow>
       {open && (
-        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+        <TableRow className="bg-chart-1/3" data-expandable-row="true">
           <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
             {label}
           </TableCell>

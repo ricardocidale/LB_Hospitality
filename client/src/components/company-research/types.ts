@@ -16,10 +16,10 @@ import type { SectionColorScheme } from "../property-research/types";
 export type { SectionColorScheme };
 
 export const companySectionColors: Record<string, SectionColorScheme> = {
-  fees: { accent: "#257D41", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700", badge: "bg-emerald-100 text-emerald-800" },
-  gaap: { accent: "#3B82F6", bg: "bg-blue-50", border: "border-blue-200", iconBg: "bg-blue-100", iconText: "text-blue-700", badge: "bg-blue-100 text-blue-800" },
-  benchmarks: { accent: "#8B5CF6", bg: "bg-violet-50", border: "border-violet-200", iconBg: "bg-violet-100", iconText: "text-violet-700", badge: "bg-violet-100 text-violet-800" },
-  compensation: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700", badge: "bg-amber-100 text-amber-800" },
-  contracts: { accent: "#0891B2", bg: "bg-cyan-50", border: "border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-700", badge: "bg-cyan-100 text-cyan-800" },
-  sources: { accent: "#6B7280", bg: "bg-muted", border: "border-border", iconBg: "bg-muted", iconText: "text-muted-foreground", badge: "bg-muted text-foreground" },
+  fees: { accent: "hsl(var(--primary))", bg: "bg-primary/10", border: "border-primary/20", iconBg: "bg-primary/15", iconText: "text-primary", badge: "bg-primary/15 text-primary" },
+  gaap: { accent: "hsl(var(--chart-1))", bg: "bg-chart-1/10", border: "border-chart-1/20", iconBg: "bg-chart-1/15", iconText: "text-chart-1", badge: "bg-chart-1/15 text-chart-1" },
+  benchmarks: { accent: "hsl(var(--chart-3))", bg: "bg-chart-3/10", border: "border-chart-3/20", iconBg: "bg-chart-3/15", iconText: "text-chart-3", badge: "bg-chart-3/15 text-chart-3" },
+  compensation: { accent: "hsl(var(--accent-pop))", bg: "bg-accent-pop/10", border: "border-accent-pop/20", iconBg: "bg-accent-pop/15", iconText: "text-accent-pop", badge: "bg-accent-pop/15 text-accent-pop" },
+  contracts: { accent: "hsl(var(--accent-pop-2))", bg: "bg-accent-pop-2/10", border: "border-accent-pop-2/20", iconBg: "bg-accent-pop-2/15", iconText: "text-accent-pop-2", badge: "bg-accent-pop-2/15 text-accent-pop-2" },
+  sources: { accent: "hsl(var(--muted-foreground))", bg: "bg-muted", border: "border-border", iconBg: "bg-muted", iconText: "text-muted-foreground", badge: "bg-muted text-foreground" },
 };

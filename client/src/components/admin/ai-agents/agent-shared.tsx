@@ -49,15 +49,15 @@ export function StatusChecklist({
               onClick={() => item.tab && onNavigate(item.tab)}
               className={`flex items-center gap-2.5 p-3 h-auto rounded-xl border text-left justify-start transition-all ${
                 item.ok
-                  ? "border-green-200/60 bg-green-50/40 text-green-800"
-                  : "border-red-200/60 bg-red-50/40 text-red-800"
+                  ? "border-primary/20 bg-primary/10 text-primary"
+                  : "border-destructive/20 bg-destructive/10 text-destructive"
               } ${item.tab ? "cursor-pointer hover:shadow-sm" : "cursor-default"}`}
               data-testid={`checklist-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
             >
               {item.ok ? (
-                <IconCheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                <IconCheckCircle2 className="w-4 h-4 text-primary shrink-0" />
               ) : (
-                <IconXCircle className="w-4 h-4 text-red-400 shrink-0" />
+                <IconXCircle className="w-4 h-4 text-destructive/80 shrink-0" />
               )}
               <span className="text-xs font-medium">{item.label}</span>
             </Button>
@@ -178,7 +178,7 @@ export function AgentCard({
                   <motion.div
                     className={cn(
                       "w-2 h-2 rounded-full",
-                      isEnabled ? "bg-green-500" : "bg-muted-foreground/30",
+                      isEnabled ? "bg-primary" : "bg-muted-foreground/30",
                     )}
                     animate={
                       isEnabled
@@ -194,7 +194,7 @@ export function AgentCard({
                   <span
                     className={cn(
                       "text-[11px] font-medium",
-                      isEnabled ? "text-green-700" : "text-muted-foreground/50",
+                      isEnabled ? "text-primary" : "text-muted-foreground/50",
                     )}
                   >
                     {isEnabled ? "Active" : "Inactive"}

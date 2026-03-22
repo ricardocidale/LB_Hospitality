@@ -21,12 +21,12 @@ export interface FlowConnection {
 }
 
 const NODE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  blue: { bg: "bg-blue-50 dark:bg-blue-950/40", border: "border-blue-300 dark:border-blue-700", text: "text-blue-800 dark:text-blue-200" },
-  green: { bg: "bg-emerald-50 dark:bg-emerald-950/40", border: "border-emerald-300 dark:border-emerald-700", text: "text-emerald-800 dark:text-emerald-200" },
-  red: { bg: "bg-red-50 dark:bg-red-950/40", border: "border-red-300 dark:border-red-700", text: "text-red-800 dark:text-red-200" },
-  purple: { bg: "bg-purple-50 dark:bg-purple-950/40", border: "border-purple-300 dark:border-purple-700", text: "text-purple-800 dark:text-purple-200" },
-  amber: { bg: "bg-amber-50 dark:bg-amber-950/40", border: "border-amber-300 dark:border-amber-700", text: "text-amber-800 dark:text-amber-200" },
-  slate: { bg: "bg-slate-50 dark:bg-slate-800/40", border: "border-slate-300 dark:border-slate-600", text: "text-slate-700 dark:text-slate-200" },
+  blue: { bg: "bg-chart-1/10 dark:bg-chart-1/10", border: "border-chart-1/30 dark:border-chart-1/30", text: "text-chart-1 dark:text-chart-1" },
+  green: { bg: "bg-primary/10 dark:bg-primary/10", border: "border-primary/30 dark:border-primary/30", text: "text-primary dark:text-primary" },
+  red: { bg: "bg-destructive/10 dark:bg-destructive/10", border: "border-destructive/30 dark:border-destructive/30", text: "text-destructive dark:text-destructive" },
+  purple: { bg: "bg-chart-3/10 dark:bg-chart-3/10", border: "border-chart-3/30 dark:border-chart-3/30", text: "text-chart-3 dark:text-chart-3" },
+  amber: { bg: "bg-accent-pop/10 dark:bg-accent-pop/10", border: "border-accent-pop/30 dark:border-accent-pop/30", text: "text-accent-pop dark:text-accent-pop" },
+  slate: { bg: "bg-muted dark:bg-muted/40", border: "border-border dark:border-border", text: "text-muted-foreground dark:text-muted-foreground" },
   primary: { bg: "bg-primary/10", border: "border-primary/40", text: "text-primary" },
 };
 

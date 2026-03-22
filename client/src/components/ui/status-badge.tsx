@@ -19,27 +19,27 @@ interface StatusBadgeProps {
 }
 
 const dotColors: Record<StatusType, string> = {
-  active: "bg-green-500",
+  active: "bg-primary",
   inactive: "bg-muted-foreground",
-  pending: "bg-amber-500",
-  error: "bg-red-500",
-  warning: "bg-orange-500",
+  pending: "bg-accent-pop",
+  error: "bg-destructive",
+  warning: "bg-accent-pop",
 };
 
 const pulseColors: Record<StatusType, string> = {
-  active: "bg-green-400",
+  active: "bg-primary/80",
   inactive: "bg-muted",
-  pending: "bg-amber-400",
-  error: "bg-red-400",
-  warning: "bg-orange-400",
+  pending: "bg-accent-pop/80",
+  error: "bg-destructive/80",
+  warning: "bg-accent-pop/80",
 };
 
 const labelColors: Record<StatusType, string> = {
-  active: "text-green-700",
+  active: "text-primary",
   inactive: "text-muted-foreground",
-  pending: "text-amber-700",
-  error: "text-red-700",
-  warning: "text-orange-700",
+  pending: "text-accent-pop",
+  error: "text-destructive",
+  warning: "text-accent-pop",
 };
 
 export function StatusBadge({

@@ -155,12 +155,12 @@ export function VendorIntelligence({ content, hasData, onGenerate }: { content: 
   if (!hasData) return <EmptyState title="Vendor Intelligence" description="Generate research to see make-vs-buy analysis and vendor benchmarks." onGenerate={onGenerate} />;
 
   const matrix = [
-    { service: "Accounting", make: 85, buy: 65, decision: "Make", color: "text-emerald-600 bg-emerald-50" },
-    { service: "IT Infrastructure", make: 60, buy: 80, decision: "Buy", color: "text-blue-600 bg-blue-50" },
-    { service: "Revenue Mgmt", make: 70, buy: 75, decision: "Buy", color: "text-blue-600 bg-blue-50" },
-    { service: "HR/Payroll", make: 55, buy: 85, decision: "Buy", color: "text-blue-600 bg-blue-50" },
-    { service: "Procurement", make: 80, buy: 60, decision: "Make", color: "text-emerald-600 bg-emerald-50" },
-    { service: "Marketing", make: 65, buy: 70, decision: "Hybrid", color: "text-amber-600 bg-amber-50" },
+    { service: "Accounting", make: 85, buy: 65, decision: "Make", color: "text-primary bg-primary/10" },
+    { service: "IT Infrastructure", make: 60, buy: 80, decision: "Buy", color: "text-chart-1 bg-chart-1/10" },
+    { service: "Revenue Mgmt", make: 70, buy: 75, decision: "Buy", color: "text-chart-1 bg-chart-1/10" },
+    { service: "HR/Payroll", make: 55, buy: 85, decision: "Buy", color: "text-chart-1 bg-chart-1/10" },
+    { service: "Procurement", make: 80, buy: 60, decision: "Make", color: "text-primary bg-primary/10" },
+    { service: "Marketing", make: 65, buy: 70, decision: "Hybrid", color: "text-accent-pop bg-accent-pop/10" },
   ];
 
   const vendorBenchmarks = [
@@ -194,13 +194,13 @@ export function VendorIntelligence({ content, hasData, onGenerate }: { content: 
                   <td className="py-2.5 px-3 font-medium">{row.service}</td>
                   <td className="py-2.5 px-3 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-emerald-500 rounded-full" style={{ width: `${row.make}%` }} /></div>
+                      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${row.make}%` }} /></div>
                       <span>{row.make}</span>
                     </div>
                   </td>
                   <td className="py-2.5 px-3 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${row.buy}%` }} /></div>
+                      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-chart-1 rounded-full" style={{ width: `${row.buy}%` }} /></div>
                       <span>{row.buy}</span>
                     </div>
                   </td>

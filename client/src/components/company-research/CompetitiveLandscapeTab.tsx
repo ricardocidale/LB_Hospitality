@@ -67,16 +67,16 @@ export function CompetitiveLandscapeTab({ content }: CompetitiveLandscapeTabProp
                 <span className="text-[10px] text-muted-foreground bg-muted rounded-full px-2 py-0.5 whitespace-nowrap">{c.examples}</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                <div className="bg-emerald-50/50 rounded-lg p-2 border border-emerald-100">
-                  <span className="font-medium text-emerald-700">Strengths: </span>
+                <div className="bg-primary/5 rounded-lg p-2 border border-primary/15">
+                  <span className="font-medium text-primary">Strengths: </span>
                   <span className="text-foreground">{c.strengths}</span>
                 </div>
-                <div className="bg-amber-50/50 rounded-lg p-2 border border-amber-100">
-                  <span className="font-medium text-amber-700">Weaknesses: </span>
+                <div className="bg-accent-pop/10 rounded-lg p-2 border border-accent-pop/15">
+                  <span className="font-medium text-accent-pop">Weaknesses: </span>
                   <span className="text-foreground">{c.weaknesses}</span>
                 </div>
-                <div className="bg-blue-50/50 rounded-lg p-2 border border-blue-100">
-                  <span className="font-medium text-blue-700">Relevance: </span>
+                <div className="bg-chart-1/10 rounded-lg p-2 border border-chart-1/15">
+                  <span className="font-medium text-chart-1">Relevance: </span>
                   <span className="text-foreground">{c.relevance}</span>
                 </div>
               </div>

@@ -137,27 +137,27 @@ export function IndustryResearchTab() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="rounded-xl p-3 bg-emerald-50 border border-emerald-200">
+            <div className="rounded-xl p-3 bg-primary/10 border border-primary/20">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Asset Type</p>
               <p className="text-sm font-semibold text-foreground" data-testid="text-research-asset-type">{currentGlobal.propertyLabel || "Boutique Hotel"}</p>
             </div>
-            <div className="rounded-xl p-3 bg-emerald-50 border border-emerald-200">
+            <div className="rounded-xl p-3 bg-primary/10 border border-primary/20">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Tier</p>
               <p className="text-sm font-semibold text-foreground capitalize" data-testid="text-research-tier">{currentGlobal.assetDefinition?.level || "luxury"}</p>
             </div>
-            <div className="rounded-xl p-3 bg-blue-50 border border-blue-200">
+            <div className="rounded-xl p-3 bg-chart-1/10 border border-chart-1/20">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Room Range</p>
               <p className="text-sm font-semibold text-foreground" data-testid="text-research-rooms">{currentGlobal.assetDefinition?.minRooms ?? 10}–{currentGlobal.assetDefinition?.maxRooms ?? 80}</p>
             </div>
-            <div className="rounded-xl p-3 bg-blue-50 border border-blue-200">
+            <div className="rounded-xl p-3 bg-chart-1/10 border border-chart-1/20">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">ADR Range</p>
               <p className="text-sm font-semibold text-foreground" data-testid="text-research-adr">${currentGlobal.assetDefinition?.minAdr ?? 150}–${currentGlobal.assetDefinition?.maxAdr ?? 600}</p>
             </div>
-            <div className="rounded-xl p-3 bg-amber-50 border border-amber-200">
+            <div className="rounded-xl p-3 bg-accent-pop/10 border border-accent-pop/20">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Inflation</p>
               <p className="text-sm font-semibold text-foreground" data-testid="text-research-inflation">{((currentGlobal.inflationRate ?? DEFAULT_PROPERTY_INFLATION_RATE) * 100).toFixed(1)}%</p>
             </div>
-            <div className="rounded-xl p-3 bg-amber-50 border border-amber-200">
+            <div className="rounded-xl p-3 bg-accent-pop/10 border border-accent-pop/20">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Model Duration</p>
               <p className="text-sm font-semibold text-foreground" data-testid="text-research-duration">{currentGlobal.projectionYears ?? 10} years</p>
             </div>

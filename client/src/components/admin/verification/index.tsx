@@ -387,16 +387,16 @@ export default function VerificationTab() {
             </div>
             <div className="space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Passed</p>
-              <p className="text-xl font-mono font-black text-green-600">{totalSuitePassed}</p>
+              <p className="text-xl font-mono font-black text-primary">{totalSuitePassed}</p>
             </div>
             <div className="space-y-1">
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Failed</p>
-              <p className={`text-xl font-mono font-black ${totalSuiteFailed > 0 ? "text-red-600" : "text-green-600"}`}>{totalSuiteFailed}</p>
+              <p className={`text-xl font-mono font-black ${totalSuiteFailed > 0 ? "text-destructive" : "text-primary"}`}>{totalSuiteFailed}</p>
             </div>
             {totalSuiteWarning > 0 && (
               <div className="space-y-1">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Warnings</p>
-                <p className="text-xl font-mono font-black text-yellow-600">{totalSuiteWarning}</p>
+                <p className="text-xl font-mono font-black text-accent-pop">{totalSuiteWarning}</p>
               </div>
             )}
             <div className="space-y-1">
@@ -404,14 +404,14 @@ export default function VerificationTab() {
               <div className="flex items-center gap-2">
                 <span className={`text-xl font-black ${
                   overallSuiteStatus === "PASS" ? "text-secondary" :
-                  overallSuiteStatus === "WARNING" ? "text-yellow-600" :
-                  "text-red-600"
+                  overallSuiteStatus === "WARNING" ? "text-accent-pop" :
+                  "text-destructive"
                 }`}>
                   {overallSuiteStatus}
                 </span>
                 {overallSuiteStatus === "PASS" ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> :
-                 overallSuiteStatus === "WARNING" ? <IconAlertTriangle className="w-5 h-5 text-yellow-600" /> :
-                 <IconXCircle className="w-5 h-5 text-red-500" />}
+                 overallSuiteStatus === "WARNING" ? <IconAlertTriangle className="w-5 h-5 text-accent-pop" /> :
+                 <IconXCircle className="w-5 h-5 text-destructive" />}
               </div>
             </div>
           </div>
@@ -465,22 +465,22 @@ export default function VerificationTab() {
                       <div className="flex items-center gap-2">
                         <span className={`text-xl font-black ${
                           verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? 'text-secondary' :
-                          verificationResults.summary.auditOpinion === 'QUALIFIED' ? 'text-yellow-600' :
-                          'text-red-600'
+                          verificationResults.summary.auditOpinion === 'QUALIFIED' ? 'text-accent-pop' :
+                          'text-destructive'
                         }`}>
                           {verificationResults.summary.auditOpinion}
                         </span>
                         {verificationResults.summary.auditOpinion === 'UNQUALIFIED' ? <IconCheckCircle2 className="w-5 h-5 text-secondary" /> :
-                         verificationResults.summary.auditOpinion === 'QUALIFIED' ? <IconAlertTriangle className="w-5 h-5 text-yellow-600" /> :
-                         <IconXCircle className="w-5 h-5 text-red-500" />}
+                         verificationResults.summary.auditOpinion === 'QUALIFIED' ? <IconAlertTriangle className="w-5 h-5 text-accent-pop" /> :
+                         <IconXCircle className="w-5 h-5 text-destructive" />}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Overall Status</p>
                       <p className={`text-xl font-mono font-black ${
                         verificationResults.summary.overallStatus === 'PASS' ? 'text-secondary' :
-                        verificationResults.summary.overallStatus === 'WARNING' ? 'text-yellow-600' :
-                        'text-red-600'
+                        verificationResults.summary.overallStatus === 'WARNING' ? 'text-accent-pop' :
+                        'text-destructive'
                       }`}>
                         {verificationResults.summary.overallStatus}
                       </p>
@@ -492,11 +492,11 @@ export default function VerificationTab() {
                     <div className="space-y-1">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Failures</p>
                       <div className="flex items-center gap-2">
-                        <p className={`text-xl font-mono font-black ${verificationResults.summary.totalFailed > 0 ? 'text-red-600' : 'text-secondary'}`}>
+                        <p className={`text-xl font-mono font-black ${verificationResults.summary.totalFailed > 0 ? 'text-destructive' : 'text-secondary'}`}>
                           {verificationResults.summary.totalFailed}
                         </p>
                         {verificationResults.summary.criticalIssues > 0 && (
-                          <span className="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">
+                          <span className="bg-destructive text-white text-[9px] px-1.5 py-0.5 rounded font-bold">
                             {verificationResults.summary.criticalIssues} CRITICAL
                           </span>
                         )}

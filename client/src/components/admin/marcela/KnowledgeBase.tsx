@@ -113,8 +113,8 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-violet-500/5 flex items-center justify-center">
-                <IconBookOpen className="w-5 h-5 text-violet-600" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-chart-3/15 to-chart-3/5 flex items-center justify-center">
+                <IconBookOpen className="w-5 h-5 text-chart-3" />
               </div>
               <div>
                 <CardTitle className="text-sm font-semibold text-foreground">Knowledge Base Sources</CardTitle>
@@ -205,11 +205,11 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
           )}
 
           {rebuildMutation.isPending && (
-            <div className="flex items-center gap-3 p-3.5 bg-gradient-to-br from-blue-50 to-indigo-50/50 rounded-xl border border-blue-200/60">
-              <Loader2 className="w-4 h-4 text-blue-600 animate-spin shrink-0" />
+            <div className="flex items-center gap-3 p-3.5 bg-gradient-to-br from-chart-1/10 to-line-3/5 rounded-xl border border-chart-1/20">
+              <Loader2 className="w-4 h-4 text-chart-1 animate-spin shrink-0" />
               <div>
-                <p className="text-xs font-semibold text-blue-900">Rebuilding knowledge base...</p>
-                <p className="text-xs text-blue-700/80 mt-0.5">
+                <p className="text-xs font-semibold text-chart-1">Rebuilding knowledge base...</p>
+                <p className="text-xs text-chart-1/80 mt-0.5">
                   Compiling {activeSelection.size} sources and uploading to ElevenLabs
                 </p>
               </div>
@@ -247,8 +247,8 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
       <Card className="bg-card border border-border/80 shadow-sm" data-testid="card-kb-elevenlabs">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center">
-              <IconBookOpen className="w-5 h-5 text-emerald-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
+              <IconBookOpen className="w-5 h-5 text-primary" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">ElevenLabs Knowledge Base</CardTitle>
@@ -262,16 +262,16 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
           {hasElevenlabsDocs && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <IconCheckCircle2 className="w-4 h-4 text-green-500" />
+                <IconCheckCircle2 className="w-4 h-4 text-primary" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
                   Attached Documents ({elevenlabsKbDocs.length})
                 </span>
               </div>
               <div className="space-y-1.5">
                 {elevenlabsKbDocs.map((doc: any) => (
-                  <div key={doc.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50/50 to-emerald-50/30 rounded-xl border border-green-200/40">
+                  <div key={doc.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-primary/5 to-primary/3 rounded-xl border border-primary/20">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <IconFileText className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                      <IconFileText className="w-3.5 h-3.5 text-primary shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs font-medium truncate">{doc.name || doc.id}</p>
                         <p className="text-[10px] text-muted-foreground/50 font-mono">{doc.type || "document"}</p>
@@ -280,7 +280,7 @@ export function KnowledgeBaseCard({ agentName }: KnowledgeBaseCardProps) {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="w-7 h-7 text-muted-foreground/40 hover:text-red-500 shrink-0"
+                      className="w-7 h-7 text-muted-foreground/40 hover:text-destructive shrink-0"
                       onClick={() => removeDocMutation.mutate(doc.id)}
                       disabled={removeDocMutation.isPending}
                       data-testid={`button-remove-doc-${doc.id}`}

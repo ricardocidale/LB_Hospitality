@@ -28,12 +28,12 @@ function StatusBadge({ status }: { status: "fresh" | "stale" | "missing" }) {
   const config = {
     fresh: {
       label: "Fresh",
-      className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      className: "bg-primary/10 text-primary border-primary/20",
       icon: Check,
     },
     stale: {
       label: "Stale",
-      className: "bg-amber-50 text-amber-700 border-amber-200",
+      className: "bg-accent-pop/10 text-accent-pop border-accent-pop/20",
       icon: IconClock,
     },
     missing: {
@@ -317,8 +317,8 @@ export default function ResearchHub() {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center">
-                  <IconBuilding2 className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-xl bg-chart-1/10 border border-chart-1/20 flex items-center justify-center">
+                  <IconBuilding2 className="w-5 h-5 text-chart-1" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">
@@ -334,11 +334,11 @@ export default function ResearchHub() {
             <div className="space-y-2 mb-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Fresh</span>
-                <span className="font-medium text-emerald-700">{freshCount}</span>
+                <span className="font-medium text-primary">{freshCount}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Stale</span>
-                <span className="font-medium text-amber-700">{staleCount}</span>
+                <span className="font-medium text-accent-pop">{staleCount}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Missing</span>
@@ -365,8 +365,8 @@ export default function ResearchHub() {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center">
-                  <IconBriefcase className="w-5 h-5 text-purple-600" />
+                <div className="w-10 h-10 rounded-xl bg-chart-3/10 border border-chart-3/20 flex items-center justify-center">
+                  <IconBriefcase className="w-5 h-5 text-chart-3" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">
@@ -405,8 +405,8 @@ export default function ResearchHub() {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                  <IconGlobe className="w-5 h-5 text-emerald-600" />
+                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <IconGlobe className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h3 className="font-display font-semibold text-foreground">

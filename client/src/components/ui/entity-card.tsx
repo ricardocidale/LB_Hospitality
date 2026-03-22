@@ -96,13 +96,13 @@ export function EntityCardItem({
   children,
   "data-testid": testId,
 }: EntityCardItemProps) {
-  const accent = accentColor === "blue" ? "blue-500" : "primary";
-  const bgClass = accentColor === "blue" ? "bg-blue-500/5" : "bg-primary/5";
-  const borderClass = accentColor === "blue" ? "border-blue-500/20" : "border-border";
-  const iconBgClass = accentColor === "blue" ? "bg-blue-500/10" : "bg-primary/10";
-  const editHoverClass = accentColor === "blue" ? "text-blue-500 hover:text-foreground hover:bg-blue-500/10" : "text-primary hover:text-foreground hover:bg-primary/10";
-  const metaBgClass = accentColor === "blue" ? "bg-blue-500/10" : "bg-primary/10";
-  const memberBorderClass = accentColor === "blue" ? "border-blue-500/20" : "border-border";
+  const accent = accentColor === "blue" ? "chart-1" : "primary";
+  const bgClass = accentColor === "blue" ? "bg-chart-1/5" : "bg-primary/5";
+  const borderClass = accentColor === "blue" ? "border-chart-1/20" : "border-border";
+  const iconBgClass = accentColor === "blue" ? "bg-chart-1/10" : "bg-primary/10";
+  const editHoverClass = accentColor === "blue" ? "text-chart-1 hover:text-foreground hover:bg-chart-1/10" : "text-primary hover:text-foreground hover:bg-primary/10";
+  const metaBgClass = accentColor === "blue" ? "bg-chart-1/10" : "bg-primary/10";
+  const memberBorderClass = accentColor === "blue" ? "border-chart-1/20" : "border-border";
 
   return (
     <div className={cn(bgClass, "border", borderClass, "rounded-lg p-4")} data-testid={testId || `entity-card-${id}`}>
@@ -130,7 +130,7 @@ export function EntityCardItem({
               </Button>
             )}
             {onDelete && (
-              <Button variant="ghost" size="sm" onClick={onDelete} className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-${testId || id}`}>
+              <Button variant="ghost" size="sm" onClick={onDelete} className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10" data-testid={`button-delete-${testId || id}`}>
                 <IconTrash className="w-4 h-4" />
               </Button>
             )}

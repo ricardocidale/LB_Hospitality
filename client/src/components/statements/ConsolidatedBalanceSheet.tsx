@@ -336,8 +336,8 @@ export function ConsolidatedBalanceSheet({ properties, global, allProFormas, yea
 
       {isUnbalanced && (
         <tr>
-          <td colSpan={2} className="px-4 py-2 bg-red-50 border-t border-red-200">
-            <span className="text-red-700 text-xs font-medium">
+          <td colSpan={2} className="px-4 py-2 bg-destructive/10 border-t border-destructive/20">
+            <span className="text-destructive text-xs font-medium">
               Balance sheet does not balance — Assets {formatMoney(totalAssets)} ≠ L+E {formatMoney(totalLiabilities + totalEquity)} (variance: {formatMoney(balanceSheetVariance)})
             </span>
           </td>

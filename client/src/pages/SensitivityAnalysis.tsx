@@ -594,7 +594,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-mono font-bold text-foreground">{(baseResult.irr * 100).toFixed(1)}%</span>
                 {hasAdjustments && (
-                  <span className={`text-xs font-bold ${(adjustedResult.irr - baseResult.irr) >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+                  <span className={`text-xs font-bold ${(adjustedResult.irr - baseResult.irr) >= 0 ? "text-primary" : "text-destructive"}`}>
                     { (adjustedResult.irr - baseResult.irr) >= 0 ? "+" : "" }
                     {((adjustedResult.irr - baseResult.irr) * 100).toFixed(1)}pp
                   </span>
@@ -606,7 +606,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-mono font-bold text-foreground">{formatMoney(baseResult.totalNOI)}</span>
                 {hasAdjustments && (
-                  <span className={`text-xs font-bold ${pctChange(adjustedResult.totalNOI, baseResult.totalNOI) >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+                  <span className={`text-xs font-bold ${pctChange(adjustedResult.totalNOI, baseResult.totalNOI) >= 0 ? "text-primary" : "text-destructive"}`}>
                     { pctChange(adjustedResult.totalNOI, baseResult.totalNOI) >= 0 ? "+" : "" }
                     {pctChange(adjustedResult.totalNOI, baseResult.totalNOI).toFixed(1)}%
                   </span>
@@ -618,7 +618,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-mono font-bold text-foreground">{formatMoney(baseResult.exitValue)}</span>
                 {hasAdjustments && (
-                  <span className={`text-xs font-bold ${pctChange(adjustedResult.exitValue, baseResult.exitValue) >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+                  <span className={`text-xs font-bold ${pctChange(adjustedResult.exitValue, baseResult.exitValue) >= 0 ? "text-primary" : "text-destructive"}`}>
                     { pctChange(adjustedResult.exitValue, baseResult.exitValue) >= 0 ? "+" : "" }
                     {pctChange(adjustedResult.exitValue, baseResult.exitValue).toFixed(1)}%
                   </span>
@@ -628,7 +628,7 @@ export default function SensitivityAnalysis({ embedded }: { embedded?: boolean }
             <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Adjusted IRR</span>
               <div className="flex items-center justify-between">
-                <span className={`text-2xl font-mono font-bold ${hasAdjustments ? (adjustedResult.irr >= baseResult.irr ? "text-emerald-600" : "text-red-600") : "text-foreground"}`}>
+                <span className={`text-2xl font-mono font-bold ${hasAdjustments ? (adjustedResult.irr >= baseResult.irr ? "text-primary" : "text-destructive") : "text-foreground"}`}>
                   {(adjustedResult.irr * 100).toFixed(1)}%
                 </span>
                 {hasAdjustments && (

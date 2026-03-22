@@ -16,12 +16,12 @@ import { AnimatedPage } from "@/components/graphics/AnimatedPage";
 import { fireResearchConfetti } from "@/lib/confetti";
 
 const sectionColors = {
-  industry: { accent: "hsl(var(--chart-2))", bg: "bg-emerald-50", border: "border-emerald-200", iconBg: "bg-emerald-100", iconText: "text-emerald-700" },
-  events: { accent: "#D97706", bg: "bg-amber-50", border: "border-amber-200", iconBg: "bg-amber-100", iconText: "text-amber-700" },
-  financial: { accent: "#3B82F6", bg: "bg-blue-50", border: "border-blue-200", iconBg: "bg-blue-100", iconText: "text-blue-700" },
-  debt: { accent: "#0891B2", bg: "bg-cyan-50", border: "border-cyan-200", iconBg: "bg-cyan-100", iconText: "text-cyan-700" },
-  regulatory: { accent: "#DC2626", bg: "bg-red-50", border: "border-red-200", iconBg: "bg-red-100", iconText: "text-red-700" },
-  sources: { accent: "#6B7280", bg: "bg-muted", border: "border-border", iconBg: "bg-muted", iconText: "text-muted-foreground" },
+  industry: { accent: "hsl(var(--primary))", bg: "bg-primary/10", border: "border-primary/20", iconBg: "bg-primary/15", iconText: "text-primary" },
+  events: { accent: "hsl(var(--accent-pop))", bg: "bg-accent-pop/10", border: "border-accent-pop/20", iconBg: "bg-accent-pop/15", iconText: "text-accent-pop" },
+  financial: { accent: "hsl(var(--chart-1))", bg: "bg-chart-1/10", border: "border-chart-1/20", iconBg: "bg-chart-1/15", iconText: "text-chart-1" },
+  debt: { accent: "hsl(var(--accent-pop-2))", bg: "bg-accent-pop-2/10", border: "border-accent-pop-2/20", iconBg: "bg-accent-pop-2/15", iconText: "text-accent-pop-2" },
+  regulatory: { accent: "hsl(var(--destructive))", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive" },
+  sources: { accent: "hsl(var(--muted-foreground))", bg: "bg-muted", border: "border-border", iconBg: "bg-muted", iconText: "text-muted-foreground" },
 };
 
 function MetricCard({ label, value, color }: { label: string; value: string; color: typeof sectionColors.industry }) {
@@ -201,8 +201,8 @@ export default function GlobalResearch() {
         {isGenerating && (
           <div className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
+              <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
+                <Loader2 className="w-4 h-4 animate-spin text-primary" />
               </div>
               <p className="text-muted-foreground text-sm font-medium">Researching global {(global?.propertyLabel || "boutique hotel").toLowerCase()} industry data...</p>
             </div>
@@ -224,17 +224,17 @@ export default function GlobalResearch() {
               Generate AI-powered analysis of the {(global?.propertyLabel || "boutique hotel").toLowerCase()} industry — market size, growth trends, event hospitality demand, financial benchmarks, debt market conditions, and regulatory environment.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto mb-8 text-left">
-              <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-200">
-                <p className="text-xs font-semibold text-emerald-800 mb-1">Industry Trends</p>
-                <p className="text-xs text-emerald-700">Market size, growth rates, and emerging segments</p>
+              <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
+                <p className="text-xs font-semibold text-primary mb-1">Industry Trends</p>
+                <p className="text-xs text-primary">Market size, growth rates, and emerging segments</p>
               </div>
-              <div className="bg-blue-50 rounded-xl p-3 border border-blue-200">
-                <p className="text-xs font-semibold text-blue-800 mb-1">Financial Benchmarks</p>
-                <p className="text-xs text-blue-700">ADR, occupancy, cap rate, and RevPAR trends</p>
+              <div className="bg-chart-1/10 rounded-xl p-3 border border-chart-1/20">
+                <p className="text-xs font-semibold text-chart-1 mb-1">Financial Benchmarks</p>
+                <p className="text-xs text-chart-1">ADR, occupancy, cap rate, and RevPAR trends</p>
               </div>
-              <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
-                <p className="text-xs font-semibold text-amber-800 mb-1">Debt & Regulatory</p>
-                <p className="text-xs text-amber-700">Interest rates, LTV ranges, and compliance updates</p>
+              <div className="bg-accent-pop/10 rounded-xl p-3 border border-accent-pop/20">
+                <p className="text-xs font-semibold text-accent-pop mb-1">Debt & Regulatory</p>
+                <p className="text-xs text-accent-pop">Interest rates, LTV ranges, and compliance updates</p>
               </div>
             </div>
             <Button
@@ -287,7 +287,7 @@ export default function GlobalResearch() {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Growth</p>
-                          <p className="text-emerald-600 leading-relaxed">{content.eventHospitality.wellnessRetreats.growth}</p>
+                          <p className="text-primary leading-relaxed">{content.eventHospitality.wellnessRetreats.growth}</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Avg Rev/Event</p>
@@ -314,7 +314,7 @@ export default function GlobalResearch() {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Growth</p>
-                          <p className="text-emerald-600 leading-relaxed">{content.eventHospitality.corporateEvents.growth}</p>
+                          <p className="text-primary leading-relaxed">{content.eventHospitality.corporateEvents.growth}</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Avg Rev/Event</p>
@@ -348,7 +348,7 @@ export default function GlobalResearch() {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Growth</p>
-                          <p className="text-emerald-600 leading-relaxed">{content.eventHospitality.yogaRetreats.growth}</p>
+                          <p className="text-primary leading-relaxed">{content.eventHospitality.yogaRetreats.growth}</p>
                         </div>
                         {content.eventHospitality.yogaRetreats.demographics && (
                           <div className="pt-2 border-t border-border">
@@ -371,7 +371,7 @@ export default function GlobalResearch() {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Growth</p>
-                          <p className="text-emerald-600 leading-relaxed">{content.eventHospitality.relationshipRetreats.growth}</p>
+                          <p className="text-primary leading-relaxed">{content.eventHospitality.relationshipRetreats.growth}</p>
                         </div>
                         {content.eventHospitality.relationshipRetreats.positioning && (
                           <div className="pt-2 border-t border-border">
@@ -405,7 +405,7 @@ export default function GlobalResearch() {
                             <tr key={i} className="border-b border-border">
                               <td className="p-3 text-foreground">{r.year}</td>
                               <td className="p-3 text-right text-foreground">{r.national}</td>
-                              <td className="p-3 text-right text-emerald-600 font-medium">{r.boutique}</td>
+                              <td className="p-3 text-right text-primary font-medium">{r.boutique}</td>
                               <td className="p-3 text-right text-foreground">{r.luxury}</td>
                             </tr>
                           ))}
@@ -432,7 +432,7 @@ export default function GlobalResearch() {
                             <tr key={i} className="border-b border-border">
                               <td className="p-3 text-foreground">{r.year}</td>
                               <td className="p-3 text-right text-foreground">{r.national}</td>
-                              <td className="p-3 text-right text-emerald-600 font-medium">{r.boutique}</td>
+                              <td className="p-3 text-right text-primary font-medium">{r.boutique}</td>
                             </tr>
                           ))}
                         </tbody>

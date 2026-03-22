@@ -201,7 +201,7 @@ export function GrandTotalRow({
       </TableCell>
       {values.map((v, i) => (
         <TableCell key={i} className="text-right py-1.5 font-mono px-2">
-          <Money amount={v} className={v < 0 ? "text-red-200" : ""} />
+          <Money amount={v} className={v < 0 ? "text-destructive/60" : ""} />
         </TableCell>
       ))}
     </TableRow>

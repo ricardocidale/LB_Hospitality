@@ -52,17 +52,17 @@ export function ResearchSections({ content }: { content: any }) {
             <div className="space-y-3">
               {content.stabilizationTimeline.phases.map((phase: any, i: number) => (
                 <div key={i} className="flex gap-4 items-start">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-300 flex items-center justify-center">
-                    <span className="text-sm font-bold text-amber-800">{i + 1}</span>
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-accent-pop/15 border-2 border-accent-pop/30 flex items-center justify-center">
+                    <span className="text-sm font-bold text-accent-pop">{i + 1}</span>
                   </div>
-                  <div className="flex-1 rounded-xl bg-amber-50 border border-amber-200 p-4">
+                  <div className="flex-1 rounded-xl bg-accent-pop/10 border border-accent-pop/20 p-4">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-semibold text-foreground">{phase.phase}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-200 text-amber-800 font-medium">{phase.duration}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-accent-pop/20 text-accent-pop font-medium">{phase.duration}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">{phase.description}</p>
                     {phase.occupancyTarget && (
-                      <p className="text-xs text-amber-700 mt-1 font-medium">Target Occupancy: {phase.occupancyTarget}</p>
+                      <p className="text-xs text-accent-pop mt-1 font-medium">Target Occupancy: {phase.occupancyTarget}</p>
                     )}
                   </div>
                 </div>
@@ -70,9 +70,9 @@ export function ResearchSections({ content }: { content: any }) {
             </div>
           )}
           {content.stabilizationTimeline.totalMonths && (
-            <div className="mt-4 rounded-xl bg-amber-100 border border-amber-300 p-4 text-center">
-              <p className="text-xs text-amber-700 uppercase tracking-wider font-medium mb-1">Estimated Time to Stabilization</p>
-              <p className="text-2xl font-bold text-amber-900">{content.stabilizationTimeline.totalMonths}</p>
+            <div className="mt-4 rounded-xl bg-accent-pop/15 border border-accent-pop/30 p-4 text-center">
+              <p className="text-xs text-accent-pop uppercase tracking-wider font-medium mb-1">Estimated Time to Stabilization</p>
+              <p className="text-2xl font-bold text-accent-pop">{content.stabilizationTimeline.totalMonths}</p>
             </div>
           )}
         </SectionCard>
@@ -86,7 +86,7 @@ export function ResearchSections({ content }: { content: any }) {
             <MetricCard label="Recommended Range" value={content.adrAnalysis.recommendedRange || "N/A"} color={sectionColors.adr} confidence={content.adrAnalysis.confidence} />
           </div>
           {content.adrAnalysis.rationale && (
-            <div className="bg-blue-50 rounded-xl p-4 border-l-4 border-blue-400 mb-5">
+            <div className="bg-chart-1/10 rounded-xl p-4 border-l-4 border-chart-1/40 mb-5">
               <p className="text-sm text-foreground leading-relaxed">{content.adrAnalysis.rationale}</p>
             </div>
           )}
@@ -96,7 +96,7 @@ export function ResearchSections({ content }: { content: any }) {
               <div className="rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-blue-50/80">
+                    <tr className="bg-chart-1/8">
                       <th className="text-left p-3 text-muted-foreground font-semibold">Property</th>
                       <th className="text-right p-3 text-muted-foreground font-semibold">ADR</th>
                       <th className="text-left p-3 text-muted-foreground font-semibold">Type</th>
@@ -104,9 +104,9 @@ export function ResearchSections({ content }: { content: any }) {
                   </thead>
                   <tbody>
                     {content.adrAnalysis.comparables.map((c: any, i: number) => (
-                      <tr key={i} className="border-t border-border hover:bg-blue-50/40 transition-colors">
+                      <tr key={i} className="border-t border-border hover:bg-chart-1/5 transition-colors">
                         <td className="p-3 text-foreground font-medium">{c.name}</td>
-                        <td className="p-3 text-right font-semibold text-blue-700">{c.adr}</td>
+                        <td className="p-3 text-right font-semibold text-chart-1">{c.adr}</td>
                         <td className="p-3 text-muted-foreground">{c.type}</td>
                       </tr>
                     ))}
@@ -130,7 +130,7 @@ export function ResearchSections({ content }: { content: any }) {
               <div className="rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-violet-50/80">
+                    <tr className="bg-chart-3/8">
                       <th className="text-left p-3 text-muted-foreground font-semibold">Season</th>
                       <th className="text-right p-3 text-muted-foreground font-semibold">Occupancy</th>
                       <th className="text-left p-3 text-muted-foreground font-semibold">Notes</th>
@@ -138,9 +138,9 @@ export function ResearchSections({ content }: { content: any }) {
                   </thead>
                   <tbody>
                     {content.occupancyAnalysis.seasonalPattern.map((s: any, i: number) => (
-                      <tr key={i} className="border-t border-border hover:bg-violet-50/40 transition-colors">
+                      <tr key={i} className="border-t border-border hover:bg-chart-3/5 transition-colors">
                         <td className="p-3 text-foreground font-medium">{s.season}</td>
-                        <td className="p-3 text-right font-semibold text-violet-700">{s.occupancy}</td>
+                        <td className="p-3 text-right font-semibold text-chart-3">{s.occupancy}</td>
                         <td className="p-3 text-muted-foreground">{s.notes}</td>
                       </tr>
                     ))}
@@ -156,42 +156,42 @@ export function ResearchSections({ content }: { content: any }) {
         <SectionCard icon={IconUsers} title="Event & Experience Demand" color={sectionColors.events}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
             {content.eventDemand.corporateEvents && (
-              <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
+              <div className="rounded-xl border border-accent-pop/20 bg-accent-pop/10 p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-orange-200 text-orange-800 font-semibold uppercase tracking-wider">Corporate</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent-pop/20 text-accent-pop font-semibold uppercase tracking-wider">Corporate</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">{content.eventDemand.corporateEvents}</p>
               </div>
             )}
             {content.eventDemand.exoticEvents && (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
+              <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-rose-200 text-rose-800 font-semibold uppercase tracking-wider">Exotic & Unique</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/20 text-destructive font-semibold uppercase tracking-wider">Exotic & Unique</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">{content.eventDemand.exoticEvents}</p>
               </div>
             )}
             {content.eventDemand.wellnessRetreats && (
-              <div className="rounded-xl border border-teal-200 bg-teal-50 p-4">
+              <div className="rounded-xl border border-accent-pop-2/20 bg-accent-pop-2/10 p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-teal-200 text-teal-800 font-semibold uppercase tracking-wider">Wellness</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent-pop-2/20 text-accent-pop-2 font-semibold uppercase tracking-wider">Wellness</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">{content.eventDemand.wellnessRetreats}</p>
               </div>
             )}
             {content.eventDemand.weddingsPrivate && (
-              <div className="rounded-xl border border-pink-200 bg-pink-50 p-4">
+              <div className="rounded-xl border border-line-5/20 bg-line-5/10 p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-pink-200 text-pink-800 font-semibold uppercase tracking-wider">Weddings & Private</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-line-5/20 text-line-5 font-semibold uppercase tracking-wider">Weddings & Private</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">{content.eventDemand.weddingsPrivate}</p>
               </div>
             )}
           </div>
           {content.eventDemand.estimatedEventRevShare && (
-            <div className="rounded-xl bg-orange-100 border border-orange-300 p-3 text-center mb-5">
-              <p className="text-xs text-orange-700 uppercase tracking-wider font-medium mb-0.5">Estimated Event Revenue Share</p>
-              <p className="text-lg font-bold text-orange-900">{content.eventDemand.estimatedEventRevShare}</p>
+            <div className="rounded-xl bg-accent-pop/15 border border-accent-pop/30 p-3 text-center mb-5">
+              <p className="text-xs text-accent-pop uppercase tracking-wider font-medium mb-0.5">Estimated Event Revenue Share</p>
+              <p className="text-lg font-bold text-accent-pop">{content.eventDemand.estimatedEventRevShare}</p>
             </div>
           )}
           {content.eventDemand.keyDrivers && content.eventDemand.keyDrivers.length > 0 && (
@@ -200,8 +200,8 @@ export function ResearchSections({ content }: { content: any }) {
               <ul className="space-y-2">
                 {content.eventDemand.keyDrivers.map((d: string, i: number) => (
                   <li key={i} className="text-sm text-muted-foreground flex items-start gap-2.5">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center mt-0.5">
-                      <span className="text-xs font-bold text-orange-700">{i + 1}</span>
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent-pop/15 flex items-center justify-center mt-0.5">
+                      <span className="text-xs font-bold text-accent-pop">{i + 1}</span>
                     </span>
                     {d}
                   </li>
@@ -217,7 +217,7 @@ export function ResearchSections({ content }: { content: any }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
             <MetricCard label="Recommended Boost" value={content.cateringAnalysis.recommendedBoostPercent || "N/A"} color={sectionColors.catering} confidence={content.cateringAnalysis.confidence} />
             <MetricCard label="Market Range" value={content.cateringAnalysis.marketRange || "N/A"} color={sectionColors.catering} />
-            <div className="rounded-xl p-4 border border-fuchsia-200 bg-fuchsia-50">
+            <div className="rounded-xl p-4 border border-chart-3/20 bg-chart-3/10">
               <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-muted-foreground">Formula</p>
               <p className="text-sm font-mono text-foreground">Total F&B = Base F&B × (1 + Boost%)</p>
             </div>
@@ -231,17 +231,17 @@ export function ResearchSections({ content }: { content: any }) {
           {content.cateringAnalysis.eventMixBreakdown && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
               {content.cateringAnalysis.eventMixBreakdown.fullyCatered && (
-                <div className="rounded-xl border border-fuchsia-200 bg-fuchsia-50 p-4">
+                <div className="rounded-xl border border-chart-3/20 bg-chart-3/10 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-fuchsia-200 text-fuchsia-800 font-semibold uppercase tracking-wider">Fully Catered</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-chart-3/20 text-chart-3 font-semibold uppercase tracking-wider">Fully Catered</span>
                   </div>
                   <p className="text-sm text-foreground leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.fullyCatered}</p>
                 </div>
               )}
               {content.cateringAnalysis.eventMixBreakdown.partiallyCatered && (
-                <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
+                <div className="rounded-xl border border-chart-3/20 bg-chart-3/10 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-200 text-purple-800 font-semibold uppercase tracking-wider">Partially Catered</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-chart-3/20 text-chart-3 font-semibold uppercase tracking-wider">Partially Catered</span>
                   </div>
                   <p className="text-sm text-foreground leading-relaxed">{content.cateringAnalysis.eventMixBreakdown.partiallyCatered}</p>
                 </div>
@@ -262,8 +262,8 @@ export function ResearchSections({ content }: { content: any }) {
               <ul className="space-y-2">
                 {content.cateringAnalysis.factors.map((f: string, i: number) => (
                   <li key={i} className="text-sm text-muted-foreground flex items-start gap-2.5">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-fuchsia-100 flex items-center justify-center mt-0.5">
-                      <span className="text-xs font-bold text-fuchsia-700">{i + 1}</span>
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-chart-3/15 flex items-center justify-center mt-0.5">
+                      <span className="text-xs font-bold text-chart-3">{i + 1}</span>
                     </span>
                     {f}
                   </li>
@@ -282,7 +282,7 @@ export function ResearchSections({ content }: { content: any }) {
             <MetricCard label="Recommended Range" value={content.capRateAnalysis.recommendedRange || "N/A"} color={sectionColors.capRate} confidence={content.capRateAnalysis.confidence} />
           </div>
           {content.capRateAnalysis.rationale && (
-            <div className="bg-cyan-50 rounded-xl p-4 border-l-4 border-cyan-400 mb-5">
+            <div className="bg-accent-pop-2/10 rounded-xl p-4 border-l-4 border-accent-pop-2/40 mb-5">
               <p className="text-sm text-foreground leading-relaxed" data-testid="text-cap-rate-rationale">{content.capRateAnalysis.rationale}</p>
             </div>
           )}
@@ -290,7 +290,7 @@ export function ResearchSections({ content }: { content: any }) {
             <div className="rounded-xl border border-border overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-cyan-50/80">
+                  <tr className="bg-accent-pop-2/8">
                     <th className="text-left p-3 text-muted-foreground font-semibold">Property</th>
                     <th className="text-right p-3 text-muted-foreground font-semibold">Cap Rate</th>
                     <th className="text-right p-3 text-muted-foreground font-semibold">Sale Year</th>
@@ -299,9 +299,9 @@ export function ResearchSections({ content }: { content: any }) {
                 </thead>
                 <tbody>
                   {content.capRateAnalysis.comparables.map((c: any, i: number) => (
-                    <tr key={i} className="border-t border-border hover:bg-cyan-50/40 transition-colors" data-testid={`row-cap-rate-comp-${i}`}>
+                    <tr key={i} className="border-t border-border hover:bg-accent-pop-2/5 transition-colors" data-testid={`row-cap-rate-comp-${i}`}>
                       <td className="p-3 text-foreground font-medium">{c.name}</td>
-                      <td className="p-3 text-right font-semibold text-cyan-700">{c.capRate}</td>
+                      <td className="p-3 text-right font-semibold text-accent-pop-2">{c.capRate}</td>
                       <td className="p-3 text-right text-muted-foreground">{c.saleYear}</td>
                       <td className="p-3 text-muted-foreground">{c.notes}</td>
                     </tr>
@@ -321,7 +321,7 @@ export function ResearchSections({ content }: { content: any }) {
             <MetricCard label="Assessment Method" value={content.landValueAllocation.assessmentMethod || "N/A"} color={sectionColors.landValue} />
           </div>
           {content.landValueAllocation.rationale && (
-            <div className="bg-stone-50 rounded-xl p-4 border-l-4 border-stone-400 mb-5">
+            <div className="bg-muted rounded-xl p-4 border-l-4 border-muted-foreground/40 mb-5">
               <p className="text-sm text-foreground leading-relaxed">{content.landValueAllocation.rationale}</p>
             </div>
           )}
@@ -331,8 +331,8 @@ export function ResearchSections({ content }: { content: any }) {
               <ul className="space-y-2">
                 {content.landValueAllocation.factors.map((f: string, i: number) => (
                   <li key={i} className="text-sm text-muted-foreground flex items-start gap-2.5">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-stone-100 flex items-center justify-center mt-0.5">
-                      <span className="text-xs font-bold text-stone-700">{i + 1}</span>
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center mt-0.5">
+                      <span className="text-xs font-bold text-muted-foreground">{i + 1}</span>
                     </span>
                     {f}
                   </li>
@@ -346,9 +346,9 @@ export function ResearchSections({ content }: { content: any }) {
       {content.operatingCostAnalysis && (
         <SectionCard icon={IconWallet} title="Operating Cost Analysis" color={sectionColors.operatingCosts}>
           {content.operatingCostAnalysis.totalOperatingCostRatio && (
-            <div className="rounded-xl bg-indigo-100 border border-indigo-300 p-3 text-center mb-5">
-              <p className="text-xs text-indigo-700 uppercase tracking-wider font-medium mb-0.5">Total Operating Cost Ratio</p>
-              <p className="text-2xl font-bold text-indigo-900">{content.operatingCostAnalysis.totalOperatingCostRatio}</p>
+            <div className="rounded-xl bg-line-3/15 border border-line-3/30 p-3 text-center mb-5">
+              <p className="text-xs text-line-3 uppercase tracking-wider font-medium mb-0.5">Total Operating Cost Ratio</p>
+              <p className="text-2xl font-bold text-line-3">{content.operatingCostAnalysis.totalOperatingCostRatio}</p>
             </div>
           )}
           {content.operatingCostAnalysis.roomRevenueBased && (
@@ -360,7 +360,7 @@ export function ResearchSections({ content }: { content: any }) {
                     <div className="flex items-center justify-between mb-1.5">
                       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Housekeeping</p>
                       {content.operatingCostAnalysis.roomRevenueBased.housekeeping.industryRange && (
-                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{content.operatingCostAnalysis.roomRevenueBased.housekeeping.industryRange}</span>
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-line-3/15 text-line-3 font-medium">{content.operatingCostAnalysis.roomRevenueBased.housekeeping.industryRange}</span>
                       )}
                     </div>
                     <MetricCard label="Recommended Rate" value={content.operatingCostAnalysis.roomRevenueBased.housekeeping.recommendedRate || "N/A"} color={sectionColors.operatingCosts} confidence={content.operatingCostAnalysis.roomRevenueBased.housekeeping.confidence} />
@@ -374,7 +374,7 @@ export function ResearchSections({ content }: { content: any }) {
                     <div className="flex items-center justify-between mb-1.5">
                       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">F&B Cost of Sales</p>
                       {content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.industryRange && (
-                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.industryRange}</span>
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-line-3/15 text-line-3 font-medium">{content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.industryRange}</span>
                       )}
                     </div>
                     <MetricCard label="Recommended Rate" value={content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.recommendedRate || "N/A"} color={sectionColors.operatingCosts} confidence={content.operatingCostAnalysis.roomRevenueBased.fbCostOfSales.confidence} />
@@ -395,7 +395,7 @@ export function ResearchSections({ content }: { content: any }) {
                     <div className="flex items-center justify-between mb-1.5">
                       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</p>
                       {item.industryRange && (
-                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">{item.industryRange}</span>
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-line-3/15 text-line-3 font-medium">{item.industryRange}</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -432,10 +432,10 @@ export function ResearchSections({ content }: { content: any }) {
               <div>
                 <MetricCard label="Property Tax Rate" value={content.propertyValueCostAnalysis.propertyTaxes.recommendedRate || "N/A"} color={sectionColors.propertyValueCosts} confidence={content.propertyValueCostAnalysis.propertyTaxes.confidence} />
                 {content.propertyValueCostAnalysis.propertyTaxes.industryRange && (
-                  <p className="text-xs text-slate-500 mt-2 ml-1">Industry Range: {content.propertyValueCostAnalysis.propertyTaxes.industryRange}</p>
+                  <p className="text-xs text-muted-foreground mt-2 ml-1">Industry Range: {content.propertyValueCostAnalysis.propertyTaxes.industryRange}</p>
                 )}
                 {content.propertyValueCostAnalysis.propertyTaxes.rationale && (
-                  <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-slate-400 mt-3">
+                  <div className="bg-muted rounded-xl p-4 border-l-4 border-muted-foreground/40 mt-3">
                     <p className="text-sm text-foreground leading-relaxed">{content.propertyValueCostAnalysis.propertyTaxes.rationale}</p>
                   </div>
                 )}
@@ -469,11 +469,11 @@ export function ResearchSections({ content }: { content: any }) {
           {Object.entries(content.managementServiceFeeAnalysis).map(([key, item]: [string, any]) => {
             if (!item || typeof item !== "object" || !item.rationale) return null;
             return (
-              <div key={key} className="bg-teal-50 rounded-xl p-4 border-l-4 border-teal-400 mb-3">
-                <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider mb-1">{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</p>
+              <div key={key} className="bg-accent-pop-2/10 rounded-xl p-4 border-l-4 border-accent-pop-2/40 mb-3">
+                <p className="text-xs font-semibold text-accent-pop-2 uppercase tracking-wider mb-1">{key.replace(/([A-Z])/g, " $1").replace(/^./, s => s.toUpperCase())}</p>
                 <p className="text-sm text-foreground leading-relaxed">{item.rationale}</p>
                 {item.industryRange && (
-                  <p className="text-xs text-teal-600 mt-1.5 font-medium">Industry Range: {item.industryRange}</p>
+                  <p className="text-xs text-accent-pop-2 mt-1.5 font-medium">Industry Range: {item.industryRange}</p>
                 )}
               </div>
             );
@@ -490,9 +490,9 @@ export function ResearchSections({ content }: { content: any }) {
             )}
           </div>
           {content.incomeTaxAnalysis.calculationMethodology && (
-            <div className="bg-amber-50 rounded-xl p-4 border-l-4 border-amber-400 mb-5">
+            <div className="bg-accent-pop/10 rounded-xl p-4 border-l-4 border-accent-pop/40 mb-5">
               <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                <IconCalculator className="h-4 w-4 text-amber-600" />
+                <IconCalculator className="h-4 w-4 text-accent-pop" />
                 How Income Tax Is Calculated
               </h4>
               <p className="text-sm text-foreground leading-relaxed">{content.incomeTaxAnalysis.calculationMethodology}</p>
@@ -501,27 +501,27 @@ export function ResearchSections({ content }: { content: any }) {
           {content.incomeTaxAnalysis.rateBreakdown && (
             <div className="grid grid-cols-3 gap-3 mb-5">
               {content.incomeTaxAnalysis.rateBreakdown.federal && (
-                <div className="bg-rose-50/50 rounded-lg p-3 text-center border border-rose-100">
+                <div className="bg-destructive/10 rounded-lg p-3 text-center border border-destructive/15">
                   <div className="text-xs text-muted-foreground mb-1">Federal</div>
-                  <div className="text-sm font-semibold text-rose-700">{content.incomeTaxAnalysis.rateBreakdown.federal}</div>
+                  <div className="text-sm font-semibold text-destructive">{content.incomeTaxAnalysis.rateBreakdown.federal}</div>
                 </div>
               )}
               {content.incomeTaxAnalysis.rateBreakdown.state && (
-                <div className="bg-rose-50/50 rounded-lg p-3 text-center border border-rose-100">
+                <div className="bg-destructive/10 rounded-lg p-3 text-center border border-destructive/15">
                   <div className="text-xs text-muted-foreground mb-1">State</div>
-                  <div className="text-sm font-semibold text-rose-700">{content.incomeTaxAnalysis.rateBreakdown.state}</div>
+                  <div className="text-sm font-semibold text-destructive">{content.incomeTaxAnalysis.rateBreakdown.state}</div>
                 </div>
               )}
               {content.incomeTaxAnalysis.rateBreakdown.local && (
-                <div className="bg-rose-50/50 rounded-lg p-3 text-center border border-rose-100">
+                <div className="bg-destructive/10 rounded-lg p-3 text-center border border-destructive/15">
                   <div className="text-xs text-muted-foreground mb-1">Local</div>
-                  <div className="text-sm font-semibold text-rose-700">{content.incomeTaxAnalysis.rateBreakdown.local}</div>
+                  <div className="text-sm font-semibold text-destructive">{content.incomeTaxAnalysis.rateBreakdown.local}</div>
                 </div>
               )}
             </div>
           )}
           {content.incomeTaxAnalysis.rationale && (
-            <div className="bg-rose-50 rounded-xl p-4 border-l-4 border-rose-400 mb-5">
+            <div className="bg-destructive/10 rounded-xl p-4 border-l-4 border-destructive/40 mb-5">
               <p className="text-sm text-foreground leading-relaxed">{content.incomeTaxAnalysis.rationale}</p>
             </div>
           )}
@@ -531,8 +531,8 @@ export function ResearchSections({ content }: { content: any }) {
               <ul className="space-y-2">
                 {content.incomeTaxAnalysis.factors.map((f: string, i: number) => (
                   <li key={i} className="text-sm text-muted-foreground flex items-start gap-2.5">
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-rose-100 flex items-center justify-center mt-0.5">
-                      <span className="text-xs font-bold text-rose-700">{i + 1}</span>
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-destructive/15 flex items-center justify-center mt-0.5">
+                      <span className="text-xs font-bold text-destructive">{i + 1}</span>
                     </span>
                     {f}
                   </li>
@@ -557,10 +557,10 @@ export function ResearchSections({ content }: { content: any }) {
               </thead>
               <tbody>
                 {content.competitiveSet.map((c: any, i: number) => (
-                  <tr key={i} className="border-t border-border hover:bg-emerald-50/40 transition-colors">
+                  <tr key={i} className="border-t border-border hover:bg-primary/10 transition-colors">
                     <td className="p-3 text-foreground font-medium">{c.name}</td>
                     <td className="p-3 text-right text-muted-foreground">{c.rooms}</td>
-                    <td className="p-3 text-right font-semibold text-emerald-700">{c.adr}</td>
+                    <td className="p-3 text-right font-semibold text-primary">{c.adr}</td>
                     <td className="p-3 text-muted-foreground">{c.positioning}</td>
                   </tr>
                 ))}
@@ -575,9 +575,9 @@ export function ResearchSections({ content }: { content: any }) {
           <div className="space-y-3">
             {content.risks.map((r: any, i: number) => (
               <div key={i} className="rounded-xl overflow-hidden border border-border">
-                <div className="bg-red-50 px-4 py-3 border-b border-red-100">
+                <div className="bg-destructive/10 px-4 py-3 border-b border-destructive/15">
                   <div className="flex items-center gap-2">
-                    <IconShield className="w-4 h-4 text-red-500" />
+                    <IconShield className="w-4 h-4 text-destructive" />
                     <p className="text-sm text-foreground font-semibold">{r.risk}</p>
                   </div>
                 </div>

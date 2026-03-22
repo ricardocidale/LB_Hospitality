@@ -337,8 +337,8 @@ export default function IcpStudio() {
               <Card className="bg-white/60 dark:bg-card/60 backdrop-blur-xl border-primary/10 shadow-lg h-full">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 font-display text-base">
-                    <div className="p-1.5 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-600/20">
-                      <IconSparkles className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                    <div className="p-1.5 rounded-lg bg-gradient-to-br from-chart-3/20 to-chart-3/20">
+                      <IconSparkles className="w-4 h-4 text-chart-3 dark:text-chart-3" />
                     </div>
                     Qualitative Vision
                   </CardTitle>
@@ -366,7 +366,7 @@ export default function IcpStudio() {
                           onChange={(e) => updateQualitative(section.key, e.target.value)}
                           placeholder={section.placeholder}
                           rows={3}
-                          className="resize-none bg-white/80 dark:bg-background/50 border-primary/10 text-sm focus:ring-2 focus:ring-violet-500/20 transition-shadow"
+                          className="resize-none bg-white/80 dark:bg-background/50 border-primary/10 text-sm focus:ring-2 focus:ring-chart-3/20 transition-shadow"
                         />
                       </motion.div>
                     );
@@ -380,8 +380,8 @@ export default function IcpStudio() {
               <Card className="bg-white/60 dark:bg-card/60 backdrop-blur-xl border-primary/10 shadow-lg h-full">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 font-display text-base">
-                    <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-600/20">
-                      <IconTarget className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <div className="p-1.5 rounded-lg bg-gradient-to-br from-primary/20 to-accent-pop-2/20">
+                      <IconTarget className="w-4 h-4 text-primary dark:text-primary" />
                     </div>
                     Quantitative Parameters
                   </CardTitle>
@@ -458,8 +458,8 @@ export default function IcpStudio() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 font-display text-base">
-                      <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-600/20">
-                        <IconFileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      <div className="p-1.5 rounded-lg bg-gradient-to-br from-accent-pop/20 to-accent-pop/20">
+                        <IconFileText className="w-4 h-4 text-accent-pop dark:text-accent-pop" />
                       </div>
                       Generated Prompt
                     </CardTitle>
@@ -491,14 +491,14 @@ export default function IcpStudio() {
                   {/* Prompt preview / editor */}
                   <div className="relative">
                     {promptMode === "auto" ? (
-                      <div className="max-h-[calc(100vh-360px)] overflow-y-auto rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 p-4 font-mono text-xs leading-relaxed shadow-inner">
+                      <div className="max-h-[calc(100vh-360px)] overflow-y-auto rounded-xl bg-gradient-to-br from-foreground to-foreground/90 p-4 font-mono text-xs leading-relaxed shadow-inner">
                         <PromptPreview text={autoPrompt} />
                       </div>
                     ) : (
                       <Textarea
                         value={manualPrompt}
                         onChange={(e) => setManualPrompt(e.target.value)}
-                        className="min-h-[calc(100vh-360px)] font-mono text-xs bg-slate-900 text-slate-100 border-primary/10 resize-none leading-relaxed"
+                        className="min-h-[calc(100vh-360px)] font-mono text-xs bg-foreground text-background border-primary/10 resize-none leading-relaxed"
                       />
                     )}
                   </div>
@@ -604,24 +604,24 @@ function PromptPreview({ text }: { text: string }) {
   return (
     <div className="space-y-0">
       {lines.map((line, i) => {
-        let className = "text-slate-300";
+        let className = "text-muted";
 
         if (line.startsWith("# ")) {
-          className = "text-amber-400 font-bold text-sm mt-2";
+          className = "text-accent-pop font-bold text-sm mt-2";
         } else if (line.startsWith("## ")) {
-          className = "text-emerald-400 font-semibold mt-1.5";
+          className = "text-primary font-semibold mt-1.5";
         } else if (line.startsWith("### ")) {
-          className = "text-sky-400 font-medium mt-1";
+          className = "text-chart-1 font-medium mt-1";
         } else if (line.startsWith("- ") || line.startsWith("• ")) {
-          className = "text-slate-300 pl-3";
+          className = "text-muted pl-3";
         } else if (line.startsWith("(M)")) {
-          className = "text-rose-400 pl-2";
+          className = "text-destructive pl-2";
         } else if (line.startsWith("(N)")) {
-          className = "text-blue-400 pl-2";
+          className = "text-chart-1 pl-2";
         } else if (line.match(/^━/)) {
           className = "text-primary/60 font-bold mt-2";
         } else if (line.trim() === "---") {
-          className = "text-slate-600 border-t border-slate-700 pt-2 mt-2";
+          className = "text-muted-foreground border-t border-muted-foreground/40 pt-2 mt-2";
         }
 
         return (

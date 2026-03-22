@@ -6,8 +6,8 @@ import { IconWrench, IconMonitor, IconServer, IconCpu, IconRefreshCw, IconAlertC
 import { useAgentConfig } from "@/features/ai-agent/hooks/use-convai-api";
 
 const TYPE_META: Record<string, { label: string; icon: typeof IconMonitor; color: string; badge: string }> = {
-  client:  { label: "Client", icon: IconMonitor, color: "text-muted-foreground",   badge: "border-blue-200 text-muted-foreground bg-blue-50/50" },
-  webhook: { label: "Server", icon: IconServer,  color: "text-violet-600", badge: "border-violet-200 text-violet-600 bg-violet-50/50" },
+  client:  { label: "Client", icon: IconMonitor, color: "text-muted-foreground",   badge: "border-chart-1/20 text-muted-foreground bg-chart-1/10" },
+  webhook: { label: "Server", icon: IconServer,  color: "text-chart-3", badge: "border-chart-3/20 text-chart-3 bg-chart-3/10" },
   system:  { label: "System", icon: IconCpu,     color: "text-muted-foreground",    badge: "border-border text-muted-foreground bg-muted" },
 };
 
@@ -35,12 +35,12 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
     return (
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="py-10">
-          <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
-            <IconAlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-accent-pop/10 to-accent-pop/5 rounded-xl border border-accent-pop/20">
+            <IconAlertCircle className="w-5 h-5 text-accent-pop shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-amber-900">Could not load agent tools</p>
-              <p className="text-xs text-amber-700/80 mt-1">{(error as Error).message}</p>
-              <Button variant="ghost" size="sm" className="mt-3 gap-1.5 text-amber-700 hover:bg-amber-100/50 -ml-2" onClick={() => refetch()}>
+              <p className="text-sm font-semibold text-accent-pop">Could not load agent tools</p>
+              <p className="text-xs text-accent-pop/80 mt-1">{(error as Error).message}</p>
+              <Button variant="ghost" size="sm" className="mt-3 gap-1.5 text-accent-pop hover:bg-accent-pop/15 -ml-2" onClick={() => refetch()}>
                 <IconRefreshCw className="w-3.5 h-3.5" /> Retry
               </Button>
             </div>
@@ -101,7 +101,7 @@ export function ToolsStatus({ agentName }: ToolsStatusProps) {
                 <div className="grid gap-1">
                   {group.map((tool: any) => (
                     <div key={tool.name} className="flex items-start gap-3 py-2 px-3 rounded-lg hover:bg-muted/30 transition-colors">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0 mt-1.5" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1.5" />
                       <div className="min-w-0">
                         <p className="text-sm font-mono font-medium text-foreground/90">{tool.name}</p>
                         {tool.description && (

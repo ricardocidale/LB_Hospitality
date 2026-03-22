@@ -147,7 +147,7 @@ export default function VoiceChatOrb({ className, onSessionChange }: VoiceChatOr
                 <div
                   className={cn(
                     "h-2 w-2 rounded-full transition-all duration-300",
-                    agentState === "connected" && "bg-green-500",
+                    agentState === "connected" && "bg-primary",
                     isTransitioning && "bg-primary/60 animate-pulse"
                   )}
                 />
@@ -155,7 +155,7 @@ export default function VoiceChatOrb({ className, onSessionChange }: VoiceChatOr
                   {isTransitioning ? (
                     <ShimmeringText text={agentState} />
                   ) : (
-                    <span className="text-green-600">Connected</span>
+                    <span className="text-primary">Connected</span>
                   )}
                 </span>
               </motion.div>

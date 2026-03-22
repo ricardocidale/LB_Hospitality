@@ -195,18 +195,18 @@ export default function PPECostBasisSchedule({ property, global }: PPECostBasisS
 
                 <tr className="border-b border-border">
                   <td colSpan={2} className="py-3 px-8">
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                      <p className="text-xs font-semibold text-blue-800 mb-2 flex items-center gap-1">
+                    <div className="bg-chart-1/10 border border-chart-1/15 rounded-lg p-3">
+                      <p className="text-xs font-semibold text-chart-1 mb-2 flex items-center gap-1">
                         <IconInfo className="w-3.5 h-3.5" /> Fixed Cost Rates Applied to Base Revenue
                       </p>
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-blue-700">
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-chart-1">
                         <span>Property Operations: {pct(costRatePropertyOps)} → {fmt(baseMonthlyTotalRev * costRatePropertyOps)}/mo</span>
                         <span>Admin & General: {pct(costRateAdmin)} → {fmt(baseMonthlyTotalRev * costRateAdmin)}/mo</span>
                         <span>Property Taxes: {pct(costRateTaxes)} of property value → {fmt(totalPropertyValue / MONTHS_PER_YEAR * costRateTaxes)}/mo</span>
                         <span>IT & Technology: {pct(costRateIT)} → {fmt(baseMonthlyTotalRev * costRateIT)}/mo</span>
                         <span>Other Costs: {pct(costRateOther)} → {fmt(baseMonthlyTotalRev * costRateOther)}/mo</span>
                       </div>
-                      <p className="text-xs text-blue-600 mt-2">
+                      <p className="text-xs text-chart-1 mt-2">
                         These base amounts escalate at {pct(fixedCostEscRate)}/year (compounding). Year 2 = base × {(1 + fixedCostEscRate).toFixed(4)}, Year 3 = base × {((1 + fixedCostEscRate) ** 2).toFixed(4)}, etc.
                       </p>
                     </div>

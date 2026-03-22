@@ -29,9 +29,9 @@ export function SourceCitations({ sources, title = "Sources" }: SourceCitationsP
           <div
             key={i}
             data-testid={`source-citation-${i}`}
-            className="group flex items-start gap-3 p-3 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/30 hover:border-blue-200 dark:hover:border-blue-800/50 transition-colors"
+            className="group flex items-start gap-3 p-3 rounded-xl bg-chart-1/10 dark:bg-chart-1/5 border border-chart-1/15 dark:border-chart-1/10 hover:border-chart-1/20 dark:hover:border-chart-1/20 transition-colors"
           >
-            <div className="shrink-0 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-[10px] font-bold text-blue-700 dark:text-blue-300 mt-0.5">
+            <div className="shrink-0 w-6 h-6 rounded-full bg-chart-1/15 dark:bg-chart-1/15 flex items-center justify-center text-[10px] font-bold text-chart-1 dark:text-chart-1 mt-0.5">
               {i + 1}
             </div>
             <div className="min-w-0 flex-1">
@@ -39,7 +39,7 @@ export function SourceCitations({ sources, title = "Sources" }: SourceCitationsP
                 href={src.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-blue-700 dark:text-blue-300 hover:underline line-clamp-1"
+                className="text-sm font-medium text-chart-1 dark:text-chart-1 hover:underline line-clamp-1"
                 data-testid={`source-link-${i}`}
               >
                 {src.title}

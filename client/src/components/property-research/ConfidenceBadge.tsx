@@ -15,19 +15,19 @@ const CONFIDENCE_CONFIG: Record<Confidence, { label: string; icon: ComponentType
   conservative: {
     label: "Conservative",
     icon: IconShield,
-    className: "text-blue-700 bg-blue-50 border-blue-200",
+    className: "text-chart-1 bg-chart-1/10 border-chart-1/20",
     title: "Below market average — lower risk estimate",
   },
   moderate: {
     label: "Moderate",
     icon: Check,
-    className: "text-emerald-700 bg-emerald-50 border-emerald-200",
+    className: "text-primary bg-primary/10 border-primary/20",
     title: "In line with market averages",
   },
   aggressive: {
     label: "Aggressive",
     icon: IconAlertTriangle,
-    className: "text-amber-700 bg-amber-50 border-amber-200",
+    className: "text-accent-pop bg-accent-pop/10 border-accent-pop/20",
     title: "Above market average — higher risk estimate",
   },
 };

@@ -132,8 +132,8 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
 
   if (globalError || (!globalLoading && !globalData)) {
     return (
-      <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-        <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+      <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-accent-pop/20 bg-accent-pop/10">
+        <IconAlertTriangle className="w-10 h-10 text-accent-pop" />
         <div>
           <p className="font-semibold text-foreground">
             Failed to load AI Agent settings
@@ -224,7 +224,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
                 <motion.div
                   className={cn(
                     "w-2 h-2 rounded-full",
-                    rebeccaEnabled ? "bg-green-500" : "bg-muted-foreground/30",
+                    rebeccaEnabled ? "bg-primary" : "bg-muted-foreground/30",
                   )}
                   animate={
                     rebeccaEnabled
@@ -240,7 +240,7 @@ export default function AIAgentsTab({ onSaveStateChange }: AIAgentsTabProps) {
                 <span
                   className={cn(
                     "text-[11px] font-medium",
-                    rebeccaEnabled ? "text-green-700" : "text-muted-foreground/50",
+                    rebeccaEnabled ? "text-primary" : "text-muted-foreground/50",
                   )}
                 >
                   {rebeccaEnabled ? "Active" : "Inactive"}

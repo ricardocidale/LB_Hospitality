@@ -35,7 +35,7 @@ class TabErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-          <IconAlertTriangle className="h-10 w-10 text-amber-500" />
+          <IconAlertTriangle className="h-10 w-10 text-accent-pop" />
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">
               {this.props.tabName} failed to load

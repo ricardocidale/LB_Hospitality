@@ -420,7 +420,7 @@ export default function Scenarios() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10"
                                 data-testid={`button-delete-scenario-${scenario.id}`}
                               >
                                 <IconTrash className="w-4 h-4" />
@@ -437,7 +437,7 @@ export default function Scenarios() {
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDelete(scenario.id, scenario.name)}
-                                  className="bg-red-600 hover:bg-red-700"
+                                  className="bg-destructive hover:bg-destructive/80"
                                 >
                                   Delete
                                 </AlertDialogAction>

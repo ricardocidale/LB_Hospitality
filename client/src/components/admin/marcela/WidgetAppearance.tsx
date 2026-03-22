@@ -66,8 +66,8 @@ export function WidgetAppearance() {
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/15 to-violet-500/5 flex items-center justify-center">
-              <IconLayoutTemplate className="w-5 h-5 text-violet-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-chart-3/15 to-chart-3/5 flex items-center justify-center">
+              <IconLayoutTemplate className="w-5 h-5 text-chart-3" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Widget Size &amp; Position</CardTitle>
@@ -121,8 +121,8 @@ export function WidgetAppearance() {
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 flex items-center justify-center">
-              <IconImageIcon className="w-5 h-5 text-indigo-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-line-3/15 to-line-3/5 flex items-center justify-center">
+              <IconImageIcon className="w-5 h-5 text-line-3" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Avatar</CardTitle>
@@ -166,8 +166,8 @@ export function WidgetAppearance() {
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500/15 to-pink-500/5 flex items-center justify-center">
-              <IconPaintbrush className="w-5 h-5 text-pink-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-line-5/15 to-line-5/5 flex items-center justify-center">
+              <IconPaintbrush className="w-5 h-5 text-line-5" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Widget Colors</CardTitle>

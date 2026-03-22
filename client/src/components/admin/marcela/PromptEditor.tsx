@@ -124,14 +124,14 @@ export function PromptEditor({ agentName, companyName }: PromptEditorProps) {
     return (
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardContent className="py-10">
-          <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-              <IconAlertCircle className="w-5 h-5 text-amber-600" />
+          <div className="flex items-start gap-4 p-5 bg-gradient-to-br from-accent-pop/10 to-accent-pop/5 rounded-xl border border-accent-pop/20">
+            <div className="w-10 h-10 rounded-xl bg-accent-pop/15 flex items-center justify-center shrink-0">
+              <IconAlertCircle className="w-5 h-5 text-accent-pop" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-amber-900">Agent configuration unavailable</p>
-              <p className="text-xs text-amber-700/80 mt-1 leading-relaxed">{(error as Error).message}</p>
-              <Button variant="ghost" size="sm" className="mt-3 gap-1.5 text-amber-700 hover:text-amber-900 hover:bg-amber-100/50 -ml-2" onClick={() => refetch()}>
+              <p className="text-sm font-semibold text-accent-pop">Agent configuration unavailable</p>
+              <p className="text-xs text-accent-pop/80 mt-1 leading-relaxed">{(error as Error).message}</p>
+              <Button variant="ghost" size="sm" className="mt-3 gap-1.5 text-accent-pop hover:text-accent-pop hover:bg-accent-pop/15 -ml-2" onClick={() => refetch()}>
                 <IconRefreshCw className="w-3.5 h-3.5" /> Retry connection
               </Button>
             </div>
@@ -163,7 +163,7 @@ export function PromptEditor({ agentName, companyName }: PromptEditorProps) {
             </div>
             <div className="flex items-center gap-2">
               {isPromptDirty && (
-                <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs font-medium">
+                <Badge variant="outline" className="text-accent-pop border-accent-pop/30 bg-accent-pop/10 text-xs font-medium">
                   Unsaved changes
                 </Badge>
               )}
@@ -213,7 +213,7 @@ export function PromptEditor({ agentName, companyName }: PromptEditorProps) {
                 <span>{promptWordCount.toLocaleString()} words</span>
               </div>
               {promptCharCount > 8000 && (
-                <span className="text-xs text-amber-600 font-medium">
+                <span className="text-xs text-accent-pop font-medium">
                   Long prompts may increase latency
                 </span>
               )}
@@ -232,7 +232,7 @@ export function PromptEditor({ agentName, companyName }: PromptEditorProps) {
                   title={v.description}
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 h-auto rounded-lg bg-card text-xs font-mono text-muted-foreground hover:bg-muted"
                 >
-                  {copiedVar === v.name ? <Check className="w-3 h-3 text-green-500" /> : <IconCopy className="w-3 h-3 opacity-50" />}
+                  {copiedVar === v.name ? <Check className="w-3 h-3 text-primary" /> : <IconCopy className="w-3 h-3 opacity-50" />}
                   {v.name}
                 </Button>
               ))}
@@ -246,7 +246,7 @@ export function PromptEditor({ agentName, companyName }: PromptEditorProps) {
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-500/5 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-chart-1/15 to-chart-1/5 flex items-center justify-center">
               <IconMessageSquare className="w-4 h-4 text-muted-foreground" />
             </div>
             <div>

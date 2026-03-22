@@ -38,7 +38,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
                 </div>
                 <MetricCard label="Recommended" value={content.managementFees.baseFee.recommended || "N/A"} color={companySectionColors.fees} />
                 {content.managementFees.baseFee.gaapReference && (
-                  <p className="text-xs text-blue-700 bg-blue-50 rounded-lg p-3 border border-blue-100">
+                  <p className="text-xs text-chart-1 bg-chart-1/10 rounded-lg p-3 border border-chart-1/15">
                     GAAP: {content.managementFees.baseFee.gaapReference}
                   </p>
                 )}
@@ -74,7 +74,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
                 </div>
                 <MetricCard label="Recommended" value={content.managementFees.incentiveFee.recommended || "N/A"} color={companySectionColors.fees} />
                 {content.managementFees.incentiveFee.gaapReference && (
-                  <p className="text-xs text-blue-700 bg-blue-50 rounded-lg p-3 border border-blue-100">
+                  <p className="text-xs text-chart-1 bg-chart-1/10 rounded-lg p-3 border border-chart-1/15">
                     GAAP: {content.managementFees.incentiveFee.gaapReference}
                   </p>
                 )}
@@ -108,13 +108,13 @@ export function CompanyResearchSections({ content }: { content: any }) {
         <SectionCard icon={IconScale} title="GAAP Standards & References" color={companySectionColors.gaap}>
           <div className="space-y-3">
             {content.gaapStandards.map((s: any, i: number) => (
-              <div key={i} className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+              <div key={i} className="bg-chart-1/10 rounded-lg p-4 border border-chart-1/15">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-sm text-foreground font-medium">{s.standard}</p>
                     <p className="text-xs text-muted-foreground mt-1">{s.application}</p>
                   </div>
-                  <span className="text-xs text-emerald-600 font-mono bg-emerald-50 px-2 py-1 rounded border border-emerald-200 whitespace-nowrap">
+                  <span className="text-xs text-primary font-mono bg-primary/10 px-2 py-1 rounded border border-primary/20 whitespace-nowrap">
                     {s.reference}
                   </span>
                 </div>
@@ -142,7 +142,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
                     {content.industryBenchmarks.operatingExpenseRatios.map((r: any, i: number) => (
                       <tr key={i} className="border-b border-border">
                         <td className="p-3 text-foreground">{r.category}</td>
-                        <td className="p-3 text-right text-emerald-600 font-medium">{r.range}</td>
+                        <td className="p-3 text-right text-primary font-medium">{r.range}</td>
                         <td className="p-3 text-foreground">{r.source}</td>
                       </tr>
                     ))}
@@ -194,7 +194,7 @@ export function CompanyResearchSections({ content }: { content: any }) {
                 {content.contractTerms.map((t: any, i: number) => (
                   <tr key={i} className="border-b border-border">
                     <td className="p-3 text-foreground font-medium">{t.term}</td>
-                    <td className="p-3 text-emerald-600">{t.typical}</td>
+                    <td className="p-3 text-primary">{t.typical}</td>
                     <td className="p-3 text-foreground">{t.notes}</td>
                   </tr>
                 ))}
@@ -205,24 +205,24 @@ export function CompanyResearchSections({ content }: { content: any }) {
       )}
 
       {content.companyIncomeTax && (
-        <SectionCard icon={IconReceipt} title="Company Income Tax" color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-700", badge: "bg-rose-100 text-rose-800" }}>
+        <SectionCard icon={IconReceipt} title="Company Income Tax" color={{ accent: "#F43F5E", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-            <MetricCard label="Recommended Tax Rate" value={content.companyIncomeTax.recommendedRate || "N/A"} color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-700", badge: "bg-rose-100 text-rose-800" }} confidence={content.companyIncomeTax.confidence} />
+            <MetricCard label="Recommended Tax Rate" value={content.companyIncomeTax.recommendedRate || "N/A"} color={{ accent: "#F43F5E", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }} confidence={content.companyIncomeTax.confidence} />
             {content.companyIncomeTax.effectiveRange && (
-              <MetricCard label="Effective Range" value={content.companyIncomeTax.effectiveRange} color={{ accent: "#F43F5E", bg: "bg-rose-50", border: "border-rose-200", iconBg: "bg-rose-100", iconText: "text-rose-700", badge: "bg-rose-100 text-rose-800" }} />
+              <MetricCard label="Effective Range" value={content.companyIncomeTax.effectiveRange} color={{ accent: "#F43F5E", bg: "bg-destructive/10", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" }} />
             )}
           </div>
           {content.companyIncomeTax.calculationMethodology && (
-            <div className="bg-amber-50 rounded-xl p-4 border-l-4 border-amber-400 mb-5">
+            <div className="bg-accent-pop/10 rounded-xl p-4 border-l-4 border-accent-pop/40 mb-5">
               <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                <IconCalculator className="h-4 w-4 text-amber-600" />
+                <IconCalculator className="h-4 w-4 text-accent-pop" />
                 How Company Income Tax Is Calculated
               </h4>
               <p className="text-sm text-foreground leading-relaxed">{content.companyIncomeTax.calculationMethodology}</p>
             </div>
           )}
           {content.companyIncomeTax.entityNotes && (
-            <div className="bg-rose-50 rounded-xl p-4 border-l-4 border-rose-400 mb-5">
+            <div className="bg-destructive/10 rounded-xl p-4 border-l-4 border-destructive/40 mb-5">
               <p className="text-sm text-foreground leading-relaxed">{content.companyIncomeTax.entityNotes}</p>
             </div>
           )}

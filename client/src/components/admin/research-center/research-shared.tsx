@@ -381,7 +381,7 @@ export function SourceLibrary({ sources, onChange, testIdPrefix, defaultSources 
                 <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                   <IconExternalLink className="w-3 h-3" />
                 </a>
-                <button onClick={() => handleRemove(source.id)} className="text-muted-foreground hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-${testIdPrefix}-${source.id}`}>
+                <button onClick={() => handleRemove(source.id)} className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-${testIdPrefix}-${source.id}`}>
                   <X className="w-3 h-3" />
                 </button>
               </div>

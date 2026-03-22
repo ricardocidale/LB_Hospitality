@@ -113,8 +113,8 @@ function getVarianceColor(
     favorable === "higher" ? diff > 0 : diff < 0;
 
   return isFavorable
-    ? { text: "text-emerald-600", bg: "bg-emerald-50" }
-    : { text: "text-red-600", bg: "bg-red-50" };
+    ? { text: "text-primary", bg: "bg-primary/10" }
+    : { text: "text-destructive", bg: "bg-destructive/10" };
 }
 
 export default function VarianceAnalysis() {
@@ -182,7 +182,7 @@ export default function VarianceAnalysis() {
                   <tr
                     key={m.key}
                     data-testid={`variance-row-${m.key}`}
-                    className={i % 2 === 0 ? "bg-amber-50/30" : ""}
+                    className={i % 2 === 0 ? "bg-accent-pop/10" : ""}
                   >
                     <td className="py-2 pr-4 font-medium">{m.label}</td>
                     <td className="py-2 px-4">{m.format(a)}</td>

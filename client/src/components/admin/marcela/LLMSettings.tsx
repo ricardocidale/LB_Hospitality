@@ -53,7 +53,7 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
           </div>
           <div className="flex items-center gap-2">
             {isDirty && (
-              <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
+              <Badge variant="outline" className="text-accent-pop border-accent-pop/30 bg-accent-pop/10 text-xs">
                 Unsaved
               </Badge>
             )}
@@ -66,11 +66,11 @@ export function LLMSettings({ draft, updateField }: LLMSettingsProps) {
       </CardHeader>
       <CardContent className="space-y-5">
         {showTimeoutWarning && (
-          <div className="flex items-start gap-3 p-3.5 bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-xl border border-amber-200/60">
-            <IconAlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-3.5 bg-gradient-to-br from-accent-pop/10 to-accent-pop/5 rounded-xl border border-accent-pop/20">
+            <IconAlertCircle className="w-4 h-4 text-accent-pop shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-semibold text-amber-900">High failure rate detected ({Math.round(failureRate * 100)}% of conversations)</p>
-              <p className="text-xs text-amber-700/80 mt-0.5">
+              <p className="text-xs font-semibold text-accent-pop">High failure rate detected ({Math.round(failureRate * 100)}% of conversations)</p>
+              <p className="text-xs text-accent-pop/80 mt-0.5">
                 LLM response timeouts are the most common cause. Consider switching to a faster model
                 (e.g. <span className="font-mono">gemini-2.5-flash-lite</span> or <span className="font-mono">gpt-4o-mini</span>) or reducing Max Tokens.
               </p>

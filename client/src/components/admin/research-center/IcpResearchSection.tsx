@@ -115,7 +115,7 @@ export function IcpResearchSection({ enabled, onToggle }: IcpResearchSectionProp
                         <button onClick={() => h.handleCopyQuestion(q.id)} className="text-muted-foreground hover:text-primary p-0.5" data-testid={`copy-question-${q.id}`}>
                           <IconCopy className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => h.handleDeleteQuestion(q.id)} className="text-muted-foreground hover:text-red-500 p-0.5" data-testid={`delete-question-${q.id}`}>
+                        <button onClick={() => h.handleDeleteQuestion(q.id)} className="text-muted-foreground hover:text-destructive p-0.5" data-testid={`delete-question-${q.id}`}>
                           <IconTrash className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -220,7 +220,7 @@ export function IcpResearchSection({ enabled, onToggle }: IcpResearchSectionProp
               <IconCopy className="w-3.5 h-3.5" />
               {h.copied ? "Copied" : "Copy"}
             </Button>
-            <Button size="sm" variant="ghost" onClick={h.handleClear} disabled={!h.prompt || h.updateMutation.isPending} className="text-xs h-8 gap-1.5 text-red-500 hover:text-red-600" data-testid="button-clear-prompt">
+            <Button size="sm" variant="ghost" onClick={h.handleClear} disabled={!h.prompt || h.updateMutation.isPending} className="text-xs h-8 gap-1.5 text-destructive hover:text-destructive" data-testid="button-clear-prompt">
               <IconTrash className="w-3.5 h-3.5" />
               Clear
             </Button>

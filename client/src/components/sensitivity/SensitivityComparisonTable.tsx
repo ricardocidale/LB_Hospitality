@@ -56,7 +56,7 @@ export function SensitivityComparisonTable({ baseResult, adjustedResult }: Sensi
                     {row.fmt === "money" ? formatMoney(row.adj) : `${row.adj.toFixed(1)}%`}
                   </td>
                   <td className={`py-3 px-4 text-right font-mono font-semibold ${
-                    delta > 0 ? "text-secondary" : delta < 0 ? "text-red-600" : "text-muted-foreground"
+                    delta > 0 ? "text-secondary" : delta < 0 ? "text-destructive" : "text-muted-foreground"
                   }`}>
                     <div className="flex items-center justify-end gap-1">
                       {delta > 0 ? (

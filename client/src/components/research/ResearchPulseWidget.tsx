@@ -55,9 +55,9 @@ function getFreshness(
 }
 
 const freshnessColors: Record<FreshnessLevel, string> = {
-  fresh: "bg-emerald-500",
-  stale: "bg-amber-500",
-  missing: "bg-red-500",
+  fresh: "bg-primary",
+  stale: "bg-accent-pop",
+  missing: "bg-destructive",
 };
 
 const rowVariants = {
@@ -164,9 +164,9 @@ export function ResearchPulseWidget({ className }: ResearchPulseWidgetProps) {
             <span
               className={cn(
                 "text-xs font-medium",
-                row.freshness === "fresh" && "text-emerald-600 dark:text-emerald-400",
-                row.freshness === "stale" && "text-amber-600 dark:text-amber-400",
-                row.freshness === "missing" && "text-red-600 dark:text-red-400",
+                row.freshness === "fresh" && "text-primary dark:text-primary",
+                row.freshness === "stale" && "text-accent-pop dark:text-accent-pop",
+                row.freshness === "missing" && "text-destructive dark:text-destructive/80",
               )}
             >
               {row.ageLabel}

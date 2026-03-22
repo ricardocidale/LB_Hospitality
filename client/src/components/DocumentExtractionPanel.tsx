@@ -45,9 +45,9 @@ interface DocumentExtraction {
 
 function ConfidenceBadge({ level, score }: { level: string; score: number }) {
   const variants: Record<string, { color: string; label: string }> = {
-    high: { color: "bg-green-100 text-green-800 border-green-200", label: "High" },
-    medium: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", label: "Medium" },
-    low: { color: "bg-red-100 text-red-800 border-red-200", label: "Low" },
+    high: { color: "bg-primary/15 text-primary border-primary/20", label: "High" },
+    medium: { color: "bg-accent-pop/15 text-accent-pop border-accent-pop/20", label: "Medium" },
+    low: { color: "bg-destructive/15 text-destructive border-destructive/20", label: "Low" },
   };
   const v = variants[level] || variants.low;
   return (
@@ -63,9 +63,9 @@ function ConfidenceBadge({ level, score }: { level: string; score: number }) {
 function StatusIcon({ status }: { status: string }) {
   switch (status) {
     case "approved":
-      return <CheckCircle2 className="w-4 h-4 text-green-600" />;
+      return <CheckCircle2 className="w-4 h-4 text-primary" />;
     case "rejected":
-      return <XCircle className="w-4 h-4 text-red-500" />;
+      return <XCircle className="w-4 h-4 text-destructive" />;
     default:
       return <Clock className="w-4 h-4 text-muted-foreground" />;
   }
@@ -275,7 +275,7 @@ export default function DocumentExtractionPanel({ propertyId }: { propertyId: nu
                     .map((field) => (
                       <tr
                         key={field.id}
-                        className={`border-b ${field.confidenceLevel === "low" ? "bg-yellow-50 dark:bg-yellow-950/20" : ""}`}
+                        className={`border-b ${field.confidenceLevel === "low" ? "bg-accent-pop/10 dark:bg-accent-pop/5" : ""}`}
                         data-testid={`row-field-${field.id}`}
                       >
                         <td className="p-3">
@@ -296,7 +296,7 @@ export default function DocumentExtractionPanel({ propertyId }: { propertyId: nu
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                  className="h-7 w-7 p-0 text-primary hover:text-primary hover:bg-primary/10"
                                   onClick={() => updateFieldMutation.mutate({ fieldId: field.id, status: "approved" })}
                                   disabled={updateFieldMutation.isPending}
                                   data-testid={`button-approve-${field.id}`}
@@ -306,7 +306,7 @@ export default function DocumentExtractionPanel({ propertyId }: { propertyId: nu
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                  className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                                   onClick={() => updateFieldMutation.mutate({ fieldId: field.id, status: "rejected" })}
                                   disabled={updateFieldMutation.isPending}
                                   data-testid={`button-reject-${field.id}`}
@@ -328,7 +328,7 @@ export default function DocumentExtractionPanel({ propertyId }: { propertyId: nu
             {unmappedFields.length > 0 && (
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground flex items-center gap-1 mb-2">
-                  <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                  <AlertTriangle className="w-4 h-4 text-accent-pop" />
                   {unmappedFields.length} fields could not be mapped to property assumptions
                 </p>
                 <div className="text-xs text-muted-foreground space-y-1">

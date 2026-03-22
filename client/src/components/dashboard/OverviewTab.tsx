@@ -21,12 +21,12 @@ import { RadialGauge } from "@/lib/charts";
 const PIE_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
 const STATUS_COLORS: Record<string, string> = {
-  [PropertyStatus.OPERATING]: "bg-emerald-500",
-  [PropertyStatus.IMPROVEMENTS]: "bg-amber-500",
-  [PropertyStatus.ACQUIRED]: "bg-blue-500",
-  [PropertyStatus.IN_NEGOTIATION]: "bg-violet-500",
-  [PropertyStatus.PLANNED]: "bg-sky-500",
-  [PropertyStatus.PIPELINE]: "bg-slate-400",
+  [PropertyStatus.OPERATING]: "bg-primary",
+  [PropertyStatus.IMPROVEMENTS]: "bg-accent-pop",
+  [PropertyStatus.ACQUIRED]: "bg-chart-1",
+  [PropertyStatus.IN_NEGOTIATION]: "bg-chart-3",
+  [PropertyStatus.PLANNED]: "bg-chart-1",
+  [PropertyStatus.PIPELINE]: "bg-muted-foreground",
 };
 
 const STATUSES = [PropertyStatus.OPERATING, PropertyStatus.IMPROVEMENTS, PropertyStatus.ACQUIRED, PropertyStatus.IN_NEGOTIATION, PropertyStatus.PLANNED, PropertyStatus.PIPELINE] as const;
@@ -400,7 +400,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       </div>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-lg sm:text-2xl font-bold text-emerald-700 font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
+                      <p className="text-lg sm:text-2xl font-bold text-primary font-mono" data-testid="text-equity-multiple">{equityMultiple.toFixed(2)}x</p>
                       <p className="text-xs sm:text-sm text-foreground/60 label-text flex items-center">Equity Multiple<InfoTooltip text="Total cash returned divided by total equity invested. A 2.0x multiple means investors received $2 for every $1 invested." formula="EM = (Total Distributions + Exit Value) / Total Equity" light side="right" /></p>
                     </div>
                   </div>
@@ -441,14 +441,14 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
 
                 <div className="bg-card rounded-lg p-3 sm:p-5 border border-border shadow-sm transition-all duration-300">
                   <div className="mb-2">
-                    <p className="text-base sm:text-2xl font-bold text-emerald-700 font-mono truncate" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
+                    <p className="text-base sm:text-2xl font-bold text-primary font-mono truncate" data-testid="text-exit-value">{formatMoney(totalExitValue)}</p>
                     <p className="text-xs sm:text-sm text-foreground/60 label-text flex items-center">Projected Exit<InfoTooltip text="Estimated total sale proceeds at the end of the hold period, based on projected NOI and exit cap rate." formula="Exit Value = NOI / Exit Cap Rate" light side="right" /></p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                     </svg>
-                    <span className="text-sm font-medium text-emerald-700 font-mono">+{exitGainPercent}% gain</span>
+                    <span className="text-sm font-medium text-primary font-mono">+{exitGainPercent}% gain</span>
                   </div>
                 </div>
               </div>
@@ -601,7 +601,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
                       <span className="text-sm text-foreground/60 label-text flex items-center">{row.label}<InfoTooltip text={row.tip} light side="right" /></span>
-                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-emerald-700' : 'text-foreground'}`}>{row.value}</span>
+                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-primary' : 'text-foreground'}`}>{row.value}</span>
                     </div>
                   ))}
                 </div>
@@ -619,7 +619,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                   ].map(row => (
                     <div key={row.label} className="flex justify-between items-center py-1 border-b border-foreground/5 last:border-0">
                       <span className="text-sm text-foreground/60 label-text flex items-center">{row.label}<InfoTooltip text={row.tip} formula={'formula' in row ? row.formula : undefined} light side="right" /></span>
-                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-emerald-700' : 'text-foreground'}`}>{row.value}</span>
+                      <span className={`font-semibold font-mono text-sm ${row.highlight ? 'text-primary' : 'text-foreground'}`}>{row.value}</span>
                     </div>
                   ))}
                 </div>
@@ -669,11 +669,11 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                         <TableCell className="text-xs text-foreground font-mono text-center py-2.5">{prop.roomCount}</TableCell>
                         <TableCell className="text-center py-2.5">
                           <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                            prop.status === PropertyStatus.OPERATING ? "bg-emerald-500/10 text-emerald-600" :
-                            prop.status === PropertyStatus.IMPROVEMENTS ? "bg-amber-500/10 text-amber-600" :
-                            prop.status === PropertyStatus.ACQUIRED ? "bg-blue-500/10 text-blue-600" :
-                            prop.status === PropertyStatus.PLANNED ? "bg-sky-500/10 text-sky-600" :
-                            prop.status === PropertyStatus.IN_NEGOTIATION ? "bg-purple-500/10 text-purple-600" :
+                            prop.status === PropertyStatus.OPERATING ? "bg-primary/10 text-primary" :
+                            prop.status === PropertyStatus.IMPROVEMENTS ? "bg-accent-pop/10 text-accent-pop" :
+                            prop.status === PropertyStatus.ACQUIRED ? "bg-chart-1/10 text-chart-1" :
+                            prop.status === PropertyStatus.PLANNED ? "bg-chart-1/10 text-chart-1" :
+                            prop.status === PropertyStatus.IN_NEGOTIATION ? "bg-chart-3/10 text-chart-3" :
                             "bg-muted text-muted-foreground"
                           }`}>
                             {prop.status}
@@ -682,7 +682,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                         <TableCell className="text-xs text-foreground font-mono text-right py-2.5">{formatMoney(prop.purchasePrice)}</TableCell>
                         <TableCell className="text-xs text-foreground font-mono text-right py-2.5">${prop.startAdr.toFixed(0)}</TableCell>
                         <TableCell className="text-xs font-mono text-right py-2.5">
-                          <span className={irr >= 0 ? "text-emerald-600" : "text-destructive"}>{irr.toFixed(1)}%</span>
+                          <span className={irr >= 0 ? "text-primary" : "text-destructive"}>{irr.toFixed(1)}%</span>
                         </TableCell>
                       </TableRow>
                     );

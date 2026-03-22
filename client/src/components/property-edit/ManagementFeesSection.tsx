@@ -44,7 +44,7 @@ export default function ManagementFeesSection({ draft, onChange, researchValues,
             <Label className="text-sm font-semibold text-foreground label-text">
               Service Fee Categories (% of Total Revenue)
             </Label>
-            <span className={`text-sm font-mono font-semibold ${totalServiceFeeRate > 0.10 ? 'text-amber-600' : 'text-foreground'}`} data-testid="text-total-service-fee">
+            <span className={`text-sm font-mono font-semibold ${totalServiceFeeRate > 0.10 ? 'text-accent-pop' : 'text-foreground'}`} data-testid="text-total-service-fee">
               Total: {(totalServiceFeeRate * 100).toFixed(1)}%
             </span>
           </div>

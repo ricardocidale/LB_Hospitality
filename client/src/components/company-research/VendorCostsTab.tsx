@@ -64,13 +64,13 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
                     <td className="p-3 text-right text-muted-foreground font-mono">
                       {w.industryMarkupRange ? `${(w.industryMarkupRange.low * 100).toFixed(0)}%` : "—"}
                     </td>
-                    <td className="p-3 text-right text-emerald-600 font-mono font-medium">
+                    <td className="p-3 text-right text-primary font-mono font-medium">
                       {w.industryMarkupRange ? `${(w.industryMarkupRange.mid * 100).toFixed(0)}%` : "—"}
                     </td>
                     <td className="p-3 text-right text-muted-foreground font-mono">
                       {w.industryMarkupRange ? `${(w.industryMarkupRange.high * 100).toFixed(0)}%` : "—"}
                     </td>
-                    <td className="p-3 text-right text-blue-600 font-mono">{midMargin}%</td>
+                    <td className="p-3 text-right text-chart-1 font-mono">{midMargin}%</td>
                   </tr>
                 );
               })}
@@ -85,17 +85,17 @@ export function VendorCostsTab({ content }: VendorCostsTabProps) {
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Vendor Cost</div>
             <div className="text-lg font-semibold font-mono text-foreground">${sampleVendorCost.toLocaleString()}</div>
           </div>
-          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 text-center">
+          <div className="bg-chart-1/10 rounded-lg p-3 border border-chart-1/20 text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Markup (20%)</div>
-            <div className="text-lg font-semibold font-mono text-blue-700">${(sampleVendorCost * 0.2).toLocaleString()}</div>
+            <div className="text-lg font-semibold font-mono text-chart-1">${(sampleVendorCost * 0.2).toLocaleString()}</div>
           </div>
           <div className="bg-primary/5 rounded-lg p-3 border border-primary/20 text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Fee Charged</div>
             <div className="text-lg font-semibold font-mono text-foreground">${(sampleVendorCost * 1.2).toLocaleString()}</div>
           </div>
-          <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200 text-center">
+          <div className="bg-primary/10 rounded-lg p-3 border border-primary/20 text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Eff. Margin</div>
-            <div className="text-lg font-semibold font-mono text-emerald-700">16.7%</div>
+            <div className="text-lg font-semibold font-mono text-primary">16.7%</div>
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-3">

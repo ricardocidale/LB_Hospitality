@@ -184,7 +184,7 @@ export default function Logos() {
                       <div className="min-w-0 flex-1">
                         <h3 className="font-display font-medium text-foreground truncate flex items-center gap-2">
                           {logo.name}
-                          {logo.isDefault && <IconStar className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                          {logo.isDefault && <IconStar className="w-4 h-4 text-accent-pop fill-accent-pop flex-shrink-0" />}
                         </h3>
                         <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
                           <IconBuilding2 className="w-3.5 h-3.5" />
@@ -196,7 +196,7 @@ export default function Logos() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeleteConfirmId(logo.id)}
-                          className="text-red-400 hover:text-red-600 hover:bg-red-500/10 flex-shrink-0"
+                          className="text-destructive/80 hover:text-destructive hover:bg-destructive/10 flex-shrink-0"
                           data-testid={`button-delete-logo-${logo.id}`}
                         >
                           <IconTrash className="w-4 h-4" />
@@ -204,7 +204,7 @@ export default function Logos() {
                       )}
                     </div>
                     {logo.isDefault && (
-                      <span className="inline-block text-xs bg-amber-500/20 text-amber-700 px-2 py-0.5 rounded">Default Logo</span>
+                      <span className="inline-block text-xs bg-accent-pop/20 text-accent-pop px-2 py-0.5 rounded">Default Logo</span>
                     )}
                   </div>
                 </CardContent>

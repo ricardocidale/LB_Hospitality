@@ -26,21 +26,21 @@ export function VerificationHistory({ history }: VerificationHistoryProps) {
               <TableCell className="text-xs font-medium text-foreground">{formatDateTime(entry.createdAt)}</TableCell>
               <TableCell className="text-center">
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                  entry.auditOpinion === 'UNQUALIFIED' ? 'bg-green-100 text-green-700' :
-                  entry.auditOpinion === 'QUALIFIED' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-700'
+                  entry.auditOpinion === 'UNQUALIFIED' ? 'bg-primary/15 text-primary' :
+                  entry.auditOpinion === 'QUALIFIED' ? 'bg-accent-pop/15 text-accent-pop' :
+                  'bg-destructive/15 text-destructive'
                 }`}>
                   {entry.auditOpinion}
                 </span>
               </TableCell>
               <TableCell className="text-xs text-center font-mono text-muted-foreground">{entry.totalChecks}</TableCell>
-              <TableCell className="text-xs text-center font-mono text-green-600 font-bold">{entry.passed}</TableCell>
-              <TableCell className="text-xs text-center font-mono text-red-600 font-bold">{entry.failed}</TableCell>
+              <TableCell className="text-xs text-center font-mono text-primary font-bold">{entry.passed}</TableCell>
+              <TableCell className="text-xs text-center font-mono text-destructive font-bold">{entry.failed}</TableCell>
               <TableCell className="text-right">
                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
                   entry.overallStatus === 'PASS' ? 'text-secondary' :
-                  entry.overallStatus === 'WARNING' ? 'text-yellow-600' :
-                  'text-red-600'
+                  entry.overallStatus === 'WARNING' ? 'text-accent-pop' :
+                  'text-destructive'
                 }`}>
                   {entry.overallStatus}
                 </span>

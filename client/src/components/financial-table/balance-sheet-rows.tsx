@@ -92,7 +92,7 @@ export function BalanceSheetFormulaRow({ label, amount }: BalanceSheetFormulaRow
   return (
     <>
       <TableRow
-        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+        className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
         data-expandable-row="true"
         onClick={() => setOpen(v => !v)}
       >
@@ -105,7 +105,7 @@ export function BalanceSheetFormulaRow({ label, amount }: BalanceSheetFormulaRow
         <TableCell className="py-0.5" />
       </TableRow>
       {open && (
-        <TableRow className="bg-blue-50/20" data-expandable-row="true">
+        <TableRow className="bg-chart-1/3" data-expandable-row="true">
           <TableCell className="pl-16 py-0.5 text-xs text-muted-foreground italic">
             {label}
           </TableCell>

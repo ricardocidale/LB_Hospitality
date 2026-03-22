@@ -49,7 +49,7 @@ export function OverheadBenchmarksTab({ content }: OverheadBenchmarksTabProps) {
               {OVERHEAD_BENCHMARKS.map((b, i) => (
                 <tr key={i} className="border-b border-border hover:bg-muted/50 transition-colors">
                   <td className="p-3 text-foreground font-medium">{b.category}</td>
-                  <td className="p-3 text-right text-emerald-600 font-mono font-medium whitespace-nowrap">{b.range}</td>
+                  <td className="p-3 text-right text-primary font-mono font-medium whitespace-nowrap">{b.range}</td>
                   <td className="p-3 text-muted-foreground text-xs">{b.note}</td>
                 </tr>
               ))}

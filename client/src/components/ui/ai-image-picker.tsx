@@ -274,7 +274,7 @@ export function AIImagePicker({
             )}
           </Button>
           {generationError && (
-            <p className="text-xs text-red-500">{generationError}</p>
+            <p className="text-xs text-destructive">{generationError}</p>
           )}
           {!prompt.trim() && defaultPrompt && (
             <p className={cn("text-xs", isLight ? "text-muted-foreground" : "text-muted-foreground/70")}>

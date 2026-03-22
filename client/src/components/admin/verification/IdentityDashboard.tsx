@@ -111,9 +111,9 @@ function CellStatus({ check }: { check?: IdentityCheck }) {
   return (
     <div className="group relative flex items-center justify-center">
       {check.passed ? (
-        <CheckCircle2 className="w-4 h-4 text-green-500" />
+        <CheckCircle2 className="w-4 h-4 text-primary" />
       ) : (
-        <XCircle className="w-4 h-4 text-red-500" />
+        <XCircle className="w-4 h-4 text-destructive" />
       )}
       {/* Hover tooltip */}
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 min-w-[200px]">
@@ -126,7 +126,7 @@ function CellStatus({ check }: { check?: IdentityCheck }) {
             <span className="text-muted-foreground">Actual:</span>
             <span className="font-mono">${check.actual.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             <span className="text-muted-foreground">Variance:</span>
-            <span className={`font-mono ${check.variance !== 0 ? "text-red-500" : ""}`}>
+            <span className={`font-mono ${check.variance !== 0 ? "text-destructive" : ""}`}>
               ${check.variance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
@@ -154,9 +154,9 @@ function PropertyRow({ result }: { result: PropertyYearResult }) {
         className="w-full flex items-center gap-3 px-4 py-3 h-auto text-left justify-start hover:bg-muted/30 rounded-none font-normal"
       >
         {allPassed ? (
-          <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+          <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
         ) : (
-          <XCircle className="w-4 h-4 text-red-500 shrink-0" />
+          <XCircle className="w-4 h-4 text-destructive shrink-0" />
         )}
         <span className="text-sm font-bold text-foreground flex-1 truncate">
           {result.propertyName}
@@ -164,10 +164,10 @@ function PropertyRow({ result }: { result: PropertyYearResult }) {
         <span
           className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
             opinion === "UNQUALIFIED"
-              ? "bg-green-500/10 text-green-600"
+              ? "bg-primary/10 text-primary"
               : opinion === "QUALIFIED"
-              ? "bg-yellow-500/10 text-yellow-600"
-              : "bg-red-500/10 text-red-600"
+              ? "bg-accent-pop/10 text-accent-pop"
+              : "bg-destructive/10 text-destructive"
           }`}
         >
           {opinion}
@@ -228,10 +228,10 @@ function PropertyRow({ result }: { result: PropertyYearResult }) {
                         <span
                           className={`text-[10px] font-bold ${
                             yr.opinion === "UNQUALIFIED"
-                              ? "text-green-600"
+                              ? "text-primary"
                               : yr.opinion === "QUALIFIED"
-                              ? "text-yellow-600"
-                              : "text-red-600"
+                              ? "text-accent-pop"
+                              : "text-destructive"
                           }`}
                         >
                           {yr.opinion === "UNQUALIFIED" ? "CLEAN" : yr.opinion}
@@ -321,8 +321,8 @@ export function IdentityDashboard({
           animate={{ opacity: 1, scale: 1 }}
           className={`rounded-xl p-4 border ${
             summary.allClean
-              ? "bg-green-500/5 border-green-500/20"
-              : "bg-red-500/5 border-red-500/20"
+              ? "bg-primary/5 border-primary/20"
+              : "bg-destructive/5 border-destructive/20"
           }`}
         >
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
@@ -339,11 +339,11 @@ export function IdentityDashboard({
               <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Checks</div>
             </div>
             <div>
-              <div className="text-lg font-bold font-display text-green-600">{summary.totalPassed}</div>
+              <div className="text-lg font-bold font-display text-primary">{summary.totalPassed}</div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Passed</div>
             </div>
             <div>
-              <div className={`text-lg font-bold font-display ${summary.totalFailed > 0 ? "text-red-600" : "text-green-600"}`}>
+              <div className={`text-lg font-bold font-display ${summary.totalFailed > 0 ? "text-destructive" : "text-primary"}`}>
                 {summary.totalFailed}
               </div>
               <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Failed</div>

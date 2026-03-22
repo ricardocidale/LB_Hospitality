@@ -121,11 +121,11 @@ export function SuiteSelector({ selected, onToggle, onSelectAll, lastResults, ru
                     {lastResult && (
                       <span className="shrink-0">
                         {lastResult.status === "PASS" ? (
-                          <IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                          <IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />
                         ) : lastResult.status === "FAIL" ? (
-                          <IconXCircle className="w-3.5 h-3.5 text-red-500" />
+                          <IconXCircle className="w-3.5 h-3.5 text-destructive" />
                         ) : (
-                          <IconAlertTriangle className="w-3.5 h-3.5 text-yellow-500" />
+                          <IconAlertTriangle className="w-3.5 h-3.5 text-accent-pop" />
                         )}
                       </span>
                     )}

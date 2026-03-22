@@ -247,7 +247,7 @@ export function PhotoGenerateDialog({
           )}
 
           {fallbackNotice && (
-            <div className="flex items-center gap-2 rounded-md bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-sm text-amber-700 dark:text-amber-400" data-testid="status-fallback-notice">
+            <div className="flex items-center gap-2 rounded-md bg-accent-pop/10 dark:bg-accent-pop/10 px-3 py-2 text-sm text-accent-pop dark:text-accent-pop" data-testid="status-fallback-notice">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               {fallbackNotice}
             </div>
@@ -278,7 +278,7 @@ export function PhotoGenerateDialog({
                   data-testid="checkbox-set-hero"
                 />
                 <label htmlFor="set-hero" className="text-sm flex items-center gap-1.5 cursor-pointer">
-                  <Star className="w-3.5 h-3.5 text-amber-500" />
+                  <Star className="w-3.5 h-3.5 text-accent-pop" />
                   Set as hero image
                 </label>
               </div>

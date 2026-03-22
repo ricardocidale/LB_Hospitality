@@ -22,23 +22,23 @@ const severityConfig: Record<
 > = {
   warning: {
     icon: IconAlertTriangle,
-    light: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-800" },
-    dark: { bg: "bg-amber-500/10", border: "border-amber-500/20", text: "text-amber-200/90" },
+    light: { bg: "bg-accent-pop/10", border: "border-accent-pop/20", text: "text-accent-pop" },
+    dark: { bg: "bg-accent-pop/10", border: "border-accent-pop/20", text: "text-accent-pop/90" },
   },
   critical: {
     icon: IconShieldAlert,
-    light: { bg: "bg-red-50", border: "border-red-200", text: "text-red-800" },
-    dark: { bg: "bg-red-500/10", border: "border-red-500/20", text: "text-red-200/90" },
+    light: { bg: "bg-destructive/10", border: "border-destructive/20", text: "text-destructive" },
+    dark: { bg: "bg-destructive/10", border: "border-destructive/20", text: "text-destructive/90" },
   },
   info: {
     icon: IconInfo,
-    light: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-800" },
-    dark: { bg: "bg-blue-500/10", border: "border-blue-500/20", text: "text-blue-200/90" },
+    light: { bg: "bg-chart-1/10", border: "border-chart-1/20", text: "text-chart-1" },
+    dark: { bg: "bg-chart-1/10", border: "border-chart-1/20", text: "text-chart-1/90" },
   },
   success: {
     icon: IconCheckCircle,
-    light: { bg: "bg-green-50", border: "border-green-200", text: "text-green-800" },
-    dark: { bg: "bg-green-500/10", border: "border-green-500/20", text: "text-green-200/90" },
+    light: { bg: "bg-primary/10", border: "border-primary/20", text: "text-primary" },
+    dark: { bg: "bg-primary/10", border: "border-primary/20", text: "text-primary/90" },
   },
 };
 

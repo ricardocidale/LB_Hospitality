@@ -182,7 +182,7 @@ export default function LogosTab() {
                         <div className="min-w-0 flex-1">
                           <h3 className="font-display font-medium text-xs text-foreground truncate flex items-center gap-1">
                             {logo.name}
-                            {logo.isDefault && <IconStar className="w-3 h-3 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                            {logo.isDefault && <IconStar className="w-3 h-3 text-accent-pop fill-accent-pop flex-shrink-0" />}
                           </h3>
                           <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
                             <IconProperties className="w-3 h-3 flex-shrink-0" />
@@ -190,13 +190,13 @@ export default function LogosTab() {
                           </p>
                         </div>
                         {!logo.isDefault && (
-                          <Button variant="ghost" size="sm" onClick={() => setDeleteLogoConfirmId(logo.id)} className="text-red-400 hover:text-red-600 hover:bg-red-500/10 flex-shrink-0 h-6 w-6 p-0" data-testid={`button-delete-logo-${logo.id}`}>
+                          <Button variant="ghost" size="sm" onClick={() => setDeleteLogoConfirmId(logo.id)} className="text-destructive/80 hover:text-destructive hover:bg-destructive/10 flex-shrink-0 h-6 w-6 p-0" data-testid={`button-delete-logo-${logo.id}`}>
                             <IconTrash className="w-3.5 h-3.5" />
                           </Button>
                         )}
                       </div>
                       {logo.isDefault && (
-                        <span className="inline-block text-[10px] bg-amber-500/20 text-amber-700 px-1.5 py-0.5 rounded">Default</span>
+                        <span className="inline-block text-[10px] bg-accent-pop/20 text-accent-pop px-1.5 py-0.5 rounded">Default</span>
                       )}
                     </div>
                   </CardContent>
@@ -290,7 +290,7 @@ export default function LogosTab() {
                     </RadioGroup>
                   </div>
                   <div className="flex gap-2">
-                    <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={handleEnhancePrompt} className="flex-1 bg-gradient-to-b from-amber-50 to-amber-100/80 border-amber-200/60 text-amber-800 hover:from-amber-100 hover:to-amber-200/80 hover:border-amber-300 transition-all" data-testid="btn-enhance-prompt">
+                    <Button type="button" variant="outline" disabled={!aiPrompt.trim() || isBusy} onClick={handleEnhancePrompt} className="flex-1 bg-gradient-to-b from-accent-pop/10 to-accent-pop/15 border-accent-pop/20 text-accent-pop hover:from-accent-pop/15 hover:to-accent-pop/20 hover:border-accent-pop/30 transition-all" data-testid="btn-enhance-prompt">
                       <IconWand2 className="w-4 h-4 mr-2" />
                       Enhance with AI
                     </Button>
@@ -306,10 +306,10 @@ export default function LogosTab() {
               {aiStep === "enhancing" && (
                 <div className="flex flex-col items-center justify-center py-8 space-y-3">
                   <div className="relative">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-                      <IconWand2 className="w-6 h-6 text-amber-600 animate-pulse" />
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent-pop/15 to-accent-pop/20 flex items-center justify-center">
+                      <IconWand2 className="w-6 h-6 text-accent-pop animate-pulse" />
                     </div>
-                    <Loader2 className="w-16 h-16 text-amber-400 animate-spin absolute -top-2 -left-2" />
+                    <Loader2 className="w-16 h-16 text-accent-pop animate-spin absolute -top-2 -left-2" />
                   </div>
                   <p className="text-sm font-medium text-foreground">Enhancing your description...</p>
                   <p className="text-xs text-muted-foreground">Norfolk AI is crafting a better prompt</p>
@@ -318,10 +318,10 @@ export default function LogosTab() {
 
               {aiStep === "review" && (
                 <div className="space-y-3">
-                  <div className="rounded-xl border border-amber-200/60 bg-gradient-to-b from-amber-50/50 to-white p-4 space-y-2">
+                  <div className="rounded-xl border border-accent-pop/20 bg-gradient-to-b from-accent-pop/10 to-white p-4 space-y-2">
                     <div className="flex items-center gap-2 mb-1">
-                      <IconWand2 className="w-4 h-4 text-amber-600" />
-                      <span className="text-xs font-medium text-amber-700 uppercase tracking-wide">AI-Enhanced Prompt</span>
+                      <IconWand2 className="w-4 h-4 text-accent-pop" />
+                      <span className="text-xs font-medium text-accent-pop uppercase tracking-wide">AI-Enhanced Prompt</span>
                     </div>
                     <Textarea value={enhancedPrompt} onChange={(e) => setEnhancedPrompt(e.target.value)} rows={4} className="resize-none bg-card border-border text-sm" data-testid="input-enhanced-prompt" />
                     <p className="text-xs text-muted-foreground">You can edit the enhanced prompt above</p>

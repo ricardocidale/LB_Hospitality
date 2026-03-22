@@ -5,12 +5,12 @@ type Provenance = "verified" | "cited" | "estimated";
 const config: Record<Provenance, { label: string; className: string; tooltip: string }> = {
   verified: {
     label: "Verified",
-    className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+    className: "bg-primary/15 text-primary dark:bg-primary/10 dark:text-primary",
     tooltip: "Data from institutional source (FRED, STR, CoStar)",
   },
   cited: {
     label: "Cited",
-    className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    className: "bg-chart-1/15 text-chart-1 dark:bg-chart-1/10 dark:text-chart-1",
     tooltip: "Sourced from web research with citations",
   },
   estimated: {
@@ -40,8 +40,8 @@ export function ProvenanceBadge({
     >
       <span
         className={cn("w-1.5 h-1.5 rounded-full", {
-          "bg-emerald-500": provenance === "verified",
-          "bg-blue-500": provenance === "cited",
+          "bg-primary": provenance === "verified",
+          "bg-chart-1": provenance === "cited",
           "bg-zinc-400": provenance === "estimated",
         })}
       />

@@ -142,8 +142,8 @@ export function ConversationBlock({
               <div
                 className={cn(
                   "h-2 w-2 rounded-full transition-colors duration-300",
-                  isActive && "bg-emerald-500",
-                  isTransitioning && "bg-amber-400 animate-pulse",
+                  isActive && "bg-primary",
+                  isTransitioning && "bg-accent-pop/80 animate-pulse",
                   status === "disconnected" && "bg-muted-foreground/40"
                 )}
               />

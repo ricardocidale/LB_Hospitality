@@ -271,7 +271,7 @@ export default function CompanyAssumptions() {
                     className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-background ${
                       (() => {
                         const daysAgo = Math.floor((Date.now() - new Date(companyResearchUpdatedAt).getTime()) / (1000 * 60 * 60 * 24));
-                        return daysAgo <= 7 ? "bg-emerald-500" : "bg-amber-500";
+                        return daysAgo <= 7 ? "bg-primary" : "bg-accent-pop";
                       })()
                     }`}
                     data-testid="indicator-research-freshness"
@@ -279,7 +279,7 @@ export default function CompanyAssumptions() {
                 )}
                 {!companyResearchUpdatedAt && (
                   <span
-                    className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-background bg-red-500"
+                    className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-background bg-destructive"
                     data-testid="indicator-research-freshness"
                   />
                 )}
@@ -346,7 +346,7 @@ export default function CompanyAssumptions() {
                   data-testid="governed-field-depreciationYears"
                 >
                   <div className="space-y-1">
-                    <Label htmlFor="depreciationYears" className="text-xs text-amber-700 dark:text-amber-400">Years</Label>
+                    <Label htmlFor="depreciationYears" className="text-xs text-accent-pop dark:text-accent-pop">Years</Label>
                     <Input
                       id="depreciationYears"
                       type="number"
@@ -355,7 +355,7 @@ export default function CompanyAssumptions() {
                       max="50"
                       value={formData.depreciationYears ?? DEPRECIATION_YEARS}
                       onChange={(e) => handleUpdate("depreciationYears", parseFloat(e.target.value) || DEPRECIATION_YEARS)}
-                      className="h-8 text-sm bg-white dark:bg-background border-amber-300 dark:border-amber-700"
+                      className="h-8 text-sm bg-white dark:bg-background border-accent-pop/30 dark:border-accent-pop/30"
                       data-testid="input-depreciationYears"
                     />
                   </div>
@@ -368,7 +368,7 @@ export default function CompanyAssumptions() {
                   data-testid="governed-field-daysPerMonth"
                 >
                   <div className="space-y-1">
-                    <Label htmlFor="daysPerMonth" className="text-xs text-amber-700 dark:text-amber-400">Days</Label>
+                    <Label htmlFor="daysPerMonth" className="text-xs text-accent-pop dark:text-accent-pop">Days</Label>
                     <Input
                       id="daysPerMonth"
                       type="number"
@@ -377,7 +377,7 @@ export default function CompanyAssumptions() {
                       max="31"
                       value={formData.daysPerMonth ?? DAYS_PER_MONTH}
                       onChange={(e) => handleUpdate("daysPerMonth", parseFloat(e.target.value) || DAYS_PER_MONTH)}
-                      className="h-8 text-sm bg-white dark:bg-background border-amber-300 dark:border-amber-700"
+                      className="h-8 text-sm bg-white dark:bg-background border-accent-pop/30 dark:border-accent-pop/30"
                       data-testid="input-daysPerMonth"
                     />
                   </div>

@@ -63,7 +63,7 @@ export function DebtYieldTab() {
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <IconTrendingUp className="w-4 h-4 mr-2 inline" />}
         Analyze Debt Yield
       </Button>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-destructive text-sm">{error}</p>}
       {result && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard

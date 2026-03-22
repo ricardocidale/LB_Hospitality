@@ -237,7 +237,7 @@ export function AddPropertyDialog({
                 <p className="text-xs text-muted-foreground">Suggested: 6 months after acquisition</p>
               )}
               {formData.operationsStartDate && formData.acquisitionDate && formData.operationsStartDate < formData.acquisitionDate && (
-                <p className="text-xs text-red-500">Operations cannot start before acquisition</p>
+                <p className="text-xs text-destructive">Operations cannot start before acquisition</p>
               )}
             </div>
           </div>

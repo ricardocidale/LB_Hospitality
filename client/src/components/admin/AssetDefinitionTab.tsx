@@ -370,7 +370,7 @@ function AmenityCard({
       <button
         type="button"
         onClick={onDelete}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-red-500"
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-destructive"
         data-testid={`button-delete-${field.key}`}
       >
         <X className="w-3.5 h-3.5" />
@@ -447,7 +447,7 @@ function CustomAmenityCard({
       <button
         type="button"
         onClick={onDelete}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-red-500"
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/50 hover:text-destructive"
         data-testid={`button-delete-custom-${amenity.id}`}
       >
         <X className="w-3.5 h-3.5" />
@@ -504,9 +504,9 @@ function AmenitiesTab({
     <div className="space-y-6">
       <p className="text-xs text-muted-foreground">
         Each feature is shown as a card with its priority level. Use the radio buttons to set
-        <span className="font-medium text-emerald-600 dark:text-emerald-400"> Required</span>,
-        <span className="font-medium text-blue-600 dark:text-blue-400"> Major Plus</span>, or
-        <span className="font-medium text-amber-600 dark:text-amber-400"> Nice to Have</span>.
+        <span className="font-medium text-primary dark:text-primary"> Required</span>,
+        <span className="font-medium text-chart-1 dark:text-chart-1"> Major Plus</span>, or
+        <span className="font-medium text-accent-pop dark:text-accent-pop"> Nice to Have</span>.
         Hover to reveal the delete button. Add custom amenities at the bottom.
       </p>
 

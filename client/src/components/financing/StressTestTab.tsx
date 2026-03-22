@@ -56,11 +56,11 @@ export function StressTestTab() {
   }, [noi, loanAmount, rate, amortMonths, termMonths, ioMonths, minDscr]);
 
   const getHeatmapColor = (value: number, threshold: number) => {
-    if (value >= threshold + 0.5) return "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400";
-    if (value >= threshold) return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-500";
-    if (value >= threshold - 0.1) return "bg-amber-500/10 text-amber-600 dark:text-amber-500";
-    if (value >= threshold - 0.25) return "bg-orange-500/10 text-orange-600 dark:text-orange-500";
-    return "bg-red-500/10 text-red-600 dark:text-red-500";
+    if (value >= threshold + 0.5) return "bg-primary/20 text-primary dark:text-primary";
+    if (value >= threshold) return "bg-primary/10 text-primary dark:text-primary";
+    if (value >= threshold - 0.1) return "bg-accent-pop/10 text-accent-pop dark:text-accent-pop";
+    if (value >= threshold - 0.25) return "bg-accent-pop/10 text-accent-pop dark:text-accent-pop";
+    return "bg-destructive/10 text-destructive dark:text-destructive";
   };
 
   return (
@@ -83,7 +83,7 @@ export function StressTestTab() {
         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2 inline" /> : <IconBarChart3 className="w-4 h-4 mr-2 inline" />}
         Run Stress Test
       </Button>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-destructive text-sm">{error}</p>}
       {result && (
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

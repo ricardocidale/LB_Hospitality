@@ -68,8 +68,8 @@ interface Props {
 
 function FormulaDetailRow({ label, values, colCount }: { label: string; values: string[]; colCount: number }) {
   return (
-    <TableRow className="bg-blue-50/40" data-expandable-row="true">
-      <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">
+    <TableRow className="bg-chart-1/5" data-expandable-row="true">
+      <TableCell className="pl-12 sticky left-0 bg-chart-1/5 py-0.5 text-xs text-muted-foreground italic">
         {label}
       </TableCell>
       {values.map((v, i) => (
@@ -423,8 +423,8 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           />
         </>
       ) : (
-        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("gopFormula")} data-expandable-row="true">
-          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+        <TableRow className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5" onClick={() => toggle("gopFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-chart-1/5 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
       )}
@@ -464,8 +464,8 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           />
         </>
       ) : (
-        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("agopFormula")} data-expandable-row="true">
-          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+        <TableRow className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5" onClick={() => toggle("agopFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-chart-1/5 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
       )}
@@ -542,8 +542,8 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           />
         </>
       ) : (
-        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("noiFormula")} data-expandable-row="true">
-          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+        <TableRow className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5" onClick={() => toggle("noiFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-chart-1/5 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
       )}
@@ -573,8 +573,8 @@ export function YearlyIncomeStatement({ data, years = 5, startYear = 2026, prope
           />
         </>
       ) : (
-        <TableRow className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40" onClick={() => toggle("anoiFormula")} data-expandable-row="true">
-          <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
+        <TableRow className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5" onClick={() => toggle("anoiFormula")} data-expandable-row="true">
+          <TableCell className="pl-12 sticky left-0 bg-chart-1/5 py-0.5 text-xs text-muted-foreground italic">Formula</TableCell>
           {yd.map((_, i) => <TableCell key={i} className="py-0.5" />)}
         </TableRow>
       )}

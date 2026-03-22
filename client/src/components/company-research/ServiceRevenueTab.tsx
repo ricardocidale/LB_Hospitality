@@ -60,7 +60,7 @@ export function ServiceRevenueTab({ content }: ServiceRevenueTabProps) {
                 <tr key={b.type} className="border-b border-border hover:bg-muted/50 transition-colors">
                   <td className="p-3 text-foreground font-medium">{b.label}</td>
                   <td className="p-3 text-right text-muted-foreground font-mono">{(b.lowRate * 100).toFixed(1)}%</td>
-                  <td className="p-3 text-right text-emerald-600 font-mono font-medium">{(b.midRate * 100).toFixed(1)}%</td>
+                  <td className="p-3 text-right text-primary font-mono font-medium">{(b.midRate * 100).toFixed(1)}%</td>
                   <td className="p-3 text-right text-muted-foreground font-mono">{(b.highRate * 100).toFixed(1)}%</td>
                   <td className="p-3 text-right text-foreground font-mono">${b.midFee.toLocaleString()}</td>
                 </tr>

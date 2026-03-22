@@ -48,11 +48,11 @@ const PIE_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--cha
 const PIE_EXPORT_COLORS = ["9FBCA4", "257D41", "3B82F6", "F59E0B", "8B5CF6"];
 
 const STATUS_COLORS: Record<string, string> = {
-  [PropertyStatus.OPERATING]: "bg-emerald-500",
-  [PropertyStatus.IMPROVEMENTS]: "bg-amber-500",
-  [PropertyStatus.ACQUIRED]: "bg-blue-500",
-  [PropertyStatus.IN_NEGOTIATION]: "bg-violet-500",
-  [PropertyStatus.PIPELINE]: "bg-slate-400",
+  [PropertyStatus.OPERATING]: "bg-primary",
+  [PropertyStatus.IMPROVEMENTS]: "bg-accent-pop",
+  [PropertyStatus.ACQUIRED]: "bg-chart-1",
+  [PropertyStatus.IN_NEGOTIATION]: "bg-chart-3",
+  [PropertyStatus.PIPELINE]: "bg-muted-foreground",
 };
 
 const statusVariants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {

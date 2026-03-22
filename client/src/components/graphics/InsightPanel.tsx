@@ -18,9 +18,9 @@ interface InsightPanelProps {
 }
 
 const typeConfig = {
-  positive: { icon: <IconTrendingUp className="w-3.5 h-3.5" />, color: "text-emerald-600", dot: "bg-emerald-500" },
-  negative: { icon: <IconTrendingDown className="w-3.5 h-3.5" />, color: "text-red-600", dot: "bg-red-500" },
-  warning: { icon: <IconAlertTriangle className="w-3.5 h-3.5" />, color: "text-amber-600", dot: "bg-amber-500" },
+  positive: { icon: <IconTrendingUp className="w-3.5 h-3.5" />, color: "text-primary", dot: "bg-primary" },
+  negative: { icon: <IconTrendingDown className="w-3.5 h-3.5" />, color: "text-destructive", dot: "bg-destructive" },
+  warning: { icon: <IconAlertTriangle className="w-3.5 h-3.5" />, color: "text-accent-pop", dot: "bg-accent-pop" },
   neutral: { icon: <IconCheckCircle2 className="w-3.5 h-3.5" />, color: "text-muted-foreground/60", dot: "bg-muted-foreground/40" },
 };
 

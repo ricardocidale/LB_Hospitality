@@ -57,9 +57,9 @@ export function VariableSlidersPanel({ variables, adjustments, onAdjustmentChang
                 <div
                   className={`text-sm font-mono font-bold px-2 py-1 rounded-md min-w-[60px] text-center transition-colors ${
                     currentVal > 0
-                      ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10"
+                      ? "text-primary bg-primary/10 dark:bg-primary/10"
                       : currentVal < 0
-                      ? "text-red-600 bg-red-50 dark:bg-red-500/10"
+                      ? "text-destructive bg-destructive/10 dark:bg-destructive/10"
                       : "text-muted-foreground bg-muted"
                   }`}
                   data-testid={`value-${v.id}`}

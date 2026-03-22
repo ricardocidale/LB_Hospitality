@@ -210,7 +210,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               title="Business Rules & Constraints"
               subtitle="Mandatory financial gates and safety checks"
               icon={IconShieldCheck}
-              className="border-red-200 bg-red-50/30"
+              className="border-destructive/20 bg-destructive/10"
               expanded={expandedSections.has("business-rules")}
               onToggle={() => toggleSection("business-rules")}
               sectionRef={(el) => { sectionRefs.current["business-rules"] = el; }}
@@ -449,14 +449,14 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
                   <li>&#8226; <strong>F&B Revenue</strong>: Recognized at point of sale; bundled packages allocated to standalone selling prices</li>
                 </ul>
               </div>
-              <div className="bg-blue-50/50 rounded-lg p-4 border border-blue-200">
+              <div className="bg-chart-1/10 rounded-lg p-4 border border-chart-1/20">
                 <h4 className="font-semibold mb-2">Inline Badges on Assumptions</h4>
                 <p className="text-sm text-muted-foreground mb-2">
                   When editing property assumptions, you will see two types of badges next to field labels:
                 </p>
                 <ul className="text-sm text-muted-foreground space-y-2">
-                  <li>&#8226; <strong className="text-blue-600">Blue ⓘ badges</strong> — GAAP/IRS compliance rules. Hover to see the accounting standard that governs the field (e.g., ASC 805 for Purchase Price, IRC §168 for Income Tax).</li>
-                  <li>&#8226; <strong className="text-yellow-700">Benchmark Range Labels</strong> — AI-researched market ranges displayed as inline pills with a light yellow background (e.g., "$240–$380"). Hover to see the data source and date. Click any benchmark label to auto-fill the recommended value based on market research for the property's location. Only visible after running AI market research.</li>
+                  <li>&#8226; <strong className="text-chart-1">Blue ⓘ badges</strong> — GAAP/IRS compliance rules. Hover to see the accounting standard that governs the field (e.g., ASC 805 for Purchase Price, IRC §168 for Income Tax).</li>
+                  <li>&#8226; <strong className="text-accent-pop">Benchmark Range Labels</strong> — AI-researched market ranges displayed as inline pills with a light yellow background (e.g., "$240–$380"). Hover to see the data source and date. Click any benchmark label to auto-fill the recommended value based on market research for the property's location. Only visible after running AI market research.</li>
                 </ul>
               </div>
             </MethodologySection>
@@ -599,7 +599,7 @@ export default function Methodology({ embedded }: { embedded?: boolean }) {
               title="Fixed Assumptions (Not Configurable)"
               subtitle="Hardcoded values built into the calculation engine"
               icon={IconInfo}
-              className="border-amber-200 bg-amber-50/30"
+              className="border-accent-pop/20 bg-accent-pop/10"
               expanded={expandedSections.has("fixed-assumptions")}
               onToggle={() => toggleSection("fixed-assumptions")}
               sectionRef={(el) => { sectionRefs.current["fixed-assumptions"] = el; }}

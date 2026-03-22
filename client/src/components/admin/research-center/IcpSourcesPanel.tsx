@@ -102,7 +102,7 @@ export function IcpSourcesPanel({
                 <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                   <IconExternalLink className="w-3.5 h-3.5" />
                 </a>
-                <button onClick={() => onRemoveUrl(source.id)} className="text-muted-foreground hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-url-${source.id}`}>
+                <button onClick={() => onRemoveUrl(source.id)} className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-url-${source.id}`}>
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -184,7 +184,7 @@ export function IcpSourcesPanel({
                     <IconExternalLink className="w-3.5 h-3.5" />
                   </a>
                 )}
-                <button onClick={() => onRemoveFile(file.id)} className="text-muted-foreground hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-file-${file.id}`}>
+                <button onClick={() => onRemoveFile(file.id)} className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100" data-testid={`remove-file-${file.id}`}>
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>

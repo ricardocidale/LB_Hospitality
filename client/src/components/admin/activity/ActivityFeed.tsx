@@ -95,10 +95,10 @@ export function ActivityFeed({
                       </TableCell>
                       <TableCell>
                         <span className={`text-xs px-2 py-0.5 rounded font-mono ${
-                          log.action === "create" ? "bg-green-500/20 text-green-400" :
-                          log.action === "update" ? "bg-muted text-blue-400" :
-                          log.action === "delete" ? "bg-red-500/20 text-red-400" :
-                          log.action === "run" ? "bg-purple-500/20 text-purple-400" :
+                          log.action === "create" ? "bg-primary/20 text-primary" :
+                          log.action === "update" ? "bg-muted text-chart-1" :
+                          log.action === "delete" ? "bg-destructive/20 text-destructive/80" :
+                          log.action === "run" ? "bg-chart-3/20 text-chart-3" :
                           "bg-muted text-muted-foreground"
                         }`}>
                           {log.action}

@@ -20,9 +20,9 @@ function formatTime(unix?: number) {
 }
 
 function statusColor(status: string) {
-  if (status === "done" || status === "completed") return "border-green-200 text-green-700 bg-green-50/80";
-  if (status === "in-progress" || status === "active") return "border-blue-200 text-blue-700 bg-blue-50/80";
-  if (status === "failed") return "border-red-200 text-red-700 bg-red-50/80";
+  if (status === "done" || status === "completed") return "border-primary/20 text-primary bg-primary/10";
+  if (status === "in-progress" || status === "active") return "border-chart-1/20 text-chart-1 bg-chart-1/8";
+  if (status === "failed") return "border-destructive/20 text-destructive bg-destructive/8";
   return "border-muted-foreground/20 text-muted-foreground bg-muted/30";
 }
 
@@ -150,7 +150,7 @@ function ConversationDetail({ id }: { id: string }) {
             <Badge
               key={key}
               variant="outline"
-              className={`text-[10px] ${result?.result === "success" ? "border-green-200 text-green-700 bg-green-50/50" : "border-muted-foreground/20"}`}
+              className={`text-[10px] ${result?.result === "success" ? "border-primary/20 text-primary bg-primary/10" : "border-muted-foreground/20"}`}
             >
               {key}: {result?.result || "—"}
             </Badge>
@@ -172,7 +172,7 @@ function ConversationDetail({ id }: { id: string }) {
           className="h-6 px-2 gap-1 text-[10px] text-muted-foreground/50 hover:text-muted-foreground"
           data-testid={`button-copy-transcript-${id}`}
         >
-          {copied ? <Check className="w-3 h-3 text-green-500" /> : <IconCopy className="w-3 h-3" />}
+          {copied ? <Check className="w-3 h-3 text-primary" /> : <IconCopy className="w-3 h-3" />}
           {copied ? "Copied" : "Copy"}
         </Button>
       </div>
@@ -243,8 +243,8 @@ export function ConversationHistory() {
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: "Total", value: total, icon: <IconBarChart2 className="w-4 h-4 text-muted-foreground" />, color: "from-primary/10 to-primary/5" },
-            { label: "Successful", value: successful, icon: <IconCheckCircle2 className="w-4 h-4 text-green-600" />, color: "from-green-500/10 to-green-500/5" },
-            { label: "Avg Duration", value: formatDuration(avgDuration), icon: <IconClock className="w-4 h-4 text-muted-foreground" />, color: "from-blue-500/10 to-blue-500/5" },
+            { label: "Successful", value: successful, icon: <IconCheckCircle2 className="w-4 h-4 text-primary" />, color: "from-primary/10 to-primary/5" },
+            { label: "Avg Duration", value: formatDuration(avgDuration), icon: <IconClock className="w-4 h-4 text-muted-foreground" />, color: "from-chart-1/10 to-chart-1/5" },
           ].map((stat) => (
             <div key={stat.label} className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} border border-border/60`}>
               <div className="flex items-center gap-1.5 mb-1">
@@ -345,7 +345,7 @@ export function ConversationHistory() {
                         </span>
                         <span className="text-[11px] text-muted-foreground/50">{formatDuration(conv.call_duration_secs)}</span>
                         {conv.call_successful === "failure" && (
-                          <span className="text-[10px] text-red-500/70 flex items-center gap-0.5">
+                          <span className="text-[10px] text-destructive/70 flex items-center gap-0.5">
                             <IconXCircle className="w-3 h-3" /> failed
                           </span>
                         )}

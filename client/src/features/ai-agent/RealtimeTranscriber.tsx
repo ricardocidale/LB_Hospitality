@@ -749,7 +749,7 @@ const TranscriberTranscript = React.memo(
             <div
               className={cn(
                 "text-foreground/90 w-full text-xl leading-relaxed font-light",
-                error && "text-red-500",
+                error && "text-destructive",
                 isPartial && !error && "text-foreground/60"
               )}
             >

@@ -49,7 +49,7 @@ const fadeUp = { hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, tra
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl rounded-xl border border-primary/15 shadow-xl px-4 py-2.5 text-xs">
+    <div className="bg-white/90 dark:bg-card/90 backdrop-blur-xl rounded-xl border border-primary/15 shadow-xl px-4 py-2.5 text-xs">
       {label && <p className="font-display font-semibold mb-1 text-foreground">{label}</p>}
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color }} className="flex items-center gap-1.5">
@@ -622,7 +622,7 @@ function SourcesTab({ content }: { content: any }) {
           <h3 className="font-display text-lg font-semibold mb-3">Research Queries</h3>
           <div className="space-y-4">
             {sources.map((result: any, i: number) => (
-              <div key={i} className="p-4 rounded-xl bg-blue-50/30 dark:bg-blue-950/10 border border-blue-100/50 dark:border-blue-900/20">
+              <div key={i} className="p-4 rounded-xl bg-chart-1/10 dark:bg-chart-1/5 border border-chart-1/15 dark:border-chart-1/10">
                 <div className="flex items-center gap-2 mb-2">
                   <ProvenanceBadge provenance="cited" />
                   <span className="text-xs text-muted-foreground">{result.fetchedAt ? new Date(result.fetchedAt).toLocaleDateString() : ""}</span>
@@ -751,8 +751,8 @@ export default function PropertyMarketResearch() {
           {isGenerating && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`${card} p-6`}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                  <Loader2 className="w-4 h-4 animate-spin text-emerald-700 dark:text-emerald-400" />
+                <div className="w-8 h-8 rounded-full bg-primary/15 dark:bg-primary/10 flex items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary dark:text-primary" />
                 </div>
                 <p className="text-muted-foreground text-sm font-medium">Analyzing market data for {property.name}...</p>
               </div>
@@ -776,17 +776,17 @@ export default function PropertyMarketResearch() {
                 occupancy patterns, competitive set, cap rates, operating costs, event demand, and more — all tailored to <strong>{property.location}</strong>.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto mb-8 text-left">
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
-                  <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-1">Market Data</p>
-                  <p className="text-xs text-emerald-700 dark:text-emerald-400">ADR, occupancy, RevPAR, and comp set analysis</p>
+                <div className="bg-primary/10 dark:bg-primary/8 rounded-xl p-3 border border-primary/20 dark:border-primary/30">
+                  <p className="text-xs font-semibold text-primary dark:text-primary mb-1">Market Data</p>
+                  <p className="text-xs text-primary dark:text-primary">ADR, occupancy, RevPAR, and comp set analysis</p>
                 </div>
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800">
-                  <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-1">Cost Benchmarks</p>
-                  <p className="text-xs text-blue-700 dark:text-blue-400">Operating costs, taxes, and USALI rates</p>
+                <div className="bg-chart-1/10 dark:bg-chart-1/8 rounded-xl p-3 border border-chart-1/20 dark:border-chart-1/30">
+                  <p className="text-xs font-semibold text-chart-1 dark:text-chart-1 mb-1">Cost Benchmarks</p>
+                  <p className="text-xs text-chart-1 dark:text-chart-1">Operating costs, taxes, and USALI rates</p>
                 </div>
-                <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-200 dark:border-amber-800">
-                  <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 mb-1">Assumption Guidance</p>
-                  <p className="text-xs text-amber-700 dark:text-amber-400">Research values appear as clickable badges on the edit page</p>
+                <div className="bg-accent-pop/10 dark:bg-accent-pop/20 rounded-xl p-3 border border-accent-pop/20 dark:border-accent-pop/30">
+                  <p className="text-xs font-semibold text-accent-pop dark:text-accent-pop mb-1">Assumption Guidance</p>
+                  <p className="text-xs text-accent-pop dark:text-accent-pop">Research values appear as clickable badges on the edit page</p>
                 </div>
               </div>
               <Button

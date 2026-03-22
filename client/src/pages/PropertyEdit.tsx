@@ -413,8 +413,8 @@ export default function PropertyEdit() {
                       {!isGenerating && (
                         <span
                           className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white ${
-                            researchFreshness === "fresh" ? "bg-emerald-400" :
-                            researchFreshness === "stale" ? "bg-amber-400" : "bg-muted-foreground"
+                            researchFreshness === "fresh" ? "bg-primary/80" :
+                            researchFreshness === "stale" ? "bg-accent-pop/80" : "bg-muted-foreground"
                           }`}
                         />
                       )}

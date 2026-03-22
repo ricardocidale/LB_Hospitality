@@ -55,14 +55,14 @@ function StatusChecklist({ items, onNavigate }: { items: ChecklistItem[]; onNavi
               onClick={() => item.tab && onNavigate(item.tab)}
               className={`flex items-center gap-2.5 p-3 h-auto rounded-xl border text-left justify-start transition-all ${
                 item.ok
-                  ? "border-green-200/60 bg-green-50/40 text-green-800"
-                  : "border-red-200/60 bg-red-50/40 text-red-800"
+                  ? "border-primary/20 bg-primary/10 text-primary"
+                  : "border-destructive/20 bg-destructive/10 text-destructive"
               } ${item.tab ? "cursor-pointer hover:shadow-sm" : "cursor-default"}`}
               data-testid={`checklist-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
             >
               {item.ok
-                ? <IconCheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                : <IconXCircle className="w-4 h-4 text-red-400 shrink-0" />}
+                ? <IconCheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                : <IconXCircle className="w-4 h-4 text-destructive/80 shrink-0" />}
               <span className="text-xs font-medium">{item.label}</span>
             </Button>
           ))}
@@ -156,8 +156,8 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
 
   if (isError || !draft) {
     return (
-      <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-        <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+      <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-accent-pop/20 bg-accent-pop/10">
+        <IconAlertTriangle className="w-10 h-10 text-accent-pop" />
         <div>
           <p className="font-semibold text-foreground">Failed to load AI Agent settings</p>
           <p className="text-sm text-muted-foreground mt-1">Check your connection or try again.</p>
@@ -344,19 +344,19 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Widget Visible</span>
                   {draft.showAiAssistant
-                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />On</span>
-                    : <span className="flex items-center gap-1 text-xs text-amber-600"><IconXCircle className="w-3.5 h-3.5 text-amber-400" />Off — toggle "AI Chat Widget" above</span>}
+                    ? <span className="flex items-center gap-1 text-xs text-primary"><IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />On</span>
+                    : <span className="flex items-center gap-1 text-xs text-accent-pop"><IconXCircle className="w-3.5 h-3.5 text-accent-pop" />Off — toggle "AI Chat Widget" above</span>}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Agent ID</span>
                   {agentIdOk
-                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />Configured</span>
-                    : <span className="flex items-center gap-1 text-xs text-muted-foreground"><IconXCircle className="w-3.5 h-3.5 text-red-400" />Missing</span>}
+                    ? <span className="flex items-center gap-1 text-xs text-primary"><IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />Configured</span>
+                    : <span className="flex items-center gap-1 text-xs text-muted-foreground"><IconXCircle className="w-3.5 h-3.5 text-destructive/80" />Missing</span>}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">API Key</span>
                   {healthData?.apiKeySet
-                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />Set</span>
+                    ? <span className="flex items-center gap-1 text-xs text-primary"><IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />Set</span>
                     : healthData?.apiKeySet === false
                     ? <span className="flex items-center gap-1 text-xs text-destructive"><IconXCircle className="w-3.5 h-3.5" />Missing — add ELEVENLABS_API_KEY secret</span>
                     : <span className="text-xs text-muted-foreground animate-pulse">Checking…</span>}
@@ -368,13 +368,13 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
                     : signedUrlError
                     ? <span className="flex items-center gap-1 text-xs text-destructive"><IconXCircle className="w-3.5 h-3.5" />Failed</span>
                     : signedUrl
-                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />Ready</span>
+                    ? <span className="flex items-center gap-1 text-xs text-primary"><IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />Ready</span>
                     : <span className="text-xs text-muted-foreground">Unavailable</span>}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">ElevenLabs API</span>
                   {elevenLabsOk
-                    ? <span className="flex items-center gap-1 text-xs text-green-700"><IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />Connected</span>
+                    ? <span className="flex items-center gap-1 text-xs text-primary"><IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />Connected</span>
                     : <span className="flex items-center gap-1 text-xs text-destructive"><IconXCircle className="w-3.5 h-3.5" />Error</span>}
                 </div>
                 {signedUrlError && (
@@ -435,8 +435,8 @@ export default function MarcelaTab({ initialTab }: MarcelaTabProps) {
           {/* ── History ────────────────────────────────────────────────────── */}
           <TabsContent value="history" className="space-y-6 m-0 focus-visible:outline-none">
             <ErrorBoundary fallback={
-              <div className="p-6 rounded-xl border border-amber-200/60 bg-amber-50/40 flex flex-col items-center gap-3 text-center">
-                <IconAlertTriangle className="w-8 h-8 text-amber-500" />
+              <div className="p-6 rounded-xl border border-accent-pop/20 bg-accent-pop/10 flex flex-col items-center gap-3 text-center">
+                <IconAlertTriangle className="w-8 h-8 text-accent-pop" />
                 <div>
                   <p className="font-medium text-foreground text-sm">Conversation history failed to load</p>
                   <p className="text-xs text-muted-foreground mt-1">An error occurred in this section. Other tabs are unaffected.</p>

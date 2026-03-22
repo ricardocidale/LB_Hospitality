@@ -64,11 +64,11 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           </div>
           <div className="absolute top-3 right-3">
             <span className={`px-3 py-1 rounded-full text-xs font-medium border border-white/20 label-text ${
-              property.status === PropertyStatus.OPERATING ? "bg-emerald-500 text-white" :
-              property.status === PropertyStatus.IMPROVEMENTS ? "bg-amber-500 text-white" :
-              property.status === PropertyStatus.ACQUIRED ? "bg-blue-500 text-white" :
-              property.status === PropertyStatus.PLANNED ? "bg-sky-500 text-white" :
-              property.status === PropertyStatus.IN_NEGOTIATION ? "bg-purple-500 text-white" :
+              property.status === PropertyStatus.OPERATING ? "bg-primary text-white" :
+              property.status === PropertyStatus.IMPROVEMENTS ? "bg-accent-pop text-white" :
+              property.status === PropertyStatus.ACQUIRED ? "bg-chart-1 text-white" :
+              property.status === PropertyStatus.PLANNED ? "bg-chart-1 text-white" :
+              property.status === PropertyStatus.IN_NEGOTIATION ? "bg-chart-3 text-white" :
               property.status === PropertyStatus.PIPELINE ? "bg-muted0 text-white" : "bg-card/20 text-white"
             }`}>
               {property.status}

@@ -167,7 +167,7 @@ export default function CompaniesTab() {
                         <div>
                           <h3 className="font-display text-foreground font-medium">{company.name}</h3>
                           <span className="text-xs px-2 py-0.5 rounded font-mono bg-muted text-muted-foreground">Company</span>
-                          {!company.isActive && <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-600 ml-2">Inactive</span>}
+                          {!company.isActive && <span className="text-xs px-2 py-0.5 rounded bg-destructive/20 text-destructive ml-2">Inactive</span>}
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
@@ -181,7 +181,7 @@ export default function CompaniesTab() {
                         {company.name !== "General" && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-company-${company.id}`}>
+                            <Button variant="ghost" size="sm" className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10" data-testid={`button-delete-company-${company.id}`}>
                               <IconTrash className="w-4 h-4" />
                             </Button>
                           </AlertDialogTrigger>

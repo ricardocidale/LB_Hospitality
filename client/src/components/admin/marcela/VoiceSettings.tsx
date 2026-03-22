@@ -235,8 +235,8 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
                     </div>
                   </div>
 
-                  <div className="p-3 bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40 rounded-lg">
-                    <p className="text-xs text-blue-700 dark:text-blue-300 flex items-start gap-2">
+                  <div className="p-3 bg-chart-1/8 dark:bg-chart-1/10 border border-chart-1/20 dark:border-chart-1/20 rounded-lg">
+                    <p className="text-xs text-chart-1 dark:text-chart-1 flex items-start gap-2">
                       <IconInfo className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       Voice settings (Stability, Speed, Similarity) are not customizable for V3 models.
                     </p>
@@ -248,7 +248,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
         </CardContent>
         <CardFooter className="flex justify-end items-center gap-2 pt-0 pb-4 px-6">
           {ttsDirty && (
-            <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
+            <Badge variant="outline" className="text-accent-pop border-accent-pop/30 bg-accent-pop/10 text-xs">
               Unsaved
             </Badge>
           )}
@@ -484,7 +484,7 @@ export function VoiceSettingsComponent({ draft, updateField }: VoiceSettingsProp
         </CardContent>
         <CardFooter className="flex justify-end items-center gap-2 pt-0 pb-4 px-6">
           {voiceDirty && (
-            <Badge variant="outline" className="text-amber-600 border-amber-300/60 bg-amber-50/80 text-xs">
+            <Badge variant="outline" className="text-accent-pop border-accent-pop/30 bg-accent-pop/10 text-xs">
               Unsaved
             </Badge>
           )}

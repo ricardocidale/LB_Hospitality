@@ -30,8 +30,8 @@ interface ResearchTheaterProps {
 const statusIcons: Record<ResearchJob["status"], React.ReactNode> = {
   pending: <span className="text-muted-foreground text-sm">{"\u25CB"}</span>,
   generating: <Loader2 className="h-4 w-4 animate-spin text-primary" />,
-  complete: <IconCheckCircle className="h-4 w-4 text-emerald-500" />,
-  error: <IconXCircle className="h-4 w-4 text-red-500" />,
+  complete: <IconCheckCircle className="h-4 w-4 text-primary" />,
+  error: <IconXCircle className="h-4 w-4 text-destructive" />,
 };
 
 const containerVariants = {
@@ -171,7 +171,7 @@ export function ResearchTheater({
                               job.status === "generating" &&
                                 "bg-primary/5 border border-primary/10",
                               job.status === "complete" && "opacity-70",
-                              job.status === "error" && "bg-red-500/5",
+                              job.status === "error" && "bg-destructive/5",
                               job.status === "pending" && "opacity-50",
                             )}
                           >

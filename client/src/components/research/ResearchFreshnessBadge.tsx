@@ -42,24 +42,24 @@ const stateConfig: Record<
 > = {
   fresh: {
     icon: IconCheckCircle,
-    bg: "bg-emerald-500/10",
-    text: "text-emerald-700 dark:text-emerald-400",
-    border: "border-emerald-500/20",
-    dot: "bg-emerald-500",
+    bg: "bg-primary/10",
+    text: "text-primary dark:text-primary",
+    border: "border-primary/20",
+    dot: "bg-primary",
   },
   stale: {
     icon: IconClock,
-    bg: "bg-amber-500/10",
-    text: "text-amber-700 dark:text-amber-400",
-    border: "border-amber-500/20",
-    dot: "bg-amber-500",
+    bg: "bg-accent-pop/10",
+    text: "text-accent-pop dark:text-accent-pop",
+    border: "border-accent-pop/20",
+    dot: "bg-accent-pop",
   },
   missing: {
     icon: IconAlertCircle,
-    bg: "bg-red-500/10",
-    text: "text-red-700 dark:text-red-400",
-    border: "border-red-500/20",
-    dot: "bg-red-500",
+    bg: "bg-destructive/10",
+    text: "text-destructive dark:text-destructive/80",
+    border: "border-destructive/20",
+    dot: "bg-destructive",
   },
 };
 

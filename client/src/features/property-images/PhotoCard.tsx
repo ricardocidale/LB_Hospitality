@@ -30,7 +30,7 @@ export function PhotoCard({ photo, onSetHero, onDelete, onUpdateCaption, isSetti
       layout
       className={cn(
         "relative group overflow-hidden rounded-lg border bg-card shadow-sm transition-shadow hover:shadow-md",
-        photo.isHero && "ring-2 ring-amber-400/60"
+        photo.isHero && "ring-2 ring-accent-pop/60"
       )}
       data-testid={`photo-card-${photo.id}`}
     >
@@ -50,8 +50,8 @@ export function PhotoCard({ photo, onSetHero, onDelete, onUpdateCaption, isSetti
         className={cn(
           "absolute top-2 right-2 z-10 p-1.5 rounded-full h-auto w-auto",
           photo.isHero
-            ? "bg-amber-400/90 text-amber-900 shadow-lg shadow-amber-400/30"
-            : "bg-black/50 backdrop-blur-sm text-white/70 opacity-0 group-hover:opacity-100 hover:bg-amber-400/80 hover:text-amber-900"
+            ? "bg-accent-pop/80 text-accent-pop shadow-lg shadow-accent-pop/30"
+            : "bg-black/50 backdrop-blur-sm text-white/70 opacity-0 group-hover:opacity-100 hover:bg-accent-pop/80 hover:text-accent-pop"
         )}
         title={photo.isHero ? "Current hero image" : "Set as hero image"}
       >

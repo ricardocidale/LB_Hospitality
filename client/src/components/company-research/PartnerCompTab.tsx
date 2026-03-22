@@ -68,8 +68,8 @@ export function PartnerCompTab({ content }: PartnerCompTabProps) {
                     <div className="text-[10px] text-muted-foreground mt-0.5">{c.notes}</div>
                   </td>
                   <td className="p-3 text-right text-muted-foreground font-mono text-xs">{c.startupRange}</td>
-                  <td className="p-3 text-right text-emerald-600 font-mono text-xs">{c.growthRange}</td>
-                  <td className="p-3 text-right text-blue-600 font-mono text-xs">{c.matureRange}</td>
+                  <td className="p-3 text-right text-primary font-mono text-xs">{c.growthRange}</td>
+                  <td className="p-3 text-right text-chart-1 font-mono text-xs">{c.matureRange}</td>
                 </tr>
               ))}
             </tbody>

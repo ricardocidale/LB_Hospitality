@@ -523,12 +523,12 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                       return (
                         <React.Fragment key={idx}>
                           <TableRow
-                            className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                            className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
                             onClick={() => toggleFormula(fId)}
                             data-expandable-row="true"
                           >
                             <TableCell
-                              className="sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground"
+                              className="sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-muted-foreground"
                               style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1}rem` }}
                             >
                               <div className="flex items-center gap-1.5">
@@ -541,9 +541,9 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                             ))}
                           </TableRow>
                           {isOpen && (
-                            <TableRow className="bg-blue-50/20" data-expandable-row="true">
+                            <TableRow className="bg-chart-1/3" data-expandable-row="true">
                               <TableCell
-                                className="sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic"
+                                className="sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic"
                                 style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1 + 1.25}rem` }}
                               >
                                 {row.category}

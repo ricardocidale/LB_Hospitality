@@ -61,8 +61,8 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 flex items-center justify-center">
-              <IconToggleLeft className="w-5 h-5 text-emerald-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
+              <IconToggleLeft className="w-5 h-5 text-primary" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Input &amp; Output</CardTitle>
@@ -117,8 +117,8 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/15 to-amber-500/5 flex items-center justify-center">
-              <IconThumbsUp className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-pop/15 to-accent-pop/5 flex items-center justify-center">
+              <IconThumbsUp className="w-5 h-5 text-accent-pop" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Feedback Collection</CardTitle>
@@ -148,8 +148,8 @@ export function WidgetInteraction({ draft, updateField }: WidgetInteractionProps
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/15 to-blue-500/5 flex items-center justify-center">
-              <IconTimer className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-chart-1/15 to-chart-1/5 flex items-center justify-center">
+              <IconTimer className="w-5 h-5 text-chart-1" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">Behavior</CardTitle>

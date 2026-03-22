@@ -60,8 +60,8 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
                     {result.assumptionDiffs.map((d, i) => (
                       <TableRow key={i}>
                         <TableCell className="font-mono text-xs text-muted-foreground">{d.field}</TableCell>
-                        <TableCell className="font-mono text-xs text-red-600">{formatDiffValue(d.scenario1)}</TableCell>
-                        <TableCell className="font-mono text-xs text-green-700">{formatDiffValue(d.scenario2)}</TableCell>
+                        <TableCell className="font-mono text-xs text-destructive">{formatDiffValue(d.scenario1)}</TableCell>
+                        <TableCell className="font-mono text-xs text-primary">{formatDiffValue(d.scenario2)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -72,13 +72,13 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {/* Properties only in scenario 2 */}
             {result.propertyDiffs.filter(pd => pd.status === "added").length > 0 && (
               <div>
-                <h4 className="font-display font-semibold text-sm text-green-700 mb-2 flex items-center gap-2">
+                <h4 className="font-display font-semibold text-sm text-primary mb-2 flex items-center gap-2">
                   <IconPlusCircle className="w-4 h-4" />
                   Only in {result.scenario2.name}
                 </h4>
                 <div className="space-y-1">
                   {result.propertyDiffs.filter(pd => pd.status === "added").map((pd, i) => (
-                    <div key={i} className="text-sm px-3 py-1.5 rounded bg-green-50 border border-green-200 text-green-700">
+                    <div key={i} className="text-sm px-3 py-1.5 rounded bg-primary/10 border border-primary/20 text-primary">
                       {pd.name}
                     </div>
                   ))}
@@ -89,13 +89,13 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
             {/* Properties only in scenario 1 */}
             {result.propertyDiffs.filter(pd => pd.status === "removed").length > 0 && (
               <div>
-                <h4 className="font-display font-semibold text-sm text-red-600 mb-2 flex items-center gap-2">
+                <h4 className="font-display font-semibold text-sm text-destructive mb-2 flex items-center gap-2">
                   <Minus className="w-4 h-4" />
                   Only in {result.scenario1.name}
                 </h4>
                 <div className="space-y-1">
                   {result.propertyDiffs.filter(pd => pd.status === "removed").map((pd, i) => (
-                    <div key={i} className="text-sm px-3 py-1.5 rounded bg-red-50 border border-red-200 text-red-700">
+                    <div key={i} className="text-sm px-3 py-1.5 rounded bg-destructive/10 border border-destructive/20 text-destructive">
                       {pd.name}
                     </div>
                   ))}
@@ -125,8 +125,8 @@ export function CompareResultDialog({ open, onOpenChange, result }: CompareResul
                         {pd.changes?.map((d, j) => (
                           <TableRow key={j}>
                             <TableCell className="font-mono text-xs text-muted-foreground">{d.field}</TableCell>
-                            <TableCell className="font-mono text-xs text-red-600">{formatDiffValue(d.scenario1)}</TableCell>
-                            <TableCell className="font-mono text-xs text-green-700">{formatDiffValue(d.scenario2)}</TableCell>
+                            <TableCell className="font-mono text-xs text-destructive">{formatDiffValue(d.scenario1)}</TableCell>
+                            <TableCell className="font-mono text-xs text-primary">{formatDiffValue(d.scenario2)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

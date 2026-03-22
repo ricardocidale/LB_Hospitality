@@ -128,8 +128,8 @@ export function RebeccaConfig({
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-              <IconZap className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 rounded-lg bg-accent-pop/10 flex items-center justify-center">
+              <IconZap className="w-5 h-5 text-accent-pop" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">
@@ -170,8 +170,8 @@ export function RebeccaConfig({
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center">
-              <IconBrain className="w-5 h-5 text-violet-600" />
+            <div className="w-10 h-10 rounded-lg bg-chart-3/10 flex items-center justify-center">
+              <IconBrain className="w-5 h-5 text-chart-3" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">
@@ -203,8 +203,8 @@ export function RebeccaConfig({
       <Card className="bg-card border border-border/80 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <IconPlay className="w-5 h-5 text-emerald-600" />
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <IconPlay className="w-5 h-5 text-primary" />
             </div>
             <div>
               <CardTitle className="text-sm font-semibold text-foreground">
@@ -234,7 +234,7 @@ export function RebeccaConfig({
                 <div
                   className={cn(
                     "w-2 h-2 rounded-full",
-                    enabled ? "bg-green-500" : "bg-muted-foreground/30",
+                    enabled ? "bg-primary" : "bg-muted-foreground/30",
                   )}
                 />
               </div>

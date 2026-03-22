@@ -35,8 +35,8 @@ import { computeCashFlowSections } from "@/lib/financial/cashFlowSections";
 
 function FormulaDetailRow({ label, values, colCount }: { label: string; values: string[]; colCount: number }) {
   return (
-    <TableRow className="bg-blue-50/40" data-expandable-row="true">
-      <TableCell className="pl-12 sticky left-0 bg-blue-50/40 py-0.5 text-xs text-muted-foreground italic">
+    <TableRow className="bg-chart-1/5" data-expandable-row="true">
+      <TableCell className="pl-12 sticky left-0 bg-chart-1/5 py-0.5 text-xs text-muted-foreground italic">
         {label}
       </TableCell>
       {values.map((v, i) => (

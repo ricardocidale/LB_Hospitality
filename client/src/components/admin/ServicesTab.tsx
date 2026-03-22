@@ -83,7 +83,7 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <div className="bg-blue-50/50 border border-blue-200/60 rounded-lg p-2.5">
+        <div className="bg-chart-1/10 border border-chart-1/20 rounded-lg p-2.5">
           <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Fee Range</div>
           <div className="text-sm font-semibold font-mono text-foreground mt-1">
             {(feeBench.lowRate * 100).toFixed(1)}%–{(feeBench.highRate * 100).toFixed(1)}%
@@ -95,10 +95,10 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
 
         <div className={`rounded-lg p-2.5 border ${
           currentRate >= feeBench.lowRate && currentRate <= feeBench.highRate
-            ? "bg-emerald-50/50 border-emerald-200/60"
+            ? "bg-primary/5 border-primary/20"
             : currentRate < feeBench.lowRate
-            ? "bg-amber-50/50 border-amber-200/60"
-            : "bg-blue-50/50 border-blue-200/60"
+            ? "bg-accent-pop/10 border-accent-pop/20"
+            : "bg-chart-1/10 border-chart-1/20"
         }`}>
           <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Your Rate</div>
           <div className="text-sm font-semibold font-mono text-foreground mt-1">{(currentRate * 100).toFixed(1)}%</div>
@@ -118,9 +118,9 @@ function ServiceResearchPanel({ template }: { template: ServiceTemplate }) {
                 at {(markup * 100).toFixed(0)}% markup
               </div>
             </div>
-            <div className="bg-emerald-50/50 border border-emerald-200/60 rounded-lg p-2.5">
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-2.5">
               <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Gross Profit</div>
-              <div className="text-sm font-semibold font-mono text-emerald-700 mt-1">${Math.round(waterfall.grossProfit).toLocaleString()}</div>
+              <div className="text-sm font-semibold font-mono text-primary mt-1">${Math.round(waterfall.grossProfit).toLocaleString()}</div>
               <div className="text-[10px] text-muted-foreground mt-0.5">
                 {(waterfall.effectiveMargin * 100).toFixed(1)}% effective margin
               </div>

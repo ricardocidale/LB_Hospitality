@@ -54,8 +54,8 @@ const SOURCE_LABELS: Record<BadgeSourceType, string> = {
 };
 
 const BENCHMARK_STYLE = {
-  light: "text-yellow-800 hover:text-yellow-900 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200",
-  dark: "text-yellow-300 hover:text-yellow-200 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30",
+  light: "text-accent-pop hover:text-accent-pop bg-accent-pop/10 hover:bg-accent-pop/15 border border-accent-pop/20",
+  dark: "text-accent-pop hover:text-accent-pop bg-accent-pop/10 hover:bg-accent-pop/20 border border-accent-pop/30",
 };
 
 function formatTooltip(sourceType: BadgeSourceType, sourceName?: string, sourceDate?: string): string {

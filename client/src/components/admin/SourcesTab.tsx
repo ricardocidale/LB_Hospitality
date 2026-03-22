@@ -64,7 +64,7 @@ function SourceCard({
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit} data-testid={`button-edit-source-${source.id}`}>
           <IconPencil className="w-3.5 h-3.5" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400 hover:text-red-300" onClick={onDelete} data-testid={`button-delete-source-${source.id}`}>
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/80 hover:text-destructive/60" onClick={onDelete} data-testid={`button-delete-source-${source.id}`}>
           <IconTrash className="w-3.5 h-3.5" />
         </Button>
       </div>

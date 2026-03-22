@@ -225,7 +225,7 @@ export default function DatabaseTab() {
                             <TableCell className="text-right font-mono">{((prop.baseManagementFeeRate ?? 0) * 100).toFixed(1)}%</TableCell>
                             <TableCell className="text-right font-mono">{((prop.exitCapRate ?? 0) * 100).toFixed(1)}%</TableCell>
                             <TableCell className="text-center">
-                              {prop.hasResearchValues ? <IconCheckCircle2 className="w-4 h-4 text-green-500 mx-auto" /> : <IconXCircle className="w-4 h-4 text-red-400 mx-auto" />}
+                              {prop.hasResearchValues ? <IconCheckCircle2 className="w-4 h-4 text-primary mx-auto" /> : <IconXCircle className="w-4 h-4 text-destructive/80 mx-auto" />}
                             </TableCell>
                             <TableCell className="text-center font-mono">{prop.feeCategories?.length ?? 0}</TableCell>
                           </TableRow>
@@ -240,12 +240,12 @@ export default function DatabaseTab() {
         </CardContent>
       </Card>
 
-      <Card className="bg-amber-50 border border-amber-200 shadow-sm" data-testid="card-populate-production">
+      <Card className="bg-accent-pop/10 border border-accent-pop/20 shadow-sm" data-testid="card-populate-production">
         <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2 text-amber-900">
-            <IconUpload className="w-5 h-5 text-amber-600" /> Populate Production
+          <CardTitle className="font-display flex items-center gap-2 text-accent-pop">
+            <IconUpload className="w-5 h-5 text-accent-pop" /> Populate Production
           </CardTitle>
-          <CardDescription className="label-text text-amber-700/80">
+          <CardDescription className="label-text text-accent-pop/80">
             Push development seed values to the production database. Only fills in values that are <strong>not already set</strong> by a user — existing data is never overwritten.
           </CardDescription>
         </CardHeader>
@@ -254,7 +254,7 @@ export default function DatabaseTab() {
             variant="outline"
             onClick={() => setSyncConfirmOpen(true)}
             disabled={executeSyncMutation.isPending}
-            className="bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-700"
+            className="bg-accent-pop/10 border-accent-pop/30 hover:bg-accent-pop/20 text-accent-pop"
             data-testid="button-sync-database"
           >
             {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconUpload className="w-4 h-4 mr-2" />}
@@ -263,7 +263,7 @@ export default function DatabaseTab() {
         </CardContent>
       </Card>
 
-      <Card className="bg-blue-50 border border-blue-200 shadow-sm" data-testid="card-canonical-sync">
+      <Card className="bg-chart-1/10 border border-chart-1/20 shadow-sm" data-testid="card-canonical-sync">
         <CardHeader>
           <CardTitle className="font-display flex items-center gap-2 text-foreground">
             <IconShield className="w-5 h-5" /> Sync Canonical Data
@@ -277,7 +277,7 @@ export default function DatabaseTab() {
             variant="outline"
             onClick={() => setCanonicalConfirmOpen(true)}
             disabled={canonicalSyncMutation.isPending}
-            className="bg-muted border-blue-500/30 hover:bg-muted text-blue-700"
+            className="bg-muted border-chart-1/30 hover:bg-muted text-chart-1"
             data-testid="button-canonical-sync"
           >
             {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconShield className="w-4 h-4 mr-2" />}
@@ -286,24 +286,24 @@ export default function DatabaseTab() {
 
           {canonicalResult && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4">
-              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-users-fixed">
-                <p className="text-xl font-bold text-blue-700">{canonicalResult.usersFixed ?? 0}</p>
+              <div className="bg-chart-1/15 rounded-xl p-3 text-center" data-testid="stat-users-fixed">
+                <p className="text-xl font-bold text-chart-1">{canonicalResult.usersFixed ?? 0}</p>
                 <p className="text-xs text-muted-foreground/70 mt-1">Users Fixed</p>
               </div>
-              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-orphans-deleted">
-                <p className="text-xl font-bold text-blue-700">{(canonicalResult.orphanedFeeCategoriesDeleted ?? 0) + (canonicalResult.orphanedResearchDeleted ?? 0)}</p>
+              <div className="bg-chart-1/15 rounded-xl p-3 text-center" data-testid="stat-orphans-deleted">
+                <p className="text-xl font-bold text-chart-1">{(canonicalResult.orphanedFeeCategoriesDeleted ?? 0) + (canonicalResult.orphanedResearchDeleted ?? 0)}</p>
                 <p className="text-xs text-muted-foreground/70 mt-1">Orphans Cleaned</p>
               </div>
-              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-scenarios-cleaned">
-                <p className="text-xl font-bold text-blue-700">{canonicalResult.scenariosCleaned ?? 0}</p>
+              <div className="bg-chart-1/15 rounded-xl p-3 text-center" data-testid="stat-scenarios-cleaned">
+                <p className="text-xl font-bold text-chart-1">{canonicalResult.scenariosCleaned ?? 0}</p>
                 <p className="text-xs text-muted-foreground/70 mt-1">Scenarios Cleaned</p>
               </div>
-              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-fees-fixed">
-                <p className="text-xl font-bold text-blue-700">{canonicalResult.feeCategoriesFixed ?? 0}</p>
+              <div className="bg-chart-1/15 rounded-xl p-3 text-center" data-testid="stat-fees-fixed">
+                <p className="text-xl font-bold text-chart-1">{canonicalResult.feeCategoriesFixed ?? 0}</p>
                 <p className="text-xs text-muted-foreground/70 mt-1">Fee Cats Fixed</p>
               </div>
-              <div className="bg-blue-100/60 rounded-xl p-3 text-center" data-testid="stat-sync-status">
-                <p className="text-xl font-bold text-green-600">
+              <div className="bg-chart-1/15 rounded-xl p-3 text-center" data-testid="stat-sync-status">
+                <p className="text-xl font-bold text-primary">
                   {(canonicalResult.usersFixed ?? 0) + (canonicalResult.orphanedFeeCategoriesDeleted ?? 0) +
                     (canonicalResult.orphanedResearchDeleted ?? 0) + (canonicalResult.scenariosCleaned ?? 0) +
                     (canonicalResult.feeCategoriesFixed ?? 0) === 0 ? "Clean" : "Fixed"}
@@ -335,7 +335,7 @@ export default function DatabaseTab() {
             <Button
               onClick={() => canonicalSyncMutation.mutate()}
               disabled={canonicalSyncMutation.isPending}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+              className="bg-chart-1 hover:bg-chart-1 text-white"
               data-testid="button-confirm-canonical"
             >
               {canonicalSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <IconShield className="w-4 h-4 mr-2" />}
@@ -349,7 +349,7 @@ export default function DatabaseTab() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <IconAlertTriangle className="w-5 h-5 text-amber-500" /> Confirm Production Fill
+              <IconAlertTriangle className="w-5 h-5 text-accent-pop" /> Confirm Production Fill
             </DialogTitle>
             <DialogDescription>
               This will populate global assumptions, properties, fee categories, and design themes with seed values <strong>only where they are currently empty</strong>. Any values already set by users will not be changed. Users and user groups will be created if missing.
@@ -360,7 +360,7 @@ export default function DatabaseTab() {
             <Button
               onClick={() => executeSyncMutation.mutate()}
               disabled={executeSyncMutation.isPending}
-              className="bg-amber-500 hover:bg-amber-600 text-white"
+              className="bg-accent-pop hover:bg-accent-pop/80 text-white"
               data-testid="button-confirm-sync"
             >
               {executeSyncMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}

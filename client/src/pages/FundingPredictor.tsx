@@ -641,12 +641,12 @@ function ResearchTab({ analysis, fundingLabel, marketRates, global, navigate }: 
                 <div className="space-y-1.5">
                   {inst.pros.map((p, i) => (
                     <p key={`p${i}`} className="text-[11px] text-muted-foreground/70 flex items-start gap-1">
-                      <span className="text-green-500 shrink-0">+</span> {p}
+                      <span className="text-primary shrink-0">+</span> {p}
                     </p>
                   ))}
                   {inst.cons.map((c, i) => (
                     <p key={`c${i}`} className="text-[11px] text-muted-foreground/70 flex items-start gap-1">
-                      <span className="text-amber-500 shrink-0">–</span> {c}
+                      <span className="text-accent-pop shrink-0">–</span> {c}
                     </p>
                   ))}
                 </div>

@@ -264,11 +264,11 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                     <>
                       {/* Assets Formula */}
                       <TableRow
-                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
                         data-expandable-row="true"
                         onClick={() => toggleFormula("assets-formula")}
                       >
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                        <TableCell className="pl-10 sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {expandedFormulas.has("assets-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
@@ -279,8 +279,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                         ))}
                       </TableRow>
                       {expandedFormulas.has("assets-formula") && (
-                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                        <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                             = Current Assets + Net Fixed Assets + Other Assets
                           </TableCell>
                           {consolidatedTotalAssets.map((val, i) => (
@@ -315,8 +315,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                       </TableRow>
                       {expandedFormulas.has("cash-detail") && (
                         <>
-                          <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                            <TableCell className="pl-[72px] sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                          <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                            <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                               = Operating Reserves + Cumulative Cash Flow + Refinancing Proceeds
                             </TableCell>
                             {consolidatedCash.map((val, i) => (
@@ -395,8 +395,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                       </TableRow>
                       {expandedFormulas.has("accdep-detail") && (
                         <>
-                          <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                            <TableCell className="pl-[72px] sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                          <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                            <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                               Straight-line over 27.5 years (ASC 360)
                             </TableCell>
                             {consolidatedAccDep.map((val, i) => (
@@ -450,8 +450,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                           </TableRow>
                           {expandedFormulas.has("deferredfc-detail") && (
                             <>
-                              <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                                <TableCell className="pl-[72px] sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                              <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                                   Refinancing closing costs capitalized per ASC 835-30
                                 </TableCell>
                                 {consolidatedDeferredFC.map((val, i) => (
@@ -546,8 +546,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                       </TableRow>
                       {expandedFormulas.has("debt-detail") && (
                         <>
-                          <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                            <TableCell className="pl-[72px] sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                          <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                            <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                               Remaining principal on acquisition & refinancing loans
                             </TableCell>
                             {consolidatedDebt.map((val, i) => (
@@ -614,11 +614,11 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                     <>
                       {/* Equity Formula */}
                       <TableRow
-                        className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                        className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
                         data-expandable-row="true"
                         onClick={() => toggleFormula("equity-formula")}
                       >
-                        <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                        <TableCell className="pl-10 sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             {expandedFormulas.has("equity-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             <span className="italic">Formula</span>
@@ -629,8 +629,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                         ))}
                       </TableRow>
                       {expandedFormulas.has("equity-formula") && (
-                        <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                          <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                        <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                          <TableCell className="pl-14 sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                             = Paid-In Capital + Retained Earnings (ASC 720-15 adjusted)
                           </TableCell>
                           {consolidatedTotalEquity.map((val, i) => (
@@ -659,8 +659,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                       </TableRow>
                       {expandedFormulas.has("paidin-detail") && (
                         <>
-                          <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                            <TableCell className="pl-[72px] sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                          <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                            <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                               = Total Project Cost − Acquisition Loan
                             </TableCell>
                             {consolidatedEquity.map((val, i) => (
@@ -698,8 +698,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                       </TableRow>
                       {expandedFormulas.has("retained-detail") && (
                         <>
-                          <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                            <TableCell className="pl-[72px] sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                          <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                            <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                               = Cumulative Net Income − Pre-Opening Costs (ASC 720-15)
                             </TableCell>
                             {consolidatedRetained.map((val, i) => (
@@ -761,11 +761,11 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                     ))}
                   </TableRow>
                   <TableRow
-                    className="bg-blue-50/40 cursor-pointer hover:bg-blue-100/40"
+                    className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
                     data-expandable-row="true"
                     onClick={() => toggleFormula("le-formula")}
                   >
-                    <TableCell className="pl-10 sticky left-0 bg-blue-50/40 z-10 py-0.5 text-xs text-muted-foreground">
+                    <TableCell className="pl-10 sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         {expandedFormulas.has("le-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                         <span className="italic">Formula</span>
@@ -776,8 +776,8 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                     ))}
                   </TableRow>
                   {expandedFormulas.has("le-formula") && (
-                    <TableRow className="bg-blue-50/20" data-expandable-row="true">
-                      <TableCell className="pl-14 sticky left-0 bg-blue-50/20 z-10 py-0.5 text-xs text-muted-foreground italic">
+                    <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                      <TableCell className="pl-14 sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-muted-foreground italic">
                         = Total Liabilities + Total Equity
                       </TableCell>
                       {years.map((_, y) => (
@@ -789,13 +789,13 @@ export function BalanceSheetTab({ financials, properties, global, projectionYear
                   )}
 
                   {/* ── Balance Check ── */}
-                  <TableRow className="font-medium bg-emerald-50/40" data-testid="row-balance-check">
-                    <TableCell className="pl-6 sticky left-0 bg-emerald-50/40 z-10">Balance Check (Assets − L&E)</TableCell>
+                  <TableRow className="font-medium bg-primary/10" data-testid="row-balance-check">
+                    <TableCell className="pl-6 sticky left-0 bg-primary/10 z-10">Balance Check (Assets − L&E)</TableCell>
                     {years.map((_, y) => {
                       const variance = consolidatedTotalAssets[y] - consolidatedTotalLE[y];
                       const isBalanced = Math.abs(variance) <= 1;
                       return (
-                        <TableCell key={y} className={`text-right font-mono ${isBalanced ? 'text-emerald-600' : 'text-red-600 font-bold'}`}>
+                        <TableCell key={y} className={`text-right font-mono ${isBalanced ? 'text-primary' : 'text-destructive font-bold'}`}>
                           {isBalanced ? "✓ Balanced" : formatMoney(variance)}
                         </TableCell>
                       );

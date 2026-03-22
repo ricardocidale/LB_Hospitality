@@ -75,8 +75,8 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
     case "research":         return <ResearchCenterTab onSaveStateChange={onSaveStateChange} />;
     case "ai-agents":       return (
       <ErrorBoundary fallback={
-        <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-amber-200/60 bg-amber-50/40">
-          <IconAlertTriangle className="w-10 h-10 text-amber-500" />
+        <div className="mt-6 p-8 flex flex-col items-center gap-4 text-center rounded-xl border border-accent-pop/20 bg-accent-pop/10">
+          <IconAlertTriangle className="w-10 h-10 text-accent-pop" />
           <div>
             <p className="font-semibold text-foreground">AI Agents configuration failed to load</p>
             <p className="text-sm text-muted-foreground mt-1">A component error occurred. Reload the page to try again.</p>

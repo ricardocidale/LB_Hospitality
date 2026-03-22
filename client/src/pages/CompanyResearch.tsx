@@ -143,10 +143,10 @@ export default function CompanyResearch() {
           />
 
           {isGenerating && (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-xl shadow-sm border border-emerald-200 p-5">
+            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-xl shadow-sm border border-primary/20 p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <Loader2 className="w-4 h-4 animate-spin text-emerald-700" />
+                <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">Researching company standards and benchmarks...</p>
               </div>

@@ -138,7 +138,7 @@ export function PhotoAlbumGrid({
       {/* Hero indicator */}
       {photos.length > 0 && (
         <p className="text-xs text-muted-foreground flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full bg-amber-400/80" />
+          <span className="inline-block w-3 h-3 rounded-full bg-accent-pop/80" />
           Gold star = hero image shown on portfolio cards and headers
           <InfoTooltip text="The hero photo represents this property across the platform — portfolio cards, property header, and exported reports." />
         </p>

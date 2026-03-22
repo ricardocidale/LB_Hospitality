@@ -159,7 +159,7 @@ export default function GoogleDrive() {
             </div>
             <div className="flex items-center gap-2">
               <span
-                className={`inline-block w-2.5 h-2.5 rounded-full ${isConnected ? "bg-green-500" : "bg-muted-foreground/40"}`}
+                className={`inline-block w-2.5 h-2.5 rounded-full ${isConnected ? "bg-primary" : "bg-muted-foreground/40"}`}
                 data-testid="status-indicator"
               />
               {statusLoading ? (

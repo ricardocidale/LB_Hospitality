@@ -16,7 +16,7 @@ export function GaapBadge({ rule, className }: GaapBadgeProps) {
     <Tooltip delayDuration={200}>
       <TooltipTrigger asChild>
         <span
-          className={`inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-500 hover:bg-blue-600 cursor-help transition-colors ${className ?? ""}`}
+          className={`inline-flex items-center justify-center w-4 h-4 rounded-full bg-chart-1 hover:bg-chart-1 cursor-help transition-colors ${className ?? ""}`}
           aria-label="GAAP/IRS rule"
           data-testid="gaap-badge"
         >

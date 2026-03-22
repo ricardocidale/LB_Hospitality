@@ -61,8 +61,8 @@ function StatCard({
           {trend && trendValue && (
             <span className={cn(
               "inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-md",
-              trend === "up" && "text-emerald-700 bg-emerald-50",
-              trend === "down" && "text-red-600 bg-red-50",
+              trend === "up" && "text-primary bg-primary/10",
+              trend === "down" && "text-destructive bg-destructive/10",
               trend === "neutral" && "text-muted-foreground/40 bg-muted"
             )}>
               {trend === "up" && <IconTrendingUp className="w-3 h-3" />}
@@ -103,7 +103,7 @@ function StatCard({
           className={cn(
             "text-2xl font-bold font-mono text-foreground",
             trend === "up" && "text-secondary",
-            trend === "down" && "text-red-500"
+            trend === "down" && "text-destructive"
           )}
         >
           {formatStatValue(value, format)}
@@ -138,7 +138,7 @@ function StatCard({
               className={cn(
                 "text-xl font-bold font-mono text-foreground",
                 trend === "up" && "text-secondary",
-                trend === "down" && "text-red-500"
+                trend === "down" && "text-destructive"
               )}
             >
               {formatStatValue(value, format)}
@@ -168,7 +168,7 @@ function StatCard({
         className={cn(
           "text-2xl font-bold font-mono text-foreground",
           trend === "up" && "text-primary",
-          trend === "down" && "text-red-400"
+          trend === "down" && "text-destructive/80"
         )}
       >
         {formatStatValue(value, format)}

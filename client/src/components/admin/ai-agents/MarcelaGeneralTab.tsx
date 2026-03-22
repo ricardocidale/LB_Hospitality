@@ -183,13 +183,13 @@ export function GeneralTab({
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Widget Visible</span>
             {draft.showAiAssistant ? (
-              <span className="flex items-center gap-1 text-xs text-green-700">
-                <IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              <span className="flex items-center gap-1 text-xs text-primary">
+                <IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />
                 On
               </span>
             ) : (
-              <span className="flex items-center gap-1 text-xs text-amber-600">
-                <IconXCircle className="w-3.5 h-3.5 text-amber-400" />
+              <span className="flex items-center gap-1 text-xs text-accent-pop">
+                <IconXCircle className="w-3.5 h-3.5 text-accent-pop" />
                 Off — toggle "AI Chat Widget" above
               </span>
             )}
@@ -197,13 +197,13 @@ export function GeneralTab({
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Agent ID</span>
             {agentIdOk ? (
-              <span className="flex items-center gap-1 text-xs text-green-700">
-                <IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              <span className="flex items-center gap-1 text-xs text-primary">
+                <IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />
                 Configured
               </span>
             ) : (
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <IconXCircle className="w-3.5 h-3.5 text-red-400" />
+                <IconXCircle className="w-3.5 h-3.5 text-destructive/80" />
                 Missing
               </span>
             )}
@@ -211,8 +211,8 @@ export function GeneralTab({
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">API Key</span>
             {healthData?.apiKeySet ? (
-              <span className="flex items-center gap-1 text-xs text-green-700">
-                <IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              <span className="flex items-center gap-1 text-xs text-primary">
+                <IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />
                 Set
               </span>
             ) : healthData?.apiKeySet === false ? (
@@ -238,8 +238,8 @@ export function GeneralTab({
                 Failed
               </span>
             ) : signedUrl ? (
-              <span className="flex items-center gap-1 text-xs text-green-700">
-                <IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              <span className="flex items-center gap-1 text-xs text-primary">
+                <IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />
                 Ready
               </span>
             ) : (
@@ -253,8 +253,8 @@ export function GeneralTab({
               ElevenLabs API
             </span>
             {elevenLabsOk ? (
-              <span className="flex items-center gap-1 text-xs text-green-700">
-                <IconCheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+              <span className="flex items-center gap-1 text-xs text-primary">
+                <IconCheckCircle2 className="w-3.5 h-3.5 text-primary" />
                 Connected
               </span>
             ) : (

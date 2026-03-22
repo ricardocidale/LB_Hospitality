@@ -110,9 +110,9 @@ function RecentCheckerActivity({ checkerActivity, formatDate }: { checkerActivit
                   <TableCell className="text-foreground font-mono text-sm">{log.userEmail}</TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                      log.action === "run_verification" ? "bg-purple-100 text-purple-700" :
-                      log.action === "manual_view" ? "bg-blue-100 text-blue-700" :
-                      log.action === "export_csv" || log.action === "export_pdf" ? "bg-green-100 text-green-700" :
+                      log.action === "run_verification" ? "bg-chart-3/15 text-chart-3" :
+                      log.action === "manual_view" ? "bg-chart-1/15 text-chart-1" :
+                      log.action === "export_csv" || log.action === "export_pdf" ? "bg-primary/15 text-primary" :
                       "bg-muted text-foreground"
                     }`}>
                       {log.action.replace(/_/g, " ")}

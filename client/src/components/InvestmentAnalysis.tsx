@@ -167,7 +167,7 @@ export function InvestmentAnalysis({
               Exit Value ({getFiscalYear(projectionYears - 1)})
               <InfoTooltip text={`Projected sale value of all properties at ${getFiscalYear(10)}, calculated as NOI ÷ Exit Cap Rate, minus any outstanding debt at time of sale.`} manualSection="investment-returns" />
             </p>
-            <div className="text-2xl font-bold text-emerald-600 font-mono">{formatMoney(totalExitValueIA)}</div>
+            <div className="text-2xl font-bold text-primary font-mono">{formatMoney(totalExitValueIA)}</div>
           </div>
 
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
@@ -175,7 +175,7 @@ export function InvestmentAnalysis({
               Equity Multiple
               <InfoTooltip text="Total cash returned divided by total equity invested. A 2.0x multiple means investors received $2 for every $1 invested." manualSection="investment-returns" manualLabel="MOIC formula in the Manual" />
             </p>
-            <div className="text-2xl font-bold text-blue-600 font-mono">{equityMultipleIA.toFixed(2)}x</div>
+            <div className="text-2xl font-bold text-chart-1 font-mono">{equityMultipleIA.toFixed(2)}x</div>
           </div>
 
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
@@ -183,7 +183,7 @@ export function InvestmentAnalysis({
               Avg Cash-on-Cash
               <InfoTooltip text="Average annual operating cash flow (excluding exit proceeds) as a percentage of total equity invested. Measures the annual yield on invested capital." />
             </p>
-            <div className="text-2xl font-bold text-amber-600 font-mono">{cashOnCashIA.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-accent-pop font-mono">{cashOnCashIA.toFixed(1)}%</div>
           </div>
 
           <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
@@ -284,8 +284,8 @@ export function InvestmentAnalysis({
               </TableRow>
               {expandedRows.has('fcfOperating') && (
                 <>
-                  <TableRow className="bg-blue-50/30 dark:bg-blue-950/20">
-                    <TableCell className="sticky left-0 bg-blue-50/30 dark:bg-blue-950/20 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>
+                  <TableRow className="bg-chart-1/10 dark:bg-chart-1/5">
+                    <TableCell className="sticky left-0 bg-chart-1/10 dark:bg-chart-1/5 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>
                       Cash Flow
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
@@ -330,8 +330,8 @@ export function InvestmentAnalysis({
                     })}
                   </TableRow>
 
-                  <TableRow className="bg-amber-50/30 dark:bg-amber-950/20">
-                    <TableCell className="sticky left-0 bg-amber-50/30 dark:bg-amber-950/20 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>
+                  <TableRow className="bg-accent-pop/10 dark:bg-accent-pop/5">
+                    <TableCell className="sticky left-0 bg-accent-pop/10 dark:bg-accent-pop/5 pl-8 text-sm font-medium text-muted-foreground" colSpan={1}>
                       Tax (GAAP)
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">-</TableCell>
@@ -388,8 +388,8 @@ export function InvestmentAnalysis({
                     })}
                   </TableRow>
 
-                  <TableRow className="bg-green-50/30 dark:bg-green-950/20 border-t">
-                    <TableCell className="sticky left-0 bg-green-50/30 dark:bg-green-950/20 pl-8 text-sm font-medium flex items-center gap-1">
+                  <TableRow className="bg-primary/10 dark:bg-primary/5 border-t">
+                    <TableCell className="sticky left-0 bg-primary/10 dark:bg-primary/5 pl-8 text-sm font-medium flex items-center gap-1">
                       After-Tax Cash Flow (ATCF)
                       <InfoTooltip text="ATCF = BTCF - Tax Liability. Cash available to investors after all taxes paid." manualSection="property-formulas" />
                     </TableCell>

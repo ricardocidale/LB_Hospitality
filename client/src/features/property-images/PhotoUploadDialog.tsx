@@ -193,7 +193,7 @@ export function PhotoUploadDialog({ open, onOpenChange, propertyId }: PhotoUploa
                       </>
                     )}
                     {item.status === "uploading" && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
-                    {item.status === "done" && <span className="text-xs text-green-600 font-medium">Done</span>}
+                    {item.status === "done" && <span className="text-xs text-primary font-medium">Done</span>}
                     {item.status === "error" && <span className="text-xs text-destructive font-medium">Error</span>}
                     {item.crop && item.status === "pending" && (
                       <span className="text-xs text-primary font-medium">Cropped</span>

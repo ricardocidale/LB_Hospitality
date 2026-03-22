@@ -60,7 +60,7 @@ export function HospitalityOverview({ content, hasData, onGenerate }: { content:
             <text x="88" y="78" className="fill-muted-foreground text-[8px]">Neutral</text>
             <text x="155" y="116" className="fill-muted-foreground text-[8px]">Bullish</text>
           </svg>
-          <p className="text-sm font-semibold font-display mt-2 text-emerald-600">Moderately Bullish</p>
+          <p className="text-sm font-semibold font-display mt-2 text-primary">Moderately Bullish</p>
           <p className="text-[10px] text-muted-foreground">Based on cap rate compression and transaction velocity</p>
         </motion.div>
       </div>
@@ -160,9 +160,9 @@ export function EconomicClimate({ hasData, onGenerate }: { hasData: boolean; onG
           </LineChart>
         </ResponsiveContainer>
         <div className="flex items-center justify-center gap-6 mt-3 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-red-500 rounded" />Interest Rate (L)</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-amber-500 rounded" />CPI (L)</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-indigo-500 rounded" />Travel Index (R)</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-destructive rounded" />Interest Rate (L)</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-accent-pop rounded" />CPI (L)</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-line-3 rounded" />Travel Index (R)</span>
         </div>
       </motion.div>
 
@@ -231,7 +231,7 @@ export function TrendsInnovation({ hasData, onGenerate }: { hasData: boolean; on
             <div className="flex items-center gap-3 mb-3">
               <t.icon className="w-5 h-5 text-primary" />
               <h4 className="text-sm font-semibold font-display flex-1">{t.title}</h4>
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${t.impact === "High" ? "text-emerald-600 bg-emerald-50" : "text-amber-600 bg-amber-50"}`}>{t.impact}</span>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${t.impact === "High" ? "text-primary bg-primary/10" : "text-accent-pop bg-accent-pop/10"}`}>{t.impact}</span>
             </div>
             <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{t.desc}</p>
             <div className="flex items-center gap-2">

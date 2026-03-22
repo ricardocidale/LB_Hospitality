@@ -155,7 +155,7 @@ function L2Financial() {
           {deductions.map(d => (
             <div key={d.result} className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-muted-foreground w-20 text-right shrink-0">{d.from}</span>
-              <span className="text-xs text-red-500 font-medium">−</span>
+              <span className="text-xs text-destructive font-medium">−</span>
               <NodeBox node={{ id: d.less, label: d.less, sublabel: d.sublabel, color: "amber" }} />
               <Arrow />
               <NodeBox node={{ id: d.result, label: d.result, color: d.resultColor }} />

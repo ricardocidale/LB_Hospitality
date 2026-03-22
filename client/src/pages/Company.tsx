@@ -456,11 +456,11 @@ export default function Company() {
 
           {!cashAnalysis.isAdequate ? (
             <div className="flex items-start gap-2 text-sm text-muted-foreground mt-4" data-testid="banner-company-cash-warning">
-              <IconAlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <IconAlertTriangle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
               <p>
-                <span data-testid="text-company-cash-warning-title" className="font-medium text-red-600">Additional Funding Required:</span>{' '}
+                <span data-testid="text-company-cash-warning-title" className="font-medium text-destructive">Additional Funding Required:</span>{' '}
                 The current {fundingLabel} funding of <span className="font-medium text-foreground">{formatMoney(cashAnalysis.totalFunding)}</span> is insufficient to cover operating expenses.
-                Monthly cash position drops to <span className="font-medium text-red-600">{formatMoney(cashAnalysis.minCashPosition)}</span>
+                Monthly cash position drops to <span className="font-medium text-destructive">{formatMoney(cashAnalysis.minCashPosition)}</span>
                 {cashAnalysis.minCashMonth !== null && <> in month {cashAnalysis.minCashMonth}</>}.
                 {' '}Suggested: Increase {fundingLabel} funding by at least{' '}
                 <span className="font-medium text-foreground">{formatMoney(cashAnalysis.suggestedAdditionalFunding)}</span> in{' '}

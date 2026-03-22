@@ -103,12 +103,12 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               </TableRow>
 
               {/* AGOP = GOP − Management Fees */}
-              <TableRow className="bg-emerald-500/10 border-border font-medium">
-                <TableCell className="sticky left-0 bg-emerald-500/20 z-10 border-r border-border text-sm">Adjusted GOP (AGOP)</TableCell>
+              <TableRow className="bg-primary/10 border-border font-medium">
+                <TableCell className="sticky left-0 bg-primary/20 z-10 border-r border-border text-sm">Adjusted GOP (AGOP)</TableCell>
                 {first12Months.map((m, i) => (
                   <TableCell key={i} className="text-right font-mono text-sm">{formatMoney(m.agop)}</TableCell>
                 ))}
-                <TableCell className="text-right bg-emerald-500/30 font-mono text-sm">{formatMoney(first12Months.reduce((a, b) => a + b.agop, 0))}</TableCell>
+                <TableCell className="text-right bg-primary/30 font-mono text-sm">{formatMoney(first12Months.reduce((a, b) => a + b.agop, 0))}</TableCell>
               </TableRow>
 
               {/* NOI = AGOP − Fixed Charges (Property Taxes) */}
@@ -130,14 +130,14 @@ export function FinancialStatement({ data, title, startYear = 2026 }: FinancialS
               </TableRow>
               
                {/* CASH FLOW */}
-              <TableRow className="bg-green-500/10 border-border font-medium text-lg">
-                <TableCell className="sticky left-0 bg-green-500/20 z-10 border-r border-border">Cash Flow</TableCell>
+              <TableRow className="bg-primary/10 border-border font-medium text-lg">
+                <TableCell className="sticky left-0 bg-primary/20 z-10 border-r border-border">Cash Flow</TableCell>
                 {first12Months.map((m, i) => (
-                  <TableCell key={i} className={cn("text-right font-mono", m.cashFlow < 0 ? "text-destructive" : "text-green-700 dark:text-green-400")}>
+                  <TableCell key={i} className={cn("text-right font-mono", m.cashFlow < 0 ? "text-destructive" : "text-primary dark:text-primary")}>
                     {formatMoney(m.cashFlow)}
                   </TableCell>
                 ))}
-                <TableCell className="text-right bg-green-500/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.cashFlow, 0))}</TableCell>
+                <TableCell className="text-right bg-primary/30 font-mono">{formatMoney(first12Months.reduce((a, b) => a + b.cashFlow, 0))}</TableCell>
               </TableRow>
 
             </TableBody>

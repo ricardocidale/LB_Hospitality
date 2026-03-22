@@ -157,7 +157,7 @@ export function PrepaymentTab() {
         )}
       </div>
 
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-destructive text-sm">{error}</p>}
 
       {result && (
         <div className="space-y-4 pt-4 border-t border-border/50">

@@ -74,7 +74,7 @@ export function ImagePreviewCard({
               variant="ghost"
               size="icon"
               onClick={onDelete}
-              className="h-8 w-8 bg-card border border-border text-foreground hover:bg-red-50 hover:text-red-600"
+              className="h-8 w-8 bg-card border border-border text-foreground hover:bg-destructive/10 hover:text-destructive"
               data-testid={`${testId}-delete`}
             >
               <IconTrash className="w-3.5 h-3.5" />

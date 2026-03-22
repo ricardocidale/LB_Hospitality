@@ -47,8 +47,8 @@ export default function Section02Navigation({ expanded, onToggle, sectionRef }: 
           market research across four categories: <strong>Property</strong>, <strong>Operations</strong>, <strong>Marketing</strong>, and <strong>Industry</strong>.
         </p>
         <ul className="text-sm text-muted-foreground space-y-1 mt-2">
-          <li>&#8226; <strong className="text-emerald-600">Green dot</strong> — research is current (within the configured refresh interval)</li>
-          <li>&#8226; <strong className="text-red-600">Red dot</strong> — research is stale or has never been generated</li>
+          <li>&#8226; <strong className="text-primary">Green dot</strong> — research is current (within the configured refresh interval)</li>
+          <li>&#8226; <strong className="text-destructive">Red dot</strong> — research is stale or has never been generated</li>
         </ul>
         <p className="text-sm text-muted-foreground mt-2">
           Click the panel to navigate to the <strong>Research Hub</strong> — a dedicated page with AI-generated

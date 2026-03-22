@@ -27,9 +27,9 @@ interface PortfolioResearchCardProps {
 
 function statusIcon(status: BenchmarkMetric["status"]) {
   switch (status) {
-    case "above": return <IconTrendingUp className="w-3.5 h-3.5 text-emerald-500" />;
-    case "below": return <IconTrendingDown className="w-3.5 h-3.5 text-amber-500" />;
-    case "within": return <Minus className="w-3.5 h-3.5 text-blue-500" />;
+    case "above": return <IconTrendingUp className="w-3.5 h-3.5 text-primary" />;
+    case "below": return <IconTrendingDown className="w-3.5 h-3.5 text-accent-pop" />;
+    case "within": return <Minus className="w-3.5 h-3.5 text-chart-1" />;
     default: return <Minus className="w-3.5 h-3.5 text-muted-foreground" />;
   }
 }
@@ -165,9 +165,9 @@ export default function PortfolioResearchCard({ properties, yearlyConsolidatedCa
               key={m.label}
               className={cn(
                 "rounded-lg p-2.5 border transition-colors",
-                m.status === "within" && "bg-blue-50/50 border-blue-200/60",
-                m.status === "above" && "bg-emerald-50/50 border-emerald-200/60",
-                m.status === "below" && "bg-amber-50/50 border-amber-200/60",
+                m.status === "within" && "bg-chart-1/10 border-chart-1/20",
+                m.status === "above" && "bg-primary/5 border-primary/20",
+                m.status === "below" && "bg-accent-pop/10 border-accent-pop/20",
                 m.status === "unknown" && "bg-muted/50 border-border/60",
               )}
             >

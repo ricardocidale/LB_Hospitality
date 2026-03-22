@@ -211,7 +211,7 @@ export default function UserGroupsTab() {
                         {!group.isDefault && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" data-testid={`button-delete-group-${group.id}`}>
+                              <Button variant="ghost" size="sm" className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10" data-testid={`button-delete-group-${group.id}`}>
                                 <IconTrash className="w-4 h-4" />
                               </Button>
                             </AlertDialogTrigger>
@@ -246,7 +246,7 @@ export default function UserGroupsTab() {
                         {groupUsers.map(u => (
                           <span key={u.id} className="inline-flex items-center gap-1 bg-muted border border-border rounded-full px-3 py-1 text-sm">
                             <span className="font-medium">{u.name || u.email}</span>
-                            <Button variant="ghost" size="icon" onClick={() => assignGroupMutation.mutate({ userId: u.id, groupId: null })} className="text-red-400 hover:text-red-600 ml-1 h-5 w-5" title="Remove from group" data-testid={`button-remove-user-${u.id}-from-group`}>
+                            <Button variant="ghost" size="icon" onClick={() => assignGroupMutation.mutate({ userId: u.id, groupId: null })} className="text-destructive/80 hover:text-destructive ml-1 h-5 w-5" title="Remove from group" data-testid={`button-remove-user-${u.id}-from-group`}>
                               &times;
                             </Button>
                           </span>

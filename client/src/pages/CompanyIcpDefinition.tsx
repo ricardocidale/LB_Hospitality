@@ -49,10 +49,10 @@ function fmt$(n: number): string {
 
 function PriorityBadge({ priority }: { priority: Priority }) {
   const colors: Record<Priority, string> = {
-    must: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    major: "bg-blue-100 text-blue-800 border-blue-200",
-    nice: "bg-amber-100 text-amber-800 border-amber-200",
-    no: "bg-red-100 text-red-800 border-red-200",
+    must: "bg-primary/15 text-primary border-primary/20",
+    major: "bg-chart-1/15 text-chart-1 border-chart-1/20",
+    nice: "bg-accent-pop/15 text-accent-pop border-accent-pop/20",
+    no: "bg-destructive/15 text-destructive border-destructive/20",
   };
   return (
     <Badge variant="outline" className={`text-[10px] ${colors[priority]}`}>
@@ -614,9 +614,9 @@ export default function CompanyIcpDefinition() {
 
             {/* ── Market Context Tab ── */}
             <TabsContent value="market-context" className="space-y-4">
-              <Card className="bg-amber-500/5 border-amber-500/20 p-4" data-testid="context-advisory-note">
+              <Card className="bg-accent-pop/5 border-accent-pop/20 p-4" data-testid="context-advisory-note">
                 <div className="flex gap-3">
-                  <IconInfo className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <IconInfo className="w-5 h-5 text-accent-pop dark:text-accent-pop shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">Context vs. Benchmarked Values</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">

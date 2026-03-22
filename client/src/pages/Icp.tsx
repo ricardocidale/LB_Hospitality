@@ -233,7 +233,7 @@ export function IcpContent({ onSaveStateChange }: IcpContentProps) {
   if (gaError) {
     return (
       <div className="w-full p-8 text-center">
-        <IconAlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+        <IconAlertTriangle className="w-10 h-10 text-accent-pop mx-auto mb-3" />
         <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load ICP Management Co configuration</h3>
         <p className="text-muted-foreground text-sm mb-4">
           Could not fetch global assumptions. Check your connection and try again.

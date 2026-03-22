@@ -476,7 +476,7 @@ export default function UsersTab() {
                     {user.role !== UserRole.ADMIN && (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 w-8 p-0"
+                          <Button size="sm" variant="ghost" className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10 h-8 w-8 p-0"
                             data-testid={`button-delete-user-${user.id}`}>
                             <IconTrash className="w-4 h-4" />
                           </Button>

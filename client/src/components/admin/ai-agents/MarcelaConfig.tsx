@@ -276,8 +276,8 @@ export function MarcelaConfig({
           >
             <ErrorBoundary
               fallback={
-                <div className="p-6 rounded-xl border border-amber-200/60 bg-amber-50/40 flex flex-col items-center gap-3 text-center">
-                  <IconAlertTriangle className="w-8 h-8 text-amber-500" />
+                <div className="p-6 rounded-xl border border-accent-pop/20 bg-accent-pop/10 flex flex-col items-center gap-3 text-center">
+                  <IconAlertTriangle className="w-8 h-8 text-accent-pop" />
                   <div>
                     <p className="font-medium text-foreground text-sm">
                       Conversation history failed to load

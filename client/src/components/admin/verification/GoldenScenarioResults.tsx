@@ -65,9 +65,9 @@ function ScenarioAccordion({ scenario }: { scenario: GoldenScenario }) {
         className="w-full flex items-center gap-3 px-4 py-3 h-auto text-left justify-start hover:bg-muted/30 rounded-none font-normal"
       >
         {allPassed ? (
-          <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+          <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
         ) : (
-          <XCircle className="w-4 h-4 text-red-500 shrink-0" />
+          <XCircle className="w-4 h-4 text-destructive shrink-0" />
         )}
         <div className="flex-1 min-w-0">
           <span className="text-sm font-bold text-foreground truncate block">{scenario.name}</span>
@@ -101,13 +101,13 @@ function ScenarioAccordion({ scenario }: { scenario: GoldenScenario }) {
                 <div
                   key={i}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded text-xs ${
-                    a.status === "failed" ? "bg-red-500/10" : ""
+                    a.status === "failed" ? "bg-destructive/10" : ""
                   }`}
                 >
                   {a.status === "passed" ? (
-                    <CheckCircle2 className="w-3 h-3 text-green-500 shrink-0" />
+                    <CheckCircle2 className="w-3 h-3 text-primary shrink-0" />
                   ) : (
-                    <XCircle className="w-3 h-3 text-red-500 shrink-0" />
+                    <XCircle className="w-3 h-3 text-destructive shrink-0" />
                   )}
                   <span className="flex-1 text-foreground truncate">{a.title}</span>
                   <span className="text-[10px] text-muted-foreground font-mono shrink-0">
@@ -178,12 +178,12 @@ export function GoldenScenarioResults({ data }: { data: GoldenData | null }) {
         animate={{ opacity: 1, scale: 1 }}
         className={`rounded-xl p-4 border ${
           data.failed === 0
-            ? "bg-green-500/5 border-green-500/20"
-            : "bg-red-500/5 border-red-500/20"
+            ? "bg-primary/5 border-primary/20"
+            : "bg-destructive/5 border-destructive/20"
         }`}
       >
         <div className="flex items-center gap-3">
-          <FlaskConical className={`w-5 h-5 ${data.failed === 0 ? "text-green-500" : "text-red-500"}`} />
+          <FlaskConical className={`w-5 h-5 ${data.failed === 0 ? "text-primary" : "text-destructive"}`} />
           <div className="flex-1">
             <h3 className="text-sm font-bold text-foreground">
               Golden Scenarios — {data.failed === 0 ? "All Passed" : `${data.failed} Failed`}

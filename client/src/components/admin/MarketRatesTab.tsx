@@ -28,18 +28,18 @@ import {
 
 function statusIcon(status: MarketRateResponse["status"]) {
   switch (status) {
-    case "fresh": return <IconCheckCircle2 className="w-4 h-4 text-emerald-500" />;
-    case "warning": return <IconClock className="w-4 h-4 text-amber-500" />;
-    case "stale": return <IconAlertTriangle className="w-4 h-4 text-red-500" />;
+    case "fresh": return <IconCheckCircle2 className="w-4 h-4 text-primary" />;
+    case "warning": return <IconClock className="w-4 h-4 text-accent-pop" />;
+    case "stale": return <IconAlertTriangle className="w-4 h-4 text-destructive" />;
     case "missing": return <IconXCircle className="w-4 h-4 text-muted-foreground" />;
   }
 }
 
 function statusBadge(status: MarketRateResponse["status"]) {
   const styles: Record<string, string> = {
-    fresh: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    warning: "bg-amber-50 text-amber-700 border-amber-200",
-    stale: "bg-red-50 text-red-700 border-red-200",
+    fresh: "bg-primary/10 text-primary border-primary/20",
+    warning: "bg-accent-pop/10 text-accent-pop border-accent-pop/20",
+    stale: "bg-destructive/10 text-destructive border-destructive/20",
     missing: "bg-muted text-muted-foreground border-border",
   };
   return (
@@ -137,7 +137,7 @@ export default function MarketRatesTab() {
       <Card className="bg-card border border-border/80">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-chart-1 to-chart-1 flex items-center justify-center">
               <IconTrending className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -160,17 +160,17 @@ export default function MarketRatesTab() {
         <CardContent>
           <div className="flex gap-4 flex-wrap">
             <div className="flex items-center gap-1.5 text-sm">
-              <IconCheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <IconCheckCircle2 className="w-4 h-4 text-primary" />
               <span className="font-medium">{freshCount}</span>
               <span className="text-muted-foreground">fresh</span>
             </div>
             <div className="flex items-center gap-1.5 text-sm">
-              <IconClock className="w-4 h-4 text-amber-500" />
+              <IconClock className="w-4 h-4 text-accent-pop" />
               <span className="font-medium">{warningCount}</span>
               <span className="text-muted-foreground">warning</span>
             </div>
             <div className="flex items-center gap-1.5 text-sm">
-              <IconAlertTriangle className="w-4 h-4 text-red-500" />
+              <IconAlertTriangle className="w-4 h-4 text-destructive" />
               <span className="font-medium">{staleCount}</span>
               <span className="text-muted-foreground">stale</span>
             </div>
@@ -213,7 +213,7 @@ export default function MarketRatesTab() {
                         <span className="font-medium text-sm truncate">{rate.displayValue ?? rate.rateKey}</span>
                         {statusBadge(rate.status)}
                         {rate.isManual && (
-                          <Badge variant="outline" className="text-xs bg-purple-50 text-purple-600 border-purple-200">
+                          <Badge variant="outline" className="text-xs bg-chart-3/10 text-chart-3 border-chart-3/20">
                             manual
                           </Badge>
                         )}
@@ -225,7 +225,7 @@ export default function MarketRatesTab() {
                         {rate.stalePct > 0 && (
                           <>
                             <span>·</span>
-                            <span className={rate.stalePct >= 100 ? "text-red-500" : rate.stalePct >= 75 ? "text-amber-500" : ""}>
+                            <span className={rate.stalePct >= 100 ? "text-destructive" : rate.stalePct >= 75 ? "text-accent-pop" : ""}>
                               {rate.stalePct}% of threshold
                             </span>
                           </>

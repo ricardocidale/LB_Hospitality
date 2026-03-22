@@ -84,7 +84,6 @@ export class DatabaseStorage implements IStorage {
   createSession = this.users.createSession.bind(this.users);
   getSession = this.users.getSession.bind(this.users);
   deleteSession = this.users.deleteSession.bind(this.users);
-  deleteUserSessions = this.users.deleteUserSessions.bind(this.users);
   deleteExpiredSessions = this.users.deleteExpiredSessions.bind(this.users);
 
   // Global Assumptions
@@ -132,10 +131,6 @@ export class DatabaseStorage implements IStorage {
   deleteLogo = this.admin.deleteLogo.bind(this.admin);
 
   getAllAssetDescriptions = this.admin.getAllAssetDescriptions.bind(this.admin);
-  getAssetDescription = this.admin.getAssetDescription.bind(this.admin);
-  getDefaultAssetDescription = this.admin.getDefaultAssetDescription.bind(this.admin);
-  createAssetDescription = this.admin.createAssetDescription.bind(this.admin);
-  deleteAssetDescription = this.admin.deleteAssetDescription.bind(this.admin);
 
   getAllUserGroups = this.admin.getAllUserGroups.bind(this.admin);
   getUserGroup = this.admin.getUserGroup.bind(this.admin);
@@ -161,13 +156,13 @@ export class DatabaseStorage implements IStorage {
   // Activity / Logs
   createActivityLog = this.activity.createActivityLog.bind(this.activity);
   getActivityLogs = this.activity.getActivityLogs.bind(this.activity);
-  getUserActivityLogs = this.activity.getUserActivityLogs.bind(this.activity);
   createVerificationRun = this.activity.createVerificationRun.bind(this.activity);
   getVerificationRuns = this.activity.getVerificationRuns.bind(this.activity);
   getVerificationRun = this.activity.getVerificationRun.bind(this.activity);
   createLoginLog = this.activity.createLoginLog.bind(this.activity);
   updateLogoutTime = this.activity.updateLogoutTime.bind(this.activity);
   getLoginLogs = this.activity.getLoginLogs.bind(this.activity);
+  deleteOldLoginLogs = this.activity.deleteOldLoginLogs.bind(this.activity);
   getActiveSessions = this.activity.getActiveSessions.bind(this.activity);
   forceDeleteSession = this.activity.forceDeleteSession.bind(this.activity);
 
@@ -175,7 +170,6 @@ export class DatabaseStorage implements IStorage {
   getMarketResearch = this.research.getMarketResearch.bind(this.research);
   getAllMarketResearch = this.research.getAllMarketResearch.bind(this.research);
   upsertMarketResearch = this.research.upsertMarketResearch.bind(this.research);
-  deleteMarketResearch = this.research.deleteMarketResearch.bind(this.research);
   getLastFullResearchRefresh = this.research.getLastFullResearchRefresh.bind(this.research);
   markFullResearchRefresh = this.research.markFullResearchRefresh.bind(this.research);
   getProspectiveProperties = this.research.getProspectiveProperties.bind(this.research);
@@ -216,13 +210,11 @@ export class DatabaseStorage implements IStorage {
 
   // Notifications
   getAllAlertRules = this.notifications.getAllAlertRules.bind(this.notifications);
-  getAlertRule = this.notifications.getAlertRule.bind(this.notifications);
   createAlertRule = this.notifications.createAlertRule.bind(this.notifications);
   updateAlertRule = this.notifications.updateAlertRule.bind(this.notifications);
   deleteAlertRule = this.notifications.deleteAlertRule.bind(this.notifications);
   getNotificationLogs = this.notifications.getNotificationLogs.bind(this.notifications);
   createNotificationLog = this.notifications.createNotificationLog.bind(this.notifications);
-  updateNotificationLogStatus = this.notifications.updateNotificationLogStatus.bind(this.notifications);
   getNotificationPreferences = this.notifications.getNotificationPreferences.bind(this.notifications);
   upsertNotificationPreference = this.notifications.upsertNotificationPreference.bind(this.notifications);
   getNotificationSetting = this.notifications.getNotificationSetting.bind(this.notifications);

@@ -70,6 +70,10 @@ export function register(app: Express) {
   app.patch("/api/scenarios/:id", requireManagementAccess, async (req, res) => {
     try {
       const id = Number(req.params.id);
+      const existing = await storage.getScenario(id);
+      if (!existing) return res.status(404).json({ error: "Scenario not found" });
+      if (existing.userId !== req.user!.id) return res.status(403).json({ error: "Access denied" });
+
       const validation = updateScenarioSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ error: fromZodError(validation.error).message });
@@ -90,6 +94,7 @@ export function register(app: Express) {
       const id = Number(req.params.id);
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+      if (scenario.userId !== req.user!.id) return res.status(403).json({ error: "Access denied" });
 
       await storage.loadScenario(
         req.user!.id,
@@ -111,6 +116,7 @@ export function register(app: Express) {
       const id = Number(req.params.id);
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+      if (scenario.userId !== req.user!.id) return res.status(403).json({ error: "Access denied" });
 
       if (scenario.name === "Development") {
         return res.status(400).json({ error: "The default Development scenario cannot be deleted" });

@@ -191,11 +191,6 @@ export class UserStorage {
     await db.delete(sessions).where(eq(sessions.id, sessionId));
   }
 
-  /** Delete all sessions for a user (used after password change to force re-login). */
-  async deleteUserSessions(userId: number): Promise<void> {
-    await db.delete(sessions).where(eq(sessions.userId, userId));
-  }
-
   /** Bulk-delete expired sessions. Called hourly by the cleanup interval in server/index.ts. */
   async deleteExpiredSessions(): Promise<number> {
     const result = await db.delete(sessions).where(lt(sessions.expiresAt, new Date())).returning();

@@ -147,7 +147,7 @@ export function register(app: Express) {
     propertyIds: z.array(z.number().int()).default([]),
   });
 
-  app.put("/api/user-groups/:id/properties", requireAuth, async (req, res) => {
+  app.put("/api/user-groups/:id/properties", requireManagementAccess, async (req, res) => {
     try {
       const parsed = groupPropertyIdsSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -166,6 +166,13 @@ export function register(app: Express) {
       const property = await storage.getProperty(Number(req.params.id));
       if (!property) {
         return res.status(404).json({ error: "Property not found" });
+      }
+      const user = req.user!;
+      if (user.role !== UserRole.ADMIN && user.userGroupId) {
+        const allowedIds = await storage.getGroupPropertyIds(user.userGroupId);
+        if (allowedIds.length > 0 && !allowedIds.includes(property.id)) {
+          return res.status(403).json({ error: "Access denied" });
+        }
       }
       const cats = await storage.getFeeCategoriesByProperty(property.id);
       res.json({

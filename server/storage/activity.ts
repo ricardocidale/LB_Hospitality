@@ -48,15 +48,7 @@ export class ActivityStorage {
     return results.map(r => ({ ...r.activity_logs, user: r.users }));
   }
 
-  /** Get a user's own recent activity (limited count). Used on the user's profile/dashboard. */
-  async getUserActivityLogs(userId: number, limit = 20): Promise<ActivityLog[]> {
-    return await db
-      .select()
-      .from(activityLogs)
-      .where(eq(activityLogs.userId, userId))
-      .orderBy(desc(activityLogs.createdAt))
-      .limit(limit);
-  }
+
 
   // ── Verification Runs (Financial Audit History) ──────────────
 
@@ -138,6 +130,17 @@ export class ActivityStorage {
       .orderBy(desc(loginLogs.loginAt))
       .limit(limit);
     return results.map(r => ({ ...r.login_logs, user: r.users }));
+  }
+
+  /** Delete login logs older than the given number of days. Returns count of deleted rows. */
+  async deleteOldLoginLogs(retentionDays = 180): Promise<number> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - retentionDays);
+    const [{ deleted }] = await db.select({ deleted: count() }).from(loginLogs).where(lt(loginLogs.loginAt, cutoff));
+    if (deleted > 0) {
+      await db.delete(loginLogs).where(lt(loginLogs.loginAt, cutoff));
+    }
+    return deleted;
   }
 
   // ── Active Sessions (Admin Session Management) ──────────────

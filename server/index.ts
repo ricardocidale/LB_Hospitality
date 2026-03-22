@@ -225,13 +225,15 @@ app.use((req, res, next) => {
         }
       }, MARKET_RATE_REFRESH_INTERVAL_MS);
 
-      // Clean expired sessions and stale rate-limit entries periodically
+      // Clean expired sessions, stale rate-limit entries, and old login logs periodically
       setInterval(async () => {
         try {
           const sessions = await storage.deleteExpiredSessions();
           if (sessions > 0) log(`Cleaned ${sessions} expired sessions`);
           const rateLimits = cleanupRateLimitMaps();
           if (rateLimits > 0) log(`Cleaned ${rateLimits} stale rate-limit entries`);
+          const oldLogs = await storage.deleteOldLoginLogs(180);
+          if (oldLogs > 0) log(`Cleaned ${oldLogs} login logs older than 180 days`);
         } catch (err) {
           console.error("Periodic cleanup error:", err);
         }

@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { storage } from "../../storage";
-import { requireAdmin, requireAuth, isApiRateLimited } from "../../auth";
+import { requireAdmin, requireAuth, requireChecker, isApiRateLimited } from "../../auth";
 import { runFillOnlySync, runSmartSync } from "../../syncHelpers";
 import { logAndSendError, logActivity } from "../helpers";
 import { readFile } from "fs/promises";
@@ -246,7 +246,7 @@ export function registerToolRoutes(app: Express) {
     }
   });
 
-  app.get("/api/activity-logs", requireAuth, async (req, res) => {
+  app.get("/api/activity-logs", requireChecker, async (req, res) => {
     try {
       const { userId, entityType, from, to, limit, offset } = req.query;
       const logs = await storage.getActivityLogs({

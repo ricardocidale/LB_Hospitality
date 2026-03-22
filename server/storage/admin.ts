@@ -1,4 +1,4 @@
-import { designThemes, logos, assetDescriptions, userGroups, userGroupProperties, companies, researchQuestions, users, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type InsertAssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type ResearchQuestion, type InsertResearchQuestion, type User } from "@shared/schema";
+import { designThemes, logos, assetDescriptions, userGroups, userGroupProperties, companies, researchQuestions, users, type DesignTheme, type InsertDesignTheme, type Logo, type InsertLogo, type AssetDescription, type UserGroup, type InsertUserGroup, type Company, type InsertCompany, type ResearchQuestion, type InsertResearchQuestion, type User } from "@shared/schema";
 import { db } from "../db";
 import { eq, desc, isNull, inArray } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
@@ -94,29 +94,6 @@ export class AdminStorage {
   /** List all asset descriptions, ordered by creation date. */
   async getAllAssetDescriptions(): Promise<AssetDescription[]> {
     return await db.select().from(assetDescriptions).orderBy(assetDescriptions.createdAt);
-  }
-
-  /** Fetch a single asset description by ID. */
-  async getAssetDescription(id: number): Promise<AssetDescription | undefined> {
-    const [ad] = await db.select().from(assetDescriptions).where(eq(assetDescriptions.id, id));
-    return ad || undefined;
-  }
-
-  /** Get the asset description marked as isDefault=true. Used when no group-specific one exists. */
-  async getDefaultAssetDescription(): Promise<AssetDescription | undefined> {
-    const [ad] = await db.select().from(assetDescriptions).where(eq(assetDescriptions.isDefault, true));
-    return ad || undefined;
-  }
-
-  /** Create a new asset description (e.g., "Luxury Boutique Hotel on 10+ acres"). */
-  async createAssetDescription(data: InsertAssetDescription): Promise<AssetDescription> {
-    const [ad] = await db.insert(assetDescriptions).values(data).returning();
-    return ad;
-  }
-
-  /** Delete an asset description. The default one is protected by the route handler. */
-  async deleteAssetDescription(id: number): Promise<void> {
-    await db.delete(assetDescriptions).where(eq(assetDescriptions.id, id));
   }
 
   // ── User Groups ─────────────────────────────────────────────

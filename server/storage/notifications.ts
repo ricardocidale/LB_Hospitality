@@ -8,11 +8,6 @@ export class NotificationStorage {
     return db.select().from(alertRules).orderBy(desc(alertRules.createdAt));
   }
 
-  async getAlertRule(id: number): Promise<AlertRule | undefined> {
-    const [rule] = await db.select().from(alertRules).where(eq(alertRules.id, id)).limit(1);
-    return rule;
-  }
-
   async createAlertRule(data: InsertAlertRule): Promise<AlertRule> {
     const [rule] = await db.insert(alertRules).values(data).returning();
     return rule;
@@ -34,10 +29,6 @@ export class NotificationStorage {
   async createNotificationLog(data: InsertNotificationLog): Promise<NotificationLog> {
     const [log] = await db.insert(notificationLogs).values(data).returning();
     return log;
-  }
-
-  async updateNotificationLogStatus(id: number, status: string, errorMessage?: string): Promise<void> {
-    await db.update(notificationLogs).set({ status, errorMessage: errorMessage ?? null, updatedAt: new Date() }).where(eq(notificationLogs.id, id));
   }
 
   async getNotificationPreferences(userId: number): Promise<NotificationPreference[]> {

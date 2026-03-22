@@ -65,11 +65,6 @@ export class ResearchStorage {
     }
   }
   
-  /** Delete a single market research report by ID. */
-  async deleteMarketResearch(id: number): Promise<void> {
-    await db.delete(marketResearch).where(eq(marketResearch.id, id));
-  }
-  
   async getLastFullResearchRefresh(_userId: number): Promise<Date | null> {
     const [row] = await db.select({ lastFullResearchRefresh: globalAssumptions.lastFullResearchRefresh })
       .from(globalAssumptions)

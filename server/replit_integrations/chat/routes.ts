@@ -4,6 +4,7 @@ import { chatStorage } from "./storage";
 import { requireAuth } from "../../auth";
 import { storage } from "../../storage";
 import { UserRole } from "@shared/constants";
+import { DEFAULT_OPENAI_MODEL } from "../../ai/resolve-llm";
 import {
   transcribeAudio,
   createElevenLabsStreamingTTS,
@@ -411,7 +412,7 @@ export function registerChatRoutes(app: Express): void {
       res.setHeader("Connection", "keep-alive");
 
       const ga = await storage.getGlobalAssumptions();
-      const llmModel = ga?.marcelaLlmModel || "gpt-4.1";
+      const llmModel = ga?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
       const maxTokens = ga?.marcelaMaxTokens || 2048;
 
       const stream = await openai.chat.completions.create({
@@ -500,7 +501,7 @@ export function registerChatRoutes(app: Express): void {
 
       res.write(`data: ${JSON.stringify({ type: "user_transcript", data: userTranscript })}\n\n`);
 
-      const voiceLlmModel = ga?.marcelaLlmModel || "gpt-4.1";
+      const voiceLlmModel = ga?.marcelaLlmModel || DEFAULT_OPENAI_MODEL;
       const voiceMaxTokens = ga?.marcelaMaxTokensVoice || 1024;
 
       const llmStream = await openai.chat.completions.create({

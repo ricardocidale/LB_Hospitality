@@ -1,4 +1,4 @@
-import { APP_BRAND_NAME } from "@shared/constants";
+import { APP_BRAND_NAME, PropertyStatus } from "@shared/constants";
 import { useRef, useCallback, useMemo, useState } from "react";
 import { useExportSave } from "@/hooks/useExportSave";
 import Layout from "@/components/Layout";
@@ -48,19 +48,19 @@ const PIE_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--cha
 const PIE_EXPORT_COLORS = ["9FBCA4", "257D41", "3B82F6", "F59E0B", "8B5CF6"];
 
 const STATUS_COLORS: Record<string, string> = {
-  Operating: "bg-emerald-500",
-  Improvements: "bg-amber-500",
-  Acquired: "bg-blue-500",
-  "In Negotiation": "bg-violet-500",
-  Pipeline: "bg-slate-400",
+  [PropertyStatus.OPERATING]: "bg-emerald-500",
+  [PropertyStatus.IMPROVEMENTS]: "bg-amber-500",
+  [PropertyStatus.ACQUIRED]: "bg-blue-500",
+  [PropertyStatus.IN_NEGOTIATION]: "bg-violet-500",
+  [PropertyStatus.PIPELINE]: "bg-slate-400",
 };
 
 const statusVariants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-  Operating: "default",
-  Improvements: "secondary",
-  Acquired: "outline",
-  "In Negotiation": "secondary",
-  Pipeline: "outline",
+  [PropertyStatus.OPERATING]: "default",
+  [PropertyStatus.IMPROVEMENTS]: "secondary",
+  [PropertyStatus.ACQUIRED]: "outline",
+  [PropertyStatus.IN_NEGOTIATION]: "secondary",
+  [PropertyStatus.PIPELINE]: "outline",
 };
 
 interface WaterfallItem {
@@ -214,7 +214,7 @@ export default function ExecutiveSummary() {
     return acc;
   }, {});
 
-  const statuses = ["Operating", "Improvements", "Acquired", "In Negotiation", "Pipeline"] as const;
+  const statuses = [PropertyStatus.OPERATING, PropertyStatus.IMPROVEMENTS, PropertyStatus.ACQUIRED, PropertyStatus.IN_NEGOTIATION, PropertyStatus.PIPELINE] as const;
 
   const kpiValues = [
     { label: "Total Properties", value: totalProperties },
@@ -277,7 +277,7 @@ export default function ExecutiveSummary() {
     });
 
     slide.addText("Properties by Status", { x: 7, y: midY, w: 5.5, h: 0.3, fontSize: 11, fontFace: "Arial", color: "374151", bold: true });
-    const statusExportColors: Record<string, string> = { Operating: "257D41", Improvements: "F59E0B", Acquired: "3B82F6", "In Negotiation": "8B5CF6", Pipeline: "6B7280" };
+    const statusExportColors: Record<string, string> = { [PropertyStatus.OPERATING]: "257D41", [PropertyStatus.IMPROVEMENTS]: "F59E0B", [PropertyStatus.ACQUIRED]: "3B82F6", [PropertyStatus.IN_NEGOTIATION]: "8B5CF6", [PropertyStatus.PIPELINE]: "6B7280" };
     statuses.forEach((status, i) => {
       const count = statusCounts[status] || 0;
       const rowY = midY + 0.35 + i * 0.3;

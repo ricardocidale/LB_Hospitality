@@ -128,8 +128,8 @@ function CanvasOrb({
   }, [volumeMode])
 
   useEffect(() => {
-    stateRef.current.targetColor1 = hexToRgb(colors?.[0] ?? "#CADCFC")
-    stateRef.current.targetColor2 = hexToRgb(colors?.[1] ?? "#A0B9D1")
+    stateRef.current.targetColor1 = hexToRgb(colors?.[0] ?? ORB_DEFAULT_COLOR_1)
+    stateRef.current.targetColor2 = hexToRgb(colors?.[1] ?? ORB_DEFAULT_COLOR_2)
   }, [colors])
 
   const render = useCallback(() => {

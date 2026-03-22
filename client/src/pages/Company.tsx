@@ -311,7 +311,7 @@ export default function Company() {
           }));
           return {
             entityName: companyName,
-            companyName: global?.companyName || "H+ Analytics",
+            companyName: global?.companyName || APP_BRAND_NAME,
             statementType: activeTab === "income" ? "Income Statement" : activeTab === "cashflow" ? "Cash Flow" : "Balance Sheet",
             statements: [
               { title: "Management Company Income Statement", years: incomeData.years.map(String), rows: mapRows(incomeData.rows) },

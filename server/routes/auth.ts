@@ -166,7 +166,9 @@ export function register(app: Express) {
       if (validation.data.firstName !== undefined) updates.firstName = validation.data.firstName.trim();
       if (validation.data.lastName !== undefined) updates.lastName = validation.data.lastName.trim();
       if (validation.data.email !== undefined) {
-        const protectedEmails = seedUsersConfig.users.map(u => u.email.toLowerCase());
+        const protectedEmails = seedUsersConfig.users
+          .filter(u => u.role === UserRole.ADMIN || u.role === UserRole.CHECKER)
+          .map(u => u.email.toLowerCase());
         if (protectedEmails.includes(req.user!.email.toLowerCase())) {
           return res.status(403).json({ error: "System account emails cannot be changed" });
         }

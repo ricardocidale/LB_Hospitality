@@ -1,3 +1,4 @@
+import { PropertyStatus } from "@shared/constants";
 import React, { useRef, useState, useMemo } from "react";
 import { useExportSave } from "@/hooks/useExportSave";
 import { Button } from "@/components/ui/button";
@@ -20,15 +21,15 @@ import { RadialGauge } from "@/lib/charts";
 const PIE_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
 const STATUS_COLORS: Record<string, string> = {
-  Operating: "bg-emerald-500",
-  Improvements: "bg-amber-500",
-  Acquired: "bg-blue-500",
-  "In Negotiation": "bg-violet-500",
-  Planned: "bg-sky-500",
-  Pipeline: "bg-slate-400",
+  [PropertyStatus.OPERATING]: "bg-emerald-500",
+  [PropertyStatus.IMPROVEMENTS]: "bg-amber-500",
+  [PropertyStatus.ACQUIRED]: "bg-blue-500",
+  [PropertyStatus.IN_NEGOTIATION]: "bg-violet-500",
+  [PropertyStatus.PLANNED]: "bg-sky-500",
+  [PropertyStatus.PIPELINE]: "bg-slate-400",
 };
 
-const STATUSES = ["Operating", "Improvements", "Acquired", "In Negotiation", "Planned", "Pipeline"] as const;
+const STATUSES = [PropertyStatus.OPERATING, PropertyStatus.IMPROVEMENTS, PropertyStatus.ACQUIRED, PropertyStatus.IN_NEGOTIATION, PropertyStatus.PLANNED, PropertyStatus.PIPELINE] as const;
 
 const formatCompact = (value: number) =>
   new Intl.NumberFormat("en-US", {
@@ -668,11 +669,11 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                         <TableCell className="text-xs text-foreground font-mono text-center py-2.5">{prop.roomCount}</TableCell>
                         <TableCell className="text-center py-2.5">
                           <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                            prop.status === "Operating" ? "bg-emerald-500/10 text-emerald-600" :
-                            prop.status === "Improvements" ? "bg-amber-500/10 text-amber-600" :
-                            prop.status === "Acquired" ? "bg-blue-500/10 text-blue-600" :
-                            prop.status === "Planned" ? "bg-sky-500/10 text-sky-600" :
-                            prop.status === "In Negotiation" ? "bg-purple-500/10 text-purple-600" :
+                            prop.status === PropertyStatus.OPERATING ? "bg-emerald-500/10 text-emerald-600" :
+                            prop.status === PropertyStatus.IMPROVEMENTS ? "bg-amber-500/10 text-amber-600" :
+                            prop.status === PropertyStatus.ACQUIRED ? "bg-blue-500/10 text-blue-600" :
+                            prop.status === PropertyStatus.PLANNED ? "bg-sky-500/10 text-sky-600" :
+                            prop.status === PropertyStatus.IN_NEGOTIATION ? "bg-purple-500/10 text-purple-600" :
                             "bg-muted text-muted-foreground"
                           }`}>
                             {prop.status}

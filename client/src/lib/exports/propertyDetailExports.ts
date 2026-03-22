@@ -1,3 +1,4 @@
+import { APP_BRAND_NAME } from "@shared/constants";
 import { downloadCSV } from "@/lib/exports/csvExport";
 import { exportPropertyPPTX } from "@/lib/exports/pptxExport";
 import { exportFullPropertyWorkbook } from "@/lib/exports/excelExport";
@@ -237,7 +238,7 @@ export function handlePPTXExport(ctx: PropertyExportContext, customFilename?: st
     balanceSheetData: { years: yearLabels, rows: bsRows },
     investmentData: { years: yearLabels, rows: investRows },
     kpiMetrics,
-  }, global?.companyName || "H+ Analytics", customFilename, ctx.brandingData?.themeColors ?? undefined);
+  }, global?.companyName || APP_BRAND_NAME, customFilename, ctx.brandingData?.themeColors ?? undefined);
 }
 
 export function handleExport(ctx: PropertyExportContext, exportType: string, orientation: 'landscape' | 'portrait', version: ExportVersion, customFilename?: string) {
@@ -310,7 +311,7 @@ export function buildPremiumExportPayload(ctx: PropertyExportContext, version: E
 
   return {
     entityName: property.name,
-    companyName: global?.companyName || "H+ Analytics",
+    companyName: global?.companyName || APP_BRAND_NAME,
     statementType: ctx.activeTab === "income" ? "Income Statement" : ctx.activeTab === "cashflow" ? "Cash Flow Statement" : "Balance Sheet",
     years: yrLabels,
     statements: [

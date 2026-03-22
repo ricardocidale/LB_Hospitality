@@ -1,3 +1,4 @@
+import { APP_BRAND_NAME } from "@shared/constants";
 import { format } from "date-fns";
 import { drawLineChart } from "@/lib/exports/pdfChartDrawer";
 import { exportPortfolioPPTX as originalExportPortfolioPPTX } from "@/lib/exports/pptxExport";
@@ -181,7 +182,7 @@ export async function exportPortfolioPDF(
   rows: ExportRow[],
   getYearlyConsolidated: (i: number) => YearlyPropertyFinancials,
   title: string,
-  companyName = "H+ Analytics",
+  companyName = APP_BRAND_NAME,
   customFilename?: string,
   themeColors?: ThemeColor[]
 ): Promise<void> {
@@ -266,7 +267,7 @@ const fmtCompact = (v: number) =>
 export async function exportDashboardComprehensivePDF(params: ComprehensiveDashboardExportParams, customFilename?: string): Promise<void> {
   const {
     financials, properties, projectionYears, getFiscalYear,
-    companyName = "H+ Analytics",
+    companyName = APP_BRAND_NAME,
     incomeRows, modelStartDate, themeColors,
     overviewOnly = false, statementsOnly = false,
     overviewData,

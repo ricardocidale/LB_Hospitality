@@ -587,10 +587,10 @@ export default function UsersTab() {
             <Select value={newUser.role} onValueChange={(v) => setNewUser({ ...newUser, role: v })} data-testid="select-new-user-role">
               <SelectTrigger data-testid="select-new-user-role"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="investor">Investor</SelectItem>
-                <SelectItem value="checker">Checker</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value={UserRole.USER}>User</SelectItem>
+                <SelectItem value={UserRole.INVESTOR}>Investor</SelectItem>
+                <SelectItem value={UserRole.CHECKER}>Checker</SelectItem>
+                <SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -697,10 +697,10 @@ export default function UsersTab() {
             <Select value={editUser.role} onValueChange={(v) => setEditUser({ ...editUser, role: v })} data-testid="select-edit-user-role">
               <SelectTrigger data-testid="select-edit-user-role"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="user">User</SelectItem>
-                <SelectItem value="investor">Investor</SelectItem>
-                <SelectItem value="checker">Checker</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value={UserRole.USER}>User</SelectItem>
+                <SelectItem value={UserRole.INVESTOR}>Investor</SelectItem>
+                <SelectItem value={UserRole.CHECKER}>Checker</SelectItem>
+                <SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>

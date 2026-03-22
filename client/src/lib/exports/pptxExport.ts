@@ -19,6 +19,7 @@
  *   • Footer — company name (left) + page number (right) on every slide
  *   • Table framed with sage-green outer border
  */
+import { APP_BRAND_NAME } from "@shared/constants";
 import { format } from "date-fns";
 import {
   type ExportRowMeta,
@@ -577,7 +578,7 @@ function addOverviewSlides(ctx: SlideContext, overview: OverviewExportData, proj
   });
 }
 
-export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
+export async function exportPortfolioPPTX(data: PortfolioExportData, companyName = APP_BRAND_NAME, customFilename?: string, themeColors?: ThemeColor[]) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
@@ -640,7 +641,7 @@ export interface PropertyExportData {
   kpiMetrics?: { label: string; value: string }[];
 }
 
-export async function exportPropertyPPTX(data: PropertyExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
+export async function exportPropertyPPTX(data: PropertyExportData, companyName = APP_BRAND_NAME, customFilename?: string, themeColors?: ThemeColor[]) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";
@@ -691,7 +692,7 @@ export interface CompanyExportData {
   kpiMetrics?: { label: string; value: string }[];
 }
 
-export async function exportCompanyPPTX(data: CompanyExportData, companyName = "H+ Analytics", customFilename?: string, themeColors?: ThemeColor[]) {
+export async function exportCompanyPPTX(data: CompanyExportData, companyName = APP_BRAND_NAME, customFilename?: string, themeColors?: ThemeColor[]) {
   const pptxgen = (await import("pptxgenjs")).default;
   const pres = new (pptxgen as any)();
   pres.layout = "LAYOUT_WIDE";

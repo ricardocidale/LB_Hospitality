@@ -10,6 +10,7 @@
  * total room revenue.  Property type influences which USALI expense
  * ratios the engine applies by default.
  */
+import { PROPERTY_STATUS_VALUES } from "@shared/constants";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -112,11 +113,9 @@ export default function BasicInfoSection({ draft, onChange, onNumberChange }: Pr
             <Select value={draft.status} onValueChange={(v) => onChange("status", v)}>
               <SelectTrigger className="bg-card border-primary/30 text-foreground"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Pipeline">Pipeline</SelectItem>
-                <SelectItem value="In Negotiation">In Negotiation</SelectItem>
-                <SelectItem value="Acquired">Acquired</SelectItem>
-                <SelectItem value="Improvements">Improvements</SelectItem>
-                <SelectItem value="Operating">Operating</SelectItem>
+                {PROPERTY_STATUS_VALUES.map(s => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

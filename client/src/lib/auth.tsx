@@ -120,8 +120,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = user?.role === UserRole.ADMIN;
   const isChecker = user?.role === UserRole.CHECKER;
   const isUser = user?.role === UserRole.USER;
-  const isInvestor = user?.role === "investor";
-  const hasManagementAccess = user?.role !== "investor";
+  const isInvestor = user?.role === UserRole.INVESTOR;
+  const hasManagementAccess = user?.role !== UserRole.INVESTOR;
   
   const refetch = () => {
     refetchQuery();

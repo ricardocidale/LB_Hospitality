@@ -1,3 +1,4 @@
+import { APP_BRAND_NAME } from "@shared/constants";
 import logoImg from "@/assets/logo.png";
 
 export default function SpinningLogo3D({ size = 64, onClick }: { size?: number; onClick?: () => void }) {
@@ -26,7 +27,7 @@ export default function SpinningLogo3D({ size = 64, onClick }: { size?: number; 
     >
       <img
         src={logoImg}
-        alt="H+ Analytics"
+        alt={APP_BRAND_NAME}
         className="w-full h-full object-contain"
         style={{
           animation: "spinLogo3D 6s ease-in-out infinite",

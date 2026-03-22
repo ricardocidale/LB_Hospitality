@@ -1,3 +1,4 @@
+import { UserRole } from "@shared/constants";
 import { useState, useRef, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { PageHeader } from "@/components/ui/page-header";
@@ -13,7 +14,7 @@ interface UserManualProps {
 
 export default function UserManual({ embedded }: UserManualProps) {
   const { user, isAdmin } = useAuth();
-  const hasManagementAccess = isAdmin || (user?.role !== "investor");
+  const hasManagementAccess = isAdmin || (user?.role !== UserRole.INVESTOR);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 

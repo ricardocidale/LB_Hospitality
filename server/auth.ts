@@ -322,7 +322,7 @@ export function requireManagementAccess(req: Request, res: Response, next: NextF
   if (!req.user) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  if (req.user.role === "investor") {
+  if (req.user.role === UserRole.INVESTOR) {
     return res.status(403).json({ error: "Management company access required" });
   }
   next();

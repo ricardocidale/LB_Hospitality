@@ -11,6 +11,7 @@
  * The card is rendered inside a responsive CSS grid on the Portfolio page.
  * Property order can be controlled by the parent (e.g. sort by name or IRR).
  */
+import { PropertyStatus } from "@shared/constants";
 import { formatMoney } from "@/lib/financialEngine";
 import { ArrowRight } from "@/components/icons/themed-icons";
 import { IconTrash, IconMapPin, IconBed, IconCalendar, IconSettings } from "@/components/icons";
@@ -63,12 +64,12 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           </div>
           <div className="absolute top-3 right-3">
             <span className={`px-3 py-1 rounded-full text-xs font-medium border border-white/20 label-text ${
-              property.status === "Operating" ? "bg-emerald-500 text-white" :
-              property.status === "Improvements" ? "bg-amber-500 text-white" :
-              property.status === "Acquired" ? "bg-blue-500 text-white" :
-              property.status === "Planned" ? "bg-sky-500 text-white" :
-              property.status === "In Negotiation" ? "bg-purple-500 text-white" :
-              property.status === "Pipeline" ? "bg-muted0 text-white" : "bg-card/20 text-white"
+              property.status === PropertyStatus.OPERATING ? "bg-emerald-500 text-white" :
+              property.status === PropertyStatus.IMPROVEMENTS ? "bg-amber-500 text-white" :
+              property.status === PropertyStatus.ACQUIRED ? "bg-blue-500 text-white" :
+              property.status === PropertyStatus.PLANNED ? "bg-sky-500 text-white" :
+              property.status === PropertyStatus.IN_NEGOTIATION ? "bg-purple-500 text-white" :
+              property.status === PropertyStatus.PIPELINE ? "bg-muted0 text-white" : "bg-card/20 text-white"
             }`}>
               {property.status}
             </span>
@@ -83,7 +84,7 @@ export function PortfolioPropertyCard({ property, propertyNumber, onDelete }: Po
           </div>
           <div className="flex items-center text-foreground/50 text-xs mt-1.5 label-text">
             <IconCalendar className="w-3 h-3 mr-1" />
-            {property.status === "Acquired" || property.status === "Operating" ? "Acquired" : "Planned"}{" "}
+            {property.status === PropertyStatus.ACQUIRED || property.status === PropertyStatus.OPERATING ? "Acquired" : "Planned"}{" "}
             {new Date(property.acquisitionDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
           </div>
         </div>

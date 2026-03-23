@@ -69,11 +69,11 @@ export function AssetsSection({
       {expandedRows.has("assets") && (
         <>
           <TableRow
-            className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
+            className="bg-chart-1/10 cursor-pointer hover:bg-chart-1/15"
             data-expandable-row="true"
             onClick={() => toggleFormula("assets-formula")}
           >
-            <TableCell className="pl-10 sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-foreground">
+            <TableCell className="pl-10 sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground">
               <div className="flex items-center gap-1.5">
                 {expandedFormulas.has("assets-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                 <span className="italic">Formula</span>
@@ -84,12 +84,12 @@ export function AssetsSection({
             ))}
           </TableRow>
           {expandedFormulas.has("assets-formula") && (
-            <TableRow className="bg-chart-1/3" data-expandable-row="true">
-              <TableCell className="pl-14 sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+            <TableRow className="bg-chart-1/10" data-expandable-row="true">
+              <TableCell className="pl-14 sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
                 = Current Assets + Net Fixed Assets + Other Assets
               </TableCell>
               {consolidatedTotalAssets.map((val, i) => (
-                <TableCell key={i} className="text-right font-mono text-xs text-foreground py-0.5">
+                <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">
                   {formatMoney(val)}
                 </TableCell>
               ))}
@@ -118,12 +118,12 @@ export function AssetsSection({
           </TableRow>
           {expandedFormulas.has("cash-detail") && (
             <>
-              <TableRow className="bg-chart-1/3" data-expandable-row="true">
-                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+              <TableRow className="bg-chart-1/10" data-expandable-row="true">
+                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
                   = Operating Reserves + Cumulative Cash Flow + Refinancing Proceeds
                 </TableCell>
                 {consolidatedCash.map((val, i) => (
-                  <TableCell key={i} className="text-right font-mono text-xs text-foreground py-0.5">{formatMoney(val)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">{formatMoney(val)}</TableCell>
                 ))}
               </TableRow>
               {properties.map((prop, idx) => (
@@ -194,12 +194,12 @@ export function AssetsSection({
           </TableRow>
           {expandedFormulas.has("accdep-detail") && (
             <>
-              <TableRow className="bg-chart-1/3" data-expandable-row="true">
-                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+              <TableRow className="bg-chart-1/10" data-expandable-row="true">
+                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
                   Straight-line over 27.5 years (ASC 360)
                 </TableCell>
                 {consolidatedAccDep.map((val, i) => (
-                  <TableCell key={i} className="text-right font-mono text-xs text-foreground py-0.5">{formatMoney(-val)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">{formatMoney(-val)}</TableCell>
                 ))}
               </TableRow>
               {properties.map((prop, idx) => (
@@ -246,12 +246,12 @@ export function AssetsSection({
               </TableRow>
               {expandedFormulas.has("deferredfc-detail") && (
                 <>
-                  <TableRow className="bg-chart-1/3" data-expandable-row="true">
-                    <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+                  <TableRow className="bg-chart-1/10" data-expandable-row="true">
+                    <TableCell className="pl-[72px] sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
                       Refinancing closing costs capitalized per ASC 835-30
                     </TableCell>
                     {consolidatedDeferredFC.map((val, i) => (
-                      <TableCell key={i} className="text-right font-mono text-xs text-foreground py-0.5">{formatMoney(val)}</TableCell>
+                      <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">{formatMoney(val)}</TableCell>
                     ))}
                   </TableRow>
                   {properties.map((prop, idx) => {
@@ -345,12 +345,12 @@ export function LiabilitiesSection({
           </TableRow>
           {expandedFormulas.has("debt-detail") && (
             <>
-              <TableRow className="bg-chart-1/3" data-expandable-row="true">
-                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+              <TableRow className="bg-chart-1/10" data-expandable-row="true">
+                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
                   Remaining principal on acquisition & refinancing loans
                 </TableCell>
                 {consolidatedDebt.map((val, i) => (
-                  <TableCell key={i} className="text-right font-mono text-xs text-foreground py-0.5">{formatMoney(val)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">{formatMoney(val)}</TableCell>
                 ))}
               </TableRow>
               {properties.map((prop, idx) => (
@@ -417,11 +417,11 @@ export function EquitySection({
       {expandedRows.has("equity") && (
         <>
           <TableRow
-            className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
+            className="bg-chart-1/10 cursor-pointer hover:bg-chart-1/15"
             data-expandable-row="true"
             onClick={() => toggleFormula("equity-formula")}
           >
-            <TableCell className="pl-10 sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-foreground">
+            <TableCell className="pl-10 sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground">
               <div className="flex items-center gap-1.5">
                 {expandedFormulas.has("equity-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                 <span className="italic">Formula</span>
@@ -432,12 +432,12 @@ export function EquitySection({
             ))}
           </TableRow>
           {expandedFormulas.has("equity-formula") && (
-            <TableRow className="bg-chart-1/3" data-expandable-row="true">
-              <TableCell className="pl-14 sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+            <TableRow className="bg-chart-1/10" data-expandable-row="true">
+              <TableCell className="pl-14 sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
                 = Paid-In Capital + Retained Earnings (ASC 720-15 adjusted)
               </TableCell>
               {consolidatedTotalEquity.map((val, i) => (
-                <TableCell key={i} className="text-right font-mono text-xs text-foreground py-0.5">
+                <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">
                   {formatMoney(val)}
                 </TableCell>
               ))}
@@ -461,12 +461,12 @@ export function EquitySection({
           </TableRow>
           {expandedFormulas.has("paidin-detail") && (
             <>
-              <TableRow className="bg-chart-1/3" data-expandable-row="true">
-                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+              <TableRow className="bg-chart-1/10" data-expandable-row="true">
+                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
                   = Total Project Cost − Acquisition Loan
                 </TableCell>
                 {consolidatedEquity.map((val, i) => (
-                  <TableCell key={i} className="text-right font-mono text-xs text-foreground py-0.5">{formatMoney(val)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">{formatMoney(val)}</TableCell>
                 ))}
               </TableRow>
               {properties.map((prop, idx) => (
@@ -499,12 +499,12 @@ export function EquitySection({
           </TableRow>
           {expandedFormulas.has("retained-detail") && (
             <>
-              <TableRow className="bg-chart-1/3" data-expandable-row="true">
-                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+              <TableRow className="bg-chart-1/10" data-expandable-row="true">
+                <TableCell className="pl-[72px] sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
                   = Cumulative Net Income − Pre-Opening Costs (ASC 720-15)
                 </TableCell>
                 {consolidatedRetained.map((val, i) => (
-                  <TableCell key={i} className="text-right font-mono text-xs text-foreground py-0.5">{formatMoney(val)}</TableCell>
+                  <TableCell key={i} className="text-right font-mono text-sm text-foreground py-1">{formatMoney(val)}</TableCell>
                 ))}
               </TableRow>
               {properties.map((prop, idx) => (
@@ -575,11 +575,11 @@ export function TotalLESection({
         ))}
       </TableRow>
       <TableRow
-        className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
+        className="bg-chart-1/10 cursor-pointer hover:bg-chart-1/15"
         data-expandable-row="true"
         onClick={() => toggleFormula("le-formula")}
       >
-        <TableCell className="pl-10 sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-foreground">
+        <TableCell className="pl-10 sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground">
           <div className="flex items-center gap-1.5">
             {expandedFormulas.has("le-formula") ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
             <span className="italic">Formula</span>
@@ -590,12 +590,12 @@ export function TotalLESection({
         ))}
       </TableRow>
       {expandedFormulas.has("le-formula") && (
-        <TableRow className="bg-chart-1/3" data-expandable-row="true">
-          <TableCell className="pl-14 sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic">
+        <TableRow className="bg-chart-1/10" data-expandable-row="true">
+          <TableCell className="pl-14 sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic">
             = Total Liabilities + Total Equity
           </TableCell>
           {years.map((_, y) => (
-            <TableCell key={y} className="text-right font-mono text-xs text-foreground py-0.5">
+            <TableCell key={y} className="text-right font-mono text-sm text-foreground py-1">
               {formatMoney(consolidatedTotalLiabilities[y])} + {formatMoney(consolidatedTotalEquity[y])}
             </TableCell>
           ))}

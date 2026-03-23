@@ -523,12 +523,12 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                       return (
                         <React.Fragment key={idx}>
                           <TableRow
-                            className="bg-chart-1/5 cursor-pointer hover:bg-chart-1/5"
+                            className="bg-chart-1/10 cursor-pointer hover:bg-chart-1/15"
                             onClick={() => toggleFormula(fId)}
                             data-expandable-row="true"
                           >
                             <TableCell
-                              className="sticky left-0 bg-chart-1/5 z-10 py-0.5 text-xs text-foreground"
+                              className="sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground"
                               style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1}rem` }}
                             >
                               <div className="flex items-center gap-1.5">
@@ -537,19 +537,19 @@ export function IncomeStatementTab({ financials, properties, projectionYears, ge
                               </div>
                             </TableCell>
                             {row.values.map((_, vIdx) => (
-                              <TableCell key={vIdx} className="py-0.5" />
+                              <TableCell key={vIdx} className="py-1" />
                             ))}
                           </TableRow>
                           {isOpen && (
-                            <TableRow className="bg-chart-1/3" data-expandable-row="true">
+                            <TableRow className="bg-chart-1/10" data-expandable-row="true">
                               <TableCell
-                                className="sticky left-0 bg-chart-1/3 z-10 py-0.5 text-xs text-foreground italic"
+                                className="sticky left-0 bg-chart-1/10 z-10 py-1 text-sm text-foreground italic"
                                 style={{ paddingLeft: `${(row.indent ?? 1) * 1.5 + 1 + 1.25}rem` }}
                               >
                                 {row.category}
                               </TableCell>
                               {row.values.map((val, vIdx) => (
-                                <TableCell key={vIdx} className="text-right font-mono text-xs text-foreground py-0.5">
+                                <TableCell key={vIdx} className="text-right font-mono text-sm text-foreground py-1">
                                   {row.displayValues?.[vIdx] ?? formatMoney(val)}
                                 </TableCell>
                               ))}

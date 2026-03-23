@@ -193,7 +193,13 @@ export function register(app: Express) {
             buffer = contents;
             const [metadata] = await file.getMetadata();
             contentType = metadata.contentType || "image/jpeg";
-          } else if (photo.imageUrl.startsWith("http")) {
+          } else if (photo.imageUrl.startsWith("https://")) {
+            const parsed = new URL(photo.imageUrl);
+            const blockedHosts = ["169.254.169.254", "metadata.google.internal", "localhost", "127.0.0.1", "0.0.0.0", "[::1]"];
+            if (blockedHosts.includes(parsed.hostname) || parsed.hostname.endsWith(".internal")) {
+              failed++;
+              continue;
+            }
             const response = await fetch(photo.imageUrl);
             if (!response.ok) { failed++; continue; }
             buffer = Buffer.from(await response.arrayBuffer());

@@ -42,12 +42,79 @@ The application is built with a React 18 frontend (TypeScript, Wouter, TanStack 
 - **LLM Integration:** Dual-model configuration (primary + fallback) for various AI-powered features across 7 domains, with configurable defaults in the Admin panel.
 - **Observability:** Sentry for error tracking, PostHog for analytics, Upstash Redis for caching, and circuit breakers for integration stability.
 
+## Tech Stack
+
+- **Frontend:** React 18 · TypeScript · Wouter · TanStack Query · Zustand · shadcn/ui · Tailwind CSS v4 · Recharts · D3.js · framer-motion
+- **Backend:** Express 5 · Drizzle ORM · PostgreSQL · Zod
+- **PDF:** jsPDF (client), @react-pdf/renderer (server premium) with LLM Design Pass
+- **AI/LLM:** Anthropic Claude, Gemini — dual-model config (primary + fallback) across 7 domains
+- **Mapping:** MapLibre GL
+- **Voice/Telephony:** ElevenLabs, Twilio
+- **Email:** Resend
+- **Image Processing:** Sharp (WebP/AVIF pipeline)
+- **Icons:** @phosphor-icons/react, Lucide
+- **Monitoring:** Sentry, PostHog, Upstash Redis
+
+## Skill Router
+
+| Domain | Skill Path |
+|--------|-----------|
+| Context Loading | `.claude/skills/context-loading/SKILL.md` |
+| Architecture | `.claude/skills/architecture/SKILL.md` |
+| Design System | `.claude/skills/design-system/SKILL.md` |
+| Theme Engine | `.claude/skills/ui/theme-engine.md` |
+| Proof System | `.claude/skills/proof-system/SKILL.md` |
+| Finance (22 skills) | `.claude/skills/finance/` |
+| Research (23 skills) | `.claude/skills/research/` |
+| UI (45 skills) | `.claude/skills/ui/` |
+| Exports | `.claude/skills/exports/SKILL.md` |
+| Database | `.claude/skills/database/SKILL.md` |
+| Admin (16 sections) | `.claude/skills/admin/SKILL.md` |
+| Marcela AI | `.claude/skills/marcela-ai/SKILL.md` |
+| Coding Conventions | `.claude/skills/coding-conventions/SKILL.md` |
+
+## Key Rules
+
+- **Financial accuracy always beats UI enhancements.** The proof system must always pass.
+- **No cover pages EVER** in any PDF export.
+- **Balance Sheet Identity:** A = L + E must hold within $1.
+- **USALI 12th Edition** compliance for all property-level statements.
+- **Doc Harmony:** `replit.md` and `.claude/claude.md` must stay in sync.
+- **Button labels:** Always "Save" — never "Update".
+- **Theme compliance:** All UI components must reference the theme engine.
+- **LLM dual-model config** — primary + fallback, 7 domains, no hardcoded models.
+- **Brand colors:** SAGE=#9FBCA4, DARK_GREEN=#257D41, NAVY=#1A2332
+
+## User Roles
+
+| Role | Access |
+|------|--------|
+| `admin` | Full — all pages + Admin Settings |
+| `user` | Management-level — no Admin panel |
+| `checker` | User + verification tools |
+| `investor` | Limited — Dashboard, Properties, Profile, Help |
+
+## Quick Commands
+
+```bash
+npm run dev            # Start dev server (port 5000)
+npm run health         # tsc + tests + verify + doc harmony (~60s)
+npm run test:summary   # All 3,498 tests, 1-line output (~35s)
+npm run verify:summary # 8-phase financial verification (~20s)
+npm run lint:summary   # TypeScript check only (<10s)
+npm run stats          # File/line/test counts (<5s)
+npm run audit:quick    # Code quality check (<3s)
+npm run exports:check  # Unused export detection (<5s)
+npm run diff:summary   # Git status + diff stats (<1s)
+npm run db:push        # Push schema changes
+```
+
 ## External Dependencies
 
 - **Database:** PostgreSQL (managed via Drizzle ORM)
 - **UI Libraries:** React 18, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, framer-motion
 - **PDF Generation:** jsPDF (client-side), @react-pdf/renderer (server-side premium)
-- **Document Processing:** Puppeteer (server-side PNG rendering only), Google Document AI (OCR)
+- **Document Processing:** Google Document AI (OCR)
 - **Image Processing:** Sharp
 - **Mapping:** MapLibre GL
 - **Monitoring & Analytics:** Sentry, PostHog

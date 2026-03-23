@@ -1,7 +1,7 @@
 import maplibregl from "maplibre-gl";
 import { PropertyStatus } from "@shared/constants";
 
-export const KNOWN_COORDS: Record<string, [number, number]> = {
+const KNOWN_COORDS: Record<string, [number, number]> = {
   "medellín, antioquia, colombia": [-75.6266, 6.2553],
   "medellin, antioquia, colombia": [-75.6266, 6.2553],
   "loch sheldrake, new york, united states": [-74.6571, 41.7701],
@@ -12,7 +12,7 @@ export const KNOWN_COORDS: Record<string, [number, number]> = {
   "cartagena, bolivar, colombia": [-75.5465, 10.4235],
 };
 
-export const REGION_COORDS: Record<string, [number, number]> = {
+const REGION_COORDS: Record<string, [number, number]> = {
   "colombia": [-74.0, 4.6],
   "united states": [-98.5, 39.8],
   "mexico": [-102.5, 23.6],
@@ -75,7 +75,7 @@ export const formatMoney = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-export const DSCR_TIER_COLORS = {
+const DSCR_TIER_COLORS = {
   strong: "#22C55E",
   moderate: "#EAB308",
   watch: "#EF4444",

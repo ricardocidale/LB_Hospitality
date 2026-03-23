@@ -75,7 +75,7 @@ export function VerificationResults({ results }: VerificationResultsProps) {
       const failed = catChecks.filter(c => !c.passed).length;
       const hasFails = failed > 0;
       const key = `${sectionPrefix}-${category}`;
-      const isExpanded = expandedCategories.has(key) || hasFails;
+      const isExpanded = expandedCategories.has(key);
 
       return (
         <div key={category} className="space-y-1">

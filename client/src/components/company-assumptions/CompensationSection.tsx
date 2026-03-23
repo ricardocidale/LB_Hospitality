@@ -34,7 +34,7 @@ export default function CompensationSection({ formData, onChange, global, resear
         <div>
           <h3 className="text-lg font-display text-foreground flex items-center">
             Compensation
-            <InfoTooltip text="Total compensation expense for the management company. Includes partner draws and staff salaries. Staff headcount is determined by the portfolio size (staffing tiers below)." formula="Monthly = (Partner Comp + FTE × Salary) ÷ 12" />
+            <InfoTooltip text="Total compensation expense for the management company. Includes partner draws and staff salaries. Staff headcount is determined by the portfolio size (staffing tiers below). Early-stage hotel management companies typically allocate 50–65% of total overhead to compensation (AHLA Lodging Industry Survey)." formula="Monthly = (Partner Comp + FTE × Salary) ÷ 12" />
           </h3>
           <p className="text-muted-foreground text-sm label-text">Configure partner compensation, staff salaries, and staffing tiers</p>
         </div>
@@ -42,7 +42,7 @@ export default function CompensationSection({ formData, onChange, global, resear
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Staff Salary
-              <InfoTooltip text="Average annual salary per full-time staff member. The total staff cost depends on how many FTEs your portfolio size requires (see tiers below). As you add properties, you may cross into a higher staffing tier." formula="Staff Cost = FTE Count × Salary ÷ 12" />
+              <InfoTooltip text="Average annual salary per full-time staff member. The total staff cost depends on how many FTEs your portfolio size requires (see tiers below). As you add properties, you may cross into a higher staffing tier. AHLA Lodging Industry Survey: $65K–$90K average salary for hospitality management roles." formula="Staff Cost = FTE Count × Salary ÷ 12" />
               <ResearchBadge value={researchValues.staffSalary?.display} onClick={() => researchValues.staffSalary && onChange("staffSalary", researchValues.staffSalary.mid)} sourceType="industry" sourceName="AHLA Lodging Industry Survey" data-testid="badge-staff-salary" />
             </Label>
             <EditableValue
@@ -67,7 +67,7 @@ export default function CompensationSection({ formData, onChange, global, resear
           <div className="mb-3">
             <Label className="flex items-center text-foreground label-text font-medium">
               Staffing Tiers
-              <InfoTooltip text="Portfolio-based staffing model. As the number of managed properties grows, you'll need more staff. Each tier defines the FTE headcount for a range of property counts. The system automatically selects the right tier based on your active property count." />
+              <InfoTooltip text="Portfolio-based staffing model. As the number of managed properties grows, you'll need more staff. Each tier defines the FTE headcount for a range of property counts. The system automatically selects the right tier based on your active property count. Default tiers: ≤3 properties → 2.5 FTE, ≤6 → 4.5 FTE, 7+ → 7.0 FTE. Reflects typical early-stage hotel management company scaling patterns." />
             </Label>
             <p className="text-xs text-muted-foreground mt-1">Set the FTE headcount for each portfolio size bracket</p>
           </div>

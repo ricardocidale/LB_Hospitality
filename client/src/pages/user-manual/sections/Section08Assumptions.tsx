@@ -27,18 +27,50 @@ export default function Section08Assumptions({ expanded, onToggle, sectionRef }:
         <h4 className="font-semibold mb-2">Key Parameters</h4>
         <ManualTable
           variant="light"
-          headers={["Category", "Examples"]}
+          headers={["Parameter", "Default Value", "Industry Source", "Typical Range"]}
           rows={[
-            ["Economic", "Inflation rate, income tax rate, property tax rate"],
-            ["Revenue Growth", "ADR growth rate, occupancy growth rate"],
-            ["Expense Escalation", "Fixed cost escalation, variable cost growth"],
-            ["Financing Defaults", "Default LTV, interest rate, loan term"],
-            ["Management Fees", "Base fee rate, incentive fee rate"],
-            ["Exit Parameters", "Exit cap rate, sales commission rate"],
-            ["Staffing", "Staff FTE tiers based on property count"],
+            ["Inflation Rate (Property)", "3.0%", "CPI / Fed target", "2–4%"],
+            ["Inflation Rate (Company)", "3.0%", "CPI / Fed target", "2–4%"],
+            ["Property Income Tax Rate", "25%", "Blended federal + state", "21–30%"],
+            ["Company Income Tax Rate", "30%", "Blended federal + state", "25–35%"],
+            ["ADR Growth Rate", "3.0%", "STR / HVS trend data", "2–5%"],
+            ["Starting Occupancy", "55%", "Industry ramp-up benchmarks", "40–60%"],
+            ["Stabilized Occupancy", "85%", "STR upper-upscale benchmarks", "75–90%"],
+            ["Stabilization Period", "36 months", "Boutique hotel consensus", "24–48 months"],
+            ["Base Management Fee", "8.5% of revenue", "HVS 2024 Specialty Fee Survey", "6–10%"],
+            ["Incentive Management Fee", "12% of GOP", "HVS 2024 Specialty Fee Survey", "10–20%"],
+            ["Exit Cap Rate", "8.5%", "HVS / CBRE cap rate surveys", "7–10%"],
+            ["Sales Commission", "5%", "Broker industry standard", "4–6%"],
+            ["Land Value %", "25%", "IRS Pub 946 guidelines", "20–30%"],
+            ["Depreciation Years", "27.5 years", "IRS Pub 946 / IRC §168 (MACRS)", "Fixed by IRS"],
+            ["FF&E Reserve", "4% of revenue", "USALI / lender covenants", "3–5%"],
+            ["Days Per Month", "30.5", "Industry convention (365 ÷ 12)", "Fixed"],
+            ["Projection Horizon", "10 years", "PE underwriting standard", "5–15 years"],
+            ["Staffing Tier 1", "≤3 properties → 2.5 FTE", "Early-stage mgmt co benchmarks", "2–4 FTE"],
+            ["Staffing Tier 2", "≤6 properties → 4.5 FTE", "Growth-stage mgmt co benchmarks", "4–6 FTE"],
+            ["Staffing Tier 3", "7+ properties → 7.0 FTE", "Scaled mgmt co benchmarks", "6–10 FTE"],
+            ["SAFE Valuation Cap", "$2,500,000", "Early-stage hospitality", "$1.5M–$5M"],
+            ["SAFE Discount Rate", "20%", "Standard SAFE terms", "15–25%"],
+            ["Funding Interest Rate", "8%", "Convertible note market", "6–10%"],
           ]}
         />
       </div>
+
+      <Callout variant="light" title="Value Cascade Logic">
+        <p>
+          Every configurable parameter follows a three-level cascade to determine its effective value:
+        </p>
+        <div className="bg-card/50 rounded p-2 font-mono text-xs mt-2 space-y-1">
+          <div><strong>1. Property Override</strong> — value set directly on the property (highest priority)</div>
+          <div><strong>2. Systemwide Assumption</strong> — value set on the Company Assumptions page</div>
+          <div><strong>3. Constant Default</strong> — hard-coded fallback from shared/constants.ts (lowest priority)</div>
+        </div>
+        <p className="text-xs mt-2">
+          If a property has its own inflation rate, that is used. Otherwise, the systemwide inflation rate applies.
+          If neither is set, the constant default (3%) is used. This cascade ensures every calculation always has
+          a valid input while allowing granular overrides where needed.
+        </p>
+      </Callout>
 
       <Callout variant="light">
         Individual properties can override any systemwide assumption with property-specific values.

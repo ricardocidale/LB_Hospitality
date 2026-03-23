@@ -29,7 +29,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
       <div className="space-y-6">
         <h3 className="text-lg font-display text-foreground flex items-center">
           Fixed Overhead (<span className="font-mono">{modelStartYear}</span>)
-          <InfoTooltip text="Annual overhead costs for running the management company. These are set at Year 1 values and increase each year by the escalation rate below. Unlike variable costs, these don't change with portfolio size." formula="Year N Cost = Starting Cost × (1 + Escalation)^(N-1)" manualSection="company-formulas" />
+          <InfoTooltip text="Annual overhead costs for running the management company. These are set at Year 1 values and increase each year by the escalation rate below. Unlike variable costs, these don't change with portfolio size. Typical early-stage hotel management company total fixed overhead: $70K–$110K/year (office + legal + tech)." formula="Year N Cost = Starting Cost × (1 + Escalation)^(N-1)" manualSection="company-formulas" />
         </h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -59,7 +59,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Office Lease
-              <InfoTooltip text="Annual cost for the management company's corporate office — rent, utilities, and common area charges. This is the Year 1 value; it escalates annually at the rate above." />
+              <InfoTooltip text="Annual cost for the management company's corporate office — rent, utilities, and common area charges. This is the Year 1 value; it escalates annually at the rate above. Typical range for early-stage hotel management companies: $24K–$48K/year (HFTP/AICPA benchmarks)." />
               <ResearchBadge value={researchValues.officeLease?.display} onClick={() => researchValues.officeLease && onChange("officeLeaseStart", researchValues.officeLease.mid)} sourceType="industry" sourceName="HFTP/AICPA benchmarks" data-testid="badge-office-lease" />
             </Label>
             <EditableValue
@@ -84,7 +84,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Professional Services
-              <InfoTooltip text="Annual budget for external legal counsel, CPA/audit fees, and specialized consulting. Year 1 value, escalates annually." />
+              <InfoTooltip text="Annual budget for external legal counsel, CPA/audit fees, and specialized consulting. Year 1 value, escalates annually. Typical range for early-stage hotel management companies: $18K–$36K/year (AICPA practice benchmarks)." />
               <ResearchBadge value={researchValues.professionalServices?.display} onClick={() => researchValues.professionalServices && onChange("professionalServicesStart", researchValues.professionalServices.mid)} sourceType="industry" sourceName="AICPA practice benchmarks" data-testid="badge-professional-services" />
             </Label>
             <EditableValue
@@ -109,7 +109,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Tech Infrastructure
-              <InfoTooltip text="Company-level technology costs — cloud hosting, corporate software subscriptions, cybersecurity, and IT support. Separate from per-property IT licenses (configured in Variable Costs)." />
+              <InfoTooltip text="Company-level technology costs — cloud hosting, corporate software subscriptions, cybersecurity, and IT support. Separate from per-property IT licenses (configured in Variable Costs). Typical range: $12K–$24K/year for early-stage hotel management companies (HFTP Technology Survey)." />
               <ResearchBadge value={researchValues.techInfra?.display} onClick={() => researchValues.techInfra && onChange("techInfraStart", researchValues.techInfra.mid)} sourceType="industry" sourceName="HFTP Technology Survey" data-testid="badge-tech-infra" />
             </Label>
             <EditableValue
@@ -134,7 +134,7 @@ export default function FixedOverheadSection({ formData, onChange, global, model
           <div className="flex items-center justify-between">
             <Label className="flex items-center text-foreground label-text">
               Business Insurance
-              <InfoTooltip text="Annual corporate insurance premium — general liability, errors & omissions (E&O), and cyber liability for the management company. This is the company's own policy, separate from each property's insurance. Year 1 value, escalates annually." />
+              <InfoTooltip text="Annual corporate insurance premium — general liability, errors & omissions (E&O), and cyber liability for the management company. This is the company's own policy, separate from each property's insurance. Year 1 value, escalates annually. Typical range: $8K–$15K/year for small hotel management companies." />
             </Label>
             <EditableValue
               value={formData.businessInsuranceStart ?? global.businessInsuranceStart}

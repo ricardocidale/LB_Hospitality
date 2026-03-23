@@ -17,30 +17,40 @@ import { SectionCard } from "@/components/ui/section-card";
         onToggle={onToggle}
         sectionRef={sectionRef}
       >
+        <Callout>
+          Each formula follows the engine's income statement waterfall:
+          Revenue → Operating Expenses → GOP → Management Fees → AGOP → Property Taxes → NOI → FF&E → ANOI.
+          Industry ranges are drawn from USALI 12th Edition, HVS 2024 specialty/wellness fee surveys,
+          IRS Publication 946, and Global Wellness Institute benchmarks.
+        </Callout>
         <ManualTable
-          headers={["Ref ID", "Name", "Formula / Logic"]}
+          headers={["Ref ID", "Name", "Formula / Logic", "Industry Basis"]}
           rows={[
-            ["F-P-01", "Days in Month", "30.4375 (average) or actual calendar days"],
-            ["F-P-02", "Available Rooms", "roomCount × daysInMonth"],
-            ["F-P-03", "Room Revenue", "availableRooms × occupancyRate × currentADR"],
-            ["F-P-04", "Events Revenue", "roomRevenue × revShareEvents"],
-            ["F-P-05", "F&B Revenue", "roomRevenue × revShareFB × (1 + cateringBoost)"],
-            ["F-P-06", "Other Revenue", "roomRevenue × revShareOther"],
-            ["F-P-07", "Total Revenue", "roomRevenue + eventsRevenue + fbRevenue + otherRevenue"],
-            ["F-P-08", "Operating Expenses", "Σ (undistributedExpenses)"],
-            ["F-P-09", "Gross Operating Profit", "Total Revenue − Operating Expenses"],
-            ["F-P-10", "Net Operating Income (NOI)", "GOP − Property Taxes"],
-            ["F-P-11", "Adjusted NOI (ANOI)", "NOI − Base Fee − Incentive Fee − FF&E Reserve"],
-            ["F-P-13", "Depreciable Basis", "(Purchase Price + Improvements) × (1 − Land Value %)"],
-            ["F-P-14", "Depreciation", "Depreciable Basis / 27.5 / 12 (monthly straight-line)"],
-            ["F-P-15", "Interest Expense", "Beginning Loan Balance × Monthly Interest Rate"],
-            ["F-P-16", "Net Income", "ANOI − Interest Expense − Depreciation − Income Tax"],
-            ["F-P-17", "Cash from Ops (CFO)", "netIncome + depreciation"],
-            ["F-P-18", "Cash from Investing (CFI)", "−acquisitionCosts + exitProceeds"],
-            ["F-P-19", "Cash from Financing (CFF)", "equityInjection + loanProceeds − principalRepayment − distributions"],
+            ["F-P-01", "Days in Month", "Default 30.5 (365 ÷ 12, rounded); configurable per model", "Industry convention (365 ÷ 12 ≈ 30.42, rounded to 30.5)"],
+            ["F-P-02", "Available Rooms", "roomCount × daysInMonth", "—"],
+            ["F-P-03", "Room Revenue", "availableRooms × occupancyRate × currentADR", "USALI 12th Ed. Rooms Dept; ADR benchmarks vary by market"],
+            ["F-P-04", "Events Revenue", "roomRevenue × revShareEvents", "Global Wellness Institute 2024: wellness retreats generate 25–35% of total revenue from events/programming"],
+            ["F-P-05", "F&B Revenue", "roomRevenue × revShareFB × (1 + cateringBoost)", "USALI 12th Ed. F&B Dept; typical F&B share 15–25% of room revenue for boutique hotels"],
+            ["F-P-06", "Other Revenue", "roomRevenue × revShareOther", "USALI 12th Ed. Other Operated Depts; typically 3–8% of room revenue"],
+            ["F-P-07", "Total Revenue", "roomRevenue + eventsRevenue + fbRevenue + otherRevenue", "USALI 12th Ed. Total Revenue line"],
+            ["F-P-08", "Operating Expenses", "Σ (departmental + undistributed expenses + insurance); excludes property taxes and FF&E", "USALI 12th Ed. departmental expense categories; typical total 45–65% of revenue"],
+            ["F-P-09", "Gross Operating Profit (GOP)", "Total Revenue − Operating Expenses", "USALI 12th Ed. GOP line; healthy boutique range 35–55% margin"],
+            ["F-P-09a", "Adjusted GOP (AGOP)", "GOP − Base Management Fee − Incentive Management Fee", "USALI 12th Ed.; AGOP isolates property performance after management compensation"],
+            ["F-P-10", "Net Operating Income (NOI)", "AGOP − Property Taxes", "USALI 12th Ed. NOI; property taxes per IRC §164, based on assessed value"],
+            ["F-P-11", "Adjusted NOI (ANOI)", "NOI − FF&E Reserve", "USALI 12th Ed.; FF&E reserve typically 3–5% of revenue per lender covenants"],
+            ["F-P-12a", "Base Management Fee", "Total Revenue × baseMgmtFeeRate (or Σ service category rates)", "HVS 2024 Specialty: 6–10% of revenue for wellness/boutique operators; default 8.5%"],
+            ["F-P-12b", "Incentive Management Fee", "max(0, GOP) × incentiveMgmtFeeRate", "HVS 2024 Specialty: 12–20% of GOP; only charged when GOP > 0"],
+            ["F-P-12c", "Fixed Charges", "Property Taxes + FF&E Reserve. In this engine, insurance is included in operating expenses (before GOP) rather than as a fixed charge. Property taxes are subtracted after AGOP; FF&E after NOI.", "USALI 12th Ed. Fixed Charges; property taxes per IRC §164 (1.5–4% of assessed value); FF&E 3–5% of revenue per lender covenants"],
+            ["F-P-13", "Depreciable Basis", "(Purchase Price + Improvements) × (1 − Land Value %)", "IRS Pub 946; land is non-depreciable; typical land allocation 20–30%"],
+            ["F-P-14", "Depreciation", "Depreciable Basis / 27.5 / 12 (monthly straight-line)", "IRS Pub 946 / IRC §168: MACRS 27.5-year residential rental property"],
+            ["F-P-15", "Interest Expense", "Beginning Loan Balance × Monthly Interest Rate", "ASC 835 Interest Imputation; only interest shown on income statement"],
+            ["F-P-16", "Net Income", "ANOI − Interest Expense − Depreciation − Income Tax", "GAAP income statement; tax per property-level rate (default 25%)"],
+            ["F-P-16a", "Income Tax", "max(0, Taxable Income) × incomeTaxRate; NOL carried forward", "IRC §172: Net Operating Loss carryforward; no carryback in this model"],
+            ["F-P-17", "Cash from Ops (CFO)", "netIncome + depreciation", "ASC 230 indirect method; depreciation is a non-cash add-back"],
+            ["F-P-18", "Cash from Investing (CFI)", "−acquisitionCosts + exitProceeds", "ASC 230 investing activities"],
+            ["F-P-19", "Cash from Financing (CFF)", "equityInjection + loanProceeds − principalRepayment − distributions", "ASC 230 financing activities"],
           ]}
         />
       </SectionCard>
     );
   }
-  

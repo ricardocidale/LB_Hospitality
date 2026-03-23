@@ -224,7 +224,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
       <div>
         <h3 className="text-lg font-display text-foreground flex items-center gap-2">
           Revenue Model — Service Categories & Fees
-          <InfoTooltip text="Define the service categories and fee structure that drive management company revenue. Service categories are charged as a % of each property's Total Revenue. The Incentive Fee is a performance bonus on GOP. Values set here are defaults — each property can override them." manualSection="company-formulas" />
+          <InfoTooltip text="Define the service categories and fee structure that drive management company revenue. Service categories are charged as a % of each property's Total Revenue. The Incentive Fee is a performance bonus on GOP. HVS 2024 Fee Survey: specialty/wellness operators typically command 6–10% base fee + 12–20% incentive fee. Values set here are defaults — each property can override them." manualSection="company-formulas" />
         </h3>
         <p className="text-sm text-muted-foreground mt-1">
           Configure the services provided to properties and the fee structure for each.
@@ -355,7 +355,7 @@ export default function ManagementFeesSection({ properties, allFeeCategories }: 
           <CardTitle className="text-base font-semibold text-foreground flex items-center gap-2">
             <IconDollarSign className="w-4 h-4 text-muted-foreground" />
             Incentive Management Fee
-            <InfoTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. This incentivizes the management company to maximize property profitability. Combined with the Base Management Fee (service categories above), these two fee types are deducted from NOI to arrive at ANOI per the USALI standard." />
+            <InfoTooltip text="A performance-based fee calculated as a percentage of Gross Operating Profit (GOP). Only collected when GOP is positive — if a property has a negative GOP, no incentive fee is charged. HVS 2024 Fee Survey: specialty/wellness operators typically charge 12–20% of GOP as incentive fee. Combined with the Base Management Fee (service categories above), these two fee types are deducted from NOI to arrive at ANOI per the USALI 12th Ed. standard." />
           </CardTitle>
           <CardDescription className="label-text">
             Performance bonus as a percentage of each property's Gross Operating Profit (GOP). Only charged when GOP is positive.

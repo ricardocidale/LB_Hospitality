@@ -79,6 +79,39 @@ export default function Section17BusinessRules({ expanded, onToggle, sectionRef 
           <div><strong>Refinancing Proceeds</strong> — separate line item (cash-out from refi)</div>
         </div>
       </Callout>
+
+      <Callout severity="critical" variant="light" title="8. Intercompany Fee Elimination (ASC 810)">
+        <p>
+          Management fees (base and incentive) are revenue to the management company and an expense to
+          each property. On the consolidated income statement, these intercompany transactions must be
+          eliminated so they net to zero. The consolidated view shows only external revenue and third-party
+          expenses per ASC 810 (Consolidation).
+        </p>
+        <div className="bg-card/50 rounded p-2 font-mono text-xs mt-2 space-y-1">
+          <div><strong>Property P&L:</strong> Base Fee Expense + Incentive Fee Expense (deducted from GOP to arrive at AGOP)</div>
+          <div><strong>Company P&L:</strong> Base Fee Revenue + Incentive Fee Revenue (income)</div>
+          <div><strong>Consolidated P&L:</strong> Both lines eliminated → net $0 impact</div>
+        </div>
+      </Callout>
+
+      <Callout severity="critical" variant="light" title="9. USALI Income Statement Ordering">
+        <p>
+          The property income statement follows the USALI (Uniform System of Accounts for the Lodging Industry)
+          12th Edition line-item ordering. This ensures consistency with industry standards and auditability:
+        </p>
+        <div className="bg-card/50 rounded p-2 font-mono text-xs mt-2 space-y-1">
+          <div>Total Revenue</div>
+          <div>− Departmental Expenses (Rooms, F&B, Events, Other)</div>
+          <div>− Undistributed Operating Expenses (A&G, S&M, POM, Utilities, IT, Insurance, Other)</div>
+          <div>= <strong>Gross Operating Profit (GOP)</strong></div>
+          <div>− Management Fees (Base + Incentive)</div>
+          <div>= <strong>Adjusted GOP (AGOP)</strong></div>
+          <div>− Property Taxes</div>
+          <div>= <strong>Net Operating Income (NOI)</strong></div>
+          <div>− FF&E Reserve</div>
+          <div>= <strong>Adjusted NOI (ANOI)</strong></div>
+        </div>
+      </Callout>
     </SectionCard>
   );
 }

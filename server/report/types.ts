@@ -48,7 +48,7 @@ export interface ChartSeries {
   color: string;
 }
 
-export type SectionKind = "kpi" | "table" | "chart";
+export type SectionKind = "kpi" | "table" | "chart" | "image";
 
 export interface KpiSection {
   kind: "kpi";
@@ -70,7 +70,14 @@ export interface ChartSection {
   series: ChartSeries[];
 }
 
-export type ReportSection = KpiSection | TableSection | ChartSection;
+export interface ImageSection {
+  kind: "image";
+  title: string;
+  dataUrl: string;
+  aspectRatio?: number;
+}
+
+export type ReportSection = KpiSection | TableSection | ChartSection | ImageSection;
 
 export interface ReportDefinition {
   cover: CoverMeta;

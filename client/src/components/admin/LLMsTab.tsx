@@ -41,13 +41,13 @@ interface DomainConfig {
 }
 
 const RECOMMENDED: Record<string, { vendor: LlmVendor; primary: string; secondary?: string }> = {
-  company:       { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
-  property:      { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
-  market:        { vendor: "google", primary: "gemini-2.5-flash", secondary: "gemini-2.0-flash" },
+  company:       { vendor: "google", primary: "gemini-2.5-pro", secondary: "gemini-2.5-flash" },
+  property:      { vendor: "google", primary: "gemini-2.5-pro", secondary: "gemini-2.5-flash" },
+  market:        { vendor: "anthropic", primary: "claude-sonnet-4-5", secondary: "claude-haiku-4-5" },
   premiumExport: { vendor: "google", primary: "gemini-2.5-flash" },
-  aiUtility:     { vendor: "google", primary: "gemini-2.5-flash" },
-  graphics:      { vendor: "google", primary: "gemini-2.5-flash" },
-  chatbot:       { vendor: "google", primary: "gemini-2.5-flash" },
+  aiUtility:     { vendor: "openai", primary: "gpt-4.1-mini" },
+  graphics:      { vendor: "anthropic", primary: "claude-sonnet-4" },
+  chatbot:       { vendor: "anthropic", primary: "claude-sonnet-4-5" },
 };
 
 const DOMAIN_CONFIGS: DomainConfig[] = [
@@ -268,6 +268,11 @@ function LlmDomainCard({
   const recPrimary = (effectiveVendor && domain.recommended?.vendor === effectiveVendor) ? domain.recommended.primary : undefined;
   const recSecondary = (secondaryVendor && domain.recommended?.vendor === secondaryVendor) ? domain.recommended.secondary : undefined;
 
+  const rec = domain.recommended;
+  const recVendorLabel = rec ? vendors.find(v => v.value === rec.vendor)?.label || rec.vendor : null;
+  const recModelLabel = rec ? models.find(m => m.id === rec.primary)?.label || rec.primary : null;
+  const recSecLabel = rec?.secondary ? models.find(m => m.id === rec.secondary)?.label || rec.secondary : null;
+
   const update = (patch: Partial<ContextLlmConfig>) => {
     onChange({ ...config, ...patch });
   };
@@ -287,6 +292,12 @@ function LlmDomainCard({
             </Badge>
           )}
         </div>
+        {rec && (
+          <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1" data-testid={`text-llm-rec-${domain.key}`}>
+            <IconStar className="w-3 h-3 text-accent-pop shrink-0" />
+            Recommended: {recVendorLabel} — {recModelLabel}{recSecLabel ? ` / ${recSecLabel}` : ""}
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         {domain.supportsDual ? (

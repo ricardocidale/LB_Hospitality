@@ -46,6 +46,7 @@ import { ExportDialog, type ExportVersion, type PremiumExportPayload } from "@/c
 import { loadExportConfig } from "@/lib/exportConfig";
 import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, chartAction, pngAction, docxAction } from "@/components/ui/export-toolbar";
 import { exportTablePNG } from "@/lib/exports/pngExport";
+import { captureOverviewCharts } from "@/lib/exports/captureOverviewCharts";
 import { format } from "date-fns";
 import {
   usePortfolioFinancials,
@@ -413,7 +414,7 @@ export default function Dashboard() {
         premiumFormat={exportType === "chart" ? "pdf" : exportType as any}
         suggestedFilename={TAB_LABELS[activeTab] || "Portfolio"}
         fileExtension={exportType === "chart" ? ".pdf" : `.${exportType}`}
-        getPremiumExportData={exportType !== "chart" ? (version: ExportVersion) => {
+        getPremiumExportData={exportType !== "chart" ? async (version: ExportVersion) => {
           if (!financials || !properties || !global) return null;
           const py = global.projectionYears ?? PROJECTION_YEARS;
           const fsm = global.fiscalYearStartMonth ?? 1;
@@ -548,6 +549,28 @@ export default function Dashboard() {
               { label: "Total Equity Invested", value: `$${(kpis.totalInitialEquity / 1e6).toFixed(1)}M` },
               { label: "Projected Exit Value", value: `$${(kpis.totalExitValue / 1e6).toFixed(1)}M` },
             );
+
+            let chartScreenshots: PremiumExportPayload["chartScreenshots"];
+            if (cfg.compositionCharts && tabContentRef.current) {
+              try {
+                chartScreenshots = await captureOverviewCharts(tabContentRef.current);
+              } catch (err) {
+                console.warn("[overview-export] Chart capture failed:", err);
+              }
+            }
+
+            return {
+              entityName: "Consolidated Portfolio",
+              companyName: global.companyName || APP_BRAND_NAME,
+              statementType,
+              years: incomeData.years.map(String),
+              statements,
+              metrics: cfg.kpiMetrics ? baseMetrics : [],
+              chartScreenshots,
+              projectionYears: py,
+              densePagination: cfg.densePagination,
+              themeColors: branding?.themeColors?.map(c => ({ name: c.name, hexCode: c.hexCode, rank: c.rank, description: c.description })),
+            } as PremiumExportPayload;
           } else if (activeTab === "investment") {
             statementType = "Investment Analysis";
             const investmentData = generatePortfolioInvestmentData(financials, properties, py, gfy, summaryOnly);

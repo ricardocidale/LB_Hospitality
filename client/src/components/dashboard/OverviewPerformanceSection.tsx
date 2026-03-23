@@ -49,7 +49,7 @@ export function InvestmentPerformanceSection({
         />
       </div>
       <AccordionContent className="pt-2 pb-4">
-      <div className="relative">
+      <div className="relative" data-export-section="investment-performance">
         <div className="text-center mb-8">
           <p className="text-foreground/50 text-sm label-text">
             <span className="font-mono">{investmentHorizon}</span>-Year Hold | <span className="font-mono">{totalProperties}</span> Properties | <span className="font-mono">{totalRooms}</span> Rooms

@@ -47,7 +47,7 @@ interface ExportDialogProps {
   allowShort?: boolean;
   allowExtended?: boolean;
   premiumExportData?: PremiumExportPayload | null;
-  getPremiumExportData?: (version: ExportVersion) => PremiumExportPayload | null;
+  getPremiumExportData?: (version: ExportVersion) => PremiumExportPayload | null | Promise<PremiumExportPayload | null>;
   premiumFormat?: PremiumFormat;
   suggestedFilename?: string;
   fileExtension?: string;
@@ -81,6 +81,7 @@ export interface PremiumExportPayload {
     includeChart?: boolean;
   }>;
   metrics?: Array<{ label: string; value: string }>;
+  chartScreenshots?: Array<{ title: string; dataUrl: string; aspectRatio?: number }>;
   projectionYears?: number;
   densePagination?: boolean;
   themeColors?: Array<{ name: string; hexCode: string; rank: number }>;
@@ -314,9 +315,9 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
     try { localStorage.setItem(PREMIUM_KEY, String(checked)); } catch { /* ignore */ }
   };
 
-  const resolvePremiumPayload = (): PremiumExportPayload | null => {
+  const resolvePremiumPayload = async (): Promise<PremiumExportPayload | null> => {
     if (getPremiumExportData) {
-      return getPremiumExportData(version);
+      return await getPremiumExportData(version);
     }
     return premiumExportData ?? null;
   };
@@ -325,7 +326,7 @@ export function ExportDialog({ open, onClose, onExport, title, showVersionOption
   const isGenerating = step === "generating";
 
   const handleExport = async () => {
-    const payload = resolvePremiumPayload();
+    const payload = await resolvePremiumPayload();
     if (isPremium && payload) {
       setStep("generating");
       try {

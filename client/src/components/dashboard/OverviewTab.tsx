@@ -229,7 +229,7 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
               />
             </div>
             <AccordionContent className="pt-2 pb-4">
-            <div className="bg-card rounded-lg border border-border shadow-sm p-4 sm:p-6">
+            <div className="bg-card rounded-lg border border-border shadow-sm p-4 sm:p-6" data-export-section="revenue-anoi-chart">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold text-foreground font-display">Revenue & ANOI</h3>

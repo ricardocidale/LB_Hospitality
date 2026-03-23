@@ -52,6 +52,11 @@ export interface CompileInput {
     rank?: number;
     description?: string;
   }>;
+  chartScreenshots?: Array<{
+    title: string;
+    dataUrl: string;
+    aspectRatio?: number;
+  }>;
   densePagination?: boolean;
 }
 
@@ -315,6 +320,17 @@ export function compileReport(input: CompileInput): ReportDefinition {
       years: input.years,
       rows: filteredRows,
     });
+  }
+
+  if (input.chartScreenshots?.length) {
+    const insertIdx = sections.findIndex(s => s.kind === "kpi") + 1 || 0;
+    const imageSections: ReportSection[] = input.chartScreenshots.map(ss => ({
+      kind: "image" as const,
+      title: ss.title,
+      dataUrl: ss.dataUrl,
+      aspectRatio: ss.aspectRatio,
+    }));
+    sections.splice(insertIdx, 0, ...imageSections);
   }
 
   return {

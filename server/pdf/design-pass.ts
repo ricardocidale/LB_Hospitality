@@ -33,8 +33,10 @@ function buildManifest(report: ReportDefinition): string {
       return { type: "kpi", title: s.title, kpiCount: s.metrics.length };
     } else if (s.kind === "table") {
       return { type: "table", title: s.title, columns: s.years.length, rows: s.rows.length };
-    } else {
+    } else if (s.kind === "chart") {
       return { type: "chart", title: s.title, series: s.series.length, years: s.years.length };
+    } else {
+      return { type: "image", title: s.title };
     }
   });
 

@@ -297,7 +297,7 @@ export function WaterfallSection({ waterfallData, waterfallYear, setWaterfallYea
         />
       </div>
       <AccordionContent className="pt-2 pb-4">
-        <Card data-testid="usali-waterfall-card">
+        <Card data-testid="usali-waterfall-card" data-export-section="usali-waterfall-chart">
           <CardHeader className="pb-2">
             <p className="text-xs text-muted-foreground">Revenue cascade through operating expenses to net income (consolidated portfolio)</p>
           </CardHeader>

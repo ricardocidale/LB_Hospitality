@@ -1,7 +1,7 @@
 import React from "react";
-import { Document, Page, View, Text, renderToBuffer, Svg, Line, Circle, Path, G, type DocumentProps } from "@react-pdf/renderer";
+import { Document, Page, View, Text, Image, renderToBuffer, Svg, Line, Circle, Path, G, type DocumentProps } from "@react-pdf/renderer";
 import { type PdfTheme } from "./theme";
-import type { ReportDefinition, ReportSection, TableRow as IRTableRow, DesignTokens } from "../report/types";
+import type { ReportDefinition, ReportSection, TableRow as IRTableRow, DesignTokens, ImageSection } from "../report/types";
 import { compileReport, type CompileInput } from "../report/compiler";
 import { logger } from "../logger";
 import { applyDesignPass, DEFAULT_HINTS, type LayoutHints } from "./design-pass";
@@ -409,6 +409,11 @@ function estimateSectionHeight(section: ReportSection, isLandscape: boolean, hin
       const chartHeight = isLandscape ? 340 : 400;
       return dividerHeight + chartHeight;
     }
+    case "image": {
+      const ar = (section as ImageSection).aspectRatio ?? (16 / 9);
+      const imgW = isLandscape ? 900 : 500;
+      return dividerHeight + imgW / ar + 10;
+    }
     default:
       return 200;
   }
@@ -543,6 +548,17 @@ function renderDenseSectionContent(section: ReportSection, index: number, theme:
         </View>
       );
     }
+    case "image": {
+      if (!section.dataUrl) return null;
+      return (
+        <View key={`image-${index}`} style={{ marginBottom: SECTION_GAP }}>
+          <SectionDivider title={section.title} theme={theme} />
+          <View style={{ alignItems: "center", paddingVertical: 6 }}>
+            <Image src={section.dataUrl} style={{ width: "100%", objectFit: "contain" }} />
+          </View>
+        </View>
+      );
+    }
     default:
       return null;
   }
@@ -629,6 +645,17 @@ export async function renderPremiumPdf(input: ReportDefinition | CompileInput): 
                   isLandscape={isLandscape}
                   hints={hints}
                 />
+              );
+            case "image":
+              if (!section.dataUrl) return null;
+              return (
+                <Page key={`image-${i}`} size={pageSize} style={pageStyle}>
+                  <PageHeader title={section.title} companyName={cover.companyName} entityName={cover.entityName} theme={theme} />
+                  <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 6 }}>
+                    <Image src={section.dataUrl} style={{ width: "100%", objectFit: "contain" }} />
+                  </View>
+                  <PageFooter companyName={cover.companyName} theme={theme} />
+                </Page>
               );
             default:
               return null;

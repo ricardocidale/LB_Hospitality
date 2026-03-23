@@ -6,14 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { IconSave, IconFolderOpen, IconPencil, IconTrash, IconClock, IconFileStack, IconDownload, IconUpload, IconCopy, IconGitCompareArrows, IconAlertTriangle } from "@/components/icons";
+import { IconSave, IconFolderOpen, IconPencil, IconTrash, IconClock, IconFileStack, IconDownload, IconUpload, IconCopy, IconGitCompareArrows, IconAlertTriangle, IconShare } from "@/components/icons";
 import { PageHeader } from "@/components/ui/page-header";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { formatDateTime } from "@/lib/formatters";
-import { SaveScenarioDialog, EditScenarioDialog, CompareResultDialog, type ScenarioCompareResult } from "@/components/scenarios";
+import { SaveScenarioDialog, EditScenarioDialog, CompareResultDialog, ShareScenarioDialog, LoadSharedWarningDialog, type ScenarioCompareResult } from "@/components/scenarios";
 import { useAuth } from "@/lib/auth";
 
 export default function Scenarios() {
@@ -29,6 +30,9 @@ export default function Scenarios() {
   const [newScenarioDescription, setNewScenarioDescription] = useState("");
   const [editingScenario, setEditingScenario] = useState<{ id: number; name: string; description: string } | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  const [sharingScenario, setSharingScenario] = useState<{ id: number; name: string } | null>(null);
+  const [loadSharedWarning, setLoadSharedWarning] = useState<{ id: number; name: string; sharedByName: string | null } | null>(null);
 
   const handleCreate = async () => {
     if (!newScenarioName.trim()) {
@@ -54,6 +58,7 @@ export default function Scenarios() {
     try {
       await loadScenario.mutateAsync(id);
       toast({ title: "Success", description: `Scenario "${name}" loaded successfully` });
+      setLoadSharedWarning(null);
     } catch (error) {
       toast({ title: "Error", description: "Failed to load scenario", variant: "destructive" });
     }
@@ -170,6 +175,8 @@ export default function Scenarios() {
       setCompareLoading(false);
     }
   };
+
+  const isShared = (scenario: any) => scenario.accessType && scenario.accessType !== "owned";
 
   if (isLoading) {
     return (
@@ -335,7 +342,10 @@ export default function Scenarios() {
             ) : (
               <ScrollReveal>
               <AnimatedGrid className="grid gap-4">
-                {scenarios?.map((scenario) => (
+                <TooltipProvider>
+                {scenarios?.map((scenario) => {
+                  const shared = isShared(scenario);
+                  return (
                   <AnimatedGridItem key={scenario.id}>
                   <TiltCard intensity={4}>
                   <div
@@ -360,7 +370,14 @@ export default function Scenarios() {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-display text-foreground truncate">{scenario.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-display text-foreground truncate">{scenario.name}</h3>
+                          {shared && (
+                            <Badge variant="secondary" className="text-xs shrink-0" data-testid={`badge-shared-${scenario.id}`}>
+                              Shared by {scenario.sharedByName || "unknown"}
+                            </Badge>
+                          )}
+                        </div>
                         {scenario.description && (
                           <p className="label-text text-muted-foreground mt-1 line-clamp-2">{scenario.description}</p>
                         )}
@@ -374,136 +391,192 @@ export default function Scenarios() {
                       </div>
                       
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="default"
-                              onClick={() => handleLoad(scenario.id, scenario.name)}
-                              disabled={loadScenario.isPending}
-                              data-testid={`button-load-scenario-${scenario.id}`}
-                            >
-                              {loadScenario.isPending ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <IconFolderOpen className="w-4 h-4" />
-                              )}
-                              Load
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Restore this scenario as the active configuration</TooltipContent>
-                        </Tooltip>
-                        
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleExport(scenario.id, scenario.name)}
-                              className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                              data-testid={`button-export-scenario-${scenario.id}`}
-                            >
-                              <IconDownload className="w-4 h-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Export as JSON file</TooltipContent>
-                        </Tooltip>
+                        {shared ? (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="default"
+                                  onClick={() => setLoadSharedWarning({ id: scenario.id, name: scenario.name, sharedByName: scenario.sharedByName || null })}
+                                  disabled={loadScenario.isPending}
+                                  data-testid={`button-load-scenario-${scenario.id}`}
+                                >
+                                  {loadScenario.isPending ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <IconFolderOpen className="w-4 h-4" />
+                                  )}
+                                  Load
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Restore this shared scenario as the active configuration</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleExport(scenario.id, scenario.name)}
+                                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                                  data-testid={`button-export-scenario-${scenario.id}`}
+                                >
+                                  <IconDownload className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Export as JSON file</TooltipContent>
+                            </Tooltip>
+                          </>
+                        ) : (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="default"
+                                  onClick={() => handleLoad(scenario.id, scenario.name)}
+                                  disabled={loadScenario.isPending}
+                                  data-testid={`button-load-scenario-${scenario.id}`}
+                                >
+                                  {loadScenario.isPending ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <IconFolderOpen className="w-4 h-4" />
+                                  )}
+                                  Load
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Restore this scenario as the active configuration</TooltipContent>
+                            </Tooltip>
+                          
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleExport(scenario.id, scenario.name)}
+                                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                                  data-testid={`button-export-scenario-${scenario.id}`}
+                                >
+                                  <IconDownload className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Export as JSON file</TooltipContent>
+                            </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleClone(scenario.id, scenario.name)}
-                                disabled={!canManageScenarios}
-                                className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                                data-testid={`button-clone-scenario-${scenario.id}`}
-                              >
-                                <IconCopy className="w-4 h-4" />
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>{canManageScenarios ? "Duplicate this scenario" : noPermissionMsg}</TooltipContent>
-                        </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleClone(scenario.id, scenario.name)}
+                                    disabled={!canManageScenarios}
+                                    className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                                    data-testid={`button-clone-scenario-${scenario.id}`}
+                                  >
+                                    <IconCopy className="w-4 h-4" />
+                                  </Button>
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>{canManageScenarios ? "Duplicate this scenario" : noPermissionMsg}</TooltipContent>
+                            </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => setEditingScenario({
-                                  id: scenario.id,
-                                  name: scenario.name,
-                                  description: scenario.description || ""
-                                })}
-                                disabled={!canManageScenarios}
-                                className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                                data-testid={`button-edit-scenario-${scenario.id}`}
-                              >
-                                <IconPencil className="w-4 h-4" />
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>{canManageScenarios ? "Edit name and description" : noPermissionMsg}</TooltipContent>
-                        </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => setSharingScenario({ id: scenario.id, name: scenario.name })}
+                                  className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                                  data-testid={`button-share-scenario-${scenario.id}`}
+                                >
+                                  <IconShare className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Share this scenario</TooltipContent>
+                            </Tooltip>
 
-                        {scenario.name !== "Base" && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                {canManageScenarios ? (
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setEditingScenario({
+                                      id: scenario.id,
+                                      name: scenario.name,
+                                      description: scenario.description || ""
+                                    })}
+                                    disabled={!canManageScenarios}
+                                    className="text-muted-foreground hover:text-foreground hover:bg-muted"
+                                    data-testid={`button-edit-scenario-${scenario.id}`}
+                                  >
+                                    <IconPencil className="w-4 h-4" />
+                                  </Button>
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>{canManageScenarios ? "Edit name and description" : noPermissionMsg}</TooltipContent>
+                            </Tooltip>
+
+                            {scenario.name !== "Base" && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span>
+                                    {canManageScenarios ? (
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                          <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10"
+                                            data-testid={`button-delete-scenario-${scenario.id}`}
+                                          >
+                                            <IconTrash className="w-4 h-4" />
+                                          </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle className="font-display">Delete Scenario</AlertDialogTitle>
+                                            <AlertDialogDescription className="label-text">
+                                              Are you sure you want to delete "{scenario.name}"? This action cannot be undone.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction
+                                              onClick={() => handleDelete(scenario.id, scenario.name)}
+                                              className="bg-destructive hover:bg-destructive/80"
+                                            >
+                                              Delete
+                                            </AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    ) : (
                                       <Button
                                         size="sm"
                                         variant="ghost"
+                                        disabled
                                         className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10"
                                         data-testid={`button-delete-scenario-${scenario.id}`}
                                       >
                                         <IconTrash className="w-4 h-4" />
                                       </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle className="font-display">Delete Scenario</AlertDialogTitle>
-                                        <AlertDialogDescription className="label-text">
-                                          Are you sure you want to delete "{scenario.name}"? This action cannot be undone.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction
-                                          onClick={() => handleDelete(scenario.id, scenario.name)}
-                                          className="bg-destructive hover:bg-destructive/80"
-                                        >
-                                          Delete
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                ) : (
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    disabled
-                                    className="text-destructive/80 hover:text-destructive/60 hover:bg-destructive/10"
-                                    data-testid={`button-delete-scenario-${scenario.id}`}
-                                  >
-                                    <IconTrash className="w-4 h-4" />
-                                  </Button>
-                                )}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>{canManageScenarios ? "Delete this scenario" : noPermissionMsg}</TooltipContent>
-                          </Tooltip>
+                                    )}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>{canManageScenarios ? "Delete this scenario" : noPermissionMsg}</TooltipContent>
+                              </Tooltip>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
                   </div>
                   </TiltCard>
                   </AnimatedGridItem>
-                ))}
+                  );
+                })}
+                </TooltipProvider>
               </AnimatedGrid>
               </ScrollReveal>
             )}
@@ -535,6 +608,26 @@ export default function Scenarios() {
           onOpenChange={(open) => { if (!open) setCompareDialogOpen(false); }}
           result={compareResult}
         />
+
+        {sharingScenario && (
+          <ShareScenarioDialog
+            open={!!sharingScenario}
+            onOpenChange={(open) => { if (!open) setSharingScenario(null); }}
+            scenarioId={sharingScenario.id}
+            scenarioName={sharingScenario.name}
+          />
+        )}
+
+        {loadSharedWarning && (
+          <LoadSharedWarningDialog
+            open={!!loadSharedWarning}
+            onOpenChange={(open) => { if (!open) setLoadSharedWarning(null); }}
+            scenarioName={loadSharedWarning.name}
+            sharedByName={loadSharedWarning.sharedByName}
+            onConfirm={() => handleLoad(loadSharedWarning.id, loadSharedWarning.name)}
+            isPending={loadScenario.isPending}
+          />
+        )}
       </div>
       </TooltipProvider>
       </AnimatedPage>

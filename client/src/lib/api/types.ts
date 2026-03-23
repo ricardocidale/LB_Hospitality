@@ -166,6 +166,9 @@ export interface ScenarioResponse {
   properties: PropertyResponse[];
   createdAt: string;
   updatedAt: string;
+  accessType?: "owned" | "shared_user" | "shared_group" | "shared_company";
+  sharedByUserId?: number | null;
+  sharedByName?: string | null;
 }
 
 export interface MarketResearchResponse {

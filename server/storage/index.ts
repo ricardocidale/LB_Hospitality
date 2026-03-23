@@ -25,8 +25,8 @@
  * by every route file in server/routes/.
  */
 import { db } from "../db";
-import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, notificationPreferences, documentExtractions, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { users, sessions, marketResearch, prospectiveProperties, savedSearches, properties, globalAssumptions, loginLogs, activityLogs, verificationRuns, scenarios, scenarioShares, notificationPreferences, documentExtractions, conversations, type User, type Session, type GlobalAssumptions, type Property, type Scenario, type Logo, type AssetDescription, type UserGroup, type Company, type FeeCategory, type ResearchQuestion, type DesignTheme } from "@shared/schema";
+import { eq, and } from "drizzle-orm";
 import { UserStorage } from "./users";
 import { PropertyStorage } from "./properties";
 import { FinancialStorage } from "./financial";
@@ -108,6 +108,10 @@ export class DatabaseStorage implements IStorage {
   loadScenario = this.financial.loadScenario.bind(this.financial);
   cloneScenario = this.financial.cloneScenario.bind(this.financial);
   compareScenarios = this.financial.compareScenarios.bind(this.financial);
+  shareScenarioWithUser = this.financial.shareScenarioWithUser.bind(this.financial);
+  shareAllScenariosWithUser = this.financial.shareAllScenariosWithUser.bind(this.financial);
+  getScenariosSharedWithUser = this.financial.getScenariosSharedWithUser.bind(this.financial);
+  getSharesForScenario = this.financial.getSharesForScenario.bind(this.financial);
 
   // Fee Categories
   getFeeCategoriesByProperty = this.financial.getFeeCategoriesByProperty.bind(this.financial);
@@ -231,6 +235,9 @@ export class DatabaseStorage implements IStorage {
   async deleteUser(id: number): Promise<void> {
     await db.transaction(async (tx) => {
       await tx.delete(sessions).where(eq(sessions.userId, id));
+      await tx.delete(scenarioShares).where(
+        and(eq(scenarioShares.targetType, "user"), eq(scenarioShares.targetId, id))
+      );
       await tx.delete(scenarios).where(eq(scenarios.userId, id));
       await tx.delete(marketResearch).where(eq(marketResearch.userId, id));
       await tx.delete(prospectiveProperties).where(eq(prospectiveProperties.userId, id));

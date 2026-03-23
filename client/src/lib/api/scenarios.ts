@@ -93,3 +93,27 @@ export function useDeleteScenario() {
     },
   });
 }
+
+async function shareScenario(data: { recipientEmail: string; mode: "single" | "all"; scenarioId?: number }): Promise<{ shares: any[]; recipientName: string }> {
+  const res = await fetch("/api/scenarios/shares", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || "Failed to share scenario");
+  }
+  return res.json();
+}
+
+export function useShareScenario() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: shareScenario,
+    onSuccess: () => {
+      invalidateAllFinancialQueries(queryClient);
+    },
+  });
+}

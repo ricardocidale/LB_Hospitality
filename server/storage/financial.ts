@@ -1,6 +1,6 @@
-import { globalAssumptions, scenarios, propertyFeeCategories, propertyPhotos, companyServiceTemplates, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
+import { globalAssumptions, scenarios, scenarioShares, propertyFeeCategories, propertyPhotos, companyServiceTemplates, users, type GlobalAssumptions, type InsertGlobalAssumptions, type Scenario, type InsertScenario, type UpdateScenario, type ScenarioShare, type FeeCategory, type InsertFeeCategory, type UpdateFeeCategory, properties } from "@shared/schema";
 import { db } from "../db";
-import { eq, desc, isNull, inArray, or, sql } from "drizzle-orm";
+import { eq, desc, isNull, inArray, or, and, sql } from "drizzle-orm";
 import { stripAutoFields } from "./utils";
 
 export class FinancialStorage {
@@ -319,5 +319,80 @@ export class FinancialStorage {
     }));
 
     return await db.insert(propertyFeeCategories).values(values).returning();
+  }
+
+  async shareScenarioWithUser(scenarioId: number, recipientUserId: number, grantedByUserId: number): Promise<ScenarioShare> {
+    const [share] = await db
+      .insert(scenarioShares)
+      .values({ scenarioId, targetType: "user", targetId: recipientUserId, grantedByUserId })
+      .onConflictDoNothing()
+      .returning();
+    return share;
+  }
+
+  async shareAllScenariosWithUser(ownerUserId: number, recipientUserId: number): Promise<ScenarioShare[]> {
+    return await db.transaction(async (tx) => {
+      const owned = await tx.select().from(scenarios).where(eq(scenarios.userId, ownerUserId));
+      const results: ScenarioShare[] = [];
+      for (const s of owned) {
+        const [share] = await tx
+          .insert(scenarioShares)
+          .values({ scenarioId: s.id, targetType: "user", targetId: recipientUserId, grantedByUserId: ownerUserId })
+          .onConflictDoNothing()
+          .returning();
+        if (share) results.push(share);
+      }
+      return results;
+    });
+  }
+
+  async getScenariosSharedWithUser(userId: number): Promise<Array<Scenario & { accessType: string; sharedByUserId: number | null; sharedByName: string | null }>> {
+    const user = await db.select().from(users).where(eq(users.id, userId)).then(r => r[0]);
+    if (!user) return [];
+
+    const conditions = [
+      and(eq(scenarioShares.targetType, "user"), eq(scenarioShares.targetId, userId)),
+    ];
+    if (user.userGroupId) {
+      conditions.push(and(eq(scenarioShares.targetType, "group"), eq(scenarioShares.targetId, user.userGroupId)));
+    }
+    if (user.companyId) {
+      conditions.push(and(eq(scenarioShares.targetType, "company"), eq(scenarioShares.targetId, user.companyId)));
+    }
+
+    const shares = await db.select().from(scenarioShares).where(or(...conditions));
+    if (shares.length === 0) return [];
+
+    const scenarioIds = Array.from(new Set(shares.map(s => s.scenarioId)));
+    const sharedScenarios = await db.select().from(scenarios).where(inArray(scenarios.id, scenarioIds));
+
+    const granterIds = Array.from(new Set(shares.map(s => s.grantedByUserId).filter((id): id is number => id !== null)));
+    const granters = granterIds.length > 0
+      ? await db.select().from(users).where(inArray(users.id, granterIds))
+      : [];
+    const granterMap = new Map(granters.map(u => [u.id, u]));
+
+    const shareByScenario = new Map<number, typeof shares[0]>();
+    for (const s of shares) {
+      if (!shareByScenario.has(s.scenarioId)) shareByScenario.set(s.scenarioId, s);
+    }
+
+    return sharedScenarios
+      .filter(s => s.userId !== userId)
+      .map(s => {
+        const share = shareByScenario.get(s.id)!;
+        const granter = share.grantedByUserId ? granterMap.get(share.grantedByUserId) : null;
+        const granterName = granter ? [granter.firstName, granter.lastName].filter(Boolean).join(" ") || granter.email : null;
+        return {
+          ...s,
+          accessType: `shared_${share.targetType}` as string,
+          sharedByUserId: share.grantedByUserId,
+          sharedByName: granterName,
+        };
+      });
+  }
+
+  async getSharesForScenario(scenarioId: number): Promise<ScenarioShare[]> {
+    return await db.select().from(scenarioShares).where(eq(scenarioShares.scenarioId, scenarioId));
   }
 }

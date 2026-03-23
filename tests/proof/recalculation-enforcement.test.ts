@@ -88,6 +88,7 @@ const FINANCIAL_MUTATIONS = [
   "useAddPropertyPhoto",
   "useDeletePropertyPhoto",
   "useSetHeroPhoto",
+  "useShareScenario",
 ];
 
 // Non-financial mutations — these MUST NOT call invalidateAllFinancialQueries

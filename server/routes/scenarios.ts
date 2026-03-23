@@ -4,7 +4,7 @@ import { requireManagementAccess, requireAuth } from "../auth";
 import { updateScenarioSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
-import { logActivity, logAndSendError, createScenarioSchema, MAX_SCENARIOS_PER_USER } from "./helpers";
+import { logActivity, logAndSendError, createScenarioSchema, MAX_SCENARIOS_PER_USER, fullName } from "./helpers";
 
 function requireScenarioPermission(req: any, res: any, next: any) {
   if (!req.user) return res.status(401).json({ error: "Authentication required" });
@@ -17,8 +17,11 @@ function requireScenarioPermission(req: any, res: any, next: any) {
 export function register(app: Express) {
   app.get("/api/scenarios", requireAuth, async (req, res) => {
     try {
-      const scenarios = await storage.getScenariosByUser(req.user!.id);
-      res.json(scenarios);
+      const owned = await storage.getScenariosByUser(req.user!.id);
+      const shared = await storage.getScenariosSharedWithUser(req.user!.id);
+
+      const ownedWithAccess = owned.map(s => ({ ...s, accessType: "owned" as const, sharedByUserId: null, sharedByName: null }));
+      res.json([...ownedWithAccess, ...shared]);
     } catch (error) {
       logAndSendError(res, "Failed to fetch scenarios", error);
     }
@@ -96,7 +99,13 @@ export function register(app: Express) {
       const id = Number(req.params.id);
       const scenario = await storage.getScenario(id);
       if (!scenario) return res.status(404).json({ error: "Scenario not found" });
-      if (scenario.userId !== req.user!.id) return res.status(403).json({ error: "Access denied" });
+
+      const isOwner = scenario.userId === req.user!.id;
+      if (!isOwner) {
+        const shared = await storage.getScenariosSharedWithUser(req.user!.id);
+        const hasAccess = shared.some(s => s.id === id);
+        if (!hasAccess) return res.status(403).json({ error: "Access denied" });
+      }
 
       await storage.loadScenario(
         req.user!.id,
@@ -231,6 +240,51 @@ export function register(app: Express) {
       res.json(result);
     } catch (error) {
       logAndSendError(res, "Failed to compare scenarios", error);
+    }
+  });
+
+  const shareScenarioSchema = z.object({
+    recipientEmail: z.string().email(),
+    mode: z.enum(["single", "all"]),
+    scenarioId: z.number().optional(),
+  });
+
+  app.post("/api/scenarios/shares", requireManagementAccess, requireScenarioPermission, async (req, res) => {
+    try {
+      const validation = shareScenarioSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: fromZodError(validation.error).message });
+      }
+
+      const { recipientEmail, mode, scenarioId } = validation.data;
+
+      if (recipientEmail === req.user!.email) {
+        return res.status(400).json({ error: "You cannot share scenarios with yourself" });
+      }
+
+      const recipient = await storage.getUserByEmail(recipientEmail);
+      if (!recipient) {
+        return res.status(404).json({ error: "No user found with that email address" });
+      }
+
+      if (mode === "single") {
+        if (!scenarioId) {
+          return res.status(400).json({ error: "scenarioId is required for single share mode" });
+        }
+        const scenario = await storage.getScenario(scenarioId);
+        if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+        if (scenario.userId !== req.user!.id) return res.status(403).json({ error: "You can only share your own scenarios" });
+
+        const share = await storage.shareScenarioWithUser(scenarioId, recipient.id, req.user!.id);
+        logActivity(req, "share", "scenario", scenarioId, scenario.name);
+        res.status(201).json({ shares: share ? [share] : [], recipientName: fullName(recipient) || recipient.email });
+      } else {
+        const shares = await storage.shareAllScenariosWithUser(req.user!.id, recipient.id);
+        logActivity(req, "share_all", "scenario", null, `All scenarios to ${recipient.email}`);
+        res.status(201).json({ shares, recipientName: fullName(recipient) || recipient.email });
+      }
+    } catch (error) {
+      logAndSendError(res, "Failed to share scenario", error);
     }
   });
 }

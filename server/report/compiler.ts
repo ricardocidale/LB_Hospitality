@@ -264,30 +264,12 @@ export function compileReport(input: CompileInput): ReportDefinition {
 
   const sections: ReportSection[] = [];
 
-  const hasChartScreenshots = !!(input.chartScreenshots?.length);
-  if (input.metrics?.length && !hasChartScreenshots) {
-    sections.push({
-      kind: "kpi",
-      title: "Key Performance Metrics",
-      metrics: input.metrics.map((m) => ({
-        label: m.label,
-        value: m.value,
-        description: getMetricDescription(m.label),
-      })),
-    });
-  }
-
   const statements = input.statements || [];
   if (statements.length) {
     for (const stmt of statements) {
       const isInvestment = (stmt.title || "")
         .toLowerCase()
         .includes("investment");
-
-      if (isInvestment) {
-        const investKpi = buildInvestmentKpi(stmt);
-        if (investKpi) sections.push(investKpi);
-      }
 
       const skipTable = stmt.includeTable === false;
       const skipChart = stmt.includeChart === false;

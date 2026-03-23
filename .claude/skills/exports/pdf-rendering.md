@@ -1,40 +1,46 @@
-# PDF Rendering — Puppeteer Pipeline
+# PDF Rendering — @react-pdf/renderer + Puppeteer (PNG)
 
 ## Architecture
 
-Premium PDF skips AI entirely — builds HTML directly from financial data:
+Premium PDF uses `@react-pdf/renderer` (server-side React PDF generation). Puppeteer is used only for PNG rendering.
 
 ```
-PremiumExportPayload → buildPdfSectionsFromData() → buildPdfHtml() → renderPdf() → Buffer
+PDF:  compileReport() → ReportDefinition → @react-pdf/renderer → Buffer
+PNG:  compileReport() → ReportDefinition → Puppeteer screenshots → ZIP
 ```
 
-## Pipeline
+## PDF Pipeline
 
-1. **Section builder** (`premium-exports.ts`): `buildPdfSectionsFromData(data)` creates ordered sections:
-   - Optional cover + overview (if `includeCoverPage`)
-   - Statement → Chart pairs (Income, CashFlow, BalanceSheet, InvestmentAnalysis)
-   - Formula rows filtered via `filterFormulaRows()` (`isItalic=true` excluded)
-   - Charts extracted per-statement via `buildChartsForStatement()`
+1. **Report compiler** (`server/report/compiler.ts`): `compileReport(payload)` creates `ReportDefinition` with ordered sections:
+   - `ImageSection` entries for chart screenshots (Overview only)
+   - `TableSection` / `ChartSection` pairs for each statement
+   - Formula rows filtered (`isItalic=true` excluded)
+   - No KPI sections, no cover pages
 
-2. **HTML template** (`pdf-html-templates.ts`): `buildPdfHtml(sections, data)` renders sections to HTML:
-   - Theme colors via `resolveThemeColors(data.colors)` — maps rank→functional role
-   - Section renderers: `renderCoverSection`, `renderMetricsDashboardSection`, `renderChartSection`, `renderLineChartSection`, `renderFinancialTableSection`
-   - All charts are inline SVG (no JS, no canvas)
+2. **React PDF renderer** (`server/pdf/render.tsx`): Renders `ReportDefinition` to PDF buffer:
+   - Two render paths: dense (landscape) and non-dense (portrait)
+   - `ImageSection` → `@react-pdf/renderer` `Image` component with aspect ratio preservation
+   - `TableSection` → Paginated financial tables with headers/footers
+   - `ChartSection` → SVG line charts via react-pdf primitives
+   - Design tokens from `ReportDefinition.tokens` control all colors/fonts
 
-3. **Browser render** (`browser-renderer.ts`): `renderPdf(html, opts)` produces PDF buffer:
-   - Puppeteer-core + system Chromium (preferred on Replit)
-   - Fallback: bundled puppeteer → Playwright
-   - Singleton browser pool with health checks
+3. **Design Pass** (optional): LLM-powered layout hints for pagination and spacing.
+
+## PNG Pipeline (Puppeteer)
+
+`server/browser-renderer.ts` — Puppeteer with system Chromium:
+- Singleton browser pool with health checks
+- `renderPng(html, opts)` produces PNG buffer
+- Viewport: 1536×864 (landscape) or 816×1056 (portrait)
+- 2x device scale for retina quality
 
 ## Theme Colors
 
-Client sends `themeColors: Array<{name, hexCode, rank}>`. Server resolves:
+Client sends `themeColors: Array<{name, hexCode, rank}>`. Server resolves via `resolveThemeColors()`:
 
 ```typescript
 resolveThemeColors(themeColors) → { navy, sage, darkGreen, darkText, gray, altRow, sectionBg }
 ```
-
-Falls back to `BRAND` defaults if no theme provided.
 
 ## Page Dimensions
 
@@ -43,25 +49,20 @@ Falls back to `BRAND` defaults if no theme provided.
 | Landscape | 406.4mm | 228.6mm |
 | Portrait | 215.9mm | 279.4mm |
 
-## CSS Rules for Templates
+## Image Sections
 
-1. Use `print-color-adjust: exact` (standard) alongside `-webkit-` variant
-2. SVG charts only — no canvas
-3. `break-inside: avoid` on all card/table elements
-4. `@page` uses explicit mm dimensions
-5. Font: `Helvetica Neue, Helvetica, Arial, sans-serif`
-6. No `backdrop-filter`, `position: sticky`, or CSS `filter:` at page breaks
-
-## Chart Types
-
-- **Bar charts**: Vertical bars with gradient fills, per-statement (2-4 per page in 2×2 grid)
-- **Line charts**: Multi-series with data dots, for Investment Analysis trends
-- Both use inline SVG with `viewBox` for scaling
+Chart screenshots from client are embedded as `ImageSection`:
+- `dataUri`: base64 PNG from `dom-to-image-more` capture
+- `aspectRatio`: defaults to 16/9 if not specified
+- Rendered via `@react-pdf/renderer` `Image` component
+- CSS cleanup during capture ensures clean images (no borders, no shadows)
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `server/browser-renderer.ts` | Puppeteer abstraction |
-| `server/routes/pdf-html-templates.ts` | HTML/CSS templates + theme resolution |
-| `server/routes/premium-exports.ts` | Section builder + format generators |
+| `server/report/compiler.ts` | Report compiler (ReportDefinition IR) |
+| `server/report/types.ts` | IR types (ImageSection, TableSection, ChartSection) |
+| `server/pdf/render.tsx` | @react-pdf/renderer PDF generation |
+| `server/browser-renderer.ts` | Puppeteer abstraction (PNG only) |
+| `client/src/lib/exports/captureOverviewCharts.ts` | DOM chart capture |

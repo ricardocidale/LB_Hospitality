@@ -28,12 +28,12 @@ This project is a business simulation portal for Hospitality Business Group, mod
 The application features a React 18 frontend built with TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, and framer-motion. The backend is an Express 5 application utilizing Drizzle ORM and PostgreSQL.
 
 **Core Design Principles & Features:**
--   **Financial Accuracy & Compliance:** Highest priority, enforced by a comprehensive proof system (3,499 tests across 151 files), GAAP verification, and USALI 12th Edition compliance for property-level Income and Cash Flow Statements. The Balance Sheet Identity (A = L + E) must hold within $1.
+-   **Financial Accuracy & Compliance:** Highest priority, enforced by a comprehensive proof system (3,499 tests across 155 files), GAAP verification, and USALI 12th Edition compliance for property-level Income and Cash Flow Statements. The Balance Sheet Identity (A = L + E) must hold within $1.
 -   **Modular Skill-Based Architecture:** Domain knowledge and context management are handled through a skill-based system located in `.claude/skills/`.
 -   **Theming & UI/UX:** A robust theme engine provides consistent UI with 5 presets (default: Tuscan Olive Grove). All UI components are theme-compliant. Specific UI patterns (e.g., GlassButton, PageHeader, ExportMenu) and consistent button labels ("Save") are enforced. Every financial line item includes an `InfoTooltip`.
 -   **Data Governance:** Model constants are primarily DB-backed with fallbacks, editable via admin interfaces. Inflation rates cascade globally.
 -   **Configuration Management:** Settings are managed via "Company Assumptions" (admin-only, entity configuration), an "Admin panel" (system configuration), and a read-only "Model Inputs" panel for non-admins.
--   **Unified Export System:** A `server/report/compiler.ts` generates `ReportDefinition` IR, which is then rendered into PDF, PPTX, XLSX, and DOCX formats. Premium PDF exports leverage `@react-pdf/renderer` and an LLM Design Pass for intelligent layout, while client-side exports use jsPDF, pptxgenjs, and SheetJS. Cover pages are never included in any export.
+-   **Unified Export System:** A `server/report/compiler.ts` generates `ReportDefinition` IR, which is then rendered into PDF, PPTX, XLSX, and DOCX formats. Premium PDF exports leverage `@react-pdf/renderer` with embedded chart screenshots (captured client-side via `dom-to-image-more`), while client-side exports use jsPDF, pptxgenjs, and SheetJS. No cover pages, no KPI sections — ever.
 -   **Multi-Tenancy:** Supports users, groups, logos, themes, and branding resolution for multiple entities.
 -   **LLM Integration:** Features a dual-model configuration (primary + fallback) for AI-powered functionalities across 7 domains, with configurable defaults in the Admin panel.
 -   **Observability:** Sentry for error tracking, PostHog for analytics, Upstash Redis for caching, and circuit breakers for integration stability.
@@ -96,7 +96,7 @@ The application features a React 18 frontend built with TypeScript, Wouter, TanS
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify + doc harmony (~60s)
-npm run test:summary   # All 3,499 tests, 151 files (~35s)
+npm run test:summary   # All 3,499 tests, 155 files (~35s)
 npm run verify:summary # 8-phase financial verification (~20s)
 npm run lint:summary   # TypeScript check only (<10s)
 npm run stats          # File/line/test counts (<5s)

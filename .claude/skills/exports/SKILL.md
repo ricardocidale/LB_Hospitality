@@ -1,6 +1,6 @@
 ---
 name: Export System
-description: Premium multi-format export system using server-side Puppeteer (PDF/PNG) and AI-powered generators (PPTX/XLSX/DOCX). Single ExportMenu per page, statement→chart interleaving, theme-aware, formula filtering.
+description: Premium multi-format export system using @react-pdf/renderer (PDF), Puppeteer (PNG only), and direct generators (PPTX/XLSX/DOCX). Single ExportMenu per page, statement→chart interleaving, theme-aware, formula filtering. No KPI sections, no cover pages.
 ---
 
 # Export System
@@ -12,15 +12,37 @@ Two pipelines, unified by a single `ExportMenu` per page:
 ```
 ExportMenu (dropdown) → ExportDialog (options + premium toggle)
   ├─ Premium ON → POST /api/exports/premium → Server pipeline
-  │    PDF:  HTML template → Puppeteer → Buffer (no AI)
-  │    PPTX: Gemini AI → JSON → pptxgenjs → Buffer
-  │    XLSX: Gemini AI → JSON → xlsx → Buffer
-  │    DOCX: Gemini AI → JSON → docx → Buffer
+  │    compileReport() → ReportDefinition IR
+  │    PDF:  @react-pdf/renderer → Buffer (no AI)
+  │    PPTX: pptxgenjs → Buffer (no AI)
+  │    XLSX: xlsx → Buffer (no AI)
+  │    DOCX: docx → Buffer (no AI)
+  │    PNG:  Puppeteer screenshots → ZIP buffer
   └─ Premium OFF → Client-side fallback (jsPDF, xlsx, pptxgenjs)
 
 CSV: Always client-side (no dialog needed)
 PNG: Always client-side (dom-to-image capture)
 ```
+
+## Report Compiler
+
+`server/report/compiler.ts` — single `compileReport()` produces `ReportDefinition` IR (types in `server/report/types.ts`).
+
+Section types: `TableSection`, `ChartSection`, `ImageSection`. KPI sections are NEVER generated. Cover pages are NEVER included.
+
+Chart screenshots from the client (captured via `dom-to-image-more`) are embedded as `ImageSection` entries in the report definition.
+
+## Chart Screenshots
+
+Client captures Overview charts before sending export payload:
+- **File**: `client/src/lib/exports/captureOverviewCharts.ts`
+- **Targets**: DOM elements with `data-export-section="investment-chart"`, `"revenue-chart"`, `"distribution-chart"`
+- **Capture**: `dom-to-image-more` → base64 PNG
+- **Cleanup**: CSS override sheet injected before capture (transparent borders, no box-shadow), removed after
+- **Payload**: `chartScreenshots: Array<{dataUri, label}>` sent in premium export request
+- **Server**: Embedded via `@react-pdf/renderer` `Image` component
+
+CORS warning for Google Fonts cssRules is benign — does not affect capture quality.
 
 ## Quick Start
 
@@ -48,13 +70,11 @@ import { ExportMenu, pdfAction, excelAction, csvAction, pptxAction, docxAction, 
 interface ExportDialogProps {
   open: boolean;
   onClose: () => void;
-  onExport: (orientation, version, filename?) => void;  // non-premium fallback
+  onExport: (orientation, version, filename?) => void;
   title: string;
   premiumFormat?: "pdf" | "xlsx" | "pptx" | "docx";
   showVersionOption?: boolean;
-  showCoverPageOption?: boolean;           // Dashboard only
-  getPremiumExportData?: (version, includeCoverPage) => PremiumExportPayload | null;
-  premiumExportData?: PremiumExportPayload | null;  // legacy static prop
+  getPremiumExportData?: (version) => Promise<PremiumExportPayload | null> | PremiumExportPayload | null;
 }
 ```
 
@@ -62,13 +82,14 @@ interface ExportDialogProps {
 
 See [premium-export-spec.md](./premium-export-spec.md) for full SDD.
 
-Each export produces statements interleaved with charts:
-1. Cover Page (optional, Dashboard only)
-2. Overview KPI cards (if cover on)
-3. Income Statement → Income charts
-4. Cash Flow → Cash Flow charts
-5. Balance Sheet → Balance Sheet charts
-6. Investment Analysis → Investment charts (not Company)
+Each export produces:
+1. Chart screenshots (Overview tab only — embedded as images)
+2. Income Statement → Income charts
+3. Cash Flow → Cash Flow charts
+4. Balance Sheet → Balance Sheet charts
+5. Investment Analysis → Investment charts (not Company)
+
+**No cover pages. No KPI sections. Ever.**
 
 ## Key Rules
 
@@ -78,44 +99,34 @@ Each export produces statements interleaved with charts:
 4. **Short/Extended**: Short = header/total rows only; Extended = all line items
 5. **Theme colors**: Passed via `themeColors` in payload, resolved by `resolveThemeColors()`
 6. **File save**: `saveFile()` tries native `showSaveFilePicker`, falls back to download
+7. **No KPI/cover**: Compiler never generates KPI sections; cover pages permanently removed
 
 ## Row-Builder Helpers
 
 **File**: `client/src/lib/exports/row-builders.ts`
 
-Type-safe helpers for constructing export rows — use these instead of raw object literals:
-
 ```typescript
 import { headerRow, lineItem, subtotalRow, spacerRow, formulaRow, yearValues, consolidate } from "@/lib/exports";
 
-headerRow("REVENUE", values)                        // Section header (isHeader: true)
-lineItem("Room Revenue", values, { indent: 1 })     // Indented line item
-subtotalRow("Gross Operating Profit", values)        // Bold subtotal (isHeader + isBold)
-spacerRow(yearCount)                                 // Empty separator row
-formulaRow("= Revenue − Expenses", values)           // Italic formula row
-yearValues(years, cache, item => item.revenueTotal)  // Extract values from yearly cache
-consolidate(years, allProps, item => item.cfo)       // Sum across properties per year
+headerRow("REVENUE", values)
+lineItem("Room Revenue", values, { indent: 1 })
+subtotalRow("Gross Operating Profit", values)
+spacerRow(yearCount)
+formulaRow("= Revenue − Expenses", values)
+yearValues(years, cache, item => item.revenueTotal)
+consolidate(years, allProps, item => item.cfo)
 ```
-
-## Export Audit
-
-Run `npx tsx script/export-audit.ts` to validate the export system:
-- Checks all core files exist
-- Verifies data generators are present and wired
-- Confirms all pages have all format exports wired
-- Validates brand palette is centralized
-- Detects stray/orphan directories
 
 ## Format Matrix
 
-| Format | AI? | Library | Orientation | Content |
-|--------|-----|---------|-------------|---------|
-| PDF | No | Puppeteer | Both | Full report with charts |
-| PPTX | Yes | pptxgenjs | Landscape | 16:9 slides |
-| Excel | Yes | xlsx | N/A | One worksheet per statement |
-| DOCX | Yes | docx | Portrait | Tables/charts as images |
-| CSV | No | — | N/A | Tables only, client-side |
-| PNG | No | dom-to-image | N/A | DOM capture, client-side |
+| Format | AI? | Library | Content |
+|--------|-----|---------|---------|
+| PDF | No | @react-pdf/renderer | Full report with chart screenshots + tables |
+| PPTX | No | pptxgenjs | 16:9 slides |
+| Excel | No | xlsx | One worksheet per statement |
+| DOCX | No | docx | Tables/charts as images |
+| CSV | No | — | Tables only, client-side |
+| PNG | No | Puppeteer / dom-to-image | DOM capture |
 
 ## Data Generators
 
@@ -135,19 +146,22 @@ All accept `summaryOnly` parameter for short/extended.
 
 | File | Purpose |
 |------|---------|
+| `server/report/compiler.ts` | Unified report compiler (ReportDefinition IR) |
+| `server/report/types.ts` | IR types: TableSection, ChartSection, ImageSection |
+| `server/pdf/render.tsx` | @react-pdf/renderer PDF generation |
+| `server/routes/premium-exports.ts` | Server export pipeline, all format generators |
+| `server/browser-renderer.ts` | Puppeteer abstraction (PNG only) |
 | `client/src/components/ExportDialog.tsx` | Export dialog UI, premium toggle |
 | `client/src/components/ui/export-toolbar.tsx` | ExportMenu dropdown + action helpers |
+| `client/src/lib/exports/captureOverviewCharts.ts` | DOM chart capture with CSS cleanup |
 | `client/src/lib/exports/saveFile.ts` | Native file picker + download fallback |
-| `server/routes/premium-exports.ts` | Server export pipeline, all format generators |
-| `server/routes/pdf-html-templates.ts` | HTML/CSS templates, theme resolution |
-| `server/browser-renderer.ts` | Puppeteer abstraction |
 
 ## Sub-Skills
 
 | Skill | What |
 |-------|------|
 | [premium-export-spec.md](./premium-export-spec.md) | Full SDD: sections, themes, format rules |
-| [pdf-rendering.md](./pdf-rendering.md) | Puppeteer HTML→PDF pipeline |
+| [pdf-rendering.md](./pdf-rendering.md) | @react-pdf/renderer + Puppeteer PNG pipeline |
 | [excel-export.md](./excel-export.md) | Client-side xlsx generation |
 | [pptx-export.md](./pptx-export.md) | Client-side pptxgenjs generation |
 | [csv-export.md](./csv-export.md) | CSV download utility |

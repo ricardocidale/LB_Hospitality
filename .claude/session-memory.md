@@ -8,6 +8,13 @@ Keep each session entry to ≤5 lines. Detail lives in skill files. Archive sess
 
 ---
 
+## Session: March 23, 2026 — Export Polish, KPI Removal, LLM Recommendations, Skills Update
+- Removed KPI cover pages permanently from report compiler — no KPI sections in ANY PDF export, ever.
+- Chart screenshots fully wired: `captureOverviewCharts.ts` → `dom-to-image-more` → base64 PNG → server `ImageSection` via `@react-pdf/renderer`.
+- CSS cleanup sheet injected during DOM capture (transparent borders, no shadows). CORS warning for Google Fonts is benign.
+- Admin LLM recommendations: per-domain differentiated (Gemini 2.5 Pro, Claude Sonnet 4.5, GPT-4.1 Mini, Claude Sonnet 4). Star icon hints.
+- Updated claude.md, replit.md, 3 export skills (SKILL.md, premium-export-spec.md, pdf-rendering.md), session-memory.md. Stats: 960 files, ~160K lines, 3,499 tests/155 files.
+
 ## Session: March 20, 2026 — Codebase-Wide Audit (Magic Numbers, Bugs, Export Parity)
 - Fixed DSCR NOI→ANOI bug in YearlyIncomeStatement, hardcoded 0.09/0.10→constants in statementBuilders, Zod acreage mismatch (5→10)
 - Added MONTHS_PER_YEAR (12), DEFAULT_STABILIZATION_MONTHS (36) to shared/constants. Moved 8 company cost constants from client→shared.

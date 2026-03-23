@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 955 source files, ~159K lines, 3,499 tests across 151 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 960 source files, ~160K lines, 3,499 tests across 155 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 
@@ -101,7 +101,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (3,498 Tests, 151 Files)
+## Testing & Proof System (3,499 Tests, 155 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -111,44 +111,23 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 3,499) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
+**Commands**: `npm test` (all 3,499, 155 files) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
 
 ---
 
 ## Recent Changes (March 23, 2026)
 
+- **Admin Scenario Governance** (Task #235) — Admin scenario governance and assignment management.
+- **KPI Cover Pages Permanently Removed** — Removed both KPI generation paths from report compiler (`compileReport`). No KPI sections or cover pages in ANY PDF export, ever.
+- **Chart Screenshots in Premium PDF** — Client captures Overview charts via `dom-to-image-more` → base64 PNG in payload `chartScreenshots[]` → server embeds via `@react-pdf/renderer` `Image` component. CSS cleanup sheet injected during capture (transparent borders, no shadows).
+- **Admin LLM Recommendations** — Per-domain differentiated LLM recommendations: Gemini 2.5 Pro (company/property research), Claude Sonnet 4.5 (market/chatbot), GPT-4.1 Mini (utilities), Claude Sonnet 4 (graphics). Star icon hints below card titles.
 - **Premium Overview PDF Polish** (Task #230) — Removed header accent bar, increased font sizes, denser pagination for Overview PDF exports.
 - **Line-Item Detail Toggle Removal** (Task #228) — Removed conflicting line-item detail toggle from export UI.
 - **Premium PDF Theme Compliance** (Task #227) — Removed out-of-theme colors from premium PDF, added LLM design pass for layout hints, dropped Puppeteer dependency for PDF (retained for PNG only).
 - **Hardcoded Green → Theme Tokens** (Task #226) — Replaced all hardcoded green color values with theme CSS variable tokens.
-- **Overview PDF Export & Cover Page Removal** (Task #225) — Fixed Overview tab premium PDF export (multi-page report with KPI cards, projections, portfolio, property insights, USALI waterfall). Cover pages permanently removed from all export formats.
+- **Overview PDF Export & Cover Page Removal** (Task #225) — Fixed Overview tab premium PDF export. Cover pages permanently removed from all export formats.
 - **Unified Report Compiler** (Task #224) — Built `server/report/compiler.ts` with single `compileReport()` → `ReportDefinition` IR consumed by all 5 format renderers. No AI calls in any renderer.
 - **Premium PDF Engine Replacement** (Task #223) — Replaced puppeteer-core + AI HTML pipeline with @react-pdf/renderer for premium PDF exports.
-- **Hardcoded Tailwind → Theme Variables** (Task #222) — Replaced hardcoded Tailwind color classes with theme CSS variables throughout UI.
-- **Semantic Theme Colors** (Task #221) — Added success/warning/info semantic color tokens to theme engine. Fixed ExportDialog styling.
-- **Export Settings 3-Column Layout** (Task #220) — Reorganized export settings UI into responsive 3-column grid.
-- **Google Drive Integration Fix** (Task #219) — Fixed missing storage bindings, dev callback, and startup validation for Google Drive.
-- **Google OAuth & Drive Integration** (Task #218) — Added Google OAuth login and Google Drive file storage integration.
-- **Dependency Optimization** (Task #217) — Removed unused npm packages, reduced bundle size.
-- **Database Audit & Optimization** (Task #216) — Comprehensive DB audit: added missing indexes, FK constraints, query optimizations.
-- **Seed Data Deduplication** (Task #215) — Extracted seed data into config files, eliminated duplicate seed definitions.
-- **LLM Models & UI Colors Centralization** (Task #214) — Centralized LLM model constants, UI color tokens, and local storage limits.
-- **Enum & Constants Extraction** (Task #213) — Extracted enums, brand name, and protected emails into `shared/constants.ts`.
-- **User Seed Config Extraction** (Task #212) — Extracted hardcoded user seeds to configuration files.
-- **Skills Audit & Refresh** (Task #211) — Audited and refreshed all 191 skill files for accuracy.
-- **Monolith File Splitting** (Task #210) — Split 5 monolithic files into focused, single-responsibility modules.
-- **Dependency Audit & Cleanup** (Task #209) — Removed unused dependencies, updated outdated packages.
-- **Directory Flattening** (Task #208) — Flattened unnecessary directory nesting for cleaner file structure.
-- **Users Tab Theme Contrast** (Task #207) — Users tab card styling updated for theme-compatible contrast shading.
-- **Research Export Theme Colors** (Task #206) — Threaded theme-aware colors through research PDF and PNG exports.
-- **Reassign User to Entity** (Task #205) — Reassigned Ricardo Cidale to KIT Capital entity.
-- **Discreet Sidebar User Section** (Task #204) — Streamlined sidebar user section for cleaner navigation.
-- **Statement Parity Check** (Task #203) — Added statement parity check script and Export Parity Registry skill.
-- **Users Tab Grid Layout** (Task #202) — Users tab redesigned with 3-column responsive grid.
-- **Financial Statements Parity** (Task #201) — Unified 3-statement PDF exports with consistent formatting.
-- **Logo Redesign** (Task #200) — H+ Analytics logo redesign (modern AI-company aesthetic), then reverted to original flower/petal pattern.
-- **Dashboard Exports Split** (Task #199) — Split `dashboardExports.ts` into focused export modules.
-- **Puppeteer for Premium PDF** (Task #198) — Replaced jsPDF with Puppeteer for premium PDF exports (later superseded by Task #223 @react-pdf/renderer).
 
 ## Changes (March 16, 2026)
 
@@ -168,13 +147,14 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 ## Export System
 
 Full reference: `.claude/skills/exports/SKILL.md`. SDD: `.claude/skills/exports/premium-export-spec.md`.
-- **Unified Report Compiler**: `server/report/compiler.ts` — single `compileReport()` produces a `ReportDefinition` IR (types in `server/report/types.ts`) consumed by all 5 format renderers. Consolidates section selection, value formatting, formula-row filtering, chart series extraction, investment section splitting, and theme resolution.
+- **Unified Report Compiler**: `server/report/compiler.ts` — single `compileReport()` produces a `ReportDefinition` IR (types in `server/report/types.ts`) consumed by all 5 format renderers. Consolidates section selection, value formatting, formula-row filtering, chart series extraction, investment section splitting, and theme resolution. KPI sections are never generated.
 - **Premium Export**: `POST /api/exports/premium` — All 5 formats (PDF, PPTX, DOCX, XLSX, PNG) compile once via `compileReport()` then dispatch to format-specific renderers. No LLM calls for any format.
-- **Format renderers**: PDF (`server/pdf/render.tsx` via @react-pdf/renderer), PPTX (`generatePptxFromReport`), XLSX (`generateExcelFromReport`), DOCX (`generateDocxFromReport`), PNG (`generatePngFromReport` via browser screenshots). Each accepts a `ReportDefinition` with pre-formatted values and design tokens.
+- **Format renderers**: PDF (`server/pdf/render.tsx` via @react-pdf/renderer), PPTX (`generatePptxFromReport`), XLSX (`generateExcelFromReport`), DOCX (`generateDocxFromReport`), PNG (`generatePngFromReport` via browser screenshots). Each accepts a `ReportDefinition` with pre-formatted values and design tokens. Supports `ImageSection` for embedded chart screenshots.
+- **Chart screenshots**: Client captures Overview charts via `dom-to-image-more` (3 targets: `data-export-section="investment-chart"`, `"revenue-chart"`, `"distribution-chart"`), sends as base64 PNG array in `chartScreenshots[]`. Server embeds via `@react-pdf/renderer` `Image` component. `captureOverviewCharts.ts` injects CSS cleanup sheet during capture (transparent borders, no shadows).
 - **Client-side fallback** (when premium toggle off): jsPDF, pptxgenjs, SheetJS, CSV, dom-to-image-more.
 - **Page dimensions**: Landscape = 16:9 (406.4mm × 228.6mm), Portrait = US Letter (215.9mm × 279.4mm).
-- **Browser rendering**: `server/browser-renderer.ts` — Puppeteer with system Chromium. Used for PNG rendering only. Skill: `.claude/skills/exports/pdf-rendering.md`.
-- **Report structure**: Statement→Chart interleaving. Each statement table is followed by a chart page. Overview tab produces multi-page reports with KPI cards, projection tables, portfolio composition, property insights, distribution tables, and USALI waterfall. Admin ExportConfig toggles control which sections appear.
+- **Browser rendering**: `server/browser-renderer.ts` — Puppeteer with system Chromium. Used for PNG rendering only.
+- **Report structure**: Statement→Chart interleaving. Each statement table is followed by a chart page. Overview tab produces multi-page reports with chart screenshots, projection tables, portfolio composition, property insights, distribution tables, and USALI waterfall. No cover pages, no KPI sections — ever.
 - **Export Rules** (see `.claude/rules/exports.md`):
   1. **Full-scope**: Export from ANY tab exports ALL statements — never just the active tab.
   2. **Formula filtering**: Rows with `isItalic=true` never exported.

@@ -40,6 +40,7 @@ interface User {
   title: string | null;
   role: string;
   hideTourPrompt: boolean;
+  canManageScenarios: boolean;
 }
 
 interface AuthContextType {
@@ -50,6 +51,7 @@ interface AuthContextType {
   isUser: boolean;
   isInvestor: boolean;
   hasManagementAccess: boolean;
+  canManageScenarios: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refetch: () => void;
@@ -122,13 +124,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isUser = user?.role === UserRole.USER;
   const isInvestor = user?.role === UserRole.INVESTOR;
   const hasManagementAccess = user?.role !== UserRole.INVESTOR;
+  const canManageScenarios = hasManagementAccess && (user?.canManageScenarios ?? true);
   
   const refetch = () => {
     refetchQuery();
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin, isChecker, isUser, isInvestor, hasManagementAccess, login, logout, refetch }}>
+    <AuthContext.Provider value={{ user, isLoading, isAdmin, isChecker, isUser, isInvestor, hasManagementAccess, canManageScenarios, login, logout, refetch }}>
       {children}
     </AuthContext.Provider>
   );

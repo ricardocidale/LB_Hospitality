@@ -282,7 +282,7 @@ export default function UsersTab() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; userGroupId?: number | null; title?: string; role?: string } }) => {
+    mutationFn: async ({ id, data }: { id: number; data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; userGroupId?: number | null; title?: string; role?: string; canManageScenarios?: boolean } }) => {
       const res = await fetch(`/api/admin/users/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -322,6 +322,7 @@ export default function UsersTab() {
       title: user.title || "",
       role: user.role || UserRole.USER,
       password: "",
+      canManageScenarios: user.canManageScenarios ?? true,
     });
     setShowEditPassword(false);
     setEditDialogOpen(true);
@@ -340,12 +341,13 @@ export default function UsersTab() {
 
   const handleEditSubmit = () => {
     if (!selectedUser) return;
-    const data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; userGroupId?: number | null; title?: string; role?: string } = {
+    const data: { email?: string; firstName?: string; lastName?: string; companyId?: number | null; userGroupId?: number | null; title?: string; role?: string; canManageScenarios?: boolean } = {
       firstName: editUser.firstName,
       lastName: editUser.lastName,
       companyId: editUser.companyId,
       userGroupId: editUser.userGroupId,
       title: editUser.title,
+      canManageScenarios: editUser.canManageScenarios,
     };
     if (editUser.email !== originalEmail) {
       data.email = editUser.email;
@@ -401,6 +403,9 @@ export default function UsersTab() {
             onEditUser={handleEditUser}
             onPasswordUser={handlePasswordUser}
             onDeleteUser={(id) => deleteMutation.mutate(id)}
+            onToggleScenarios={(userId, value) => {
+              editMutation.mutate({ id: userId, data: { canManageScenarios: value } });
+            }}
           />
         )}
       </CardContent>

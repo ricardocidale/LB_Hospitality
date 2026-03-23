@@ -285,6 +285,12 @@ async function runSchemaMigrations() {
     await migratePartnerToUser();
     await markMigrationApplied("role_partner_to_user_001");
   }
+
+  if (!(await isMigrationApplied("can_manage_scenarios_001"))) {
+    const { runCanManageScenarios001 } = await import("./migrations/can-manage-scenarios-001");
+    await runCanManageScenarios001();
+    await markMigrationApplied("can_manage_scenarios_001");
+  }
 }
 
 async function runSeeds() {

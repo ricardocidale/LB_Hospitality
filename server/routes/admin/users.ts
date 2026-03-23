@@ -18,7 +18,7 @@ export function registerUserRoutes(app: Express) {
   app.get("/api/admin/users", requireAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      res.json(users.map((u: any) => ({ ...userResponse(u), createdAt: u.createdAt, userGroupId: u.userGroupId })));
+      res.json(users.map((u: any) => ({ ...userResponse(u), createdAt: u.createdAt, userGroupId: u.userGroupId, canManageScenarios: u.canManageScenarios ?? true })));
     } catch (error) {
       logAndSendError(res, "Failed to fetch users", error);
     }
@@ -69,6 +69,7 @@ export function registerUserRoutes(app: Express) {
     title: z.string().nullable().optional(),
     role: roleSchema.optional(),
     userGroupId: z.number().nullable().optional(),
+    canManageScenarios: z.boolean().optional(),
   });
 
   app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
@@ -79,7 +80,7 @@ export function registerUserRoutes(app: Express) {
       if (!parsed.success) {
         return res.status(400).json({ error: fromZodError(parsed.error).message });
       }
-      const { email, firstName, lastName, company, companyId, title, role, userGroupId } = parsed.data;
+      const { email, firstName, lastName, company, companyId, title, role, userGroupId, canManageScenarios } = parsed.data;
 
       if (role !== undefined) {
         const roleResult = roleSchema.safeParse(role);
@@ -99,6 +100,7 @@ export function registerUserRoutes(app: Express) {
       if (companyId !== undefined) profileData.companyId = companyId;
       if (title !== undefined) profileData.title = title;
       if (userGroupId !== undefined) profileData.userGroupId = userGroupId;
+      if (canManageScenarios !== undefined) profileData.canManageScenarios = canManageScenarios;
 
       if (Object.keys(profileData).length > 0) {
         await storage.updateUserProfile(id, profileData as any);

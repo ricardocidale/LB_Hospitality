@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Loader2 } from "@/components/icons/themed-icons";
-import { IconEye, IconEyeOff, IconCalendar, IconSave, IconPeople, IconKey, IconShield, IconMail, IconUserCog, IconProperties, IconPlus } from "@/components/icons";
+import { IconEye, IconEyeOff, IconCalendar, IconSave, IconPeople, IconKey, IconShield, IconMail, IconUserCog, IconProperties, IconPlus, IconFileStack } from "@/components/icons";
+import { Switch } from "@/components/ui/switch";
 import { UserRole } from "@shared/constants";
 import { formatDateTime } from "@/lib/formatters";
 import type { User } from "../types";
@@ -112,6 +113,14 @@ export default function EditUserDialog({
                 <SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
+            <Label className="flex items-center gap-2 cursor-pointer"><IconFileStack className="w-4 h-4 text-muted-foreground" />Scenario Management</Label>
+            <Switch
+              checked={editUser.canManageScenarios}
+              onCheckedChange={(checked) => setEditUser(prev => ({ ...prev, canManageScenarios: checked }))}
+              data-testid="switch-edit-scenarios"
+            />
           </div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2"><IconKey className="w-4 h-4 text-muted-foreground" />Password</Label>

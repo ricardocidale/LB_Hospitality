@@ -35,6 +35,7 @@ export function userResponse(u: any, extra?: Record<string, any>) {
     title: u.title, 
     role: u.role,
     hideTourPrompt: u.hideTourPrompt ?? false,
+    canManageScenarios: u.canManageScenarios ?? true,
     ...extra 
   };
 }

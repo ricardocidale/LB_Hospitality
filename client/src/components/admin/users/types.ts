@@ -25,6 +25,7 @@ export type EditUserForm = {
   title: string;
   role: string;
   password: string;
+  canManageScenarios: boolean;
 };
 
 export type InlineCompanyForm = {
@@ -60,6 +61,7 @@ export const defaultEditUser: EditUserForm = {
   title: "",
   role: UserRole.USER,
   password: "",
+  canManageScenarios: true,
 };
 
 export const defaultInlineCompanyForm: InlineCompanyForm = {

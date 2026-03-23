@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "@/components/icons/themed-icons";
 import { IconPeople, IconTrash, IconKey, IconPencil, IconShield, IconUserCog, IconBuilding2 } from "@/components/icons";
@@ -21,6 +22,7 @@ interface UserCardGridProps {
   onEditUser: (user: User) => void;
   onPasswordUser: (user: User) => void;
   onDeleteUser: (id: number) => void;
+  onToggleScenarios?: (userId: number, value: boolean) => void;
 }
 
 function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
@@ -41,6 +43,7 @@ export default function UserCardGrid({
   onEditUser,
   onPasswordUser,
   onDeleteUser,
+  onToggleScenarios,
 }: UserCardGridProps) {
   return (
     <>
@@ -151,6 +154,15 @@ export default function UserCardGrid({
                 {user.userGroupId && groupNameMap[user.userGroupId]
                   ? <span className="text-xs text-muted-foreground">{groupNameMap[user.userGroupId]}</span>
                   : <span className="text-xs text-muted-foreground/40">—</span>}
+                <div className="ml-auto flex items-center gap-1.5">
+                  <span className="text-[11px] text-muted-foreground">Scenarios</span>
+                  <Switch
+                    checked={user.canManageScenarios ?? true}
+                    onCheckedChange={(checked) => onToggleScenarios?.(user.id, checked)}
+                    data-testid={`switch-scenarios-${user.id}`}
+                    className="scale-75"
+                  />
+                </div>
               </div>
             </div>
           </React.Fragment>);

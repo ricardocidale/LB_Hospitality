@@ -170,7 +170,7 @@ export default function Layout({ children, darkMode }: { children: React.ReactNo
       label: "Settings",
       items: [
         { href: "/profile", label: "My Profile", icon: IconProfile },
-        ...(sb("sidebarScenarios") && hasManagementAccess ? [{ href: "/scenarios", label: "My Scenarios", icon: IconScenarios }] : []),
+        ...(sb("sidebarScenarios") && hasManagementAccess ? [{ href: "/scenarios", label: "Scenarios", icon: IconScenarios }] : []),
         { href: "/drive", label: "Google Drive", icon: IconFolderOpen },
       ],
     },

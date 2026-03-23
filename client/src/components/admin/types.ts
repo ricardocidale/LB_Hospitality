@@ -20,6 +20,7 @@ export interface User {
   companyId: number | null;
   title: string | null;
   role: string;
+  canManageScenarios: boolean;
   createdAt: string;
   userGroupId: number | null;
 }

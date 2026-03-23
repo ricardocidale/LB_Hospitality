@@ -96,6 +96,86 @@ export class FinancialStorage {
     await db.delete(scenarios).where(eq(scenarios.id, id));
   }
 
+  /** Duplicate a scenario with " (Copy)" suffix, handling uniqueness. */
+  async cloneScenario(id: number, userId: number): Promise<Scenario> {
+    const source = await this.getScenario(id);
+    if (!source) throw new Error("Scenario not found");
+
+    let baseName = source.name + " (Copy)";
+    let name = baseName;
+    let attempt = 1;
+    const existing = await this.getScenariosByUser(userId);
+    const existingNames = new Set(existing.map(s => s.name));
+    while (existingNames.has(name)) {
+      attempt++;
+      name = `${baseName} ${attempt}`;
+    }
+
+    const [cloned] = await db.insert(scenarios).values({
+      userId,
+      name,
+      description: source.description,
+      globalAssumptions: source.globalAssumptions,
+      properties: source.properties,
+      scenarioImages: source.scenarioImages,
+      feeCategories: source.feeCategories,
+      propertyPhotos: source.propertyPhotos,
+    } as typeof scenarios.$inferInsert).returning();
+    return cloned;
+  }
+
+  /** Compute a structured diff between two scenarios for the compare UI. */
+  compareScenarios(s1: Scenario, s2: Scenario): {
+    scenario1: { id: number; name: string };
+    scenario2: { id: number; name: string };
+    assumptionDiffs: Array<{ field: string; scenario1: unknown; scenario2: unknown }>;
+    propertyDiffs: Array<{ name: string; status: "added" | "removed" | "changed"; changes?: Array<{ field: string; scenario1: unknown; scenario2: unknown }> }>;
+  } {
+    const SKIP_FIELDS = new Set(["id", "createdAt", "updatedAt", "userId"]);
+    const ga1 = (s1.globalAssumptions || {}) as Record<string, unknown>;
+    const ga2 = (s2.globalAssumptions || {}) as Record<string, unknown>;
+    const allKeys = Array.from(new Set([...Object.keys(ga1), ...Object.keys(ga2)]));
+    const assumptionDiffs: Array<{ field: string; scenario1: unknown; scenario2: unknown }> = [];
+    for (const key of allKeys) {
+      if (SKIP_FIELDS.has(key)) continue;
+      const v1 = ga1[key];
+      const v2 = ga2[key];
+      if (JSON.stringify(v1) !== JSON.stringify(v2)) {
+        assumptionDiffs.push({ field: key, scenario1: v1, scenario2: v2 });
+      }
+    }
+
+    const props1 = (s1.properties || []) as Array<Record<string, unknown>>;
+    const props2 = (s2.properties || []) as Array<Record<string, unknown>>;
+    const map1 = new Map(props1.map(p => [p.name as string, p]));
+    const map2 = new Map(props2.map(p => [p.name as string, p]));
+    const allNames = Array.from(new Set([...Array.from(map1.keys()), ...Array.from(map2.keys())]));
+    const propertyDiffs: Array<{ name: string; status: "added" | "removed" | "changed"; changes?: Array<{ field: string; scenario1: unknown; scenario2: unknown }> }> = [];
+
+    for (const name of allNames) {
+      const p1 = map1.get(name);
+      const p2 = map2.get(name);
+      if (!p1) { propertyDiffs.push({ name, status: "added" }); continue; }
+      if (!p2) { propertyDiffs.push({ name, status: "removed" }); continue; }
+      const pKeys = Array.from(new Set([...Object.keys(p1), ...Object.keys(p2)]));
+      const changes: Array<{ field: string; scenario1: unknown; scenario2: unknown }> = [];
+      for (const k of pKeys) {
+        if (SKIP_FIELDS.has(k)) continue;
+        if (JSON.stringify(p1[k]) !== JSON.stringify(p2[k])) {
+          changes.push({ field: k, scenario1: p1[k], scenario2: p2[k] });
+        }
+      }
+      if (changes.length > 0) propertyDiffs.push({ name, status: "changed", changes });
+    }
+
+    return {
+      scenario1: { id: s1.id, name: s1.name },
+      scenario2: { id: s2.id, name: s2.name },
+      assumptionDiffs,
+      propertyDiffs,
+    };
+  }
+
   /**
    * Restore a saved scenario by replacing the user's current working data
    * (global assumptions + all properties + fee categories) with the snapshot

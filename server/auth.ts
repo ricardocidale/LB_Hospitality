@@ -60,6 +60,7 @@ declare global {
       googleTokenExpiry: Date | null;
       googleDriveConnected: boolean;
       hideTourPrompt: boolean;
+      canManageScenarios: boolean;
       createdAt: Date;
       updatedAt: Date;
     }

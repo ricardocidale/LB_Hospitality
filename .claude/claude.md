@@ -2,7 +2,7 @@
 
 ## Project Summary
 
-Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 889 source files, ~157K lines, 3,498 tests across 154 test files. Hosted on Replit.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 952 source files, ~158K lines, 3,498 tests across 151 test files. Hosted on Replit.
 
 > **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent. See `.claude/plans/MARCELA-ISOLATION.md` for full restoration guide.
 
@@ -101,7 +101,7 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 
 ---
 
-## Testing & Proof System (3,498 Tests, 154 Files)
+## Testing & Proof System (3,498 Tests, 151 Files)
 
 | Level | Domains | Skill |
 |-------|---------|-------|
@@ -111,52 +111,57 @@ With 191 skill files, **never load all skills at once**. Use `.claude/skills/con
 | Returns Analysis | IRR, NPV, MOIC, sensitivity | `testing/analysis-returns.md` |
 | Golden Scenarios | 500 hand-calculated reference tests (incl. Clearwater Inn mgmt co + 1 property, WACC) | `testing/golden-scenarios.md` |
 
-**Commands**: `npm test` (all 3,498) · `npm run verify` (7-phase GAAP) · `npm run health` (tsc+tests+verify)
+**Commands**: `npm test` (all 3,498) · `npm run verify` (8-phase GAAP) · `npm run health` (tsc+tests+verify+doc harmony)
 
 ---
 
-## Recent Changes (March 22, 2026)
+## Recent Changes (March 23, 2026)
 
-- **Overview PDF Export & Cover Page Removal** (Task #225) — Fixed Overview tab premium PDF export (was producing 1 page with just KPI cards, now produces multi-page report). Overview export now calls `buildOverviewExportData()` and converts output to statement blocks: Revenue & ANOI Projections, Portfolio & Capital Structure, Property Insights, Market/Status Distribution, USALI Profit Waterfall. Admin ExportConfig section toggles (kpiMetrics, projectionTable, compositionTables, propertyInsights, waterfallTable) control which sections appear. Cover pages permanently removed from all export formats (PDF, PPTX, PNG) — `CoverPage` component, `includeCoverPage` field, and all related UI/state/localStorage removed from every call site.
-- **Unified Report Compiler** — Built `server/report/compiler.ts` with a single `compileReport()` function that produces a `ReportDefinition` IR consumed by all 5 format renderers (PDF, PPTX, XLSX, DOCX, PNG). Consolidates section selection, value formatting, formula-row filtering, chart series building, investment section splitting, and theme resolution. New files: `server/report/types.ts` (IR schema), `server/report/compiler.ts` (compiler). All format generators now accept `ReportDefinition` via `generateXxxFromReport()` functions. No AI calls in any format renderer. Premium exports pipeline: compile once → dispatch to format renderer. Dead AI code fully removed from `premium-exports.ts` (no `resolveLlm`, `ResearchConfig`, Gemini functions).
-- **Premium PDF Engine Replacement** — Replaced puppeteer-core + AI-designed HTML pipeline with @react-pdf/renderer for premium PDF exports. New `server/pdf/render.tsx` uses pure React PDF components (KPI cards, financial tables, SVG line charts). Eliminates browser dependency and LLM call for PDF generation. Puppeteer retained for PNG rendering only.
+- **Premium Overview PDF Polish** (Task #230) — Removed header accent bar, increased font sizes, denser pagination for Overview PDF exports.
+- **Line-Item Detail Toggle Removal** (Task #228) — Removed conflicting line-item detail toggle from export UI.
+- **Premium PDF Theme Compliance** (Task #227) — Removed out-of-theme colors from premium PDF, added LLM design pass for layout hints, dropped Puppeteer dependency for PDF (retained for PNG only).
+- **Hardcoded Green → Theme Tokens** (Task #226) — Replaced all hardcoded green color values with theme CSS variable tokens.
+- **Overview PDF Export & Cover Page Removal** (Task #225) — Fixed Overview tab premium PDF export (multi-page report with KPI cards, projections, portfolio, property insights, USALI waterfall). Cover pages permanently removed from all export formats.
+- **Unified Report Compiler** (Task #224) — Built `server/report/compiler.ts` with single `compileReport()` → `ReportDefinition` IR consumed by all 5 format renderers. No AI calls in any renderer.
+- **Premium PDF Engine Replacement** (Task #223) — Replaced puppeteer-core + AI HTML pipeline with @react-pdf/renderer for premium PDF exports.
+- **Hardcoded Tailwind → Theme Variables** (Task #222) — Replaced hardcoded Tailwind color classes with theme CSS variables throughout UI.
+- **Semantic Theme Colors** (Task #221) — Added success/warning/info semantic color tokens to theme engine. Fixed ExportDialog styling.
+- **Export Settings 3-Column Layout** (Task #220) — Reorganized export settings UI into responsive 3-column grid.
+- **Google Drive Integration Fix** (Task #219) — Fixed missing storage bindings, dev callback, and startup validation for Google Drive.
+- **Google OAuth & Drive Integration** (Task #218) — Added Google OAuth login and Google Drive file storage integration.
+- **Dependency Optimization** (Task #217) — Removed unused npm packages, reduced bundle size.
+- **Database Audit & Optimization** (Task #216) — Comprehensive DB audit: added missing indexes, FK constraints, query optimizations.
+- **Seed Data Deduplication** (Task #215) — Extracted seed data into config files, eliminated duplicate seed definitions.
+- **LLM Models & UI Colors Centralization** (Task #214) — Centralized LLM model constants, UI color tokens, and local storage limits.
+- **Enum & Constants Extraction** (Task #213) — Extracted enums, brand name, and protected emails into `shared/constants.ts`.
+- **User Seed Config Extraction** (Task #212) — Extracted hardcoded user seeds to configuration files.
+- **Skills Audit & Refresh** (Task #211) — Audited and refreshed all 191 skill files for accuracy.
+- **Monolith File Splitting** (Task #210) — Split 5 monolithic files into focused, single-responsibility modules.
+- **Dependency Audit & Cleanup** (Task #209) — Removed unused dependencies, updated outdated packages.
+- **Directory Flattening** (Task #208) — Flattened unnecessary directory nesting for cleaner file structure.
+- **Users Tab Theme Contrast** (Task #207) — Users tab card styling updated for theme-compatible contrast shading.
+- **Research Export Theme Colors** (Task #206) — Threaded theme-aware colors through research PDF and PNG exports.
+- **Reassign User to Entity** (Task #205) — Reassigned Ricardo Cidale to KIT Capital entity.
+- **Discreet Sidebar User Section** (Task #204) — Streamlined sidebar user section for cleaner navigation.
+- **Statement Parity Check** (Task #203) — Added statement parity check script and Export Parity Registry skill.
+- **Users Tab Grid Layout** (Task #202) — Users tab redesigned with 3-column responsive grid.
+- **Financial Statements Parity** (Task #201) — Unified 3-statement PDF exports with consistent formatting.
+- **Logo Redesign** (Task #200) — H+ Analytics logo redesign (modern AI-company aesthetic), then reverted to original flower/petal pattern.
+- **Dashboard Exports Split** (Task #199) — Split `dashboardExports.ts` into focused export modules.
+- **Puppeteer for Premium PDF** (Task #198) — Replaced jsPDF with Puppeteer for premium PDF exports (later superseded by Task #223 @react-pdf/renderer).
 
 ## Changes (March 16, 2026)
 
-- **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic to Gemini 2.5 Flash (65k output tokens). Redesigned PDF rendering with enterprise-quality design: branded section headers, KPI metric cards, warm callout blocks. Added JSON repair fallback for truncated AI responses.
-- **Model Defaults Admin Section** — New "Model Defaults" tab in Admin > Business group. Two sub-tabs: Market & Macro (inflation, cost of equity, days per month, fiscal calendar) and Property Underwriting (expense rates, acquisition/refi financing, depreciation, exit/disposition, default acquisition package). Consolidates all financial seed/default values into one place. Uses GovernedFieldWrapper for IRS/industry-standard values.
-- **Verification Bug Fixes** — Fixed DSCR check (was failing for pre-operational Year 1 properties), fixed Net Income/Cash Flow identity checks (were using naive tax formula ignoring NOL carryforward). Added `incomeTax` to checker engine output.
-- **Multi-Vendor Research LLMs** — Removed Anthropic-only constraint from research engine. Created vendor-agnostic `ResearchClient` abstraction (`server/ai/research-client.ts`) with adapters for Anthropic, OpenAI, and Gemini. Two-model waterfall works across all three vendors. Admin Research Center vendor selector now offers all three options. Stats: 841 source files, ~148K lines.
-- **Settings Elimination & Access Control** (Task #168) — Eliminated General Settings page. Migrated calc transparency + tour toggles to Admin Navigation tab, auto-research to Research Center tab. Company Assumptions restricted to admin-only. Non-admins get read-only Model Inputs panel on Company page. `/settings` redirects role-appropriately. Deleted 5 settings components (−684 lines).
-- **Governance Harmonization** (Task #153) — Created 7 new `.claude/skills/` files. All 13 `.agents/skills/` files converted to slim pointers.
-- **Configuration Architecture Terminology Refresh** (Tasks #180–182) — Standardized vocabulary: "seed defaults" (templates for new properties), "live assumptions" (engine reads directly), "config switches" (UI toggles). Documented dual-residence principle: most financial parameters exist in both Model Defaults (seed) and Company Assumptions (live). Fixed `defaultPropertyTaxRate` (income tax 25%, not property tax 1.2%). Eliminated `/settings` page. Removed CateringSection placeholder. Updated skills: `settings/SKILL.md`, `constants-governance/SKILL.md`.
-- **Settings Architecture Governance** (Task #148) — Superseded by Task #168. Original 3-surface model replaced with 2-surface model (Company Assumptions + Admin).
-- **Property Creation Defaults from Global Assumptions** (Task #147) — `buildPropertyDefaultsFromGlobal()` reads `global_assumptions` for property defaults; hardcoded constants are last-resort fallbacks only.
-- **Settings Consolidation** (Task #146) — ManagementFeesSection is single source for revenue model (service CRUD + incentive + per-property summary). Dead admin tabs removed. General Settings reduced to 3 tabs.
-- **Insurance Removal** — Removed insurance expense from entire codebase. NOI formula is now `IBFC − Property Taxes`. All engines, schemas, UI, tests, and AI knowledge updated.
-- **USALI Income Statement Restructure (All Views)** — Restructured ALL property-level Income Statements to follow USALI 12th Edition order: Revenue → Dept Expenses → Undist Expenses → GOP → Mgmt Fees → AGOP → Fixed Charges → NOI → FF&E → ANOI → Debt Service → Net Income. Applied to: Consolidated IS, Property IS, Property Detail IS tab, Monthly IS, Excel/PDF/Checker exports. NOI uses `engine.noi` directly everywhere. AGOP added to all line charts (#10B981). Company IS intentionally NOT restructured (management company P&L, not property IS). Skill: `.agents/skills/usali-income-statement/SKILL.md`.
-- **USALI Cash Flow Statement Restructure (All Views)** — Applied USALI-aligned expense grouping to all property-level CF statements: CFO expenses split into Departmental → Undistributed → Management Fees (matching IS). Fixed FCF formula bug in Dashboard CF. Added AGOP to Monthly IS. Added ANOI/DSCR to checker CF export. Company CF intentionally NOT restructured. SKILL.md updated with full CF section.
-- **Tooltip & Help Text Enrichment** — Added `formula` prop to `LineItem`, `SubtotalRow`, and `MetricRow` components. Enriched tooltips across income statement, cash flow statement, and company assumption sections with investor-facing descriptions and inline formula display.
-- **USALI 12th Edition Service Consolidation** (Task #136) — Updated SERVICE_HELP descriptions with USALI 12th Edition Schedule 16 references. Renamed "IT" → "IT & Technology" across all UI surfaces.
-- **HBG Business Domain Skills Suite** (Task #137) — Created 8 interconnected SKILL.md files in `.agents/skills/`: hbg-business-model, financial-engine, verification-system, hbg-design-philosophy, integrations-infrastructure, marcela-ai-system, api-backend-contract, hbg-product-vision.
-- **Admin Diagrams Enrichment** (Tasks #138–#140) — Enriched Level 1 Two-Entity Model diagram with fee streams and intercompany elimination detail. Added Level 1 Integration & Infrastructure Map. Added Level 2 Management Company Engine diagram. Replaced Level 2 Financial Pipeline with USALI Income Waterfall diagram.
-- **Fee Category Restructure** (Tasks #108–#109) — Restructured management fee categories and fee schedule UI.
-- **Funding Interest Rate & Accrual** (Task #116) — Interest accrual on funding balances shown on financial statements.
-- **Login Page Redesign + Google Sign-In** (Tasks #63, #131) — New premium login page with Google OAuth integration.
-- **ICP Split: Profile & Research Center** (Task #71) — Ideal Customer Profile split into separate Profile and Research Center pages.
-- **LLM Tab Dual-Model Architecture** (Task #101) — Vendor selection with dual-model config (primary + fallback) in Admin.
-- **DocuSign & Slack Integration Removal** (Tasks #133, #134) — Removed DocuSign and Slack integrations from codebase.
-- **Resend Email Replacement** (Task #68) — Resend replaces SendGrid for all transactional email.
-- **Excel Export Standardization** (Task #112) — All Excel exports use standardized 4-sheet workbook format.
-- **Premium PDF Export Fixes** (Tasks #117, #119) — Fixed PDF rendering and layout issues across export types.
-- **Management Company Rename** (Task #120) — "Management Company" label used consistently throughout UI.
-- **Company Defaults in General Settings** (Tasks #118, #123, #124) — Company-level defaults configurable in Admin General Settings.
-- **Sidebar & Navigation Cleanup** (Tasks #130, #132) — Streamlined sidebar navigation and removed unused routes.
-- **Admin Hardening Phases 1–2C** (Session March 13) — Zod validation on Marcela endpoints, audit trail logging, rate limiting, centralized AI SDK singletons, shared admin hooks.
-- **UI Polish** (Tasks #45–#49, #107) — Consistent card widths, save button placement, left-aligned tabs, tooltip standardization.
-- **Norfolk AI Theme** (Task #84) — Norfolk AI theme preset seeded into theme engine.
-- **Database Integrity Hardening** (Task #80) — Foreign key indexes, composite indexes, constraint enforcement.
-- **Performance: Deterministic Calculations** (Task #64) — Optimized calculation engine for deterministic paths.
+- **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic to Gemini 2.5 Flash. Enterprise-quality PDF design with branded headers, KPI cards, callout blocks.
+- **Model Defaults Admin Section** — New "Model Defaults" tab in Admin > Business group with Market & Macro and Property Underwriting sub-tabs.
+- **Verification Bug Fixes** — Fixed DSCR check for pre-operational Year 1 properties, Net Income/Cash Flow identity checks for NOL carryforward.
+- **Multi-Vendor Research LLMs** — Vendor-agnostic `ResearchClient` with Anthropic, OpenAI, and Gemini adapters.
+- **Settings Elimination & Access Control** (Task #168) — Eliminated General Settings page. Two-surface model: Company Assumptions + Admin.
+- **Governance Harmonization** (Task #153) — 7 new skills, 13 slim pointers.
+- **Configuration Terminology Refresh** (Tasks #180–182) — Standardized "seed defaults", "live assumptions", "config switches" vocabulary.
+- **USALI Restructure** — All property-level IS and CF statements follow USALI 12th Edition order.
+- **Insurance Removal** — Removed insurance expense from entire codebase. NOI = IBFC − Property Taxes.
+- **Fee Category Restructure** (Tasks #108–#109), **Funding Interest** (Task #116), **Login Redesign** (Tasks #63, #131), **ICP Split** (Task #71), **LLM Dual-Model** (Task #101), **DocuSign/Slack Removal** (Tasks #133–134), **Resend Email** (Task #68), **Excel Standardization** (Task #112), **Admin Hardening** (March 13), **Norfolk AI Theme** (Task #84), **DB Integrity** (Task #80), **Deterministic Calcs** (Task #64).
 
 ---
 
@@ -215,7 +220,16 @@ Full reference: `.claude/skills/exports/SKILL.md`. SDD: `.claude/skills/exports/
 
 ## Database Migration Pattern
 
-All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired into `server/index.ts` startup sequence before `seedAdminUser()`. Migration files: `prod-sync-001.ts`, `prod-sync-002.ts`, `research-config-001.ts`, `inflation-per-entity-001.ts`, `companies-theme-001.ts`, `icp-config-001.ts`, `marcela-voice-001.ts`, `property-photos-001.ts`, `documents-001.ts`, `funding-interest-001.ts`, `google-id-001.ts`, `composite-indexes-001.ts`, `auto-research-refresh-001.ts`, `notification-logs-001.ts`, `fk-indexes-001.ts`, `drop-plaid-001.ts`.
+Consolidated Drizzle-managed SQL migrations in `migrations/`. 7 migration files:
+- `0000_brainy_mother_askani.sql` — initial schema
+- `0001_optional_password_hash.sql` — optional password hash
+- `0002_db_integrity_hardening.sql` — FK indexes, composite indexes, constraints
+- `0003_add_business_insurance.sql` — business insurance fields
+- `0004_consolidated_schema.sql` — consolidated schema (all tables)
+- `0005_google_drive_tokens.sql` — Google Drive token storage
+- `0006_add_missing_indexes.sql` — additional performance indexes
+
+Old individual `server/migrations/*.ts` files have been superseded by this consolidated Drizzle migration structure.
 
 ---
 
@@ -230,7 +244,7 @@ All migrations are idempotent SQL scripts in `server/migrations/`. Each is wired
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify + doc harmony (~60s)
-npm run test:summary   # All 3,498 tests, 1-line output (~35s)
+npm run test:summary   # All 3,498 tests, 151 files (~35s)
 npm run verify:summary # 8-phase financial verification (~20s)
 npm run lint:summary   # TypeScript check only (<10s)
 npm run stats          # File/line/test counts (<5s, no vitest)

@@ -2,7 +2,9 @@
 
 ## Overview
 
-This project is a business simulation portal for Hospitality Business Group, modeling a boutique hospitality management company and individual property Special Purpose Vehicles (SPVs). It provides monthly and yearly financial projections, adhering to GAAP standards (ASC 230, ASC 360, ASC 470). The platform aims to offer a premium, bespoke financial analysis experience, supporting detailed financial calculations, reporting, and market intelligence for hospitality assets. The system includes robust testing with a proof system to ensure financial accuracy.
+Business simulation portal for **Hospitality Business Group**. Models a boutique hospitality management company alongside individual property SPVs with monthly and yearly financial projections. GAAP-compliant (ASC 230, ASC 360, ASC 470). 952 source files, ~158K lines, 3,498 tests across 151 test files. Hosted on Replit.
+
+> **Marcela ISOLATED** — Voice agent + ElevenLabs + Twilio phone all gated behind `MARCELA_ISOLATED` flag. Config preserved, zero network calls. Rebecca sole active agent.
 
 ## User Preferences
 
@@ -28,7 +30,7 @@ This project is a business simulation portal for Hospitality Business Group, mod
 The application is built with a React 18 frontend (TypeScript, Wouter, TanStack Query, Zustand, shadcn/ui, Tailwind CSS v4, Recharts, D3.js, framer-motion) and an Express 5 backend (Drizzle ORM, PostgreSQL, Zod).
 
 **Core Design Principles:**
-- **Financial Accuracy:** The highest priority, ensured by a comprehensive proof system with 3,498 tests, including GAAP verification.
+- **Financial Accuracy:** The highest priority, ensured by a comprehensive proof system with 3,498 tests across 151 files, including GAAP verification.
 - **Modular Skills:** The project uses a skill-based architecture (`.claude/skills/`) for managing domain knowledge and context loading.
 - **Theming:** A robust theme engine (Tuscan Olive Grove default, 5 presets) ensures consistent UI appearance, with all components referencing a central theme.
 - **Consistent UI/UX:** Adherence to specific UI patterns (e.g., GlassButton, PageHeader, ExportMenu), consistent button labels ("Save"), and detailed design standards. Every financial line item requires an `InfoTooltip`.
@@ -99,11 +101,11 @@ The application is built with a React 18 frontend (TypeScript, Wouter, TanStack 
 ```bash
 npm run dev            # Start dev server (port 5000)
 npm run health         # tsc + tests + verify + doc harmony (~60s)
-npm run test:summary   # All 3,498 tests, 1-line output (~35s)
+npm run test:summary   # All 3,498 tests, 151 files (~35s)
 npm run verify:summary # 8-phase financial verification (~20s)
 npm run lint:summary   # TypeScript check only (<10s)
-npm run stats          # File/line/test counts (<5s)
-npm run audit:quick    # Code quality check (<3s)
+npm run stats          # File/line/test counts (<5s, no vitest)
+npm run audit:quick    # Code quality: `any`, TODO, console.log (<3s)
 npm run exports:check  # Unused export detection (<5s)
 npm run diff:summary   # Git status + diff stats (<1s)
 npm run db:push        # Push schema changes
@@ -127,3 +129,62 @@ npm run db:push        # Push schema changes
 - **Research/Data APIs:** RapidAPI (Property Finder), FREDService (economic data), HospitalityBenchmarkService (CoStar/STR/AirDNA adapter), Perplexity SDK, Tavily (for GroundedResearchService)
 - **Spreadsheet/Presentation:** xlsx, pptxgenjs (client-side)
 - **Microsoft Office Formats:** DOCX (via server-side rendering logic for premium exports)
+
+## Database Migration Pattern
+
+Consolidated Drizzle-managed SQL migrations in `migrations/`. 7 migration files:
+- `0000_brainy_mother_askani.sql` — initial schema
+- `0001_optional_password_hash.sql` — optional password hash
+- `0002_db_integrity_hardening.sql` — FK indexes, composite indexes, constraints
+- `0003_add_business_insurance.sql` — business insurance fields
+- `0004_consolidated_schema.sql` — consolidated schema (all tables)
+- `0005_google_drive_tokens.sql` — Google Drive token storage
+- `0006_add_missing_indexes.sql` — additional performance indexes
+
+Old individual `server/migrations/*.ts` files have been superseded by this consolidated Drizzle migration structure.
+
+## Recent Changes (March 23, 2026)
+
+- **Premium Overview PDF Polish** (Task #230) — Removed header accent bar, increased font sizes, denser pagination for Overview PDF exports.
+- **Line-Item Detail Toggle Removal** (Task #228) — Removed conflicting line-item detail toggle from export UI.
+- **Premium PDF Theme Compliance** (Task #227) — Removed out-of-theme colors from premium PDF, added LLM design pass for layout hints, dropped Puppeteer dependency for PDF (retained for PNG only).
+- **Hardcoded Green → Theme Tokens** (Task #226) — Replaced all hardcoded green color values with theme CSS variable tokens.
+- **Overview PDF Export & Cover Page Removal** (Task #225) — Fixed Overview tab premium PDF export (multi-page report with KPI cards, projections, portfolio, property insights, USALI waterfall). Cover pages permanently removed from all export formats.
+- **Unified Report Compiler** (Task #224) — Built `server/report/compiler.ts` with single `compileReport()` → `ReportDefinition` IR consumed by all 5 format renderers. No AI calls in any renderer.
+- **Premium PDF Engine Replacement** (Task #223) — Replaced puppeteer-core + AI HTML pipeline with @react-pdf/renderer for premium PDF exports.
+- **Hardcoded Tailwind → Theme Variables** (Task #222) — Replaced hardcoded Tailwind color classes with theme CSS variables throughout UI.
+- **Semantic Theme Colors** (Task #221) — Added success/warning/info semantic color tokens to theme engine. Fixed ExportDialog styling.
+- **Export Settings 3-Column Layout** (Task #220) — Reorganized export settings UI into responsive 3-column grid.
+- **Google Drive Integration Fix** (Task #219) — Fixed missing storage bindings, dev callback, and startup validation for Google Drive.
+- **Google OAuth & Drive Integration** (Task #218) — Added Google OAuth login and Google Drive file storage integration.
+- **Dependency Optimization** (Task #217) — Removed unused npm packages, reduced bundle size.
+- **Database Audit & Optimization** (Task #216) — Comprehensive DB audit: added missing indexes, FK constraints, query optimizations.
+- **Seed Data Deduplication** (Task #215) — Extracted seed data into config files, eliminated duplicate seed definitions.
+- **LLM Models & UI Colors Centralization** (Task #214) — Centralized LLM model constants, UI color tokens, and local storage limits.
+- **Enum & Constants Extraction** (Task #213) — Extracted enums, brand name, and protected emails into `shared/constants.ts`.
+- **User Seed Config Extraction** (Task #212) — Extracted hardcoded user seeds to configuration files.
+- **Skills Audit & Refresh** (Task #211) — Audited and refreshed all 191 skill files for accuracy.
+- **Monolith File Splitting** (Task #210) — Split 5 monolithic files into focused, single-responsibility modules.
+- **Dependency Audit & Cleanup** (Task #209) — Removed unused dependencies, updated outdated packages.
+- **Directory Flattening** (Task #208) — Flattened unnecessary directory nesting for cleaner file structure.
+- **Users Tab Theme Contrast** (Task #207) — Users tab card styling updated for theme-compatible contrast shading.
+- **Research Export Theme Colors** (Task #206) — Threaded theme-aware colors through research PDF and PNG exports.
+- **Reassign User to Entity** (Task #205) — Reassigned Ricardo Cidale to KIT Capital entity.
+- **Discreet Sidebar User Section** (Task #204) — Streamlined sidebar user section for cleaner navigation.
+- **Statement Parity Check** (Task #203) — Added statement parity check script and Export Parity Registry skill.
+- **Users Tab Grid Layout** (Task #202) — Users tab redesigned with 3-column responsive grid.
+- **Financial Statements Parity** (Task #201) — Unified 3-statement PDF exports with consistent formatting.
+- **Logo Redesign** (Task #200) — H+ Analytics logo redesign (modern AI-company aesthetic), then reverted to original flower/petal pattern.
+- **Dashboard Exports Split** (Task #199) — Split `dashboardExports.ts` into focused export modules.
+- **Puppeteer for Premium PDF** (Task #198) — Replaced jsPDF with Puppeteer for premium PDF exports (later superseded by Task #223 @react-pdf/renderer).
+
+## Changes (March 16, 2026)
+
+- **Premium PDF Export Redesign** — Switched premium export AI backend from Anthropic to Gemini 2.5 Flash. Enterprise-quality PDF design with branded headers, KPI cards, callout blocks.
+- **Model Defaults Admin Section** — New "Model Defaults" tab in Admin > Business group with Market & Macro and Property Underwriting sub-tabs.
+- **Verification Bug Fixes** — Fixed DSCR check for pre-operational Year 1 properties, Net Income/Cash Flow identity checks for NOL carryforward.
+- **Multi-Vendor Research LLMs** — Vendor-agnostic `ResearchClient` with Anthropic, OpenAI, and Gemini adapters.
+- **Settings Elimination & Access Control** (Task #168) — Eliminated General Settings page. Two-surface model: Company Assumptions + Admin.
+- **USALI Restructure** — All property-level IS and CF statements follow USALI 12th Edition order.
+- **Insurance Removal** — Removed insurance expense from entire codebase. NOI = IBFC − Property Taxes.
+- **Fee Category Restructure** (Tasks #108–#109), **Funding Interest** (Task #116), **Login Redesign** (Tasks #63, #131), **ICP Split** (Task #71), **LLM Dual-Model** (Task #101), **DocuSign/Slack Removal** (Tasks #133–134), **Resend Email** (Task #68), **Excel Standardization** (Task #112), **Admin Hardening** (March 13), **Norfolk AI Theme** (Task #84), **DB Integrity** (Task #80), **Deterministic Calcs** (Task #64).

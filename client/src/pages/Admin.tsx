@@ -12,7 +12,6 @@ import { IcpContent } from "@/pages/Icp";
 import GroupsTab from "@/components/admin/GroupsTab";
 import LogosTab from "@/components/admin/LogosTab";
 import ThemesTab from "@/components/admin/ThemesTab";
-import IconSetsTab from "@/components/admin/IconSetsTab";
 import ResearchCenterTab from "@/components/admin/ResearchCenterTab";
 import NavigationTab from "@/components/admin/NavigationTab";
 import AIAgentsTab from "@/components/admin/AIAgentsTab";
@@ -42,7 +41,6 @@ const sectionMeta: Record<AdminSection, { title: string; subtitle: string }> = {
   groups:           { title: "Groups",               subtitle: "User groups for branded experiences" },
   scenarios:        { title: "Scenarios",             subtitle: "Manage all scenarios, ownership, and access grants" },
   logos:            { title: "Logos",                 subtitle: "Upload and manage platform logos" },
-  icons:            { title: "Icon Sets",             subtitle: "Browse and select icon libraries" },
   themes:           { title: "Themes",                subtitle: "Color themes and visual identity" },
   exports:          { title: "Exports",               subtitle: "Configure content, orientation, and layout for all report exports" },
   "ai-agents":     { title: "AI Agents",             subtitle: "Configure and manage your AI text assistant" },
@@ -70,7 +68,6 @@ function SectionContent({ section, onNavigate, onSaveStateChange }: { section: A
     case "groups":           return <GroupsTab />;
     case "scenarios":        return <ScenariosTab />;
     case "logos":            return <LogosTab />;
-    case "icons":            return <IconSetsTab />;
     case "themes":           return <ThemesTab />;
     case "exports":          return <ExportsTab />;
     case "notifications":    return <NotificationsTab />;

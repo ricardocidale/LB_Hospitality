@@ -15,6 +15,7 @@ export function buildPdfStylesheet(
   const GR = `#${c.gray}`;
   const ALT = `#${c.altRow}`;
   const SECBG = `#${c.sectionBg}`;
+  const WHITE = `#${c.white}`;
 
   return `
 @page { size: ${pageW} ${pageH}; margin: 0; }
@@ -78,13 +79,13 @@ body {
   display: inline-block;
   font-size: 7pt; font-weight: 700;
   letter-spacing: 3px; color: ${SAGE};
-  border: 1.5px solid rgba(159,188,164,0.5);
+  border: 1.5px solid color-mix(in srgb, ${SAGE} 50%, transparent);
   padding: 2mm 5mm; border-radius: 1.2mm;
   margin-bottom: 10mm;
 }
 .cover-company {
   font-size: ${isL ? "40pt" : "34pt"};
-  font-weight: 800; color: #fff;
+  font-weight: 800; color: ${WHITE};
   letter-spacing: -0.5px; line-height: 1.08;
   margin-bottom: 6mm;
 }
@@ -95,18 +96,18 @@ body {
 }
 .cover-title {
   font-size: ${isL ? "18pt" : "16pt"};
-  color: rgba(255,255,255,0.75);
+  color: color-mix(in srgb, ${WHITE} 75%, transparent);
   font-weight: 400; letter-spacing: 0.3px;
   line-height: 1.4; margin-bottom: 3mm;
 }
 .cover-subtitle {
-  font-size: 11pt; color: rgba(255,255,255,0.5);
+  font-size: 11pt; color: color-mix(in srgb, ${WHITE} 50%, transparent);
   font-weight: 300; margin-bottom: 8mm;
 }
 .cover-meta-card {
   margin-top: 14mm;
-  background: rgba(26,35,50,0.6);
-  border: 1px solid rgba(159,188,164,0.35);
+  background: color-mix(in srgb, ${NAVY} 60%, transparent);
+  border: 1px solid color-mix(in srgb, ${SAGE} 35%, transparent);
   border-radius: 2mm;
   padding: 5mm 6mm;
 }
@@ -119,18 +120,18 @@ body {
   letter-spacing: 2px; color: ${SAGE};
 }
 .cover-meta-value {
-  font-size: 10pt; color: rgba(255,255,255,0.85); font-weight: 500;
+  font-size: 10pt; color: color-mix(in srgb, ${WHITE} 85%, transparent); font-weight: 500;
 }
 .cover-footer {
   position: absolute;
   left: ${isL ? "42mm" : "30mm"};
   right: ${isL ? "42mm" : "30mm"};
   bottom: 7%;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid color-mix(in srgb, ${WHITE} 10%, transparent);
   padding-top: 3mm;
 }
 .cover-footer p {
-  font-size: 7pt; color: rgba(255,255,255,0.35);
+  font-size: 7pt; color: color-mix(in srgb, ${WHITE} 35%, transparent);
   font-style: italic; line-height: 1.6;
 }
 
@@ -140,7 +141,7 @@ body {
   padding: ${isL ? "4mm 22mm 20mm" : "4mm 18mm 20mm"};
   position: relative;
   ${data.densePagination !== false ? "break-inside: avoid; margin-bottom: 6mm;" : "page-break-after: always;"}
-  background: #fff;
+  background: ${WHITE};
   display: flex;
   flex-direction: column;
 }
@@ -165,11 +166,11 @@ body {
 }
 .page-hdr-title {
   font-size: ${isL ? "18pt" : "16pt"};
-  font-weight: 700; color: #fff;
+  font-weight: 700; color: ${WHITE};
   letter-spacing: 0.2px;
 }
 .page-hdr-sub {
-  font-size: 8.5pt; color: rgba(255,255,255,0.55);
+  font-size: 8.5pt; color: color-mix(in srgb, ${WHITE} 55%, transparent);
   margin-top: 1mm; display: block;
   letter-spacing: 0.3px;
 }

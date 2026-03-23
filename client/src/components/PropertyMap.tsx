@@ -19,10 +19,10 @@ function escapeHtml(str: string): string {
 }
 
 const POI_COLORS: Record<string, { color: string; label: string; emoji: string }> = {
-  hotel: { color: "#EF4444", label: "Competing Hotels", emoji: "🏨" },
-  airport: { color: "#3B82F6", label: "Airports", emoji: "✈️" },
-  convention_center: { color: "#8B5CF6", label: "Convention Centers", emoji: "🏛️" },
-  tourist_attraction: { color: "#22C55E", label: "Attractions", emoji: "🎯" },
+  hotel: { color: "hsl(var(--destructive))", label: "Competing Hotels", emoji: "🏨" },
+  airport: { color: "hsl(var(--chart-2))", label: "Airports", emoji: "✈️" },
+  convention_center: { color: "hsl(var(--chart-4))", label: "Convention Centers", emoji: "🏛️" },
+  tourist_attraction: { color: "hsl(var(--primary))", label: "Attractions", emoji: "🎯" },
 };
 
 function makeRasterStyle(): maplibregl.StyleSpecification {
@@ -71,7 +71,7 @@ function createPropertyMarker(): HTMLDivElement {
 }
 
 function createPOIMarker(type: string): HTMLDivElement {
-  const config = POI_COLORS[type] || { color: "#6B7280", emoji: "📍" };
+  const config = POI_COLORS[type] || { color: "hsl(var(--muted-foreground))", emoji: "📍" };
   const el = document.createElement("div");
   el.style.cursor = "pointer";
   el.innerHTML = `
@@ -142,7 +142,7 @@ export default function PropertyMap({ latitude, longitude, propertyName, propert
         .setLngLat([longitude!, latitude!])
         .setPopup(
           new maplibregl.Popup({ offset: 25, closeButton: false })
-            .setHTML(`<div style="font-family:system-ui;padding:4px;"><strong>${escapeHtml(propertyName)}</strong><br/><span style="color:#64748b;font-size:12px;">Your Property</span></div>`)
+            .setHTML(`<div style="font-family:system-ui;padding:4px;"><strong>${escapeHtml(propertyName)}</strong><br/><span style="color:hsl(var(--muted-foreground));font-size:12px;">Your Property</span></div>`)
         )
         .addTo(map);
 
@@ -162,8 +162,8 @@ export default function PropertyMap({ latitude, longitude, propertyName, propert
                 .setHTML(`
                   <div style="font-family:system-ui;padding:4px;">
                     <strong style="font-size:13px;">${escapeHtml(poi.name)}</strong>
-                    <br/><span style="color:#64748b;font-size:11px;">${escapeHtml(poi.vicinity)}</span>
-                    <br/><span style="color:#94a3b8;font-size:11px;">${poi.distance.toFixed(1)} mi away${poi.rating ? ` · ⭐ ${poi.rating}` : ""}</span>
+                    <br/><span style="color:hsl(var(--muted-foreground));font-size:11px;">${escapeHtml(poi.vicinity)}</span>
+                    <br/><span style="color:hsl(var(--muted-foreground));font-size:11px;opacity:0.7;">${poi.distance.toFixed(1)} mi away${poi.rating ? ` · ⭐ ${poi.rating}` : ""}</span>
                   </div>
                 `)
             )

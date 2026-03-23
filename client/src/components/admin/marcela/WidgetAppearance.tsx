@@ -91,7 +91,7 @@ export function WidgetAppearance() {
                   className={`p-3 h-auto rounded-xl border text-left justify-start whitespace-normal transition-all ${d.variant === v.value ? "border-primary bg-muted shadow-sm ring-1 ring-primary/30" : "border-muted-foreground/20 hover:border-border"}`}
                 >
                   <div className="mb-1.5">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-black to-gray-800 flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-foreground to-foreground/70 flex items-center justify-center">
                       <Icon className="w-3.5 h-3.5 text-white" />
                     </div>
                   </div>

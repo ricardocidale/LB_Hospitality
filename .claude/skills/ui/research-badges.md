@@ -23,19 +23,21 @@ import { ResearchBadge } from "@/components/ui/research-badge";
 
 ## Variants
 
+All variants use the `accent-pop` theme variable, ensuring colors adapt to the active theme.
+
 ### `light` — White/Cream Backgrounds
-- **Text**: `text-amber-600`, hover `text-amber-700`
-- **Background**: `bg-amber-50`, hover `bg-amber-100`
-- **Border**: `border-amber-200`
+- **Text**: `text-accent-pop`, hover `text-accent-pop`
+- **Background**: `bg-accent-pop/10`, hover `bg-accent-pop/15`
+- **Border**: `border-accent-pop/20`
 
 ```tsx
 <ResearchBadge value="$350–$450" onClick={() => handleChange("startAdr", "400")} />
 ```
 
 ### `dark` — Glass/Dark Panels
-- **Text**: `text-amber-400`, hover `text-amber-300`
-- **Background**: `bg-amber-500/10`, hover `bg-amber-500/20`
-- **Border**: `border-amber-500/30`
+- **Text**: `text-accent-pop`, hover `text-accent-pop`
+- **Background**: `bg-accent-pop/10`, hover `bg-accent-pop/20`
+- **Border**: `border-accent-pop/30`
 
 ```tsx
 <ResearchBadge variant="dark" value="5.5%–7.0%" onClick={() => handleChange("capRate", "0.0625")} />

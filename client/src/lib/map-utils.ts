@@ -76,12 +76,12 @@ export const formatMoney = (value: number) =>
   }).format(value);
 
 const DSCR_TIER_COLORS = {
-  strong: "#22C55E",
-  moderate: "#EAB308",
-  watch: "#EF4444",
+  strong: "hsl(var(--primary))",
+  moderate: "hsl(var(--accent-pop))",
+  watch: "hsl(var(--destructive))",
 } as const;
 
-export const MARKET_COLOR_INTERNATIONAL = "#3B82F6";
+export const MARKET_COLOR_INTERNATIONAL = "hsl(var(--chart-2))";
 
 export function getPerformanceTier(property: any): { color: string; label: string; tier: string } {
   const noi = property.startAdr * property.roomCount * (property.startOccupancy || 0.6) * 365;
@@ -95,15 +95,15 @@ export function getPerformanceTier(property: any): { color: string; label: strin
 }
 
 const STATUS_COLOR_MAP: Record<string, { bg: string; text: string }> = {
-  [PropertyStatus.OPERATING]: { bg: "#dcfce7", text: "#15803d" },
-  [PropertyStatus.IMPROVEMENTS]: { bg: "#fef3c7", text: "#b45309" },
-  [PropertyStatus.ACQUIRED]: { bg: "#dbeafe", text: "#1d4ed8" },
-  [PropertyStatus.IN_NEGOTIATION]: { bg: "#f3e8ff", text: "#7c3aed" },
-  [PropertyStatus.PIPELINE]: { bg: "#f3f4f6", text: "#374151" },
-  [PropertyStatus.PLANNED]: { bg: "#e0f2fe", text: "#0369a1" },
+  [PropertyStatus.OPERATING]: { bg: "hsl(var(--primary) / 0.15)", text: "hsl(var(--primary))" },
+  [PropertyStatus.IMPROVEMENTS]: { bg: "hsl(var(--accent-pop) / 0.15)", text: "hsl(var(--accent-pop))" },
+  [PropertyStatus.ACQUIRED]: { bg: "hsl(var(--chart-2) / 0.15)", text: "hsl(var(--chart-2))" },
+  [PropertyStatus.IN_NEGOTIATION]: { bg: "hsl(var(--chart-4) / 0.15)", text: "hsl(var(--chart-4))" },
+  [PropertyStatus.PIPELINE]: { bg: "hsl(var(--muted))", text: "hsl(var(--foreground))" },
+  [PropertyStatus.PLANNED]: { bg: "hsl(var(--chart-3) / 0.15)", text: "hsl(var(--chart-3))" },
 };
 
-const STATUS_COLOR_DEFAULT = { bg: "#f3f4f6", text: "#374151" };
+const STATUS_COLOR_DEFAULT = { bg: "hsl(var(--muted))", text: "hsl(var(--foreground))" };
 
 export const statusColor = (status: string) =>
   STATUS_COLOR_MAP[status] ?? STATUS_COLOR_DEFAULT;

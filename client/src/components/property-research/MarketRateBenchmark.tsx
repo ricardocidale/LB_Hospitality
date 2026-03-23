@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "@/components/icons/themed-icons";
 
 const RATE_META: Record<string, { label: string; unit: string; color: string; description: string }> = {
-  sofr: { label: "SOFR", unit: "%", color: "hsl(160, 60%, 45%)", description: "Secured Overnight Financing Rate" },
-  treasury2y: { label: "2Y Treasury", unit: "%", color: "hsl(220, 70%, 55%)", description: "2-Year Treasury Yield" },
-  treasury5y: { label: "5Y Treasury", unit: "%", color: "hsl(280, 55%, 55%)", description: "5-Year Treasury Yield" },
-  treasury10y: { label: "10Y Treasury", unit: "%", color: "hsl(35, 90%, 55%)", description: "10-Year Treasury Yield" },
-  primeRate: { label: "Prime Rate", unit: "%", color: "hsl(0, 65%, 55%)", description: "US Prime Lending Rate" },
+  sofr: { label: "SOFR", unit: "%", color: "hsl(var(--chart-1))", description: "Secured Overnight Financing Rate" },
+  treasury2y: { label: "2Y Treasury", unit: "%", color: "hsl(var(--chart-2))", description: "2-Year Treasury Yield" },
+  treasury5y: { label: "5Y Treasury", unit: "%", color: "hsl(var(--chart-4))", description: "5-Year Treasury Yield" },
+  treasury10y: { label: "10Y Treasury", unit: "%", color: "hsl(var(--accent-pop))", description: "10-Year Treasury Yield" },
+  primeRate: { label: "Prime Rate", unit: "%", color: "hsl(var(--destructive))", description: "US Prime Lending Rate" },
   cpi: { label: "CPI", unit: "", color: "hsl(var(--primary))", description: "Consumer Price Index" },
 };
 

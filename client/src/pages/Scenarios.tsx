@@ -216,7 +216,7 @@ export default function Scenarios() {
         />
 
         {!canManageScenarios && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-sm" data-testid="text-no-scenario-permission">
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-accent-pop/10 border border-accent-pop/20 text-accent-pop text-sm" data-testid="text-no-scenario-permission">
             <IconAlertTriangle className="w-4 h-4 shrink-0" />
             {noPermissionMsg}
           </div>

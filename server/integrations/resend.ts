@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { BaseIntegrationService, type IntegrationHealth } from "./base";
 import { logApiCost } from "../middleware/cost-logger";
+import { resolveThemeColors, adjustHex, type ThemeColorMap } from "../theme-resolver";
 
 interface EmailAttachment {
   content: string;
@@ -103,7 +104,7 @@ class ResendIntegration extends BaseIntegrationService {
       metricsTable = `<table class="metrics"><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
-    const messageSection = params.message ? `<p style="margin:16px 0;color:#475569;">${params.message}</p>` : "";
+    const messageSection = params.message ? `<p style="margin:16px 0;" class="msg">${params.message}</p>` : "";
 
     const html = brandedTemplate(
       `Financial Report: ${params.propertyName}`,
@@ -152,7 +153,7 @@ class ResendIntegration extends BaseIntegrationService {
       .join("");
 
     const table = `<table class="metrics"><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>`;
-    const messageSection = params.message ? `<p style="margin:16px 0;color:#475569;">${params.message}</p>` : "";
+    const messageSection = params.message ? `<p style="margin:16px 0;" class="msg">${params.message}</p>` : "";
 
     const html = brandedTemplate(
       "Scenario Comparison",
@@ -199,7 +200,7 @@ class ResendIntegration extends BaseIntegrationService {
       <p>Welcome to HBG Portal! Your account has been created and you're ready to get started.</p>
       <p>You can log in at any time to access your properties, financial reports, and analytics tools.</p>
       <p style="margin-top:24px;"><a href="${loginLink}" class="btn">Log In to Your Account</a></p>
-      <p style="margin-top:16px;color:#94a3b8;font-size:13px;">If you have any questions, reach out to your account administrator.</p>`
+      <p style="margin-top:16px;" class="hint">If you have any questions, reach out to your account administrator.</p>`
     );
 
     await this.sendEmailInternal({
@@ -221,7 +222,7 @@ class ResendIntegration extends BaseIntegrationService {
       `<p>Hi <strong>${params.userName}</strong>,</p>
       <p>We received a request to reset your password. Click the button below to choose a new password.</p>
       <p style="margin-top:24px;"><a href="${params.resetUrl}" class="btn">Reset Password</a></p>
-      <p style="margin-top:16px;color:#94a3b8;font-size:13px;">This link will expire in ${expiry} minutes. If you didn't request this, you can safely ignore this email.</p>`
+      <p style="margin-top:16px;" class="hint">This link will expire in ${expiry} minutes. If you didn't request this, you can safely ignore this email.</p>`
     );
 
     await this.sendEmailInternal({
@@ -232,22 +233,35 @@ class ResendIntegration extends BaseIntegrationService {
   }
 }
 
-function brandedTemplate(title: string, body: string, companyName = "HBG Portal"): string {
+function brandedTemplate(title: string, body: string, companyName = "HBG Portal", themeColors?: ThemeColorMap): string {
+  const c = themeColors || resolveThemeColors();
+  const navy = `#${c.navy}`;
+  const navyLight = `#${adjustHex(c.navy, 30)}`;
+  const sage = `#${c.sage}`;
+  const border = `#${c.gray}`;
+  const altRow = `#${c.altRow}`;
+  const white = `#${c.white}`;
+  const darkText = `#${c.darkText}`;
+  const lightGray = `#${c.lightGray}`;
+  const accent = `#${c.darkGreen}`;
+
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-body { margin: 0; padding: 0; background: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-.container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; margin-top: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-.header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 32px 40px; text-align: center; }
-.header h1 { color: #fff; font-size: 24px; margin: 0; font-weight: 600; }
-.header p { color: #94a3b8; font-size: 13px; margin: 8px 0 0; }
-.body { padding: 32px 40px; }
-.footer { padding: 24px 40px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
+body { margin: 0; padding: 0; background: ${altRow}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.container { max-width: 600px; margin: 0 auto; background: ${white}; border-radius: 12px; overflow: hidden; margin-top: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.header { background: linear-gradient(135deg, ${navy} 0%, ${navyLight} 100%); padding: 32px 40px; text-align: center; }
+.header h1 { color: ${white}; font-size: 24px; margin: 0; font-weight: 600; }
+.header p { color: ${sage}; font-size: 13px; margin: 8px 0 0; }
+.body { padding: 32px 40px; color: ${darkText}; }
+.footer { padding: 24px 40px; border-top: 1px solid ${border}; text-align: center; color: ${lightGray}; font-size: 12px; }
 table.metrics { width: 100%; border-collapse: collapse; margin: 16px 0; }
-table.metrics th { text-align: left; padding: 8px 12px; background: #f8fafc; border-bottom: 2px solid #e2e8f0; font-size: 13px; color: #64748b; }
-table.metrics td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-.btn { display: inline-block; padding: 10px 24px; background: #3b82f6; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px; }
+table.metrics th { text-align: left; padding: 8px 12px; background: ${altRow}; border-bottom: 2px solid ${border}; font-size: 13px; color: ${sage}; }
+table.metrics td { padding: 8px 12px; border-bottom: 1px solid ${altRow}; font-size: 14px; }
+.btn { display: inline-block; padding: 10px 24px; background: ${accent}; color: ${white}; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px; }
+.msg { color: ${sage}; }
+.hint { color: ${lightGray}; font-size: 13px; }
 </style></head>
 <body>
 <div class="container">

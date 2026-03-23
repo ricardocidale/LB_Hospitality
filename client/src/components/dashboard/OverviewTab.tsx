@@ -273,8 +273,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       }}
                       contentStyle={{ borderRadius: 10, border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', color: 'hsl(var(--foreground))' }}
                     />
-                    <Area type="monotone" dataKey="revenue" fill="url(#revenueGrad)" stroke="hsl(var(--line-1))" strokeWidth={2} dot={{ fill: "hsl(var(--line-1))", stroke: "#fff", strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: "hsl(var(--line-1))", stroke: "#fff", strokeWidth: 2 }} />
-                    <Area type="monotone" dataKey="anoi" fill="url(#anoiGrad)" stroke="hsl(var(--line-2))" strokeWidth={2} dot={{ fill: "hsl(var(--line-2))", stroke: "#fff", strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: "hsl(var(--line-2))", stroke: "#fff", strokeWidth: 2 }} />
+                    <Area type="monotone" dataKey="revenue" fill="url(#revenueGrad)" stroke="hsl(var(--line-1))" strokeWidth={2} dot={{ fill: "hsl(var(--line-1))", stroke: "hsl(var(--card))", strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: "hsl(var(--line-1))", stroke: "hsl(var(--card))", strokeWidth: 2 }} />
+                    <Area type="monotone" dataKey="anoi" fill="url(#anoiGrad)" stroke="hsl(var(--line-2))" strokeWidth={2} dot={{ fill: "hsl(var(--line-2))", stroke: "hsl(var(--card))", strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: "hsl(var(--line-2))", stroke: "hsl(var(--card))", strokeWidth: 2 }} />
                   </AreaChart>
                 ) : (
                   <LineChart data={revenueNOIData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
@@ -289,8 +289,8 @@ export function OverviewTab({ financials, properties, projectionYears, getFiscal
                       }}
                       contentStyle={{ borderRadius: 10, border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))', fontSize: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', color: 'hsl(var(--foreground))' }}
                     />
-                    <Line type="monotone" dataKey="revenue" stroke="hsl(var(--line-1))" strokeWidth={2.5} dot={{ fill: "hsl(var(--line-1))", stroke: "#fff", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5.5, fill: "hsl(var(--line-1))", stroke: "#fff", strokeWidth: 2 }} />
-                    <Line type="monotone" dataKey="anoi" stroke="hsl(var(--line-2))" strokeWidth={2.5} dot={{ fill: "hsl(var(--line-2))", stroke: "#fff", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5.5, fill: "hsl(var(--line-2))", stroke: "#fff", strokeWidth: 2 }} />
+                    <Line type="monotone" dataKey="revenue" stroke="hsl(var(--line-1))" strokeWidth={2.5} dot={{ fill: "hsl(var(--line-1))", stroke: "hsl(var(--card))", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5.5, fill: "hsl(var(--line-1))", stroke: "hsl(var(--card))", strokeWidth: 2 }} />
+                    <Line type="monotone" dataKey="anoi" stroke="hsl(var(--line-2))" strokeWidth={2.5} dot={{ fill: "hsl(var(--line-2))", stroke: "hsl(var(--card))", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5.5, fill: "hsl(var(--line-2))", stroke: "hsl(var(--card))", strokeWidth: 2 }} />
                   </LineChart>
                 )}
               </ResponsiveContainer>

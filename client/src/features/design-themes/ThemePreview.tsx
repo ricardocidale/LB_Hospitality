@@ -269,8 +269,8 @@ export function ThemePreview({ themeName, iconSet = "lucide" }: ThemePreviewProp
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-secondary text-secondary-foreground">Secondary</span>
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground">Muted</span>
             <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">Active</span>
-            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Pending</span>
-            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Declined</span>
+            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-accent-pop/15 text-accent-pop">Pending</span>
+            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-destructive/15 text-destructive">Declined</span>
           </div>
         </div>
 

@@ -15,7 +15,7 @@ const config: Record<Provenance, { label: string; className: string; tooltip: st
   },
   estimated: {
     label: "Estimated",
-    className: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-400",
+    className: "bg-muted text-muted-foreground dark:bg-muted/50 dark:text-muted-foreground",
     tooltip: "AI-generated estimate without external backing",
   },
 };
@@ -42,7 +42,7 @@ export function ProvenanceBadge({
         className={cn("w-1.5 h-1.5 rounded-full", {
           "bg-primary": provenance === "verified",
           "bg-chart-1": provenance === "cited",
-          "bg-zinc-400": provenance === "estimated",
+          "bg-muted-foreground": provenance === "estimated",
         })}
       />
       {c.label}
